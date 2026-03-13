@@ -1,5 +1,5 @@
-# dream-board-mobile
+The official Dream Board Mobile Repo
 
-Repository reset.
+Dream Board Mobile is a social app that aims to bring back the customizability and freedom that was lost
 
-This repo currently contains only a minimal README (and optionally a .gitignore) as a clean starting point.
+    The goal is to make this platform successful. We're deciding to be Open Source because it means that customizability is in the hands of the user
