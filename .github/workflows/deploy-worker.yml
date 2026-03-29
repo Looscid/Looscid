@@ -1,0 +1,18 @@
+name: Deploy Worker
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-worker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy Worker to Cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: fe8d6f5500462206277cad3450ab0eb9
+          command: deploy worker.js --name dbm-api --compatibility-date 2024-01-01
