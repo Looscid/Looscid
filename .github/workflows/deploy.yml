@@ -1,24 +1,18 @@
-name: Deploy to Cloudflare Pages
+name: Validate
 
 on:
   push:
-    branches:
-      - main
-      - preview
-      - dev
+    branches: [main, preview, dev]
 
 jobs:
-  deploy:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: fe8d6f5500462206277cad3450ab0eb9
-          projectName: dream-board-mobile
-          directory: .
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref_name }}
+      - name: Check index.html exists and is valid
+        run: |
+          test -f index.html || (echo "index.html missing" && exit 1)
+          grep -q "Dream Board Mobile" index.html || (echo "Title missing" && exit 1)
+          grep -q "ReactDOM.createRoot" index.html || (echo "React missing" && exit 1)
+          echo "All checks passed - $(wc -l < index.html) lines"
