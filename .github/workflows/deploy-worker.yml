@@ -7,10 +7,14 @@ on:
 jobs:
   deploy-worker:
     runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
+      CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_GLOBAL_KEY }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Deploy Worker to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          apiToken: ${{ secrets.CLOUDFLARE_GLOBAL_KEY }}
+          accountId: fe8d6f5500462206277cad3450ab0eb9
