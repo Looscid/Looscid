@@ -7,14 +7,23 @@ on:
 jobs:
   deploy-worker:
     runs-on: ubuntu-latest
-    env:
-      CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
-      CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_GLOBAL_KEY }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy Worker to Cloudflare
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_GLOBAL_KEY }}
-          accountId: fe8d6f5500462206277cad3450ab0eb9
+      - name: Deploy Worker via Cloudflare API
+        run: |
+          SCRIPT=$(cat worker.js)
+          curl -s -X PUT \
+            "https://api.cloudflare.com/client/v4/accounts/fe8d6f5500462206277cad3450ab0eb9/workers/scripts/dbm-api" \
+            -H "X-Auth-Email: ${{ secrets.CLOUDFLARE_EMAIL }}" \
+            -H "X-Auth-Key: ${{ secrets.CLOUDFLARE_GLOBAL_KEY }}" \
+            -H "Content-Type: application/javascript" \
+            --data-binary "$SCRIPT" | python3 -c "
+import sys,json
+d=json.load(sys.stdin)
+if d.get('success'):
+    print('Worker deployed successfully')
+else:
+    print('Error:', d.get('errors'))
+    sys.exit(1)
+"
