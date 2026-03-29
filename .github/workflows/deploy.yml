@@ -2,7 +2,10 @@ name: Deploy to Cloudflare Pages
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - preview
+      - dev
 
 jobs:
   deploy:
@@ -18,3 +21,4 @@ jobs:
           projectName: dream-board-mobile
           directory: .
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref_name }}
