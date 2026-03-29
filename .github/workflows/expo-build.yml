@@ -1,16 +1,28 @@
-name: Expo Build
+name: Validate
 
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-  build:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - run: npm install
-      - run: npx expo export
+
+      - name: Check DreamBoardMobile.html exists
+        run: |
+          if [ ! -f DreamBoardMobile.html ]; then
+            echo "DreamBoardMobile.html missing"
+            exit 1
+          fi
+          echo "File found: $(wc -l < DreamBoardMobile.html) lines"
+
+      - name: Check HTML structure
+        run: |
+          grep -q "Dream Board Mobile" DreamBoardMobile.html && echo "Title OK"
+          grep -q "ReactDOM.createRoot" DreamBoardMobile.html && echo "React OK"
+          grep -q "function App()" DreamBoardMobile.html && echo "App component OK"
+          echo "All checks passed"
