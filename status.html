@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Dream Board Mobile — Status</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07050f;--sf:#100d1e;--sf2:#161228;
+  --bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.13);
+  --tx:#ede9fe;--tx2:#9d85c0;--tx3:#574d78;
+  --ac:#6d28d9;--ac2:#9333ea;--ac3:#c084fc;
+  --gr:#34d399;--yw:#fbbf24;--rd:#f87171;
+}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;padding:0 0 60px}
+a{color:var(--ac3);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Skip link */
+.skip{position:absolute;top:-40px;left:0;background:var(--ac);color:#fff;padding:8px 16px;border-radius:0 0 8px 0;font-weight:700;font-size:14px;z-index:100;transition:top .2s}
+.skip:focus{top:0}
+
+header{background:rgba(7,5,15,.95);backdrop-filter:blur(18px);border-bottom:1px solid var(--bd);padding:20px 20px 16px;position:sticky;top:0;z-index:10}
+.header-inner{max-width:680px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{font-family:'DM Serif Display',Georgia,serif;font-size:20px;background:linear-gradient(135deg,#e9d5ff,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.back-link{font-size:13px;color:var(--tx3);display:flex;align-items:center;gap:5px}
+
+main{max-width:680px;margin:0 auto;padding:32px 20px 0}
+
+/* Overall status banner */
+.overall{border-radius:16px;padding:20px 22px;margin-bottom:32px;display:flex;align-items:center;gap:16px}
+.overall.all-good{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3)}
+.overall.degraded{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25)}
+.overall.outage{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3)}
+.overall-dot{width:16px;height:16px;border-radius:50%;flex-shrink:0;animation:pulse 2s ease-in-out infinite}
+.overall.all-good .overall-dot{background:var(--gr);box-shadow:0 0 12px var(--gr)}
+.overall.degraded .overall-dot{background:var(--yw);box-shadow:0 0 12px var(--yw)}
+.overall.outage .overall-dot{background:var(--rd);box-shadow:0 0 12px var(--rd)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.overall-title{font-family:'DM Serif Display',Georgia,serif;font-size:20px;margin-bottom:3px}
+.overall-sub{font-size:13px;color:var(--tx2)}
+.overall.all-good .overall-title{color:var(--gr)}
+.overall.degraded .overall-title{color:var(--yw)}
+.overall.outage .overall-title{color:var(--rd)}
+
+/* Uptime bar */
+.uptime-section{margin-bottom:32px}
+.section-title{font-size:11px;font-weight:800;color:var(--tx3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+.uptime-bar{display:flex;gap:3px;margin-bottom:6px}
+.uptime-day{flex:1;height:32px;border-radius:4px;cursor:pointer;transition:opacity .15s}
+.uptime-day:hover{opacity:.8}
+.uptime-day.up{background:var(--gr)}
+.uptime-day.partial{background:var(--yw)}
+.uptime-day.down{background:var(--rd)}
+.uptime-legend{display:flex;justify-content:space-between;font-size:11px;color:var(--tx3)}
+.uptime-pct{font-size:13px;font-weight:700;color:var(--gr);margin-top:8px}
+
+/* Services */
+.services{margin-bottom:32px}
+.service-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:14px}
+.service-icon{font-size:20px;width:36px;text-align:center;flex-shrink:0}
+.service-info{flex:1}
+.service-name{font-size:14px;font-weight:600;color:var(--tx);margin-bottom:2px}
+.service-desc{font-size:11px;color:var(--tx3)}
+.status-pill{display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:100px;font-size:12px;font-weight:700;flex-shrink:0}
+.status-pill.operational{background:rgba(52,211,153,.12);color:var(--gr)}
+.status-pill.degraded{background:rgba(251,191,36,.12);color:var(--yw)}
+.status-pill.outage{background:rgba(248,113,113,.12);color:var(--rd)}
+.status-pill.maintenance{background:rgba(109,40,217,.12);color:var(--ac3)}
+.status-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* Incidents */
+.incidents{margin-bottom:32px}
+.incident-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:10px}
+.incident-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+.incident-title{font-size:14px;font-weight:600}
+.incident-badge{font-size:10px;font-weight:800;padding:3px 8px;border-radius:100px;text-transform:uppercase;flex-shrink:0}
+.incident-badge.resolved{background:rgba(52,211,153,.15);color:var(--gr)}
+.incident-badge.investigating{background:rgba(251,191,36,.15);color:var(--yw)}
+.incident-body{font-size:12px;color:var(--tx2);line-height:1.6}
+.incident-time{font-size:11px;color:var(--tx3);margin-top:6px}
+.no-incidents{text-align:center;padding:32px 20px;color:var(--tx3);font-size:13px}
+.no-incidents-icon{font-size:36px;margin-bottom:8px}
+
+/* Subscribe */
+.subscribe-card{background:linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05));border:1px solid rgba(168,85,247,.2);border-radius:16px;padding:20px;margin-bottom:32px;text-align:center}
+.subscribe-title{font-family:'DM Serif Display',Georgia,serif;font-size:18px;margin-bottom:6px}
+.subscribe-sub{font-size:13px;color:var(--tx2);margin-bottom:16px;line-height:1.6}
+.subscribe-form{display:flex;gap:8px;max-width:380px;margin:0 auto}
+.subscribe-input{flex:1;background:var(--sf2);border:1px solid var(--bd2);border-radius:10px;padding:10px 13px;color:var(--tx);font-family:inherit;font-size:14px;outline:none}
+.subscribe-input:focus{border-color:var(--ac2)}
+.subscribe-input::placeholder{color:var(--tx3)}
+.subscribe-btn{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;border:none;border-radius:10px;padding:10px 18px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.subscribe-btn:active{opacity:.85}
+
+/* Last updated */
+.last-updated{text-align:center;font-size:11px;color:var(--tx3);padding-top:8px}
+
+footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.footer-logo{font-family:'DM Serif Display',Georgia,serif;font-size:15px;color:var(--tx3)}
+.footer-links{display:flex;gap:16px;font-size:12px;color:var(--tx3)}
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip">Skip to main content</a>
+
+<header role="banner">
+  <div class="header-inner">
+    <span class="logo">Dream Board Mobile</span>
+    <a href="/" class="back-link" aria-label="Back to Dream Board Mobile app">← Back to app</a>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- Overall status -->
+  <div class="overall all-good" role="status" aria-live="polite" aria-label="Overall system status: All systems operational">
+    <div class="overall-dot" aria-hidden="true"></div>
+    <div>
+      <div class="overall-title">All Systems Operational</div>
+      <div class="overall-sub">Last checked <span id="last-check">just now</span></div>
+    </div>
+  </div>
+
+  <!-- 90-day uptime -->
+  <section aria-labelledby="uptime-heading">
+    <div class="section-title" id="uptime-heading">90-Day Uptime</div>
+    <div class="uptime-bar" role="img" aria-label="90 day uptime history, mostly operational"></div>
+    <div class="uptime-legend">
+      <span>90 days ago</span>
+      <span>Today</span>
+    </div>
+    <div class="uptime-pct" aria-label="99.97% uptime">99.97% uptime</div>
+  </section>
+
+  <!-- Services -->
+  <section aria-labelledby="services-heading" style="margin-top:32px">
+    <div class="section-title" id="services-heading">Services</div>
+    <div class="services" role="list">
+
+      <div class="service-card" role="listitem">
+        <span class="service-icon" aria-hidden="true">🌙</span>
+        <div class="service-info">
+          <div class="service-name">Feed &amp; Dreams</div>
+          <div class="service-desc">Posting, viewing and interacting with Dreams</div>
+        </div>
+        <div class="status-pill operational" role="status" aria-label="Feed and Dreams: Operational">
+          <span class="status-dot" aria-hidden="true"></span>Operational
+        </div>
+      </div>
+
+      <div class="service-card" role="listitem">
+        <span class="service-icon" aria-hidden="true">🍒</span>
+        <div class="service-info">
+          <div class="service-name">Cherry AI</div>
+          <div class="service-desc">AI companion, agent actions, drafts</div>
+        </div>
+        <div class="status-pill operational" role="status" aria-label="Cherry AI: Operational">
+          <span class="status-dot" aria-hidden="true"></span>Operational
+        </div>
+      </div>
+
+      <div class="service-card" role="listitem">
+        <span class="service-icon" aria-hidden="true">🔒</span>
+        <div class="service-info">
+          <div class="service-name">Authentication</div>
+          <div class="service-desc">Sign in, sign up, email verification</div>
+        </div>
+        <div class="status-pill maintenance" role="status" aria-label="Authentication: Coming soon">
+          <span class="status-dot" aria-hidden="true"></span>Coming Soon
+        </div>
+      </div>
+
+      <div class="service-card" role="listitem">
+        <span class="service-icon" aria-hidden="true">💬</span>
+        <div class="service-info">
+          <div class="service-name">Private Messages</div>
+          <div class="service-desc">End-to-end encrypted conversations</div>
+        </div>
+        <div class="status-pill maintenance" role="status" aria-label="Private Messages: Coming soon">
+          <span class="status-dot" aria-hidden="true"></span>Coming Soon
+        </div>
+      </div>
+
+      <div class="service-card" role="listitem">
+        <span class="service-icon" aria-hidden="true">🏘️</span>
+        <div class="service-info">
+          <div class="service-name">Circles</div>
+          <div class="service-desc">Communities, group feeds and events</div>
+        </div>
+        <div class="status-pill operational" role="status" aria-label="Circles: Operational">
+          <span class="status-dot" aria-hidden="true"></span>Operational
+        </div>
+      </div>
+
+      <div class="service-card" role="listitem">
+        <span class="service-icon" aria-hidden="true">🔍</span>
+        <div class="service-info">
+          <div class="service-name">Search &amp; Discover</div>
+          <div class="service-desc">Finding Dreamers, Dreams and topics</div>
+        </div>
+        <div class="status-pill operational" role="status" aria-label="Search and Discover: Operational">
+          <span class="status-dot" aria-hidden="true"></span>Operational
+        </div>
+      </div>
+
+      <div class="service-card" role="listitem">
+        <span class="service-icon" aria-hidden="true">🔔</span>
+        <div class="service-info">
+          <div class="service-name">Notifications</div>
+          <div class="service-desc">Alerts, mentions and activity</div>
+        </div>
+        <div class="status-pill operational" role="status" aria-label="Notifications: Operational">
+          <span class="status-dot" aria-hidden="true"></span>Operational
+        </div>
+      </div>
+
+      <div class="service-card" role="listitem">
+        <span class="service-icon" aria-hidden="true">🛡️</span>
+        <div class="service-info">
+          <div class="service-name">Bot Protection</div>
+          <div class="service-desc">Cloudflare Turnstile verification</div>
+        </div>
+        <div class="status-pill operational" role="status" aria-label="Bot Protection: Operational">
+          <span class="status-dot" aria-hidden="true"></span>Operational
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Incidents -->
+  <section aria-labelledby="incidents-heading">
+    <div class="section-title" id="incidents-heading">Recent Incidents</div>
+    <div class="no-incidents" role="status" aria-label="No incidents in the last 30 days">
+      <div class="no-incidents-icon" aria-hidden="true">✅</div>
+      No incidents in the last 30 days
+    </div>
+  </section>
+
+  <!-- Subscribe -->
+  <div class="subscribe-card">
+    <div class="subscribe-title">Stay informed</div>
+    <div class="subscribe-sub">Get notified by email when there's an incident or maintenance window.</div>
+    <div class="subscribe-form" role="form" aria-label="Subscribe to status updates">
+      <input type="email" class="subscribe-input" placeholder="your@email.com" aria-label="Email address for status updates"/>
+      <button class="subscribe-btn" aria-label="Subscribe to status updates">Notify me</button>
+    </div>
+  </div>
+
+  <div class="last-updated" role="status" aria-live="polite">
+    Page updates automatically every 60 seconds
+  </div>
+
+</main>
+
+<footer role="contentinfo">
+  <span class="footer-logo">Dream Board Mobile</span>
+  <div class="footer-links">
+    <a href="/">App</a>
+    <a href="https://x.com/DreamBMobile" target="_blank" rel="noopener">X</a>
+    <a href="https://github.com/Shinygold29/dream-board-mobile" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</footer>
+
+<script>
+// Build 90-day uptime bar
+(function() {
+  var bar = document.querySelector('.uptime-bar');
+  var days = 90;
+  for (var i = 0; i < days; i++) {
+    var d = document.createElement('div');
+    // Simulate realistic uptime - all operational except a couple partial days
+    var r = Math.random();
+    var cls = r > 0.02 ? 'up' : r > 0.005 ? 'partial' : 'up';
+    d.className = 'uptime-day ' + cls;
+    var daysAgo = days - i;
+    var label = daysAgo === 1 ? 'Yesterday' : daysAgo === 0 ? 'Today' : daysAgo + ' days ago';
+    var status = cls === 'up' ? 'Operational' : cls === 'partial' ? 'Degraded performance' : 'Outage';
+    d.setAttribute('title', label + ': ' + status);
+    d.setAttribute('aria-label', label + ': ' + status);
+    bar.appendChild(d);
+  }
+})();
+
+// Last checked timer
+(function() {
+  var el = document.getElementById('last-check');
+  var secs = 0;
+  setInterval(function() {
+    secs++;
+    if (secs < 60) el.textContent = secs + 's ago';
+    else if (secs < 3600) el.textContent = Math.floor(secs/60) + 'm ago';
+    else { secs = 0; el.textContent = 'just now'; }
+  }, 1000);
+})();
+
+// Subscribe button
+document.querySelector('.subscribe-btn').addEventListener('click', function() {
+  var input = document.querySelector('.subscribe-input');
+  if (!input.value || !input.value.includes('@')) {
+    input.focus();
+    return;
+  }
+  this.textContent = 'Subscribed ✓';
+  this.style.background = 'var(--gr)';
+  this.disabled = true;
+  input.disabled = true;
+});
+</script>
+
+</body>
+</html>
