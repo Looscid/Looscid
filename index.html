@@ -5460,7 +5460,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       React.createElement('button', {className:"mclose-btn mclose-top",onClick:onClose,"aria-label":"Close menu"}, "\u2715  Close"),
 
       SECTIONS.map(function(s) {
-        var sOpen = !collapsed[s.id];
+        var sOpen = isOpen(s.id);
         return React.createElement(React.Fragment, {key:s.id},
 
           React.createElement('h2', {className:"msec-hdr",style:{padding:0}},
