@@ -20,6 +20,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <!-- Babel not needed: JSX pre-compiled -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
@@ -4498,7 +4499,7 @@ function GoogleLogo() {
 function TurnstileGate({ onVerified }) {
   const ref = useRef(null);
   const widgetId = useRef(null);
-  const SITE_KEY = "0x4AAAAAAA_REPLACE_WITH_YOUR_TURNSTILE_KEY";
+  const SITE_KEY = "0x4AAAAAACxoyBMMPPQWjTcm";
   useEffect(() => {
     const tryRender = () => {
       if (typeof turnstile === "undefined") { setTimeout(tryRender, 300); return; }
