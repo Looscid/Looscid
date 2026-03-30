@@ -777,7 +777,7 @@ function CommentItem({cm}) {
           {ic:"🔕", l:"Remove from Comment", sub:"Remove your @mention from this comment", a:()=>setShowOpts(false)},
           "---",
           {ic:"🔇", l:"Mute @"+cm.user.handle.replace("@",""), sub:"Stop seeing their content", a:()=>setShowOpts(false)},
-          {ic:"🚫", l:"Block @"+cm.user.handle.replace("@",""), sub:"Block this Dreamer", a:()=>setShowOpts(false), danger:true},
+          {ic:"🚫", l:"Block @"+cm.user.handle.replace("@",""), sub:"Block this Dreamor", a:()=>setShowOpts(false), danger:true},
           {ic:"🚩", l:"Report Comment", sub:"Flag for review", a:()=>setShowOpts(false), danger:true},
         ],})
       )
@@ -926,7 +926,7 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
           {ic:"📤", l:"Share Dream", sub:"Share outside Dream Board Mobile", a:()=>setShowDreamOpts(false)},
           {ic:"👤", l:"View @"+dream.user.handle.replace("@","")+"'s Profile", a:()=>{setShowDreamOpts(false);navigate("dp",dream.user);}},
           {ic:"🔇", l:"Mute @"+dream.user.handle.replace("@",""), sub:"Stop seeing their Dreams in your feed", a:()=>setShowDreamOpts(false)},
-          {ic:"🚫", l:"Block @"+dream.user.handle.replace("@",""), sub:"Block this Dreamer", a:()=>setShowDreamOpts(false), danger:true},
+          {ic:"🚫", l:"Block @"+dream.user.handle.replace("@",""), sub:"Block this Dreamor", a:()=>setShowDreamOpts(false), danger:true},
           "---",
           {ic:"🚩", l:"Report Dream", sub:"Flag this Dream for review", a:()=>setShowDreamOpts(false), danger:true},
         ],})
@@ -1048,7 +1048,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
           {ic:"📤", l:"Share Dream", sub:"Share outside Dream Board Mobile", a:()=>setShowOpts(false)},
           {ic:"👤", l:"View @"+dream.user.handle.replace("@","")+"'s Profile", a:()=>{setShowOpts(false);navigate("dp",dream.user);}},
           {ic:"🔇", l:"Mute @"+dream.user.handle.replace("@",""), sub:"Stop seeing their Dreams in your feed", a:()=>setShowOpts(false)},
-          {ic:"🚫", l:"Block @"+dream.user.handle.replace("@",""), sub:"Block this Dreamer", a:()=>setShowOpts(false), danger:true},
+          {ic:"🚫", l:"Block @"+dream.user.handle.replace("@",""), sub:"Block this Dreamor", a:()=>setShowOpts(false), danger:true},
           "---",
           {ic:"🏷️", l:"Remove from Dream", sub:"Remove your @mention from this Dream", a:()=>setShowOpts(false)},
           {ic:"🚩", l:"Report Dream", sub:"Flag this Dream for review", a:()=>setShowOpts(false), danger:true},
@@ -1125,8 +1125,8 @@ function FeedPage({navigate, prefs, cherryCtx}) {
         React.createElement('div', { className: "es",}
           , React.createElement('div', { className: "esi",}, "🤝")
           , React.createElement('div', { className: "esl",}, "No Friends yet"  )
-          , React.createElement('p', { style: {fontSize:13,color:"var(--tx3)",marginTop:6,lineHeight:1.6,maxWidth:240,textAlign:"center"},}, "Friends are Dreamers who follow each other."      )
-          , cherryCtx && React.createElement('button', { className: "cherry-ctx-btn", style: {margin:"10px auto 0",display:"flex"}, onClick: ()=>cherryCtx.openCherry("Who should I follow?"), 'aria-label': "Ask Cherry to find friends"    ,}, "🍒 Ask Cherry to find Dreamers"     )
+          , React.createElement('p', { style: {fontSize:13,color:"var(--tx3)",marginTop:6,lineHeight:1.6,maxWidth:240,textAlign:"center"},}, "Friends are Dreamors who follow each other."      )
+          , cherryCtx && React.createElement('button', { className: "cherry-ctx-btn", style: {margin:"10px auto 0",display:"flex"}, onClick: ()=>cherryCtx.openCherry("Who should I follow?"), 'aria-label': "Ask Cherry to find friends"    ,}, "🍒 Ask Cherry to find Dreamors"     )
         )
       )
       , visible.map((d,idx) => (
@@ -1162,7 +1162,7 @@ function DiscoverPage({navigate, cherryCtx}) {
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const activeTabs = q ? ["all","dreamers","dreams","circles"] : ["trending","dreamers","circles"];
-  const tabLabel = t => ({all:"All",dreamers:"Dreamers",dreams:"Dreams",circles:"Circles",trending:"Trending"}[t]||t);
+  const tabLabel = t => ({all:"All",dreamers:"Dreamors",dreams:"Dreams",circles:"Circles",trending:"Trending"}[t]||t);
 
   const FILTER_OPTS = [
     {id:"dreams",    label:"Dreams",     icon:"\u270f\ufe0f", group:"content"},
@@ -1195,7 +1195,7 @@ function DiscoverPage({navigate, cherryCtx}) {
 
   const filterGroups = [
     {label:"Content",  opts:FILTER_OPTS.filter(f=>f.group==="content")},
-    {label:"Dreamers", opts:FILTER_OPTS.filter(f=>f.group==="dreamers")},
+    {label:"Dreamors", opts:FILTER_OPTS.filter(f=>f.group==="dreamers")},
     {label:"Time",     opts:FILTER_OPTS.filter(f=>f.group==="time")},
   ];
 
@@ -1390,7 +1390,7 @@ function DiscoverPage({navigate, cherryCtx}) {
 
         (tab==="circles"||tab==="all") && circleResults.map(g =>
           React.createElement('div', {key:g.id, className:"ci",
-            "aria-label":g.name+" Circle, "+fmt(g.members)+" Dreamers",
+            "aria-label":g.name+" Circle, "+fmt(g.members)+" Dreamors",
           },
             React.createElement('div', {style:{width:44,height:44,borderRadius:11,background:"var(--sf2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}, g.emoji),
             React.createElement('div', {className:"cif"},
@@ -1701,7 +1701,7 @@ function CreateGroupFlow({onClose, navigate}) {
             )
           ))
           , React.createElement('h2', { className: "slbl", style: {padding:"12px 0 8px"}, role: "heading", 'aria-level': "2",}, "Moderation")
-          , [{k:"joinApproval",l:"Approve new Dreamers",d:"Review and approve each join request"},{k:"postApproval",l:"Approve posts",d:"Dreams require admin approval before publishing"},{k:"minAge",l:"18+ only",d:"Restrict group to adult Dreamers"}].map(r=>(
+          , [{k:"joinApproval",l:"Approve new Dreamors",d:"Review and approve each join request"},{k:"postApproval",l:"Approve posts",d:"Dreams require admin approval before publishing"},{k:"minAge",l:"18+ only",d:"Restrict group to adult Dreamers"}].map(r=>(
             React.createElement('div', { key: r.k, className: "sr",}
               , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, r.l), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3},}, r.d))
               , React.createElement(Cbx, { on: form[r.k], onToggle: ()=>set(r.k,!form[r.k]), label: r.l,})
@@ -2012,7 +2012,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
           , React.createElement('div', { style: {flex:1},}
             , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.55,marginBottom:8},}, group.description)
             , React.createElement('div', { style: {display:"flex",gap:12,flexWrap:"wrap",marginBottom:10},}
-              , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "👥"), group.members.toLocaleString(), " Dreamers" )
+              , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "👥"), group.members.toLocaleString(), " Dreamors" )
               , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "🏷️"), group.category)
               , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "🌍"), group.id===1||group.id===4?"Public":"Private")
               , isAdmin&&React.createElement('span', { style: {fontSize:10,background:"rgba(245,158,11,.15)",color:"#f59e0b",padding:"1px 7px",borderRadius:100,fontWeight:700},}, "★ Admin" )
@@ -2378,7 +2378,7 @@ function ProfilePage({navigate}) {
 
 /* --- DREAMER PROFILE --------------------- */
 function DreamerProfilePage({user, navigate, cherryCtx}) {
-  user = user ? {id:user.id||0, name:user.name||user.displayName||"Dreamer", handle:user.handle||"@dreamer", initials:user.initials||(user.name||user.displayName||"D").slice(0,2).toUpperCase(), color:user.color||"#6d28d9", bio:user.bio||"", location:user.location||"", website:user.website||"", joined:user.joined||"", dreamCount:user.dreamCount||0, followers:user.followers||0, following:user.following||0, verified:!!user.verified} : {name:"Dreamer",handle:"@dreamer",initials:"D",color:"#6d28d9",bio:"",dreamCount:0,followers:0,following:0};
+  user = user ? {id:user.id||0, name:user.name||user.displayName||"Dreamor", handle:user.handle||"@dreamer", initials:user.initials||(user.name||user.displayName||"D").slice(0,2).toUpperCase(), color:user.color||"#6d28d9", bio:user.bio||"", location:user.location||"", website:user.website||"", joined:user.joined||"", dreamCount:user.dreamCount||0, followers:user.followers||0, following:user.following||0, verified:!!user.verified} : {name:"Dreamor",handle:"@dreamer",initials:"D",color:"#6d28d9",bio:"",dreamCount:0,followers:0,following:0};
   const [following, setFollowing] = useState(false);
   const [tab, setTab] = useState("dreams");
   const [showOpts, setShowOpts] = useState(false);
@@ -2474,7 +2474,7 @@ function DreamerProfilePage({user, navigate, cherryCtx}) {
       , showOpts && (
         React.createElement(BottomMenu, { onClose: ()=>setShowOpts(false), title: user.name, items: [
           {ic:"🔇", l:"Mute "+user.handle, sub:"Stop seeing their Dreams", a:()=>setShowOpts(false)},
-          {ic:"🚫", l:"Block "+user.handle, danger:true, sub:"Block this Dreamer", a:()=>setShowOpts(false)},
+          {ic:"🚫", l:"Block "+user.handle, danger:true, sub:"Block this Dreamor", a:()=>setShowOpts(false)},
           {ic:"🚩", l:"Report Dreamer", danger:true, sub:"Flag this account for review", a:()=>setShowOpts(false)},
         ],})
       )
@@ -2730,7 +2730,7 @@ function AccountSettings({navigate, authUser, onSignOut}) {
             , React.createElement('div', { className: "sr", style: {cursor:"pointer"}, onClick: ()=>setShow2FA(false)||alert("Edit name: coming soon"),}
               , React.createElement('div', null
                 , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,textTransform:"uppercase",letterSpacing:".04em",marginBottom:2},}, "Display Name")
-                , React.createElement('div', { className: "sr-title",}, authUser.displayName||"Dreamer")
+                , React.createElement('div', { className: "sr-title",}, authUser.displayName||"Dreamor")
               )
               , React.createElement('span', { style: {fontSize:12,color:"var(--ac3)",fontWeight:600},}, "Edit")
             )
@@ -3175,7 +3175,7 @@ function CherrySettings({navigate, prefs, setPrefs, activeAI, setActiveAI}) {
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Suggestions")
         , [
           {k:"groupSugg",l:"Group Suggestions",d:"Cherry recommends Groups to join"},
-          {k:"followerSugg",l:"Dreamer Suggestions",d:"Cherry suggests Dreamers to follow"},
+          {k:"followerSugg",l:"Dreamor Suggestions",d:"Cherry suggests Dreamors to follow"},
           {k:"trendSugg",l:"Trending Topics",d:"Cherry highlights trending content"},
           {k:"dreamSugg",l:"Dream Prompts",d:"Cherry offers writing prompts when composing"},
         ].map(r => (
@@ -5473,7 +5473,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"ℹ️", label:"About",            sub:"Version, credits, open source", action(){onClose();navigate("settings_about");} },
       { icon:"📜", label:"Terms of Service", sub:"Our rules and your rights",     action(){onClose();navigate("terms");} },
       { icon:"🔐", label:"Privacy Policy",   sub:"How we protect your data",      action(){onClose();navigate("privacy");} },
-      { icon:"📋", label:"Community Rules",  sub:"Guidelines for all Dreamers",   action(){onClose();navigate("guidelines");} },
+      { icon:"📋", label:"Circle Rules",  sub:"Guidelines for all Dreamors",   action(){onClose();navigate("guidelines");} },
     ]},
     { id:"findus", emoji:"📱", label:"Find Us", items:[
       { icon:"🌙", label:"@DreamBMobile on Dream Board", sub:"The official account. On our own app.",      href:"https://dreamboard.app/@DreamBMobile" },
@@ -5604,7 +5604,7 @@ function DreamLabsPage({ navigate, authUser }) {
     {id:"age13",    label:"Must be 13 or older",               done:checks.age13,    blocked:isKid,  desc:"Dream Pioneers is only open to Dreamers aged 13 and up."},
     {id:"days30",   label:"Account must be at least 30 days old", done:checks.days30, blocked:false,  desc: ageDays>=30 ? "Your account is "+ageDays+" days old." : "Your account is "+ageDays+" day"+(ageDays===1?"":"s")+" old. "+Math.max(0,30-ageDays)+" day"+(30-ageDays===1?"":"s")+" to go."},
     {id:"hasDream", label:"Post at least one Dream",            done:checks.hasDream, blocked:false,  desc: (ME.dreamCount||0)>=1 ? "You have "+(ME.dreamCount||0)+" Dream"+((ME.dreamCount||0)===1?"":"s")+"." : "Share at least one Dream before applying."},
-    {id:"follow3",  label:"Follow at least 3 Dreamers",        done:checks.hasFollow,blocked:false,  desc: (ME.following||0)>=3 ? "You follow "+(ME.following||0)+" Dreamers." : "Follow at least 3 Dreamers. Helps us know you're here to connect, not spam."},
+    {id:"follow3",  label:"Follow at least 3 Dreamors",        done:checks.hasFollow,blocked:false,  desc: (ME.following||0)>=3 ? "You follow "+(ME.following||0)+" Dreamers." : "Follow at least 3 Dreamors. Helps us know you're here to connect, not spam."},
     {id:"emailOk",  label:"Verified email on your account",    done:checks.emailOk,  blocked:false,  desc: checks.emailOk ? "Your email is set." : "Add a verified email in Settings \u2192 Account."},
     {id:"notKid",   label:"Not a parent-managed account",      done:checks.notKid,   blocked:isKid,  desc:"Accounts under parental controls are excluded from Dream Pioneers."},
   ];
