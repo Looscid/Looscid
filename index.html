@@ -21,6 +21,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <!-- Babel not needed: JSX pre-compiled -->
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
@@ -4422,6 +4423,19 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
 }
 
 
+/* --- SUPABASE CONFIG ---------------------------------------------------- */
+const SUPABASE_URL = "https://zlwfrfrrxeeijthrnajc.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpsd2ZyZnJyeGVlaWp0aHJuYWpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5MDAyMTgsImV4cCI6MjA5MDQ3NjIxOH0.S570lGyLpmid5xxRKbDgEM6V4VEH12951BjfxBNLO_Y";
+
+// Initialize Supabase client
+var dbm_supabase = null;
+function getSupabase() {
+  if (!dbm_supabase && typeof supabase !== "undefined") {
+    dbm_supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+  return dbm_supabase;
+}
+
 /* --- FIREBASE CONFIG -----------------------------------------------------
    Replace placeholder values with your Firebase project config.
    Find them in: Firebase Console > Project Settings > Your Apps > SDK setup
@@ -4678,15 +4692,25 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
     if (!email.trim()) { setErr("Please enter your email."); return; }
     if (!pw) { setErr("Please enter your password."); return; }
     setBusy(true); setErr("");
-    const auth = getFirebaseAuth();
-    if (!auth) { const isAdm=email.trim()==="admin@dreamboard.app"&&pw==="Admin_Tab100*"; onAuth({displayName:isAdm?"Admin":"Test User",name:isAdm?"Admin":"Test User",handle:isAdm?"@2three1y":"@testuser",initials:isAdm?"AD":"TU",color:"#6d28d9",bio:"",location:"",joined:"2024",dreamCount:0,followers:0,following:0,verified:isAdm,isAdmin:isAdm,email,emailVerified:true,uid:isAdm?"admin_2three1y":"test"}); return; }
+    const sb = getSupabase();
+    if (!sb) { setErr("Connection error. Please try again."); setBusy(false); return; }
     try {
-      const cred = await auth.signInWithEmailAndPassword(email.trim(), pw);
-      if (!cred.user.emailVerified) { await auth.signOut(); setErr("Please verify your email first. Check your inbox."); }
-      else onAuth(cred.user);
+      const { data, error } = await sb.auth.signInWithPassword({ email: email.trim(), password: pw });
+      if (error) {
+        const map = { "Invalid login credentials":"Incorrect email or password.", "Email not confirmed":"Please verify your email first. Check your inbox." };
+        setErr(map[error.message] || error.message);
+        setBusy(false); return;
+      }
+      if (!data.user.email_confirmed_at) {
+        await sb.auth.signOut();
+        setErr("Please verify your email first. Check your inbox.");
+        setBusy(false); return;
+      }
+      // Fetch profile
+      const { data: profile } = await sb.from("profiles").select("*").eq("id", data.user.id).single();
+      onAuth({ ...data.user, ...profile, displayName: profile ? profile.display_name : data.user.email, handle: profile ? "@"+profile.username : "@dreamer" });
     } catch(e) {
-      const map = { "auth/user-not-found":"No account with that email.", "auth/wrong-password":"Incorrect password.", "auth/invalid-email":"Invalid email address.", "auth/too-many-requests":"Too many attempts. Try again later." };
-      setErr(map[e.code] || "Sign in failed. Please try again.");
+      setErr("Sign in failed. Please try again.");
     }
     setBusy(false);
   };
@@ -4743,19 +4767,26 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
     if (!agreedTerms) { setErr("Please agree to the terms to continue."); return; }
     setAnalyticsConsent(crashConsent ? "yes" : "no");
     setBusy(true); setErr("");
-    const auth = getFirebaseAuth();
-    if (!auth) {
-      onAuth({ displayName, email:signupEmail, emailVerified:true, uid:"new-"+Date.now() });
-      return; // component unmounts after onAuth, do not setState
-    }
+    const sb = getSupabase();
+    if (!sb) { setErr("Connection error. Please try again."); setBusy(false); return; }
     try {
-      const cred = await auth.createUserWithEmailAndPassword(signupEmail.trim(), signupPw);
-      await cred.user.updateProfile({ displayName });
-      await cred.user.sendEmailVerification();
+      const uname = (username.startsWith("@") ? username.slice(1) : username).toLowerCase();
+      const { data, error } = await sb.auth.signUp({
+        email: signupEmail.trim(),
+        password: signupPw,
+        options: {
+          data: { display_name: displayName, username: uname },
+          emailRedirectTo: "https://dream-board-mobile.pages.dev"
+        }
+      });
+      if (error) {
+        const map = { "User already registered":"That email is already registered." };
+        setErr(map[error.message] || error.message);
+        setBusy(false); return;
+      }
       setMode("verify");
     } catch(e) {
-      const map = { "auth/email-already-in-use":"That email is already registered.", "auth/weak-password":"Password must be at least 6 characters.", "auth/invalid-email":"Invalid email address." };
-      setErr(map[e.code] || "Could not create account. Please try again.");
+      setErr("Could not create account. Please try again.");
     }
     setBusy(false);
   };
@@ -5853,14 +5884,40 @@ function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
-    const auth = getFirebaseAuth();
-    if (!auth) { setAuthStage("splash"); return; }
-    const unsub = auth.onAuthStateChanged(user => {
-      if (user && user.emailVerified) { setAuthUser(user); setAuthStage("app"); }
-      else if (user && !user.emailVerified) { auth.signOut(); setAuthStage("auth"); }
-      else { setAuthStage(prev => prev === "gate" ? "gate" : "auth"); }
+    const sb = getSupabase();
+    if (!sb) { setAuthStage("splash"); return; }
+    // Check existing session
+    sb.auth.getSession().then(function(result) {
+      var session = result.data.session;
+      if (session && session.user && session.user.email_confirmed_at) {
+        sb.from("profiles").select("*").eq("id", session.user.id).single().then(function(pResult) {
+          var profile = pResult.data;
+          setAuthUser(Object.assign({}, session.user, profile || {}, {
+            displayName: profile ? profile.display_name : session.user.email,
+            handle: profile ? "@"+profile.username : "@dreamer"
+          }));
+          setAuthStage("app");
+        });
+      } else {
+        setAuthStage("splash");
+      }
     });
-    return unsub;
+    // Listen for auth changes
+    var sub = sb.auth.onAuthStateChange(function(event, session) {
+      if (event === "SIGNED_IN" && session && session.user.email_confirmed_at) {
+        sb.from("profiles").select("*").eq("id", session.user.id).single().then(function(pResult) {
+          var profile = pResult.data;
+          setAuthUser(Object.assign({}, session.user, profile || {}, {
+            displayName: profile ? profile.display_name : session.user.email,
+            handle: profile ? "@"+profile.username : "@dreamer"
+          }));
+          setAuthStage("app");
+        });
+      } else if (event === "SIGNED_OUT") {
+        setAuthUser(null); setAuthStage("splash");
+      }
+    });
+    return function() { if (sub && sub.data) sub.data.subscription.unsubscribe(); };
   }, []);
 
   useEffect(() => {
@@ -5910,9 +5967,9 @@ useEffect(() => {
   }, [authStage]);
 
   const handleSignOut = useCallback(async () => {
-    const auth = getFirebaseAuth();
-    if (auth) await auth.signOut();
-    setAuthUser(null); setAuthStage("auth");
+    const sb = getSupabase();
+    if (sb) await sb.auth.signOut();
+    setAuthUser(null); setAuthStage("splash");
   }, []);
 
 
