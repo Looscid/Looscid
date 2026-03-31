@@ -15,6 +15,10 @@
   </script>
 
 <meta charset="UTF-8"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://challenges.cloudflare.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com;"/>
+<meta http-equiv="X-Content-Type-Options" content="nosniff"/>
+<meta http-equiv="X-Frame-Options" content="DENY"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>Dream Board Mobile</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
@@ -428,10 +432,10 @@ const GROUPS = [
 ];
 
 const TRENDING = [
-  {tag:"CroissantGate",cat:"Trending",count:"61.4K Dreams"},
-  {tag:"TuesdayCooking",cat:"Trending",count:"29.8K Dreams"},
-  {tag:"NowPlaying",cat:"Music",count:"18.2K Dreams"},
-  {tag:"TechBuilds",cat:"Technology",count:"12.7K Dreams"},
+  {tag:"CroissantGate",cat:"Trending",count:"61,400 Dreams"},
+  {tag:"TuesdayCooking",cat:"Trending",count:"29,800 Dreams"},
+  {tag:"NowPlaying",cat:"Music",count:"18,200 Dreams"},
+  {tag:"TechBuilds",cat:"Technology",count:"12,700 Dreams"},
 ];
 
 const SORT_OPTIONS = [
@@ -489,7 +493,7 @@ function markDigestSeen() { try { localStorage.setItem(DIGEST_KEY, String(Date.n
 
 
 /* --- HELPERS ----------------------------- */
-const fmt = n => n == null ? "0" : n >= 1000000 ? (n/1000000).toFixed(1).replace(/\.0$/,"")+"M" : n >= 10000 ? n.toLocaleString() : n >= 1000 ? n.toLocaleString() : String(n);
+const fmt = n => n == null ? "0" : Number(n).toLocaleString();
 
 function getLinkInfo(text) {
   if (/youtube\.com/i.test(text)) return {type:"youtube",domain:"youtube.com"};
@@ -3508,9 +3512,9 @@ function AboutSettings({navigate}) {
         , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginBottom:20},}, "Version 1.0.0 — Build 2026.02"    )
       )
       , [
-        {l:"Terms of Service",icon:"📄",a:()=>navigate("terms")},
-        {l:"Privacy Policy",icon:"🔒",a:()=>navigate("privacy")},
-        {l:"Community Guidelines",icon:"📋",a:()=>navigate("guidelines")},
+        {l:"Terms",icon:"📄",a:()=>navigate("terms")},
+        {l:"Privacy",icon:"🔒",a:()=>navigate("privacy")},
+        {l:"Rules",icon:"📋",a:()=>navigate("guidelines")},
         {l:"Open Source Licenses",icon:"⚖️",a:()=>{}},
         {l:"Send Feedback",icon:"💬",a:()=>navigate("feedback")},
       ].map(item => (
@@ -3976,7 +3980,7 @@ function PolicyPage({title, content, navigate, back}) {
   );
 }
 
-const TERMS_CONTENT = `<h2>1. Agreement to Terms</h2><p>By using Dream Board Mobile, you agree to these Terms of Service. If you do not agree, please do not use our platform.</p><h2>2. User Accounts</h2><p>You are responsible for maintaining the security of your account and all activity under it. You must be at least 13 years old to use Dream Board Mobile.</p><h2>3. Content & Dreams</h2><p>You retain ownership of content you post. By posting, you grant Dream Board Mobile a license to display and distribute your content. You may not post illegal, harmful or harassing content.</p><h2>4. Groups</h2><p>Groups are community spaces governed by both our guidelines and group-specific rules. Group creators take responsibility for their community.</p><h2>5. Termination</h2><p>We may suspend or terminate accounts that violate these terms. You may delete your account at any time in Settings.</p><h2>6. Changes</h2><p>We may update these terms. Continued use after changes constitutes acceptance. Last updated: February 2026.</p>`;
+const TERMS_CONTENT = `<h2>1. Agreement</h2><p>By using Dream Board Mobile, you agree to these Terms. If you do not agree, please do not use the platform.</p><h2>2. Your Account</h2><p>You are responsible for your account security and all activity under it. You must be at least 13 years old.</p><h2>3. Your Dreams</h2><p>You own everything you post. By posting, you grant Dream Board Mobile a licence to display and distribute your content. You may delete it at any time.</p><h2>4. Community Rules</h2><p>Be kind. Harassment, bullying and hate speech are not permitted. Post authentic content — do not impersonate others or spread misinformation. Do not post violent, sexually explicit or otherwise harmful content. Content involving minors inappropriately is strictly forbidden. Circles must have a positive purpose and moderators must enforce these rules.</p><h2>5. Enforcement</h2><p>Violations may result in content removal, suspension or permanent bans depending on severity. Use the report button to flag content — our team reviews all reports.</p><h2>6. Termination</h2><p>We may suspend accounts that violate these Terms. You may delete your account at any time in Settings.</p><h2>7. Changes</h2><p>We may update these Terms. Continued use after changes means you accept them. Last updated March 2026.</p>`
 const PRIVACY_CONTENT = `<h2>1. Information We Collect</h2><p>We collect information you provide (name, email, content you post) and usage data (how you interact with the app).</p><h2>2. How We Use It</h2><p>We use your information to provide and improve Dream Board Mobile, personalize your experience and communicate with you.</p><h2>3. Sharing</h2><p>We do not sell your personal information. We may share data with service providers who help us operate the platform.</p><h2>4. Your Rights</h2><p>You can access, correct or delete your data at any time through Settings. You may also request a data export.</p><h2>5. Cookies</h2><p>We use cookies to maintain your session and improve app performance. You can manage cookie preferences in your device settings.</p><h2>6. Contact</h2><p>For privacy concerns, contact privacy@dreamboard.app. Last updated: February 2026.</p>`;
 const GUIDELINES_CONTENT = `<h2>1. Be Kind</h2><p>Treat all Dreamers with respect. Harassment, bullying or targeted hate speech is not permitted on Dream Board Mobile.</p><h2>2. Authentic Dreams</h2><p>Post authentic content. Do not impersonate others, spread misinformation or use automated accounts without disclosure.</p><h2>3. Safe Content</h2><p>Do not post violent, sexually explicit or otherwise harmful content. Content involving minors in any inappropriate context is strictly forbidden.</p><h2>4. Groups</h2><p>Groups must have a clear, positive purpose. Group moderators must enforce these guidelines within their communities.</p><h2>5. Reporting</h2><p>Use the report button on any Dream, comment or profile to flag content that violates these guidelines. Our team reviews all reports.</p><h2>6. Consequences</h2><p>Violations may result in content removal, account suspension or permanent bans depending on severity. Last updated: February 2026.</p>`;
 
@@ -4609,15 +4613,15 @@ function SplashScreen({ onLogin, onSignup, onDemo }) {
       )
       , React.createElement('div', { className: "splash-btns",}
         , React.createElement('button', { className: "splash-btn-primary", onClick: onLogin,
-          'aria-label': "Login to your Dream Board Mobile ID"       ,}, "LOGIN TO YOUR DREAM BOARD ID"
+          'aria-label': "Login to your Dream Board Mobile ID"       ,}, "Sign In"
 
         )
         , React.createElement('button', { className: "splash-btn-secondary", onClick: onSignup,
-          'aria-label': "Sign up for a new Dream Board Mobile ID"        ,}, "CREATE NEW DREAM BOARD ID"
+          'aria-label': "Sign up for a new Dream Board Mobile ID"        ,}, "Create Account"
 
         )
         , React.createElement('button', { className: "splash-btn-ghost", onClick: onDemo,
-          'aria-label': "Continue with Demo ID"      ,}, "CONTINUE WITH DEMO ID"
+          'aria-label': "Continue with Demo ID"      ,}, "Try Demo"
 
         )
       )
@@ -4831,11 +4835,11 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
           , React.createElement('button', { className: "auth-link", style: {fontSize:12}, onClick: handleReset,}, "Forgot password?" )
         )
         , React.createElement('div', { className: "auth-footer", style: {marginTop:14},}, "New? "
-           , React.createElement('button', { className: "auth-link", onClick: ()=>{setMode("signup_creds");setErr("");setMsg("");},}, "CREATE NEW ID" )
+           , React.createElement('button', { className: "auth-link", onClick: ()=>{setMode("signup_creds");setErr("");setMsg("");},}, "Create account" )
         )
         , React.createElement('div', { style: {marginTop:12,paddingTop:12,borderTop:"1px solid var(--bd)"},}
           , React.createElement('button', { className: "btn", style: {width:"100%",padding:11,fontSize:13,background:"var(--sf2)",color:"var(--tx2)",border:"1px solid var(--bd2)",borderRadius:12},
-            onClick: handleDemoLogin, disabled: busy, 'aria-label': "Continue with Demo ID"      ,}, "CONTINUE WITH DEMO ID"
+            onClick: handleDemoLogin, disabled: busy, 'aria-label': "Continue with Demo ID"      ,}, "Try Demo"
 
           )
           , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",textAlign:"center",marginTop:6},}, "No sign-up needed. Explore freely."    )
@@ -5027,7 +5031,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
           , React.createElement('input', { type: "checkbox", checked: agreedTerms, onChange: e=>setAgreedTerms(e.target.checked),
             style: {marginTop:2,flexShrink:0,width:16,height:16,cursor:"pointer"},
             'aria-label': "I agree to the Terms of Service, Privacy Policy and Community Rules",})
-          , React.createElement('span', null, "I agree to Dream Board Mobile\u2019s Terms of Service, Privacy Policy and Community Rules. ", React.createElement('span', { style: {color:"var(--rd)",fontWeight:700},}, "Required."))
+          , React.createElement('span', null, "I agree to Dream Board Mobile\u2019s Terms and Privacy Policy. ", React.createElement('span', { style: {color:"var(--rd)",fontWeight:700},}, "Required."))
         )
         , React.createElement('label', { style: {display:"flex",gap:10,alignItems:"flex-start",marginBottom:20,cursor:"pointer",fontSize:13,color:"var(--tx2)",lineHeight:1.55},}
           , React.createElement('input', { type: "checkbox", checked: crashConsent, onChange: e=>setCrashConsent(e.target.checked),
@@ -5458,9 +5462,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"💬", label:"Messages",      sub:"Private Dreams",           badge:unreadMsgs,   action(){onClose();goRoot("alerts");} },
       { icon:"🔔", label:"Notifications", sub:"Likes, follows, mentions", badge:unreadNotifs, action(){onClose();goRoot("alerts");} },
     ]},
-    { id:"liked", emoji:"❤️", label:"Liked", items:[
-      { icon:"❤️", label:"Liked Dreams", sub:"Dreams you have liked", count:likedCount, action(){onClose();navigate("profile");} },
-    ]},
+
     { id:"settings", emoji:"⚙️", label:"Settings", items:[
       { icon:"👤", label:"Account",         sub:"Profile, password, 2FA",      action(){onClose();navigate("settings_account");} },
       { icon:"🔔", label:"Alerts",          sub:"Push, email, sounds, news",   action(){onClose();navigate("settings_notifications");} },
@@ -5469,16 +5471,15 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"♿", label:"Accessibility",  sub:"Font size, contrast, motion",  action(){onClose();navigate("settings_accessibility");} },
       { icon:"🍒", label:"Cherry Settings", sub:"Personality, memory, agent",  action(){onClose();navigate("settings_cherry");} },
     ]},
-    { id:"about", emoji:"ℹ️", label:"About & Legal", items:[
-      { icon:"ℹ️", label:"About",            sub:"Version, credits, open source", action(){onClose();navigate("settings_about");} },
-      { icon:"📜", label:"Terms of Service", sub:"Our rules and your rights",     action(){onClose();navigate("terms");} },
-      { icon:"🔐", label:"Privacy Policy",   sub:"How we protect your data",      action(){onClose();navigate("privacy");} },
-      { icon:"📋", label:"Circle Rules",  sub:"Guidelines for all Dreamors",   action(){onClose();navigate("guidelines");} },
+    { id:"about", emoji:"ℹ️", label:"About", items:[
+      { icon:"ℹ️", label:"About",   sub:"Version, credits, open source", action(){onClose();navigate("settings_about");} },
+      { icon:"📜", label:"Terms",   sub:"Terms of service and community rules",  action(){onClose();navigate("terms");} },
+      { icon:"🔐", label:"Privacy", sub:"How we protect your data",       action(){onClose();navigate("privacy");} },
     ]},
     { id:"findus", emoji:"📱", label:"Find Us", items:[
-      { icon:"🌙", label:"@DreamBMobile on Dream Board", sub:"The official account. On our own app.",      href:"https://dreamboard.app/@DreamBMobile" },
-      { icon:"\ud835\udd4f", label:"@DreamBMobile on X", sub:"We're there. Please don't judge us.",       href:"https://x.com/DreamBMobile" },
-      { icon:"🐙", label:"Dream Board on GitHub",        sub:"Shinygold29/dream-board-mobile",            href:"https://github.com/Shinygold29/dream-board-mobile" },
+      { icon:"🌙", label:"Dream Board", sub:"@DreamBMobile · Our official account",   href:"https://dreamboard.app/@DreamBMobile" },
+      { icon:"\ud835\udd4f", label:"Twitter",      sub:"@DreamBMobile",                      href:"https://x.com/DreamBMobile" },
+      { icon:"🐙", label:"GitHub",       sub:"Shinygold29/dream-board-mobile",        href:"https://github.com/Shinygold29/dream-board-mobile" },
     ]},
   ];
 
@@ -6038,6 +6039,39 @@ useEffect(() => {
 
   const showFab = ["feed","discover","groups","alerts"].includes(page);
 
+  // Dynamic page title
+  React.useEffect(() => {
+    var titles = {
+      feed:     "Home",
+      discover: "Discover",
+      alerts:   "Alerts",
+      profile:  (authUser && authUser.displayName) ? authUser.displayName : "Profile",
+      dp:       pdata ? (pdata.name || "Profile") : "Profile",
+      settings: "Settings",
+      settings_account: "Account",
+      settings_notifications: "Alerts Settings",
+      settings_privacy: "Privacy",
+      settings_customizability: "Customizability",
+      settings_accessibility: "Accessibility",
+      settings_cherry: "Cherry Settings",
+      settings_cherry_algo: "Cherry Algorithm",
+      settings_about: "About",
+      settings_social: "Find Us",
+      admin: "Admin Panel",
+      feedback: "Send Feedback",
+      drafts: "Drafts",
+      more: "More",
+      about: "About",
+      terms: "Terms",
+      privacy: "Privacy",
+      guidelines: "Rules",
+      cherry: "Cherry",
+    };
+    var name = titles[page] || "Dream Board Mobile";
+    var dot = " · ";
+    document.title = (name === "Dream Board Mobile") ? name : name + dot + "Dream Board Mobile";
+  }, [page, pdata, authUser]);
+
   const renderPage = () => {
     switch(page) {
       case "feed":          return React.createElement(FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
@@ -6062,9 +6096,9 @@ useEffect(() => {
       case "drafts":        return React.createElement(DraftsPage, { navigate: navigate, onLoadDraft: d=>{ setShowCreate(true); },});
       case "more":          return React.createElement(MorePage, { navigate: navigate, cherryCtx: cherryCtx, authUser: authUser,});
       case "about":         return React.createElement(AboutSettings, { navigate: navigate,});
-      case "terms":         return React.createElement(PolicyPage, { title: "Terms of Service"  , content: TERMS_CONTENT, navigate: navigate, back: "settings_about",});
-      case "privacy":       return React.createElement(PolicyPage, { title: "Privacy Policy" , content: PRIVACY_CONTENT, navigate: navigate, back: "settings_about",});
-      case "guidelines":    return React.createElement(PolicyPage, { title: "Community Guidelines" , content: GUIDELINES_CONTENT, navigate: navigate, back: "settings_about",});
+      case "terms":         return React.createElement(PolicyPage, { title: "Terms", content: TERMS_CONTENT, navigate: navigate, back: "settings_about",});
+      case "privacy":       return React.createElement(PolicyPage, { title: "Privacy", content: PRIVACY_CONTENT, navigate: navigate, back: "settings_about",});
+      case "guidelines":    return React.createElement(PolicyPage, { title: "Rules", content: GUIDELINES_CONTENT, navigate: navigate, back: "settings_about",});
       default:              return React.createElement(FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
     }
   };
