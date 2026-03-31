@@ -374,7 +374,7 @@ const USERS = [
   {id:5,name:"Sam Rivera",handle:"@samr",bio:"Student · coffee addict · posting whatever I feel like 🤷",initials:"SR",color:"#15803d",verified:false,location:"Miami, FL",website:null,joined:"April 2023",dreamCount:890,followers:7200,following:2900},
   {id:6,name:"Dream Board",handle:"@DreamBMobile",bio:"The official Dream Board Mobile account 🌙 Share what's on your mind.",initials:"DB",color:"#6d28d9",verified:true,location:"Everywhere",website:"dreamboard.app",joined:"January 2023",dreamCount:412,followers:1200000,following:0},
 ];
-const ME = {id:0,name:"Demo Dreamer",handle:"@demodreamer",initials:"DD",bio:"Just checking out Dream Board Mobile 👋",color:"#6d28d9",verified:false,location:"",joined:"March 2026",dreamCount:2,followers:3,following:7,age:25};
+const ME = {id:0,name:"Demo Dreamor",handle:"@demodreamer",initials:"DD",bio:"Just checking out Dream Board Mobile 👋",color:"#6d28d9",verified:false,location:"",joined:"March 2026",dreamCount:2,followers:3,following:7,age:25};
 
 const DREAMS_INIT = [
   {id:1,user:USERS[0],time:"2m",text:"ok whoever invented the croissant deserves a statue. that's my entire thought.",likes:6201,comments:441,redreams:1820,quotes:93,liked:false,redreamed:false,quoted:false,bookmarked:false},
@@ -631,7 +631,7 @@ function BottomMenu({onClose, items, title}) {
           return React.createElement('button', {
             key:x.l,
             onClick:x.a,
-            "aria-label":x.l,
+            "aria-label":x.l+",",
             style:{display:"flex",alignItems:"center",gap:14,width:"100%",
                    padding:"14px 20px",background:"none",border:"none",
                    cursor:"pointer",textAlign:"left"},
@@ -1217,10 +1217,10 @@ function DiscoverPage({navigate, cherryCtx}) {
         ),
         React.createElement('div', {style:{padding:"10px 16px 6px"}},
           React.createElement('input', {className:"inp", style:{fontSize:14},
-            placeholder:"Search Dreamers, Dreams, Circles, topics",
+            placeholder:"Search Dreamors, Dreams, Circles, topics",
             value:q,
             onChange:e=>{setQ(e.target.value);if(e.target.value&&tab==="trending")setTab("all");},
-            "aria-label":"Search. Enter Dreamers, Dreams, Circles or topics",
+            "aria-label":"Search",
             role:"searchbox",
           })
         ),
@@ -1355,14 +1355,14 @@ function DiscoverPage({navigate, cherryCtx}) {
 
         (tab==="dreamers"||tab==="all") && dreamerResults.map(u =>
           React.createElement('div', {key:u.id, className:"ci", onClick:()=>navigate("dp",u), role:"button", tabIndex:0,
-            "aria-label":u.name+(u.verified?" verified":"")+" · "+u.handle+" · "+fmt(u.followers)+" Dreamers following",
+            "aria-label":u.name+(u.verified?" verified":"")+" · "+u.handle+" · "+fmt(u.followers)+" Dreamors following",
           },
             React.createElement(Av, {user:u, size:44}),
             React.createElement('div', {className:"cif"},
               React.createElement('div', {className:"cnm"}, u.name,
                 u.verified&&React.createElement('span', {style:{color:"var(--ac2)",fontSize:11}}, " \u2713")
               ),
-              React.createElement('div', {className:"cpv"}, u.handle, " \u00b7 ", fmt(u.followers), " Dreamers following")
+              React.createElement('div', {className:"cpv"}, u.handle, " \u00b7 ", fmt(u.followers), " Dreamors following")
             ),
             React.createElement('button', {className:"btn bp", style:{padding:"7px 14px",fontSize:12},
               onClick:e=>e.stopPropagation(), "aria-label":"Follow "+u.name,
@@ -1399,7 +1399,7 @@ function DiscoverPage({navigate, cherryCtx}) {
             React.createElement('div', {style:{width:44,height:44,borderRadius:11,background:"var(--sf2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}, g.emoji),
             React.createElement('div', {className:"cif"},
               React.createElement('div', {className:"cnm"}, g.name),
-              React.createElement('div', {className:"cpv"}, fmt(g.members), " Dreamers in this Circle")
+              React.createElement('div', {className:"cpv"}, fmt(g.members), " Dreamors in this Circle")
             ),
             React.createElement('button', {className:"btn bgb", style:{fontSize:12}, "aria-label":"Join the "+g.name+" Circle"}, "Join")
           )
@@ -1525,9 +1525,9 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
 
   const attIcon = {photo:"🖼️",gif:"🎞️",poll:"📊",link:"🔗",location:"📍",schedule:"🕐",mood:"😌",music:"🎵"};
   const audiences = [
-    {id:"everyone",icon:"🌍",l:"Everyone",sub:"Visible to all Dreamers"},
+    {id:"everyone",icon:"🌍",l:"Everyone",sub:"Visible to all Dreamors"},
     {id:"followers",icon:"👥",l:"Followers only",sub:"Only your followers see this"},
-    {id:"groups",icon:"🏘️",l:"My Circles",sub:"Shared to your Groups"},
+    {id:"groups",icon:"🏘️",l:"My Circles",sub:"Shared to your Circles"},
   ];
 
   if (screen==="group") return React.createElement(CreateGroupFlow, { onClose: onClose, navigate: navigate,});
@@ -1645,7 +1645,7 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
         , React.createElement('span', { style: {fontSize:22,width:32,textAlign:"center"},}, "✏️")
         , React.createElement('div', { style: {flex:1},}, React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "New Dream" ), React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Write, share and inspire"   ))
       )
-      , React.createElement('button', { className: "osb", onClick: ()=>setScreen("group"), 'aria-label': "New Group — create a community"     ,}
+      , React.createElement('button', { className: "osb", onClick: ()=>setScreen("group"), 'aria-label': "New Circle"     ,}
         , React.createElement('span', { style: {fontSize:22,width:32,textAlign:"center"},}, "👥")
         , React.createElement('div', { style: {flex:1},}, React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "New Circle" ), React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Create a community around a shared interest"      ))
       )
@@ -1680,7 +1680,7 @@ function CreateGroupFlow({onClose, navigate}) {
             )
           ))
           , form.rules.length<8&&React.createElement('button', { className: "btn bgb" , style: {width:"100%",padding:9,fontSize:12,marginBottom:16}, onClick: ()=>set("rules",[...form.rules,""]),}, "+ Add Rule"  )
-          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:13,fontSize:14}, onClick: ()=>{onClose();}, 'aria-label': "Create Circle" ,}, "🎉 Create Group"  )
+          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:13,fontSize:14}, onClick: ()=>{onClose();}, 'aria-label': "Create Circle" ,}, "🎉 Create Circle"  )
         )
       )
     )
@@ -1705,13 +1705,13 @@ function CreateGroupFlow({onClose, navigate}) {
             )
           ))
           , React.createElement('h2', { className: "slbl", style: {padding:"12px 0 8px"}, role: "heading", 'aria-level': "2",}, "Moderation")
-          , [{k:"joinApproval",l:"Approve new Dreamors",d:"Review and approve each join request"},{k:"postApproval",l:"Approve posts",d:"Dreams require admin approval before publishing"},{k:"minAge",l:"18+ only",d:"Restrict group to adult Dreamers"}].map(r=>(
+          , [{k:"joinApproval",l:"Approve new Dreamors",d:"Review and approve each join request"},{k:"postApproval",l:"Approve posts",d:"Dreams require admin approval before publishing"},{k:"minAge",l:"18+ only",d:"Restrict group to adult Dreamors"}].map(r=>(
             React.createElement('div', { key: r.k, className: "sr",}
               , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, r.l), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3},}, r.d))
               , React.createElement(Cbx, { on: form[r.k], onToggle: ()=>set(r.k,!form[r.k]), label: r.l,})
             )
           ))
-          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12,marginTop:10,fontSize:14}, onClick: ()=>setStep(3),}, "Next: Group Rules →"   )
+          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12,marginTop:10,fontSize:14}, onClick: ()=>setStep(3),}, "Next: Circle Rules →"   )
         )
       )
     )
@@ -2005,7 +2005,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
       /* Group hero */
       , React.createElement('div', { style: {height:110,background:`linear-gradient(135deg,hsl(${260+group.id*20},60%,14%),hsl(${280+group.id*15},70%,8%))`,position:"relative",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",paddingTop:44},}
         , React.createElement('button', { className: "bi", style: {position:"absolute",top:48,left:12,background:"rgba(0,0,0,.55)"}, onClick: onBack, 'aria-label': "Back",}, React.createElement(Ic.Bck, { style: {width:19,height:19},}))
-        , isAdmin&&React.createElement('button', { className: "bi", style: {position:"absolute",top:48,right:12,background:"rgba(245,158,11,.2)",color:"#f59e0b"}, onClick: ()=>setShowAdmin(true), 'aria-label': "Group admin settings"  ,}, React.createElement(Ic.Dots, { style: {width:19,height:19},}))
+        , isAdmin&&React.createElement('button', { className: "bi", style: {position:"absolute",top:48,right:12,background:"rgba(245,158,11,.2)",color:"#f59e0b"}, onClick: ()=>setShowAdmin(true), 'aria-label': "Circle admin settings"  ,}, React.createElement(Ic.Dots, { style: {width:19,height:19},}))
         , React.createElement('div', { style: {fontSize:38,marginBottom:4},}, group.emoji)
         , React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:18,color:"#fff",textShadow:"0 2px 8px rgba(0,0,0,.6)"},}, group.name)
       )
@@ -2085,7 +2085,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
             ))
           )
         )
-        , isAdmin&&React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:11,fontSize:13}, onClick: ()=>setShowAdmin(true), 'aria-label': "Group settings" ,}, "⚙️ Group Settings"  )
+        , isAdmin&&React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:11,fontSize:13}, onClick: ()=>setShowAdmin(true), 'aria-label': "Circle settings" ,}, "⚙️ Group Settings"  )
       )
 
       , tab==="rules"&&React.createElement('div', { style: {padding:16},}
@@ -2178,7 +2178,7 @@ function GroupAdminModal({group, onClose}) {
                 )
               ))
             )
-            , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "All Members ("  , USERS.length, ")")
+            , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "All Dreamors ("  , USERS.length, ")")
             , USERS.map(u=>(
               React.createElement('div', { key: u.id, style: {display:"flex",gap:10,padding:"10px 16px",borderBottom:"1px solid var(--bd)",alignItems:"center"},}
                 , React.createElement(Av, { user: u, size: 36,})
@@ -2189,13 +2189,13 @@ function GroupAdminModal({group, onClose}) {
           )
 
           , tab==="posts"&&React.createElement('div', { style: {padding:"8px 0 24px"},}
-            , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Post Approval" )
+            , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Dream Approval" )
             , React.createElement('div', { className: "sr",}
               , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, "Require Dream Approval"  ), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3},}, "Review Dreams before they appear in the group"       ))
               , React.createElement(Cbx, { on: settings.postApproval, onToggle: ()=>set("postApproval",!settings.postApproval), label: "Dream approval" ,})
             )
             , pendingPosts.length>0&&React.createElement(React.Fragment, null
-              , React.createElement('h2', { className: "slbl", style: {display:"flex",alignItems:"center",gap:6}, role: "heading", 'aria-level': "2",}, "Pending Posts "  , React.createElement('span', { style: {background:"var(--rd)",color:"#fff",fontSize:9,padding:"1px 5px",borderRadius:4},}, pendingPosts.length))
+              , React.createElement('h2', { className: "slbl", style: {display:"flex",alignItems:"center",gap:6}, role: "heading", 'aria-level': "2",}, "Pending Dreams "  , React.createElement('span', { style: {background:"var(--rd)",color:"#fff",fontSize:9,padding:"1px 5px",borderRadius:4},}, pendingPosts.length))
               , pendingPosts.map(p=>(
                 React.createElement('div', { key: p.id, style: {padding:"12px 16px",borderBottom:"1px solid var(--bd)"},}
                   , React.createElement('div', { style: {display:"flex",gap:8,marginBottom:6,alignItems:"center"},}, React.createElement(Av, { user: p.user, size: 30,}), React.createElement('div', { style: {fontWeight:700,fontSize:13},}, p.user.name), React.createElement('span', { style: {fontSize:11,color:"var(--tx3)"},}, p.time))
@@ -2411,14 +2411,12 @@ function DreamerProfilePage({user, navigate, cherryCtx}) {
     React.createElement('div', { className: "pg",}
       , React.createElement('div', { className: "pcov",}
         , React.createElement('button', { className: "bi", style: {position:"absolute",top:48,left:12,background:"rgba(0,0,0,.55)",zIndex:5}, onClick: ()=>navigate("feed"), 'aria-label': "Go back" ,}, React.createElement(Ic.Bck, { style: {width:19,height:19},}))
-        , React.createElement('button', { className: "bi", style: {position:"absolute",top:48,right:12,background:"rgba(0,0,0,.55)",zIndex:5}, onClick: ()=>setShowOpts(true), 'aria-label': "More options" ,}, React.createElement(Ic.Dots, { style: {width:19,height:19},}))
+        , React.createElement('button', { className: "bi", style: {position:"absolute",top:48,right:12,background:"rgba(0,0,0,.55)",zIndex:5}, onClick: openOpts, ref: optsTriggerRef, 'aria-label': "Dreamor Options," ,}, React.createElement(Ic.Dots, { style: {width:19,height:19},}))
         , React.createElement('div', { style: {position:"absolute",bottom:-32,left:16},}, React.createElement('div', { style: {padding:3,borderRadius:"50%",background:"var(--bg)"},}, React.createElement(Av, { user: user, size: 66,})))
         , React.createElement('div', { style: {position:"absolute",bottom:-17,right:16,display:"flex",gap:8},}
-          , React.createElement('button', { className: "btn bgb" , style: {padding:"7px 13px",fontSize:12,background:"var(--bg)"}, 'aria-label': "Message "+user.name,}, "Message")
-          , React.createElement('button', { className: "btn"+(following?" bgb":" bp"), style: {padding:"7px 16px",fontSize:12}, onClick: ()=>setFollowing(f=>!f), 'aria-label': (following?"Unfollow":"Follow")+" "+user.name,}
+          , React.createElement('button', { className: "btn"+(following?" bgb":" bp"), style: {padding:"7px 16px",fontSize:12}, onClick: ()=>setFollowing(function(f){return !f;}), 'aria-label': (following?"Unfollow,":"Follow,")+user.name,}
             , following?"Following ✓":"Follow"
           )
-          , cherryCtx && React.createElement('button', { className: "cherry-ctx-btn", style: {padding:"7px 9px",fontSize:11}, onClick: ()=>cherryCtx.openCherry("Tell me about the Dreamer "+user.name+" ("+user.handle+") and whether I should follow them"), 'aria-label': "Ask Cherry about this Dreamer"    ,}, "🍒")
         )
       )
       , React.createElement('div', { className: "pbdy",}
@@ -2476,10 +2474,14 @@ function DreamerProfilePage({user, navigate, cherryCtx}) {
       ))
       , tabDreams.length===0 && React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "🌙"), React.createElement('div', { className: "esl",}, "Nothing here yet"  ))
       , showOpts && (
-        React.createElement(BottomMenu, { onClose: ()=>setShowOpts(false), title: user.name, items: [
+        React.createElement(BottomMenu, { onClose: closeOpts, title: user.name, items: [
+          {ic:"👤", l:"Follow "+user.name, sub:following?"Unfollow this Dreamor":"Follow this Dreamor", a:()=>{setFollowing(function(f){return !f;});setShowOpts(false);}},
+          {ic:"💬", l:"Message "+user.name, sub:"Send a private Dream", a:()=>setShowOpts(false)},
+          ...(cherryCtx ? [{ic:"🍒", l:"Summary", sub:"Ask Cherry about "+user.name, a:()=>{setShowOpts(false);cherryCtx.openCherry("Tell me about "+user.name+" ("+user.handle+")");}}] : []),
+          "---",
           {ic:"🔇", l:"Mute "+user.handle, sub:"Stop seeing their Dreams", a:()=>setShowOpts(false)},
           {ic:"🚫", l:"Block "+user.handle, danger:true, sub:"Block this Dreamor", a:()=>setShowOpts(false)},
-          {ic:"🚩", l:"Report Dreamer", danger:true, sub:"Flag this account for review", a:()=>setShowOpts(false)},
+          {ic:"🚩", l:"Report Dreamor", danger:true, sub:"Flag this account for review", a:()=>setShowOpts(false)},
         ],})
       )
       , showSort && React.createElement(SortMenuModal, { current: sort, onChange: setSort, onClose: ()=>setShowSort(false),})
@@ -2501,8 +2503,8 @@ function CherryPage({navigate, cherryCtx}) {
 
   const capabilities = [
     {ic:"✏️", label:"Draft & post Dreams", prompt:"Draft a Dream for me"},
-    {ic:"👥", label:"Follow Dreamers", prompt:"Who should I follow?"},
-    {ic:"🏘️", label:"Join Groups", prompt:"Find groups for me"},
+    {ic:"👥", label:"Follow Dreamors", prompt:"Who should I follow?"},
+    {ic:"🏘️", label:"Join Circles", prompt:"Find groups for me"},
     {ic:"🔔", label:"Read notifications", prompt:"My notifications"},
     {ic:"📊", label:"Feed insights", prompt:"Summarise my feed"},
     {ic:"🔥", label:"Trending topics", prompt:"What's trending?"},
@@ -2538,7 +2540,7 @@ function CherryPage({navigate, cherryCtx}) {
           {ic:"❤️", val:ctx.likedCount, label:"Liked Dreams"},
           {ic:"🔖", val:ctx.savedCount, label:"Saved Dreams"},
           {ic:"👥", val:ctx.followingCount, label:"Following"},
-          {ic:"🏘️", val:ctx.groupCount, label:"Groups joined"},
+          {ic:"🏘️", val:ctx.groupCount, label:"Circles joined"},
           {ic:"🔔", val:ctx.unread, label:"Unread alerts"},
           {ic:"✏️", val:cherryCtx?cherryCtx.dreams.length:0, label:"Dreams in feed"},
         ].map(s=>(
@@ -2948,9 +2950,9 @@ function PrivacySettings({navigate}) {
         , [{k:"sensitive",l:"Filter Sensitive Content",d:"Hide flagged content from your feed"},{k:"loc",l:"Share Location",d:"Show you in location-based features"},{k:"data",l:"Personalization Data",d:"Help improve Dream Board Mobile with usage data"},{k:"readReceipts",l:"Read Receipts",d:"Let others know when you have read their messages"}].map(r => (
           React.createElement('div', { key: r.k, className: "sr",}, React.createElement('div', null, React.createElement('div', { className: "sr-title",}, r.l), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3,maxWidth:220},}, r.d)), React.createElement(Cbx, { on: s[r.k], onToggle: ()=>tg(r.k), label: r.l,}))
         ))
-        , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Blocked Dreamers" )
-        , React.createElement('button', { className: "snav", 'aria-label': "Manage blocked Dreamers"  ,}
-          , React.createElement('div', { className: "snav-l",}, React.createElement('div', { style: {fontSize:17,width:36,textAlign:"center"},}, "🚫"), React.createElement('div', null, React.createElement('div', { className: "snav-title",}, "Manage Blocked List"  ), React.createElement('div', { className: "snav-sub",}, "0 blocked Dreamers"  )))
+        , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Blocked Dreamors" )
+        , React.createElement('button', { className: "snav", 'aria-label': "Manage blocked Dreamors"  ,}
+          , React.createElement('div', { className: "snav-l",}, React.createElement('div', { style: {fontSize:17,width:36,textAlign:"center"},}, "🚫"), React.createElement('div', null, React.createElement('div', { className: "snav-title",}, "Manage Blocked List"  ), React.createElement('div', { className: "snav-sub",}, "0 blocked Dreamors"  )))
           , React.createElement(Ic.Chv, { style: {width:16,height:16,color:"var(--tx3)"},})
         )
       )
@@ -3167,7 +3169,7 @@ function CherrySettings({navigate, prefs, setPrefs, activeAI, setActiveAI}) {
         , [
           {k:"rememberPrefs",l:"Remember Preferences",d:"Cherry remembers your interests across sessions"},
           {k:"dreamContext",l:"Use Dream Context",d:"Cherry reads your recent Dreams for better responses"},
-          {k:"groupContext",l:"Group Awareness",d:"Cherry knows which Groups you're part of"},
+          {k:"groupContext",l:"Group Awareness",d:"Cherry knows which Circles you're part of"},
         ].map(r => (
           React.createElement('div', { key: r.k, className: "sr",}
             , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, r.l), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3,maxWidth:230},}, r.d))
@@ -3178,7 +3180,7 @@ function CherrySettings({navigate, prefs, setPrefs, activeAI, setActiveAI}) {
         /* -- Suggestions ----------------------- */
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Suggestions")
         , [
-          {k:"groupSugg",l:"Group Suggestions",d:"Cherry recommends Groups to join"},
+          {k:"groupSugg",l:"Group Suggestions",d:"Cherry recommends Circles to join"},
           {k:"followerSugg",l:"Dreamor Suggestions",d:"Cherry suggests Dreamors to follow"},
           {k:"trendSugg",l:"Trending Topics",d:"Cherry highlights trending content"},
           {k:"dreamSugg",l:"Dream Prompts",d:"Cherry offers writing prompts when composing"},
@@ -3201,8 +3203,8 @@ function CherrySettings({navigate, prefs, setPrefs, activeAI, setActiveAI}) {
         , [
           {k:"agentEnabled",l:"Enable AI Agent",d:"Let Cherry perform actions on your behalf"},
           {k:"agentPostDreams",l:"Post Dreams",d:"Cherry can draft and post Dreams automatically"},
-          {k:"agentJoinGroups",l:"Join Groups",d:"Cherry can join Groups that match your interests"},
-          {k:"agentFollowDreamers",l:"Follow Dreamers",d:"Cherry can follow suggested Dreamers for you"},
+          {k:"agentJoinGroups",l:"Join Circles",d:"Cherry can join Groups that match your interests"},
+          {k:"agentFollowDreamers",l:"Follow Dreamors",d:"Cherry can follow suggested Dreamers for you"},
           {k:"agentLike",l:"Auto-Like",d:"Cherry likes Dreams that match your interests"},
           {k:"agentSchedule",l:"Schedule Actions",d:"Cherry can queue actions and perform them later"},
           {k:"agentConfirmFirst",l:"Always Ask Before Acting",d:"Cherry will ask you to confirm before taking any action"},
@@ -3341,7 +3343,7 @@ function CherryAlgorithmSettings({navigate, prefs, setPrefs}) {
         , React.createElement(SRow, { k: "freshnessBias", l: "Freshness Boost" , d: "Cherry prioritises Dreams posted in the last hour over older content"          , def: true,})
         , React.createElement(SRow, { k: "diversityBoost", l: "Diversity Boost" , d: "Cherry injects content from Dreamers outside your usual circle to broaden your exposure"            , def: false,})
         , React.createElement(SRow, { k: "engagementPredict", l: "Engagement Prediction" , d: "Cherry predicts which Dreams you're likely to like and surfaces them first"           , def: true,})
-        , React.createElement(SRow, { k: "suppressReposts", l: "Reduce Reposts" , d: "Cherry limits the number of ReDreams in your feed so you see more original content"              , def: false,})
+        , React.createElement(SRow, { k: "suppressReposts", l: "Reduce ReDreams" , d: "Cherry limits the number of ReDreams in your feed so you see more original content"              , def: false,})
         , React.createElement(Slider, { k: "feedCherryWeight", l: "Cherry Influence" , d: "How much Cherry adjusts the default feed order"       , min: 0, max: 100, def: 60, unit: "%",})
 
         /* -- Discovery Algorithm ------------ */
@@ -3445,59 +3447,71 @@ function AccessibilitySettings({navigate, prefs, setPrefs}) {
 }
 
 function SocialSettings({navigate}) {
+  var links = [
+    {
+      href: "https://dreamboard.app/@DreamBMobile",
+      icon: "🌙",
+      label: "Dream Board Mobile",
+      handle: "@DreamBMobile",
+      desc: "Our official account. On our own platform.",
+      bg: "linear-gradient(135deg,rgba(109,40,217,.18),rgba(147,51,234,.1))",
+      border: "rgba(168,85,247,.3)",
+      labelColor: "var(--ac3)",
+    },
+    {
+      href: "https://x.com/DreamBMobile",
+      iconEl: true,
+      label: "Twitter",
+      handle: "@DreamBMobile",
+      desc: "App updates and replies.",
+      bg: "#000",
+      border: "#333",
+      labelColor: "#aaa",
+    },
+    {
+      href: "https://youtube.com/@DreamBMobile",
+      icon: "▶️",
+      label: "YouTube",
+      handle: "@DreamBMobile",
+      desc: "Videos and updates.",
+      bg: "rgba(255,0,0,.08)",
+      border: "rgba(255,0,0,.25)",
+      labelColor: "#ff4444",
+    },
+    {
+      href: "https://github.com/Shinygold29/dream-board-mobile",
+      icon: "🐙",
+      label: "GitHub",
+      handle: "Shinygold29/dream-board-mobile",
+      desc: "Open source. Star it if you like it.",
+      bg: "#161b22",
+      border: "#30363d",
+      labelColor: "#58a6ff",
+    },
+  ];
   return (
-    React.createElement('div', { className: "pg",}
-      , React.createElement(BackHeader, { title: "Find Us", onBack: ()=>navigate("settings"),})
-      , React.createElement('div', { style: {padding:"16px 16px 32px",display:"flex",flexDirection:"column",gap:10},}
-
-        , React.createElement('a', {
-            href: "https://dreamboard.app/@DreamBMobile",
-            target: "_blank", rel: "noopener noreferrer",
-            style: {display:"flex",alignItems:"center",gap:14,padding:"15px 16px",background:"linear-gradient(135deg,rgba(109,40,217,.18),rgba(147,51,234,.1))",border:"1px solid rgba(168,85,247,.3)",borderRadius:14,color:"inherit",textDecoration:"none"},
-            "aria-label": "Follow @DreamBMobile on Dream Board Mobile",
+    React.createElement('div', {className:"pg"},
+      React.createElement(BackHeader, {title:"Find Us", onBack:()=>navigate("settings")}),
+      React.createElement('div', {style:{padding:"16px 16px 32px",display:"flex",flexDirection:"column",gap:10}},
+        links.map(function(link) {
+          return React.createElement('a', {
+            key: link.label,
+            href: link.href,
+            target: "_blank",
+            rel: "noopener noreferrer",
+            style: {display:"flex",alignItems:"center",gap:14,padding:"15px 16px",background:link.bg,border:"1px solid "+link.border,borderRadius:14,color:"inherit",textDecoration:"none"},
+            "aria-label": link.label+",",
           },
-          React.createElement('div', {style:{fontSize:28,flexShrink:0}}, "\ud83c\udf19"),
-          React.createElement('div', {style:{flex:1}},
-            React.createElement('div', {style:{fontWeight:700,fontSize:14,color:"var(--tx)"}}, "We Dream here too. Shocking, we know."),
-            React.createElement('div', {style:{fontSize:12,color:"var(--ac3)",fontWeight:600,marginTop:1}}, "@DreamBMobile"),
-            React.createElement('div', {style:{fontSize:11,color:"var(--tx3)",marginTop:2}}, "The official Dream Board Mobile account. On Dream Board Mobile. Very meta.")
-          ),
-          React.createElement('span', {style:{fontSize:11,color:"var(--ac3)"}}, "\u2197")
-        ),
-
-        React.createElement('a', {
-            href: "https://x.com/DreamBMobile",
-            target: "_blank", rel: "noopener noreferrer",
-            style: {display:"flex",alignItems:"center",gap:14,padding:"15px 16px",background:"#000",border:"1px solid #333",borderRadius:14,color:"inherit",textDecoration:"none"},
-            "aria-label": "Follow @DreamBMobile on X",
-          },
-          React.createElement('div', {style:{flexShrink:0}}, React.createElement(Ic.X, {style:{width:22,height:22,color:"#fff"}})),
-          React.createElement('div', {style:{flex:1}},
-            React.createElement('div', {style:{fontWeight:700,fontSize:14,color:"#fff"}}, "We\u2019re on X. Please don\u2019t judge us."),
-            React.createElement('div', {style:{fontSize:12,color:"#aaa",fontWeight:600,marginTop:1}}, "@DreamBMobile"),
-            React.createElement('div', {style:{fontSize:11,color:"#666",marginTop:2}}, "App updates, the occasional hot take, and replies to people who definitely didn\u2019t read the FAQ.")
-          ),
-          React.createElement('span', {style:{fontSize:11,color:"#555"}}, "\u2197")
-        ),
-
-        React.createElement('a', {
-            href: "https://github.com/Shinygold29/dream-board-mobile",
-            target: "_blank", rel: "noopener noreferrer",
-            style: {display:"flex",alignItems:"center",gap:14,padding:"15px 16px",background:"#161b22",border:"1px solid #30363d",borderRadius:14,color:"inherit",textDecoration:"none"},
-            "aria-label": "Dream Board Mobile on GitHub",
-          },
-          React.createElement('div', {style:{fontSize:22,flexShrink:0}}, "\ud83d\udc19"),
-          React.createElement('div', {style:{flex:1}},
-            React.createElement('div', {style:{fontWeight:700,fontSize:14,color:"#e6edf3"}}, "The code. It\u2019s right there. Go look."),
-            React.createElement('div', {style:{fontSize:12,color:"#58a6ff",fontWeight:600,marginTop:1}}, "Shinygold29/dream-board-mobile"),
-            React.createElement('div', {style:{fontSize:11,color:"#8b949e",marginTop:2}}, "Open source. Star it if you like it. Fork it if you love it. File a bug if you\u2019re brave.")
-          ),
-          React.createElement('span', {style:{fontSize:11,color:"#8b949e"}}, "\u2197")
-        ),
-
-        React.createElement('div', {style:{marginTop:4,padding:"11px 14px",background:"var(--sf2)",borderRadius:12,fontSize:11,color:"var(--tx3)",lineHeight:1.65,textAlign:"center"}},
-          "Built in public. No black boxes. You can literally read the code. \ud83d\udc40"
-        )
+            React.createElement('div', {style:{fontSize:24,flexShrink:0,"aria-hidden":"true"}},
+              link.iconEl ? React.createElement(Ic.X, {style:{width:22,height:22,color:"#fff"}}) : link.icon
+            ),
+            React.createElement('div', {style:{flex:1}},
+              React.createElement('div', {style:{fontWeight:700,fontSize:14,color:"var(--tx)"}}, link.label),
+              React.createElement('div', {style:{fontSize:12,color:link.labelColor,fontWeight:600,marginTop:1}}, link.handle),
+              React.createElement('div', {style:{fontSize:11,color:"var(--tx3)",marginTop:2}}, link.desc)
+            )
+          );
+        })
       )
     )
   );
@@ -3663,7 +3677,7 @@ function AdminPanel({navigate}) {
         , React.createElement('div', { style: {fontSize:11,fontWeight:700,color:"#f59e0b",textTransform:"uppercase",letterSpacing:".08em",marginBottom:10},}, "Platform Health" )
         , React.createElement('div', { style: {display:"grid",gridTemplateColumns:"1fr 1fr",gap:10},}
           , [
-            {l:"Total Dreamers",v:stats.users.toLocaleString()},
+            {l:"Total Dreamors",v:stats.users.toLocaleString()},
             {l:"Total Dreams",v:stats.dreams.toLocaleString()},
             {l:"Daily Active",v:stats.dau.toLocaleString()},
             {l:"Monthly Active",v:stats.mau.toLocaleString()},
@@ -3687,7 +3701,7 @@ function AdminPanel({navigate}) {
       /* Admin nav sections */
       , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Management")
       , [
-        {id:"users",icon:"👥",title:"User Management",sub:"Search, ban, verify, manage accounts",color:"#6d28d9",badge:0},
+        {id:"users",icon:"👥",title:"Dreamor Management",sub:"Search, ban, verify, manage accounts",color:"#6d28d9",badge:0},
         {id:"content",icon:"📝",title:"Content Moderation",sub:"Review Dreams, comments, Groups",color:"#be185d",badge:stats.flagged},
         {id:"reports",icon:"🚩",title:"Reports Queue",sub:"Handle reported content and users",color:"#dc2626",badge:stats.reports},
         {id:"announcements",icon:"📢",title:"Announcements",sub:"Post platform-wide announcements",color:"#0e7490",badge:0},
@@ -3719,7 +3733,7 @@ function AdminUsers({onBack}) {
   const verifyUser = id => setUsers(us=>us.map(u=>u.id===id?{...u,verified:!u.verified}:u));
   return (
     React.createElement('div', { className: "pg",}
-      , React.createElement(BackHeader, { title: "User Management" , onBack: onBack,})
+      , React.createElement(BackHeader, { title: "Dreamor Management" , onBack: onBack,})
       , React.createElement('div', { style: {padding:"10px 14px 6px"},}
         , React.createElement('input', { className: "inp", style: {fontSize:14,marginBottom:8}, placeholder: "Search by name or handle…"    , value: q, onChange: e=>setQ(e.target.value), 'aria-label': "Search users" ,})
         , React.createElement('div', { style: {display:"flex",gap:6,flexWrap:"wrap"},}
@@ -3779,7 +3793,7 @@ function AdminContent({onBack}) {
           , React.createElement('div', { style: {display:"flex",gap:6,paddingLeft:41},}
             , React.createElement('button', { className: "btn bp" , style: {padding:"5px 12px",fontSize:11}, onClick: ()=>dismiss(item.id), 'aria-label': "Dismiss report" ,}, "Dismiss")
             , React.createElement('button', { className: "btn bgb" , style: {padding:"5px 12px",fontSize:11,color:"var(--rd)",borderColor:"rgba(248,113,113,.3)"}, onClick: ()=>dismiss(item.id), 'aria-label': "Remove dream" ,}, "Remove Dream" )
-            , React.createElement('button', { className: "btn bgb" , style: {padding:"5px 12px",fontSize:11}, onClick: ()=>dismiss(item.id), 'aria-label': "Warn user" ,}, "Warn User" )
+            , React.createElement('button', { className: "btn bgb" , style: {padding:"5px 12px",fontSize:11}, onClick: ()=>dismiss(item.id), 'aria-label': "Warn user" ,}, "Warn Dreamor" )
           )
         )
       ))
@@ -3830,8 +3844,8 @@ function AdminReports({onBack}) {
 
 function AdminAnalytics({onBack, stats}) {
   const metrics = [
-    {label:"Daily Active Users",value:stats.dau.toLocaleString(),change:"+4.2%",up:true},
-    {label:"Monthly Active Users",value:stats.mau.toLocaleString(),change:"+12.1%",up:true},
+    {label:"Daily Active Dreamors",value:stats.dau.toLocaleString(),change:"+4.2%",up:true},
+    {label:"Monthly Active Dreamors",value:stats.mau.toLocaleString(),change:"+12.1%",up:true},
     {label:"Dreams Posted Today",value:"4,218",change:"+7.8%",up:true},
     {label:"New Signups Today",value:"312",change:"-2.1%",up:false},
     {label:"Avg. Session Length",value:"8m 42s",change:"+0.9%",up:true},
@@ -3895,7 +3909,7 @@ function AdminPlatform({onBack}) {
           {k:"groups",l:"Groups",d:"Enable Groups feature platform-wide"},
           {k:"cherry",l:"Cherry AI",d:"Enable Cherry AI assistant for all users"},
           {k:"polls",l:"Polls",d:"Allow users to create poll Dreams"},
-          {k:"dm",l:"Direct Messages",d:"Enable private messaging between Dreamers"},
+          {k:"dm",l:"Direct Messages",d:"Enable private messaging between Dreamors"},
           {k:"apiAccess",l:"API Access",d:"Allow third-party API integrations"},
           {k:"betaFeatures",l:"Beta Features",d:"Enable unreleased beta features for all users"},
         ].map(r=>(
@@ -3907,7 +3921,7 @@ function AdminPlatform({onBack}) {
 
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Platform Limits" )
         , [
-          {k:"maxDreams",l:"Max Dreams / User",d:"Maximum Dreams a single user can post"},
+          {k:"maxDreams",l:"Max Dreams / Dreamor",d:"Maximum Dreams a single user can post"},
           {k:"maxGroups",l:"Max Groups / User",d:"Maximum Groups a user can create"},
           {k:"reportThreshold",l:"Auto-flag Threshold",d:"Number of reports before content is auto-flagged"},
           {k:"maxDreamLen",l:"Global Max Dream Length",d:"Maximum characters allowed in any Dream"},
@@ -3948,7 +3962,7 @@ function AdminAnnouncements({onBack}) {
           , React.createElement('textarea', { className: "inp", style: {minHeight:100,lineHeight:1.6,fontSize:14,marginBottom:10}, placeholder: "Write your announcement to all Dreamers…", value: txt, onChange: e=>setTxt(e.target.value), 'aria-label': "Announcement text" ,})
           , React.createElement('div', { style: {fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",marginBottom:6},}, "Send To" )
           , React.createElement('div', { style: {display:"flex",gap:6,marginBottom:12,flexWrap:"wrap"},}
-            , [{id:"all",l:"All Dreamers"},{id:"verified",l:"Verified Only"},{id:"admins",l:"Admins Only"},{id:"beta",l:"Beta Testers"}].map(t=>(
+            , [{id:"all",l:"All Dreamors"},{id:"verified",l:"Verified Only"},{id:"admins",l:"Admins Only"},{id:"beta",l:"Beta Testers"}].map(t=>(
               React.createElement('button', { key: t.id, className: "btn"+(target===t.id?" bp":" bgb"), style: {padding:"5px 12px",fontSize:11}, onClick: ()=>setTarget(t.id), 'aria-label': "Send to "+t.l,}, t.l)
             ))
           )
@@ -3960,7 +3974,7 @@ function AdminAnnouncements({onBack}) {
           React.createElement('div', { key: h.id, style: {background:"var(--sf2)",borderRadius:11,padding:13,marginBottom:10,border:"1px solid var(--bd)"},}
             , React.createElement('p', { style: {fontSize:13,color:"var(--tx)",lineHeight:1.55,marginBottom:7},}, h.text)
             , React.createElement('div', { style: {display:"flex",gap:10,fontSize:11,color:"var(--tx3)"},}
-              , React.createElement('span', null, "📣 " , h.target==="all"?"All Dreamers":h.target)
+              , React.createElement('span', null, "📣 " , h.target==="all"?"All Dreamors":h.target)
               , React.createElement('span', null, "👥 " , h.reach, " reached" )
               , React.createElement('span', null, "🕐 " , h.time)
             )
@@ -4162,7 +4176,7 @@ Want me to post it, or would you like to tweak it first?`,
       const unfollowed = USERS.filter(u=>!following.has(u.id));
       if (!unfollowed.length) return {action:null, result:"You're already following everyone on Dream Board Mobile! 🎉"};
       const picks = unfollowed.slice(0,2).map(u=>`${u.name} (${u.handle}) — ${u.bio.slice(0,40)}…`).join("\n");
-      return {action:"Analysing your interests and engagement…", agentLabel:"Finding Dreamers",
+      return {action:"Analysing your interests and engagement…", agentLabel:"Finding Dreamors",
         result:`Based on your activity, I suggest:
 
 ${picks}
@@ -4689,7 +4703,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
 
   // --- Handlers ---
   const handleDemoLogin = () => {
-    onAuth({ displayName:"Demo Dreamer", name:"Demo Dreamer", handle:"@demodreamer", initials:"DD", color:"#6d28d9", bio:"Exploring Dream Board Mobile.", location:"Dream Land", joined:"February 2024", dreamCount:12, followers:3, following:7, verified:false, email:"demo@dreamboard.app", emailVerified:true, photoURL:null, uid:"demo", isDemo:true });
+    onAuth({ displayName:"Demo Dreamor", name:"Demo Dreamor", handle:"@demodreamer", initials:"DD", color:"#6d28d9", bio:"Exploring Dream Board Mobile.", location:"Dream Land", joined:"February 2024", dreamCount:12, followers:3, following:7, verified:false, email:"demo@dreamboard.app", emailVerified:true, photoURL:null, uid:"demo", isDemo:true });
   };
 
   const handleLogin = async () => {
@@ -5030,7 +5044,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
         , React.createElement('label', { style: {display:"flex",gap:10,alignItems:"flex-start",marginBottom:12,cursor:"pointer",fontSize:13,color:"var(--tx2)",lineHeight:1.55},}
           , React.createElement('input', { type: "checkbox", checked: agreedTerms, onChange: e=>setAgreedTerms(e.target.checked),
             style: {marginTop:2,flexShrink:0,width:16,height:16,cursor:"pointer"},
-            'aria-label': "I agree to the Terms of Service, Privacy Policy and Community Rules",})
+            'aria-label': "I agree to Dream Board Mobile's Terms and Privacy Policy",})
           , React.createElement('span', null, "I agree to Dream Board Mobile\u2019s Terms and Privacy Policy. ", React.createElement('span', { style: {color:"var(--rd)",fontWeight:700},}, "Required."))
         )
         , React.createElement('label', { style: {display:"flex",gap:10,alignItems:"flex-start",marginBottom:20,cursor:"pointer",fontSize:13,color:"var(--tx2)",lineHeight:1.55},}
@@ -5442,7 +5456,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
   const totalAlerts = unreadNotifs + unreadMsgs;
   const [open, setOpen] = useState({});
   const toggle = id => setOpen(o => ({...o, [id]: !o[id]}));
-  const isOpen = id => !open[id]; // default open
+  const isOpen = id => !!open[id]; // default closed
 
   const SECTIONS = [
     { id:"cherry", emoji:"🍒", label:"Cherry AI", items:[
@@ -5477,9 +5491,10 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"🔐", label:"Privacy", sub:"How we protect your data",       action(){onClose();navigate("privacy");} },
     ]},
     { id:"findus", emoji:"📱", label:"Find Us", items:[
-      { icon:"🌙", label:"Dream Board", sub:"@DreamBMobile · Our official account",   href:"https://dreamboard.app/@DreamBMobile" },
-      { icon:"\ud835\udd4f", label:"Twitter",      sub:"@DreamBMobile",                      href:"https://x.com/DreamBMobile" },
-      { icon:"🐙", label:"GitHub",       sub:"Shinygold29/dream-board-mobile",        href:"https://github.com/Shinygold29/dream-board-mobile" },
+      { icon:"🌙", label:"Dream Board Mobile", sub:"@DreamBMobile",                         href:"https://dreamboard.app/@DreamBMobile" },
+      { icon:"\ud835\udd4f", label:"Twitter",         sub:"@DreamBMobile",                href:"https://x.com/DreamBMobile" },
+      { icon:"▶️",  label:"YouTube",          sub:"@DreamBMobile",                         href:"https://youtube.com/@DreamBMobile" },
+      { icon:"🐙", label:"GitHub",            sub:"Shinygold29/dream-board-mobile",        href:"https://github.com/Shinygold29/dream-board-mobile" },
     ]},
   ];
 
@@ -5524,7 +5539,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
               var hasCount = item.count!=null;
               var badge = hasBadge ? React.createElement('span',{key:"b",style:{fontWeight:700,color:"var(--rd)"}}," \u00b7 "+item.badge) : null;
               var count = hasCount ? React.createElement('span',{key:"c",className:"mitem-count"}, item.count) : null;
-              var ariaLabel = item.label+(hasBadge?", "+item.badge+" unread":"")+(hasCount?", "+item.count:"");
+              var ariaLabel = item.label+(hasBadge?", "+item.badge+" unread":"")+(hasCount?", "+item.count:"")+",";
               var itemStyle = item.special==="cherry"
                 ? {background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",borderBottom:"1px solid rgba(168,85,247,.2)"}
                 : item.discoverLink
@@ -5540,7 +5555,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
                   key:item.label, className:"mitem", href:item.href,
                   target:"_blank", rel:"noopener noreferrer",
                   style:Object.assign({},itemStyle,{textDecoration:"none",color:"inherit"}),
-                  "aria-label":ariaLabel+", opens in new tab",
+                  "aria-label":ariaLabel+",",
                 }, iconEl, lblEl, React.createElement('span',{key:"ext",style:{fontSize:11,color:"var(--ac3)"}}, "\u2197"));
               }
               return React.createElement('button',{
@@ -6113,7 +6128,7 @@ useEffect(() => {
     React.createElement(SplashScreen, {
       onLogin: ()=>{ setLoginMode("login"); setAuthStage("auth"); },
       onSignup: ()=>{ setLoginMode("signup"); setAuthStage("auth"); },
-      onDemo: ()=>{ setAuthUser({displayName:"Demo Dreamer",name:"Demo Dreamer",handle:"@demodreamer",initials:"DD",color:"#6d28d9",bio:"Exploring Dream Board Mobile.",location:"Dream Land",joined:"February 2024",dreamCount:12,followers:3,following:7,verified:false,email:"demo@dreamboard.app",emailVerified:true,uid:"demo",isDemo:true}); setAuthStage("app"); },}
+      onDemo: ()=>{ setAuthUser({displayName:"Demo Dreamor",name:"Demo Dreamor",handle:"@demodreamer",initials:"DD",color:"#6d28d9",bio:"Exploring Dream Board Mobile.",location:"Dream Land",joined:"February 2024",dreamCount:12,followers:3,following:7,verified:false,email:"demo@dreamboard.app",emailVerified:true,uid:"demo",isDemo:true}); setAuthStage("app"); },}
     )
   );
   if (authStage === "gate") return React.createElement(TurnstileGate, { onVerified: () => setAuthStage("auth"),});
@@ -6139,7 +6154,7 @@ useEffect(() => {
             onClick: () => goRoot("feed"),
             role: "tab",
             "aria-selected": page==="feed",
-            "aria-label": "Home",
+            "aria-label": "Home,",
             "tabIndex": 0,
           },
           React.createElement('div', {"aria-hidden":"true", className:"nb-check"}),
@@ -6150,7 +6165,7 @@ useEffect(() => {
             onClick: () => goRoot("discover"),
             role: "tab",
             "aria-selected": page==="discover",
-            "aria-label": "Discover",
+            "aria-label": "Discover,",
             "tabIndex": 0,
           },
           React.createElement('div', {"aria-hidden":"true", className:"nb-check"}),
@@ -6189,7 +6204,7 @@ useEffect(() => {
             , [
               {ic:"✏️", title:"Write & post Dreams", desc:"Ask Cherry to draft a Dream and post it to your feed instantly"},
               {ic:"👥", title:"Follow & connect", desc:"Cherry can follow Dreamers that match your interests"},
-              {ic:"🏘️", title:"Join Groups", desc:"Cherry finds and joins communities you'll love"},
+              {ic:"🏘️", title:"Join Circles", desc:"Cherry finds and joins communities you'll love"},
               {ic:"🔔", title:"Manage notifications", desc:"Cherry summarises and clears your alerts"},
               {ic:"🔍", title:"Analyse your feed", desc:"Get real-time insights on trending content and your activity"},
             ].map(f=>(
