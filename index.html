@@ -336,6 +336,9 @@ h2.slbl,div.slbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:
 .mitem-badge{background:var(--rd);color:#fff;font-size:10px;font-weight:800;min-width:18px;height:18px;border-radius:9px;padding:0 5px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .mitem-count{font-size:13px;color:var(--tx3);font-weight:700;flex-shrink:0;background:var(--sf2);border:1px solid var(--bd2);border-radius:100px;padding:2px 9px}
 
+/* Screen reader pause — visually hidden period, creates natural pause without comma */
+.sr-pause{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+
 /* Analytics banner overlay */
 .analytics-banner{position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.75);backdrop-filter:blur(10px);display:flex;align-items:flex-end;justify-content:center;padding:0 0 calc(env(safe-area-inset-bottom,0px)+16px)}
 .analytics-banner>div{background:var(--sf);border-radius:20px 20px 0 0;width:100%;max-width:430px;padding:24px 20px}
@@ -631,7 +634,7 @@ function BottomMenu({onClose, items, title}) {
           return React.createElement('button', {
             key:x.l,
             onClick:x.a,
-            "aria-label":x.l+",",
+            "aria-label":x.l,
             style:{display:"flex",alignItems:"center",gap:14,width:"100%",
                    padding:"14px 20px",background:"none",border:"none",
                    cursor:"pointer",textAlign:"left"},
@@ -1235,7 +1238,7 @@ function DiscoverPage({navigate, cherryCtx}) {
             },
             onClick:()=>setFiltersOpen(o=>!o),
             "aria-expanded":filtersOpen,
-            "aria-label":filterBtnText+",",
+            "aria-label":filterBtnText,
           },
             React.createElement('span', {style:{fontSize:12}}, "\u2699\ufe0f"),
             React.createElement('span', null, filterBtnText),
@@ -2303,6 +2306,23 @@ function ProfilePage({navigate, authUser}) {
   else if (tab==="saved") tabDreams = sortDreams(dreams.filter(d=>d.bookmarked));
   else if (tab==="liked") tabDreams = sortDreams(dreams.filter(d=>d.liked));
 
+  if (isGuest) return (
+    React.createElement('div', { className: "pg"},
+      React.createElement('div', { className: "hdr"},
+        React.createElement('div', { style: {padding:"48px 16px 16px"}},
+          React.createElement('h1', { className: "htit", tabIndex:-1}, "Profile")
+        )
+      ),
+      React.createElement('div', { style: {display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"60px 24px",textAlign:"center"}},
+        React.createElement('div', { style: {fontSize:56,marginBottom:16}}, "🌙"),
+        React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:22,marginBottom:8,color:"var(--tx)"}}, "You are in Guest Mode"),
+        React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.7,marginBottom:24}}, "Create a Dream Board Mobile ID to get your profile, save your Dreams, follow Dreamors and make it yours."),
+        React.createElement('button', { className: "btn bp", style: {padding:"12px 28px",fontSize:14,marginBottom:12}, onClick: ()=>navigate("login"), "aria-label": "Create a Dream Board Mobile ID"}, "Create Account"),
+        React.createElement('button', { className: "btn bgb", style: {padding:"10px 24px",fontSize:13}, onClick: ()=>navigate("login"), "aria-label": "Sign in to your account"}, "Sign In")
+      )
+    )
+  );
+
   return (
     React.createElement('div', { className: "pg",}
       , React.createElement('div', { className: "pcov",}
@@ -2344,7 +2364,7 @@ function ProfilePage({navigate, authUser}) {
               className: "ftab" + (tab===t.id ? " on" : ""),
               onClick: ()=>setTab(t.id),
               role: "tab",
-              "aria-label": t.label+"("+t.count+"),",
+              "aria-label": t.label+"("+t.count+")",
               "aria-selected": tab===t.id,
               tabIndex: tab===t.id ? 0 : -1,
             },
@@ -2453,7 +2473,7 @@ function DreamerProfilePage({user, navigate, cherryCtx}) {
               className: "ftab" + (tab===t.id ? " on" : ""),
               onClick: ()=>setTab(t.id),
               role: "tab",
-              "aria-label": t.label+"("+t.count+"),",
+              "aria-label": t.label+"("+t.count+")",
               "aria-selected": tab===t.id,
               tabIndex: tab===t.id ? 0 : -1,
             },
@@ -3501,7 +3521,7 @@ function SocialSettings({navigate}) {
             target: "_blank",
             rel: "noopener noreferrer",
             style: {display:"flex",alignItems:"center",gap:14,padding:"15px 16px",background:link.bg,border:"1px solid "+link.border,borderRadius:14,color:"inherit",textDecoration:"none"},
-            "aria-label": link.label+",",
+            "aria-label": link.label,
           },
             React.createElement('div', {style:{fontSize:24,flexShrink:0,"aria-hidden":"true"}},
               link.iconEl ? React.createElement(Ic.X, {style:{width:22,height:22,color:"#fff"}}) : link.icon
@@ -5520,11 +5540,12 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
               onClick:function(){ toggle(s.id); },
               "aria-expanded":sOpen,
               "aria-controls":"msec-"+s.id,
-              "aria-label":s.label+(s.badge>0?", "+s.badge+" unread":"")+",",
+              "aria-label":s.label+(s.badge>0?", "+s.badge+" unread":""),
             },
               React.createElement('span', {style:{display:"flex",alignItems:"center",gap:7}},
                 React.createElement('span', {"aria-hidden":"true"}, s.emoji+" "),
                 React.createElement('span', null, s.label),
+                React.createElement('span', {className:"sr-pause","aria-hidden":"true"}, "."),
                 s.badge>0 ? React.createElement('span', {className:"mitem-badge","aria-hidden":"true",style:{marginLeft:4}}, s.badge) : null
               ),
               React.createElement('span', {className:"msec-toggle-ic"+(sOpen?" open":""),"aria-hidden":"true"}, "\u203a")
@@ -5544,7 +5565,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
               var hasCount = item.count!=null;
               var badge = hasBadge ? React.createElement('span',{key:"b",style:{fontWeight:700,color:"var(--rd)"}}," \u00b7 "+item.badge) : null;
               var count = hasCount ? React.createElement('span',{key:"c",className:"mitem-count"}, item.count) : null;
-              var ariaLabel = item.label+(hasBadge?", "+item.badge+" unread":"")+(hasCount?", "+item.count:"")+",";
+              var ariaLabel = item.label+(hasBadge?", "+item.badge+" unread":"")+(hasCount?", "+item.count:"");
               var itemStyle = item.special==="cherry"
                 ? {background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",borderBottom:"1px solid rgba(168,85,247,.2)"}
                 : item.discoverLink
@@ -6159,7 +6180,7 @@ useEffect(() => {
             onClick: () => goRoot("feed"),
             role: "tab",
             "aria-selected": page==="feed",
-            "aria-label": "Home,",
+            "aria-label": "Home",
             "tabIndex": 0,
           },
           React.createElement('div', {"aria-hidden":"true", className:"nb-check"}),
@@ -6170,7 +6191,7 @@ useEffect(() => {
             onClick: () => goRoot("discover"),
             role: "tab",
             "aria-selected": page==="discover",
-            "aria-label": "Discover,",
+            "aria-label": "Discover",
             "tabIndex": 0,
           },
           React.createElement('div', {"aria-hidden":"true", className:"nb-check"}),
