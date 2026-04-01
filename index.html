@@ -374,7 +374,7 @@ const USERS = [
   {id:5,name:"Sam Rivera",handle:"@samr",bio:"Student · coffee addict · posting whatever I feel like 🤷",initials:"SR",color:"#15803d",verified:false,location:"Miami, FL",website:null,joined:"April 2023",dreamCount:890,followers:7200,following:2900},
   {id:6,name:"Dream Board",handle:"@DreamBMobile",bio:"The official Dream Board Mobile account 🌙 Share what's on your mind.",initials:"DB",color:"#6d28d9",verified:true,location:"Everywhere",website:"dreamboard.app",joined:"January 2023",dreamCount:412,followers:1200000,following:0},
 ];
-const ME = {id:0,name:"Demo Dreamor",handle:"@demodreamer",initials:"DD",bio:"Just checking out Dream Board Mobile 👋",color:"#6d28d9",verified:false,location:"",joined:"March 2026",dreamCount:2,followers:3,following:7,age:25};
+const ME = {id:0,name:"Guest",handle:"@guest",initials:"DD",bio:"Just checking out Dream Board Mobile 👋",color:"#6d28d9",verified:false,location:"",joined:"March 2026",dreamCount:2,followers:3,following:7,age:25};
 
 const DREAMS_INIT = [
   {id:1,user:USERS[0],time:"2m",text:"ok whoever invented the croissant deserves a statue. that's my entire thought.",likes:6201,comments:441,redreams:1820,quotes:93,liked:false,redreamed:false,quoted:false,bookmarked:false},
@@ -2279,7 +2279,8 @@ function GroupsPage({navigate, cherryCtx}) {
 }
 
 /* --- PROFILE (OWN) ----------------------- */
-function ProfilePage({navigate}) {
+function ProfilePage({navigate, authUser}) {
+  const isGuest = authUser && (authUser.isGuest || authUser.uid==="guest");
   const [tab, setTab] = useState("dreams");
   const {dreams, tl, tr, tur, tq, tuq, tb, tc} = useDreams(DREAMS_INIT.slice(0,3));
   const [editing, setEditing] = useState(false);
@@ -2679,7 +2680,7 @@ function SettingsPage({prefs, setPrefs, navigate, onSignOut, authUser, theme, se
 
 /* --- ACCOUNT SETTINGS ---------------------------------------------------- */
 function AccountSettings({navigate, authUser, onSignOut}) {
-  const isDemo = !authUser || authUser.uid === "demo" || authUser.isDemo;
+  const isDemo = !authUser || authUser.uid === "guest" || authUser.isGuest;
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [show2FA,       setShow2FA]       = useState(false);
   const [showPW,        setShowPW]        = useState(false);
@@ -3561,8 +3562,8 @@ function MorePage({navigate, cherryCtx, authUser}) {
           , React.createElement('div', { style: {flex:1},}
             , React.createElement('div', { style: {fontWeight:700,fontSize:15,display:"flex",alignItems:"center",gap:6},}, ME.name, IS_ADMIN&&React.createElement('span', { style: {background:"linear-gradient(135deg,#f59e0b,#d97706)",color:"#000",fontSize:9,fontWeight:800,padding:"1px 6px",borderRadius:100},}, "ADMIN"))
             , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)"},}, ME.handle)
-            , (!authUser || authUser.uid === "demo" || authUser.isDemo) && (
-              React.createElement('div', { style: {fontSize:10,fontWeight:700,color:"var(--ac3)",background:"rgba(109,40,217,.15)",borderRadius:20,padding:"2px 8px",marginTop:3,display:"inline-block"},}, "DEMO ACCOUNT"
+            , (!authUser || authUser.uid === "guest" || authUser.isGuest) && (
+              React.createElement('div', { style: {fontSize:10,fontWeight:700,color:"var(--ac3)",background:"rgba(109,40,217,.15)",borderRadius:20,padding:"2px 8px",marginTop:3,display:"inline-block"},}, "GUEST MODE"
 
               )
             )
@@ -3574,7 +3575,9 @@ function MorePage({navigate, cherryCtx, authUser}) {
         , [
           {icon:"🍒",l:"Cherry AI",sub:"Your Dream Board companion",a:()=>navigate("cherry"),color:"#6d28d9"},
           {icon:"📝",l:"Drafts",sub:"Your saved Dream drafts",a:()=>navigate("drafts"),color:"#374151"},
-          {icon:"👤",l:"Account",sub:"Your Dream Board Mobile ID",a:()=>navigate("settings_account"),color:"#6d28d9"},
+          authUser && (authUser.isGuest || authUser.uid==="guest")
+            ? {icon:"🔑",l:"Sign In or Create Account",sub:"Get a Dream Board Mobile ID",a:()=>navigate("login"),color:"#6d28d9"}
+            : {icon:"👤",l:"Account",sub:"Your Dream Board Mobile ID",a:()=>navigate("settings_account"),color:"#6d28d9"},
           {icon:"⚙️",l:"Settings",sub:"Account, privacy, accessibility",a:()=>navigate("settings"),color:"#374151"},
           {icon:"ℹ️",l:"About",sub:"Version, terms, community guidelines",a:()=>navigate("about"),color:"#374151"},
           {icon:"💬",l:"Send Feedback",sub:"Help us improve Dream Board Mobile",a:()=>navigate("feedback"),color:"#0e7490"},
@@ -4635,7 +4638,7 @@ function SplashScreen({ onLogin, onSignup, onDemo }) {
 
         )
         , React.createElement('button', { className: "splash-btn-ghost", onClick: onDemo,
-          'aria-label': "Continue with Demo ID"      ,}, "Try Demo"
+          'aria-label': "Continue with Demo ID"      ,}, "Guest Mode"
 
         )
       )
@@ -4703,7 +4706,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
 
   // --- Handlers ---
   const handleDemoLogin = () => {
-    onAuth({ displayName:"Demo Dreamor", name:"Demo Dreamor", handle:"@demodreamer", initials:"DD", color:"#6d28d9", bio:"Exploring Dream Board Mobile.", location:"Dream Land", joined:"February 2024", dreamCount:12, followers:3, following:7, verified:false, email:"demo@dreamboard.app", emailVerified:true, photoURL:null, uid:"demo", isDemo:true });
+    onAuth({ displayName:"Guest", name:"Guest", handle:"@guest", initials:"DD", color:"#6d28d9", bio:"Browsing as a guest. Sign in to Dream.", location:"Dream Land", joined:"February 2024", dreamCount:12, followers:3, following:7, verified:false, email:"guest@dreamboard.app", emailVerified:true, photoURL:null, uid:"demo", isGuest:true });
   };
 
   const handleLogin = async () => {
@@ -4853,7 +4856,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
         )
         , React.createElement('div', { style: {marginTop:12,paddingTop:12,borderTop:"1px solid var(--bd)"},}
           , React.createElement('button', { className: "btn", style: {width:"100%",padding:11,fontSize:13,background:"var(--sf2)",color:"var(--tx2)",border:"1px solid var(--bd2)",borderRadius:12},
-            onClick: handleDemoLogin, disabled: busy, 'aria-label': "Continue with Demo ID"      ,}, "Try Demo"
+            onClick: handleDemoLogin, disabled: busy, 'aria-label': "Continue with Demo ID"      ,}, "Guest Mode"
 
           )
           , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",textAlign:"center",marginTop:6},}, "No sign-up needed. Explore freely."    )
@@ -5531,8 +5534,10 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
           React.createElement('div', {
             id:"msec-"+s.id,
             className:"msec-body"+(sOpen?"":" closed"),
-            style:{maxHeight: sOpen ? (s.items.length*68)+"px" : "0px"},
+            style:{maxHeight: sOpen ? (s.items.length*68)+"px" : "0px", visibility: sOpen ? "visible" : "hidden"},
             role:"group","aria-label":s.label+" items",
+            "aria-hidden": !sOpen,
+            inert: sOpen ? undefined : "",
           },
             s.items.map(function(item) {
               var hasBadge = item.badge>0;
@@ -6093,7 +6098,7 @@ useEffect(() => {
       case "discover":      return React.createElement(DiscoverPage, { navigate: navigate, cherryCtx: cherryCtx,});
       case "alerts":        return React.createElement(AlertsPage, { cherryCtx: cherryCtx,});
       case "groups":        return React.createElement(GroupsPage, { navigate: navigate, cherryCtx: cherryCtx,});
-      case "profile":       return React.createElement(ProfilePage, { navigate: navigate, cherryCtx: cherryCtx,});
+      case "profile":       return React.createElement(ProfilePage, { navigate: navigate, cherryCtx: cherryCtx, authUser: authUser,});
       case "dp":            return pdata ? React.createElement(DreamerProfilePage, { user: pdata, navigate: navigate, cherryCtx: cherryCtx,}) : React.createElement(FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
       case "settings":      return React.createElement(SettingsPage, { prefs: prefs, setPrefs: setPrefs, navigate: navigate, onSignOut: handleSignOut, authUser: authUser, theme: theme, setTheme: setTheme, drafts: drafts,});
       case "settings_account":        return React.createElement(AccountSettings, { navigate: navigate, authUser: authUser, onSignOut: handleSignOut,});
@@ -6128,7 +6133,7 @@ useEffect(() => {
     React.createElement(SplashScreen, {
       onLogin: ()=>{ setLoginMode("login"); setAuthStage("auth"); },
       onSignup: ()=>{ setLoginMode("signup"); setAuthStage("auth"); },
-      onDemo: ()=>{ setAuthUser({displayName:"Demo Dreamor",name:"Demo Dreamor",handle:"@demodreamer",initials:"DD",color:"#6d28d9",bio:"Exploring Dream Board Mobile.",location:"Dream Land",joined:"February 2024",dreamCount:12,followers:3,following:7,verified:false,email:"demo@dreamboard.app",emailVerified:true,uid:"demo",isDemo:true}); setAuthStage("app"); },}
+      onDemo: ()=>{ setAuthUser({displayName:"Guest",name:"Guest",handle:"@guest",initials:"DD",color:"#6d28d9",bio:"Browsing as a guest. Sign in to Dream.",location:"Dream Land",joined:"February 2024",dreamCount:12,followers:3,following:7,verified:false,email:"guest@dreamboard.app",emailVerified:true,uid:"demo",isGuest:true}); setAuthStage("app"); },}
     )
   );
   if (authStage === "gate") return React.createElement(TurnstileGate, { onVerified: () => setAuthStage("auth"),});
