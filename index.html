@@ -901,7 +901,7 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
             )
           )
           /* Comments */
-          , sorted.map(cm => React.createElement(CommentItem, { key: cm.id, cm: cm,}))
+          , sorted.map(cm => React.createElement(CommentItem, { key: cm.id, cm: cm, navigate: navigate,}))
           , comments.length===0 && React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "💬"), React.createElement('div', { className: "esl",}, "No comments yet"  ))
           , React.createElement('div', { ref: endRef, style: {height:16},})
         )
@@ -967,7 +967,9 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
             , React.createElement('span', { className: "dc-dot",}, "·")
             , React.createElement('span', { className: "dc-handle",}, dream.user.handle)
             , React.createElement('span', { className: "dc-dot",}, "·")
-            , React.createElement('span', { className: "dc-time",}, dream.time)
+            , dream.user.isOriginals
+              ? React.createElement('span', { style: {fontSize:10,background:"rgba(124,58,237,.15)",color:"var(--ac3)",padding:"1px 6px",borderRadius:4,fontWeight:700},}, "Founding Dream")
+              : React.createElement('span', { className: "dc-time",}, dream.time)
             , linkInfo && React.createElement(React.Fragment, null, React.createElement('span', { className: "dc-dot",}, "·"), React.createElement('span', { className: "dc-domain",}, linkInfo.domain))
           )
           , React.createElement('div', { className: "dc-body",}
@@ -2466,7 +2468,8 @@ function DreamerProfilePage({user, navigate, cherryCtx}) {
   const redreamed = dreams.filter(d=>d.redreamed);
 
   let tabDreams = [];
-  if (tab==="dreams") tabDreams = sortDreams(dreams);
+  if (tab==="all") tabDreams = sortDreams(dreams);
+  else if (tab==="dreams") tabDreams = sortDreams(dreams);
   else if (tab==="redreams") tabDreams = sortDreams(redreamed);
   else if (tab==="liked") tabDreams = sortDreams(liked);
 
@@ -2795,7 +2798,7 @@ function AccountSettings({navigate, authUser, onSignOut}) {
 
         /* Profile info (real accounts) */
         , !isDemo && React.createElement(React.Fragment, null
-            , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Dream Board Mobile ID")
+            , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Dream ID")
             , React.createElement('div', { className: "sr", style: {cursor:"pointer"}, onClick: ()=>setShow2FA(false)||alert("Edit name: coming soon"),}
               , React.createElement('div', null
                 , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,textTransform:"uppercase",letterSpacing:".04em",marginBottom:2},}, "Display Name")
@@ -3594,6 +3597,7 @@ function AboutSettings({navigate}) {
         {l:"Rules",icon:"📋",a:()=>navigate("guidelines")},
         {l:"Open Source Licenses",icon:"⚖️",a:()=>{}},
         {l:"Send Feedback",icon:"💬",a:()=>navigate("feedback")},
+        {l:"Our Story",icon:"📖",a:()=>navigate("hour_story")},
       ].map(item => (
         React.createElement('button', { key: item.l, className: "snav", onClick: item.a, 'aria-label': item.l,}
           , React.createElement('div', { className: "snav-l",}
@@ -4104,6 +4108,112 @@ const TERMS_CONTENT = `<h2>1. Agreement</h2><p>By using Dream Board Mobile, you 
 const PRIVACY_CONTENT = `<h2>1. Information We Collect</h2><p>We collect information you provide (name, email, content you post) and usage data (how you interact with the app).</p><h2>2. How We Use It</h2><p>We use your information to provide and improve Dream Board Mobile, personalize your experience and communicate with you.</p><h2>3. Sharing</h2><p>We do not sell your personal information. We may share data with service providers who help us operate the platform.</p><h2>4. Your Rights</h2><p>You can access, correct or delete your data at any time through Settings. You may also request a data export.</p><h2>5. Cookies</h2><p>We use cookies to maintain your session and improve app performance. You can manage cookie preferences in your device settings.</p><h2>6. Contact</h2><p>For privacy concerns, contact privacy@dreamboard.app. Last updated: February 2026.</p>`;
 const GUIDELINES_CONTENT = `<h2>1. Be Kind</h2><p>Treat all Dreamers with respect. Harassment, bullying or targeted hate speech is not permitted on Dream Board Mobile.</p><h2>2. Authentic Dreams</h2><p>Post authentic content. Do not impersonate others, spread misinformation or use automated accounts without disclosure.</p><h2>3. Safe Content</h2><p>Do not post violent, sexually explicit or otherwise harmful content. Content involving minors in any inappropriate context is strictly forbidden.</p><h2>4. Groups</h2><p>Groups must have a clear, positive purpose. Group moderators must enforce these guidelines within their communities.</p><h2>5. Reporting</h2><p>Use the report button on any Dream, comment or profile to flag content that violates these guidelines. Our team reviews all reports.</p><h2>6. Consequences</h2><p>Violations may result in content removal, account suspension or permanent bans depending on severity. Last updated: February 2026.</p>`;
 
+/* --- HOUR STORY PAGE ----------------------------------------------------- */
+function HourStoryPage({ navigate, back }) {
+  return (
+    React.createElement('div', { className: "pg",}
+      , React.createElement(BackHeader, { title: "Our Story", onBack: ()=>navigate(back||"more"),})
+      , React.createElement('div', { style: {padding:"24px 20px 48px"},}
+
+        // Hero
+        , React.createElement('div', { style: {textAlign:"center",marginBottom:32,padding:"0 8px"},}
+          , React.createElement('div', { style: {fontSize:56,marginBottom:12,'aria-hidden':"true"},}, "🌙")
+          , React.createElement('h1', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:26,lineHeight:1.3,
+              background:"linear-gradient(135deg,var(--ac4),var(--ac3))",
+              WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text",
+              marginBottom:12},}, "Dream Board Mobile")
+          , React.createElement('p', { style: {fontSize:15,color:"var(--tx2)",lineHeight:1.75},},
+            "A social platform built by one person, with one goal: to give you a space that actually belongs to you."
+          )
+        )
+
+        // Story sections
+        , React.createElement('div', { style: {display:"flex",flexDirection:"column",gap:28},}
+
+          , React.createElement('section', { 'aria-label': "How it started",}
+            , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10},}, "How it started")
+            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8},},
+              "Dream Board Mobile started as a late-night idea. Not a business plan. Not a pitch deck. Just a feeling that the internet needed a place that was quieter, kinder, and more yours."
+            )
+            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8,marginTop:10},},
+              "It was built from scratch — one screen at a time, one feature at a time — by Alhasan, a developer who wanted something that did not exist yet. A place where accessibility was not an afterthought. Where you were not the product. Where there were no ads telling you what to want."
+            )
+          )
+
+          , React.createElement('div', { style: {height:1,background:"var(--bd)",'aria-hidden':"true"},})
+
+          , React.createElement('section', { 'aria-label': "What we believe",}
+            , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10},}, "What we believe")
+            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8},},
+              "We believe the best social platforms feel like journals, not stadiums. We believe people deserve tools that work for them — not against them. We believe accessibility is not a feature, it is a right."
+            )
+            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8,marginTop:10},},
+              "Dream Board Mobile is free. It will stay free. Not free-with-ads free. Actually free. Because we think that is just how it should be."
+            )
+          )
+
+          , React.createElement('div', { style: {height:1,background:"var(--bd)",'aria-hidden':"true"},})
+
+          , React.createElement('section', { 'aria-label': "Built with Claude",}
+            , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10},}, "Built in the open")
+            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8},},
+              "This app was built transparently — with Claude as a development partner, documented in the open, and released as open source. Anyone can read the code, fork it, build on top of it. That is intentional. We want this to belong to everyone."
+            )
+            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8,marginTop:10},},
+              "You can find the source code at github.com/Shinygold29/dream-board-mobile. If you want to contribute, improve it, or just see how it was made, it is all there."
+            )
+          )
+
+          , React.createElement('div', { style: {height:1,background:"var(--bd)",'aria-hidden':"true"},})
+
+          , React.createElement('section', { 'aria-label': "To you",}
+            , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10},}, "To you")
+            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8},},
+              "If you are reading this, you are part of it. You are not a user number in a database. You are a Dreamor — and this place is yours as much as it is anyone's."
+            )
+            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8,marginTop:10},},
+              "Post something. Follow someone interesting. Come back tomorrow. Bring a friend. That is all we ask."
+            )
+            , React.createElement('p', { style: {fontSize:15,color:"var(--ac3)",fontStyle:"italic",lineHeight:1.8,marginTop:14},},
+              "Thank you for being here. Seriously."
+            )
+          )
+
+          // Mission statement
+          , React.createElement('div', { style: {background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",border:"1px solid rgba(168,85,247,.2)",borderRadius:16,padding:"20px 18px",textAlign:"center"},}
+            , React.createElement('div', { style: {fontSize:28,marginBottom:10,'aria-hidden':"true"},}, "🌙")
+            , React.createElement('p', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:17,color:"var(--tx)",lineHeight:1.6,fontStyle:"italic"},},
+              "'A platform that puts the dreamer first. Free, accessible, and always yours.'"
+            )
+            , React.createElement('p', { style: {fontSize:11,color:"var(--tx3)",marginTop:8},}, "Dream Board Mobile mission statement")
+          )
+
+          // Social links
+          , React.createElement('div', { style: {display:"flex",flexDirection:"column",gap:10},}
+            , React.createElement('div', { style: {fontSize:13,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em"},}, "Find us")
+            , [
+              {icon:"🌙",label:"Dream Board Mobile on DBM",sub:"@DreamBMobile",a:()=>{}},
+              {icon:"𝕏",label:"Dream Board Mobile on X",sub:"@DreamBMobile",a:()=>{}},
+              {icon:"📂",label:"Source code on GitHub",sub:"Shinygold29/dream-board-mobile",a:()=>{}},
+            ].map(item =>
+              React.createElement('button', { key: item.label, className: "snav", onClick: item.a, 'aria-label': item.label,}
+                , React.createElement('div', { className: "snav-l",}
+                  , React.createElement('div', { className: "snav-ic", style: {background:"var(--sf2)",fontSize:17},}, item.icon)
+                  , React.createElement('div', null,
+                    React.createElement('div', { className: "snav-title",}, item.label),
+                    React.createElement('div', { className: "snav-sub",}, item.sub)
+                  )
+                )
+                , React.createElement(Ic.Chv, {style:{width:16,height:16,color:"var(--tx3)"}})
+              )
+            )
+          )
+        )
+      )
+    )
+  );
+}
+
 /* --- APP --------------------------------- */
 const NAV = [
   {id:"feed",    l:"Home",     icon:"Home",  badge:0},
@@ -4122,6 +4232,7 @@ function CherryOverlay({onClose, cherryCtx, initMsg, navigate}) {
   const [agentStatus, setAgentStatus] = useState(null);
   const [agentTask, setAgentTask] = useState("");
   const [showHistory, setShowHistory] = useState(false);
+  const [showHistoryDialog, setShowHistoryDialog] = useState(false);
   const [pendingAction, setPendingAction] = useState(null); // {label, fn}
   const endRef = useRef(null);
 
@@ -4431,11 +4542,57 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
               , React.createElement('span', { style: {width:5,height:5,borderRadius:"50%",background:"var(--gr)",display:"inline-block"},}), "AI Agent · Connected to your Dream Board"
             )
           )
-          , React.createElement('button', { className: "bi", onClick: ()=>setShowHistory(true), 'aria-label': "Chat history" , title: "Chat history" ,}
-            , React.createElement('svg', { width: "17", height: "17", viewBox: "0 0 24 24"   , fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round",}, React.createElement('path', { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"                  ,}))
+          , React.createElement('button', { className: "bi", onClick: ()=>setShowHistoryDialog(true), 'aria-label': "History and new conversation", title: "History / New chat",}
+            , React.createElement('svg', { width: "17", height: "17", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round"},
+              React.createElement('path', {d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"})
+            )
           )
           , React.createElement('button', { className: "bi", onClick: onClose, 'aria-label': "Close", style: {fontSize:17,color:"var(--tx3)"},}, "✕")
         )
+
+        /* History / New conversation dialog at top */
+        , showHistoryDialog && React.createElement('div', {
+            style: {position:"absolute",top:80,left:12,right:12,zIndex:200,
+              background:"var(--sf)",border:"1px solid var(--bd2)",borderRadius:14,
+              boxShadow:"0 4px 24px rgba(0,0,0,.45)",padding:"6px 0 4px",
+              animation:"fu .18s ease"},
+            role: "dialog", 'aria-label': "Chat options",}
+          , React.createElement('div', {style:{padding:"8px 16px 8px",fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".08em"}}, "Cherry Chat")
+          , React.createElement('button', {
+              onClick: ()=>{setShowHistoryDialog(false);setShowHistory(true);},
+              style: {display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 16px",
+                background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",borderTop:"1px solid var(--bd)"},
+              'aria-label': "View chat history",}
+            , React.createElement('span', {style:{fontSize:18},}, "🕐")
+            , React.createElement('div', {style:{textAlign:"left"}},
+              React.createElement('div', {style:{fontSize:14,fontWeight:600,color:"var(--tx)"}}, "Chat History"),
+              React.createElement('div', {style:{fontSize:12,color:"var(--tx3)"}}, "View past conversations")
+            )
+          )
+          , React.createElement('button', {
+              onClick: ()=>{setShowHistoryDialog(false);setMsgs([{me:false,text:"Hey! I am Cherry 🍒 — starting a new conversation. What would you like to do?"}]);},
+              style: {display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 16px",
+                background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",borderTop:"1px solid var(--bd)"},
+              'aria-label': "Start a new conversation",}
+            , React.createElement('span', {style:{fontSize:18},}, "✏️")
+            , React.createElement('div', {style:{textAlign:"left"}},
+              React.createElement('div', {style:{fontSize:14,fontWeight:600,color:"var(--tx)"}}, "New Conversation"),
+              React.createElement('div', {style:{fontSize:12,color:"var(--tx3)"}}, "Clear history, start fresh")
+            )
+          )
+          , React.createElement('button', {
+              onClick: ()=>setShowHistoryDialog(false),
+              style: {display:"block",width:"calc(100% - 28px)",margin:"8px 14px 6px",padding:"10px",
+                background:"var(--sf2)",border:"none",borderRadius:10,fontSize:14,
+                fontWeight:600,color:"var(--tx3)",cursor:"pointer",fontFamily:"inherit"},
+              'aria-label': "Cancel",}, "Cancel")
+        )
+
+        /* Click outside to close history dialog */
+        , showHistoryDialog && React.createElement('div', {
+            onClick: ()=>setShowHistoryDialog(false),
+            style: {position:"absolute",inset:0,zIndex:199},
+            'aria-hidden': "true",})
 
         /* Quick status strip */
         , React.createElement('div', { style: {display:"flex",gap:7,padding:"8px 14px",overflowX:"auto",scrollbarWidth:"none",borderBottom:"1px solid var(--bd)",background:"var(--sf)"},}
@@ -4747,7 +4904,7 @@ function SplashScreen({ onLogin, onSignup, onDemo }) {
 
         )
         , React.createElement('button', { className: "splash-btn-ghost", onClick: onDemo,
-          'aria-label': "Continue with Demo ID"      ,}, "Guest Mode"
+          'aria-label': "Continue as Guest"      ,}, "Guest Mode"
 
         )
       )
@@ -4937,7 +5094,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
         , React.createElement('button', { onClick: onBack, style: {background:"none",border:"none",color:"var(--tx3)",fontSize:13,cursor:"pointer",padding:"0 0 12px",textAlign:"left",fontFamily:"inherit",display:"flex",alignItems:"center",gap:4}, 'aria-label': "Back to welcome screen"   ,}, "Back"
 
         )
-        , React.createElement('div', { className: "auth-title",}, "LOGIN TO YOUR ID" )
+        , React.createElement('div', { className: "auth-title",}, "LOGIN TO YOUR DREAM ID" )
         , React.createElement('div', { className: "auth-sub",}, "WELCOME BACK"  )
         , err  && React.createElement('div', { className: "auth-error",}, React.createElement('span', null, "Warning:"), React.createElement('span', null, err))
         , msg  && React.createElement('div', { style: {background:"rgba(34,197,94,.12)",border:"1px solid rgba(34,197,94,.3)",borderRadius:10,padding:"10px 14px",fontSize:13,color:"#22c55e",marginBottom:14},}, msg)
@@ -4972,7 +5129,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
         )
         , React.createElement('div', { style: {marginTop:12,paddingTop:12,borderTop:"1px solid var(--bd)"},}
           , React.createElement('button', { className: "btn", style: {width:"100%",padding:11,fontSize:13,background:"var(--sf2)",color:"var(--tx2)",border:"1px solid var(--bd2)",borderRadius:12},
-            onClick: handleDemoLogin, disabled: busy, 'aria-label': "Continue with Demo ID"      ,}, "Guest Mode"
+            onClick: handleDemoLogin, disabled: busy, 'aria-label': "Continue as Guest"      ,}, "Guest Mode"
 
           )
           , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",textAlign:"center",marginTop:6},}, "No sign-up needed. Explore freely."    )
@@ -4994,7 +5151,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
         , React.createElement('button', { className: "auth-link", style: {fontSize:13,marginBottom:12}, onClick: ()=>setMode("login"),}, "Wrong email? "
             , React.createElement('button', { className: "auth-link", onClick: ()=>{setMode("signup_creds");setMsg("");setErr("");},}, "Go back" )
         )
-        , React.createElement('button', { className: "btn bgb" , style: {width:"100%",padding:12}, onClick: ()=>setMode("login"),}, "BACK TO LOGIN"   )
+        , React.createElement('button', { className: "btn bgb" , style: {width:"100%",padding:12}, onClick: ()=>setMode("login"),}, "Back to Login"   )
       )
     )
   );
@@ -5009,7 +5166,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
         , React.createElement('button', { onClick: onBack, style: {background:"none",border:"none",color:"var(--tx3)",fontSize:13,cursor:"pointer",padding:"0 0 12px",textAlign:"left",fontFamily:"inherit",display:"flex",alignItems:"center",gap:4}, 'aria-label': "Back to welcome screen"   ,}, "Back"
 
         )
-        , React.createElement('div', { className: "auth-title",}, "Create your account"  )
+        , React.createElement('div', { className: "auth-title",}, "Create your Dream ID"  )
         , React.createElement('div', { className: "auth-sub",}, "Your name can be real or a dream name."        )
         , err && React.createElement('div', { className: "auth-error",}, React.createElement('span', null, "Warning:"), React.createElement('span', null, err))
         , React.createElement('button', { className: "auth-google-btn", onClick: handleGoogle, disabled: busy, 'aria-label': "Sign up with Google"   ,}
@@ -5176,7 +5333,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
           , React.createElement('button', { className: "btn bgb" , style: {flex:1,padding:12}, onClick: ()=>{setMode("signup_interests");setErr("");}, 'aria-label': "Go back" ,}, "Back")
           , React.createElement('button', { className: "btn bp" , style: {flex:2,padding:12,fontSize:14},
             onClick: handleCreateAccount,
-            disabled: !agreedTerms||busy, 'aria-label': "Create your account"  ,}
+            disabled: !agreedTerms||busy, 'aria-label': "Create your Dream ID"  ,}
             , busy ? React.createElement('div', { className: "auth-spinner",}) : "Start Dreaming 🌙"
           )
         )
@@ -5185,6 +5342,79 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
   );
 
   return null;
+}
+
+/* --- WELCOME SCREEN (first login) ---------------------------------------- */
+const WELCOME_KEY = "dbm_welcome_seen";
+function getWelcomeSeen() { try { return localStorage.getItem(WELCOME_KEY)==="true"; } catch (e) { return false; } }
+function setWelcomeSeen() { try { localStorage.setItem(WELCOME_KEY,"true"); } catch (e) {} }
+
+function WelcomeScreen({ onDone, navigate }) {
+  const [step, setStep] = useState(0);
+  const steps = [
+    {
+      icon: "🌙",
+      title: "Welcome to Dream Board Mobile",
+      body: "You made it. This is your space — to think out loud, share what you are feeling, follow people who inspire you, and build something real. There are no algorithms deciding what matters here. Just you and your Dreams.",
+      cta: "Next",
+    },
+    {
+      icon: "✨",
+      title: "What is a Dream?",
+      body: "A Dream is anything you want to share. A thought. A question. A discovery. Something you made, something you felt, something you want to remember. There are no wrong Dreams here.",
+      cta: "Next",
+    },
+    {
+      icon: "🍒",
+      title: "Meet Cherry",
+      body: "Cherry is your AI companion on Dream Board Mobile. Cherry can help you write, suggest who to follow, read your notifications, and more. Look for the cherry button anywhere in the app.",
+      cta: "Next",
+    },
+    {
+      icon: "🚀",
+      title: "You are all set",
+      body: "Post your first Dream, explore what other Dreamors are sharing, or just look around. This is yours. We built it for you.",
+      cta: "Start Dreaming",
+    },
+  ];
+  const s = steps[step];
+  const isLast = step === steps.length - 1;
+
+  return (
+    React.createElement('div', {
+      style: {position:"fixed",inset:0,zIndex:10002,background:"var(--bg)",display:"flex",flexDirection:"column",overflowY:"auto"},
+      role: "main", 'aria-label': "Welcome to Dream Board Mobile",}
+      // Top area
+      , React.createElement('div', { style: {flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"48px 28px 24px",textAlign:"center"},}
+        , React.createElement('div', { style: {fontSize:72,marginBottom:20,'aria-hidden':"true"},}, s.icon)
+        , React.createElement('h1', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:26,color:"var(--tx)",marginBottom:14,lineHeight:1.3},}, s.title)
+        , React.createElement('p', { style: {fontSize:15,color:"var(--tx2)",lineHeight:1.75,maxWidth:320},}, s.body)
+      )
+      // Step dots
+      , React.createElement('div', { style: {display:"flex",gap:8,justifyContent:"center",padding:"0 0 20px"},
+          role: "progressbar", 'aria-valuenow': step+1, 'aria-valuemax': steps.length,
+          'aria-label': "Step "+(step+1)+" of "+steps.length,}
+        , steps.map((_,i) =>
+          React.createElement('div', { key: i, 'aria-hidden': "true",
+            style: {width:i===step?28:8,height:8,borderRadius:4,
+              background:i===step?"var(--ac3)":"var(--bd2)",transition:"all .25s"},})
+        )
+      )
+      // Buttons
+      , React.createElement('div', { style: {padding:"0 24px 48px",display:"flex",flexDirection:"column",gap:10},}
+        , React.createElement('button', { className: "btn bp", style: {width:"100%",padding:15,fontSize:15},
+            onClick: ()=>{ if(isLast){setWelcomeSeen();onDone();} else setStep(s=>s+1);},
+            'aria-label': s.cta,}, s.cta)
+        , step > 0 && React.createElement('button', { className: "btn bgb", style: {width:"100%",padding:12,fontSize:13},
+            onClick: ()=>setStep(s=>s-1), 'aria-label': "Back",}, "Back")
+        , React.createElement('button', {
+            style: {background:"none",border:"none",cursor:"pointer",fontSize:12,color:"var(--tx3)",padding:6,fontFamily:"inherit"},
+            onClick: ()=>{setWelcomeSeen();onDone();}, 'aria-label': "Skip welcome screen",},
+          "Skip"
+        )
+      )
+    )
+  );
 }
 
 /* --- ONBOARDING OVERLAY --------------------------------------------------- */
@@ -6020,6 +6250,7 @@ function App() {
   const [drafts, setDrafts] = useState([]);
   const [showDigest, setShowDigest] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
     const sb = getSupabase();
@@ -6096,11 +6327,14 @@ useEffect(() => {
     }
   }, [authStage]);
 
-  // Show onboarding for ALL users (new accounts, demo, returning login) unless dismissed
+  // Show welcome for first-time users; onboarding is now retired (welcome replaced it)
   useEffect(() => {
-    if (authStage === "app" && !getOnboardingSeen()) {
-      const t = setTimeout(() => setShowOnboarding(true), 600);
-      return () => clearTimeout(t);
+    if (authStage === "app") {
+      const isGuest = !authUser || authUser.isGuest || authUser.uid==="guest";
+      if (!isGuest && !getWelcomeSeen()) {
+        const t = setTimeout(() => setShowWelcome(true), 400);
+        return () => clearTimeout(t);
+      }
     }
   }, [authStage]);
 
@@ -6256,6 +6490,7 @@ useEffect(() => {
       case "drafts":        return React.createElement(DraftsPage, { navigate: navigate, onLoadDraft: d=>{ setShowCreate(true); },});
       case "more":          return React.createElement(MorePage, { navigate: navigate, cherryCtx: cherryCtx, authUser: authUser,});
       case "about":         return React.createElement(AboutSettings, { navigate: navigate,});
+      case "hour_story":    return React.createElement(HourStoryPage, { navigate: navigate, back: pdata||"more",});
       case "terms":         return React.createElement(PolicyPage, { title: "Terms", content: TERMS_CONTENT, navigate: navigate, back: "settings_about",});
       case "privacy":       return React.createElement(PolicyPage, { title: "Privacy", content: PRIVACY_CONTENT, navigate: navigate, back: "settings_about",});
       case "guidelines":    return React.createElement(PolicyPage, { title: "Rules", content: GUIDELINES_CONTENT, navigate: navigate, back: "settings_about",});
@@ -6396,7 +6631,7 @@ useEffect(() => {
       , showDigest && React.createElement(DigestCard, { dreams: appDreams, notifs: appNotifs, onClose: () => setShowDigest(false),})
       , showHabitCard && React.createElement(HabitInsightCard, { onDismiss: ()=>setShowHabitCard(false),})
       , showSymPicker && React.createElement(SymbolPicker, { onInsert: s=>{ if(symTarget)symTarget(s); setShowSymPicker(false); setSymTarget(null); }, onClose:()=>setShowSymPicker(false),})
-      , showOnboarding && React.createElement(OnboardingOverlay, { onDone: () => { setOnboardingSeen(); setShowOnboarding(false); },})
+      , showWelcome && React.createElement(WelcomeScreen, { onDone: ()=>setShowWelcome(false), navigate: navigate,})
     )
   );
 }
