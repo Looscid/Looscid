@@ -3609,7 +3609,48 @@ function AboutSettings({navigate}) {
 
 /* --- MORE PAGE --------------------------- */
 function MorePage({navigate, cherryCtx, authUser}) {
-  const IS_ADMIN = true; // platform admin flag
+  const IS_ADMIN = true;
+  const isGuest = !authUser || authUser.isGuest || authUser.uid==="guest";
+
+  if (isGuest) return (
+    React.createElement('div', {className:"pg"},
+      React.createElement('div', {className:"hdr"},
+        React.createElement('div', {style:{padding:"48px 16px 16px"}},
+          React.createElement('h1', {className:"htit", tabIndex:-1}, "More")
+        )
+      ),
+      React.createElement('div', {style:{padding:"24px 16px",display:"flex",flexDirection:"column",gap:12}},
+        React.createElement('div', {style:{padding:"20px",background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",border:"1px solid rgba(168,85,247,.2)",borderRadius:16,textAlign:"center"}},
+          React.createElement('div', {style:{fontSize:44,marginBottom:12}}, "🌙"),
+          React.createElement('div', {style:{fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,marginBottom:8}}, "You are in Guest Mode"),
+          React.createElement('p', {style:{fontSize:13,color:"var(--tx2)",lineHeight:1.7,marginBottom:20}}, "Create a free Dream Board Mobile ID to post Dreams, follow Dreamors, get notifications and make the app yours."),
+          React.createElement('button', {className:"btn bp",style:{width:"100%",padding:13,fontSize:14,marginBottom:10},onClick:()=>navigate("login"),"aria-label":"Create a Dream Board Mobile ID"}, "Create Account"),
+          React.createElement('button', {className:"btn bgb",style:{width:"100%",padding:11,fontSize:13},onClick:()=>navigate("login"),"aria-label":"Sign in to your account"}, "Sign In")
+        ),
+        React.createElement('button', {className:"snav",onClick:()=>navigate("settings_accessibility"),"aria-label":"Accessibility settings"},
+          React.createElement('div', {className:"snav-l"},
+            React.createElement('div', {className:"snav-ic",style:{background:"rgba(180,83,9,.15)",fontSize:17}}, "♿"),
+            React.createElement('div', null,
+              React.createElement('div', {className:"snav-title"}, "Accessibility"),
+              React.createElement('div', {className:"snav-sub"}, "Font size, contrast, motion")
+            )
+          ),
+          React.createElement(Ic.Chv, {style:{width:16,height:16,color:"var(--tx3)"}})
+        ),
+        React.createElement('button', {className:"snav",onClick:()=>navigate("terms"),"aria-label":"Terms"},
+          React.createElement('div', {className:"snav-l"},
+            React.createElement('div', {className:"snav-ic",style:{background:"rgba(55,65,81,.15)",fontSize:17}}, "📜"),
+            React.createElement('div', null,
+              React.createElement('div', {className:"snav-title"}, "Terms"),
+              React.createElement('div', {className:"snav-sub"}, "Terms and privacy policy")
+            )
+          ),
+          React.createElement(Ic.Chv, {style:{width:16,height:16,color:"var(--tx3)"}})
+        )
+      )
+    )
+  );
+
   return (
     React.createElement('div', { className: "pg",}
       , React.createElement('div', { className: "hdr",}
@@ -6232,7 +6273,7 @@ useEffect(() => {
     React.createElement(SplashScreen, {
       onLogin: ()=>{ setLoginMode("login"); setAuthStage("auth"); },
       onSignup: ()=>{ setLoginMode("signup"); setAuthStage("auth"); },
-      onDemo: ()=>{ setAuthUser({displayName:"Guest",name:"Guest",handle:"@guest",initials:"DD",color:"#6d28d9",bio:"Browsing as a guest. Sign in to Dream.",location:"Dream Land",joined:"February 2024",dreamCount:12,followers:3,following:7,verified:false,email:"guest@dreamboard.app",emailVerified:true,uid:"demo",isGuest:true}); setAuthStage("app"); },}
+      onDemo: ()=>{ setAuthUser({uid:"guest",isGuest:true}); setAuthStage("app"); },}
     )
   );
   if (authStage === "gate") return React.createElement(TurnstileGate, { onVerified: () => setAuthStage("auth"),});
