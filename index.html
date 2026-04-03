@@ -2557,116 +2557,293 @@ function DreamerProfilePage({user, navigate, cherryCtx}) {
 
 /* --- CHERRY AI --------------------------- */
 function CherryPage({navigate, cherryCtx}) {
-  // CherryPage is now a rich hub - shows live stats, action log preview, and opens the full overlay agent
-  const log = cherryCtx ? (cherryCtx.cherryLog||[]) : [];
-  const ctx = cherryCtx ? {
-    likedCount: cherryCtx.dreams.filter(d=>d.liked).length,
-    savedCount: cherryCtx.dreams.filter(d=>d.bookmarked).length,
-    followingCount: cherryCtx.following.size,
-    groupCount: cherryCtx.groups.filter(g=>g.joined).length,
-    unread: cherryCtx.notifs.filter(n=>n.unread).length,
-  } : {likedCount:0,savedCount:0,followingCount:0,groupCount:0,unread:0};
+  // CherryPage IS the chat — full messaging interface like Apple Intelligence Notes
+  const INIT_MSG = {me:false, text:"Hey! I am Cherry 🍒 — your Dream Board Mobile AI companion. I can post Dreams, follow Dreamors, read your notifications, and more. What would you like to do?"};
+  const [msgs, setMsgs] = useState([INIT_MSG]);
+  const [inp, setInp] = useState("");
+  const [typing, setTyping] = useState(false);
+  const [agentStatus, setAgentStatus] = useState(null);
+  const [agentTask, setAgentTask] = useState("");
+  const [showHistDialog, setShowHistDialog] = useState(false);
+  const [addOpen, setAddOpen] = useState(false); // attachment expander
+  const [voiceMode, setVoiceMode] = useState(false);
+  const [selectedModel, setSelectedModel] = useState("cherry");
+  const endRef = useState(null)[0] || {current:null};
+  const endRefActual = React.useRef(null);
 
-  const capabilities = [
-    {ic:"✏️", label:"Draft & post Dreams", prompt:"Draft a Dream for me"},
-    {ic:"👥", label:"Follow Dreamors", prompt:"Who should I follow?"},
-    {ic:"🏘️", label:"Join Circles", prompt:"Find groups for me"},
-    {ic:"🔔", label:"Read notifications", prompt:"My notifications"},
-    {ic:"📊", label:"Feed insights", prompt:"Summarise my feed"},
-    {ic:"🔥", label:"Trending topics", prompt:"What's trending?"},
-  ];
+  const {dreams, following, groups, notifs, likeDream, saveDream, postDream, followUser, joinGroup, markNotifsRead} = cherryCtx || {};
+
+  const appCtx = () => ({
+    liked: (dreams||[]).filter(d=>d.liked).map(d=>d.user.name).join(", ")||"none",
+    saved: (dreams||[]).filter(d=>d.bookmarked).map(d=>d.user.name).join(", ")||"none",
+    followingNames: USERS.filter(u=>(following||new Set()).has(u.id)).map(u=>u.name).join(", ")||"no one yet",
+    joinedGroups: (groups||[]).filter(g=>g.joined).map(g=>g.name).join(", ")||"none",
+    unread: (notifs||[]).filter(n=>n.unread).length,
+  });
+
+  const getResponse = text => {
+    const lo = text.toLowerCase();
+    const ctx = appCtx();
+    if (lo.includes("my liked")||lo.includes("what do i like")) return {result:"You have liked Dreams from: "+ctx.liked+". Want me to find more like those?"};
+    if (lo.includes("saved")||lo.includes("bookmarked")) return {result:"Your saved Dreams: "+ctx.saved+"."};
+    if (lo.includes("following")&&(lo.includes("who")||lo.includes("my"))) return {result:"You are following: "+ctx.followingNames+". Want me to suggest more Dreamors?"};
+    if (lo.includes("my group")) return {result:"You are in: "+ctx.joinedGroups+". I can join more for you — just say which ones."};
+    if (lo.includes("notification")||lo.includes("alert")) return {action:"Reading your notifications…",agentLabel:"Reading notifications",result:"You have "+ctx.unread+" unread notification"+(ctx.unread!==1?"s":"")+(ctx.unread>0?". Want me to mark them all read?":"! You are all caught up 🎉"),confirm:ctx.unread>0?{label:"Mark all read",fn:markNotifsRead}:null};
+    if ((lo.includes("mark")&&lo.includes("read"))||lo.includes("clear notif")) return {action:"Marking all read…",agentLabel:"Clearing notifications",result:"Done ✅ All notifications marked as read.",autoFn:markNotifsRead};
+    if (lo.includes("follow luna")) return {action:"Following Luna Rivera…",agentLabel:"Following @lunarivers",result:(following||new Set()).has(1)?"You already follow Luna 😊":"Done ✅ You are now following Luna Rivera (@lunarivers).",autoFn:()=>followUser&&followUser(1)};
+    if (lo.includes("follow kai")) return {action:"Following Kai Storm…",agentLabel:"Following @kaistorm",result:"Done ✅ Now following Kai Storm.",autoFn:()=>followUser&&followUser(2)};
+    if (lo.includes("follow zara")) return {action:"Following Zara Moon…",agentLabel:"Following @zaramoon",result:"Done ✅ Now following Zara Moon.",autoFn:()=>followUser&&followUser(3)};
+    if (lo.includes("join consciousness")) return {action:"Joining Consciousness Lab…",agentLabel:"Joining group",result:"Done ✅ You have joined Consciousness Lab!",autoFn:()=>joinGroup&&joinGroup(1)};
+    if (lo.includes("draft")||lo.includes("write a dream")||lo.includes("help me write")) {
+      const drafts2=["The mind does not just observe reality — it participates in shaping it. Every thought is an act of creation. #Consciousness","There is a kind of quiet that arrives only when you stop trying to fill the silence. I have been chasing that quiet. #Mindfulness","Creativity is not having ideas. It is learning to notice the ones already waiting for you. #CreativeProcess"];
+      const d=drafts2[Math.floor(Math.random()*drafts2.length)];
+      return {action:"Drafting a Dream…",agentLabel:"Writing Dream",result:"Here is a draft: "+d+". Want me to post it, or edit it first?",draft:d,confirm:{label:"Post this Dream",fn:()=>postDream&&postDream(d)}};
+    }
+    if (lo.includes("trending")||lo.includes("whats hot")||lo.includes("what is trending")) return {result:"Trending right now:\n\n🔥 #Consciousness — 48.2K Dreams\n📈 #CreativeProcess — 22.1K Dreams\n🌿 #PhilosophyOfMind — 15.4K Dreams\n\nWant me to draft a Dream about one of these?"};
+    if (lo.includes("summary")||lo.includes("catch me up")||lo.includes("whats happening")) {
+      const c2=appCtx();
+      return {result:"Your Dream Board summary:\n\n🔔 "+c2.unread+" unread notifications\n👥 Following: "+c2.followingNames+"\n❤️ Liked Dreams from: "+c2.liked+"\n🏘️ Groups: "+c2.joinedGroups+"\n\nTop trending: #Consciousness and #CreativeProcess."};
+    }
+    if (lo.includes("who should i follow")||lo.includes("suggest")+lo.includes("follow")) return {action:"Finding Dreamors for you…",agentLabel:"Discovering Dreamors",result:"Based on your activity I suggest Luna Rivera (@lunarivers) and Orion Blake (@orionblake). Want me to follow them for you?",confirm:{label:"Follow both",fn:()=>{followUser&&followUser(1);followUser&&followUser(4);}}};
+    if (lo.includes("hello")||lo.includes("hi cherry")||lo.includes("hey")) {
+      const c2=appCtx();
+      return {result:"Hey! 🍒 You are following "+c2.followingNames+" and you are in "+c2.joinedGroups+". I can post Dreams, follow people, read notifications, find groups, or just chat. What would you like?"};
+    }
+    if (lo.includes("thank")||lo.includes("awesome")||lo.includes("great")) return {result:"Happy to help 🍒 I am always here — just come to the Cherry tab anytime."};
+    if (lo.includes("settings")||lo.includes("configure")) return {result:"You can find my settings in More → Cherry Settings. You can adjust my personality, memory, model, and what actions I am allowed to take.",action:null};
+    return {result:"I can post Dreams, follow Dreamors, join Circles, check notifications, summarise your feed, find trending topics, or just talk. What would you like to do?"};
+  };
+
+  const send = t => {
+    const msg = t||inp;
+    if (!msg||!msg.trim()) return;
+    setMsgs(m=>[...m,{me:true,text:msg}]);
+    setInp(""); setAddOpen(false);
+    const resp = getResponse(msg);
+    if (resp.autoFn) {
+      setAgentTask(resp.agentLabel||"Working…"); setAgentStatus("running");
+      setTimeout(()=>{ resp.autoFn(); setAgentStatus("done"); setTimeout(()=>{ setAgentStatus(null);setAgentTask(""); setMsgs(m=>[...m,{me:false,text:resp.result,agent:true,draft:resp.draft||null}]); },500); },1600);
+    } else if (resp.action) {
+      setAgentTask(resp.agentLabel||"Working…"); setAgentStatus("running");
+      setTimeout(()=>{ setAgentStatus("done"); setTimeout(()=>{ setAgentStatus(null);setAgentTask(""); setMsgs(m=>[...m,{me:false,text:resp.result,agent:true,confirm:resp.confirm||null,draft:resp.draft||null}]); },500); },1800);
+    } else {
+      setTyping(true);
+      setTimeout(()=>{ setTyping(false); setMsgs(m=>[...m,{me:false,text:resp.result}]); },900+Math.random()*500);
+    }
+  };
+
+  React.useEffect(()=>{ endRefActual.current && endRefActual.current.scrollIntoView({behavior:"smooth"}); },[msgs,typing,agentStatus]);
+
+  const chips = ["Summarise my feed","What is trending?","Draft a Dream","Who should I follow?","My notifications","My liked Dreams"];
 
   return (
-    React.createElement('div', { className: "pg",}
-      , React.createElement('div', { className: "hdr",}
-        , React.createElement('div', { className: "hdr-row",}
-          , React.createElement('button', { className: "bi", onClick: ()=>navigate("more"), 'aria-label': "Back",}, React.createElement(Ic.Bck, { style: {width:21,height:21},}))
-          , React.createElement('span', { className: "hdr-title",}, "Cherry")
-          , React.createElement('div', { style: {width:8,height:8,borderRadius:"50%",background:"var(--gr)",boxShadow:"0 0 8px var(--gr)"},})
-        )
-      )
-
-      /* Hero */
-      , React.createElement('div', { style: {textAlign:"center",padding:"24px 20px 20px",borderBottom:"1px solid var(--bd)"},}
-        , React.createElement('div', { className: "aiorb", style: {width:64,height:64,fontSize:30,margin:"0 auto 12px"},}, "🍒")
-        , React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:22,marginBottom:4},}, "Cherry AI Agent"  )
-        , React.createElement('div', { style: {fontSize:12,color:"var(--gr)",display:"flex",alignItems:"center",justifyContent:"center",gap:5,marginBottom:12},}
-          , React.createElement('span', { style: {width:6,height:6,borderRadius:"50%",background:"var(--gr)",display:"inline-block"},}), "Connected · Real actions · Live app state"
-
-        )
-        , React.createElement('button', { className: "btn bp" , style: {padding:"11px 28px",fontSize:15}, onClick: ()=>cherryCtx&&cherryCtx.openCherry(), 'aria-label': "Open Cherry chat"  ,}, "Open Cherry 🍒"
-
-        )
-      )
-
-      /* Live stats Cherry can see */
-      , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "What Cherry can see"   )
-      , React.createElement('div', { style: {display:"flex",flexWrap:"wrap",gap:10,padding:"0 14px 14px"},}
-        , [
-          {ic:"❤️", val:ctx.likedCount, label:"Liked Dreams"},
-          {ic:"🔖", val:ctx.savedCount, label:"Saved Dreams"},
-          {ic:"👥", val:ctx.followingCount, label:"Following"},
-          {ic:"🏘️", val:ctx.groupCount, label:"Circles joined"},
-          {ic:"🔔", val:ctx.unread, label:"Unread alerts"},
-          {ic:"✏️", val:cherryCtx?cherryCtx.dreams.length:0, label:"Dreams in feed"},
-        ].map(s=>(
-          React.createElement('div', { key: s.label, style: {flex:"1 1 calc(33% - 10px)",background:"var(--sf2)",border:"1px solid var(--bd)",borderRadius:12,padding:"10px 12px",textAlign:"center"},}
-            , React.createElement('div', { style: {fontSize:20,marginBottom:4},}, s.ic)
-            , React.createElement('div', { style: {fontWeight:800,fontSize:18,color:"var(--tx)"},}, s.val)
-            , React.createElement('div', { style: {fontSize:10,color:"var(--tx3)",marginTop:1},}, s.label)
-          )
-        ))
-      )
-
-      /* Capabilities */
-      , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "What Cherry can do"   )
-      , React.createElement('div', { style: {padding:"0 14px 14px",display:"flex",flexDirection:"column",gap:8},}
-        , capabilities.map(cap=>(
-          React.createElement('button', { key: cap.label, style: {display:"flex",alignItems:"center",gap:12,background:"var(--sf2)",border:"1px solid var(--bd)",borderRadius:12,padding:"11px 14px",cursor:"pointer",textAlign:"left",width:"100%",fontFamily:"inherit"},
-            onClick: ()=>cherryCtx&&cherryCtx.openCherry(cap.prompt), 'aria-label': "Ask Cherry: "+cap.prompt,}
-            , React.createElement('div', { style: {width:36,height:36,borderRadius:10,background:"rgba(168,85,247,.12)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0},}, cap.ic)
-            , React.createElement('div', { style: {flex:1},}
-              , React.createElement('div', { style: {fontWeight:600,fontSize:14,color:"var(--tx)"},}, cap.label)
+    React.createElement('div', {className:"pg",style:{display:"flex",flexDirection:"column",paddingBottom:0,height:"100%"},}
+      // Header
+      , React.createElement('div', {className:"hdr",}
+        , React.createElement('div', {style:{padding:"48px 14px 10px",display:"flex",alignItems:"center",gap:10},}
+          , React.createElement('div', {className:"aiorb",style:{width:34,height:34,fontSize:16,flexShrink:0,'aria-hidden':"true"},}, "🍒")
+          , React.createElement('div', {style:{flex:1},}
+            , React.createElement('h1', {className:"htit",style:{fontSize:18},}, "Cherry")
+            , React.createElement('div', {style:{fontSize:10,color:"var(--gr)",display:"flex",alignItems:"center",gap:4},},
+              React.createElement('span', {style:{width:5,height:5,borderRadius:"50%",background:"var(--gr)",display:"inline-block",'aria-hidden':"true"},}),
+              "AI Agent · Connected"
             )
-            , React.createElement(Ic.Chv, { style: {width:14,height:14,color:"var(--tx3)"},})
           )
-        ))
+          // Top settings button (opens history dialog)
+          , React.createElement('button', {className:"bi",onClick:()=>setShowHistDialog(o=>!o),
+              'aria-expanded':showHistDialog,'aria-label':"Cherry options: history, new chat, settings",}
+            , React.createElement(Ic.Dots, {style:{width:20,height:20},})
+          )
+        )
       )
 
-      /* Recent actions */
-      , log.length > 0 && React.createElement(React.Fragment, null
-        , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Recent actions" )
-        , React.createElement('div', { className: "cherry-action-log",}
-          , log.slice(0,5).map((entry,i)=>(
-            React.createElement('div', { key: entry.id, className: "cherry-log-item",}
-              , React.createElement('div', { className: "cherry-log-ic",}, entry.ic)
-              , React.createElement('div', { style: {flex:1},}
-                , React.createElement('div', { style: {fontWeight:600,color:"var(--tx)"},}, entry.text)
-                , React.createElement('div', { style: {fontSize:10,color:"var(--tx3)"},}, new Date(entry.id).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}))
+      // History/settings dialog
+      , showHistDialog && React.createElement('div', {
+          style:{position:"fixed",top:108,right:12,zIndex:500,background:"var(--sf)",
+            border:"1px solid var(--bd2)",borderRadius:14,
+            boxShadow:"0 4px 24px rgba(0,0,0,.5)",padding:"4px 0",minWidth:200,
+            animation:"fu .15s ease"},
+          role:"dialog",'aria-label':"Cherry options",}
+        , [
+          {ic:"🕐",l:"Chat History",     sub:"View past conversations", a:()=>{setShowHistDialog(false);}},
+          {ic:"✏️",l:"New Conversation", sub:"Start fresh",             a:()=>{setMsgs([INIT_MSG]);setShowHistDialog(false);}},
+          {ic:"⚙️",l:"Cherry Settings",  sub:"Personality, memory, model",a:()=>{setShowHistDialog(false);navigate("settings_cherry");}},
+        ].map(item =>
+          React.createElement('button', {key:item.l,
+            onClick:item.a,
+            style:{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 16px",
+              background:"none",border:"none",borderBottom:"1px solid var(--bd)",cursor:"pointer",
+              fontFamily:"inherit",'aria-label':item.l},}
+            , React.createElement('span', {style:{fontSize:18,width:24,textAlign:"center",flexShrink:0},}, item.ic)
+            , React.createElement('div', {style:{textAlign:"left"},}
+              , React.createElement('div', {style:{fontSize:14,fontWeight:600,color:"var(--tx)"},}, item.l)
+              , React.createElement('div', {style:{fontSize:11,color:"var(--tx3)"},}, item.sub)
+            )
+          )
+        )
+        , React.createElement('button', {onClick:()=>setShowHistDialog(false),
+            style:{display:"block",width:"calc(100% - 24px)",margin:"6px 12px 6px",padding:"10px",
+              background:"var(--sf2)",border:"none",borderRadius:9,fontSize:13,
+              fontWeight:600,color:"var(--tx3)",cursor:"pointer",fontFamily:"inherit"},
+            'aria-label':"Close menu",}, "Cancel")
+      )
+      , showHistDialog && React.createElement('div', {onClick:()=>setShowHistDialog(false),
+          style:{position:"fixed",inset:0,zIndex:499},'aria-hidden':"true",})
+
+      // Suggestion chips
+      , React.createElement('div', {style:{display:"flex",gap:6,padding:"8px 12px",overflowX:"auto",scrollbarWidth:"none",borderBottom:"1px solid var(--bd)"},}
+        , chips.map(s =>
+          React.createElement('button', {key:s,className:"aisc",onClick:()=>send(s),
+            'aria-label':"Ask Cherry: "+s,style:{flexShrink:0},}, s)
+        )
+      )
+
+      // Agent status strip
+      , agentStatus && React.createElement('div', {style:{margin:"6px 12px 0",padding:"9px 12px",background:"rgba(168,85,247,.1)",border:"1px solid rgba(168,85,247,.22)",borderRadius:10,display:"flex",alignItems:"center",gap:8},}
+        , React.createElement('div', {style:{display:"flex",gap:3},}
+          , [0,1,2].map(i=>React.createElement('div', {key:i,className:"tdt",style:{animationDelay:i*.15+"s",background:"var(--ac)",'aria-hidden':"true"},}))
+        )
+        , React.createElement('div', {style:{flex:1},}
+          , React.createElement('div', {style:{fontSize:12,fontWeight:700,color:"var(--ac)"},}, agentStatus==="done"?"✅ Done":"🤖 Cherry is acting…")
+          , React.createElement('div', {style:{fontSize:11,color:"var(--tx3)"},}, agentTask)
+        )
+      )
+
+      // Messages
+      , React.createElement('div', {className:"msgs",style:{flex:1,paddingBottom:8},}
+        , msgs.map((m,i) =>
+          React.createElement('div', {key:i,className:"mr"+(m.me?" me":""),}
+            , !m.me && React.createElement('div', {className:"aiorb",style:{width:27,height:27,fontSize:13,flexShrink:0,'aria-hidden':"true"},}, "🍒")
+            , React.createElement('div', {style:{maxWidth:"82%"},}
+              , React.createElement('div', {className:"bub"+(m.me?" me":" th"),
+                  style:m.agent?{border:"1px solid rgba(168,85,247,.28)",background:"rgba(109,40,217,.08)",whiteSpace:"pre-line"}:{whiteSpace:"pre-line"},}
+                , m.agent && React.createElement('div', {style:{fontSize:9,fontWeight:800,color:"var(--ac3)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:5}}, "🤖 Agent")
+                , m.text
+              )
+              // Confirm action button
+              , m.confirm && !m.me && React.createElement('button', {className:"agent-action-pill",
+                  onClick:()=>{ m.confirm.fn(); setMsgs(ms=>ms.map((x,j)=>j===i?{...x,confirm:null}:x)); setMsgs(ms=>[...ms,{me:false,text:"Done ✅",agent:true}]); },
+                  'aria-label':m.confirm.label,},
+                "⚡ ", m.confirm.label
+              )
+              // Response action row — Like, Dislike, Copy, Share, Read aloud
+              , !m.me && React.createElement(CherryResponseActions, {msg:m, idx:i,})
+            )
+          )
+        )
+        , typing && React.createElement('div', {className:"mr",}
+          , React.createElement('div', {className:"aiorb",style:{width:27,height:27,fontSize:13,flexShrink:0,'aria-hidden':"true"},}, "🍒")
+          , React.createElement('div', {className:"bub th",style:{display:"flex",gap:4,alignItems:"center",padding:"11px 14px"},}
+            , [0,1,2].map(i=>React.createElement('div', {key:i,className:"tdt",style:{animationDelay:i*.2+"s"},'aria-hidden':"true"},))
+          )
+        )
+        , React.createElement('div', {ref:endRefActual,})
+      )
+
+      // Input row
+      , React.createElement('div', {style:{borderTop:"1px solid var(--bd)",background:"var(--sf)"},}
+        // Expandable attach options (above input when open)
+        , React.createElement('div', {
+            'aria-hidden':!addOpen,
+            style:{maxHeight:addOpen?"120px":"0",overflow:"hidden",visibility:addOpen?"visible":"hidden",
+              transition:"max-height .22s ease,visibility .22s",padding:addOpen?"8px 12px 4px":"0 12px"},}
+          , React.createElement('div', {style:{display:"flex",gap:8,flexWrap:"wrap"},}
+            , [{ic:"🖼️",l:"Photo"},{ic:"🔗",l:"Link"},{ic:"😌",l:"Mood"},{ic:"📋",l:"Paste clipboard"}].map(opt=>
+              React.createElement('button', {key:opt.l,
+                style:{display:"flex",alignItems:"center",gap:5,background:"var(--sf2)",
+                  border:"1px solid var(--bd2)",borderRadius:8,padding:"7px 11px",
+                  fontSize:12,color:"var(--tx2)",cursor:"pointer",fontFamily:"inherit"},
+                'aria-label':"Attach "+opt.l,},
+                React.createElement('span', {'aria-hidden':"true"}, opt.ic), opt.l
               )
             )
-          ))
-          , log.length > 5 && React.createElement('div', { style: {textAlign:"center",padding:"10px",fontSize:12,color:"var(--tx3)"},}, log.length-5, " more in Cherry agent view"     )
-        )
-      )
-
-      /* CherrySettings shortcut */
-      , React.createElement('div', { style: {padding:"14px 14px 8px"},}
-        , React.createElement('button', { style: {display:"flex",alignItems:"center",gap:12,background:"none",border:"1px solid var(--bd2)",borderRadius:12,padding:"11px 14px",cursor:"pointer",width:"100%",fontFamily:"inherit"},
-          onClick: ()=>navigate("settings_cherry"), 'aria-label': "Cherry settings" ,}
-          , React.createElement('span', { style: {fontSize:18},}, "⚙️")
-          , React.createElement('div', { style: {flex:1,textAlign:"left"},}
-            , React.createElement('div', { style: {fontWeight:600,fontSize:14,color:"var(--tx)"},}, "Cherry Settings" )
-            , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:1},}, "Agent permissions, memory, privacy"   )
           )
-          , React.createElement(Ic.Chv, { style: {width:14,height:14,color:"var(--tx3)"},})
         )
+        , React.createElement('div', {className:"cir",style:{gap:6,alignItems:"center"},}
+          // Attach toggle
+          , React.createElement('button', {
+              onClick:()=>setAddOpen(o=>!o),
+              'aria-expanded':addOpen,'aria-label':addOpen?"Close attachment options":"Open attachment options",
+              className:"bi",style:{flexShrink:0},}
+            , React.createElement('svg', {width:18,height:18,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:2.5,
+                style:{transition:"transform .2s",transform:addOpen?"rotate(45deg)":"rotate(0deg)"},'aria-hidden':"true"},
+              React.createElement('line', {x1:"12",y1:"5",x2:"12",y2:"19"}),
+              React.createElement('line', {x1:"5",y1:"12",x2:"19",y2:"12"})
+            )
+          )
+          , React.createElement('input', {className:"inp",style:{borderRadius:100,flex:1,fontSize:14},
+              placeholder:"Ask Cherry or give a command…",
+              value:inp,onChange:e=>setInp(e.target.value),
+              onKeyDown:e=>e.key==="Enter"&&send(),
+              'aria-label':"Message Cherry",})
+          // Send
+          , React.createElement('button', {className:"btn bp",style:{padding:9,borderRadius:"50%",width:38,height:38,flexShrink:0},
+              onClick:()=>send(),disabled:!inp.trim(),'aria-label':"Send message to Cherry",}
+            , React.createElement(Ic.Snd, {style:{width:15,height:15},})
+          )
+        )
+        , React.createElement('div', {style:{height:"env(safe-area-inset-bottom,8px)"},})
       )
     )
   );
 }
 
-/* --- SETTINGS ---------------------------- */
+/* Cherry response action buttons */
+function CherryResponseActions({msg, idx}) {
+  const [liked, setLiked] = useState(null); // null | "liked" | "disliked"
+  const [copied, setCopied] = useState(false);
+  const [reading, setReading] = useState(false);
+
+  const copyText = () => {
+    try { navigator.clipboard.writeText(msg.text); } catch(e) {}
+    setCopied(true);
+    setTimeout(()=>setCopied(false),2000);
+  };
+
+  const readAloud = () => {
+    if (reading) { speechSynthesis.cancel(); setReading(false); return; }
+    if ("speechSynthesis" in window) {
+      const utt = new SpeechSynthesisUtterance(msg.text);
+      utt.onend = ()=>setReading(false);
+      setReading(true);
+      speechSynthesis.speak(utt);
+    }
+  };
+
+  return (
+    React.createElement('div', {style:{display:"flex",gap:4,marginTop:5,flexWrap:"wrap"},}
+      , React.createElement('button', {
+          onClick:()=>setLiked(l=>l==="liked"?null:"liked"),
+          style:{background:"none",border:"1px solid var(--bd2)",borderRadius:6,padding:"3px 7px",
+            fontSize:11,cursor:"pointer",color:liked==="liked"?"var(--gr)":"var(--tx3)",
+            fontFamily:"inherit"},'aria-label':"Helpful",}
+        , liked==="liked" ? "✓ Helpful" : "👍 Helpful"
+      )
+      , React.createElement('button', {
+          onClick:()=>setLiked(l=>l==="disliked"?null:"disliked"),
+          style:{background:"none",border:"1px solid var(--bd2)",borderRadius:6,padding:"3px 7px",
+            fontSize:11,cursor:"pointer",color:liked==="disliked"?"var(--rd)":"var(--tx3)",
+            fontFamily:"inherit"},'aria-label':"Not helpful",}
+        , liked==="disliked" ? "✗ Not helpful" : "👎 Not helpful"
+      )
+      , React.createElement('button', {
+          onClick:copyText,
+          style:{background:"none",border:"1px solid var(--bd2)",borderRadius:6,padding:"3px 7px",
+            fontSize:11,cursor:"pointer",color:copied?"var(--gr)":"var(--tx3)",
+            fontFamily:"inherit"},'aria-label':copied?"Copied":"Copy response",}
+        , copied ? "✓ Copied" : "📋 Copy"
+      )
+      , React.createElement('button', {
+          onClick:readAloud,
+          style:{background:"none",border:"1px solid var(--bd2)",borderRadius:6,padding:"3px 7px",
+            fontSize:11,cursor:"pointer",color:reading?"var(--ac3)":"var(--tx3)",
+            fontFamily:"inherit"},'aria-label':reading?"Stop reading":"Read aloud",}
+        , reading ? "⏹ Stop" : "🔊 Read"
+      )
+    )
+  );
+}
+
 function SettingsPage({prefs, setPrefs, navigate, onSignOut, authUser, theme, setTheme, drafts}) {
   const sections = [
     {id:"account",        icon:"👤", title:"Account",         sub:"Profile, 2FA, password",              color:"#6d28d9"},
@@ -3167,8 +3344,63 @@ function CherrySettings({navigate, prefs, setPrefs, activeAI, setActiveAI}) {
 
         /* -- AI Model ------------------------- */
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "AI Model")
-        , React.createElement('div', { style: {padding:"0 16px 8px"},}
+        , React.createElement('div', { style: {padding:"0 16px 12px"},}
           , React.createElement(AISelector, { value: activeAI, onChange: setActiveAI,})
+        )
+
+        /* -- Voice / Read Mode ---------------- */
+        , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Voice and Read Mode")
+        , React.createElement('div', { className: "sr",}
+          , React.createElement('div', null
+            , React.createElement('div', { className: "sr-title",}, "Read responses aloud")
+            , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:2},}, "Cherry reads every response using your device voice. Works with VoiceOver.")
+          )
+          , React.createElement(Cbx, { on: !!cs.readAloud, onToggle: ()=>toggleCS("readAloud"), label: "Read responses aloud",})
+        )
+        , React.createElement('div', { className: "sr",}
+          , React.createElement('div', null
+            , React.createElement('div', { className: "sr-title",}, "Voice input")
+            , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:2},}, "Use your microphone to speak to Cherry instead of typing.")
+          )
+          , React.createElement(Cbx, { on: cs.voiceInput!==false, onToggle: ()=>toggleCS("voiceInput"), label: "Voice input",})
+        )
+        , React.createElement('div', { style: {padding:"0 16px 8px"},}
+          , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginBottom:6},}, "Voice speed")
+          , React.createElement('div', { style: {display:"flex",gap:7,flexWrap:"wrap"},}
+            , ["Slow","Normal","Fast"].map(spd =>
+              React.createElement('button', { key:spd, className:"btn"+((cs.voiceSpeed||"Normal")===spd?" bp":" bgb"),
+                style:{flex:1,padding:"7px 0",fontSize:12},
+                onClick:()=>setCS("voiceSpeed",spd),'aria-label':spd+" speed",}, spd)
+            )
+          )
+        )
+
+        /* -- Memory --------------------------- */
+        , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Memory")
+        , React.createElement('div', { style: {padding:"0 16px 8px",fontSize:12,color:"var(--tx2)",lineHeight:1.6},},
+          "Cherry can remember things you tell it — your preferences, interests, past conversations — so it gives better answers over time."
+        )
+        , React.createElement('div', { className: "sr",}
+          , React.createElement('div', null
+            , React.createElement('div', { className: "sr-title",}, "Remember my preferences")
+            , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:2},}, "Cherry stores what you like and how you communicate.")
+          )
+          , React.createElement(Cbx, { on: cs.rememberPrefs!==false, onToggle: ()=>toggleCS("rememberPrefs"), label: "Remember preferences",})
+        )
+        , React.createElement('div', { className: "sr",}
+          , React.createElement('div', null
+            , React.createElement('div', { className: "sr-title",}, "Conversation history")
+            , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:2},}, "Cherry can refer back to things you said in earlier conversations.")
+          )
+          , React.createElement(Cbx, { on: cs.historySave!==false, onToggle: ()=>toggleCS("historySave"), label: "Save conversation history",})
+        )
+        , React.createElement('div', { className: "sr", style: {cursor:"pointer"},
+            onClick:()=>{try{localStorage.removeItem("dbm_habits");}catch(e){}}},
+          React.createElement('div', null
+            , React.createElement('div', { className: "sr-title",}, "Clear Cherry memory")
+            , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:2},}, "Remove everything Cherry has learned about you. Cannot be undone.")
+          )
+          , React.createElement(Ic.Chv, {style:{width:16,height:16,color:"var(--tx3)"}})
         )
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Privacy")
         , React.createElement('div', { className: "sr",}
@@ -4219,6 +4451,7 @@ const NAV = [
   {id:"feed",    l:"Home",     icon:"Home",  badge:0},
   {id:"discover",l:"Discover", icon:"Srch",  badge:0},
   {id:"create",  l:"Create",   icon:"Pls",   isCreate:true},
+  {id:"cherry",  l:"Cherry",   icon:"cherry",badge:0},
   {id:"alerts",  l:"Alerts",   icon:"Bell",  badge:6},
   {id:"more",    l:"More",     icon:"Dots",  badge:0},
 ];
@@ -6319,11 +6552,14 @@ useEffect(() => {
   // Load drafts from localStorage
   useEffect(() => { setDrafts(getDrafts()); }, []);
 
-  // Show daily digest after entering app
+  // Show daily digest after entering app — not for guests
   useEffect(() => {
-    if (authStage === "app" && shouldShowDigest()) {
-      const t = setTimeout(() => { setShowDigest(true); markDigestSeen(); }, 3500);
-      return () => clearTimeout(t);
+    if (authStage === "app") {
+      const isGuest = !authUser || authUser.isGuest || authUser.uid==="guest";
+      if (!isGuest && shouldShowDigest()) {
+        const t = setTimeout(() => { setShowDigest(true); markDigestSeen(); }, 3500);
+        return () => clearTimeout(t);
+      }
     }
   }, [authStage]);
 
@@ -6386,7 +6622,7 @@ useEffect(() => {
   }, []);
   const goRoot = id => {
     if(id==="create"){setShowCreate(true);return;}
-    if(id==="cherry"){setCherryOpen(true);return;}
+    if(id==="cherry"){setPage("cherry");setPdata(null);return;}
     if(id==="circles"){setPage("groups");setPdata(null);return;}
     setPage(id); setPdata(null);
   };
@@ -6408,7 +6644,7 @@ useEffect(() => {
     else document.documentElement.removeAttribute("data-rtt");
   }, [prefs.accessibility]);
 
-  const showFab = ["feed","discover","groups","alerts"].includes(page);
+  const showFab = false; // FAB retired — Cherry is a nav tab now
 
   // Session timeout — warn after 25 min idle, sign out at 30 min
   React.useEffect(() => {
@@ -6498,7 +6734,7 @@ useEffect(() => {
     }
   };
 
-  const activeId = ["feed","discover","alerts","more"].includes(page) ? page : null;
+  const activeId = ["feed","discover","cherry","alerts","more"].includes(page) ? page : null;
   const unreadNotifs = appNotifs.filter(n=>n.unread).length;
   const unreadMsgs = CONVOS.reduce((a,c)=>a+c.unread, 0);
 
