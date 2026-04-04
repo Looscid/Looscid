@@ -207,7 +207,7 @@ textarea.inp{resize:none;line-height:1.55}
 .ntx strong{color:var(--tx)}
 .ntm{font-size:10px;color:var(--tx3);margin-top:3px}
 .npv{font-size:11px;color:var(--tx3);margin-top:3px;padding:5px 8px;background:var(--sf2);border-radius:7px;border-left:2px solid var(--ac2)}
-/* Groups */
+/* Circles */
 .gbr{height:64px;display:flex;align-items:center;justify-content:center;font-size:28px}
 .gin{padding:11px 13px 13px}
 .gnm{font-size:15px;font-weight:700;margin-bottom:2px}
@@ -1172,7 +1172,7 @@ function DiscoverPage({navigate, cherryCtx}) {
   const [filters, setFilters] = useState([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const activeTabs = q ? ["all","dreamers","dreams","circles"] : ["trending","dreamers","circles"];
+  const activeTabs = q ? ["all","Dreamors","dreams","circles"] : ["trending","Dreamors","circles"];
   const tabLabel = t => ({all:"All",dreamers:"Dreamors",dreams:"Dreams",circles:"Circles",trending:"Trending"}[t]||t);
 
   const FILTER_OPTS = [
@@ -1180,7 +1180,7 @@ function DiscoverPage({navigate, cherryCtx}) {
     {id:"replies",   label:"Replies",    icon:"\ud83d\udcac", group:"content"},
     {id:"redreams",  label:"ReDreams",   icon:"\ud83d\udd01", group:"content"},
     {id:"media",     label:"Has Media",  icon:"\ud83d\uddbc\ufe0f", group:"content"},
-    {id:"verified",  label:"Verified",   icon:"\u2713",  group:"dreamers"},
+    {id:"verified",  label:"Verified",   icon:"\u2713",  group:"Dreamors"},
     {id:"today",     label:"Today",      icon:"\ud83d\udcc5", group:"time", radio:"time"},
     {id:"week",      label:"This Week",  icon:"\ud83d\udcc6", group:"time", radio:"time"},
     {id:"alltime",   label:"All Time",   icon:"\ud83d\udd70\ufe0f", group:"time", radio:"time"},
@@ -1206,7 +1206,7 @@ function DiscoverPage({navigate, cherryCtx}) {
 
   const filterGroups = [
     {label:"Content",  opts:FILTER_OPTS.filter(f=>f.group==="content")},
-    {label:"Dreamors", opts:FILTER_OPTS.filter(f=>f.group==="dreamers")},
+    {label:"Dreamors", opts:FILTER_OPTS.filter(f=>f.group==="Dreamors")},
     {label:"Time",     opts:FILTER_OPTS.filter(f=>f.group==="time")},
   ];
 
@@ -1360,7 +1360,7 @@ function DiscoverPage({navigate, cherryCtx}) {
           )
         ),
 
-        (tab==="dreamers"||tab==="all") && dreamerResults.map(u =>
+        (tab==="Dreamors"||tab==="all") && dreamerResults.map(u =>
           React.createElement('div', {key:u.id, className:"ci", onClick:()=>navigate("dp",u), role:"button", tabIndex:0,
             "aria-label":u.name+(u.verified?" verified":"")+" · "+u.handle+" · "+fmt(u.followers)+" Dreamors following",
           },
@@ -1561,7 +1561,7 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
           , React.createElement('div', { style: {flex:1},}
             , React.createElement('textarea', { className: "inp", style: {border:"none",background:"none",fontSize:16,padding:0,minHeight:100,lineHeight:1.65,width:"100%",resize:"none"},
               placeholder: "What's on your mind?"   , value: txt,
-              onChange: e=>{ const raw=charLimit?e.target.value.slice(0,charLimit+20):e.target.value; setTxt(evalInlineCalc(raw)); },
+              onChange: e=>{ const raw=charLimit?e.target.value.slice(0,charLimit+20):e.target.value; setTxt(sanitizeInput(evalInlineCalc(raw))); },
               autoFocus: true, 'aria-label': "Dream content" ,})
           )
         )
@@ -1678,7 +1678,7 @@ function CreateGroupFlow({onClose, navigate}) {
             , React.createElement('div', { className: "mtt", style: {margin:0},}, "Circle Rules" )
             , React.createElement('span', { style: {marginLeft:"auto",fontSize:11,color:"var(--tx3)"},}, "Step 3/3" )
           )
-          , React.createElement('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6,marginBottom:14},}, "Rules help your community stay healthy. Dreamers agree to these when joining."           )
+          , React.createElement('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6,marginBottom:14},}, "Rules help your community stay healthy. Dreamors agree to these when joining."           )
           , form.rules.map((rule,i)=>(
             React.createElement('div', { key: i, style: {display:"flex",gap:8,marginBottom:8,alignItems:"center"},}
               , React.createElement('div', { style: {width:22,height:22,borderRadius:"50%",background:"var(--ac)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#fff",fontWeight:700,flexShrink:0},}, i+1)
@@ -1791,9 +1791,25 @@ function ConvoView({convo, onBack}) {
         ))
         , React.createElement('div', { ref: endRef,})
       )
+      , React.createElement('div', {style:{padding:"4px 14px 2px",display:"flex",alignItems:"center",gap:6,borderTop:"1px solid var(--bd)",background:"var(--sf)"},}
+        , React.createElement('div', {style:{fontSize:10,color:"var(--gr)",display:"flex",alignItems:"center",gap:4,flex:1},}
+          , React.createElement('span', {'aria-hidden':"true"}, "🔒")
+          , "End-to-end encrypted · Private"
+        )
+        , React.createElement('button', {
+            style:{background:"none",border:"none",cursor:"pointer",fontSize:11,color:"var(--rd)",padding:"4px 8px",fontFamily:"inherit",fontWeight:600},
+            'aria-label':"Report this conversation for safety review",
+            onClick:()=>{
+              if(window.confirm("Report this conversation for safety review? A Dream Board Mobile safety team member will review this conversation. End-to-end encryption will be temporarily suspended for this review only.")) {
+                alert("Reported. Our safety team will review this conversation. Thank you for keeping Dream Board Mobile safe.");
+              }
+            }},
+          "🚩 Report"
+        )
+      )
       , React.createElement('div', { className: "cir",}
         , React.createElement('input', { className: "inp", style: {borderRadius:100,flex:1,fontSize:14}, placeholder: "Message "+convo.user.name+"…",
-          value: inp, onChange: e=>setInp(e.target.value), onKeyDown: e=>e.key==="Enter"&&send(), 'aria-label': "Message "+convo.user.name,})
+          value: inp, onChange: e=>setInp(sanitizeInput(e.target.value)), onKeyDown: e=>e.key==="Enter"&&send(), 'aria-label': "Message "+convo.user.name,})
         , React.createElement('button', { className: "btn bp" , style: {padding:9,borderRadius:"50%",width:38,height:38,flexShrink:0}, onClick: send, disabled: !inp.trim(), 'aria-label': "Send",}
           , React.createElement(Ic.Snd, { style: {width:15,height:15},})
         )
@@ -2073,7 +2089,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
           )
           , React.createElement('div', { style: {display:"flex",gap:7,alignItems:"center"},}
             , joined&&React.createElement('button', { className: "btn bgb" , style: {padding:"7px 11px",fontSize:12}, onClick: ()=>setShowInvite(true), 'aria-label': "Invite friends" ,}, "Invite")
-            , React.createElement('button', { className: "btn"+(joined?" bgb":" bp"), style: {padding:"7px 14px",fontSize:12}, onClick: ()=>setJoined(j=>!j), 'aria-label': joined?"Leave group":"Join group",}, joined?"Joined ✓":"Join")
+            , React.createElement('button', { className: "btn"+(joined?" bgb":" bp"), style: {padding:"7px 14px",fontSize:12}, onClick: ()=>setJoined(j=>!j), 'aria-label': joined?"Leave Circle":"Join group",}, joined?"Joined ✓":"Join")
           )
         )
 
@@ -2129,7 +2145,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
         , React.createElement('div', { style: {background:"var(--sf2)",borderRadius:13,padding:16,marginBottom:12},}
           , React.createElement('div', { style: {fontSize:12,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",marginBottom:10},}, "Stats")
           , React.createElement('div', { style: {display:"grid",gridTemplateColumns:"1fr 1fr",gap:8},}
-            , [{l:"Members",v:group.members.toLocaleString()},{l:"Dreams",v:"4,218"},{l:"Category",v:group.category},{l:"Created",v:"Jan 2024"}].map(s=>(
+            , [{l:"Dreamors",v:group.members.toLocaleString()},{l:"Dreams",v:"4,218"},{l:"Category",v:group.category},{l:"Created",v:"Jan 2024"}].map(s=>(
               React.createElement('div', { key: s.l, style: {background:"var(--sf3)",borderRadius:9,padding:"9px 11px"},}, React.createElement('div', { style: {fontSize:10,color:"var(--tx3)"},}, s.l), React.createElement('div', { style: {fontSize:14,fontWeight:700,marginTop:2},}, s.v))
             ))
           )
@@ -2310,7 +2326,7 @@ function GroupsPage({navigate, cherryCtx}) {
             , React.createElement('div', { style: {display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8},}
               , React.createElement('div', null
                 , React.createElement('div', { className: "gnm",}, g.name, g.joined&&g.id===1&&React.createElement('span', { style: {marginLeft:6,fontSize:9,background:"rgba(245,158,11,.2)",color:"#f59e0b",padding:"1px 5px",borderRadius:4,fontWeight:700},}, "★ ADMIN" ))
-                , React.createElement('div', { className: "gmt",}, g.members.toLocaleString(), " Dreamers · "   , g.category)
+                , React.createElement('div', { className: "gmt",}, g.members.toLocaleString(), " Dreamors · "   , g.category)
               )
               , g.joined&&React.createElement('button', { className: "btn bgb" , style: {fontSize:11,padding:"5px 10px",flexShrink:0}, onClick: e=>{e.stopPropagation();tj(g.id);}, 'aria-label': "Leave "+g.name,}, "Joined ✓" )
               , !g.joined&&React.createElement('button', { className: "btn bp" , style: {fontSize:11,padding:"5px 10px",flexShrink:0}, onClick: e=>{e.stopPropagation();tj(g.id);}, 'aria-label': "Join "+g.name,}, "Join")
@@ -2974,7 +2990,7 @@ function AccountSettings({navigate, authUser, onSignOut}) {
         , isDemo && (
           React.createElement('div', { style: {margin:"0 16px 4px",padding:"14px 16px",background:"rgba(109,40,217,.1)",border:"1px solid rgba(109,40,217,.3)",borderRadius:14},}
             , React.createElement('div', { style: {fontWeight:700,fontSize:13,color:"var(--ac3)",marginBottom:4},}, "You are using the Demo Account"     )
-            , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6,marginBottom:12},}, "Explore everything Dream Board Mobile has to offer. Your activity here is not saved. Create a Dream Board Mobile ID to save your dreams, follow Dreamers and make it yours."
+            , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6,marginBottom:12},}, "Explore everything Dream Board Mobile has to offer. Your activity here is not saved. Create a Dream Board Mobile ID to save your dreams, follow Dreamors and make it yours."
 
 
             )
@@ -3479,7 +3495,7 @@ function CherrySettings({navigate, prefs, setPrefs, activeAI, setActiveAI}) {
         , [
           {k:"rememberPrefs",l:"Remember Preferences",d:"Cherry remembers your interests across sessions"},
           {k:"dreamContext",l:"Use Dream Context",d:"Cherry reads your recent Dreams for better responses"},
-          {k:"groupContext",l:"Group Awareness",d:"Cherry knows which Circles you're part of"},
+          {k:"groupContext",l:"Circle Awareness",d:"Cherry knows which Circles you're part of"},
         ].map(r => (
           React.createElement('div', { key: r.k, className: "sr",}
             , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, r.l), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3,maxWidth:230},}, r.d))
@@ -3490,7 +3506,7 @@ function CherrySettings({navigate, prefs, setPrefs, activeAI, setActiveAI}) {
         /* -- Suggestions ----------------------- */
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Suggestions")
         , [
-          {k:"groupSugg",l:"Group Suggestions",d:"Cherry recommends Circles to join"},
+          {k:"groupSugg",l:"Circle Suggestions",d:"Cherry recommends Circles to join"},
           {k:"followerSugg",l:"Dreamor Suggestions",d:"Cherry suggests Dreamors to follow"},
           {k:"trendSugg",l:"Trending Topics",d:"Cherry highlights trending content"},
           {k:"dreamSugg",l:"Dream Prompts",d:"Cherry offers writing prompts when composing"},
@@ -3506,7 +3522,7 @@ function CherrySettings({navigate, prefs, setPrefs, activeAI, setActiveAI}) {
 
         )
         , React.createElement('div', { style: {padding:"0 16px 10px"},}
-          , React.createElement('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.65,marginBottom:0},}, "Cherry AI Agent lets Cherry take real actions on your behalf — posting Dreams, joining Groups, following Dreamers and more — without you having to do it manually."
+          , React.createElement('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.65,marginBottom:0},}, "Cherry AI Agent lets Cherry take real actions on your behalf — posting Dreams, joining Groups, following Dreamors and more — without you having to do it manually."
 
           )
         )
@@ -3514,7 +3530,7 @@ function CherrySettings({navigate, prefs, setPrefs, activeAI, setActiveAI}) {
           {k:"agentEnabled",l:"Enable AI Agent",d:"Let Cherry perform actions on your behalf"},
           {k:"agentPostDreams",l:"Post Dreams",d:"Cherry can draft and post Dreams automatically"},
           {k:"agentJoinGroups",l:"Join Circles",d:"Cherry can join Groups that match your interests"},
-          {k:"agentFollowDreamers",l:"Follow Dreamors",d:"Cherry can follow suggested Dreamers for you"},
+          {k:"agentFollowDreamors",l:"Follow Dreamors",d:"Cherry can follow suggested Dreamors for you"},
           {k:"agentLike",l:"Auto-Like",d:"Cherry likes Dreams that match your interests"},
           {k:"agentSchedule",l:"Schedule Actions",d:"Cherry can queue actions and perform them later"},
           {k:"agentConfirmFirst",l:"Always Ask Before Acting",d:"Cherry will ask you to confirm before taking any action"},
@@ -3651,14 +3667,14 @@ function CherryAlgorithmSettings({navigate, prefs, setPrefs}) {
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Feed Algorithm" )
         , React.createElement(SRow, { k: "cherryFeed", l: "Cherry Curated Feed"  , d: "Cherry re-ranks your For You feed based on your taste profile and current mood signals"              , def: true,})
         , React.createElement(SRow, { k: "freshnessBias", l: "Freshness Boost" , d: "Cherry prioritises Dreams posted in the last hour over older content"          , def: true,})
-        , React.createElement(SRow, { k: "diversityBoost", l: "Diversity Boost" , d: "Cherry injects content from Dreamers outside your usual circle to broaden your exposure"            , def: false,})
+        , React.createElement(SRow, { k: "diversityBoost", l: "Diversity Boost" , d: "Cherry injects content from Dreamors outside your usual circle to broaden your exposure"            , def: false,})
         , React.createElement(SRow, { k: "engagementPredict", l: "Engagement Prediction" , d: "Cherry predicts which Dreams you're likely to like and surfaces them first"           , def: true,})
         , React.createElement(SRow, { k: "suppressReposts", l: "Reduce ReDreams" , d: "Cherry limits the number of ReDreams in your feed so you see more original content"              , def: false,})
         , React.createElement(Slider, { k: "feedCherryWeight", l: "Cherry Influence" , d: "How much Cherry adjusts the default feed order"       , min: 0, max: 100, def: 60, unit: "%",})
 
         /* -- Discovery Algorithm ------------ */
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Discovery Algorithm" )
-        , React.createElement(SRow, { k: "cherryDiscover", l: "Cherry Powered Discover"  , d: "Cherry surfaces trending topics and Dreamers tailored to you, not just raw popularity"            , def: true,})
+        , React.createElement(SRow, { k: "cherryDiscover", l: "Cherry Powered Discover"  , d: "Cherry surfaces trending topics and Dreamors tailored to you, not just raw popularity"            , def: true,})
         , React.createElement(SRow, { k: "trendBoost", l: "Trending Boost" , d: "Cherry amplifies content that is accelerating quickly, not just content that is already large"             , def: true,})
         , React.createElement(SRow, { k: "niche", l: "Niche Content Priority"  , d: "Cherry surfaces deep niche content from small creators that match your interests"           , def: false,})
         , React.createElement(Slider, { k: "discoverFreshness", l: "Recency Weight" , d: "How heavily to weight recent content vs all-time popular"        , min: 0, max: 100, def: 70, unit: "%",})
@@ -3673,8 +3689,8 @@ function CherryAlgorithmSettings({navigate, prefs, setPrefs}) {
         /* -- Group Algorithm ---------------- */
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Group Algorithm" )
         , React.createElement(SRow, { k: "cherryGroups", l: "Cherry Group Curation"  , d: "Cherry re-ranks posts inside Groups based on your activity in each group"           , def: true,})
-        , React.createElement(SRow, { k: "groupSuggest", l: "Smart Group Suggestions"  , d: "Cherry proactively suggests Groups when it detects you interacting with content from a community you haven't joined"                , def: true,})
-        , React.createElement(SRow, { k: "groupTrendAlert", l: "Group Trend Alerts"  , d: "Cherry alerts you when a topic is suddenly spiking inside a Group you're in"             , def: false,})
+        , React.createElement(SRow, { k: "groupSuggest", l: "Smart Circle Suggestions"  , d: "Cherry proactively suggests Groups when it detects you interacting with content from a community you haven't joined"                , def: true,})
+        , React.createElement(SRow, { k: "groupTrendAlert", l: "Circle Trend Alerts"  , d: "Cherry alerts you when a topic is suddenly spiking inside a Group you're in"             , def: false,})
 
         /* -- Following Algorithm ------------- */
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Following Feed Algorithm"  )
@@ -3838,7 +3854,8 @@ function AboutSettings({navigate}) {
       , [
         {l:"Terms",icon:"📄",a:()=>navigate("terms")},
         {l:"Privacy",icon:"🔒",a:()=>navigate("privacy")},
-        {l:"Rules",icon:"📋",a:()=>navigate("guidelines")},
+        {l:"Community Guidelines",icon:"📋",a:()=>navigate("guidelines")},
+        {l:"Download Your Data",icon:"⬇️",a:()=>navigate("download_data")},
         {l:"Open Source Licenses",icon:"⚖️",a:()=>{}},
         {l:"Send Feedback",icon:"💬",a:()=>navigate("feedback")},
         {l:"Our Story",icon:"📖",a:()=>navigate("hour_story")},
@@ -4035,7 +4052,7 @@ function AdminPanel({navigate}) {
             {l:"Total Dreams",v:stats.dreams.toLocaleString()},
             {l:"Daily Active",v:stats.dau.toLocaleString()},
             {l:"Monthly Active",v:stats.mau.toLocaleString()},
-            {l:"Groups",v:stats.groups.toLocaleString()},
+            {l:"Circles",v:stats.groups.toLocaleString()},
             {l:"Uptime",v:stats.uptime,good:true},
           ].map(s => (
             React.createElement('div', { key: s.l, style: {background:"var(--sf3)",borderRadius:9,padding:"9px 11px"},}
@@ -4260,7 +4277,7 @@ function AdminPlatform({onBack}) {
           {k:"maintenance",l:"Maintenance Mode",d:"Locks the platform for all non-admin users",danger:true},
           {k:"newSignups",l:"New Signups",d:"Allow new users to register accounts"},
           {k:"publicFeed",l:"Public Feed",d:"Show Dreams to logged-out visitors"},
-          {k:"groups",l:"Groups",d:"Enable Groups feature platform-wide"},
+          {k:"groups",l:"Circles",d:"Enable Groups feature platform-wide"},
           {k:"cherry",l:"Cherry AI",d:"Enable Cherry AI assistant for all users"},
           {k:"polls",l:"Polls",d:"Allow users to create poll Dreams"},
           {k:"dm",l:"Direct Messages",d:"Enable private messaging between Dreamors"},
@@ -4305,7 +4322,7 @@ function AdminAnnouncements({onBack}) {
   const [sent, setSent] = useState(false);
   const [history] = useState([
     {id:1,text:"Welcome to Dream Board Mobile Beta! We are so excited to have you here. Share your first Dream today 🌙",target:"all",time:"3 days ago",reach:"24,817"},
-    {id:2,text:"New feature: Groups are now live! Create or join a Group to connect with Dreamers who share your interests.",target:"all",time:"1 week ago",reach:"21,400"},
+    {id:2,text:"New feature: Groups are now live! Create or join a Group to connect with Dreamors who share your interests.",target:"all",time:"1 week ago",reach:"21,400"},
   ]);
   return (
     React.createElement('div', { className: "pg",}
@@ -4313,7 +4330,7 @@ function AdminAnnouncements({onBack}) {
       , React.createElement('div', { style: {padding:"14px 16px 24px"},}
         , React.createElement('div', { style: {marginBottom:20},}
           , React.createElement('div', { style: {fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",marginBottom:8},}, "New Announcement" )
-          , React.createElement('textarea', { className: "inp", style: {minHeight:100,lineHeight:1.6,fontSize:14,marginBottom:10}, placeholder: "Write your announcement to all Dreamers…", value: txt, onChange: e=>setTxt(e.target.value), 'aria-label': "Announcement text" ,})
+          , React.createElement('textarea', { className: "inp", style: {minHeight:100,lineHeight:1.6,fontSize:14,marginBottom:10}, placeholder: "Write your announcement to all Dreamors…", value: txt, onChange: e=>setTxt(e.target.value), 'aria-label': "Announcement text" ,})
           , React.createElement('div', { style: {fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",marginBottom:6},}, "Send To" )
           , React.createElement('div', { style: {display:"flex",gap:6,marginBottom:12,flexWrap:"wrap"},}
             , [{id:"all",l:"All Dreamors"},{id:"verified",l:"Verified Only"},{id:"admins",l:"Admins Only"},{id:"beta",l:"Beta Testers"}].map(t=>(
@@ -4350,7 +4367,92 @@ function PolicyPage({title, content, navigate, back}) {
 
 const TERMS_CONTENT = `<h2>1. Agreement</h2><p>By using Dream Board Mobile, you agree to these Terms. If you do not agree, please do not use the platform.</p><h2>2. Your Account</h2><p>You are responsible for your account security and all activity under it. You must be at least 13 years old.</p><h2>3. Your Dreams</h2><p>You own everything you post. By posting, you grant Dream Board Mobile a licence to display and distribute your content. You may delete it at any time.</p><h2>4. Community Rules</h2><p>Be kind. Harassment, bullying and hate speech are not permitted. Post authentic content — do not impersonate others or spread misinformation. Do not post violent, sexually explicit or otherwise harmful content. Content involving minors inappropriately is strictly forbidden. Circles must have a positive purpose and moderators must enforce these rules.</p><h2>5. Enforcement</h2><p>Violations may result in content removal, suspension or permanent bans depending on severity. Use the report button to flag content — our team reviews all reports.</p><h2>6. Termination</h2><p>We may suspend accounts that violate these Terms. You may delete your account at any time in Settings.</p><h2>7. Changes</h2><p>We may update these Terms. Continued use after changes means you accept them. Last updated March 2026.</p>`
 const PRIVACY_CONTENT = `<h2>1. Information We Collect</h2><p>We collect information you provide (name, email, content you post) and usage data (how you interact with the app).</p><h2>2. How We Use It</h2><p>We use your information to provide and improve Dream Board Mobile, personalize your experience and communicate with you.</p><h2>3. Sharing</h2><p>We do not sell your personal information. We may share data with service providers who help us operate the platform.</p><h2>4. Your Rights</h2><p>You can access, correct or delete your data at any time through Settings. You may also request a data export.</p><h2>5. Cookies</h2><p>We use cookies to maintain your session and improve app performance. You can manage cookie preferences in your device settings.</p><h2>6. Contact</h2><p>For privacy concerns, contact privacy@dreamboard.app. Last updated: February 2026.</p>`;
-const GUIDELINES_CONTENT = `<h2>1. Be Kind</h2><p>Treat all Dreamers with respect. Harassment, bullying or targeted hate speech is not permitted on Dream Board Mobile.</p><h2>2. Authentic Dreams</h2><p>Post authentic content. Do not impersonate others, spread misinformation or use automated accounts without disclosure.</p><h2>3. Safe Content</h2><p>Do not post violent, sexually explicit or otherwise harmful content. Content involving minors in any inappropriate context is strictly forbidden.</p><h2>4. Groups</h2><p>Groups must have a clear, positive purpose. Group moderators must enforce these guidelines within their communities.</p><h2>5. Reporting</h2><p>Use the report button on any Dream, comment or profile to flag content that violates these guidelines. Our team reviews all reports.</p><h2>6. Consequences</h2><p>Violations may result in content removal, account suspension or permanent bans depending on severity. Last updated: February 2026.</p>`;
+const GUIDELINES_CONTENT = `<h2>1. Be Kind</h2><p>Treat all Dreamors with respect. Harassment, bullying or targeted hate speech is not permitted on Dream Board Mobile.</p><h2>2. Authentic Dreams</h2><p>Post authentic content. Do not impersonate others, spread misinformation or use automated accounts without disclosure.</p><h2>3. Safe Content</h2><p>Do not post violent, sexually explicit or otherwise harmful content. Content involving minors in any inappropriate context is strictly forbidden.</p><h2>4. Groups</h2><p>Groups must have a clear, positive purpose. Group moderators must enforce these guidelines within their communities.</p><h2>5. Reporting</h2><p>Use the report button on any Dream, comment or profile to flag content that violates these guidelines. Our team reviews all reports.</p><h2>6. Consequences</h2><p>Violations may result in content removal, account suspension or permanent bans depending on severity. Last updated: February 2026.</p>`;
+
+/* --- DOWNLOAD YOUR DATA PAGE -------------------------------------------- */
+function DownloadDataPage({ navigate, authUser }) {
+  const [downloading, setDownloading] = useState(null);
+  const [done, setDone] = useState([]);
+
+  const downloadItem = (id, label, content) => {
+    setDownloading(id);
+    setTimeout(() => {
+      try {
+        const blob = new Blob([JSON.stringify(content, null, 2)], {type:"application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "dream-board-mobile-"+id+".json";
+        a.click();
+        URL.revokeObjectURL(url);
+        setDone(d=>[...d, id]);
+      } catch(e) {}
+      setDownloading(null);
+    }, 800);
+  };
+
+  const categories = [
+    {id:"profile",     icon:"👤", label:"Your Profile",    sub:"Name, handle, bio, settings",
+      data:{profile:{name:"Your Name",handle:"@yourhandle",bio:"Your bio",joined:"2024"}}},
+    {id:"dreams",      icon:"🌙", label:"Your Dreams",      sub:"All Dreams you have posted",
+      data:{dreams:[{id:1,text:"Example Dream",time:"2024",likes:0}]}},
+    {id:"likes",       icon:"❤️", label:"Your Likes",       sub:"All Dreams you have liked",
+      data:{liked_dreams:[]}},
+    {id:"circles",     icon:"🏘️", label:"Your Circles",     sub:"Circles you are a member of",
+      data:{circles:[]}},
+    {id:"messages",    icon:"💬", label:"Your Messages",     sub:"Private message history (encrypted)",
+      data:{note:"Messages are end-to-end encrypted. Content cannot be exported for your privacy."}},
+    {id:"follows",     icon:"👥", label:"Following & Followers", sub:"Who you follow and who follows you",
+      data:{following:[],followers:[]}},
+    {id:"settings",    icon:"⚙️", label:"Your Settings",    sub:"App preferences and configuration",
+      data:{settings:{theme:"dark",accessibility:{},notifications:{}}}},
+    {id:"cherry",      icon:"🍒", label:"Cherry History",   sub:"Your conversations with Cherry",
+      data:{cherry_conversations:[]}},
+  ];
+
+  return (
+    React.createElement('div', {className:"pg"}
+      , React.createElement(BackHeader, {title:"Download Your Data", onBack:()=>navigate("settings_about")})
+      , React.createElement('div', {style:{padding:"16px 16px 8px",background:"linear-gradient(135deg,rgba(109,40,217,.08),rgba(147,51,234,.04))",borderBottom:"1px solid var(--bd)"},}
+        , React.createElement('div', {style:{fontSize:13,color:"var(--tx2)",lineHeight:1.7},},
+          "Your data belongs to you. Download any or all of it as JSON files. These are saved to your device in your Downloads folder. We never sell your data and we never will."
+        )
+      )
+      , React.createElement('h2', {className:"slbl",role:"heading",'aria-level':"2"}, "Select what to download")
+      , categories.map(cat =>
+        React.createElement('div', {key:cat.id, style:{padding:"13px 16px",borderBottom:"1px solid var(--bd)",display:"flex",alignItems:"center",gap:12},}
+          , React.createElement('div', {style:{width:40,height:40,borderRadius:11,background:"var(--sf2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}, cat.icon)
+          , React.createElement('div', {style:{flex:1}}
+            , React.createElement('div', {style:{fontWeight:600,fontSize:14,color:"var(--tx)"}}, cat.label)
+            , React.createElement('div', {style:{fontSize:12,color:"var(--tx3)",marginTop:2}}, cat.sub)
+            , done.includes(cat.id) && React.createElement('div', {style:{fontSize:11,color:"var(--gr)",marginTop:3,fontWeight:600}}, "✓ Downloaded")
+          )
+          , React.createElement('button', {
+              className:"btn"+(done.includes(cat.id)?" bgb":" bp"),
+              style:{padding:"7px 14px",fontSize:12,flexShrink:0},
+              disabled:downloading===cat.id,
+              onClick:()=>downloadItem(cat.id, cat.label, cat.data),
+              'aria-label':"Download "+cat.label},
+            downloading===cat.id ? "…" : done.includes(cat.id) ? "✓ Done" : "Download"
+          )
+        )
+      )
+      , React.createElement('div', {style:{padding:"16px 16px 32px"}}
+        , React.createElement('button', {
+            className:"btn bp",style:{width:"100%",padding:13,fontSize:14},
+            onClick:()=>{
+              categories.forEach((cat,i)=>setTimeout(()=>downloadItem(cat.id,cat.label,cat.data),i*300));
+            },
+            'aria-label':"Download all your data"},
+          "⬇️ Download Everything"
+        )
+        , React.createElement('div', {style:{fontSize:11,color:"var(--tx3)",textAlign:"center",marginTop:10,lineHeight:1.6}},
+          "Files are saved to your device. Dream Board Mobile does not keep copies of your exported data."
+        )
+      )
+    )
+  );
+}
 
 /* --- HOUR STORY PAGE ----------------------------------------------------- */
 function HourStoryPage({ navigate, back }) {
@@ -4512,7 +4614,7 @@ function CherryOverlay({onClose, cherryCtx, initMsg, navigate}) {
       return {action:null, result:"Dream Board Mobile is a social platform where you share what's on your mind — your thoughts, takes, moments, whatever. No ads, no algorithm deciding who sees your posts. You follow people, they follow you, and you see each other's Dreams in your feed. Circles let you find communities around topics you care about. I'm Cherry, the built-in AI — I can help you post, find people to follow, navigate the app or just answer questions."};
 
     if (lo.includes("what is cherry") || lo.includes("who is cherry") || lo.includes("what can you do") || lo.includes("what can cherry do"))
-      return {action:null, result:"I'm Cherry 🍒 — Dream Board Mobile's AI assistant. I'm built into the app so I actually know what's happening here. I can: post Dreams for you, follow Dreamers, join Circles, read and clear your notifications, draft content, find trending topics, answer questions about the app, and generally help you get the most out of Dream Board. Just ask and I'll do it — or try to."};
+      return {action:null, result:"I'm Cherry 🍒 — Dream Board Mobile's AI assistant. I'm built into the app so I actually know what's happening here. I can: post Dreams for you, follow Dreamors, join Circles, read and clear your notifications, draft content, find trending topics, answer questions about the app, and generally help you get the most out of Dream Board. Just ask and I'll do it — or try to."};
 
     if (lo.includes("help") && (lo.includes("how do i") || lo.includes("how to") || lo.includes("where is") || lo.includes("can't find") || lo.includes("cannot find")))
       return {action:null, result:"Happy to help. What are you trying to do? Just describe it and I'll walk you through it or do it for you. There's no separate help centre — I'm it. Some common things I can help with: posting a Dream, finding someone to follow, joining a Circle, changing your settings, or understanding how something works."};
@@ -4520,8 +4622,8 @@ function CherryOverlay({onClose, cherryCtx, initMsg, navigate}) {
     if (lo.includes("how do i post") || lo.includes("how to post") || lo.includes("how do i dream") || lo.includes("create a dream"))
       return {action:null, result:"Tap the Menu button, then tap New Dream. Type what's on your mind — there's no topic requirement, just share what you feel like. You can attach photos, links, polls, a mood, or music. Hit Post Dream when you're ready. Want me to open the composer for you, or draft something?"};
 
-    if (lo.includes("how do i follow") || lo.includes("find people") || lo.includes("find dreamers") || lo.includes("who to follow"))
-      return {action:null, result:"Go to Discover (in the Menu or tap Discover from the main menu sheet) and you'll see suggested Dreamers and trending topics. You can also search by name or handle. Or just tell me who you're looking for and I'll find them."};
+    if (lo.includes("how do i follow") || lo.includes("find people") || lo.includes("find Dreamors") || lo.includes("who to follow"))
+      return {action:null, result:"Go to Discover (in the Menu or tap Discover from the main menu sheet) and you'll see suggested Dreamors and trending topics. You can also search by name or handle. Or just tell me who you're looking for and I'll find them."};
 
     if (lo.includes("settings") && (lo.includes("where") || lo.includes("find") || lo.includes("how do i")))
       return {action:null, result:"Settings are in the Menu — tap the Menu button at the bottom (or top, depending on your preference) and you'll see Settings with all the sub-sections. Or I can take you straight to a specific one — just say which: Account, Privacy, Notifications, Customizability, Accessibility, Cherry AI settings."};
@@ -4542,7 +4644,7 @@ function CherryOverlay({onClose, cherryCtx, initMsg, navigate}) {
       return {action:null, result:`Your saved Dreams: ${ctx.savedDreams}.`};
 
     if (lo.includes("who am i following") || lo.includes("following") && lo.includes("who"))
-      return {action:null, result:`You're currently following: ${ctx.followingNames}. Want me to suggest more Dreamers?`};
+      return {action:null, result:`You're currently following: ${ctx.followingNames}. Want me to suggest more Dreamors?`};
 
     if (lo.includes("my circles") || lo.includes("joined groups"))
       return {action:null, result:`You're in: ${ctx.joinedGroups}. I can join more groups for you — just say which ones.`};
@@ -4696,7 +4798,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
     if (lo.includes("hello") || lo.includes("hi cherry") || lo.includes("hey"))
       return {action:null, result:`Hey! 🍒 I can see you're following ${appContext().followingNames || "no one yet"} and you're in ${appContext().joinedGroups || "no groups yet"}. I can post Dreams, follow people, join Groups, check notifications, and more. What would you like?`};
 
-    return {action:null, result:"I can help you post Dreams, follow Dreamers, join Groups, check your notifications, summarise your feed, find trending topics, or draft content. Just ask — I have full access to your Dream Board."};
+    return {action:null, result:"I can help you post Dreams, follow Dreamors, join Groups, check your notifications, summarise your feed, find trending topics, or draft content. Just ask — I have full access to your Dream Board."};
   };
 
   const send = t => {
@@ -5667,8 +5769,8 @@ function OnboardingOverlay({ onDone }) {
   const [step, setStep] = React.useState(0);
   const steps = [
     { icon: "🌙", title: "Welcome to Dream Board Mobile", body: "This is your inner world's stage. Share what you're dreaming, thinking and feeling — no filters, no algorithms deciding what matters. Just you and your Dreams." },
-    { icon: "🍒", title: "Meet Cherry, your AI companion", body: "Cherry isn't just a chatbot. Cherry reads your feed, follows Dreamers you'll love, posts Dreams for you and keeps your notifications tidy. Find Cherry in the bottom tab or the floating orb." },
-    { icon: "✨", title: "Your feed, your way", body: "Explore the Feed, discover new Dreamers, join Groups and check Alerts. Everything you create is yours. Tap Create anytime to share a new Dream." },
+    { icon: "🍒", title: "Meet Cherry, your AI companion", body: "Cherry isn't just a chatbot. Cherry reads your feed, follows Dreamors you'll love, posts Dreams for you and keeps your notifications tidy. Find Cherry in the bottom tab or the floating orb." },
+    { icon: "✨", title: "Your feed, your way", body: "Explore the Feed, discover new Dreamors, join Groups and check Alerts. Everything you create is yours. Tap Create anytime to share a new Dream." },
   ];
   const s = steps[step];
   return React.createElement('div', { style: {position:"fixed",inset:0,zIndex:10001,background:"rgba(0,0,0,.85)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"32px 28px"}, 'aria-modal': "true", role: "dialog", 'aria-label': "Welcome walkthrough"},
@@ -5701,7 +5803,7 @@ function DigestCard({ dreams, notifs, onClose }) {
       React.createElement('div', { style: {display:"flex",alignItems:"flex-start",gap:12,marginBottom:12}},
         React.createElement('div', { style: {fontSize:28,flexShrink:0}}, "🌙"),
         React.createElement('div', { style: {flex:1}},
-          React.createElement('div', { style: {fontWeight:700,fontSize:14,color:"var(--tx)",marginBottom:3}}, "Good morning, Dreamer"),
+          React.createElement('div', { style: {fontWeight:700,fontSize:14,color:"var(--tx)",marginBottom:3}}, "Good morning, Dreamor"),
           React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.55}},
             unread > 0 ? "You have " + unread + " new notification" + (unread > 1 ? "s" : "") + " since you were last here. " : "Your feed is all caught up. ",
             topDream ? "\"" + topDream.text.slice(0, 60) + (topDream.text.length > 60 ? "…" : "") + "\" is getting attention." : "Check out what's new in your feed."
@@ -6061,7 +6163,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"⚙️", label:"Cherry Settings", sub:"Personality, memory, agent permissions",                   action(){onClose();navigate("settings_cherry");} },
     ]},
     { id:"discover", emoji:"🔍", label:"Discover", items:[
-      { icon:"🔍", label:"Discover", sub:"Dreamers, topics, trending", discoverLink:true, action(){onClose();goRoot("discover");} },
+      { icon:"🔍", label:"Discover", sub:"Dreamors, topics, trending", discoverLink:true, action(){onClose();goRoot("discover");} },
       { icon:"🏘️", label:"Circles",  sub:"Your communities",                              action(){onClose();goRoot("circles");} },
     ]},
     { id:"create", emoji:"✏️", label:"Create", items:[
@@ -6217,17 +6319,17 @@ function DreamLabsPage({ navigate, authUser }) {
   const canSubmit = form.name.trim() && form.email.trim() && form.why.trim().length >= 15 && form.consent;
 
   const REQS = [
-    {id:"age13",    label:"Must be 13 or older",               done:checks.age13,    blocked:isKid,  desc:"Dream Pioneers is only open to Dreamers aged 13 and up."},
+    {id:"age13",    label:"Must be 13 or older",               done:checks.age13,    blocked:isKid,  desc:"Dream Pioneers is only open to Dreamors aged 13 and up."},
     {id:"days30",   label:"Account must be at least 30 days old", done:checks.days30, blocked:false,  desc: ageDays>=30 ? "Your account is "+ageDays+" days old." : "Your account is "+ageDays+" day"+(ageDays===1?"":"s")+" old. "+Math.max(0,30-ageDays)+" day"+(30-ageDays===1?"":"s")+" to go."},
     {id:"hasDream", label:"Post at least one Dream",            done:checks.hasDream, blocked:false,  desc: (ME.dreamCount||0)>=1 ? "You have "+(ME.dreamCount||0)+" Dream"+((ME.dreamCount||0)===1?"":"s")+"." : "Share at least one Dream before applying."},
-    {id:"follow3",  label:"Follow at least 3 Dreamors",        done:checks.hasFollow,blocked:false,  desc: (ME.following||0)>=3 ? "You follow "+(ME.following||0)+" Dreamers." : "Follow at least 3 Dreamors. Helps us know you're here to connect, not spam."},
+    {id:"follow3",  label:"Follow at least 3 Dreamors",        done:checks.hasFollow,blocked:false,  desc: (ME.following||0)>=3 ? "You follow "+(ME.following||0)+" Dreamors." : "Follow at least 3 Dreamors. Helps us know you're here to connect, not spam."},
     {id:"emailOk",  label:"Verified email on your account",    done:checks.emailOk,  blocked:false,  desc: checks.emailOk ? "Your email is set." : "Add a verified email in Settings \u2192 Account."},
     {id:"notKid",   label:"Not a parent-managed account",      done:checks.notKid,   blocked:isKid,  desc:"Accounts under parental controls are excluded from Dream Pioneers."},
   ];
 
   const FEATURES = [
     {id:"marketplace", icon:"\uD83D\uDED2", name:"Marketplace",          status:"Beta",    tag:"Commerce", desc:"Buy and sell inside Dream Board Mobile. Early access testers shape how it works before launch."},
-    {id:"store",       icon:"\uD83C\uDFEA", name:"Store",                status:"Alpha",   tag:"Apps",     desc:"Apps, tools and add-ons for Dreamers. Help us decide what ships."},
+    {id:"store",       icon:"\uD83C\uDFEA", name:"Store",                status:"Alpha",   tag:"Apps",     desc:"Apps, tools and add-ons for Dreamors. Help us decide what ships."},
     {id:"miniapps",    icon:"\uD83E\uDDE9", name:"Mini Apps",            status:"Alpha",   tag:"Platform", desc:"Tiny utilities that live inside Dream Board. The first batch is almost ready."},
     {id:"analytics",   icon:"\uD83D\uDCCA", name:"Advanced Analytics",   status:"Beta",    tag:"Data",     desc:"Deeper stats \u2014 reach, engagement curves, best posting times."},
     {id:"collab",      icon:"\uD83E\uDD1D", name:"Collaborative Dreams", status:"Concept", tag:"Social",   desc:"Co-author a Dream with another Dreamer. Two voices, one post."},
@@ -6742,6 +6844,7 @@ useEffect(() => {
       case "more":          return React.createElement(MorePage, { navigate: navigate, cherryCtx: cherryCtx, authUser: authUser,});
       case "about":         return React.createElement(AboutSettings, { navigate: navigate,});
       case "hour_story":    return React.createElement(HourStoryPage, { navigate: navigate, back: pdata||"more",});
+      case "download_data":  return React.createElement(DownloadDataPage, { navigate: navigate, authUser: authUser,});
       case "terms":         return React.createElement(PolicyPage, { title: "Terms", content: TERMS_CONTENT, navigate: navigate, back: "settings_about",});
       case "privacy":       return React.createElement(PolicyPage, { title: "Privacy", content: PRIVACY_CONTENT, navigate: navigate, back: "settings_about",});
       case "guidelines":    return React.createElement(PolicyPage, { title: "Rules", content: GUIDELINES_CONTENT, navigate: navigate, back: "settings_about",});
@@ -6859,7 +6962,7 @@ useEffect(() => {
             )
             , [
               {ic:"✏️", title:"Write & post Dreams", desc:"Ask Cherry to draft a Dream and post it to your feed instantly"},
-              {ic:"👥", title:"Follow & connect", desc:"Cherry can follow Dreamers that match your interests"},
+              {ic:"👥", title:"Follow & connect", desc:"Cherry can follow Dreamors that match your interests"},
               {ic:"🏘️", title:"Join Circles", desc:"Cherry finds and joins communities you'll love"},
               {ic:"🔔", title:"Manage notifications", desc:"Cherry summarises and clears your alerts"},
               {ic:"🔍", title:"Analyse your feed", desc:"Get real-time insights on trending content and your activity"},
