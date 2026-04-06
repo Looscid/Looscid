@@ -2387,7 +2387,7 @@ function ProfilePage({navigate, authUser}) {
         React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:22,marginBottom:8,color:"var(--tx)"}}, "You are in Guest Mode"),
         React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.7,marginBottom:24}}, "Create a Dream Board Mobile ID to get your profile, save your Dreams, follow Dreamors and make it yours."),
         React.createElement('button', { className: "btn bp", style: {padding:"12px 28px",fontSize:14,marginBottom:12}, onClick: ()=>navigate("login"), "aria-label": "Create a Dream Board Mobile ID"}, "Create Account"),
-        React.createElement('button', { className: "btn bgb", style: {padding:"10px 24px",fontSize:13}, onClick: ()=>navigate("login"), "aria-label": "Sign in to your account"}, "Sign In")
+        React.createElement('button', { className: "btn bgb", style: {padding:"10px 24px",fontSize:13}, onClick: ()=>navigate("login"), "aria-label": "Sign in to your account"}, "Login")
       )
     )
   );
@@ -2538,7 +2538,7 @@ function DreamerProfilePage({user, navigate, cherryCtx}) {
           React.createElement('button', {
             onClick:()=>setDreamerOptOpen(o=>!o),
             'aria-expanded':dreamerOptOpen,'aria-controls':"dp-opts",
-            'aria-label':"Dreamor options"+(dreamerOptOpen?", expanded":", collapsed"),
+            'aria-label':"Dreamor options",
             style:{display:"flex",alignItems:"center",justifyContent:"space-between",width:"100%",
               padding:"10px 14px",background:"var(--sf2)",border:"1px solid var(--bd2)",
               borderRadius:10,cursor:"pointer",fontFamily:"inherit",fontSize:13,fontWeight:600,color:"var(--tx2)"}},
@@ -2645,7 +2645,7 @@ function CherryPage({navigate, cherryCtx}) {
     // Fallback
     const lo = text.toLowerCase();
     const c2 = appCtx();
-    if (lo.includes("trending")) return {result:"Trending on Dream Board right now:\n\n🔥 #Consciousness — 48.2K Dreams\n📈 #CreativeProcess — 22.1K Dreams\n🌿 #PhilosophyOfMind — 15.4K Dreams\n\nWant me to draft a Dream about one of these?"};
+    if (lo.includes("trending")) return {result:"Trending on Dream Board right now:\n\n🔥 real trends (API needed)\n📈 #CreativeProcess — 22.1K Dreams\n🌿 #PhilosophyOfMind — 15.4K Dreams\n\nWant me to draft a Dream about one of these?"};
     if (lo.includes("notification")||lo.includes("alert")) return {result:"You have "+c2.unread+" unread notification"+(c2.unread!==1?"s":"")+(c2.unread>0?". Want me to mark them all read?":"! All caught up 🎉")};
     if (lo.includes("draft")||lo.includes("write a dream")) {
       const d = "There is a kind of quiet that arrives only when you stop trying to fill the silence. I have been chasing that quiet. #Mindfulness";
@@ -3910,7 +3910,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
           React.createElement('div', {style:{fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,marginBottom:8}}, "You are in Guest Mode"),
           React.createElement('p', {style:{fontSize:13,color:"var(--tx2)",lineHeight:1.7,marginBottom:20}}, "Create a free Dream Board Mobile ID to post Dreams, follow Dreamors, get notifications and make the app yours."),
           React.createElement('button', {className:"btn bp",style:{width:"100%",padding:13,fontSize:14,marginBottom:10},onClick:()=>navigate("login"),"aria-label":"Create a Dream Board Mobile ID"}, "Create Account"),
-          React.createElement('button', {className:"btn bgb",style:{width:"100%",padding:11,fontSize:13},onClick:()=>navigate("login"),"aria-label":"Sign in to your account"}, "Sign In")
+          React.createElement('button', {className:"btn bgb",style:{width:"100%",padding:11,fontSize:13},onClick:()=>navigate("login"),"aria-label":"Sign in to your account"}, "Login")
         ),
         React.createElement('button', {className:"snav",onClick:()=>navigate("settings_accessibility"),"aria-label":"Accessibility settings"},
           React.createElement('div', {className:"snav-l"},
@@ -4784,7 +4784,7 @@ Want me to join any of these?`,
 
     if (lo.includes("trending") || lo.includes("what's hot") || lo.includes("whats hot"))
       return {action:"Fetching live trending data…", agentLabel:"Fetching trends",
-        result:"Right now on Dream Board Mobile:\n\n🔥 #Consciousness — 48.2K Dreams (+340% this hour)\n📈 #CreativeProcess — 22.1K Dreams\n🌿 #PhilosophyOfMind — 15.4K Dreams\n\nWant me to draft a Dream around one of these?"};
+        result:"Right now on Dream Board Mobile:\n\n🔥 real trends (API needed) (+340% this hour)\n📈 #CreativeProcess — 22.1K Dreams\n🌿 #PhilosophyOfMind — 15.4K Dreams\n\nWant me to draft a Dream around one of these?"};
 
     if (lo.includes("summarize") || lo.includes("summary") || lo.includes("what's happening") || lo.includes("catch me up")) {
       const ctx2 = appContext();
@@ -5269,7 +5269,7 @@ function SplashScreen({ onLogin, onSignup, onDemo }) {
           role:"tablist", 'aria-label':"Get started",
           style:{display:"flex",margin:"0 16px 20px",borderRadius:14,overflow:"hidden",border:"1px solid var(--bd2)"}
         }
-        , [{id:"create",label:"Create Dream ID"},{id:"login",label:"Sign In"},{id:"guest",label:"Guest"}].map((tab,i) =>
+        , [{id:"create",label:"Create Dream ID"},{id:"login",label:"Login"},{id:"guest",label:"Guest"}].map((tab,i) =>
           React.createElement('button', {
             key:tab.id, role:"tab",
             'aria-selected':showDialog===tab.id,
@@ -5315,12 +5315,12 @@ function SplashScreen({ onLogin, onSignup, onDemo }) {
       )
 
       , showDialog==="login" && React.createElement('div', {className:"ov",onClick:e=>e.target===e.currentTarget&&close(),
-          role:"dialog",'aria-modal':"true",'aria-label':"Sign in to your Dream ID"}
+          role:"dialog",'aria-modal':"true",'aria-label':"Login to your Dream ID"}
         , React.createElement('div', {className:"msh"}
           , React.createElement('div', {className:"mhd"})
           , React.createElement('div', {className:"min"}
             , React.createElement('div', {style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}
-              , React.createElement('div', {className:"mtt"}, "Sign in to your Dream ID")
+              , React.createElement('div', {className:"mtt"}, "Login to your Dream ID")
               , React.createElement('button', {className:"bi",onClick:close,'aria-label':"Cancel"},
                 React.createElement('svg',{width:18,height:18,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:2},
                   React.createElement('line',{x1:"18",y1:"6",x2:"6",y2:"18"}),
@@ -5330,13 +5330,13 @@ function SplashScreen({ onLogin, onSignup, onDemo }) {
             )
             , React.createElement('p', {className:"msb"}, "Welcome back.")
             , React.createElement('button', {className:"auth-google-btn",style:{marginBottom:10},
-                onClick:()=>{close();onLogin();},'aria-label':"Continue with Google"},
-              React.createElement(GoogleLogo,null), React.createElement('span',null,"Continue with Google")
+                onClick:()=>{close();onLogin();},'aria-label':"Login with Google"},
+              React.createElement(GoogleLogo,null), React.createElement('span',null,"Login with Google")
             )
             , React.createElement('div', {className:"auth-divider"}, "or")
             , React.createElement('button', {className:"btn bp",style:{width:"100%",padding:12,fontSize:14,marginBottom:10},
                 onClick:()=>{close();onLogin();},'aria-label':"Sign in with email"},
-              "Sign in with Email"
+              "Login with Email"
             )
             , React.createElement('button', {className:"btn bgb",style:{width:"100%",padding:11,fontSize:13},
                 onClick:close,'aria-label':"Cancel"}, "Cancel")
@@ -5401,8 +5401,8 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
 
   // Interests
   const INTERESTS = [
-    {id:"consciousness",  label:"Consciousness"},
-    {id:"philosophy",     label:"Philosophy"},
+    {id:"tech",        label:"Tech"},
+    {id:"gaming",      label:"Gaming"},
     {id:"creative",       label:"Creative Arts"},
     {id:"writing",        label:"Writing"},
     {id:"wellness",       label:"Wellness"},
@@ -5412,8 +5412,8 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
     {id:"film",           label:"Film & TV"},
     {id:"nature",         label:"Nature"},
     {id:"humour",         label:"Humour"},
-    {id:"dreams",         label:"Dreams & Sleep"},
-    {id:"mental_health",  label:"Mental Health"},
+    {id:"travel",      label:"Travel"},
+    {id:"fitness",     label:"Fitness"},
     {id:"books",          label:"Books"},
     {id:"food",           label:"Food"},
     {id:"sport",          label:"Sport"},
@@ -5562,8 +5562,8 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
         , React.createElement('div', { className: "auth-sub",}, "WELCOME BACK"  )
         , err  && React.createElement('div', { className: "auth-error",}, React.createElement('span', null, "Warning:"), React.createElement('span', null, err))
         , msg  && React.createElement('div', { style: {background:"rgba(34,197,94,.12)",border:"1px solid rgba(34,197,94,.3)",borderRadius:10,padding:"10px 14px",fontSize:13,color:"#22c55e",marginBottom:14},}, msg)
-        , React.createElement('button', { className: "auth-google-btn", onClick: handleGoogle, disabled: busy, 'aria-label': "Sign in with Google"   ,}
-          , busy ? React.createElement('div', { className: "auth-spinner",}) : React.createElement(React.Fragment, null, React.createElement(GoogleLogo, null), React.createElement('span', null, "Continue with Google"  ))
+        , React.createElement('button', { className: "auth-google-btn", onClick: handleGoogle, disabled: busy, 'aria-label': "Login with Google"   ,}
+          , busy ? React.createElement('div', { className: "auth-spinner",}) : React.createElement(React.Fragment, null, React.createElement(GoogleLogo, null), React.createElement('span', null, "Login with Google"  ))
         )
         , React.createElement('div', { className: "auth-divider",}, "or")
         , React.createElement('input', { className: "inp", type: "email", placeholder: "Email address" ,
@@ -6938,6 +6938,7 @@ useEffect(() => {
 
   const renderPage = () => {
     switch(page) {
+      case "cherry":        return React.createElement(CherryPage, { navigate: navigate, cherryCtx: cherryCtx,});
       case "feed":          return React.createElement(FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
       case "discover":      return React.createElement(DiscoverPage, { navigate: navigate, cherryCtx: cherryCtx,});
       case "alerts":        return React.createElement(AlertsPage, { cherryCtx: cherryCtx,});
@@ -7003,66 +7004,63 @@ useEffect(() => {
         , React.createElement('button', {
             className: "nb" + (page==="feed" ? " on" : ""),
             onClick: () => goRoot("feed"),
-            role: "tab",
-            "aria-selected": page==="feed",
-            "aria-label": "Home",
-            tabIndex: 0,
+            role: "tab", "aria-selected": page==="feed",
+            "aria-label": "Feed", tabIndex: 0,
           },
           React.createElement('div', {"aria-hidden":"true", className:"nb-check"}),
-          React.createElement('span', {"aria-hidden":"true"}, "Home")
+          React.createElement(Ic.Home, {"aria-hidden":"true", style:{width:22,height:22}}),
+          React.createElement('span', {"aria-hidden":"true"}, "Feed")
         )
         , React.createElement('button', {
             className: "nb" + (page==="discover" ? " on" : ""),
             onClick: () => goRoot("discover"),
-            role: "tab",
-            "aria-selected": page==="discover",
-            "aria-label": "Discover",
-            tabIndex: 0,
+            role: "tab", "aria-selected": page==="discover",
+            "aria-label": "Discover", tabIndex: 0,
           },
           React.createElement('div', {"aria-hidden":"true", className:"nb-check"}),
+          React.createElement(Ic.Srch, {"aria-hidden":"true", style:{width:22,height:22}}),
           React.createElement('span', {"aria-hidden":"true"}, "Discover")
         )
         , React.createElement('button', {
             className: "nb nb-create",
-            onClick: () => setShowCreate(true),
-            role: "tab",
-            "aria-selected": false,
-            "aria-label": "Create",
-            "aria-haspopup": "dialog",
-            tabIndex: 0,
+            onClick: () => { const g=!authUser||authUser.isGuest||authUser.uid==="guest"; if(g){goRoot("more");}else{setShowCreate(true);} },
+            role: "tab", "aria-selected": false,
+            "aria-label": "Create a Dream",
+            "aria-haspopup": "dialog", tabIndex: 0,
           },
           React.createElement(Ic.Pls, {"aria-hidden":"true", style:{width:22,height:22}}),
           React.createElement('span', {"aria-hidden":"true"}, "Create")
         )
         , React.createElement('button', {
+            className: "nb" + (page==="cherry" ? " on" : ""),
+            onClick: () => goRoot("cherry"),
+            role: "tab", "aria-selected": page==="cherry",
+            "aria-label": "Cherry AI", tabIndex: 0,
+          },
+          React.createElement('div', {"aria-hidden":"true", className:"nb-check"}),
+          React.createElement('span', {"aria-hidden":"true", style:{fontSize:19,lineHeight:"22px",display:"block"}}, "🍒"),
+          React.createElement('span', {"aria-hidden":"true"}, "Cherry")
+        )
+        , React.createElement('button', {
             className: "nb" + (page==="alerts" ? " on" : ""),
             onClick: () => goRoot("alerts"),
-            role: "tab",
-            "aria-selected": page==="alerts",
-            "aria-label": "Alerts" + ((unreadNotifs+unreadMsgs)>0 ? ", " + (unreadNotifs+unreadMsgs) + " unread" : ""),
+            role: "tab", "aria-selected": page==="alerts",
+            "aria-label": "Alerts" + ((unreadNotifs+(typeof unreadMsgs!=="undefined"?unreadMsgs:0))>0 ? ", " + (unreadNotifs+(typeof unreadMsgs!=="undefined"?unreadMsgs:0)) + " unread" : ""),
             tabIndex: 0,
           },
           React.createElement('div', {style:{position:"relative"}},
             React.createElement(Ic.Bell, {"aria-hidden":"true", style:{width:22,height:22}}),
-            (unreadNotifs+unreadMsgs) > 0 && React.createElement('span', {
-              className: "nbdg",
-              "aria-hidden": "true",
-            }, unreadNotifs+unreadMsgs)
+            unreadNotifs > 0 && React.createElement('span', {"className":"nbdg","aria-hidden":"true"}, unreadNotifs)
           ),
           React.createElement('span', {"aria-hidden":"true"}, "Alerts")
         )
         , React.createElement('button', {
-            className: "nb-menu",
-            onClick: () => setShowMenu(true),
-            role: "tab",
-            "aria-selected": false,
-            "aria-label": "More",
-            "aria-haspopup": "dialog",
+            className: "nb" + (page==="more" ? " on" : ""),
+            onClick: () => goRoot("more"),
+            role: "tab", "aria-selected": page==="more",
+            "aria-label": "More", tabIndex: 0,
           },
-          React.createElement('div', {"aria-hidden":"true", className:"nb-menu-ic"},
-            React.createElement(Ic.Dots, {style:{width:16,height:16}}),
-            React.createElement('span', {style:{fontSize:8,opacity:.7,marginLeft:1}}, "▾")
-          ),
+          React.createElement(Ic.Dots, {"aria-hidden":"true", style:{width:22,height:22}}),
           React.createElement('span', {"aria-hidden":"true"}, "More")
         )
       )
