@@ -1446,14 +1446,14 @@ function AttachPanel({onClose, onAttach, mode}) {
   const [locText, setLocText] = useState("");
 
   const attachItems = [
-    {id:"photo",icon:"🖼️",label:"Photo / Video",sub:"Share an image or video clip"},
-    {id:"gif",icon:"🎞️",label:"GIF",sub:"Animated GIF from your library"},
-    {id:"poll",icon:"📊",label:"Poll",sub:"Let your audience vote"},
-    {id:"link",icon:"🔗",label:"Link",sub:"Attach a website, article or video"},
-    {id:"location",icon:"📍",label:"Location",sub:"Tag a place to your Dream"},
-    {id:"schedule",icon:"🕐",label:"Schedule",sub:"Set a time to post this Dream"},
-    {id:"mood",icon:"😌",label:"Mood",sub:"Express how you're feeling"},
-    {id:"music",icon:"🎵",label:"Music",sub:"Attach a song you're listening to"},
+    {id:"photo",icon:"🖼️",label:"Photo / Video",sub:"Photo or video"},
+    {id:"gif",icon:"🎞️",label:"GIF",sub:"GIF"},
+    {id:"poll",icon:"📊",label:"Poll",sub:"Create a poll"},
+    {id:"link",icon:"🔗",label:"Link",sub:"Website or article"},
+    {id:"location",icon:"📍",label:"Location",sub:"Add a location"},
+    {id:"schedule",icon:"🕐",label:"Schedule",sub:"Schedule"},
+    {id:"mood",icon:"😌",label:"Mood",sub:"Add a mood"},
+    {id:"music",icon:"🎵",label:"Music",sub:"Add music"},
   ].filter(i => mode==="comment" ? ["photo","gif","link","mood"].includes(i.id) : true);
 
   if (screen==="poll") return (
@@ -1504,7 +1504,7 @@ function AttachPanel({onClose, onAttach, mode}) {
   );
 
   return (
-    React.createElement(Modal, { onClose: onClose, title: "Add to Dream"  , subtitle: "Enrich your Dream with media and more"      ,}
+    React.createElement(Modal, { onClose: onClose, title: "Add to Dream"  , subtitle: "Add to your Dream"      ,}
       , React.createElement('div', { style: {display:"grid",gridTemplateColumns:"1fr 1fr",gap:8},}
         , attachItems.map(item=>(
           React.createElement('button', { key: item.id, style: {background:"var(--sf2)",border:"1px solid var(--bd)",borderRadius:12,padding:"13px 10px",cursor:"pointer",textAlign:"center",transition:"all .15s",display:"flex",flexDirection:"column",alignItems:"center",gap:5}, onClick: ()=>{
@@ -1654,14 +1654,14 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
 
   // Main create menu
   return (
-    React.createElement(Modal, { onClose: onClose, title: "Create", subtitle: "What would you like to share?"     ,}
-      , React.createElement('button', { className: "osb", onClick: ()=>setScreen("dream"), 'aria-label': "New Dream — write and share a Dream"       ,}
+    React.createElement(Modal, { onClose: onClose, title: "Create", subtitle: ""     ,}
+      , React.createElement('button', { className: "osb", onClick: ()=>setScreen("dream"), 'aria-label': "New Dream"       ,}
         , React.createElement('span', { style: {fontSize:22,width:32,textAlign:"center"},}, "✏️")
-        , React.createElement('div', { style: {flex:1},}, React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "New Dream" ), React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Write, share and inspire"   ))
+        , React.createElement('div', { style: {flex:1},}, React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "New Dream" ), React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Share what's on your mind"   ))
       )
       , React.createElement('button', { className: "osb", onClick: ()=>setScreen("group"), 'aria-label': "New Circle"     ,}
         , React.createElement('span', { style: {fontSize:22,width:32,textAlign:"center"},}, "👥")
-        , React.createElement('div', { style: {flex:1},}, React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "New Circle" ), React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Create a community around a shared interest"      ))
+        , React.createElement('div', { style: {flex:1},}, React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "New Circle" ), React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Start a Circle"      ))
       )
     )
   );
@@ -2709,9 +2709,9 @@ function CherryPage({navigate, cherryCtx}) {
             animation:"fu .15s ease"},
           role:"dialog",'aria-label':"Cherry options",}
         , [
-          {ic:"🕐",l:"Chat History",     sub:"View past conversations", a:()=>{setShowHistDialog(false);}},
-          {ic:"✏️",l:"New Conversation", sub:"Start fresh",             a:()=>{setMsgs([INIT_MSG]);setShowHistDialog(false);}},
-          {ic:"⚙️",l:"Cherry Settings",  sub:"Personality, memory, model",a:()=>{setShowHistDialog(false);navigate("settings_cherry");}},
+          {ic:"🕐",l:"History",     sub:"Past chats", a:()=>{setShowHistDialog(false);}},
+          {ic:"✏️",l:"New Chat", sub:"Clear and restart",             a:()=>{setMsgs([INIT_MSG]);setShowHistDialog(false);}},
+          {ic:"⚙️",l:"Settings",  sub:"Configure Cherry",a:()=>{setShowHistDialog(false);navigate("settings_cherry");}},
         ].map(item =>
           React.createElement('button', {key:item.l,
             onClick:item.a,
@@ -2792,7 +2792,7 @@ function CherryPage({navigate, cherryCtx}) {
             style:{maxHeight:addOpen?"120px":"0",overflow:"hidden",visibility:addOpen?"visible":"hidden",
               transition:"max-height .22s ease,visibility .22s",padding:addOpen?"8px 12px 4px":"0 12px"},}
           , React.createElement('div', {style:{display:"flex",gap:8,flexWrap:"wrap"},}
-            , [{ic:"🖼️",l:"Photo"},{ic:"🔗",l:"Link"},{ic:"😌",l:"Mood"},{ic:"📋",l:"Paste clipboard"}].map(opt=>
+            , [{ic:"🖼️",l:"Photo"},{ic:"🔗",l:"Link"},{ic:"😌",l:"Mood"},{ic:"📋",l:"Paste"}].map(opt=>
               React.createElement('button', {key:opt.l,
                 style:{display:"flex",alignItems:"center",gap:5,background:"var(--sf2)",
                   border:"1px solid var(--bd2)",borderRadius:8,padding:"7px 11px",
@@ -2806,7 +2806,7 @@ function CherryPage({navigate, cherryCtx}) {
         , React.createElement('div', {className:"cir",style:{gap:8,alignItems:"center"},}
           , React.createElement('input', {
               className:"inp",style:{borderRadius:100,flex:1,fontSize:14},
-              placeholder:"Ask Cherry anything…",
+              placeholder:"Ask anything…",
               value:inp, onChange:e=>setInp(e.target.value),
               onKeyDown:e=>{ if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();} },
               'aria-label':"Message Cherry",})
@@ -4875,7 +4875,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
         , React.createElement('div', { className: "hdr", style: {position:"sticky",top:0},}
           , React.createElement('div', { className: "hdr-row",}
             , React.createElement('button', { className: "bi", onClick: ()=>setShowHistory(false), 'aria-label': "Back",}, React.createElement(Ic.Bck, { style: {width:21,height:21},}))
-            , React.createElement('span', { className: "hdr-title",}, "Chat History" )
+            , React.createElement('span', { className: "hdr-title",}, "History" )
             , React.createElement('button', { style: {background:"none",border:"none",cursor:"pointer",fontSize:12,color:"var(--rd)",padding:"4px 8px"}, 'aria-label': "Clear all" ,}, "Clear All" )
           )
         )
@@ -4932,8 +4932,8 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
               'aria-label': "View chat history",}
             , React.createElement('span', {style:{fontSize:18},}, "🕐")
             , React.createElement('div', {style:{textAlign:"left"}},
-              React.createElement('div', {style:{fontSize:14,fontWeight:600,color:"var(--tx)"}}, "Chat History"),
-              React.createElement('div', {style:{fontSize:12,color:"var(--tx3)"}}, "View past conversations")
+              React.createElement('div', {style:{fontSize:14,fontWeight:600,color:"var(--tx)"}}, "History"),
+              React.createElement('div', {style:{fontSize:12,color:"var(--tx3)"}}, "Past chats")
             )
           )
           , React.createElement('button', {
@@ -4943,7 +4943,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
               'aria-label': "Start a new conversation",}
             , React.createElement('span', {style:{fontSize:18},}, "✏️")
             , React.createElement('div', {style:{textAlign:"left"}},
-              React.createElement('div', {style:{fontSize:14,fontWeight:600,color:"var(--tx)"}}, "New Conversation"),
+              React.createElement('div', {style:{fontSize:14,fontWeight:600,color:"var(--tx)"}}, "New Chat"),
               React.createElement('div', {style:{fontSize:12,color:"var(--tx3)"}}, "Clear history, start fresh")
             )
           )
@@ -5059,7 +5059,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
 
         /* Input - only in chat tab */
         , overlayTab==="chat" && React.createElement('div', { className: "cir", style: {background:"var(--sf)",borderTop:"1px solid var(--bd2)"},}
-          , React.createElement('input', { className: "inp", style: {borderRadius:100,flex:1,fontSize:14}, placeholder: "Ask Cherry or give a command…"     ,
+          , React.createElement('input', { className: "inp", style: {borderRadius:100,flex:1,fontSize:14}, placeholder: "Message…"     ,
             value: inp, onChange: e=>setInp(e.target.value), onKeyDown: e=>e.key==="Enter"&&send(), 'aria-label': "Message Cherry" ,})
           , React.createElement('button', { className: "btn bp" , style: {padding:9,borderRadius:"50%",width:38,height:38,flexShrink:0}, onClick: ()=>send(), disabled: !inp.trim(), 'aria-label': "Send",}
             , React.createElement(Ic.Snd, { style: {width:15,height:15},})
@@ -5475,13 +5475,27 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
 
   const handleGoogle = async () => {
     setBusy(true); setErr("");
+    // Try Supabase Google OAuth first (our primary auth)
+    const sb = getSupabase ? getSupabase() : null;
+    if (sb) {
+      try {
+        const { error } = await sb.auth.signInWithOAuth({
+          provider: "google",
+          options: { redirectTo: window.location.origin }
+        });
+        if (!error) { setBusy(false); return; }
+      } catch(e) {}
+    }
+    // Fallback to Firebase if configured
     const auth = getFirebaseAuth();
-    if (!auth) { onAuth({ displayName:"Google User", email:"google@demo.com", emailVerified:true, uid:"google" }); setBusy(false); return; }
-    try {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      const cred = await auth.signInWithPopup(provider);
-      onAuth(cred.user);
-    } catch(e) { setErr("Google sign-in failed. Please try again."); }
+    if (auth) {
+      try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        const cred = await auth.signInWithPopup(provider);
+        onAuth(cred.user); setBusy(false); return;
+      } catch(e) {}
+    }
+    setErr("Google login is not configured yet. Use email to create your Dream ID.");
     setBusy(false);
   };
 
@@ -6180,16 +6194,27 @@ function getAttribPref() { try { return localStorage.getItem(ATTRIB_KEY)||"visib
 function AISelector({ value, onChange }) {
   return React.createElement('div', {style:{padding:"0 0 8px"}},
     React.createElement('div', {style:{fontSize:12,fontWeight:600,color:"var(--tx2)",marginBottom:8}}, "AI Model"),
-    React.createElement('div', {style:{display:"flex",flexWrap:"wrap"}},
-      AI_PROVIDERS.map(ai =>
-        React.createElement('button', {key:ai.id, className:"ai-pill"+(value===ai.id?" on":""),
-          onClick:()=>onChange(ai.id), 'aria-pressed':value===ai.id, 'aria-label':ai.name},
-          ai.icon, " ", ai.name
-        )
-      )
-    ),
-    React.createElement('div', {style:{fontSize:11,color:"var(--tx3)",marginTop:6}},
-      (AI_PROVIDERS.find(a=>a.id===value)||AI_PROVIDERS[0]).desc
+    React.createElement('div', {style:{display:"flex",flexDirection:"column",gap:8}},
+      AI_PROVIDERS.map(ai => {
+        const enabled = Array.isArray(value) ? value.includes(ai.id) : value===ai.id||ai.default;
+        return React.createElement('label', {key:ai.id,
+          style:{display:"flex",alignItems:"center",gap:10,cursor:"pointer"},
+          'aria-label':ai.name+": "+ai.desc},
+          React.createElement('input', {
+            type:"checkbox", checked:!!enabled,
+            onChange:()=>{
+              const cur = Array.isArray(value) ? value : AI_PROVIDERS.filter(a=>a.default).map(a=>a.id);
+              const next = cur.includes(ai.id) ? cur.filter(x=>x!==ai.id) : [...cur, ai.id];
+              onChange(next.length ? next : [ai.id]);
+            },
+            style:{width:16,height:16,accentColor:"var(--ac)",flexShrink:0}
+          }),
+          React.createElement('div', null,
+            React.createElement('div', {style:{fontSize:13,fontWeight:600,color:"var(--tx)"}}, ai.icon, " ", ai.name),
+            React.createElement('div', {style:{fontSize:11,color:"var(--tx3)"}}, ai.desc)
+          )
+        );
+      })
     )
   );
 }
@@ -6277,7 +6302,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
   const SECTIONS = [
     { id:"cherry", emoji:"🍒", label:"Cherry AI", items:[
       { icon:"🍒", label:"Open Cherry",     sub:"AI companion · agents, drafts, insights", special:"cherry", action(){onClose();goRoot("cherry");} },
-      { icon:"⚙️", label:"Cherry Settings", sub:"Personality, memory, agent permissions",                   action(){onClose();navigate("settings_cherry");} },
+      { icon:"⚙️", label:"Settings", sub:"Personality, memory, agent permissions",                   action(){onClose();navigate("settings_cherry");} },
     ]},
     { id:"discover", emoji:"🔍", label:"Discover", items:[
       { icon:"🔍", label:"Discover", sub:"Dreamors, topics, trending", discoverLink:true, action(){onClose();goRoot("discover");} },
@@ -6299,7 +6324,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"🔒", label:"Privacy",         sub:"Visibility, blocked users",   action(){onClose();navigate("settings_privacy");} },
       { icon:"🎨", label:"Customizability", sub:"Themes, Cherry AI, menu",     action(){onClose();navigate("settings_customizability");} },
       { icon:"♿", label:"Accessibility",  sub:"Font size, contrast, motion",  action(){onClose();navigate("settings_accessibility");} },
-      { icon:"🍒", label:"Cherry Settings", sub:"Personality, memory, agent",  action(){onClose();navigate("settings_cherry");} },
+      { icon:"🍒", label:"Settings", sub:"Personality, memory, agent",  action(){onClose();navigate("settings_cherry");} },
     ]},
     { id:"about", emoji:"ℹ️", label:"About", items:[
       { icon:"ℹ️", label:"About",   sub:"Version, credits, open source", action(){onClose();navigate("settings_about");} },
@@ -6917,7 +6942,7 @@ useEffect(() => {
       settings_privacy: "Privacy",
       settings_customizability: "Customizability",
       settings_accessibility: "Accessibility",
-      settings_cherry: "Cherry Settings",
+      settings_cherry: "Settings",
       settings_cherry_algo: "Cherry Algorithm",
       settings_about: "About",
       settings_social: "Find Us",
