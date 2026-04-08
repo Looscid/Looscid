@@ -1144,7 +1144,7 @@ function FeedPage({navigate, prefs, cherryCtx}) {
           , React.createElement('div', { className: "esi",}, "🤝")
           , React.createElement('div', { className: "esl",}, "No Friends yet"  )
           , React.createElement('p', { style: {fontSize:13,color:"var(--tx3)",marginTop:6,lineHeight:1.6,maxWidth:240,textAlign:"center"},}, "Friends are Dreamors who follow each other."      )
-          , cherryCtx && React.createElement('button', { className: "cherry-ctx-btn", style: {margin:"10px auto 0",display:"flex"}, onClick: ()=>cherryCtx.openCherry("Who should I follow?"), 'aria-label': "Ask Cherry to find friends"    ,}, "🍒 Ask Cherry to find Dreamors"     )
+          , cherryCtx && React.createElement('button', { className: "cherry-ctx-btn", style: {margin:"10px auto 0",display:"flex"}, onClick: ()=>cherryCtx.openCherry("Find Dreamors"), 'aria-label': "Ask Cherry to find friends"    ,}, "🍒 Ask Cherry to find Dreamors"     )
         )
       )
       , visible.map((d,idx) => (
@@ -1446,7 +1446,7 @@ function AttachPanel({onClose, onAttach, mode}) {
   const [locText, setLocText] = useState("");
 
   const attachItems = [
-    {id:"photo",icon:"🖼️",label:"Photo / Video",sub:"Photo or video"},
+    {id:"photo",icon:"🖼️",label:"Photo",sub:"Photo or video"},
     {id:"gif",icon:"🎞️",label:"GIF",sub:"GIF"},
     {id:"poll",icon:"📊",label:"Poll",sub:"Create a poll"},
     {id:"link",icon:"🔗",label:"Link",sub:"Website or article"},
@@ -1504,7 +1504,7 @@ function AttachPanel({onClose, onAttach, mode}) {
   );
 
   return (
-    React.createElement(Modal, { onClose: onClose, title: "Add to Dream"  , subtitle: "Add to your Dream"      ,}
+    React.createElement(Modal, { onClose: onClose, title: "Add to Dream"  , subtitle: ""      ,}
       , React.createElement('div', { style: {display:"grid",gridTemplateColumns:"1fr 1fr",gap:8},}
         , attachItems.map(item=>(
           React.createElement('button', { key: item.id, style: {background:"var(--sf2)",border:"1px solid var(--bd)",borderRadius:12,padding:"13px 10px",cursor:"pointer",textAlign:"center",transition:"all .15s",display:"flex",flexDirection:"column",alignItems:"center",gap:5}, onClick: ()=>{
@@ -1515,7 +1515,6 @@ function AttachPanel({onClose, onAttach, mode}) {
           }, 'aria-label': item.label+" — "+item.sub,}
             , React.createElement('span', { style: {fontSize:26},}, item.icon)
             , React.createElement('span', { style: {fontSize:12,fontWeight:700,color:"var(--tx)"},}, item.label)
-            , React.createElement('span', { style: {fontSize:10,color:"var(--tx3)",lineHeight:1.3},}, item.sub)
           )
         ))
       )
@@ -2678,7 +2677,7 @@ function CherryPage({navigate, cherryCtx}) {
 
   React.useEffect(()=>{ endRefActual.current && endRefActual.current.scrollIntoView({behavior:"smooth"}); },[msgs,typing,agentStatus]);
 
-  const chips = ["Summarise my feed","What is trending?","Draft a Dream","Who should I follow?","My notifications","My liked Dreams"];
+  const chips = ["Summarise feed","Trending","Draft a Dream","Find Dreamors","Notifications","Liked Dreams"];
 
   return (
     React.createElement('div', {className:"pg",style:{display:"flex",flexDirection:"column",paddingBottom:0,height:"100%"},}
@@ -2709,9 +2708,9 @@ function CherryPage({navigate, cherryCtx}) {
             animation:"fu .15s ease"},
           role:"dialog",'aria-label':"Cherry options",}
         , [
-          {ic:"🕐",l:"History",     sub:"Past chats", a:()=>{setShowHistDialog(false);}},
-          {ic:"✏️",l:"New Chat", sub:"Clear and restart",             a:()=>{setMsgs([INIT_MSG]);setShowHistDialog(false);}},
-          {ic:"⚙️",l:"Settings",  sub:"Configure Cherry",a:()=>{setShowHistDialog(false);navigate("settings_cherry");}},
+          {ic:"🕐",l:"History",     sub:"", a:()=>{setShowHistDialog(false);}},
+          {ic:"✏️",l:"New Chat", sub:"New conversation",             a:()=>{setMsgs([INIT_MSG]);setShowHistDialog(false);}},
+          {ic:"⚙️",l:"Settings",  sub:"",a:()=>{setShowHistDialog(false);navigate("settings_cherry");}},
         ].map(item =>
           React.createElement('button', {key:item.l,
             onClick:item.a,
@@ -4859,7 +4858,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
   useEffect(()=>{endRef.current && endRef.current.scrollIntoView({behavior:"smooth"});},[msgs,typing,agentStatus]);
   useEffect(()=>{ if(initMsg){send(initMsg);} },[]);
 
-  const chips = ["Summarise my feed","What's trending?","Draft a Dream","Who should I follow?","Find groups","My notifications"];
+  const chips = ["Summarise feed","What's trending?","Draft a Dream","Find Dreamors","Find groups","Notifications"];
   const [overlayTab, setOverlayTab] = useState("chat"); // "chat" | "actions"
   const actionLog = cherryCtx.cherryLog || [];
 
@@ -5474,29 +5473,9 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
   };
 
   const handleGoogle = async () => {
-    setBusy(true); setErr("");
-    // Try Supabase Google OAuth first (our primary auth)
-    const sb = getSupabase ? getSupabase() : null;
-    if (sb) {
-      try {
-        const { error } = await sb.auth.signInWithOAuth({
-          provider: "google",
-          options: { redirectTo: window.location.origin }
-        });
-        if (!error) { setBusy(false); return; }
-      } catch(e) {}
-    }
-    // Fallback to Firebase if configured
-    const auth = getFirebaseAuth();
-    if (auth) {
-      try {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        const cred = await auth.signInWithPopup(provider);
-        onAuth(cred.user); setBusy(false); return;
-      } catch(e) {}
-    }
-    setErr("Google login is not configured yet. Use email to create your Dream ID.");
-    setBusy(false);
+    // Google OAuth requires enabling the provider in Supabase dashboard.
+    // Until then, show a friendly in-app message — do NOT redirect away.
+    setErr("Google login is coming soon. Use email to create your Dream ID for now.");
   };
 
   const handleReset = async () => {
