@@ -383,7 +383,7 @@ const USERS = [
   {id:3,name:"Priya Nair",handle:"@priyanair",bio:"Product designer · dog mum · making things look nice 🎨",initials:"PN",color:"#be185d",verified:true,location:"London, UK",website:"priyanair.co",joined:"July 2022",dreamCount:6330,followers:91400,following:1240},
   {id:4,name:"Marcus Webb",handle:"@marcuswebb",bio:"Music, food, and trying to keep my plants alive 🌱",initials:"MW",color:"#1d4ed8",verified:false,location:"Chicago, IL",website:null,joined:"October 2022",dreamCount:2180,followers:44300,following:5600},
   {id:5,name:"Sam Rivera",handle:"@samr",bio:"Student · coffee addict · posting whatever I feel like 🤷",initials:"SR",color:"#15803d",verified:false,location:"Miami, FL",website:null,joined:"April 2023",dreamCount:890,followers:7200,following:2900},
-  {id:6,name:"Dream Board",handle:"@DreamBMobile",bio:"The official Dream Board Mobile account 🌙 Share what's on your mind.",initials:"DB",color:"#6d28d9",verified:true,location:"Everywhere",website:"dreamboard.app",joined:"January 2023",dreamCount:412,followers:1200000,following:0},
+  {id:6,name:"Dream Board Mobile",handle:"@DreamBMobile",bio:"The official Dream Board Mobile account 🌙 Share what's on your mind.",initials:"DB",color:"#6d28d9",verified:true,location:"Everywhere",website:"dream-board-mobile.pages.dev",joined:"January 2023",dreamCount:412,followers:1200000,following:0},
 ];
 const ME = {id:0,name:"Guest",handle:"@guest",initials:"DD",bio:"Just checking out Dream Board Mobile 👋",color:"#6d28d9",verified:false,location:"",joined:"March 2026",dreamCount:2,followers:3,following:7,age:25};
 
@@ -3794,7 +3794,7 @@ function AccessibilitySettings({navigate, prefs, setPrefs}) {
 function SocialSettings({navigate}) {
   var links = [
     {
-      href: "https://dreamboard.app/@DreamBMobile",
+      href: "https://dream-board-mobile.pages.dev",
       icon: "🌙",
       label: "Dream Board Mobile",
       handle: "@DreamBMobile",
@@ -4385,7 +4385,7 @@ function PolicyPage({title, content, navigate, back}) {
 }
 
 const TERMS_CONTENT = `<h2>1. Agreement</h2><p>By using Dream Board Mobile, you agree to these Terms. If you do not agree, please do not use the platform.</p><h2>2. Your Account</h2><p>You are responsible for your account security and all activity under it. You must be at least 13 years old.</p><h2>3. Your Dreams</h2><p>You own everything you post. By posting, you grant Dream Board Mobile a licence to display and distribute your content. You may delete it at any time.</p><h2>4. Community Rules</h2><p>Be kind. Harassment, bullying and hate speech are not permitted. Post authentic content — do not impersonate others or spread misinformation. Do not post violent, sexually explicit or otherwise harmful content. Content involving minors inappropriately is strictly forbidden. Circles must have a positive purpose and moderators must enforce these rules.</p><h2>5. Enforcement</h2><p>Violations may result in content removal, suspension or permanent bans depending on severity. Use the report button to flag content — our team reviews all reports.</p><h2>6. Termination</h2><p>We may suspend accounts that violate these Terms. You may delete your account at any time in Settings.</p><h2>7. Changes</h2><p>We may update these Terms. Continued use after changes means you accept them. Last updated March 2026.</p>`
-const PRIVACY_CONTENT = `<h2>1. Information We Collect</h2><p>We collect information you provide (name, email, content you post) and usage data (how you interact with the app).</p><h2>2. How We Use It</h2><p>We use your information to provide and improve Dream Board Mobile, personalize your experience and communicate with you.</p><h2>3. Sharing</h2><p>We do not sell your personal information. We may share data with service providers who help us operate the platform.</p><h2>4. Your Rights</h2><p>You can access, correct or delete your data at any time through Settings. You may also request a data export.</p><h2>5. Cookies</h2><p>We use cookies to maintain your session and improve app performance. You can manage cookie preferences in your device settings.</p><h2>6. Contact</h2><p>For privacy concerns, contact privacy@dreamboard.app. Last updated: February 2026.</p>`;
+const PRIVACY_CONTENT = `<h2>1. Information We Collect</h2><p>We collect information you provide (name, email, content you post) and usage data (how you interact with the app).</p><h2>2. How We Use It</h2><p>We use your information to provide and improve Dream Board Mobile, personalize your experience and communicate with you.</p><h2>3. Sharing</h2><p>We do not sell your personal information. We may share data with service providers who help us operate the platform.</p><h2>4. Your Rights</h2><p>You can access, correct or delete your data at any time through Settings. You may also request a data export.</p><h2>5. Cookies</h2><p>We use cookies to maintain your session and improve app performance. You can manage cookie preferences in your device settings.</p><h2>6. Contact</h2><p>For privacy concerns, contact hello@dream-board-mobile.pages.dev. Last updated: February 2026.</p>`;
 const GUIDELINES_CONTENT = `<h2>1. Be Kind</h2><p>Treat all Dreamors with respect. Harassment, bullying or targeted hate speech is not permitted on Dream Board Mobile.</p><h2>2. Authentic Dreams</h2><p>Post authentic content. Do not impersonate others, spread misinformation or use automated accounts without disclosure.</p><h2>3. Safe Content</h2><p>Do not post violent, sexually explicit or otherwise harmful content. Content involving minors in any inappropriate context is strictly forbidden.</p><h2>4. Groups</h2><p>Groups must have a clear, positive purpose. Group moderators must enforce these guidelines within their communities.</p><h2>5. Reporting</h2><p>Use the report button on any Dream, comment or profile to flag content that violates these guidelines. Our team reviews all reports.</p><h2>6. Consequences</h2><p>Violations may result in content removal, account suspension or permanent bans depending on severity. Last updated: February 2026.</p>`;
 
 /* --- DOWNLOAD YOUR DATA PAGE -------------------------------------------- */
@@ -5479,7 +5479,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
       if (!sb) throw new Error("Auth not ready");
       const { error } = await sb.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: window.location.origin }
+        options: { redirectTo: "https://dream-board-mobile.pages.dev" }
       });
       if (error) throw error;
       // Redirecting — browser will navigate away
@@ -6322,7 +6322,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"🔐", label:"Privacy", sub:"How we protect your data",       action(){onClose();navigate("privacy");} },
     ]},
     { id:"findus", emoji:"📱", label:"Find Us", items:[
-      { icon:"🌙", label:"Dream Board Mobile", sub:"@DreamBMobile",                         href:"https://dreamboard.app/@DreamBMobile" },
+      { icon:"🌙", label:"Dream Board Mobile", sub:"@DreamBMobile",                         href:"https://dream-board-mobile.pages.dev" },
       { icon:"\ud835\udd4f", label:"Twitter",         sub:"@DreamBMobile",                href:"https://x.com/DreamBMobile" },
       { icon:"▶️",  label:"YouTube",          sub:"@DreamBMobile",                         href:"https://youtube.com/@DreamBMobile" },
       { icon:"🐙", label:"GitHub",            sub:"Shinygold29/dream-board-mobile",        href:"https://github.com/Shinygold29/dream-board-mobile" },
