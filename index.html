@@ -5473,9 +5473,20 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
   };
 
   const handleGoogle = async () => {
-    // Google OAuth requires enabling the provider in Supabase dashboard.
-    // Until then, show a friendly in-app message — do NOT redirect away.
-    setErr("Google login is coming soon. Use email to create your Dream ID for now.");
+    setBusy(true); setErr("");
+    try {
+      const sb = getSupabase();
+      if (!sb) throw new Error("Auth not ready");
+      const { error } = await sb.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: window.location.origin }
+      });
+      if (error) throw error;
+      // Redirecting — browser will navigate away
+    } catch(e) {
+      setErr("Google login failed. Please try email instead.");
+      setBusy(false);
+    }
   };
 
   const handleReset = async () => {
