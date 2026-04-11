@@ -6711,6 +6711,69 @@ function DreamLabsPage({ navigate, authUser }) {
   );
 }
 
+
+/* ── URL ↔ Page mapping ─────────────────────────────────── */
+function pathToPage(path, authUser) {
+  path = path.replace(/\/+$/, "") || "/"; // strip trailing slash
+  if (path === "/" || path === "") return {page:"feed", pdata:null};
+  if (path === "/discover") return {page:"discover", pdata:null};
+  if (path === "/cherry")   return {page:"cherry",   pdata:null};
+  if (path === "/alerts")   return {page:"alerts",   pdata:null};
+  if (path === "/more")     return {page:"more",     pdata:null};
+  if (path === "/profile")  return {page:"profile",  pdata:null};
+  if (path === "/more/profile") return {page:"profile", pdata:null};
+  if (path === "/more/settings") return {page:"settings", pdata:null};
+  if (path === "/more/settings/account") return {page:"settings_account", pdata:null};
+  if (path === "/more/settings/notifications") return {page:"settings_notifications", pdata:null};
+  if (path === "/more/settings/privacy") return {page:"settings_privacy", pdata:null};
+  if (path === "/more/settings/accessibility") return {page:"settings_accessibility", pdata:null};
+  if (path === "/more/settings/customizability") return {page:"settings_customizability", pdata:null};
+  if (path === "/more/settings/cherry") return {page:"settings_cherry", pdata:null};
+  if (path === "/more/about") return {page:"about", pdata:null};
+  if (path === "/more/about/terms") return {page:"terms", pdata:null};
+  if (path === "/more/about/privacy") return {page:"privacy", pdata:null};
+  if (path === "/more/about/guidelines") return {page:"guidelines", pdata:null};
+  if (path === "/more/about/story") return {page:"hour_story", pdata:null};
+  if (path === "/cherry/settings") return {page:"settings_cherry", pdata:null};
+  if (path === "/admin") return {page:"admin", pdata:null};
+  if (path === "/feedback") return {page:"feedback", pdata:null};
+  if (path === "/drafts") return {page:"drafts", pdata:null};
+  // /@handle — dreamer profile
+  if (path.startsWith("/@")) {
+    const handle = path.slice(1); // e.g. "@claude"
+    // If logged in and it's their own handle, show own profile
+    if (authUser && authUser.handle && authUser.handle.toLowerCase() === handle.toLowerCase()) {
+      return {page:"profile", pdata:null};
+    }
+    return {page:"dp", pdata:{handle}};
+  }
+  return {page:"feed", pdata:null}; // 404 → feed
+}
+
+function pageToPath(page, pdata, authUser) {
+  const map = {
+    feed:"/", discover:"/discover", cherry:"/cherry",
+    alerts:"/alerts", more:"/more", profile:"/profile",
+    settings:"/more/settings",
+    settings_account:"/more/settings/account",
+    settings_notifications:"/more/settings/notifications",
+    settings_privacy:"/more/settings/privacy",
+    settings_accessibility:"/more/settings/accessibility",
+    settings_customizability:"/more/settings/customizability",
+    settings_cherry:"/more/settings/cherry",
+    settings_cherry_algo:"/more/settings/cherry",
+    about:"/more/about",
+    hour_story:"/more/about/story",
+    terms:"/more/about/terms",
+    privacy:"/more/about/privacy",
+    guidelines:"/more/about/guidelines",
+    admin:"/admin", feedback:"/feedback", drafts:"/drafts",
+  };
+  if (page === "dp" && pdata && pdata.handle) return "/@"+pdata.handle.replace(/^@/,"");
+  if (page === "profile" && authUser && authUser.handle) return "/@"+authUser.handle.replace(/^@/,"");
+  return map[page] || "/";
+}
+
 function App() {
   // Auth — must be first hooks (Rules of Hooks: no hooks after conditional returns)
   const [authStage, setAuthStage] = useState("splash");
@@ -6719,8 +6782,10 @@ function App() {
   const [showAnalytics, setShowAnalytics] = useState(false);
 
   // App state
-  const [page, setPage]   = useState("feed");
-  const [pdata, setPdata] = useState(null);
+  // Initialise page from URL path
+  const _initRoute = pathToPage(window.location.pathname, null);
+  const [page, setPage]   = useState(_initRoute.page);
+  const [pdata, setPdata] = useState(_initRoute.pdata);
   const [prefs, setPrefs] = useState({charLimitEnabled:false,charLimit:280,accessibility:{},menu:{pos:"bottom",hideTopClose:false,hideBotClose:false}});
   const [showCreate, setShowCreate] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -6796,6 +6861,22 @@ useEffect(() => {
   }, []);
 
     // Apply theme on change
+  // Handle browser back/forward
+  useEffect(() => {
+    const onPop = e => {
+      const state = e.state;
+      if (state && state.page) {
+        setPage(state.page);
+        setPdata(state.pdata || null);
+      } else {
+        const r = pathToPage(window.location.pathname, authUser);
+        setPage(r.page); setPdata(r.pdata);
+      }
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [authUser]);
+
   useEffect(() => { applyTheme(theme); saveTheme(theme); }, [theme]);
 
   // Load drafts from localStorage
@@ -6866,14 +6947,20 @@ useEffect(() => {
   const navigate = useCallback((target, data=null) => {
     if (target === "login")  { setLoginMode("login");  setAuthStage("auth"); return; }
     if (target === "signup") { setLoginMode("signup"); setAuthStage("auth"); return; }
-    if (target === "cherry") { setCherryOpen(true); return; }
     setPage(target); setPdata(data);
-  }, []);
+    const path = pageToPath(target, data, authUser);
+    if (window.location.pathname !== path) {
+      window.history.pushState({page:target, pdata:data}, "", path);
+    }
+  }, [authUser]);
   const goRoot = id => {
     if(id==="create"){setShowCreate(true);return;}
-    if(id==="cherry"){setPage("cherry");setPdata(null);return;}
-    if(id==="circles"){setPage("groups");setPdata(null);return;}
+    if(id==="circles"){id="groups";}
     setPage(id); setPdata(null);
+    const path = pageToPath(id, null, authUser);
+    if (window.location.pathname !== path) {
+      window.history.pushState({page:id, pdata:null}, "", path);
+    }
   };
 
   useEffect(() => {
@@ -6959,7 +7046,13 @@ useEffect(() => {
       case "alerts":        return React.createElement(AlertsPage, { cherryCtx: cherryCtx,});
       case "groups":        return React.createElement(GroupsPage, { navigate: navigate, cherryCtx: cherryCtx,});
       case "profile":       return React.createElement(ProfilePage, { navigate: navigate, cherryCtx: cherryCtx, authUser: authUser,});
-      case "dp":            return pdata ? React.createElement(DreamerProfilePage, { user: pdata, navigate: navigate, cherryCtx: cherryCtx,}) : React.createElement(FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
+      case "dp": {
+        // pdata may be {handle:"@claude"} from URL or a full user object from in-app nav
+        const dpUser = pdata && pdata.handle && !pdata.name
+          ? USERS.find(u=>u.handle.toLowerCase()===(pdata.handle.toLowerCase().startsWith("@")?pdata.handle.toLowerCase():"@"+pdata.handle.toLowerCase())) || {handle:pdata.handle, name:pdata.handle, initials:"?", color:"#6d28d9"}
+          : pdata;
+        return dpUser ? React.createElement(DreamerProfilePage, { user: dpUser, navigate: navigate, cherryCtx: cherryCtx,}) : React.createElement(FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
+      }
       case "settings":      return React.createElement(SettingsPage, { prefs: prefs, setPrefs: setPrefs, navigate: navigate, onSignOut: handleSignOut, authUser: authUser, theme: theme, setTheme: setTheme, drafts: drafts,});
       case "settings_account":        return React.createElement(AccountSettings, { navigate: navigate, authUser: authUser, onSignOut: handleSignOut,});
       case "settings_notifications":  return React.createElement(NotificationsSettings, { navigate: navigate,});
