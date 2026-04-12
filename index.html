@@ -223,6 +223,9 @@ h2.slbl,div.slbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:
 .esi{font-size:44px;margin-bottom:10px}
 .esl{font-size:14px;font-weight:600;color:var(--tx2);margin-bottom:4px}
 .fu{animation:fu .26s ease forwards}
+/* Braille display / VoiceOver hints */
+.sr-hint{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.sr-pause{display:inline}
 @keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .tdt{width:6px;height:6px;border-radius:50%;background:var(--tx3);animation:bc 1.2s ease-in-out infinite}
 @keyframes bc{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
@@ -565,6 +568,17 @@ const Ic = {
 };
 
 /* --- SHARED COMPONENTS ------------------- */
+/* --- ACCESSIBLE HINT HELPER ----------------------------------------------- */
+/* Creates aria-describedby hints that show on Braille display as chord + double-tap hint */
+function AHint({id, text}) {
+  return React.createElement('span', {
+    id: id,
+    className: "sr-hint",
+    role: "note",
+  }, text);
+}
+/* Usage: button gets aria-describedby="hint-id", AHint renders the hint text */
+
 function Av({user, size=40}) {
   return (
     React.createElement('div', {
@@ -2485,11 +2499,6 @@ function DreamerProfilePage({user, navigate, cherryCtx}) {
     DREAMS_INIT.filter(d=>d.user.id===user.id).concat(DREAMS_INIT.slice(0,2).map(d=>({...d,id:d.id+100,user}))).slice(0,4)
   );
 
-  if (activeComment) return (
-    React.createElement(CommentView, { dream: activeComment, onBack: ()=>setActiveComment(null),
-      onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onCommentPosted: tc, navigate: navigate,})
-  );
-
   const sortDreams = list => [...list].sort((a,b) => sort==="oldest"?a.id-b.id:sort==="top"?b.likes-a.likes:b.id-a.id);
   const liked = dreams.filter(d=>d.liked);
   const redreamed = dreams.filter(d=>d.redreamed);
@@ -2499,6 +2508,11 @@ function DreamerProfilePage({user, navigate, cherryCtx}) {
   else if (tab==="dreams") tabDreams = sortDreams(dreams);
   else if (tab==="redreams") tabDreams = sortDreams(redreamed);
   else if (tab==="liked") tabDreams = sortDreams(liked);
+
+  if (activeComment) return (
+    React.createElement(CommentView, { dream: activeComment, onBack: ()=>setActiveComment(null),
+      onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onCommentPosted: tc, navigate: navigate,})
+  );
 
   return (
     React.createElement('div', { className: "pg",}
@@ -2955,11 +2969,7 @@ function SettingsPage({prefs, setPrefs, navigate, onSignOut, authUser, theme, se
             , React.createElement('div', { style: {fontWeight:600,fontSize:14,color:"var(--tx)"},}, "Theme")
             , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:2},}, theme === "light" ? "Light mode" : "Dark mode")
           )
-          , React.createElement('label', { style: {position:"relative",width:44,height:26,cursor:"pointer"}, 'aria-label': "Toggle light or dark mode",}
-            , React.createElement('input', { type: "checkbox", style: {opacity:0,width:0,height:0,position:"absolute"}, checked: theme === "light", onChange: e => setTheme && setTheme(e.target.checked ? "light" : "dark"),})
-            , React.createElement('span', { style: {position:"absolute",inset:0,background:theme==="light"?"var(--ac)":"var(--bd2)",borderRadius:26,transition:"background .2s"},})
-            , React.createElement('span', { style: {position:"absolute",top:3,left:theme==="light"?20:3,width:20,height:20,background:"#fff",borderRadius:"50%",transition:"left .2s",boxShadow:"0 1px 3px #0004"},})
-          )
+          , React.createElement(Cbx, {on:theme==="light", onToggle:()=>setTheme&&setTheme(theme==="light"?"dark":"light"), label:"Light mode"})
         )
       )
     )
@@ -3388,6 +3398,37 @@ function CherrySettings({navigate, prefs, setPrefs, activeAI, setActiveAI}) {
         )
       )
       , React.createElement('div', { style: {padding:"0 0 32px"},}
+
+        /* -- API Keys (user-owned, local only) -- */
+        , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Your API Keys")
+        , React.createElement('div', { style: {padding:"0 16px 14px"},}
+          , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.65,marginBottom:12},},
+            "Your keys are stored only on this device. They never leave your browser. Cherry uses your Anthropic key for smart replies and reasoning."
+          )
+          , React.createElement('div', { style: {marginBottom:10},}
+            , React.createElement('label', { style: {fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",display:"block",marginBottom:5},}, "Anthropic key (Claude)")
+            , React.createElement('input', {
+                className: "inp", type: "password",
+                placeholder: "sk-ant-…",
+                defaultValue: (()=>{ try{return localStorage.getItem("dbm_claude_key")||"";}catch(e){return "";} })(),
+                onChange: e=>{ try{localStorage.setItem("dbm_claude_key", e.target.value.trim());}catch(e2){} },
+                'aria-label': "Anthropic API key",
+                autoComplete: "off", spellCheck: false,})
+          )
+          , React.createElement('div', { style: {marginBottom:10},}
+            , React.createElement('label', { style: {fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",display:"block",marginBottom:5},}, "xAI key (Grok) — optional")
+            , React.createElement('input', {
+                className: "inp", type: "password",
+                placeholder: "xai-…",
+                defaultValue: (()=>{ try{return localStorage.getItem("dbm_grok_key")||"";}catch(e){return "";} })(),
+                onChange: e=>{ try{localStorage.setItem("dbm_grok_key", e.target.value.trim());}catch(e2){} },
+                'aria-label': "xAI Grok API key",
+                autoComplete: "off", spellCheck: false,})
+          )
+          , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",lineHeight:1.5},},
+            "Get keys: console.anthropic.com (Claude) · console.x.ai (Grok). Keys are free to try."
+          )
+        )
 
         /* -- AI Model ------------------------- */
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "AI Model")
