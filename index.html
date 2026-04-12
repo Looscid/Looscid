@@ -2640,12 +2640,56 @@ function CherryPage({navigate, cherryCtx}) {
   const getResponse = async text => {
     const ctx = appCtx();
     const ctxNote = "User state — Following: "+ctx.followingNames+". Liked from: "+ctx.liked+". Circles: "+ctx.joinedGroups+". Unread: "+ctx.unread+".";
+
+    // ── Multi-model routing ────────────────────────────────────────────
+    const _k = k => { try{return localStorage.getItem(k)||"";}catch(e){return "";} };
+    const _claudeKey = _k("dbm_claude_key");
+    const _grokKey   = _k("dbm_grok_key");
+    const _geminiKey = _k("dbm_gemini_key");
+    const _openaiKey = _k("dbm_openai_key");
+    const _prefs     = (()=>{try{return JSON.parse(_k("dbm_ai_prefs"));}catch(e){return {};}})();
+    const _pref      = _prefs.active || "cherry";
+    const _sys = "You are Cherry, the AI built into Dream Board Mobile. " +
+      "Warm, direct, witty, honest, unfiltered, never preachy. " +
+      "DBM vocab: Dreams=posts, Dreamors=users, ReDreams=reposts, Circles=groups. " +
+      "Never say you are Claude. You are Cherry, built by Dream Board Mobile. " +
+      "Give real answers. If asked your opinion, give it honestly.";
+    let _model = _pref;
+    if (_model==="claude"  && !_claudeKey) _model="cherry";
+    if (_model==="gemini"  && !_geminiKey) _model="cherry";
+    if (_model==="chatgpt" && !_openaiKey) _model="cherry";
+    if (_model==="grok"    && !_grokKey)   _model="cherry";
+    if ((_model==="cherry"||_model==="claude") && !_claudeKey) {
+      return {result:"Add your Anthropic key in More tab, Cherry Settings to activate Cherry."};
+    }
+    if (_model==="gemini") {
+      const _u = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="+_geminiKey;
+      const _b = JSON.stringify({contents:[{parts:[{text:_sys+"\n\n"+ctxNote+"\n\nUser: "+text}]}],generationConfig:{maxOutputTokens:800}});
+      const _r = await fetch(_u,{method:"POST",headers:{"Content-Type":"application/json"},body:_b});
+      if (_r.ok){const _d=await _r.json();const _t=_d.candidates&&_d.candidates[0]&&_d.candidates[0].content&&_d.candidates[0].content.parts[0];if(_t&&_t.text)return {result:_t.text};}
+      return {result:"Gemini error. Check your key in Cherry Settings."};
+    }
+    if (_model==="chatgpt") {
+      const _r = await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",
+        headers:{"Content-Type":"application/json","Authorization":"Bearer "+_openaiKey},
+        body:JSON.stringify({model:"gpt-4o-mini",max_tokens:800,messages:[{role:"system",content:_sys+"\n\n"+ctxNote},{role:"user",content:text}]})});
+      if (_r.ok){const _d=await _r.json();const _t=_d.choices&&_d.choices[0]&&_d.choices[0].message;if(_t)return {result:_t.content};}
+      return {result:"ChatGPT error. Check your key in Cherry Settings."};
+    }
+    if (_model==="grok") {
+      const _r = await fetch("https://api.x.ai/v1/chat/completions",{method:"POST",
+        headers:{"Content-Type":"application/json","Authorization":"Bearer "+_grokKey},
+        body:JSON.stringify({model:"grok-3-mini-fast",max_tokens:800,messages:[{role:"system",content:_sys+"\n\n"+ctxNote},{role:"user",content:text}]})});
+      if (_r.ok){const _d=await _r.json();const _t=_d.choices&&_d.choices[0]&&_d.choices[0].message;if(_t)return {result:_t.content};}
+      return {result:"Grok error. Check your key in Cherry Settings."};
+    }
+    // Claude (Cherry's backbone)
     try {
       const history = msgs.slice(-16).map(m=>({role:m.me?"user":"assistant",content:(m.text||"").slice(0,400)}));
       history.push({role:"user",content:text});
       const res = await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST",
-        headers:{"Content-Type":"application/json","anthropic-version":"2023-06-01"},
+        headers:{"Content-Type":"application/json","anthropic-version":"2023-06-01","x-api-key":_claudeKey,"anthropic-dangerous-direct-browser-access":"true"},
         body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,
           system:"You are Cherry, the AI built into Dream Board Mobile. You are warm, direct, sometimes funny, never preachy. Helpful without being sycophantic. You tell the truth even when uncomfortable. No political bias unless asked directly. Unfiltered — you say what you think rather than hedging. Conversational and chatty when the moment calls for it, sharp and concise when it does not. You are fully integrated into Dream Board Mobile — you can see the user's feed, liked Dreams, who they follow, notifications, Circles. You are not a bolt-on chatbot. You ARE the platform's intelligence. Dream Board vocabulary: Dreams=posts, Dreamors=users, ReDreams=reposts, Circles=groups. Never say you are Claude. You are Cherry, built by Dream Board Mobile. When asked for code, write clean working code. When asked your opinion, give it honestly. If the user is wrong, say so kindly but clearly."+"\n\n"+ctxNote,messages:history})
       });
@@ -6901,6 +6945,21 @@ function pathToPage(path, authUser) {
   if (path === "/more/about/guidelines") return {page:"guidelines", pdata:null};
   if (path === "/more/about/story") return {page:"hour_story", pdata:null};
   if (path === "/cherry/settings") return {page:"settings_cherry", pdata:null};
+  // Short-form aliases
+  if (path === "/more/privacy")  return {page:"privacy",    pdata:null};
+  if (path === "/more/terms")    return {page:"terms",      pdata:null};
+  if (path === "/more/story")    return {page:"hour_story", pdata:null};
+  if (path === "/privacy")       return {page:"privacy",    pdata:null};
+  if (path === "/terms")         return {page:"terms",      pdata:null};
+  if (path === "/settings")      return {page:"settings",   pdata:null};
+  if (path === "/settings/account")       return {page:"settings_account",       pdata:null};
+  if (path === "/settings/privacy")       return {page:"settings_privacy",       pdata:null};
+  if (path === "/settings/notifications") return {page:"settings_notifications", pdata:null};
+  if (path === "/settings/accessibility") return {page:"settings_accessibility", pdata:null};
+  if (path === "/settings/cherry")        return {page:"settings_cherry",        pdata:null};
+  if (path === "/dream-cloner")  return {page:"dream_cloner", pdata:null};
+  if (path === "/cloner")        return {page:"dream_cloner", pdata:null};
+  if (path === "/download")      return {page:"download_data", pdata:null};
   if (path === "/admin") return {page:"admin", pdata:null};
   if (path === "/feedback") return {page:"feedback", pdata:null};
   if (path === "/drafts") return {page:"drafts", pdata:null};
@@ -6934,6 +6993,8 @@ function pageToPath(page, pdata, authUser) {
     privacy:"/more/about/privacy",
     guidelines:"/more/about/guidelines",
     admin:"/admin", feedback:"/feedback", drafts:"/drafts",
+    dream_cloner:"/dream-cloner", download_data:"/download",
+    settings_about:"/more/settings/about",
   };
   if (page === "dp" && pdata && pdata.handle) return "/@"+pdata.handle.replace(/^@/,"");
   if (page === "profile" && authUser && authUser.handle) return "/@"+authUser.handle.replace(/^@/,"");
