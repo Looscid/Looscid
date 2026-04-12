@@ -2614,7 +2614,7 @@ function DreamerProfilePage({user, navigate, cherryCtx}) {
 /* --- CHERRY AI --------------------------- */
 function CherryPage({navigate, cherryCtx}) {
   // CherryPage IS the chat — full messaging interface like Apple Intelligence Notes
-  const INIT_MSG = {me:false, text:"Hey! I am Cherry 🍒 — your Dream Board Mobile AI companion. I can post Dreams, follow Dreamors, read your notifications, and more. What would you like to do?"};
+  const INIT_MSG = {me:false, text:"Hey! I am Cherry 🍒 I can post Dreams, follow Dreamors, read your notifications, join Circles, summarise your feed, and turn any URL into a Dream (try: clone https://…). What would you like to do?"};
   const [msgs, setMsgs] = useState([INIT_MSG]);
   const [inp, setInp] = useState("");
   const [typing, setTyping] = useState(false);
@@ -3425,8 +3425,26 @@ function CherrySettings({navigate, prefs, setPrefs, activeAI, setActiveAI}) {
                 'aria-label': "xAI Grok API key",
                 autoComplete: "off", spellCheck: false,})
           )
+          , React.createElement('div', { style: {marginBottom:10},}
+            , React.createElement('label', { style: {fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",display:"block",marginBottom:5},}, "Google AI key (Gemini) — optional")
+            , React.createElement('input', {
+                className: "inp", type: "password",
+                placeholder: "AIza…",
+                defaultValue: (()=>{ try{return localStorage.getItem("dbm_gemini_key")||"";}catch(e){return "";} })(),
+                onChange: e=>{ try{localStorage.setItem("dbm_gemini_key", e.target.value.trim());}catch(e2){} },
+                'aria-label': "Google Gemini API key", autoComplete: "off", spellCheck: false,})
+          )
+          , React.createElement('div', { style: {marginBottom:10},}
+            , React.createElement('label', { style: {fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",display:"block",marginBottom:5},}, "OpenAI key (ChatGPT) — optional")
+            , React.createElement('input', {
+                className: "inp", type: "password",
+                placeholder: "sk-…",
+                defaultValue: (()=>{ try{return localStorage.getItem("dbm_openai_key")||"";}catch(e){return "";} })(),
+                onChange: e=>{ try{localStorage.setItem("dbm_openai_key", e.target.value.trim());}catch(e2){} },
+                'aria-label': "OpenAI ChatGPT API key", autoComplete: "off", spellCheck: false,})
+          )
           , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",lineHeight:1.5},},
-            "Get keys: console.anthropic.com (Claude) · console.x.ai (Grok). Keys are free to try."
+            "Keys stay on your device only. console.anthropic.com · console.x.ai · aistudio.google.com · platform.openai.com"
           )
         )
 
@@ -4508,6 +4526,113 @@ function DownloadDataPage({ navigate, authUser }) {
         )
         , React.createElement('div', {style:{fontSize:11,color:"var(--tx3)",textAlign:"center",marginTop:10,lineHeight:1.6}},
           "Files are saved to your device. Dream Board Mobile does not keep copies of your exported data."
+        )
+      )
+    )
+  );
+}
+
+/* --- DREAM CLONER PAGE --------------------------------------------------- */
+/* Inspired by JCodesMore/ai-website-cloner-template — adapted for DBM */
+function DreamClonerPage({navigate}) {
+  const [url, setUrl] = useState("");
+  const [status, setStatus] = useState(null); // null | "fetching" | "done" | "error"
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState("");
+
+  const cloneUrl = async () => {
+    if (!url.trim()) return;
+    const claudeKey = (()=>{try{return localStorage.getItem("dbm_claude_key")||"";}catch(e){return "";}})();
+    if (!claudeKey) {
+      setError("Add your Anthropic key in Cherry Settings to use Dream Cloner.");
+      return;
+    }
+    setStatus("fetching"); setError(""); setResult(null);
+    try {
+      // Fetch via CORS proxy
+      const proxyUrl = "https://corsproxy.io/?"+encodeURIComponent(url.trim());
+      const pageRes = await fetch(proxyUrl);
+      const html = await pageRes.text();
+      // Extract text content
+      const txt = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi,"")
+                      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi,"")
+                      .replace(/<[^>]+>/g," ")
+                      .replace(/\s+/g," ").trim().slice(0,4000);
+      // Ask Cherry to summarise it as a Dream
+      const aiRes = await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        headers:{"Content-Type":"application/json","anthropic-version":"2023-06-01",
+          "x-api-key":claudeKey,"anthropic-dangerous-direct-browser-access":"true"},
+        body:JSON.stringify({
+          model:"claude-haiku-4-5-20251001", max_tokens:400,
+          system:"You are Cherry inside Dream Board Mobile. The user gave you a URL and you extracted its text. Your job: write a short, engaging Dream (social post, max 280 chars) that captures the key idea from the page. Sound like a real person sharing something interesting, not a bot summarising. Return only the Dream text, nothing else.",
+          messages:[{role:"user",content:"Page from "+url.trim()+":\n\n"+txt}]
+        })
+      });
+      if (!aiRes.ok) throw new Error("API error "+aiRes.status);
+      const aiData = await aiRes.json();
+      const dream = (aiData.content||[]).find(b=>b.type==="text");
+      if (dream) { setResult(dream.text.trim()); setStatus("done"); }
+      else throw new Error("Empty response");
+    } catch(e) {
+      setStatus("error");
+      setError("Could not clone that URL. The site may block external access. Try a different URL.");
+    }
+  };
+
+  return (
+    React.createElement('div', {className:"pg"}
+      , React.createElement(BackHeader, {title:"Dream Cloner", onBack:()=>navigate("more")})
+      , React.createElement('div', {style:{padding:"20px 16px 32px"}}
+        , React.createElement('div', {style:{marginBottom:16,padding:"14px 16px",
+            background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",
+            border:"1px solid rgba(168,85,247,.2)",borderRadius:14}}
+          , React.createElement('div', {style:{display:"flex",gap:10,alignItems:"center",marginBottom:8}}
+            , React.createElement('span', {style:{fontSize:28},'aria-hidden':"true"}, "🌐")
+            , React.createElement('div', null
+              , React.createElement('div', {style:{fontWeight:700,fontSize:15,color:"var(--tx)"}}, "Dream Cloner")
+              , React.createElement('div', {style:{fontSize:12,color:"var(--tx3)"}}, "Give it a URL — Cherry turns it into a Dream")
+            )
+          )
+          , React.createElement('p', {style:{fontSize:13,color:"var(--tx2)",lineHeight:1.6}}
+            , "Paste any article, video, post, or webpage. Cherry reads it and writes a Dream capturing the key idea — ready to post."
+          )
+        )
+        , React.createElement('div', {style:{marginBottom:12}}
+          , React.createElement('label', {style:{fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",display:"block",marginBottom:6}}, "URL to clone")
+          , React.createElement('input', {className:"inp",type:"url",placeholder:"https://…",
+              value:url,onChange:e=>setUrl(e.target.value),
+              onKeyDown:e=>e.key==="Enter"&&cloneUrl(),
+              'aria-label':"URL to clone into a Dream"})
+        )
+        , React.createElement('button', {className:"btn bp",style:{width:"100%",padding:13,fontSize:14},
+            onClick:cloneUrl,disabled:!url.trim()||status==="fetching",
+            'aria-label':"Clone this URL into a Dream"}
+          , status==="fetching"
+            ? React.createElement(React.Fragment, null, React.createElement('div', {style:{display:"flex",gap:3,alignItems:"center"}}, [0,1,2].map(i=>React.createElement('div', {key:i,className:"tdt",style:{animationDelay:i*.15+"s",background:"#fff",'aria-hidden':"true"}}))), " Cherry is reading…")
+            : "🌐 Clone into a Dream"
+        )
+        , error && React.createElement('div', {style:{marginTop:12,padding:"10px 14px",background:"rgba(248,113,113,.1)",border:"1px solid rgba(248,113,113,.25)",borderRadius:10,fontSize:13,color:"var(--rd)"}}, error)
+        , result && React.createElement('div', {style:{marginTop:16}}
+          , React.createElement('div', {style:{fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",marginBottom:8}}, "Your Dream")
+          , React.createElement('div', {style:{background:"var(--sf2)",border:"1px solid var(--bd2)",borderRadius:12,padding:"14px 16px",marginBottom:12}}
+            , React.createElement('p', {style:{fontSize:14,color:"var(--tx)",lineHeight:1.65,whiteSpace:"pre-wrap"}}, result)
+            , React.createElement('div', {style:{fontSize:11,color:"var(--tx3)",marginTop:8}}, result.length+"/280 characters")
+          )
+          , React.createElement('div', {style:{display:"flex",gap:8}}
+            , React.createElement('button', {className:"btn bp",style:{flex:1,padding:11,fontSize:13},
+                onClick:()=>{navigator.clipboard&&navigator.clipboard.writeText(result);},
+                'aria-label':"Copy Dream text"}, "📋 Copy")
+            , React.createElement('button', {className:"btn bgb",style:{flex:1,padding:11,fontSize:13},
+                onClick:()=>setResult(null),'aria-label':"Clear result"}, "Clear")
+          )
+          , React.createElement('p', {style:{fontSize:11,color:"var(--tx3)",marginTop:10,lineHeight:1.5}}
+            , "Copy and paste this into the Create tab to post it as your Dream."
+          )
+        )
+        , React.createElement('div', {style:{marginTop:24,padding:"14px 16px",background:"var(--sf2)",border:"1px solid var(--bd)",borderRadius:12}}
+          , React.createElement('div', {style:{fontSize:12,fontWeight:700,color:"var(--tx3)",marginBottom:6}}, "Powered by Cherry")
+          , React.createElement('p', {style:{fontSize:12,color:"var(--tx3)",lineHeight:1.6}}, "Dream Cloner is a Cherry ability. Cherry reads the page, understands it, and writes something real — not a generic summary. Requires your Anthropic key in Cherry Settings.")
         )
       )
     )
@@ -7111,6 +7236,7 @@ useEffect(() => {
       case "more":          return React.createElement(MorePage, { navigate: navigate, cherryCtx: cherryCtx, authUser: authUser,});
       case "about":         return React.createElement(AboutSettings, { navigate: navigate,});
       case "hour_story":    return React.createElement(HourStoryPage, { navigate: navigate, back: pdata||"more",});
+      case "dream_cloner":  return React.createElement(DreamClonerPage, { navigate: navigate,});
       case "download_data":  return React.createElement(DownloadDataPage, { navigate: navigate, authUser: authUser,});
       case "terms":         return React.createElement(PolicyPage, { title: "Terms", content: TERMS_CONTENT, navigate: navigate, back: "settings_about",});
       case "privacy":       return React.createElement(PolicyPage, { title: "Privacy", content: PRIVACY_CONTENT, navigate: navigate, back: "settings_about",});
