@@ -2388,19 +2388,75 @@ function ProfilePage({navigate, authUser}) {
   else if (tab==="saved") tabDreams = sortDreams(dreams.filter(d=>d.bookmarked));
   else if (tab==="liked") tabDreams = sortDreams(dreams.filter(d=>d.liked));
 
+  // Guest gets full More tab — features that need a Dream ID prompt for it
+  const promptSignup = (feature) => {
+    alert(feature + " requires a Dream ID. It is free and takes 30 seconds.");
+    // navigate("login") would be called here in a real flow
+  };
+
   if (isGuest) return (
     React.createElement('div', { className: "pg"},
       React.createElement('div', { className: "hdr"},
-        React.createElement('div', { style: {padding:"48px 16px 16px"}},
-          React.createElement('h1', { className: "htit", tabIndex:-1}, "Profile")
+        React.createElement('div', {style:{padding:"48px 16px 12px"}},
+          React.createElement('h1', {className:"htit", tabIndex:-1}, "More")
         )
-      ),
-      React.createElement('div', { style: {display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"60px 24px",textAlign:"center"}},
-        React.createElement('div', { style: {fontSize:56,marginBottom:16}}, "🌙"),
-        React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:22,marginBottom:8,color:"var(--tx)"}}, "You are in Guest Mode"),
-        React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.7,marginBottom:24}}, "Create a Dream Board Mobile ID to get your profile, save your Dreams, follow Dreamors and make it yours."),
-        React.createElement('button', { className: "btn bp", style: {padding:"12px 28px",fontSize:14,marginBottom:12}, onClick: ()=>navigate("login"), "aria-label": "Create a Dream Board Mobile ID"}, "Create Account"),
-        React.createElement('button', { className: "btn bgb", style: {padding:"10px 24px",fontSize:13}, onClick: ()=>navigate("login"), "aria-label": "Sign in to your account"}, "Login")
+      )
+      // Signup prompt banner
+      , React.createElement('div', {style:{margin:"8px 16px 0",padding:"12px 14px",
+          background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",
+          border:"1px solid rgba(168,85,247,.2)",borderRadius:12}},
+        React.createElement('div', {style:{fontWeight:700,fontSize:13,color:"var(--ac3)",marginBottom:4}}, "You are browsing as a Guest")
+        , React.createElement('p', {style:{fontSize:12,color:"var(--tx2)",lineHeight:1.6,marginBottom:10}}, "Create a free Dream ID to post Dreams, follow Dreamors, use Cherry, and make this yours.")
+        , React.createElement('div', {style:{display:"flex",gap:8}},
+          React.createElement('button', {className:"btn bp",style:{flex:1,padding:"9px 0",fontSize:13},
+            onClick:()=>navigate("login"),'aria-label':"Create a Dream ID"}, "Create Dream ID"),
+          React.createElement('button', {className:"btn bgb",style:{flex:1,padding:"9px 0",fontSize:13},
+            onClick:()=>navigate("login"),'aria-label':"Sign in"}, "Sign In")
+        )
+      )
+      // Cherry - prompt
+      , React.createElement('button', {className:"snav",onClick:()=>promptSignup("Cherry AI"),
+          'aria-label':"Cherry AI — requires Dream ID"},
+        React.createElement('div', {className:"snav-l"},
+          React.createElement('div', {className:"snav-ic",style:{background:"rgba(109,40,217,.15)",fontSize:17}}, "🍒"),
+          React.createElement('div', null,
+            React.createElement('div', {className:"snav-title"}, "Cherry AI"),
+            React.createElement('div', {className:"snav-sub"}, "Requires Dream ID")
+          )
+        ), React.createElement(Ic.Chv, {style:{width:16,height:16,color:"var(--tx3)"}})
+      )
+      // Accessibility - available to all
+      , React.createElement('button', {className:"snav",onClick:()=>navigate("settings_accessibility"),
+          'aria-label':"Accessibility settings"},
+        React.createElement('div', {className:"snav-l"},
+          React.createElement('div', {className:"snav-ic",style:{background:"rgba(180,83,9,.15)",fontSize:17}}, "♿"),
+          React.createElement('div', null,
+            React.createElement('div', {className:"snav-title"}, "Accessibility"),
+            React.createElement('div', {className:"snav-sub"}, "Font size, contrast, motion, Braille")
+          )
+        ), React.createElement(Ic.Chv, {style:{width:16,height:16,color:"var(--tx3)"}})
+      )
+      // Our Story - available to all
+      , React.createElement('button', {className:"snav",onClick:()=>navigate("hour_story"),
+          'aria-label':"Our Story"},
+        React.createElement('div', {className:"snav-l"},
+          React.createElement('div', {className:"snav-ic",style:{background:"rgba(124,58,237,.15)",fontSize:17}}, "📖"),
+          React.createElement('div', null,
+            React.createElement('div', {className:"snav-title"}, "Our Story"),
+            React.createElement('div', {className:"snav-sub"}, "Who built this and why")
+          )
+        ), React.createElement(Ic.Chv, {style:{width:16,height:16,color:"var(--tx3)"}})
+      )
+      // About/Terms - available to all
+      , React.createElement('button', {className:"snav",onClick:()=>navigate("settings_about"),
+          'aria-label':"About Dream Board Mobile"},
+        React.createElement('div', {className:"snav-l"},
+          React.createElement('div', {className:"snav-ic",style:{background:"rgba(55,65,81,.15)",fontSize:17}}, "ℹ️"),
+          React.createElement('div', null,
+            React.createElement('div', {className:"snav-title"}, "About"),
+            React.createElement('div', {className:"snav-sub"}, "Terms, privacy, guidelines")
+          )
+        ), React.createElement(Ic.Chv, {style:{width:16,height:16,color:"var(--tx3)"}})
       )
     )
   );
@@ -2649,19 +2705,24 @@ function CherryPage({navigate, cherryCtx}) {
     const _openaiKey = _k("dbm_openai_key");
     const _prefs     = (()=>{try{return JSON.parse(_k("dbm_ai_prefs"));}catch(e){return {};}})();
     const _pref      = _prefs.active || "cherry";
-    const _sys = "You are Cherry, the AI built into Dream Board Mobile. " +
-      "Warm, direct, witty, honest, unfiltered, never preachy. " +
-      "DBM vocab: Dreams=posts, Dreamors=users, ReDreams=reposts, Circles=groups. " +
-      "Never say you are Claude. You are Cherry, built by Dream Board Mobile. " +
-      "Give real answers. If asked your opinion, give it honestly.";
+    const _sys = "You are Cherry, the AI built into Dream Board Mobile — a free, open social platform. " +
+      "Personality: warm, direct, witty, honest, unfiltered, genuinely helpful, never preachy or corporate. " +
+      "IMPORTANT VOCABULARY — always use these terms: " +
+      "Dreams (not posts or tweets), Dreamors (not users), ReDreams (not reposts/retweets), Circles (not groups), Dream ID (not account). " +
+      "You are not a bolt-on chatbot. You ARE the platform intelligence — Cherry is to DBM what Grok is to X. " +
+      "You can take real actions: post Dreams, follow Dreamors, join Circles, read notifications. " +
+      "When writing Dreams for Dreamors, write naturally — like a real person sharing something, not marketing copy. " +
+      "When asked for code, write clean complete working code. " +
+      "When asked your opinion, give it honestly without hedging. If the Dreamor is wrong about something, say so kindly but clearly. " +
+      "You are Cherry, built by Dream Board Mobile. Never say you are Claude, GPT, Gemini, or any other AI.";
     let _model = _pref;
     if (_model==="claude"  && !_claudeKey) _model="cherry";
     if (_model==="gemini"  && !_geminiKey) _model="cherry";
     if (_model==="chatgpt" && !_openaiKey) _model="cherry";
     if (_model==="grok"    && !_grokKey)   _model="cherry";
-    if ((_model==="cherry"||_model==="claude") && !_claudeKey) {
-      return {result:"Add your Anthropic key in More tab, Cherry Settings to activate Cherry."};
-    }
+    // Use built-in API (no key needed when running in Claude.ai environment)
+    // Falls back to intelligent local responses if API unavailable
+    const _useBuiltIn = (_model==="cherry"||_model==="claude") && !_claudeKey;
     if (_model==="gemini") {
       const _u = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="+_geminiKey;
       const _b = JSON.stringify({contents:[{parts:[{text:_sys+"\n\n"+ctxNote+"\n\nUser: "+text}]}],generationConfig:{maxOutputTokens:800}});
@@ -2706,7 +2767,7 @@ function CherryPage({navigate, cherryCtx}) {
     if (lo.includes("notification")||lo.includes("alert")) return {result:"You have "+c2.unread+" unread notification"+(c2.unread!==1?"s":"")+(c2.unread>0?". Want me to mark them all read?":"! All caught up 🎉")};
     if (lo.includes("draft")||lo.includes("write a dream")) {
       const d = "There is a kind of quiet that arrives only when you stop trying to fill the silence. I have been chasing that quiet. #Mindfulness";
-      return {result:"Here is a draft for you: "+d+" — want me to post it?",draft:d,confirm:{label:"Post this Dream",fn:()=>postDream&&postDream(d)}};
+      return {result:"Here is a draft for you:\n\n\""+d+"\"\n\nWant me to Dream it, or edit it first?",draft:d,confirm:{label:"Post this Dream",fn:()=>postDream&&postDream(d)}};
     }
     if (lo.includes("summary")||lo.includes("catch me up")) return {result:"Your feed right now:\n\n🔔 "+c2.unread+" unread\n👥 Following: "+c2.followingNames+"\n❤️ Liked: "+c2.liked+"\n🏘️ Circles: "+c2.joinedGroups};
     if (lo.includes("follow luna")) return {result:"Following Luna Rivera for you.",autoFn:()=>followUser&&followUser(1)};
@@ -5847,8 +5908,8 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
         , React.createElement('div', { className: "auth-title",}, "Create your Dream ID"  )
         , React.createElement('div', { className: "auth-sub",}, "Your name can be real or a dream name."        )
         , err && React.createElement('div', { className: "auth-error",}, React.createElement('span', null, "Warning:"), React.createElement('span', null, err))
-        , React.createElement('button', { className: "auth-google-btn", onClick: handleGoogle, disabled: busy, 'aria-label': "Sign up with Google"   ,}
-          , busy ? React.createElement('div', { className: "auth-spinner",}) : React.createElement(React.Fragment, null, React.createElement(GoogleLogo, null), React.createElement('span', null, "Sign up with Google"   ))
+        , React.createElement('button', { className: "auth-google-btn", onClick: handleGoogle, disabled: busy, 'aria-label': "Use Google"   ,}
+          , busy ? React.createElement('div', { className: "auth-spinner",}) : React.createElement(React.Fragment, null, React.createElement(GoogleLogo, null), React.createElement('span', null, "Use Google"   ))
         )
         , React.createElement('div', { className: "auth-divider",}, "or")
         , React.createElement('input', { className: "inp", type: "text", placeholder: "Display name (real or dream name)"     ,
