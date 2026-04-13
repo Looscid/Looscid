@@ -1,0 +1,119 @@
+Dream Board Mobile Public License (DBMPL) v1.0
+Copyright (c) 2024–present Alhasan Altameemi / Dream Board Mobile
+
+────────────────────────────────────────────────────────────────────────────────
+PREAMBLE
+────────────────────────────────────────────────────────────────────────────────
+
+Dream Board Mobile was built on a simple belief: a social platform should be
+free, open, accessible, and belong to its users — not to investors, advertisers,
+or corporations. This license exists to protect that belief in code.
+
+You are free to read this code, learn from it, and contribute to it. You are
+not free to use it to build something that contradicts what it was built for.
+
+────────────────────────────────────────────────────────────────────────────────
+PERMISSIONS (what you CAN do)
+────────────────────────────────────────────────────────────────────────────────
+
+✓  Read and study the source code for any purpose
+✓  Fork the code for personal, non-commercial, non-public use
+✓  Contribute improvements back to the Dream Board Mobile project
+✓  Use individual components or techniques as reference in your own projects,
+   provided you do not reproduce the platform as a whole
+✓  Run a private instance for yourself or a small non-commercial community,
+   provided it is not monetized and carries this license notice
+
+────────────────────────────────────────────────────────────────────────────────
+RESTRICTIONS (what you CANNOT do)
+────────────────────────────────────────────────────────────────────────────────
+
+✗  Commercial use: You may not use this code, in whole or in substantial part,
+   to build or operate a commercial product or service without a separate written
+   license from Dream Board Mobile.
+
+✗  Paywalling: Any public deployment of this code or a derivative must remain
+   free to end users. You may not charge for access to features this platform
+   provides for free.
+
+✗  Advertising: You may not introduce advertising, sponsored content, or
+   data-broker integrations into any public deployment of this code.
+
+✗  Data harvesting: You may not deploy this code in a manner that collects user
+   data for sale, profiling for advertising, or any purpose other than operating
+   the platform for its users.
+
+✗  Trademark use: You may not use the names Dream Board Mobile, Dream ID,
+   Dreamors, ReDreams, Circles, or Cherry as product names, feature names, or
+   brand identifiers in any project without written permission.
+
+✗  Misleading derivatives: Any public fork or deployment must clearly identify
+   itself as separate from Dream Board Mobile and must not impersonate,
+   misrepresent, or trade on the reputation of Dream Board Mobile.
+
+✗  Malware and surveillance: You may not use this code to build tools that
+   surveil users, distribute malicious code, phish for credentials, or otherwise
+   harm the people using the software.
+
+✗  Corporate acquisition: You may not use this code as the foundation for a
+   project intended to be acquired by or merged into a corporate entity in a way
+   that would compromise the free and open nature of the platform.
+
+────────────────────────────────────────────────────────────────────────────────
+CONDITIONS (what you MUST do if you deploy a public instance)
+────────────────────────────────────────────────────────────────────────────────
+
+1. Carry this license notice in the repository and in the application's About
+   section, including a link to the original project.
+
+2. Clearly state that your deployment is not affiliated with Dream Board Mobile.
+
+3. Maintain the same free and ad-free commitments in your deployment.
+
+4. Make your modifications available under this same license.
+
+5. Do not remove the accessibility features from any public deployment.
+
+────────────────────────────────────────────────────────────────────────────────
+TRADEMARKS
+────────────────────────────────────────────────────────────────────────────────
+
+The following are trademarks of Dream Board Mobile:
+
+  Dream Board Mobile™
+  Dream ID™
+  Dreamors™
+  ReDreams™
+  Cherry (as an AI product name)™
+  Circles (as used in the context of this platform)™
+
+Trademark use in ordinary language (e.g., "I had a dream", "my circle of
+friends", "cherry pie") is not restricted. Use of these terms as product feature
+names, platform identifiers, or brand elements in competing or derivative
+products is not permitted without written permission.
+
+To request trademark use permission: legal@dream-board-mobile.pages.dev
+
+────────────────────────────────────────────────────────────────────────────────
+DISCLAIMER
+────────────────────────────────────────────────────────────────────────────────
+
+THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED. THE COPYRIGHT HOLDER IS NOT LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY ARISING FROM USE OF THIS SOFTWARE.
+
+────────────────────────────────────────────────────────────────────────────────
+COMMERCIAL LICENSING
+────────────────────────────────────────────────────────────────────────────────
+
+If you want to use Dream Board Mobile's code in a way this license does not
+permit, contact us to discuss a commercial license:
+
+  legal@dream-board-mobile.pages.dev
+
+We are reasonable people. We want the code to be useful. We just want it used
+in a way that is consistent with why it was built.
+
+────────────────────────────────────────────────────────────────────────────────
+
+Dream Board Mobile — Free for life. Free for ∞.
