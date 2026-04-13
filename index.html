@@ -5689,7 +5689,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
       if (!sb) throw new Error("Auth not ready");
       const { error } = await sb.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: "https://dream-board-mobile.pages.dev" }
+        options: { redirectTo: window.location.origin + "/feed" }
       });
       if (error) throw error;
       // Redirecting — browser will navigate away
@@ -7047,15 +7047,28 @@ function App() {
     });
     // Listen for auth changes
     var sub = sb.auth.onAuthStateChange(function(event, session) {
-      if (event === "SIGNED_IN" && session && session.user.email_confirmed_at) {
+      // Accept: email-confirmed accounts AND OAuth (Google/Apple) where provider handles verification
+      const isOAuth = session && session.user && (
+        (session.user.app_metadata && session.user.app_metadata.provider &&
+          session.user.app_metadata.provider !== "email") ||
+        session.user.email_confirmed_at
+      );
+      if (event === "SIGNED_IN" && session && isOAuth) {
         sb.from("profiles").select("*").eq("id", session.user.id).single().then(function(pResult) {
           var profile = pResult.data;
           setAuthUser(Object.assign({}, session.user, profile || {}, {
-            displayName: profile ? profile.display_name : session.user.email,
-            handle: profile ? "@"+profile.username : "@dreamer"
+            displayName: profile ? profile.display_name :
+              (session.user.user_metadata && session.user.user_metadata.full_name) ||
+              session.user.email || "Dreamor",
+            handle: profile ? "@"+profile.username : "@dreamer",
+            avatarUrl: (session.user.user_metadata && session.user.user_metadata.avatar_url) || null,
           }));
           setAuthStage("app");
         });
+      } else if (event === "SIGNED_IN" && session && !isOAuth) {
+        // Email unverified — bounce back with message
+        setErr && setErr("Please verify your email before signing in.");
+        sb.auth.signOut();
       } else if (event === "SIGNED_OUT") {
         setAuthUser(null); setAuthStage("splash");
       }
