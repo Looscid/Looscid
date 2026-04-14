@@ -4042,6 +4042,7 @@ function AboutSettings({navigate}) {
         {l:"Open Source Licenses",icon:"⚖️",a:()=>{}},
         {l:"Send Feedback",icon:"💬",a:()=>navigate("feedback")},
         {l:"Our Story",icon:"📖",a:()=>navigate("hour_story")},
+        {l:"License (DBMPL v1.0)",icon:"⚖️",a:()=>navigate("license")},
       ].map(item => (
         React.createElement('button', { key: item.l, className: "snav", onClick: item.a, 'aria-label': item.l,}
           , React.createElement('div', { className: "snav-l",}
@@ -4844,6 +4845,42 @@ function HourStoryPage({ navigate, back }) {
               )
             )
           )
+        )
+      )
+    )
+  );
+}
+
+/* --- LICENSE PAGE -------------------------------------------------------- */
+function LicensePage({navigate}) {
+  const LICENSE_TEXT = [
+    {h:"Dream Board Mobile Public License (DBMPL) v1.0"},
+    {p:"Copyright (c) 2024–present Alhasan Altameemi / Dream Board Mobile"},
+    {h2:"What you CAN do"},
+    {p:"Read and study the source code. Fork for personal non-commercial use. Contribute improvements back. Reference individual components in your own projects. Run a private non-monetized instance for yourself or a small community."},
+    {h2:"What you CANNOT do"},
+    {p:"Commercial use without a written license. Paywalling any features we provide free. Adding advertising or data-broker integrations. Harvesting user data for sale or profiling. Using our trademarks (Dream Board Mobile, Dream ID, Dreamors, ReDreams, Circles, Cherry) as product or feature names without written permission. Deploying in a way that misleads users into thinking it is the official Dream Board Mobile. Building malware or surveillance tools with this code."},
+    {h2:"If you deploy a public instance"},
+    {p:"Carry this license notice. State clearly it is not affiliated with Dream Board Mobile. Keep it free and ad-free. Make your modifications available under this same license. Do not remove accessibility features."},
+    {h2:"Trademarks"},
+    {p:"Our trademarks in everyday language are not restricted — saying 'I had a dream' or 'my circle of friends' is fine. Using them as product names in a competing or derivative platform is not."},
+    {h2:"Disclaimer"},
+    {p:"This software is provided as-is without warranty. We are not liable for any damages arising from its use."},
+    {h2:"Commercial licensing"},
+    {p:"Want to use this code in a way this license doesn't permit? Contact legal@dream-board-mobile.pages.dev"},
+    {p:"Full license: github.com/Shinygold29/dream-board-mobile/blob/main/LICENSE"},
+  ];
+  return (
+    React.createElement('div', {className:"pg"}
+      , React.createElement(BackHeader, {title:"License", onBack:()=>navigate("settings_about")})
+      , React.createElement('div', {style:{padding:"16px 20px 40px"},}
+        , LICENSE_TEXT.map((item,i) =>
+          item.h  ? React.createElement('h1', {key:i,style:{fontFamily:"'DM Serif Display',Georgia,serif",fontSize:22,color:"var(--tx)",marginBottom:4,marginTop:i>0?24:0,lineHeight:1.3}},item.h)
+        : item.h2 ? React.createElement('h2', {key:i,style:{fontFamily:"'DM Serif Display',Georgia,serif",fontSize:16,color:"var(--tx)",marginBottom:6,marginTop:20}},item.h2)
+        : React.createElement('p',  {key:i,style:{fontSize:13,color:"var(--tx2)",lineHeight:1.75,marginBottom:8}},item.p)
+        )
+        , React.createElement('div', {style:{marginTop:24,padding:"12px 14px",background:"linear-gradient(135deg,rgba(109,40,217,.08),rgba(147,51,234,.04))",border:"1px solid rgba(168,85,247,.2)",borderRadius:12,fontSize:12,color:"var(--tx3)",lineHeight:1.6}},
+          "Dream Board Mobile — Free for life. Free for ∞."
         )
       )
     )
