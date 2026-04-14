@@ -972,6 +972,8 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
   const [showQC, setShowQC] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
   const [qtxt, setQtxt] = useState("");
+  const [editingDream, setEditingDream] = useState(false);
+  const [editText, setEditText] = useState(dream.text);
   const linkInfo = getLinkInfo(dream.text);
   const rdTotal = dream.redreams + (dream.quotes||0);
   const rdActive = dream.redreamed || dream.quoted;
@@ -1074,6 +1076,40 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
           , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12}, onClick: ()=>{onQuote(dream.id);setShowQC(false);setQtxt("");},}, "Quote Dream"  )
         )
       )
+      , editingDream && (
+        React.createElement('div', {className:"ov",onClick:e=>e.target===e.currentTarget&&setEditingDream(false),role:"dialog",'aria-label':"Edit Dream"},
+          React.createElement('div', {className:"msh"},
+            React.createElement('div', {className:"mhd"}),
+            React.createElement('div', {className:"min"},
+              React.createElement('div', {style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}},
+                React.createElement('div', {className:"mtt"}, "Edit Dream"),
+                React.createElement('button', {className:"bi",onClick:()=>setEditingDream(false),'aria-label':"Cancel"}, "✕")
+              ),
+              React.createElement('textarea', {
+                className:"inp",
+                style:{minHeight:100,fontSize:15,lineHeight:1.6,marginBottom:12},
+                value:editText,
+                onChange:e=>setEditText(e.target.value),
+                'aria-label':"Edit your Dream text",
+                autoFocus:true,
+              }),
+              React.createElement('div', {style:{display:"flex",gap:8}},
+                React.createElement('button', {className:"btn bp",style:{flex:1,padding:12,fontSize:14},
+                  onClick:()=>{
+                    // In a real app this would call Supabase to update the Dream
+                    setEditingDream(false);
+                  },
+                  disabled:!editText.trim(),
+                  'aria-label':"Save edited Dream",
+                }, "Save"),
+                React.createElement('button', {className:"btn bgb",style:{flex:1,padding:12,fontSize:13},
+                  onClick:()=>{setEditText(dream.text);setEditingDream(false);},'aria-label':"Cancel"
+                }, "Cancel")
+              )
+            )
+          )
+        )
+      )
       , showOpts && (
         React.createElement(BottomMenu, { onClose: ()=>setShowOpts(false), title: "Dream Options", items: [
           {ic:dream.bookmarked?"🔖":"🔖", l:dream.bookmarked?"Unsave Dream":"Save Dream", sub:dream.bookmarked?"Remove this Dream from your saved collection":"Save this Dream to your collection", a:()=>{onBookmark&&onBookmark(dream.id);setShowOpts(false);}},
@@ -1166,17 +1202,22 @@ function FeedPage({navigate, prefs, cherryCtx}) {
           , React.createElement(DreamCard, { dream: d, onLike: tl, onRedream: tr, onUndoRedream: tur,
             onQuote: tq, onUndoQuote: tuq, onBookmark: tb,
             onComment: d=>setActiveComment(d), navigate: navigate, cherryCtx: cherryCtx,})
-          /* Cherry AI cards injected between dreams on For You tab */
-          , tab==="for you" && cherryCtx && cherryCards.find(cc=>cc.after===idx+1) && (()=>{
-            const cc = cherryCards.find(c=>c.after===idx+1);
+          /* Cherry subtle nudge between every 5th Dream on For You tab */
+          , tab==="for you" && cherryCtx && (idx+1) % 5 === 0 && (()=>{
+            const nudges = [
+              "🍒 Cherry noticed you like thoughtful writing. Want a draft?",
+              "🍒 You haven't posted a Dream today. Got something on your mind?",
+              "🍒 Three Dreamors you follow are active right now.",
+            ];
+            const nudge = nudges[Math.floor((idx/5)) % nudges.length];
             return (
-              React.createElement('div', { className: "cherry-card",}
-                , React.createElement('div', { className: "aiorb", style: {width:32,height:32,fontSize:15,flexShrink:0},}, "🍒")
-                , React.createElement('div', { style: {flex:1},}
-                  , React.createElement('span', { className: "cherry-card-chip",}, cc.ic, " " , cc.chip)
-                  , React.createElement('div', { className: "cherry-card-txt",}, cc.msg)
-                  , React.createElement('button', { className: "cherry-card-act", onClick: ()=>cherryCtx.openCherry(cc.prompt), 'aria-label': cc.action,}, cc.action)
-                )
+              React.createElement('button', {
+                onClick:()=>cherryCtx.openCherry(),
+                style:{display:"block",width:"100%",padding:"10px 16px",textAlign:"left",
+                  background:"rgba(109,40,217,.04)",border:"none",borderBottom:"1px solid var(--bd)",
+                  cursor:"pointer",fontFamily:"inherit"},
+                'aria-label':nudge+". Open Cherry to respond.",}
+                , React.createElement('span', {style:{fontSize:12,color:"var(--tx3)"}}, nudge)
               )
             );
           })()
@@ -1620,8 +1661,13 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
 
         /* Cherry AI writing assistant */
         , cherryCtx && (
-          React.createElement('div', { style: {padding:"2px 16px 6px"},}
-            , React.createElement('button', { className: "cherry-compose-btn", onClick: ()=>{onClose();cherryCtx.openCherry("Draft a Dream for me to post");}, 'aria-label': "Ask Cherry to write a Dream"     ,}, "🍒 Ask Cherry to write this Dream"
+          React.createElement('div', { style: {padding:"4px 16px 8px"},}
+            , React.createElement('button', {
+                className: "cherry-compose-btn",
+                onClick: ()=>{onClose();cherryCtx.openCherry("Draft a Dream for me to post");},
+                'aria-label': "Ask Cherry to draft a Dream for you",
+                style:{width:"100%",justifyContent:"center",padding:"9px 14px"},}
+              , "🍒 Ask Cherry to write this Dream"
 
             )
           )
@@ -2517,6 +2563,8 @@ function ProfilePage({navigate, authUser}) {
         , React.createElement('span', { className: "tab-count",}, React.createElement('strong', null, tabDreams.length), " " , tab)
         , React.createElement('button', { className: "sort-btn", onClick: ()=>setShowSort(true), 'aria-label': "Sort dreams" ,}, React.createElement(Ic.Dots, { style: {width:11,height:11},}), "Sort")
       )
+      , tab==="all" && React.createElement(ForYouSection, {dreams:tabDreams, user:user, navigate:navigate,
+          tl:tl, tr:tr, tur:tur, tq:tq, tuq:tuq, tb:tb, setActiveComment:setActiveComment, cherryCtx:cherryCtx})
       , tabDreams.map(d => (
         React.createElement(DreamCard, { key: d.id, dream: d, onLike: tl, onRedream: tr, onUndoRedream: tur,
           onQuote: tq, onUndoQuote: tuq, onBookmark: tb,
@@ -2540,6 +2588,93 @@ function ProfilePage({navigate, authUser}) {
 }
 
 /* --- DREAMER PROFILE --------------------- */
+/* --- FOR YOU SECTION (profile All tab) ----------------------------------- */
+function ForYouSection({dreams, user, navigate, tl, tr, tur, tq, tuq, tb, setActiveComment, cherryCtx}) {
+  const [open, setOpen] = useState(false);
+  const [picks, setPicks] = useState(null); // null=not loaded, []=empty, [d,d]=loaded
+
+  const load = () => {
+    if (picks !== null) return;
+    // Cherry picks Dreams this Dreamor would like based on liked/saved patterns
+    // Sort by likes + comments as a proxy for engagement match
+    const scored = [...dreams]
+      .map(d => ({
+        ...d,
+        score: d.likes * 1.5 + d.comments * 2 + (d.bookmarked ? 50 : 0) + (d.liked ? 30 : 0)
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
+    setPicks(scored);
+  };
+
+  React.useEffect(() => {
+    if (open) load();
+  }, [open]);
+
+  return (
+    React.createElement('div', {style:{borderBottom:"1px solid var(--bd)"},}
+      // Collapsed header — always visible
+      , React.createElement('button', {
+          onClick: () => setOpen(o => !o),
+          'aria-expanded': open,
+          'aria-controls': "for-you-panel",
+          style: {
+            display:"flex", alignItems:"center", justifyContent:"space-between",
+            width:"100%", padding:"12px 16px",
+            background:"none", border:"none", cursor:"pointer", fontFamily:"inherit",
+            textAlign:"left",
+          },
+        }
+        , React.createElement('div', {style:{display:"flex",alignItems:"center",gap:8},}
+          , React.createElement('div', {className:"aiorb",style:{width:22,height:22,fontSize:11,flexShrink:0},'aria-hidden':"true"}, "🍒")
+          , React.createElement('div', null,
+            React.createElement('div', {style:{fontSize:13,fontWeight:700,color:"var(--tx)"}},
+              "For You",
+              React.createElement('span', {
+                className:"sr-hint", id:"for-you-hint",
+                'aria-describedby':"for-you-hint",
+              })
+            )
+            , React.createElement('div', {style:{fontSize:11,color:"var(--tx3)"}},
+              "Cherry picks Dreams from "+user.name+" you will likely enjoy"
+            )
+          )
+        )
+        , React.createElement('svg', {width:14,height:14,viewBox:"0 0 24 24",fill:"none",
+            stroke:"currentColor",strokeWidth:2,'aria-hidden':"true",
+            style:{transition:"transform .2s",transform:open?"rotate(180deg)":"rotate(0deg)"}},
+          React.createElement('polyline', {points:"6 9 12 15 18 9"})
+        )
+      )
+      // Panel — hidden until expanded
+      , React.createElement('div', {
+          id:"for-you-panel",
+          'aria-hidden': !open,
+          style:{
+            maxHeight: open ? "600px" : "0",
+            overflow: "hidden",
+            visibility: open ? "visible" : "hidden",
+            transition: "max-height .28s ease, visibility .28s",
+          },
+        }
+        , picks === null && open && React.createElement('div', {style:{padding:"12px 16px",display:"flex",gap:4,alignItems:"center"},}
+          , [0,1,2].map(i => React.createElement('div', {key:i,className:"tdt",style:{animationDelay:i*.15+"s",'aria-hidden':"true"}}))
+          , React.createElement('span', {style:{fontSize:12,color:"var(--tx3)",marginLeft:6}}, "Cherry is finding Dreams for you…")
+        )
+        , picks && picks.length === 0 && React.createElement('div', {style:{padding:"12px 16px 16px",fontSize:12,color:"var(--tx3)"}},
+          "Not enough activity to personalise yet. Come back after liking a few Dreams."
+        )
+        , picks && picks.map(d =>
+          React.createElement(DreamCard, {key:"fy-"+d.id, dream:d,
+            onLike:tl, onRedream:tr, onUndoRedream:tur,
+            onQuote:tq, onUndoQuote:tuq, onBookmark:tb,
+            onComment:d=>setActiveComment(d), navigate:navigate,})
+        )
+      )
+    )
+  );
+}
+
 function DreamerProfilePage({user, navigate, cherryCtx}) {
   user = user ? {id:user.id||0, name:user.name||user.displayName||"Dreamor", handle:user.handle||"@dreamer", initials:user.initials||(user.name||user.displayName||"D").slice(0,2).toUpperCase(), color:user.color||"#6d28d9", bio:user.bio||"", location:user.location||"", website:user.website||"", joined:user.joined||"", dreamCount:user.dreamCount||0, followers:user.followers||0, following:user.following||0, verified:!!user.verified} : {name:"Dreamor",handle:"@dreamer",initials:"D",color:"#6d28d9",bio:"",dreamCount:0,followers:0,following:0};
   const [following, setFollowing] = useState(false);
@@ -2644,6 +2779,8 @@ function DreamerProfilePage({user, navigate, cherryCtx}) {
         , React.createElement('span', { className: "tab-count",}, React.createElement('strong', null, tabDreams.length), " " , tab)
         , React.createElement('button', { className: "sort-btn", onClick: ()=>setShowSort(true), 'aria-label': "Sort",}, React.createElement(Ic.Dots, { style: {width:11,height:11},}), "Sort")
       )
+      , tab==="all" && React.createElement(ForYouSection, {dreams:tabDreams, user:user, navigate:navigate,
+          tl:tl, tr:tr, tur:tur, tq:tq, tuq:tuq, tb:tb, setActiveComment:setActiveComment, cherryCtx:cherryCtx})
       , tabDreams.map(d => (
         React.createElement(DreamCard, { key: d.id, dream: d, onLike: tl, onRedream: tr, onUndoRedream: tur,
           onQuote: tq, onUndoQuote: tuq, onBookmark: tb,
@@ -2670,7 +2807,7 @@ function DreamerProfilePage({user, navigate, cherryCtx}) {
 /* --- CHERRY AI --------------------------- */
 function CherryPage({navigate, cherryCtx}) {
   // CherryPage IS the chat — full messaging interface like Apple Intelligence Notes
-  const INIT_MSG = {me:false, text:"Hey! I am Cherry 🍒 I can post Dreams, follow Dreamors, read your notifications, join Circles, summarise your feed, and turn any URL into a Dream (try: clone https://…). What would you like to do?"};
+  const INIT_MSG = {me:false, text:"Hey, I'm Cherry 🍒 I know what you like, I'm watching your feed, and I'm built into this platform — not just a tab. Ask me to draft a Dream, find people to follow, read your notifications, clone a URL into a Dream, or just talk. What's on your mind?"};
   const [msgs, setMsgs] = useState([INIT_MSG]);
   const [inp, setInp] = useState("");
   const [typing, setTyping] = useState(false);
@@ -2852,6 +2989,24 @@ function CherryPage({navigate, cherryCtx}) {
       , showHistDialog && React.createElement('div', {onClick:()=>setShowHistDialog(false),
           style:{position:"fixed",inset:0,zIndex:499},'aria-hidden':"true",})
 
+      // Live context strip — what Cherry can see right now
+      , React.createElement('div', {
+          style:{padding:"6px 14px",background:"rgba(109,40,217,.04)",borderBottom:"1px solid rgba(168,85,247,.12)",
+            display:"flex",gap:8,overflowX:"auto",scrollbarWidth:"none",alignItems:"center"},
+          role:"status",'aria-live':"polite",'aria-label':"Cherry context",}
+        , [
+          {ic:"🔔",v:String((cherryCtx&&cherryCtx.notifs||[]).filter(n=>n.unread).length)+" unread"},
+          {ic:"👥",v:String((cherryCtx&&cherryCtx.following||new Set()).size)+" following"},
+          {ic:"🏘️",v:String((cherryCtx&&cherryCtx.groups||[]).filter(g=>g.joined).length)+" Circles"},
+          {ic:"❤️",v:String((cherryCtx&&cherryCtx.dreams||[]).filter(d=>d.liked).length)+" liked"},
+        ].map(item =>
+          React.createElement('div', {key:item.v,style:{display:"flex",alignItems:"center",gap:3,flexShrink:0,
+            fontSize:11,color:"var(--tx3)",background:"var(--sf2)",borderRadius:100,padding:"2px 8px",border:"1px solid var(--bd)"},}
+            , React.createElement('span', {'aria-hidden':"true"}, item.ic)
+            , item.v
+          )
+        )
+      )
       // Suggestion chips
       , React.createElement('div', {style:{display:"flex",gap:6,padding:"8px 12px",overflowX:"auto",scrollbarWidth:"none",borderBottom:"1px solid var(--bd)"},}
         , chips.map(s =>
