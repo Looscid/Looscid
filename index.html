@@ -3501,26 +3501,36 @@ function AccountSettings({navigate, authUser, onSignOut}) {
             , React.createElement('div', { style: {fontSize:11,color:"var(--gr)",fontWeight:600,padding:"4px 16px 8px"},}, "Active account")
           )
 
-        /* Security (real accounts only) */
+        /* Security — Apple-style grouped cards */
         , !isDemo && (
-          React.createElement(React.Fragment, null
-            , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Security")
-            , React.createElement('div', { className: "sr", style: {cursor:"pointer"}, onClick: ()=>setShow2FA(true),}
-              , React.createElement('div', null
-                , React.createElement('div', { className: "sr-title",}, "Two-Factor Authentication" )
-                , React.createElement('div', { style: {fontSize:11,color:twoFAOn?"var(--gr)":"var(--tx3)",marginTop:2},}, twoFAOn?"Enabled - Authenticator App":"Add extra protection to your account")
+          React.createElement(React.Fragment,null
+            , React.createElement('h2',{className:"slbl",role:"heading",'aria-level':"2"}, "Sign In & Security")
+            , React.createElement('div',{style:{background:"var(--sf2)",borderRadius:14,border:"1px solid var(--bd)",overflow:"hidden",marginBottom:8}}
+              , React.createElement('div',{style:{padding:"9px 16px 7px",fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".06em",borderBottom:"1px solid var(--bd)"}}, "Connected Accounts")
+              , React.createElement('div',{style:{display:"flex",alignItems:"center",gap:12,padding:"12px 16px",borderBottom:"1px solid var(--bd)"}}
+                , React.createElement('div',{style:{width:28,height:28,borderRadius:7,background:"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}},React.createElement(GoogleLogo,null))
+                , React.createElement('div',{style:{flex:1}},React.createElement('div',{style:{fontSize:14,fontWeight:500}},"Google"),React.createElement('div',{style:{fontSize:11,color:"var(--gr)",marginTop:1}},"Connected"))
+                , React.createElement('span',{style:{fontSize:12,fontWeight:700,color:"var(--gr)"}},"✓")
               )
-              , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:8},}
-                , twoFAOn && React.createElement('span', { style: {fontSize:11,color:"var(--gr)",fontWeight:700},}, "ON")
-                , React.createElement(Ic.Chv, { style: {width:16,height:16,color:"var(--tx3)"},})
+              , React.createElement('button',{style:{display:"flex",alignItems:"center",gap:12,padding:"12px 16px",width:"100%",background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",textAlign:"left"},onClick:()=>alert("To connect Twitter: log out, then sign in with Twitter on the login screen."),'aria-label':"Connect Twitter account"}
+                , React.createElement('div',{style:{width:28,height:28,borderRadius:7,background:"#000",border:"1px solid rgba(255,255,255,.15)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}},React.createElement(XLogo,null))
+                , React.createElement('div',{style:{flex:1}},React.createElement('div',{style:{fontSize:14,fontWeight:500}},"Twitter"),React.createElement('div',{style:{fontSize:11,color:"var(--tx3)",marginTop:1}},"Not connected — tap to learn how"))
+                , React.createElement(Ic.Chv,{style:{width:15,height:15,color:"var(--tx3)"}})
               )
             )
-            , React.createElement('div', { className: "sr", style: {cursor:"pointer"}, onClick: ()=>setShowPW(true),}
-              , React.createElement('div', null
-                , React.createElement('div', { className: "sr-title",}, "Change Password" )
-                , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:2},}, "Update your sign-in password"   )
+            , React.createElement('div',{style:{background:"var(--sf2)",borderRadius:14,border:"1px solid var(--bd)",overflow:"hidden",marginBottom:8}}
+              , React.createElement('button',{style:{display:"flex",alignItems:"center",gap:12,padding:"14px 16px",width:"100%",background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",textAlign:"left"},onClick:()=>setShow2FA(true),'aria-label':"Two-Factor Authentication"}
+                , React.createElement('div',{style:{width:28,height:28,borderRadius:7,background:twoFAOn?"rgba(52,211,153,.15)":"rgba(255,255,255,.07)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,flexShrink:0}},twoFAOn?"🔐":"🔑")
+                , React.createElement('div',{style:{flex:1}},React.createElement('div',{style:{fontSize:14,fontWeight:500}},"Two-Factor Authentication"),React.createElement('div',{style:{fontSize:11,color:twoFAOn?"var(--gr)":"var(--tx3)",marginTop:1}},twoFAOn?"Enabled — Authenticator App":"Not enabled — tap to set up"))
+                , React.createElement(Ic.Chv,{style:{width:15,height:15,color:"var(--tx3)"}})
               )
-              , React.createElement(Ic.Chv, { style: {width:16,height:16,color:"var(--tx3)"},})
+            )
+            , React.createElement('div',{style:{background:"var(--sf2)",borderRadius:14,border:"1px solid var(--bd)",overflow:"hidden",marginBottom:8}}
+              , React.createElement('button',{style:{display:"flex",alignItems:"center",gap:12,padding:"14px 16px",width:"100%",background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",textAlign:"left"},onClick:()=>setShowPW(true),'aria-label':"Change Password"}
+                , React.createElement('div',{style:{width:28,height:28,borderRadius:7,background:"rgba(255,255,255,.07)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,flexShrink:0}},"🔒")
+                , React.createElement('div',{style:{flex:1}},React.createElement('div',{style:{fontSize:14,fontWeight:500}},"Password"),React.createElement('div',{style:{fontSize:11,color:"var(--tx3)",marginTop:1}},"Change your sign-in password"))
+                , React.createElement(Ic.Chv,{style:{width:15,height:15,color:"var(--tx3)"}})
+              )
             )
           )
         )
@@ -4405,106 +4415,121 @@ function AboutSettings({navigate}) {
 /* --- MORE PAGE --------------------------- */
 function MorePage({navigate, cherryCtx, authUser}) {
   const IS_ADMIN = true;
-  const isGuest = !authUser || authUser.isGuest || authUser.uid==="guest";
+  const isGuest = !authUser || authUser.isGuest || authUser.uid === "guest";
 
-  if (isGuest) return (
-    React.createElement('div', {className:"pg"},
-      React.createElement('div', {className:"hdr"},
-        React.createElement('div', {style:{padding:"48px 16px 16px"}},
-          React.createElement('h1', {className:"htit", tabIndex:-1}, "More")
-        )
-      ),
-      React.createElement('div', {style:{padding:"24px 16px",display:"flex",flexDirection:"column",gap:12}},
-        React.createElement('div', {style:{padding:"20px",background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",border:"1px solid rgba(168,85,247,.2)",borderRadius:16,textAlign:"center"}},
-          React.createElement('div', {style:{fontSize:44,marginBottom:12}}, "🌙"),
-          React.createElement('div', {style:{fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,marginBottom:8}}, "You are in Guest Mode"),
-          React.createElement('p', {style:{fontSize:13,color:"var(--tx2)",lineHeight:1.7,marginBottom:20}}, "Create a free Dream Board Mobile ID to post Dreams, follow Dreamors, get notifications and make the app yours."),
-          React.createElement('button', {className:"btn bp",style:{width:"100%",padding:13,fontSize:14,marginBottom:10},onClick:()=>navigate("login"),"aria-label":"Create a Dream Board Mobile ID"}, "Create Account"),
-          React.createElement('button', {className:"btn bgb",style:{width:"100%",padding:11,fontSize:13},onClick:()=>navigate("login"),"aria-label":"Sign in to your account"}, "Login")
-        ),
-        React.createElement('button', {className:"snav",onClick:()=>navigate("settings_accessibility"),"aria-label":"Accessibility settings"},
-          React.createElement('div', {className:"snav-l"},
-            React.createElement('div', {className:"snav-ic",style:{background:"rgba(180,83,9,.15)",fontSize:17}}, "♿"),
-            React.createElement('div', null,
-              React.createElement('div', {className:"snav-title"}, "Accessibility"),
-              React.createElement('div', {className:"snav-sub"}, "Font size, contrast, motion")
-            )
-          ),
-          React.createElement(Ic.Chv, {style:{width:16,height:16,color:"var(--tx3)"}})
-        ),
-        React.createElement('button', {className:"snav",onClick:()=>navigate("terms"),"aria-label":"Terms"},
-          React.createElement('div', {className:"snav-l"},
-            React.createElement('div', {className:"snav-ic",style:{background:"rgba(55,65,81,.15)",fontSize:17}}, "📜"),
-            React.createElement('div', null,
-              React.createElement('div', {className:"snav-title"}, "Terms"),
-              React.createElement('div', {className:"snav-sub"}, "Terms and privacy policy")
-            )
-          ),
-          React.createElement(Ic.Chv, {style:{width:16,height:16,color:"var(--tx3)"}})
-        )
-      )
-    )
-  );
+  // ID-gated: guests get sent to login instead
+  const gated = (fn) => isGuest ? () => navigate("login") : fn;
 
   return (
-    React.createElement('div', { className: "pg",}
-      , React.createElement('div', { className: "hdr",}
-        , React.createElement('div', { style: {padding:"48px 16px 12px"},}, React.createElement('h1', { className: "htit", tabIndex:-1,}, "More"))
-      )
-      , React.createElement('div', { style: {padding:"12px 16px 0"},}
-        , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:12,padding:"14px 0",borderBottom:"1px solid var(--bd)",cursor:"pointer"}, role: "button", tabIndex: 0, onClick: ()=>navigate("profile"), 'aria-label': "View your profile"  ,}
-          , React.createElement('div', { style: {position:"relative"},}
-            , React.createElement(Av, { user: ME, size: 48,})
-            , IS_ADMIN && React.createElement('div', { style: {position:"absolute",bottom:-2,right:-2,background:"linear-gradient(135deg,#f59e0b,#d97706)",borderRadius:"50%",width:16,height:16,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,border:"2px solid var(--bg)"},}, "★")
-          )
-          , React.createElement('div', { style: {flex:1},}
-            , React.createElement('div', { style: {fontWeight:700,fontSize:15,display:"flex",alignItems:"center",gap:6},}, ME.name, IS_ADMIN&&React.createElement('span', { style: {background:"linear-gradient(135deg,#f59e0b,#d97706)",color:"#000",fontSize:9,fontWeight:800,padding:"1px 6px",borderRadius:100},}, "ADMIN"))
-            , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)"},}, ME.handle)
-            , (!authUser || authUser.uid === "guest" || authUser.isGuest) && (
-              React.createElement('div', { style: {fontSize:10,fontWeight:700,color:"var(--ac3)",background:"rgba(109,40,217,.15)",borderRadius:20,padding:"2px 8px",marginTop:3,display:"inline-block"},}, "GUEST MODE"
-
-              )
-            )
-          )
-          , React.createElement(Ic.Chv, { style: {width:16,height:16,color:"var(--tx3)"},})
+    React.createElement('div', {className:"pg"}
+      , React.createElement('div', {className:"hdr"}
+        , React.createElement('div', {style:{padding:"48px 16px 14px"}}
+          , React.createElement('h1', {className:"htit", tabIndex:-1}, "More")
         )
       )
-      , React.createElement('div', { style: {marginTop:8},}
+
+      /* Profile card — same structure in all modes */
+      , React.createElement('button', {
+          style:{display:"flex",alignItems:"center",gap:12,padding:"14px 16px",
+            width:"100%",background:"none",border:"none",
+            borderBottom:"1px solid var(--bd)",cursor:"pointer",
+            fontFamily:"inherit",textAlign:"left"},
+          onClick: isGuest ? ()=>navigate("login") : ()=>navigate("profile"),
+          'aria-label': isGuest ? "Create or login to your Dream Board Mobile ID" : "View your profile"}
+        , React.createElement('div', {style:{position:"relative",flexShrink:0}}
+          , isGuest
+            ? React.createElement('div', {
+                style:{width:48,height:48,borderRadius:"50%",
+                  background:"linear-gradient(135deg,var(--ac),var(--ac2))",
+                  display:"flex",alignItems:"center",justifyContent:"center",fontSize:22},
+                'aria-hidden':"true"}, "🌙")
+            : React.createElement(React.Fragment,null,
+                React.createElement(Av, {user:ME, size:48}),
+                IS_ADMIN && React.createElement('div', {
+                  style:{position:"absolute",bottom:-2,right:-2,
+                    background:"linear-gradient(135deg,#f59e0b,#d97706)",
+                    borderRadius:"50%",width:16,height:16,display:"flex",
+                    alignItems:"center",justifyContent:"center",fontSize:9,
+                    border:"2px solid var(--bg)"}}, "★")
+              )
+        )
+        , React.createElement('div', {style:{flex:1}}
+          , isGuest
+            ? React.createElement(React.Fragment,null,
+                React.createElement('div', {style:{fontWeight:700,fontSize:15,color:"var(--tx)"}}, "Guest"),
+                React.createElement('div', {style:{fontSize:12,color:"var(--ac3)",marginTop:2}},
+                  "Create your Dream ID or Login →")
+              )
+            : React.createElement(React.Fragment,null,
+                React.createElement('div', {style:{fontWeight:700,fontSize:15,display:"flex",alignItems:"center",gap:6}}
+                  , ME.name
+                  , IS_ADMIN && React.createElement('span', {style:{background:"linear-gradient(135deg,#f59e0b,#d97706)",color:"#000",fontSize:9,fontWeight:800,padding:"1px 6px",borderRadius:100}}, "ADMIN")
+                ),
+                React.createElement('div', {style:{fontSize:12,color:"var(--tx3)"}}, ME.handle)
+              )
+        )
+        , React.createElement(Ic.Chv, {style:{width:16,height:16,color:"var(--tx3)"}})
+      )
+
+      /* Menu items — identical list in all modes */
+      , React.createElement('div', {style:{padding:"8px 0 8px"}}
         , [
-          {icon:"🍒",l:"Cherry AI",sub:"Your Dream Board companion",a:()=>navigate("cherry"),color:"#6d28d9"},
-          {icon:"📝",l:"Drafts",sub:"Your saved Dream drafts",a:()=>navigate("drafts"),color:"#374151"},
-          authUser && (authUser.isGuest || authUser.uid==="guest")
-            ? {icon:"🔑",l:"Sign In or Create Account",sub:"Get a Dream Board Mobile ID",a:()=>navigate("login"),color:"#6d28d9"}
-            : {icon:"👤",l:"Account",sub:"Your Dream Board Mobile ID",a:()=>navigate("settings_account"),color:"#6d28d9"},
-          {icon:"⚙️",l:"Settings",sub:"Account, privacy, accessibility",a:()=>navigate("settings"),color:"#374151"},
-          {icon:"ℹ️",l:"About",sub:"Version, terms, community guidelines",a:()=>navigate("about"),color:"#374151"},
-          {icon:"💬",l:"Send Feedback",sub:"Help us improve Dream Board Mobile",a:()=>navigate("feedback"),color:"#0e7490"},
-        ].map(item => (
-          React.createElement('button', { key: item.l, className: "snav", onClick: item.a, 'aria-label': item.l,}
-            , React.createElement('div', { className: "snav-l",}
-              , React.createElement('div', { className: "snav-ic", style: {background:item.color+"22",fontSize:17},}, item.icon)
-              , React.createElement('div', null, React.createElement('div', { className: "snav-title",}, item.l), React.createElement('div', { className: "snav-sub",}, item.sub))
+          {icon:"🍒", l:"Cherry",         sub:"Your Dream Board AI companion",   a:()=>navigate("cherry"),                          color:"#6d28d9", gate:false},
+          {icon:"✏️", l:"New Dream",       sub:"Share what's on your mind",       a:gated(()=>navigate("feed")),                     color:"#6d28d9", gate:isGuest},
+          {icon:"💬", l:"Messages",        sub:"Your private conversations",      a:gated(()=>navigate("alerts")),                   color:"#0e7490", gate:isGuest},
+          {icon:"🔔", l:"Notifications",   sub:"Likes, follows, mentions",        a:gated(()=>navigate("alerts")),                   color:"#be185d", gate:isGuest},
+          {icon:"📝", l:"Drafts",          sub:"Saved Dream drafts",              a:gated(()=>navigate("drafts")),                   color:"#374151", gate:isGuest},
+          {icon:"⚡", l:"Code Verter",     sub:"Convert between 25 languages",    a:()=>navigate("codeverter"),                      color:"#0e7490", gate:false},
+          {icon:"🌐", l:"Dream Cloner",    sub:"Turn any URL into a Dream",       a:()=>navigate("dreamcloner"),                     color:"#374151", gate:false},
+          {icon:"👤", l:"Account",         sub:"Your Dream Board Mobile ID",      a:isGuest?()=>navigate("login"):()=>navigate("settings_account"), color:"#6d28d9", gate:false},
+          {icon:"⚙️", l:"Settings",        sub:"Privacy, themes, accessibility",  a:()=>navigate("settings"),                        color:"#374151", gate:false},
+          {icon:"ℹ️", l:"About",           sub:"Story, terms, license",           a:()=>navigate("about"),                           color:"#374151", gate:false},
+          {icon:"💬", l:"Send Feedback",   sub:"Help us improve Dream Board",     a:()=>navigate("feedback"),                        color:"#0e7490", gate:false},
+        ].map(item =>
+          React.createElement('button', {
+              key:item.l, className:"snav", onClick:item.a,
+              'aria-label':item.l+(item.gate?" — requires Dream ID":"")}
+            , React.createElement('div', {className:"snav-l"}
+              , React.createElement('div', {className:"snav-ic",style:{background:item.color+"22",fontSize:17}}, item.icon)
+              , React.createElement('div', null
+                , React.createElement('div', {className:"snav-title",style:{display:"flex",alignItems:"center",gap:7}}
+                  , item.l
+                  , item.gate && React.createElement('span', {
+                      style:{fontSize:9,fontWeight:700,color:"var(--ac3)",
+                        background:"rgba(109,40,217,.12)",borderRadius:100,padding:"1px 6px"},
+                      'aria-label':"Requires Dream ID"},
+                    "Dream ID"
+                    )
+                )
+                , React.createElement('div', {className:"snav-sub"}, item.sub)
+              )
             )
-            , React.createElement(Ic.Chv, { style: {width:16,height:16,color:"var(--tx3)"},})
+            , React.createElement(Ic.Chv, {style:{width:16,height:16,color:"var(--tx3)"}})
           )
-        ))
-        , IS_ADMIN && React.createElement(React.Fragment, null
-          , React.createElement('div', { style: {margin:"12px 16px 0",padding:"10px 14px",background:"rgba(245,158,11,.08)",border:"1px solid rgba(245,158,11,.2)",borderRadius:10},}
-            , React.createElement('div', { style: {fontSize:10,fontWeight:800,color:"#f59e0b",textTransform:"uppercase",letterSpacing:".1em",marginBottom:2},}, "Admin Access" )
-            , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)"},}, "You have platform administrator privileges"    )
+        )
+
+        /* Admin — only when logged in */
+        , IS_ADMIN && !isGuest && React.createElement(React.Fragment,null
+          , React.createElement('div', {style:{margin:"8px 16px 0",padding:"10px 14px",background:"rgba(245,158,11,.08)",border:"1px solid rgba(245,158,11,.2)",borderRadius:10}}
+            , React.createElement('div', {style:{fontSize:10,fontWeight:800,color:"#f59e0b",textTransform:"uppercase",letterSpacing:".1em",marginBottom:2}}, "Admin Access")
+            , React.createElement('div', {style:{fontSize:12,color:"var(--tx3)"}}, "You have platform administrator privileges")
           )
-          , React.createElement('button', { className: "snav", onClick: ()=>navigate("admin"), 'aria-label': "Admin Panel" , style: {borderTop:"1px solid rgba(245,158,11,.2)"},}
-            , React.createElement('div', { className: "snav-l",}
-              , React.createElement('div', { className: "snav-ic", style: {background:"rgba(245,158,11,.15)",fontSize:17},}, "🛡️")
-              , React.createElement('div', null, React.createElement('div', { className: "snav-title", style: {color:"#f59e0b"},}, "Admin Panel" ), React.createElement('div', { className: "snav-sub",}, "Platform management & controls"   ))
+          , React.createElement('button', {className:"snav",onClick:()=>navigate("admin"),'aria-label':"Admin Panel",style:{borderTop:"1px solid rgba(245,158,11,.2)"}}
+            , React.createElement('div', {className:"snav-l"}
+              , React.createElement('div', {className:"snav-ic",style:{background:"rgba(245,158,11,.15)",fontSize:17}}, "🛡️")
+              , React.createElement('div', null
+                , React.createElement('div', {className:"snav-title",style:{color:"#f59e0b"}}, "Admin Panel")
+                , React.createElement('div', {className:"snav-sub"}, "Platform management & controls")
+              )
             )
-            , React.createElement(Ic.Chv, { style: {width:16,height:16,color:"#f59e0b"},})
+            , React.createElement(Ic.Chv, {style:{width:16,height:16,color:"#f59e0b"}})
           )
         )
       )
     )
   );
 }
+
 
 function FeedbackPage({navigate}) {
   const [category, setCategory] = useState("general");
@@ -5233,6 +5258,110 @@ function LicensePage({navigate}) {
   );
 }
 
+/* --- CODE VERTER --------------------------------------------------------- */
+const CV_LANGS = [
+  "Python","JavaScript","TypeScript","Java","C++","C#","C","Go",
+  "Rust","Swift","Kotlin","PHP","Ruby","Scala","R","MATLAB",
+  "Perl","Haskell","Lua","Dart","Elixir","F#","Clojure","Objective-C","Visual Basic"
+];
+
+function CodeVerterPage({navigate}) {
+  const [srcLang, setSrcLang] = useState("Python");
+  const [tgtLang, setTgtLang] = useState("JavaScript");
+  const [srcCode, setSrcCode] = useState("# Example\ndef fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)\n\nprint(fibonacci(10))");
+  const [result,  setResult]  = useState("");
+  const [busy,    setBusy]    = useState(false);
+  const [err,     setErr]     = useState("");
+  const [copied,  setCopied]  = useState(false);
+  const [srcOpen, setSrcOpen] = useState(false);
+  const [tgtOpen, setTgtOpen] = useState(false);
+
+  const convert = async () => {
+    if (!srcCode.trim()) { setErr("Please enter some code."); return; }
+    if (srcLang === tgtLang) { setErr("Source and target must be different languages."); return; }
+    setBusy(true); setErr(""); setResult("");
+    try {
+      const key = (() => { try { return localStorage.getItem("dbm_claude_key")||""; } catch(e){return "";} })();
+      const hdrs = {"Content-Type":"application/json","anthropic-dangerous-direct-browser-access":"true"};
+      if (key) hdrs["x-api-key"] = key;
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method:"POST", headers:hdrs,
+        body: JSON.stringify({
+          model:"claude-sonnet-4-20250514",
+          max_tokens:2048,
+          messages:[{role:"user",content:"Convert this "+srcLang+" code to "+tgtLang+". Return only the converted code, no explanation, no markdown fences:\n\n"+srcCode}]
+        })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message||"API error");
+      const raw = (data.content||[]).map(b=>b.type==="text"?b.text:"").join("").trim();
+      const clean = raw.indexOf("```")===0 ? raw.split("\n").slice(1).join("\n").split("```")[0].trim() : raw;
+      setResult(clean);
+    } catch(e) {
+      setErr("Conversion failed — "+(e.message||"check your API key in Cherry Settings."));
+    }
+    setBusy(false);
+  };
+
+  const LangBtn = ({val, setVal, open, setOpen, label}) => (
+    React.createElement('div', {style:{flex:1,position:"relative"}}
+      , React.createElement('button', {
+          onClick:()=>setOpen(o=>!o),
+          'aria-expanded':open,'aria-haspopup':"listbox",'aria-label':label+": "+val,
+          style:{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between",
+            padding:"10px 12px",background:"var(--sf2)",border:"1px solid var(--bd2)",
+            borderRadius:10,cursor:"pointer",fontFamily:"inherit",fontSize:13,fontWeight:600,color:"var(--tx)"}}
+        , val
+        , React.createElement('svg',{width:13,height:13,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:2,'aria-hidden':"true",style:{transition:"transform .18s",transform:open?"rotate(180deg)":"none"}},
+          React.createElement('polyline',{points:"6 9 12 15 18 9"}))
+      )
+      , open && React.createElement(React.Fragment,null
+          , React.createElement('div',{onClick:()=>setOpen(false),style:{position:"fixed",inset:0,zIndex:199},'aria-hidden':"true"})
+          , React.createElement('div',{role:"listbox",'aria-label':label,style:{position:"absolute",top:"calc(100% + 4px)",left:0,right:0,zIndex:200,background:"var(--sf)",border:"1px solid var(--bd2)",borderRadius:12,maxHeight:220,overflowY:"auto",scrollbarWidth:"none",boxShadow:"0 8px 32px rgba(0,0,0,.4)"}}
+            , CV_LANGS.map(lang=>React.createElement('button',{key:lang,role:"option",'aria-selected':lang===val,
+                onClick:()=>{setVal(lang);setOpen(false);},
+                style:{display:"block",width:"100%",padding:"10px 14px",textAlign:"left",background:lang===val?"rgba(109,40,217,.12)":"none",border:"none",color:lang===val?"var(--ac3)":"var(--tx)",fontSize:13,cursor:"pointer",fontFamily:"inherit",fontWeight:lang===val?700:400},
+                'aria-label':lang+(lang===val?" selected":"")},
+              lang, lang===val&&React.createElement('span',{style:{marginLeft:6,color:"var(--ac3)"}}," ✓")
+            ))
+          )
+        )
+    )
+  );
+
+  return (
+    React.createElement('div', {className:"pg"}
+      , React.createElement(BackHeader, {title:"Code Verter",onBack:()=>navigate("more")})
+      , React.createElement('div', {style:{padding:"10px 16px",background:"rgba(14,116,144,.06)",borderBottom:"1px solid var(--bd)",display:"flex",gap:9,alignItems:"center"}}
+        , React.createElement('span',{'aria-hidden':"true",style:{fontSize:18,flexShrink:0}}, "⚡")
+        , React.createElement('div',{style:{fontSize:12,color:"var(--tx2)",lineHeight:1.55}},
+          "Convert code between 25 languages using Cherry. Requires an Anthropic API key — set it in More → Cherry → Cherry Settings."
+        )
+      )
+      , React.createElement('div', {style:{padding:"14px 16px 40px"}}
+        , React.createElement('div',{style:{display:"flex",alignItems:"center",gap:10,marginBottom:14}}
+          , React.createElement(LangBtn,{val:srcLang,setVal:setSrcLang,open:srcOpen,setOpen:setSrcOpen,label:"Source language"})
+          , React.createElement('svg',{width:18,height:18,viewBox:"0 0 24 24",fill:"none",stroke:"var(--tx3)",strokeWidth:2,'aria-label':"converts to"},React.createElement('line',{x1:"5",y1:"12",x2:"19",y2:"12"}),React.createElement('polyline',{points:"12 5 19 12 12 19"}))
+          , React.createElement(LangBtn,{val:tgtLang,setVal:setTgtLang,open:tgtOpen,setOpen:setTgtOpen,label:"Target language"})
+        )
+        , React.createElement('label',{htmlFor:"cv-src",style:{fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".06em",display:"block",marginBottom:6}}, "Source — "+srcLang)
+        , React.createElement('textarea',{id:"cv-src",className:"inp",style:{minHeight:150,fontFamily:"monospace",fontSize:12,lineHeight:1.6,resize:"vertical",marginBottom:10},value:srcCode,onChange:e=>setSrcCode(e.target.value),'aria-label':"Source code in "+srcLang,placeholder:"Paste your "+srcLang+" code here…"})
+        , React.createElement('button',{className:"btn bp",style:{width:"100%",padding:13,fontSize:14,marginBottom:10},onClick:convert,disabled:busy||!srcCode.trim(),'aria-label':busy?"Converting…":"Convert "+srcLang+" to "+tgtLang}
+          , busy?React.createElement(React.Fragment,null,React.createElement('div',{className:"auth-spinner",style:{width:16,height:16,marginRight:7}}),"Converting…"):"Convert "+srcLang+" → "+tgtLang
+        )
+        , err&&React.createElement('div',{role:"alert",style:{padding:"10px 13px",background:"rgba(248,113,113,.1)",border:"1px solid rgba(248,113,113,.3)",borderRadius:9,fontSize:12,color:"var(--rd)",marginBottom:10,lineHeight:1.55}},err)
+        , result&&React.createElement('div',null
+          , React.createElement('div',{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}
+            , React.createElement('label',{style:{fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".06em"}}, "Result — "+tgtLang)
+            , React.createElement('button',{onClick:()=>{try{navigator.clipboard.writeText(result);}catch(e){}setCopied(true);setTimeout(()=>setCopied(false),2000);},style:{background:"none",border:"1px solid var(--bd2)",borderRadius:6,padding:"3px 9px",fontSize:11,cursor:"pointer",color:copied?"var(--gr)":"var(--tx3)",fontFamily:"inherit"},'aria-label':copied?"Copied":"Copy result"},copied?"✓ Copied":"📋 Copy")
+          )
+          , React.createElement('textarea',{className:"inp",readOnly:true,style:{minHeight:150,fontFamily:"monospace",fontSize:12,lineHeight:1.6,color:"var(--gr)",resize:"vertical"},value:result,'aria-label':"Converted "+tgtLang+" code",'aria-live':"polite"})
+        )
+      )
+    )
+  );
+}
+
 /* --- APP --------------------------------- */
 const NAV = [
   {id:"feed",    l:"Feed",     icon:"Home",  badge:0},
@@ -5805,6 +5934,14 @@ function pwStrength(pw) {
 }
 
 /* --- GOOGLE LOGO SVG ----------------------------------------------------- */
+function XLogo() {
+  return (
+    React.createElement('svg', {width:"18",height:"18",viewBox:"0 0 24 24",fill:"currentColor",'aria-hidden':"true"},
+      React.createElement('path', {d:"M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"})
+    )
+  );
+}
+
 function GoogleLogo() {
   return (
     React.createElement('svg', { width: "18", height: "18", viewBox: "0 0 48 48"   , 'aria-hidden': "true",}
@@ -5902,126 +6039,40 @@ function StepDots({ mode }) {
 
 /* --- SPLASH SCREEN ------------------------------------------------------- */
 function SplashScreen({ onLogin, onSignup, onDemo }) {
-  const [showDialog, setShowDialog] = useState(null); // null | "create" | "login" | "guest"
-  const close = () => setShowDialog(null);
-
   return (
     React.createElement('div', {className:"splash", role:"main", 'aria-label':"Welcome to Dream Board Mobile"}
-      , React.createElement('div', {style:{textAlign:"center", padding:"48px 24px 28px"}}
-        , React.createElement('div', {className:"splash-moon", 'aria-hidden':"true"}, "🌙")
+      , React.createElement('div', {style:{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"48px 28px 32px",textAlign:"center"}}
+        , React.createElement('div', {className:"splash-moon",'aria-hidden':"true"}, "🌙")
         , React.createElement('h1', {className:"splash-title"}, "Dream Board Mobile")
         , React.createElement('p', {className:"splash-sub"},
           "Somewhere between your midnight thoughts and your wildest ideas lives a place that was always meant for you.",
-          React.createElement('br', null),
+          React.createElement('br',null),
           React.createElement('span', {style:{fontSize:12,opacity:.6,display:"block",marginTop:6}},
-            "Better than doomscrolling at 2am. Probably.")
-        )
-      )
-
-      , React.createElement('div', {
-          role:"tablist", 'aria-label':"Get started",
-          style:{display:"flex",margin:"0 16px 20px",borderRadius:14,overflow:"hidden",border:"1px solid var(--bd2)"}
-        }
-        , [{id:"create",label:"Create Dream ID"},{id:"login",label:"Login"},{id:"guest",label:"Guest"}].map((tab,i) =>
-          React.createElement('button', {
-            key:tab.id, role:"tab",
-            'aria-selected':showDialog===tab.id,
-            onClick:()=>setShowDialog(tab.id),
-            style:{flex:1,padding:"13px 4px",fontFamily:"inherit",fontSize:12,fontWeight:600,
-              background:showDialog===tab.id?"var(--ac)":"var(--sf2)",
-              color:showDialog===tab.id?"#fff":"var(--tx2)",
-              border:"none",borderRight:i<2?"1px solid var(--bd2)":"none",cursor:"pointer",
-              transition:"all .18s"},
-            'aria-label':tab.label},
-            tab.label
+            "Better than doomscrolling at 2am. Probably."
           )
         )
       )
-
-      , React.createElement('p', {style:{textAlign:"center",fontSize:12,color:"var(--tx3)",padding:"0 24px"}},
-        "Select an option above to get started"
-      )
-
-      , showDialog==="create" && React.createElement('div', {className:"ov",onClick:e=>e.target===e.currentTarget&&close(),
-          role:"dialog",'aria-modal':"true",'aria-label':"Create your Dream ID"}
-        , React.createElement('div', {className:"msh"}
-          , React.createElement('div', {className:"mhd"})
-          , React.createElement('div', {className:"min"}
-            , React.createElement('div', {style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}
-              , React.createElement('div', {className:"mtt"}, "Create your Dream ID")
-              , React.createElement('button', {className:"bi",onClick:close,'aria-label':"Cancel"},
-                React.createElement('svg',{width:18,height:18,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:2},
-                  React.createElement('line',{x1:"18",y1:"6",x2:"6",y2:"18"}),
-                  React.createElement('line',{x1:"6",y1:"6",x2:"18",y2:"18"})
-                )
-              )
-            )
-            , React.createElement('p', {className:"msb"}, "Free forever. No ads. No tricks. No subscriptions.")
-            , React.createElement('button', {className:"btn bp",style:{width:"100%",padding:13,fontSize:14,marginBottom:10},
-                onClick:()=>{close();onSignup();},'aria-label':"Start creating your Dream ID"},
-              "Get Started →"
-            )
-            , React.createElement('button', {className:"btn bgb",style:{width:"100%",padding:11,fontSize:13},
-                onClick:close,'aria-label':"Cancel"}, "Cancel")
-          )
+      , React.createElement('div', {style:{padding:"0 20px",paddingBottom:"calc(env(safe-area-inset-bottom,0px) + 32px)",display:"flex",flexDirection:"column",gap:10,width:"100%"}}
+        , React.createElement('button', {
+            className:"btn bp",
+            style:{width:"100%",padding:14,fontSize:15,fontWeight:700},
+            onClick:onSignup,
+            'aria-label':"Create a new Dream Board Mobile ID"},
+          "Create your Dream ID"
         )
-      )
-
-      , showDialog==="login" && React.createElement('div', {className:"ov",onClick:e=>e.target===e.currentTarget&&close(),
-          role:"dialog",'aria-modal':"true",'aria-label':"Login to your Dream ID"}
-        , React.createElement('div', {className:"msh"}
-          , React.createElement('div', {className:"mhd"})
-          , React.createElement('div', {className:"min"}
-            , React.createElement('div', {style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}
-              , React.createElement('div', {className:"mtt"}, "Login to your Dream ID")
-              , React.createElement('button', {className:"bi",onClick:close,'aria-label':"Cancel"},
-                React.createElement('svg',{width:18,height:18,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:2},
-                  React.createElement('line',{x1:"18",y1:"6",x2:"6",y2:"18"}),
-                  React.createElement('line',{x1:"6",y1:"6",x2:"18",y2:"18"})
-                )
-              )
-            )
-            , React.createElement('p', {className:"msb"}, "Welcome back.")
-            , React.createElement('button', {className:"auth-google-btn",style:{marginBottom:10},
-                onClick:()=>{close();onLogin();},'aria-label':"Login with Google"},
-              React.createElement(GoogleLogo,null), React.createElement('span',null,"Login with Google")
-            )
-            , React.createElement('div', {className:"auth-divider"}, "or")
-            , React.createElement('button', {className:"btn bp",style:{width:"100%",padding:12,fontSize:14,marginBottom:10},
-                onClick:()=>{close();onLogin();},'aria-label':"Sign in with email"},
-              "Login with Email"
-            )
-            , React.createElement('button', {className:"btn bgb",style:{width:"100%",padding:11,fontSize:13},
-                onClick:close,'aria-label':"Cancel"}, "Cancel")
-          )
+        , React.createElement('button', {
+            className:"btn bgb",
+            style:{width:"100%",padding:13,fontSize:14},
+            onClick:onLogin,
+            'aria-label':"Login to your existing Dream Board Mobile ID"},
+          "Login to your Dream ID"
         )
-      )
-
-      , showDialog==="guest" && React.createElement('div', {className:"ov",onClick:e=>e.target===e.currentTarget&&close(),
-          role:"dialog",'aria-modal':"true",'aria-label':"Continue as guest"}
-        , React.createElement('div', {className:"msh"}
-          , React.createElement('div', {className:"mhd"})
-          , React.createElement('div', {className:"min"}
-            , React.createElement('div', {style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}
-              , React.createElement('div', {className:"mtt"}, "Browse as Guest")
-              , React.createElement('button', {className:"bi",onClick:close,'aria-label':"Cancel"},
-                React.createElement('svg',{width:18,height:18,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:2},
-                  React.createElement('line',{x1:"18",y1:"6",x2:"6",y2:"18"}),
-                  React.createElement('line',{x1:"6",y1:"6",x2:"18",y2:"18"})
-                )
-              )
-            )
-            , React.createElement('p', {className:"msb"}, "Read the feed. No account needed.")
-            , React.createElement('div', {style:{background:"rgba(109,40,217,.08)",border:"1px solid rgba(168,85,247,.2)",borderRadius:12,padding:"12px 14px",marginBottom:14,fontSize:13,color:"var(--tx2)",lineHeight:1.6}},
-              "As a guest you can read Dreams but cannot post, follow, reply, or use Cherry. Create a free Dream ID to unlock everything — it takes 30 seconds."
-            )
-            , React.createElement('button', {className:"btn bp",style:{width:"100%",padding:12,fontSize:14,marginBottom:10},
-                onClick:()=>{close();onDemo();},'aria-label':"Continue as guest"},
-              "Continue as Guest"
-            )
-            , React.createElement('button', {className:"btn bgb",style:{width:"100%",padding:11,fontSize:13},
-                onClick:close,'aria-label':"Cancel"}, "Cancel")
-          )
+        , React.createElement('button', {
+            style:{background:"none",border:"none",padding:"10px",fontSize:13,
+              color:"var(--tx3)",cursor:"pointer",fontFamily:"inherit"},
+            onClick:onDemo,
+            'aria-label':"Continue without an account — explore as a guest"},
+          "Continue as Guest"
         )
       )
     )
@@ -6029,7 +6080,6 @@ function SplashScreen({ onLogin, onSignup, onDemo }) {
 }
 
 
-/* --- LOGIN SCREEN --------------------------------------------------------- */
 function LoginScreen({ onAuth, onBack, initialMode="login" }) {
   const [mode, setMode] = useState(initialMode === "signup" ? "signup_creds" : "login");
 
@@ -6143,6 +6193,22 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
     }
   };
 
+  const handleTwitter = async () => {
+    setBusy(true); setErr("");
+    try {
+      const sb = getSupabase();
+      if (!sb) throw new Error("Auth not ready");
+      const { error } = await sb.auth.signInWithOAuth({
+        provider: "twitter",
+        options: { redirectTo: window.location.origin + "/feed" }
+      });
+      if (error) throw error;
+    } catch(e) {
+      setErr(e.message || "Twitter sign-in failed. Please try again.");
+    }
+    setBusy(false);
+  };
+
   const handleReset = async () => {
     if (!email.trim()) { setErr("Enter your email address above first."); return; }
     setBusy(true); setErr(""); setMsg("");
@@ -6220,8 +6286,13 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
         , React.createElement('div', { className: "auth-sub",}, "WELCOME BACK"  )
         , err  && React.createElement('div', { className: "auth-error",}, React.createElement('span', null, "Warning:"), React.createElement('span', null, err))
         , msg  && React.createElement('div', { style: {background:"rgba(34,197,94,.12)",border:"1px solid rgba(34,197,94,.3)",borderRadius:10,padding:"10px 14px",fontSize:13,color:"#22c55e",marginBottom:14},}, msg)
-        , React.createElement('button', { className: "auth-google-btn", onClick: handleGoogle, disabled: busy, 'aria-label': "Login with Google"   ,}
-          , busy ? React.createElement('div', { className: "auth-spinner",}) : React.createElement(React.Fragment, null, React.createElement(GoogleLogo, null), React.createElement('span', null, "Login with Google"  ))
+        , React.createElement('div', {style:{display:"flex",gap:8,marginBottom:12}}
+          , React.createElement('button', {className:"auth-google-btn",style:{flex:1,marginBottom:0},onClick:handleGoogle,disabled:busy,'aria-label':"Login with Google"},
+            busy?React.createElement('div',{className:"auth-spinner"}):React.createElement(React.Fragment,null,React.createElement(GoogleLogo,null),React.createElement('span',null,"Google"))
+          )
+          , React.createElement('button', {className:"auth-google-btn",style:{flex:1,marginBottom:0,background:"#000",border:"1px solid rgba(255,255,255,.18)"},onClick:handleTwitter,disabled:busy,'aria-label':"Login with Twitter"},
+            busy?React.createElement('div',{className:"auth-spinner"}):React.createElement(React.Fragment,null,React.createElement(XLogo,null),React.createElement('span',null,"Twitter"))
+          )
         )
         , React.createElement('div', { className: "auth-divider",}, "or")
         , React.createElement('input', { className: "inp", type: "email", placeholder: "Email address" ,
@@ -6291,8 +6362,13 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
         , React.createElement('div', { className: "auth-title",}, "Create your Dream ID"  )
         , React.createElement('div', { className: "auth-sub",}, "Your name can be real or a dream name."        )
         , err && React.createElement('div', { className: "auth-error",}, React.createElement('span', null, "Warning:"), React.createElement('span', null, err))
-        , React.createElement('button', { className: "auth-google-btn", onClick: handleGoogle, disabled: busy, 'aria-label': "Use Google"   ,}
-          , busy ? React.createElement('div', { className: "auth-spinner",}) : React.createElement(React.Fragment, null, React.createElement(GoogleLogo, null), React.createElement('span', null, "Use Google"   ))
+        , React.createElement('div', {style:{display:"flex",gap:8,marginBottom:12}}
+          , React.createElement('button', {className:"auth-google-btn",style:{flex:1,marginBottom:0},onClick:handleGoogle,disabled:busy,'aria-label':"Sign up with Google"},
+            busy?React.createElement('div',{className:"auth-spinner"}):React.createElement(React.Fragment,null,React.createElement(GoogleLogo,null),React.createElement('span',null,"Google"))
+          )
+          , React.createElement('button', {className:"auth-google-btn",style:{flex:1,marginBottom:0,background:"#000",border:"1px solid rgba(255,255,255,.18)"},onClick:handleTwitter,disabled:busy,'aria-label':"Sign up with Twitter"},
+            busy?React.createElement('div',{className:"auth-spinner"}):React.createElement(React.Fragment,null,React.createElement(XLogo,null),React.createElement('span',null,"Twitter"))
+          )
         )
         , React.createElement('div', { className: "auth-divider",}, "or")
         , React.createElement('input', { className: "inp", type: "text", placeholder: "Display name (real or dream name)"     ,
