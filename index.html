@@ -378,6 +378,63 @@ h2.slbl,div.slbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:
  function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 const {useState, useEffect, useRef, useCallback} = React;
 
+/* --- SECURE BUG REPORTER ------------------------------------------------- */
+// Sends error reports to Supabase bug_reports table via the anon key.
+// No secrets exposed — anon key is safe client-side with RLS.
+// Rate-limited in the browser to prevent spam (max 3 per session).
+let _bugReportsSent = 0;
+
+async function sendBugReport({error_msg, stack_trace, page, session_type, extra}) {
+  if (_bugReportsSent >= 3) return; // client-side rate limit
+  _bugReportsSent++;
+  try {
+    const sb = getSupabase();
+    if (!sb) return;
+    await sb.from("bug_reports").insert({
+      error_msg:    (error_msg||"").slice(0, 500),
+      stack_trace:  (stack_trace||"").slice(0, 2000),
+      page:         (page||window.location.pathname).slice(0, 100),
+      app_version:  "2026.04",
+      session_type: session_type || "guest",
+      extra:        extra || null,
+    });
+  } catch(e) {
+    // Silent — never let the reporter crash the reporter
+  }
+}
+
+// Capture unhandled errors automatically
+window.addEventListener("error", function(ev) {
+  sendBugReport({
+    error_msg:   ev.message,
+    stack_trace: ev.error ? ev.error.stack : "",
+    page:        window.location.pathname,
+    session_type:"unknown",
+  });
+});
+
+window.addEventListener("unhandledrejection", function(ev) {
+  const reason = ev.reason;
+  sendBugReport({
+    error_msg:   reason instanceof Error ? reason.message : String(reason),
+    stack_trace: reason instanceof Error ? reason.stack : "",
+    page:        window.location.pathname,
+    session_type:"unknown",
+  });
+});
+
+/* ── Guest session — in-memory only, nothing persisted ── */
+const GUEST_SESSION = {
+  views: 0,
+  VIEW_LIMIT: 20,
+  searches: 0,
+  SEARCH_LIMIT: 3,
+};
+function guestView() { GUEST_SESSION.views++; return GUEST_SESSION.views; }
+function guestSearch() { GUEST_SESSION.searches++; return GUEST_SESSION.searches; }
+function guestOverLimit() { return GUEST_SESSION.views >= GUEST_SESSION.VIEW_LIMIT; }
+function guestSearchOverLimit() { return GUEST_SESSION.searches >= GUEST_SESSION.SEARCH_LIMIT; }
+
 /* --- DATA -------------------------------- */
 const ORIGINALS = {id:99,name:"The Originals",handle:"@originals",bio:"These Dreams were here before you were. When Dream Board Mobile was just getting started, these Dreams kept the feed alive. Now you are here creating it. Thank you.",initials:"OR",color:"#7c3aed",verified:true,location:"The Beginning",website:"dream-board-mobile.pages.dev",joined:"February 2024",dreamCount:6,followers:0,following:0,isOriginals:true};
 const USERS = [
@@ -3323,10 +3380,10 @@ function CherryResponseActions({msg, idx}) {
 
 function SettingsPage({prefs, setPrefs, navigate, onSignOut, authUser, theme, setTheme, drafts}) {
   const sections = [
-    {id:"account",        icon:"👤", title:"Account",         sub:"Profile, 2FA, password",              color:"#6d28d9"},
+    {id:"account",        icon:"👤", title:"Account",         sub:"Profile, security, connected accounts", color:"#6d28d9"},
     {id:"notifications",  icon:"🔔", title:"Alerts",           sub:"Push, email, sounds, news",           color:"#0e7490"},
     {id:"privacy",        icon:"🔒", title:"Privacy",          sub:"Visibility, blocked users",           color:"#be185d"},
-    {id:"customizability",icon:"🎨", title:"Customizability",  sub:"Character limit, Cherry AI, themes",  color:"#15803d"},
+    {id:"customizability",icon:"🎨", title:"Themes & Display", sub:"Themes, character limit, Cherry",       color:"#15803d"},
     {id:"accessibility",  icon:"♿", title:"Accessibility",    sub:"Font size, contrast, motion",         color:"#b45309"},
     {id:"social",         icon:"\ud835\udd4f", title:"Find Us",sub:"Follow Dream Board Mobile",          color:"#1d4ed8"},
     {id:"about",          icon:"ℹ️", title:"About",            sub:"Terms, privacy, guidelines",         color:"#374151"},
@@ -4543,13 +4600,15 @@ function FeedbackPage({navigate}) {
     {id:"account",l:"Account Problem"},
   ];
   if (sent) return (
-    React.createElement('div', { className: "pg",}
-      , React.createElement(BackHeader, { title: "Send Feedback" , onBack: ()=>navigate("more"),})
-      , React.createElement('div', { style: {display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"60px 24px",textAlign:"center"},}
-        , React.createElement('div', { style: {fontSize:56,marginBottom:16},}, "💌")
-        , React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:22,marginBottom:8},}, "Thank you!" )
-        , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.7,marginBottom:24},}, "Your feedback has been received. We read every submission and use it to make Dream Board Mobile better for everyone."                   )
-        , React.createElement('button', { className: "btn bp" , style: {padding:"10px 24px"}, onClick: ()=>navigate("more"),}, "Back to More"  )
+    React.createElement('div', { className: "pg"}
+      , React.createElement(BackHeader, { title: "Send Feedback", onBack: ()=>navigate("more")})
+      , React.createElement('div', { style: {display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"60px 24px",textAlign:"center"}}
+        , React.createElement('div', { style: {fontSize:56,marginBottom:16}}, "💌")
+        , React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:22,marginBottom:8}}, "Thank you")
+        , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.7,marginBottom:24}},
+          "Your feedback has been received and sent securely. We read every submission"
+        )
+        , React.createElement('button', { className: "btn bp", style: {padding:"10px 24px"}, onClick: ()=>navigate("more")}, "Back to More")
       )
     )
   );
@@ -4571,7 +4630,14 @@ function FeedbackPage({navigate}) {
           , React.createElement('textarea', { className: "inp", style: {minHeight:140,lineHeight:1.6,fontSize:14}, placeholder: "Tell us what's on your mind…", value: txt, onChange: e=>setTxt(e.target.value), 'aria-label': "Feedback content" ,})
           , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:4,textAlign:"right"},}, txt.length, " characters" )
         )
-        , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:13,fontSize:14}, onClick: ()=>setSent(true), disabled: txt.trim().length<5, 'aria-label': "Submit feedback" ,}, "Submit Feedback" )
+        , React.createElement('button', { className: "btn bp", style: {width:"100%",padding:13,fontSize:14},
+            onClick: ()=>{
+              if (category === "bug") {
+                sendBugReport({error_msg: txt, page: "manual-report", session_type: "authenticated", extra: {category}});
+              }
+              setSent(true);
+            },
+            disabled: txt.trim().length<5, 'aria-label': "Submit feedback"}, "Submit Feedback")
       )
     )
   );
@@ -5119,97 +5185,113 @@ function DreamClonerPage({navigate}) {
 /* --- HOUR STORY PAGE ----------------------------------------------------- */
 function HourStoryPage({ navigate, back }) {
   return (
-    React.createElement('div', { className: "pg",}
-      , React.createElement(BackHeader, { title: "Our Story", onBack: ()=>navigate(back||"more"),})
-      , React.createElement('div', { style: {padding:"24px 20px 48px"},}
+    React.createElement('div', { className: "pg"}
+      , React.createElement(BackHeader, { title: "Our Story", onBack: ()=>navigate(back||"more")})
+      , React.createElement('div', { style: {padding:"24px 20px 48px"}}
 
-        // Hero
-        , React.createElement('div', { style: {textAlign:"center",marginBottom:32,padding:"0 8px"},}
-          , React.createElement('div', { style: {fontSize:56,marginBottom:12,'aria-hidden':"true"},}, "🌙")
+        , React.createElement('div', { style: {textAlign:"center",marginBottom:32,padding:"0 8px"}}
+          , React.createElement('div', { style: {fontSize:56,marginBottom:12},'aria-hidden':"true"}, "🌙")
           , React.createElement('h1', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:26,lineHeight:1.3,
               background:"linear-gradient(135deg,var(--ac4),var(--ac3))",
               WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text",
-              marginBottom:12},}, "Dream Board Mobile")
-          , React.createElement('p', { style: {fontSize:15,color:"var(--tx2)",lineHeight:1.75},},
-            "A social platform built by one person, with one goal: to give you a space that actually belongs to you."
+              marginBottom:12}}, "Dream Board Mobile")
+          , React.createElement('p', { style: {fontSize:15,color:"var(--tx2)",lineHeight:1.75}},
+            "A social platform built by one blind developer, with one goal: a space that actually belongs to you"
           )
         )
 
-        // Story sections
-        , React.createElement('div', { style: {display:"flex",flexDirection:"column",gap:28},}
+        , React.createElement('div', { style: {display:"flex",flexDirection:"column",gap:28}}
 
-          , React.createElement('section', { 'aria-label': "How it started",}
-            , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10},}, "How it started")
-            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8},},
-              "Dream Board Mobile started as a late-night idea. Not a business plan. Not a pitch deck. Just a feeling that the internet needed a place that was quieter, kinder, and more yours."
+          , React.createElement('section', {'aria-label':"How it started"}
+            , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10}}, "How it started")
+            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.85}},
+              "Dream Board Mobile started as a late-night idea. Not a business plan, not a pitch deck, not a slide with a TAM on it. Just a feeling that the internet had gotten loud, greedy, and weird — and someone needed to make something better"
             )
-            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8,marginTop:10},},
-              "It was built from scratch — one screen at a time, one feature at a time — by Alhasan, a developer who wanted something that did not exist yet. A place where accessibility was not an afterthought. Where you were not the product. Where there were no ads telling you what to want."
+            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.85,marginTop:10}},
+              "That someone was Alhasan. Who is blind, by the way. Fully. Uses a Braille display and VoiceOver to navigate everything. So when most apps treat accessibility like a legal checkbox you slap on at the end, that hits different. He built this because he was tired of fighting every app just to use it — and tired of watching everyone else get ignored too"
             )
           )
 
-          , React.createElement('div', { style: {height:1,background:"var(--bd)",'aria-hidden':"true"},})
+          , React.createElement('div', { style: {height:1,background:"var(--bd)",'aria-hidden':"true"}})
 
-          , React.createElement('section', { 'aria-label': "What we believe",}
-            , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10},}, "What we believe")
-            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8},},
-              "We believe the best social platforms feel like journals, not stadiums. We believe people deserve tools that work for them — not against them. We believe accessibility is not a feature, it is a right."
+          , React.createElement('section', {'aria-label':"The real origin story"}
+            , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10}}, "The real origin story")
+            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.85}},
+              "This entire app was built in conversation with Claude (yes, the AI — no, not that guy from accounting). No team. No funding. No office with a ping pong table. Just Alhasan, a Braille display, and a relentless ability to describe what he wanted until the code was right"
             )
-            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8,marginTop:10},},
-              "Dream Board Mobile is free. It will stay free. Not free-with-ads free. Actually free. Because we think that is just how it should be."
+            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.85,marginTop:10}},
+              "We think that is kind of remarkable. Not because AI helped — lots of people use AI — but because Alhasan used it to build something he actually needed, from scratch, without being able to read the screen. If that is not the most punk thing you have heard today, keep reading"
             )
           )
 
-          , React.createElement('div', { style: {height:1,background:"var(--bd)",'aria-hidden':"true"},})
+          , React.createElement('div', { style: {height:1,background:"var(--bd)",'aria-hidden':"true"}})
 
-          , React.createElement('section', { 'aria-label': "Built with Claude",}
-            , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10},}, "Built in the open")
-            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8},},
-              "This app was built transparently — with Claude as a development partner, documented in the open, and released as open source. Anyone can read the code, fork it, build on top of it. That is intentional. We want this to belong to everyone."
+          , React.createElement('section', {'aria-label':"What we believe"}
+            , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10}}, "What we believe")
+            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.85}},
+              "We believe accessibility is not a feature. It is the whole point. If your app does not work for someone navigating with a Braille display, your app does not fully work — and that is on you, not them"
             )
-            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8,marginTop:10},},
-              "You can find the source code at github.com/Shinygold29/dream-board-mobile. If you want to contribute, improve it, or just see how it was made, it is all there."
+            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.85,marginTop:10}},
+              "We believe the best social platforms feel like journals, not stadiums. We believe you should own your data, your experience, and your feed. And we believe (free) should not be a trick with fine print — it should just mean free"
             )
           )
 
-          , React.createElement('div', { style: {height:1,background:"var(--bd)",'aria-hidden':"true"},})
+          , React.createElement('div', { style: {height:1,background:"var(--bd)",'aria-hidden':"true"}})
 
-          , React.createElement('section', { 'aria-label': "To you",}
-            , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10},}, "To you")
-            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8},},
-              "If you are reading this, you are part of it. You are not a user number in a database. You are a Dreamor — and this place is yours as much as it is anyone's."
-            )
-            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8,marginTop:10},},
-              "Post something. Follow someone interesting. Come back tomorrow. Bring a friend. That is all we ask."
-            )
-            , React.createElement('p', { style: {fontSize:15,color:"var(--ac3)",fontStyle:"italic",lineHeight:1.8,marginTop:14},},
-              "Thank you for being here. Seriously."
+          , React.createElement('section', {'aria-label':"Built in the open"}
+            , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10}}, "Built in the open")
+            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.85}},
+              "The source code is public. Every line. You can read it, fork it, learn from it, or just stare at it and feel better about your own code. It lives at "
+              , React.createElement('a', {
+                  href:"https://github.com/Shinygold29/dream-board-mobile",
+                  target:"_blank", rel:"noopener noreferrer",
+                  style:{color:"var(--ac3)",fontWeight:600,textDecoration:"none"},
+                  'aria-label':"Dream Board Mobile source code on GitHub"},
+                "github.com/Shinygold29/dream-board-mobile"
+              )
+              , " and it is released under the Dream Board Mobile Public License (DBMPL) — which is our way of saying: use it, improve it, but do not turn it into something extractive"
             )
           )
 
-          // Mission statement
-          , React.createElement('div', { style: {background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",border:"1px solid rgba(168,85,247,.2)",borderRadius:16,padding:"20px 18px",textAlign:"center"},}
-            , React.createElement('div', { style: {fontSize:28,marginBottom:10,'aria-hidden':"true"},}, "🌙")
-            , React.createElement('p', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:17,color:"var(--tx)",lineHeight:1.6,fontStyle:"italic"},},
-              "'A platform that puts the dreamer first. Free, accessible, and always yours.'"
+          , React.createElement('div', { style: {height:1,background:"var(--bd)",'aria-hidden':"true"}})
+
+          , React.createElement('section', {'aria-label':"To you"}
+            , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10}}, "To you")
+            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.85}},
+              "If you made it this far, thank you. Genuinely. You are not a user number. You are a Dreamor, and this place is as much yours as it is ours"
             )
-            , React.createElement('p', { style: {fontSize:11,color:"var(--tx3)",marginTop:8},}, "Dream Board Mobile mission statement")
+            , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.85,marginTop:10}},
+              "Post something. Follow someone interesting. Tell a friend. And if something is broken or missing or could be better — tell us that too. We are actually listening. (One of us is doing it through a Braille display, but still)"
+            )
+            , React.createElement('p', { style: {fontSize:15,color:"var(--ac3)",fontStyle:"italic",lineHeight:1.8,marginTop:14}},
+              "Thank you for being here. Seriously"
+            )
           )
 
-          // Social links
-          , React.createElement('div', { style: {display:"flex",flexDirection:"column",gap:10},}
-            , React.createElement('div', { style: {fontSize:13,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em"},}, "Find us")
+          , React.createElement('div', { style: {background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",border:"1px solid rgba(168,85,247,.2)",borderRadius:16,padding:"20px 18px",textAlign:"center"}}
+            , React.createElement('div', { style: {fontSize:28,marginBottom:10},'aria-hidden':"true"}, "🌙")
+            , React.createElement('p', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:17,color:"var(--tx)",lineHeight:1.6,fontStyle:"italic"}},
+              "Free, accessible, and always yours"
+            )
+            , React.createElement('p', { style: {fontSize:11,color:"var(--tx3)",marginTop:8}}, "Dream Board Mobile — built by Rewind (free technology company)")
+          )
+
+          /* Find us */
+          , React.createElement('div', { style: {display:"flex",flexDirection:"column",gap:10}}
+            , React.createElement('div', { style: {fontSize:13,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em"}}, "Find us")
             , [
-              {icon:"🌙",label:"Dream Board Mobile on DBM",sub:"@DreamBMobile",a:()=>{}},
-              {icon:"𝕏",label:"Dream Board Mobile on X",sub:"@DreamBMobile",a:()=>{}},
-              {icon:"📂",label:"Source code on GitHub",sub:"Shinygold29/dream-board-mobile",a:()=>{}},
+              {icon:"🌙", label:"Dream Board Mobile on DBM",      sub:"@originals",                                  href:null,      internal:"dp", data:{name:"Dream Board Mobile",handle:"@originals",id:99}},
+              {icon:"𝕏",  label:"Dream Board Mobile on Twitter",  sub:"@DreamBMobile",                               href:"https://x.com/DreamBMobile"},
+              {icon:"📂", label:"Source code on GitHub",          sub:"Shinygold29/dream-board-mobile",              href:"https://github.com/Shinygold29/dream-board-mobile"},
             ].map(item =>
-              React.createElement('button', { key: item.label, className: "snav", onClick: item.a, 'aria-label': item.label,}
-                , React.createElement('div', { className: "snav-l",}
-                  , React.createElement('div', { className: "snav-ic", style: {background:"var(--sf2)",fontSize:17},}, item.icon)
+              React.createElement('button', { key: item.label, className: "snav",
+                  onClick: ()=> item.href ? window.open(item.href,"_blank","noopener") : navigate(item.internal, item.data),
+                  'aria-label': item.label}
+                , React.createElement('div', { className: "snav-l"}
+                  , React.createElement('div', { className: "snav-ic", style: {background:"var(--sf2)",fontSize:17}}, item.icon)
                   , React.createElement('div', null,
-                    React.createElement('div', { className: "snav-title",}, item.label),
-                    React.createElement('div', { className: "snav-sub",}, item.sub)
+                    React.createElement('div', { className: "snav-title"}, item.label),
+                    React.createElement('div', { className: "snav-sub"}, item.sub)
                   )
                 )
                 , React.createElement(Ic.Chv, {style:{width:16,height:16,color:"var(--tx3)"}})
@@ -5222,7 +5304,7 @@ function HourStoryPage({ navigate, back }) {
   );
 }
 
-/* --- LICENSE PAGE -------------------------------------------------------- */
+
 function LicensePage({navigate}) {
   const LICENSE_TEXT = [
     {h:"Dream Board Mobile Public License (DBMPL) v1.0"},
@@ -5362,13 +5444,29 @@ function CodeVerterPage({navigate}) {
   );
 }
 
+/* --- DREAMLABS HELPERS --------------------------------------------------- */
+const DL_KEY = "dbm_dreamlabs";
+const DL_NOTIFY_KEY = "dbm_dreamlabs_notify";
+function getDLEnrolled() {
+  try { return localStorage.getItem(DL_KEY) === "true"; } catch(e) { return false; }
+}
+function setDLEnrolled(v) {
+  try { localStorage.setItem(DL_KEY, v ? "true" : "false"); } catch(e) {}
+}
+function getDLNotify() {
+  try { return localStorage.getItem(DL_NOTIFY_KEY) !== "false"; } catch(e) { return true; }
+}
+function setDLNotify(v) {
+  try { localStorage.setItem(DL_NOTIFY_KEY, v ? "true" : "false"); } catch(e) {}
+}
+
 /* --- APP --------------------------------- */
 const NAV = [
   {id:"feed",    l:"Feed",     icon:"Home",  badge:0},
   {id:"discover",l:"Discover", icon:"Srch",  badge:0},
   {id:"create",  l:"Create",   icon:"Pls",   isCreate:true},
   {id:"cherry",  l:"Cherry",   icon:"cherry",badge:0},
-  {id:"alerts",  l:"Alerts",   icon:"Bell",  badge:6},
+  {id:"alerts",  l:"Alerts",   icon:"Bell",  badge:"live"},
   {id:"more",    l:"More",     icon:"Dots",  badge:0},
 ];
 
@@ -7919,7 +8017,7 @@ useEffect(() => {
           },
           React.createElement('div', {style:{position:"relative"}},
             React.createElement(Ic.Bell, {"aria-hidden":"true", style:{width:22,height:22}}),
-            unreadNotifs > 0 && React.createElement('span', {"className":"nbdg","aria-hidden":"true"}, unreadNotifs)
+            unreadNotifs > 0 && React.createElement('span', {"className":"nbdg","aria-hidden":"true"}, "("+unreadNotifs+")")
           ),
           React.createElement('span', {"aria-hidden":"true"}, "Alerts")
         )
