@@ -4537,9 +4537,8 @@ function MorePage({navigate, cherryCtx, authUser}) {
           {icon:"🔔", l:"Notifications",   sub:"Likes, follows, mentions",        a:gated(()=>navigate("alerts")),                   color:"#be185d", gate:isGuest},
           {icon:"📝", l:"Drafts",          sub:"Saved Dream drafts",              a:gated(()=>navigate("drafts")),                   color:"#374151", gate:isGuest},
           {icon:"⚡", l:"Code Verter",     sub:"Convert between 25 languages",    a:()=>navigate("codeverter"),                      color:"#0e7490", gate:false},
-          {icon:"🌐", l:"Dream Cloner",    sub:"Turn any URL into a Dream",       a:()=>navigate("dreamcloner"),                     color:"#374151", gate:false},
-          {icon:"👤", l:"Account",         sub:"Your Dream Board Mobile ID",      a:isGuest?()=>navigate("login"):()=>navigate("settings_account"), color:"#6d28d9", gate:false},
-          {icon:"⚙️", l:"Settings",        sub:"Privacy, themes, accessibility",  a:()=>navigate("settings"),                        color:"#374151", gate:false},
+          {icon:"🌐", l:"Dream Cloner",    sub:"Turn any URL into a Dream",       a:()=>navigate("dream_cloner"),                    color:"#374151", gate:false},
+          {icon:"⚙️", l:"Settings",        sub:"Account, privacy, themes",        a:()=>navigate("settings"),                        color:"#374151", gate:false},
           {icon:"ℹ️", l:"About",           sub:"Story, terms, license",           a:()=>navigate("about"),                           color:"#374151", gate:false},
           {icon:"💬", l:"Send Feedback",   sub:"Help us improve Dream Board",     a:()=>navigate("feedback"),                        color:"#0e7490", gate:false},
         ].map(item =>
@@ -7930,6 +7929,8 @@ useEffect(() => {
       case "hour_story":    return React.createElement(HourStoryPage, { navigate: navigate, back: pdata||"more",});
       case "dream_cloner":  return React.createElement(DreamClonerPage, { navigate: navigate,});
       case "download_data":  return React.createElement(DownloadDataPage, { navigate: navigate, authUser: authUser,});
+      case "codeverter":    return React.createElement(CodeVerterPage, { navigate: navigate,});
+      case "dreamcloner":   return React.createElement(DreamClonerPage, { navigate: navigate,});
       case "terms":         return React.createElement(PolicyPage, { title: "Terms", content: TERMS_CONTENT, navigate: navigate, back: "settings_about",});
       case "privacy":       return React.createElement(PolicyPage, { title: "Privacy", content: PRIVACY_CONTENT, navigate: navigate, back: "settings_about",});
       case "guidelines":    return React.createElement(PolicyPage, { title: "Community Guidelines", content: GUIDELINES_CONTENT, navigate: navigate, back: "settings_about",});
