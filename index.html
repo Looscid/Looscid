@@ -2087,7 +2087,7 @@ function ConvoView({convo, onBack}) {
         )
       )
       , React.createElement('div', { className: "cir",}
-        , React.createElement('input', { className: "inp", style: {borderRadius:100,flex:1,fontSize:14}, placeholder: "Message "+convo.user.name+"…",
+        , React.createElement('input', { className: "inp", style: {borderRadius:100,flex:1,fontSize:14}, placeholder: "Chat with "+convo.user.name.split(" ")[0]+"…",
           value: inp, onChange: e=>setInp(sanitizeInput(e.target.value)), onKeyDown: e=>e.key==="Enter"&&send(), 'aria-label': "Message "+convo.user.name,})
         , React.createElement('button', { className: "btn bp" , style: {padding:9,borderRadius:"50%",width:38,height:38,flexShrink:0}, onClick: send, disabled: !inp.trim(), 'aria-label': "Send",}
           , React.createElement(Ic.Snd, { style: {width:15,height:15},})
@@ -2098,11 +2098,14 @@ function ConvoView({convo, onBack}) {
   );
 }
 
-function AlertsPage({cherryCtx}) {
-  // Section open state — default both open
-  const [openSections, setOpenSections] = useState({messages:true, notifications:true});
+function AlertsPage({cherryCtx, navigate}) {
+  // Both collapsed until Dreamor opens one. Accordion — one open at a time.
+  const [openSections, setOpenSections] = useState({messages:false, notifications:false});
   const toggleSection = function(id) {
-    setOpenSections(function(s) { return Object.assign({}, s, {[id]: !s[id]}); });
+    setOpenSections(function(s) {
+      if (!s[id]) return {messages: id==="messages", notifications: id==="notifications"};
+      return Object.assign({}, s, {[id]: false});
+    });
   };
 
   // Message state
@@ -2166,14 +2169,14 @@ function AlertsPage({cherryCtx}) {
       onClick: function() { toggleSection(id); },
       "aria-expanded": isOpen,
       "aria-controls": "alerts-section-"+id,
-      "aria-label": label + (badge>0 ? ", "+badge+" unread" : ""),
+      "aria-label": label + (badge>0 ? " ("+badge+" unread)" : "") + (isOpen ? ", collapse" : ", expand"),
     },
-      React.createElement('div', {style:{display:"flex",alignItems:"center",gap:8}},
+      React.createElement('div', {style:{display:"flex",alignItems:"center",gap:6}},
         React.createElement('h2', {style:{fontFamily:"'DM Serif Display',Georgia,serif",fontSize:18,margin:0,color:"var(--tx)"}}, label),
         badge > 0 && React.createElement('span', {
-          style:{background:"var(--rd)",color:"#fff",fontSize:10,fontWeight:800,borderRadius:100,padding:"1px 7px",minWidth:18,textAlign:"center"},
+          style:{fontSize:14,fontWeight:700,color:"var(--rd)"},
           "aria-hidden":"true",
-        }, badge)
+        }, "("+badge+")")
       ),
       React.createElement('span', {className:"msec-toggle-ic"+(isOpen?" open":""), "aria-hidden":"true"}, "›")
     );
@@ -5955,7 +5958,8 @@ const SUPABASE_URL = "https://zlwfrfrrxeeijthrnajc.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpsd2ZyZnJyeGVlaWp0aHJuYWpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5MDAyMTgsImV4cCI6MjA5MDQ3NjIxOH0.S570lGyLpmid5xxRKbDgEM6V4VEH12951BjfxBNLO_Y";
 
 // Sanitize input — strip dangerous characters before sending to server
-function sanitizeInput(str) {
+function sanitizeInput(str, maxLen) {
+  if (maxLen === undefined) maxLen = 4000;
   if (typeof str !== "string") return str;
   return str.replace(/[<>]/g, "").trim();
 }
@@ -5973,14 +5977,7 @@ function getSupabase() {
    Replace placeholder values with your Firebase project config.
    Find them in: Firebase Console > Project Settings > Your Apps > SDK setup
    ----------------------------------------------------------------------- */
-const FIREBASE_CONFIG = {
-  apiKey:            "REPLACE_WITH_YOUR_FIREBASE_API_KEY",
-  authDomain:        "REPLACE_WITH_YOUR_PROJECT.firebaseapp.com",
-  projectId:         "REPLACE_WITH_YOUR_PROJECT_ID",
-  storageBucket:     "REPLACE_WITH_YOUR_PROJECT.appspot.com",
-  messagingSenderId: "REPLACE_WITH_YOUR_SENDER_ID",
-  appId:             "REPLACE_WITH_YOUR_APP_ID",
-};
+// Firebase removed — auth handled by Supabase
 
 /* --- FIREBASE INIT (deferred - never crashes if SDK not loaded) ----------- */
 function getFirebaseAuth() {
@@ -6878,6 +6875,7 @@ function applySpellFix(text, original, replacement) {
 
 /* --- INLINE CALCULATOR ---------------------------------------------------- */
 function evalInlineCalc(text) {
+  if (!text || text.length > 500) return text;
   // Detect patterns like "5 + 3 =" or "$50 + $20 ="
   const calcPattern = /(\$?[\d,.]+\s*[\+\-\×\*\/÷x]\s*\$?[\d,.]+\s*(?:[\+\-\×\*\/÷x]\s*\$?[\d,.]+\s*)*)\s*=/g;
   return text.replace(calcPattern, (match, expr) => {
@@ -7900,7 +7898,7 @@ useEffect(() => {
       case "cherry":        return React.createElement(CherryPage, { navigate: navigate, cherryCtx: cherryCtx,});
       case "feed":          return React.createElement(FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
       case "discover":      return React.createElement(DiscoverPage, { navigate: navigate, cherryCtx: cherryCtx,});
-      case "alerts":        return React.createElement(AlertsPage, { cherryCtx: cherryCtx,});
+      case "alerts":        return React.createElement(AlertsPage, { cherryCtx: cherryCtx, navigate: navigate,});
       case "groups":        return React.createElement(GroupsPage, { navigate: navigate, cherryCtx: cherryCtx,});
       case "profile":       return React.createElement(ProfilePage, { navigate: navigate, cherryCtx: cherryCtx, authUser: authUser,});
       case "dp": {
