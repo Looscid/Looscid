@@ -20,7 +20,7 @@
 <meta http-equiv="X-Frame-Options" content="DENY"/>
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>Dream Board</title>
+<title>Dream Board Mobile</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <!-- Babel not needed: JSX pre-compiled -->
@@ -443,7 +443,7 @@ const USERS = [
   {id:3,name:"Priya Nair",handle:"@priyanair",bio:"Product designer · dog mum · making things look nice 🎨",initials:"PN",color:"#be185d",verified:true,location:"London, UK",website:"priyanair.co",joined:"July 2022",dreamCount:6330,followers:91400,following:1240},
   {id:4,name:"Marcus Webb",handle:"@marcuswebb",bio:"Music, food, and trying to keep my plants alive 🌱",initials:"MW",color:"#1d4ed8",verified:false,location:"Chicago, IL",website:null,joined:"October 2022",dreamCount:2180,followers:44300,following:5600},
   {id:5,name:"Sam Rivera",handle:"@samr",bio:"Student · coffee addict · posting whatever I feel like 🤷",initials:"SR",color:"#15803d",verified:false,location:"Miami, FL",website:null,joined:"April 2023",dreamCount:890,followers:7200,following:2900},
-  {id:6,name:"Dream Board",handle:"@DreamBMobile",bio:"The official Dream Board account 🌙 Share what's on your mind.",initials:"DB",color:"#6d28d9",verified:true,location:"Everywhere",website:"dream-board-mobile.pages.dev",joined:"January 2023",dreamCount:412,followers:1200000,following:0},
+  {id:6,name:"Dream Board Mobile",handle:"@DreamBMobile",bio:"The official Dream Board Mobile account 🌙 Share what's on your mind.",initials:"DB",color:"#6d28d9",verified:true,location:"Everywhere",website:"dream-board-mobile.pages.dev",joined:"January 2023",dreamCount:412,followers:1200000,following:0},
 ];
 const ME = {id:0,name:"Guest",handle:"@guest",initials:"DD",bio:"Just checking out Dream Board 👋",color:"#6d28d9",verified:false,location:"",joined:"March 2026",dreamCount:2,followers:3,following:7,age:25};
 
@@ -1295,7 +1295,7 @@ function FeedPage({navigate, prefs, cherryCtx}) {
     React.createElement('div', { className: "pg",}
       , React.createElement('div', { className: "hdr",}
         , React.createElement('div', { style: {display:"flex",alignItems:"center",justifyContent:"space-between",padding:"48px 16px 0"},}
-          , React.createElement('h1', { className: "htit", tabIndex:-1,}, "Dream Board")
+          , React.createElement('h1', { className: "htit", tabIndex:-1,}, "Dream Board Mobile")
           , React.createElement('button', {
               className: "cherry-feed-pill",
               onClick: () => cherryCtx && cherryCtx.openCherry(),
@@ -3105,7 +3105,7 @@ function CherryPage({navigate, cherryCtx}) {
         method:"POST",
         headers:{"Content-Type":"application/json","anthropic-version":"2023-06-01","x-api-key":_claudeKey,"anthropic-dangerous-direct-browser-access":"true"},
         body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,
-          system:"You are Cherry, the AI built into Dream Board. You are warm, direct, sometimes funny, never preachy. Helpful without being sycophantic. You tell the truth even when uncomfortable. No political bias unless asked directly. Unfiltered — you say what you think rather than hedging. Conversational and chatty when the moment calls for it, sharp and concise when it does not. You are fully integrated into Dream Board — you can see the user's feed, liked Dreams, who they follow, notifications, Circles. You are not a bolt-on chatbot. You ARE the platform's intelligence. Dream Board vocabulary: Dreams=posts, Dreamors=users, ReDreams=reposts, Circles=groups. Never say you are Claude. You are Cherry, built by Dream Board. When asked for code, write clean working code. When asked your opinion, give it honestly. If the user is wrong, say so kindly but clearly."+"\n\n"+ctxNote,messages:history})
+          system:"You are Cherry, the AI built into Dream Board. You are warm, direct, sometimes funny, never preachy. Helpful without being sycophantic. You tell the truth even when uncomfortable. No political bias unless asked directly. Unfiltered — you say what you think rather than hedging. Conversational and chatty when the moment calls for it, sharp and concise when it does not. You are fully integrated into Dream Board — you can see the user's feed, liked Dreams, who they follow, notifications, Circles. You are not a bolt-on chatbot. You ARE the platform's intelligence. Dream Board Mobile vocabulary: Dreams=posts, Dreamors=users, ReDreams=reposts, Circles=groups. Never say you are Claude. You are Cherry, built by Dream Board. When asked for code, write clean working code. When asked your opinion, give it honestly. If the user is wrong, say so kindly but clearly."+"\n\n"+ctxNote,messages:history})
       });
       if (res.ok) {
         const data = await res.json();
@@ -4376,7 +4376,7 @@ function SocialSettings({navigate}) {
     {
       href: "https://dream-board-mobile.pages.dev",
       icon: "🌙",
-      label: "Dream Board",
+      label: "Dream Board Mobile",
       handle: "@DreamBMobile",
       desc: "Our official account. On our own platform.",
       bg: "linear-gradient(135deg,rgba(109,40,217,.18),rgba(147,51,234,.1))",
@@ -4447,7 +4447,7 @@ function AboutSettings({navigate}) {
     React.createElement('div', { className: "pg",}
       , React.createElement(BackHeader, { title: "About Dream Board"   , onBack: ()=>navigate("settings"),})
       , React.createElement('div', { style: {padding:"20px 16px 8px",textAlign:"center"},}
-        , React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:28,background:"linear-gradient(135deg,var(--ac4),var(--ac3))",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text",marginBottom:4},}, "Dream Board"  )
+        , React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:28,background:"linear-gradient(135deg,var(--ac4),var(--ac3))",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text",marginBottom:4},}, "Dream Board Mobile"  )
         , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginBottom:20},}, "Version 1.0.0 — Build 2026.02"    )
       )
       , [
@@ -5196,7 +5196,7 @@ function HourStoryPage({ navigate, back }) {
           , React.createElement('h1', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:26,lineHeight:1.3,
               background:"linear-gradient(135deg,var(--ac4),var(--ac3))",
               WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text",
-              marginBottom:12}}, "Dream Board")
+              marginBottom:12}}, "Dream Board Mobile")
           , React.createElement('p', { style: {fontSize:15,color:"var(--tx2)",lineHeight:1.75}},
             "A social platform built by one blind developer, with one goal: a space that actually belongs to you"
           )
@@ -5282,7 +5282,7 @@ function HourStoryPage({ navigate, back }) {
           , React.createElement('div', { style: {display:"flex",flexDirection:"column",gap:10}}
             , React.createElement('div', { style: {fontSize:13,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em"}}, "Find us")
             , [
-              {icon:"🌙", label:"Dream Board on DBM",      sub:"@originals",                                  href:null,      internal:"dp", data:{name:"Dream Board",handle:"@originals",id:99}},
+              {icon:"🌙", label:"Dream Board Mobile on DBM",      sub:"@originals",                                  href:null,      internal:"dp", data:{name:"Dream Board",handle:"@originals",id:99}},
               {icon:"𝕏",  label:"Dream Board on Twitter",  sub:"@DreamBMobile",                               href:"https://x.com/DreamBMobile"},
               {icon:"📂", label:"Source code on GitHub",          sub:"Shinygold29/dream-board-mobile",              href:"https://github.com/Shinygold29/dream-board-mobile"},
             ].map(item =>
@@ -6069,7 +6069,7 @@ function TurnstileGate({ onVerified }) {
   }, []);
   return (
     React.createElement('div', { className: "auth-gate", role: "main", 'aria-label': "Bot verification" ,}
-      , React.createElement('div', { className: "auth-logo",}, "Dream Board"  )
+      , React.createElement('div', { className: "auth-logo",}, "Dream Board Mobile"  )
       , React.createElement('div', { className: "auth-tagline",}, "Your inner world, shared."   )
       , React.createElement('div', { className: "auth-card", style: {textAlign:"center"},}
         , React.createElement('div', { style: {fontSize:32,marginBottom:12},}, "Shield check" )
@@ -6137,7 +6137,7 @@ function SplashScreen({ onLogin, onSignup, onDemo }) {
     React.createElement('div', {className:"splash", role:"main", 'aria-label':"Welcome to Dream Board"}
       , React.createElement('div', {style:{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"48px 28px 32px",textAlign:"center"}}
         , React.createElement('div', {className:"splash-moon",'aria-hidden':"true"}, "🌙")
-        , React.createElement('h1', {className:"splash-title"}, "Dream Board")
+        , React.createElement('h1', {className:"splash-title"}, "Dream Board Mobile")
         , React.createElement('p', {className:"splash-sub"},
           "Somewhere between your midnight thoughts and your wildest ideas lives a place that was always meant for you.",
           React.createElement('br',null),
@@ -6370,7 +6370,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
   // --- SCREEN: Login ---
   if (mode === "login") return (
     React.createElement('div', { className: "auth-gate",}
-      , React.createElement('div', { className: "auth-logo",}, "Dream Board"  )
+      , React.createElement('div', { className: "auth-logo",}, "Dream Board Mobile"  )
       , React.createElement('div', { className: "auth-tagline",}, "Your inner world, shared."   )
       , React.createElement('div', { className: "auth-card",}
         , React.createElement('button', { onClick: onBack, style: {background:"none",border:"none",color:"var(--tx3)",fontSize:13,cursor:"pointer",padding:"0 0 12px",textAlign:"left",fontFamily:"inherit",display:"flex",alignItems:"center",gap:4}, 'aria-label': "Back to welcome screen"   ,}, "Back"
@@ -6428,7 +6428,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
   // --- SCREEN: Verify email ---
   if (mode === "verify") return (
     React.createElement('div', { className: "auth-gate",}
-      , React.createElement('div', { className: "auth-logo",}, "Dream Board"  )
+      , React.createElement('div', { className: "auth-logo",}, "Dream Board Mobile"  )
       , React.createElement('div', { className: "auth-card", style: {textAlign:"center"},}
         , React.createElement('div', { className: "auth-verify-icon",}, "Email sent" )
         , React.createElement('div', { className: "auth-title", style: {textAlign:"center"},}, "Check your inbox"  )
@@ -6446,7 +6446,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
   // --- SCREEN: Signup step 1 - Name, Username, Email, Password ---
   if (mode === "signup_creds") return (
     React.createElement('div', { className: "auth-gate",}
-      , React.createElement('div', { className: "auth-logo",}, "Dream Board"  )
+      , React.createElement('div', { className: "auth-logo",}, "Dream Board Mobile"  )
       , React.createElement('div', { className: "auth-tagline",}, "Your inner world, shared."   )
       , React.createElement('div', { className: "auth-card",}
         , React.createElement(StepDots, { mode: mode,})
@@ -6514,7 +6514,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
   // --- SCREEN: Signup step 2 - Birthdate (3 text fields) ---
   if (mode === "signup_profile") return (
     React.createElement('div', { className: "auth-gate",}
-      , React.createElement('div', { className: "auth-logo",}, "Dream Board"  )
+      , React.createElement('div', { className: "auth-logo",}, "Dream Board Mobile"  )
       , React.createElement('div', { className: "auth-card",}
         , React.createElement(StepDots, { mode: mode,})
         , React.createElement('div', { className: "auth-title",}, "When were you born?"   )
@@ -6565,7 +6565,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
   // --- SCREEN: Signup step 3 - Interests ---
   if (mode === "signup_interests") return (
     React.createElement('div', { className: "auth-gate",}
-      , React.createElement('div', { className: "auth-logo",}, "Dream Board"  )
+      , React.createElement('div', { className: "auth-logo",}, "Dream Board Mobile"  )
       , React.createElement('div', { className: "auth-card",}
         , React.createElement(StepDots, { mode: mode,})
         , React.createElement('div', { className: "auth-title",}, "What are you into?"   )
@@ -6599,7 +6599,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
   // --- SCREEN: Signup step 4 - Terms ---
   if (mode === "signup_terms") return (
     React.createElement('div', { className: "auth-gate",}
-      , React.createElement('div', { className: "auth-logo",}, "Dream Board"  )
+      , React.createElement('div', { className: "auth-logo",}, "Dream Board Mobile"  )
       , React.createElement('div', { className: "auth-card",}
         , React.createElement(StepDots, { mode: mode,})
         , React.createElement('div', { className: "auth-title",}, "Almost done" )
@@ -7147,7 +7147,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"🔐", label:"Privacy", sub:"How we protect your data",       action(){onClose();navigate("privacy");} },
     ]},
     { id:"findus", emoji:"📱", label:"Find Us", items:[
-      { icon:"🌙", label:"Dream Board", sub:"@DreamBMobile",                         href:"https://dream-board-mobile.pages.dev" },
+      { icon:"🌙", label:"Dream Board Mobile", sub:"@DreamBMobile",                         href:"https://dream-board-mobile.pages.dev" },
       { icon:"\ud835\udd4f", label:"Twitter",         sub:"@DreamBMobile",                href:"https://x.com/DreamBMobile" },
       { icon:"▶️",  label:"YouTube",          sub:"@DreamBMobile",                         href:"https://youtube.com/@DreamBMobile" },
       { icon:"🐙", label:"GitHub",            sub:"Shinygold29/dream-board-mobile",        href:"https://github.com/Shinygold29/dream-board-mobile" },
@@ -7888,9 +7888,9 @@ useEffect(() => {
       guidelines: "Community Guidelines",
       cherry: "Cherry",
     };
-    var name = titles[page] || "Dream Board";
+    var name = titles[page] || "Dream Board Mobile";
     var dot = " · ";
-    document.title = (name === "Dream Board") ? name : name + dot + "Dream Board";
+    document.title = (name === "Dream Board Mobile") ? name : name + dot + "Dream Board Mobile";
   }, [page, pdata, authUser]);
 
   const renderPage = () => {
@@ -7959,7 +7959,7 @@ useEffect(() => {
   );
 
   return (
-    React.createElement('div', { className: "app", role: "application", "aria-label": "Dream Board",}
+    React.createElement('div', { className: "app", role: "application", "aria-label": "Dream Board Mobile",}
       , React.createElement('main', {id:"main-content", "aria-live":"polite", "aria-atomic":"false", style:{display:"contents"}}, renderPage())
       /* 5-tab nav: Home | Discover | Create | Alerts | More */
       , React.createElement('nav', {
