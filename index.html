@@ -2197,7 +2197,7 @@ function AlertsPage({cherryCtx, navigate}) {
       ),
 
       /* ── Messages section ── */
-      React.createElement(SectionHeader, {id:"messages", label:"Messages", badge:msgBadge, isOpen:openSections.messages}),
+      React.createElement(SectionHeader, {id:"messages", label:"Chat", badge:msgBadge, isOpen:openSections.messages}),
       React.createElement('div', {
         id: "alerts-section-messages",
         className: "msec-body" + (openSections.messages ? "" : " closed"),
@@ -3020,6 +3020,117 @@ function DreamerProfilePage({user, navigate, cherryCtx}) {
   );
 }
 
+/* --- APPS PAGE ─────────────────────────────────────────── */
+const MAIN_APPS = [
+  {id:"db_mail",   name:"DB Mail",     icon:"✉️",  grad:"linear-gradient(135deg,#0891b2,#0284c7)", badge:2,  desc:"Your Dream Board email address"},
+  {id:"phone",     name:"Phone",       icon:"📞",  grad:"linear-gradient(135deg,#059669,#10b981)", badge:0,  desc:"Real calls — no VOIP"},
+  {id:"electrify", name:"Electrify",   icon:"⚡",  grad:"linear-gradient(135deg,#d97706,#f59e0b)", badge:0,  desc:"Electronic music community"},
+  {id:"market",    name:"Market",      icon:"🛍️",  grad:"linear-gradient(135deg,#be185d,#ec4899)", badge:0,  desc:"Buy and sell inside Dream Board"},
+  {id:"db_news",   name:"DB News",     icon:"📰",  grad:"linear-gradient(135deg,#1d4ed8,#3b82f6)", badge:3,  desc:"News without the noise"},
+  {id:"code",      name:"Code",        icon:"💻",  grad:"linear-gradient(135deg,#374151,#6b7280)", badge:0,  desc:"25 programming languages"},
+  {id:"watch",     name:"Watch",       icon:"📺",  grad:"linear-gradient(135deg,#dc2626,#ef4444)", badge:0,  desc:"Live streams from Dreamors"},
+  {id:"journal",   name:"Journal",     icon:"📓",  grad:"linear-gradient(135deg,#92400e,#d97706)", badge:0,  desc:"Private thoughts — only you"},
+  {id:"db_drive",  name:"DB Drive",    icon:"☁️",  grad:"linear-gradient(135deg,#1e3a5f,#2563eb)", badge:0,  desc:"Unlimited cloud storage"},
+  {id:"translate", name:"Translate",   icon:"🌐",  grad:"linear-gradient(135deg,#065f46,#059669)", badge:0,  desc:"Powered by Cherry"},
+  {id:"cloner",    name:"Cloner",      icon:"🔗",  grad:"linear-gradient(135deg,#4c1d95,#7c3aed)", badge:0,  desc:"Turn any URL into a Dream"},
+  {id:"payments",  name:"DB Pay",      icon:"💳",  grad:"linear-gradient(135deg,#0f172a,#1e293b)", badge:0,  desc:"Send money — no SSN required"},
+];
+
+function AppMiniFrame({app, onClose}) {
+  const body = () => {
+    if (app.id === "db_mail") return (
+      React.createElement('div', {style:{padding:18}},
+        React.createElement('div', {style:{fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".09em",marginBottom:12}}, "INBOX · 2 UNREAD"),
+        [
+          {from:"Cherry",sub:"Your daily digest",preview:"Here's what happened in your feed today…",time:"now",unread:true},
+          {from:"Mia Chen",sub:"Re: the thing",preview:"yeah let's sync tomorrow",time:"4m",unread:true},
+          {from:"Dream Board",sub:"Welcome to DB Mail",preview:"Your @dreamor.dbm.com address is ready",time:"1h",unread:false},
+        ].map((m,i) => React.createElement('div', {key:i, style:{padding:"12px 0",borderBottom:"1px solid var(--bd)",display:"flex",gap:12,alignItems:"flex-start",cursor:"pointer"}},
+          React.createElement('div', {style:{width:8,height:8,borderRadius:"50%",background:m.unread?"var(--ac2)":"transparent",border:m.unread?"none":"1px solid var(--bd3)",marginTop:5,flexShrink:0}}),
+          React.createElement('div', {style:{flex:1}},
+            React.createElement('div', {style:{display:"flex",justifyContent:"space-between",marginBottom:2}},
+              React.createElement('span', {style:{fontWeight:m.unread?700:400,fontSize:13}}, m.from),
+              React.createElement('span', {style:{fontSize:11,color:"var(--tx3)"}}, m.time)
+            ),
+            React.createElement('div', {style:{fontSize:13,fontWeight:m.unread?600:400,marginBottom:2}}, m.sub),
+            React.createElement('div', {style:{fontSize:12,color:"var(--tx3)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}, m.preview)
+          )
+        ))
+      )
+    );
+    if (app.id === "electrify") return (
+      React.createElement('div', null,
+        React.createElement('div', {style:{background:"linear-gradient(160deg,#1a0a00,#0a0a0a)",padding:"24px 18px 20px",textAlign:"center"}},
+          React.createElement('div', {style:{fontSize:48,marginBottom:10},"aria-hidden":"true"}, "⚡"),
+          React.createElement('h2', {style:{fontSize:22,fontWeight:800,marginBottom:6,letterSpacing:"-.4px"}}, "Electrify"),
+          React.createElement('p', {style:{fontSize:13,color:"var(--tx3)",lineHeight:1.6,maxWidth:260,margin:"0 auto"}}, "Electronic music community. No gatekeeping. No ads. No rules about subgenre.")
+        ),
+        React.createElement('div', {style:{padding:"0 18px"}},
+          React.createElement('div', {className:"slbl"}, "Playing in your network"),
+          ["Odetari — KEEP UP","Fred Again — Bleed","Skrillex — Red Lights","SBTRKT — Wildfire"].map((t,i) =>
+            React.createElement('div', {key:i, style:{display:"flex",alignItems:"center",gap:12,padding:"11px 0",borderBottom:"1px solid var(--bd)"}},
+              React.createElement('div', {style:{width:44,height:44,borderRadius:10,background:"var(--sf3)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0},"aria-hidden":"true"}, "🎵"),
+              React.createElement('div', null,
+                React.createElement('div', {style:{fontWeight:600,fontSize:13}}, t.split(" — ")[1]),
+                React.createElement('div', {style:{fontSize:11,color:"var(--tx3)",marginTop:1}}, t.split(" — ")[0])
+              )
+            )
+          )
+        )
+      )
+    );
+    return (
+      React.createElement('div', {className:"es", style:{paddingTop:60}},
+        React.createElement('div', {style:{fontSize:52,"aria-hidden":"true"}}, app.icon),
+        React.createElement('div', {className:"esl"}, app.name),
+        React.createElement('p', {style:{fontSize:13,color:"var(--tx3)",marginTop:8,lineHeight:1.7,maxWidth:240}}, app.desc, React.createElement('br',null), React.createElement('br',null), React.createElement('span', {style:{color:"var(--ac3)",fontSize:12}}, "In active development")),
+      )
+    );
+  };
+
+  return (
+    React.createElement('div', {style:{position:"fixed",inset:0,zIndex:300,background:"var(--bg)",maxWidth:430,margin:"0 auto",display:"flex",flexDirection:"column"},role:"dialog","aria-label":app.name,"aria-modal":"true"},
+      React.createElement('div', {style:{display:"flex",alignItems:"center",gap:10,padding:"calc(env(safe-area-inset-top,0px) + 12px) 16px 12px",borderBottom:"1px solid var(--bd)",background:"rgba(7,5,15,.94)",backdropFilter:"blur(20px)",position:"sticky",top:0,zIndex:10}},
+        React.createElement('div', {style:{width:30,height:30,borderRadius:9,background:app.grad,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0},"aria-hidden":"true"}, app.icon),
+        React.createElement('span', {style:{fontWeight:700,fontSize:16,flex:1}}, app.name),
+        React.createElement('button', {className:"btn bp",style:{padding:"7px 14px",fontSize:12},onClick:onClose,"aria-label":"Close "+app.name}, "Done")
+      ),
+      React.createElement('div', {style:{flex:1,overflowY:"auto",scrollbarWidth:"none"}}, body())
+    )
+  );
+}
+
+function AppsPage({navigate}) {
+  const [activeApp, setActiveApp] = useState(null);
+  if (activeApp) return React.createElement(AppMiniFrame, {app:activeApp, onClose:()=>setActiveApp(null)});
+  return (
+    React.createElement('div', {className:"pg"},
+      React.createElement('div', {className:"hdr"},
+        React.createElement('div', {className:"hdr-row"},
+          React.createElement('h1', {className:"hdr-title",tabIndex:-1}, "Apps"),
+          React.createElement('p', {style:{fontSize:12,color:"var(--tx3)",marginTop:3}}, "Everything in one place — no subscriptions, no switching apps.")
+        )
+      ),
+      React.createElement('div', {style:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:4,padding:"10px 10px"},"aria-label":"Installed apps"},
+        MAIN_APPS.map(app =>
+          React.createElement('button', {
+            key:app.id,
+            style:{display:"flex",flexDirection:"column",alignItems:"center",gap:6,padding:"10px 4px",borderRadius:14,cursor:"pointer",border:"none",background:"none",fontFamily:"inherit",position:"relative"},
+            onClick:()=>setActiveApp(app),
+            "aria-label":app.name+": "+app.desc,
+          },
+            React.createElement('div', {style:{width:54,height:54,borderRadius:16,background:app.grad,display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,position:"relative"},"aria-hidden":"true"},
+              app.icon,
+              app.badge > 0 && React.createElement('div', {style:{position:"absolute",top:-4,right:-4,background:"var(--rd)",color:"#fff",fontSize:9,fontWeight:800,minWidth:16,height:16,borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",padding:"0 4px",border:"2px solid var(--bg)"},"aria-label":app.badge+" unread"}, app.badge)
+            ),
+            React.createElement('span', {style:{fontSize:10,fontWeight:600,color:"var(--tx2)",textAlign:"center",width:60,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}, app.name)
+          )
+        )
+      )
+    )
+  );
+}
+
 /* --- CHERRY AI --------------------------- */
 function CherryPage({navigate, cherryCtx}) {
   // CherryPage IS the chat — full messaging interface like Apple Intelligence Notes
@@ -3383,14 +3494,14 @@ function CherryResponseActions({msg, idx}) {
 
 function SettingsPage({prefs, setPrefs, navigate, onSignOut, authUser, theme, setTheme, drafts}) {
   const sections = [
-    {id:"account",        icon:"👤", title:"Account",         sub:"Profile, security, connected accounts", color:"#6d28d9"},
-    {id:"notifications",  icon:"🔔", title:"Alerts",           sub:"Push, email, sounds, news",           color:"#0e7490"},
-    {id:"privacy",        icon:"🔒", title:"Privacy",          sub:"Visibility, blocked users",           color:"#be185d"},
-    {id:"customizability",icon:"🎨", title:"Themes & Display", sub:"Themes, character limit, Cherry",       color:"#15803d"},
-    {id:"accessibility",  icon:"♿", title:"Accessibility",    sub:"Font size, contrast, motion",         color:"#b45309"},
-    {id:"social",         icon:"\ud835\udd4f", title:"Find Us",sub:"Follow Dream Board",          color:"#1d4ed8"},
-    {id:"about",          icon:"ℹ️", title:"About",            sub:"Terms, privacy, guidelines",         color:"#374151"},
-    {id:"dreamlabs",      icon:"\u2697\ufe0f", title:"DreamLabs", sub:"Dream Pioneers \u00b7 Early access", color:"#0f766e"},
+    {id:"account",        icon:"👤", title:"Account",        sub:"Dream ID, email, password, security",    color:"#6d28d9"},
+    {id:"notifications",  icon:"🔔", title:"Alerts",          sub:"Push notifications, email, sounds",      color:"#0e7490"},
+    {id:"privacy",        icon:"🔒", title:"Privacy",         sub:"Who sees your Dreams, blocked Dreamors", color:"#be185d"},
+    {id:"customizability",icon:"🎨", title:"Appearance",      sub:"Theme, text size, Cherry AI",            color:"#15803d"},
+    {id:"accessibility",  icon:"♿", title:"Accessibility",   sub:"Font size, contrast, motion, VoiceOver", color:"#b45309"},
+    {id:"social",         icon:"𝕏",  title:"Find Us",         sub:"Follow Dream Board on X and DBM",        color:"#1d4ed8"},
+    {id:"about",          icon:"ℹ️", title:"About",           sub:"Terms, privacy policy, open source",     color:"#374151"},
+    {id:"dreamlabs",      icon:"⚗️", title:"DreamLabs",       sub:"Early access · shape what's next",       color:"#0f766e"},
   ];
 
   return (
@@ -3400,33 +3511,8 @@ function SettingsPage({prefs, setPrefs, navigate, onSignOut, authUser, theme, se
           , React.createElement('button', { className: "bi", onClick: ()=>navigate("more"), 'aria-label': "Back",}, React.createElement(Ic.Bck, { style: {width:21,height:21},}))
           , React.createElement('h1', { className: "hdr-title", tabIndex:-1}, "Settings")
         )
-        /* Tab strip — same component as the feed */
-        , React.createElement('div', {
-            className: "ftabs",
-            role: "tablist",
-            "aria-label": "Settings sections",
-            style: {overflowX:"auto", scrollbarWidth:"none", padding:"0 6px"},
-          },
-          sections.map((s, i) =>
-            React.createElement('button', {
-              key: s.id,
-              className: "ftab" + (false ? " on" : ""),  // no active tab — navigation only
-              onClick: ()=>navigate("settings_"+s.id),
-              role: "tab",
-              "aria-selected": false,
-              "aria-setsize": sections.length,
-              "aria-posinset": i+1,
-              "aria-label": s.title,
-              tabIndex: 0,
-            },
-              React.createElement('span', {"aria-hidden":"true", style:{fontSize:14}}, s.icon),
-              " " + s.title,
-              React.createElement('span',{className:"ftab-num","aria-hidden":"true"}, (i+1)+"/"+sections.length)
-            )
-          )
-        )
       )
-      /* Full list below tabs for quick scanning */
+      /* Settings list */
       , sections.map(s => (
         React.createElement('button', { key: s.id+"_row", className: "snav", onClick: ()=>navigate("settings_"+s.id), 'aria-label': s.title+" settings",}
           , React.createElement('div', { className: "snav-l",}
@@ -4534,16 +4620,17 @@ function MorePage({navigate, cherryCtx, authUser}) {
       /* Menu items — identical list in all modes */
       , React.createElement('div', {style:{padding:"8px 0 8px"}}
         , [
-          {icon:"🍒", l:"Cherry",         sub:"Your Dream Board AI companion",   a:()=>navigate("cherry"),                          color:"#6d28d9", gate:false},
-          {icon:"✏️", l:"New Dream",       sub:"Share what's on your mind",       a:gated(()=>navigate("feed")),                     color:"#6d28d9", gate:isGuest},
-          {icon:"💬", l:"Messages",        sub:"Your private conversations",      a:gated(()=>navigate("alerts")),                   color:"#0e7490", gate:isGuest},
-          {icon:"🔔", l:"Notifications",   sub:"Likes, follows, mentions",        a:gated(()=>navigate("alerts")),                   color:"#be185d", gate:isGuest},
-          {icon:"📝", l:"Drafts",          sub:"Saved Dream drafts",              a:gated(()=>navigate("drafts")),                   color:"#374151", gate:isGuest},
-          {icon:"⚡", l:"Code Verter",     sub:"Convert between 25 languages",    a:()=>navigate("codeverter"),                      color:"#0e7490", gate:false},
-          {icon:"🌐", l:"Dream Cloner",    sub:"Turn any URL into a Dream",       a:()=>navigate("dream_cloner"),                    color:"#374151", gate:false},
-          {icon:"⚙️", l:"Settings",        sub:"Account, privacy, themes",        a:()=>navigate("settings"),                        color:"#374151", gate:false},
-          {icon:"ℹ️", l:"About",           sub:"Story, terms, license",           a:()=>navigate("about"),                           color:"#374151", gate:false},
-          {icon:"💬", l:"Send Feedback",   sub:"Help us improve Dream Board",     a:()=>navigate("feedback"),                        color:"#0e7490", gate:false},
+          {icon:"🍒", l:"Cherry",         sub:"Your AI companion",                a:()=>navigate("cherry"),         color:"#6d28d9", gate:false},
+          {icon:"📱", l:"Apps",            sub:"All your Dream Board apps",        a:()=>navigate("apps"),           color:"#7c3aed", gate:false},
+          {icon:"✏️", l:"New Dream",       sub:"Share what's on your mind",        a:gated(()=>navigate("feed")),    color:"#6d28d9", gate:isGuest},
+          {icon:"💬", l:"Chat",            sub:"Private conversations",            a:gated(()=>navigate("alerts")),  color:"#0e7490", gate:isGuest},
+          {icon:"🔔", l:"Notifications",   sub:"Likes, follows, mentions",         a:gated(()=>navigate("alerts")),  color:"#be185d", gate:isGuest},
+          {icon:"📝", l:"Drafts",          sub:"Saved Dream drafts",               a:gated(()=>navigate("drafts")),  color:"#374151", gate:isGuest},
+          {icon:"⚡", l:"Code Verter",     sub:"Convert between 25 languages",     a:()=>navigate("codeverter"),     color:"#0e7490", gate:false},
+          {icon:"🌐", l:"Dream Cloner",    sub:"Turn any URL into a Dream",        a:()=>navigate("dream_cloner"),   color:"#374151", gate:false},
+          {icon:"⚙️", l:"Settings",        sub:"Account, privacy, appearance",     a:()=>navigate("settings"),       color:"#374151", gate:false},
+          {icon:"ℹ️", l:"About",           sub:"Story, terms, open source",        a:()=>navigate("about"),          color:"#374151", gate:false},
+          {icon:"📣", l:"Send Feedback",   sub:"Help us improve Dream Board",      a:()=>navigate("feedback"),       color:"#0e7490", gate:false},
         ].map(item =>
           React.createElement('button', {
               key:item.l, className:"snav", onClick:item.a,
@@ -7129,7 +7216,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"📊", label:"Custom Feed", sub:"Build a personalised feed", action(){onClose();} },
     ]},
     { id:"alerts", emoji:"🔔", label:"Alerts", badge:totalAlerts, items:[
-      { icon:"💬", label:"Messages",      sub:"Private Dreams",           badge:unreadMsgs,   action(){onClose();goRoot("alerts");} },
+      { icon:"💬", label:"Chat",           sub:"Private conversations",    badge:unreadMsgs,   action(){onClose();goRoot("alerts");} },
       { icon:"🔔", label:"Notifications", sub:"Likes, follows, mentions", badge:unreadNotifs, action(){onClose();goRoot("alerts");} },
     ]},
 
@@ -7748,16 +7835,17 @@ useEffect(() => {
     }
   }, [authStage]);
 
-  // Show welcome for first-time users; onboarding is now retired (welcome replaced it)
+  // Show welcome for first-time users; mark seen immediately to prevent double-fire
   useEffect(() => {
-    if (authStage === "app") {
+    if (authStage === "app" && authUser) {
       const isGuest = !authUser || authUser.isGuest || authUser.uid==="guest";
       if (!isGuest && !getWelcomeSeen()) {
-        const t = setTimeout(() => setShowWelcome(true), 400);
+        setWelcomeSeen(); // mark immediately so re-renders never re-trigger
+        const t = setTimeout(() => setShowWelcome(true), 600);
         return () => clearTimeout(t);
       }
     }
-  }, [authStage]);
+  }, [authStage, authUser]);
 
   const handleSignOut = useCallback(async () => {
     const sb = getSupabase();
@@ -7887,6 +7975,7 @@ useEffect(() => {
       privacy: "Privacy",
       guidelines: "Community Guidelines",
       cherry: "Cherry",
+      apps: "Apps",
     };
     var name = titles[page] || "Dream Board Mobile";
     var dot = " · ";
@@ -7896,6 +7985,7 @@ useEffect(() => {
   const renderPage = () => {
     switch(page) {
       case "cherry":        return React.createElement(CherryPage, { navigate: navigate, cherryCtx: cherryCtx,});
+      case "apps":          return React.createElement(AppsPage, { navigate: navigate,});
       case "feed":          return React.createElement(FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
       case "discover":      return React.createElement(DiscoverPage, { navigate: navigate, cherryCtx: cherryCtx,});
       case "alerts":        return React.createElement(AlertsPage, { cherryCtx: cherryCtx, navigate: navigate,});
@@ -7936,7 +8026,7 @@ useEffect(() => {
     }
   };
 
-  const activeId = ["feed","discover","cherry","alerts","more"].includes(page) ? page : null;
+  const activeId = ["feed","discover","cherry","alerts","more","apps"].includes(page) ? page : null;
   const unreadNotifs = appNotifs.filter(n=>n.unread).length;
   const unreadMsgs = CONVOS.reduce((a,c)=>a+c.unread, 0);
 
