@@ -1,1 +1,5 @@
+# Redirect old dream-board-mobile URL to new dream-os URL
+https://dream-board-mobile.pages.dev/* https://dream-os.pages.dev/:splat 301
+
+# Single page app — all routes serve index.html
 /*    /index.html    200

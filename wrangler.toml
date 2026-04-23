@@ -1,4 +1,4 @@
-name = "dbm-api"
+name = "dreamos-api"
 main = "worker.js"
 compatibility_date = "2024-01-01"
 account_id = "fe8d6f5500462206277cad3450ab0eb9"
