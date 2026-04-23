@@ -1,39 +1,31 @@
-name: Deploy to Cloudflare Pages
+name: Validate
 
 on:
   push:
-    branches: [main]
+    branches: [main, preview, dev]
   pull_request:
     branches: [main]
 
 jobs:
-  deploy:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
+      - name: Check index.html exists
+        run: |
+          if [ ! -f index.html ]; then
+            echo "index.html missing"
+            exit 1
+          fi
+          echo "index.html found — $(wc -l < index.html) lines"
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Check no old terminology in UI
+        run: |
+          # Warn if any old Dream Board Mobile UI text slipped in
+          count=$(grep -c "Dream Board Mobile" index.html || true)
+          echo "Old name references in index.html: $count"
 
-      - name: Build
-        run: npm run build
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_ANTHROPIC_KEY: ${{ secrets.VITE_ANTHROPIC_KEY }}
-          VITE_TURNSTILE_SITE_KEY: ${{ secrets.VITE_TURNSTILE_SITE_KEY }}
-
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: fe8d6f5500462206277cad3450ab0eb9
-          projectName: dream-os
-          directory: dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Syntax check worker.js
+        run: node --check worker.js && echo "worker.js syntax OK"
 
