@@ -436,7 +436,7 @@ function guestOverLimit() { return GUEST_SESSION.views >= GUEST_SESSION.VIEW_LIM
 function guestSearchOverLimit() { return GUEST_SESSION.searches >= GUEST_SESSION.SEARCH_LIMIT; }
 
 /* --- DATA -------------------------------- */
-const ORIGINALS = {id:99,name:"The Originals",handle:"@originals",bio:"These Dreams were here before you were. When Dream Board was just getting started, these Dreams kept the feed alive. Now you are here creating it. Thank you.",initials:"OR",color:"#7c3aed",verified:true,location:"The Beginning",website:"dream-os.pages.dev",joined:"February 2024",dreamCount:6,followers:0,following:0,isOriginals:true};
+const ORIGINALS = {id:99,name:"The Originals",handle:"@originals",bio:"These Dreams were here before you were. When DreamOS was just getting started, these Dreams kept the feed alive. Now you are here creating it. Thank you.",initials:"OR",color:"#7c3aed",verified:true,location:"The Beginning",website:"dream-os.pages.dev",joined:"February 2024",dreamCount:6,followers:0,following:0,isOriginals:true};
 const USERS = [
   {id:1,name:"Maya Chen",handle:"@mayac",bio:"Software dev by day, amateur chef by night 🍜 she/her",initials:"MC",color:"#6d28d9",verified:true,location:"San Francisco, CA",website:"mayachen.dev",joined:"March 2023",dreamCount:4821,followers:38200,following:892},
   {id:2,name:"Jake Torres",handle:"@jakeT",bio:"Football fan, dad of 2, occasional runner 🏃",initials:"JT",color:"#0e7490",verified:false,location:"Austin, TX",website:null,joined:"January 2023",dreamCount:1240,followers:12700,following:3100},
@@ -445,7 +445,7 @@ const USERS = [
   {id:5,name:"Sam Rivera",handle:"@samr",bio:"Student · coffee addict · posting whatever I feel like 🤷",initials:"SR",color:"#15803d",verified:false,location:"Miami, FL",website:null,joined:"April 2023",dreamCount:890,followers:7200,following:2900},
   {id:6,name:"DreamOS",handle:"@DreamBMobile",bio:"The official DreamOS account 🌙 Share what's on your mind.",initials:"DB",color:"#6d28d9",verified:true,location:"Everywhere",website:"dream-os.pages.dev",joined:"January 2023",dreamCount:412,followers:1200000,following:0},
 ];
-const ME = {id:0,name:"Guest",handle:"@guest",initials:"DD",bio:"Just checking out Dream Board 👋",color:"#6d28d9",verified:false,location:"",joined:"March 2026",dreamCount:2,followers:3,following:7,age:25};
+const ME = {id:0,name:"Guest",handle:"@guest",initials:"DD",bio:"Just checking out DreamOS 👋",color:"#6d28d9",verified:false,location:"",joined:"March 2026",dreamCount:2,followers:3,following:7,age:25};
 
 const DREAMS_INIT = [
   {id:1,user:ORIGINALS,time:"2m",text:"ok whoever invented the croissant deserves a statue. that's my entire thought.",likes:6201,comments:441,redreams:1820,quotes:93,liked:false,redreamed:false,quoted:false,bookmarked:false},
@@ -453,7 +453,7 @@ const DREAMS_INIT = [
   {id:3,user:ORIGINALS,time:"45m",text:"redesigned our app's onboarding today and cut it from 7 screens to 3. signups are already up 18% in testing. less is almost always more ✂️",likes:4103,comments:287,redreams:934,quotes:88,liked:false,redreamed:false,quoted:false,bookmarked:false},
   {id:4,user:ORIGINALS,time:"2h",text:"found a playlist I made in 2019 and it genuinely slaps. past me had taste I don't deserve \ud83c\udfb5 Listen to: Blinding Lights, The Weeknd",likes:9870,comments:612,redreams:2100,quotes:74,liked:false,redreamed:false,quoted:false,bookmarked:false},
   {id:5,user:ORIGINALS,time:"4h",text:"professor said \"no phones\" so naturally I'm on my phone. anyway does anyone have the notes from last Tuesday",likes:31200,comments:2440,redreams:11300,quotes:890,liked:false,redreamed:false,quoted:false,bookmarked:false},
-  {id:6,user:ORIGINALS,time:"8h",text:"Welcome to Dream Board \ud83d\udc4b\n\nShare what's on your mind. Your thoughts, your takes, your moments \u2014 big or small.\n\nNo ads. No algorithm hiding your posts. Just you and the people you follow.\n\n#DreamBoard",likes:18402,comments:2104,redreams:9134,quotes:1204,liked:false,redreamed:false,quoted:false,bookmarked:false},
+  {id:6,user:ORIGINALS,time:"8h",text:"Welcome to DreamOS \ud83d\udc4b\n\nShare what's on your mind. Your thoughts, your takes, your moments \u2014 big or small.\n\nNo ads. No algorithm hiding your posts. Just you and the people you follow.\n\n#DreamOS",likes:18402,comments:2104,redreams:9134,quotes:1204,liked:false,redreamed:false,quoted:false,bookmarked:false},
 ];
 
 const MOCK_COMMENTS = {
@@ -662,6 +662,7 @@ const Ic = {
   Mn:    p => React.createElement('svg', { ...p, viewBox: "0 0 24 24"   , fill: "none", stroke: "currentColor", strokeWidth: "1.9",}, React.createElement('path', { d: "M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"          ,})),
   Key:   p => React.createElement('svg', { ...p, viewBox: "0 0 24 24"   , fill: "none", stroke: "currentColor", strokeWidth: "1.9",}, React.createElement('path', { d: "M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"                  ,})),
   X:     p => React.createElement('svg', { ...p, viewBox: "0 0 24 24"   , fill: "currentColor",}, React.createElement('path', { d: "M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"          ,})),
+  Grid:  p => React.createElement('svg', { ...p, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.9",}, React.createElement('rect', {x:"3",y:"3",width:"7",height:"7",rx:"1.5"}), React.createElement('rect', {x:"14",y:"3",width:"7",height:"7",rx:"1.5"}), React.createElement('rect', {x:"3",y:"14",width:"7",height:"7",rx:"1.5"}), React.createElement('rect', {x:"14",y:"14",width:"7",height:"7",rx:"1.5"})),
 };
 
 /* --- SHARED COMPONENTS ------------------- */
@@ -1089,7 +1090,7 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
       , showDreamOpts && (
         React.createElement(BottomMenu, { onClose: ()=>setShowDreamOpts(false), title: "Dream Options", items: [
           {ic:dream.bookmarked?"🔖":"🔖", l:dream.bookmarked?"Unsave Dream":"Save Dream", sub:dream.bookmarked?"Remove this Dream from your saved collection":"Save this Dream to your collection", a:()=>{onBookmark&&onBookmark(dream.id);setShowDreamOpts(false);}},
-          {ic:"📤", l:"Share Dream", sub:"Share outside Dream Board", a:()=>setShowDreamOpts(false)},
+          {ic:"📤", l:"Share Dream", sub:"Share outside DreamOS", a:()=>setShowDreamOpts(false)},
           {ic:"👤", l:"View @"+dream.user.handle.replace("@","")+"'s Profile", a:()=>{setShowDreamOpts(false);navigate("dp",dream.user);}},
           {ic:"🔇", l:"Mute @"+dream.user.handle.replace("@",""), sub:"Stop seeing their Dreams in your feed", a:()=>setShowDreamOpts(false)},
           {ic:"🚫", l:"Block @"+dream.user.handle.replace("@",""), sub:"Block this Dreamor", a:()=>setShowDreamOpts(false), danger:true},
@@ -1249,7 +1250,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
       , showOpts && (
         React.createElement(BottomMenu, { onClose: ()=>setShowOpts(false), title: "Dream Options", items: [
           {ic:dream.bookmarked?"🔖":"🔖", l:dream.bookmarked?"Unsave Dream":"Save Dream", sub:dream.bookmarked?"Remove this Dream from your saved collection":"Save this Dream to your collection", a:()=>{onBookmark&&onBookmark(dream.id);setShowOpts(false);}},
-          {ic:"📤", l:"Share Dream", sub:"Share outside Dream Board", a:()=>setShowOpts(false)},
+          {ic:"📤", l:"Share Dream", sub:"Share outside DreamOS", a:()=>setShowOpts(false)},
           {ic:"👤", l:"View @"+dream.user.handle.replace("@","")+"'s Profile", a:()=>{setShowOpts(false);navigate("dp",dream.user);}},
           {ic:"🔇", l:"Mute @"+dream.user.handle.replace("@",""), sub:"Stop seeing their Dreams in your feed", a:()=>setShowOpts(false)},
           {ic:"🚫", l:"Block @"+dream.user.handle.replace("@",""), sub:"Block this Dreamor", a:()=>setShowOpts(false), danger:true},
@@ -1852,76 +1853,90 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
   return (
     React.createElement(Modal, { onClose: onClose, title: "Create", subtitle: ""     ,}
 
-      /* ── New Dream ── */
-      , React.createElement('button', { className: "osb", onClick: ()=>setScreen("dream"), 'aria-label': "New Dream — share what is on your mind"       ,}
-        , React.createElement('span', { style: {fontSize:22,width:32,textAlign:"center"},}, "✏️")
+      /* ── Dream ── */
+      , React.createElement('button', { className: "osb", onClick: ()=>setScreen("dream"), 'aria-label': "Create a Dream, share what is on your mind,"}
+        , React.createElement('span', { style: {fontSize:22,width:32,textAlign:"center"},'aria-hidden':"true"}, "✏️")
         , React.createElement('div', { style: {flex:1},}
-          , React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "New Dream" )
-          , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Share a thought, photo, link or mood")
+          , React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "Dream" )
+          , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Share a thought, photo, link, poll or mood")
         )
       )
 
-      /* ── New Conversation (collapsible) ── */
-      , React.createElement('div', { style: {borderBottom:"1px solid var(--bd)"},}
-        , React.createElement('button', {
-            onClick: ()=>setConvOpen(o=>!o),
-            'aria-expanded': convOpen,
-            'aria-controls': "conv-panel",
-            className: "osb",
-            style: {borderBottom:"none", width:"100%"},
-            'aria-label': "New Conversation, "+(convOpen?"expanded":"collapsed"),}
-          , React.createElement('span', { style: {fontSize:22,width:32,textAlign:"center"},}, "💬")
-          , React.createElement('div', { style: {flex:1},}
-            , React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "New Conversation" )
-            , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Start a private chat")
-          )
-          , React.createElement('svg', {
-              width:14,height:14,viewBox:"0 0 24 24",fill:"none",
-              stroke:"currentColor",strokeWidth:2,'aria-hidden':"true",
-              style:{transition:"transform .2s",transform:convOpen?"rotate(180deg)":"rotate(0deg)",color:"var(--tx3)"}},
-            React.createElement('polyline', {points:"6 9 12 15 18 9"})
-          )
-        )
-        , React.createElement('div', {
-            id:"conv-panel",
-            'aria-hidden': !convOpen,
-            style:{
-              maxHeight: convOpen?"200px":"0",
-              overflow:"hidden",
-              visibility: convOpen?"visible":"hidden",
-              transition:"max-height .24s ease, visibility .24s",
-            },}
-          , React.createElement('button', {
-              className:"osb",
-              style:{paddingLeft:60,borderBottom:"none"},
-              onClick:()=>{onClose();cherryCtx&&cherryCtx.openCherry();},
-              'aria-label':"Chat with Cherry, your Dream Board AI",}
-            , React.createElement('span', {style:{fontSize:20,width:28,textAlign:"center",'aria-hidden':"true"}}, "🍒")
-            , React.createElement('div', {style:{flex:1}}
-              , React.createElement('div', {style:{fontWeight:600,fontSize:14}}, "Cherry")
-              , React.createElement('div', {style:{fontSize:12,color:"var(--tx3)",marginTop:1}}, "Your Dream Board AI companion")
-            )
-          )
-          , React.createElement('button', {
-              className:"osb",
-              style:{paddingLeft:60,borderBottom:"none"},
-              onClick:()=>{onClose();navigate("alerts");},
-              'aria-label':"Chat with a Dreamor — open your messages",}
-            , React.createElement('span', {style:{fontSize:20,width:28,textAlign:"center",'aria-hidden':"true"}}, "👤")
-            , React.createElement('div', {style:{flex:1}}
-              , React.createElement('div', {style:{fontWeight:600,fontSize:14}}, "A Dreamor")
-              , React.createElement('div', {style:{fontSize:12,color:"var(--tx3)",marginTop:1}}, "Message someone directly")
-            )
-          )
-        )
-      )
-
-      /* ── New Circle ── */
-      , React.createElement('button', { className: "osb", onClick: ()=>setScreen("group"), 'aria-label': "New Circle — start a community"     ,}
-        , React.createElement('span', { style: {fontSize:22,width:32,textAlign:"center"},}, "🏘️")
+      /* ── Circle ── */
+      , React.createElement('button', { className: "osb", onClick: ()=>setScreen("group"), 'aria-label': "Create a Circle, start a community,"}
+        , React.createElement('span', { style: {fontSize:22,width:32,textAlign:"center"},'aria-hidden':"true"}, "🏘️")
         , React.createElement('div', { style: {flex:1},}
-          , React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "New Circle" )
+          , React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "Circle" )
           , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Start a Circle around a shared interest")
+        )
+      )
+
+      /* ── Custom Feed ── */
+      , React.createElement('button', { className: "osb", onClick: ()=>{onClose();navigate("custom_feed");}, 'aria-label': "Create a Custom Feed,"}
+        , React.createElement('span', { style: {fontSize:22,width:32,textAlign:"center"},'aria-hidden':"true"}, "📰")
+        , React.createElement('div', { style: {flex:1},}
+          , React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "Custom Feed" )
+          , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Build a feed around topics and Dreamors you choose")
+        )
+      )
+
+      /* ── App or Game (Developers) ── */
+      , React.createElement('button', { className: "osb", onClick: ()=>{onClose();navigate("dev_portal");}, 'aria-label': "Submit an App or Game, for developers,"}
+        , React.createElement('span', { style: {fontSize:22,width:32,textAlign:"center"},'aria-hidden':"true"}, "🛠️")
+        , React.createElement('div', { style: {flex:1},}
+          , React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "App or Game" )
+          , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Submit your app or game to the DreamOS store")
+        )
+      )
+
+      /* ── separator ── */
+      , React.createElement('div', {style:{height:1,background:"var(--bd)",margin:"4px 0"},'aria-hidden':"true"})
+
+      /* ── New Call ── */
+      , React.createElement('button', { className: "osb", onClick: ()=>{onClose();navigate("phone");}, 'aria-label': "New Call, open the phone app,"}
+        , React.createElement('span', { style: {fontSize:22,width:32,textAlign:"center"},'aria-hidden':"true"}, "📞")
+        , React.createElement('div', { style: {flex:1},}
+          , React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "New Call" )
+          , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Call a Dreamor using the DreamOS phone app")
+        )
+      )
+
+      /* ── New Chat ── */
+      , React.createElement('button', { className: "osb", onClick: ()=>{onClose();navigate("alerts");}, 'aria-label': "New Chat, start a private conversation,"}
+        , React.createElement('span', { style: {fontSize:22,width:32,textAlign:"center"},'aria-hidden':"true"}, "💬")
+        , React.createElement('div', { style: {flex:1},}
+          , React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "New Chat" )
+          , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Start a private end-to-end encrypted conversation")
+        )
+      )
+
+      /* ── New Chat with Cherry ── */
+      , React.createElement('button', { className: "osb", onClick: ()=>{onClose();cherryCtx&&cherryCtx.openCherry();}, 'aria-label': "New Chat with Cherry,"}
+        , React.createElement('span', { style: {fontSize:22,width:32,textAlign:"center"},'aria-hidden':"true"}, "🍒")
+        , React.createElement('div', { style: {flex:1},}
+          , React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "New Chat with Cherry" )
+          , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Start a new conversation with your AI")
+        )
+      )
+
+      /* ── separator ── */
+      , React.createElement('div', {style:{height:1,background:"var(--bd)",margin:"4px 0"},'aria-hidden':"true"})
+
+      /* ── Go Live ── */
+      , React.createElement('button', { className: "osb", onClick: ()=>{onClose();navigate("live");}, 'aria-label': "Go Live, start a live stream,"}
+        , React.createElement('span', { style: {fontSize:22,width:32,textAlign:"center"},'aria-hidden':"true"}, "🔴")
+        , React.createElement('div', { style: {flex:1},}
+          , React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "Go Live" )
+          , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Stream live to your followers")
+        )
+      )
+
+      /* ── GIF ── */
+      , React.createElement('button', { className: "osb", onClick: ()=>setScreen("dream"), 'aria-label': "Share a GIF,"}
+        , React.createElement('span', { style: {fontSize:22,width:32,textAlign:"center"},'aria-hidden':"true"}, "🎞️")
+        , React.createElement('div', { style: {flex:1},}
+          , React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "GIF" )
+          , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Share an animated GIF as a Dream")
         )
       )
 
@@ -2079,8 +2094,8 @@ function ConvoView({convo, onBack}) {
             style:{background:"none",border:"none",cursor:"pointer",fontSize:11,color:"var(--rd)",padding:"4px 8px",fontFamily:"inherit",fontWeight:600},
             'aria-label':"Report this conversation for safety review",
             onClick:()=>{
-              if(window.confirm("Report this conversation for safety review? A Dream Board safety team member will review this conversation. End-to-end encryption will be temporarily suspended for this review only.")) {
-                alert("Reported. Our safety team will review this conversation. Thank you for keeping Dream Board safe.");
+              if(window.confirm("Report this conversation for safety review? A DreamOS safety team member will review this conversation. End-to-end encryption will be temporarily suspended for this review only.")) {
+                alert("Reported. Our safety team will review this conversation. Thank you for keeping DreamOS safe.");
               }
             }},
           "🚩 Report"
@@ -2711,7 +2726,7 @@ function ProfilePage({navigate, authUser}) {
       )
       // About/Terms - available to all
       , React.createElement('button', {className:"snav",onClick:()=>navigate("settings_about"),
-          'aria-label':"About Dream Board"},
+          'aria-label':"About DreamOS"},
         React.createElement('div', {className:"snav-l"},
           React.createElement('div', {className:"snav-ic",style:{background:"rgba(55,65,81,.15)",fontSize:17}}, "ℹ️"),
           React.createElement('div', null,
@@ -3022,10 +3037,10 @@ function DreamerProfilePage({user, navigate, cherryCtx}) {
 
 /* --- APPS PAGE ─────────────────────────────────────────── */
 const MAIN_APPS = [
-  {id:"db_mail",   name:"DB Mail",     icon:"✉️",  grad:"linear-gradient(135deg,#0891b2,#0284c7)", badge:2,  desc:"Your Dream Board email address"},
+  {id:"db_mail",   name:"DB Mail",     icon:"✉️",  grad:"linear-gradient(135deg,#0891b2,#0284c7)", badge:2,  desc:"Your DreamOS email address"},
   {id:"phone",     name:"Phone",       icon:"📞",  grad:"linear-gradient(135deg,#059669,#10b981)", badge:0,  desc:"Real calls — no VOIP"},
   {id:"electrify", name:"Electrify",   icon:"⚡",  grad:"linear-gradient(135deg,#d97706,#f59e0b)", badge:0,  desc:"Electronic music community"},
-  {id:"market",    name:"Market",      icon:"🛍️",  grad:"linear-gradient(135deg,#be185d,#ec4899)", badge:0,  desc:"Buy and sell inside Dream Board"},
+  {id:"market",    name:"Market",      icon:"🛍️",  grad:"linear-gradient(135deg,#be185d,#ec4899)", badge:0,  desc:"Buy and sell inside DreamOS"},
   {id:"db_news",   name:"DB News",     icon:"📰",  grad:"linear-gradient(135deg,#1d4ed8,#3b82f6)", badge:3,  desc:"News without the noise"},
   {id:"code",      name:"Code",        icon:"💻",  grad:"linear-gradient(135deg,#374151,#6b7280)", badge:0,  desc:"25 programming languages"},
   {id:"watch",     name:"Watch",       icon:"📺",  grad:"linear-gradient(135deg,#dc2626,#ef4444)", badge:0,  desc:"Live streams from Dreamors"},
@@ -3044,7 +3059,7 @@ function AppMiniFrame({app, onClose}) {
         [
           {from:"Cherry",sub:"Your daily digest",preview:"Here's what happened in your feed today…",time:"now",unread:true},
           {from:"Mia Chen",sub:"Re: the thing",preview:"yeah let's sync tomorrow",time:"4m",unread:true},
-          {from:"Dream Board",sub:"Welcome to DB Mail",preview:"Your @dreamor.dbm.com address is ready",time:"1h",unread:false},
+          {from:"DreamOS",sub:"Welcome to DB Mail",preview:"Your @dreamor.dbm.com address is ready",time:"1h",unread:false},
         ].map((m,i) => React.createElement('div', {key:i, style:{padding:"12px 0",borderBottom:"1px solid var(--bd)",display:"flex",gap:12,alignItems:"flex-start",cursor:"pointer"}},
           React.createElement('div', {style:{width:8,height:8,borderRadius:"50%",background:m.unread?"var(--ac2)":"transparent",border:m.unread?"none":"1px solid var(--bd3)",marginTop:5,flexShrink:0}}),
           React.createElement('div', {style:{flex:1}},
@@ -3169,7 +3184,7 @@ function CherryPage({navigate, cherryCtx}) {
     const _openaiKey = _k("dbm_openai_key");
     const _prefs     = (()=>{try{return JSON.parse(_k("dbm_ai_prefs"));}catch(e){return {};}})();
     const _pref      = _prefs.active || "cherry";
-    const _sys = "You are Cherry, the AI built into Dream Board — a free, open social platform. " +
+    const _sys = "You are Cherry, the AI built into DreamOS — a free, open social platform. " +
       "Personality: warm, direct, witty, honest, unfiltered, genuinely helpful, never preachy or corporate. " +
       "IMPORTANT VOCABULARY — always use these terms: " +
       "Dreams (not posts or tweets), Dreamors (not users), ReDreams (not reposts/retweets), Circles (not groups), Dream ID (not account). " +
@@ -3178,7 +3193,7 @@ function CherryPage({navigate, cherryCtx}) {
       "When writing Dreams for Dreamors, write naturally — like a real person sharing something, not marketing copy. " +
       "When asked for code, write clean complete working code. " +
       "When asked your opinion, give it honestly without hedging. If the Dreamor is wrong about something, say so kindly but clearly. " +
-      "You are Cherry, built by Dream Board. Never say you are Claude, GPT, Gemini, or any other AI.";
+      "You are Cherry, built by DreamOS. Never say you are Claude, GPT, Gemini, or any other AI.";
     let _model = _pref;
     if (_model==="claude"  && !_claudeKey) _model="cherry";
     if (_model==="gemini"  && !_geminiKey) _model="cherry";
@@ -3216,7 +3231,7 @@ function CherryPage({navigate, cherryCtx}) {
         method:"POST",
         headers:{"Content-Type":"application/json","anthropic-version":"2023-06-01","x-api-key":_claudeKey,"anthropic-dangerous-direct-browser-access":"true"},
         body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,
-          system:"You are Cherry, the AI built into Dream Board. You are warm, direct, sometimes funny, never preachy. Helpful without being sycophantic. You tell the truth even when uncomfortable. No political bias unless asked directly. Unfiltered — you say what you think rather than hedging. Conversational and chatty when the moment calls for it, sharp and concise when it does not. You are fully integrated into Dream Board — you can see the user's feed, liked Dreams, who they follow, notifications, Circles. You are not a bolt-on chatbot. You ARE the platform's intelligence. DreamOS vocabulary: Dreams=posts, Dreamors=users, ReDreams=reposts, Circles=groups. Never say you are Claude. You are Cherry, built by Dream Board. When asked for code, write clean working code. When asked your opinion, give it honestly. If the user is wrong, say so kindly but clearly."+"\n\n"+ctxNote,messages:history})
+          system:"You are Cherry, the AI built into DreamOS. You are warm, direct, sometimes funny, never preachy. Helpful without being sycophantic. You tell the truth even when uncomfortable. No political bias unless asked directly. Unfiltered — you say what you think rather than hedging. Conversational and chatty when the moment calls for it, sharp and concise when it does not. You are fully integrated into DreamOS — you can see the user's feed, liked Dreams, who they follow, notifications, Circles. You are not a bolt-on chatbot. You ARE the platform's intelligence. DreamOS vocabulary: Dreams=posts, Dreamors=users, ReDreams=reposts, Circles=groups. Never say you are Claude. You are Cherry, built by DreamOS. When asked for code, write clean working code. When asked your opinion, give it honestly. If the user is wrong, say so kindly but clearly."+"\n\n"+ctxNote,messages:history})
       });
       if (res.ok) {
         const data = await res.json();
@@ -3227,7 +3242,7 @@ function CherryPage({navigate, cherryCtx}) {
     // Fallback
     const lo = text.toLowerCase();
     const c2 = appCtx();
-    if (lo.includes("trending")) return {result:"Trending on Dream Board right now:\n\n🔥 real trends (API needed)\n📈 #CreativeProcess — 22.1K Dreams\n🌿 #PhilosophyOfMind — 15.4K Dreams\n\nWant me to draft a Dream about one of these?"};
+    if (lo.includes("trending")) return {result:"Trending on DreamOS right now:\n\n🔥 real trends (API needed)\n📈 #CreativeProcess — 22.1K Dreams\n🌿 #PhilosophyOfMind — 15.4K Dreams\n\nWant me to draft a Dream about one of these?"};
     if (lo.includes("notification")||lo.includes("alert")) return {result:"You have "+c2.unread+" unread notification"+(c2.unread!==1?"s":"")+(c2.unread>0?". Want me to mark them all read?":"! All caught up 🎉")};
     if (lo.includes("draft")||lo.includes("write a dream")) {
       const d = "There is a kind of quiet that arrives only when you stop trying to fill the silence. I have been chasing that quiet. #Mindfulness";
@@ -3499,7 +3514,7 @@ function SettingsPage({prefs, setPrefs, navigate, onSignOut, authUser, theme, se
     {id:"privacy",        icon:"🔒", title:"Privacy",         sub:"Who sees your Dreams, blocked Dreamors", color:"#be185d"},
     {id:"customizability",icon:"🎨", title:"Appearance",      sub:"Theme, text size, Cherry AI",            color:"#15803d"},
     {id:"accessibility",  icon:"♿", title:"Accessibility",   sub:"Font size, contrast, motion, VoiceOver", color:"#b45309"},
-    {id:"social",         icon:"𝕏",  title:"Find Us",         sub:"Follow Dream Board on X and DBM",        color:"#1d4ed8"},
+    {id:"social",         icon:"𝕏",  title:"Find Us",         sub:"Follow DreamOS on X and DBM",        color:"#1d4ed8"},
     {id:"about",          icon:"ℹ️", title:"About",           sub:"Terms, privacy policy, open source",     color:"#374151"},
     {id:"dreamlabs",      icon:"⚗️", title:"DreamLabs",       sub:"Early access · shape what's next",       color:"#0f766e"},
   ];
@@ -3616,12 +3631,12 @@ function AccountSettings({navigate, authUser, onSignOut}) {
         , isDemo && (
           React.createElement('div', { style: {margin:"0 16px 4px",padding:"14px 16px",background:"rgba(109,40,217,.1)",border:"1px solid rgba(109,40,217,.3)",borderRadius:14},}
             , React.createElement('div', { style: {fontWeight:700,fontSize:13,color:"var(--ac3)",marginBottom:4},}, "You are using the Demo Account"     )
-            , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6,marginBottom:12},}, "Explore everything Dream Board has to offer. Your activity here is not saved. Create a Dream Board ID to save your dreams, follow Dreamors and make it yours."
+            , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6,marginBottom:12},}, "Explore everything DreamOS has to offer. Your activity here is not saved. Create a DreamOS ID to save your dreams, follow Dreamors and make it yours."
 
 
             )
             , React.createElement('button', { className: "btn bp", style: {width:"100%",padding:12,fontSize:13},
-                onClick: ()=>navigate("login"), 'aria-label': "Login or create your Dream Board ID",}, "LOGIN OR CREATE YOUR DREAM BOARD ID"
+                onClick: ()=>navigate("login"), 'aria-label': "Login or create your DreamOS ID",}, "LOGIN OR CREATE YOUR DREAM BOARD ID"
 
               )
           )
@@ -3700,10 +3715,10 @@ function AccountSettings({navigate, authUser, onSignOut}) {
           React.createElement(React.Fragment, null
             , React.createElement('h2', { className: "slbl", style: {color:"var(--rd)"}, role: "heading", 'aria-level': "2",}, "Danger Zone" )
             , React.createElement('div', { style: {padding:"0 16px"},}
-              , React.createElement('button', { className: "danger-zone-btn", onClick: ()=>setShowDelete(true), 'aria-label': "Delete your Dream Board account"     ,}
+              , React.createElement('button', { className: "danger-zone-btn", onClick: ()=>setShowDelete(true), 'aria-label': "Delete your DreamOS account"     ,}
                 , React.createElement('span', { style: {fontSize:18},}, "Delete Account" )
               )
-              , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",lineHeight:1.5},}, "Permanently deletes your Dream Board ID, all your Dreams, and your profile. This cannot be undone."
+              , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",lineHeight:1.5},}, "Permanently deletes your DreamOS ID, all your Dreams, and your profile. This cannot be undone."
 
 
               )
@@ -3747,7 +3762,7 @@ function AccountSettings({navigate, authUser, onSignOut}) {
       /* Delete Account Modal */
       , showDelete && (
         React.createElement(Modal, { onClose: ()=>{setShowDelete(false);setDeleteCode("");setDeleteConfirm("");setDeleteErr("");}, title: "Delete Account" , subtitle: "This is permanent and cannot be undone."      ,}
-          , React.createElement('div', { style: {background:"rgba(239,68,68,.08)",border:"1px solid rgba(239,68,68,.2)",borderRadius:12,padding:"12px 14px",marginBottom:16,fontSize:13,color:"var(--rd)",lineHeight:1.6},}, "Deleting your account will permanently remove your Dream Board ID, all your Dreams, followers, and profile. There is no recovery."
+          , React.createElement('div', { style: {background:"rgba(239,68,68,.08)",border:"1px solid rgba(239,68,68,.2)",borderRadius:12,padding:"12px 14px",marginBottom:16,fontSize:13,color:"var(--rd)",lineHeight:1.6},}, "Deleting your account will permanently remove your DreamOS ID, all your Dreams, followers, and profile. There is no recovery."
 
           )
           , twoFAOn && (
@@ -3775,7 +3790,7 @@ function AccountSettings({navigate, authUser, onSignOut}) {
             , deleteBusy ? "Deleting..." : "Permanently Delete My Account"
           )
       , showEditProfile && (
-        React.createElement(Modal, { onClose: ()=>setShowEditProfile(false), title: "Edit Profile", subtitle: "Update your Dream Board ID details.",}
+        React.createElement(Modal, { onClose: ()=>setShowEditProfile(false), title: "Edit Profile", subtitle: "Update your DreamOS ID details.",}
           , React.createElement('div', { style: {marginBottom:14},}
             , React.createElement('label', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,display:"block",marginBottom:5,textTransform:"uppercase",letterSpacing:".04em"},}, "Display Name")
             , React.createElement('input', { className: "inp", type: "text", placeholder: "Your display name",
@@ -3824,7 +3839,7 @@ function NotifSettingsContent({ s, tg }) {
         {k:"follows",  l:"New Followers",d:"When someone follows you"},
         {k:"mentions", l:"Mentions",     d:"When someone mentions you"},
         {k:"replies",   l:"Replies",       d:"Replies to your comments"},
-        {k:"news",     l:"News & Features", d:"New features, updates and news from Dream Board"},
+        {k:"news",     l:"News & Features", d:"New features, updates and news from DreamOS"},
       ].map(r => (
         React.createElement('div', { key: r.k, className: "sr",}
           , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, r.l), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:2},}, r.d))
@@ -3854,7 +3869,7 @@ function PrivacySettings({navigate}) {
       , React.createElement(BackHeader, { title: "Privacy", onBack: ()=>navigate("settings"),})
       , React.createElement('div', { style: {padding:"0 0 24px"},}
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Content")
-        , [{k:"sensitive",l:"Filter Sensitive Content",d:"Hide flagged content from your feed"},{k:"loc",l:"Share Location",d:"Show you in location-based features"},{k:"data",l:"Personalization Data",d:"Help improve Dream Board with usage data"},{k:"readReceipts",l:"Read Receipts",d:"Let others know when you have read their messages"}].map(r => (
+        , [{k:"sensitive",l:"Filter Sensitive Content",d:"Hide flagged content from your feed"},{k:"loc",l:"Share Location",d:"Show you in location-based features"},{k:"data",l:"Personalization Data",d:"Help improve DreamOS with usage data"},{k:"readReceipts",l:"Read Receipts",d:"Let others know when you have read their messages"}].map(r => (
           React.createElement('div', { key: r.k, className: "sr",}, React.createElement('div', null, React.createElement('div', { className: "sr-title",}, r.l), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3,maxWidth:220},}, r.d)), React.createElement(Cbx, { on: s[r.k], onToggle: ()=>tg(r.k), label: r.l,}))
         ))
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Blocked Dreamors" )
@@ -4268,7 +4283,7 @@ function CherrySettings({navigate, prefs, setPrefs, activeAI, setActiveAI}) {
         /* -- Privacy --------------------------- */
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Privacy")
         , React.createElement('div', { className: "sr",}
-          , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, "Cherry Data Usage"  ), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3,maxWidth:230},}, "Allow Cherry interactions to improve Dream Board AI"       ))
+          , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, "Cherry Data Usage"  ), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3,maxWidth:230},}, "Allow Cherry interactions to improve DreamOS AI"       ))
           , React.createElement(Cbx, { on: !!cs.dataUsage, onToggle: ()=>toggleCS("dataUsage"), label: "Cherry Data Usage"  ,})
         )
         , React.createElement('div', { style: {padding:"14px 16px"},}
@@ -4426,7 +4441,7 @@ function AccessibilitySettings({navigate, prefs, setPrefs}) {
     React.createElement('div', { className: "pg",}
       , React.createElement(BackHeader, { title: "Accessibility", onBack: ()=>navigate("settings"),})
       , React.createElement('div', { style: {padding:"8px 16px 8px",background:"var(--sf2)",borderBottom:"1px solid var(--bd)",margin:"0"},}
-        , React.createElement('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6},}, "Dream Board is designed for everyone. These options help customize your experience based on your needs."                )
+        , React.createElement('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6},}, "DreamOS is designed for everyone. These options help customize your experience based on your needs."                )
       )
       , React.createElement('div', { style: {padding:"0 0 24px"},}
         , options.map(o => (
@@ -4531,7 +4546,7 @@ function SocialSettings({navigate}) {
 function AboutSettings({navigate}) {
   return (
     React.createElement('div', { className: "pg",}
-      , React.createElement(BackHeader, { title: "About Dream Board"   , onBack: ()=>navigate("settings"),})
+      , React.createElement(BackHeader, { title: "About DreamOS"   , onBack: ()=>navigate("settings"),})
       , React.createElement('div', { style: {padding:"20px 16px 8px",textAlign:"center"},}
         , React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:28,background:"linear-gradient(135deg,var(--ac4),var(--ac3))",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text",marginBottom:4},}, "DreamOS"  )
         , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginBottom:20},}, "Version 1.0.0 — Build 2026.02"    )
@@ -4581,7 +4596,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
             borderBottom:"1px solid var(--bd)",cursor:"pointer",
             fontFamily:"inherit",textAlign:"left"},
           onClick: isGuest ? ()=>navigate("login") : ()=>navigate("profile"),
-          'aria-label': isGuest ? "Create or login to your Dream Board ID" : "View your profile"}
+          'aria-label': isGuest ? "Create or login to your DreamOS ID" : "View your profile"}
         , React.createElement('div', {style:{position:"relative",flexShrink:0}}
           , isGuest
             ? React.createElement('div', {
@@ -4621,7 +4636,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
       , React.createElement('div', {style:{padding:"8px 0 8px"}}
         , [
           {icon:"🍒", l:"Cherry",         sub:"Your AI companion",                a:()=>navigate("cherry"),         color:"#6d28d9", gate:false},
-          {icon:"📱", l:"Apps",            sub:"All your Dream Board apps",        a:()=>navigate("apps"),           color:"#7c3aed", gate:false},
+          {icon:"📱", l:"Apps",            sub:"All your DreamOS apps",        a:()=>navigate("apps"),           color:"#7c3aed", gate:false},
           {icon:"✏️", l:"New Dream",       sub:"Share what's on your mind",        a:gated(()=>navigate("feed")),    color:"#6d28d9", gate:isGuest},
           {icon:"💬", l:"Chat",            sub:"Private conversations",            a:gated(()=>navigate("alerts")),  color:"#0e7490", gate:isGuest},
           {icon:"🔔", l:"Notifications",   sub:"Likes, follows, mentions",         a:gated(()=>navigate("alerts")),  color:"#be185d", gate:isGuest},
@@ -4630,7 +4645,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
           {icon:"🌐", l:"Dream Cloner",    sub:"Turn any URL into a Dream",        a:()=>navigate("dream_cloner"),   color:"#374151", gate:false},
           {icon:"⚙️", l:"Settings",        sub:"Account, privacy, appearance",     a:()=>navigate("settings"),       color:"#374151", gate:false},
           {icon:"ℹ️", l:"About",           sub:"Story, terms, open source",        a:()=>navigate("about"),          color:"#374151", gate:false},
-          {icon:"📣", l:"Send Feedback",   sub:"Help us improve Dream Board",      a:()=>navigate("feedback"),       color:"#0e7490", gate:false},
+          {icon:"📣", l:"Send Feedback",   sub:"Help us improve DreamOS",      a:()=>navigate("feedback"),       color:"#0e7490", gate:false},
         ].map(item =>
           React.createElement('button', {
               key:item.l, className:"snav", onClick:item.a,
@@ -4705,7 +4720,7 @@ function FeedbackPage({navigate}) {
     React.createElement('div', { className: "pg",}
       , React.createElement(BackHeader, { title: "Send Feedback" , onBack: ()=>navigate("more"),})
       , React.createElement('div', { style: {padding:"16px 16px 32px"},}
-        , React.createElement('p', { style: {fontSize:13,color:"var(--tx2)",lineHeight:1.7,marginBottom:20},}, "We genuinely read every piece of feedback. Help us make Dream Board better."             )
+        , React.createElement('p', { style: {fontSize:13,color:"var(--tx2)",lineHeight:1.7,marginBottom:20},}, "We genuinely read every piece of feedback. Help us make DreamOS better."             )
         , React.createElement('div', { style: {marginBottom:16},}
           , React.createElement('div', { style: {fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",marginBottom:8},}, "Category")
           , React.createElement('div', { style: {display:"flex",gap:7,flexWrap:"wrap"},}
@@ -5031,7 +5046,7 @@ function AdminAnnouncements({onBack}) {
   const [target, setTarget] = useState("all");
   const [sent, setSent] = useState(false);
   const [history] = useState([
-    {id:1,text:"Welcome to Dream Board Beta! We are so excited to have you here. Share your first Dream today 🌙",target:"all",time:"3 days ago",reach:"24,817"},
+    {id:1,text:"Welcome to DreamOS Beta! We are so excited to have you here. Share your first Dream today 🌙",target:"all",time:"3 days ago",reach:"24,817"},
     {id:2,text:"New feature: Groups are now live! Create or join a Group to connect with Dreamors who share your interests.",target:"all",time:"1 week ago",reach:"21,400"},
   ]);
   return (
@@ -5075,9 +5090,9 @@ function PolicyPage({title, content, navigate, back}) {
   );
 }
 
-const TERMS_CONTENT = `<h2>1. Agreement</h2><p>By using Dream Board, you agree to these Terms. If you do not agree, please do not use the platform.</p><h2>2. Your Account</h2><p>You are responsible for your account security and all activity under it. You must be at least 13 years old.</p><h2>3. Your Dreams</h2><p>You own everything you post. By posting, you grant Dream Board a licence to display and distribute your content. You may delete it at any time.</p><h2>4. Community Rules</h2><p>Be kind. Harassment, bullying and hate speech are not permitted. Post authentic content — do not impersonate others or spread misinformation. Do not post violent, sexually explicit or otherwise harmful content. Content involving minors inappropriately is strictly forbidden. Circles must have a positive purpose and moderators must enforce these rules.</p><h2>5. Enforcement</h2><p>Violations may result in content removal, suspension or permanent bans depending on severity. Use the report button to flag content — our team reviews all reports.</p><h2>6. Termination</h2><p>We may suspend accounts that violate these Terms. You may delete your account at any time in Settings.</p><h2>7. Changes</h2><p>We may update these Terms. Continued use after changes means you accept them. Last updated March 2026.</p>`
-const PRIVACY_CONTENT = `<h2>1. Information We Collect</h2><p>We collect information you provide (name, email, content you post) and usage data (how you interact with the app).</p><h2>2. How We Use It</h2><p>We use your information to provide and improve Dream Board, personalize your experience and communicate with you.</p><h2>3. Sharing</h2><p>We do not sell your personal information. We may share data with service providers who help us operate the platform.</p><h2>4. Your Rights</h2><p>You can access, correct or delete your data at any time through Settings. You may also request a data export.</p><h2>5. Cookies</h2><p>We use cookies to maintain your session and improve app performance. You can manage cookie preferences in your device settings.</p><h2>6. Contact</h2><p>For privacy concerns, contact hello@dream-os.pages.dev. Last updated: February 2026.</p>`;
-const GUIDELINES_CONTENT = `<h2>1. Be Kind</h2><p>Treat all Dreamors with respect. Harassment, bullying or targeted hate speech is not permitted on Dream Board.</p><h2>2. Authentic Dreams</h2><p>Post authentic content. Do not impersonate others, spread misinformation or use automated accounts without disclosure.</p><h2>3. Safe Content</h2><p>Do not post violent, sexually explicit or otherwise harmful content. Content involving minors in any inappropriate context is strictly forbidden.</p><h2>4. Groups</h2><p>Groups must have a clear, positive purpose. Group moderators must enforce these guidelines within their communities.</p><h2>5. Reporting</h2><p>Use the report button on any Dream, comment or profile to flag content that violates these guidelines. Our team reviews all reports.</p><h2>6. Consequences</h2><p>Violations may result in content removal, account suspension or permanent bans depending on severity. Last updated: February 2026.</p>`;
+const TERMS_CONTENT = `<h2>1. Agreement</h2><p>By using DreamOS, you agree to these Terms. If you do not agree, please do not use the platform.</p><h2>2. Your Account</h2><p>You are responsible for your account security and all activity under it. You must be at least 13 years old.</p><h2>3. Your Dreams</h2><p>You own everything you post. By posting, you grant DreamOS a licence to display and distribute your content. You may delete it at any time.</p><h2>4. Community Rules</h2><p>Be kind. Harassment, bullying and hate speech are not permitted. Post authentic content — do not impersonate others or spread misinformation. Do not post violent, sexually explicit or otherwise harmful content. Content involving minors inappropriately is strictly forbidden. Circles must have a positive purpose and moderators must enforce these rules.</p><h2>5. Enforcement</h2><p>Violations may result in content removal, suspension or permanent bans depending on severity. Use the report button to flag content — our team reviews all reports.</p><h2>6. Termination</h2><p>We may suspend accounts that violate these Terms. You may delete your account at any time in Settings.</p><h2>7. Changes</h2><p>We may update these Terms. Continued use after changes means you accept them. Last updated March 2026.</p>`
+const PRIVACY_CONTENT = `<h2>1. Information We Collect</h2><p>We collect information you provide (name, email, content you post) and usage data (how you interact with the app).</p><h2>2. How We Use It</h2><p>We use your information to provide and improve DreamOS, personalize your experience and communicate with you.</p><h2>3. Sharing</h2><p>We do not sell your personal information. We may share data with service providers who help us operate the platform.</p><h2>4. Your Rights</h2><p>You can access, correct or delete your data at any time through Settings. You may also request a data export.</p><h2>5. Cookies</h2><p>We use cookies to maintain your session and improve app performance. You can manage cookie preferences in your device settings.</p><h2>6. Contact</h2><p>For privacy concerns, contact hello@dream-os.pages.dev. Last updated: February 2026.</p>`;
+const GUIDELINES_CONTENT = `<h2>1. Be Kind</h2><p>Treat all Dreamors with respect. Harassment, bullying or targeted hate speech is not permitted on DreamOS.</p><h2>2. Authentic Dreams</h2><p>Post authentic content. Do not impersonate others, spread misinformation or use automated accounts without disclosure.</p><h2>3. Safe Content</h2><p>Do not post violent, sexually explicit or otherwise harmful content. Content involving minors in any inappropriate context is strictly forbidden.</p><h2>4. Groups</h2><p>Groups must have a clear, positive purpose. Group moderators must enforce these guidelines within their communities.</p><h2>5. Reporting</h2><p>Use the report button on any Dream, comment or profile to flag content that violates these guidelines. Our team reviews all reports.</p><h2>6. Consequences</h2><p>Violations may result in content removal, account suspension or permanent bans depending on severity. Last updated: February 2026.</p>`;
 
 /* --- DOWNLOAD YOUR DATA PAGE -------------------------------------------- */
 function DownloadDataPage({ navigate, authUser }) {
@@ -5157,7 +5172,7 @@ function DownloadDataPage({ navigate, authUser }) {
           "⬇️ Download Everything"
         )
         , React.createElement('div', {style:{fontSize:11,color:"var(--tx3)",textAlign:"center",marginTop:10,lineHeight:1.6}},
-          "Files are saved to your device. Dream Board does not keep copies of your exported data."
+          "Files are saved to your device. DreamOS does not keep copies of your exported data."
         )
       )
     )
@@ -5197,7 +5212,7 @@ function DreamClonerPage({navigate}) {
           "x-api-key":claudeKey,"anthropic-dangerous-direct-browser-access":"true"},
         body:JSON.stringify({
           model:"claude-haiku-4-5-20251001", max_tokens:400,
-          system:"You are Cherry inside Dream Board. The user gave you a URL and you extracted its text. Your job: write a short, engaging Dream (social post, max 280 chars) that captures the key idea from the page. Sound like a real person sharing something interesting, not a bot summarising. Return only the Dream text, nothing else.",
+          system:"You are Cherry inside DreamOS. The user gave you a URL and you extracted its text. Your job: write a short, engaging Dream (social post, max 280 chars) that captures the key idea from the page. Sound like a real person sharing something interesting, not a bot summarising. Return only the Dream text, nothing else.",
           messages:[{role:"user",content:"Page from "+url.trim()+":\n\n"+txt}]
         })
       });
@@ -5294,7 +5309,7 @@ function HourStoryPage({ navigate, back }) {
           , React.createElement('section', {'aria-label':"How it started"}
             , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10}}, "How it started")
             , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.85}},
-              "Dream Board started as a late-night idea. Not a business plan, not a pitch deck, not a slide with a TAM on it. Just a feeling that the internet had gotten loud, greedy, and weird — and someone needed to make something better"
+              "DreamOS started as a late-night idea. Not a business plan, not a pitch deck, not a slide with a TAM on it. Just a feeling that the internet had gotten loud, greedy, and weird — and someone needed to make something better"
             )
             , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.85,marginTop:10}},
               "That someone was Alhasan. Who is blind, by the way. Fully. Uses a Braille display and VoiceOver to navigate everything. So when most apps treat accessibility like a legal checkbox you slap on at the end, that hits different. He built this because he was tired of fighting every app just to use it — and tired of watching everyone else get ignored too"
@@ -5335,10 +5350,10 @@ function HourStoryPage({ navigate, back }) {
                   href:"https://github.com/Shinygold29/dream-os",
                   target:"_blank", rel:"noopener noreferrer",
                   style:{color:"var(--ac3)",fontWeight:600,textDecoration:"none"},
-                  'aria-label':"Dream Board source code on GitHub"},
+                  'aria-label':"DreamOS source code on GitHub"},
                 "github.com/Shinygold29/dream-os"
               )
-              , " and it is released under the Dream Board Public License (DBMPL) — which is our way of saying: use it, improve it, but do not turn it into something extractive"
+              , " and it is released under the DreamOS Public License (DBMPL) — which is our way of saying: use it, improve it, but do not turn it into something extractive"
             )
           )
 
@@ -5362,15 +5377,15 @@ function HourStoryPage({ navigate, back }) {
             , React.createElement('p', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:17,color:"var(--tx)",lineHeight:1.6,fontStyle:"italic"}},
               "Free, accessible, and always yours"
             )
-            , React.createElement('p', { style: {fontSize:11,color:"var(--tx3)",marginTop:8}}, "Dream Board — built by Rewind (free technology company)")
+            , React.createElement('p', { style: {fontSize:11,color:"var(--tx3)",marginTop:8}}, "DreamOS — built by Rewind (free technology company)")
           )
 
           /* Find us */
           , React.createElement('div', { style: {display:"flex",flexDirection:"column",gap:10}}
             , React.createElement('div', { style: {fontSize:13,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em"}}, "Find us")
             , [
-              {icon:"🌙", label:"DreamOS on DBM",      sub:"@originals",                                  href:null,      internal:"dp", data:{name:"Dream Board",handle:"@originals",id:99}},
-              {icon:"𝕏",  label:"Dream Board on Twitter",  sub:"@DreamBMobile",                               href:"https://x.com/DreamBMobile"},
+              {icon:"🌙", label:"DreamOS on DBM",      sub:"@originals",                                  href:null,      internal:"dp", data:{name:"DreamOS",handle:"@originals",id:99}},
+              {icon:"𝕏",  label:"DreamOS on Twitter",  sub:"@DreamBMobile",                               href:"https://x.com/DreamBMobile"},
               {icon:"📂", label:"Source code on GitHub",          sub:"Shinygold29/dream-os",              href:"https://github.com/Shinygold29/dream-os"},
             ].map(item =>
               React.createElement('button', { key: item.label, className: "snav",
@@ -5396,14 +5411,14 @@ function HourStoryPage({ navigate, back }) {
 
 function LicensePage({navigate}) {
   const LICENSE_TEXT = [
-    {h:"Dream Board Public License (DBMPL) v1.0"},
-    {p:"Copyright (c) 2024–present Alhasan Altameemi / Dream Board"},
+    {h:"DreamOS Public License (DBMPL) v1.0"},
+    {p:"Copyright (c) 2024–present Alhasan Altameemi / DreamOS"},
     {h2:"What you CAN do"},
     {p:"Read and study the source code. Fork for personal non-commercial use. Contribute improvements back. Reference individual components in your own projects. Run a private non-monetized instance for yourself or a small community."},
     {h2:"What you CANNOT do"},
-    {p:"Commercial use without a written license. Paywalling any features we provide free. Adding advertising or data-broker integrations. Harvesting user data for sale or profiling. Using our trademarks (Dream Board, Dream ID, Dreamors, ReDreams, Circles, Cherry) as product or feature names without written permission. Deploying in a way that misleads users into thinking it is the official Dream Board. Building malware or surveillance tools with this code."},
+    {p:"Commercial use without a written license. Paywalling any features we provide free. Adding advertising or data-broker integrations. Harvesting user data for sale or profiling. Using our trademarks (DreamOS, Dream ID, Dreamors, ReDreams, Circles, Cherry) as product or feature names without written permission. Deploying in a way that misleads users into thinking it is the official DreamOS. Building malware or surveillance tools with this code."},
     {h2:"If you deploy a public instance"},
-    {p:"Carry this license notice. State clearly it is not affiliated with Dream Board. Keep it free and ad-free. Make your modifications available under this same license. Do not remove accessibility features."},
+    {p:"Carry this license notice. State clearly it is not affiliated with DreamOS. Keep it free and ad-free. Make your modifications available under this same license. Do not remove accessibility features."},
     {h2:"Trademarks"},
     {p:"Our trademarks in everyday language are not restricted — saying 'I had a dream' or 'my circle of friends' is fine. Using them as product names in a competing or derivative platform is not."},
     {h2:"Disclaimer"},
@@ -5422,7 +5437,7 @@ function LicensePage({navigate}) {
         : React.createElement('p',  {key:i,style:{fontSize:13,color:"var(--tx2)",lineHeight:1.75,marginBottom:8}},item.p)
         )
         , React.createElement('div', {style:{marginTop:24,padding:"12px 14px",background:"linear-gradient(135deg,rgba(109,40,217,.08),rgba(147,51,234,.04))",border:"1px solid rgba(168,85,247,.2)",borderRadius:12,fontSize:12,color:"var(--tx3)",lineHeight:1.6}},
-          "Dream Board — Free for life. Free for ∞."
+          "DreamOS — Free for life. Free for ∞."
         )
       )
     )
@@ -5554,14 +5569,15 @@ const NAV = [
   {id:"feed",    l:"Feed",     icon:"Home",  badge:0},
   {id:"discover",l:"Discover", icon:"Srch",  badge:0},
   {id:"create",  l:"Create",   icon:"Pls",   isCreate:true},
-  {id:"cherry",  l:"Cherry",   icon:"cherry",badge:0},
   {id:"alerts",  l:"Alerts",   icon:"Bell",  badge:"live"},
+  {id:"apps",    l:"Apps",     icon:"Grid",  badge:0},
+  {id:"cherry",  l:"Cherry",   icon:"cherry",badge:0},
   {id:"more",    l:"More",     icon:"Dots",  badge:0},
 ];
 
 /* --- CHERRY OVERLAY ---------------------- */
 function CherryOverlay({onClose, cherryCtx, initMsg, navigate}) {
-  const INIT = {me:false, text:"Hey! I'm Cherry 🍒 — your Dream Board AI Agent. I can see your feed, your Groups, your notifications, and I can take actions for you. What would you like to do?"};
+  const INIT = {me:false, text:"Hey! I'm Cherry 🍒 — your DreamOS AI Agent. I can see your feed, your Groups, your notifications, and I can take actions for you. What would you like to do?"};
   const [msgs, setMsgs] = useState([INIT]);
   const [inp, setInp] = useState(initMsg||"");
   const [typing, setTyping] = useState(false);
@@ -5591,19 +5607,19 @@ function CherryOverlay({onClose, cherryCtx, initMsg, navigate}) {
 
     // ── App knowledge / help ───────────────────────────────────────────────
     if (lo.includes("what is a circle") || lo.includes("what are circles") || (lo.includes("circle") && (lo.includes("what") || lo.includes("explain") || lo.includes("mean") || lo.includes("how"))))
-      return {action:null, result:"Circles are what Dream Board calls groups. Instead of joining a generic 'group', you join a Circle — a community of people sharing the same interests or vibe. You can post Dreams inside a Circle, chat with members, and follow what's happening there. Same idea as a group, just our name for it. You can find yours in the Discover tab."};
+      return {action:null, result:"Circles are what DreamOS calls groups. Instead of joining a generic 'group', you join a Circle — a community of people sharing the same interests or vibe. You can post Dreams inside a Circle, chat with members, and follow what's happening there. Same idea as a group, just our name for it. You can find yours in the Discover tab."};
 
     if (lo.includes("what is a dream") || lo.includes("what are dreams") || (lo.includes("dream") && lo.includes("what does") && lo.includes("mean")))
-      return {action:null, result:"On Dream Board, a Dream is just a post — anything you want to share. A thought, a take, a photo, a link, a question. The name comes from the idea that every idea starts somewhere. You can like Dreams, ReDream them (repost), or Quote Dream them with your own comment on top."};
+      return {action:null, result:"On DreamOS, a Dream is just a post — anything you want to share. A thought, a take, a photo, a link, a question. The name comes from the idea that every idea starts somewhere. You can like Dreams, ReDream them (repost), or Quote Dream them with your own comment on top."};
 
     if (lo.includes("what is redream") || lo.includes("how does redream") || lo.includes("what is reboard") || lo.includes("reboard"))
       return {action:null, result:"ReDreaming instantly shares someone else's Dream to your followers — like a repost or retweet. Quote Dreaming lets you add your own thoughts on top of it. You can undo either at any time from the Dream Options menu (the ··· button)."};
 
     if (lo.includes("what is dream board") || lo.includes("what is this app") || lo.includes("tell me about dream board") || lo.includes("how does this app work"))
-      return {action:null, result:"Dream Board is a social platform where you share what's on your mind — your thoughts, takes, moments, whatever. No ads, no algorithm deciding who sees your posts. You follow people, they follow you, and you see each other's Dreams in your feed. Circles let you find communities around topics you care about. I'm Cherry, the built-in AI — I can help you post, find people to follow, navigate the app or just answer questions."};
+      return {action:null, result:"DreamOS is a social platform where you share what's on your mind — your thoughts, takes, moments, whatever. No ads, no algorithm deciding who sees your posts. You follow people, they follow you, and you see each other's Dreams in your feed. Circles let you find communities around topics you care about. I'm Cherry, the built-in AI — I can help you post, find people to follow, navigate the app or just answer questions."};
 
     if (lo.includes("what is cherry") || lo.includes("who is cherry") || lo.includes("what can you do") || lo.includes("what can cherry do"))
-      return {action:null, result:"I'm Cherry 🍒 — Dream Board's AI assistant. I'm built into the app so I actually know what's happening here. I can: post Dreams for you, follow Dreamors, join Circles, read and clear your notifications, draft content, find trending topics, answer questions about the app, and generally help you get the most out of Dream Board. Just ask and I'll do it — or try to."};
+      return {action:null, result:"I'm Cherry 🍒 — DreamOS's AI assistant. I'm built into the app so I actually know what's happening here. I can: post Dreams for you, follow Dreamors, join Circles, read and clear your notifications, draft content, find trending topics, answer questions about the app, and generally help you get the most out of DreamOS. Just ask and I'll do it — or try to."};
 
     if (lo.includes("help") && (lo.includes("how do i") || lo.includes("how to") || lo.includes("where is") || lo.includes("can't find") || lo.includes("cannot find")))
       return {action:null, result:"Happy to help. What are you trying to do? Just describe it and I'll walk you through it or do it for you. There's no separate help centre — I'm it. Some common things I can help with: posting a Dream, finding someone to follow, joining a Circle, changing your settings, or understanding how something works."};
@@ -5618,7 +5634,7 @@ function CherryOverlay({onClose, cherryCtx, initMsg, navigate}) {
       return {action:null, result:"Settings are in the Menu — tap the Menu button at the bottom (or top, depending on your preference) and you'll see Settings with all the sub-sections. Or I can take you straight to a specific one — just say which: Account, Privacy, Notifications, Customizability, Accessibility, Cherry AI settings."};
 
     if (lo.includes("private") || lo.includes("who can see") || lo.includes("is my account private"))
-      return {action:null, result:"By default your account is public — anyone on Dream Board can see your Dreams. You can make it private in Settings > Privacy > Private Account. When it's private, only approved followers see your posts. Direct Messages (Private Dreams) are always end-to-end encrypted regardless of your account type."};
+      return {action:null, result:"By default your account is public — anyone on DreamOS can see your Dreams. You can make it private in Settings > Privacy > Private Account. When it's private, only approved followers see your posts. Direct Messages (Private Dreams) are always end-to-end encrypted regardless of your account type."};
 
     if (lo.includes("delete") && lo.includes("account"))
       return {action:null, result:"You can delete your account in Settings > Account > Delete Account. It's permanent — your Dreams, followers and profile will all be removed. You'll have 60 days to cancel if you change your mind. Want me to take you to that screen?"};
@@ -5727,7 +5743,7 @@ Want me to post it, or would you like to tweak it first?`,
 
     if (lo.includes("who should i follow") || lo.includes("suggest") && lo.includes("follow")) {
       const unfollowed = USERS.filter(u=>!following.has(u.id));
-      if (!unfollowed.length) return {action:null, result:"You're already following everyone on Dream Board! 🎉"};
+      if (!unfollowed.length) return {action:null, result:"You're already following everyone on DreamOS! 🎉"};
       const picks = unfollowed.slice(0,2).map(u=>`${u.name} (${u.handle}) — ${u.bio.slice(0,40)}…`).join("\n");
       return {action:"Analysing your interests and engagement…", agentLabel:"Finding Dreamors",
         result:`Based on your activity, I suggest:
@@ -5753,12 +5769,12 @@ Want me to join any of these?`,
 
     if (lo.includes("trending") || lo.includes("what's hot") || lo.includes("whats hot"))
       return {action:"Fetching live trending data…", agentLabel:"Fetching trends",
-        result:"Right now on Dream Board:\n\n🔥 real trends (API needed) (+340% this hour)\n📈 #CreativeProcess — 22.1K Dreams\n🌿 #PhilosophyOfMind — 15.4K Dreams\n\nWant me to draft a Dream around one of these?"};
+        result:"Right now on DreamOS:\n\n🔥 real trends (API needed) (+340% this hour)\n📈 #CreativeProcess — 22.1K Dreams\n🌿 #PhilosophyOfMind — 15.4K Dreams\n\nWant me to draft a Dream around one of these?"};
 
     if (lo.includes("summarize") || lo.includes("summary") || lo.includes("what's happening") || lo.includes("catch me up")) {
       const ctx2 = appContext();
       return {action:"Reading your feed and activity…", agentLabel:"Summarising feed",
-        result:`Here's your Dream Board summary:
+        result:`Here's your DreamOS summary:
 
 📬 ${ctx2.unread} unread notification${ctx2.unread!==1?"s":""}
 👥 Following: ${ctx2.followingNames}
@@ -5787,7 +5803,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
     if (lo.includes("hello") || lo.includes("hi cherry") || lo.includes("hey"))
       return {action:null, result:`Hey! 🍒 I can see you're following ${appContext().followingNames || "no one yet"} and you're in ${appContext().joinedGroups || "no groups yet"}. I can post Dreams, follow people, join Groups, check notifications, and more. What would you like?`};
 
-    return {action:null, result:"I can help you post Dreams, follow Dreamors, join Groups, check your notifications, summarise your feed, find trending topics, or draft content. Just ask — I have full access to your Dream Board."};
+    return {action:null, result:"I can help you post Dreams, follow Dreamors, join Groups, check your notifications, summarise your feed, find trending topics, or draft content. Just ask — I have full access to your DreamOS."};
   };
 
   const send = t => {
@@ -5875,7 +5891,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
           , React.createElement('div', { style: {flex:1},}
             , React.createElement('div', { style: {fontWeight:700,fontSize:15,color:"var(--tx)"},}, "Cherry")
             , React.createElement('div', { style: {fontSize:10,color:"var(--gr)",display:"flex",alignItems:"center",gap:4},}
-              , React.createElement('span', { style: {width:5,height:5,borderRadius:"50%",background:"var(--gr)",display:"inline-block"},}), "AI Agent · Connected to your Dream Board"
+              , React.createElement('span', { style: {width:5,height:5,borderRadius:"50%",background:"var(--gr)",display:"inline-block"},}), "AI Agent · Connected to your DreamOS"
             )
           )
           , React.createElement('button', { className: "bi", onClick: ()=>setShowHistoryDialog(true), 'aria-label': "History and new conversation", title: "History / New chat",}
@@ -6085,7 +6101,7 @@ function AnalyticsBanner({ onDone }) {
   return (
     React.createElement('div', { className: "analytics-banner", role: "dialog", "aria-modal": "true", 'aria-label': "Analytics consent" ,}
       , React.createElement('div', null
-        , React.createElement('div', { style: {fontWeight:700,fontSize:15,marginBottom:6},}, "Help improve Dream Board" )
+        , React.createElement('div', { style: {fontWeight:700,fontSize:15,marginBottom:6},}, "Help improve DreamOS" )
         , React.createElement('div', { style: {fontSize:13,color:"var(--tx2)",marginBottom:16,lineHeight:1.6},}, "Can we collect "
              , React.createElement('strong', null, "anonymous crash reports"), "? No posts, no messages — only error types and which screen crashed."
         )
@@ -6185,7 +6201,7 @@ function validateAge(bd) {
   let age = now.getFullYear() - dob.getFullYear();
   const m = now.getMonth() - dob.getMonth();
   if (m < 0 || (m === 0 && now.getDate() < dob.getDate())) age--;
-  if (age < 13) return "You must be 13 or older to join Dream Board.";
+  if (age < 13) return "You must be 13 or older to join DreamOS.";
   return "";
 }
 
@@ -6221,7 +6237,7 @@ function StepDots({ mode }) {
 /* --- SPLASH SCREEN ------------------------------------------------------- */
 function SplashScreen({ onLogin, onSignup, onDemo }) {
   return (
-    React.createElement('div', {className:"splash", role:"main", 'aria-label':"Welcome to Dream Board"}
+    React.createElement('div', {className:"splash", role:"main", 'aria-label':"Welcome to DreamOS"}
       , React.createElement('div', {style:{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"48px 28px 32px",textAlign:"center"}}
         , React.createElement('div', {className:"splash-moon",'aria-hidden':"true"}, "🌙")
         , React.createElement('h1', {className:"splash-title"}, "DreamOS")
@@ -6238,14 +6254,14 @@ function SplashScreen({ onLogin, onSignup, onDemo }) {
             className:"btn bp",
             style:{width:"100%",padding:14,fontSize:15,fontWeight:700},
             onClick:onSignup,
-            'aria-label':"Create a new Dream Board ID"},
+            'aria-label':"Create a new DreamOS ID"},
           "Create your Dream ID"
         )
         , React.createElement('button', {
             className:"btn bgb",
             style:{width:"100%",padding:13,fontSize:14},
             onClick:onLogin,
-            'aria-label':"Login to your existing Dream Board ID"},
+            'aria-label':"Login to your existing DreamOS ID"},
           "Login to your Dream ID"
         )
         , React.createElement('button', {
@@ -6320,7 +6336,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
 
   // --- Handlers ---
   const handleDemoLogin = () => {
-    onAuth({ displayName:"Guest", name:"Guest", handle:"@guest", initials:"DD", color:"#6d28d9", bio:"Browsing as a guest. Sign in to Dream.", location:"Dream Land", joined:"February 2024", dreamCount:12, followers:3, following:7, verified:false, email:"guest@dreamboard.app", emailVerified:true, photoURL:null, uid:"demo", isGuest:true });
+    onAuth({ displayName:"Guest", name:"Guest", handle:"@guest", initials:"DD", color:"#6d28d9", bio:"Browsing as a guest. Sign in to Dream.", location:"Dream Land", joined:"February 2024", dreamCount:12, followers:3, following:7, verified:false, email:"guest@dream-os.pages.dev", emailVerified:true, photoURL:null, uid:"demo", isGuest:true });
   };
 
   const handleLogin = async () => {
@@ -6480,8 +6496,8 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
           value: email, onChange: e=>{setEmail(e.target.value);setErr("");setMsg("");},
           style: {marginBottom:12}, 'aria-label': "Email address" , autoComplete: "email",})
         , React.createElement('label', { style: {display:"flex",gap:8,alignItems:"flex-start",margin:"8px 0 14px",cursor:"pointer",fontSize:12,color:"var(--tx2)",lineHeight:1.5},}
-          , React.createElement('input', { type: "checkbox", defaultChecked: true, style: {marginTop:2,flexShrink:0,width:15,height:15,cursor:"pointer",accentColor:"var(--ac)"}, "aria-label": "Receive Dream Board updates by email",})
-          , React.createElement('span', null, "Send me occasional updates, community highlights and new features from Dream Board. No spam, unsubscribe any time.")
+          , React.createElement('input', { type: "checkbox", defaultChecked: true, style: {marginTop:2,flexShrink:0,width:15,height:15,cursor:"pointer",accentColor:"var(--ac)"}, "aria-label": "Receive DreamOS updates by email",})
+          , React.createElement('span', null, "Send me occasional updates, community highlights and new features from DreamOS. No spam, unsubscribe any time.")
         )
         , React.createElement('div', { className: "auth-inp-wrap",}
           , React.createElement('input', { className: "inp", type: showPw?"text":"password", placeholder: "Password",
@@ -6699,14 +6715,14 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
         , React.createElement('label', { style: {display:"flex",gap:10,alignItems:"flex-start",marginBottom:12,cursor:"pointer",fontSize:13,color:"var(--tx2)",lineHeight:1.55},}
           , React.createElement('input', { type: "checkbox", checked: agreedTerms, onChange: e=>setAgreedTerms(e.target.checked),
             style: {marginTop:2,flexShrink:0,width:16,height:16,cursor:"pointer"},
-            'aria-label': "I agree to Dream Board's Terms and Privacy Policy",})
-          , React.createElement('span', null, "I agree to Dream Board\u2019s Terms and Privacy Policy. ", React.createElement('span', { style: {color:"var(--rd)",fontWeight:700},}, "Required."))
+            'aria-label': "I agree to DreamOS's Terms and Privacy Policy",})
+          , React.createElement('span', null, "I agree to DreamOS\u2019s Terms and Privacy Policy. ", React.createElement('span', { style: {color:"var(--rd)",fontWeight:700},}, "Required."))
         )
         , React.createElement('label', { style: {display:"flex",gap:10,alignItems:"flex-start",marginBottom:20,cursor:"pointer",fontSize:13,color:"var(--tx2)",lineHeight:1.55},}
           , React.createElement('input', { type: "checkbox", checked: crashConsent, onChange: e=>setCrashConsent(e.target.checked),
             style: {marginTop:2,flexShrink:0,width:16,height:16,cursor:"pointer"},
             'aria-label': "Share anonymous crash reports to help improve the app",})
-          , React.createElement('span', null, "Share anonymous crash reports to help improve Dream Board. No personal data ever. ", React.createElement('span', { style: {color:"var(--gr)",fontWeight:600},}, "Recommended."))
+          , React.createElement('span', null, "Share anonymous crash reports to help improve DreamOS. No personal data ever. ", React.createElement('span', { style: {color:"var(--gr)",fontWeight:600},}, "Recommended."))
         )
         , React.createElement('div', { style: {display:"flex",gap:10},}
           , React.createElement('button', { className: "btn bgb" , style: {flex:1,padding:12}, onClick: ()=>{setMode("signup_interests");setErr("");}, 'aria-label': "Go back" ,}, "Back")
@@ -6733,7 +6749,7 @@ function WelcomeScreen({ onDone, navigate }) {
   const steps = [
     {
       icon: "🌙",
-      title: "Welcome to Dream Board",
+      title: "Welcome to DreamOS",
       body: "You made it. This is your space — to think out loud, share what you are feeling, follow people who inspire you, and build something real. There are no algorithms deciding what matters here. Just you and your Dreams.",
       cta: "Next",
     },
@@ -6746,7 +6762,7 @@ function WelcomeScreen({ onDone, navigate }) {
     {
       icon: "🍒",
       title: "Meet Cherry",
-      body: "Cherry is your AI companion on Dream Board. Cherry can help you write, suggest who to follow, read your notifications, and more. Look for the cherry button anywhere in the app.",
+      body: "Cherry is your AI companion on DreamOS. Cherry can help you write, suggest who to follow, read your notifications, and more. Look for the cherry button anywhere in the app.",
       cta: "Next",
     },
     {
@@ -6762,7 +6778,7 @@ function WelcomeScreen({ onDone, navigate }) {
   return (
     React.createElement('div', {
       style: {position:"fixed",inset:0,zIndex:10002,background:"var(--bg)",display:"flex",flexDirection:"column",overflowY:"auto"},
-      role: "main", 'aria-label': "Welcome to Dream Board",}
+      role: "main", 'aria-label': "Welcome to DreamOS",}
       // Top area
       , React.createElement('div', { style: {flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"48px 28px 24px",textAlign:"center"},}
         , React.createElement('div', { style: {fontSize:72,marginBottom:20,'aria-hidden':"true"},}, s.icon)
@@ -6800,7 +6816,7 @@ function WelcomeScreen({ onDone, navigate }) {
 function OnboardingOverlay({ onDone }) {
   const [step, setStep] = React.useState(0);
   const steps = [
-    { icon: "🌙", title: "Welcome to Dream Board", body: "This is your inner world's stage. Share what you're dreaming, thinking and feeling — no filters, no algorithms deciding what matters. Just you and your Dreams." },
+    { icon: "🌙", title: "Welcome to DreamOS", body: "This is your inner world's stage. Share what you're dreaming, thinking and feeling — no filters, no algorithms deciding what matters. Just you and your Dreams." },
     { icon: "🍒", title: "Meet Cherry, your AI companion", body: "Cherry isn't just a chatbot. Cherry reads your feed, follows Dreamors you'll love, posts Dreams for you and keeps your notifications tidy. Find Cherry in the bottom tab or the floating orb." },
     { icon: "✨", title: "Your feed, your way", body: "Explore the Feed, discover new Dreamors, join Groups and check Alerts. Everything you create is yours. Tap Create anytime to share a new Dream." },
   ];
@@ -6891,7 +6907,7 @@ function DraftsPage({ navigate, onLoadDraft }) {
 
 /* --- MULTI-AI CONFIG ------------------------------------------------------ */
 const AI_PROVIDERS = [
-  {id:"cherry",   name:"Cherry",   icon:"🍒", desc:"Dream Board's own AI — best for Dreams", default:true},
+  {id:"cherry",   name:"Cherry",   icon:"🍒", desc:"DreamOS's own AI — best for Dreams", default:true},
   {id:"claude",   name:"Claude",   icon:"🟠", desc:"Deep reasoning and writing"},
   {id:"chatgpt",  name:"ChatGPT",  icon:"🟢", desc:"Creative and conversational"},
   {id:"llama",    name:"LLaMA 3",  icon:"🦙", desc:"Open source, free (Meta/Groq)"},
@@ -7161,7 +7177,7 @@ class ErrorBoundary extends React.Component {
   }
   componentDidCatch(err, info) {
     this.setState({ error: err });
-    console.error("Dream Board Error:", err, info);
+    console.error("DreamOS Error:", err, info);
   }
   static getDerivedStateFromError(err) {
     return { error: err };
@@ -7372,9 +7388,9 @@ function DreamLabsPage({ navigate, authUser }) {
   ];
 
   const FEATURES = [
-    {id:"marketplace", icon:"\uD83D\uDED2", name:"Marketplace",          status:"Beta",    tag:"Commerce", desc:"Buy and sell inside Dream Board. Early access testers shape how it works before launch."},
+    {id:"marketplace", icon:"\uD83D\uDED2", name:"Marketplace",          status:"Beta",    tag:"Commerce", desc:"Buy and sell inside DreamOS. Early access testers shape how it works before launch."},
     {id:"store",       icon:"\uD83C\uDFEA", name:"Store",                status:"Alpha",   tag:"Apps",     desc:"Apps, tools and add-ons for Dreamors. Help us decide what ships."},
-    {id:"miniapps",    icon:"\uD83E\uDDE9", name:"Mini Apps",            status:"Alpha",   tag:"Platform", desc:"Tiny utilities that live inside Dream Board. The first batch is almost ready."},
+    {id:"miniapps",    icon:"\uD83E\uDDE9", name:"Mini Apps",            status:"Alpha",   tag:"Platform", desc:"Tiny utilities that live inside DreamOS. The first batch is almost ready."},
     {id:"analytics",   icon:"\uD83D\uDCCA", name:"Advanced Analytics",   status:"Beta",    tag:"Data",     desc:"Deeper stats \u2014 reach, engagement curves, best posting times."},
     {id:"collab",      icon:"\uD83E\uDD1D", name:"Collaborative Dreams", status:"Concept", tag:"Social",   desc:"Co-author a Dream with another Dreamer. Two voices, one post."},
   ];
@@ -7540,7 +7556,7 @@ function DreamLabsPage({ navigate, authUser }) {
         React.createElement('p', {style:{fontSize:13,color:"var(--tx2)",lineHeight:1.65,margin:0}},
           enrolled
             ? "You\u2019re a Dream Pioneer. You get beta features before everyone else. In exchange, we need your honest feedback."
-            : "Where new Dream Board features live before they\u2019re ready for everyone. You get them early, you break them, you tell us what\u2019s wrong."
+            : "Where new DreamOS features live before they\u2019re ready for everyone. You get them early, you break them, you tell us what\u2019s wrong."
         )
       ),
 
@@ -8088,33 +8104,43 @@ useEffect(() => {
           React.createElement('span', {"aria-hidden":"true"}, "Create")
         )
         , React.createElement('button', {
-            className: "nb" + (page==="cherry" ? " on" : ""),
-            onClick: () => goRoot("cherry"),
-            role: "tab", "aria-selected": page==="cherry",
-            "aria-label": "Cherry AI", tabIndex: 0,
-          },
-          React.createElement('div', {"aria-hidden":"true", className:"nb-check"}),
-          React.createElement('span', {"aria-hidden":"true", style:{fontSize:19,lineHeight:"22px",display:"block"}}, "🍒"),
-          React.createElement('span', {"aria-hidden":"true"}, "Cherry")
-        )
-        , React.createElement('button', {
             className: "nb" + (page==="alerts" ? " on" : ""),
             onClick: () => goRoot("alerts"),
             role: "tab", "aria-selected": page==="alerts",
-            "aria-label": "Alerts" + ((unreadNotifs+(typeof unreadMsgs!=="undefined"?unreadMsgs:0))>0 ? ", " + (unreadNotifs+(typeof unreadMsgs!=="undefined"?unreadMsgs:0)) + " unread" : ""),
+            "aria-label": "Alerts" + ((unreadNotifs+(typeof unreadMsgs!=="undefined"?unreadMsgs:0))>0 ? ", " + (unreadNotifs+(typeof unreadMsgs!=="undefined"?unreadMsgs:0)) + " unread," : ","),
             tabIndex: 0,
           },
-          React.createElement('div', {style:{position:"relative"}},
+          React.createElement('div', {style:{position:"relative"},"aria-hidden":"true"},
             React.createElement(Ic.Bell, {"aria-hidden":"true", style:{width:22,height:22}}),
             unreadNotifs > 0 && React.createElement('span', {"className":"nbdg","aria-hidden":"true"}, "("+unreadNotifs+")")
           ),
           React.createElement('span', {"aria-hidden":"true"}, "Alerts")
         )
         , React.createElement('button', {
+            className: "nb" + (page==="apps" ? " on" : ""),
+            onClick: () => goRoot("apps"),
+            role: "tab", "aria-selected": page==="apps",
+            "aria-label": "Apps,", tabIndex: 0,
+          },
+          React.createElement('div', {"aria-hidden":"true", className:"nb-check"}),
+          React.createElement(Ic.Grid, {"aria-hidden":"true", style:{width:22,height:22}}),
+          React.createElement('span', {"aria-hidden":"true"}, "Apps")
+        )
+        , React.createElement('button', {
+            className: "nb" + (page==="cherry" ? " on" : ""),
+            onClick: () => goRoot("cherry"),
+            role: "tab", "aria-selected": page==="cherry",
+            "aria-label": "Cherry,", tabIndex: 0,
+          },
+          React.createElement('div', {"aria-hidden":"true", className:"nb-check"}),
+          React.createElement('span', {"aria-hidden":"true", style:{fontSize:19,lineHeight:"22px",display:"block"}}, "🍒"),
+          React.createElement('span', {"aria-hidden":"true"}, "Cherry")
+        )
+        , React.createElement('button', {
             className: "nb" + (page==="more" ? " on" : ""),
             onClick: () => goRoot("more"),
             role: "tab", "aria-selected": page==="more",
-            "aria-label": "More", tabIndex: 0,
+            "aria-label": "More,", tabIndex: 0,
           },
           React.createElement(Ic.Dots, {"aria-hidden":"true", style:{width:22,height:22}}),
           React.createElement('span', {"aria-hidden":"true"}, "More")
@@ -8129,7 +8155,7 @@ useEffect(() => {
             , React.createElement('div', { style: {textAlign:"center",marginBottom:20},}
               , React.createElement('div', { className: "aiorb", style: {width:60,height:60,fontSize:28,margin:"0 auto 12px"},}, "🍒")
               , React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:22,marginBottom:6},}, "Meet Cherry" )
-              , React.createElement('div', { style: {fontSize:13,color:"var(--tx2)",lineHeight:1.6},}, "Your AI Agent for Dream Board. Cherry isn't just a chatbot — it can take real actions across the entire app."                     )
+              , React.createElement('div', { style: {fontSize:13,color:"var(--tx2)",lineHeight:1.6},}, "Your AI Agent for DreamOS. Cherry isn't just a chatbot — it can take real actions across the entire app."                     )
             )
             , [
               {ic:"✏️", title:"Write & post Dreams", desc:"Ask Cherry to draft a Dream and post it to your feed instantly"},
