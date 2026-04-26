@@ -6057,8 +6057,10 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
 
 
 /* --- SUPABASE CONFIG ---------------------------------------------------- */
-const SUPABASE_URL = "https://zlwfrfrrxeeijthrnajc.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpsd2ZyZnJyeGVlaWp0aHJuYWpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5MDAyMTgsImV4cCI6MjA5MDQ3NjIxOH0.S570lGyLpmid5xxRKbDgEM6V4VEH12951BjfxBNLO_Y";
+// Keys are set via environment variables in production
+// Never hardcode keys here
+const SUPABASE_URL = (typeof __SUPABASE_URL__ !== "undefined" && __SUPABASE_URL__ !== "__SUPABASE_URL__") ? __SUPABASE_URL__ : "";
+const SUPABASE_ANON_KEY = (typeof __SUPABASE_ANON_KEY__ !== "undefined" && __SUPABASE_ANON_KEY__ !== "__SUPABASE_ANON_KEY__") ? __SUPABASE_ANON_KEY__ : "";
 
 // Sanitize input — strip dangerous characters before sending to server
 function sanitizeInput(str, maxLen) {
@@ -6235,46 +6237,45 @@ function StepDots({ mode }) {
 
 
 /* --- SPLASH SCREEN ------------------------------------------------------- */
-function SplashScreen({ onLogin, onSignup, onDemo }) {
+function SplashScreen({ onLogin, onSignup }) {
   return (
     React.createElement('div', {className:"splash", role:"main", 'aria-label':"Welcome to DreamOS"}
-      , React.createElement('div', {style:{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"48px 28px 32px",textAlign:"center"}}
-        , React.createElement('div', {className:"splash-moon",'aria-hidden':"true"}, "🌙")
+      , React.createElement('div', {style:{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"48px 28px 24px",textAlign:"center"}}
+        , React.createElement('div', {className:"splash-moon",'aria-hidden':"true"}, "\ud83c\udf19")
         , React.createElement('h1', {className:"splash-title"}, "DreamOS")
         , React.createElement('p', {className:"splash-sub"},
-          "Somewhere between your midnight thoughts and your wildest ideas lives a place that was always meant for you.",
-          React.createElement('br',null),
-          React.createElement('span', {style:{fontSize:12,opacity:.6,display:"block",marginTop:6}},
-            "Better than doomscrolling at 2am. Probably."
+          "The first open source, accessible web operating system. Powered by Nostr. Free for life."
+        )
+        , React.createElement('div', {style:{marginTop:24,padding:"12px 16px",background:"rgba(109,40,217,.12)",border:"1px solid rgba(109,40,217,.25)",borderRadius:12,maxWidth:280,textAlign:"left"}}
+          , React.createElement('div', {style:{fontSize:11,fontWeight:800,color:"var(--ac3)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:6},'aria-hidden':"true"}, "\u26a1 Powered by Nostr")
+          , React.createElement('p', {style:{fontSize:12,color:"var(--tx2)",lineHeight:1.65,margin:0}},
+            "Your Dream ID is a cryptographic key. No company owns it. No password to forget. Works on every Nostr app."
           )
         )
       )
       , React.createElement('div', {style:{padding:"0 20px",paddingBottom:"calc(env(safe-area-inset-bottom,0px) + 32px)",display:"flex",flexDirection:"column",gap:10,width:"100%"}}
         , React.createElement('button', {
             className:"btn bp",
-            style:{width:"100%",padding:14,fontSize:15,fontWeight:700},
+            style:{width:"100%",padding:15,fontSize:15,fontWeight:700},
             onClick:onSignup,
-            'aria-label':"Create a new DreamOS ID"},
-          "Create your Dream ID"
+            'aria-label':"Create your Dream ID with Nostr,"},
+          React.createElement('span', {'aria-hidden':"true"}, "Create your Dream ID")
         )
         , React.createElement('button', {
             className:"btn bgb",
             style:{width:"100%",padding:13,fontSize:14},
             onClick:onLogin,
-            'aria-label':"Login to your existing DreamOS ID"},
-          "Login to your Dream ID"
+            'aria-label':"Login with your existing Nostr key,"},
+          React.createElement('span', {'aria-hidden':"true"}, "Login with Nostr")
         )
-        , React.createElement('button', {
-            style:{background:"none",border:"none",padding:"10px",fontSize:13,
-              color:"var(--tx3)",cursor:"pointer",fontFamily:"inherit"},
-            onClick:onDemo,
-            'aria-label':"Continue without an account — explore as a guest"},
-          "Continue as Guest"
+        , React.createElement('p', {style:{fontSize:11,color:"var(--tx3)",textAlign:"center",lineHeight:1.6,margin:0}},
+          "Works with Alby, nos2x and any Nostr extension."
         )
       )
     )
   );
 }
+
 
 
 function LoginScreen({ onAuth, onBack, initialMode="login" }) {
@@ -8051,8 +8052,7 @@ useEffect(() => {
   if (authStage === "splash") return (
     React.createElement(SplashScreen, {
       onLogin: ()=>{ setLoginMode("login"); setAuthStage("auth"); },
-      onSignup: ()=>{ setLoginMode("signup"); setAuthStage("auth"); },
-      onDemo: ()=>{ setAuthUser({uid:"guest",isGuest:true}); setAuthStage("app"); },}
+      onSignup: ()=>{ setLoginMode("signup"); setAuthStage("auth"); },}
     )
   );
   if (authStage === "gate") return React.createElement(TurnstileGate, { onVerified: () => setAuthStage("auth"),});
