@@ -69,3 +69,21 @@
 | Login | Sign In |
 | Cherry | Claude or any other AI |
 
+
+## Hosting — Updated Plan
+
+**Primary host: Netlify**
+- More accessible dashboard than Cloudflare
+- Automatic deploys from GitHub on push to main
+- Free tier is generous and stable
+- netlify.app subdomain works immediately with no setup friction
+
+**Cloudflare — kept for Turnstile only**
+- Site key and secret key stay in use for bot protection
+- Cloudflare Pages removed entirely
+- Worker can be retired once Turnstile is called from Netlify functions
+
+**Old URL (dream-board-mobile.pages.dev)**
+- Shows a notice page with auto-redirect to new URL
+- notice.html committed to repo
+
