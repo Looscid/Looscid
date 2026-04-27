@@ -838,7 +838,7 @@ function YouTubeEmbed() {
   }, [playing]);
   return (
     React.createElement('div', { className: "embed",}
-      , React.createElement('div', { className: "embed-thumb", onClick: ()=>setPlaying(p=>!p),}
+      , React.createElement('button', { className: "embed-thumb", onClick: ()=>setPlaying(p=>!p), 'aria-label': "Play or pause video,", style:{cursor:'pointer',border:'none',padding:0,display:'block',width:'100%'},}
         , React.createElement('div', { style: {position:"absolute",inset:0,background:"linear-gradient(135deg,#080618,#180828)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:48,opacity:.3},}, "🎬")
         , !playing && React.createElement('div', { className: "embed-play",}, React.createElement(Ic.Play, { style: {width:20,height:20,color:"#fff"},}))
       )
@@ -2688,7 +2688,7 @@ function ProfilePage({navigate, authUser}) {
           React.createElement('button', {className:"btn bp",style:{flex:1,padding:"9px 0",fontSize:13},
             onClick:()=>navigate("login"),'aria-label':"Create a Dream ID"}, "Create Dream ID"),
           React.createElement('button', {className:"btn bgb",style:{flex:1,padding:"9px 0",fontSize:13},
-            onClick:()=>navigate("login"),'aria-label':"Sign in"}, "Sign In")
+            onClick:()=>navigate("login"),'aria-label':"Sign in"}, "Login")
         )
       )
       // Cherry - prompt
@@ -3645,7 +3645,7 @@ function AccountSettings({navigate, authUser, onSignOut}) {
         /* Profile info (real accounts) */
         , !isDemo && React.createElement(React.Fragment, null
             , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Dream ID")
-            , React.createElement('div', { className: "sr", style: {cursor:"pointer"}, onClick: ()=>setShow2FA(false)||alert("Edit name: coming soon"),}
+            , React.createElement('div', { className: "sr", style: {cursor:"pointer"}, role:"button", tabIndex:0, onClick: ()=>setShow2FA(false)||alert("Edit name: coming soon"),'aria-label':"Edit display name,",}
               , React.createElement('div', null
                 , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,textTransform:"uppercase",letterSpacing:".04em",marginBottom:2},}, "Display Name")
                 , React.createElement('div', { className: "sr-title",}, authUser.displayName||"Dreamor")
@@ -6057,10 +6057,20 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
 
 
 /* --- SUPABASE CONFIG ---------------------------------------------------- */
-// Keys are set via environment variables in production
-// Never hardcode keys here
-const SUPABASE_URL = (typeof __SUPABASE_URL__ !== "undefined" && __SUPABASE_URL__ !== "__SUPABASE_URL__") ? __SUPABASE_URL__ : "";
-const SUPABASE_ANON_KEY = (typeof __SUPABASE_ANON_KEY__ !== "undefined" && __SUPABASE_ANON_KEY__ !== "__SUPABASE_ANON_KEY__") ? __SUPABASE_ANON_KEY__ : "";
+// Keys loaded safely — never hardcoded
+// In production these are injected by the build system
+const SUPABASE_URL = (function() {
+  try {
+    if (typeof __SUPABASE_URL__ !== "undefined") return __SUPABASE_URL__;
+  } catch(e) {}
+  return "";
+})();
+const SUPABASE_ANON_KEY = (function() {
+  try {
+    if (typeof __SUPABASE_ANON_KEY__ !== "undefined") return __SUPABASE_ANON_KEY__;
+  } catch(e) {}
+  return "";
+})();
 
 // Sanitize input — strip dangerous characters before sending to server
 function sanitizeInput(str, maxLen) {
