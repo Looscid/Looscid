@@ -4,15 +4,15 @@
 const TURNSTILE_SECRET = "";
 const ALLOWED_ORIGINS = [
   "https://dream-os.pages.dev",
-  "https://dream-board-mobile.pages.dev",
+  "https://dreamos.pages.dev",
 ];
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // Redirect old dream-board-mobile URL to new dream-os URL
-    if (url.hostname === "dream-board-mobile.pages.dev") {
+    // Redirect old dream-board-mobile URL (legacy redirect) to new dream-os URL
+    if (url.hostname === "dreamos.pages.dev") {
       const newUrl = "https://dream-os.pages.dev" + url.pathname + url.search;
       return Response.redirect(newUrl, 301);
     }

@@ -1,6 +1,6 @@
-# Contributing to Dream Board Mobile
+# Contributing to DreamOS
 
-Welcome, and thank you for being here. Dream Board Mobile is an open source project built with care, and we're glad you want to be part of it. Before you get started, take a few minutes to read this document. It'll help you understand what we're building and how we build it together.
+Welcome, and thank you for being here. DreamOS is an open source project built with care, and we're glad you want to be part of it. Before you get started, take a few minutes to read this document. It'll help you understand what we're building and how we build it together.
 
 ---
 
@@ -12,7 +12,7 @@ We have our own language here. Please read TERMINOLOGY.md before anything else. 
 
 ## Accessibility
 
-Dream Board Mobile was built by a blind Dreamor. Accessibility isn't something we added — it's something we started with. We ask every contributor to keep that spirit alive.
+DreamOS was built by a blind Dreamor. Accessibility isn't something we added — it's something we started with. We ask every contributor to keep that spirit alive.
 
 That means meaningful ARIA labels on interactive elements, logical heading structure, touch targets that are easy to reach and color never being the only way something communicates meaning.
 
@@ -28,4 +28,4 @@ Keep it clean and readable. Comment your reasoning. If something might confuse s
 
 ## The spirit of this project
 
-Dream Board Mobile exists to prove something. We hope you feel that when you build with us.
+DreamOS exists to prove something. We hope you feel that when you build with us.
