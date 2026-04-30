@@ -1,10 +1,18 @@
-name: Validate
+name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main, preview, dev]
-  pull_request:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   validate:
@@ -20,12 +28,26 @@ jobs:
           fi
           echo "index.html found — $(wc -l < index.html) lines"
 
-      - name: Check no old terminology in UI
-        run: |
-          # Warn if any old Dream Board Mobile UI text slipped in
-          count=$(grep -c "Dream Board Mobile" index.html || true)
-          echo "Old name references in index.html: $count"
-
       - name: Syntax check worker.js
         run: node --check worker.js && echo "worker.js syntax OK"
 
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
