@@ -2665,9 +2665,9 @@ function ProfilePage({navigate, authUser}) {
   else if (tab==="saved") tabDreams = sortDreams(dreams.filter(d=>d.bookmarked));
   else if (tab==="liked") tabDreams = sortDreams(dreams.filter(d=>d.liked));
 
-  // Guest gets full More tab — features that need a Dream ID prompt for it
+  // Guest gets full More tab — features that need a Nostr key prompt for it
   const promptSignup = (feature) => {
-    alert(feature + " requires a Dream ID. It is free and takes 30 seconds.");
+    alert(feature + " requires a Nostr key. It is free and takes 30 seconds.");
     // navigate("login") would be called here in a real flow
   };
 
@@ -2683,22 +2683,22 @@ function ProfilePage({navigate, authUser}) {
           background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",
           border:"1px solid rgba(168,85,247,.2)",borderRadius:12}},
         React.createElement('div', {style:{fontWeight:700,fontSize:13,color:"var(--ac3)",marginBottom:4}}, "You are browsing as a Guest")
-        , React.createElement('p', {style:{fontSize:12,color:"var(--tx2)",lineHeight:1.6,marginBottom:10}}, "Create a free Dream ID to post Dreams, follow Dreamors, use Cherry, and make this yours.")
+        , React.createElement('p', {style:{fontSize:12,color:"var(--tx2)",lineHeight:1.6,marginBottom:10}}, "Create a free Nostr key to post Dreams, follow Dreamors, use Cherry, and make this yours.")
         , React.createElement('div', {style:{display:"flex",gap:8}},
           React.createElement('button', {className:"btn bp",style:{flex:1,padding:"9px 0",fontSize:13},
-            onClick:()=>navigate("login"),'aria-label':"Create a Dream ID"}, "Create Dream ID"),
+            onClick:()=>navigate("login"),'aria-label':"Create a Nostr key"}, "Create Nostr key"),
           React.createElement('button', {className:"btn bgb",style:{flex:1,padding:"9px 0",fontSize:13},
             onClick:()=>navigate("login"),'aria-label':"Sign in"}, "Login")
         )
       )
       // Cherry - prompt
       , React.createElement('button', {className:"snav",onClick:()=>promptSignup("Cherry AI"),
-          'aria-label':"Cherry AI — requires Dream ID"},
+          'aria-label':"Cherry AI — requires Nostr key"},
         React.createElement('div', {className:"snav-l"},
           React.createElement('div', {className:"snav-ic",style:{background:"rgba(109,40,217,.15)",fontSize:17}}, "🍒"),
           React.createElement('div', null,
             React.createElement('div', {className:"snav-title"}, "Cherry AI"),
-            React.createElement('div', {className:"snav-sub"}, "Requires Dream ID")
+            React.createElement('div', {className:"snav-sub"}, "Requires Nostr key")
           )
         ), React.createElement(Ic.Chv, {style:{width:16,height:16,color:"var(--tx3)"}})
       )
@@ -3187,7 +3187,7 @@ function CherryPage({navigate, cherryCtx}) {
     const _sys = "You are Cherry, the AI built into DreamOS — a free, open social platform. " +
       "Personality: warm, direct, witty, honest, unfiltered, genuinely helpful, never preachy or corporate. " +
       "IMPORTANT VOCABULARY — always use these terms: " +
-      "Dreams (not posts or tweets), Dreamors (not users), ReDreams (not reposts/retweets), Circles (not groups), Dream ID (not account). " +
+      "Dreams (not posts or tweets), Dreamors (not users), ReDreams (not reposts/retweets), Circles (not groups), npub (not account). " +
       "You are not a bolt-on chatbot. You ARE the platform intelligence — Cherry is to DBM what Grok is to X. " +
       "You can take real actions: post Dreams, follow Dreamors, join Circles, read notifications. " +
       "When writing Dreams for Dreamors, write naturally — like a real person sharing something, not marketing copy. " +
@@ -3509,7 +3509,7 @@ function CherryResponseActions({msg, idx}) {
 
 function SettingsPage({prefs, setPrefs, navigate, onSignOut, authUser, theme, setTheme, drafts}) {
   const sections = [
-    {id:"account",        icon:"👤", title:"Account",        sub:"Dream ID, email, password, security",    color:"#6d28d9"},
+    {id:"account",        icon:"👤", title:"Account",        sub:"Nostr key, email, password, security",    color:"#6d28d9"},
     {id:"notifications",  icon:"🔔", title:"Alerts",          sub:"Push notifications, email, sounds",      color:"#0e7490"},
     {id:"privacy",        icon:"🔒", title:"Privacy",         sub:"Who sees your Dreams, blocked Dreamors", color:"#be185d"},
     {id:"customizability",icon:"🎨", title:"Appearance",      sub:"Theme, text size, Cherry AI",            color:"#15803d"},
@@ -3631,12 +3631,12 @@ function AccountSettings({navigate, authUser, onSignOut}) {
         , isDemo && (
           React.createElement('div', { style: {margin:"0 16px 4px",padding:"14px 16px",background:"rgba(109,40,217,.1)",border:"1px solid rgba(109,40,217,.3)",borderRadius:14},}
             , React.createElement('div', { style: {fontWeight:700,fontSize:13,color:"var(--ac3)",marginBottom:4},}, "You are using the Demo Account"     )
-            , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6,marginBottom:12},}, "Explore everything DreamOS has to offer. Your activity here is not saved. Create a DreamOS ID to save your dreams, follow Dreamors and make it yours."
+            , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6,marginBottom:12},}, "Explore everything DreamOS has to offer. Your activity here is not saved. Create a Nostr account to save your dreams, follow Dreamors and make it yours."
 
 
             )
             , React.createElement('button', { className: "btn bp", style: {width:"100%",padding:12,fontSize:13},
-                onClick: ()=>navigate("login"), 'aria-label': "Login or create your DreamOS ID",}, "LOGIN OR CREATE YOUR DREAM BOARD ID"
+                onClick: ()=>navigate("login"), 'aria-label': "Login or create your Nostr account",}, "LOGIN OR CREATE YOUR NOSTR ACCOUNT"
 
               )
           )
@@ -3644,7 +3644,7 @@ function AccountSettings({navigate, authUser, onSignOut}) {
 
         /* Profile info (real accounts) */
         , !isDemo && React.createElement(React.Fragment, null
-            , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Dream ID")
+            , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Nostr key")
             , React.createElement('div', { className: "sr", style: {cursor:"pointer"}, role:"button", tabIndex:0, onClick: ()=>setShow2FA(false)||alert("Edit name: coming soon"),'aria-label':"Edit display name,",}
               , React.createElement('div', null
                 , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,textTransform:"uppercase",letterSpacing:".04em",marginBottom:2},}, "Display Name")
@@ -3718,7 +3718,7 @@ function AccountSettings({navigate, authUser, onSignOut}) {
               , React.createElement('button', { className: "danger-zone-btn", onClick: ()=>setShowDelete(true), 'aria-label': "Delete your DreamOS account"     ,}
                 , React.createElement('span', { style: {fontSize:18},}, "Delete Account" )
               )
-              , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",lineHeight:1.5},}, "Permanently deletes your DreamOS ID, all your Dreams, and your profile. This cannot be undone."
+              , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",lineHeight:1.5},}, "Permanently deletes your Nostr account, all your Dreams, and your profile. This cannot be undone."
 
 
               )
@@ -3762,7 +3762,7 @@ function AccountSettings({navigate, authUser, onSignOut}) {
       /* Delete Account Modal */
       , showDelete && (
         React.createElement(Modal, { onClose: ()=>{setShowDelete(false);setDeleteCode("");setDeleteConfirm("");setDeleteErr("");}, title: "Delete Account" , subtitle: "This is permanent and cannot be undone."      ,}
-          , React.createElement('div', { style: {background:"rgba(239,68,68,.08)",border:"1px solid rgba(239,68,68,.2)",borderRadius:12,padding:"12px 14px",marginBottom:16,fontSize:13,color:"var(--rd)",lineHeight:1.6},}, "Deleting your account will permanently remove your DreamOS ID, all your Dreams, followers, and profile. There is no recovery."
+          , React.createElement('div', { style: {background:"rgba(239,68,68,.08)",border:"1px solid rgba(239,68,68,.2)",borderRadius:12,padding:"12px 14px",marginBottom:16,fontSize:13,color:"var(--rd)",lineHeight:1.6},}, "Deleting your account will permanently remove your Nostr account, all your Dreams, followers, and profile. There is no recovery."
 
           )
           , twoFAOn && (
@@ -3790,7 +3790,7 @@ function AccountSettings({navigate, authUser, onSignOut}) {
             , deleteBusy ? "Deleting..." : "Permanently Delete My Account"
           )
       , showEditProfile && (
-        React.createElement(Modal, { onClose: ()=>setShowEditProfile(false), title: "Edit Profile", subtitle: "Update your DreamOS ID details.",}
+        React.createElement(Modal, { onClose: ()=>setShowEditProfile(false), title: "Edit Profile", subtitle: "Update your Nostr account details.",}
           , React.createElement('div', { style: {marginBottom:14},}
             , React.createElement('label', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,display:"block",marginBottom:5,textTransform:"uppercase",letterSpacing:".04em"},}, "Display Name")
             , React.createElement('input', { className: "inp", type: "text", placeholder: "Your display name",
@@ -4596,7 +4596,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
             borderBottom:"1px solid var(--bd)",cursor:"pointer",
             fontFamily:"inherit",textAlign:"left"},
           onClick: isGuest ? ()=>navigate("login") : ()=>navigate("profile"),
-          'aria-label': isGuest ? "Create or login to your DreamOS ID" : "View your profile"}
+          'aria-label': isGuest ? "Create or login to your Nostr account" : "View your profile"}
         , React.createElement('div', {style:{position:"relative",flexShrink:0}}
           , isGuest
             ? React.createElement('div', {
@@ -4619,7 +4619,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
             ? React.createElement(React.Fragment,null,
                 React.createElement('div', {style:{fontWeight:700,fontSize:15,color:"var(--tx)"}}, "Guest"),
                 React.createElement('div', {style:{fontSize:12,color:"var(--ac3)",marginTop:2}},
-                  "Create your Dream ID or Login →")
+                  "Create your Nostr key or Login →")
               )
             : React.createElement(React.Fragment,null,
                 React.createElement('div', {style:{fontWeight:700,fontSize:15,display:"flex",alignItems:"center",gap:6}}
@@ -4649,7 +4649,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
         ].map(item =>
           React.createElement('button', {
               key:item.l, className:"snav", onClick:item.a,
-              'aria-label':item.l+(item.gate?" — requires Dream ID":"")}
+              'aria-label':item.l+(item.gate?" — requires Nostr key":"")}
             , React.createElement('div', {className:"snav-l"}
               , React.createElement('div', {className:"snav-ic",style:{background:item.color+"22",fontSize:17}}, item.icon)
               , React.createElement('div', null
@@ -4658,8 +4658,8 @@ function MorePage({navigate, cherryCtx, authUser}) {
                   , item.gate && React.createElement('span', {
                       style:{fontSize:9,fontWeight:700,color:"var(--ac3)",
                         background:"rgba(109,40,217,.12)",borderRadius:100,padding:"1px 6px"},
-                      'aria-label':"Requires Dream ID"},
-                    "Dream ID"
+                      'aria-label':"Requires Nostr key"},
+                    "Nostr key"
                     )
                 )
                 , React.createElement('div', {className:"snav-sub"}, item.sub)
@@ -5416,7 +5416,7 @@ function LicensePage({navigate}) {
     {h2:"What you CAN do"},
     {p:"Read and study the source code. Fork for personal non-commercial use. Contribute improvements back. Reference individual components in your own projects. Run a private non-monetized instance for yourself or a small community."},
     {h2:"What you CANNOT do"},
-    {p:"Commercial use without a written license. Paywalling any features we provide free. Adding advertising or data-broker integrations. Harvesting user data for sale or profiling. Using our trademarks (DreamOS, Dream ID, Dreamors, ReDreams, Circles, Cherry) as product or feature names without written permission. Deploying in a way that misleads users into thinking it is the official DreamOS. Building malware or surveillance tools with this code."},
+    {p:"Commercial use without a written license. Paywalling any features we provide free. Adding advertising or data-broker integrations. Harvesting user data for sale or profiling. Using our trademarks (DreamOS, Nostr key, Dreamors, ReDreams, Circles, Cherry) as product or feature names without written permission. Deploying in a way that misleads users into thinking it is the official DreamOS. Building malware or surveillance tools with this code."},
     {h2:"If you deploy a public instance"},
     {p:"Carry this license notice. State clearly it is not affiliated with DreamOS. Keep it free and ad-free. Make your modifications available under this same license. Do not remove accessibility features."},
     {h2:"Trademarks"},
@@ -6259,7 +6259,7 @@ function SplashScreen({ onLogin, onSignup }) {
         , React.createElement('div', {style:{marginTop:24,padding:"12px 16px",background:"rgba(109,40,217,.12)",border:"1px solid rgba(109,40,217,.25)",borderRadius:12,maxWidth:280,textAlign:"left"}}
           , React.createElement('div', {style:{fontSize:11,fontWeight:800,color:"var(--ac3)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:6},'aria-hidden':"true"}, "\u26a1 Powered by Nostr")
           , React.createElement('p', {style:{fontSize:12,color:"var(--tx2)",lineHeight:1.65,margin:0}},
-            "Your Dream ID is a cryptographic key. No company owns it. No password to forget. Works on every Nostr app."
+            "Your Nostr key is a cryptographic key. No company owns it. No password to forget. Works on every Nostr app."
           )
         )
       )
@@ -6268,8 +6268,8 @@ function SplashScreen({ onLogin, onSignup }) {
             className:"btn bp",
             style:{width:"100%",padding:15,fontSize:15,fontWeight:700},
             onClick:onSignup,
-            'aria-label':"Create your Dream ID with Nostr,"},
-          React.createElement('span', {'aria-hidden':"true"}, "Create your Dream ID")
+            'aria-label':"Create your Nostr account,"},
+          React.createElement('span', {'aria-hidden':"true"}, "Create your Nostr key")
         )
         , React.createElement('button', {
             className:"btn bgb",
@@ -6567,7 +6567,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
         , React.createElement('button', { onClick: onBack, style: {background:"none",border:"none",color:"var(--tx3)",fontSize:13,cursor:"pointer",padding:"0 0 12px",textAlign:"left",fontFamily:"inherit",display:"flex",alignItems:"center",gap:4}, 'aria-label': "Back to welcome screen"   ,}, "Back"
 
         )
-        , React.createElement('div', { className: "auth-title",}, "Create your Dream ID"  )
+        , React.createElement('div', { className: "auth-title",}, "Create your Nostr key"  )
         , React.createElement('div', { className: "auth-sub",}, "Your name can be real or a dream name."        )
         , err && React.createElement('div', { className: "auth-error",}, React.createElement('span', null, "Warning:"), React.createElement('span', null, err))
         , React.createElement('div', {style:{display:"flex",gap:8,marginBottom:12}}
@@ -6739,7 +6739,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
           , React.createElement('button', { className: "btn bgb" , style: {flex:1,padding:12}, onClick: ()=>{setMode("signup_interests");setErr("");}, 'aria-label': "Go back" ,}, "Back")
           , React.createElement('button', { className: "btn bp" , style: {flex:2,padding:12,fontSize:14},
             onClick: handleCreateAccount,
-            disabled: !agreedTerms||busy, 'aria-label': "Create your Dream ID"  ,}
+            disabled: !agreedTerms||busy, 'aria-label': "Create your Nostr key"  ,}
             , busy ? React.createElement('div', { className: "auth-spinner",}) : "Start Dreaming 🌙"
           )
         )
