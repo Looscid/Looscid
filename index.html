@@ -3181,7 +3181,6 @@ function CherryPage({navigate, cherryCtx}) {
     const _claudeKey = _k("dbm_claude_key");
     const _grokKey   = _k("dbm_grok_key");
     const _geminiKey = _k("dbm_gemini_key");
-    const _openaiKey = _k("dbm_openai_key");
     const _prefs     = (()=>{try{return JSON.parse(_k("dbm_ai_prefs"));}catch(e){return {};}})();
     const _pref      = _prefs.active || "cherry";
     const _sys = "You are Cherry, the AI built into DreamOS — a free, open social platform. " +
@@ -3197,7 +3196,6 @@ function CherryPage({navigate, cherryCtx}) {
     let _model = _pref;
     if (_model==="claude"  && !_claudeKey) _model="cherry";
     if (_model==="gemini"  && !_geminiKey) _model="cherry";
-    if (_model==="chatgpt" && !_openaiKey) _model="cherry";
     if (_model==="grok"    && !_grokKey)   _model="cherry";
     // Use built-in API (no key needed when running in Claude.ai environment)
     // Falls back to intelligent local responses if API unavailable
@@ -3208,13 +3206,6 @@ function CherryPage({navigate, cherryCtx}) {
       const _r = await fetch(_u,{method:"POST",headers:{"Content-Type":"application/json"},body:_b});
       if (_r.ok){const _d=await _r.json();const _t=_d.candidates&&_d.candidates[0]&&_d.candidates[0].content&&_d.candidates[0].content.parts[0];if(_t&&_t.text)return {result:_t.text};}
       return {result:"Gemini error. Check your key in Cherry Settings."};
-    }
-    if (_model==="chatgpt") {
-      const _r = await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",
-        headers:{"Content-Type":"application/json","Authorization":"Bearer "+_openaiKey},
-        body:JSON.stringify({model:"gpt-4o-mini",max_tokens:800,messages:[{role:"system",content:_sys+"\n\n"+ctxNote},{role:"user",content:text}]})});
-      if (_r.ok){const _d=await _r.json();const _t=_d.choices&&_d.choices[0]&&_d.choices[0].message;if(_t)return {result:_t.content};}
-      return {result:"ChatGPT error. Check your key in Cherry Settings."};
     }
     if (_model==="grok") {
       const _r = await fetch("https://api.x.ai/v1/chat/completions",{method:"POST",
@@ -4056,17 +4047,8 @@ function CherrySettings({navigate, prefs, setPrefs, activeAI, setActiveAI}) {
                 onChange: e=>{ try{localStorage.setItem("dbm_gemini_key", e.target.value.trim());}catch(e2){} },
                 'aria-label': "Google Gemini API key", autoComplete: "off", spellCheck: false,})
           )
-          , React.createElement('div', { style: {marginBottom:10},}
-            , React.createElement('label', { style: {fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",display:"block",marginBottom:5},}, "OpenAI key (ChatGPT) — optional")
-            , React.createElement('input', {
-                className: "inp", type: "password",
-                placeholder: "sk-…",
-                defaultValue: (()=>{ try{return localStorage.getItem("dbm_openai_key")||"";}catch(e){return "";} })(),
-                onChange: e=>{ try{localStorage.setItem("dbm_openai_key", e.target.value.trim());}catch(e2){} },
-                'aria-label': "OpenAI ChatGPT API key", autoComplete: "off", spellCheck: false,})
-          )
           , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",lineHeight:1.5},},
-            "Keys stay on your device only. console.anthropic.com · console.x.ai · aistudio.google.com · platform.openai.com"
+            "Keys stay on your device only. console.anthropic.com · console.x.ai · aistudio.google.com"
           )
         )
 
@@ -6079,11 +6061,11 @@ function sanitizeInput(str, maxLen) {
   return str.replace(/[<>]/g, "").trim();
 }
 
-// Initialize Supabase client
+// Initialize Supabase client — only when valid credentials exist
 var dbm_supabase = null;
 function getSupabase() {
-  if (!dbm_supabase && typeof supabase !== "undefined") {
-    dbm_supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  if (!dbm_supabase && typeof supabase !== "undefined" && SUPABASE_URL && SUPABASE_ANON_KEY) {
+    try { dbm_supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e) {}
   }
   return dbm_supabase;
 }
@@ -6920,7 +6902,6 @@ function DraftsPage({ navigate, onLoadDraft }) {
 const AI_PROVIDERS = [
   {id:"cherry",   name:"Cherry",   icon:"🍒", desc:"DreamOS's own AI — best for Dreams", default:true},
   {id:"claude",   name:"Claude",   icon:"🟠", desc:"Deep reasoning and writing"},
-  {id:"chatgpt",  name:"ChatGPT",  icon:"🟢", desc:"Creative and conversational"},
   {id:"llama",    name:"LLaMA 3",  icon:"🦙", desc:"Open source, free (Meta/Groq)"},
   {id:"mistral",  name:"Mistral",  icon:"🌪️", desc:"Fast open source writing model"},
   {id:"deepseek", name:"DeepSeek", icon:"🔍", desc:"Open source, strong at coding"},
