@@ -5,7 +5,7 @@ The official DreamOS repository.
 DreamOS is a free, open source social platform and web OS experience built around accessibility, privacy and freedom.
 
 **Live:** dream-os.pages.dev  
-**X:** @DreamOSFree  
+**TWITTER:** @DREAM_OS_DEV  
 **Built with:** React, Vite, Supabase, Cloudflare Pages
 
 ## What DreamOS is
