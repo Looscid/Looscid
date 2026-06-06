@@ -1,5 +1,5 @@
 // DreamOS — Feed Page
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDreams } from '../hooks/useDreams.js';
 import { DREAMS_INIT } from '../data/mockData.js';
 import { fmt } from '../components/Shared.jsx';
@@ -101,9 +101,10 @@ export function FeedPage({ navigate, prefs, cherryCtx }) {
 }
 
 // Dream card interaction checkbox
-function IxnCbx({ on, onToggle, label, activeClass, children }) {
+function IxnCbx({ on, onToggle, label, activeClass, children, innerRef }) {
   return (
     <button
+      ref={innerRef}
       className={`cbx-wrap${on ? ` ${activeClass}` : ''}`}
       onClick={onToggle}
       aria-label={label}
@@ -127,6 +128,29 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
   const [showRD, setShowRD]     = useState(false);
   const rdTotal  = dream.redreams + (dream.quotes || 0);
   const rdActive = dream.redreamed || dream.quoted;
+
+  const rdTriggerRef = useRef(null);
+  const optTriggerRef = useRef(null);
+  const rdDialogRef = useRef(null);
+  const optDialogRef = useRef(null);
+
+  // Restore focus to trigger when modals close
+  useEffect(() => {
+    if (!showRD && rdTriggerRef.current) rdTriggerRef.current.focus();
+  }, [showRD]);
+
+  useEffect(() => {
+    if (!showOpts && optTriggerRef.current) optTriggerRef.current.focus();
+  }, [showOpts]);
+
+  // Focus trap: land on dialog when opened
+  useEffect(() => {
+    if (showRD && rdDialogRef.current) rdDialogRef.current.focus();
+  }, [showRD]);
+
+  useEffect(() => {
+    if (showOpts && optDialogRef.current) optDialogRef.current.focus();
+  }, [showOpts]);
 
   // Dream options — Report and Block live here, not in a separate More Actions
   const dreamOpts = [
@@ -188,6 +212,7 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
           </button>
 
           <IxnCbx
+            innerRef={rdTriggerRef}
             on={rdActive}
             onToggle={() => setShowRD(true)}
             label={`${fmt(rdTotal)} ReDreams,`}
@@ -207,6 +232,7 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
 
           {/* More button — opens collapsible options */}
           <button
+            ref={optTriggerRef}
             className="ixn-btn"
             style={{ flex: '.5' }}
             onClick={() => setShowOpts(true)}
@@ -221,7 +247,15 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
       {/* ReDream modal */}
       {showRD && (
         <div className="ov" onClick={e => e.target === e.currentTarget && setShowRD(false)}>
-          <div className="msh" role="dialog" aria-label="ReDream or Quote">
+          <div
+            ref={rdDialogRef}
+            className="msh"
+            role="dialog"
+            aria-modal="true"
+            aria-label="ReDream or Quote"
+            tabIndex="-1"
+            style={{ outline: 'none' }}
+          >
             <div className="mhd" aria-hidden="true" />
             <div className="min">
               <div className="mtt">ReDream or Quote</div>
@@ -238,12 +272,12 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
               </button>
               <button
                 className="osb"
-                onClick={() => setShowRD(false)}
-                aria-label="Quote Dream,"
+                onClick={() => { dream.quoted ? onUndoQuote(dream.id) : onQuote(dream.id); setShowRD(false); }}
+                aria-label={dream.quoted ? 'Undo Quote Dream,' : 'Quote Dream,'}
               >
                 <span style={{ color: 'var(--ac3)' }} aria-hidden="true"><Ic.Bkm style={{ width: 20, height: 20 }} /></span>
                 <div>
-                  <div style={{ fontWeight: 700 }}>Quote Dream</div>
+                  <div style={{ fontWeight: 700 }}>{dream.quoted ? 'Undo Quote' : 'Quote Dream'}</div>
                   <div style={{ fontSize: 12, color: 'var(--tx3)', marginTop: 2 }}>Share with your own thoughts</div>
                 </div>
               </button>
@@ -257,11 +291,15 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
         <div
           className="ov"
           onClick={e => e.target === e.currentTarget && setShowOpts(false)}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Dream options"
         >
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'var(--bg)', borderRadius: '20px 20px 0 0', padding: '0 0 calc(env(safe-area-inset-bottom,0px) + 8px)', boxShadow: '0 -8px 40px rgba(0,0,0,.45)' }}>
+          <div
+            ref={optDialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Dream options"
+            tabIndex="-1"
+            style={{ outline: 'none', position: 'absolute', bottom: 0, left: 0, right: 0, background: 'var(--bg)', borderRadius: '20px 20px 0 0', padding: '0 0 calc(env(safe-area-inset-bottom,0px) + 8px)', boxShadow: '0 -8px 40px rgba(0,0,0,.45)' }}
+          >
             <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--bd2)', margin: '12px auto 4px' }} aria-hidden="true" />
             <div style={{ padding: '10px 20px 6px', fontSize: 11, fontWeight: 800, color: 'var(--tx3)', textTransform: 'uppercase', letterSpacing: '.1em' }} role="heading" aria-level="3">
               Dream options
