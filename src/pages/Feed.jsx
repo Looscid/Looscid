@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useDreams } from '../hooks/useDreams.js';
 import { DREAMS_INIT } from '../data/mockData.js';
 import { fmt } from '../components/Shared.jsx';
-import { Ic } from '../components/Icons.jsx';
+import Ic from '../components/Icons.jsx';
 
 // Feed tabs — using radiogroup pattern for VoiceOver
 const FEED_TABS = [
@@ -17,7 +17,7 @@ const FEED_TABS = [
 export function FeedPage({ navigate, prefs, cherryCtx }) {
   const [tab, setTab] = useState('foryou');
   const { dreams, tl, tr, tur, tq, tuq, tb, tc } = useDreams(
-    cherryCtx ? cherryCtx.dreams : DREAMS_INIT
+    (cherryCtx && cherryCtx.dreams) ? cherryCtx.dreams : DREAMS_INIT
   );
   const [activeComment, setActiveComment] = useState(null);
 
@@ -126,7 +126,7 @@ function IxnCbx({ on, onToggle, label, activeClass, children, innerRef }) {
 export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onComment, navigate, cherryCtx }) {
   const [showOpts, setShowOpts] = useState(false);
   const [showRD, setShowRD]     = useState(false);
-  const rdTotal  = dream.redreams + (dream.quotes || 0);
+  const rdTotal  = (dream.redreams || 0) + (dream.quotes || 0);
   const rdActive = dream.redreamed || dream.quoted;
 
   const rdTriggerRef = useRef(null);
