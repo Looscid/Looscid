@@ -60,3 +60,5 @@ export const Ic = {
     </svg>
   ),
 };
+
+export default Ic;
