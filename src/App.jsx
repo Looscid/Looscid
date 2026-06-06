@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FeedPage } from './pages/Feed.jsx';
 import { DiscoverPage } from './pages/Discover.jsx';
 import { DAW } from './components/DAW.jsx';
-import { Ic } from './components/Icons.jsx';
+import Ic from './components/Icons.jsx';
 
 export default function App() {
   const [page, setPage] = useState('feed');
