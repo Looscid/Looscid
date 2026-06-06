@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Ic } from './Icons.jsx';
+import Ic from './Icons.jsx';
 
 /**
  * DreamOS DAW Component
