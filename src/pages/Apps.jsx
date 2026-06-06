@@ -4,7 +4,7 @@ import { Ic } from '../components/Icons.jsx';
 /**
  * DreamOS Apps Page
  * List of decentralized tools with Chronicle styling.
- * Supports adding custom apps via ZapStore, GitHub, or APK upload.
+ * Supports adding custom apps via ZapStore or APK upload.
  */
 export function AppsPage({ onOpenDAW }) {
   const [apps, setApps] = useState([
@@ -154,7 +154,6 @@ export function AppsPage({ onOpenDAW }) {
                 style={{ marginTop: '8px' }}
               >
                 <option value="zapstore">ZapStore (Nostr)</option>
-                <option value="github">GitHub Starred</option>
                 <option value="custom">Custom URL</option>
               </select>
             </div>
