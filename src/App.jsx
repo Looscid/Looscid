@@ -53,41 +53,55 @@ export default function App() {
       </main>
 
       <nav className="bnav" role="navigation" aria-label="Main Navigation,">
-        <button 
-          className={`nb ${page === 'feed' ? 'on' : ''}`} 
-          onClick={() => setPage('feed')}
-          aria-label="Feed,"
-          aria-current={page === 'feed' ? 'page' : undefined}
+        <div
+          className="ftabs"
+          role="radiogroup"
+          aria-label="Navigation tabs,"
         >
-          <Ic.Home style={{ width: 20, height: 20 }} />
-          <span>Feed</span>
-        </button>
-        <button 
-          className={`nb ${page === 'discover' ? 'on' : ''}`} 
-          onClick={() => setPage('discover')}
-          aria-label="Discover,"
-          aria-current={page === 'discover' ? 'page' : undefined}
-        >
-          <Ic.Srch style={{ width: 20, height: 20 }} />
-          <span>Discover</span>
-        </button>
-        <button 
-          className={`nb ${page === 'apps' ? 'on' : ''}`} 
-          onClick={() => setPage('apps')}
-          aria-label="Apps,"
-          aria-current={page === 'apps' ? 'page' : undefined}
-        >
-          <span style={{ fontSize: '20px' }}>🧩</span>
-          <span>Apps</span>
-        </button>
-        <button 
-          className="nb" 
-          onClick={handleLogout}
-          aria-label="Logout,"
-        >
-          <span style={{ fontSize: '20px' }}>🚪</span>
-          <span>Logout</span>
-        </button>
+          <button 
+            className={`nb ${page === 'feed' ? 'on' : ''}`} 
+            onClick={() => setPage('feed')}
+            role="radio"
+            aria-checked={page === 'feed'}
+            aria-label="Feed,"
+            aria-current={page === 'feed' ? 'page' : undefined}
+          >
+            <Ic.Home style={{ width: 20, height: 20 }} />
+            <span>Feed</span>
+          </button>
+          <button 
+            className={`nb ${page === 'discover' ? 'on' : ''}`} 
+            onClick={() => setPage('discover')}
+            role="radio"
+            aria-checked={page === 'discover'}
+            aria-label="Discover,"
+            aria-current={page === 'discover' ? 'page' : undefined}
+          >
+            <Ic.Srch style={{ width: 20, height: 20 }} />
+            <span>Discover</span>
+          </button>
+          <button 
+            className={`nb ${page === 'apps' ? 'on' : ''}`} 
+            onClick={() => setPage('apps')}
+            role="radio"
+            aria-checked={page === 'apps'}
+            aria-label="Apps,"
+            aria-current={page === 'apps' ? 'page' : undefined}
+          >
+            <span style={{ fontSize: '20px' }}>🧩</span>
+            <span>Apps</span>
+          </button>
+          <button 
+            className="nb" 
+            onClick={handleLogout}
+            role="radio"
+            aria-checked={false}
+            aria-label="Logout,"
+          >
+            <span style={{ fontSize: '20px' }}>🚪</span>
+            <span>Logout</span>
+          </button>
+        </div>
       </nav>
     </div>
   );
