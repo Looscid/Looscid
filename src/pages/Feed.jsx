@@ -14,7 +14,7 @@ const FEED_TABS = [
   { id: 'circles',   label: 'Circles' },
 ];
 
-export function FeedPage({ navigate, prefs, cherryCtx }) {
+export function FeedPage({ navigate, prefs, cherryCtx, user }) {
   const [tab, setTab] = useState('foryou');
   const { dreams, tl, tr, tur, tq, tuq, tb, tc } = useDreams(
     (cherryCtx && cherryCtx.dreams) ? cherryCtx.dreams : DREAMS_INIT
@@ -94,6 +94,7 @@ export function FeedPage({ navigate, prefs, cherryCtx }) {
           onComment={d => setActiveComment(d)}
           navigate={navigate}
           cherryCtx={cherryCtx}
+          user={user}
         />
       ))}
     </div>
@@ -101,14 +102,16 @@ export function FeedPage({ navigate, prefs, cherryCtx }) {
 }
 
 // Dream card interaction checkbox
-function IxnCbx({ on, onToggle, label, activeClass, children, innerRef }) {
+function IxnCbx({ on, onToggle, label, activeClass, children, innerRef, disabled }) {
   return (
     <button
       ref={innerRef}
       className={`cbx-wrap${on ? ` ${activeClass}` : ''}`}
-      onClick={onToggle}
+      onClick={disabled ? undefined : onToggle}
       aria-label={label}
       aria-pressed={on}
+      disabled={disabled}
+      style={{ opacity: disabled ? 0.5 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}
     >
       <div className="cbx-box" aria-hidden="true">
         {on && (
@@ -123,7 +126,7 @@ function IxnCbx({ on, onToggle, label, activeClass, children, innerRef }) {
 }
 
 // Dream card
-export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onComment, navigate, cherryCtx }) {
+export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onComment, navigate, cherryCtx, user }) {
   const [showOpts, setShowOpts] = useState(false);
   const [showRD, setShowRD]     = useState(false);
   const rdTotal  = (dream.redreams || 0) + (dream.quotes || 0);
@@ -133,6 +136,8 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
   const optTriggerRef = useRef(null);
   const rdDialogRef = useRef(null);
   const optDialogRef = useRef(null);
+
+  const isReadOnly = user?.isReadOnly;
 
   // Restore focus to trigger when modals close
   useEffect(() => {
@@ -206,6 +211,8 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
             className="ixn-btn"
             onClick={() => onComment && onComment(dream)}
             aria-label={`${fmt(dream.comments)} comments,`}
+            disabled={isReadOnly}
+            style={{ opacity: isReadOnly ? 0.5 : 1 }}
           >
             <Ic.Cmt style={{ width: 15, height: 15 }} aria-hidden="true" />
             <span aria-hidden="true">{fmt(dream.comments)} Comments</span>
@@ -217,6 +224,7 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
             onToggle={() => setShowRD(true)}
             label={`${fmt(rdTotal)} ReDreams,`}
             activeClass="redd"
+            disabled={isReadOnly}
           >
             {fmt(rdTotal)} ReDreams
           </IxnCbx>
@@ -226,6 +234,7 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
             onToggle={() => onLike(dream.id)}
             label={`${fmt(dream.likes)} likes,`}
             activeClass="liked"
+            disabled={isReadOnly}
           >
             {fmt(dream.likes)} Likes
           </IxnCbx>
