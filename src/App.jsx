@@ -52,7 +52,7 @@ export default function App() {
         {showDAW && <DAW onClose={() => setShowDAW(false)} />}
       </main>
 
-      <nav className="bnav" role="navigation" aria-label="Main Navigation">
+      <nav className="bnav" role="navigation" aria-label="Main Navigation,">
         <button 
           className={`nb ${page === 'feed' ? 'on' : ''}`} 
           onClick={() => setPage('feed')}
