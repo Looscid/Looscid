@@ -6,7 +6,9 @@ import React, { useState } from 'react';
  */
 export function WelcomePage({ onLogin }) {
   const [nsec, setNsec] = useState('');
+  const [email, setEmail] = useState('');
   const [error, setError] = useState('');
+  const [showLegacy, setShowLegacy] = useState(false);
 
   const handleNsecLogin = (e) => {
     e.preventDefault();
@@ -14,6 +16,17 @@ export function WelcomePage({ onLogin }) {
       onLogin(nsec);
     } else {
       setError('Invalid NSEC format,');
+    }
+  };
+
+  const handleEmailLogin = (e) => {
+    e.preventDefault();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (emailRegex.test(email)) {
+      const sanitizedEmail = email.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      onLogin(`email-${sanitizedEmail}`);
+    } else {
+      setError('Invalid email address,');
     }
   };
 
@@ -83,6 +96,44 @@ export function WelcomePage({ onLogin }) {
           >
             Guest Bypass
           </button>
+        </div>
+
+        <div style={{ marginBottom: '24px' }}>
+          <button 
+            onClick={() => setShowLegacy(!showLegacy)}
+            className="btn border-2"
+            style={{ width: '100%', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase' }}
+            aria-label="Toggle legacy login options,"
+            aria-expanded={showLegacy}
+          >
+            {showLegacy ? 'Hide' : 'Show'} Legacy Login
+          </button>
+
+          {showLegacy && (
+            <div className="border-2" style={{ marginTop: '12px', padding: '16px', background: 'var(--bg2)' }}>
+              <form onSubmit={handleEmailLogin}>
+                <label htmlFor="email-input" className="slbl" style={{ display: 'block', marginBottom: '8px' }}>Legacy Email</label>
+                <input
+                  id="email-input"
+                  type="email"
+                  className="inp border-2"
+                  placeholder="user@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={{ marginBottom: '12px' }}
+                  aria-label="Legacy email input,"
+                />
+                <button 
+                  type="submit" 
+                  className="btn bgb border-2" 
+                  style={{ width: '100%' }}
+                  aria-label="Login with email address,"
+                >
+                  Email Access
+                </button>
+              </form>
+            </div>
+          )}
         </div>
 
         <footer style={{ textAlign: 'center', borderTop: '2px solid var(--borderColor)', paddingTop: '20px' }}>
