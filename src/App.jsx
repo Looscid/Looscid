@@ -64,7 +64,6 @@ export default function App() {
             role="radio"
             aria-checked={page === 'feed'}
             aria-label="Feed,"
-            aria-current={page === 'feed' ? 'page' : undefined}
           >
             <Ic.Home style={{ width: 20, height: 20 }} />
             <span>Feed</span>
@@ -75,7 +74,6 @@ export default function App() {
             role="radio"
             aria-checked={page === 'discover'}
             aria-label="Discover,"
-            aria-current={page === 'discover' ? 'page' : undefined}
           >
             <Ic.Srch style={{ width: 20, height: 20 }} />
             <span>Discover</span>
@@ -86,7 +84,6 @@ export default function App() {
             role="radio"
             aria-checked={page === 'apps'}
             aria-label="Apps,"
-            aria-current={page === 'apps' ? 'page' : undefined}
           >
             <span style={{ fontSize: '20px' }}>🧩</span>
             <span>Apps</span>
