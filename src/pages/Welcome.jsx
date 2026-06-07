@@ -9,11 +9,11 @@ export function WelcomePage({ onLogin }) {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [showLegacy, setShowLegacy] = useState(false);
-  const [logs, setLogs] = useState(['DreamOS Initializing...,', 'Terminal Node Online...,']);
+  const [logs, setLogs] = useState(['DreamOS Initializing...', 'Terminal Node Online...']);
   const logEndRef = useRef(null);
 
   const addLog = (msg) => {
-    setLogs(prev => [...prev, `${msg},`]);
+    setLogs(prev => [...prev, msg]);
   };
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export function WelcomePage({ onLogin }) {
       onLogin(nsec);
     } else {
       const errMsg = 'Invalid NSEC format';
-      setError(`${errMsg},`);
+      setError(errMsg);
       addLog(`Error: ${errMsg}`);
     }
   };
@@ -43,7 +43,7 @@ export function WelcomePage({ onLogin }) {
       onLogin(`email-${sanitizedEmail}`);
     } else {
       const errMsg = 'Invalid email address';
-      setError(`${errMsg},`);
+      setError(errMsg);
       addLog(`Error: ${errMsg}`);
     }
   };
@@ -57,12 +57,12 @@ export function WelcomePage({ onLogin }) {
         onLogin(pubkey);
       } else {
         const errMsg = 'NIP-07 extension not found';
-        setError(`${errMsg},`);
+        setError(errMsg);
         addLog(`Error: ${errMsg}`);
       }
     } catch (err) {
       const errMsg = 'Extension login failed';
-      setError(`${errMsg},`);
+      setError(errMsg);
       addLog(`Error: ${errMsg}`);
     }
   };
@@ -89,7 +89,7 @@ export function WelcomePage({ onLogin }) {
         {/* Left Side: Terminal Node Status */}
         <section 
           className="bg-black text-[#00ff00] border-2 border-[var(--borderColor)] shadow-[4px_4px_0px_var(--borderColor)] font-mono p-4 rounded-none h-[400px] flex flex-col"
-          aria-label="Terminal Node Status,"
+          aria-label="Terminal Node Status"
         >
           <div className="flex justify-between border-b border-[#00ff00] mb-2 pb-1 uppercase text-xs font-bold">
             <span>Node Diagnostics</span>
@@ -99,7 +99,7 @@ export function WelcomePage({ onLogin }) {
             className="overflow-y-auto flex-1 text-sm" 
             role="status" 
             aria-live="polite"
-            aria-label="Diagnostic log stream,"
+            aria-label="Diagnostic log stream"
           >
             {logs.map((log, i) => (
               <div key={i} className="mb-1 leading-tight">{`> ${log}`}</div>
@@ -111,7 +111,7 @@ export function WelcomePage({ onLogin }) {
         {/* Right Side: Authentication Gateway */}
         <main 
           className="border-2 border-[var(--borderColor)] shadow-[4px_4px_0px_var(--borderColor)] bg-[var(--bg2)] text-[var(--tx)] p-6 rounded-none"
-          aria-label="Authentication Gateway,"
+          aria-label="Authentication Gateway"
         >
           <h2 className="font-cinzel text-2xl mb-6 uppercase">Gateway Access</h2>
           
@@ -128,7 +128,7 @@ export function WelcomePage({ onLogin }) {
                   setNsec(e.target.value);
                   if (e.target.value.length % 5 === 0) addLog('Updating nsec buffer');
                 }}
-                aria-label="Nostr private key input,"
+                aria-label="Nostr private key input"
               />
             </div>
             
@@ -137,7 +137,7 @@ export function WelcomePage({ onLogin }) {
             <button 
               type="submit" 
               className="btn bp border-2 w-full h-14 mb-3 font-bold uppercase" 
-              aria-label="Login with secret key,"
+              aria-label="Login with secret key"
             >
               Access Feed
             </button>
@@ -147,14 +147,14 @@ export function WelcomePage({ onLogin }) {
             <button 
               onClick={handleExtensionLogin} 
               className="btn bgb border-2 flex-1 p-3 font-bold uppercase text-xs" 
-              aria-label="Login with Browser Extension,"
+              aria-label="Login with Browser Extension"
             >
               Extension
             </button>
             <button 
               onClick={handleGuestLogin} 
               className="btn bgb border-2 flex-1 p-3 font-bold uppercase text-xs" 
-              aria-label="Enter as guest,"
+              aria-label="Enter as guest"
             >
               Guest Bypass
             </button>
@@ -164,10 +164,10 @@ export function WelcomePage({ onLogin }) {
             <button 
               onClick={toggleLegacy}
               className="btn border-2 w-full p-2 text-[10px] font-black uppercase tracking-tighter"
-              aria-label="Toggle legacy login options,"
+              aria-label="Toggle legacy login options"
               aria-expanded={showLegacy}
             >
-              {showLegacy ? 'Hide' : 'Show'} Legacy Login
+              Legacy Login
             </button>
 
             {showLegacy && (
@@ -184,12 +184,12 @@ export function WelcomePage({ onLogin }) {
                       setEmail(e.target.value);
                       if (e.target.value.length % 5 === 0) addLog('Updating email buffer');
                     }}
-                    aria-label="Legacy email input,"
+                    aria-label="Legacy email input"
                   />
                   <button 
                     type="submit" 
                     className="btn bgb border-2 w-full p-2 font-bold uppercase text-xs" 
-                    aria-label="Login with email address,"
+                    aria-label="Login with email address"
                   >
                     Email Access
                   </button>
@@ -200,7 +200,7 @@ export function WelcomePage({ onLogin }) {
 
           <footer className="text-center border-t-2 border-[var(--borderColor)] pt-6 mt-4">
             <p className="text-[10px] uppercase font-bold text-[var(--tx3)]">
-              Protocol: NOSTR | <a href="https://nostr.com" target="_blank" rel="noopener noreferrer" className="text-[var(--tx)] underline" aria-label="Learn about Nostr protocol,">Documentation</a>
+              Protocol: NOSTR | <a href="https://nostr.com" target="_blank" rel="noopener noreferrer" className="text-[var(--tx)] underline" aria-label="Learn about Nostr protocol">Documentation</a>
             </p>
           </footer>
         </main>
