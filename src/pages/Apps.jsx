@@ -15,7 +15,7 @@ export function AppsPage({ onOpenDAW, user }) {
       icon: '🎹',
       type: 'native',
       action: onOpenDAW,
-      label: 'Open Audio Synth DAW,'
+      label: 'Open Audio Synth DAW'
     },
     {
       id: 'nests',
@@ -23,8 +23,8 @@ export function AppsPage({ onOpenDAW, user }) {
       desc: 'Decentralized audio spaces.',
       icon: '🎙️',
       type: 'native',
-      action: () => alert('Nostr Nests coming soon,'),
-      label: 'Open Nostr Nests Audio,'
+      action: () => alert('Nostr Nests coming soon'),
+      label: 'Open Nostr Nests Audio'
     },
     {
       id: 'quic',
@@ -32,8 +32,8 @@ export function AppsPage({ onOpenDAW, user }) {
       desc: 'Low-latency real-time collaboration.',
       icon: '⚡',
       type: 'native',
-      action: () => alert('QUIC Collab coming soon,'),
-      label: 'Open Media over QUIC Collab,'
+      action: () => alert('QUIC Collab coming soon'),
+      label: 'Open Media over QUIC Collab'
     }
   ]);
 
@@ -48,6 +48,7 @@ export function AppsPage({ onOpenDAW, user }) {
   const getButtonRef = useRef(null);
   const storeDialogRef = useRef(null);
   const appViewportRef = useRef(null);
+  const lastActiveButtonRef = useRef(null);
 
   const isReadOnly = user?.isReadOnly;
 
@@ -64,6 +65,8 @@ export function AppsPage({ onOpenDAW, user }) {
   useEffect(() => {
     if (activeApp && appViewportRef.current) {
       appViewportRef.current.focus();
+    } else if (!activeApp && lastActiveButtonRef.current) {
+      lastActiveButtonRef.current.focus();
     }
   }, [activeApp]);
 
@@ -78,13 +81,22 @@ export function AppsPage({ onOpenDAW, user }) {
       icon: apkFile ? '📦' : '🌐',
       type: 'custom',
       source: apkFile ? apkFile.name : link,
-      label: `Launch ${apkFile ? apkFile.name : link},`
+      label: `Launch ${apkFile ? apkFile.name : link}`
     };
 
     setApps([...apps, newApp]);
     setIsStoreOpen(false);
     setLink('');
     setApkFile(null);
+  };
+
+  const launchApp = (app, e) => {
+    lastActiveButtonRef.current = e.currentTarget;
+    if (app.type === 'native') {
+      app.action();
+    } else {
+      setActiveApp(app);
+    }
   };
 
   return (
@@ -103,7 +115,9 @@ export function AppsPage({ onOpenDAW, user }) {
           }}
           onClick={() => !isReadOnly && setIsStoreOpen(true)}
           disabled={isReadOnly}
-          aria-label="Open App Store dialog,"
+          aria-label="Open App Store dialog"
+          aria-haspopup="dialog"
+          aria-expanded={isStoreOpen}
         >
           GET
         </button>
@@ -122,7 +136,7 @@ export function AppsPage({ onOpenDAW, user }) {
             <button 
               className="btn bp border-2" 
               style={{ width: '100%', marginTop: '8px' }}
-              onClick={app.type === 'native' ? app.action : () => setActiveApp(app)}
+              onClick={(e) => launchApp(app, e)}
               aria-label={app.label}
             >
               Launch App
@@ -150,18 +164,34 @@ export function AppsPage({ onOpenDAW, user }) {
             <h2 className="font-cinzel" style={{ marginTop: 0 }}>APP STORE</h2>
             
             <div style={{ marginBottom: '16px' }}>
-              <label className="slbl" htmlFor="store-source">Source Provider:</label>
-              <select 
-                id="store-source"
-                className="inp border-2"
-                value={source}
-                onChange={(e) => setSource(e.target.value)}
-                aria-label="Select app store source,"
-                style={{ marginTop: '8px' }}
+              <span className="slbl" id="source-provider-label" style={{ display: 'block', marginBottom: '8px' }}>Source Provider:</span>
+              <div 
+                className="ftabs" 
+                role="radiogroup" 
+                aria-labelledby="source-provider-label"
+                style={{ display: 'flex', gap: '8px' }}
               >
-                <option value="zapstore">ZapStore (Nostr)</option>
-                <option value="custom">Custom URL</option>
-              </select>
+                <button
+                  className={`btn border-2 ${source === 'zapstore' ? 'on' : ''}`}
+                  style={{ flex: 1, fontSize: '12px', padding: '8px', background: source === 'zapstore' ? 'var(--gr)' : 'transparent', color: source === 'zapstore' ? 'white' : 'inherit' }}
+                  onClick={() => setSource('zapstore')}
+                  role="radio"
+                  aria-checked={source === 'zapstore'}
+                  aria-label="ZapStore (Nostr)"
+                >
+                  ZapStore
+                </button>
+                <button
+                  className={`btn border-2 ${source === 'custom' ? 'on' : ''}`}
+                  style={{ flex: 1, fontSize: '12px', padding: '8px', background: source === 'custom' ? 'var(--gr)' : 'transparent', color: source === 'custom' ? 'white' : 'inherit' }}
+                  onClick={() => setSource('custom')}
+                  role="radio"
+                  aria-checked={source === 'custom'}
+                  aria-label="Custom URL"
+                >
+                  Custom URL
+                </button>
+              </div>
             </div>
 
             <div style={{ marginBottom: '16px' }}>
@@ -173,7 +203,7 @@ export function AppsPage({ onOpenDAW, user }) {
                 placeholder="https://..."
                 value={link}
                 onChange={(e) => setLink(e.target.value)}
-                aria-label="Enter app source link,"
+                aria-label="Enter app source link"
                 style={{ marginTop: '8px' }}
               />
             </div>
@@ -186,7 +216,7 @@ export function AppsPage({ onOpenDAW, user }) {
                 accept=".apk"
                 className="inp border-2"
                 onChange={(e) => setApkFile(e.target.files[0])}
-                aria-label="Upload APK file,"
+                aria-label="Upload APK file"
                 style={{ marginTop: '8px', padding: '8px' }}
               />
             </div>
@@ -195,14 +225,14 @@ export function AppsPage({ onOpenDAW, user }) {
               <button 
                 className="btn bp border-2"
                 onClick={handleAddApp}
-                aria-label="Fetch and render app,"
+                aria-label="Fetch and render app"
               >
                 Fetch
               </button>
               <button 
                 className="btn bgb border-2"
                 onClick={() => setIsStoreOpen(false)}
-                aria-label="Cancel and close dialog,"
+                aria-label="Cancel and close dialog"
               >
                 Cancel
               </button>
@@ -237,7 +267,7 @@ export function AppsPage({ onOpenDAW, user }) {
               <button 
                 onClick={() => setActiveApp(null)}
                 style={{ background: 'none', border: '1px solid #0f0', color: '#0f0', cursor: 'pointer' }}
-                aria-label="Close app viewport,"
+                aria-label="Close app viewport"
               >
                 [X] EXIT
               </button>
@@ -256,8 +286,8 @@ export function AppsPage({ onOpenDAW, user }) {
               <div style={{ marginTop: '20px', padding: '15px', border: '1px dashed #0f0' }}>
                 <h2 className="font-cinzel" style={{ color: '#0f0', fontSize: '18px' }}>SANDBOXED UI CONTROLS</h2>
                 <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                  <button className="btn border-2" style={{ borderColor: '#0f0', background: 'transparent', color: '#0f0' }} aria-label="Execute app debug check,">DEBUG</button>
-                  <button className="btn border-2" style={{ borderColor: '#0f0', background: 'transparent', color: '#0f0' }} aria-label="Clear app cache,">FLUSH</button>
+                  <button className="btn border-2" style={{ borderColor: '#0f0', background: 'transparent', color: '#0f0' }} aria-label="Execute app debug check">DEBUG</button>
+                  <button className="btn border-2" style={{ borderColor: '#0f0', background: 'transparent', color: '#0f0' }} aria-label="Clear app cache">FLUSH</button>
                 </div>
               </div>
             </div>
