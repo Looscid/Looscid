@@ -1,5 +1,5 @@
 {
-  "name": "dream-board-mobile",
+  "name": "dreamos",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "framer-motion": "^10.16.4",
+    "lucide-react": "^0.292.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
