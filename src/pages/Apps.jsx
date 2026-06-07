@@ -6,7 +6,7 @@ import { Ic } from '../components/Icons.jsx';
  * List of decentralized tools with Chronicle styling.
  * Supports adding custom apps via ZapStore or APK upload.
  */
-export function AppsPage({ onOpenDAW }) {
+export function AppsPage({ onOpenDAW, user }) {
   const [apps, setApps] = useState([
     {
       id: 'daw',
@@ -49,6 +49,8 @@ export function AppsPage({ onOpenDAW }) {
   const storeDialogRef = useRef(null);
   const appViewportRef = useRef(null);
 
+  const isReadOnly = user?.isReadOnly;
+
   // Focus management for Store Dialog
   useEffect(() => {
     if (isStoreOpen && storeDialogRef.current) {
@@ -66,6 +68,7 @@ export function AppsPage({ onOpenDAW }) {
   }, [activeApp]);
 
   const handleAddApp = () => {
+    if (isReadOnly) return;
     if (!link && !apkFile) return;
     
     const newApp = {
@@ -94,9 +97,12 @@ export function AppsPage({ onOpenDAW }) {
           style={{ 
             boxShadow: '4px 4px 0px var(--tx)',
             padding: '4px 16px',
-            fontSize: '14px'
+            fontSize: '14px',
+            opacity: isReadOnly ? 0.5 : 1,
+            cursor: isReadOnly ? 'not-allowed' : 'pointer'
           }}
-          onClick={() => setIsStoreOpen(true)}
+          onClick={() => !isReadOnly && setIsStoreOpen(true)}
+          disabled={isReadOnly}
           aria-label="Open App Store dialog,"
         >
           GET
