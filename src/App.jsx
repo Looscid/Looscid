@@ -4,7 +4,7 @@ import { FeedPage } from './pages/Feed.jsx';
 import { DiscoverPage } from './pages/Discover.jsx';
 import { AppsPage } from './pages/Apps.jsx';
 import { DAW } from './components/DAW.jsx';
-import Ic from './components/Icons.jsx';
+import { Ic } from './components/Icons.jsx';
 
 export default function App() {
   const [userKey, setUserKey] = useState(localStorage.getItem('dream_user_key'));
