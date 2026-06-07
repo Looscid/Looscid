@@ -4,10 +4,12 @@ import { USERS, GROUPS, TRENDING, DREAMS_INIT } from '../data/mockData.js';
 import { Av } from '../components/Shared.jsx';
 import { Ic } from '../components/Icons.jsx';
 
-export function DiscoverPage({ navigate, cherryCtx }) {
+export function DiscoverPage({ navigate, cherryCtx, user }) {
   const [q, setQ]     = useState('');
   const [tab, setTab] = useState('trending');
   const tabs = q ? ['dreamors', 'dreams', 'circles'] : ['trending', 'dreamors', 'circles'];
+
+  const isReadOnly = user?.isReadOnly;
 
   return (
     <div className="pg">
@@ -105,8 +107,9 @@ export function DiscoverPage({ navigate, cherryCtx }) {
             </div>
             <button
               className="btn bp"
-              style={{ padding: '7px 14px', fontSize: 12 }}
+              style={{ padding: '7px 14px', fontSize: 12, opacity: isReadOnly ? 0.5 : 1, cursor: isReadOnly ? 'not-allowed' : 'pointer' }}
               onClick={e => e.stopPropagation()}
+              disabled={isReadOnly}
               aria-label={`Follow ${u.name},`}
             >
               <span aria-hidden="true">Follow</span>
@@ -128,7 +131,8 @@ export function DiscoverPage({ navigate, cherryCtx }) {
             </div>
             <button
               className="btn bgb"
-              style={{ fontSize: 12 }}
+              style={{ fontSize: 12, opacity: isReadOnly ? 0.5 : 1, cursor: isReadOnly ? 'not-allowed' : 'pointer' }}
+              disabled={isReadOnly}
               aria-label={`Join ${g.name},`}
             >
               <span aria-hidden="true">Join</span>
