@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useDreams } from '../hooks/useDreams.js';
 import { DREAMS_INIT } from '../data/mockData.js';
 import { fmt } from '../components/Shared.jsx';
-import Ic from '../components/Icons.jsx';
+import { Ic } from '../components/Icons.jsx';
 
 // Feed tabs — using radiogroup pattern for VoiceOver
 const FEED_TABS = [
