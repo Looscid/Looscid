@@ -5,7 +5,13 @@ export const DREAMS_INIT = [
     text: "Dreaming of a world where AI and humans collaborate seamlessly. #DreamOS",
     user: { id: 1, name: "Dreamor One", handle: "@dreamor1", verified: true },
     time: "2h",
-    comments: 5,
+    comments: 1,
+    replies: [
+      {
+        user: { name: "Collaborator", handle: "@collab" },
+        text: "The future is bright!"
+      }
+    ],
     redreams: 10,
     likes: 25,
     liked: false,

@@ -18,7 +18,7 @@ export function FeedPage({ navigate, prefs, cherryCtx, user }) {
   const { dreams, tl, tr, tur, tq, tuq, tb, tc } = useDreams(
     (cherryCtx && cherryCtx.dreams) ? cherryCtx.dreams : DREAMS_INIT
   );
-  const [activeComment, setActiveComment] = useState(null);
+  const [activeCommentDream, setActiveCommentDream] = useState(null);
 
   const visible = tab === 'friends'
     ? dreams.filter(d => [1, 2, 4].includes(d.user.id))
@@ -43,7 +43,7 @@ export function FeedPage({ navigate, prefs, cherryCtx, user }) {
         <div
           className="ftabs"
           role="radiogroup"
-          aria-label="Feed tabs,"
+          aria-label="Feed tabs"
         >
           {FEED_TABS.map(t => (
             <button
@@ -52,7 +52,7 @@ export function FeedPage({ navigate, prefs, cherryCtx, user }) {
               onClick={() => setTab(t.id)}
               role="radio"
               aria-checked={tab === t.id}
-              aria-label={`${t.label} feed,`}
+              aria-label={`${t.label} feed`}
             >
               <span aria-hidden="true">{t.label}</span>
             </button>
@@ -72,7 +72,7 @@ export function FeedPage({ navigate, prefs, cherryCtx, user }) {
               className="cherry-ctx-btn"
               style={{ margin: '10px auto 0', display: 'flex' }}
               onClick={() => cherryCtx.openCherry('Who should I follow?')}
-              aria-label="Ask Cherry to find Dreamors to follow,"
+              aria-label="Ask Cherry to find Dreamors to follow"
             >
               <span aria-hidden="true">🍒 Ask Cherry to find Dreamors</span>
             </button>
@@ -90,12 +90,55 @@ export function FeedPage({ navigate, prefs, cherryCtx, user }) {
           onQuote={tq}
           onUndoQuote={tuq}
           onBookmark={tb}
-          onComment={d => setActiveComment(d)}
+          onComment={d => setActiveCommentDream(d)}
           navigate={navigate}
           cherryCtx={cherryCtx}
           user={user}
         />
       ))}
+
+      {/* Comment Dialog */}
+      {activeCommentDream && (
+        <div className="ov" onClick={e => e.target === e.currentTarget && setActiveCommentDream(null)}>
+          <div
+            className="msh"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Dream comments"
+            tabIndex="-1"
+            style={{ outline: 'none', position: 'absolute', bottom: 0, left: 0, right: 0, background: 'var(--bg)', borderRadius: '20px 20px 0 0', padding: '0 0 calc(env(safe-area-inset-bottom,0px) + 8px)', boxShadow: '0 -8px 40px rgba(0,0,0,.45)', maxHeight: '80vh', overflowY: 'auto' }}
+          >
+            <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--bd2)', margin: '12px auto 4px' }} aria-hidden="true" />
+            <div style={{ padding: '10px 20px 15px', borderBottom: '1px solid var(--bd)' }}>
+              <div style={{ fontSize: 13, color: 'var(--tx3)', marginBottom: 10 }}>Replying to <span style={{ color: 'var(--ac2)' }}>{activeCommentDream.user.handle}</span></div>
+              <div style={{ fontSize: 15, lineHeight: 1.4 }}>{activeCommentDream.text}</div>
+            </div>
+            
+            <div style={{ padding: '20px' }}>
+              {(activeCommentDream.replies || []).length > 0 ? (
+                activeCommentDream.replies.map((r, i) => (
+                  <div key={i} style={{ marginBottom: 15, paddingBottom: 15, borderBottom: '1px solid var(--bd2)' }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>{r.user.name} <span style={{ fontWeight: 400, color: 'var(--tx3)' }}>{r.user.handle}</span></div>
+                    <div style={{ fontSize: 14 }}>{r.text}</div>
+                  </div>
+                ))
+              ) : (
+                <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--tx3)' }}>
+                   No comments yet. Be the first to dream.
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => setActiveCommentDream(null)}
+              style={{ display: 'block', width: 'calc(100% - 28px)', margin: '6px 14px 4px', padding: '13px', background: 'var(--sf2)', border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 600, color: 'var(--tx3)', cursor: 'pointer' }}
+              aria-label="Close comments"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -176,13 +219,13 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
           <strong style={{ fontWeight: 600 }}>{dream.reddreamer.name}</strong> ReDreamed
         </div>
       )}
-      <article className="dc" aria-label={`Dream by ${dream.user.name},`}>
+      <article className="dc" aria-label={`Dream by ${dream.user.name}`}>
         <div className="dc-inner">
           <div className="dc-meta">
             <button
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
               onClick={() => navigate('dp', dream.user)}
-              aria-label={`View ${dream.user.name}'s profile,`}
+              aria-label={`View ${dream.user.name}'s profile`}
             >
               <span className="dc-name">
                 {dream.user.name}
@@ -205,11 +248,11 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
         </div>
 
         {/* Interaction row */}
-        <div className="ixn-row" role="group" aria-label="Dream actions,">
+        <div className="ixn-row" role="group" aria-label="Dream actions">
           <button
             className="ixn-btn"
             onClick={() => onComment && onComment(dream)}
-            aria-label={`${fmt(dream.comments)} comments,`}
+            aria-label={`${fmt(dream.comments)} comments`}
             disabled={isReadOnly}
             style={{ opacity: isReadOnly ? 0.5 : 1 }}
           >
@@ -221,7 +264,7 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
             innerRef={rdTriggerRef}
             on={rdActive}
             onToggle={() => setShowRD(true)}
-            label={`${fmt(rdTotal)} ReDreams,`}
+            label={`${fmt(rdTotal)} ReDreams`}
             activeClass="redd"
             disabled={isReadOnly}
           >
@@ -231,7 +274,7 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
           <IxnCbx
             on={dream.liked}
             onToggle={() => onLike(dream.id)}
-            label={`${fmt(dream.likes)} likes,`}
+            label={`${fmt(dream.likes)} likes`}
             activeClass="liked"
             disabled={isReadOnly}
           >
@@ -244,7 +287,7 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
             className="ixn-btn"
             style={{ flex: '.5' }}
             onClick={() => setShowOpts(true)}
-            aria-label="More Dream options,"
+            aria-label="More Dream options"
             aria-haspopup="dialog"
           >
             <Ic.Dots style={{ width: 15, height: 15 }} aria-hidden="true" />
@@ -260,7 +303,7 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
             className="msh"
             role="dialog"
             aria-modal="true"
-            aria-label="ReDream or Quote,"
+            aria-label="ReDream or Quote"
             tabIndex="-1"
             style={{ outline: 'none' }}
           >
@@ -270,7 +313,7 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
               <button
                 className="osb"
                 onClick={() => { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); setShowRD(false); }}
-                aria-label={dream.redreamed ? 'Undo ReDream,' : 'ReDream,'}
+                aria-label={dream.redreamed ? 'Undo ReDream' : 'ReDream'}
               >
                 <span style={{ color: 'var(--gr)' }} aria-hidden="true"><Ic.Rep style={{ width: 20, height: 20 }} /></span>
                 <div>
@@ -281,7 +324,7 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
               <button
                 className="osb"
                 onClick={() => { dream.quoted ? onUndoQuote(dream.id) : onQuote(dream.id); setShowRD(false); }}
-                aria-label={dream.quoted ? 'Undo Quote Dream,' : 'Quote Dream,'}
+                aria-label={dream.quoted ? 'Undo Quote Dream' : 'Quote Dream'}
               >
                 <span style={{ color: 'var(--ac3)' }} aria-hidden="true"><Ic.Bkm style={{ width: 20, height: 20 }} /></span>
                 <div>
@@ -304,7 +347,7 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
             ref={optDialogRef}
             role="dialog"
             aria-modal="true"
-            aria-label="Dream options,"
+            aria-label="Dream options"
             tabIndex="-1"
             style={{ outline: 'none', position: 'absolute', bottom: 0, left: 0, right: 0, background: 'var(--bg)', borderRadius: '20px 20px 0 0', padding: '0 0 calc(env(safe-area-inset-bottom,0px) + 8px)', boxShadow: '0 -8px 40px rgba(0,0,0,.45)' }}
           >
@@ -319,7 +362,7 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
                   <button
                     key={x.l}
                     onClick={x.a}
-                    aria-label={`${x.l},`}
+                    aria-label={x.l}
                     style={{ display: 'flex', alignItems: 'center', gap: 14, width: '100%', padding: '14px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
                   >
                     <span style={{ fontSize: 22, width: 28, textAlign: 'center', flexShrink: 0 }} aria-hidden="true">{x.ic}</span>
@@ -333,7 +376,7 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
             <button
               onClick={() => setShowOpts(false)}
               style={{ display: 'block', width: 'calc(100% - 28px)', margin: '6px 14px 4px', padding: '13px', background: 'var(--sf2)', border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 600, color: 'var(--tx3)', cursor: 'pointer' }}
-              aria-label="Cancel,"
+              aria-label="Cancel"
             >
               Cancel
             </button>

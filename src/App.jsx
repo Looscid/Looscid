@@ -52,18 +52,18 @@ export default function App() {
         {showDAW && <DAW onClose={() => setShowDAW(false)} />}
       </main>
 
-      <nav className="bnav" role="navigation" aria-label="Main Navigation,">
+      <nav className="bnav" role="navigation" aria-label="Main Navigation">
         <div
           className="ftabs"
           role="radiogroup"
-          aria-label="Navigation tabs,"
+          aria-label="Navigation tabs"
         >
           <button 
             className={`nb ${page === 'feed' ? 'on' : ''}`} 
             onClick={() => setPage('feed')}
             role="radio"
             aria-checked={page === 'feed'}
-            aria-label="Feed,"
+            aria-label="Feed"
           >
             <Ic.Home style={{ width: 20, height: 20 }} />
             <span>Feed</span>
@@ -73,7 +73,7 @@ export default function App() {
             onClick={() => setPage('discover')}
             role="radio"
             aria-checked={page === 'discover'}
-            aria-label="Discover,"
+            aria-label="Discover"
           >
             <Ic.Srch style={{ width: 20, height: 20 }} />
             <span>Discover</span>
@@ -83,7 +83,7 @@ export default function App() {
             onClick={() => setPage('apps')}
             role="radio"
             aria-checked={page === 'apps'}
-            aria-label="Apps,"
+            aria-label="Apps"
           >
             <span style={{ fontSize: '20px' }}>🧩</span>
             <span>Apps</span>
@@ -93,7 +93,7 @@ export default function App() {
             onClick={handleLogout}
             role="radio"
             aria-checked={false}
-            aria-label="Logout,"
+            aria-label="Logout"
           >
             <span style={{ fontSize: '20px' }}>🚪</span>
             <span>Logout</span>
