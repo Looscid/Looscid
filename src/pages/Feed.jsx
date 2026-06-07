@@ -1,4 +1,3 @@
-// DreamOS — Feed Page
 import React, { useState, useEffect, useRef } from 'react';
 import { useDreams } from '../hooks/useDreams.js';
 import { DREAMS_INIT } from '../data/mockData.js';
@@ -44,7 +43,7 @@ export function FeedPage({ navigate, prefs, cherryCtx, user }) {
         <div
           className="ftabs"
           role="radiogroup"
-          aria-label="Feed tabs"
+          aria-label="Feed tabs,"
         >
           {FEED_TABS.map(t => (
             <button
@@ -177,7 +176,7 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
           <strong style={{ fontWeight: 600 }}>{dream.reddreamer.name}</strong> ReDreamed
         </div>
       )}
-      <article className="dc" aria-label={`Dream by ${dream.user.name}`}>
+      <article className="dc" aria-label={`Dream by ${dream.user.name},`}>
         <div className="dc-inner">
           <div className="dc-meta">
             <button
@@ -206,7 +205,7 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
         </div>
 
         {/* Interaction row */}
-        <div className="ixn-row" role="group" aria-label="Dream actions">
+        <div className="ixn-row" role="group" aria-label="Dream actions,">
           <button
             className="ixn-btn"
             onClick={() => onComment && onComment(dream)}
@@ -261,7 +260,7 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
             className="msh"
             role="dialog"
             aria-modal="true"
-            aria-label="ReDream or Quote"
+            aria-label="ReDream or Quote,"
             tabIndex="-1"
             style={{ outline: 'none' }}
           >
@@ -305,7 +304,7 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
             ref={optDialogRef}
             role="dialog"
             aria-modal="true"
-            aria-label="Dream options"
+            aria-label="Dream options,"
             tabIndex="-1"
             style={{ outline: 'none', position: 'absolute', bottom: 0, left: 0, right: 0, background: 'var(--bg)', borderRadius: '20px 20px 0 0', padding: '0 0 calc(env(safe-area-inset-bottom,0px) + 8px)', boxShadow: '0 -8px 40px rgba(0,0,0,.45)' }}
           >
