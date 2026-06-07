@@ -84,3 +84,30 @@ export const buildNostrUser = (pubkey, source = 'extension') => ({
   isNostr: true, isGuest: false, isReadOnly: false,
   source, relays: DREAMOS_RELAYS,
 });
+
+/**
+ * Builds a user object for email-prefixed keys.
+ * Generates a stable pseudo-pubkey from the email identifier.
+ * @param {string} emailKey - The key starting with "email-"
+ */
+export const buildEmailUser = (emailKey) => {
+  const email = emailKey.replace(/^email-/, '');
+  
+  // Stable pseudo-pubkey generation via hex-encoding the email string
+  const pseudoPubkey = 'e' + Array.from(email)
+    .map(c => c.charCodeAt(0).toString(16))
+    .join('')
+    .slice(0, 63);
+
+  return {
+    uid: emailKey,
+    pubkey: pseudoPubkey,
+    npub: email,
+    displayName: email.split('@')[0],
+    isNostr: false,
+    isGuest: false,
+    isReadOnly: true,
+    source: 'email',
+    relays: DREAMOS_RELAYS,
+  };
+};
