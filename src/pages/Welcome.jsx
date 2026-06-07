@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 /**
  * DreamOS Welcome Page
@@ -9,139 +9,202 @@ export function WelcomePage({ onLogin }) {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [showLegacy, setShowLegacy] = useState(false);
+  const [logs, setLogs] = useState(['DreamOS Initializing...,', 'Terminal Node Online...,']);
+  const logEndRef = useRef(null);
+
+  const addLog = (msg) => {
+    setLogs(prev => [...prev, `${msg},`]);
+  };
+
+  useEffect(() => {
+    logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [logs]);
 
   const handleNsecLogin = (e) => {
     e.preventDefault();
+    addLog('Processing NSEC login');
     if (nsec.startsWith('nsec1') && nsec.length > 50) {
+      addLog('NSEC validation successful');
       onLogin(nsec);
     } else {
-      setError('Invalid NSEC format,');
+      const errMsg = 'Invalid NSEC format';
+      setError(`${errMsg},`);
+      addLog(`Error: ${errMsg}`);
     }
   };
 
   const handleEmailLogin = (e) => {
     e.preventDefault();
+    addLog('Processing legacy email login');
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (emailRegex.test(email)) {
+      addLog('Email validation successful');
       const sanitizedEmail = email.toLowerCase().replace(/[^a-z0-9]/g, '-');
       onLogin(`email-${sanitizedEmail}`);
     } else {
-      setError('Invalid email address,');
+      const errMsg = 'Invalid email address';
+      setError(`${errMsg},`);
+      addLog(`Error: ${errMsg}`);
     }
   };
 
   const handleExtensionLogin = async () => {
+    addLog('Requesting NIP-07 extension');
     try {
       if (window.nostr) {
         const pubkey = await window.nostr.getPublicKey();
+        addLog('Extension access granted');
         onLogin(pubkey);
       } else {
-        setError('NIP-07 extension not found,');
+        const errMsg = 'NIP-07 extension not found';
+        setError(`${errMsg},`);
+        addLog(`Error: ${errMsg}`);
       }
     } catch (err) {
-      setError('Extension login failed,');
+      const errMsg = 'Extension login failed';
+      setError(`${errMsg},`);
+      addLog(`Error: ${errMsg}`);
     }
   };
 
+  const handleGuestLogin = () => {
+    addLog('Bypassing with guest identity');
+    onLogin('guest-' + Date.now());
+  };
+
+  const toggleLegacy = () => {
+    const newState = !showLegacy;
+    setShowLegacy(newState);
+    addLog(newState ? 'Legacy login enabled' : 'Legacy login disabled');
+  };
+
   return (
-    <div className="pg" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '20px' }}>
-      <header style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <h1 className="font-cinzel" style={{ fontSize: '48px', marginBottom: '8px' }}>DREAMOS</h1>
-        <p style={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '2px' }}>We're powered by NOSTR</p>
+    <div className="pg min-h-screen p-6 flex flex-col items-center justify-center">
+      <header className="mb-10 text-center">
+        <h1 className="font-cinzel text-5xl mb-2">DREAMOS</h1>
+        <p className="font-extrabold uppercase tracking-widest">Powered by NOSTR</p>
       </header>
 
-      <main className="chronicle-card" style={{ padding: '24px' }}>
-        <h2 className="font-cinzel" style={{ fontSize: '24px', marginBottom: '20px' }}>Login to the Feed</h2>
-        
-        <form onSubmit={handleNsecLogin}>
-          <div style={{ marginBottom: '16px' }}>
-            <label htmlFor="nsec-input" className="slbl" style={{ display: 'block', marginBottom: '8px' }}>Enter your NSEC key</label>
-            <input
-              id="nsec-input"
-              type="password"
-              className="inp border-2"
-              placeholder="nsec1..."
-              value={nsec}
-              onChange={(e) => setNsec(e.target.value)}
-              aria-label="Nostr private key input,"
-            />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-6xl">
+        {/* Left Side: Terminal Node Status */}
+        <section 
+          className="bg-black text-[#00ff00] border-2 border-[var(--borderColor)] shadow-[4px_4px_0px_var(--borderColor)] font-mono p-4 rounded-none h-[400px] flex flex-col"
+          aria-label="Terminal Node Status,"
+        >
+          <div className="flex justify-between border-b border-[#00ff00] mb-2 pb-1 uppercase text-xs font-bold">
+            <span>Node Diagnostics</span>
+            <span>Status: Online</span>
           </div>
+          <div 
+            className="overflow-y-auto flex-1 text-sm" 
+            role="status" 
+            aria-live="polite"
+            aria-label="Diagnostic log stream,"
+          >
+            {logs.map((log, i) => (
+              <div key={i} className="mb-1 leading-tight">{`> ${log}`}</div>
+            ))}
+            <div ref={logEndRef} />
+          </div>
+        </section>
+
+        {/* Right Side: Authentication Gateway */}
+        <main 
+          className="border-2 border-[var(--borderColor)] shadow-[4px_4px_0px_var(--borderColor)] bg-[var(--bg2)] text-[var(--tx)] p-6 rounded-none"
+          aria-label="Authentication Gateway,"
+        >
+          <h2 className="font-cinzel text-2xl mb-6 uppercase">Gateway Access</h2>
           
-          {error && <p role="alert" style={{ color: 'var(--rd)', fontWeight: 700, marginBottom: '16px' }}>{error}</p>}
-
-          <button 
-            type="submit" 
-            className="btn bp border-2" 
-            style={{ width: '100%', height: '54px', marginBottom: '12px' }}
-            aria-label="Login with secret key,"
-          >
-            Access Feed
-          </button>
-        </form>
-
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
-          <button 
-            onClick={handleExtensionLogin} 
-            className="btn bgb border-2" 
-            style={{ flex: 1 }}
-            aria-label="Login with Browser Extension,"
-          >
-            Use Extension
-          </button>
-          <button 
-            onClick={() => onLogin('guest-' + Date.now())} 
-            className="btn bgb border-2" 
-            style={{ flex: 1 }}
-            aria-label="Enter as guest,"
-          >
-            Guest Bypass
-          </button>
-        </div>
-
-        <div style={{ marginBottom: '24px' }}>
-          <button 
-            onClick={() => setShowLegacy(!showLegacy)}
-            className="btn border-2"
-            style={{ width: '100%', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase' }}
-            aria-label="Toggle legacy login options,"
-            aria-expanded={showLegacy}
-          >
-            {showLegacy ? 'Hide' : 'Show'} Legacy Login
-          </button>
-
-          {showLegacy && (
-            <div className="border-2" style={{ marginTop: '12px', padding: '16px', background: 'var(--bg2)' }}>
-              <form onSubmit={handleEmailLogin}>
-                <label htmlFor="email-input" className="slbl" style={{ display: 'block', marginBottom: '8px' }}>Legacy Email</label>
-                <input
-                  id="email-input"
-                  type="email"
-                  className="inp border-2"
-                  placeholder="user@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  style={{ marginBottom: '12px' }}
-                  aria-label="Legacy email input,"
-                />
-                <button 
-                  type="submit" 
-                  className="btn bgb border-2" 
-                  style={{ width: '100%' }}
-                  aria-label="Login with email address,"
-                >
-                  Email Access
-                </button>
-              </form>
+          <form onSubmit={handleNsecLogin}>
+            <div className="mb-4">
+              <label htmlFor="nsec-input" className="slbl block mb-2 font-bold uppercase text-xs">Secret Key (NSEC)</label>
+              <input
+                id="nsec-input"
+                type="password"
+                className="inp border-2 w-full p-3 bg-white text-black"
+                placeholder="nsec1..."
+                value={nsec}
+                onChange={(e) => {
+                  setNsec(e.target.value);
+                  if (e.target.value.length % 5 === 0) addLog('Updating nsec buffer');
+                }}
+                aria-label="Nostr private key input,"
+              />
             </div>
-          )}
-        </div>
+            
+            {error && <p role="alert" className="text-[var(--rd)] font-bold mb-4 uppercase text-xs">{error}</p>}
 
-        <footer style={{ textAlign: 'center', borderTop: '2px solid var(--borderColor)', paddingTop: '20px' }}>
-          <p style={{ fontSize: '12px', color: 'var(--tx3)' }}>
-            New to Nostr? <a href="https://nostr.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--tx)', fontWeight: 700 }}>Get started here</a>
-          </p>
-        </footer>
-      </main>
+            <button 
+              type="submit" 
+              className="btn bp border-2 w-full h-14 mb-3 font-bold uppercase" 
+              aria-label="Login with secret key,"
+            >
+              Access Feed
+            </button>
+          </form>
+
+          <div className="flex gap-3 mb-6">
+            <button 
+              onClick={handleExtensionLogin} 
+              className="btn bgb border-2 flex-1 p-3 font-bold uppercase text-xs" 
+              aria-label="Login with Browser Extension,"
+            >
+              Extension
+            </button>
+            <button 
+              onClick={handleGuestLogin} 
+              className="btn bgb border-2 flex-1 p-3 font-bold uppercase text-xs" 
+              aria-label="Enter as guest,"
+            >
+              Guest Bypass
+            </button>
+          </div>
+
+          <div className="mb-6">
+            <button 
+              onClick={toggleLegacy}
+              className="btn border-2 w-full p-2 text-[10px] font-black uppercase tracking-tighter"
+              aria-label="Toggle legacy login options,"
+              aria-expanded={showLegacy}
+            >
+              {showLegacy ? 'Hide' : 'Show'} Legacy Login
+            </button>
+
+            {showLegacy && (
+              <div className="border-2 mt-3 p-4 bg-[var(--bg)] shadow-[2px_2px_0px_var(--borderColor)]">
+                <form onSubmit={handleEmailLogin}>
+                  <label htmlFor="email-input" className="slbl block mb-2 font-bold uppercase text-xs">Email Identity</label>
+                  <input
+                    id="email-input"
+                    type="email"
+                    className="inp border-2 w-full p-2 mb-3 bg-white text-black"
+                    placeholder="user@example.com"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (e.target.value.length % 5 === 0) addLog('Updating email buffer');
+                    }}
+                    aria-label="Legacy email input,"
+                  />
+                  <button 
+                    type="submit" 
+                    className="btn bgb border-2 w-full p-2 font-bold uppercase text-xs" 
+                    aria-label="Login with email address,"
+                  >
+                    Email Access
+                  </button>
+                </form>
+              </div>
+            )}
+          </div>
+
+          <footer className="text-center border-t-2 border-[var(--borderColor)] pt-6 mt-4">
+            <p className="text-[10px] uppercase font-bold text-[var(--tx3)]">
+              Protocol: NOSTR | <a href="https://nostr.com" target="_blank" rel="noopener noreferrer" className="text-[var(--tx)] underline" aria-label="Learn about Nostr protocol,">Documentation</a>
+            </p>
+          </footer>
+        </main>
+      </div>
     </div>
   );
 }
