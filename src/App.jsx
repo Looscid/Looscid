@@ -1,15 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { WelcomePage } from './pages/Welcome.jsx';
 import { FeedPage } from './pages/Feed.jsx';
 import { DiscoverPage } from './pages/Discover.jsx';
 import { AppsPage } from './pages/Apps.jsx';
 import { DAW } from './components/DAW.jsx';
 import { Ic } from './components/Icons.jsx';
+import { buildNostrUser, createGuestUser, buildEmailUser } from './auth/nostr.js';
 
 export default function App() {
   const [userKey, setUserKey] = useState(localStorage.getItem('dream_user_key'));
   const [page, setPage] = useState('feed');
   const [showDAW, setShowDAW] = useState(false);
+
+  // Derive user object from userKey
+  const user = useMemo(() => {
+    if (!userKey) return null;
+    if (userKey.startsWith('email-')) return buildEmailUser(userKey);
+    if (userKey.startsWith('guest-')) return createGuestUser();
+    return buildNostrUser(userKey);
+  }, [userKey]);
 
   useEffect(() => {
     if (userKey) {
@@ -36,9 +45,9 @@ export default function App() {
       <a href="#main-content" className="skip-link">Skip to content</a>
 
       <main id="main-content" className="pg" style={{ paddingBottom: '80px' }}>
-        {page === 'feed' && <FeedPage navigate={navigate} />}
-        {page === 'discover' && <DiscoverPage navigate={navigate} />}
-        {page === 'apps' && <AppsPage onOpenDAW={() => setShowDAW(true)} />}
+        {page === 'feed' && <FeedPage navigate={navigate} user={user} />}
+        {page === 'discover' && <DiscoverPage navigate={navigate} user={user} />}
+        {page === 'apps' && <AppsPage onOpenDAW={() => setShowDAW(true)} user={user} />}
         
         {showDAW && <DAW onClose={() => setShowDAW(false)} />}
       </main>
