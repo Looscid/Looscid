@@ -126,7 +126,7 @@ export function DAW({ onClose }) {
         className="msh"
         role="dialog"
         aria-modal="true"
-        aria-label="Web Audio DAW Preview"
+        aria-label="Web Audio DAW Preview,"
         tabIndex="-1"
         style={{ outline: 'none', padding: '20px' }}
       >
@@ -225,3 +225,5 @@ export function DAW({ onClose }) {
         </div>
       </div>
     </div>
+  );
+}
