@@ -1,15 +1,29 @@
-// Dream Board Mobile - Cloudflare Worker
-// Handles Turnstile verification server-side
+// DreamOS - Cloudflare Worker
+// Handles Turnstile verification and old URL redirects
 
 const TURNSTILE_SECRET = "";
-const ALLOWED_ORIGIN  = "https://dream-board-mobile.pages.dev";
+const ALLOWED_ORIGINS = [
+  "https://dream-os.pages.dev",
+  "https://dreamos.pages.dev",
+];
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    // Redirect old dream-board-mobile URL (legacy redirect) to new dream-os URL
+    if (url.hostname === "dreamos.pages.dev") {
+      const newUrl = "https://dream-os.pages.dev" + url.pathname + url.search;
+      return Response.redirect(newUrl, 301);
+    }
+
+    const origin = request.headers.get("Origin") || "";
+    const allowedOrigin = ALLOWED_ORIGINS.includes(origin)
+      ? origin
+      : ALLOWED_ORIGINS[0];
+
     const cors = {
-      "Access-Control-Allow-Origin":  ALLOWED_ORIGIN,
+      "Access-Control-Allow-Origin":  allowedOrigin,
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
     };
@@ -32,7 +46,10 @@ export default {
       const data = await res.json();
       return new Response(
         JSON.stringify({ success: data.success }),
-        { status: data.success ? 200 : 403, headers: { "Content-Type": "application/json", ...cors } }
+        {
+          status: data.success ? 200 : 403,
+          headers: { "Content-Type": "application/json", ...cors },
+        }
       );
     }
 
