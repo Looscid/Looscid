@@ -1,7 +1,3 @@
 # Intentionally minimal after repository reset
 .DS_Store
 node_modules/
-.env.local
-.env
-node_modules/
-dist/
