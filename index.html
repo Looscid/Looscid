@@ -5,64 +5,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DO IT ALL. ON DREAMOS</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         
         body {
             font-family: 'Inter', system-ui, sans-serif;
-            background: #0a0a0a;
+            background: linear-gradient(135deg, #0a0a0a, #1a0033);
             color: #ffffff;
             text-align: center;
-            padding: 80px 20px;
+            padding: 60px 20px;
             margin: 0;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
         }
         h1 {
-            font-size: 3.8rem;
-            margin-bottom: 16px;
-            background: linear-gradient(90deg, #00ccff, #ff00cc);
+            font-size: 4.2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00ccff, #ff00cc, #00ffaa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+        .slogan {
+            font-size: 2.6rem;
+            font-weight: 700;
+            margin: 20px 0 40px;
+            color: #00ffaa;
+            letter-spacing: 3px;
+        }
         p {
             font-size: 1.35rem;
-            max-width: 660px;
-            margin: 0 auto 40px;
+            max-width: 720px;
+            margin: 0 auto 50px;
             opacity: 0.9;
-            line-height: 1.6;
+            line-height: 1.7;
         }
-        .slogan {
-            font-size: 2.5rem;
+        .cta {
+            display: inline-block;
+            background: #00ccff;
+            color: #000;
+            padding: 18px 48px;
+            font-size: 1.4rem;
             font-weight: 700;
-            margin: 30px 0 40px;
-            color: #00ffaa;
-            letter-spacing: 2px;
+            border-radius: 50px;
+            text-decoration: none;
+            margin: 20px;
+            transition: all 0.3s;
+        }
+        .cta:hover {
+            transform: scale(1.05);
+            background: #ff00cc;
+            color: white;
+        }
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-top: 60px;
+        }
+        .feature {
+            max-width: 280px;
         }
         .links a {
-            color: #00ccff;
+            color: #aaa;
             text-decoration: none;
-            margin: 0 18px;
-            font-weight: 600;
-            font-size: 1.15rem;
-        }
-        .links a:hover {
-            text-decoration: underline;
+            margin: 0 15px;
+            font-size: 1.1rem;
         }
     </style>
 </head>
 <body>
     <h1>DreamOS</h1>
-    <p>A free, open-source social platform and web-based OS experience.<br>
-       Built for accessibility, privacy, and freedom.</p>
     <div class="slogan">DO IT ALL. ON DREAMOS</div>
+    <p>A free, open-source social platform and full web-based OS experience.<br>
+       Built for accessibility, privacy, and freedom.</p>
     
-    <div class="links">
-        <a href="https://dreamosofficial.github.io/DreamOS/">🚀 Launch DreamOS</a>
+    <a href="https://dreamosofficial.github.io/DreamOS/src/" class="cta">🚀 LAUNCH DREAMOS</a>
+    
+    <div class="features">
+        <div class="feature">
+            <h3>🌐 Full OS in Browser</h3>
+            <p>Apps, File Explorer, Multitasking</p>
+        </div>
+        <div class="feature">
+            <h3>🧠 Cherry AI Everywhere</h3>
+            <p>Smart assistant integrated across the platform</p>
+        </div>
+        <div class="feature">
+            <h3>♿ Accessibility First</h3>
+            <p>Built for VoiceOver, Braille, TalkBack & more</p>
+        </div>
+    </div>
+    
+    <div class="links" style="margin-top: 80px;">
         <a href="https://github.com/DreamOSOfficial/DreamOS">GitHub</a>
-        <a href="https://x.com/dreamOS26">X / Twitter</a>
+        <a href="https://x.com/dreamOS26">@dreamOS26</a>
     </div>
 </body>
 </html>
