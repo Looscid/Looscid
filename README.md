@@ -1,16 +1,16 @@
-# DreamOS
+# Looscid
 
-The official DreamOS repository.
+The official Loocid repository.
 
-DreamOS is a free, open source social platform and web OS experience built around accessibility, privacy and freedom.
+Looscid is a free, Opensource Operating System and web OS experience built around accessibility, privacy and freedom.
 
-**Live:** https://dreamosofficial.github.io/DreamOS/  
-**X:** @dreamOS26  
+**Live:** https://Looscid.github.io/Looscid/  
+**Twitter (or X)** @Looscid  
 **Built with:** React, Vite, Supabase, GitHub Pages
 
-## What DreamOS is
+## What Looscid is
 
-DreamOS is not just a social app. It is a full OS experience in the browser — with apps, a file explorer, Cherry AI built in everywhere, calls, email, contacts, and a developer portal where third parties can submit mini apps.
+Looscid is not just a social app. It is a full OS experience in the browser. We aim to become a full Operating system (like iOS or android). We have apps, a file explorer, Cherry AI built in everywhere, calls, email, contacts, and a developer portal where third parties can submit mini apps.
 
 Accessibility is a first class requirement, not an afterthought. Built for VoiceOver, BrailleNote Touch Plus, TalkBack, and every Braille display in between.
 
@@ -22,7 +22,7 @@ Accessibility is a first class requirement, not an afterthought. Built for Voice
 | Dreamors | Users |
 | ReDreams | Reposts |
 | Circles | Groups |
-| Dream ID | Account |
+| LooscidID | Account |
 | Feed | Home tab |
 | Alerts | Notifications |
 | Login | Sign In |
@@ -33,6 +33,4 @@ See TERMINOLOGY.md for the full list.
 
 See CONTRIBUTING.md. All contributors must follow the terminology above without exception.
 
-## License
-
-Open source. Free for life. Free for ∞.
+## License: Read Looscid License 
