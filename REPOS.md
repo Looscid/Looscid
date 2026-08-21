@@ -1,7 +1,7 @@
-# DreamOS — Referenced Repositories
+# Looscid Referenced Repositories
 
 Every repo shared during development. Organized by purpose.
-Forks are not listed — only original work is credited.
+Forks are not listed (only original work is credited)
 
 ---
 
@@ -123,7 +123,7 @@ Forks are never credited — only original work.
 
 ## Acknowledgements (About Tab Text)
 
-DreamOS is built on the shoulders of open source work
+Looscid is built on the shoulders of open source work
 by people who believe software should be free and open.
 
 We thank:
@@ -133,14 +133,14 @@ We thank:
   that no company can control
 
 - nbd-wtf for nostr-tools, the library that
-  powers DreamOS's Nostr integration
+  powers Looscid's Nostr integration
 
 - The Nostr Nests team for decentralized
-  audio rooms that power DreamOS calls
+  audio rooms that power Looscid calls
 
 - MysteryNBS for Yapper and Mysty Social,
   whose open approach to social app development
-  informed DreamOS's structure
+  informed Looscid's structure
 
 - The VoltAgent team for open source AI
   agent architecture that shaped how
@@ -149,7 +149,6 @@ We thank:
 - The Anthropic team for the model spec
   whose values Cherry embodies
 
-DreamOS is open source. Free for life. Free for infinity.
+Looscid is open source. Free for life. Free for infinity.
 If you build something with it, you do not owe us anything.
 Just keep it open.
-
