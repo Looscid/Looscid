@@ -1,6 +1,6 @@
-// DreamOS Nostr Core — Your nsec key IS your Dream ID
+// Looscid Nostr Core — Your nsec key IS your LooscidID
 
-export const DREAMOS_RELAYS = [
+export const LOOSCID_RELAYS = [
   'wss://relay.damus.io',
   'wss://relay.nostr.band',
   'wss://nos.lol',
@@ -33,8 +33,8 @@ export const signWithExtension = async event => {
 export const buildAuthEvent = () => ({
   kind: 27235,
   created_at: Math.floor(Date.now() / 1000),
-  tags: [['u', 'https://dream-os.pages.dev'], ['method', 'GET']],
-  content: 'DreamOS Login',
+  tags: [['u', 'https://looscid.github.io/Looscid'], ['method', 'GET']],
+  content: 'Looscid Login',
 });
 
 export const buildDreamEvent = (content, tags = []) => ({
@@ -71,10 +71,10 @@ export const pubkeyToDisplay = pubkey =>
   pubkey ? 'npub1' + pubkey.slice(0, 8) + '...' + pubkey.slice(-4) : '';
 
 export const createGuestUser = () => ({
-  uid: 'guest', pubkey: null, npub: 'npub1dreamos',
+  uid: 'guest', pubkey: null, npub: 'npub1looscid',
   displayName: 'Guest Dreamor', isGuest: true,
   isReadOnly: true, isNostr: true, source: 'guest',
-  relays: DREAMOS_RELAYS,
+  relays: LOOSCID_RELAYS,
 });
 
 export const buildNostrUser = (pubkey, source = 'extension') => ({
@@ -82,5 +82,5 @@ export const buildNostrUser = (pubkey, source = 'extension') => ({
   npub: pubkeyToDisplay(pubkey),
   displayName: formatNpub(pubkeyToDisplay(pubkey)),
   isNostr: true, isGuest: false, isReadOnly: false,
-  source, relays: DREAMOS_RELAYS,
+  source, relays: LOOSCID_RELAYS,
 });
