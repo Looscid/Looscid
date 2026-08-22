@@ -1,4 +1,4 @@
-// DreamOS — Discover Page
+// Looscid — Discover Page
 import React, { useState } from 'react';
 import { USERS, GROUPS, TRENDING, DREAMS_INIT } from '../data/mockData.js';
 import { Av } from '../components/Shared.jsx';
@@ -31,7 +31,7 @@ export function DiscoverPage({ navigate, cherryCtx }) {
             placeholder="Search Dreamors, Dreams, #topics…"
             value={q}
             onChange={e => { setQ(e.target.value); if (e.target.value) setTab('dreamors'); }}
-            aria-label="Search DreamOS,"
+            aria-label="Search Looscid,"
           />
         </div>
         <div className="tabrow" role="tablist" aria-label="Discover tabs">
