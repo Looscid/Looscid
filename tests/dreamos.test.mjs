@@ -1,37 +1,35 @@
 import { describe, expect, it } from "vitest";
 import { TestDriver } from "testdriverai/vitest/hooks";
 
-// Sample TestDriver tests for DreamOS — production environment.
+// Sample TestDriver tests for Looscid — production environment.
 //
-// App under test: https://dreamosofficial.github.io/DreamOS/ (GitHub Pages).
+// App under test: https://looscid.github.io/Looscid/ (GitHub Pages).
 //
-// DreamOS describes itself as a free, open-source social platform + full
+// Looscid describes itself as a free, open-source social platform + full
 // web-OS experience. Auth is Nostr-based with a read-only "Guest Dreamor"
 // mode, so no credentials/fixtures are needed for the public surface.
 //
 // NOTE on scope: the only surface actually deployed on the production
-// GitHub Pages site is the marketing/landing page. The "LAUNCH DREAMOS"
-// button points at `/DreamOS/src/`, which currently returns a GitHub Pages
-// 404 (the built SPA is not published there), so these sample tests target
-// the landing page that IS live in production. When the app itself is
-// deployed, these can be extended to drive the Feed / Discover / Cherry AI
-// flows as a signed-in or guest Dreamor.
+// GitHub Pages site is the marketing/landing page. The "LAUNCH LOOSCID"
+// button points at the app surface; when the SPA is published these tests
+// can be extended to drive the Feed / Discover / Cherry AI flows as a
+// signed-in or guest Dreamor.
 
-const LANDING_URL = "https://dreamosofficial.github.io/DreamOS/";
+const LANDING_URL = "https://looscid.github.io/Looscid/";
 
-describe("DreamOS landing page (production)", () => {
+describe("Looscid landing page (production)", () => {
   it("renders the hero with slogan and launch call-to-action", async (context) => {
     const testdriver = TestDriver(context);
 
     await testdriver.provision.chrome({ url: LANDING_URL });
 
     const heroVisible = await testdriver.assert(
-      "the DreamOS landing page is visible with the large 'DreamOS' title and the 'DO IT ALL. ON DREAMOS' slogan"
+      "the Looscid landing page is visible with the large 'Looscid' title and the 'DO IT ALL. ON LOOSCID' slogan"
     );
     expect(heroVisible).toBeTruthy();
 
     const ctaVisible = await testdriver.assert(
-      "a prominent 'LAUNCH DREAMOS' call-to-action button is visible"
+      "a prominent 'LAUNCH LOOSCID' call-to-action button is visible"
     );
     expect(ctaVisible).toBeTruthy();
   });
@@ -60,7 +58,7 @@ describe("DreamOS landing page (production)", () => {
     await testdriver.wait(1500);
 
     const linksVisible = await testdriver.assert(
-      "there are footer links to GitHub and to the @dreamOS26 social account"
+      "there are footer links to GitHub and to the @Looscid social account"
     );
     expect(linksVisible).toBeTruthy();
   });
