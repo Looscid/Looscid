@@ -1,6 +1,6 @@
 # Accessible Menu Popup Button Implementation Guide
 
-Comprehensive guide for implementing accessible menu popup buttons in DreamOS for both web and iOS platforms.
+Comprehensive guide for implementing accessible menu popup buttons in Looscid for both web and iOS platforms.
 
 ---
 
