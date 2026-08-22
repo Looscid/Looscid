@@ -1,4 +1,4 @@
-// DreamOS — Feed Page
+// Looscid — Feed Page
 import React, { useState } from 'react';
 import { useDreams } from '../hooks/useDreams.js';
 import { DREAMS_INIT } from '../data/mockData.js';
@@ -37,7 +37,7 @@ export function FeedPage({ navigate, prefs, cherryCtx }) {
     <div className="pg">
       <div className="hdr">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '48px 16px 0' }}>
-          <span className="htit">DreamOS</span>
+          <span className="htit">Looscid</span>
           <div style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--gr)', boxShadow: '0 0 8px var(--gr)' }} aria-hidden="true" />
         </div>
         {/* Feed tabs — radiogroup for VoiceOver */}
@@ -131,7 +131,7 @@ export function DreamCard({ dream, onLike, onRedream, onUndoRedream, onQuote, on
   // Dream options — Report and Block live here, not in a separate More Actions
   const dreamOpts = [
     { ic: dream.bookmarked ? '🔖' : '🔖', l: dream.bookmarked ? 'Unsave Dream' : 'Save Dream', sub: dream.bookmarked ? 'Remove from saved' : 'Save this Dream', a: () => { onBookmark && onBookmark(dream.id); setShowOpts(false); } },
-    { ic: '📤', l: 'Share Dream', sub: 'Share outside DreamOS', a: () => setShowOpts(false) },
+    { ic: '📤', l: 'Share Dream', sub: 'Share outside Looscid', a: () => setShowOpts(false) },
     { ic: '👤', l: `View @${dream.user.handle.replace('@', '')}'s Profile`, a: () => { setShowOpts(false); navigate('dp', dream.user); } },
     '---',
     { ic: '🔇', l: `Mute @${dream.user.handle.replace('@', '')}`, sub: 'Stop seeing their Dreams', a: () => setShowOpts(false) },
