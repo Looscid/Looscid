@@ -19,7 +19,6 @@
     "node": ">=20.19.0"
   },
   "devDependencies": {
-    "testdriverai": "^7.11.23-test",
     "vitest": "^4.1.10"
   },
   "dependencies": {
