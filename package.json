@@ -22,7 +22,7 @@
     "vitest": "^4.1.10"
   },
   "dependencies": {
-    "@xmldom/xmldom": "4.0.0",
+    "@xmldom/xmldom": "0.9.12",
     "dotenv": "^17.4.2",
     "hono": "4.13.7",
     "js-yaml": "4.3.2"
