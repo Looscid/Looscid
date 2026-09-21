@@ -1,0 +1,6 @@
+Looscid Public License (LPL) v1.0
+Copyright (c) 2026—present Alhasan Altameemi / Looscid
+
+This file is the root-level copy of the repository license. See the full license text in the repository file named Looscid License.
+
+Looscid - DO IT ALL. ON LOOSCID
