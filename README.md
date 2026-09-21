@@ -6,7 +6,7 @@ Looscid is a free, open-source operating system and web OS experience built arou
 
 **Live:** https://looscid.github.io/Looscid/  
 **X:** @Looscid  
-**Built with:** React, Vite, Supabase, GitHub Pages
+**Built with:** semantic vanilla HTML, CSS, and modern JavaScript; GitHub Pages
 
 ## What Looscid is
 
