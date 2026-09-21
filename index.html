@@ -39,6 +39,66 @@
   </header>
 
   <main id="main-content" tabindex="-1">
+    <section id="onboarding" class="onboarding" aria-labelledby="onboarding-heading" hidden>
+      <div class="onboarding__intro" data-block="welcome">
+        <p class="eyebrow">Welcome to your sovereign OS</p>
+
+        <h1 id="onboarding-heading" tabindex="-1">Welcome to Looscid</h1>
+
+        <p>Looscid is a local-first space for Dreams, privacy, accessibility, and freedom. Your first setup is stored on this device.</p>
+      </div>
+
+      <form id="onboarding-form" class="onboarding__form" novalidate>
+        <fieldset data-block="identity-setup">
+          <legend>Your LooscidID</legend>
+
+          <p id="identity-help">Choose the display name that Dreamors will see on this device. You can change it later.</p>
+
+          <div class="form-field">
+            <label for="display-name">Display name</label>
+
+            <input id="display-name" name="displayName" type="text" maxlength="80" autocomplete="nickname" required aria-describedby="identity-help display-name-error">
+
+            <p id="display-name-error" class="field-error" aria-live="polite"></p>
+          </div>
+        </fieldset>
+
+        <fieldset data-block="local-preferences">
+          <legend>Local preferences</legend>
+
+          <div class="checkbox-field">
+            <input id="reduced-motion" name="reducedMotion" type="checkbox">
+
+            <label for="reduced-motion">Prefer reduced motion</label>
+          </div>
+
+          <div class="checkbox-field">
+            <input id="larger-text" name="largerText" type="checkbox">
+
+            <label for="larger-text">Use larger text</label>
+          </div>
+        </fieldset>
+
+        <fieldset data-block="nostr-setup">
+          <legend>Optional Nostr connection</legend>
+
+          <p id="nostr-help">You can connect a public npub now or leave this blank. Never enter a secret key here. Nostr connection can be configured later.</p>
+
+          <div class="form-field">
+            <label for="nostr-npub">Public npub, optional</label>
+
+            <input id="nostr-npub" name="nostrNpub" type="text" inputmode="text" autocomplete="off" aria-describedby="nostr-help npub-error">
+
+            <p id="npub-error" class="field-error" aria-live="polite"></p>
+          </div>
+        </fieldset>
+
+        <div class="form-actions" data-block="onboarding-actions">
+          <button type="submit">Enter Looscid</button>
+        </div>
+      </form>
+    </section>
+
     <section id="feed" class="page" data-page="feed" aria-labelledby="feed-heading">
       <div class="page-heading" data-block="page-heading">
         <h1 id="feed-heading" tabindex="-1">Feed</h1>
