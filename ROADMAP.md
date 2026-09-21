@@ -2,137 +2,77 @@
 
 ## Product identity and vision
 
-Looscid is the permanent name of the application and sovereign local-first environment.
-
-Looscid is a privacy-respecting operating system experience for Dreamors: local by default, accessible by design, interoperable through open protocols, and sovereign in identity and data ownership. The application should remain useful without an account, network connection, build service, or proprietary runtime.
-
-Looscid terminology is part of the product contract and should remain stable across the UI, source, documentation, and accessibility announcements.
+Looscid is a privacy-respecting, local-first operating system experience for Dreamors: accessible by design, interoperable through open protocols, and sovereign in identity and data ownership. The application should remain useful without an account, network connection, build service, or proprietary runtime. Do not de-bloat: preserve robust functionality, accessibility, terminology, and local-first behavior as capabilities expand.
 
 ## Architecture
 
-The rewrite is pure semantic vanilla HTML, CSS, and modern JavaScript.
-
-- `index.html` provides semantic landmarks, forms, headings, native controls, accessible relationships, and discrete UI blocks.
-- `styles.css` provides responsive presentation without a framework.
-- `app.js` provides native DOM behavior, local-first state, validation, navigation, and rendering without a framework.
-- Zero build step.
-- Zero dependencies.
-- Double newlines separate all discrete blocks and semantic elements in source.
-- Screen-reader optimized focus management moves focus to the active page or onboarding heading and announces state changes through live regions.
-- Roving `tabindex` is used for Feed view tabs so keyboard, VoiceOver, and Braille users have one active tab stop at a time.
-- Native semantic controls are preferred over simulated widgets.
-- Images are never published without alternative text: adding images requires Alt text.
+The rewrite is pure semantic vanilla HTML, CSS, and modern JavaScript with zero build step and zero dependencies. `index.html` provides semantic landmarks and native controls; `styles.css` provides responsive presentation; `app.js` provides DOM behavior, local state, validation, navigation, and rendering. Focus management, live regions, roving tabindex, mandatory image Alt text, and accessible validation are required.
 
 ## Phase 1 — completed
 
-- [x] Dependency-free vanilla shell: `index.html`, `styles.css`, and `app.js`.
-- [x] First-time startup and onboarding intro screen with LooscidID/display name setup.
-- [x] Local accessibility preferences for reduced motion and larger text.
-- [x] Optional public Nostr npub setup, with explicit protection against entering secret keys.
-- [x] LocalStorage persistence for profile, settings, drafts, onboarding completion, and local Dreams.
-- [x] Returning visits skip onboarding and open directly to Feed.
-- [x] Strict accessibility mandate: “Adding images requires Alt text.”
-- [x] Composer enforcement prevents image publication when Alt text is empty.
-- [x] Accessible image validation alerts, described fields, focus correction, and status announcements.
-- [x] Startup principles and onboarding guidance explicitly require mandatory image descriptions.
-- [x] Discrete block source layout with double-newline separation.
-- [x] Focus management and roving `tabindex` behavior for screen-reader, keyboard, VoiceOver, and Braille navigation.
+- [x] Dependency-free vanilla shell, onboarding, local accessibility preferences, localStorage profile/settings/drafts/Dreams.
+- [x] Feed and Discover views with accessible navigation and feed tabs.
+- [x] Composer enforcement: adding images requires Alt text.
+- [x] Focus management, live announcements, and keyboard/VoiceOver/Braille navigation patterns.
 
 ## Phase 2 — immediate next milestones
 
-- [ ] Port the Apps tab / AppsPage artifact from React/Vite into an accessible vanilla DOM view.
-- [ ] Scaffold semantic Alerts with Mentions, Interactions, and System Logs as a native `role="tablist"` interface.
+- [ ] Port the Apps tab / AppsPage artifact from React/Vite into accessible vanilla DOM.
+- [ ] Scaffold semantic Alerts with Mentions, Interactions, and System Logs.
 - [ ] Create native DOM factories for Feed and Discover, separating local Dreams from Nostr relay Dreams.
-- [ ] Unify About and Settings sections into one consistent semantic navigation and preferences model.
-- [ ] Add Nostr relay pool management with connection state, relay preferences, and local-first failure handling.
-- [ ] Integrate NIP-04 and NIP-44 encryption flows without exposing secret keys in source or UI logs.
+- [ ] Unify About and Settings into one semantic navigation and preferences model.
+- [ ] Add Nostr relay pool management and NIP-04/NIP-44 encryption without exposing secret keys.
 - [ ] Deploy the dependency-free static application through GitHub Pages.
+
+## Custom AI Integrations
+
+Looscid must support user-selected AI providers without locking users to one model or vendor.
+
+- [ ] Design an adapter interface for custom AI models, including Claude and other user-configured providers.
+- [ ] Let users add provider endpoints, model identifiers, capability declarations, and local preferences through accessible Settings.
+- [ ] Keep credentials in secure user-controlled storage; never place secrets in source, manifests, logs, or shared registry data.
+- [ ] Support local/offline models where available and degrade gracefully when a provider is unavailable.
+- [ ] Expose provider identity and data-sharing behavior clearly before a request is sent.
+- [ ] Gabriel is a work in progress and is being built by a friend; keep its integration isolated behind the assistant adapter so it does not constrain custom AI support.
 
 ## Phase 2A — cross-platform shell and App Store integration
 
-This work expands Looscid without de-bloating it. Existing functionality, accessibility behavior, local-first guarantees, terminology, and robust failure handling must remain intact. New platform integrations are additive and capability-driven; they must never replace working local behavior or assume a single distribution channel.
+This work is additive and must not de-bloat Looscid or replace working local behavior.
 
-- [ ] Develop the cross-platform shell structure for the Linux-compatible semantic shell, with clear adapters for filesystem, process execution, environment detection, notifications, and permission boundaries.
-- [ ] Define a platform capability matrix covering Linux distributions, desktop environments, browsers, and supported shell/runtime versions. Detect capabilities rather than relying on distribution-name assumptions.
-- [ ] Add safe detection for external app stores and package managers, including native Linux sources such as `apt`, `dnf`, `pacman`, `zypper`, Flatpak, Snap, and AppImage where available.
-- [ ] Design the App Store integration layer around provider adapters: discovery, metadata, install/update/uninstall actions, availability checks, and clear user confirmation before mutations.
-- [ ] Keep provider integrations optional and isolated. A missing store, package manager, permission, network connection, or runtime must produce an accessible explanation and preserve the rest of Looscid.
-- [ ] Normalize external app metadata into a stable Looscid model while retaining provider identity, source URL, version, license, permissions, architecture, and integrity information.
-- [ ] Add dry-run and read-only discovery modes before enabling installation or update actions; never execute package-manager commands silently.
-- [ ] Add tests for detection, adapter selection, command construction, cancellation, failure recovery, accessibility announcements, and offline/local-only behavior.
-- [ ] Document security boundaries, trust decisions, signatures/checksums, sandboxing, and rollback expectations for every App Store provider.
-
-### GitHub App Stores and the native Looscid App Store
-
-- [ ] Support GitHub-based App Stores broadly: repository releases, release assets, tags, packages, topics, repository metadata, and custom manifest files hosted in repositories.
-- [ ] Define deterministic manifest discovery conventions, including repository-level `looscid-manifest.json`, `.looscid/manifest.json`, release-attached manifests, and an explicitly configured manifest URL.
-- [ ] Build a manifest-based discovery engine that reads repository metadata and manifests, validates schemas, resolves versions and platform assets, captures licenses/permissions/checksums, and reports source provenance.
-- [ ] Create a native Looscid App Store as a decentralized manifest registry using GitHub repositories as hosts. Registries may be mirrored, forked, reviewed, and combined rather than depending on one central service.
-- [ ] Define registry indexes that reference signed or checksum-pinned Looscid manifests, with repository owner, commit or release pin, update timestamp, trust metadata, and moderation/review information.
-- [ ] Keep GitHub discovery and the native registry provider-adapter based, so the same normalized app model works offline from cached manifests and across future hosts.
+- [ ] Develop Linux-compatible semantic shell adapters for filesystem, process execution, environment detection, notifications, and permissions.
+- [ ] Detect capabilities across Linux distributions, desktop environments, browsers, and runtimes.
+- [ ] Detect apt, dnf, pacman, zypper, Flatpak, Snap, AppImage, and other external stores through isolated provider adapters.
+- [ ] Support GitHub-based App Stores: repository releases, release assets, tags, packages, topics, metadata, and custom manifests.
+- [ ] Discover `looscid-manifest.json`, `.looscid/manifest.json`, release manifests, and configured manifest URLs deterministically.
+- [ ] Build a manifest discovery engine that validates metadata, resolves versions/assets, captures licenses/permissions/checksums, and preserves provenance.
+- [ ] Create a native Looscid App Store as a decentralized manifest registry using GitHub repositories as hosts; registries can be mirrored, forked, reviewed, and combined.
+- [ ] Require read-only discovery, dry runs, explicit confirmation, cancellation, integrity checks, and rollback/error states before mutations.
 
 ### Draft Looscid manifest schema
 
-A Looscid manifest is JSON and should be versioned, human-reviewable, and safe to cache. Initial fields:
-
-- `schema`: manifest schema identifier and version.
-- `id`: globally stable reverse-domain or publisher-qualified app identifier.
-- `name`, `summary`, `description`, `icon`, `homepage`: human-facing metadata.
-- `publisher`: display name, publisher ID, repository URL, and optional signing identity.
-- `license`: SPDX identifier and license URL.
-- `categories`, `keywords`, `locales`: discovery and localization metadata.
-- `permissions`: declared capabilities with user-readable reasons.
-- `platforms`: OS, architecture, runtime, and minimum-version compatibility.
-- `versions`: release version, channel, published timestamp, release URL, assets, checksums, signatures, and changelog.
-- `source`: canonical repository, manifest path, ref/release pin, and provenance.
-- `install`: provider-specific read-only instructions or adapter references; no silently executed commands.
-- `integrity`: required digest algorithm and asset digests.
-- `security`: signing, sandbox, update, rollback, and vulnerability-disclosure metadata.
-
-The discovery engine must reject invalid or ambiguous manifests, preserve the source and pin used for every result, distinguish metadata from executable actions, and require explicit confirmation before install/update/uninstall operations.
+Versioned JSON manifests should include `schema`, `id`, `name`, `summary`, `description`, `icon`, `homepage`, `publisher`, `license`, `categories`, `keywords`, `locales`, `permissions`, `platforms`, `versions`, `source`, `install`, `integrity`, and `security`. Manifests are untrusted input until validated; every result retains its source and commit/release pin.
 
 ### Proposed next steps
 
-1. Write semantic shell interfaces and capability contracts first, independent of any Linux distribution, GitHub host, or package manager.
-2. Implement read-only environment detection and a provider registry with mock adapters.
-3. Implement the manifest schema, validator, deterministic GitHub manifest discovery, and normalized app model.
-4. Add GitHub release/assets and registry-index adapters with commit/release pinning, checksum verification, caching, and offline behavior.
-5. Build the native decentralized registry flow: publish, mirror, fork, review, combine, and refresh manifests.
-6. Add explicit confirmation, dry-run output, cancellation, and rollback/error states for install, update, and uninstall flows.
-7. Validate with accessible keyboard, screen-reader, Braille, offline, restricted-permission, invalid-manifest, and missing-provider scenarios.
-8. Integrate real providers incrementally while keeping the no-dependency static shell and all existing functionality available.
+1. Define semantic shell interfaces and capability contracts.
+2. Implement read-only detection and mock provider adapters.
+3. Implement the manifest schema, validator, GitHub discovery, and normalized app model.
+4. Add registry indexes, release/assets adapters, checksum verification, caching, and offline behavior.
+5. Build publish, mirror, fork, review, combine, and refresh flows for decentralized registries.
+6. Add accessible confirmation, dry-run, cancellation, rollback, and failure recovery.
+7. Add custom AI provider adapters and Gabriel integration without coupling the core shell to one provider.
 
 ## Phase 3 — sovereign platform expansion
 
-- [ ] Nostr-first authentication, signup, extension signing, and connection of an existing LooscidID to a Nostr npub.
-- [ ] Guest mode with a shared read-only Nostr guest account.
-- [ ] Full Circles, contacts, messaging, mail, file explorer, and Dream collaboration experiences.
-- [ ] Cherry project context, chat, tagging, and Alerts integration.
-- [ ] Fediverse and Mastodon interoperability.
-- [ ] End-to-end encrypted messages and files.
-- [ ] iOS native Swift companion application.
-- [ ] VoiceOver custom actions and BrailleNote Touch Plus / KeySoft release testing.
+- [ ] Nostr-first authentication, guest mode, extension signing, and existing LooscidID connection.
+- [ ] Full Circles, contacts, messaging, mail, file explorer, and Dream collaboration.
+- [ ] Cherry context, chat, tagging, and Alerts integration.
+- [ ] Fediverse/Mastodon interoperability and end-to-end encrypted messages/files.
+- [ ] iOS Swift companion application and VoiceOver/BrailleNote Touch Plus testing.
 
-## Accessibility standards
+## Accessibility and security standards
 
-- Every interaction uses a native button, link, input, or other semantic element.
-- Every image requires meaningful alternative text before publication. Decorative imagery must be explicitly marked as decorative rather than silently omitted.
-- Validation errors are programmatically associated with their fields and announced through live regions.
-- Focus is moved intentionally after route changes, onboarding transitions, validation failures, and menu dismissal.
-- Roving `tabindex` keeps composite controls efficient for keyboard, VoiceOver, and Braille navigation.
-- Reduced motion is respected through `prefers-reduced-motion` and the local preference.
-- Labels use concise, first-letter-navigation-friendly language and VoiceOver-friendly pauses.
-- Test targets include iPhone with VoiceOver, HumanWare Braille displays, BrailleNote Touch Plus with KeySoft, Android tablet with TalkBack, keyboard-only navigation, and high zoom.
-
-## Security and data ownership
-
-- No secrets in source, static assets, or demo content.
-- Never request or store a secret Nostr key in the onboarding form.
-- LocalStorage is used for local-first profile, preference, draft, and Dream state.
-- Relay credentials and encryption material must be handled through secure user-controlled APIs when those integrations are added.
-- Branch protection and review remain required before changes reach `main`.
-- App Store adapters must not execute commands without explicit user intent, visible command/action summaries, and an opportunity to cancel.
-- GitHub manifests and registry indexes must be validated, provenance-pinned, checksum-verified where assets are available, and treated as untrusted input until verified.
+Every interaction uses a semantic native control. Images require meaningful Alt text. Errors are associated and announced. Focus moves intentionally after route changes, onboarding, validation, and dismissal. Reduced motion and larger text preferences are respected. Test keyboard-only, VoiceOver, Braille, TalkBack, offline, restricted-permission, invalid-manifest, and unavailable-provider scenarios. Never expose secrets. App Store and AI adapters require explicit user intent, visible data/action summaries, and cancellation opportunities.
 
 ## Terminology (never break these)
 
@@ -150,12 +90,7 @@ The discovery engine must reject invalid or ambiguous manifests, preserve the so
 
 ## Hosting
 
-Primary hosting is GitHub Pages.
-
-- Target URL: `https://looscid.github.io/Looscid/`
-- Deployment target: the dependency-free static application.
-- Deployment must not introduce a required build service or runtime dependency.
-- Automatic deployment should publish the reviewed static files from the selected branch.
+Primary hosting is GitHub Pages at `https://looscid.github.io/Looscid/`. Deployment remains a reviewed dependency-free static application with no required build service or runtime dependency.
 
 ## Social
 
