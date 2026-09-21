@@ -1,60 +1,82 @@
 # Looscid Roadmap
 
-## In Progress
-- Vite migration (refactor/vite-build branch)
-- Full Looscid rebrand across docs and UI
+## Product identity and vision
 
-## UI Fixes (next after migration)
-- Fix "For You" text rendering issue in feed tabs
-- Report and Block move to Profile More button — remove from Dream options
-- Remove "More Actions" label from Dream options menu
-- Dream options menu becomes collapsible/expandable like a More button pattern
-- All option menus open fullscreen except small confirmations
-- Settings uses tab design not buttons
-- Website feel not app feel — proper web layout, not just a mobile shell
+Looscid is the permanent name of the application and sovereign local-first environment.
 
-## Authentication (Nostr-first)
-- Nostr is the primary login and signup method
-- Browser extension support (Alby, nos2x) for signing
-- Manual nsec entry as fallback
-- Guest mode uses a shared read-only Nostr guest account
-- Google and Apple remain as secondary options
-- Connect existing LooscidID to a Nostr npub
+Looscid is a privacy-respecting operating system experience for Dreamors: local by default, accessible by design, interoperable through open protocols, and sovereign in identity and data ownership. The application should remain useful without an account, network connection, build service, or proprietary runtime.
 
-## Features Planned
-- Full Atab1pro OS experience — every app built from the spec
-- Shifting tab bar per app (like FAXO)
-- Cherry Projects — folders Cherry can edit, persistent chat context
-- Cherry side menu — chat switcher, pinned chats, new chat button
-- Cherry in Alerts tab Chats subtab
-- @Cherry tagging in Dreams and chats — public or private response
-- Unified file explorer — Cherry, Chat, Dreams tabs
-- Attach menu — Files (project then device), Photos (native picker), GIFs
-- Full contacts app
-- Phone app with real dialer UI (WebRTC for Dreamor-to-Dreamor calls)
-- DB Mail — full compose, inbox, reply
-- Developer portal — third parties submit mini apps (WeChat-style)
-- Nostr integration — login, signup, connect existing account, relay support
-- Fediverse / Mastodon integration
-- End-to-end encrypted messages
-- Cherry own trained model
-- iOS native Swift app
-- Custom actions for VoiceOver (swipe up pattern)
-- BrailleNote Touch Plus / KeySoft tested on every release
+Looscid terminology is part of the product contract and should remain stable across the UI, source, documentation, and accessibility announcements.
 
-## Security
-- Vite build — no secrets in source
-- All keys in environment variables
-- Branch protection on main
-- No personal info in demo content
+## Architecture
 
-## Accessibility Standards
-- Every button a real button element (EDBT rendering on BrailleNote)
-- aria-label comma-pause pattern for VoiceOver
-- Reduce Motion respected via prefers-reduced-motion
-- Fullscreen option menus for clean Braille navigation
-- First-letter navigation friendly labels
-- Test devices: iPhone + HumanWare Braille display, BrailleNote Touch Plus (KeySoft), Android tablet (TalkBack)
+The rewrite is pure semantic vanilla HTML, CSS, and modern JavaScript.
+
+- `index.html` provides semantic landmarks, forms, headings, native controls, accessible relationships, and discrete UI blocks.
+- `styles.css` provides responsive presentation without a framework.
+- `app.js` provides native DOM behavior, local-first state, validation, navigation, and rendering without a framework.
+- Zero build step.
+- Zero dependencies.
+- Double newlines separate all discrete blocks and semantic elements in source.
+- Screen-reader optimized focus management moves focus to the active page or onboarding heading and announces state changes through live regions.
+- Roving `tabindex` is used for Feed view tabs so keyboard, VoiceOver, and Braille users have one active tab stop at a time.
+- Native semantic controls are preferred over simulated widgets.
+- Images are never published without alternative text: adding images requires Alt text.
+
+## Phase 1 — completed
+
+- [x] Dependency-free vanilla shell: `index.html`, `styles.css`, and `app.js`.
+- [x] First-time startup and onboarding intro screen with LooscidID/display name setup.
+- [x] Local accessibility preferences for reduced motion and larger text.
+- [x] Optional public Nostr npub setup, with explicit protection against entering secret keys.
+- [x] LocalStorage persistence for profile, settings, drafts, onboarding completion, and local Dreams.
+- [x] Returning visits skip onboarding and open directly to Feed.
+- [x] Strict accessibility mandate: “Adding images requires Alt text.”
+- [x] Composer enforcement prevents image publication when Alt text is empty.
+- [x] Accessible image validation alerts, described fields, focus correction, and status announcements.
+- [x] Startup principles and onboarding guidance explicitly require mandatory image descriptions.
+- [x] Discrete block source layout with double-newline separation.
+- [x] Focus management and roving `tabindex` behavior for screen-reader, keyboard, VoiceOver, and Braille navigation.
+
+## Phase 2 — immediate next milestones
+
+- [ ] Port the Apps tab / AppsPage artifact from React/Vite into an accessible vanilla DOM view.
+- [ ] Scaffold semantic Alerts with Mentions, Interactions, and System Logs as a native `role="tablist"` interface.
+- [ ] Create native DOM factories for Feed and Discover, separating local Dreams from Nostr relay Dreams.
+- [ ] Unify About and Settings sections into one consistent semantic navigation and preferences model.
+- [ ] Add Nostr relay pool management with connection state, relay preferences, and local-first failure handling.
+- [ ] Integrate NIP-04 and NIP-44 encryption flows without exposing secret keys in source or UI logs.
+- [ ] Deploy the dependency-free static application through GitHub Pages.
+
+## Phase 3 — sovereign platform expansion
+
+- [ ] Nostr-first authentication, signup, extension signing, and connection of an existing LooscidID to a Nostr npub.
+- [ ] Guest mode with a shared read-only Nostr guest account.
+- [ ] Full Circles, contacts, messaging, mail, file explorer, and Dream collaboration experiences.
+- [ ] Cherry project context, chat, tagging, and Alerts integration.
+- [ ] Fediverse and Mastodon interoperability.
+- [ ] End-to-end encrypted messages and files.
+- [ ] iOS native Swift companion application.
+- [ ] VoiceOver custom actions and BrailleNote Touch Plus / KeySoft release testing.
+
+## Accessibility standards
+
+- Every interaction uses a native button, link, input, or other semantic element.
+- Every image requires meaningful alternative text before publication. Decorative imagery must be explicitly marked as decorative rather than silently omitted.
+- Validation errors are programmatically associated with their fields and announced through live regions.
+- Focus is moved intentionally after route changes, onboarding transitions, validation failures, and menu dismissal.
+- Roving `tabindex` keeps composite controls efficient for keyboard, VoiceOver, and Braille navigation.
+- Reduced motion is respected through `prefers-reduced-motion` and the local preference.
+- Labels use concise, first-letter-navigation-friendly language and VoiceOver-friendly pauses.
+- Test targets include iPhone with VoiceOver, HumanWare Braille displays, BrailleNote Touch Plus with KeySoft, Android tablet with TalkBack, keyboard-only navigation, and high zoom.
+
+## Security and data ownership
+
+- No secrets in source, static assets, or demo content.
+- Never request or store a secret Nostr key in the onboarding form.
+- LocalStorage is used for local-first profile, preference, draft, and Dream state.
+- Relay credentials and encryption material must be handled through secure user-controlled APIs when those integrations are added.
+- Branch protection and review remain required before changes reach `main`.
 
 ## Terminology (never break these)
 
@@ -72,8 +94,13 @@
 
 ## Hosting
 
-**Primary: GitHub Pages**
-- Live at https://looscid.github.io/Looscid/
-- Automatic deploys from main when a build is configured
+Primary hosting is GitHub Pages.
 
-**X:** @Looscid
+- Target URL: `https://looscid.github.io/Looscid/`
+- Deployment target: the dependency-free static application.
+- Deployment must not introduce a required build service or runtime dependency.
+- Automatic deployment should publish the reviewed static files from the selected branch.
+
+## Social
+
+X: @Looscid
