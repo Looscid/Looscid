@@ -62,14 +62,45 @@ This work expands Looscid without de-bloating it. Existing functionality, access
 - [ ] Add tests for detection, adapter selection, command construction, cancellation, failure recovery, accessibility announcements, and offline/local-only behavior.
 - [ ] Document security boundaries, trust decisions, signatures/checksums, sandboxing, and rollback expectations for every App Store provider.
 
+### GitHub App Stores and the native Looscid App Store
+
+- [ ] Support GitHub-based App Stores broadly: repository releases, release assets, tags, packages, topics, repository metadata, and custom manifest files hosted in repositories.
+- [ ] Define deterministic manifest discovery conventions, including repository-level `looscid-manifest.json`, `.looscid/manifest.json`, release-attached manifests, and an explicitly configured manifest URL.
+- [ ] Build a manifest-based discovery engine that reads repository metadata and manifests, validates schemas, resolves versions and platform assets, captures licenses/permissions/checksums, and reports source provenance.
+- [ ] Create a native Looscid App Store as a decentralized manifest registry using GitHub repositories as hosts. Registries may be mirrored, forked, reviewed, and combined rather than depending on one central service.
+- [ ] Define registry indexes that reference signed or checksum-pinned Looscid manifests, with repository owner, commit or release pin, update timestamp, trust metadata, and moderation/review information.
+- [ ] Keep GitHub discovery and the native registry provider-adapter based, so the same normalized app model works offline from cached manifests and across future hosts.
+
+### Draft Looscid manifest schema
+
+A Looscid manifest is JSON and should be versioned, human-reviewable, and safe to cache. Initial fields:
+
+- `schema`: manifest schema identifier and version.
+- `id`: globally stable reverse-domain or publisher-qualified app identifier.
+- `name`, `summary`, `description`, `icon`, `homepage`: human-facing metadata.
+- `publisher`: display name, publisher ID, repository URL, and optional signing identity.
+- `license`: SPDX identifier and license URL.
+- `categories`, `keywords`, `locales`: discovery and localization metadata.
+- `permissions`: declared capabilities with user-readable reasons.
+- `platforms`: OS, architecture, runtime, and minimum-version compatibility.
+- `versions`: release version, channel, published timestamp, release URL, assets, checksums, signatures, and changelog.
+- `source`: canonical repository, manifest path, ref/release pin, and provenance.
+- `install`: provider-specific read-only instructions or adapter references; no silently executed commands.
+- `integrity`: required digest algorithm and asset digests.
+- `security`: signing, sandbox, update, rollback, and vulnerability-disclosure metadata.
+
+The discovery engine must reject invalid or ambiguous manifests, preserve the source and pin used for every result, distinguish metadata from executable actions, and require explicit confirmation before install/update/uninstall operations.
+
 ### Proposed next steps
 
-1. Write the semantic shell interfaces and capability contracts first, independent of any Linux distribution or package manager.
+1. Write semantic shell interfaces and capability contracts first, independent of any Linux distribution, GitHub host, or package manager.
 2. Implement read-only environment detection and a provider registry with mock adapters.
-3. Build the App Store integration layer around discovery and metadata normalization before adding mutating operations.
-4. Add explicit confirmation, dry-run output, cancellation, and rollback/error states for install, update, and uninstall flows.
-5. Validate with accessible keyboard, screen-reader, Braille, offline, restricted-permission, and missing-provider scenarios.
-6. Integrate real providers incrementally while keeping the no-dependency static shell and all existing functionality available.
+3. Implement the manifest schema, validator, deterministic GitHub manifest discovery, and normalized app model.
+4. Add GitHub release/assets and registry-index adapters with commit/release pinning, checksum verification, caching, and offline behavior.
+5. Build the native decentralized registry flow: publish, mirror, fork, review, combine, and refresh manifests.
+6. Add explicit confirmation, dry-run output, cancellation, and rollback/error states for install, update, and uninstall flows.
+7. Validate with accessible keyboard, screen-reader, Braille, offline, restricted-permission, invalid-manifest, and missing-provider scenarios.
+8. Integrate real providers incrementally while keeping the no-dependency static shell and all existing functionality available.
 
 ## Phase 3 — sovereign platform expansion
 
@@ -101,6 +132,7 @@ This work expands Looscid without de-bloating it. Existing functionality, access
 - Relay credentials and encryption material must be handled through secure user-controlled APIs when those integrations are added.
 - Branch protection and review remain required before changes reach `main`.
 - App Store adapters must not execute commands without explicit user intent, visible command/action summaries, and an opportunity to cancel.
+- GitHub manifests and registry indexes must be validated, provenance-pinned, checksum-verified where assets are available, and treated as untrusted input until verified.
 
 ## Terminology (never break these)
 
