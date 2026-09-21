@@ -48,6 +48,29 @@ The rewrite is pure semantic vanilla HTML, CSS, and modern JavaScript.
 - [ ] Integrate NIP-04 and NIP-44 encryption flows without exposing secret keys in source or UI logs.
 - [ ] Deploy the dependency-free static application through GitHub Pages.
 
+## Phase 2A — cross-platform shell and App Store integration
+
+This work expands Looscid without de-bloating it. Existing functionality, accessibility behavior, local-first guarantees, terminology, and robust failure handling must remain intact. New platform integrations are additive and capability-driven; they must never replace working local behavior or assume a single distribution channel.
+
+- [ ] Develop the cross-platform shell structure for the Linux-compatible semantic shell, with clear adapters for filesystem, process execution, environment detection, notifications, and permission boundaries.
+- [ ] Define a platform capability matrix covering Linux distributions, desktop environments, browsers, and supported shell/runtime versions. Detect capabilities rather than relying on distribution-name assumptions.
+- [ ] Add safe detection for external app stores and package managers, including native Linux sources such as `apt`, `dnf`, `pacman`, `zypper`, Flatpak, Snap, and AppImage where available.
+- [ ] Design the App Store integration layer around provider adapters: discovery, metadata, install/update/uninstall actions, availability checks, and clear user confirmation before mutations.
+- [ ] Keep provider integrations optional and isolated. A missing store, package manager, permission, network connection, or runtime must produce an accessible explanation and preserve the rest of Looscid.
+- [ ] Normalize external app metadata into a stable Looscid model while retaining provider identity, source URL, version, license, permissions, architecture, and integrity information.
+- [ ] Add dry-run and read-only discovery modes before enabling installation or update actions; never execute package-manager commands silently.
+- [ ] Add tests for detection, adapter selection, command construction, cancellation, failure recovery, accessibility announcements, and offline/local-only behavior.
+- [ ] Document security boundaries, trust decisions, signatures/checksums, sandboxing, and rollback expectations for every App Store provider.
+
+### Proposed next steps
+
+1. Write the semantic shell interfaces and capability contracts first, independent of any Linux distribution or package manager.
+2. Implement read-only environment detection and a provider registry with mock adapters.
+3. Build the App Store integration layer around discovery and metadata normalization before adding mutating operations.
+4. Add explicit confirmation, dry-run output, cancellation, and rollback/error states for install, update, and uninstall flows.
+5. Validate with accessible keyboard, screen-reader, Braille, offline, restricted-permission, and missing-provider scenarios.
+6. Integrate real providers incrementally while keeping the no-dependency static shell and all existing functionality available.
+
 ## Phase 3 — sovereign platform expansion
 
 - [ ] Nostr-first authentication, signup, extension signing, and connection of an existing LooscidID to a Nostr npub.
@@ -77,6 +100,7 @@ The rewrite is pure semantic vanilla HTML, CSS, and modern JavaScript.
 - LocalStorage is used for local-first profile, preference, draft, and Dream state.
 - Relay credentials and encryption material must be handled through secure user-controlled APIs when those integrations are added.
 - Branch protection and review remain required before changes reach `main`.
+- App Store adapters must not execute commands without explicit user intent, visible command/action summaries, and an opportunity to cancel.
 
 ## Terminology (never break these)
 
