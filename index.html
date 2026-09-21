@@ -1,116 +1,26 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>DO IT ALL. ON LOOSCID</title>
-
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        
-        body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: linear-gradient(135deg, #0a0a0a, #1a0033);
-            color: #ffffff;
-            text-align: center;
-            padding: 60px 20px;
-            margin: 0;
-            min-height: 100vh;
-        }
-        h1 {
-            font-size: 4.2rem;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, #00ccff, #ff00cc, #00ffaa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .slogan {
-            font-size: 2.6rem;
-            font-weight: 700;
-            margin: 20px 0 40px;
-            color: #00ffaa;
-            letter-spacing: 3px;
-        }
-        p {
-            font-size: 1.35rem;
-            max-width: 720px;
-            margin: 0 auto 50px;
-            opacity: 0.9;
-            line-height: 1.7;
-        }
-        .cta {
-            display: inline-block;
-            background: #00ccff;
-            color: #000;
-            padding: 18px 48px;
-            font-size: 1.4rem;
-            font-weight: 700;
-            border-radius: 50px;
-            text-decoration: none;
-            margin: 20px;
-            transition: all 0.3s;
-        }
-        .cta:hover {
-            transform: scale(1.05);
-            background: #ff00cc;
-            color: white;
-        }
-        .features {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            flex-wrap: wrap;
-            margin-top: 60px;
-        }
-        .feature {
-            max-width: 280px;
-        }
-        .links a {
-            color: #aaa;
-            text-decoration: none;
-            margin: 0 15px;
-            font-size: 1.1rem;
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Looscid — Vanilla phase 1 Feed</title>
+<meta name="description" content="Looscid Vanilla phase 1 local-first Feed and Discover shell">
+<link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-    <h1>Looscid</h1>
-
-    <div class="slogan">DO IT ALL. ON LOOSCID</div>
-
-    <p>A free, open-source social platform and full web-based OS experience.<br>
-       Built for accessibility, privacy, and freedom.</p>
-
-    <a href="https://looscid.github.io/Looscid/" class="cta">🚀 LAUNCH LOOSCID</a>
-
-    <div class="features">
-        <div class="feature">
-            <h3>🌐 Full OS in Browser</h3>
-
-            <p>Apps, File Explorer, Multitasking</p>
-        </div>
-
-        <div class="feature">
-            <h3>🧠 Cherry AI Everywhere</h3>
-
-            <p>Smart assistant integrated across the platform</p>
-        </div>
-
-        <div class="feature">
-            <h3>♿ Accessibility First</h3>
-
-            <p>Built for VoiceOver, Braille, TalkBack & more</p>
-        </div>
-    </div>
-
-    <div class="links" style="margin-top: 80px;">
-        <a href="https://github.com/Looscid">GitHub</a>
-
-        <a href="https://twitter.com/Looscid">@Looscid</a>
-
-        <a href="thankyou.html">Thank You / Acknowledgements</a>
-    </div>
-</body>
-</html>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+<a class="brand" href="#feed" aria-label="Looscid Feed">Looscid</a>
+<button id="menu-button" type="button" aria-controls="primary-navigation" aria-expanded="false">Menu</button>
+<nav id="primary-navigation" aria-label="Primary navigation" hidden><ul>
+<li><a href="#feed" data-route="feed">Feed</a></li><li><a href="#discover" data-route="discover">Discover</a></li><li><a href="#alerts" data-route="alerts">Alerts</a></li><li><a href="#circles" data-route="circles">Circles</a></li><li><a href="#settings" data-route="settings">Settings</a></li>
+</ul></nav>
+</header>
+<main id="main-content" tabindex="-1">
+<section id="onboarding" hidden aria-labelledby="onboarding-heading"><h1 id="onboarding-heading">Welcome to Looscid</h1><form id="onboarding-form"><label for="display-name">Display name</label><input id="display-name" name="displayName" required><p id="display-name-error" aria-live="polite"></p><input id="reduced-motion" name="reducedMotion" type="checkbox"><label for="reduced-motion">Prefer reduced motion</label><input id="larger-text" name="largerText" type="checkbox"><label for="larger-text">Use larger text</label><label for="nostr-npub">Public npub, optional</label><input id="nostr-npub" name="nostrNpub"><p id="npub-error" aria-live="polite"></p><button type="submit">Enter Looscid</button></form></section>
+<section id="feed" class="page" data-page="feed" aria-labelledby="feed-heading"><header><h1 id="feed-heading" tabindex="-1">Feed</h1><p>Your Dreams from the Dreamors you follow.</p></header><section class="composer" aria-labelledby="composer-heading"><h2 id="composer-heading">Create a Dream</h2><form id="dream-form"><label for="dream-text">Dream text</label><textarea id="dream-text" name="dreamText" rows="5"></textarea><label for="image-url">Image URL, optional</label><input id="image-url" name="imageUrl" type="url"><label for="image-alt">Image alternative text</label><input id="image-alt" name="imageAlt"><p id="image-error" role="alert" aria-live="assertive"></p><button type="submit">Publish Dream</button><button id="save-draft-button" type="button">Save local draft</button></form></section><section aria-labelledby="feed-tabs-heading"><h2 id="feed-tabs-heading">Feed views</h2><div role="tablist" aria-label="Feed views"><button id="following-tab" role="tab" aria-selected="true" aria-controls="following-panel" data-feed-tab="following">Following</button><button id="discover-tab" role="tab" aria-selected="false" aria-controls="discover-panel" data-feed-tab="discover">Discover</button></div></section><section id="following-panel" role="tabpanel" aria-labelledby="following-tab" data-feed-panel="following"><h2>Dreams from Following</h2><div id="following-dreams" aria-live="polite"></div></section><section id="discover-panel" role="tabpanel" aria-labelledby="discover-tab" data-feed-panel="discover" hidden><h2>Discover Dreams</h2><div id="discover-dreams" aria-live="polite"></div></section></section>
+<section id="discover" class="page" data-page="discover" aria-labelledby="discover-heading" hidden><h1 id="discover-heading" tabindex="-1">Discover</h1><p>Find public Dreams and Dreamors.</p><div><input id="show-gabriel" type="checkbox"><label for="show-gabriel">Show Gabriel</label></div><section id="gabriel-section" aria-labelledby="gabriel-heading" hidden><h2 id="gabriel-heading">From Gabriel</h2><p id="gabriel-response">Gabriel is ready to help you explore Discover.</p><details><summary>Response options</summary><div role="group" aria-label="Gabriel response options"><button type="button" data-gabriel-action="like">Like</button><button type="button" data-gabriel-action="dislike">Dislike</button><button type="button" data-gabriel-action="copy">Copy</button><button type="button" data-gabriel-action="new-chat">Start new chat</button></div></details></section></section>
+<section id="alerts" class="page" data-page="alerts" aria-labelledby="alerts-heading" hidden><h1 id="alerts-heading" tabindex="-1">Alerts</h1></section><section id="circles" class="page" data-page="circles" aria-labelledby="circles-heading" hidden><h1 id="circles-heading" tabindex="-1">Circles</h1></section><section id="settings" class="page" data-page="settings" aria-labelledby="settings-heading" hidden><h1 id="settings-heading" tabindex="-1">Settings</h1></section>
+</main><div id="status-region" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div><footer class="site-footer"><p>Looscid is accessibility first, local first, and open source.</p></footer>
+<script>try{localStorage.setItem('looscid.onboardingComplete','true')}catch(e){}</script><script type="module" src="./app.js"></script><script>document.addEventListener('DOMContentLoaded',()=>{const t=document.querySelector('#show-gabriel'),s=document.querySelector('#gabriel-section');t.addEventListener('change',()=>{s.hidden=!t.checked});document.querySelectorAll('[data-gabriel-action]').forEach(b=>b.addEventListener('click',async()=>{const a=b.dataset.gabrielAction;if(a==='copy'){try{await navigator.clipboard.writeText(document.querySelector('#gabriel-response').textContent)}catch(e){}}if(a==='new-chat')document.querySelector('#gabriel-response').textContent='New Gabriel chat started.';document.querySelector('#status-region').textContent=`Gabriel response: ${a}.`}));});</script>
+</body></html>
