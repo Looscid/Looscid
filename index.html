@@ -5,10 +5,6 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <meta name="theme-color" content="#101820">
-
-  <meta name="description" content="Looscid, an accessibility-first operating system experience for the web">
-
   <title>Looscid</title>
 
   <link rel="stylesheet" href="./styles.css">
@@ -46,6 +42,8 @@
         <h1 id="onboarding-heading" tabindex="-1">Welcome to Looscid</h1>
 
         <p>Looscid is a local-first space for Dreams, privacy, accessibility, and freedom. Your first setup is stored on this device.</p>
+
+        <p class="accessibility-principle"><strong>Adding images requires Alt text.</strong> Every image description is mandatory for sovereign accessibility.</p>
       </div>
 
       <form id="onboarding-form" class="onboarding__form" novalidate>
@@ -77,6 +75,8 @@
 
             <label for="larger-text">Use larger text</label>
           </div>
+
+          <p class="accessibility-principle">Adding images requires Alt text. Image descriptions are always required before a Dream can be published.</p>
         </fieldset>
 
         <fieldset data-block="nostr-setup">
@@ -117,6 +117,26 @@
 
             <p id="dream-text-help">Write a Dream of up to 5000 characters.</p>
           </div>
+
+          <fieldset data-block="dream-image">
+            <legend>Optional image</legend>
+
+            <p id="image-help">If you add an image, a useful alternative text description is mandatory before publishing.</p>
+
+            <div class="form-field">
+              <label for="image-url">Image URL, optional</label>
+
+              <input id="image-url" name="imageUrl" type="url" inputmode="url" autocomplete="url" aria-describedby="image-help image-error">
+            </div>
+
+            <div class="form-field">
+              <label for="image-alt">Image alternative text</label>
+
+              <input id="image-alt" name="imageAlt" type="text" maxlength="500" autocomplete="off" aria-describedby="image-help image-error" aria-required="false">
+
+              <p id="image-error" class="field-error" role="alert" aria-live="assertive"></p>
+            </div>
+          </fieldset>
 
           <div class="form-actions" data-block="dream-form-actions">
             <button type="submit">Publish Dream</button>
