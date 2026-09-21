@@ -1,116 +1,123 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+  <meta charset="utf-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>DO IT ALL. ON LOOSCID</title>
+  <meta name="theme-color" content="#101820">
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        
-        body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: linear-gradient(135deg, #0a0a0a, #1a0033);
-            color: #ffffff;
-            text-align: center;
-            padding: 60px 20px;
-            margin: 0;
-            min-height: 100vh;
-        }
-        h1 {
-            font-size: 4.2rem;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, #00ccff, #ff00cc, #00ffaa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .slogan {
-            font-size: 2.6rem;
-            font-weight: 700;
-            margin: 20px 0 40px;
-            color: #00ffaa;
-            letter-spacing: 3px;
-        }
-        p {
-            font-size: 1.35rem;
-            max-width: 720px;
-            margin: 0 auto 50px;
-            opacity: 0.9;
-            line-height: 1.7;
-        }
-        .cta {
-            display: inline-block;
-            background: #00ccff;
-            color: #000;
-            padding: 18px 48px;
-            font-size: 1.4rem;
-            font-weight: 700;
-            border-radius: 50px;
-            text-decoration: none;
-            margin: 20px;
-            transition: all 0.3s;
-        }
-        .cta:hover {
-            transform: scale(1.05);
-            background: #ff00cc;
-            color: white;
-        }
-        .features {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            flex-wrap: wrap;
-            margin-top: 60px;
-        }
-        .feature {
-            max-width: 280px;
-        }
-        .links a {
-            color: #aaa;
-            text-decoration: none;
-            margin: 0 15px;
-            font-size: 1.1rem;
-        }
-    </style>
+  <meta name="description" content="Looscid, an accessibility-first operating system experience for the web">
+
+  <title>Looscid</title>
+
+  <link rel="stylesheet" href="./styles.css">
+
+  <script type="module" src="./app.js"></script>
 </head>
 <body>
-    <h1>Looscid</h1>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
 
-    <div class="slogan">DO IT ALL. ON LOOSCID</div>
+  <header class="site-header" data-block="site-header">
+    <a class="brand" href="#feed" aria-label="Looscid, Feed">Looscid</a>
 
-    <p>A free, open-source social platform and full web-based OS experience.<br>
-       Built for accessibility, privacy, and freedom.</p>
+    <button id="menu-button" type="button" aria-controls="primary-navigation" aria-expanded="false" aria-haspopup="true">Menu</button>
 
-    <a href="https://looscid.github.io/Looscid/" class="cta">🚀 LAUNCH LOOSCID</a>
+    <nav id="primary-navigation" aria-label="Primary navigation" hidden>
+      <ul>
+        <li><a href="#feed" data-route="feed">Feed</a></li>
 
-    <div class="features">
-        <div class="feature">
-            <h3>🌐 Full OS in Browser</h3>
+        <li><a href="#discover" data-route="discover">Discover</a></li>
 
-            <p>Apps, File Explorer, Multitasking</p>
+        <li><a href="#alerts" data-route="alerts">Alerts</a></li>
+
+        <li><a href="#circles" data-route="circles">Circles</a></li>
+
+        <li><a href="#settings" data-route="settings">Settings</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main-content" tabindex="-1">
+    <section id="feed" class="page" data-page="feed" aria-labelledby="feed-heading">
+      <div class="page-heading" data-block="page-heading">
+        <h1 id="feed-heading" tabindex="-1">Feed</h1>
+
+        <p>Your Dreams from the Dreamors you follow.</p>
+      </div>
+
+      <section class="composer" aria-labelledby="composer-heading" data-block="dream-composer">
+        <h2 id="composer-heading">Create a Dream</h2>
+
+        <form id="dream-form">
+          <div class="form-field" data-block="dream-text-field">
+            <label for="dream-text">Dream text</label>
+
+            <textarea id="dream-text" name="dreamText" rows="5" maxlength="5000" autocomplete="off" aria-describedby="dream-text-help"></textarea>
+
+            <p id="dream-text-help">Write a Dream of up to 5000 characters.</p>
+          </div>
+
+          <div class="form-actions" data-block="dream-form-actions">
+            <button type="submit">Publish Dream</button>
+
+            <button id="save-draft-button" type="button">Save local draft</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="feed-tabs" aria-labelledby="feed-tabs-heading" data-block="feed-tabs">
+        <h2 id="feed-tabs-heading">Feed views</h2>
+
+        <div role="tablist" aria-label="Feed views">
+          <button id="following-tab" type="button" role="tab" aria-selected="true" aria-controls="following-panel" tabindex="0" data-feed-tab="following">Following</button>
+
+          <button id="discover-tab" type="button" role="tab" aria-selected="false" aria-controls="discover-panel" tabindex="-1" data-feed-tab="discover">Discover</button>
         </div>
+      </section>
 
-        <div class="feature">
-            <h3>🧠 Cherry AI Everywhere</h3>
+      <section id="following-panel" role="tabpanel" tabindex="0" aria-labelledby="following-tab" data-feed-panel="following">
+        <h2>Dreams from Following</h2>
 
-            <p>Smart assistant integrated across the platform</p>
-        </div>
+        <div id="following-dreams" class="dream-list" aria-live="polite"></div>
+      </section>
 
-        <div class="feature">
-            <h3>♿ Accessibility First</h3>
+      <section id="discover-panel" role="tabpanel" tabindex="0" aria-labelledby="discover-tab" data-feed-panel="discover" hidden>
+        <h2>Discover Dreams</h2>
 
-            <p>Built for VoiceOver, Braille, TalkBack & more</p>
-        </div>
-    </div>
+        <div id="discover-dreams" class="dream-list" aria-live="polite"></div>
+      </section>
+    </section>
 
-    <div class="links" style="margin-top: 80px;">
-        <a href="https://github.com/Looscid">GitHub</a>
+    <section id="discover" class="page" data-page="discover" aria-labelledby="discover-heading" hidden>
+      <h1 id="discover-heading" tabindex="-1">Discover</h1>
 
-        <a href="https://twitter.com/Looscid">@Looscid</a>
+      <p>Find public Dreams and Dreamors.</p>
+    </section>
 
-        <a href="thankyou.html">Thank You / Acknowledgements</a>
-    </div>
+    <section id="alerts" class="page" data-page="alerts" aria-labelledby="alerts-heading" hidden>
+      <h1 id="alerts-heading" tabindex="-1">Alerts</h1>
+
+      <p>Important activity for your LooscidID.</p>
+    </section>
+
+    <section id="circles" class="page" data-page="circles" aria-labelledby="circles-heading" hidden>
+      <h1 id="circles-heading" tabindex="-1">Circles</h1>
+
+      <p>Organize the Dreamors and Dreams that matter to you.</p>
+    </section>
+
+    <section id="settings" class="page" data-page="settings" aria-labelledby="settings-heading" hidden>
+      <h1 id="settings-heading" tabindex="-1">Settings</h1>
+
+      <p>Control your local Looscid experience.</p>
+    </section>
+  </main>
+
+  <div id="status-region" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <footer class="site-footer" data-block="site-footer">
+    <p>Looscid is accessibility first, local first, and open source.</p>
+  </footer>
 </body>
 </html>
