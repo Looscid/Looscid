@@ -32,7 +32,7 @@ main { padding-block: 2rem 4rem; }
 
 .onboarding__intro { margin-block-end: 2rem; }
 
-.eyebrow { color: #8bd9ff; font-weight: 700; }
+.eyebrow, .accessibility-principle { color: #8bd9ff; font-weight: 700; }
 
 h1, h2, h3 { line-height: 1.2; }
 
@@ -53,6 +53,8 @@ input, textarea { width: 100%; padding: .75rem; border: .125rem solid #8ca5b5; b
 .dream-list { display: grid; gap: 1rem; }
 
 .dream { margin-block: 1rem; }
+
+.dream img { display: block; max-width: 100%; height: auto; margin-block: 1rem; border-radius: .35rem; }
 
 .skip-link { position: absolute; left: 1rem; top: -5rem; z-index: 1; padding: .75rem; background: #fff; color: #000; }
 
