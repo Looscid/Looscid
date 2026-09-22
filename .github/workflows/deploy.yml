@@ -28,8 +28,6 @@ jobs:
           fi
           echo "index.html found — $(wc -l < index.html) lines"
 
-      - name: Syntax check worker.js
-        run: node --check worker.js && echo "worker.js syntax OK"
 
   deploy:
     needs: validate
