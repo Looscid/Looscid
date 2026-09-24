@@ -1866,7 +1866,7 @@ function AlertsPage({cherryCtx}) {
     return React.createElement('button', {
       className: "msec-toggle",
       style: {padding:"13px 16px 11px", borderBottom: "1px solid var(--bd)"},
-      onClick: function() { toggleSection(id); },
+      onClick: function() { ReactDOM.flushSync(function(){ toggleSection(id); }); },
       "aria-expanded": isOpen,
       "aria-controls": "alerts-section-"+id,
       "aria-label": label + (badge>0 ? ", "+badge+" unread" : ""),
@@ -1899,7 +1899,7 @@ function AlertsPage({cherryCtx}) {
       /* ── Messages section ── */
       React.createElement(SectionHeader, {id:"messages", label:"Messages", badge:msgBadge, isOpen:openSections.messages}),
       React.createElement('div', {
-        id: "alerts-section-messages",
+        id: "alerts-section-messages", role:"group", "aria-label":"Messages",
         className: "msec-body" + (openSections.messages ? "" : " closed"),
         style: {maxHeight: openSections.messages ? "600px" : "0px", visibility: openSections.messages ? "visible" : "hidden"},
         "aria-hidden": !openSections.messages,
@@ -1967,7 +1967,7 @@ function AlertsPage({cherryCtx}) {
       /* ── Notifications section ── */
       React.createElement(SectionHeader, {id:"notifications", label:"Notifications", badge:notifBadge, isOpen:openSections.notifications}),
       React.createElement('div', {
-        id: "alerts-section-notifications",
+        id: "alerts-section-notifications", role:"group", "aria-label":"Notifications",
         className: "msec-body" + (openSections.notifications ? "" : " closed"),
         style: {maxHeight: openSections.notifications ? "800px" : "0px", visibility: openSections.notifications ? "visible" : "hidden"},
         "aria-hidden": !openSections.notifications,
@@ -5843,7 +5843,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
           React.createElement('h2', {className:"msec-hdr",style:{padding:0}},
             React.createElement('button', {
               className:"msec-toggle",
-              onClick:function(){ toggle(s.id); },
+              onClick:function(){ ReactDOM.flushSync(function(){ toggle(s.id); }); },
               "aria-expanded":sOpen,
               "aria-controls":"msec-"+s.id,
               "aria-label":s.label+(s.badge>0?", "+s.badge+" unread":""),
@@ -5866,7 +5866,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
             "aria-hidden": !sOpen,
             inert: sOpen ? undefined : "",
           },
-            s.intro ? React.createElement, {style:{padding:"8px 16px",margin:0,fontSize:12,color:"var(--tx2)"}}, s.intro) : null,             s.items.map(function(item) {
+            s.intro ? React.createElement('p', {style:{padding:"8px 16px",margin:0,fontSize:12,color:"var(--tx2)"}}, s.intro) : null,             s.items.map(function(item) {
               var hasBadge = item.badge>0;
               var hasCount = item.count!=null;
               var badge = hasBadge ? React.createElement('span',{key:"b",style:{fontWeight:700,color:"var(--rd)"}}," \u00b7 "+item.badge) : null;
