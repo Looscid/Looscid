@@ -20,7 +20,7 @@
 <meta http-equiv="X-Frame-Options" content="DENY"/>
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>Dream Board Mobile</title>
+<title>Looscid</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <!-- Babel not needed: JSX pre-compiled -->
@@ -375,9 +375,9 @@ const USERS = [
   {id:3,name:"Priya Nair",handle:"@priyanair",bio:"Product designer · dog mum · making things look nice 🎨",initials:"PN",color:"#be185d",verified:true,location:"London, UK",website:"priyanair.co",joined:"July 2022",dreamCount:6330,followers:91400,following:1240},
   {id:4,name:"Marcus Webb",handle:"@marcuswebb",bio:"Music, food, and trying to keep my plants alive 🌱",initials:"MW",color:"#1d4ed8",verified:false,location:"Chicago, IL",website:null,joined:"October 2022",dreamCount:2180,followers:44300,following:5600},
   {id:5,name:"Sam Rivera",handle:"@samr",bio:"Student · coffee addict · posting whatever I feel like 🤷",initials:"SR",color:"#15803d",verified:false,location:"Miami, FL",website:null,joined:"April 2023",dreamCount:890,followers:7200,following:2900},
-  {id:6,name:"Dream Board",handle:"@DreamBMobile",bio:"The official Dream Board Mobile account 🌙 Share what's on your mind.",initials:"DB",color:"#6d28d9",verified:true,location:"Everywhere",website:"dreamboard.app",joined:"January 2023",dreamCount:412,followers:1200000,following:0},
+  {id:6,name:"Looscid",handle:"@DreamBMobile",bio:"The official Looscid account 🌙 Share what's on your mind.",initials:"DB",color:"#6d28d9",verified:true,location:"Everywhere",website:"dreamboard.app",joined:"January 2023",dreamCount:412,followers:1200000,following:0},
 ];
-const ME = {id:0,name:"Guest",handle:"@guest",initials:"DD",bio:"Just checking out Dream Board Mobile 👋",color:"#6d28d9",verified:false,location:"",joined:"March 2026",dreamCount:2,followers:3,following:7,age:25};
+const ME = {id:0,name:"Guest",handle:"@guest",initials:"DD",bio:"Just checking out Looscid 👋",color:"#6d28d9",verified:false,location:"",joined:"March 2026",dreamCount:2,followers:3,following:7,age:25};
 
 const DREAMS_INIT = [
   {id:1,user:USERS[0],time:"2m",text:"ok whoever invented the croissant deserves a statue. that's my entire thought.",likes:6201,comments:441,redreams:1820,quotes:93,liked:false,redreamed:false,quoted:false,bookmarked:false},
@@ -385,7 +385,7 @@ const DREAMS_INIT = [
   {id:3,user:USERS[2],time:"45m",text:"redesigned our app's onboarding today and cut it from 7 screens to 3. signups are already up 18% in testing. less is almost always more ✂️",likes:4103,comments:287,redreams:934,quotes:88,liked:false,redreamed:false,quoted:false,bookmarked:false},
   {id:4,user:USERS[3],time:"2h",text:"found a playlist I made in 2019 and it genuinely slaps. past me had taste I don't deserve \ud83c\udfb5 Listen to: Blinding Lights, The Weeknd",likes:9870,comments:612,redreams:2100,quotes:74,liked:false,redreamed:false,quoted:false,bookmarked:false},
   {id:5,user:USERS[4],time:"4h",text:"professor said \"no phones\" so naturally I'm on my phone. anyway does anyone have the notes from last Tuesday",likes:31200,comments:2440,redreams:11300,quotes:890,liked:false,redreamed:false,quoted:false,bookmarked:false},
-  {id:6,user:USERS[5],time:"8h",text:"Welcome to Dream Board Mobile \ud83d\udc4b\n\nShare what's on your mind. Your thoughts, your takes, your moments \u2014 big or small.\n\nNo ads. No algorithm hiding your posts. Just you and the people you follow.\n\n#DreamBoardMobile",likes:18402,comments:2104,redreams:9134,quotes:1204,liked:false,redreamed:false,quoted:false,bookmarked:false},
+  {id:6,user:USERS[5],time:"8h",text:"Welcome to Looscid \ud83d\udc4b\n\nShare what's on your mind. Your thoughts, your takes, your moments \u2014 big or small.\n\nNo ads. No algorithm hiding your posts. Just you and the people you follow.\n\n#DreamBoardMobile",likes:18402,comments:2104,redreams:9134,quotes:1204,liked:false,redreamed:false,quoted:false,bookmarked:false},
 ];
 
 const MOCK_COMMENTS = {
@@ -779,7 +779,7 @@ function CommentItem({cm}) {
           {ic:"💬", l:"Reply", sub:"Reply to this comment", a:()=>setShowOpts(false)},
           {ic:"📋", l:"Copy Text", sub:"Copy this comment to clipboard", a:()=>setShowOpts(false)},
           {ic:"🔖", l:"Save Comment", sub:"Save this comment to your collection", a:()=>setShowOpts(false)},
-          {ic:"📤", l:"Share Comment", sub:"Share outside Dream Board Mobile", a:()=>setShowOpts(false)},
+          {ic:"📤", l:"Share Comment", sub:"Share outside Looscid", a:()=>setShowOpts(false)},
           {ic:"👤", l:"View @"+cm.user.handle.replace("@","")+"'s Profile", sub:"See their Dreams and profile", a:()=>setShowOpts(false)},
           {ic:"🔕", l:"Remove from Comment", sub:"Remove your @mention from this comment", a:()=>setShowOpts(false)},
           "---",
@@ -930,7 +930,7 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
       , showDreamOpts && (
         React.createElement(BottomMenu, { onClose: ()=>setShowDreamOpts(false), title: "Dream Options", items: [
           {ic:dream.bookmarked?"🔖":"🔖", l:dream.bookmarked?"Unsave Dream":"Save Dream", sub:dream.bookmarked?"Remove this Dream from your saved collection":"Save this Dream to your collection", a:()=>{onBookmark&&onBookmark(dream.id);setShowDreamOpts(false);}},
-          {ic:"📤", l:"Share Dream", sub:"Share outside Dream Board Mobile", a:()=>setShowDreamOpts(false)},
+          {ic:"📤", l:"Share Dream", sub:"Share outside Looscid", a:()=>setShowDreamOpts(false)},
           {ic:"👤", l:"View @"+dream.user.handle.replace("@","")+"'s Profile", a:()=>{setShowDreamOpts(false);navigate("dp",dream.user);}},
           {ic:"🔇", l:"Mute @"+dream.user.handle.replace("@",""), sub:"Stop seeing their Dreams in your feed", a:()=>setShowDreamOpts(false)},
           {ic:"🚫", l:"Block @"+dream.user.handle.replace("@",""), sub:"Block this Dreamor", a:()=>setShowDreamOpts(false), danger:true},
@@ -1054,7 +1054,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
       , showOpts && (
         React.createElement(BottomMenu, { onClose: ()=>setShowOpts(false), title: "Dream Options", items: [
           {ic:dream.bookmarked?"🔖":"🔖", l:dream.bookmarked?"Unsave Dream":"Save Dream", sub:dream.bookmarked?"Remove this Dream from your saved collection":"Save this Dream to your collection", a:()=>{onBookmark&&onBookmark(dream.id);setShowOpts(false);}},
-          {ic:"📤", l:"Share Dream", sub:"Share outside Dream Board Mobile", a:()=>setShowOpts(false)},
+          {ic:"📤", l:"Share Dream", sub:"Share outside Looscid", a:()=>setShowOpts(false)},
           {ic:"👤", l:"View @"+dream.user.handle.replace("@","")+"'s Profile", a:()=>{setShowOpts(false);navigate("dp",dream.user);}},
           {ic:"🔇", l:"Mute @"+dream.user.handle.replace("@",""), sub:"Stop seeing their Dreams in your feed", a:()=>setShowOpts(false)},
           {ic:"🚫", l:"Block @"+dream.user.handle.replace("@",""), sub:"Block this Dreamor", a:()=>setShowOpts(false), danger:true},
@@ -1100,7 +1100,7 @@ function FeedPage({navigate, prefs, cherryCtx}) {
     React.createElement('div', { className: "pg",}
       , React.createElement('div', { className: "hdr",}
         , React.createElement('div', { style: {display:"flex",alignItems:"center",justifyContent:"space-between",padding:"48px 16px 0"},}
-          , React.createElement('h1', { className: "htit", tabIndex:-1,}, "Dream Board Mobile")
+          , React.createElement('h1', { className: "htit", tabIndex:-1,}, "Looscid")
           , React.createElement('button', {
               className: "cherry-feed-pill",
               onClick: () => cherryCtx && cherryCtx.openCherry(),
@@ -2360,8 +2360,8 @@ function ProfilePage({navigate, authUser}) {
       React.createElement('div', { style: {display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"60px 24px",textAlign:"center"}},
         React.createElement('div', { style: {fontSize:56,marginBottom:16}}, "🌙"),
         React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:22,marginBottom:8,color:"var(--tx)"}}, "You are in Guest Mode"),
-        React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.7,marginBottom:24}}, "Create a Dream Board Mobile ID to get your profile, save your Dreams, follow Dreamors and make it yours."),
-        React.createElement('button', { className: "btn bp", style: {padding:"12px 28px",fontSize:14,marginBottom:12}, onClick: ()=>navigate("login"), "aria-label": "Create a Dream Board Mobile ID"}, "Create Account"),
+        React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.7,marginBottom:24}}, "Create a Looscid ID to get your profile, save your Dreams, follow Dreamors and make it yours."),
+        React.createElement('button', { className: "btn bp", style: {padding:"12px 28px",fontSize:14,marginBottom:12}, onClick: ()=>navigate("login"), "aria-label": "Create a Looscid ID"}, "Create Account"),
         React.createElement('button', { className: "btn bgb", style: {padding:"10px 24px",fontSize:13}, onClick: ()=>navigate("login"), "aria-label": "Sign in to your account"}, "Sign In")
       )
     )
@@ -2674,7 +2674,7 @@ function SettingsPage({prefs, setPrefs, navigate, onSignOut, authUser, theme, se
     {id:"privacy",        icon:"🔒", title:"Privacy",          sub:"Visibility, blocked users",           color:"#be185d"},
     {id:"customizability",icon:"🎨", title:"Customizability",  sub:"Character limit, Cherry AI, themes",  color:"#15803d"},
     {id:"accessibility",  icon:"♿", title:"Accessibility",    sub:"Font size, contrast, motion",         color:"#b45309"},
-    {id:"social",         icon:"\ud835\udd4f", title:"Find Us",sub:"Follow Dream Board Mobile",          color:"#1d4ed8"},
+    {id:"social",         icon:"\ud835\udd4f", title:"Find Us",sub:"Follow Looscid",          color:"#1d4ed8"},
     {id:"about",          icon:"ℹ️", title:"About",            sub:"Terms, privacy, guidelines",         color:"#374151"},
     {id:"dreamlabs",      icon:"\u2697\ufe0f", title:"DreamLabs", sub:"Dream Pioneers \u00b7 Early access", color:"#0f766e"},
   ];
@@ -2785,12 +2785,12 @@ function AccountSettings({navigate, authUser, onSignOut}) {
         , isDemo && (
           React.createElement('div', { style: {margin:"0 16px 4px",padding:"14px 16px",background:"rgba(109,40,217,.1)",border:"1px solid rgba(109,40,217,.3)",borderRadius:14},}
             , React.createElement('div', { style: {fontWeight:700,fontSize:13,color:"var(--ac3)",marginBottom:4},}, "You are using the Demo Account"     )
-            , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6,marginBottom:12},}, "Explore everything Dream Board Mobile has to offer. Your activity here is not saved. Create a Dream Board Mobile ID to save your dreams, follow Dreamers and make it yours."
+            , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6,marginBottom:12},}, "Explore everything Looscid has to offer. Your activity here is not saved. Create a Looscid ID to save your dreams, follow Dreamers and make it yours."
 
 
             )
             , React.createElement('button', { className: "btn bp", style: {width:"100%",padding:12,fontSize:13},
-                onClick: ()=>navigate("login"), 'aria-label': "Login or create your Dream Board Mobile ID",}, "LOGIN OR CREATE YOUR DREAM BOARD ID"
+                onClick: ()=>navigate("login"), 'aria-label': "Login or create your Looscid ID",}, "LOGIN OR CREATE YOUR Looscid ID"
 
               )
           )
@@ -2859,10 +2859,10 @@ function AccountSettings({navigate, authUser, onSignOut}) {
           React.createElement(React.Fragment, null
             , React.createElement('h2', { className: "slbl", style: {color:"var(--rd)"}, role: "heading", 'aria-level': "2",}, "Danger Zone" )
             , React.createElement('div', { style: {padding:"0 16px"},}
-              , React.createElement('button', { className: "danger-zone-btn", onClick: ()=>setShowDelete(true), 'aria-label': "Delete your Dream Board Mobile account"     ,}
+              , React.createElement('button', { className: "danger-zone-btn", onClick: ()=>setShowDelete(true), 'aria-label': "Delete your Looscid account"     ,}
                 , React.createElement('span', { style: {fontSize:18},}, "Delete Account" )
               )
-              , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",lineHeight:1.5},}, "Permanently deletes your Dream Board Mobile ID, all your Dreams, and your profile. This cannot be undone."
+              , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",lineHeight:1.5},}, "Permanently deletes your Looscid ID, all your Dreams, and your profile. This cannot be undone."
 
 
               )
@@ -2906,7 +2906,7 @@ function AccountSettings({navigate, authUser, onSignOut}) {
       /* Delete Account Modal */
       , showDelete && (
         React.createElement(Modal, { onClose: ()=>{setShowDelete(false);setDeleteCode("");setDeleteConfirm("");setDeleteErr("");}, title: "Delete Account" , subtitle: "This is permanent and cannot be undone."      ,}
-          , React.createElement('div', { style: {background:"rgba(239,68,68,.08)",border:"1px solid rgba(239,68,68,.2)",borderRadius:12,padding:"12px 14px",marginBottom:16,fontSize:13,color:"var(--rd)",lineHeight:1.6},}, "Deleting your account will permanently remove your Dream Board Mobile ID, all your Dreams, followers, and profile. There is no recovery."
+          , React.createElement('div', { style: {background:"rgba(239,68,68,.08)",border:"1px solid rgba(239,68,68,.2)",borderRadius:12,padding:"12px 14px",marginBottom:16,fontSize:13,color:"var(--rd)",lineHeight:1.6},}, "Deleting your account will permanently remove your Looscid ID, all your Dreams, followers, and profile. There is no recovery."
 
           )
           , twoFAOn && (
@@ -2934,7 +2934,7 @@ function AccountSettings({navigate, authUser, onSignOut}) {
             , deleteBusy ? "Deleting..." : "Permanently Delete My Account"
           )
       , showEditProfile && (
-        React.createElement(Modal, { onClose: ()=>setShowEditProfile(false), title: "Edit Profile", subtitle: "Update your Dream Board Mobile ID details.",}
+        React.createElement(Modal, { onClose: ()=>setShowEditProfile(false), title: "Edit Profile", subtitle: "Update your Looscid ID details.",}
           , React.createElement('div', { style: {marginBottom:14},}
             , React.createElement('label', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,display:"block",marginBottom:5,textTransform:"uppercase",letterSpacing:".04em"},}, "Display Name")
             , React.createElement('input', { className: "inp", type: "text", placeholder: "Your display name",
@@ -2983,7 +2983,7 @@ function NotifSettingsContent({ s, tg }) {
         {k:"follows",  l:"New Followers",d:"When someone follows you"},
         {k:"mentions", l:"Mentions",     d:"When someone mentions you"},
         {k:"replies",   l:"Replies",       d:"Replies to your comments"},
-        {k:"news",     l:"News & Features", d:"New features, updates and news from Dream Board Mobile"},
+        {k:"news",     l:"News & Features", d:"New features, updates and news from Looscid"},
       ].map(r => (
         React.createElement('div', { key: r.k, className: "sr",}
           , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, r.l), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:2},}, r.d))
@@ -3013,7 +3013,7 @@ function PrivacySettings({navigate}) {
       , React.createElement(BackHeader, { title: "Privacy", onBack: ()=>navigate("settings"),})
       , React.createElement('div', { style: {padding:"0 0 24px"},}
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Content")
-        , [{k:"sensitive",l:"Filter Sensitive Content",d:"Hide flagged content from your feed"},{k:"loc",l:"Share Location",d:"Show you in location-based features"},{k:"data",l:"Personalization Data",d:"Help improve Dream Board Mobile with usage data"},{k:"readReceipts",l:"Read Receipts",d:"Let others know when you have read their messages"}].map(r => (
+        , [{k:"sensitive",l:"Filter Sensitive Content",d:"Hide flagged content from your feed"},{k:"loc",l:"Share Location",d:"Show you in location-based features"},{k:"data",l:"Personalization Data",d:"Help improve Looscid with usage data"},{k:"readReceipts",l:"Read Receipts",d:"Let others know when you have read their messages"}].map(r => (
           React.createElement('div', { key: r.k, className: "sr",}, React.createElement('div', null, React.createElement('div', { className: "sr-title",}, r.l), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3,maxWidth:220},}, r.d)), React.createElement(Cbx, { on: s[r.k], onToggle: ()=>tg(r.k), label: r.l,}))
         ))
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Blocked Dreamors" )
@@ -3323,7 +3323,7 @@ function CherrySettings({navigate, prefs, setPrefs, activeAI, setActiveAI}) {
         /* -- Privacy --------------------------- */
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Privacy")
         , React.createElement('div', { className: "sr",}
-          , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, "Cherry Data Usage"  ), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3,maxWidth:230},}, "Allow Cherry interactions to improve Dream Board AI"       ))
+          , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, "Cherry Data Usage"  ), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3,maxWidth:230},}, "Allow Cherry interactions to improve Looscid AI"       ))
           , React.createElement(Cbx, { on: !!cs.dataUsage, onToggle: ()=>toggleCS("dataUsage"), label: "Cherry Data Usage"  ,})
         )
         , React.createElement('div', { style: {padding:"14px 16px"},}
@@ -3481,7 +3481,7 @@ function AccessibilitySettings({navigate, prefs, setPrefs}) {
     React.createElement('div', { className: "pg",}
       , React.createElement(BackHeader, { title: "Accessibility", onBack: ()=>navigate("settings"),})
       , React.createElement('div', { style: {padding:"8px 16px 8px",background:"var(--sf2)",borderBottom:"1px solid var(--bd)",margin:"0"},}
-        , React.createElement('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6},}, "Dream Board Mobile is designed for everyone. These options help customize your experience based on your needs."                )
+        , React.createElement('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6},}, "Looscid is designed for everyone. These options help customize your experience based on your needs."                )
       )
       , React.createElement('div', { style: {padding:"0 0 24px"},}
         , options.map(o => (
@@ -3517,7 +3517,7 @@ function SocialSettings({navigate}) {
     {
       href: "https://dreamboard.app/@DreamBMobile",
       icon: "🌙",
-      label: "Dream Board Mobile",
+      label: "Looscid",
       handle: "@DreamBMobile",
       desc: "Our official account. On our own platform.",
       bg: "linear-gradient(135deg,rgba(109,40,217,.18),rgba(147,51,234,.1))",
@@ -3586,9 +3586,9 @@ function SocialSettings({navigate}) {
 function AboutSettings({navigate}) {
   return (
     React.createElement('div', { className: "pg",}
-      , React.createElement(BackHeader, { title: "About Dream Board Mobile"   , onBack: ()=>navigate("settings"),})
+      , React.createElement(BackHeader, { title: "About Looscid"   , onBack: ()=>navigate("settings"),})
       , React.createElement('div', { style: {padding:"20px 16px 8px",textAlign:"center"},}
-        , React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:28,background:"linear-gradient(135deg,var(--ac4),var(--ac3))",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text",marginBottom:4},}, "Dream Board Mobile"  )
+        , React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:28,background:"linear-gradient(135deg,var(--ac4),var(--ac3))",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text",marginBottom:4},}, "Looscid"  )
         , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginBottom:20},}, "Version 1.0.0 — Build 2026.02"    )
       )
       , [
@@ -3627,8 +3627,8 @@ function MorePage({navigate, cherryCtx, authUser}) {
         React.createElement('div', {style:{padding:"20px",background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",border:"1px solid rgba(168,85,247,.2)",borderRadius:16,textAlign:"center"}},
           React.createElement('div', {style:{fontSize:44,marginBottom:12}}, "🌙"),
           React.createElement('div', {style:{fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,marginBottom:8}}, "You are in Guest Mode"),
-          React.createElement('p', {style:{fontSize:13,color:"var(--tx2)",lineHeight:1.7,marginBottom:20}}, "Create a free Dream Board Mobile ID to post Dreams, follow Dreamors, get notifications and make the app yours."),
-          React.createElement('button', {className:"btn bp",style:{width:"100%",padding:13,fontSize:14,marginBottom:10},onClick:()=>navigate("login"),"aria-label":"Create a Dream Board Mobile ID"}, "Create Account"),
+          React.createElement('p', {style:{fontSize:13,color:"var(--tx2)",lineHeight:1.7,marginBottom:20}}, "Create a free Looscid ID to post Dreams, follow Dreamors, get notifications and make the app yours."),
+          React.createElement('button', {className:"btn bp",style:{width:"100%",padding:13,fontSize:14,marginBottom:10},onClick:()=>navigate("login"),"aria-label":"Create a Looscid ID"}, "Create Account"),
           React.createElement('button', {className:"btn bgb",style:{width:"100%",padding:11,fontSize:13},onClick:()=>navigate("login"),"aria-label":"Sign in to your account"}, "Sign In")
         ),
         React.createElement('button', {className:"snav",onClick:()=>navigate("settings_accessibility"),"aria-label":"Accessibility settings"},
@@ -3680,14 +3680,14 @@ function MorePage({navigate, cherryCtx, authUser}) {
       )
       , React.createElement('div', { style: {marginTop:8},}
         , [
-          {icon:"🍒",l:"Cherry AI",sub:"Your Dream Board companion",a:()=>navigate("cherry"),color:"#6d28d9"},
+          {icon:"🍒",l:"Cherry AI",sub:"Your Looscid companion",a:()=>navigate("cherry"),color:"#6d28d9"},
           {icon:"📝",l:"Drafts",sub:"Your saved Dream drafts",a:()=>navigate("drafts"),color:"#374151"},
           authUser && (authUser.isGuest || authUser.uid==="guest")
-            ? {icon:"🔑",l:"Sign In or Create Account",sub:"Get a Dream Board Mobile ID",a:()=>navigate("login"),color:"#6d28d9"}
-            : {icon:"👤",l:"Account",sub:"Your Dream Board Mobile ID",a:()=>navigate("settings_account"),color:"#6d28d9"},
+            ? {icon:"🔑",l:"Sign In or Create Account",sub:"Get a Looscid ID",a:()=>navigate("login"),color:"#6d28d9"}
+            : {icon:"👤",l:"Account",sub:"Your Looscid ID",a:()=>navigate("settings_account"),color:"#6d28d9"},
           {icon:"⚙️",l:"Settings",sub:"Account, privacy, accessibility",a:()=>navigate("settings"),color:"#374151"},
           {icon:"ℹ️",l:"About",sub:"Version, terms, community guidelines",a:()=>navigate("about"),color:"#374151"},
-          {icon:"💬",l:"Send Feedback",sub:"Help us improve Dream Board Mobile",a:()=>navigate("feedback"),color:"#0e7490"},
+          {icon:"💬",l:"Send Feedback",sub:"Help us improve Looscid",a:()=>navigate("feedback"),color:"#0e7490"},
         ].map(item => (
           React.createElement('button', { key: item.l, className: "snav", onClick: item.a, 'aria-label': item.l,}
             , React.createElement('div', { className: "snav-l",}
@@ -3732,7 +3732,7 @@ function FeedbackPage({navigate}) {
       , React.createElement('div', { style: {display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"60px 24px",textAlign:"center"},}
         , React.createElement('div', { style: {fontSize:56,marginBottom:16},}, "💌")
         , React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:22,marginBottom:8},}, "Thank you!" )
-        , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.7,marginBottom:24},}, "Your feedback has been received. We read every submission and use it to make Dream Board Mobile better for everyone."                   )
+        , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.7,marginBottom:24},}, "Your feedback has been received. We read every submission and use it to make Looscid better for everyone."                   )
         , React.createElement('button', { className: "btn bp" , style: {padding:"10px 24px"}, onClick: ()=>navigate("more"),}, "Back to More"  )
       )
     )
@@ -3741,7 +3741,7 @@ function FeedbackPage({navigate}) {
     React.createElement('div', { className: "pg",}
       , React.createElement(BackHeader, { title: "Send Feedback" , onBack: ()=>navigate("more"),})
       , React.createElement('div', { style: {padding:"16px 16px 32px"},}
-        , React.createElement('p', { style: {fontSize:13,color:"var(--tx2)",lineHeight:1.7,marginBottom:20},}, "We genuinely read every piece of feedback. Help us make Dream Board Mobile better."             )
+        , React.createElement('p', { style: {fontSize:13,color:"var(--tx2)",lineHeight:1.7,marginBottom:20},}, "We genuinely read every piece of feedback. Help us make Looscid better."             )
         , React.createElement('div', { style: {marginBottom:16},}
           , React.createElement('div', { style: {fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",marginBottom:8},}, "Category")
           , React.createElement('div', { style: {display:"flex",gap:7,flexWrap:"wrap"},}
@@ -4060,7 +4060,7 @@ function AdminAnnouncements({onBack}) {
   const [target, setTarget] = useState("all");
   const [sent, setSent] = useState(false);
   const [history] = useState([
-    {id:1,text:"Welcome to Dream Board Mobile Beta! We are so excited to have you here. Share your first Dream today 🌙",target:"all",time:"3 days ago",reach:"24,817"},
+    {id:1,text:"Welcome to Looscid Beta! We are so excited to have you here. Share your first Dream today 🌙",target:"all",time:"3 days ago",reach:"24,817"},
     {id:2,text:"New feature: Groups are now live! Create or join a Group to connect with Dreamers who share your interests.",target:"all",time:"1 week ago",reach:"21,400"},
   ]);
   return (
@@ -4104,9 +4104,9 @@ function PolicyPage({title, content, navigate, back}) {
   );
 }
 
-const TERMS_CONTENT = `<h2>1. Agreement</h2><p>By using Dream Board Mobile, you agree to these Terms. If you do not agree, please do not use the platform.</p><h2>2. Your Account</h2><p>You are responsible for your account security and all activity under it. You must be at least 13 years old.</p><h2>3. Your Dreams</h2><p>You own everything you post. By posting, you grant Dream Board Mobile a licence to display and distribute your content. You may delete it at any time.</p><h2>4. Community Rules</h2><p>Be kind. Harassment, bullying and hate speech are not permitted. Post authentic content — do not impersonate others or spread misinformation. Do not post violent, sexually explicit or otherwise harmful content. Content involving minors inappropriately is strictly forbidden. Circles must have a positive purpose and moderators must enforce these rules.</p><h2>5. Enforcement</h2><p>Violations may result in content removal, suspension or permanent bans depending on severity. Use the report button to flag content — our team reviews all reports.</p><h2>6. Termination</h2><p>We may suspend accounts that violate these Terms. You may delete your account at any time in Settings.</p><h2>7. Changes</h2><p>We may update these Terms. Continued use after changes means you accept them. Last updated March 2026.</p>`
-const PRIVACY_CONTENT = `<h2>1. Information We Collect</h2><p>We collect information you provide (name, email, content you post) and usage data (how you interact with the app).</p><h2>2. How We Use It</h2><p>We use your information to provide and improve Dream Board Mobile, personalize your experience and communicate with you.</p><h2>3. Sharing</h2><p>We do not sell your personal information. We may share data with service providers who help us operate the platform.</p><h2>4. Your Rights</h2><p>You can access, correct or delete your data at any time through Settings. You may also request a data export.</p><h2>5. Cookies</h2><p>We use cookies to maintain your session and improve app performance. You can manage cookie preferences in your device settings.</p><h2>6. Contact</h2><p>For privacy concerns, contact privacy@dreamboard.app. Last updated: February 2026.</p>`;
-const GUIDELINES_CONTENT = `<h2>1. Be Kind</h2><p>Treat all Dreamers with respect. Harassment, bullying or targeted hate speech is not permitted on Dream Board Mobile.</p><h2>2. Authentic Dreams</h2><p>Post authentic content. Do not impersonate others, spread misinformation or use automated accounts without disclosure.</p><h2>3. Safe Content</h2><p>Do not post violent, sexually explicit or otherwise harmful content. Content involving minors in any inappropriate context is strictly forbidden.</p><h2>4. Groups</h2><p>Groups must have a clear, positive purpose. Group moderators must enforce these guidelines within their communities.</p><h2>5. Reporting</h2><p>Use the report button on any Dream, comment or profile to flag content that violates these guidelines. Our team reviews all reports.</p><h2>6. Consequences</h2><p>Violations may result in content removal, account suspension or permanent bans depending on severity. Last updated: February 2026.</p>`;
+const TERMS_CONTENT = `<h2>1. Agreement</h2><p>By using Looscid, you agree to these Terms. If you do not agree, please do not use the platform.</p><h2>2. Your Account</h2><p>You are responsible for your account security and all activity under it. You must be at least 13 years old.</p><h2>3. Your Dreams</h2><p>You own everything you post. By posting, you grant Looscid a licence to display and distribute your content. You may delete it at any time.</p><h2>4. Community Rules</h2><p>Be kind. Harassment, bullying and hate speech are not permitted. Post authentic content — do not impersonate others or spread misinformation. Do not post violent, sexually explicit or otherwise harmful content. Content involving minors inappropriately is strictly forbidden. Circles must have a positive purpose and moderators must enforce these rules.</p><h2>5. Enforcement</h2><p>Violations may result in content removal, suspension or permanent bans depending on severity. Use the report button to flag content — our team reviews all reports.</p><h2>6. Termination</h2><p>We may suspend accounts that violate these Terms. You may delete your account at any time in Settings.</p><h2>7. Changes</h2><p>We may update these Terms. Continued use after changes means you accept them. Last updated March 2026.</p>`
+const PRIVACY_CONTENT = `<h2>1. Information We Collect</h2><p>We collect information you provide (name, email, content you post) and usage data (how you interact with the app).</p><h2>2. How We Use It</h2><p>We use your information to provide and improve Looscid, personalize your experience and communicate with you.</p><h2>3. Sharing</h2><p>We do not sell your personal information. We may share data with service providers who help us operate the platform.</p><h2>4. Your Rights</h2><p>You can access, correct or delete your data at any time through Settings. You may also request a data export.</p><h2>5. Cookies</h2><p>We use cookies to maintain your session and improve app performance. You can manage cookie preferences in your device settings.</p><h2>6. Contact</h2><p>For privacy concerns, contact privacy@dreamboard.app. Last updated: February 2026.</p>`;
+const GUIDELINES_CONTENT = `<h2>1. Be Kind</h2><p>Treat all Dreamers with respect. Harassment, bullying or targeted hate speech is not permitted on Looscid.</p><h2>2. Authentic Dreams</h2><p>Post authentic content. Do not impersonate others, spread misinformation or use automated accounts without disclosure.</p><h2>3. Safe Content</h2><p>Do not post violent, sexually explicit or otherwise harmful content. Content involving minors in any inappropriate context is strictly forbidden.</p><h2>4. Groups</h2><p>Groups must have a clear, positive purpose. Group moderators must enforce these guidelines within their communities.</p><h2>5. Reporting</h2><p>Use the report button on any Dream, comment or profile to flag content that violates these guidelines. Our team reviews all reports.</p><h2>6. Consequences</h2><p>Violations may result in content removal, account suspension or permanent bans depending on severity. Last updated: February 2026.</p>`;
 
 /* --- HOUR STORY PAGE ----------------------------------------------------- */
 function HourStoryPage({ navigate, back }) {
@@ -4121,7 +4121,7 @@ function HourStoryPage({ navigate, back }) {
           , React.createElement('h1', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:26,lineHeight:1.3,
               background:"linear-gradient(135deg,var(--ac4),var(--ac3))",
               WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text",
-              marginBottom:12},}, "Dream Board Mobile")
+              marginBottom:12},}, "Looscid")
           , React.createElement('p', { style: {fontSize:15,color:"var(--tx2)",lineHeight:1.75},},
             "A social platform built by one person, with one goal: to give you a space that actually belongs to you."
           )
@@ -4133,7 +4133,7 @@ function HourStoryPage({ navigate, back }) {
           , React.createElement('section', { 'aria-label': "How it started",}
             , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10},}, "How it started")
             , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8},},
-              "Dream Board Mobile started as a late-night idea. Not a business plan. Not a pitch deck. Just a feeling that the internet needed a place that was quieter, kinder, and more yours."
+              "Looscid started as a late-night idea. Not a business plan. Not a pitch deck. Just a feeling that the internet needed a place that was quieter, kinder, and more yours."
             )
             , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8,marginTop:10},},
               "It was built from scratch — one screen at a time, one feature at a time — by Alhasan, a developer who wanted something that did not exist yet. A place where accessibility was not an afterthought. Where you were not the product. Where there were no ads telling you what to want."
@@ -4148,7 +4148,7 @@ function HourStoryPage({ navigate, back }) {
               "We believe the best social platforms feel like journals, not stadiums. We believe people deserve tools that work for them — not against them. We believe accessibility is not a feature, it is a right."
             )
             , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8,marginTop:10},},
-              "Dream Board Mobile is free. It will stay free. Not free-with-ads free. Actually free. Because we think that is just how it should be."
+              "Looscid is free. It will stay free. Not free-with-ads free. Actually free. Because we think that is just how it should be."
             )
           )
 
@@ -4185,15 +4185,15 @@ function HourStoryPage({ navigate, back }) {
             , React.createElement('p', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:17,color:"var(--tx)",lineHeight:1.6,fontStyle:"italic"},},
               "'A platform that puts the dreamer first. Free, accessible, and always yours.'"
             )
-            , React.createElement('p', { style: {fontSize:11,color:"var(--tx3)",marginTop:8},}, "Dream Board Mobile mission statement")
+            , React.createElement('p', { style: {fontSize:11,color:"var(--tx3)",marginTop:8},}, "Looscid mission statement")
           )
 
           // Social links
           , React.createElement('div', { style: {display:"flex",flexDirection:"column",gap:10},}
             , React.createElement('div', { style: {fontSize:13,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em"},}, "Find us")
             , [
-              {icon:"🌙",label:"Dream Board Mobile on DBM",sub:"@DreamBMobile",a:()=>{}},
-              {icon:"𝕏",label:"Dream Board Mobile on X",sub:"@DreamBMobile",a:()=>{}},
+              {icon:"🌙",label:"Looscid on DBM",sub:"@DreamBMobile",a:()=>{}},
+              {icon:"𝕏",label:"Looscid on X",sub:"@DreamBMobile",a:()=>{}},
               {icon:"📂",label:"Source code on GitHub",sub:"Shinygold29/dream-board-mobile",a:()=>{}},
             ].map(item =>
               React.createElement('button', { key: item.label, className: "snav", onClick: item.a, 'aria-label': item.label,}
@@ -4225,7 +4225,7 @@ const NAV = [
 
 /* --- CHERRY OVERLAY ---------------------- */
 function CherryOverlay({onClose, cherryCtx, initMsg, navigate}) {
-  const INIT = {me:false, text:"Hey! I'm Cherry 🍒 — your Dream Board Mobile AI Agent. I can see your feed, your Groups, your notifications, and I can take actions for you. What would you like to do?"};
+  const INIT = {me:false, text:"Hey! I'm Cherry 🍒 — your Looscid AI Agent. I can see your feed, your Groups, your notifications, and I can take actions for you. What would you like to do?"};
   const [msgs, setMsgs] = useState([INIT]);
   const [inp, setInp] = useState(initMsg||"");
   const [typing, setTyping] = useState(false);
@@ -4255,19 +4255,19 @@ function CherryOverlay({onClose, cherryCtx, initMsg, navigate}) {
 
     // ── App knowledge / help ───────────────────────────────────────────────
     if (lo.includes("what is a circle") || lo.includes("what are circles") || (lo.includes("circle") && (lo.includes("what") || lo.includes("explain") || lo.includes("mean") || lo.includes("how"))))
-      return {action:null, result:"Circles are what Dream Board Mobile calls groups. Instead of joining a generic 'group', you join a Circle — a community of people sharing the same interests or vibe. You can post Dreams inside a Circle, chat with members, and follow what's happening there. Same idea as a group, just our name for it. You can find yours in the Discover tab."};
+      return {action:null, result:"Circles are what Looscid calls groups. Instead of joining a generic 'group', you join a Circle — a community of people sharing the same interests or vibe. You can post Dreams inside a Circle, chat with members, and follow what's happening there. Same idea as a group, just our name for it. You can find yours in the Discover tab."};
 
     if (lo.includes("what is a dream") || lo.includes("what are dreams") || (lo.includes("dream") && lo.includes("what does") && lo.includes("mean")))
-      return {action:null, result:"On Dream Board Mobile, a Dream is just a post — anything you want to share. A thought, a take, a photo, a link, a question. The name comes from the idea that every idea starts somewhere. You can like Dreams, ReDream them (repost), or Quote Dream them with your own comment on top."};
+      return {action:null, result:"On Looscid, a Dream is just a post — anything you want to share. A thought, a take, a photo, a link, a question. The name comes from the idea that every idea starts somewhere. You can like Dreams, ReDream them (repost), or Quote Dream them with your own comment on top."};
 
     if (lo.includes("what is redream") || lo.includes("how does redream") || lo.includes("what is reboard") || lo.includes("reboard"))
       return {action:null, result:"ReDreaming instantly shares someone else's Dream to your followers — like a repost or retweet. Quote Dreaming lets you add your own thoughts on top of it. You can undo either at any time from the Dream Options menu (the ··· button)."};
 
-    if (lo.includes("what is dream board") || lo.includes("what is this app") || lo.includes("tell me about dream board") || lo.includes("how does this app work"))
-      return {action:null, result:"Dream Board Mobile is a social platform where you share what's on your mind — your thoughts, takes, moments, whatever. No ads, no algorithm deciding who sees your posts. You follow people, they follow you, and you see each other's Dreams in your feed. Circles let you find communities around topics you care about. I'm Cherry, the built-in AI — I can help you post, find people to follow, navigate the app or just answer questions."};
+    if (lo.includes("what is Looscid") || lo.includes("what is this app") || lo.includes("tell me about Looscid") || lo.includes("how does this app work"))
+      return {action:null, result:"Looscid is a social platform where you share what's on your mind — your thoughts, takes, moments, whatever. No ads, no algorithm deciding who sees your posts. You follow people, they follow you, and you see each other's Dreams in your feed. Circles let you find communities around topics you care about. I'm Cherry, the built-in AI — I can help you post, find people to follow, navigate the app or just answer questions."};
 
     if (lo.includes("what is cherry") || lo.includes("who is cherry") || lo.includes("what can you do") || lo.includes("what can cherry do"))
-      return {action:null, result:"I'm Cherry 🍒 — Dream Board Mobile's AI assistant. I'm built into the app so I actually know what's happening here. I can: post Dreams for you, follow Dreamers, join Circles, read and clear your notifications, draft content, find trending topics, answer questions about the app, and generally help you get the most out of Dream Board. Just ask and I'll do it — or try to."};
+      return {action:null, result:"I'm Cherry 🍒 — Looscid's AI assistant. I'm built into the app so I actually know what's happening here. I can: post Dreams for you, follow Dreamers, join Circles, read and clear your notifications, draft content, find trending topics, answer questions about the app, and generally help you get the most out of Looscid. Just ask and I'll do it — or try to."};
 
     if (lo.includes("help") && (lo.includes("how do i") || lo.includes("how to") || lo.includes("where is") || lo.includes("can't find") || lo.includes("cannot find")))
       return {action:null, result:"Happy to help. What are you trying to do? Just describe it and I'll walk you through it or do it for you. There's no separate help centre — I'm it. Some common things I can help with: posting a Dream, finding someone to follow, joining a Circle, changing your settings, or understanding how something works."};
@@ -4282,7 +4282,7 @@ function CherryOverlay({onClose, cherryCtx, initMsg, navigate}) {
       return {action:null, result:"Settings are in the Menu — tap the Menu button at the bottom (or top, depending on your preference) and you'll see Settings with all the sub-sections. Or I can take you straight to a specific one — just say which: Account, Privacy, Notifications, Customizability, Accessibility, Cherry AI settings."};
 
     if (lo.includes("private") || lo.includes("who can see") || lo.includes("is my account private"))
-      return {action:null, result:"By default your account is public — anyone on Dream Board Mobile can see your Dreams. You can make it private in Settings > Privacy > Private Account. When it's private, only approved followers see your posts. Direct Messages (Private Dreams) are always end-to-end encrypted regardless of your account type."};
+      return {action:null, result:"By default your account is public — anyone on Looscid can see your Dreams. You can make it private in Settings > Privacy > Private Account. When it's private, only approved followers see your posts. Direct Messages (Private Dreams) are always end-to-end encrypted regardless of your account type."};
 
     if (lo.includes("delete") && lo.includes("account"))
       return {action:null, result:"You can delete your account in Settings > Account > Delete Account. It's permanent — your Dreams, followers and profile will all be removed. You'll have 60 days to cancel if you change your mind. Want me to take you to that screen?"};
@@ -4391,7 +4391,7 @@ Want me to post it, or would you like to tweak it first?`,
 
     if (lo.includes("who should i follow") || lo.includes("suggest") && lo.includes("follow")) {
       const unfollowed = USERS.filter(u=>!following.has(u.id));
-      if (!unfollowed.length) return {action:null, result:"You're already following everyone on Dream Board Mobile! 🎉"};
+      if (!unfollowed.length) return {action:null, result:"You're already following everyone on Looscid! 🎉"};
       const picks = unfollowed.slice(0,2).map(u=>`${u.name} (${u.handle}) — ${u.bio.slice(0,40)}…`).join("\n");
       return {action:"Analysing your interests and engagement…", agentLabel:"Finding Dreamors",
         result:`Based on your activity, I suggest:
@@ -4417,12 +4417,12 @@ Want me to join any of these?`,
 
     if (lo.includes("trending") || lo.includes("what's hot") || lo.includes("whats hot"))
       return {action:"Fetching live trending data…", agentLabel:"Fetching trends",
-        result:"Right now on Dream Board Mobile:\n\n🔥 #Consciousness — 48.2K Dreams (+340% this hour)\n📈 #CreativeProcess — 22.1K Dreams\n🌿 #PhilosophyOfMind — 15.4K Dreams\n\nWant me to draft a Dream around one of these?"};
+        result:"Right now on Looscid:\n\n🔥 #Consciousness — 48.2K Dreams (+340% this hour)\n📈 #CreativeProcess — 22.1K Dreams\n🌿 #PhilosophyOfMind — 15.4K Dreams\n\nWant me to draft a Dream around one of these?"};
 
     if (lo.includes("summarize") || lo.includes("summary") || lo.includes("what's happening") || lo.includes("catch me up")) {
       const ctx2 = appContext();
       return {action:"Reading your feed and activity…", agentLabel:"Summarising feed",
-        result:`Here's your Dream Board Mobile summary:
+        result:`Here's your Looscid summary:
 
 📬 ${ctx2.unread} unread notification${ctx2.unread!==1?"s":""}
 👥 Following: ${ctx2.followingNames}
@@ -4451,7 +4451,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
     if (lo.includes("hello") || lo.includes("hi cherry") || lo.includes("hey"))
       return {action:null, result:`Hey! 🍒 I can see you're following ${appContext().followingNames || "no one yet"} and you're in ${appContext().joinedGroups || "no groups yet"}. I can post Dreams, follow people, join Groups, check notifications, and more. What would you like?`};
 
-    return {action:null, result:"I can help you post Dreams, follow Dreamers, join Groups, check your notifications, summarise your feed, find trending topics, or draft content. Just ask — I have full access to your Dream Board."};
+    return {action:null, result:"I can help you post Dreams, follow Dreamers, join Groups, check your notifications, summarise your feed, find trending topics, or draft content. Just ask — I have full access to your Looscid."};
   };
 
   const send = t => {
@@ -4539,7 +4539,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
           , React.createElement('div', { style: {flex:1},}
             , React.createElement('div', { style: {fontWeight:700,fontSize:15,color:"var(--tx)"},}, "Cherry")
             , React.createElement('div', { style: {fontSize:10,color:"var(--gr)",display:"flex",alignItems:"center",gap:4},}
-              , React.createElement('span', { style: {width:5,height:5,borderRadius:"50%",background:"var(--gr)",display:"inline-block"},}), "AI Agent · Connected to your Dream Board"
+              , React.createElement('span', { style: {width:5,height:5,borderRadius:"50%",background:"var(--gr)",display:"inline-block"},}), "AI Agent · Connected to your Looscid"
             )
           )
           , React.createElement('button', { className: "bi", onClick: ()=>setShowHistoryDialog(true), 'aria-label': "History and new conversation", title: "History / New chat",}
@@ -4755,7 +4755,7 @@ function AnalyticsBanner({ onDone }) {
   return (
     React.createElement('div', { className: "analytics-banner", role: "dialog", "aria-modal": "true", 'aria-label': "Analytics consent" ,}
       , React.createElement('div', null
-        , React.createElement('div', { style: {fontWeight:700,fontSize:15,marginBottom:6},}, "Help improve Dream Board Mobile" )
+        , React.createElement('div', { style: {fontWeight:700,fontSize:15,marginBottom:6},}, "Help improve Looscid" )
         , React.createElement('div', { style: {fontSize:13,color:"var(--tx2)",marginBottom:16,lineHeight:1.6},}, "Can we collect "
              , React.createElement('strong', null, "anonymous crash reports"), "? No posts, no messages — only error types and which screen crashed."
         )
@@ -4818,7 +4818,7 @@ function TurnstileGate({ onVerified }) {
   }, []);
   return (
     React.createElement('div', { className: "auth-gate", role: "main", 'aria-label': "Bot verification" ,}
-      , React.createElement('div', { className: "auth-logo",}, "Dream Board Mobile"  )
+      , React.createElement('div', { className: "auth-logo",}, "Looscid"  )
       , React.createElement('div', { className: "auth-tagline",}, "Your inner world, shared."   )
       , React.createElement('div', { className: "auth-card", style: {textAlign:"center"},}
         , React.createElement('div', { style: {fontSize:32,marginBottom:12},}, "Shield check" )
@@ -4847,7 +4847,7 @@ function validateAge(bd) {
   let age = now.getFullYear() - dob.getFullYear();
   const m = now.getMonth() - dob.getMonth();
   if (m < 0 || (m === 0 && now.getDate() < dob.getDate())) age--;
-  if (age < 13) return "You must be 13 or older to join Dream Board Mobile.";
+  if (age < 13) return "You must be 13 or older to join Looscid.";
   return "";
 }
 
@@ -4883,9 +4883,9 @@ function StepDots({ mode }) {
 /* --- SPLASH SCREEN ------------------------------------------------------- */
 function SplashScreen({ onLogin, onSignup, onDemo }) {
   return (
-    React.createElement('div', { className: "splash", role: "main", 'aria-label': "Welcome to Dream Board Mobile"    ,}
+    React.createElement('div', { className: "splash", role: "main", 'aria-label': "Welcome to Looscid"    ,}
       , React.createElement('div', { className: "splash-moon", 'aria-hidden': "true",}, "🌙")
-      , React.createElement('div', { className: "splash-title",}, "Dream Board Mobile"  )
+      , React.createElement('div', { className: "splash-title",}, "Looscid"  )
       , React.createElement('div', { className: "splash-sub",}, "Somewhere between your midnight thoughts and your wildest ideas lives a place that was always meant for you. Welcome home."
 
 
@@ -4896,11 +4896,11 @@ function SplashScreen({ onLogin, onSignup, onDemo }) {
       )
       , React.createElement('div', { className: "splash-btns",}
         , React.createElement('button', { className: "splash-btn-primary", onClick: onLogin,
-          'aria-label': "Login to your Dream Board Mobile ID"       ,}, "Sign In"
+          'aria-label': "Login to your Looscid ID"       ,}, "Sign In"
 
         )
         , React.createElement('button', { className: "splash-btn-secondary", onClick: onSignup,
-          'aria-label': "Sign up for a new Dream Board Mobile ID"        ,}, "Create Account"
+          'aria-label': "Sign up for a new Looscid ID"        ,}, "Create Account"
 
         )
         , React.createElement('button', { className: "splash-btn-ghost", onClick: onDemo,
@@ -5088,7 +5088,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
   // --- SCREEN: Login ---
   if (mode === "login") return (
     React.createElement('div', { className: "auth-gate",}
-      , React.createElement('div', { className: "auth-logo",}, "Dream Board Mobile"  )
+      , React.createElement('div', { className: "auth-logo",}, "Looscid"  )
       , React.createElement('div', { className: "auth-tagline",}, "Your inner world, shared."   )
       , React.createElement('div', { className: "auth-card",}
         , React.createElement('button', { onClick: onBack, style: {background:"none",border:"none",color:"var(--tx3)",fontSize:13,cursor:"pointer",padding:"0 0 12px",textAlign:"left",fontFamily:"inherit",display:"flex",alignItems:"center",gap:4}, 'aria-label': "Back to welcome screen"   ,}, "Back"
@@ -5106,8 +5106,8 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
           value: email, onChange: e=>{setEmail(e.target.value);setErr("");setMsg("");},
           style: {marginBottom:12}, 'aria-label': "Email address" , autoComplete: "email",})
         , React.createElement('label', { style: {display:"flex",gap:8,alignItems:"flex-start",margin:"8px 0 14px",cursor:"pointer",fontSize:12,color:"var(--tx2)",lineHeight:1.5},}
-          , React.createElement('input', { type: "checkbox", defaultChecked: true, style: {marginTop:2,flexShrink:0,width:15,height:15,cursor:"pointer",accentColor:"var(--ac)"}, "aria-label": "Receive Dream Board Mobile updates by email",})
-          , React.createElement('span', null, "Send me occasional updates, community highlights and new features from Dream Board Mobile. No spam, unsubscribe any time.")
+          , React.createElement('input', { type: "checkbox", defaultChecked: true, style: {marginTop:2,flexShrink:0,width:15,height:15,cursor:"pointer",accentColor:"var(--ac)"}, "aria-label": "Receive Looscid updates by email",})
+          , React.createElement('span', null, "Send me occasional updates, community highlights and new features from Looscid. No spam, unsubscribe any time.")
         )
         , React.createElement('div', { className: "auth-inp-wrap",}
           , React.createElement('input', { className: "inp", type: showPw?"text":"password", placeholder: "Password",
@@ -5141,7 +5141,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
   // --- SCREEN: Verify email ---
   if (mode === "verify") return (
     React.createElement('div', { className: "auth-gate",}
-      , React.createElement('div', { className: "auth-logo",}, "Dream Board Mobile"  )
+      , React.createElement('div', { className: "auth-logo",}, "Looscid"  )
       , React.createElement('div', { className: "auth-card", style: {textAlign:"center"},}
         , React.createElement('div', { className: "auth-verify-icon",}, "Email sent" )
         , React.createElement('div', { className: "auth-title", style: {textAlign:"center"},}, "Check your inbox"  )
@@ -5159,7 +5159,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
   // --- SCREEN: Signup step 1 - Name, Username, Email, Password ---
   if (mode === "signup_creds") return (
     React.createElement('div', { className: "auth-gate",}
-      , React.createElement('div', { className: "auth-logo",}, "Dream Board Mobile"  )
+      , React.createElement('div', { className: "auth-logo",}, "Looscid"  )
       , React.createElement('div', { className: "auth-tagline",}, "Your inner world, shared."   )
       , React.createElement('div', { className: "auth-card",}
         , React.createElement(StepDots, { mode: mode,})
@@ -5222,7 +5222,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
   // --- SCREEN: Signup step 2 - Birthdate (3 text fields) ---
   if (mode === "signup_profile") return (
     React.createElement('div', { className: "auth-gate",}
-      , React.createElement('div', { className: "auth-logo",}, "Dream Board Mobile"  )
+      , React.createElement('div', { className: "auth-logo",}, "Looscid"  )
       , React.createElement('div', { className: "auth-card",}
         , React.createElement(StepDots, { mode: mode,})
         , React.createElement('div', { className: "auth-title",}, "When were you born?"   )
@@ -5273,7 +5273,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
   // --- SCREEN: Signup step 3 - Interests ---
   if (mode === "signup_interests") return (
     React.createElement('div', { className: "auth-gate",}
-      , React.createElement('div', { className: "auth-logo",}, "Dream Board Mobile"  )
+      , React.createElement('div', { className: "auth-logo",}, "Looscid"  )
       , React.createElement('div', { className: "auth-card",}
         , React.createElement(StepDots, { mode: mode,})
         , React.createElement('div', { className: "auth-title",}, "What are you into?"   )
@@ -5307,7 +5307,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
   // --- SCREEN: Signup step 4 - Terms ---
   if (mode === "signup_terms") return (
     React.createElement('div', { className: "auth-gate",}
-      , React.createElement('div', { className: "auth-logo",}, "Dream Board Mobile"  )
+      , React.createElement('div', { className: "auth-logo",}, "Looscid"  )
       , React.createElement('div', { className: "auth-card",}
         , React.createElement(StepDots, { mode: mode,})
         , React.createElement('div', { className: "auth-title",}, "Almost done" )
@@ -5320,14 +5320,14 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
         , React.createElement('label', { style: {display:"flex",gap:10,alignItems:"flex-start",marginBottom:12,cursor:"pointer",fontSize:13,color:"var(--tx2)",lineHeight:1.55},}
           , React.createElement('input', { type: "checkbox", checked: agreedTerms, onChange: e=>setAgreedTerms(e.target.checked),
             style: {marginTop:2,flexShrink:0,width:16,height:16,cursor:"pointer"},
-            'aria-label': "I agree to Dream Board Mobile's Terms and Privacy Policy",})
-          , React.createElement('span', null, "I agree to Dream Board Mobile\u2019s Terms and Privacy Policy. ", React.createElement('span', { style: {color:"var(--rd)",fontWeight:700},}, "Required."))
+            'aria-label': "I agree to Looscid's Terms and Privacy Policy",})
+          , React.createElement('span', null, "I agree to Looscid\u2019s Terms and Privacy Policy. ", React.createElement('span', { style: {color:"var(--rd)",fontWeight:700},}, "Required."))
         )
         , React.createElement('label', { style: {display:"flex",gap:10,alignItems:"flex-start",marginBottom:20,cursor:"pointer",fontSize:13,color:"var(--tx2)",lineHeight:1.55},}
           , React.createElement('input', { type: "checkbox", checked: crashConsent, onChange: e=>setCrashConsent(e.target.checked),
             style: {marginTop:2,flexShrink:0,width:16,height:16,cursor:"pointer"},
             'aria-label': "Share anonymous crash reports to help improve the app",})
-          , React.createElement('span', null, "Share anonymous crash reports to help improve Dream Board Mobile. No personal data ever. ", React.createElement('span', { style: {color:"var(--gr)",fontWeight:600},}, "Recommended."))
+          , React.createElement('span', null, "Share anonymous crash reports to help improve Looscid. No personal data ever. ", React.createElement('span', { style: {color:"var(--gr)",fontWeight:600},}, "Recommended."))
         )
         , React.createElement('div', { style: {display:"flex",gap:10},}
           , React.createElement('button', { className: "btn bgb" , style: {flex:1,padding:12}, onClick: ()=>{setMode("signup_interests");setErr("");}, 'aria-label': "Go back" ,}, "Back")
@@ -5354,7 +5354,7 @@ function WelcomeScreen({ onDone, navigate }) {
   const steps = [
     {
       icon: "🌙",
-      title: "Welcome to Dream Board Mobile",
+      title: "Welcome to Looscid",
       body: "You made it. This is your space — to think out loud, share what you are feeling, follow people who inspire you, and build something real. There are no algorithms deciding what matters here. Just you and your Dreams.",
       cta: "Next",
     },
@@ -5367,7 +5367,7 @@ function WelcomeScreen({ onDone, navigate }) {
     {
       icon: "🍒",
       title: "Meet Cherry",
-      body: "Cherry is your AI companion on Dream Board Mobile. Cherry can help you write, suggest who to follow, read your notifications, and more. Look for the cherry button anywhere in the app.",
+      body: "Cherry is your AI companion on Looscid. Cherry can help you write, suggest who to follow, read your notifications, and more. Look for the cherry button anywhere in the app.",
       cta: "Next",
     },
     {
@@ -5383,7 +5383,7 @@ function WelcomeScreen({ onDone, navigate }) {
   return (
     React.createElement('div', {
       style: {position:"fixed",inset:0,zIndex:10002,background:"var(--bg)",display:"flex",flexDirection:"column",overflowY:"auto"},
-      role: "main", 'aria-label': "Welcome to Dream Board Mobile",}
+      role: "main", 'aria-label': "Welcome to Looscid",}
       // Top area
       , React.createElement('div', { style: {flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"48px 28px 24px",textAlign:"center"},}
         , React.createElement('div', { style: {fontSize:72,marginBottom:20,'aria-hidden':"true"},}, s.icon)
@@ -5421,7 +5421,7 @@ function WelcomeScreen({ onDone, navigate }) {
 function OnboardingOverlay({ onDone }) {
   const [step, setStep] = React.useState(0);
   const steps = [
-    { icon: "🌙", title: "Welcome to Dream Board Mobile", body: "This is your inner world's stage. Share what you're dreaming, thinking and feeling — no filters, no algorithms deciding what matters. Just you and your Dreams." },
+    { icon: "🌙", title: "Welcome to Looscid", body: "This is your inner world's stage. Share what you're dreaming, thinking and feeling — no filters, no algorithms deciding what matters. Just you and your Dreams." },
     { icon: "🍒", title: "Meet Cherry, your AI companion", body: "Cherry isn't just a chatbot. Cherry reads your feed, follows Dreamers you'll love, posts Dreams for you and keeps your notifications tidy. Find Cherry in the bottom tab or the floating orb." },
     { icon: "✨", title: "Your feed, your way", body: "Explore the Feed, discover new Dreamers, join Groups and check Alerts. Everything you create is yours. Tap Create anytime to share a new Dream." },
   ];
@@ -5504,7 +5504,7 @@ function DraftsPage({ navigate, onLoadDraft }) {
 
 
 /* ==========================================================================
-   DREAM BOARD MOBILE - FEATURE PACK 2
+   Looscid - FEATURE PACK 2
    Features: Multi-AI, @Cherry tagging, grammar/spelling, symbol picker,
    inline calculations, auto-linking, AI attribution, habit prediction,
    learning system, source citations, accessibility enhancements
@@ -5512,7 +5512,7 @@ function DraftsPage({ navigate, onLoadDraft }) {
 
 /* --- MULTI-AI CONFIG ------------------------------------------------------ */
 const AI_PROVIDERS = [
-  {id:"cherry",   name:"Cherry",   icon:"🍒", desc:"Dream Board's own AI — best for Dreams", default:true},
+  {id:"cherry",   name:"Cherry",   icon:"🍒", desc:"Looscid's own AI — best for Dreams", default:true},
   {id:"claude",   name:"Claude",   icon:"🟠", desc:"Deep reasoning and writing"},
   {id:"chatgpt",  name:"ChatGPT",  icon:"🟢", desc:"Creative and conversational"},
   {id:"gemini",   name:"Gemini",   icon:"🔵", desc:"Search and real-time info"},
@@ -5767,7 +5767,7 @@ class ErrorBoundary extends React.Component {
   }
   componentDidCatch(err, info) {
     this.setState({ error: err });
-    console.error("Dream Board Mobile Error:", err, info);
+    console.error("Looscid Error:", err, info);
   }
   static getDerivedStateFromError(err) {
     return { error: err };
@@ -5840,7 +5840,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"🔐", label:"Privacy", sub:"How we protect your data",       action(){onClose();navigate("privacy");} },
     ]},
     { id:"findus", emoji:"📱", label:"Find Us", items:[
-      { icon:"🌙", label:"Dream Board Mobile", sub:"@DreamBMobile",                         href:"https://dreamboard.app/@DreamBMobile" },
+      { icon:"🌙", label:"Looscid", sub:"@DreamBMobile",                         href:"https://dreamboard.app/@DreamBMobile" },
       { icon:"\ud835\udd4f", label:"Twitter",         sub:"@DreamBMobile",                href:"https://x.com/DreamBMobile" },
       { icon:"▶️",  label:"YouTube",          sub:"@DreamBMobile",                         href:"https://youtube.com/@DreamBMobile" },
       { icon:"🐙", label:"GitHub",            sub:"Shinygold29/dream-board-mobile",        href:"https://github.com/Shinygold29/dream-board-mobile" },
@@ -5978,9 +5978,9 @@ function DreamLabsPage({ navigate, authUser }) {
   ];
 
   const FEATURES = [
-    {id:"marketplace", icon:"\uD83D\uDED2", name:"Marketplace",          status:"Beta",    tag:"Commerce", desc:"Buy and sell inside Dream Board Mobile. Early access testers shape how it works before launch."},
+    {id:"marketplace", icon:"\uD83D\uDED2", name:"Marketplace",          status:"Beta",    tag:"Commerce", desc:"Buy and sell inside Looscid. Early access testers shape how it works before launch."},
     {id:"store",       icon:"\uD83C\uDFEA", name:"Store",                status:"Alpha",   tag:"Apps",     desc:"Apps, tools and add-ons for Dreamers. Help us decide what ships."},
-    {id:"miniapps",    icon:"\uD83E\uDDE9", name:"Mini Apps",            status:"Alpha",   tag:"Platform", desc:"Tiny utilities that live inside Dream Board. The first batch is almost ready."},
+    {id:"miniapps",    icon:"\uD83E\uDDE9", name:"Mini Apps",            status:"Alpha",   tag:"Platform", desc:"Tiny utilities that live inside Looscid. The first batch is almost ready."},
     {id:"analytics",   icon:"\uD83D\uDCCA", name:"Advanced Analytics",   status:"Beta",    tag:"Data",     desc:"Deeper stats \u2014 reach, engagement curves, best posting times."},
     {id:"collab",      icon:"\uD83E\uDD1D", name:"Collaborative Dreams", status:"Concept", tag:"Social",   desc:"Co-author a Dream with another Dreamer. Two voices, one post."},
   ];
@@ -6146,7 +6146,7 @@ function DreamLabsPage({ navigate, authUser }) {
         React.createElement('p', {style:{fontSize:13,color:"var(--tx2)",lineHeight:1.65,margin:0}},
           enrolled
             ? "You\u2019re a Dream Pioneer. You get beta features before everyone else. In exchange, we need your honest feedback."
-            : "Where new Dream Board features live before they\u2019re ready for everyone. You get them early, you break them, you tell us what\u2019s wrong."
+            : "Where new Looscid features live before they\u2019re ready for everyone. You get them early, you break them, you tell us what\u2019s wrong."
         )
       ),
 
@@ -6461,9 +6461,9 @@ useEffect(() => {
       guidelines: "Rules",
       cherry: "Cherry",
     };
-    var name = titles[page] || "Dream Board Mobile";
+    var name = titles[page] || "Looscid";
     var dot = " · ";
-    document.title = (name === "Dream Board Mobile") ? name : name + dot + "Dream Board Mobile";
+    document.title = (name === "Looscid") ? name : name + dot + "Looscid";
   }, [page, pdata, authUser]);
 
   const renderPage = () => {
@@ -6521,7 +6521,7 @@ useEffect(() => {
   );
 
   return (
-    React.createElement('div', { className: "app", role: "application", "aria-label": "Dream Board Mobile",}
+    React.createElement('div', { className: "app", role: "application", "aria-label": "Looscid",}
       , React.createElement('main', {id:"main-content", "aria-live":"polite", "aria-atomic":"false", style:{display:"contents"}}, renderPage())
       /* 5-tab nav: Home | Discover | Create | Alerts | More */
       , React.createElement('nav', {
@@ -6604,7 +6604,7 @@ useEffect(() => {
             , React.createElement('div', { style: {textAlign:"center",marginBottom:20},}
               , React.createElement('div', { className: "aiorb", style: {width:60,height:60,fontSize:28,margin:"0 auto 12px"},}, "🍒")
               , React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:22,marginBottom:6},}, "Meet Cherry" )
-              , React.createElement('div', { style: {fontSize:13,color:"var(--tx2)",lineHeight:1.6},}, "Your AI Agent for Dream Board Mobile. Cherry isn't just a chatbot — it can take real actions across the entire app."                     )
+              , React.createElement('div', { style: {fontSize:13,color:"var(--tx2)",lineHeight:1.6},}, "Your AI Agent for Looscid. Cherry isn't just a chatbot — it can take real actions across the entire app."                     )
             )
             , [
               {ic:"✏️", title:"Write & post Dreams", desc:"Ask Cherry to draft a Dream and post it to your feed instantly"},
