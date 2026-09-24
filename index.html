@@ -375,7 +375,7 @@ const USERS = [
   {id:3,name:"Priya Nair",handle:"@priyanair",bio:"Product designer · dog mum · making things look nice 🎨",initials:"PN",color:"#be185d",verified:true,location:"London, UK",website:"priyanair.co",joined:"July 2022",dreamCount:6330,followers:91400,following:1240},
   {id:4,name:"Marcus Webb",handle:"@marcuswebb",bio:"Music, food, and trying to keep my plants alive 🌱",initials:"MW",color:"#1d4ed8",verified:false,location:"Chicago, IL",website:null,joined:"October 2022",dreamCount:2180,followers:44300,following:5600},
   {id:5,name:"Sam Rivera",handle:"@samr",bio:"Student · coffee addict · posting whatever I feel like 🤷",initials:"SR",color:"#15803d",verified:false,location:"Miami, FL",website:null,joined:"April 2023",dreamCount:890,followers:7200,following:2900},
-  {id:6,name:"Dream Board",handle:"@DreamBMobile",bio:"The official Looscid account 🌙 Share what's on your mind.",initials:"DB",color:"#6d28d9",verified:true,location:"Everywhere",website:"dreamboard.app",joined:"January 2023",dreamCount:412,followers:1200000,following:0},
+  {id:6,name:"Looscid",handle:"@DreamBMobile",bio:"The official Looscid account 🌙 Share what's on your mind.",initials:"DB",color:"#6d28d9",verified:true,location:"Everywhere",website:"dreamboard.app",joined:"January 2023",dreamCount:412,followers:1200000,following:0},
 ];
 const ME = {id:0,name:"Guest",handle:"@guest",initials:"DD",bio:"Just checking out Looscid 👋",color:"#6d28d9",verified:false,location:"",joined:"March 2026",dreamCount:2,followers:3,following:7,age:25};
 
@@ -2790,7 +2790,7 @@ function AccountSettings({navigate, authUser, onSignOut}) {
 
             )
             , React.createElement('button', { className: "btn bp", style: {width:"100%",padding:12,fontSize:13},
-                onClick: ()=>navigate("login"), 'aria-label': "Login or create your Looscid ID",}, "LOGIN OR CREATE YOUR DREAM BOARD ID"
+                onClick: ()=>navigate("login"), 'aria-label': "Login or create your Looscid ID",}, "LOGIN OR CREATE YOUR Looscid ID"
 
               )
           )
@@ -3323,7 +3323,7 @@ function CherrySettings({navigate, prefs, setPrefs, activeAI, setActiveAI}) {
         /* -- Privacy --------------------------- */
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Privacy")
         , React.createElement('div', { className: "sr",}
-          , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, "Cherry Data Usage"  ), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3,maxWidth:230},}, "Allow Cherry interactions to improve Dream Board AI"       ))
+          , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, "Cherry Data Usage"  ), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3,maxWidth:230},}, "Allow Cherry interactions to improve Looscid AI"       ))
           , React.createElement(Cbx, { on: !!cs.dataUsage, onToggle: ()=>toggleCS("dataUsage"), label: "Cherry Data Usage"  ,})
         )
         , React.createElement('div', { style: {padding:"14px 16px"},}
@@ -3680,7 +3680,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
       )
       , React.createElement('div', { style: {marginTop:8},}
         , [
-          {icon:"🍒",l:"Cherry AI",sub:"Your Dream Board companion",a:()=>navigate("cherry"),color:"#6d28d9"},
+          {icon:"🍒",l:"Cherry AI",sub:"Your Looscid companion",a:()=>navigate("cherry"),color:"#6d28d9"},
           {icon:"📝",l:"Drafts",sub:"Your saved Dream drafts",a:()=>navigate("drafts"),color:"#374151"},
           authUser && (authUser.isGuest || authUser.uid==="guest")
             ? {icon:"🔑",l:"Sign In or Create Account",sub:"Get a Looscid ID",a:()=>navigate("login"),color:"#6d28d9"}
@@ -4263,11 +4263,11 @@ function CherryOverlay({onClose, cherryCtx, initMsg, navigate}) {
     if (lo.includes("what is redream") || lo.includes("how does redream") || lo.includes("what is reboard") || lo.includes("reboard"))
       return {action:null, result:"ReDreaming instantly shares someone else's Dream to your followers — like a repost or retweet. Quote Dreaming lets you add your own thoughts on top of it. You can undo either at any time from the Dream Options menu (the ··· button)."};
 
-    if (lo.includes("what is dream board") || lo.includes("what is this app") || lo.includes("tell me about dream board") || lo.includes("how does this app work"))
+    if (lo.includes("what is Looscid") || lo.includes("what is this app") || lo.includes("tell me about Looscid") || lo.includes("how does this app work"))
       return {action:null, result:"Looscid is a social platform where you share what's on your mind — your thoughts, takes, moments, whatever. No ads, no algorithm deciding who sees your posts. You follow people, they follow you, and you see each other's Dreams in your feed. Circles let you find communities around topics you care about. I'm Cherry, the built-in AI — I can help you post, find people to follow, navigate the app or just answer questions."};
 
     if (lo.includes("what is cherry") || lo.includes("who is cherry") || lo.includes("what can you do") || lo.includes("what can cherry do"))
-      return {action:null, result:"I'm Cherry 🍒 — Looscid's AI assistant. I'm built into the app so I actually know what's happening here. I can: post Dreams for you, follow Dreamers, join Circles, read and clear your notifications, draft content, find trending topics, answer questions about the app, and generally help you get the most out of Dream Board. Just ask and I'll do it — or try to."};
+      return {action:null, result:"I'm Cherry 🍒 — Looscid's AI assistant. I'm built into the app so I actually know what's happening here. I can: post Dreams for you, follow Dreamers, join Circles, read and clear your notifications, draft content, find trending topics, answer questions about the app, and generally help you get the most out of Looscid. Just ask and I'll do it — or try to."};
 
     if (lo.includes("help") && (lo.includes("how do i") || lo.includes("how to") || lo.includes("where is") || lo.includes("can't find") || lo.includes("cannot find")))
       return {action:null, result:"Happy to help. What are you trying to do? Just describe it and I'll walk you through it or do it for you. There's no separate help centre — I'm it. Some common things I can help with: posting a Dream, finding someone to follow, joining a Circle, changing your settings, or understanding how something works."};
@@ -4451,7 +4451,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
     if (lo.includes("hello") || lo.includes("hi cherry") || lo.includes("hey"))
       return {action:null, result:`Hey! 🍒 I can see you're following ${appContext().followingNames || "no one yet"} and you're in ${appContext().joinedGroups || "no groups yet"}. I can post Dreams, follow people, join Groups, check notifications, and more. What would you like?`};
 
-    return {action:null, result:"I can help you post Dreams, follow Dreamers, join Groups, check your notifications, summarise your feed, find trending topics, or draft content. Just ask — I have full access to your Dream Board."};
+    return {action:null, result:"I can help you post Dreams, follow Dreamers, join Groups, check your notifications, summarise your feed, find trending topics, or draft content. Just ask — I have full access to your Looscid."};
   };
 
   const send = t => {
@@ -4539,7 +4539,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
           , React.createElement('div', { style: {flex:1},}
             , React.createElement('div', { style: {fontWeight:700,fontSize:15,color:"var(--tx)"},}, "Cherry")
             , React.createElement('div', { style: {fontSize:10,color:"var(--gr)",display:"flex",alignItems:"center",gap:4},}
-              , React.createElement('span', { style: {width:5,height:5,borderRadius:"50%",background:"var(--gr)",display:"inline-block"},}), "AI Agent · Connected to your Dream Board"
+              , React.createElement('span', { style: {width:5,height:5,borderRadius:"50%",background:"var(--gr)",display:"inline-block"},}), "AI Agent · Connected to your Looscid"
             )
           )
           , React.createElement('button', { className: "bi", onClick: ()=>setShowHistoryDialog(true), 'aria-label': "History and new conversation", title: "History / New chat",}
@@ -5512,7 +5512,7 @@ function DraftsPage({ navigate, onLoadDraft }) {
 
 /* --- MULTI-AI CONFIG ------------------------------------------------------ */
 const AI_PROVIDERS = [
-  {id:"cherry",   name:"Cherry",   icon:"🍒", desc:"Dream Board's own AI — best for Dreams", default:true},
+  {id:"cherry",   name:"Cherry",   icon:"🍒", desc:"Looscid's own AI — best for Dreams", default:true},
   {id:"claude",   name:"Claude",   icon:"🟠", desc:"Deep reasoning and writing"},
   {id:"chatgpt",  name:"ChatGPT",  icon:"🟢", desc:"Creative and conversational"},
   {id:"gemini",   name:"Gemini",   icon:"🔵", desc:"Search and real-time info"},
@@ -5980,7 +5980,7 @@ function DreamLabsPage({ navigate, authUser }) {
   const FEATURES = [
     {id:"marketplace", icon:"\uD83D\uDED2", name:"Marketplace",          status:"Beta",    tag:"Commerce", desc:"Buy and sell inside Looscid. Early access testers shape how it works before launch."},
     {id:"store",       icon:"\uD83C\uDFEA", name:"Store",                status:"Alpha",   tag:"Apps",     desc:"Apps, tools and add-ons for Dreamers. Help us decide what ships."},
-    {id:"miniapps",    icon:"\uD83E\uDDE9", name:"Mini Apps",            status:"Alpha",   tag:"Platform", desc:"Tiny utilities that live inside Dream Board. The first batch is almost ready."},
+    {id:"miniapps",    icon:"\uD83E\uDDE9", name:"Mini Apps",            status:"Alpha",   tag:"Platform", desc:"Tiny utilities that live inside Looscid. The first batch is almost ready."},
     {id:"analytics",   icon:"\uD83D\uDCCA", name:"Advanced Analytics",   status:"Beta",    tag:"Data",     desc:"Deeper stats \u2014 reach, engagement curves, best posting times."},
     {id:"collab",      icon:"\uD83E\uDD1D", name:"Collaborative Dreams", status:"Concept", tag:"Social",   desc:"Co-author a Dream with another Dreamer. Two voices, one post."},
   ];
@@ -6146,7 +6146,7 @@ function DreamLabsPage({ navigate, authUser }) {
         React.createElement('p', {style:{fontSize:13,color:"var(--tx2)",lineHeight:1.65,margin:0}},
           enrolled
             ? "You\u2019re a Dream Pioneer. You get beta features before everyone else. In exchange, we need your honest feedback."
-            : "Where new Dream Board features live before they\u2019re ready for everyone. You get them early, you break them, you tell us what\u2019s wrong."
+            : "Where new Looscid features live before they\u2019re ready for everyone. You get them early, you break them, you tell us what\u2019s wrong."
         )
       ),
 
