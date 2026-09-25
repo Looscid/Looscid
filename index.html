@@ -2360,8 +2360,8 @@ function ProfilePage({navigate, authUser}) {
       React.createElement('div', { style: {display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"60px 24px",textAlign:"center"}},
         React.createElement('div', { style: {fontSize:56,marginBottom:16}}, "🌙"),
         React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:22,marginBottom:8,color:"var(--tx)"}}, "You are in Guest Mode"),
-        React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.7,marginBottom:24}}, "Create a Looscid ID to get your profile, save your Dreams, follow Dreamors and make it yours."),
-        React.createElement('button', { className: "btn bp", style: {padding:"12px 28px",fontSize:14,marginBottom:12}, onClick: ()=>navigate("login"), "aria-label": "Create a Looscid ID"}, "Create Account"),
+        React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.7,marginBottom:24}}, "Create a LooscidID to get your profile, save your Dreams, follow Dreamors and make it yours."),
+        React.createElement('button', { className: "btn bp", style: {padding:"12px 28px",fontSize:14,marginBottom:12}, onClick: ()=>navigate("login"), "aria-label": "Create a LooscidID"}, "Create Account"),
         React.createElement('button', { className: "btn bgb", style: {padding:"10px 24px",fontSize:13}, onClick: ()=>navigate("login"), "aria-label": "Sign in to your account"}, "Sign In")
       )
     )
@@ -2785,12 +2785,12 @@ function AccountSettings({navigate, authUser, onSignOut}) {
         , isDemo && (
           React.createElement('div', { style: {margin:"0 16px 4px",padding:"14px 16px",background:"rgba(109,40,217,.1)",border:"1px solid rgba(109,40,217,.3)",borderRadius:14},}
             , React.createElement('div', { style: {fontWeight:700,fontSize:13,color:"var(--ac3)",marginBottom:4},}, "You are using the Demo Account"     )
-            , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6,marginBottom:12},}, "Explore everything Looscid has to offer. Your activity here is not saved. Create a Looscid ID to save your dreams, follow Dreamers and make it yours."
+            , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6,marginBottom:12},}, "Explore everything Looscid has to offer. Your activity here is not saved. Create a LooscidID to save your dreams, follow Dreamers and make it yours."
 
 
             )
             , React.createElement('button', { className: "btn bp", style: {width:"100%",padding:12,fontSize:13},
-                onClick: ()=>navigate("login"), 'aria-label': "Login or create your Looscid ID",}, "LOGIN OR CREATE YOUR Looscid ID"
+                onClick: ()=>navigate("login"), 'aria-label': "Login or create your LooscidID",}, "LOGIN OR CREATE YOUR LooscidID"
 
               )
           )
@@ -2862,7 +2862,7 @@ function AccountSettings({navigate, authUser, onSignOut}) {
               , React.createElement('button', { className: "danger-zone-btn", onClick: ()=>setShowDelete(true), 'aria-label': "Delete your Looscid account"     ,}
                 , React.createElement('span', { style: {fontSize:18},}, "Delete Account" )
               )
-              , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",lineHeight:1.5},}, "Permanently deletes your Looscid ID, all your Dreams, and your profile. This cannot be undone."
+              , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",lineHeight:1.5},}, "Permanently deletes your LooscidID, all your Dreams, and your profile. This cannot be undone."
 
 
               )
@@ -2906,7 +2906,7 @@ function AccountSettings({navigate, authUser, onSignOut}) {
       /* Delete Account Modal */
       , showDelete && (
         React.createElement(Modal, { onClose: ()=>{setShowDelete(false);setDeleteCode("");setDeleteConfirm("");setDeleteErr("");}, title: "Delete Account" , subtitle: "This is permanent and cannot be undone."      ,}
-          , React.createElement('div', { style: {background:"rgba(239,68,68,.08)",border:"1px solid rgba(239,68,68,.2)",borderRadius:12,padding:"12px 14px",marginBottom:16,fontSize:13,color:"var(--rd)",lineHeight:1.6},}, "Deleting your account will permanently remove your Looscid ID, all your Dreams, followers, and profile. There is no recovery."
+          , React.createElement('div', { style: {background:"rgba(239,68,68,.08)",border:"1px solid rgba(239,68,68,.2)",borderRadius:12,padding:"12px 14px",marginBottom:16,fontSize:13,color:"var(--rd)",lineHeight:1.6},}, "Deleting your account will permanently remove your LooscidID, all your Dreams, followers, and profile. There is no recovery."
 
           )
           , twoFAOn && (
@@ -2934,7 +2934,7 @@ function AccountSettings({navigate, authUser, onSignOut}) {
             , deleteBusy ? "Deleting..." : "Permanently Delete My Account"
           )
       , showEditProfile && (
-        React.createElement(Modal, { onClose: ()=>setShowEditProfile(false), title: "Edit Profile", subtitle: "Update your Looscid ID details.",}
+        React.createElement(Modal, { onClose: ()=>setShowEditProfile(false), title: "Edit Profile", subtitle: "Update your LooscidID details.",}
           , React.createElement('div', { style: {marginBottom:14},}
             , React.createElement('label', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,display:"block",marginBottom:5,textTransform:"uppercase",letterSpacing:".04em"},}, "Display Name")
             , React.createElement('input', { className: "inp", type: "text", placeholder: "Your display name",
@@ -3607,8 +3607,8 @@ function MorePage({navigate, cherryCtx, authUser}) {
         React.createElement('div', {style:{padding:"20px",background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",border:"1px solid rgba(168,85,247,.2)",borderRadius:16,textAlign:"center"}},
           React.createElement('div', {style:{fontSize:44,marginBottom:12}}, "🌙"),
           React.createElement('div', {style:{fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,marginBottom:8}}, "You are in Guest Mode"),
-          React.createElement('p', {style:{fontSize:13,color:"var(--tx2)",lineHeight:1.7,marginBottom:20}}, "Create a free Looscid ID to post Dreams, follow Dreamors, get notifications and make the app yours."),
-          React.createElement('button', {className:"btn bp",style:{width:"100%",padding:13,fontSize:14,marginBottom:10},onClick:()=>navigate("login"),"aria-label":"Create a Looscid ID"}, "Create Account"),
+          React.createElement('p', {style:{fontSize:13,color:"var(--tx2)",lineHeight:1.7,marginBottom:20}}, "Create a free LooscidID to post Dreams, follow Dreamors, get notifications and make the app yours."),
+          React.createElement('button', {className:"btn bp",style:{width:"100%",padding:13,fontSize:14,marginBottom:10},onClick:()=>navigate("login"),"aria-label":"Create a LooscidID"}, "Create Account"),
           React.createElement('button', {className:"btn bgb",style:{width:"100%",padding:11,fontSize:13},onClick:()=>navigate("login"),"aria-label":"Sign in to your account"}, "Sign In")
         ),
         React.createElement('button', {className:"snav",onClick:()=>navigate("settings_accessibility"),"aria-label":"Accessibility settings"},
@@ -3663,8 +3663,8 @@ function MorePage({navigate, cherryCtx, authUser}) {
           {icon:"🍒",l:"Cherry AI",sub:"Your Looscid companion",a:()=>navigate("cherry"),color:"#6d28d9"},
           {icon:"📝",l:"Drafts",sub:"Your saved Dream drafts",a:()=>navigate("drafts"),color:"#374151"},
           authUser && (authUser.isGuest || authUser.uid==="guest")
-            ? {icon:"🔑",l:"Sign In or Create Account",sub:"Get a Looscid ID",a:()=>navigate("login"),color:"#6d28d9"}
-            : {icon:"👤",l:"Account",sub:"Your Looscid ID",a:()=>navigate("settings_account"),color:"#6d28d9"},
+            ? {icon:"🔑",l:"Sign In or Create Account",sub:"Get a LooscidID",a:()=>navigate("login"),color:"#6d28d9"}
+            : {icon:"👤",l:"Account",sub:"Your LooscidID",a:()=>navigate("settings_account"),color:"#6d28d9"},
           {icon:"⚙️",l:"Settings",sub:"Account, privacy, accessibility",a:()=>navigate("settings"),color:"#374151"},
           {icon:"ℹ️",l:"About",sub:"Version, terms, community guidelines",a:()=>navigate("about"),color:"#374151"},
           {icon:"💬",l:"Send Feedback",sub:"Help us improve Looscid",a:()=>navigate("feedback"),color:"#0e7490"},
@@ -4084,7 +4084,7 @@ function PolicyPage({title, content, navigate, back}) {
   );
 }
 
-const TERMS_CONTENT = `<section role="region" aria-labelledby="terms-notice-title" style="border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:20px"><h2 id="terms-notice-title">Plain-language notice</h2><p>Plain-language notice: These terms are written in plain language and they are the terms we ask you to agree to when you use Looscid. They are not legal advice. If you need or want legal advice about your own situation, talk to a lawyer.</p></section><p><strong>Effective date:</strong> September 25, 2026. <strong>Version:</strong> 1.0.</p><h2>Acceptance</h2><p>By using Looscid, you agree to these Terms. If you do not agree, do not use the app. Read our <a href="#privacy" data-policy-link="privacy">Privacy Policy</a> too.</p><h2>Who Can Use This</h2><p>You must be at least 13. If the law where you live requires a higher minimum age, that age applies. If you are under 18, get consent from a parent or legal guardian before using Looscid.</p><h2>Your Account</h2><p>Give accurate account information and protect your sign-in details. You are responsible for activity on your account. Tell us through our official channels if you think someone has gained access.</p><h2>Acceptable Use</h2><p>Be kind. Do not harass, threaten, impersonate, exploit minors, or share illegal or harmful material. Do not try to break the app, access another person's account, or send spam. Do not impersonate others or spread misinformation.</p><h2>Content You Post</h2><p>You own the content you share. You give Looscid permission to host, display, and deliver it as needed to run the app. You can remove content with available controls. Copies made by others outside the app may remain.</p><h2>NOSTR And Decentralized Identity</h2><p>This preview does not currently connect to NOSTR relays or create a decentralized identity. If a future version offers public NOSTR publishing, other relays or users may copy public events. You may not be able to erase those copies.</p><h2>Local-First Data</h2><p>Some drafts and preferences stay in your browser's local storage. Sign-in and profile information may use a service provider. Clearing browser data can erase local drafts. Keep your own copy of important content.</p><h2>Third-Party Links</h2><p>Links may take you to sites we do not control. Their terms and privacy practices apply there. Our official channels are <a href="https://github.com/Looscid/Looscid" target="_blank" rel="noopener noreferrer">Looscid on GitHub</a> and <a href="https://x.com/Looscid" target="_blank" rel="noopener noreferrer">@Looscid on X</a>.</p><h2>Termination</h2><p>You may stop using the app. We may restrict or close an account that breaks these Terms or puts others at risk. Contact us through our official channels about an account concern.</p><h2>Changes To These Terms</h2><p>We may update these Terms. We will update the effective date and version above. Check this page for changes. Using the app after updated Terms take effect means you accept them.</p><h2>Contact</h2><p>Our official contact channels are <a href="https://github.com/Looscid/Looscid" target="_blank" rel="noopener noreferrer">Looscid on GitHub</a> and <a href="https://x.com/Looscid" target="_blank" rel="noopener noreferrer">@Looscid on X</a>. There is no standalone support email at this time. See our <a href="#privacy" data-policy-link="privacy">Privacy Policy</a>.</p>`;
+const TERMS_CONTENT = `<section role="region" aria-labelledby="terms-notice-title" style="border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:20px"><h2 id="terms-notice-title">Plain-language notice</h2><p>Plain-language notice: These terms are written in plain language and they are the terms we ask you to agree to when you use Looscid. They are not legal advice. If you need or want legal advice about your own situation, talk to a lawyer.</p></section><p><strong>Effective date:</strong> September 25, 2026. <strong>Version:</strong> 1.0.</p><h2>Acceptance</h2><p>By using Looscid, you agree to these Terms. If you do not agree, do not use the app. Read our <a href="#privacy" data-policy-link="privacy">Privacy Policy</a> too.</p><h2>Who Can Use This</h2><p>You must be at least 13. If the law where you live requires a higher minimum age, that age applies. If you are under 18, get consent from a parent or legal guardian before using Looscid. The birthday you give must be accurate. If your LooscidID is found to use false information, it may be suspended or removed.</p><h2>Your Account</h2><p>Give accurate account information and protect your sign-in details. You are responsible for activity on your account. Tell us through our official channels if you think someone has gained access.</p><h2>Acceptable Use</h2><p>Be kind. Do not harass, threaten, impersonate, exploit minors, or share illegal or harmful material. Do not try to break the app, access another person's account, or send spam. Do not impersonate others or spread misinformation.</p><h2>Content You Publish</h2><p>You own the content you share. You give Looscid permission to host, display, and deliver it as needed to run the app. You can remove content with available controls. Copies made by others outside the app may remain.</p><h2>NOSTR And Decentralized Identity</h2><p>This preview does not currently connect to NOSTR relays or create a decentralized identity. If a future version offers public NOSTR publishing, other relays or users may copy public events. You may not be able to erase those copies.</p><h2>Local-First Data</h2><p>Some drafts and preferences stay in your browser's local storage. Sign-in and profile information may use a service provider. Clearing browser data can erase local drafts. Keep your own copy of important content.</p><h2>Third-Party Links</h2><p>Links may take you to sites we do not control. Their terms and privacy practices apply there. Our official channels are <a href="https://github.com/Looscid/Looscid" target="_blank" rel="noopener noreferrer">Looscid on GitHub</a> and <a href="https://x.com/Looscid" target="_blank" rel="noopener noreferrer">@Looscid on X</a>.</p><h2>Termination</h2><p>You may stop using the app. We may restrict or close an account that breaks these Terms or puts others at risk. Contact us through our official channels about an account concern.</p><h2>Changes To These Terms</h2><p>We may update these Terms. We will update the effective date and version above. Check this page for changes. Using the app after updated Terms take effect means you accept them.</p><h2>Contact</h2><p>Our official contact channels are <a href="https://github.com/Looscid/Looscid" target="_blank" rel="noopener noreferrer">Looscid on GitHub</a> and <a href="https://x.com/Looscid" target="_blank" rel="noopener noreferrer">@Looscid on X</a>. There is no standalone support email at this time. See our <a href="#privacy" data-policy-link="privacy">Privacy Policy</a>.</p>`;
 const PRIVACY_CONTENT = `<section role="region" aria-labelledby="privacy-notice-title" style="border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:20px"><h2 id="privacy-notice-title">Plain-language notice</h2><p>Plain-language notice: These terms are written in plain language and they are the terms we ask you to agree to when you use Looscid. They are not legal advice. If you need or want legal advice about your own situation, talk to a lawyer.</p></section><p><strong>Effective date:</strong> September 25, 2026. <strong>Version:</strong> 1.0.</p><h2>What We Collect</h2><p>If you create an account, you may give us a name, email address, and profile details. Content you choose to share and basic app activity may also be processed to provide the service. This preview contains sample content.</p><h2>Local-First Storage</h2><p>Some drafts and preferences are saved in your browser's local storage. Clearing browser data may erase them. Not all app data stays on your device: sign-in and profile information may use a service provider.</p><h2>NOSTR And Public Data</h2><p>This preview does not currently publish to NOSTR relays or create a NOSTR identity. If a future version lets you publish public NOSTR events, others may copy them and deletion may not remove those copies. We will describe that feature before you use it.</p><h2>Cookies</h2><p>The app and services used for sign-in may use browser storage or cookies to keep a session working. Your browser settings can limit cookies, but some features may stop working.</p><h2>Third Parties</h2><p>Service providers may help with sign-in, profiles, and security checks. Links to other sites follow their own privacy practices. Our public code and updates are at <a href="https://github.com/Looscid/Looscid" target="_blank" rel="noopener noreferrer">Looscid on GitHub</a> and <a href="https://x.com/Looscid" target="_blank" rel="noopener noreferrer">@Looscid on X</a>.</p><h2>Your Rights</h2><p>You can ask about your data or request correction or deletion through our official contact channels. What we can do may depend on where you live and where the data is stored. Local drafts and preferences can be removed by clearing browser data.</p><h2>Children And Minors</h2><p>Looscid is for people at least 13, or older if local law requires it. If you are under 18, get a parent or legal guardian's consent before using the app. Do not share sensitive personal information in public content. A parent or guardian may contact us about a minor's account.</p><h2>Retention</h2><p>Local drafts stay in your browser until you remove them, clear browser data, or your browser removes them. Information handled by service providers may remain until it is deleted under their processes or applicable law. We do not promise a fixed deletion deadline in this preview.</p><h2>Data Export</h2><p>This preview has no data download or export control in Settings. You can contact us to ask what data, if any, we can provide. Do not assume that all content can be exported, especially public copies made outside the app.</p><h2>Changes To This Policy</h2><p>We may update this Policy. We will update the effective date and version above. Check this page for changes. Read our <a href="#terms" data-policy-link="terms">Terms of Service</a> too.</p><h2>Contact</h2><p>Our official contact channels are <a href="https://github.com/Looscid/Looscid" target="_blank" rel="noopener noreferrer">Looscid on GitHub</a> and <a href="https://x.com/Looscid" target="_blank" rel="noopener noreferrer">@Looscid on X</a>. There is no standalone support email at this time. See our <a href="#terms" data-policy-link="terms">Terms of Service</a>.</p>`;
 const GUIDELINES_CONTENT = `<h2>1. Be Kind</h2><p>Treat all Dreamers with respect. Harassment, bullying or targeted hate speech is not permitted on Looscid.</p><h2>2. Authentic Dreams</h2><p>Post authentic content. Do not impersonate others, spread misinformation or use automated accounts without disclosure.</p><h2>3. Safe Content</h2><p>Do not post violent, sexually explicit or otherwise harmful content. Content involving minors in any inappropriate context is strictly forbidden.</p><h2>4. Groups</h2><p>Groups must have a clear, positive purpose. Group moderators must enforce these guidelines within their communities.</p><h2>5. Reporting</h2><p>Use the report button on any Dream, comment or profile to flag content that violates these guidelines. Our team reviews all reports.</p><h2>6. Consequences</h2><p>Violations may result in content removal, account suspension or permanent bans depending on severity. Last updated: February 2026.</p>`;
 
@@ -4876,11 +4876,11 @@ function SplashScreen({ onLogin, onSignup, onDemo }) {
       )
       , React.createElement('div', { className: "splash-btns",}
         , React.createElement('button', { className: "splash-btn-primary", onClick: onLogin,
-          'aria-label': "Login to your Looscid ID"       ,}, "Sign In"
+          'aria-label': "Login to your LooscidID"       ,}, "Sign In"
 
         )
         , React.createElement('button', { className: "splash-btn-secondary", onClick: onSignup,
-          'aria-label': "Sign up for a new Looscid ID"        ,}, "Create Account"
+          'aria-label': "Sign up for a new LooscidID"        ,}, "Create Account"
 
         )
         , React.createElement('button', { className: "splash-btn-ghost", onClick: onDemo,
@@ -5146,7 +5146,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
         , React.createElement('button', { onClick: onBack, style: {background:"none",border:"none",color:"var(--tx3)",fontSize:13,cursor:"pointer",padding:"0 0 12px",textAlign:"left",fontFamily:"inherit",display:"flex",alignItems:"center",gap:4}, 'aria-label': "Back to welcome screen"   ,}, "Back"
 
         )
-        , React.createElement('div', { className: "auth-title",}, "Create your Dream ID"  )
+        , React.createElement('div', { className: "auth-title",}, "Create your LooscidID"  )
         , React.createElement('div', { className: "auth-sub",}, "Your name can be real or a dream name."        )
         , err && React.createElement('div', { className: "auth-error",}, React.createElement('span', null, "Warning:"), React.createElement('span', null, err))
         , React.createElement('button', { className: "auth-google-btn", onClick: handleGoogle, disabled: busy, 'aria-label': "Sign up with Google"   ,}
@@ -5313,7 +5313,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
           , React.createElement('button', { className: "btn bgb" , style: {flex:1,padding:12}, onClick: ()=>{setMode("signup_interests");setErr("");}, 'aria-label': "Go back" ,}, "Back")
           , React.createElement('button', { className: "btn bp" , style: {flex:2,padding:12,fontSize:14},
             onClick: handleCreateAccount,
-            disabled: !agreedTerms||busy, 'aria-label': "Create your Dream ID"  ,}
+            disabled: !agreedTerms||busy, 'aria-label': "Create your LooscidID"  ,}
             , busy ? React.createElement('div', { className: "auth-spinner",}) : "Start Dreaming 🌙"
           )
         )
