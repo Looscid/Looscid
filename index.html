@@ -2009,7 +2009,7 @@ function AlertsPage({cherryCtx}) {
               },
                 n.user
                   ? React.createElement(Av, {user:n.user, size:40})
-                  : React.createElement('div', {style:{width:40,height:40,borderRadius:"50%",background:"rgba(251,191,36,.15)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0},"aria-hidden":"true"}, "🎉"),
+                  : React.createElement('div', {style:{width:40,height:40,borderRadius:"50%",background:"rgba(251,191,36,.15)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0},"aria-hidden":"true"}, "Notification"),
                 React.createElement('div', {style:{flex:1}},
                   React.createElement('div', {className:"ntx"}, n.user && React.createElement('strong', null, n.user.name+" "), n.text),
                   n.preview && React.createElement('div', {className:"npv"}, n.preview),
@@ -2065,7 +2065,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
             , React.createElement('div', { style: {display:"flex",gap:12,flexWrap:"wrap",marginBottom:10},}
               , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "Members: "), group.members.toLocaleString() )
               , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "Category: "), group.category)
-              , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "🌍"), group.id===1||group.id===4?"Public":"Private")
+              , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "Visibility: "), group.id===1||group.id===4?"Public":"Private")
               , isAdmin&&React.createElement('span', { style: {fontSize:10,background:"rgba(245,158,11,.15)",color:"#f59e0b",padding:"1px 7px",borderRadius:100,fontWeight:700},}, "★ Admin" )
             )
           )
@@ -4575,7 +4575,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
         /* Quick status strip */
         , React.createElement('div', { style: {display:"flex",gap:7,padding:"8px 14px",overflowX:"auto",scrollbarWidth:"none",borderBottom:"1px solid var(--bd)",background:"var(--sf)"},}
           , [
-            {label:`${appContext().unread} alerts`, color:"var(--rd)", ic:"🔔"},
+            {label:`${appContext().unread}`, color:"var(--rd)", ic:"Alerts"},
             {label:`${groups.filter(g=>g.joined).length} groups`, color:"var(--ac3)", ic:"🏘️"},
             {label:`${following.size} following`, color:"var(--ac3)", ic:"👥"},
             {label:`${dreams.filter(d=>d.liked).length} liked`, color:"var(--rd)", ic:"❤️"},
