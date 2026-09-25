@@ -3825,7 +3825,7 @@ function AdminUsers({onBack}) {
     React.createElement('div', { className: "pg",}
       , React.createElement(BackHeader, { title: "Dreamor Management" , onBack: onBack,})
       , React.createElement('div', { style: {padding:"10px 14px 6px"},}
-        , React.createElement('input', { className: "inp", style: {fontSize:14,marginBottom:8}, placeholder: "Search by name or handle…"    , value: q, onChange: e=>setQ(e.target.value), 'aria-label': "Search users" ,})
+        , React.createElement('input', { className: "inp", style: {fontSize:14,marginBottom:8}, placeholder: "Search by name or LooscidID…"    , value: q, onChange: e=>setQ(e.target.value), 'aria-label': "Search users" ,})
         , React.createElement('div', { style: {display:"flex",gap:6,flexWrap:"wrap"},}
           , ["all","active","banned"].map(f=>(
             React.createElement('button', { key: f, className: "btn"+(filter===f?" bp":" bgb"), style: {padding:"5px 12px",fontSize:11,textTransform:"capitalize"}, onClick: ()=>setFilter(f), 'aria-label': "Filter "+f,}, f)
@@ -4256,7 +4256,7 @@ function CherryOverlay({onClose, cherryCtx, initMsg, navigate}) {
       return {action:null, result:"Tap the Menu button, then tap New Dream. Type what's on your mind — there's no topic requirement, just share what you feel like. You can attach photos, links, polls, a mood, or music. Hit Post Dream when you're ready. Want me to open the composer for you, or draft something?"};
 
     if (lo.includes("how do i follow") || lo.includes("find people") || lo.includes("find dreamers") || lo.includes("who to follow"))
-      return {action:null, result:"Go to Discover (in the Menu or tap Discover from the main menu sheet) and you'll see suggested Dreamers and trending topics. You can also search by name or handle. Or just tell me who you're looking for and I'll find them."};
+      return {action:null, result:"Go to Discover (in the Menu or tap Discover from the main menu sheet) and you'll see suggested Dreamers and trending topics. You can also search by name or LooscidID. Or just tell me who you're looking for and I'll find them."};
 
     if (lo.includes("settings") && (lo.includes("where") || lo.includes("find") || lo.includes("how do i")))
       return {action:null, result:"Settings are in the Menu — tap the Menu button at the bottom (or top, depending on your preference) and you'll see Settings with all the sub-sections. Or I can take you straight to a specific one — just say which: Account, Privacy, Notifications, Customizability, Accessibility, Cherry AI settings."};
@@ -4812,9 +4812,9 @@ function TurnstileGate({ onVerified }) {
 /* --- VALIDATE USERNAME ---------------------------------------------------- */
 function validateUsername(u) {
   const v = u.startsWith("@") ? u.slice(1) : u;
-  if (!v) return "Username is required.";
-  if (v.length < 3) return "Username must be at least 3 characters.";
-  if (v.length > 30) return "Username must be 30 characters or fewer.";
+  if (!v) return "LooscidID is required.";
+  if (v.length < 3) return "LooscidID must be at least 3 characters.";
+  if (v.length > 30) return "LooscidID must be 30 characters or fewer.";
   if (!/^[a-zA-Z0-9_]+$/.test(v)) return "Only letters, numbers, and underscores.";
   return "";
 }
