@@ -885,7 +885,7 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
               )
             )
             , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:3,paddingLeft:41},}
-              , ["🖼️","🎞️","🔗","😌"].map((ic,i)=>(
+              , ["Photo","GIF","Link","Mood"].map((ic,i)=>(
                 React.createElement('button', { key: i, style: {background:"none",border:"none",cursor:"pointer",padding:"5px",borderRadius:7,fontSize:16,color:"var(--ac3)",opacity:.75}, onClick: ()=>setShowCmAttach(true), 'aria-label': "Add "+["Photo","GIF","Link","Mood"][i],}, ic)
               ))
               , React.createElement('div', { style: {flex:1},})
@@ -1218,7 +1218,7 @@ function DiscoverPage({navigate, cherryCtx}) {
           cherryCtx && React.createElement('button', {className:"cherry-ctx-btn",
             onClick:()=>cherryCtx.openCherry("What is trending right now?"),
             "aria-label":"Ask Cherry what is trending right now",
-          }, "\ud83c\udf52 Trending")
+          }, "Trending")
         ),
         React.createElement('div', {style:{padding:"10px 16px 6px"}},
           React.createElement('input', {className:"inp", style:{fontSize:14},
