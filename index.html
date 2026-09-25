@@ -4294,7 +4294,7 @@ function CherryOverlay({onClose, cherryCtx, initMsg, navigate}) {
 
     if (lo.includes("follow maya") || (lo.includes("follow") && lo.includes("maya")))
       return {action:"Following Maya Chen…", agentLabel:"Following @mayac",
-        result:following.has(1) ? "You already follow Maya Chen 😊" : "Done You're now following Maya Chen (@mayac).",
+        result:following.has(1) ? "You already follow Maya Chen" : "Done You're now following Maya Chen (@mayac).",
         autoFn: ()=>followUser(1)};
 
     if (lo.includes("follow jake") || (lo.includes("follow") && lo.includes("jake")))
