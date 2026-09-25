@@ -2941,11 +2941,11 @@ function AccountSettings({navigate, authUser, onSignOut}) {
               defaultValue: authUser && authUser.displayName, autoComplete: "name", autoCapitalize: "words", "aria-label": "Display name",})
           )
           , React.createElement('div', { style: {marginBottom:14},}
-            , React.createElement('label', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,display:"block",marginBottom:5,textTransform:"uppercase",letterSpacing:".04em"},}, "Username")
+            , React.createElement('label', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,display:"block",marginBottom:5,textTransform:"uppercase",letterSpacing:".04em"},}, "LooscidID")
             , React.createElement('div', { style: {display:"flex",alignItems:"center",background:"var(--sf2)",border:"1.5px solid var(--bd2)",borderRadius:12,overflow:"hidden"},}
               , React.createElement('span', { style: {paddingLeft:14,paddingRight:2,color:"var(--tx3)",fontSize:15,flexShrink:0}, "aria-hidden": "true",}, "@")
               , React.createElement('input', { style: {flex:1,background:"transparent",border:"none",outline:"none",padding:"13px 14px 13px 4px",fontSize:15,color:"var(--tx)",fontFamily:"inherit"},
-                type: "text", placeholder: "yourusername", autoCorrect: "off", autoCapitalize: "off", spellCheck: false, inputMode: "text", "aria-label": "Username",})
+                type: "text", placeholder: "LooscidID", autoCorrect: "off", autoCapitalize: "off", spellCheck: false, inputMode: "text", "aria-label": "LooscidID",})
             )
           )
           , React.createElement('div', { style: {marginBottom:14},}
@@ -6060,7 +6060,7 @@ function DreamLabsPage({ navigate, authUser }) {
           "\uD83E\uDDEA We\u2019ve pre-filled what we know from your account. Just add the rest."
         ),
         [{k:"name",label:"Your Name",type:"text",ph:"Your name",note:"From your account"},
-         {k:"handle",label:"Your LooscidID",type:"text",ph:"@handle",note:"From your account"},
+         {k:"handle",label:"Your LooscidID",type:"text",ph:"LooscidID",note:"From your account"},
          {k:"email",label:"Email",type:"email",ph:"you@example.com",note:"Where we\u2019ll reach you"},
         ].map(f =>
           React.createElement('div', {key:f.k, style:{marginBottom:14}},
