@@ -4345,7 +4345,7 @@ function CherryOverlay({onClose, cherryCtx, initMsg, navigate}) {
     if (lo.includes("post") && (lo.includes("dream") || lo.includes("it") || lo.includes("this")) && msgs.some(m=>m.draft)) {
       const draftMsg = [...msgs].reverse().find(m=>m.draft);
       const draftText = draftMsg ? draftMsg.draft : null;
-      if (draftText) return {action:"Publishing your Dream to the feed…", agentLabel:"Posting Dream",
+      if (draftText) return {action:"Publishing your Dream to the feed…", agentLabel:"Publishing Dream",
         result:"Done ✅ Your Dream is live! Head to your feed to see it.",
         autoFn: ()=>postDream(draftText)};
     }
@@ -4365,7 +4365,7 @@ function CherryOverlay({onClose, cherryCtx, initMsg, navigate}) {
 
 "${draft}"
 
-Want me to post it, or would you like to tweak it first?`,
+Want me to publish it, or would you like to tweak it first?`,
         draft, confirm:{label:"Publish this Dream", fn:()=>postDream(draft)}};
     }
 
