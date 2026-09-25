@@ -2063,8 +2063,8 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
           , React.createElement('div', { style: {flex:1},}
             , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.55,marginBottom:8},}, group.description)
             , React.createElement('div', { style: {display:"flex",gap:12,flexWrap:"wrap",marginBottom:10},}
-              , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "👥"), group.members.toLocaleString(), " Dreamors" )
-              , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "🏷️"), group.category)
+              , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "Members: "), group.members.toLocaleString() )
+              , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "Category: "), group.category)
               , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "🌍"), group.id===1||group.id===4?"Public":"Private")
               , isAdmin&&React.createElement('span', { style: {fontSize:10,background:"rgba(245,158,11,.15)",color:"#f59e0b",padding:"1px 7px",borderRadius:100,fontWeight:700},}, "★ Admin" )
             )
