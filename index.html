@@ -2594,7 +2594,7 @@ function CherryPage({navigate, cherryCtx}) {
           , React.createElement('span', { style: {width:6,height:6,borderRadius:"50%",background:"var(--gr)",display:"inline-block"},}), "Connected · Real actions · Live app state"
 
         )
-        , React.createElement('button', { className: "btn bp" , style: {padding:"11px 28px",fontSize:15}, onClick: ()=>cherryCtx&&cherryCtx.openCherry(), 'aria-label': "Open Cherry chat"  ,}, "Open Cherry 🍒"
+        , React.createElement('button', { className: "btn bp" , style: {padding:"11px 28px",fontSize:15}, onClick: ()=>cherryCtx&&cherryCtx.openCherry(), 'aria-label': "Open Cherry chat"  ,}, "Open Cherry"
 
         )
       )
@@ -6173,7 +6173,7 @@ function DreamLabsPage({ navigate, authUser }) {
             ? React.createElement('button', {
                 className:"btn bp", style:{width:"100%",padding:14,fontSize:15},
                 onClick:()=>setScreen("register"), "aria-label":"Register for Dream Pioneers",
-              }, "Register for Dream Pioneers \uD83E\uDDEA")
+              }, "Register for Dream Pioneers")
             : React.createElement('button', {
                 className:"btn bgb", style:{width:"100%",padding:14,fontSize:14,borderStyle:"dashed"},
                 onClick:()=>setScreen("notify"), "aria-label":"Get notified when eligible",
