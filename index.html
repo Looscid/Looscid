@@ -3572,12 +3572,12 @@ function AboutSettings({navigate}) {
         , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginBottom:20},}, "Version 1.0.0 — Build 2026.02"    )
       )
       , [
-        {l:"Terms",icon:"📄",a:()=>navigate("terms")},
-        {l:"Privacy",icon:"🔒",a:()=>navigate("privacy")},
-        {l:"Rules",icon:"📋",a:()=>navigate("guidelines")},
-        {l:"Open Source Licenses",icon:"⚖️",a:()=>{}},
-        {l:"Send Feedback",icon:"💬",a:()=>navigate("feedback")},
-        {l:"Our Story",icon:"📖",a:()=>navigate("hour_story")},
+        {l:"Terms",icon:"Terms",a:()=>navigate("terms")},
+        {l:"Privacy",icon:"Privacy",a:()=>navigate("privacy")},
+        {l:"Rules",icon:"Rules",a:()=>navigate("guidelines")},
+        {l:"Open Source Licenses",icon:"Open Source Licenses",a:()=>{}},
+        {l:"Send Feedback",icon:"Send Feedback",a:()=>navigate("feedback")},
+        {l:"Our Story",icon:"Our Story",a:()=>navigate("hour_story")},
       ].map(item => (
         React.createElement('button', { key: item.l, className: "snav", onClick: item.a, 'aria-label': item.l,}
           , React.createElement('div', { className: "snav-l",}
