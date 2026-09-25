@@ -5157,7 +5157,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
           value: displayName, onChange: e=>{setDisplayName(e.target.value);setErr("");},
           style: {marginBottom:12}, 'aria-label': "Display name" , maxLength: 50,
           autoComplete: "name", autoCapitalize: "words",})
-        , React.createElement('div', { style: {fontSize:11,fontWeight:600,color:"var(--tx2)",marginBottom:4},}, "@username")
+        , React.createElement('div', { style: {fontSize:11,fontWeight:600,color:"var(--tx2)",marginBottom:4},}, "LooscidID")
         , React.createElement('input', { className: "inp", type: "text", placeholder: "username",
           value: username.startsWith("@")?username.slice(1):username,
           onChange: e=>{setUsername(e.target.value);setUsernameErr("");setErr("");},
@@ -6060,7 +6060,7 @@ function DreamLabsPage({ navigate, authUser }) {
           "\uD83E\uDDEA We\u2019ve pre-filled what we know from your account. Just add the rest."
         ),
         [{k:"name",label:"Your Name",type:"text",ph:"Your name",note:"From your account"},
-         {k:"handle",label:"Your Handle",type:"text",ph:"@handle",note:"From your account"},
+         {k:"handle",label:"Your LooscidID",type:"text",ph:"@handle",note:"From your account"},
          {k:"email",label:"Email",type:"email",ph:"you@example.com",note:"Where we\u2019ll reach you"},
         ].map(f =>
           React.createElement('div', {key:f.k, style:{marginBottom:14}},
