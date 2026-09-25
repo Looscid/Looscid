@@ -428,7 +428,7 @@ const NOTIFS_INIT = [
 ];
 
 const GROUPS = [
-  {id:1,name:"Tech & Builds",emoji:"💻",members:31400,category:"Technology",description:"Developers, designers and builders sharing what they're working on.",joined:true},
+  {id:1,name:"Tech & Builds",emoji:"Tech",members:31400,category:"Technology",description:"Developers, designers and builders sharing what they're working on.",joined:true},
   {id:2,name:"Food & Recipes",emoji:"🍳",members:24700,category:"Food",description:"Home cooks, foodies and restaurant tips. Post what you're eating.",joined:false},
   {id:3,name:"Sport Talk",emoji:"⚽",members:18900,category:"Sports",description:"Scores, takes, highlights and arguments about the beautiful game.",joined:false},
   {id:4,name:"Just Vibes",emoji:"✨",members:41200,category:"General",description:"Memes, thoughts, random stuff. No theme, all welcome.",joined:true},
@@ -3182,7 +3182,7 @@ function CherrySettings({navigate, prefs, setPrefs, activeAI, setActiveAI}) {
         , React.createElement('div', { className: "sr",}
           , React.createElement('div', null
             , React.createElement('div', { className: "sr-title",}, "Show Cherry badge on AI Dreams")
-            , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:2},}, "Adds a '🍒 Drafted with Cherry' label on Dreams Cherry helped write.")
+            , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:2},}, "Adds a 'Drafted with Cherry' label on Dreams Cherry helped write.")
           )
           , React.createElement(Cbx, { on: cs.showAttrib!==false, onToggle: ()=>toggleCS("showAttrib"), label: "Show Cherry attribution",})
         )
