@@ -1352,7 +1352,7 @@ function DiscoverPage({navigate, cherryCtx}) {
                 className:"cherry-ctx-btn",
                 onClick:e=>{e.stopPropagation();cherryCtx.openCherry("Draft a Dream about #"+t.tag+" that would perform well");},
                 "aria-label":"Ask Cherry to draft a Dream about #"+t.tag,
-              }, "\ud83c\udf52 Draft"),
+              }, "Draft"),
               React.createElement(Ic.Chv, {style:{width:14,height:14,color:"var(--tx3)"}})
             )
           )
@@ -1420,7 +1420,7 @@ function DiscoverPage({navigate, cherryCtx}) {
             className:"cherry-ctx-btn", style:{margin:"10px auto 0",display:"flex"},
             onClick:()=>cherryCtx.openCherry("Help me find: "+q),
             "aria-label":"Ask Cherry to help find "+q,
-          }, "\ud83c\udf52 Ask Cherry to find this")
+          }, "Ask Cherry to find this")
         )
       )
     )
