@@ -1106,7 +1106,7 @@ function FeedPage({navigate, prefs, cherryCtx}) {
               onClick: () => cherryCtx && cherryCtx.openCherry(),
               'aria-label': "Open Cherry AI",
             },
-            "\ud83c\udf52",
+            "Cherry",
             React.createElement('span', null, "Cherry")
           )
         )
@@ -1329,7 +1329,7 @@ function DiscoverPage({navigate, cherryCtx}) {
           "aria-label":"Ask Cherry: "+q,
           onKeyDown:e=>e.key==="Enter"&&cherryCtx.openCherry(q),
         },
-          React.createElement('div', {className:"aiorb",style:{width:36,height:36,fontSize:17,flexShrink:0}}, "\ud83c\udf52"),
+          React.createElement('div', {className:"aiorb",style:{width:36,height:36,fontSize:17,flexShrink:0}}, "Cherry"),
           React.createElement('div', {style:{flex:1}},
             React.createElement('div', {style:{fontWeight:700,fontSize:13,color:"var(--tx)"}}, "Ask Cherry: \u201c", q, "\u201d"),
             React.createElement('div', {style:{fontSize:11,color:"var(--tx3)",marginTop:1}}, "Get an AI answer, not just search results")
@@ -2172,7 +2172,7 @@ function GroupAdminModal({group, onClose}) {
       , React.createElement('div', { className: "msh", style: {maxHeight:"92vh"},}
         , React.createElement('div', { className: "mhd",})
         , React.createElement('div', { style: {padding:"12px 16px 8px",borderBottom:"1px solid var(--bd)",display:"flex",alignItems:"center",gap:8},}
-          , React.createElement('span', { style: {fontSize:18},}, "⚙️")
+          , React.createElement('span', { style: {fontSize:18},}, "Settings")
           , React.createElement('div', { className: "mtt", style: {margin:0,fontSize:17},}, group.name, " · Circle Admin" )
           , React.createElement('button', { className: "bi", style: {marginLeft:"auto"}, onClick: onClose, 'aria-label': "Close",}, "✕")
         )
@@ -2654,7 +2654,7 @@ function CherryPage({navigate, cherryCtx}) {
       , React.createElement('div', { style: {padding:"14px 14px 8px"},}
         , React.createElement('button', { style: {display:"flex",alignItems:"center",gap:12,background:"none",border:"1px solid var(--bd2)",borderRadius:12,padding:"11px 14px",cursor:"pointer",width:"100%",fontFamily:"inherit"},
           onClick: ()=>navigate("settings_cherry"), 'aria-label': "Cherry settings" ,}
-          , React.createElement('span', { style: {fontSize:18},}, "⚙️")
+          , React.createElement('span', { style: {fontSize:18},}, "Settings")
           , React.createElement('div', { style: {flex:1,textAlign:"left"},}
             , React.createElement('div', { style: {fontWeight:600,fontSize:14,color:"var(--tx)"},}, "Cherry Settings" )
             , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:1},}, "Agent permissions, memory, privacy"   )
@@ -3018,7 +3018,7 @@ function PrivacySettings({navigate}) {
         ))
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Blocked Dreamors" )
         , React.createElement('button', { className: "snav", 'aria-label': "Manage blocked Dreamors"  ,}
-          , React.createElement('div', { className: "snav-l",}, React.createElement('div', { style: {fontSize:17,width:36,textAlign:"center"},}, "🚫"), React.createElement('div', null, React.createElement('div', { className: "snav-title",}, "Manage Blocked List"  ), React.createElement('div', { className: "snav-sub",}, "0 blocked Dreamors"  )))
+          , React.createElement('div', { className: "snav-l",}, React.createElement('div', { style: {fontSize:17,width:36,textAlign:"center"},}, "Blocked list"), React.createElement('div', null, React.createElement('div', { className: "snav-title",}, "Manage Blocked List"  ), React.createElement('div', { className: "snav-sub",}, "0 blocked Dreamors"  )))
           , React.createElement(Ic.Chv, { style: {width:16,height:16,color:"var(--tx3)"},})
         )
       )
@@ -3336,7 +3336,7 @@ function CherrySettings({navigate, prefs, setPrefs, activeAI, setActiveAI}) {
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Algorithm Control" )
         , React.createElement('button', { className: "snav", onClick: ()=>navigate("settings_cherry_algo"), 'aria-label': "Cherry Algorithm settings"  ,}
           , React.createElement('div', { className: "snav-l",}
-            , React.createElement('div', { className: "snav-ic", style: {background:"linear-gradient(135deg,rgba(109,40,217,.25),rgba(147,51,234,.15))"},}, "⚙️")
+            , React.createElement('div', { className: "snav-ic", style: {background:"linear-gradient(135deg,rgba(109,40,217,.25),rgba(147,51,234,.15))"},}, "Settings")
             , React.createElement('div', null
               , React.createElement('div', { className: "snav-title",}, "Cherry Algorithm Settings"  )
               , React.createElement('div', { className: "snav-sub",}, "Feed ranking, discovery, notifications, engagement signals"     )
