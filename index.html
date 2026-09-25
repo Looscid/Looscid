@@ -718,7 +718,7 @@ function YouTubeEmbed() {
   return (
     React.createElement('div', { className: "embed",}
       , React.createElement('div', { className: "embed-thumb", onClick: ()=>setPlaying(p=>!p),}
-        , React.createElement('div', { style: {position:"absolute",inset:0,background:"linear-gradient(135deg,#080618,#180828)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:48,opacity:.3},}, "🎬")
+        , React.createElement('div', { style: {position:"absolute",inset:0,background:"linear-gradient(135deg,#080618,#180828)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:48,opacity:.3},}, "Video")
         , !playing && React.createElement('div', { className: "embed-play",}, React.createElement(Ic.Play, { style: {width:20,height:20,color:"#fff"},}))
       )
       , React.createElement('div', { className: "embed-bar",}
@@ -1390,7 +1390,7 @@ function DiscoverPage({navigate, cherryCtx}) {
               React.createElement(DreamText, {text:d.text.length>140?d.text.slice(0,140)+"\u2026":d.text})
             ),
             React.createElement('div', {style:{display:"flex",gap:12,fontSize:11,color:"var(--tx3)"}},
-              React.createElement('span', null, "\u2764\ufe0f ", fmt(d.likes), " Likes"),
+              React.createElement('span', null, "Likes: ", fmt(d.likes)),
               React.createElement('span', null, "\ud83d\udd01 ", fmt(d.redreams), " ReDreams"),
               React.createElement('span', null, "\ud83d\udcac ", fmt(d.comments))
             )
@@ -5968,7 +5968,7 @@ function DreamLabsPage({ navigate, authUser }) {
 
   if (isNewAccount && !enrolled) return (
     React.createElement('div', {className:"pg"},
-      React.createElement(BackHeader, {title:"DreamLabs \uD83E\uDDEA", onBack:()=>navigate("settings")}),
+      React.createElement(BackHeader, {title:"DreamLabs", onBack:()=>navigate("settings")}),
       React.createElement('div', {style:{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"60px 24px",textAlign:"center"}},
         React.createElement('div', {style:{fontSize:52,marginBottom:16}}, "Waiting"),
         React.createElement('div', {style:{fontFamily:"'DM Serif Display',Georgia,serif",fontSize:22,marginBottom:10}}, "Check back soon"),
@@ -6023,7 +6023,7 @@ function DreamLabsPage({ navigate, authUser }) {
 
   if (screen === "notify") return (
     React.createElement('div', {className:"pg"},
-      React.createElement(BackHeader, {title:"DreamLabs \uD83E\uDDEA", onBack:()=>setScreen("home")}),
+      React.createElement(BackHeader, {title:"DreamLabs", onBack:()=>setScreen("home")}),
       React.createElement('div', {style:{padding:"24px 20px 32px"}},
         React.createElement('div', {style:{textAlign:"center",marginBottom:24}},
           React.createElement('div', {style:{fontSize:48,marginBottom:12}}, "Waiting"),
@@ -6104,7 +6104,7 @@ function DreamLabsPage({ navigate, authUser }) {
 
   return (
     React.createElement('div', {className:"pg"},
-      React.createElement(BackHeader, {title:"DreamLabs \uD83E\uDDEA", onBack:()=>navigate("settings"),
+      React.createElement(BackHeader, {title:"DreamLabs", onBack:()=>navigate("settings"),
         right: enrolled && React.createElement('button', {
           className:"bi", style:{fontSize:12,color:"var(--tx3)",padding:"4px 8px"},
           onClick:()=>setShowLeave(true), "aria-label":"Leave Dream Pioneers",
