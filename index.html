@@ -1174,14 +1174,14 @@ function DiscoverPage({navigate, cherryCtx}) {
   const tabLabel = t => ({all:"All",dreamers:"Dreamors",dreams:"Dreams",circles:"Circles",trending:"Trending"}[t]||t);
 
   const FILTER_OPTS = [
-    {id:"dreams",    label:"Dreams",     icon:"\u270f\ufe0f", group:"content"},
-    {id:"replies",   label:"Replies",    icon:"\ud83d\udcac", group:"content"},
-    {id:"redreams",  label:"ReDreams",   icon:"\ud83d\udd01", group:"content"},
-    {id:"media",     label:"Has Media",  icon:"\ud83d\uddbc\ufe0f", group:"content"},
+    {id:"dreams",    label:"Dreams",     icon:"Dreams", group:"content"},
+    {id:"replies",   label:"Replies",    icon:"Replies", group:"content"},
+    {id:"redreams",  label:"ReDreams",   icon:"ReDreams", group:"content"},
+    {id:"media",     label:"Has Media",  icon:"Has Media", group:"content"},
     {id:"verified",  label:"Verified",   icon:"\u2713",  group:"dreamers"},
-    {id:"today",     label:"Today",      icon:"\ud83d\udcc5", group:"time", radio:"time"},
-    {id:"week",      label:"This Week",  icon:"\ud83d\udcc6", group:"time", radio:"time"},
-    {id:"alltime",   label:"All Time",   icon:"\ud83d\udd70\ufe0f", group:"time", radio:"time"},
+    {id:"today",     label:"Today",      icon:"Today", group:"time", radio:"time"},
+    {id:"week",      label:"This Week",  icon:"This Week", group:"time", radio:"time"},
+    {id:"alltime",   label:"All Time",   icon:"All Time", group:"time", radio:"time"},
   ];
 
   const toggleFilter = (id, radioGroup) => {
