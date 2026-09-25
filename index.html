@@ -3315,7 +3315,7 @@ function CherrySettings({navigate, prefs, setPrefs, activeAI, setActiveAI}) {
           )
         )
         , React.createElement('div', { style: {padding:"8px 16px 4px"},}
-          , React.createElement('button', { className: "btn bgb" , style: {width:"100%",padding:11,fontSize:13,color:"var(--rd)",marginBottom:6}, onClick: ()=>{}, 'aria-label': "Delete all chat history"   ,}, "🗑️ Delete All Chat History"
+          , React.createElement('button', { className: "btn bgb" , style: {width:"100%",padding:11,fontSize:13,color:"var(--rd)",marginBottom:6}, onClick: ()=>{}, 'aria-label': "Delete all chat history"   ,}, "Delete All Chat History"
 
           )
         )
@@ -5314,7 +5314,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
           , React.createElement('button', { className: "btn bp" , style: {flex:2,padding:12,fontSize:14},
             onClick: handleCreateAccount,
             disabled: !agreedTerms||busy, 'aria-label': "Create your LooscidID"  ,}
-            , busy ? React.createElement('div', { className: "auth-spinner",}) : "Start Dreaming 🌙"
+            , busy ? React.createElement('div', { className: "auth-spinner",}) : "Start Dreaming"
           )
         )
       )
@@ -5416,7 +5416,7 @@ function OnboardingOverlay({ onDone }) {
       ),
       step < steps.length - 1
         ? React.createElement('button', { className: "btn bp", style: {width:"100%",padding:13,fontSize:15}, onClick: ()=>setStep(s=>s+1), 'aria-label': "Next"}, "Next")
-        : React.createElement('button', { className: "btn bp", style: {width:"100%",padding:13,fontSize:15}, onClick: onDone, 'aria-label': "Start dreaming"}, "Start Dreaming 🌙"),
+        : React.createElement('button', { className: "btn bp", style: {width:"100%",padding:13,fontSize:15}, onClick: onDone, 'aria-label': "Start dreaming"}, "Start Dreaming"),
       step > 0 && React.createElement('button', { style: {background:"none",border:"none",color:"var(--tx3)",fontSize:13,marginTop:12,cursor:"pointer",fontFamily:"inherit"}, onClick: ()=>setStep(s=>s-1)}, "Back"),
       React.createElement('button', { style: {background:"none",border:"none",color:"var(--tx3)",fontSize:12,marginTop:8,cursor:"pointer",fontFamily:"inherit",display:"block",width:"100%"}, onClick: onDone}, "Skip")
       , React.createElement('label', { style: {display:"flex",alignItems:"center",gap:8,justifyContent:"center",marginTop:10,cursor:"pointer",fontSize:12,color:"var(--tx3)"},}
