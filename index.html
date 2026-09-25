@@ -1242,7 +1242,7 @@ function DiscoverPage({navigate, cherryCtx}) {
             "aria-expanded":filtersOpen,
             "aria-label":filterBtnText,
           },
-            React.createElement('span', {style:{fontSize:12}}, "\u2699\ufe0f"),
+            React.createElement('span', {style:{fontSize:12}}, "Filters"),
             React.createElement('span', null, filterBtnText),
             React.createElement('span', {style:{fontSize:9,opacity:.6,marginLeft:2}}, filtersOpen?"\u25b2":"\u25bc")
           ),
@@ -1411,7 +1411,7 @@ function DiscoverPage({navigate, cherryCtx}) {
         ),
 
         noResults && React.createElement('div', {className:"es"},
-          React.createElement('div', {className:"esi"}, "\ud83d\udd0d"),
+          React.createElement('div', {className:"esi"}, "No results"),
           React.createElement('div', {className:"esl"}, "Nothing found"),
           React.createElement('p', {style:{fontSize:12,color:"var(--tx3)",marginTop:6,lineHeight:1.6}},
             "No results for \u201c", q, "\u201d. Try different words, or ask Cherry."
