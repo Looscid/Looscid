@@ -980,7 +980,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
           /* Cherry Insights panel */
           , cherryCtx && showInsights && (()=>{
             const tags = dream.text.match(/#\w+/g)||[];
-            const sentiment = dream.likes > 200 ? "🔥 High engagement" : dream.likes > 100 ? "📈 Growing" : "💬 Active discussion";
+            const sentiment = dream.likes > 200 ? "High engagement" : dream.likes > 100 ? "Growing" : "Active discussion";
             const relTags = ["#Consciousness","#Philosophy","#CreativeProcess","#Mindfulness"].filter(t=>!tags.includes(t)).slice(0,2);
             return (
               React.createElement('div', { className: "cherry-insight-panel",}
@@ -1003,7 +1003,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
                     , relTags.map(t=>React.createElement('span', { key: t, style: {background:"rgba(52,211,153,.1)",color:"var(--gr)",borderRadius:100,padding:"2px 8px",fontSize:11,fontWeight:600},}, t))
                   )
                 )
-                , React.createElement('button', { className: "agent-action-pill", style: {width:"100%",justifyContent:"center"}, onClick: ()=>cherryCtx.openCherry("Tell me more about this Dream by "+dream.user.name+": "+dream.text.slice(0,80)), 'aria-label': "Deep dive with Cherry"   ,}, "⚡ Deep dive with Cherry"
+                , React.createElement('button', { className: "agent-action-pill", style: {width:"100%",justifyContent:"center"}, onClick: ()=>cherryCtx.openCherry("Tell me more about this Dream by "+dream.user.name+": "+dream.text.slice(0,80)), 'aria-label': "Deep dive with Cherry"   ,}, "Deep dive with Cherry"
 
                 )
               )
@@ -1135,7 +1135,7 @@ function FeedPage({navigate, prefs, cherryCtx}) {
           , React.createElement('div', { className: "esi",}, "No Friends yet")
           , React.createElement('div', { className: "esl",}, "No Friends yet"  )
           , React.createElement('p', { style: {fontSize:13,color:"var(--tx3)",marginTop:6,lineHeight:1.6,maxWidth:240,textAlign:"center"},}, "Friends are Dreamors who follow each other."      )
-          , cherryCtx && React.createElement('button', { className: "cherry-ctx-btn", style: {margin:"10px auto 0",display:"flex"}, onClick: ()=>cherryCtx.openCherry("Who should I follow?"), 'aria-label': "Ask Cherry to find friends"    ,}, "🍒 Ask Cherry to find Dreamors"     )
+          , cherryCtx && React.createElement('button', { className: "cherry-ctx-btn", style: {margin:"10px auto 0",display:"flex"}, onClick: ()=>cherryCtx.openCherry("Who should I follow?"), 'aria-label': "Ask Cherry to find friends"    ,}, "Ask Cherry to find Dreamors"     )
         )
       )
       , visible.map((d,idx) => (
@@ -1599,7 +1599,7 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
         /* Cherry AI writing assistant */
         , cherryCtx && (
           React.createElement('div', { style: {padding:"2px 16px 6px"},}
-            , React.createElement('button', { className: "cherry-compose-btn", onClick: ()=>{onClose();cherryCtx.openCherry("Draft a Dream for me to post");}, 'aria-label': "Ask Cherry to write a Dream"     ,}, "🍒 Ask Cherry to write this Dream"
+            , React.createElement('button', { className: "cherry-compose-btn", onClick: ()=>{onClose();cherryCtx.openCherry("Draft a Dream for me to post");}, 'aria-label': "Ask Cherry to write a Dream"     ,}, "Ask Cherry to write this Dream"
 
             )
           )
@@ -1685,7 +1685,7 @@ function CreateGroupFlow({onClose, navigate}) {
             )
           ))
           , form.rules.length<8&&React.createElement('button', { className: "btn bgb" , style: {width:"100%",padding:9,fontSize:12,marginBottom:16}, onClick: ()=>set("rules",[...form.rules,""]),}, "+ Add Rule"  )
-          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:13,fontSize:14}, onClick: ()=>{onClose();}, 'aria-label': "Create Circle" ,}, "🎉 Create Circle"  )
+          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:13,fontSize:14}, onClick: ()=>{onClose();}, 'aria-label': "Create Circle" ,}, "Create Circle"  )
         )
       )
     )
@@ -1777,7 +1777,7 @@ function ConvoView({convo, onBack}) {
       , React.createElement('div', { className: "hdr",}
       , React.createElement(BackHeader, { title: convo.user.name, onBack: onBack,})
       , React.createElement('div', { style: {display:"flex",alignItems:"center",justifyContent:"center",gap:5,padding:"4px 0 8px",fontSize:11,color:"var(--gr)",fontWeight:600},}
-        , "🔒 End-to-end encrypted · Private"
+        , "End-to-end encrypted · Private"
       )
     )
       , React.createElement('div', { className: "msgs", style: {flex:1},}
@@ -2132,7 +2132,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
             ))
           )
         )
-        , isAdmin&&React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:11,fontSize:13}, onClick: ()=>setShowAdmin(true), 'aria-label': "Circle settings" ,}, "⚙️ Group Settings"  )
+        , isAdmin&&React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:11,fontSize:13}, onClick: ()=>setShowAdmin(true), 'aria-label': "Circle settings" ,}, "Group Settings"  )
       )
 
       , tab==="rules"&&React.createElement('div', { style: {padding:16},}
@@ -3757,7 +3757,7 @@ function AdminPanel({navigate}) {
       , React.createElement('div', { className: "hdr",}
         , React.createElement('div', { className: "hdr-row",}
           , React.createElement('button', { className: "bi", onClick: ()=>navigate("more"), 'aria-label': "Back",}, React.createElement(Ic.Bck, { style: {width:21,height:21},}))
-          , React.createElement('span', { className: "hdr-title", style: {color:"#f59e0b"},}, "🛡️ Admin Panel"  )
+          , React.createElement('span', { className: "hdr-title", style: {color:"#f59e0b"},}, "Admin Panel"  )
           , React.createElement('div', { style: {fontSize:10,fontWeight:800,background:"rgba(245,158,11,.2)",color:"#f59e0b",padding:"3px 8px",borderRadius:100},}, "ADMIN")
         )
       )
@@ -4028,7 +4028,7 @@ function AdminPlatform({onBack}) {
 
         , React.createElement('div', { style: {padding:"16px 16px 0"},}
           , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12,fontSize:13,marginBottom:8}, 'aria-label': "Save platform settings"  ,}, "Save Platform Settings"  )
-          , React.createElement('button', { className: "btn bgb" , style: {width:"100%",padding:11,fontSize:13,color:"var(--rd)"}, 'aria-label': "Emergency shutdown" ,}, "🚨 Emergency Shutdown"  )
+          , React.createElement('button', { className: "btn bgb" , style: {width:"100%",padding:11,fontSize:13,color:"var(--rd)"}, 'aria-label': "Emergency shutdown" ,}, "Emergency Shutdown"  )
         )
       )
     )
@@ -4591,8 +4591,8 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
 
         /* Chat / Actions tabs */
         , React.createElement('div', { style: {display:"flex",borderBottom:"1px solid var(--bd)"},}
-          , React.createElement('button', { onClick: ()=>setOverlayTab("chat"), style: {flex:1,background:"none",border:"none",padding:"9px 0",fontSize:13,fontWeight:600,color:overlayTab==="chat"?"var(--ac3)":"var(--tx3)",borderBottom:overlayTab==="chat"?"2px solid var(--ac2)":"2px solid transparent",marginBottom:-1,cursor:"pointer",fontFamily:"inherit"},}, "💬 Chat" )
-          , React.createElement('button', { onClick: ()=>setOverlayTab("actions"), style: {flex:1,background:"none",border:"none",padding:"9px 0",fontSize:13,fontWeight:600,color:overlayTab==="actions"?"var(--ac3)":"var(--tx3)",borderBottom:overlayTab==="actions"?"2px solid var(--ac2)":"2px solid transparent",marginBottom:-1,cursor:"pointer",fontFamily:"inherit"},}, "⚡ Actions "
+          , React.createElement('button', { onClick: ()=>setOverlayTab("chat"), style: {flex:1,background:"none",border:"none",padding:"9px 0",fontSize:13,fontWeight:600,color:overlayTab==="chat"?"var(--ac3)":"var(--tx3)",borderBottom:overlayTab==="chat"?"2px solid var(--ac2)":"2px solid transparent",marginBottom:-1,cursor:"pointer",fontFamily:"inherit"},}, "Chat" )
+          , React.createElement('button', { onClick: ()=>setOverlayTab("actions"), style: {flex:1,background:"none",border:"none",padding:"9px 0",fontSize:13,fontWeight:600,color:overlayTab==="actions"?"var(--ac3)":"var(--tx3)",borderBottom:overlayTab==="actions"?"2px solid var(--ac2)":"2px solid transparent",marginBottom:-1,cursor:"pointer",fontFamily:"inherit"},}, "Actions "
               , actionLog.length>0&&React.createElement('span', { style: {background:"var(--gr)",color:"#000",borderRadius:100,fontSize:9,fontWeight:800,padding:"1px 5px",marginLeft:3},}, actionLog.length)
           )
         )
@@ -4608,7 +4608,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
               , [0,1,2].map(i=>React.createElement('div', { key: i, className: "tdt", style: {animationDelay:i*.15+"s",background:"var(--ac)"},}))
             )
             , React.createElement('div', { style: {flex:1},}
-              , React.createElement('div', { style: {fontSize:12,fontWeight:700,color:"var(--ac)"},}, agentStatus==="done"?"✅ Done":"🤖 Cherry is acting…")
+              , React.createElement('div', { style: {fontSize:12,fontWeight:700,color:"var(--ac)"},}, agentStatus==="done"?"Done":"Cherry is acting…")
               , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)"},}, agentTask)
             )
           )
@@ -4648,7 +4648,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
               , !m.me && React.createElement('div', { className: "aiorb", style: {width:27,height:27,fontSize:13,flexShrink:0},}, "Cherry")
               , React.createElement('div', { style: {maxWidth:"82%"},}
                 , React.createElement('div', { className: "bub"+(m.me?" me":" th"), style: m.agent?{border:"1px solid rgba(168,85,247,.28)",background:"rgba(109,40,217,.08)",whiteSpace:"pre-line"}:{whiteSpace:"pre-line"},}
-                  , m.agent && React.createElement('div', { style: {fontSize:9,fontWeight:800,color:"var(--ac3)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:5},}, "🤖 Agent action"  )
+                  , m.agent && React.createElement('div', { style: {fontSize:9,fontWeight:800,color:"var(--ac3)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:5},}, "Agent action"  )
                   , m.text
                 )
                 , m.confirm && (
@@ -5620,7 +5620,7 @@ function SymbolPicker({ onInsert, onClose }) {
     return s.includes(q) || Object.entries(SYMBOL_SHORTCUTS).some(([k,v])=>v===s&&k.includes(q));
   }) : null;
 
-  const cats = [{label:"⭐ Favs",symbols:favs},{label:"🕐 Recent",symbols:recent},...SYMBOL_CATEGORIES];
+  const cats = [{label:"⭐ Favs",symbols:favs},{label:"Recent",symbols:recent},...SYMBOL_CATEGORIES];
 
   return React.createElement('div', {className:"sym-picker", onClick:e=>{if(e.target===e.currentTarget)onClose();}},
     React.createElement('div', {className:"sym-panel"},
