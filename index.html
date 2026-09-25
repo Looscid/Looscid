@@ -985,7 +985,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
             return (
               React.createElement('div', { className: "cherry-insight-panel",}
                 , React.createElement('div', { className: "cherry-insight-row",}
-                  , React.createElement('div', { className: "aiorb", style: {width:22,height:22,fontSize:11,flexShrink:0},}, "🍒")
+                  , React.createElement('div', { className: "aiorb", style: {width:22,height:22,fontSize:11,flexShrink:0},}, "Cherry")
                   , React.createElement('span', { style: {fontSize:11,fontWeight:700,color:"var(--ac3)"},}, "CHERRY INSIGHTS" )
                 )
                 , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",marginBottom:8,lineHeight:1.5},}
@@ -1061,7 +1061,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
           "---",
           {ic:"🏷️", l:"Remove from Dream", sub:"Remove your @mention from this Dream", a:()=>setShowOpts(false)},
           {ic:"🚩", l:"Report Dream", sub:"Flag this Dream for review", a:()=>setShowOpts(false), danger:true},
-          ...(cherryCtx ? [{ic:"🍒", l:"Ask Cherry about this", sub:"Get AI insights on this Dream", a:()=>{setShowOpts(false);cherryCtx.openCherry("Tell me about this Dream: "+dream.text.slice(0,200));}}] : []),
+          ...(cherryCtx ? [{ic:"Cherry", l:"Ask Cherry about this", sub:"Get AI insights on this Dream", a:()=>{setShowOpts(false);cherryCtx.openCherry("Tell me about this Dream: "+dream.text.slice(0,200));}}] : []),
         ],})
       )
     )
@@ -1148,7 +1148,7 @@ function FeedPage({navigate, prefs, cherryCtx}) {
             const cc = cherryCards.find(c=>c.after===idx+1);
             return (
               React.createElement('div', { className: "cherry-card",}
-                , React.createElement('div', { className: "aiorb", style: {width:32,height:32,fontSize:15,flexShrink:0},}, "🍒")
+                , React.createElement('div', { className: "aiorb", style: {width:32,height:32,fontSize:15,flexShrink:0},}, "Cherry")
                 , React.createElement('div', { style: {flex:1},}
                   , React.createElement('span', { className: "cherry-card-chip",}, cc.ic, " " , cc.chip)
                   , React.createElement('div', { className: "cherry-card-txt",}, cc.msg)
@@ -2543,7 +2543,7 @@ function DreamerProfilePage({user, navigate, cherryCtx}) {
         React.createElement(BottomMenu, { onClose: closeOpts, title: user.name, items: [
           {ic:"👤", l:"Follow "+user.name, sub:following?"Unfollow this Dreamor":"Follow this Dreamor", a:()=>{setFollowing(function(f){return !f;});setShowOpts(false);}},
           {ic:"💬", l:"Message "+user.name, sub:"Send a private Dream", a:()=>setShowOpts(false)},
-          ...(cherryCtx ? [{ic:"🍒", l:"Summary", sub:"Ask Cherry about "+user.name, a:()=>{setShowOpts(false);cherryCtx.openCherry("Tell me about "+user.name+" ("+user.handle+")");}}] : []),
+          ...(cherryCtx ? [{ic:"Cherry", l:"Summary", sub:"Ask Cherry about "+user.name, a:()=>{setShowOpts(false);cherryCtx.openCherry("Tell me about "+user.name+" ("+user.handle+")");}}] : []),
           "---",
           {ic:"🔇", l:"Mute "+user.handle, sub:"Stop seeing their Dreams", a:()=>setShowOpts(false)},
           {ic:"🚫", l:"Block "+user.handle, danger:true, sub:"Block this Dreamor", a:()=>setShowOpts(false)},
@@ -2588,7 +2588,7 @@ function CherryPage({navigate, cherryCtx}) {
 
       /* Hero */
       , React.createElement('div', { style: {textAlign:"center",padding:"24px 20px 20px",borderBottom:"1px solid var(--bd)"},}
-        , React.createElement('div', { className: "aiorb", style: {width:64,height:64,fontSize:30,margin:"0 auto 12px"},}, "🍒")
+        , React.createElement('div', { className: "aiorb", style: {width:64,height:64,fontSize:30,margin:"0 auto 12px"},}, "Cherry")
         , React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:22,marginBottom:4},}, "Cherry AI Agent"  )
         , React.createElement('div', { style: {fontSize:12,color:"var(--gr)",display:"flex",alignItems:"center",justifyContent:"center",gap:5,marginBottom:12},}
           , React.createElement('span', { style: {width:6,height:6,borderRadius:"50%",background:"var(--gr)",display:"inline-block"},}), "Connected · Real actions · Live app state"
@@ -3135,7 +3135,7 @@ function CustomizabilitySettings({navigate, prefs, setPrefs}) {
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Cherry AI" )
         , React.createElement('button', { className: "snav", onClick: ()=>navigate("settings_cherry"), 'aria-label': "Cherry AI settings"  ,}
           , React.createElement('div', { className: "snav-l",}
-            , React.createElement('div', { className: "snav-ic", style: {background:"rgba(168,85,247,.15)",fontSize:17},}, "🍒")
+            , React.createElement('div', { className: "snav-ic", style: {background:"rgba(168,85,247,.15)",fontSize:17},}, "Cherry")
             , React.createElement('div', null, React.createElement('div', { className: "snav-title",}, "Cherry AI Settings"  ), React.createElement('div', { className: "snav-sub",}, "Personality, memory, suggestions"  ))
           )
           , React.createElement(Ic.Chv, { style: {width:16,height:16,color:"var(--tx3)"},})
@@ -3156,7 +3156,7 @@ function CherrySettings({navigate, prefs, setPrefs, activeAI, setActiveAI}) {
       , React.createElement(BackHeader, { title: "Cherry AI" , onBack: ()=>navigate("settings_customizability"),})
       , React.createElement('div', { style: {padding:"12px 16px 8px",background:"var(--sf2)",borderBottom:"1px solid var(--bd)"},}
         , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:12},}
-          , React.createElement('div', { className: "aiorb", style: {width:44,height:44,fontSize:20,flexShrink:0},}, "🍒")
+          , React.createElement('div', { className: "aiorb", style: {width:44,height:44,fontSize:20,flexShrink:0},}, "Cherry")
           , React.createElement('div', null
             , React.createElement('div', { style: {fontWeight:700,fontSize:15},}, "Cherry")
             , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Customize how Cherry assists you"    )
@@ -3393,7 +3393,7 @@ function CherryAlgorithmSettings({navigate, prefs, setPrefs}) {
       , React.createElement(BackHeader, { title: "Cherry Algorithm" , onBack: ()=>navigate("settings_cherry"),})
       , React.createElement('div', { style: {padding:"12px 16px 10px",background:"linear-gradient(135deg,rgba(109,40,217,.12),rgba(147,51,234,.06))",borderBottom:"1px solid rgba(168,85,247,.2)"},}
         , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:12},}
-          , React.createElement('div', { className: "aiorb", style: {width:44,height:44,fontSize:20,flexShrink:0},}, "🍒")
+          , React.createElement('div', { className: "aiorb", style: {width:44,height:44,fontSize:20,flexShrink:0},}, "Cherry")
           , React.createElement('div', null
             , React.createElement('div', { style: {fontWeight:700,fontSize:15},}, "Cherry Algorithm Control"  )
             , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Fine-tune how Cherry ranks, curates, and decides what you see"         )
@@ -3660,7 +3660,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
       )
       , React.createElement('div', { style: {marginTop:8},}
         , [
-          {icon:"🍒",l:"Cherry AI",sub:"Your Looscid companion",a:()=>navigate("cherry"),color:"#6d28d9"},
+          {icon:"Cherry",l:"Cherry AI",sub:"Your Looscid companion",a:()=>navigate("cherry"),color:"#6d28d9"},
           {icon:"📝",l:"Drafts",sub:"Your saved Dream drafts",a:()=>navigate("drafts"),color:"#374151"},
           authUser && (authUser.isGuest || authUser.uid==="guest")
             ? {icon:"🔑",l:"Sign In or Create Account",sub:"Get a LooscidID",a:()=>navigate("login"),color:"#6d28d9"}
@@ -4495,7 +4495,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
         , React.createElement('div', { style: {flex:1,overflowY:"auto"},}
           , histSessions.map(s=>(
             React.createElement('button', { key: s.id, onClick: ()=>setShowHistory(false), style: {display:"flex",gap:12,padding:"13px 16px",borderBottom:"1px solid var(--bd)",background:"none",border:"none",borderBottom:"1px solid var(--bd)",width:"100%",cursor:"pointer",textAlign:"left"},}
-              , React.createElement('div', { className: "aiorb", style: {width:38,height:38,fontSize:17,flexShrink:0},}, "🍒")
+              , React.createElement('div', { className: "aiorb", style: {width:38,height:38,fontSize:17,flexShrink:0},}, "Cherry")
               , React.createElement('div', { style: {flex:1,minWidth:0},}
                 , React.createElement('div', { style: {fontWeight:700,fontSize:14,marginBottom:3,color:"var(--tx)"},}, s.title)
                 , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"},}, s.preview)
@@ -4515,7 +4515,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
         /* Header */
         , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:8,padding:"52px 14px 10px",borderBottom:"1px solid var(--bd)",background:"rgba(7,5,15,.95)"},}
           , React.createElement('button', { className: "bi", onClick: onClose, 'aria-label': "Close Cherry" ,}, React.createElement(Ic.Bck, { style: {width:21,height:21},}))
-          , React.createElement('div', { className: "aiorb", style: {width:32,height:32,fontSize:15,flexShrink:0},}, "🍒")
+          , React.createElement('div', { className: "aiorb", style: {width:32,height:32,fontSize:15,flexShrink:0},}, "Cherry")
           , React.createElement('div', { style: {flex:1},}
             , React.createElement('div', { style: {fontWeight:700,fontSize:15,color:"var(--tx)"},}, "Cherry")
             , React.createElement('div', { style: {fontSize:10,color:"var(--gr)",display:"flex",alignItems:"center",gap:4},}
@@ -4645,7 +4645,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
         , overlayTab==="chat" && React.createElement('div', { className: "msgs", style: {flex:1},}
           , msgs.map((m,i)=>(
             React.createElement('div', { key: i, className: "mr"+(m.me?" me":""),}
-              , !m.me && React.createElement('div', { className: "aiorb", style: {width:27,height:27,fontSize:13,flexShrink:0},}, "🍒")
+              , !m.me && React.createElement('div', { className: "aiorb", style: {width:27,height:27,fontSize:13,flexShrink:0},}, "Cherry")
               , React.createElement('div', { style: {maxWidth:"82%"},}
                 , React.createElement('div', { className: "bub"+(m.me?" me":" th"), style: m.agent?{border:"1px solid rgba(168,85,247,.28)",background:"rgba(109,40,217,.08)",whiteSpace:"pre-line"}:{whiteSpace:"pre-line"},}
                   , m.agent && React.createElement('div', { style: {fontSize:9,fontWeight:800,color:"var(--ac3)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:5},}, "🤖 Agent action"  )
@@ -4661,7 +4661,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
           ))
           , typing && (
             React.createElement('div', { className: "mr",}
-              , React.createElement('div', { className: "aiorb", style: {width:27,height:27,fontSize:13,flexShrink:0},}, "🍒")
+              , React.createElement('div', { className: "aiorb", style: {width:27,height:27,fontSize:13,flexShrink:0},}, "Cherry")
               , React.createElement('div', { className: "bub th" , style: {display:"flex",gap:4,alignItems:"center",padding:"11px 14px"},}
                 , [0,1,2].map(i=>React.createElement('div', { key: i, className: "tdt", style: {animationDelay:i*.2+"s"},}))
               )
@@ -5345,7 +5345,7 @@ function WelcomeScreen({ onDone, navigate }) {
       cta: "Next",
     },
     {
-      icon: "🍒",
+      icon: "Cherry",
       title: "Meet Cherry",
       body: "Cherry is your AI companion on Looscid. Cherry can help you write, suggest who to follow, read your notifications, and more. Look for the cherry button anywhere in the app.",
       cta: "Next",
@@ -5402,7 +5402,7 @@ function OnboardingOverlay({ onDone }) {
   const [step, setStep] = React.useState(0);
   const steps = [
     { icon: "🌙", title: "Welcome to Looscid", body: "This is your inner world's stage. Share what you're dreaming, thinking and feeling — no filters, no algorithms deciding what matters. Just you and your Dreams." },
-    { icon: "🍒", title: "Meet Cherry, your AI companion", body: "Cherry isn't just a chatbot. Cherry reads your feed, follows Dreamers you'll love, posts Dreams for you and keeps your notifications tidy. Find Cherry in the bottom tab or the floating orb." },
+    { icon: "Cherry", title: "Meet Cherry, your AI companion", body: "Cherry isn't just a chatbot. Cherry reads your feed, follows Dreamers you'll love, posts Dreams for you and keeps your notifications tidy. Find Cherry in the bottom tab or the floating orb." },
     { icon: "✨", title: "Your feed, your way", body: "Explore the Feed, discover new Dreamers, join Groups and check Alerts. Everything you create is yours. Tap Create anytime to share a new Dream." },
   ];
   const s = steps[step];
@@ -5492,7 +5492,7 @@ function DraftsPage({ navigate, onLoadDraft }) {
 
 /* --- MULTI-AI CONFIG ------------------------------------------------------ */
 const AI_PROVIDERS = [
-  {id:"cherry",   name:"Cherry",   icon:"🍒", desc:"Looscid's own AI — best for Dreams", default:true},
+  {id:"cherry",   name:"Cherry",   icon:"Cherry", desc:"Looscid's own AI — best for Dreams", default:true},
   {id:"claude",   name:"Claude",   icon:"🟠", desc:"Deep reasoning and writing"},
   {id:"chatgpt",  name:"ChatGPT",  icon:"🟢", desc:"Creative and conversational"},
   {id:"gemini",   name:"Gemini",   icon:"🔵", desc:"Search and real-time info"},
@@ -5713,7 +5713,7 @@ function HabitInsightCard({ onDismiss }) {
   if (!preds.length) return null;
   return React.createElement('div', {className:"insight-card"},
     React.createElement('div', {style:{display:"flex",alignItems:"flex-start",gap:10}},
-      React.createElement('div', {style:{fontSize:22,flexShrink:0}}, "🍒"),
+      React.createElement('div', {style:{fontSize:22,flexShrink:0}}, "Cherry"),
       React.createElement('div', {style:{flex:1}},
         React.createElement('div', {style:{fontWeight:700,fontSize:13,marginBottom:4}}, "Cherry noticed"),
         React.createElement('div', {style:{fontSize:12,color:"var(--tx2)",lineHeight:1.55}}, preds[0])
@@ -5788,8 +5788,8 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
   const isOpen = id => !!open[id]; // default closed
 
   const SECTIONS = [
-    { id:"cherry", emoji:"🍒", label:"Cherry AI", items:[
-      { icon:"🍒", label:"Open Cherry",     sub:"AI companion · agents, drafts, insights", special:"cherry", action(){onClose();goRoot("cherry");} },
+    { id:"cherry", emoji:"Cherry", label:"Cherry AI", items:[
+      { icon:"Cherry", label:"Open Cherry",     sub:"AI companion · agents, drafts, insights", special:"cherry", action(){onClose();goRoot("cherry");} },
       { icon:"⚙️", label:"Cherry Settings", sub:"Personality, memory, agent permissions",                   action(){onClose();navigate("settings_cherry");} },
     ]},
     { id:"discover", emoji:"🔍", label:"Discover", items:[
@@ -5812,7 +5812,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"🔒", label:"Privacy",         sub:"Visibility, blocked users",   action(){onClose();navigate("settings_privacy");} },
       { icon:"🎨", label:"Customizability", sub:"Themes, Cherry AI, menu",     action(){onClose();navigate("settings_customizability");} },
       { icon:"♿", label:"Accessibility",  sub:"Font size, contrast, motion",  action(){onClose();navigate("settings_accessibility");} },
-      { icon:"🍒", label:"Cherry Settings", sub:"Personality, memory, agent",  action(){onClose();navigate("settings_cherry");} },
+      { icon:"Cherry", label:"Cherry Settings", sub:"Personality, memory, agent",  action(){onClose();navigate("settings_cherry");} },
     ]},
     { id:"about", emoji:"ℹ️", label:"About", items:[
       { icon:"ℹ️", label:"About",   sub:"Version, credits, open source", action(){onClose();navigate("settings_about");} },
@@ -6582,7 +6582,7 @@ useEffect(() => {
         React.createElement('div', { className: "cherry-onboard", onClick: e=>{if(e.target===e.currentTarget)setCherryOnboarded(true);},}
           , React.createElement('div', { className: "cherry-onboard-card",}
             , React.createElement('div', { style: {textAlign:"center",marginBottom:20},}
-              , React.createElement('div', { className: "aiorb", style: {width:60,height:60,fontSize:28,margin:"0 auto 12px"},}, "🍒")
+              , React.createElement('div', { className: "aiorb", style: {width:60,height:60,fontSize:28,margin:"0 auto 12px"},}, "Cherry")
               , React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:22,marginBottom:6},}, "Meet Cherry" )
               , React.createElement('div', { style: {fontSize:13,color:"var(--tx2)",lineHeight:1.6},}, "Your AI Agent for Looscid. Cherry isn't just a chatbot — it can take real actions across the entire app."                     )
             )
