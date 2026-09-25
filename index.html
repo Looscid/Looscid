@@ -6006,7 +6006,7 @@ function DreamLabsPage({ navigate, authUser }) {
 
   if (screen === "success") return (
     React.createElement('div', {className:"pg"},
-      React.createElement(BackHeader, {title:"Dream Pioneers \uD83E\uDDEA", onBack:()=>navigate("settings")}),
+      React.createElement(BackHeader, {title:"Dream Pioneers", onBack:()=>navigate("settings")}),
       React.createElement('div', {style:{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"60px 24px",textAlign:"center"}},
         React.createElement('div', {style:{fontSize:56,marginBottom:16}}, "DreamLabs"),
         React.createElement('div', {style:{fontFamily:"'DM Serif Display',Georgia,serif",fontSize:24,marginBottom:10}}, "Welcome, Pioneer."),
@@ -6044,7 +6044,7 @@ function DreamLabsPage({ navigate, authUser }) {
           disabled:!form.email.trim(),
           onClick:()=>{ setDLNotify(true); setNotifySet(true); setScreen("home"); },
           "aria-label":"Notify me when I can join Dream Pioneers",
-        }, "Ping me when I\u2019m ready \uD83D\uDCEC"),
+        }, "Ping me when I\u2019m ready"),
         React.createElement('div', {style:{fontSize:11,color:"var(--tx3)",textAlign:"center",marginTop:10}}, "One email. No spam. Promise.")
       )
     )
@@ -6097,7 +6097,7 @@ function DreamLabsPage({ navigate, authUser }) {
           disabled:!canSubmit,
           onClick:()=>{ setDLEnrolled(true); setEnrolled(true); setScreen("success"); },
           "aria-label":"Submit Dream Pioneers application",
-        }, canSubmit ? "Join Dream Pioneers \uD83E\uDDEA" : "Fill in everything above first")
+        }, canSubmit ? "Join Dream Pioneers" : "Fill in everything above first")
       )
     )
   );
@@ -6175,7 +6175,7 @@ function DreamLabsPage({ navigate, authUser }) {
             : React.createElement('button', {
                 className:"btn bgb", style:{width:"100%",padding:14,fontSize:14,borderStyle:"dashed"},
                 onClick:()=>setScreen("notify"), "aria-label":"Get notified when eligible",
-              }, "Ping me when I\u2019m ready \uD83D\uDCEC")
+              }, "Ping me when I\u2019m ready")
         )
       ),
 
