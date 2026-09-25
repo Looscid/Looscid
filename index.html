@@ -5208,15 +5208,15 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
         , React.createElement('div', { className: "auth-title",}, "When were you born?"   )
         , React.createElement('div', { className: "auth-sub",}, "You must be 13 or older to join."       )
         , ageErr && React.createElement('div', { className: "auth-error",}, React.createElement('span', null, "Warning:"), React.createElement('span', null, ageErr))
-        , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginBottom:10},}, "Enter Day, Month and Year separately. Month can be a number or name, e.g. 8 or August."
+        , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginBottom:10},}, "Enter Day, Month and Year separately. Month can be a number or name, e.g. 8 or August.", React.createElement('div', {id:"birthday-accuracy-notice",role:"region",'aria-label':"Birthday accuracy notice",style:{marginTop:8}}, "Your birthday must be accurate. If your LooscidID is found to use false information, it may be suspended or removed.")
 
         )
-        , React.createElement('div', { style: {display:"grid",gridTemplateColumns:"1fr 1.6fr 1.2fr",gap:8,marginBottom:20}, role: "group", 'aria-label': "Date of birth"  ,}
+        , React.createElement('div', { style: {display:"grid",gridTemplateColumns:"1fr 1.6fr 1.2fr",gap:8,marginBottom:20}, role: "group", 'aria-label': "Date of birth", 'aria-describedby': "birthday-accuracy-notice"  ,}
           , React.createElement('div', null
             , React.createElement('label', { style: {display:"block",fontSize:11,fontWeight:600,color:"var(--tx2)",marginBottom:4}, htmlFor: "bd-day",}, "Day")
             , React.createElement('input', { id: "bd-day", className: "inp", type: "text", placeholder: "09",
               value: bdDay, onChange: e=>setBdDay(e.target.value.replace(/[^0-9]/g,"")),
-              maxLength: 2, 'aria-label': "Birth day, two digit number"    ,
+              maxLength: 2, 'aria-label': "Birth day, two digit number", 'aria-required': true    ,
               inputMode: "numeric", autoComplete: "bday-day",
               style: {textAlign:"center",padding:"13px 8px"},})
           )
@@ -5224,7 +5224,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
             , React.createElement('label', { style: {display:"block",fontSize:11,fontWeight:600,color:"var(--tx2)",marginBottom:4}, htmlFor: "bd-month",}, "Month")
             , React.createElement('input', { id: "bd-month", className: "inp", type: "text", placeholder: "August or 8"  ,
               value: bdMonth, onChange: e=>{setBdMonth(e.target.value);setAgeErr("");},
-              maxLength: 12, 'aria-label': "Birth month, number or name like August"      ,
+              maxLength: 12, 'aria-label': "Birth month, number or name like August", 'aria-required': true      ,
               autoComplete: "bday-month", autoCorrect: "off", autoCapitalize: "words",
               style: {textAlign:"center",padding:"13px 8px"},})
           )
@@ -5232,7 +5232,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
             , React.createElement('label', { style: {display:"block",fontSize:11,fontWeight:600,color:"var(--tx2)",marginBottom:4}, htmlFor: "bd-year",}, "Year")
             , React.createElement('input', { id: "bd-year", className: "inp", type: "text", placeholder: "2005",
               value: bdYear, onChange: e=>setBdYear(e.target.value.replace(/[^0-9]/g,"")),
-              maxLength: 4, 'aria-label': "Birth year, four digit number"    ,
+              maxLength: 4, 'aria-label': "Birth year, four digit number", 'aria-required': true    ,
               inputMode: "numeric", autoComplete: "bday-year",
               style: {textAlign:"center",padding:"13px 8px"},})
           )
