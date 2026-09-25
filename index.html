@@ -902,7 +902,7 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
           )
           /* Comments */
           , sorted.map(cm => React.createElement(CommentItem, { key: cm.id, cm: cm, navigate: navigate,}))
-          , comments.length===0 && React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "💬"), React.createElement('div', { className: "esl",}, "No comments yet"  ))
+          , comments.length===0 && React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "No comments yet"), React.createElement('div', { className: "esl",}, "No comments yet"  ))
           , React.createElement('div', { ref: endRef, style: {height:16},})
         )
       )
@@ -929,7 +929,7 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
       , showCmAttach&&React.createElement(AttachPanel, { onClose: ()=>setShowCmAttach(false), onAttach: att=>setCmAttachments(as=>[...as,att]), mode: "comment",})
       , showDreamOpts && (
         React.createElement(BottomMenu, { onClose: ()=>setShowDreamOpts(false), title: "Dream Options", items: [
-          {ic:dream.bookmarked?"🔖":"🔖", l:dream.bookmarked?"Unsave Dream":"Save Dream", sub:dream.bookmarked?"Remove this Dream from your saved collection":"Save this Dream to your collection", a:()=>{onBookmark&&onBookmark(dream.id);setShowDreamOpts(false);}},
+          {ic:dream.bookmarked?"Unsave Dream":"Save Dream", l:dream.bookmarked?"Unsave Dream":"Save Dream", sub:dream.bookmarked?"Remove this Dream from your saved collection":"Save this Dream to your collection", a:()=>{onBookmark&&onBookmark(dream.id);setShowDreamOpts(false);}},
           {ic:"Share Dream", l:"Share Dream", sub:"Share outside Looscid", a:()=>setShowDreamOpts(false)},
           {ic:"View @", l:"View @"+dream.user.handle.replace("@","")+"'s Profile", a:()=>{setShowDreamOpts(false);navigate("dp",dream.user);}},
           {ic:"Mute @", l:"Mute @"+dream.user.handle.replace("@",""), sub:"Stop seeing their Dreams in your feed", a:()=>setShowDreamOpts(false)},
@@ -1053,7 +1053,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
       )
       , showOpts && (
         React.createElement(BottomMenu, { onClose: ()=>setShowOpts(false), title: "Dream Options", items: [
-          {ic:dream.bookmarked?"🔖":"🔖", l:dream.bookmarked?"Unsave Dream":"Save Dream", sub:dream.bookmarked?"Remove this Dream from your saved collection":"Save this Dream to your collection", a:()=>{onBookmark&&onBookmark(dream.id);setShowOpts(false);}},
+          {ic:dream.bookmarked?"Unsave Dream":"Save Dream", l:dream.bookmarked?"Unsave Dream":"Save Dream", sub:dream.bookmarked?"Remove this Dream from your saved collection":"Save this Dream to your collection", a:()=>{onBookmark&&onBookmark(dream.id);setShowOpts(false);}},
           {ic:"Share Dream", l:"Share Dream", sub:"Share outside Looscid", a:()=>setShowOpts(false)},
           {ic:"View @", l:"View @"+dream.user.handle.replace("@","")+"'s Profile", a:()=>{setShowOpts(false);navigate("dp",dream.user);}},
           {ic:"Mute @", l:"Mute @"+dream.user.handle.replace("@",""), sub:"Stop seeing their Dreams in your feed", a:()=>setShowOpts(false)},
@@ -1132,7 +1132,7 @@ function FeedPage({navigate, prefs, cherryCtx}) {
       )
       , friendsEmpty && (
         React.createElement('div', { className: "es",}
-          , React.createElement('div', { className: "esi",}, "🤝")
+          , React.createElement('div', { className: "esi",}, "No Friends yet")
           , React.createElement('div', { className: "esl",}, "No Friends yet"  )
           , React.createElement('p', { style: {fontSize:13,color:"var(--tx3)",marginTop:6,lineHeight:1.6,maxWidth:240,textAlign:"center"},}, "Friends are Dreamors who follow each other."      )
           , cherryCtx && React.createElement('button', { className: "cherry-ctx-btn", style: {margin:"10px auto 0",display:"flex"}, onClick: ()=>cherryCtx.openCherry("Who should I follow?"), 'aria-label': "Ask Cherry to find friends"    ,}, "🍒 Ask Cherry to find Dreamors"     )
@@ -1936,7 +1936,7 @@ function AlertsPage({cherryCtx}) {
         /* Convo list */
         filteredMsgs.length === 0
           ? React.createElement('div', {className:"es", style:{paddingTop:24,paddingBottom:24}},
-              React.createElement('div', {className:"esi"}, "💬"),
+              React.createElement('div', {className:"esi"}, "Nothing here"),
               React.createElement('div', {className:"esl"}, "Nothing here")
             )
           : filteredMsgs.map(function(c) {
@@ -1995,7 +1995,7 @@ function AlertsPage({cherryCtx}) {
         /* Notification list */
         filteredNotifs.length === 0
           ? React.createElement('div', {className:"es", style:{paddingTop:24,paddingBottom:24}},
-              React.createElement('div', {className:"esi"}, "🔔"),
+              React.createElement('div', {className:"esi"}, "Nothing in this category"),
               React.createElement('div', {className:"esl"}, "Nothing in this category")
             )
           : filteredNotifs.map(function(n) {
@@ -2300,7 +2300,7 @@ function GroupsPage({navigate, cherryCtx}) {
           })
         )
       )
-      , list.length===0 && React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "👥"), React.createElement('div', { className: "esl",}, "No Circles yet"  ), React.createElement('p', { style: {fontSize:12,color:"var(--tx3)",marginTop:6},}, "Tap Create to start one"        ))
+      , list.length===0 && React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "No Circles yet"), React.createElement('div', { className: "esl",}, "No Circles yet"  ), React.createElement('p', { style: {fontSize:12,color:"var(--tx3)",marginTop:6},}, "Tap Create to start one"        ))
       , list.map((g,i) => (
         React.createElement('div', { key: g.id, className: "card fu" , style: {margin:"11px 13px 0",animationDelay:i*.05+"s",cursor:"pointer"}, onClick: ()=>setActiveGroup(g), role: "button", tabIndex: 0, 'aria-label': "Open "+g.name,}
           , React.createElement('div', { className: "gbr", style: {background:`linear-gradient(135deg,hsl(${260+i*25},55%,18%),hsl(${280+i*20},65%,10%))`,height:72,fontSize:36},}, g.emoji)
@@ -2428,7 +2428,7 @@ function ProfilePage({navigate, authUser}) {
           onQuote: tq, onUndoQuote: tuq, onBookmark: tb,
           onComment: d=>setActiveComment(d), navigate: navigate,})
       ))
-      , tabDreams.length===0 && React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "🌙"), React.createElement('div', { className: "esl",}, "Nothing here yet"  ))
+      , tabDreams.length===0 && React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "Nothing here yet"), React.createElement('div', { className: "esl",}, "Nothing here yet"  ))
       , editing && (
         React.createElement(Modal, { onClose: ()=>setEditing(false), title: "Edit Profile" ,}
           , [{l:"Display Name",v:ME.name,ph:"Your name"},{l:"Bio",v:ME.bio,ph:"Tell your story…"},{l:"Location",v:ME.location,ph:"City, State"},{l:"Website",v:"",ph:"yourwebsite.com"}].map(f => (
@@ -2538,7 +2538,7 @@ function DreamerProfilePage({user, navigate, cherryCtx}) {
           onQuote: tq, onUndoQuote: tuq, onBookmark: tb,
           onComment: d=>setActiveComment(d), navigate: navigate,})
       ))
-      , tabDreams.length===0 && React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "🌙"), React.createElement('div', { className: "esl",}, "Nothing here yet"  ))
+      , tabDreams.length===0 && React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "Nothing here yet"), React.createElement('div', { className: "esl",}, "Nothing here yet"  ))
       , showOpts && (
         React.createElement(BottomMenu, { onClose: closeOpts, title: user.name, items: [
           {ic:"Follow ", l:"Follow "+user.name, sub:following?"Unfollow this Dreamor":"Follow this Dreamor", a:()=>{setFollowing(function(f){return !f;});setShowOpts(false);}},
@@ -2604,7 +2604,7 @@ function CherryPage({navigate, cherryCtx}) {
       , React.createElement('div', { style: {display:"flex",flexWrap:"wrap",gap:10,padding:"0 14px 14px"},}
         , [
           {ic:"❤️", val:ctx.likedCount, label:"Liked Dreams"},
-          {ic:"🔖", val:ctx.savedCount, label:"Saved Dreams"},
+          {ic:"Save", val:ctx.savedCount, label:"Saved Dreams"},
           {ic:"👥", val:ctx.followingCount, label:"Following"},
           {ic:"🏘️", val:ctx.groupCount, label:"Circles joined"},
           {ic:"🔔", val:ctx.unread, label:"Unread alerts"},
@@ -3851,7 +3851,7 @@ function AdminUsers({onBack}) {
           )
         )
       ))
-      , filtered.length===0&&React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "🔍"), React.createElement('div', { className: "esl",}, "No users found"  ))
+      , filtered.length===0&&React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "No users found"), React.createElement('div', { className: "esl",}, "No users found"  ))
     )
   );
 }
@@ -3887,7 +3887,7 @@ function AdminContent({onBack}) {
           )
         )
       ))
-      , items.filter(i=>tab==="all"||!i.reviewed).length===0&&React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "✅"), React.createElement('div', { className: "esl",}, "All clear!" ), React.createElement('p', { style: {fontSize:12,color:"var(--tx3)",marginTop:4},}, "No flagged content right now"    ))
+      , items.filter(i=>tab==="all"||!i.reviewed).length===0&&React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "All clear!"), React.createElement('div', { className: "esl",}, "All clear!" ), React.createElement('p', { style: {fontSize:12,color:"var(--tx3)",marginTop:4},}, "No flagged content right now"    ))
     )
   );
 }
@@ -3927,7 +3927,7 @@ function AdminReports({onBack}) {
           )
         )
       ))
-      , visible.length===0&&React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "📭"), React.createElement('div', { className: "esl",}, "No reports here"  ))
+      , visible.length===0&&React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "No reports here"), React.createElement('div', { className: "esl",}, "No reports here"  ))
     )
   );
 }
@@ -4619,7 +4619,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
           React.createElement('div', { className: "msgs", style: {flex:1},}
             , actionLog.length===0 && (
               React.createElement('div', { className: "es", style: {paddingTop:32},}
-                , React.createElement('div', { className: "esi",}, "⚡")
+                , React.createElement('div', { className: "esi",}, "No actions yet")
                 , React.createElement('div', { className: "esl",}, "No actions yet"  )
                 , React.createElement('p', { style: {fontSize:12,color:"var(--tx3)",marginTop:6},}, "Cherry will log every action it takes here. You can undo most actions."            )
                 , React.createElement('button', { className: "cherry-card-act", style: {marginTop:12}, onClick: ()=>setOverlayTab("chat"),}, "Start chatting with Cherry"   )
@@ -6349,7 +6349,7 @@ useEffect(() => {
     setCherryOnboarded,
     // Actions Cherry agent can perform - all log their actions
     likeDream:   id => { recordHabit("likeDream", (appDreams.find(x=>x.id===id)||{}).text?(appDreams.find(x=>x.id===id).text.split(" ").slice(0,3).join(" ")):null); setAppDreams(ds => ds.map(d => d.id===id ? {...d,liked:!d.liked,likes:d.liked?d.likes-1:d.likes+1} : d)); const d=appDreams.find(x=>x.id===id); if(d) addLog("❤️","Liked "+d.user.name+"'s Dream", ()=>setAppDreams(ds=>ds.map(x=>x.id===id?{...x,liked:!x.liked,likes:x.liked?x.likes-1:x.likes+1}:x))); },
-    saveDream:   id => { setAppDreams(ds => ds.map(d => d.id===id ? {...d,bookmarked:!d.bookmarked} : d)); const d=appDreams.find(x=>x.id===id); if(d) addLog("🔖","Saved "+d.user.name+"'s Dream"); },
+    saveDream:   id => { setAppDreams(ds => ds.map(d => d.id===id ? {...d,bookmarked:!d.bookmarked} : d)); const d=appDreams.find(x=>x.id===id); if(d) addLog("Save","Saved "+d.user.name+"'s Dream"); },
     postDream:   text => { const id=Date.now(); setAppDreams(ds => [{id,user:ME,time:"just now",text,likes:0,comments:0,redreams:0,quotes:0,liked:false,redreamed:false,quoted:false,bookmarked:false},...ds]); addLog("✏️","Posted Dream: "+text.slice(0,40)+"…", ()=>setAppDreams(ds=>ds.filter(d=>d.id!==id))); },
     followUser:  id => { setAppFollowing(s => { const n=new Set(s); n.has(id)?n.delete(id):n.add(id); return n; }); const u=USERS.find(x=>x.id===id); if(u) addLog("👥","Followed "+u.name, ()=>setAppFollowing(s=>{const n=new Set(s);n.delete(id);return n;})); },
     joinGroup:   id => { setAppGroups(gs => gs.map(g => g.id===id ? {...g,joined:!g.joined} : g)); const g=GROUPS.find(x=>x.id===id); if(g) addLog("🏘️","Joined "+g.name, ()=>setAppGroups(gs=>gs.map(x=>x.id===id?{...x,joined:false}:x))); },
