@@ -5158,10 +5158,10 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
           style: {marginBottom:12}, 'aria-label': "Display name" , maxLength: 50,
           autoComplete: "name", autoCapitalize: "words",})
         , React.createElement('div', { style: {fontSize:11,fontWeight:600,color:"var(--tx2)",marginBottom:4},}, "LooscidID")
-        , React.createElement('input', { className: "inp", type: "text", placeholder: "username",
+        , React.createElement('input', { className: "inp", type: "text", placeholder: "LooscidID",
           value: username.startsWith("@")?username.slice(1):username,
           onChange: e=>{setUsername(e.target.value);setUsernameErr("");setErr("");},
-          style: {marginBottom:usernameErr?4:12}, 'aria-label': "Username",
+          style: {marginBottom:usernameErr?4:12}, 'aria-label': "LooscidID",
           maxLength: 30, autoComplete: "username", autoCorrect: "off",
           autoCapitalize: "off", spellCheck: false, inputMode: "text",})
         , usernameErr && React.createElement('div', { style: {fontSize:11,color:"var(--rd)",marginBottom:8,marginTop:-8},}, usernameErr)
