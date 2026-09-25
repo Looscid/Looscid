@@ -2606,7 +2606,7 @@ function CherryPage({navigate, cherryCtx}) {
           {ic:"❤️", val:ctx.likedCount, label:"Liked Dreams"},
           {ic:"Save", val:ctx.savedCount, label:"Saved Dreams"},
           {ic:"👥", val:ctx.followingCount, label:"Following"},
-          {ic:"🏘️", val:ctx.groupCount, label:"Circles joined"},
+          {ic:"Joined", val:ctx.groupCount, label:"Circles"},
           {ic:"🔔", val:ctx.unread, label:"Unread alerts"},
           {ic:"✏️", val:cherryCtx?cherryCtx.dreams.length:0, label:"Dreams in feed"},
         ].map(s=>(
@@ -4576,7 +4576,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
         , React.createElement('div', { style: {display:"flex",gap:7,padding:"8px 14px",overflowX:"auto",scrollbarWidth:"none",borderBottom:"1px solid var(--bd)",background:"var(--sf)"},}
           , [
             {label:`${appContext().unread}`, color:"var(--rd)", ic:"Alerts"},
-            {label:`${groups.filter(g=>g.joined).length} groups`, color:"var(--ac3)", ic:"🏘️"},
+            {label:`${groups.filter(g=>g.joined).length}`, color:"var(--ac3)", ic:"Groups"},
             {label:`${following.size} following`, color:"var(--ac3)", ic:"👥"},
             {label:`${dreams.filter(d=>d.liked).length} liked`, color:"var(--rd)", ic:"❤️"},
           ].map(s=>(
