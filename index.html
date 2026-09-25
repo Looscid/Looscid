@@ -1528,7 +1528,7 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
   const addAttachment = att => setAttachments(as=>[...as,att]);
   const removeAttachment = idx => setAttachments(as=>as.filter((_,i)=>i!==idx));
 
-  const attIcon = {photo:"🖼️",gif:"🎞️",poll:"📊",link:"🔗",location:"📍",schedule:"🕐",mood:"😌",music:"🎵"};
+  const attIcon = {photo:"Photo",gif:"GIF",poll:"Poll",link:"Link",location:"Location",schedule:"Schedule",mood:"Mood",music:"Music"};
   const audiences = [
     {id:"everyone",icon:"Everyone",l:"Everyone",sub:"Visible to all Dreamors"},
     {id:"followers",icon:"Followers only",l:"Followers only",sub:"Only your followers see this"},
