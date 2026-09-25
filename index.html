@@ -4577,8 +4577,8 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
           , [
             {label:`${appContext().unread}`, color:"var(--rd)", ic:"Alerts"},
             {label:`${groups.filter(g=>g.joined).length}`, color:"var(--ac3)", ic:"Groups"},
-            {label:`${following.size} following`, color:"var(--ac3)", ic:"👥"},
-            {label:`${dreams.filter(d=>d.liked).length} liked`, color:"var(--rd)", ic:"❤️"},
+            {label:`${following.size}`, color:"var(--ac3)", ic:"Following"},
+            {label:`${dreams.filter(d=>d.liked).length}`, color:"var(--rd)", ic:"Likes"},
           ].map(s=>(
             React.createElement('div', { key: s.label, style: {display:"flex",alignItems:"center",gap:4,background:"var(--sf2)",border:"1px solid var(--bd)",borderRadius:100,padding:"3px 9px",whiteSpace:"nowrap",flexShrink:0},}
               , React.createElement('span', { style: {fontSize:11},}, s.ic)
