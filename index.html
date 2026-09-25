@@ -2676,7 +2676,7 @@ function SettingsPage({prefs, setPrefs, navigate, onSignOut, authUser, theme, se
     {id:"accessibility",  icon:"Accessibility", title:"Accessibility",    sub:"Font size, contrast, motion",         color:"#b45309"},
     {id:"social",         icon:"\ud835\udd4f", title:"Social",sub:"Follow Looscid",          color:"#1d4ed8"},
     {id:"about",          icon:"About", title:"About",            sub:"Terms, privacy, guidelines",         color:"#374151"},
-    {id:"dreamlabs",      icon:"\u2697\ufe0f", title:"DreamLabs", sub:"Dream Pioneers \u00b7 Early access", color:"#0f766e"},
+    {id:"dreamlabs",      icon:"DreamLabs", title:"DreamLabs", sub:"Dream Pioneers \u00b7 Early access", color:"#0f766e"},
   ];
 
   return (
@@ -3059,7 +3059,7 @@ function CustomizabilitySettings({navigate, prefs, setPrefs}) {
                 onClick: ()=>setMenu("pos","bottom"),
                 'aria-label': "Menu button at bottom"+(menuPos==="bottom"?" (selected)":""),
               },
-              React.createElement('span', {style:{fontSize:24}},"⬇️"),
+              React.createElement('span', {style:{fontSize:24}},"Move down"),
               React.createElement('span', {style:{fontWeight:700}},"Bottom"),
               React.createElement('span', {style:{fontSize:11,opacity:.75}},"Default")
             ),
@@ -3069,7 +3069,7 @@ function CustomizabilitySettings({navigate, prefs, setPrefs}) {
                 onClick: ()=>setMenu("pos","top"),
                 'aria-label': "Menu button at top"+(menuPos==="top"?" (selected)":""),
               },
-              React.createElement('span', {style:{fontSize:24}},"⬆️"),
+              React.createElement('span', {style:{fontSize:24}},"Move up"),
               React.createElement('span', {style:{fontWeight:700}},"Top"),
               React.createElement('span', {style:{fontSize:11,opacity:.75}},"For one-handed use")
             )
@@ -3116,7 +3116,7 @@ function CustomizabilitySettings({navigate, prefs, setPrefs}) {
               ))
             )
             , React.createElement('div', { style: {marginTop:12,padding:"10px 12px",background:"var(--sf2)",borderRadius:9,display:"flex",alignItems:"center",gap:10},}
-              , React.createElement('span', { style: {fontSize:20},}, "📏")
+              , React.createElement('span', { style: {fontSize:20},}, "Character limit")
               , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.5},}, "Currently set to "   , React.createElement('strong', { style: {color:"var(--tx)"},}, prefs.charLimit, " characters" ), " — about "   , prefs.charLimit===140?"a tweet":prefs.charLimit===280?"two tweets":prefs.charLimit===500?"a short paragraph":"a long paragraph", ".")
             )
           )
