@@ -2362,7 +2362,7 @@ function ProfilePage({navigate, authUser}) {
         React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:22,marginBottom:8,color:"var(--tx)"}}, "You are in Guest Mode"),
         React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.7,marginBottom:24}}, "Create a LooscidID to get your profile, save your Dreams, follow Dreamors and make it yours."),
         React.createElement('button', { className: "btn bp", style: {padding:"12px 28px",fontSize:14,marginBottom:12}, onClick: ()=>navigate("login"), "aria-label": "Create a LooscidID"}, "Create Account"),
-        React.createElement('button', { className: "btn bgb", style: {padding:"10px 24px",fontSize:13}, onClick: ()=>navigate("login"), "aria-label": "Sign in to your account"}, "Sign In")
+        React.createElement('button', { className: "btn bgb", style: {padding:"10px 24px",fontSize:13}, onClick: ()=>navigate("login"), "aria-label": "Sign in to your LooscidID"}, "Sign In")
       )
     )
   );
@@ -2798,7 +2798,7 @@ function AccountSettings({navigate, authUser, onSignOut}) {
 
         /* Profile info (real accounts) */
         , !isDemo && React.createElement(React.Fragment, null
-            , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Dream ID")
+            , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "LooscidID")
             , React.createElement('div', { className: "sr", style: {cursor:"pointer"}, onClick: ()=>setShow2FA(false)||alert("Edit name: coming soon"),}
               , React.createElement('div', null
                 , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,textTransform:"uppercase",letterSpacing:".04em",marginBottom:2},}, "Display Name")
@@ -3609,7 +3609,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
           React.createElement('div', {style:{fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,marginBottom:8}}, "You are in Guest Mode"),
           React.createElement('p', {style:{fontSize:13,color:"var(--tx2)",lineHeight:1.7,marginBottom:20}}, "Create a free LooscidID to post Dreams, follow Dreamors, get notifications and make the app yours."),
           React.createElement('button', {className:"btn bp",style:{width:"100%",padding:13,fontSize:14,marginBottom:10},onClick:()=>navigate("login"),"aria-label":"Create a LooscidID"}, "Create Account"),
-          React.createElement('button', {className:"btn bgb",style:{width:"100%",padding:11,fontSize:13},onClick:()=>navigate("login"),"aria-label":"Sign in to your account"}, "Sign In")
+          React.createElement('button', {className:"btn bgb",style:{width:"100%",padding:11,fontSize:13},onClick:()=>navigate("login"),"aria-label":"Sign in to your LooscidID"}, "Sign In")
         ),
         React.createElement('button', {className:"snav",onClick:()=>navigate("settings_accessibility"),"aria-label":"Accessibility settings"},
           React.createElement('div', {className:"snav-l"},
@@ -5074,7 +5074,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
         , React.createElement('button', { onClick: onBack, style: {background:"none",border:"none",color:"var(--tx3)",fontSize:13,cursor:"pointer",padding:"0 0 12px",textAlign:"left",fontFamily:"inherit",display:"flex",alignItems:"center",gap:4}, 'aria-label': "Back to welcome screen"   ,}, "Back"
 
         )
-        , React.createElement('div', { className: "auth-title",}, "LOGIN TO YOUR DREAM ID" )
+        , React.createElement('div', { className: "auth-title",}, "LOGIN TO YOUR LOOSCIDID" )
         , React.createElement('div', { className: "auth-sub",}, "WELCOME BACK"  )
         , err  && React.createElement('div', { className: "auth-error",}, React.createElement('span', null, "Warning:"), React.createElement('span', null, err))
         , msg  && React.createElement('div', { style: {background:"rgba(34,197,94,.12)",border:"1px solid rgba(34,197,94,.3)",borderRadius:10,padding:"10px 14px",fontSize:13,color:"#22c55e",marginBottom:14},}, msg)
