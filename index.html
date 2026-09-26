@@ -3666,7 +3666,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
             ? {icon:"Sign In or Create Account",l:"Sign In or Create Account",sub:"Get a LooscidID",a:()=>navigate("login"),color:"#6d28d9"}
             : {icon:"Account",l:"Account",sub:"Your LooscidID",a:()=>navigate("settings_account"),color:"#6d28d9"},
           {icon:"Settings",l:"Settings",sub:"Account, privacy, accessibility",a:()=>navigate("settings"),color:"#374151"},
-          {icon:"About",l:"About",sub:"Version, terms, community guidelines",a:()=>navigate("about"),color:"#374151"},
+          
           {icon:"Send Feedback",l:"Send Feedback",sub:"Help us improve Looscid",a:()=>navigate("feedback"),color:"#0e7490"},
         ].map(item => (
           React.createElement('button', { key: item.l, className: "snav", onClick: item.a, 'aria-label': item.l,}
