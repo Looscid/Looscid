@@ -60,7 +60,7 @@ main{max-width:680px;margin:0 auto;padding:32px 20px 0}
 /* Services */
 .services{margin-bottom:32px}
 .service-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:14px}
-.service-icon{font-size:20px;width:36px;text-align:center;flex-shrink:0}
+.service-icon{display:none}
 .service-info{flex:1}
 .service-name{font-size:14px;font-weight:600;color:var(--tx);margin-bottom:2px}
 .service-desc{font-size:11px;color:var(--tx3)}
@@ -142,7 +142,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
     <div class="services" role="list">
 
       <div class="service-card" role="listitem">
-        <span class="service-icon" aria-hidden="true">🌙</span>
+        <span class="service-icon" aria-hidden="true">Feed &amp; Dreams</span>
         <div class="service-info">
           <div class="service-name">Feed &amp; Dreams</div>
           <div class="service-desc">Posting, viewing and interacting with Dreams</div>
@@ -153,7 +153,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
       </div>
 
       <div class="service-card" role="listitem">
-        <span class="service-icon" aria-hidden="true">🍒</span>
+        <span class="service-icon" aria-hidden="true">Cherry AI</span>
         <div class="service-info">
           <div class="service-name">Cherry AI</div>
           <div class="service-desc">AI companion, agent actions, drafts</div>
@@ -164,7 +164,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
       </div>
 
       <div class="service-card" role="listitem">
-        <span class="service-icon" aria-hidden="true">🔒</span>
+        <span class="service-icon" aria-hidden="true">Authentication</span>
         <div class="service-info">
           <div class="service-name">Authentication</div>
           <div class="service-desc">Sign in, sign up, email verification</div>
@@ -175,7 +175,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
       </div>
 
       <div class="service-card" role="listitem">
-        <span class="service-icon" aria-hidden="true">💬</span>
+        <span class="service-icon" aria-hidden="true">Private Messages</span>
         <div class="service-info">
           <div class="service-name">Private Messages</div>
           <div class="service-desc">End-to-end encrypted conversations</div>
@@ -186,7 +186,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
       </div>
 
       <div class="service-card" role="listitem">
-        <span class="service-icon" aria-hidden="true">🏘️</span>
+        <span class="service-icon" aria-hidden="true">Circles</span>
         <div class="service-info">
           <div class="service-name">Circles</div>
           <div class="service-desc">Communities, group feeds and events</div>
@@ -197,7 +197,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
       </div>
 
       <div class="service-card" role="listitem">
-        <span class="service-icon" aria-hidden="true">🔍</span>
+        <span class="service-icon" aria-hidden="true">Search &amp; Discover</span>
         <div class="service-info">
           <div class="service-name">Search &amp; Discover</div>
           <div class="service-desc">Finding Dreamers, Dreams and topics</div>
@@ -208,7 +208,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
       </div>
 
       <div class="service-card" role="listitem">
-        <span class="service-icon" aria-hidden="true">🔔</span>
+        <span class="service-icon" aria-hidden="true">Notifications</span>
         <div class="service-info">
           <div class="service-name">Notifications</div>
           <div class="service-desc">Alerts, mentions and activity</div>
@@ -219,7 +219,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
       </div>
 
       <div class="service-card" role="listitem">
-        <span class="service-icon" aria-hidden="true">🛡️</span>
+        <span class="service-icon" aria-hidden="true">Bot Protection</span>
         <div class="service-info">
           <div class="service-name">Bot Protection</div>
           <div class="service-desc">Cloudflare Turnstile verification</div>
@@ -236,7 +236,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
   <section aria-labelledby="incidents-heading">
     <div class="section-title" id="incidents-heading">Recent Incidents</div>
     <div class="no-incidents" role="status" aria-label="No incidents in the last 30 days">
-      <div class="no-incidents-icon" aria-hidden="true">✅</div>
+      <div class="no-incidents-icon" aria-hidden="true">No incidents</div>
       No incidents in the last 30 days
     </div>
   </section>
