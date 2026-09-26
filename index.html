@@ -5782,7 +5782,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
   const likedCount = appDreams ? appDreams.filter(d => d.liked).length : 0;
   const totalAlerts = unreadNotifs + unreadMsgs;
   const [open, setOpen] = useState({});
-  const toggle = id => setOpen(o => ({...o, [id]: !o[id]}));
+  const toggle = id => setOpen(o => ((prefs.accessibility||{}).keepOtherSectionsOpen ? {...o,[id]:!o[id]} : {[id]:!o[id]}));
   const isOpen = id => !!open[id]; // default closed
 
   const SECTIONS = [
@@ -5838,7 +5838,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
         var sOpen = isOpen(s.id);
         return React.createElement(React.Fragment, {key:s.id},
 
-          React.createElement('h2', {className:"msec-hdr",style:{padding:0}},
+          React.createElement('div', {className:"msec-hdr",style:{padding:0}},
             React.createElement('button', {
               className:"msec-toggle",
               onClick:function(){ ReactDOM.flushSync(function(){ toggle(s.id); }); },
@@ -5859,12 +5859,12 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
           React.createElement('div', {
             id:"msec-"+s.id,
             className:"msec-body"+(sOpen?"":" closed"),
-            style:{maxHeight: sOpen ? ((s.items.length*68)+(s.intro?40:0))+"px" : "0px", visibility: sOpen ? "visible" : "hidden"},
-            role:"group","aria-label":s.label+" items",
+            style:{display:sOpen?"block":"none",visibility:sOpen?"visible":"hidden"}, hidden:!sOpen,
+            role:"region","aria-labelledby":"msec-heading-"+s.id,
             "aria-hidden": !sOpen,
             inert: sOpen ? undefined : "",
           },
-            s.intro ? React.createElement('p', {style:{padding:"8px 16px",margin:0,fontSize:12,color:"var(--tx2)"}}, s.intro) : null,             s.items.map(function(item) {
+            React.createElement('h3', {id:"msec-heading-"+s.id,style:{padding:"10px 16px 2px",margin:0,fontSize:14}}, s.label),             React.createElement('p', {style:{padding:"0 16px 8px",margin:0,fontSize:12,color:"var(--tx2)"}}, s.intro || ({cherry:"Open Cherry or manage her settings.",discover:"Find Dreamors, topics, and Circles.",create:"Start a Dream, Circle, or feed.",alerts:"Read messages and notifications.",settings:"Change your preferences.",about:"Read Looscid information and policies."})[s.id]),             s.items.map(function(item) {
               var hasBadge = item.badge>0;
               var hasCount = item.count!=null;
               var badge = hasBadge ? React.createElement('span',{key:"b",style:{fontWeight:700,color:"var(--rd)"}}," \u00b7 "+item.badge) : null;
