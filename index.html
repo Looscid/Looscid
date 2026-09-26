@@ -6441,7 +6441,7 @@ useEffect(() => {
     };
     var name = titles[page] || "Looscid";
     var dot = " · ";
-    document.title = (name === "Looscid") ? name : name + dot + "Looscid";
+    document.title = name;
   }, [page, pdata, authUser]);
 
   const renderPage = () => {
