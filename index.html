@@ -3117,7 +3117,7 @@ function CustomizabilitySettings({navigate, prefs, setPrefs}) {
             )
             , React.createElement('div', { style: {marginTop:12,padding:"10px 12px",background:"var(--sf2)",borderRadius:9,display:"flex",alignItems:"center",gap:10},}
               , React.createElement('span', { style: {fontSize:20},}, "Character limit")
-              , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.5},}, "Currently set to "   , React.createElement('strong', { style: {color:"var(--tx)"},}, prefs.charLimit, " characters" ), " — about "   , prefs.charLimit===140?"a tweet":prefs.charLimit===280?"two tweets":prefs.charLimit===500?"a short paragraph":"a long paragraph", ".")
+              , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.5},}, "Currently set to "+prefs.charLimit+" characters, about "+(prefs.charLimit===140?"a tweet":prefs.charLimit===280?"two tweets":prefs.charLimit===500?"a short paragraph":"a long paragraph")+".")
             )
           )
         )
