@@ -3465,7 +3465,7 @@ function AccessibilitySettings({navigate, prefs, setPrefs}) {
     {k:"largeBtns",icon:"Larger Buttons",title:"Larger Buttons",desc:"Makes all tap targets bigger and easier to press. Helpful for users with motor difficulties or anyone who prefers larger interaction areas."},
     {k:"highContrast",icon:"High Contrast",title:"High Contrast",desc:"Increases contrast between text and backgrounds, improving visibility for users with low vision or color sensitivity."},
     {k:"reduceMotion",icon:"Reduce Motion",title:"Reduce Motion",desc:"Disables animations and transitions throughout the app. Recommended for users with vestibular disorders or motion sensitivity."},
-    {k:"screenReader",icon:"Screen Reader Hints",title:"Screen Reader Hints",desc:"Adds additional descriptive labels and announcements throughout the app to improve compatibility with VoiceOver and TalkBack."},
+    {k:"screenReader",icon:"Screen Reader Hints",title:"Screen Reader Hints",desc:"Adds additional descriptive labels and announcements throughout the app to improve compatibility with VoiceOver and TalkBack."},     {k:"keepOtherSectionsOpen",icon:"Navigation",title:"Keep other sections open",desc:"Off closes the others when you open a new section."},
     {k:"boldText",icon:"Bold Text",title:"Bold Text",desc:"Makes all text bold for improved legibility, especially in low-light conditions or for users with dyslexia."},
     {k:"aiDescriptions",icon:"AI Image Descriptions",title:"AI Image Descriptions",desc:"Cherry automatically generates descriptive alt text for images in Dreams. Helpful for VoiceOver and screen reader users."},
     {k:"aiVoiceHints",icon:"Natural AI Voice Hints",title:"Natural AI Voice Hints",desc:"Cherry reads important alerts and notifications aloud with natural pacing. Works alongside VoiceOver."},
@@ -3492,9 +3492,9 @@ function AccessibilitySettings({navigate, prefs, setPrefs}) {
                   , React.createElement('span', { style: {fontSize:18},}, o.icon)
                   , React.createElement('span', { style: {fontSize:14,fontWeight:600,color:"var(--tx)"},}, o.title)
                 )
-                , React.createElement('p', { style: {fontSize:12,color:"var(--tx3)",lineHeight:1.55},}, o.desc)
+                , React.createElement('p', { id:o.k==="keepOtherSectionsOpen"?"keep-other-sections-help":undefined, style: {fontSize:12,color:"var(--tx3)",lineHeight:1.55},}, o.desc)
               )
-              , React.createElement(Cbx, { on: !!acc[o.k], onToggle: ()=>setAcc(o.k), label: o.title,})
+              , o.k==="keepOtherSectionsOpen" ? React.createElement('button', {className:"cbx"+(acc[o.k]?" on":""),role:"switch","aria-checked":!!acc[o.k],"aria-label":o.title,"aria-describedby":"keep-other-sections-help",onClick:()=>setAcc(o.k)}, acc[o.k]?"On":"Off") : React.createElement(Cbx, { on: !!acc[o.k], onToggle: ()=>setAcc(o.k), label: o.title,})
             )
           )
         ))
