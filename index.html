@@ -3484,7 +3484,7 @@ function AccessibilitySettings({navigate, prefs, setPrefs}) {
         , React.createElement('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6},}, "Looscid is designed for everyone. These options help customize your experience based on your needs."                )
       )
       , React.createElement('div', { style: {padding:"0 0 24px"},}
-        , options.map(o => (
+        , React.createElement('h2', {className:"slbl"}, "Accessibility options")         , React.createElement('p', {style:{padding:"0 16px 8px",fontSize:12,color:"var(--tx2)"}}, "Choose settings for reading, appearance, and interaction.")         , options.map(o => (
           React.createElement('div', { key: o.k, style: {padding:"14px 16px",borderBottom:"1px solid var(--bd)"},}
             , React.createElement('div', { style: {display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:12},}
               , React.createElement('div', { style: {flex:1},}
