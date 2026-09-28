@@ -6448,7 +6448,7 @@ useEffect(() => {
   const renderPage = () => {
     switch(page) {
       case "feed":          return React.createElement(FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
-      case "discover":      return React.createElement(DiscoverPage, { navigate: navigate, cherryCtx: cherryCtx,});
+      case "discover":      return React.createElement(window.LooscidDiscoverExtracted || DiscoverPage, { navigate: navigate, cherryCtx: cherryCtx,});
       case "alerts":        return React.createElement(AlertsPage, { cherryCtx: cherryCtx,});
       case "groups":        return React.createElement(GroupsPage, { navigate: navigate, cherryCtx: cherryCtx,});
       case "profile":       return React.createElement(ProfilePage, { navigate: navigate, cherryCtx: cherryCtx, authUser: authUser,});
