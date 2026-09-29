@@ -33,7 +33,7 @@ Looscid must support user-selected AI providers without locking users to one mod
 - [ ] Keep credentials in secure user-controlled storage; never place secrets in source, manifests, logs, or shared registry data.
 - [ ] Support local/offline models where available and degrade gracefully when a provider is unavailable.
 - [ ] Expose provider identity and data-sharing behavior clearly before a request is sent.
-- [ ] Gabriel is a work in progress and is being built by a friend; keep its integration isolated behind the assistant adapter so it does not constrain custom AI support.
+- [ ] Cherry integration is a work in progress; keep its integration isolated behind the assistant adapter so it does not constrain custom AI support.
 
 ## Phase 2A — cross-platform shell and App Store integration
 
@@ -60,7 +60,7 @@ Versioned JSON manifests should include `schema`, `id`, `name`, `summary`, `desc
 4. Add registry indexes, release/assets adapters, checksum verification, caching, and offline behavior.
 5. Build publish, mirror, fork, review, combine, and refresh flows for decentralized registries.
 6. Add accessible confirmation, dry-run, cancellation, rollback, and failure recovery.
-7. Add custom AI provider adapters and Gabriel integration without coupling the core shell to one provider.
+7. Add custom AI provider adapters and Cherry integration without coupling the core shell to one provider.
 
 ## Phase 3 — sovereign platform expansion
 
@@ -100,8 +100,10 @@ X: @Looscid
 
 These decisions guide the next navigation, Feed, Discover, and catalog changes; checkboxes distinguish shipped work from planned work.
 
-- [x] DiscoverPage extracted into `discover.js`, with the inline definition removed from `index.html` (PR #23). Completed on September 28, 2026 at 1:39 AM.
-- [x] Main decorative emoji sweep in user-facing strings (`62d1619`). Completed on September 25, 2026 at 9:56 AM. Guest Terms and Admin Panel icon strings were also replaced; the Accessibility icon child kept its existing `aria-label`.
+- [x] DiscoverPage extracted into `discover.js`, with the inline definition removed from `index.html` (PR #23).
+  Completed on September 28, 2026 at 1:39 AM.
+- [x] Main decorative emoji sweep in user-facing strings (`62d1619`). Guest Terms and Admin Panel icon strings were also replaced; the Accessibility icon child kept its existing `aria-label`.
+  Completed on September 25, 2026 at 9:56 AM.
 - [ ] Five-tab navigation, Local-to-Nearby rename, Discover Refine structure, and Sense rename are not shipped.
 
 ### Navigation
