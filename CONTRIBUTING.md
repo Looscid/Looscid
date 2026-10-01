@@ -26,6 +26,16 @@ Keep it clean and readable. Comment your reasoning. If something might confuse s
 
 ---
 
+## Documentation conventions
+
+When two or more docs cover the same subject, bring them into one file. Keep each original source filename as a real Markdown heading (`##` or `###`) so its anchor works, not as bold text. Put a short line saying what was combined right below the top heading. Docs that only look alike but cover different subjects should stay separate.
+
+While merging, fix verified stale terms: Gabriel to Cherry, Dream Board and Dream Board Mobile to Looscid, Local to Nearby, and inline DiscoverPage to discover.js. Never edit quoted copy, sample strings or legal terms. Use relative links, never absolute GitHub blob URLs. Preserve accessibility-relevant copy and attributes exactly, including `role`, `tabindex`, focus handlers and `aria-*`.
+
+Never merge legal text. If `license.txt` and `LICENSE` differ in substance, keep them separate and let Alhasan decide.
+
+---
+
 ## The spirit of this project
 
 Looscid exists to prove something. We hope you feel that when you build with us.
