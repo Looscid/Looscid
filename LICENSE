@@ -1,9 +1,7 @@
 Looscid Public License (LPL) v1.0
 Copyright (c) 2026—present Alhasan Altameemi / Looscid
 
-────────────────────────────────────────────────────────────────────────────────
-PREAMBLE
-────────────────────────────────────────────────────────────────────────────────
+WHY THIS LICENSE EXISTS
 
 Looscid was built on a simple belief: an Operating System (OS) should be free, open,
 accessible and belong to its users, not to investors, advertisers, or
@@ -12,57 +10,19 @@ corporations. This license exists to protect that belief in code.
 You are free to read this code, learn from it, and contribute to it. You are
 not free to use it to build something that contradicts what it was built for.
 
-────────────────────────────────────────────────────────────────────────────────
-GRANT OF RIGHTS  PERMISSIONS
-────────────────────────────────────────────────────────────────────────────────
+WHAT YOU MAY DO
 
-✓  Read and study the source code for any purpose
-✓  Fork the code for personal, non-commercial, non-public use
-✓  Contribute improvements back to the Looscid project
-✓  Use individual components or techniques as reference in your own projects,
+-  Read and study the source code for any purpose
+-  Fork the code for personal, non-commercial, non-public use
+-  Contribute improvements back to the Looscid project
+-  Use individual components or techniques as reference in your own projects,
    provided you do not reproduce the platform as a whole
-✓  Run a private instance for yourself or a small non-commercial community,
+-  Run a private instance for yourself or a small non-commercial community,
    provided it is not monetized and carries this license notice
-✓  Run a public instance (including by a company or organization), provided
+-  Run a public instance (including by a company or organization), provided
    it remains completely free to end users and follows all restrictions below
 
-────────────────────────────────────────────────────────────────────────────────
-RESTRICTIONS (WHAT you CANNOT DO)
-────────────────────────────────────────────────────────────────────────────────
-
-✗  Paywalling: Any public deployment of this code or a derivative must remain
-   free to end users. You may not charge for access to features that Looscid
-   provides for free.
-
-✗  Advertising: You may not introduce advertising, sponsored content, or
-   data-broker integrations into any public deployment of this code.
-
-✗  Data harvesting: You may not deploy this code in a manner that collects user
-   data for sale, profiling for advertising, or any purpose other than operating
-   the platform for its users.
-
-✗  Closed-source public derivatives: Any public fork or deployment must keep
-   the source available under this same license.
-
-✗  Trademark use: You may not use the names Looscid, LooscidID, Dreamors,
-   ReDreams, Circles, or Cherry as product names, feature names, or brand
-   identifiers in any project without written permission.
-
-✗  Misleading derivatives: Any public fork or deployment must clearly identify
-   itself as separate from Looscid and must not impersonate, misrepresent, or
-   trade on the reputation of Looscid.
-
-✗  Malware and surveillance: You may not use this code to build tools that
-   surveil users, distribute malicious code, phish for credentials, or otherwise
-   harm the people using the software.
-
-✗  Corporate acquisition: You may not use this code as the foundation for a
-   project intended to be acquired by or merged into a corporate entity in a way
-   that would compromise the free and open nature of the platform.
-
-────────────────────────────────────────────────────────────────────────────────
-CONDITIONS (what you MUST do if you deploy a public instance)
-────────────────────────────────────────────────────────────────────────────────
+WHAT YOU MUST DO IF YOU DEPLOY A PUBLIC INSTANCE
 
 1. Carry this license notice in the repository and in the application's About
    section, including a link to the original project.
@@ -75,9 +35,39 @@ CONDITIONS (what you MUST do if you deploy a public instance)
 
 5. Do not remove the accessibility features from any public deployment.
 
-────────────────────────────────────────────────────────────────────────────────
-TRADEMARKS
-────────────────────────────────────────────────────────────────────────────────
+WHAT YOU MAY NOT DO
+
+-  Paywalling: Any public deployment of this code or a derivative must remain
+   free to end users. You may not charge for access to features that Looscid
+   provides for free.
+
+-  Advertising: You may not introduce advertising, sponsored content, or
+   data-broker integrations into any public deployment of this code.
+
+-  Data harvesting: You may not deploy this code in a manner that collects user
+   data for sale, profiling for advertising, or any purpose other than operating
+   the platform for its users.
+
+-  Closed-source public derivatives: Any public fork or deployment must keep
+   the source available under this same license.
+
+-  Trademark use: You may not use the names Looscid, LooscidID, Dreamors,
+   ReDreams, Circles, or Cherry as product names, feature names, or brand
+   identifiers in any project without written permission.
+
+-  Misleading derivatives: Any public fork or deployment must clearly identify
+   itself as separate from Looscid and must not impersonate, misrepresent, or
+   trade on the reputation of Looscid.
+
+-  Malware and surveillance: You may not use this code to build tools that
+   surveil users, distribute malicious code, phish for credentials, or otherwise
+   harm the people using the software.
+
+-  Corporate acquisition: You may not use this code as the foundation for a
+   project intended to be acquired by or merged into a corporate entity in a way
+   that would compromise the free and open nature of the platform.
+
+PROTECTED NAMES AND TRADEMARKS
 
 The following are trademarks of Looscid:
 
@@ -95,17 +85,17 @@ products is not permitted without written permission.
 
 To request trademark use permission: hello@db.mobile@gmail.com
 
-────────────────────────────────────────────────────────────────────────────────
-DISCLAIMER (PLEASE READ CAREFULLY)
-────────────────────────────────────────────────────────────────────────────────
+NO WARRANTY
 
-THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED. THE COPYRIGHT HOLDER IS NOT LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
-LIABILITY ARISING FROM USE OF THIS SOFTWARE.
+This software is provided "as is", without warranty of any kind, express or
+implied.
 
-────────────────────────────────────────────────────────────────────────────────
+LIMITATION OF LIABILITY
+
+The copyright holder is not liable for any claim, damages, or other liability
+arising from use of this software.
+
 COMMERCIAL LICENSING
-────────────────────────────────────────────────────────────────────────────────
 
 If you want to use Looscid's code in a way this license does not permit
 (for example, to charge users or build a paid product), contact us to discuss
@@ -113,7 +103,5 @@ a commercial license: hello.db.mobile@gmail.com
 
 We are reasonable people. We want the code to be useful. We just want it used
 in a way that is consistent with why it was built.
-
-────────────────────────────────────────────────────────────────────────────────
 
 Looscid - DO IT ALL. ON LOOSCID
