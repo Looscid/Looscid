@@ -2,7 +2,7 @@
 
 Combined from `NOSTR_ARCHITECTURE.md` and `CHERRY_AI_NOSTR_INTEGRATION.md`. See [Nostr Feedback](docs/nostr-feedback.md).
 
-## Nostr Architecture
+## NOSTR_ARCHITECTURE.md
 
 DreamOS is built on Nostr as its foundation.
 Your nsec key IS your Dream ID.
@@ -161,7 +161,7 @@ We contribute back where we can.
 That is what open source means.
 
 
-## Cherry AI Nostr Integration
+## CHERRY_AI_NOSTR_INTEGRATION.md
 
 Complete implementation guide for integrating Cherry AI with the Nostr protocol in Looscid.
 
