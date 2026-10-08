@@ -15,7 +15,7 @@
   </script>
 
 <meta charset="UTF-8"/>
-<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-src 'none';"/>
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https:; frame-src 'none';"/>
 <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
@@ -423,6 +423,9 @@ h2.slbl,div.slbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:
 .lid-card-n{font-size:17px;font-weight:700;color:var(--tx)}
 .lid-card-h{font-size:14px;color:var(--tx2);margin-top:1px}
 .lid-card-s{font-size:13px;color:var(--tx2);margin-top:4px}
+.lid-alert-bg{position:fixed;inset:0;z-index:10010;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:20px}
+.lid-alert{background:var(--sf);border:1px solid var(--bd2);border-radius:18px;padding:20px;max-width:380px;width:100%;display:flex;flex-direction:column;gap:10px}
+.lmenu-item[aria-disabled="true"]{color:var(--tx2);cursor:default}
 .pf-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;font-size:14px}
 .pf-links a{color:var(--ac4)}
 </style>
@@ -2473,7 +2476,7 @@ function CherryPage({navigate, cherryCtx}) {
 /* --- SETTINGS ---------------------------- */
 function SettingsPage({prefs, setPrefs, navigate, onSignOut, authUser, theme, setTheme, drafts}) {
   const sections = [
-    {id:"account",        icon:"Account", title:"Account",         sub:"LooscidID, your info, sign-in and security", color:"#6d28d9"},
+    {id:"account",        icon:"Account", title:"Account",         sub:"LooscidID, your info, login and security", color:"#6d28d9"},
     {id:"notifications",  icon:"Alerts", title:"Alerts",           sub:"Push, email, sounds, news",           color:"#0e7490"},
     {id:"privacy",        icon:"Privacy", title:"Privacy",          sub:"Visibility, blocked users",           color:"#be185d"},
     {id:"customizability",icon:"Customizability", title:"Customizability",  sub:"Character limit, Cherry AI, themes",  color:"#15803d"},
@@ -2523,7 +2526,7 @@ function SettingsPage({prefs, setPrefs, navigate, onSignOut, authUser, theme, se
         , React.createElement('div', { className: "lid-card-t",}
           , React.createElement('div', { className: "lid-card-n",}, authUser.displayName||"Dreamor")
           , React.createElement('div', { className: "lid-card-h",}, authUser.handle||"")
-          , React.createElement('div', { className: "lid-card-s",}, "LooscidID, profile, sign-in and security")
+          , React.createElement('div', { className: "lid-card-s",}, "LooscidID, profile, login and security")
         )
         , React.createElement(Ic.Chv, { style: {width:18,height:18,color:"var(--tx2)",flexShrink:0}, 'aria-hidden': "true",})
       )
@@ -3206,7 +3209,7 @@ function AboutSettings({navigate}) {
           , React.createElement('li', null, "Show that everything can be accessible for anyone.")
           , React.createElement('li', null, "Give you control and privacy.")
         )
-        , React.createElement('p', { className: "lid-help",}, "You make your LooscidID with Nostr today, and Pubky, Mastodon and the fediverse, Bluesky and more are on the way.")
+        , React.createElement('p', { className: "lid-help",}, "Log in and make your LooscidID with Nostr, Mastodon and the fediverse, or Bluesky. Pubky and more are on the way.")
       )
       , React.createElement('section', { 'aria-labelledby': "about-roadmap", style: {padding:"0 16px 12px"},}
         , React.createElement('h2', { id: "about-roadmap", className: "lid-sub",}, "Roadmap")
@@ -3214,12 +3217,13 @@ function AboutSettings({navigate}) {
         , React.createElement('ul', { className: "lid-help", style: {paddingLeft:22,margin:"4px 0"},}
           , React.createElement('li', null, "No sign-up servers: Supabase and Cloudflare are gone, and your profile lives on your device.")
           , React.createElement('li', null, "LooscidID with Nostr: use your signer extension or make a key on this device.")
+          , React.createElement('li', null, "Login methods: link Nostr, Mastodon and the fediverse, and Bluesky to one LooscidID.")
           , React.createElement('li', null, "Change your info one field at a time in Settings, Account.")
           , React.createElement('li', null, "A new welcome intro, terminology guide and topic picker.")
         )
         , React.createElement('h3', { className: "lid-label",}, "Next")
         , React.createElement('ul', { className: "lid-help", style: {paddingLeft:22,margin:"4px 0"},}
-          , React.createElement('li', null, "Sign in with Pubky, Mastodon and the fediverse, and Bluesky.")
+          , React.createElement('li', null, "Login with Pubky, and posting over Mastodon and Bluesky.")
           , React.createElement('li', null, "Post and read Dreams over Nostr.")
           , React.createElement('li', null, "Redream with an optional comment, and the reply composer with formatting.")
           , React.createElement('li', null, "Custom feeds in the feed selector.")
@@ -5390,7 +5394,7 @@ function useProfileEditor(authUser, onUpdateProfile, navigate) {
 }
 
 /* --- Menu pop-up button (borrowed from Hasan's iOS popover pattern) ------ */
-function MenuPopupButton({ id, label, value, items, onSelect, prefix }) {
+function MenuPopupButton({ id, label, value, items, onSelect, prefix, placeholder }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
   const btnRef = useRef(null);
@@ -5412,7 +5416,7 @@ function MenuPopupButton({ id, label, value, items, onSelect, prefix }) {
     document.addEventListener("mousedown", onDoc);
     return function () { document.removeEventListener("mousedown", onDoc); };
   }, [open]);
-  const choose = function (it) { setOpen(false); onSelect(it.id); setTimeout(function () { if (btnRef.current) btnRef.current.focus(); }, 0); };
+  const choose = function (it) { if (it.disabled) return; setOpen(false); onSelect(it.id); setTimeout(function () { if (btnRef.current) btnRef.current.focus(); }, 0); };
   const onMenuKey = function (e) {
     const n = items.length;
     if (e.key === "ArrowDown") { e.preventDefault(); setActive((active + 1) % n); }
@@ -5430,11 +5434,11 @@ function MenuPopupButton({ id, label, value, items, onSelect, prefix }) {
         'aria-controls': id + "-menu", 'aria-labelledby': id + "-label " + id,
         onClick: function () { open ? setOpen(false) : openMenu(); },
         onKeyDown: function (e) { if (e.key === "ArrowDown") { e.preventDefault(); openMenu(0); } else if (e.key === "ArrowUp") { e.preventDefault(); openMenu(items.length - 1); } } },
-      lh('span', null, current ? (prefix || "") + current.name : "Choose"),
+      lh('span', null, current ? (prefix || "") + current.name : (placeholder || "Choose")),
       lh('span', { className: "lmenu-caret", 'aria-hidden': "true" }, open ? "\u25B4" : "\u25BE")),
     open && lh('ul', { id: id + "-menu", role: "menu", ref: listRef, className: "lmenu-list", 'aria-labelledby': id + "-label", onKeyDown: onMenuKey },
       items.map(function (it, i) {
-        return lh('li', { key: it.id, role: "menuitemradio", 'aria-checked': it.id === value ? "true" : "false", tabIndex: i === active ? 0 : -1,
+        return lh('li', { key: it.id, role: "menuitemradio", 'aria-checked': it.id === value ? "true" : "false", 'aria-disabled': it.disabled ? "true" : undefined, tabIndex: i === active ? 0 : -1,
             className: "lmenu-item" + (i === active ? " act" : ""), onClick: function () { choose(it); }, onMouseMove: function () { if (active !== i) setActive(i); } },
           lh('span', { className: "lmenu-check", 'aria-hidden': "true" }, it.id === value ? "\u2713" : ""),
           lh('span', null, it.name, it.note ? lh('span', { className: "lmenu-note" }, ", " + it.note) : null));
@@ -5448,10 +5452,43 @@ function MenuPopupButton({ id, label, value, items, onSelect, prefix }) {
 const LID_IDENTITY_KEY = "looscid_identity";
 const LID_NOSTR_SK_KEY = "looscid_nostr_sk";
 function getIdentity() { try { return JSON.parse(localStorage.getItem(LID_IDENTITY_KEY) || "null"); } catch (e) { return null; } }
-function setIdentity(v) { try { if (v) localStorage.setItem(LID_IDENTITY_KEY, JSON.stringify(v)); else localStorage.removeItem(LID_IDENTITY_KEY); } catch (e) {} return v; }
+function setIdentity(v) {
+  try { if (v) localStorage.setItem(LID_IDENTITY_KEY, JSON.stringify(v)); else localStorage.removeItem(LID_IDENTITY_KEY); } catch (e) {}
+  if (v && v.provider === "nostr") addMethod({ provider: "nostr", publicId: v.npub || v.pubkey, how: v.method === "nip07" ? "signer extension" : "key on this device", nostrMethod: v.method });
+  return v;
+}
+/* Login methods linked to this LooscidID (public identifiers only; one ID, many logins).
+   Secrets never live here: a Nostr key made on this device is kept under its own key,
+   and network sessions/tokens under looscid_sessions, all on this device only. */
+const LID_METHODS_KEY = "looscid_signin_methods";
+const LID_SESSIONS_KEY = "looscid_sessions";
+function getMethods() {
+  try { const m = JSON.parse(localStorage.getItem(LID_METHODS_KEY) || "null"); if (Array.isArray(m)) return m; } catch (e) {}
+  const idn = getIdentity(); const list = [];
+  if (idn && idn.provider === "nostr") list.push({ id: "nostr:" + (idn.npub || idn.pubkey), provider: "nostr", publicId: idn.npub || idn.pubkey, how: idn.method === "nip07" ? "signer extension" : "key on this device", nostrMethod: idn.method, at: idn.at || Date.now() });
+  try { localStorage.setItem(LID_METHODS_KEY, JSON.stringify(list)); } catch (e) {}
+  return list;
+}
+function saveMethods(list) { try { localStorage.setItem(LID_METHODS_KEY, JSON.stringify(list)); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid-methods")); return list; }
+function addMethod(m) {
+  const id = m.provider + ":" + m.publicId;
+  const list = getMethods().filter(function (x) { return x.provider !== m.provider; }); // one login per network
+  list.push(Object.assign({ id: id, at: Date.now() }, m));
+  return saveMethods(list);
+}
+function getSessions() { try { return JSON.parse(localStorage.getItem(LID_SESSIONS_KEY) || "{}"); } catch (e) { return {}; } }
+function setSession(provider, data) { const s = getSessions(); if (data) s[provider] = data; else delete s[provider]; try { localStorage.setItem(LID_SESSIONS_KEY, JSON.stringify(s)); } catch (e) {} }
+function removeMethod(id) {
+  const m = getMethods().find(function (x) { return x.id === id; });
+  if (m && m.provider === "nostr") { setStoredNostrSk(null); try { localStorage.removeItem(LID_IDENTITY_KEY); } catch (e) {} }
+  if (m) setSession(m.provider, null);
+  return saveMethods(getMethods().filter(function (x) { return x.id !== id; }));
+}
+const PROVIDER_NAMES = { nostr: "Nostr", activitypub: "Mastodon", atproto: "Bluesky", pubky: "Pubky" };
+function methodLabel(m) { const pid = m.provider === "nostr" ? shortNpub(m.publicId) : m.publicId; return PROVIDER_NAMES[m.provider] + ", " + pid + (m.how ? ", " + m.how : ""); }
 function getStoredNostrSk() { try { return localStorage.getItem(LID_NOSTR_SK_KEY); } catch (e) { return null; } }
 function setStoredNostrSk(hex) { try { if (hex) localStorage.setItem(LID_NOSTR_SK_KEY, hex); else localStorage.removeItem(LID_NOSTR_SK_KEY); } catch (e) {} }
-function signOutIdentity() { setStoredNostrSk(null); setIdentity(null); }
+function signOutIdentity() { const m = getMethods().find(function (x) { return x.provider === "nostr"; }); if (m) removeMethod(m.id); else { setStoredNostrSk(null); setIdentity(null); } }
 const NOSTR_TOOLS_SRC = "https://cdn.jsdelivr.net/npm/nostr-tools@2.25.2/lib/nostr.bundle.js";
 const NOSTR_TOOLS_SRI = "sha384-FXQAsrQPF8+Yw4G9sjW+s9sUIozKgjjidpD4OPcUaIxR5Z7gMcDFArOKmEq+KES2";
 let nostrToolsPromise = null;
@@ -5507,8 +5544,8 @@ function NostrPanel({ onDone }) {
       let npub = null; try { const NT = await loadNostrTools(); npub = NT.nip19.npubEncode(pk.toLowerCase()); } catch (e) {}
       setStoredNostrSk(null);
       setIdentity({ provider: "nostr", method: "nip07", pubkey: pk.toLowerCase(), npub: npub, at: Date.now() });
-      setBusy(false); announce("Signed in with your Nostr signer extension");
-      onDone("Signed in with your Nostr signer extension.");
+      setBusy(false); announce("Logged in with your Nostr signer extension");
+      onDone("Logged in with your Nostr signer extension.");
     } catch (e) { fail("Your signer extension said no, or was closed. Nothing was saved."); }
   };
   const createKey = async function () {
@@ -5534,8 +5571,8 @@ function NostrPanel({ onDone }) {
     setStoredNostrSk(bytesToHex(sk));
     setIdentity({ provider: "nostr", method: "local", pubkey: pk, npub: NT.nip19.npubEncode(pk), at: Date.now(), imported: true });
     setPaste(""); setBusy(false);
-    announce("Signed in with your Nostr key");
-    onDone("Signed in with your Nostr key. It's saved only on this device.");
+    announce("Logged in with your Nostr key");
+    onDone("Logged in with your Nostr key. It's saved only on this device.");
   };
   const pasteRef = useEnterSubmit(usePasted);
 
@@ -5553,7 +5590,7 @@ function NostrPanel({ onDone }) {
   return lh('div', { className: "lid-panel" },
     lh('p', { className: "lid-help" }, "Nostr is a powerful way of communication, and your key works everywhere Nostr is supported."),
     hasExt
-      ? lh('button', { type: "button", className: "btn bp lid-wide", disabled: busy, onClick: useExtension }, "Use my Nostr signer extension")
+      ? lh('button', { type: "button", className: "btn bp lid-wide", disabled: busy, onClick: useExtension }, "Login with my Nostr signer extension")
       : lh('p', { className: "lid-help" }, "No Nostr signer extension was found in this browser. A signer extension, like Alby or nos2x, keeps your key safest. You can also create a key on this device."),
     lh('button', { type: "button", className: "btn " + (hasExt ? "bgb" : "bp") + " lid-wide", disabled: busy, onClick: createKey }, "Create a new key on this device"),
     lh('button', { type: "button", className: "lid-disclose", 'aria-expanded': showPaste ? "true" : "false", 'aria-controls': "lid-paste",
@@ -5567,33 +5604,199 @@ function NostrPanel({ onDone }) {
 
 function ComingSoonPanel({ provider }) {
   return lh('div', { className: "lid-panel" },
-    lh('p', { className: "lid-soon" }, provider.name + " sign-in is coming soon."),
+    lh('p', { className: "lid-soon" }, provider.name + " login is coming soon."),
     lh('p', { className: "lid-help" }, provider.why),
     lh('p', { className: "lid-help" }, "For now, choose Nostr or continue with your local profile."));
+}
+
+
+/* --- Mastodon / fediverse: real OAuth 2 with PKCE, all in the browser ------- */
+const LID_OAUTH_PENDING = "looscid_oauth_pending";
+function b64url(bytes) { let s = ""; bytes.forEach(function (b) { s += String.fromCharCode(b); }); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
+function randomToken(n) { const a = new Uint8Array(n || 32); crypto.getRandomValues(a); return b64url(a); }
+async function pkceChallenge(verifier) { const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier)); return b64url(new Uint8Array(d)); }
+function appRedirectUri() { return location.origin + location.pathname; }
+function normalizeHost(v) { v = (v || "").trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "").replace(/^@?[^@]*@/, ""); return /^[a-z0-9.-]+\.[a-z]{2,}$/.test(v) ? v : null; }
+async function startMastodonLogin(hostInput, from) {
+  const host = normalizeHost(hostInput);
+  if (!host) throw new Error("Type your server, like mastodon.social.");
+  const redirect = appRedirectUri();
+  const body = new URLSearchParams({ client_name: "Looscid", redirect_uris: redirect, scopes: "read:accounts", website: redirect });
+  let app;
+  try { const r = await fetch("https://" + host + "/api/v1/apps", { method: "POST", body: body }); if (!r.ok) throw new Error(); app = await r.json(); }
+  catch (e) { throw new Error("Couldn't reach " + host + ", or it doesn't accept new apps. Check the server name."); }
+  if (!app || !app.client_id) throw new Error(host + " didn't register Looscid. Try again.");
+  const verifier = randomToken(48), state = randomToken(16);
+  try { localStorage.setItem(LID_OAUTH_PENDING, JSON.stringify({ provider: "activitypub", host: host, client_id: app.client_id, client_secret: app.client_secret, verifier: verifier, state: state, redirect: redirect, from: from || "account", at: Date.now() })); } catch (e) {}
+  const q = new URLSearchParams({ response_type: "code", client_id: app.client_id, redirect_uri: redirect, scope: "read:accounts", state: state, code_challenge: await pkceChallenge(verifier), code_challenge_method: "S256" });
+  location.assign("https://" + host + "/oauth/authorize?" + q.toString());
+}
+// Runs once at startup: finishes a Mastodon sign-in when we come back with ?code=&state=.
+let oauthReturn = null;
+async function finishOAuthIfReturning() {
+  const params = new URLSearchParams(location.search);
+  const code = params.get("code"), state = params.get("state"), err = params.get("error");
+  let pending = null; try { pending = JSON.parse(localStorage.getItem(LID_OAUTH_PENDING) || "null"); } catch (e) {}
+  if (!pending || (!code && !err) || state !== pending.state) return null;
+  try { localStorage.removeItem(LID_OAUTH_PENDING); } catch (e) {}
+  history.replaceState(null, "", location.pathname + location.hash);
+  if (err || !code) return { ok: false, from: pending.from, msg: "Mastodon login was cancelled. Nothing was linked." };
+  try {
+    const tr = await fetch("https://" + pending.host + "/oauth/token", { method: "POST", body: new URLSearchParams({ grant_type: "authorization_code", code: code, client_id: pending.client_id, client_secret: pending.client_secret || "", redirect_uri: pending.redirect, code_verifier: pending.verifier, scope: "read:accounts" }) });
+    const tok = await tr.json(); if (!tr.ok || !tok.access_token) throw new Error("token");
+    const vr = await fetch("https://" + pending.host + "/api/v1/accounts/verify_credentials", { headers: { Authorization: "Bearer " + tok.access_token } });
+    const acct = await vr.json(); if (!vr.ok || !acct.username) throw new Error("verify");
+    const handle = "@" + acct.username + "@" + pending.host;
+    setSession("activitypub", { host: pending.host, handle: handle, token: tok.access_token });
+    addMethod({ provider: "activitypub", publicId: handle, how: "linked" });
+    return { ok: true, from: pending.from, msg: "Mastodon linked as " + handle + "." };
+  } catch (e) { return { ok: false, from: pending.from, msg: "Couldn't finish logging in with " + pending.host + ". Nothing was linked. Try again." }; }
+}
+// Start finishing a Mastodon login the moment the app loads (the URL carries ?code=).
+oauthReturn = finishOAuthIfReturning();
+function useOAuthReturn(from, cb) {
+  useEffect(function () {
+    let alive = true;
+    if (!oauthReturn) oauthReturn = finishOAuthIfReturning();
+    oauthReturn.then(function (r) { if (alive && r && (!from || r.from === from) && !r.used) { r.used = true; announce(r.ok ? "Login method added" : r.msg); cb(r); } });
+    return function () { alive = false; };
+  }, []);
+}
+function MastodonPanel({ onDone, from }) {
+  const [host, setHost] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const go = async function () {
+    setBusy(true); setMsg("");
+    try { await startMastodonLogin(host, from); } catch (e) { setMsg(e.message); announce(e.message); setBusy(false); }
+  };
+  const ref = useEnterSubmit(go);
+  return lh('div', { className: "lid-panel" },
+    lh('p', { className: "lid-help" }, "Log in with your Mastodon or other fediverse server. You'll go to your server to approve Looscid, then come straight back. Looscid only asks to read your account name."),
+    lh('label', { htmlFor: "lid-masto-host", className: "lid-label" }, "Your server"),
+    lh('input', { id: "lid-masto-host", ref: ref, className: "inp", type: "text", inputMode: "url", autoCapitalize: "off", spellCheck: false, placeholder: "mastodon.social", value: host, onChange: function (e) { setHost(e.target.value); } }),
+    lh('button', { type: "button", className: "btn bp lid-wide", disabled: busy, onClick: go }, busy ? "Opening your server\u2026" : "Continue to your server"),
+    msg && lh('p', { className: "lid-err" }, msg));
+}
+
+/* --- Bluesky / AT Protocol: handle + app password (createSession at your PDS) - */
+async function resolvePds(handle) {
+  const r = await fetch("https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=" + encodeURIComponent(handle));
+  const j = await r.json(); if (!r.ok || !j.did) throw new Error("handle");
+  const did = j.did;
+  const docUrl = did.startsWith("did:plc:") ? "https://plc.directory/" + did : did.startsWith("did:web:") ? "https://" + did.slice(8) + "/.well-known/did.json" : null;
+  if (!docUrl) throw new Error("did");
+  const d = await (await fetch(docUrl)).json();
+  const svc = (d.service || []).find(function (s) { return s.id === "#atproto_pds" || s.type === "AtprotoPersonalDataServer"; });
+  if (!svc) throw new Error("pds");
+  return { did: did, pds: svc.serviceEndpoint.replace(/\/$/, "") };
+}
+function BlueskyPanel({ onDone }) {
+  const [handle, setHandle] = useState("");
+  const [pw, setPw] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const go = async function () {
+    const h = (handle || "").trim().replace(/^@/, "").toLowerCase();
+    if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(h)) { setMsg("Type your full handle, like name.bsky.social."); announce("Type your full handle, like name.bsky.social."); return; }
+    if (!pw.trim()) { setMsg("Paste an app password."); announce("Paste an app password."); return; }
+    setBusy(true); setMsg("");
+    let where; try { where = await resolvePds(h); } catch (e) { setBusy(false); const t = "Couldn't find " + h + " on Bluesky. Check the handle."; setMsg(t); announce(t); return; }
+    try {
+      const r = await fetch(where.pds + "/xrpc/com.atproto.server.createSession", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ identifier: where.did, password: pw.trim() }) });
+      const s = await r.json(); if (!r.ok || !s.accessJwt || s.did !== where.did) throw new Error();
+      setSession("atproto", { did: s.did, handle: s.handle, pds: where.pds, accessJwt: s.accessJwt, refreshJwt: s.refreshJwt });
+      setPw(""); setBusy(false);
+      addMethod({ provider: "atproto", publicId: "@" + s.handle, how: "app password", did: s.did });
+      onDone("Bluesky linked as @" + s.handle + ".");
+    } catch (e) { setBusy(false); setPw(""); const t = "Bluesky didn't accept that app password. Nothing was linked."; setMsg(t); announce(t); }
+  };
+  const ref = useEnterSubmit(go);
+  return lh('div', { className: "lid-panel" },
+    lh('p', { className: "lid-warn", id: "lid-bsky-warn" }, "Use an app password, never your main password. Make one in Bluesky under Settings, Privacy and security, App passwords. Looscid keeps your session only on this device and never stores the password."),
+    lh('label', { htmlFor: "lid-bsky-handle", className: "lid-label" }, "Bluesky handle"),
+    lh('input', { id: "lid-bsky-handle", className: "inp", type: "text", autoCapitalize: "off", spellCheck: false, placeholder: "name.bsky.social", value: handle, onChange: function (e) { setHandle(e.target.value); } }),
+    lh(SecretField, { id: "lid-bsky-pw", label: "App password", value: pw, onChange: setPw, describedBy: "lid-bsky-warn", inputRef: ref }),
+    lh('button', { type: "button", className: "btn bp lid-wide", disabled: busy, onClick: go }, busy ? "Logging in\u2026" : "Link Bluesky"),
+    msg && lh('p', { className: "lid-err" }, msg));
+}
+
+/* --- Alert dialog (role=alertdialog, focus trap, Escape cancels) ------------ */
+function AlertDialog({ title, message, confirmLabel, onConfirm, onCancel }) {
+  const boxRef = useRef(null); const cancelRef = useRef(null);
+  useEffect(function () { const prev = document.activeElement; if (cancelRef.current) cancelRef.current.focus(); return function () { if (prev && prev.focus && document.contains(prev)) prev.focus(); }; }, []);
+  const onKey = function (e) {
+    if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); onCancel(); return; }
+    if (e.key !== "Tab") return;
+    const f = boxRef.current.querySelectorAll("button"); const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  };
+  return lh('div', { className: "lid-alert-bg" },
+    lh('div', { ref: boxRef, className: "lid-alert", role: "alertdialog", 'aria-modal': "true", 'aria-labelledby': "lid-alert-t", 'aria-describedby': "lid-alert-m", onKeyDown: onKey },
+      lh('h2', { id: "lid-alert-t", className: "lid-sub" }, title),
+      lh('p', { id: "lid-alert-m", className: "lid-help" }, message),
+      lh('div', { className: "lid-actions" },
+        lh('button', { type: "button", ref: cancelRef, className: "btn bgb", onClick: onCancel }, "Cancel"),
+        lh('button', { type: "button", className: "btn bp", onClick: onConfirm }, confirmLabel))));
+}
+
+/* --- Login methods (Settings > Account > Security) ----------------------- */
+function SignInMethods() {
+  const [methods, setMethods] = useState(getMethods());
+  const [adding, setAdding] = useState(null);
+  const [confirmRm, setConfirmRm] = useState(null);
+  const [note, setNote] = useState("");
+  useEffect(function () { const f = function () { setMethods(getMethods()); }; window.addEventListener("looscid-methods", f); return function () { window.removeEventListener("looscid-methods", f); }; }, []);
+  useOAuthReturn("account", function (r) { setMethods(getMethods()); setNote(r.msg); });
+  const linked = {}; methods.forEach(function (m) { linked[m.provider] = true; });
+  const items = ID_PROVIDERS.map(function (p) {
+    return Object.assign({}, p, { disabled: p.status !== "ready", note: p.status !== "ready" ? "coming soon" : (linked[p.id] ? "linked, replace" : null) });
+  });
+  const prov = adding && ID_PROVIDERS.find(function (p) { return p.id === adding; });
+  const done = function (m) { setAdding(null); setMethods(getMethods()); setNote(m); announce("Login method added"); };
+  return lh('section', { 'aria-labelledby': "lid-methods-h", className: "lid-panel" },
+    lh('h2', { id: "lid-methods-h", className: "lid-sub" }, "Login methods"),
+    lh('p', { className: "lid-help" }, "One LooscidID can have several logins. Add any network below."),
+    note && lh('p', { className: "lid-saved" }, note),
+    lh('ul', { className: "lid-links", 'aria-label': "Login methods" },
+      methods.map(function (m) {
+        return lh('li', { key: m.id }, lh('span', null, methodLabel(m) + ", linked"),
+          lh('button', { type: "button", className: "btn bgb", 'aria-label': "Remove " + PROVIDER_NAMES[m.provider] + " login", onClick: function () { setConfirmRm(m); } }, "Remove"));
+      }),
+      lh('li', { key: "local" }, lh('span', null, "Local profile, this device"), lh('span', { className: "lid-field-v", style: { flex: "none" } }, "always on"))),
+    lh(MenuPopupButton, { id: "lid-add-method", label: "Add login method", value: adding || "", items: items, placeholder: "Choose a network",
+      onSelect: function (v) { setNote(""); setAdding(v); } }),
+    prov && (prov.status === "ready" ? lh(prov.Panel, { onDone: done, from: "account" }) : lh(ComingSoonPanel, { provider: prov })),
+    confirmRm && lh(AlertDialog, { title: "Remove " + PROVIDER_NAMES[confirmRm.provider] + " login?",
+      message: confirmRm.provider === "nostr" && confirmRm.nostrMethod === "local" ? "This deletes the Nostr key stored on this device. If you haven't saved it, it's gone for good. Your local profile stays." : "You won't be able to log in with " + PROVIDER_NAMES[confirmRm.provider] + " until you add it again. Your local profile stays.",
+      confirmLabel: "Remove", onCancel: function () { setConfirmRm(null); },
+      onConfirm: function () { const m = confirmRm; setConfirmRm(null); removeMethod(m.id); setMethods(getMethods()); setNote(PROVIDER_NAMES[m.provider] + " login removed."); announce("Login method removed");
+        setTimeout(function () { const b = document.getElementById("lid-add-method"); if (b) b.focus(); }, 0); } }));
 }
 
 // Every decentralized network gets one entry here. Adding a network = one entry.
 const ID_PROVIDERS = [
   { id: "nostr", name: "Nostr", status: "ready", Panel: NostrPanel },
   { id: "pubky", name: "Pubky", status: "soon", note: "coming soon",
-    why: "Pubky sign-in uses the Pubky Ring key app and a Pubky homeserver. Looscid needs to be connected to a homeserver first." },
-  { id: "activitypub", name: "Mastodon and ActivityPub (fediverse)", status: "soon", note: "coming soon",
-    why: "Signing in with Mastodon or another fediverse server means registering Looscid with your server, which needs a small Looscid server that doesn't exist yet." },
-  { id: "atproto", name: "Bluesky and AT Protocol", status: "soon", note: "coming soon",
-    why: "Bluesky sign-in uses AT Protocol OAuth, which needs Looscid's app details published on its website and a connection to your Bluesky server." },
+    why: "Pubky login needs the Pubky Ring app and Pubky's WebAssembly SDK talking to a Pubky relay and homeserver. That isn't wired into Looscid yet." },
+  { id: "activitypub", name: "Mastodon and ActivityPub (fediverse)", status: "ready", Panel: MastodonPanel,
+    why: "Logging in with Mastodon or another fediverse server means registering Looscid with your server, which needs a small Looscid server that doesn't exist yet." },
+  { id: "atproto", name: "Bluesky and AT Protocol", status: "ready", Panel: BlueskyPanel,
+    why: "Bluesky login uses AT Protocol OAuth, which needs Looscid's app details published on its website and a connection to your Bluesky server." },
   { id: "more", name: "And more", status: "soon", note: "coming soon",
     why: "More open, decentralized networks are on the way. Tell us which one you want in Send Feedback." },
 ];
 
-function LooscidIDChooser({ onDone, onLocal, headingLevel }) {
+function LooscidIDChooser({ onDone, onLocal, headingLevel, from }) {
   const [pick, setPick] = useState("nostr");
   const prov = ID_PROVIDERS.find(function (p) { return p.id === pick; });
   return lh('div', { className: "lid-chooser" },
-    lh(headingLevel === 1 ? 'h1' : 'h2', { className: "lid-sub" }, "How would you like to make your LooscidID?"),
+    lh(headingLevel === 1 ? 'h1' : 'h2', { className: "lid-sub" }, "How would you like to log in and make your LooscidID?"),
     lh('p', { className: "lid-help" }, "Use Nostr, Pubky, Mastodon and the fediverse, Bluesky and more to make your LooscidID."),
-    lh(MenuPopupButton, { id: "lid-provider", label: "Make my LooscidID with", value: pick, items: ID_PROVIDERS, prefix: "Use ",
+    lh(MenuPopupButton, { id: "lid-provider", label: "Log in with", value: pick, items: ID_PROVIDERS.map(function (p) { return Object.assign({}, p, { note: p.status === "ready" ? null : "coming soon" }); }), prefix: "Login with ",
       onSelect: function (v) { setPick(v); const p = ID_PROVIDERS.find(function (x) { return x.id === v; }); announce(p.status === "ready" ? p.name + " selected" : p.name + " selected, coming soon"); } }),
-    prov.status === "ready" ? lh(prov.Panel, { onDone: onDone }) : lh(ComingSoonPanel, { provider: prov }),
+    prov.status === "ready" ? lh(prov.Panel, { onDone: onDone, from: from }) : lh(ComingSoonPanel, { provider: prov }),
     onLocal && lh('button', { type: "button", className: "btn bgb lid-wide", onClick: onLocal }, "Continue with local profile"));
 }
 
@@ -5602,6 +5805,7 @@ const LID_TABS = [["home", "Home"], ["security", "Security"], ["info", "Your Inf
 function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onBack, title, homeExtra, sharingExtra, securityExtra }) {
   const [tab, setTab] = useState(initialTab || "home");
   const [idn, setIdn] = useState(getIdentity());
+  useEffect(function () { const f = function () { setIdn(getIdentity()); }; window.addEventListener("looscid-methods", f); return function () { window.removeEventListener("looscid-methods", f); }; }, []);
   const [choosing, setChoosing] = useState(false);
   const [note, setNote] = useState("");
   const ed = useProfileEditor(authUser, onUpdateProfile, navigate);
@@ -5621,28 +5825,19 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   if (tab === "home") panel = lh(React.Fragment, null,
     lh('p', { className: "lid-help" }, "Welcome to your LooscidID, " + ((authUser && authUser.displayName) || "Dreamor") + ". Manage it with tools to control the things that matter: connected services, personal info, security, data and more."),
     lh('h2', { className: "lid-sub" }, "Control security"),
-    lh('p', { className: "lid-help" }, "Signed in with: " + identityLabel(idn) + "."),
+    lh('p', { className: "lid-help" }, "Login methods: " + (getMethods().map(methodLabel).concat(["Local profile, this device"]).join("; ")) + "."),
     lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { setTab("security"); } }, "Go to Security"),
     lh('h2', { className: "lid-sub" }, "Manage the info you want to share"),
     lh('p', { className: "lid-help" }, "Update the info you care about."),
     lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { setTab("info"); } }, "Go to Your Info"),
     homeExtra || null);
-  else if (tab === "security") panel = choosing
-    ? lh(React.Fragment, null, lh(LooscidIDChooser, { onDone: doneId }), lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { setChoosing(false); } }, "Cancel"))
-    : lh(React.Fragment, null,
-      note && lh('p', { className: "lid-saved" }, note),
-      lh('h2', { className: "lid-sub" }, "How you sign in"),
-      lh('p', { className: "lid-help" }, identityLabel(idn) + "."),
-      idn && idn.method === "nip07" && lh('p', { className: "lid-help" }, "Your key stays in your signer extension. Looscid never sees it."),
+  else if (tab === "security") panel = lh(React.Fragment, null,
+      lh(SignInMethods, null),
+      idn && idn.method === "nip07" && lh('p', { className: "lid-help" }, "Your Nostr key stays in your signer extension. Looscid never sees it."),
       idn && idn.method === "local" && sk && lh(React.Fragment, null,
+        lh('h2', { className: "lid-sub" }, "Your Nostr key"),
         lh('p', { className: "lid-warn", id: "lid-sec-warn" }, "Your secret key is saved only in this browser on this device. Anyone with it can post as you."),
         lh(SecretField, { id: "lid-nsec-view", label: "Your secret key (nsec)", value: (window.NostrTools ? window.NostrTools.nip19.nsecEncode(hexToBytes(sk)) : sk), readOnly: true, describedBy: "lid-sec-warn" })),
-      idn && idn.npub && lh('p', { className: "lid-help" }, "Public key (npub): ", lh('span', { className: "lid-mono" }, idn.npub)),
-      lh('button', { type: "button", className: "btn bp lid-wide", onClick: function () { setNote(""); setChoosing(true); } }, idn ? "Change how you sign in" : "Make your LooscidID"),
-      idn && lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () {
-        if (!window.confirm(idn.method === "local" ? "Remove your Nostr key from this device? Make sure you've saved it, or it's gone for good." : "Sign out of Nostr on this device?")) return;
-        signOutIdentity(); setIdn(null); setNote("Signed out. You're using your local profile."); announce("Signed out");
-      } }, idn.method === "local" ? "Remove key from this device" : "Sign out"),
       securityExtra || null);
   else if (tab === "info") panel = ed.list;
   else panel = lh(React.Fragment, null,
@@ -5692,10 +5887,12 @@ function TopicPicker({ value, onChange }) {
 }
 
 function LooscidOnboarding({ onDone }) {
-  const [step, setStep] = useState(0);
+  const returning = (function () { try { const p = JSON.parse(localStorage.getItem(LID_OAUTH_PENDING) || "null"); return !!(p && p.from === "onboarding" && /[?&](code|error)=/.test(location.search)); } catch (e) { return false; } })();
+  const [step, setStep] = useState(returning ? 2 : 0);
   const [topics, setTopics] = useState(getTopics());
   const [idNote, setIdNote] = useState("");
   const headRef = useRef(null);
+  useOAuthReturn("onboarding", function (r) { setStep(2); setIdNote(r.ok ? "Great! " + r.msg : r.msg); });
   useEffect(function () { if (headRef.current) headRef.current.focus(); const sc = document.getElementById("lid-onb"); if (sc) sc.scrollTop = 0; }, [step]);
   const finish = function () {
     try { localStorage.setItem(LID_TOPICS_KEY, JSON.stringify(topics)); } catch (e) {}
@@ -5730,7 +5927,7 @@ function LooscidOnboarding({ onDone }) {
   else if (step === 2) body = lh(React.Fragment, null,
     H("Let's stop talking, and start doing"),
     idNote ? lh(React.Fragment, null, lh('p', { className: "lid-saved" }, idNote), primary("Continue to setup"))
-      : lh(LooscidIDChooser, { onDone: function (m) { setIdNote("Great! " + m); }, onLocal: function () { announce("Using your local profile"); next(); } }));
+      : lh(LooscidIDChooser, { from: "onboarding", onDone: function (m) { setIdNote("Great! " + m); }, onLocal: function () { announce("Using your local profile"); next(); } }));
   else if (step === 3) body = lh(React.Fragment, null,
     H("First, a tour"),
     P("Now things get a lot easier. We'll show you how to use the app and what to keep in mind, and you'll get to make your own choices."),
@@ -5843,6 +6040,8 @@ useEffect(() => {
   const handleRenameProfile = useCallback(name => {
     setAuthUser(cur => updateLocalProfile(cur, { displayName: (sanitizeInput(name) || "Dreamor").slice(0, 40) }));
   }, []);
+  // Coming back from a Mastodon login started in Settings > Account: open Security.
+  useEffect(() => { if (oauthReturn) oauthReturn.then(r => { if (r && r.from === "account") { setPage("settings_account"); setPdata({ tab: "security" }); } }); }, []);
   const handleUpdateProfile = useCallback(patch => {
     setAuthUser(cur => updateLocalProfile(cur, patch));
   }, []);
