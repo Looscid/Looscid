@@ -389,6 +389,19 @@ h2.slbl,div.slbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:
 .lid-pastebox{display:flex;flex-direction:column;gap:8px}
 .lid-chooser{display:flex;flex-direction:column;gap:10px}
 .lid-tabs{display:flex;padding:0 8px}
+.lid-vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.lid-ghead{display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px 16px 12px;text-align:center}
+.lid-gavatar{width:72px;height:72px;border-radius:50%;background:#6d28d9;color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;margin-bottom:6px}
+.lid-gname{font-size:20px;font-weight:700;color:var(--tx);margin:0}
+.lid-ghandle{font-size:14px;color:var(--tx2);margin:0}
+.lid-gcards{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.lid-gcard{width:100%;text-align:left;display:flex;flex-direction:column;gap:4px;padding:14px 16px;border:1px solid var(--bd);border-radius:14px;background:var(--bg2,transparent);color:var(--tx);font:inherit;cursor:pointer;min-height:48px}
+.lid-gcard:focus-visible{outline:3px solid var(--ac4);outline-offset:2px}
+.lid-gcard-t{font-size:15px;font-weight:700}
+.lid-gcard-s{font-size:13px;color:var(--tx2);line-height:1.5}
+.lid-dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:14px;color:var(--tx)}
+.lid-dl dt{font-weight:700}
+.lid-dl dd{margin:0;color:var(--tx2)}
 .lmenu{position:relative;display:flex;flex-direction:column;gap:6px}
 .lmenu-label{font-size:13px;font-weight:700;color:var(--tx)}
 .lmenu-btn{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;min-height:48px;padding:12px 14px;border-radius:12px;background:var(--sf2);border:1px solid var(--bd2);color:var(--tx);font:inherit;font-size:15px;cursor:pointer;text-align:left}
@@ -548,21 +561,11 @@ function applyTheme(theme) {
   }
 }
 
-/* --- DAILY DIGEST --------------------------------------------------------- */
-const DIGEST_KEY = "dbm_last_digest";
+/* --- ONBOARDING FLAG ------------------------------------------------------ */
 const ONBOARDING_KEY = "dbm_onboarding_seen";
 function getOnboardingSeen() { try { return localStorage.getItem(ONBOARDING_KEY) === "true"; } catch (e10) { return false; } }
 function setOnboardingSeen() { try { localStorage.setItem(ONBOARDING_KEY, "true"); } catch (e11) {} }
 function resetOnboarding() { try { localStorage.removeItem(ONBOARDING_KEY); } catch (e12) {} }
-function shouldShowDigest() {
-  try {
-    const last = localStorage.getItem(DIGEST_KEY);
-    if (!last) return true;
-    const diff = Date.now() - parseInt(last);
-    return diff > 20 * 60 * 60 * 1000; // 20 hours
-  } catch (e13) { return false; }
-}
-function markDigestSeen() { try { localStorage.setItem(DIGEST_KEY, String(Date.now())); } catch (e14) {} }
 
 
 /* --- HELPERS ----------------------------- */
@@ -2477,7 +2480,7 @@ function CherryPage({navigate, cherryCtx}) {
 function SettingsPage({prefs, setPrefs, navigate, onSignOut, authUser, theme, setTheme, drafts}) {
   const sections = [
     {id:"account",        icon:"Account", title:"Account",         sub:"LooscidID, your info, login and security", color:"#6d28d9"},
-    {id:"notifications",  icon:"Alerts", title:"Alerts",           sub:"Push, email, sounds, news",           color:"#0e7490"},
+    {id:"notifications",  icon:"Alerts", title:"Alerts",           sub:"Push, activity, smart alerts, news",  color:"#0e7490"},
     {id:"privacy",        icon:"Privacy", title:"Privacy",          sub:"Visibility, blocked users",           color:"#be185d"},
     {id:"customizability",icon:"Customizability", title:"Customizability",  sub:"Character limit, Cherry AI, themes",  color:"#15803d"},
     {id:"accessibility",  icon:"Accessibility", title:"Accessibility",    sub:"Font size, contrast, motion",         color:"#b45309"},
@@ -2563,33 +2566,15 @@ function SettingsPage({prefs, setPrefs, navigate, onSignOut, authUser, theme, se
 
 /* --- ACCOUNT SETTINGS ---------------------------------------------------- */
 function AccountSettings({navigate, authUser, onSignOut, onRenameProfile, onUpdateProfile, initialTab}) {
-  // Settings > Account IS LooscidID management (Hasan, Oct 8 2026): Home, Security,
-  // Your Info and Sharing tabs, built from his DreamOS ID Manager doc. The profile
-  // lives on this device; LooscidID sign-in (Nostr today) is under Security.
-  const [privateAcc, setPrivateAcc] = useState(false);
-  const [notifS, setNotifS] = useState({push:true,email:false,likes:true,comments:true,redreams:true,follows:true,mentions:true,replies:false,news:true});
-  const tgNotif = k => setNotifS(p=>({...p,[k]:!p[k]}));
-  const sharingExtra = React.createElement(React.Fragment, null
-    , React.createElement('h2', { className: "lid-sub",}, "Privacy")
-    , React.createElement('div', { className: "sr", style: {padding:"10px 0"},}
-      , React.createElement('div', null
-        , React.createElement('div', { className: "sr-title",}, "Private Account")
-        , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",marginTop:2},}, "Only approved followers see your Dreams")
-      )
-      , React.createElement(Cbx, { on: privateAcc, onToggle: ()=>setPrivateAcc(p=>!p), label: "Private Account",})
-    )
-  );
-  const homeExtra = React.createElement(React.Fragment, null
-    , React.createElement('h2', { className: "lid-sub",}, "Notifications")
-    , React.createElement(NotifSettingsContent, { s: notifS, tg: tgNotif,})
-  );
+  // Settings > Account IS LooscidID management (Hasan, Oct 8 2026), laid out like the
+  // Google Account page. Alerts live only in Settings > Alerts, never here.
   const securityExtra = React.createElement(React.Fragment, null
-    , React.createElement('h2', { className: "lid-sub",}, "Local profile")
-    , React.createElement('p', { className: "lid-help",}, "Your profile is saved only on this device. Resetting it starts fresh with the name Dreamor.")
+    , React.createElement('h3', { className: "lid-label",}, "Local profile")
+    , React.createElement('p', { className: "lid-help",}, "Your LooscidID is saved only on this device. Resetting it starts fresh with the name Dreamor.")
     , React.createElement('button', { className: "btn bgb lid-wide", onClick: ()=>{ if (window.confirm("Reset your local profile on this device?")) onSignOut(); },}, "Reset local profile")
   );
   return React.createElement(LooscidIDManager, { navigate: navigate, authUser: authUser, onUpdateProfile: onUpdateProfile || (()=>{}), initialTab: initialTab,
-    title: "Account", onBack: ()=>navigate("settings"), homeExtra: homeExtra, sharingExtra: sharingExtra, securityExtra: securityExtra,});
+    title: "Account", onBack: ()=>navigate("settings"), securityExtra: securityExtra,});
 }
 
 function NotifSettingsContent({ s, tg }) {
@@ -2598,7 +2583,6 @@ function NotifSettingsContent({ s, tg }) {
       , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Delivery")
       , [
         {k:"push",  l:"Push Notifications", d:"Receive alerts on this device"},
-        {k:"email", l:"Email Digest",        d:"Weekly summary to your inbox"},
       ].map(r => (
         React.createElement('div', { key: r.k, className: "sr",}
           , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, r.l), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:2},}, r.d))
@@ -2624,13 +2608,39 @@ function NotifSettingsContent({ s, tg }) {
   );
 }
 
-function NotificationsSettings({navigate}) {
-  const [s, setS] = useState({push:true,email:false,likes:true,comments:true,redreams:true,follows:true,mentions:true,replies:false,news:true});
+function NotificationsSettings({navigate, prefs, setPrefs}) {
+  const [s, setS] = useState({push:true,likes:true,comments:true,redreams:true,follows:true,mentions:true,replies:false,news:true});
   const tg = k => setS(p=>({...p,[k]:!p[k]}));
+  // Smart alerts moved here from Settings > Cherry > Cherry Algorithm (Hasan, Oct 8 2026:
+  // "We have a separate section for Alerts"). Same storage keys (prefs.cherryAlgo) as before.
+  const ca = (prefs && prefs.cherryAlgo) || {};
+  const setCA = (k,v) => setPrefs && setPrefs(p=>({...p,cherryAlgo:{...(p.cherryAlgo||{}),[k]:v}}));
+  const val = (k,def) => ca[k]!==undefined ? ca[k] : def;
+  const sens = val("notifSensitivity", 50);
   return (
     React.createElement('div', { className: "pg",}
       , React.createElement(BackHeader, { title: "Alerts", onBack: ()=>navigate("settings"),})
       , React.createElement(NotifSettingsContent, { s: s, tg: tg,})
+      , React.createElement('div', { style: {padding:"0 0 32px"},}
+        , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Smart Alerts")
+        , [
+          {k:"cherryNotifFilter", l:"Cherry Smart Filter", d:"Cherry batches and prioritises alerts, hiding low-signal activity", def:true},
+          {k:"urgencyDetect", l:"Urgency Detection", d:"Cherry spots high-priority alerts, like replies from close connections, and shows them right away", def:true},
+          {k:"groupTrendAlert", l:"Circle Trend Alerts", d:"Cherry alerts you when a topic suddenly spikes inside a Circle you're in", def:false},
+        ].map(r => (
+          React.createElement('div', { key: r.k, className: "sr",}
+            , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, r.l), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:2},}, r.d))
+            , React.createElement(Cbx, { on: val(r.k, r.def), onToggle: ()=>setCA(r.k, !val(r.k, r.def)), label: r.l,})
+          )
+        ))
+        , React.createElement('div', { style: {padding:"13px 16px",borderBottom:"1px solid var(--bd)"},}
+          , React.createElement('label', { htmlFor: "alert-sensitivity", className: "sr-title", style: {display:"block"},}, "Alert Sensitivity")
+          , React.createElement('div', { id: "alert-sensitivity-desc", style: {fontSize:11,color:"var(--tx3)",margin:"2px 0 8px"},}, "Lower means fewer, high-priority alerts only. Higher means everything.")
+          , React.createElement('input', { id: "alert-sensitivity", type: "range", min: 0, max: 100, step: 5, value: sens,
+            onChange: e=>setCA("notifSensitivity", Number(e.target.value)), 'aria-describedby': "alert-sensitivity-desc", 'aria-valuetext': sens + " percent",
+            style: {width:"100%",accentColor:"var(--ac2)"},})
+        )
+      )
     )
   );
 }
@@ -3049,18 +3059,10 @@ function CherryAlgorithmSettings({navigate, prefs, setPrefs}) {
         , React.createElement(SRow, { k: "niche", l: "Niche Content Priority"  , d: "Cherry surfaces deep niche content from small creators that match your interests"           , def: false,})
         , React.createElement(Slider, { k: "discoverFreshness", l: "Recency Weight" , d: "How heavily to weight recent content vs all-time popular"        , min: 0, max: 100, def: 70, unit: "%",})
 
-        /* -- Notification Algorithm ---------- */
-        , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Notification Algorithm" )
-        , React.createElement(SRow, { k: "cherryNotifFilter", l: "Cherry Smart Filter"  , d: "Cherry batches and prioritises notifications, hiding low-signal activity"       , def: true,})
-        , React.createElement(SRow, { k: "notifSummary", l: "Daily Digest" , d: "Cherry sends a single daily summary instead of individual pings"         , def: false,})
-        , React.createElement(SRow, { k: "urgencyDetect", l: "Urgency Detection" , d: "Cherry identifies high-priority notifications (replies from close connections, viral Dreams) and surfaces them immediately"             , def: true,})
-        , React.createElement(Slider, { k: "notifSensitivity", l: "Notification Sensitivity" , d: "Lower = fewer, higher priority only. Higher = everything."        , min: 0, max: 100, def: 50, unit: "%",})
-
         /* -- Group Algorithm ---------------- */
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Group Algorithm" )
         , React.createElement(SRow, { k: "cherryGroups", l: "Cherry Group Curation"  , d: "Cherry re-ranks posts inside Groups based on your activity in each group"           , def: true,})
         , React.createElement(SRow, { k: "groupSuggest", l: "Smart Group Suggestions"  , d: "Cherry proactively suggests Groups when it detects you interacting with content from a community you haven't joined"                , def: true,})
-        , React.createElement(SRow, { k: "groupTrendAlert", l: "Group Trend Alerts"  , d: "Cherry alerts you when a topic is suddenly spiking inside a Group you're in"             , def: false,})
 
         /* -- Following Algorithm ------------- */
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Following Feed Algorithm"  )
@@ -3209,7 +3211,7 @@ function AboutSettings({navigate}) {
           , React.createElement('li', null, "Show that everything can be accessible for anyone.")
           , React.createElement('li', null, "Give you control and privacy.")
         )
-        , React.createElement('p', { className: "lid-help",}, "Log in and make your LooscidID with Nostr, Mastodon and the fediverse, or Bluesky. Pubky and more are on the way.")
+        , React.createElement('p', { className: "lid-help",}, "Your LooscidID is made on this device the first time you open Looscid. Add login methods any time: Nostr, Mastodon and the fediverse, or Bluesky. Pubky and more are on the way.")
       )
       , React.createElement('section', { 'aria-labelledby': "about-roadmap", style: {padding:"0 16px 12px"},}
         , React.createElement('h2', { id: "about-roadmap", className: "lid-sub",}, "Roadmap")
@@ -3268,7 +3270,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
           React.createElement('div', {style:{fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,marginBottom:8}}, "You are in Guest Mode"),
           React.createElement('p', {style:{fontSize:13,color:"var(--tx2)",lineHeight:1.7,marginBottom:20}}, "Create a free LooscidID to post Dreams, follow Dreamors, get notifications and make the app yours."),
           React.createElement('button', {className:"btn bp",style:{width:"100%",padding:13,fontSize:14,marginBottom:10},onClick:()=>navigate("login"),"aria-label":"Create a LooscidID"}, "Create Account"),
-          React.createElement('button', {className:"btn bgb",style:{width:"100%",padding:11,fontSize:13},onClick:()=>navigate("login"),"aria-label":"Sign in to your LooscidID"}, "Sign In")
+          React.createElement('button', {className:"btn bgb",style:{width:"100%",padding:11,fontSize:13},onClick:()=>navigate("login"),"aria-label":"Login to your LooscidID"}, "Login")
         ),
         React.createElement('button', {className:"snav",onClick:()=>navigate("settings_accessibility"),"aria-label":"Accessibility settings"},
           React.createElement('div', {className:"snav-l"},
@@ -3322,7 +3324,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
           {icon:"Cherry",l:"Cherry AI",sub:"Your Looscid companion",a:()=>navigate("cherry"),color:"#6d28d9"},
           {icon:"Drafts",l:"Drafts",sub:"Your saved Dream drafts",a:()=>navigate("drafts"),color:"#374151"},
           authUser && (authUser.isGuest || authUser.uid==="guest")
-            ? {icon:"Sign In or Create Account",l:"Sign In or Create Account",sub:"Get a LooscidID",a:()=>navigate("login"),color:"#6d28d9"}
+            ? {icon:"Login or Create Account",l:"Login or Create Account",sub:"Get a LooscidID",a:()=>navigate("login"),color:"#6d28d9"}
             : {icon:"Account",l:"Account",sub:"Your LooscidID",a:()=>navigate("settings_account"),color:"#6d28d9"},
           {icon:"Settings",l:"Settings",sub:"Account, privacy, accessibility",a:()=>navigate("settings"),color:"#374151"},
           {icon:"About",l:"About",sub:"Version, terms, community guidelines",a:()=>navigate("about"),color:"#374151"},
@@ -3743,8 +3745,8 @@ function PolicyPage({title, content, navigate, back}) {
   );
 }
 
-const TERMS_CONTENT = `<section role="region" aria-labelledby="terms-notice-title" style="border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:20px"><h2 id="terms-notice-title">Plain-language notice</h2><p>Plain-language notice: These terms are written in plain language and they are the terms we ask you to agree to when you use Looscid. They are not legal advice. If you need or want legal advice about your own situation, talk to a lawyer.</p></section><section role="region" aria-label="Not a sleep or medical app" style="border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:20px"><h2>Not a sleep or medical app</h2><p>Looscid is a place to create and publish Dreams. By dreaming on Looscid, you share content. In this document, “dreaming” means dreaming on Looscid; “a Dream” is the content you create there. It is not a sleep-tracking app or a sleep or health monitoring service. It is not a medical app. Nothing in it is medical advice, diagnosis, or treatment. Do not use anything here to make decisions about sleep, health, or medical care. If you need advice about sleep or your health, talk to a qualified professional.</p></section><p><strong>Effective date:</strong> September 25, 2026. <strong>Version:</strong> 1.0.</p><h2>Acceptance</h2><p>By using Looscid, you agree to these Terms. If you do not agree, do not use the app. Read our <a href="#privacy" data-policy-link="privacy">Privacy Policy</a> too.</p><h2>Who Can Use This</h2><p>You must be at least 13. If the law where you live requires a higher minimum age, that age applies. If you are under 18, get consent from a parent or legal guardian before using Looscid. The birthday you give must be accurate. If your LooscidID is found to use false information, it may be suspended or removed.</p><h2>Your Account</h2><p>Give accurate account information and protect your sign-in details. You are responsible for activity on your account. Tell us through our official channels if you think someone has gained access.</p><h2>Acceptable Use</h2><p>Be kind. Do not harass, threaten, impersonate, exploit minors, or share illegal or harmful material. Do not try to break the app, access another person's account, or send spam. Do not impersonate others or spread misinformation.</p><h2>Content You Dream</h2><p>You own the Dreams you create. By dreaming, you give Looscid permission to host, display, and deliver your Dreams as needed to run the app. You can remove a Dream with available controls. Copies made by others outside the app may remain.</p><h2>NOSTR And Decentralized Identity</h2><p>This preview does not currently connect to NOSTR relays or create a decentralized identity. If a future version offers public NOSTR publishing, other relays or users may copy public events. You may not be able to erase those copies.</p><h2>Local-First Data</h2><p>Some drafts and preferences stay in your browser's local storage. Sign-in and profile information may use a service provider. Clearing browser data can erase local drafts. Keep your own copy of important content.</p><h2>Third-Party Links</h2><p>Links may take you to sites we do not control. Their terms and privacy practices apply there. Our official channels are <a href="https://github.com/Looscid/Looscid" target="_blank" rel="noopener noreferrer">Looscid on GitHub</a> and <a href="https://x.com/Looscid" target="_blank" rel="noopener noreferrer">@Looscid on X</a>.</p><h2>Termination</h2><p>You may stop using the app. We may restrict or close an account that breaks these Terms or puts others at risk. Contact us through our official channels about an account concern.</p><h2>Changes To These Terms</h2><p>We may update these Terms. We will update the effective date and version above. Check this page for changes. Using the app after updated Terms take effect means you accept them.</p><h2>Contact</h2><p>Our official contact channels are <a href="https://github.com/Looscid/Looscid" target="_blank" rel="noopener noreferrer">Looscid on GitHub</a> and <a href="https://x.com/Looscid" target="_blank" rel="noopener noreferrer">@Looscid on X</a>. There is no standalone support email at this time. See our <a href="#privacy" data-policy-link="privacy">Privacy Policy</a>.</p>`;
-const PRIVACY_CONTENT = `<section role="region" aria-labelledby="privacy-notice-title" style="border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:20px"><h2 id="privacy-notice-title">Plain-language notice</h2><p>This policy is written in plain language and it is the policy we ask you to agree to when you use Looscid. It is not legal advice. If you need or want legal advice about your own situation, talk to a lawyer.</p></section><section role="region" aria-label="Not a sleep or medical app" style="border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:20px"><h2>Not a sleep or medical app</h2><p>Looscid is a place to create and publish Dreams. By dreaming on Looscid, you share content. In this document, “dreaming” means dreaming on Looscid; “a Dream” is the content you create there. It is not a sleep-tracking app or a sleep or health monitoring service. It is not a medical app. Nothing in it is medical advice, diagnosis, or treatment. Do not use anything here to make decisions about sleep, health, or medical care. If you need advice about sleep or your health, talk to a qualified professional.</p></section><p><strong>Effective date:</strong> September 25, 2026. <strong>Version:</strong> 1.0.</p><h2>What We Collect</h2><p>If you create an account, you may give us a name, email address, and profile details. Dreams you choose to share and basic app activity may also be processed to provide the service. This preview contains sample content.</p><h2>Local-First Storage</h2><p>Some drafts and preferences are saved in your browser's local storage. Clearing browser data may erase them. Not all app data stays on your device: sign-in and profile information may use a service provider.</p><h2>NOSTR And Public Data</h2><p>This preview does not currently publish to NOSTR relays or create a NOSTR identity. If a future version lets you publish public NOSTR events, others may copy them and deletion may not remove those copies. We will describe that feature before you use it.</p><h2>Cookies</h2><p>The app and services used for sign-in may use browser storage or cookies to keep a session working. Your browser settings can limit cookies, but some features may stop working.</p><h2>Third Parties</h2><p>Service providers may help with sign-in, profiles, and security checks. Links to other sites follow their own privacy practices. Our public code and updates are at <a href="https://github.com/Looscid/Looscid" target="_blank" rel="noopener noreferrer">Looscid on GitHub</a> and <a href="https://x.com/Looscid" target="_blank" rel="noopener noreferrer">@Looscid on X</a>.</p><h2>Your Rights</h2><p>You can ask about your data or request correction or deletion through our official contact channels. What we can do may depend on where you live and where the data is stored. Local drafts and preferences can be removed by clearing browser data.</p><h2>Children And Minors</h2><p>Looscid is for people at least 13, or older if local law requires it. If you are under 18, get a parent or legal guardian's consent before using the app. Do not share sensitive personal information in public content. A parent or guardian may contact us about a minor's account.</p><h2>Retention</h2><p>Local drafts stay in your browser until you remove them, clear browser data, or your browser removes them. Information handled by service providers may remain until it is deleted under their processes or applicable law. We do not promise a fixed deletion deadline in this preview.</p><h2>Data Export</h2><p>This preview has no data download or export control in Settings. You can contact us to ask what data, if any, we can provide. Do not assume that all content can be exported, especially public copies made outside the app.</p><h2>Changes To This Policy</h2><p>We may update this Policy. We will update the effective date and version above. Check this page for changes. Read our <a href="#terms" data-policy-link="terms">Terms of Service</a> too.</p><h2>Contact</h2><p>Our official contact channels are <a href="https://github.com/Looscid/Looscid" target="_blank" rel="noopener noreferrer">Looscid on GitHub</a> and <a href="https://x.com/Looscid" target="_blank" rel="noopener noreferrer">@Looscid on X</a>. There is no standalone support email at this time. See our <a href="#terms" data-policy-link="terms">Terms of Service</a>.</p>`;
+const TERMS_CONTENT = `<section role="region" aria-labelledby="terms-notice-title" style="border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:20px"><h2 id="terms-notice-title">Plain-language notice</h2><p>Plain-language notice: These terms are written in plain language and they are the terms we ask you to agree to when you use Looscid. They are not legal advice. If you need or want legal advice about your own situation, talk to a lawyer.</p></section><section role="region" aria-label="Not a sleep or medical app" style="border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:20px"><h2>Not a sleep or medical app</h2><p>Looscid is a place to create and publish Dreams. By dreaming on Looscid, you share content. In this document, “dreaming” means dreaming on Looscid; “a Dream” is the content you create there. It is not a sleep-tracking app or a sleep or health monitoring service. It is not a medical app. Nothing in it is medical advice, diagnosis, or treatment. Do not use anything here to make decisions about sleep, health, or medical care. If you need advice about sleep or your health, talk to a qualified professional.</p></section><p><strong>Effective date:</strong> September 25, 2026. <strong>Version:</strong> 1.0.</p><h2>Acceptance</h2><p>By using Looscid, you agree to these Terms. If you do not agree, do not use the app. Read our <a href="#privacy" data-policy-link="privacy">Privacy Policy</a> too.</p><h2>Who Can Use This</h2><p>You must be at least 13. If the law where you live requires a higher minimum age, that age applies. If you are under 18, get consent from a parent or legal guardian before using Looscid. The birthday you give must be accurate. If your LooscidID is found to use false information, it may be suspended or removed.</p><h2>Your Account</h2><p>Give accurate account information and protect your login details. You are responsible for activity on your account. Tell us through our official channels if you think someone has gained access.</p><h2>Acceptable Use</h2><p>Be kind. Do not harass, threaten, impersonate, exploit minors, or share illegal or harmful material. Do not try to break the app, access another person's account, or send spam. Do not impersonate others or spread misinformation.</p><h2>Content You Dream</h2><p>You own the Dreams you create. By dreaming, you give Looscid permission to host, display, and deliver your Dreams as needed to run the app. You can remove a Dream with available controls. Copies made by others outside the app may remain.</p><h2>NOSTR And Decentralized Identity</h2><p>This preview does not currently connect to NOSTR relays or create a decentralized identity. If a future version offers public NOSTR publishing, other relays or users may copy public events. You may not be able to erase those copies.</p><h2>Local-First Data</h2><p>Some drafts and preferences stay in your browser's local storage. Login and profile information may use a service provider. Clearing browser data can erase local drafts. Keep your own copy of important content.</p><h2>Third-Party Links</h2><p>Links may take you to sites we do not control. Their terms and privacy practices apply there. Our official channels are <a href="https://github.com/Looscid/Looscid" target="_blank" rel="noopener noreferrer">Looscid on GitHub</a> and <a href="https://x.com/Looscid" target="_blank" rel="noopener noreferrer">@Looscid on X</a>.</p><h2>Termination</h2><p>You may stop using the app. We may restrict or close an account that breaks these Terms or puts others at risk. Contact us through our official channels about an account concern.</p><h2>Changes To These Terms</h2><p>We may update these Terms. We will update the effective date and version above. Check this page for changes. Using the app after updated Terms take effect means you accept them.</p><h2>Contact</h2><p>Our official contact channels are <a href="https://github.com/Looscid/Looscid" target="_blank" rel="noopener noreferrer">Looscid on GitHub</a> and <a href="https://x.com/Looscid" target="_blank" rel="noopener noreferrer">@Looscid on X</a>. There is no standalone support email at this time. See our <a href="#privacy" data-policy-link="privacy">Privacy Policy</a>.</p>`;
+const PRIVACY_CONTENT = `<section role="region" aria-labelledby="privacy-notice-title" style="border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:20px"><h2 id="privacy-notice-title">Plain-language notice</h2><p>This policy is written in plain language and it is the policy we ask you to agree to when you use Looscid. It is not legal advice. If you need or want legal advice about your own situation, talk to a lawyer.</p></section><section role="region" aria-label="Not a sleep or medical app" style="border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:20px"><h2>Not a sleep or medical app</h2><p>Looscid is a place to create and publish Dreams. By dreaming on Looscid, you share content. In this document, “dreaming” means dreaming on Looscid; “a Dream” is the content you create there. It is not a sleep-tracking app or a sleep or health monitoring service. It is not a medical app. Nothing in it is medical advice, diagnosis, or treatment. Do not use anything here to make decisions about sleep, health, or medical care. If you need advice about sleep or your health, talk to a qualified professional.</p></section><p><strong>Effective date:</strong> September 25, 2026. <strong>Version:</strong> 1.0.</p><h2>What We Collect</h2><p>If you create an account, you may give us a name, email address, and profile details. Dreams you choose to share and basic app activity may also be processed to provide the service. This preview contains sample content.</p><h2>Local-First Storage</h2><p>Some drafts and preferences are saved in your browser's local storage. Clearing browser data may erase them. Not all app data stays on your device: login and profile information may use a service provider.</p><h2>NOSTR And Public Data</h2><p>This preview does not currently publish to NOSTR relays or create a NOSTR identity. If a future version lets you publish public NOSTR events, others may copy them and deletion may not remove those copies. We will describe that feature before you use it.</p><h2>Cookies</h2><p>The app and services used for login may use browser storage or cookies to keep a session working. Your browser settings can limit cookies, but some features may stop working.</p><h2>Third Parties</h2><p>Service providers may help with login, profiles, and security checks. Links to other sites follow their own privacy practices. Our public code and updates are at <a href="https://github.com/Looscid/Looscid" target="_blank" rel="noopener noreferrer">Looscid on GitHub</a> and <a href="https://x.com/Looscid" target="_blank" rel="noopener noreferrer">@Looscid on X</a>.</p><h2>Your Rights</h2><p>You can ask about your data or request correction or deletion through our official contact channels. What we can do may depend on where you live and where the data is stored. Local drafts and preferences can be removed by clearing browser data.</p><h2>Children And Minors</h2><p>Looscid is for people at least 13, or older if local law requires it. If you are under 18, get a parent or legal guardian's consent before using the app. Do not share sensitive personal information in public content. A parent or guardian may contact us about a minor's account.</p><h2>Retention</h2><p>Local drafts stay in your browser until you remove them, clear browser data, or your browser removes them. Information handled by service providers may remain until it is deleted under their processes or applicable law. We do not promise a fixed deletion deadline in this preview.</p><h2>Data Export</h2><p>This preview has no data download or export control in Settings. You can contact us to ask what data, if any, we can provide. Do not assume that all content can be exported, especially public copies made outside the app.</p><h2>Changes To This Policy</h2><p>We may update this Policy. We will update the effective date and version above. Check this page for changes. Read our <a href="#terms" data-policy-link="terms">Terms of Service</a> too.</p><h2>Contact</h2><p>Our official contact channels are <a href="https://github.com/Looscid/Looscid" target="_blank" rel="noopener noreferrer">Looscid on GitHub</a> and <a href="https://x.com/Looscid" target="_blank" rel="noopener noreferrer">@Looscid on X</a>. There is no standalone support email at this time. See our <a href="#terms" data-policy-link="terms">Terms of Service</a>.</p>`;
 const GUIDELINES_CONTENT = `<p><a href="RULES.md">Read the Rules</a></p>`;
 
 /* --- HOUR STORY PAGE ----------------------------------------------------- */
@@ -4345,7 +4347,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
    No accounts and no server: the profile lives only on this device, in
    localStorage. The app opens straight away with a default profile; the
    name can be changed in Settings > Account.
-   TODO: Nostr sign-in can come later (see NOSTR_ARCHITECTURE.md) and would
+   Login methods (Nostr, Mastodon, Bluesky) attach to it later (see NOSTR_ARCHITECTURE.md) and would
    replace this local profile with a key-based identity.
    ------------------------------------------------------------------------- */
 const LOCAL_PROFILE_KEY = "looscid_local_profile";
@@ -4366,6 +4368,7 @@ function makeLocalProfile(name) {
     displayName: display, name: display, handle: "@" + slug, initials: initials,
     color: "#6d28d9", bio: "", email: "", emailVerified: false, photoURL: null,
     joined: new Date().toLocaleDateString(undefined, { month: "long", year: "numeric" }),
+    createdAt: Date.now(),
   };
 }
 function saveLocalProfile(p) { try { localStorage.setItem(LOCAL_PROFILE_KEY, JSON.stringify(p)); } catch (e) {} return p; }
@@ -4382,7 +4385,15 @@ function applyLocalProfileToMe(p) {
   ME.bio = p.bio || ""; ME.website = p.website || ""; ME.links = p.links || [];
   return p;
 }
-function ensureLocalProfile() { return applyLocalProfileToMe(getLocalProfile() || saveLocalProfile(makeLocalProfile())); }
+// Your LooscidID is created the moment Looscid first opens (Hasan, Oct 8 2026): no gate,
+// no login needed. Login methods attach to it later, and are always optional.
+function ensureLocalProfile() {
+  const have = getLocalProfile();
+  if (have) return applyLocalProfileToMe(have);
+  const fresh = saveLocalProfile(makeLocalProfile());
+  try { const l = JSON.parse(localStorage.getItem("looscid_security_activity") || "[]"); l.unshift({ at: fresh.createdAt, what: "LooscidID created on this device" }); localStorage.setItem("looscid_security_activity", JSON.stringify(l.slice(0, 20))); } catch (e) {}
+  return applyLocalProfileToMe(fresh);
+}
 function renameLocalProfile(current, name) {
   const fresh = makeLocalProfile(name);
   return applyLocalProfileToMe(saveLocalProfile({ ...(current || {}), displayName: fresh.displayName, name: fresh.name, handle: fresh.handle, initials: fresh.initials, uid: (current && current.uid) || fresh.uid, isLocal: true, isGuest: false }));
@@ -4423,31 +4434,6 @@ function getWelcomeSeen() { try { return localStorage.getItem(WELCOME_KEY)==="tr
 function setWelcomeSeen() { try { localStorage.setItem(WELCOME_KEY,"true"); } catch (e) {} }
 
 // The first-run welcome is LooscidOnboarding (see the LooscidID block below App's helpers).
-
-/* --- DAILY DIGEST NOTIFICATION -------------------------------------------- */
-function DigestCard({ dreams, notifs, onClose }) {
-  const topDream = dreams.find(d => d.liked || d.redreamed) || dreams[0];
-  const unread = notifs.filter(n => n.unread).length;
-  return React.createElement('div', { style: {position:"fixed",top:0,left:0,right:0,zIndex:2001,padding:"52px 16px 0"}, 'aria-live': "polite"},
-    React.createElement('div', { style: {background:"var(--sf)",border:"1px solid var(--bd2)",borderRadius:20,padding:"18px 18px 14px",boxShadow:"0 8px 40px rgba(0,0,0,.25)"}},
-      React.createElement('div', { style: {display:"flex",alignItems:"flex-start",gap:12,marginBottom:12}},
-        React.createElement('div', { style: {fontSize:28,flexShrink:0}}, "🌙"),
-        React.createElement('div', { style: {flex:1}},
-          React.createElement('div', { style: {fontWeight:700,fontSize:14,color:"var(--tx)",marginBottom:3}}, "Good morning, Dreamer"),
-          React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.55}},
-            unread > 0 ? "You have " + unread + " new notification" + (unread > 1 ? "s" : "") + " since you were last here. " : "Your feed is all caught up. ",
-            topDream ? "\"" + topDream.text.slice(0, 60) + (topDream.text.length > 60 ? "…" : "") + "\" is getting attention." : "Check out what's new in your feed."
-          )
-        ),
-        React.createElement('button', { style: {background:"none",border:"none",fontSize:18,cursor:"pointer",color:"var(--tx3)",padding:4}, onClick: onClose, 'aria-label': "Dismiss digest"}, "×")
-      ),
-      React.createElement('div', { style: {display:"flex",gap:8}},
-        React.createElement('button', { className: "btn bp", style: {flex:1,padding:"8px 0",fontSize:12}, onClick: onClose}, "Got it"),
-        React.createElement('button', { className: "btn bgb", style: {flex:1,padding:"8px 0",fontSize:12}, onClick: onClose}, "Dismiss")
-      )
-    )
-  );
-}
 
 /* --- DRAFTS MANAGER ------------------------------------------------------- */
 function DraftsPage({ navigate, onLoadDraft }) {
@@ -4804,8 +4790,8 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
     ]},
 
     { id:"settings", emoji:"Settings", label:"Settings", items:[
-      { icon:"Account", label:"Account",         sub:"Profile, password, 2FA",      action(){onClose();navigate("settings_account");} },
-      { icon:"Alerts", label:"Alerts",          sub:"Push, email, sounds, news",   action(){onClose();navigate("settings_notifications");} },
+      { icon:"Account", label:"Account",         sub:"Your LooscidID",              action(){onClose();navigate("settings_account");} },
+      { icon:"Alerts", label:"Alerts",          sub:"Push, activity, smart alerts, news", action(){onClose();navigate("settings_notifications");} },
       { icon:"Privacy", label:"Privacy",         sub:"Visibility, blocked users",   action(){onClose();navigate("settings_privacy");} },
       { icon:"Customizability", label:"Customizability", sub:"Themes, Cherry AI, menu",     action(){onClose();navigate("settings_customizability");} },
       { icon:"Accessibility", label:"Accessibility",  sub:"Font size, contrast, motion",  action(){onClose();navigate("settings_accessibility");} },
@@ -5474,14 +5460,19 @@ function addMethod(m) {
   const id = m.provider + ":" + m.publicId;
   const list = getMethods().filter(function (x) { return x.provider !== m.provider; }); // one login per network
   list.push(Object.assign({ id: id, at: Date.now() }, m));
+  logActivity((PROVIDER_NAMES[m.provider] || m.provider) + " login added");
   return saveMethods(list);
 }
+// Recent security activity, kept only on this device (Account > Security).
+const LID_ACTIVITY_KEY = "looscid_security_activity";
+function getActivity() { try { return JSON.parse(localStorage.getItem("looscid_security_activity") || "[]"); } catch (e) { return []; } }
+function logActivity(what) { try { const l = getActivity(); l.unshift({ at: Date.now(), what: what }); localStorage.setItem("looscid_security_activity", JSON.stringify(l.slice(0, 20))); } catch (e) {} }
 function getSessions() { try { return JSON.parse(localStorage.getItem(LID_SESSIONS_KEY) || "{}"); } catch (e) { return {}; } }
 function setSession(provider, data) { const s = getSessions(); if (data) s[provider] = data; else delete s[provider]; try { localStorage.setItem(LID_SESSIONS_KEY, JSON.stringify(s)); } catch (e) {} }
 function removeMethod(id) {
   const m = getMethods().find(function (x) { return x.id === id; });
   if (m && m.provider === "nostr") { setStoredNostrSk(null); try { localStorage.removeItem(LID_IDENTITY_KEY); } catch (e) {} }
-  if (m) setSession(m.provider, null);
+  if (m) { setSession(m.provider, null); logActivity((PROVIDER_NAMES[m.provider] || m.provider) + " login removed"); }
   return saveMethods(getMethods().filter(function (x) { return x.id !== id; }));
 }
 const PROVIDER_NAMES = { nostr: "Nostr", activitypub: "Mastodon", atproto: "Bluesky", pubky: "Pubky" };
@@ -5631,7 +5622,7 @@ async function startMastodonLogin(hostInput, from) {
   const q = new URLSearchParams({ response_type: "code", client_id: app.client_id, redirect_uri: redirect, scope: "read:accounts", state: state, code_challenge: await pkceChallenge(verifier), code_challenge_method: "S256" });
   location.assign("https://" + host + "/oauth/authorize?" + q.toString());
 }
-// Runs once at startup: finishes a Mastodon sign-in when we come back with ?code=&state=.
+// Runs once at startup: finishes a Mastodon login when we come back with ?code=&state=.
 let oauthReturn = null;
 async function finishOAuthIfReturning() {
   const params = new URLSearchParams(location.search);
@@ -5742,7 +5733,7 @@ function AlertDialog({ title, message, confirmLabel, onConfirm, onCancel }) {
 }
 
 /* --- Login methods (Settings > Account > Security) ----------------------- */
-function SignInMethods() {
+function LoginMethods() {
   const [methods, setMethods] = useState(getMethods());
   const [adding, setAdding] = useState(null);
   const [confirmRm, setConfirmRm] = useState(null);
@@ -5756,8 +5747,8 @@ function SignInMethods() {
   const prov = adding && ID_PROVIDERS.find(function (p) { return p.id === adding; });
   const done = function (m) { setAdding(null); setMethods(getMethods()); setNote(m); announce("Login method added"); };
   return lh('section', { 'aria-labelledby': "lid-methods-h", className: "lid-panel" },
-    lh('h2', { id: "lid-methods-h", className: "lid-sub" }, "Login methods"),
-    lh('p', { className: "lid-help" }, "One LooscidID can have several logins. Add any network below."),
+    lh('h3', { id: "lid-methods-h", className: "lid-label", tabIndex: -1 }, "Login methods"),
+    lh('p', { className: "lid-help" }, "Your LooscidID already exists on this device. Login methods are optional: add any network to log in with it, and add as many as you like."),
     note && lh('p', { className: "lid-saved" }, note),
     lh('ul', { className: "lid-links", 'aria-label': "Login methods" },
       methods.map(function (m) {
@@ -5788,70 +5779,172 @@ const ID_PROVIDERS = [
     why: "More open, decentralized networks are on the way. Tell us which one you want in Send Feedback." },
 ];
 
-function LooscidIDChooser({ onDone, onLocal, headingLevel, from }) {
+function LooscidIDChooser({ onDone, onLocal, headingLevel, from, localLabel }) {
   const [pick, setPick] = useState("nostr");
   const prov = ID_PROVIDERS.find(function (p) { return p.id === pick; });
   return lh('div', { className: "lid-chooser" },
-    lh(headingLevel === 1 ? 'h1' : 'h2', { className: "lid-sub" }, "How would you like to log in and make your LooscidID?"),
-    lh('p', { className: "lid-help" }, "Use Nostr, Pubky, Mastodon and the fediverse, Bluesky and more to make your LooscidID."),
-    lh(MenuPopupButton, { id: "lid-provider", label: "Log in with", value: pick, items: ID_PROVIDERS.map(function (p) { return Object.assign({}, p, { note: p.status === "ready" ? null : "coming soon" }); }), prefix: "Login with ",
+    lh(headingLevel === 1 ? 'h1' : 'h2', { className: "lid-sub" }, "Add a login method now, or later in Account"),
+    lh('p', { className: "lid-help" }, "Your LooscidID is ready. Link Nostr, Pubky, Mastodon and the fediverse, Bluesky and more to log in with it. This is optional."),
+    lh(MenuPopupButton, { id: "lid-provider", label: "Login method", value: pick, items: ID_PROVIDERS.map(function (p) { return Object.assign({}, p, { note: p.status === "ready" ? null : "coming soon" }); }), prefix: "Login with ",
       onSelect: function (v) { setPick(v); const p = ID_PROVIDERS.find(function (x) { return x.id === v; }); announce(p.status === "ready" ? p.name + " selected" : p.name + " selected, coming soon"); } }),
     prov.status === "ready" ? lh(prov.Panel, { onDone: onDone, from: from }) : lh(ComingSoonPanel, { provider: prov }),
-    onLocal && lh('button', { type: "button", className: "btn bgb lid-wide", onClick: onLocal }, "Continue with local profile"));
+    onLocal && lh('button', { type: "button", className: "btn bgb lid-wide", onClick: onLocal }, localLabel || "Skip for now, add one later in Account"));
 }
 
-/* --- LooscidID Manager (Settings) ---------------------------------------- */
-const LID_TABS = [["home", "Home"], ["security", "Security"], ["info", "Your Info"], ["sharing", "Sharing"]];
-function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onBack, title, homeExtra, sharingExtra, securityExtra }) {
+/* --- LooscidID Manager (Settings > Account) -------------------------------
+   Modelled on the Google Account page (Hasan, Oct 8 2026: "Make it like How Google
+   Makes it"): a header with your avatar, name and @username, then real tabs:
+   Home, Personal info, Data & privacy, Security, People & sharing. No payments.
+   Alerts are not here; they have their own section. */
+const LID_TABS = [["home", "Home"], ["info", "Personal info"], ["data", "Data & privacy"], ["security", "Security"], ["sharing", "People & sharing"]];
+function lidWhen(t) { try { return new Date(t).toLocaleString(undefined, { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return ""; } }
+function thisDeviceLabel() {
+  const ua = navigator.userAgent || "";
+  const br = /Edg\//.test(ua) ? "Edge" : /Firefox\//.test(ua) ? "Firefox" : /Chrome\//.test(ua) ? "Chrome" : /Safari\//.test(ua) ? "Safari" : "Web browser";
+  const os = /iPhone|iPad|iPod/.test(ua) ? "iOS" : /Android/.test(ua) ? "Android" : /Mac OS X/.test(ua) ? "macOS" : /Windows/.test(ua) ? "Windows" : /Linux/.test(ua) ? "Linux" : "";
+  return br + (os ? " on " + os : "");
+}
+function localDataSummary() {
+  const p = getLocalProfile() || {};
+  const methods = getMethods();
+  let drafts = []; try { drafts = getDrafts() || []; } catch (e) {}
+  const topics = getTopics();
+  return [
+    { k: "Profile", v: "Name, @username" + (p.bio ? ", bio" : "") + (p.website ? ", website" : "") + ((p.links || []).length ? ", " + p.links.length + " social links" : "") },
+    { k: "Login methods", v: methods.length ? methods.length + " linked, public identifiers only" : "None yet" },
+    { k: "Nostr secret key", v: getStoredNostrSk() ? "Saved on this device" : "Not saved here" },
+    { k: "Topics", v: topics.length ? topics.length + " chosen" : "None chosen" },
+    { k: "Drafts", v: drafts.length ? drafts.length + " saved" : "None" },
+    { k: "Settings", v: "Theme, accessibility and app preferences" },
+    { k: "Security activity", v: getActivity().length + " recent events" },
+  ];
+}
+function exportLocalData() {
+  // Secret keys and login tokens are left out on purpose.
+  let drafts = []; try { drafts = getDrafts() || []; } catch (e) {}
+  const data = { app: "Looscid", exportedAt: new Date().toISOString(), note: "Secret keys and login tokens are not included.",
+    profile: getLocalProfile(), loginMethods: getMethods().map(function (m) { return { provider: m.provider, publicId: m.publicId, linkedAt: m.at }; }),
+    topics: getTopics(), drafts: drafts, securityActivity: getActivity() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url; a.download = "looscid-my-data.json"; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+  logActivity("Data exported");
+}
+function deleteLocalData() {
+  try { Object.keys(localStorage).forEach(function (k) { if (/^(looscid_|dbm_)/.test(k)) localStorage.removeItem(k); }); } catch (e) {}
+}
+function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onBack, title, securityExtra }) {
   const [tab, setTab] = useState(initialTab || "home");
   const [idn, setIdn] = useState(getIdentity());
-  useEffect(function () { const f = function () { setIdn(getIdentity()); }; window.addEventListener("looscid-methods", f); return function () { window.removeEventListener("looscid-methods", f); }; }, []);
-  const [choosing, setChoosing] = useState(false);
+  const [, bump] = useState(0);
+  useEffect(function () { const f = function () { setIdn(getIdentity()); bump(function (n) { return n + 1; }); }; window.addEventListener("looscid-methods", f); return function () { window.removeEventListener("looscid-methods", f); }; }, []);
   const [note, setNote] = useState("");
+  const [confirmDel, setConfirmDel] = useState(false);
   const ed = useProfileEditor(authUser, onUpdateProfile, navigate);
   const wrapRef = useRef(null);
   useEffect(function () { const h1 = wrapRef.current && wrapRef.current.querySelector("h1"); if (h1) h1.focus(); }, []);
   if (ed.editing) return ed.screen;
+  const u = authUser || {};
+  const name = u.displayName || "Dreamor";
+  const handle = u.handle || "@dreamor";
+  const N = LID_TABS.length;
   const idx = LID_TABS.findIndex(function (t) { return t[0] === tab; });
   const onTabKey = function (e) {
     let n = null;
-    if (e.key === "ArrowRight") n = (idx + 1) % 4; else if (e.key === "ArrowLeft") n = (idx + 3) % 4; else if (e.key === "Home") n = 0; else if (e.key === "End") n = 3;
+    if (e.key === "ArrowRight") n = (idx + 1) % N; else if (e.key === "ArrowLeft") n = (idx + N - 1) % N; else if (e.key === "Home") n = 0; else if (e.key === "End") n = N - 1;
     if (n === null) return; e.preventDefault(); setTab(LID_TABS[n][0]);
-    setTimeout(function () { const b = document.getElementById("lid-tab-" + LID_TABS[n][0]); if (b) b.focus(); }, 0);
+    setTimeout(function () { const b = document.getElementById("lid-tab-" + LID_TABS[n][0]); if (b) { b.focus(); b.scrollIntoView({ block: "nearest", inline: "nearest" }); } }, 0);
   };
-  const doneId = function (m) { setIdn(getIdentity()); setChoosing(false); setNote(m); setTab("security"); };
+  // Cards on Home jump to a section and land on its heading.
+  const go = function (t, focusId) {
+    setNote(""); setTab(t);
+    setTimeout(function () { const el = document.getElementById(focusId || "lid-panel-h"); if (el) { el.focus(); } }, 0);
+  };
+  const methods = getMethods();
   const sk = getStoredNostrSk();
+  const suggestions = [];
+  if (!methods.length) suggestions.push("Add a login method so you can log in on other devices");
+  if (idn && idn.method === "local" && sk) suggestions.push("Keep a copy of your Nostr secret key somewhere safe");
+  const checkup = suggestions.length ? suggestions.length + (suggestions.length === 1 ? " suggestion" : " suggestions") + ": " + suggestions[0] : "No issues found";
+  const methodsText = methods.length ? methods.map(function (m) { return PROVIDER_NAMES[m.provider]; }).join(", ") : "None yet. Add one any time";
+  const summary = localDataSummary();
+  const PH = function (text, help) { return lh(React.Fragment, null,
+    lh('h2', { id: "lid-panel-h", className: "lid-sub", tabIndex: -1 }, text),
+    help ? lh('p', { className: "lid-help" }, help) : null); };
+  const Card = function (k, t, sub, onClick) {
+    return lh('li', { key: k }, lh('button', { type: "button", className: "lid-gcard", id: "lid-card-" + k, onClick: onClick },
+      lh('span', { className: "lid-gcard-t" }, t), lh('span', { className: "lid-vh" }, ", "), lh('span', { className: "lid-gcard-s" }, sub)));
+  };
   let panel;
   if (tab === "home") panel = lh(React.Fragment, null,
-    lh('p', { className: "lid-help" }, "Welcome to your LooscidID, " + ((authUser && authUser.displayName) || "Dreamor") + ". Manage it with tools to control the things that matter: connected services, personal info, security, data and more."),
-    lh('h2', { className: "lid-sub" }, "Control security"),
-    lh('p', { className: "lid-help" }, "Login methods: " + (getMethods().map(methodLabel).concat(["Local profile, this device"]).join("; ")) + "."),
-    lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { setTab("security"); } }, "Go to Security"),
-    lh('h2', { className: "lid-sub" }, "Manage the info you want to share"),
-    lh('p', { className: "lid-help" }, "Update the info you care about."),
-    lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { setTab("info"); } }, "Go to Your Info"),
-    homeExtra || null);
+    PH("Welcome, " + name, "Manage your info, privacy and security to make Looscid work better for you."),
+    lh('ul', { className: "lid-gcards", 'aria-label': "Your LooscidID at a glance" },
+      Card("checkup", "Security checkup", checkup, function () { go("security", "lid-checkup-h"); }),
+      Card("info", "Personal info", "Name " + name + ", username " + handle, function () { go("info"); }),
+      Card("methods", "Login methods", methodsText, function () { go("security", "lid-methods-h"); }),
+      Card("data", "Data & privacy", summary.length + " kinds of data, stored only on this device", function () { go("data"); }),
+      Card("sharing", "People & sharing", "Profile visibility, " + (u.private ? "private" : "public"), function () { go("sharing"); })));
+  else if (tab === "info") panel = lh(React.Fragment, null,
+    PH("Personal info", "Info about you and your preferences. Choose a field to change it."),
+    ed.list);
+  else if (tab === "data") panel = lh(React.Fragment, null,
+    PH("Data & privacy", "Your data stays on this device. Nothing is sent to a Looscid server."),
+    lh('h3', { className: "lid-label" }, "What's stored on this device"),
+    lh('dl', { className: "lid-dl" }, summary.map(function (r) { return lh(React.Fragment, { key: r.k }, lh('dt', null, r.k), lh('dd', null, r.v)); })),
+    lh('h3', { className: "lid-label" }, "Download your data"),
+    lh('p', { className: "lid-help", id: "lid-export-help" }, "Get a copy of your profile, login methods, topics, drafts and security activity as a JSON file. Secret keys and login tokens are left out."),
+    lh('button', { type: "button", className: "btn bgb lid-wide", 'aria-describedby': "lid-export-help", onClick: function () { exportLocalData(); setNote("Your data was downloaded as looscid-my-data.json."); announce("Data downloaded"); } }, "Export my data"),
+    note && lh('p', { className: "lid-saved" }, note),
+    lh('h3', { className: "lid-label" }, "Delete your data"),
+    lh('p', { className: "lid-help", id: "lid-delete-help" }, "Erase your LooscidID, logins, keys, drafts and settings from this device. Looscid then starts fresh with a new LooscidID."),
+    lh('button', { type: "button", id: "lid-delete-data", className: "btn bgb lid-wide", 'aria-describedby': "lid-delete-help", onClick: function () { setConfirmDel(true); } }, "Delete local data"),
+    confirmDel && lh(AlertDialog, { title: "Delete all Looscid data on this device?",
+      message: "This erases your LooscidID, login methods, any Nostr key saved here, drafts and settings. It can't be undone. Export your data first if you want a copy.",
+      confirmLabel: "Delete", onCancel: function () { setConfirmDel(false); setTimeout(function () { const b = document.getElementById("lid-delete-data"); if (b) b.focus(); }, 0); },
+      onConfirm: function () { setConfirmDel(false); deleteLocalData(); location.reload(); } }));
   else if (tab === "security") panel = lh(React.Fragment, null,
-      lh(SignInMethods, null),
+      PH("Security", "Settings and suggestions to keep your LooscidID safe."),
+      lh('section', { 'aria-labelledby': "lid-checkup-h", className: "lid-panel" },
+        lh('h3', { id: "lid-checkup-h", className: "lid-label", tabIndex: -1 }, "Security checkup"),
+        suggestions.length ? lh('ul', { className: "lid-help", style: { paddingLeft: 20, margin: 0 } }, suggestions.map(function (s2) { return lh('li', { key: s2 }, s2); }))
+          : lh('p', { className: "lid-help" }, "No issues found.")),
+      lh(LoginMethods, null),
       idn && idn.method === "nip07" && lh('p', { className: "lid-help" }, "Your Nostr key stays in your signer extension. Looscid never sees it."),
       idn && idn.method === "local" && sk && lh(React.Fragment, null,
-        lh('h2', { className: "lid-sub" }, "Your Nostr key"),
+        lh('h3', { className: "lid-label" }, "Your Nostr key"),
         lh('p', { className: "lid-warn", id: "lid-sec-warn" }, "Your secret key is saved only in this browser on this device. Anyone with it can post as you."),
         lh(SecretField, { id: "lid-nsec-view", label: "Your secret key (nsec)", value: (window.NostrTools ? window.NostrTools.nip19.nsecEncode(hexToBytes(sk)) : sk), readOnly: true, describedBy: "lid-sec-warn" })),
+      lh('h3', { className: "lid-label" }, "Your devices"),
+      lh('ul', { className: "lid-links", 'aria-label': "Your devices" }, lh('li', null, lh('span', null, "This device, " + thisDeviceLabel() + ", active now"))),
+      lh('h3', { className: "lid-label" }, "Recent security activity"),
+      (function () { const acts = getActivity().slice(0, 8); return acts.length
+        ? lh('ul', { className: "lid-links", 'aria-label': "Recent security activity" }, acts.map(function (a2, i2) { return lh('li', { key: i2 }, lh('span', null, a2.what + ", " + lidWhen(a2.at))); }))
+        : lh('p', { className: "lid-help" }, "No security activity yet."); })(),
       securityExtra || null);
-  else if (tab === "info") panel = ed.list;
   else panel = lh(React.Fragment, null,
-    lh('h2', { className: "lid-sub" }, "What you share"),
-    lh('p', { className: "lid-help" }, "Right now your profile is saved only on this device and isn't shared with anyone."),
-    lh('p', { className: "lid-help" }, "When your LooscidID connects to Nostr and other networks, you'll choose here what to share and which apps can see it. Coming soon."),
-    sharingExtra || null);
+    PH("People & sharing", "Decide what others see about you."),
+    lh('h3', { className: "lid-label" }, "Profile visibility"),
+    lh('div', { className: "sr", style: { padding: "10px 0" } },
+      lh('div', null,
+        lh('div', { className: "sr-title" }, "Private account"),
+        lh('div', { style: { fontSize: 12, color: "var(--tx2)", marginTop: 2 } }, "Only approved followers see your Dreams")),
+      lh(Cbx, { on: !!u.private, onToggle: function () { onUpdateProfile({ private: !u.private }); announce(u.private ? "Profile is public" : "Profile is private"); }, label: "Private account" })),
+    lh('p', { className: "lid-help" }, "Right now your profile is saved only on this device. When it connects to Nostr and other networks, you'll choose here what to share."),
+    lh('h3', { className: "lid-label" }, "Blocked Dreamors"),
+    lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { navigate("settings_privacy"); } }, "Blocked Dreamors, 0 blocked"));
   return lh('div', { className: "pg", ref: wrapRef },
     lh(BackHeader, { title: title || "Account", onBack: onBack || function () { navigate("settings"); } }),
+    lh('div', { className: "lid-ghead" },
+      lh('div', { className: "lid-gavatar", 'aria-hidden': "true" }, u.initials || "D"),
+      lh('p', { className: "lid-gname" }, name),
+      lh('p', { className: "lid-ghandle" }, handle + ", LooscidID"),
+      lh('p', { className: "lid-help" }, "Manage your LooscidID")),
     lh('div', { role: "tablist", 'aria-label': "LooscidID",  className: "ftabs lid-tabs", onKeyDown: onTabKey },
       LID_TABS.map(function (t, i) {
         const on = t[0] === tab;
         return lh('button', { key: t[0], id: "lid-tab-" + t[0], role: "tab", className: "ftab" + (on ? " on" : ""), 'aria-selected': on ? "true" : "false",
-          'aria-controls': "lid-panel", tabIndex: on ? 0 : -1, onClick: function () { setTab(t[0]); } }, t[1]);
+          'aria-controls': "lid-panel", tabIndex: on ? 0 : -1, onClick: function () { setNote(""); setTab(t[0]); } }, t[1]);
       })),
     lh('div', { id: "lid-panel", role: "tabpanel", 'aria-labelledby': "lid-tab-" + tab, className: "lid-body" }, panel));
 }
@@ -5887,6 +5980,9 @@ function TopicPicker({ value, onChange }) {
 }
 
 function LooscidOnboarding({ onDone }) {
+  const idProfile = getLocalProfile() || {};
+  const idName = idProfile.displayName || "Dreamor";
+  const idHandle = idProfile.handle || "@dreamor";
   const returning = (function () { try { const p = JSON.parse(localStorage.getItem(LID_OAUTH_PENDING) || "null"); return !!(p && p.from === "onboarding" && /[?&](code|error)=/.test(location.search)); } catch (e) { return false; } })();
   const [step, setStep] = useState(returning ? 2 : 0);
   const [topics, setTopics] = useState(getTopics());
@@ -5921,13 +6017,13 @@ function LooscidOnboarding({ onDone }) {
   else if (step === 1) body = lh(React.Fragment, null,
     H("Getting started"),
     P("We're excited for you to unlock everything we have to offer, and Looscid's decentralization really helps with that."),
-    P("You'll need a LooscidID for Looscid. You make your LooscidID with your Nostr key, your Bluesky account or another decentralized account. If you don't have one, you can create one."),
-    P("You can also skip this for now and keep a local profile on this device."),
+    P("Your LooscidID is ready. We made it on this device the moment you opened Looscid: " + idName + ", " + idHandle + ". You can change your name and @username any time in Settings, Account."),
+    P("Next, you can add a login method like your Nostr key or your Bluesky account. It's optional. Add one now, or later in Account."),
     primary("Next"));
   else if (step === 2) body = lh(React.Fragment, null,
-    H("Let's stop talking, and start doing"),
+    H("Add a login method (optional)"),
     idNote ? lh(React.Fragment, null, lh('p', { className: "lid-saved" }, idNote), primary("Continue to setup"))
-      : lh(LooscidIDChooser, { from: "onboarding", onDone: function (m) { setIdNote("Great! " + m); }, onLocal: function () { announce("Using your local profile"); next(); } }));
+      : lh(LooscidIDChooser, { from: "onboarding", onDone: function (m) { setIdNote("Great! " + m); }, onLocal: function () { announce("Skipped. You can add a login method later in Account"); next(); } }));
   else if (step === 3) body = lh(React.Fragment, null,
     H("First, a tour"),
     P("Now things get a lot easier. We'll show you how to use the app and what to keep in mind, and you'll get to make your own choices."),
@@ -5963,7 +6059,7 @@ function LooscidOnboarding({ onDone }) {
 
 function App() {
   // Local profile — no login gate. The profile is stored on this device only.
-  // (Nostr sign-in can come later; see the LOCAL PROFILE block.)
+  // Login methods attach to it later and are optional; see the LOCAL PROFILE block.
   const [authStage, setAuthStage] = useState("app");
   const [authUser, setAuthUser]   = useState(() => ensureLocalProfile());
   const [showAnalytics, setShowAnalytics] = useState(false);
@@ -5980,7 +6076,6 @@ function App() {
   const [symTarget, setSymTarget] = useState(null); // callback fn to insert symbol
   const [showHabitCard, setShowHabitCard] = useState(false);
   const [drafts, setDrafts] = useState([]);
-  const [showDigest, setShowDigest] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
 
@@ -6013,14 +6108,6 @@ useEffect(() => {
 
   // Load drafts from localStorage
   useEffect(() => { setDrafts(getDrafts()); }, []);
-
-  // Show daily digest after entering app
-  useEffect(() => {
-    if (authStage === "app" && shouldShowDigest()) {
-      const t = setTimeout(() => { setShowDigest(true); markDigestSeen(); }, 3500);
-      return () => clearTimeout(t);
-    }
-  }, [authStage]);
 
   // Show welcome for first-time users; onboarding is now retired (welcome replaced it)
   useEffect(() => {
@@ -6179,7 +6266,7 @@ useEffect(() => {
       case "dp":            return pdata ? React.createElement(DreamerProfilePage, { user: pdata, navigate: navigate, cherryCtx: cherryCtx,}) : React.createElement(FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
       case "settings":      return React.createElement(SettingsPage, { prefs: prefs, setPrefs: setPrefs, navigate: navigate, onSignOut: handleSignOut, authUser: authUser, theme: theme, setTheme: setTheme, drafts: drafts,});
       case "settings_account":        return React.createElement(AccountSettings, { key: "acct-" + ((pdata && pdata.tab) || "home"), navigate: navigate, authUser: authUser, onSignOut: handleSignOut, onRenameProfile: handleRenameProfile, onUpdateProfile: handleUpdateProfile, initialTab: pdata && pdata.tab,});
-      case "settings_notifications":  return React.createElement(NotificationsSettings, { navigate: navigate,});
+      case "settings_notifications":  return React.createElement(NotificationsSettings, { navigate: navigate, prefs: prefs, setPrefs: setPrefs,});
       case "settings_privacy":        return React.createElement(PrivacySettings, { navigate: navigate,});
       case "settings_customizability":return React.createElement(CustomizabilitySettings, { navigate: navigate, prefs: prefs, setPrefs: setPrefs,});
       case "settings_accessibility":  return React.createElement(AccessibilitySettings, { navigate: navigate, prefs: prefs, setPrefs: setPrefs,});
@@ -6344,7 +6431,6 @@ useEffect(() => {
       /* Cherry overlay - slides up from anywhere in the app */
       , cherryOpen && cherryOnboarded && React.createElement(CherryOverlay, { onClose: ()=>{setCherryOpen(false);setCherryInitMsg(null);}, cherryCtx: cherryCtx, initMsg: cherryInitMsg, navigate: navigate,})
       , showAnalytics && React.createElement(AnalyticsBanner, { onDone: () => setShowAnalytics(false),})
-      , showDigest && React.createElement(DigestCard, { dreams: appDreams, notifs: appNotifs, onClose: () => setShowDigest(false),})
       , showHabitCard && React.createElement(HabitInsightCard, { onDismiss: ()=>setShowHabitCard(false),})
       , showSymPicker && React.createElement(SymbolPicker, { onInsert: s=>{ if(symTarget)symTarget(s); setShowSymPicker(false); setSymTarget(null); }, onClose:()=>setShowSymPicker(false),})
     )

@@ -10,7 +10,7 @@
 :root{
   --bg:#07050f;--sf:#100d1e;--sf2:#161228;
   --bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.13);
-  --tx:#ede9fe;--tx2:#9d85c0;--tx3:#574d78;
+  --tx:#ede9fe;--tx2:#9d85c0;--tx3:#9585bb;
   --ac:#6d28d9;--ac2:#9333ea;--ac3:#c084fc;
   --gr:#34d399;--yw:#fbbf24;--rd:#f87171;
 }
@@ -120,7 +120,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
   <div class="overall all-good" role="status" aria-live="polite" aria-label="Overall system status: All systems operational">
     <div class="overall-dot" aria-hidden="true"></div>
     <div>
-      <div class="overall-title">All Systems Operational</div>
+      <h1 class="overall-title" style="margin:0">All Systems Operational</h1>
       <div class="overall-sub">Last checked <span id="last-check">just now</span></div>
     </div>
   </div>
@@ -167,7 +167,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
         <span class="service-icon" aria-hidden="true">Authentication</span>
         <div class="service-info">
           <div class="service-name">Authentication</div>
-          <div class="service-desc">Local profile on your device now; Nostr sign-in coming later</div>
+          <div class="service-desc">LooscidID on your device; login with Nostr, Mastodon or Bluesky</div>
         </div>
         <div class="status-pill maintenance" role="status" aria-label="Authentication: Coming soon">
           <span class="status-dot" aria-hidden="true"></span>Coming Soon
@@ -270,7 +270,6 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
     var label = daysAgo === 1 ? 'Yesterday' : daysAgo === 0 ? 'Today' : daysAgo + ' days ago';
     var status = cls === 'up' ? 'Operational' : cls === 'partial' ? 'Degraded performance' : 'Outage';
     d.setAttribute('title', label + ': ' + status);
-    d.setAttribute('aria-label', label + ': ' + status);
     bar.appendChild(d);
   }
 })();
