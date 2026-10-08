@@ -15,17 +15,15 @@
   </script>
 
 <meta charset="UTF-8"/>
-<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://challenges.cloudflare.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com;"/>
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-src 'none';"/>
 <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
 <meta http-equiv="X-Frame-Options" content="DENY"/>
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>Looscid</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
 <!-- Babel not needed: JSX pre-compiled -->
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
@@ -2482,8 +2480,14 @@ function SettingsPage({prefs, setPrefs, navigate, onSignOut, authUser, theme, se
 
 
 /* --- ACCOUNT SETTINGS ---------------------------------------------------- */
-function AccountSettings({navigate, authUser, onSignOut}) {
-  const isDemo = !authUser || authUser.uid === "guest" || authUser.isGuest;
+function AccountSettings({navigate, authUser, onSignOut, onRenameProfile}) {
+  // Local profile (no account): only the name lives here, on this device
+  const isLocal = !!(authUser && authUser.isLocal);
+  const isDemo = !authUser || authUser.uid === "guest" || authUser.isGuest || isLocal;
+  const renameLocal = () => {
+    const next = window.prompt("Your name on Looscid (saved on this device only)", (authUser && authUser.displayName) || "");
+    if (next !== null && next.trim() && onRenameProfile) onRenameProfile(next);
+  };
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [show2FA,       setShow2FA]       = useState(false);
   const [showPW,        setShowPW]        = useState(false);
@@ -2519,8 +2523,24 @@ function AccountSettings({navigate, authUser, onSignOut}) {
       , React.createElement(BackHeader, { title: "Account", onBack: ()=>navigate("settings"),})
       , React.createElement('div', { style: {padding:"0 0 40px"},}
 
+        /* Local profile (stored on this device; Nostr sign-in can come later) */
+        , isLocal && React.createElement(React.Fragment, null
+            , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Local profile")
+            , React.createElement('button', { className: "sr", style: {cursor:"pointer",width:"100%",textAlign:"left",background:"none",border:"none",color:"inherit",font:"inherit"}, onClick: renameLocal, 'aria-label': "Edit display name, currently " + (authUser.displayName||"Dreamor"),}
+              , React.createElement('div', null
+                , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,textTransform:"uppercase",letterSpacing:".04em",marginBottom:2},}, "Display Name")
+                , React.createElement('div', { className: "sr-title",}, authUser.displayName||"Dreamor")
+              )
+              , React.createElement('span', { style: {fontSize:12,color:"var(--ac3)",fontWeight:600},}, "Edit")
+            )
+            , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6,padding:"4px 16px 8px"},}, "No account needed. Your profile is saved only on this device. Sign-in with Nostr is coming later.")
+            , React.createElement('div', { style: {padding:"0 16px 8px"},}
+              , React.createElement('button', { className: "btn bgb", style: {width:"100%",padding:12,fontSize:13}, onClick: ()=>{ if (window.confirm("Reset your local profile on this device?")) onSignOut(); }, 'aria-label': "Reset local profile",}, "Reset local profile")
+            )
+          )
+
         /* Demo account notice */
-        , isDemo && (
+        , isDemo && !isLocal && (
           React.createElement('div', { style: {margin:"0 16px 4px",padding:"14px 16px",background:"rgba(109,40,217,.1)",border:"1px solid rgba(109,40,217,.3)",borderRadius:14},}
             , React.createElement('div', { style: {fontWeight:700,fontSize:13,color:"var(--ac3)",marginBottom:4},}, "You are using the Demo Account"     )
             , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6,marginBottom:12},}, "Explore everything Looscid has to offer. Your activity here is not saved. Create a LooscidID to save your dreams, follow Dreamers and make it yours."
@@ -4420,23 +4440,55 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just posted a new
 }
 
 
-/* --- SUPABASE CONFIG ---------------------------------------------------- */
-const SUPABASE_URL = "https://zlwfrfrrxeeijthrnajc.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpsd2ZyZnJyeGVlaWp0aHJuYWpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5MDAyMTgsImV4cCI6MjA5MDQ3NjIxOH0.S570lGyLpmid5xxRKbDgEM6V4VEH12951BjfxBNLO_Y";
+/* --- LOCAL PROFILE --------------------------------------------------------
+   No accounts and no server: the profile lives only on this device, in
+   localStorage. The app opens straight away with a default profile; the
+   name can be changed in Settings > Account.
+   TODO: Nostr sign-in can come later (see NOSTR_ARCHITECTURE.md) and would
+   replace this local profile with a key-based identity.
+   ------------------------------------------------------------------------- */
+const LOCAL_PROFILE_KEY = "looscid_local_profile";
 
-// Sanitize input — strip dangerous characters before sending to server
+// Sanitize input — strip dangerous characters
 function sanitizeInput(str) {
   if (typeof str !== "string") return str;
   return str.replace(/[<>]/g, "").trim();
 }
 
-// Initialize Supabase client
-var dbm_supabase = null;
-function getSupabase() {
-  if (!dbm_supabase && typeof supabase !== "undefined") {
-    dbm_supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  }
-  return dbm_supabase;
+function makeLocalProfile(name) {
+  const display = (sanitizeInput(name || "") || "Dreamor").slice(0, 40);
+  const slug = display.toLowerCase().replace(/[^a-z0-9_]+/g, "").slice(0, 30) || "dreamor";
+  const initials = display.split(/\s+/).filter(Boolean).map(w => w[0]).join("").slice(0, 2).toUpperCase() || "D";
+  return {
+    uid: "local-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+    isLocal: true, isGuest: false,
+    displayName: display, name: display, handle: "@" + slug, initials: initials,
+    color: "#6d28d9", bio: "", email: "", emailVerified: false, photoURL: null,
+    joined: new Date().toLocaleDateString(undefined, { month: "long", year: "numeric" }),
+  };
+}
+function saveLocalProfile(p) { try { localStorage.setItem(LOCAL_PROFILE_KEY, JSON.stringify(p)); } catch (e) {} return p; }
+function getLocalProfile() {
+  try {
+    const p = JSON.parse(localStorage.getItem(LOCAL_PROFILE_KEY) || "null");
+    return p && p.uid && p.displayName ? p : null;
+  } catch (e) { return null; }
+}
+// Mirror the local profile into ME so posts and the profile show the right name
+function applyLocalProfileToMe(p) {
+  if (!p) return p;
+  ME.name = p.displayName; ME.handle = p.handle; ME.initials = p.initials;
+  if (p.bio) ME.bio = p.bio;
+  return p;
+}
+function ensureLocalProfile() { return applyLocalProfileToMe(getLocalProfile() || saveLocalProfile(makeLocalProfile())); }
+function renameLocalProfile(current, name) {
+  const fresh = makeLocalProfile(name);
+  return applyLocalProfileToMe(saveLocalProfile({ ...(current || {}), displayName: fresh.displayName, name: fresh.name, handle: fresh.handle, initials: fresh.initials, uid: (current && current.uid) || fresh.uid, isLocal: true, isGuest: false }));
+}
+function resetLocalProfile() {
+  try { localStorage.removeItem(LOCAL_PROFILE_KEY); } catch (e) {}
+  return ensureLocalProfile();
 }
 
 /* --- FIREBASE CONFIG -----------------------------------------------------
@@ -4485,579 +4537,6 @@ function AnalyticsBanner({ onDone }) {
       )
     )
   );
-}
-
-/* --- PASSWORD STRENGTH --------------------------------------------------- */
-const PW_LABELS = ["Too short","Weak","OK","Good","Strong","Very strong"];
-const PW_COLORS = ["#ef4444","#f97316","#eab308","#22c55e","#22c55e","#22c55e"];
-function pwStrength(pw) {
-  let s=0;
-  if(pw.length>=8)s++;
-  if(pw.length>=12)s++;
-  if(/[A-Z]/.test(pw))s++;
-  if(/[0-9]/.test(pw))s++;
-  if(/[^A-Za-z0-9]/.test(pw))s++;
-  return s;
-}
-
-/* --- GOOGLE LOGO SVG ----------------------------------------------------- */
-function GoogleLogo() {
-  return (
-    React.createElement('svg', { width: "18", height: "18", viewBox: "0 0 48 48"   , 'aria-hidden': "true",}
-      , React.createElement('path', { fill: "#EA4335", d: "M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"                       ,})
-      , React.createElement('path', { fill: "#4285F4", d: "M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"       ,})
-      , React.createElement('path', { fill: "#FBBC05", d: "M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"          ,})
-      , React.createElement('path', { fill: "#34A853", d: "M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"              ,})
-    )
-  );
-}
-
-/* --- TURNSTILE GATE ------------------------------------------------------- */
-function TurnstileGate({ onVerified }) {
-  const ref = useRef(null);
-  const widgetId = useRef(null);
-  const SITE_KEY = "0x4AAAAAACxoyBMMPPQWjTcm";
-  useEffect(() => {
-    const tryRender = () => {
-      if (typeof turnstile === "undefined") { setTimeout(tryRender, 300); return; }
-      if (widgetId.current !== null) return;
-      widgetId.current = turnstile.render(ref.current, {
-        sitekey: SITE_KEY,
-        callback: token => onVerified(token),
-        "error-callback": () => onVerified("bypass"),
-        theme: "auto",
-      });
-    };
-    if (SITE_KEY.includes("REPLACE_")) { onVerified("bypass"); return; }
-    tryRender();
-    return () => { if (widgetId.current !== null && typeof turnstile !== "undefined") { try { turnstile.remove(widgetId.current); } catch (e4){} } };
-  }, []);
-  return (
-    React.createElement('div', { className: "auth-gate", role: "main", 'aria-label': "Bot verification" ,}
-      , React.createElement('div', { className: "auth-logo",}, "Looscid"  )
-      , React.createElement('div', { className: "auth-tagline",}, "Your inner world, shared."   )
-      , React.createElement('div', { className: "auth-card", style: {textAlign:"center"},}
-        , React.createElement('div', { style: {fontSize:32,marginBottom:12},}, "Shield check" )
-        , React.createElement('div', { style: {fontSize:14,color:"var(--tx2)",marginBottom:20},}, "Quick security check before you enter."     )
-        , React.createElement('div', { ref: ref, style: {display:"flex",justifyContent:"center"},})
-      )
-    )
-  );
-}
-
-/* --- VALIDATE USERNAME ---------------------------------------------------- */
-function validateUsername(u) {
-  const v = u.startsWith("@") ? u.slice(1) : u;
-  if (!v) return "LooscidID is required.";
-  if (v.length < 3) return "LooscidID must be at least 3 characters.";
-  if (v.length > 30) return "LooscidID must be 30 characters or fewer.";
-  if (!/^[a-zA-Z0-9_]+$/.test(v)) return "Only letters, numbers, and underscores.";
-  return "";
-}
-
-/* --- VALIDATE AGE --------------------------------------------------------- */
-function validateAge(bd) {
-  if (!bd) return "Please enter your date of birth.";
-  const dob = new Date(bd);
-  const now = new Date();
-  let age = now.getFullYear() - dob.getFullYear();
-  const m = now.getMonth() - dob.getMonth();
-  if (m < 0 || (m === 0 && now.getDate() < dob.getDate())) age--;
-  if (age < 13) return "You must be 13 or older to join Looscid.";
-  return "";
-}
-
-/* --- PARSE FLEXIBLE DATE -------------------------------------------------- */
-function parseFlexDate(day, month, year) {
-  // month can be "August", "aug", "8", "08"
-  const MONTHS = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12,
-    january:1,february:2,march:3,april:4,june:6,july:7,august:8,september:9,october:10,november:11,december:12};
-  let m = parseInt(month);
-  if (isNaN(m)) m = MONTHS[month.toLowerCase().trim()];
-  const d = parseInt(day);
-  const y = parseInt(year);
-  if (!d || !m || !y || y < 1900 || y > new Date().getFullYear()) return null;
-  if (d < 1 || d > 31 || m < 1 || m > 12) return null;
-  const date = new Date(y, m-1, d);
-  if (date.getMonth() !== m-1) return null; // e.g. Feb 31
-  return date;
-}
-
-/* --- STEP DOTS ------------------------------------------------------------ */
-function StepDots({ mode }) {
-  const STEPS = ["signup_creds","signup_profile","signup_interests","signup_terms"];
-  const idx = STEPS.indexOf(mode);
-  if (idx === -1) return null;
-  return (
-    React.createElement('div', { className: "auth-step-dots", role: "progressbar", 'aria-valuenow': idx+1, 'aria-valuemax': STEPS.length, 'aria-label': "Step "+(idx+1)+" of "+STEPS.length,}
-      , STEPS.map((s,i) => React.createElement('div', { key: s, className: "auth-step-dot"+(i===idx?" on":""), 'aria-hidden': "true",}))
-    )
-  );
-}
-
-
-/* --- SPLASH SCREEN ------------------------------------------------------- */
-function SplashScreen({ onLogin, onSignup, onDemo }) {
-  return (
-    React.createElement('div', { className: "splash", role: "main", 'aria-label': "Welcome to Looscid"    ,}
-      , React.createElement('div', { className: "splash-moon", 'aria-hidden': "true",}, "🌙")
-      , React.createElement('div', { className: "splash-title",}, "Looscid"  )
-      , React.createElement('div', { className: "splash-sub",}, "Somewhere between your midnight thoughts and your wildest ideas lives a place that was always meant for you. Welcome home."
-
-
-        , React.createElement('br', null), React.createElement('br', null)
-        , React.createElement('span', { style: {fontSize:13,opacity:.7},}, "(We promise it is better than doomscrolling at 2am. Probably.)"
-
-        )
-      )
-      , React.createElement('div', { className: "splash-btns",}
-        , React.createElement('button', { className: "splash-btn-primary", onClick: onLogin,
-          'aria-label': "Login to your LooscidID"       ,}, "Sign In"
-
-        )
-        , React.createElement('button', { className: "splash-btn-secondary", onClick: onSignup,
-          'aria-label': "Sign up for a new LooscidID"        ,}, "Create Account"
-
-        )
-        , React.createElement('button', { className: "splash-btn-ghost", onClick: onDemo,
-          'aria-label': "Continue as Guest"      ,}, "Guest Mode"
-
-        )
-      )
-    )
-  );
-}
-
-/* --- LOGIN SCREEN --------------------------------------------------------- */
-function LoginScreen({ onAuth, onBack, initialMode="login" }) {
-  const [mode, setMode] = useState(initialMode === "signup" ? "signup_creds" : "login");
-
-  // Login fields
-  const [email, setEmail]     = useState("");
-  const [pw, setPw]           = useState("");
-  const [showPw, setShowPw]   = useState(false);
-
-  // Signup fields
-  const [displayName,   setDisplayName]   = useState("");
-  const [username,      setUsername]      = useState("");
-  const [usernameErr,   setUsernameErr]   = useState("");
-  const [signupEmail,   setSignupEmail]   = useState("");
-  const [signupPw,      setSignupPw]      = useState("");
-  const [showSignupPw,  setShowSignupPw]  = useState(false);
-
-  // Birthdate — three separate text fields
-  const [bdDay,   setBdDay]   = useState("");
-  const [bdMonth, setBdMonth] = useState("");
-  const [bdYear,  setBdYear]  = useState("");
-  const [ageErr,  setAgeErr]  = useState("");
-
-  // Interests
-  const INTERESTS = [
-    {id:"consciousness",  label:"Consciousness"},
-    {id:"philosophy",     label:"Philosophy"},
-    {id:"creative",       label:"Creative Arts"},
-    {id:"writing",        label:"Writing"},
-    {id:"wellness",       label:"Wellness"},
-    {id:"science",        label:"Science"},
-    {id:"technology",     label:"Technology"},
-    {id:"music",          label:"Music"},
-    {id:"film",           label:"Film & TV"},
-    {id:"nature",         label:"Nature"},
-    {id:"humour",         label:"Humour"},
-    {id:"dreams",         label:"Dreams & Sleep"},
-    {id:"mental_health",  label:"Mental Health"},
-    {id:"books",          label:"Books"},
-    {id:"food",           label:"Food"},
-    {id:"sport",          label:"Sport"},
-  ];
-  const [interests, setInterests] = useState([]);
-  const [agreedTerms, setAgreedTerms] = useState(false);
-  const [crashConsent, setCrashConsent] = useState(false);
-  const [helpfulTips, setHelpfulTips] = useState(false);
-
-  // Shared
-  const [busy, setBusy]   = useState(false);
-  const [err,  setErr]    = useState("");
-  const [msg,  setMsg]    = useState("");
-  const [turnstileToken, setTurnstileToken] = useState("");
-  const tsRef      = useRef(null);
-  const tsWidgetId = useRef(null);
-  const needsTurnstile = false; // set true when Turnstile key is configured
-
-  const strength = pwStrength(signupPw);
-
-  // --- Handlers ---
-  const handleDemoLogin = () => {
-    onAuth({ displayName:"Guest", name:"Guest", handle:"@guest", initials:"DD", color:"#6d28d9", bio:"Browsing as a guest. Sign in to Dream.", location:"Dream Land", joined:"February 2024", dreamCount:12, followers:3, following:7, verified:false, email:"guest@dreamboard.app", emailVerified:true, photoURL:null, uid:"demo", isGuest:true });
-  };
-
-  const handleLogin = async () => {
-    if (!email.trim()) { setErr("Please enter your email."); return; }
-    if (!pw) { setErr("Please enter your password."); return; }
-    // Client-side rate limiting
-    try {
-      var attempts = JSON.parse(sessionStorage.getItem("dbm_login_attempts")||"[]");
-      var recent = attempts.filter(function(t){return Date.now()-t < 5*60*1000;});
-      if (recent.length >= 5) { setErr("Too many attempts. Please wait 5 minutes before trying again."); return; }
-      sessionStorage.setItem("dbm_login_attempts", JSON.stringify([...recent, Date.now()]));
-    } catch(e) {}
-    setBusy(true); setErr("");
-    const sb = getSupabase();
-    if (!sb) { setErr("Connection error. Please try again."); setBusy(false); return; }
-    try {
-      const { data, error } = await sb.auth.signInWithPassword({ email: email.trim(), password: pw });
-      if (error) {
-        const map = { "Invalid login credentials":"Incorrect email or password.", "Email not confirmed":"Please verify your email first. Check your inbox." };
-        setErr(map[error.message] || error.message);
-        setBusy(false); return;
-      }
-      if (!data.user.email_confirmed_at) {
-        await sb.auth.signOut();
-        setErr("Please verify your email first. Check your inbox.");
-        setBusy(false); return;
-      }
-      // Fetch profile
-      const { data: profile } = await sb.from("profiles").select("*").eq("id", data.user.id).single();
-      onAuth({ ...data.user, ...profile, displayName: profile ? profile.display_name : data.user.email, handle: profile ? "@"+profile.username : "@dreamer" });
-    } catch(e) {
-      setErr("Sign in failed. Please try again.");
-    }
-    setBusy(false);
-  };
-
-  const handleGoogle = async () => {
-    setBusy(true); setErr("");
-    const auth = getFirebaseAuth();
-    if (!auth) { onAuth({ displayName:"Google User", email:"google@demo.com", emailVerified:true, uid:"google" }); setBusy(false); return; }
-    try {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      const cred = await auth.signInWithPopup(provider);
-      onAuth(cred.user);
-    } catch(e) { setErr("Google sign-in failed. Please try again."); }
-    setBusy(false);
-  };
-
-  const handleReset = async () => {
-    if (!email.trim()) { setErr("Enter your email address above first."); return; }
-    setBusy(true); setErr(""); setMsg("");
-    const auth = getFirebaseAuth();
-    if (!auth) { setMsg("Reset email sent (demo mode)!"); setBusy(false); return; }
-    try { await auth.sendPasswordResetEmail(email.trim()); setMsg("Check your inbox for a reset link."); }
-    catch(e) { setErr("Could not send reset email. Check the address and try again."); }
-    setBusy(false);
-  };
-
-  const handleSignupCredsNext = () => {
-    if (!displayName.trim()) { setErr("Please enter your display name."); return; }
-    const uErr = validateUsername(username);
-    if (uErr) { setUsernameErr(uErr); setErr(uErr); return; }
-    if (!signupEmail.trim()) { setErr("Email address is required."); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(signupEmail.trim())) { setErr("Please enter a valid email address."); return; }
-    if (signupPw.length < 6) { setErr("Password must be at least 6 characters."); return; }
-    if (needsTurnstile && !turnstileToken) { setErr("Please complete the security check."); return; }
-    setErr(""); setUsernameErr(""); setMode("signup_profile");
-  };
-
-  const handleSignupProfileNext = () => {
-    if (!bdDay || !bdMonth || !bdYear) { setAgeErr("Please enter your full date of birth."); return; }
-    const parsed = parseFlexDate(bdDay, bdMonth, bdYear);
-    if (!parsed) { setAgeErr("Please enter a valid date, e.g. 09, August, 2005 or 09, 8, 2005."); return; }
-    const isoStr = parsed.getFullYear()+"-"+String(parsed.getMonth()+1).padStart(2,"0")+"-"+String(parsed.getDate()).padStart(2,"0");
-    const ageErrMsg = validateAge(isoStr);
-    if (ageErrMsg) { setAgeErr(ageErrMsg); return; }
-    setAgeErr(""); setMode("signup_interests");
-  };
-
-  const handleSignupInterestsNext = () => {
-    if (interests.length === 0) { setErr("Please select at least one interest."); return; }
-    setErr(""); setMode("signup_terms");
-  };
-
-  const handleCreateAccount = async () => {
-    if (!agreedTerms) { setErr("Please agree to the terms to continue."); return; }
-    setAnalyticsConsent(crashConsent ? "yes" : "no");
-    setBusy(true); setErr("");
-    const sb = getSupabase();
-    if (!sb) { setErr("Connection error. Please try again."); setBusy(false); return; }
-    try {
-      const uname = sanitizeInput((username.startsWith("@") ? username.slice(1) : username).toLowerCase());
-      const { data, error } = await sb.auth.signUp({
-        email: sanitizeInput(signupEmail.trim()),
-        password: signupPw,
-        options: {
-          data: { display_name: displayName, username: uname },
-          emailRedirectTo: "https://dream-board-mobile.pages.dev"
-        }
-      });
-      if (error) {
-        const map = { "User already registered":"That email is already registered." };
-        setErr(map[error.message] || error.message);
-        setBusy(false); return;
-      }
-      setMode("verify");
-    } catch(e) {
-      setErr("Could not create account. Please try again.");
-    }
-    setBusy(false);
-  };
-
-  // --- SCREEN: Login ---
-  if (mode === "login") return (
-    React.createElement('div', { className: "auth-gate",}
-      , React.createElement('div', { className: "auth-logo",}, "Looscid"  )
-      , React.createElement('div', { className: "auth-tagline",}, "Your inner world, shared."   )
-      , React.createElement('div', { className: "auth-card",}
-        , React.createElement('button', { onClick: onBack, style: {background:"none",border:"none",color:"var(--tx3)",fontSize:13,cursor:"pointer",padding:"0 0 12px",textAlign:"left",fontFamily:"inherit",display:"flex",alignItems:"center",gap:4}, 'aria-label': "Back to welcome screen"   ,}, "Back"
-
-        )
-        , React.createElement('div', { className: "auth-title",}, "LOGIN TO YOUR LOOSCIDID" )
-        , React.createElement('div', { className: "auth-sub",}, "WELCOME BACK"  )
-        , err  && React.createElement('div', { className: "auth-error",}, React.createElement('span', null, "Warning:"), React.createElement('span', null, err))
-        , msg  && React.createElement('div', { style: {background:"rgba(34,197,94,.12)",border:"1px solid rgba(34,197,94,.3)",borderRadius:10,padding:"10px 14px",fontSize:13,color:"#22c55e",marginBottom:14},}, msg)
-        , React.createElement('button', { className: "auth-google-btn", onClick: handleGoogle, disabled: busy, 'aria-label': "Sign in with Google"   ,}
-          , busy ? React.createElement('div', { className: "auth-spinner",}) : React.createElement(React.Fragment, null, React.createElement(GoogleLogo, null), React.createElement('span', null, "Continue with Google"  ))
-        )
-        , React.createElement('div', { className: "auth-divider",}, "or")
-        , React.createElement('input', { className: "inp", type: "email", placeholder: "Email address" ,
-          value: email, onChange: e=>{setEmail(e.target.value);setErr("");setMsg("");},
-          style: {marginBottom:12}, 'aria-label': "Email address" , autoComplete: "email",})
-        , React.createElement('label', { style: {display:"flex",gap:8,alignItems:"flex-start",margin:"8px 0 14px",cursor:"pointer",fontSize:12,color:"var(--tx2)",lineHeight:1.5},}
-          , React.createElement('input', { type: "checkbox", defaultChecked: true, style: {marginTop:2,flexShrink:0,width:15,height:15,cursor:"pointer",accentColor:"var(--ac)"}, "aria-label": "Receive Looscid updates by email",})
-          , React.createElement('span', null, "Send me occasional updates, community highlights and new features from Looscid. No spam, unsubscribe any time.")
-        )
-        , React.createElement('div', { className: "auth-inp-wrap",}
-          , React.createElement('input', { className: "inp", type: showPw?"text":"password", placeholder: "Password",
-            value: pw, onChange: e=>{setPw(e.target.value);setErr("");},
-            'aria-label': "Password", autoComplete: "current-password",})
-          , React.createElement('button', { className: "auth-inp-eye", onClick: ()=>setShowPw(v=>!v), 'aria-label': showPw?"Hide password":"Show password",}
-            , showPw?"Hide":"Show"
-          )
-        )
-        , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:13,marginTop:4,fontSize:15},
-          onClick: handleLogin, disabled: !email.trim()||!pw||busy, 'aria-label': "LOG IN" ,}
-          , busy ? React.createElement('div', { className: "auth-spinner",}) : "LOG IN"
-        )
-        , React.createElement('div', { style: {textAlign:"right",marginTop:8},}
-          , React.createElement('button', { className: "auth-link", style: {fontSize:12}, onClick: handleReset,}, "Forgot password?" )
-        )
-        , React.createElement('div', { className: "auth-footer", style: {marginTop:14},}, "New? "
-           , React.createElement('button', { className: "auth-link", onClick: ()=>{setMode("signup_creds");setErr("");setMsg("");},}, "Create account" )
-        )
-        , React.createElement('div', { style: {marginTop:12,paddingTop:12,borderTop:"1px solid var(--bd)"},}
-          , React.createElement('button', { className: "btn", style: {width:"100%",padding:11,fontSize:13,background:"var(--sf2)",color:"var(--tx2)",border:"1px solid var(--bd2)",borderRadius:12},
-            onClick: handleDemoLogin, disabled: busy, 'aria-label': "Continue as Guest"      ,}, "Guest Mode"
-
-          )
-          , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",textAlign:"center",marginTop:6},}, "No sign-up needed. Explore freely."    )
-        )
-      )
-    )
-  );
-
-  // --- SCREEN: Verify email ---
-  if (mode === "verify") return (
-    React.createElement('div', { className: "auth-gate",}
-      , React.createElement('div', { className: "auth-logo",}, "Looscid"  )
-      , React.createElement('div', { className: "auth-card", style: {textAlign:"center"},}
-        , React.createElement('div', { className: "auth-verify-icon",}, "Email sent" )
-        , React.createElement('div', { className: "auth-title", style: {textAlign:"center"},}, "Check your inbox"  )
-        , React.createElement('div', { style: {fontSize:13,color:"var(--tx2)",marginBottom:20,lineHeight:1.6},}, "We sent a verification link to "
-                , React.createElement('strong', null, signupEmail), ". Click it to activate your account, then come back and sign in."
-        )
-        , React.createElement('button', { className: "auth-link", style: {fontSize:13,marginBottom:12}, onClick: ()=>setMode("login"),}, "Wrong email? "
-            , React.createElement('button', { className: "auth-link", onClick: ()=>{setMode("signup_creds");setMsg("");setErr("");},}, "Go back" )
-        )
-        , React.createElement('button', { className: "btn bgb" , style: {width:"100%",padding:12}, onClick: ()=>setMode("login"),}, "Back to Login"   )
-      )
-    )
-  );
-
-  // --- SCREEN: Signup step 1 - Name, Username, Email, Password ---
-  if (mode === "signup_creds") return (
-    React.createElement('div', { className: "auth-gate",}
-      , React.createElement('div', { className: "auth-logo",}, "Looscid"  )
-      , React.createElement('div', { className: "auth-tagline",}, "Your inner world, shared."   )
-      , React.createElement('div', { className: "auth-card",}
-        , React.createElement(StepDots, { mode: mode,})
-        , React.createElement('button', { onClick: onBack, style: {background:"none",border:"none",color:"var(--tx3)",fontSize:13,cursor:"pointer",padding:"0 0 12px",textAlign:"left",fontFamily:"inherit",display:"flex",alignItems:"center",gap:4}, 'aria-label': "Back to welcome screen"   ,}, "Back"
-
-        )
-        , React.createElement('div', { className: "auth-title",}, "Create your LooscidID"  )
-        , React.createElement('div', { className: "auth-sub",}, "Your name can be real or a dream name."        )
-        , err && React.createElement('div', { className: "auth-error",}, React.createElement('span', null, "Warning:"), React.createElement('span', null, err))
-        , React.createElement('button', { className: "auth-google-btn", onClick: handleGoogle, disabled: busy, 'aria-label': "Sign up with Google"   ,}
-          , busy ? React.createElement('div', { className: "auth-spinner",}) : React.createElement(React.Fragment, null, React.createElement(GoogleLogo, null), React.createElement('span', null, "Sign up with Google"   ))
-        )
-        , React.createElement('div', { className: "auth-divider",}, "or")
-        , React.createElement('input', { className: "inp", type: "text", placeholder: "Display name (real or dream name)"     ,
-          value: displayName, onChange: e=>{setDisplayName(e.target.value);setErr("");},
-          style: {marginBottom:12}, 'aria-label': "Display name" , maxLength: 50,
-          autoComplete: "name", autoCapitalize: "words",})
-        , React.createElement('div', { style: {fontSize:11,fontWeight:600,color:"var(--tx2)",marginBottom:4},}, "LooscidID")
-        , React.createElement('input', { className: "inp", type: "text", placeholder: "LooscidID",
-          value: username.startsWith("@")?username.slice(1):username,
-          onChange: e=>{setUsername(e.target.value);setUsernameErr("");setErr("");},
-          style: {marginBottom:usernameErr?4:12}, 'aria-label': "LooscidID",
-          maxLength: 30, autoComplete: "username", autoCorrect: "off",
-          autoCapitalize: "off", spellCheck: false, inputMode: "text",})
-        , usernameErr && React.createElement('div', { style: {fontSize:11,color:"var(--rd)",marginBottom:8,marginTop:-8},}, usernameErr)
-        , React.createElement('input', { className: "inp", type: "email", placeholder: "Email address" ,
-          value: signupEmail, onChange: e=>{setSignupEmail(e.target.value);setErr("");},
-          style: {marginBottom:12}, 'aria-label': "Email address" , autoComplete: "email",})
-        , React.createElement('div', { className: "auth-inp-wrap",}
-        , React.createElement('label', { style: {display:"flex",gap:8,alignItems:"center",marginBottom:10,fontSize:12,color:"var(--tx2)",cursor:"pointer"},}
-          , React.createElement('input', { type: "checkbox", checked: helpfulTips, onChange: e=>setHelpfulTips(e.target.checked),
-            style: {width:14,height:14,flexShrink:0,cursor:"pointer"}, "aria-label": "Send me helpful tips by email",})
-          , React.createElement('span', null, "Send me helpful tips and updates by email" )
-        )
-          , React.createElement('input', { className: "inp", type: showSignupPw?"text":"password", placeholder: "Create a password"  ,
-            value: signupPw, onChange: e=>{setSignupPw(e.target.value);setErr("");},
-            'aria-label': "Create a password"  , autoComplete: "new-password",})
-          , React.createElement('button', { className: "auth-inp-eye", onClick: ()=>setShowSignupPw(v=>!v), 'aria-label': showSignupPw?"Hide password":"Show password",}
-            , showSignupPw?"Hide":"Show"
-          )
-          , signupPw.length > 0 && React.createElement(React.Fragment, null
-            , React.createElement('div', { className: "auth-pw-strength", style: {background:PW_COLORS[strength],width:(strength/5*100)+"%"},})
-            , React.createElement('div', { style: {fontSize:11,color:PW_COLORS[strength],marginTop:3},}, PW_LABELS[strength])
-          )
-        )
-        , needsTurnstile && React.createElement('div', { className: "auth-turnstile-wrap",}, React.createElement('div', { ref: tsRef,}))
-        , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:13,marginTop:8,fontSize:15},
-          onClick: handleSignupCredsNext,
-          disabled: !displayName.trim()||!username.trim()||!signupEmail.trim()||signupPw.length<6||(needsTurnstile&&!turnstileToken)||busy,
-          'aria-label': "Continue to birthdate"  ,}, "Continue"
-
-        )
-        , React.createElement('div', { className: "auth-footer", style: {marginTop:16},}, "Already have an account? "
-              , React.createElement('button', { className: "auth-link", onClick: ()=>{setMode("login");setErr("");setMsg("");},}, "LOGIN" )
-        )
-      )
-    )
-  );
-
-  // --- SCREEN: Signup step 2 - Birthdate (3 text fields) ---
-  if (mode === "signup_profile") return (
-    React.createElement('div', { className: "auth-gate",}
-      , React.createElement('div', { className: "auth-logo",}, "Looscid"  )
-      , React.createElement('div', { className: "auth-card",}
-        , React.createElement(StepDots, { mode: mode,})
-        , React.createElement('div', { className: "auth-title",}, "When were you born?"   )
-        , React.createElement('div', { className: "auth-sub",}, "You must be 13 or older to join."       )
-        , ageErr && React.createElement('div', { className: "auth-error",}, React.createElement('span', null, "Warning:"), React.createElement('span', null, ageErr))
-        , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginBottom:10},}, "Enter Day, Month and Year separately. Month can be a number or name, e.g. 8 or August.", React.createElement('div', {id:"birthday-accuracy-notice",role:"region",'aria-label':"Birthday accuracy notice",style:{marginTop:8}}, "Your birthday must be accurate. If your LooscidID is found to use false information, it may be suspended or removed.")
-
-        )
-        , React.createElement('div', { style: {display:"grid",gridTemplateColumns:"1fr 1.6fr 1.2fr",gap:8,marginBottom:20}, role: "group", 'aria-label': "Date of birth", 'aria-describedby': "birthday-accuracy-notice"  ,}
-          , React.createElement('div', null
-            , React.createElement('label', { style: {display:"block",fontSize:11,fontWeight:600,color:"var(--tx2)",marginBottom:4}, htmlFor: "bd-day",}, "Day")
-            , React.createElement('input', { id: "bd-day", className: "inp", type: "text", placeholder: "09",
-              value: bdDay, onChange: e=>setBdDay(e.target.value.replace(/[^0-9]/g,"")),
-              maxLength: 2, 'aria-label': "Birth day, two digit number", 'aria-required': true    ,
-              inputMode: "numeric", autoComplete: "bday-day",
-              style: {textAlign:"center",padding:"13px 8px"},})
-          )
-          , React.createElement('div', null
-            , React.createElement('label', { style: {display:"block",fontSize:11,fontWeight:600,color:"var(--tx2)",marginBottom:4}, htmlFor: "bd-month",}, "Month")
-            , React.createElement('input', { id: "bd-month", className: "inp", type: "text", placeholder: "August or 8"  ,
-              value: bdMonth, onChange: e=>{setBdMonth(e.target.value);setAgeErr("");},
-              maxLength: 12, 'aria-label': "Birth month, number or name like August", 'aria-required': true      ,
-              autoComplete: "bday-month", autoCorrect: "off", autoCapitalize: "words",
-              style: {textAlign:"center",padding:"13px 8px"},})
-          )
-          , React.createElement('div', null
-            , React.createElement('label', { style: {display:"block",fontSize:11,fontWeight:600,color:"var(--tx2)",marginBottom:4}, htmlFor: "bd-year",}, "Year")
-            , React.createElement('input', { id: "bd-year", className: "inp", type: "text", placeholder: "2005",
-              value: bdYear, onChange: e=>setBdYear(e.target.value.replace(/[^0-9]/g,"")),
-              maxLength: 4, 'aria-label': "Birth year, four digit number", 'aria-required': true    ,
-              inputMode: "numeric", autoComplete: "bday-year",
-              style: {textAlign:"center",padding:"13px 8px"},})
-          )
-        )
-        , React.createElement('div', { style: {display:"flex",gap:10},}
-          , React.createElement('button', { className: "btn bgb" , style: {flex:1,padding:12}, onClick: ()=>{setMode("signup_creds");setAgeErr("");}, 'aria-label': "Go back" ,}, "Back")
-          , React.createElement('button', { className: "btn bp" , style: {flex:2,padding:12,fontSize:14},
-            onClick: handleSignupProfileNext,
-            disabled: !bdDay.trim()||!bdMonth.trim()||!bdYear.trim()||busy,
-            'aria-label': "Continue to interests"  ,}, "Continue"
-
-          )
-        )
-      )
-    )
-  );
-
-  // --- SCREEN: Signup step 3 - Interests ---
-  if (mode === "signup_interests") return (
-    React.createElement('div', { className: "auth-gate",}
-      , React.createElement('div', { className: "auth-logo",}, "Looscid"  )
-      , React.createElement('div', { className: "auth-card",}
-        , React.createElement(StepDots, { mode: mode,})
-        , React.createElement('div', { className: "auth-title",}, "What are you into?"   )
-        , React.createElement('div', { className: "auth-sub",}, "Cherry uses this to personalise your feed. Pick at least one."          )
-        , err && React.createElement('div', { className: "auth-error",}, React.createElement('span', null, "Warning:"), React.createElement('span', null, err))
-        , React.createElement('div', { style: {display:"flex",flexWrap:"wrap",gap:8,marginBottom:20}, role: "group", 'aria-label': "Select your interests"  ,}
-          , INTERESTS.map(int => {
-            const on = interests.includes(int.id);
-            return (
-              React.createElement('button', { key: int.id,
-                onClick: ()=>setInterests(prev => on ? prev.filter(x=>x!==int.id) : [...prev,int.id]),
-                style: {padding:"8px 14px",borderRadius:100,border:"1.5px solid",borderColor:on?"var(--ac2)":"var(--bd2)",background:on?"rgba(147,51,234,.18)":"var(--sf2)",color:on?"var(--ac3)":"var(--tx2)",fontFamily:"inherit",fontSize:13,fontWeight:on?700:400,cursor:"pointer",transition:"all .18s"},
-                'aria-pressed': on, 'aria-label': int.label,}
-                , int.label
-              )
-            );
-          })
-        )
-        , React.createElement('div', { style: {display:"flex",gap:10},}
-          , React.createElement('button', { className: "btn bgb" , style: {flex:1,padding:12}, onClick: ()=>{setMode("signup_profile");setErr("");}, 'aria-label': "Go back" ,}, "Back")
-          , React.createElement('button', { className: "btn bp" , style: {flex:2,padding:12,fontSize:14},
-            onClick: handleSignupInterestsNext,
-            disabled: interests.length===0||busy, 'aria-label': "Continue to terms"  ,}, "Continue"
-
-          )
-        )
-      )
-    )
-  );
-
-  // --- SCREEN: Signup step 4 - Terms ---
-  if (mode === "signup_terms") return (
-    React.createElement('div', { className: "auth-gate",}
-      , React.createElement('div', { className: "auth-logo",}, "Looscid"  )
-      , React.createElement('div', { className: "auth-card",}
-        , React.createElement(StepDots, { mode: mode,})
-        , React.createElement('div', { className: "auth-title",}, "Almost done" )
-        , React.createElement('div', { style: {background:"var(--sf2)",border:"1px solid var(--bd2)",borderRadius:12,padding:"14px 16px",marginBottom:16,fontSize:13},}
-          , React.createElement('div', { style: {fontWeight:700,marginBottom:4},}, displayName)
-          , React.createElement('div', { style: {color:"var(--tx3)"},}, "@", username.startsWith("@")?username.slice(1):username)
-          , React.createElement('div', { style: {color:"var(--tx3)",marginTop:2},}, signupEmail)
-        )
-        , err && React.createElement('div', { className: "auth-error",}, React.createElement('span', null, "Warning:"), React.createElement('span', null, err))
-        , React.createElement('label', { style: {display:"flex",gap:10,alignItems:"flex-start",marginBottom:12,cursor:"pointer",fontSize:13,color:"var(--tx2)",lineHeight:1.55},}
-          , React.createElement('input', { type: "checkbox", checked: agreedTerms, onChange: e=>setAgreedTerms(e.target.checked),
-            style: {marginTop:2,flexShrink:0,width:16,height:16,cursor:"pointer"},
-            'aria-label': "I agree to Looscid's Terms and Privacy Policy",})
-          , React.createElement('span', null, "I agree to Looscid\u2019s Terms and Privacy Policy. ", React.createElement('span', { style: {color:"var(--rd)",fontWeight:700},}, "Required."))
-        )
-        , React.createElement('label', { style: {display:"flex",gap:10,alignItems:"flex-start",marginBottom:20,cursor:"pointer",fontSize:13,color:"var(--tx2)",lineHeight:1.55},}
-          , React.createElement('input', { type: "checkbox", checked: crashConsent, onChange: e=>setCrashConsent(e.target.checked),
-            style: {marginTop:2,flexShrink:0,width:16,height:16,cursor:"pointer"},
-            'aria-label': "Share anonymous crash reports to help improve the app",})
-          , React.createElement('span', null, "Share anonymous crash reports to help improve Looscid. No personal data ever. ", React.createElement('span', { style: {color:"var(--gr)",fontWeight:600},}, "Recommended."))
-        )
-        , React.createElement('div', { style: {display:"flex",gap:10},}
-          , React.createElement('button', { className: "btn bgb" , style: {flex:1,padding:12}, onClick: ()=>{setMode("signup_interests");setErr("");}, 'aria-label': "Go back" ,}, "Back")
-          , React.createElement('button', { className: "btn bp" , style: {flex:2,padding:12,fontSize:14},
-            onClick: handleCreateAccount,
-            disabled: !agreedTerms||busy, 'aria-label': "Create your LooscidID"  ,}
-            , busy ? React.createElement('div', { className: "auth-spinner",}) : "Start Dreaming"
-          )
-        )
-      )
-    )
-  );
-
-  return null;
 }
 
 /* --- WELCOME SCREEN (first login) ---------------------------------------- */
@@ -5949,10 +5428,10 @@ function DreamLabsPage({ navigate, authUser }) {
 }
 
 function App() {
-  // Auth — must be first hooks (Rules of Hooks: no hooks after conditional returns)
-  const [authStage, setAuthStage] = useState("splash");
-  const [authUser, setAuthUser]   = useState(null);
-  const [loginMode, setLoginMode] = useState("login"); // "login" | "signup"
+  // Local profile — no login gate. The profile is stored on this device only.
+  // (Nostr sign-in can come later; see the LOCAL PROFILE block.)
+  const [authStage, setAuthStage] = useState("app");
+  const [authUser, setAuthUser]   = useState(() => ensureLocalProfile());
   const [showAnalytics, setShowAnalytics] = useState(false);
 
   // App state
@@ -5970,43 +5449,6 @@ function App() {
   const [showDigest, setShowDigest] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
-
-  useEffect(() => {
-    const sb = getSupabase();
-    if (!sb) { setAuthStage("splash"); return; }
-    // Check existing session
-    sb.auth.getSession().then(function(result) {
-      var session = result.data.session;
-      if (session && session.user && session.user.email_confirmed_at) {
-        sb.from("profiles").select("*").eq("id", session.user.id).single().then(function(pResult) {
-          var profile = pResult.data;
-          setAuthUser(Object.assign({}, session.user, profile || {}, {
-            displayName: profile ? profile.display_name : session.user.email,
-            handle: profile ? "@"+profile.username : "@dreamer"
-          }));
-          setAuthStage("app");
-        });
-      } else {
-        setAuthStage("splash");
-      }
-    });
-    // Listen for auth changes
-    var sub = sb.auth.onAuthStateChange(function(event, session) {
-      if (event === "SIGNED_IN" && session && session.user.email_confirmed_at) {
-        sb.from("profiles").select("*").eq("id", session.user.id).single().then(function(pResult) {
-          var profile = pResult.data;
-          setAuthUser(Object.assign({}, session.user, profile || {}, {
-            displayName: profile ? profile.display_name : session.user.email,
-            handle: profile ? "@"+profile.username : "@dreamer"
-          }));
-          setAuthStage("app");
-        });
-      } else if (event === "SIGNED_OUT") {
-        setAuthUser(null); setAuthStage("splash");
-      }
-    });
-    return function() { if (sub && sub.data) sub.data.subscription.unsubscribe(); };
-  }, []);
 
   useEffect(() => {
     if (authStage === "app" && getAnalyticsConsent() === null) {
@@ -6057,10 +5499,12 @@ useEffect(() => {
     }
   }, [authStage]);
 
-  const handleSignOut = useCallback(async () => {
-    const sb = getSupabase();
-    if (sb) await sb.auth.signOut();
-    setAuthUser(null); setAuthStage("splash");
+  // "Sign out" now resets the local profile on this device and starts fresh
+  const handleSignOut = useCallback(() => {
+    setAuthUser(resetLocalProfile()); setAuthStage("app"); setPage("feed"); setPdata(null);
+  }, []);
+  const handleRenameProfile = useCallback(name => {
+    setAuthUser(cur => renameLocalProfile(cur, name));
   }, []);
 
 
@@ -6098,8 +5542,8 @@ useEffect(() => {
   };
 
   const navigate = useCallback((target, data=null) => {
-    if (target === "login")  { setLoginMode("login");  setAuthStage("auth"); return; }
-    if (target === "signup") { setLoginMode("signup"); setAuthStage("auth"); return; }
+    // No accounts: old login/signup links open the local profile settings
+    if (target === "login" || target === "signup") { setPage("settings_account"); setPdata(null); return; }
     if (target === "cherry") { setCherryOpen(true); return; }
     setPage(target); setPdata(data);
   }, []);
@@ -6194,7 +5638,7 @@ useEffect(() => {
       case "profile":       return React.createElement(ProfilePage, { navigate: navigate, cherryCtx: cherryCtx, authUser: authUser,});
       case "dp":            return pdata ? React.createElement(DreamerProfilePage, { user: pdata, navigate: navigate, cherryCtx: cherryCtx,}) : React.createElement(FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
       case "settings":      return React.createElement(SettingsPage, { prefs: prefs, setPrefs: setPrefs, navigate: navigate, onSignOut: handleSignOut, authUser: authUser, theme: theme, setTheme: setTheme, drafts: drafts,});
-      case "settings_account":        return React.createElement(AccountSettings, { navigate: navigate, authUser: authUser, onSignOut: handleSignOut,});
+      case "settings_account":        return React.createElement(AccountSettings, { navigate: navigate, authUser: authUser, onSignOut: handleSignOut, onRenameProfile: handleRenameProfile,});
       case "settings_notifications":  return React.createElement(NotificationsSettings, { navigate: navigate,});
       case "settings_privacy":        return React.createElement(PrivacySettings, { navigate: navigate,});
       case "settings_customizability":return React.createElement(CustomizabilitySettings, { navigate: navigate, prefs: prefs, setPrefs: setPrefs,});
@@ -6221,23 +5665,6 @@ useEffect(() => {
   const unreadNotifs = appNotifs.filter(n=>n.unread).length;
   const unreadMsgs = CONVOS.reduce((a,c)=>a+c.unread, 0);
 
-
-  // Auth gate — all hooks are declared above, safe to conditionally return now
-  if (authStage === "splash") return (
-    React.createElement(SplashScreen, {
-      onLogin: ()=>{ setLoginMode("login"); setAuthStage("auth"); },
-      onSignup: ()=>{ setLoginMode("signup"); setAuthStage("auth"); },
-      onDemo: ()=>{ setAuthUser({uid:"guest",isGuest:true}); setAuthStage("app"); },}
-    )
-  );
-  if (authStage === "gate") return React.createElement(TurnstileGate, { onVerified: () => setAuthStage("auth"),});
-  if (authStage === "auth") return (
-    React.createElement(LoginScreen, {
-      onAuth: user => { setAuthUser(user); setAuthStage("app"); },
-      onBack: () => setAuthStage("splash"),
-      initialMode: loginMode,}
-    )
-  );
 
   return (
     React.createElement('div', { className: "app", role: "application", "aria-label": "Looscid",}

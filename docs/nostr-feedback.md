@@ -2,7 +2,7 @@
 
 A Looscid nsec identity receives feedback as a NIP-17 DM, not NIP-04. The worker replies as Looscid. The sender uses plain `/edit`, `/delete`, and `/publish` commands. A submitted entry stays private until its sender confirms `/publish`; that reply consents to their question entering the public feedback section.
 
-The nsec is NEVER in the repository, in a document, or pasted into chat. It lives as a Worker secret environment variable; only `worker.js` holds it.
+The nsec is NEVER in the repository, in a document, or pasted into chat. It lives only as a secret environment variable on the feedback bot's server, which is not part of this repository yet.
 
 ## Commands and events
 
