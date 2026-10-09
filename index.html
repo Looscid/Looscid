@@ -443,6 +443,47 @@ h2.slbl,div.slbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:
 .lmenu-item[aria-disabled="true"]{color:var(--tx2);cursor:default}
 .pf-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;font-size:14px}
 .pf-links a{color:var(--ac4)}
+
+/* Round 4 settings */
+.lc-stabs{display:flex;gap:6px;margin:8px 0 4px;flex-wrap:wrap}
+.lc-stab{flex:1 1 90px;min-height:48px;border:1px solid var(--bd2);border-radius:12px;background:var(--sf2);color:var(--tx);font:inherit;font-size:16px;font-weight:600;cursor:pointer;padding:0 10px;overflow-wrap:anywhere}
+.lc-stab.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.lc-stab:focus-visible,.lc-text:focus-visible,.lc-select:focus-visible,.lc-btn:focus-visible,.lc-filebtn:focus-within{outline:3px solid var(--ac3);outline-offset:2px}
+.lc-stpanel .lc-grp{padding:0;border-bottom:0}
+.lc-text,.lc-select{min-height:48px;width:100%;max-width:100%;box-sizing:border-box;border:1px solid var(--bd2);border-radius:12px;background:var(--sf2);color:var(--tx);font:inherit;font-size:16px;padding:0 12px}
+.lc-inrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lc-inrow .lc-text{flex:1 1 160px;width:auto}
+.lc-btn{min-height:48px;min-width:48px;font-size:15px;padding:0 14px}
+.lc-reset{margin-top:14px}
+.lc-fs-d{margin:0 0 6px}
+.lc-evrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--bd);padding:4px 0}
+.lc-evrow > .lc-row{flex:1 1 200px;min-width:0}
+.lc-packprev{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.lc-file{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.lc-filebtn{display:flex;align-items:center;justify-content:center;cursor:pointer;box-sizing:border-box;text-align:center}
+.lc-maplist{list-style:none;margin:0;padding:0}
+.lc-maprow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 0;border-bottom:1px solid var(--bd)}
+.lc-maprow .lc-fs-l{flex:1 1 100%;margin:0}
+.lc-maprow .lc-select{flex:1 1 160px;width:auto}
+.lc-maprow > span{flex:1 1 160px;overflow-wrap:anywhere}
+.lc-badlist{margin:6px 0;padding-left:20px;color:var(--tx2);font-size:14px;overflow-wrap:anywhere}
+.lc-keys{margin:0}
+.lc-keys dt{font-weight:700;color:var(--tx);margin-top:10px}
+.lc-keys dd{margin:2px 0 0;color:var(--tx2)}
+.lc-cw{padding:12px 16px}
+.lc-cw-t{margin:0 0 8px;color:var(--tx);font-weight:600}
+.lc-extra{margin:8px 0;padding:10px 12px;border:1px solid var(--bd2);border-radius:12px;background:var(--sf2)}
+.lc-thread{margin:6px 0;padding-left:22px;overflow-wrap:anywhere}
+.lc-thread li{margin:4px 0}
+.lc-thread-who{font-weight:700}
+.lc-recover{margin:8px 16px;padding:10px 12px;border:1px solid var(--bd2);border-radius:12px;background:var(--sf2)}
+.lc-photo-att{display:flex;gap:8px;align-items:center;flex-wrap:wrap;width:100%}
+.lc-photo-att .lc-text{flex:1 1 160px;width:auto}
+.lc-undo{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:9000;display:flex;gap:10px;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:14px;background:var(--sf);border:1px solid var(--bd2);box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.lc-undo-t{margin:0;color:var(--tx);font-size:15px}
+.lc-rm{padding:6px 0}
+.lc-findme{margin:8px 0;padding:6px 10px;border:1px solid var(--bd2);border-radius:12px}
+.dc:focus-visible{outline:3px solid var(--ac3);outline-offset:-3px}
 </style>
 
 <style id="lc-a11y-css">
@@ -755,7 +796,38 @@ function Modal({onClose, title, subtitle, children}) {
 /* Bottom-anchored pop-up menu — matches Base44 design */
 
 /* --- Dream options: an inline disclosure under each Dream (no modal, no focus trap) --- */
-function DreamOptionsList({ id, dream, onClose, btnRef, onBookmark, navigate, cherryCtx }) {
+function lcThreadOf(d) { const reps = (LC_REPLIES[d.id] || []).concat((typeof MOCK_COMMENTS !== "undefined" && MOCK_COMMENTS[d.id]) || []).slice().sort(function (x, y) { return (x.id || 0) - (y.id || 0); }); return [d].concat(reps.map(function (r) { return Object.assign({ isReply: true }, r); })); }
+function lcHearThread(d) {
+  const parts = []; lcThreadOf(d).forEach(function (x, i) { const p = lcDreamSpeechParts(x); if (i > 0) p.forEach(function (q) { q.secondary = true; }); parts.push.apply(parts, p); });
+  return LcSpeech.speak(parts);
+}
+// The Dream above a Dream's actions: the thread as an ordered list, or a translation.
+function DreamExtra({ extra, dream, onClose }) {
+  const ref = useRef(null);
+  useEffect(function () { if (ref.current) ref.current.focus(); }, [extra.kind]);
+  const close = lh('button', Object.assign({ type: "button", className: "lc-close", onClick: onClose }, lcCloseProps(extra.kind === "thread" ? "thread" : "translation")), "Close");
+  if (extra.kind === "thread") {
+    const t = lcThreadOf(dream);
+    return lh('section', { className: "lc-extra", "aria-labelledby": "thr-h-" + dream.id },
+      lh('h3', { id: "thr-h-" + dream.id, className: "lc-sub-h", tabIndex: -1, ref: ref }, "Thread, " + t.length + (t.length === 1 ? " Dream" : " Dreams")),
+      lh('ol', { className: "lc-thread" }, t.map(function (x, i) { return lh('li', { key: x.id || i }, lh('span', { className: "lc-thread-who" }, (i ? "Reply from " : "") + ((x.user && x.user.name) || "Someone") + ": "), lcSpeechText(x.text)); })),
+      lh('div', { className: "lc-inrow" },
+        lh('button', { type: "button", className: "btn bgb lc-btn", disabled: !LcSpeech.ok, onClick: function () { lcHearThread(dream); } }, "Hear thread"),
+        lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { LcSpeech.stop(); } }, "Stop"), close));
+  }
+  return lh('section', { className: "lc-extra", "aria-labelledby": "tr-h-" + dream.id },
+    lh('h3', { id: "tr-h-" + dream.id, className: "lc-sub-h", tabIndex: -1, ref: ref }, "Translation"),
+    lh('p', { lang: extra.lang || undefined }, extra.text || "Translating…"), close);
+}
+async function lcTranslate(text, to) {
+  if (!lcTranslateOk()) throw new Error("not available");
+  let from = "en";
+  try { if ("LanguageDetector" in self) { const det = await self.LanguageDetector.create(); const r = await det.detect(text); if (r && r[0] && r[0].detectedLanguage && r[0].detectedLanguage !== "und") from = r[0].detectedLanguage; } } catch (e) {}
+  if (from === to) return { text: text, same: true };
+  const tr = await self.Translator.create({ sourceLanguage: from, targetLanguage: to });
+  return { text: await tr.translate(text) };
+}
+function DreamOptionsList({ id, dream, onClose, btnRef, onBookmark, navigate, cherryCtx, onExtra }) {
   const handle = (dream.user && dream.user.handle || "").replace("@", "");
   const close = function (focus) { onClose(); if (focus) setTimeout(function () { if (btnRef && btnRef.current) btnRef.current.focus(); }, 0); };
   const share = function () {
@@ -764,7 +836,15 @@ function DreamOptionsList({ id, dream, onClose, btnRef, onBookmark, navigate, ch
     else if (navigator.clipboard) { navigator.clipboard.writeText(text).then(function () { announce("Dream copied, ready to share."); }, function () { announce("Copy is not available here."); }); }
     close(true);
   };
+  const lang = A11Y_NOW.translateTo || "en", langName = (LC_LANGS.find(function (x) { return x[0] === lang; }) || [0, "English"])[1];
   const items = [
+    { l: LcSpeech.ok ? "Read this Dream" : "Read this Dream, not available in this browser", soon: !LcSpeech.ok, a: function () { LcSpeech.speak(lcDreamSpeechParts(dream)); close(true); } },
+    onExtra ? { l: "Hear thread", a: function () { close(false); onExtra({ kind: "thread" }); if (LcSpeech.ok) lcHearThread(dream); } } : null,
+    onExtra ? { l: lcTranslateOk() ? "Translate into " + langName : "Translate, coming soon", soon: !lcTranslateOk(), a: function () {
+      close(false); onExtra({ kind: "translation", text: "", lang: lang });
+      lcTranslate(dream.text || "", lang).then(function (r) { onExtra({ kind: "translation", text: r.same ? "This Dream is already in " + langName + "." : r.text, lang: lang }); announce("Translated."); },
+        function () { onExtra({ kind: "translation", text: "This browser couldn't translate it on this device." }); });
+    } } : null,
     { l: dream.bookmarked ? "Unsave Dream" : "Save Dream", a: function () { onBookmark && onBookmark(dream.id); announce(dream.bookmarked ? "Dream removed from saved." : "Dream saved."); close(true); } },
     { l: "Share Dream", a: share },
     handle ? { l: "View @" + handle + "'s profile", a: function () { close(false); navigate && navigate("dp", dream.user); } } : null,
@@ -930,7 +1010,7 @@ function CommentItem({cm}) {
 
 function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onCommentPosted, navigate}) {
   const [ctxt, setCtxt] = useState("");
-  const [comments, setComments] = useState(MOCK_COMMENTS[dream.id] || []);
+  const [comments, setComments] = useState(function () { return (LC_REPLIES[dream.id] || []).concat(MOCK_COMMENTS[dream.id] || []); });
   const [sort, setSort] = useState("newest");
   const [showSort, setShowSort] = useState(false);
   const [showRD, setShowRD] = useState(false);
@@ -945,7 +1025,9 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
 
   const sendComment = () => {
     if (!ctxt.trim()) return;
-    setComments(cs => [{id:Date.now(), user:ME, text:ctxt, time:"now", likes:0, liked:false}, ...cs]);
+    const nc = {id:Date.now(), user:ME, text:ctxt, time:"now", likes:0, liked:false, isReply:true};
+    LC_REPLIES[dream.id] = [nc].concat(LC_REPLIES[dream.id] || []); Earcon.play("send");
+    setComments(cs => [nc, ...cs]);
     if (onCommentPosted) onCommentPosted(dream.id);
     setCtxt("");
   };
@@ -1080,29 +1162,49 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
   const linkInfo = getLinkInfo(dream.text);
   const rdTotal = dream.redreams + (dream.quotes||0);
   const rdActive = dream.redreamed || dream.quoted;
+  // Round 4: how the Dream is read (Verbosity, read order, timestamps, emoji, hashtags) and shown on braille.
+  const A = A11Y_NOW, calm = !!A.calmFeed, verb = A.verbosity || "normal";
+  const [cwOpen, setCwOpen] = useState(false);
+  const [extra, setExtra] = useState(null); // { kind: "thread" | "translation", ... }
+  const flt = lcFiltered(dream);
+  const tp = lcTimeParts(dream.time), kind = lcDreamKind(dream);
+  const srTime = verb !== "short" && tp && A.speakTime !== "off" ? (A.speakTime === "short" ? tp.short : tp.full) : "";
+  const srMeta = [verb === "detailed" && kind !== "Dream" ? kind : "", verb === "detailed" ? lcSpeechText(dream.user.handle || "") : "", srTime].filter(Boolean).join(", ");
+  const srText = lcSpeechText(dream.text), textFirst = A.readOrder === "text";
+  const rewrite = textFirst || A.speakEmoji === "skip" || A.speakEmoji === "word" || A.speakTags === "skip";
+  const artProps = { className: "dc", role: "article", tabIndex: -1, "data-dream-id": dream.id, "aria-label": lcDreamWords(dream, "speech"), "aria-braillelabel": A.brailleOutput ? lcDreamWords(dream, "braille") : undefined,
+    onFocus: function () { LC_LAST_DREAM = dream; } };
+  if (flt && flt.cw && !cwOpen) return lh('div', Object.assign({}, artProps, { "aria-label": "Content warning: " + flt.cw, "aria-braillelabel": A.brailleOutput ? "CW: " + flt.cw : undefined }),
+    lh('div', { className: "dc-inner lc-cw" },
+      lh('p', { className: "lc-cw-t" }, "Content warning: " + flt.cw),
+      lh('button', { type: "button", className: "btn bgb lc-btn", "aria-expanded": false, onClick: function () { setCwOpen(true); } }, "Show Dream")));
 
   return (
     React.createElement(React.Fragment, null
       , dream.reddreamer && (
-        React.createElement('div', { className: "rd-source",}, React.createElement(Ic.Rep, { style: {width:11,height:11},}), React.createElement('strong', { style: {fontWeight:600},}, dream.reddreamer.name), " ReDreamed")
+        React.createElement('div', { className: "rd-source",}, React.createElement(Ic.Rep, { style: {width:11,height:11},}), React.createElement('strong', { style: {fontWeight:600},}, dream.reddreamer.name), " ReDreamed")
       )
-      , React.createElement('div', { className: "dc",}
+      , React.createElement('div', artProps
         , React.createElement('div', { className: "dc-inner",}
+          , textFirst && lh('p', { className: "sr-only" }, srText)
           , React.createElement('div', { className: "dc-meta",}
-            , React.createElement('button', { style: {background:"none",border:"none",cursor:"pointer",padding:0}, onClick: ()=>navigate("dp",dream.user), 'aria-label': "View "+dream.user.name+"'s profile",}
+            , React.createElement('button', { style: {background:"none",border:"none",cursor:"pointer",padding:0}, onClick: ()=>navigate("dp",dream.user), 'aria-label': "View "+dream.user.name+"'s profile", "aria-braillelabel": A.brailleOutput ? dream.user.name : undefined,}
               , React.createElement('span', { className: "dc-name",}, dream.user.name, dream.user.verified && React.createElement('span', { style: {color:"var(--ac2)",marginLeft:3,fontSize:11},}, "✓"))
             )
-            , React.createElement('span', { className: "dc-dot",}, "·")
-            , React.createElement('span', { className: "dc-handle",}, dream.user.handle)
-            , React.createElement('span', { className: "dc-dot",}, "·")
+            , srMeta && lh('span', { className: "sr-only" }, srMeta)
+            , React.createElement('span', { className: "dc-dot", "aria-hidden": "true"}, "·")
+            , React.createElement('span', { className: "dc-handle", "aria-hidden": "true"}, dream.user.handle)
+            , React.createElement('span', { className: "dc-dot", "aria-hidden": "true"}, "·")
             , dream.user.isOriginals
               ? React.createElement('span', { style: {fontSize:10,background:"rgba(124,58,237,.15)",color:"var(--ac3)",padding:"1px 6px",borderRadius:4,fontWeight:700},}, "Founding Dream")
-              : React.createElement('span', { className: "dc-time",}, dream.time)
-            , linkInfo && React.createElement(React.Fragment, null, React.createElement('span', { className: "dc-dot",}, "·"), React.createElement('span', { className: "dc-domain",}, linkInfo.domain))
+              : React.createElement('span', { className: "dc-time", "aria-hidden": "true"}, dream.time)
+            , linkInfo && React.createElement(React.Fragment, null, React.createElement('span', { className: "dc-dot", "aria-hidden": "true"}, "·"), React.createElement('span', { className: "dc-domain",}, linkInfo.domain))
           )
-          , React.createElement('div', { className: "dc-body",}
+          , React.createElement('div', { className: "dc-body", "aria-hidden": rewrite ? "true" : undefined}
             , React.createElement(DreamText, {text: dream.text})
           )
+          , rewrite && !textFirst && lh('p', { className: "sr-only" }, srText)
+          , extra && lh(DreamExtra, { extra: extra, dream: dream, onClose: function () { setExtra(null); setTimeout(function () { if (optsBtn.current) optsBtn.current.focus(); }, 0); } })
           , linkInfo && linkInfo.type==="youtube" && React.createElement(SiteEmbed, { domain: "youtube.com",})
           , linkInfo && linkInfo.type==="site" && React.createElement(SiteEmbed, { domain: linkInfo.domain,})
           /* Cherry Insights panel */
@@ -1143,19 +1245,19 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
           , React.createElement('button', { className: "ixn-btn", onClick: ()=>onComment && onComment(dream), 'aria-label': fmt(dream.comments)+" comments",}
             , React.createElement(Ic.Cmt, { style: {width:15,height:15},}), React.createElement('span', null, fmt(dream.comments), " Comments" )
           )
-          , React.createElement('button', { className: "cbx-wrap"+(rdActive?" redd":""), onClick: ()=>setShowRD(true), 'aria-label': fmt(rdTotal)+" ReDreams",}
+          , React.createElement('button', { className: "cbx-wrap"+(rdActive?" redd":""), onClick: ()=>setShowRD(true), 'aria-label': calm ? "ReDreams" + (rdActive ? ", ReDreamed" : "") : fmt(rdTotal)+" ReDreams",}
             , React.createElement('div', { className: "cbx-box",}, rdActive && React.createElement(ChkMark, null))
-            , React.createElement('span', null, fmt(rdTotal), " ReDreams" )
+            , React.createElement('span', null, calm ? "" : fmt(rdTotal), calm ? "ReDreams" : " ReDreams" )
           )
-          , React.createElement('button', { className: "cbx-wrap"+(dream.liked?" liked":""), onClick: ()=>onLike(dream.id), 'aria-label': fmt(dream.likes)+" likes",}
+          , React.createElement('button', { className: "cbx-wrap"+(dream.liked?" liked":""), onClick: ()=>{ if (!dream.liked) Earcon.play("like"); onLike(dream.id); }, 'aria-label': calm ? "Likes" + (dream.liked ? ", liked" : "") : fmt(dream.likes)+" likes",}
             , React.createElement('div', { className: "cbx-box",}, dream.liked && React.createElement(ChkMark, null))
-            , React.createElement('span', null, fmt(dream.likes), " Likes" )
+            , React.createElement('span', null, calm ? "" : fmt(dream.likes), calm ? "Likes" : " Likes" )
           )
           , React.createElement('button', { className: "ixn-btn", style: {flex:".5"}, ref: optsBtn, onClick: ()=>setShowOpts(o=>!o), 'aria-label': "Dream options", 'aria-expanded': showOpts, 'aria-controls': "dopts-" + dream.id,}
             , React.createElement(Ic.Dots, { style: {width:15,height:15},})
           )
         )
-        , showOpts && lh(DreamOptionsList, { id: "dopts-" + dream.id, dream: dream, onClose: ()=>setShowOpts(false), btnRef: optsBtn, onBookmark: onBookmark, navigate: navigate, cherryCtx: cherryCtx })
+        , showOpts && lh(DreamOptionsList, { id: "dopts-" + dream.id, dream: dream, onClose: ()=>setShowOpts(false), btnRef: optsBtn, onBookmark: onBookmark, navigate: navigate, cherryCtx: cherryCtx, onExtra: setExtra })
         )
 
       , showRD && (
@@ -1187,8 +1289,43 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
 /* --- FEED PAGE --------------------------- */
 function FeedPage({navigate, prefs, cherryCtx}) {
   const [tab, showFriends] = useFeedState();
-  const {dreams: rawDreams, tl, tr, tur, tq, tuq, tb, tc} = useDreams(cherryCtx ? cherryCtx.dreams : DREAMS_INIT);
+  const {dreams: rawDreams, setDreams, tl, tr, tur, tq, tuq, tb, tc} = useDreams(cherryCtx ? cherryCtx.dreams : DREAMS_INIT);
   const [activeComment, setActiveComment] = useState(null);
+  const A = A11Y_NOW;
+  // New Dreams that reach the app (yours, or from the network) join the feed; others are announced.
+  const known = useRef(null);
+  const appDreams = cherryCtx ? cherryCtx.dreams : null;
+  useEffect(function () {
+    if (!appDreams) return;
+    if (!known.current) { known.current = new Set(appDreams.map(function (d) { return d.id; })); return; }
+    const fresh = appDreams.filter(function (d) { return !known.current.has(d.id); });
+    if (!fresh.length) return;
+    fresh.forEach(function (d) { known.current.add(d.id); });
+    setDreams(function (ds) { const have = new Set(ds.map(function (d) { return d.id; })); return fresh.filter(function (d) { return !have.has(d.id); }).concat(ds); });
+    const others = fresh.filter(function (d) { return d.user !== ME && !(lcFiltered(d) || {}).hide; });
+    if (!others.length || lcQuietNow()) return;
+    Earcon.play("newDream");
+    const mode = A11Y_NOW.announceNew;
+    if (mode === "count") announce(others.length + (others.length === 1 ? " new Dream" : " new Dreams"));
+    else if (mode === "read") announce(others.length + (others.length === 1 ? " new Dream: " : " new Dreams: ") + others.slice(0, 3).map(function (d) { return lcDreamWords(d, "speech"); }).join(". Next: "));
+  }, [appDreams]);
+  // Reading mode: one Dream at a time.
+  const [rmIdx, setRmIdx] = useState(0);
+  const rmTouch = useRef(null);
+  // Focus memory: coming back to a feed returns to the same Dream.
+  const listRef = useRef(null);
+  useEffect(function () {
+    if (!LC_FEED_SEEN) { LC_FEED_SEEN = true; return; }
+    if (!A11Y_NOW.focusMemory) return;
+    let mem = {}; try { mem = JSON.parse(localStorage.getItem(LC_FOCUSMEM_KEY) || "{}") || {}; } catch (e) {}
+    const id = mem[tab]; if (id == null) return;
+    const t = setTimeout(function () { const el = document.querySelector('#feed-list [data-dream-id="' + String(id).replace(/"/g, "") + '"]'); if (el) { el.focus(); } }, 260);
+    return function () { clearTimeout(t); };
+  }, [activeComment]);
+  const rememberFocus = function (e) {
+    const art = e.target && e.target.closest ? e.target.closest("[data-dream-id]") : null; if (!art) return;
+    try { const mem = JSON.parse(localStorage.getItem(LC_FOCUSMEM_KEY) || "{}") || {}; mem[tab] = art.getAttribute("data-dream-id"); localStorage.setItem(LC_FOCUSMEM_KEY, JSON.stringify(mem)); } catch (er) {}
+  };
   const FOLLOWING = (cherryCtx && cherryCtx.following) || new Set();
   const FRIENDS_IDS = new Set(USERS.filter(u=>u.followsYou && FOLLOWING.has(u.id)).map(u=>u.id)); // mutuals
   // Feeds (one tablist): Home, For You, Following, Friends, Local, Circles, Popular, Latest, Custom feeds
@@ -1207,12 +1344,15 @@ function FeedPage({navigate, prefs, cherryCtx}) {
   );
 
   // Friends = mutuals: people you follow who follow you back.
-  const visible = tab==="friends"   ? dreams.filter(d=>FRIENDS_IDS.has(d.user.id))
+  const visible = (tab==="friends"   ? dreams.filter(d=>FRIENDS_IDS.has(d.user.id))
     : tab==="following" ? dreams.filter(d=>FOLLOWING.has(d.user.id)).filter(d=>!showFriends || FRIENDS_IDS.has(d.user.id))
     : tab==="local"     ? dreams.filter(d=>d.local)
     : tab==="circles"   ? dreams.filter(d=>d.circleId!=null)
     : tab==="custom"    ? []
-    : dreams;
+    : dreams).filter(d => !(lcFiltered(d) || {}).hide);
+  const rmOn = !!A.readingMode && visible.length > 0;
+  const rmI = Math.min(rmIdx, Math.max(0, visible.length - 1));
+  const rmGo = function (i) { const j = Math.max(0, Math.min(visible.length - 1, i)); if (j === rmI) { announce(j === 0 ? "This is the first Dream." : "This is the last Dream."); return; } setRmIdx(j); setTimeout(function () { const h = document.getElementById("rm-pos"); if (h) h.focus(); }, 30); };
 
   const onFeedKey = e => {
     if ((e.key === "PageDown" || e.key === "PageUp") && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) && !e.target.isContentEditable) { e.preventDefault(); lcStepFeed(e.key === "PageDown" ? 1 : -1); }
@@ -1240,7 +1380,14 @@ function FeedPage({navigate, prefs, cherryCtx}) {
             tab==="friends" || (tab==="following" && showFriends) ? "Friends are Dreamors who follow each other." : tab==="following" ? "Follow people to fill this feed." : "New Dreams will show up here."),
           (tab==="friends" || tab==="following") && cherryCtx && lh('button', { className: "cherry-ctx-btn", style: {margin:"10px auto 0",display:"flex"}, onClick: ()=>cherryCtx.openCherry("Who should I follow?") }, "Ask Cherry to find Dreamors"))
       , tab==="custom" && lh('div', { className: "es" }, lh('p', { className: "esl" }, "No custom feeds yet"), lh('p', { style: {fontSize:14,color:"var(--tx2)",marginTop:6,textAlign:"center"} }, "Making your own feeds is coming soon."))
-      , lh('div', { id: "feed-list", role: "region", "aria-label": "Dreams" }, visible.map((d,idx) => (
+      , rmOn && lh('div', { className: "lc-rm", onKeyDown: function (e) { if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return; if (e.key === "ArrowRight") { e.preventDefault(); rmGo(rmI + 1); } else if (e.key === "ArrowLeft") { e.preventDefault(); rmGo(rmI - 1); } },
+          onTouchStart: function (e) { const t = e.touches[0]; rmTouch.current = { x: t.clientX, y: t.clientY }; },
+          onTouchEnd: function (e) { const s0 = rmTouch.current; rmTouch.current = null; if (!s0) return; const t = e.changedTouches[0], dx = t.clientX - s0.x; if (Math.abs(dx) > 60 && Math.abs(t.clientY - s0.y) < 40) rmGo(rmI + (dx < 0 ? 1 : -1)); } },
+          lh('h2', { id: "rm-pos", className: "lc-sub-h", tabIndex: -1, style: { padding: "0 16px" } }, "Reading mode, Dream " + (rmI + 1) + " of " + visible.length),
+          lh('div', { className: "lc-inrow", style: { padding: "0 16px" } },
+            lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { rmGo(rmI - 1); }, "aria-label": "Previous Dream" }, "Previous"),
+            lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { rmGo(rmI + 1); }, "aria-label": "Next Dream" }, "Next")))
+      , lh('div', { id: "feed-list", role: "region", "aria-label": "Dreams", ref: listRef, onFocus: rememberFocus }, (rmOn ? [visible[rmI]] : visible).map((d,idx) => (
         React.createElement(React.Fragment, { key: d.id,}
           , React.createElement(DreamCard, { dream: d, onLike: tl, onRedream: tr, onUndoRedream: tur,
             onQuote: tq, onUndoQuote: tuq, onBookmark: tb,
@@ -1363,6 +1510,37 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
   const charLimit = (prefs && prefs.charLimitEnabled) ? prefs.charLimit : null;
   const overLimit = charLimit && txt.length > charLimit;
   const canPost = txt.trim().length>0 && !overLimit;
+  // Round 4: draft autosave + recover, typing echo, alt text reminder, undo send.
+  const [recover, setRecover] = useState(null);
+  const [altAsk, setAltAsk] = useState(false);
+  useEffect(function () {
+    if (screen !== "dream" || !A11Y_NOW.draftAutosave) return;
+    try { const s = localStorage.getItem(LC_AUTOSAVE_KEY); if (s && s.trim()) { setRecover(s); setTimeout(function () { const h = document.getElementById("lc-recover-h"); if (h) h.focus(); }, 80); } } catch (e) {}
+  }, [screen]);
+  useEffect(function () {
+    if (screen !== "dream" || !A11Y_NOW.draftAutosave || recover) return;
+    const t = setTimeout(function () { try { if (txt.trim()) localStorage.setItem(LC_AUTOSAVE_KEY, txt); else localStorage.removeItem(LC_AUTOSAVE_KEY); } catch (e) {} }, 300);
+    return function () { clearTimeout(t); };
+  }, [txt, screen, recover]);
+  const echo = function (prev, next) {
+    const m = A11Y_NOW.typingEcho; if (!m || m === "off" || next.length !== prev.length + 1) return;
+    const ch = next.slice(-1), isBreak = /[\s.,!?;:]/.test(ch);
+    if ((m === "words" || m === "both") && isBreak) { const w = (prev.match(/(\S+)$/) || [])[1]; if (w) { announce(lcSpeechText(w)); return; } }
+    if ((m === "chars" || m === "both") && !isBreak) announce(ch);
+  };
+  const doPost = function () {
+    const text = txt.trim(); if (!text) return;
+    recordHabit("postDream", text.slice(0,30));
+    try { localStorage.removeItem(LC_AUTOSAVE_KEY); } catch (e) {}
+    setScreen("menu"); onClose();
+    lcSendWithUndo("Dream", function () { if (cherryCtx && cherryCtx.postDream) cherryCtx.postDream(text); }, text);
+  };
+  const tryPost = function () {
+    if (!canPost) return;
+    const noAlt = attachments.filter(function (x) { return x.type === "photo" && !String(x.alt || "").trim(); });
+    if (noAlt.length && A11Y_NOW.altReminder !== false) { setAltAsk(true); return; }
+    doPost();
+  };
 
   const addAttachment = att => setAttachments(as=>[...as,att]);
   const removeAttachment = idx => setAttachments(as=>as.filter((_,i)=>i!==idx));
@@ -1389,16 +1567,22 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
             , (audiences.find(a=>a.id===audience)||{}).l
           )
           , React.createElement('button', { className: "btn bgb", style: {padding:"7px 10px",fontSize:13}, onClick: ()=>{ if(window._openSymPicker) window._openSymPicker(s=>{setTxt(t=>t+s);}); }, 'aria-label': "Insert symbol", title: "Symbol picker",}, "Ω")
-          , React.createElement('button', { className: "btn bp" , style: {padding:"7px 16px",fontSize:13,marginLeft:4}, onClick: ()=>{ if(txt.trim()) recordHabit("postDream", txt.slice(0,30)); setScreen("menu");onClose();}, disabled: !canPost, 'aria-label': "Dream" ,}, "Dream" )
+          , React.createElement('button', { className: "btn bp" , style: {padding:"7px 16px",fontSize:13,marginLeft:4}, onClick: tryPost, disabled: !canPost, 'aria-label': "Dream" ,}, "Dream" )
         )
 
+        , recover && lh('section', { className: "lc-recover", "aria-labelledby": "lc-recover-h" },
+            lh('h2', { id: "lc-recover-h", className: "lc-sub-h", tabIndex: -1 }, "Recover draft?"),
+            lh('p', { className: "lc-desc" }, "You started a Dream earlier: “" + recover.slice(0, 120) + (recover.length > 120 ? "…" : "") + "”"),
+            lh('div', { className: "lc-inrow" },
+              lh('button', { type: "button", className: "btn bp lc-btn", onClick: function () { setTxt(recover); setRecover(null); announce("Draft recovered."); setTimeout(function () { const t = document.querySelector('textarea[aria-label="Dream content"]'); if (t) t.focus(); }, 30); } }, "Recover"),
+              lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { try { localStorage.removeItem(LC_AUTOSAVE_KEY); } catch (e) {} setRecover(null); announce("Draft discarded."); setTimeout(function () { const t = document.querySelector('textarea[aria-label="Dream content"]'); if (t) t.focus(); }, 30); } }, "Discard")))
         /* Compose area */
         , React.createElement('div', { style: {padding:"12px 16px 6px",display:"flex",gap:11,alignItems:"flex-start"},}
           , React.createElement(Av, { user: ME, size: 40,})
           , React.createElement('div', { style: {flex:1},}
             , React.createElement('textarea', { className: "inp", style: {border:"none",background:"none",fontSize:16,padding:0,minHeight:100,lineHeight:1.65,width:"100%",resize:"none"},
               placeholder: "What's on your mind?"   , value: txt,
-              onChange: e=>{ const raw=charLimit?e.target.value.slice(0,charLimit+20):e.target.value; setTxt(evalInlineCalc(raw)); },
+              onChange: e=>{ const raw=charLimit?e.target.value.slice(0,charLimit+20):e.target.value; echo(txt, raw); setTxt(evalInlineCalc(raw)); },
               autoFocus: true, 'aria-label': "Dream content" ,})
           )
         )
@@ -1406,7 +1590,10 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
         /* Attachments preview */
         , attachments.length>0 && (
           React.createElement('div', { style: {padding:"4px 16px 8px",display:"flex",gap:7,flexWrap:"wrap"},}
-            , attachments.map((att,i)=>(
+            , attachments.map((att,i)=>att.type==="photo" ? lh('div', { key: i, className: "lc-photo-att" },
+                lh('label', { htmlFor: "lc-alt-" + i, className: "lc-fs-l" }, "Alt text for photo " + (i + 1)),
+                lh('input', { id: "lc-alt-" + i, type: "text", className: "lc-text", value: att.alt || "", placeholder: "Describe the photo", onChange: function (e) { const v = e.target.value; setAttachments(function (as) { return as.map(function (x, j) { return j === i ? Object.assign({}, x, { alt: v }) : x; }); }); } }),
+                lh('button', { type: "button", className: "btn bgb lc-btn", onClick: ()=>removeAttachment(i), 'aria-label': "Remove photo " + (i + 1) }, "Remove")) : (
               React.createElement('div', { key: i, style: {display:"flex",alignItems:"center",gap:5,background:"var(--sf2)",border:"1px solid var(--bd2)",borderRadius:100,padding:"4px 10px 4px 7px",fontSize:12},}
                 , React.createElement('span', null, attIcon[att.type]||"📎")
                 , React.createElement('span', { style: {color:"var(--tx2)",maxWidth:100,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"},}
@@ -1468,6 +1655,8 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
         , React.createElement('div', { style: {height:"env(safe-area-inset-bottom,8px)"},})
       )
       , showAttach&&React.createElement(AttachPanel, { onClose: ()=>setShowAttach(false), onAttach: addAttachment, mode: "dream",})
+      , altAsk && lh(AlertDialog, { title: "Add alt text?", message: "Your photo has no alt text, so people using a screen reader won't know what's in it. Cancel goes back so you can add it.", confirmLabel: "Post anyway",
+          onCancel: function () { setAltAsk(false); setTimeout(function () { const f = document.querySelector(".lc-photo-att input"); if (f) f.focus(); }, 40); }, onConfirm: function () { setAltAsk(false); doPost(); } })
       , showAudience&&(
         React.createElement(Modal, { onClose: ()=>setShowAudience(false), title: "Who can see this?"   , subtitle: "Choose your Dream's audience"   ,}
           , audiences.map(a=>(
@@ -2396,6 +2585,7 @@ function NotificationsSettings({navigate, prefs, setPrefs}) {
     React.createElement('div', { className: "pg",}
       , React.createElement(BackHeader, { title: "Alerts", onBack: ()=>navigate("settings"),})
       , React.createElement(NotifSettingsContent, { s: s, tg: tg,})
+      , lh(LcSection, { sec: "quiet", intro: lcQuietNow() ? "Quiet hours are on right now." : null })
       , React.createElement('div', { style: {padding:"0 0 32px"},}
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Smart Alerts")
         , [
@@ -2420,15 +2610,25 @@ function NotificationsSettings({navigate, prefs, setPrefs}) {
   );
 }
 
-function PrivacySettings({navigate}) {
-  const [s, setS] = useState({sensitive:false,loc:false,data:false,readReceipts:true});
+function PrivacySettings({navigate, authUser, onUpdateProfile}) {
+  useA11yNow();
+  const [s, setS] = useState({sensitive:false,loc:false,data:false});
   const tg = k => setS(p=>({...p,[k]:!p[k]}));
+  const priv = !!(authUser && authUser.private);
+  LC_FORCED = priv ? { whoSee: "followers", whoFollow: "approve" } : {};
+  // Private account forces "Who can see my Dreams" to Followers and "Who can follow me" to Approve requests.
+  const privSwitch = lh('div', { style: { padding: "0 0 6px" } }, lh(A11ySwitch, { id: "set-privateAccount", label: "Private account", on: priv,
+    desc: "Only followers you approve see your Dreams. While it's on, Who can see my Dreams is Followers and Who can follow me is Approve requests.",
+    onToggle: function () { if (onUpdateProfile) onUpdateProfile({ private: !priv }); announce(priv ? "Private account off." : "Private account on."); } }));
   return (
-    React.createElement('div', { className: "pg",}
+    React.createElement('div', { className: "pg lc-a11y", "aria-live": "off"}
       , React.createElement(BackHeader, { title: "Privacy", onBack: ()=>navigate("settings"),})
+      , lh('p', { className: "lc-intro" }, "Permissions are saved on this device and sent with your Dreams as your preferences. Looscid is decentralized, so other apps on the same networks decide whether they follow them.")
+      , lh(LcSection, { sec: "perm", before: privSwitch, intro: priv ? "Private account is on, so Who can see my Dreams counts as Followers and Who can follow me as Approve requests." : null })
+      , lh(LcSection, { sec: "filters" })
       , React.createElement('div', { style: {padding:"0 0 24px"},}
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Content")
-        , [{k:"sensitive",l:"Filter Sensitive Content",d:"Hide flagged content from your feed"},{k:"loc",l:"Share Location",d:"Show you in location-based features"},{k:"data",l:"Personalization Data",d:"Help improve Looscid with usage data"},{k:"readReceipts",l:"Read Receipts",d:"Let others know when you have read their messages"}].map(r => (
+        , [{k:"sensitive",l:"Filter Sensitive Content",d:"Hide flagged content from your feed"},{k:"loc",l:"Share Location",d:"Show you in location-based features"},{k:"data",l:"Personalization Data",d:"Help improve Looscid with usage data"}].map(r => (
           React.createElement('div', { key: r.k, className: "sr",}, React.createElement('div', null, React.createElement('div', { className: "sr-title",}, r.l), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3,maxWidth:220},}, r.d)), React.createElement(Cbx, { on: s[r.k], onToggle: ()=>tg(r.k), label: r.l,}))
         ))
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Blocked Dreamors" )
@@ -2480,7 +2680,7 @@ function CustomizabilitySettings({navigate, prefs, setPrefs, theme, setTheme}) {
         , React.createElement('div', { style: {padding:"0 16px 12px"},}, lh(A11ySwitch, { id: "cz-theme", label: "Light mode", desc: "Off: dark mode. Saved on this device.", on: theme === "light", onToggle: () => setTheme && setTheme(theme === "light" ? "dark" : "light") }))
 
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2", id: "cz-feeds-h" }, "Feeds")
-        , lh('div', { style: {padding:"0 16px 12px"} }, lh(FeedSwitchSetting, { prefs: prefs, setPrefs: setPrefs }))
+        , lh('div', { style: {padding:"0 16px 12px"} }, lh(FeedSwitchSetting, { prefs: prefs, setPrefs: setPrefs }), lh(LcSetRow, { def: LC_SET_BY.calmFeed }), lh(LcResetBtn, { sec: "feeds" }))
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Menu")
         , React.createElement('div', { style: {padding:"0 16px 12px"},}
           , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginBottom:10,lineHeight:1.5},}, "Choose where the Menu button appears. The menu replaces the navigation bar.")
@@ -2559,10 +2759,8 @@ function CustomizabilitySettings({navigate, prefs, setPrefs, theme, setTheme}) {
           , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, "Compact Mode" ), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3},}, "Show more Dreams on screen at once"      ))
           , React.createElement(Cbx, { on: compact, onToggle: ()=>setCompact(v=>!v), label: "Compact Mode" ,})
         )
-        , React.createElement('div', { className: "sr",}
-          , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, "Auto-play Videos" ), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3},}, "Videos start playing automatically when visible"     ))
-          , React.createElement(Cbx, { on: autoPlay, onToggle: ()=>setAutoPlay(v=>!v), label: "Auto-play Videos" ,})
-        )
+        , lh(LcSection, { sec: "posting" })
+        , lh(LcSection, { sec: "media" })
 
         , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Cherry AI" )
         , React.createElement('button', { className: "snav", onClick: ()=>navigate("settings_cherry"), 'aria-label': "Cherry AI settings"  ,}
@@ -2887,7 +3085,7 @@ function AccessibilitySettings({ navigate, prefs, setPrefs, onAskDevice }) {
   const sysRM = systemReducedMotion();
   const sw = function (k, label, desc) { return lh(A11ySwitch, { key: k, id: "a11y-" + k, label: label, desc: desc, on: !!a[k], onToggle: function () { set(k, !a[k]); } }); };
   const soon = function (k, label, desc) { return lh(A11ySwitch, { key: k, id: "a11y-" + k, label: label + ", coming soon", desc: desc, on: false, soon: true }); };
-  const group = function (id, title, kids) { return lh('section', { key: id, className: "lc-grp", "aria-labelledby": "lcg-" + id }, lh('h2', { id: "lcg-" + id, className: "lc-grp-h" }, title), kids); };
+  const group = function (id, title, kids) { return lh('section', { key: id, className: "lc-grp", "aria-labelledby": "lcg-" + id }, lh('h2', { id: "lcg-" + id, className: "lc-grp-h" }, title), kids, LC_SECTIONS[id] ? lh(LcResetBtn, { key: "reset", sec: id, label: title }) : null); };
   const SIZES = ["Default", "Large", "Larger"];
   const [srOpen, setSrOpen] = useState(true);
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
@@ -2910,15 +3108,7 @@ function AccessibilitySettings({ navigate, prefs, setPrefs, onAskDevice }) {
         lh('button', { type: "button", id: "lcg-sr-toggle", className: "msec-toggle", "aria-expanded": srOpen, "aria-controls": "lcg-sr-body", onClick: function () { setSrOpen(!srOpen); } },
           lh('span', null, "Screen reader and braille"), lh('span', { className: "msec-toggle-ic" + (srOpen ? " open" : ""), "aria-hidden": "true" }, "\u203a"))),
       lh('div', { id: "lcg-sr-body", hidden: !srOpen, onKeyDown: function (e) { if (e.key === "Escape" && srOpen) { e.preventDefault(); e.stopPropagation(); setSrOpen(false); const t = document.getElementById("lcg-sr-toggle"); if (t) t.focus(); } } },
-        lh('h3', { className: "lc-sub-h" }, "Screen reader"),
-        sw("screenReader", "Screen reader hints", "Adds short how-to hints to what Looscid reads out, like which keys work in the command bar and the Terminal. Works with VoiceOver, TalkBack, NVDA and JAWS."),
-        lh('p', { className: "lc-desc" }, "Pitch cues, the rising and falling earcons, are in Sounds below. Switching feeds never changes pitch."),
-        lh('h3', { className: "lc-sub-h" }, "Braille"),
-        lh('p', { className: "lc-desc" }, "Your display\u2019s own settings, like contracted braille, cells and cursor, are set in VoiceOver, TalkBack or NVDA on your device."),
-        sw("brailleOutput", "Braille display output", "Sends short braille labels for the command bar, the Terminal and their results to a connected braille display, through your screen reader. Sighted people still see the normal text."),
-        sw("enterSend", "Enter = Send", "On: Enter sends messages and Cherry questions, from a keyboard or a braille display. Off: Enter does not send there, so a stray Enter never sends; use the Send button. Commands always run on Enter."),
-        sw("closeLabels", "Short labels on braille", "On by default. Braille shows just \u201cClose\u201d while speech says what it closes, like \u201cClose menu\u201d. Off: braille shows the full name too."),
-        soon("nativeBraille", "Native braille drivers", "Direct USB and Bluetooth braille display support, without a screen reader."))),
+        lh(SrTabs, null))),
     group("hearing", "Hearing", [
       sw("captions", "Captions for audio", "Shows a short text caption, like [Alerts sound], at the top of the screen whenever Looscid plays a sound."),
       sw("visualCue", "Visual cue instead of sounds", "Swaps sounds for a soft glow around the edge of the screen, one gentle fade at most once a second. While Flash safety is on, a text caption is shown instead of the glow."),
@@ -2932,17 +3122,10 @@ function AccessibilitySettings({ navigate, prefs, setPrefs, onAskDevice }) {
         desc: sysRM ? "Your device asks for reduced motion, so this stays on. Reduce Motion always wins." : "Turns off animations and transitions everywhere. Reduce Motion always wins over every other setting, Calm mode included." }),
       lh('p', { key: "flash", className: "lc-rule" }, lh('strong', null, "Three-flash limit: a hard rule, not a setting. "), "Even with Flash safety off, nothing in Looscid flashes more than three times in any one second (WCAG 2.3.1)."),
     ]),
-    group("sounds", "Sounds", [
-      sw("earcons", "Earcons", "A short sound for Feed, Alerts, Circles, Settings, and the command bar opening, running and erroring. Each one is 150 milliseconds or less."),
-      lh('div', { key: "vol", className: "lc-row lc-vol" },
-        lh('label', { htmlFor: "a11y-volume", className: "lc-fs-l" }, "Earcon volume"),
-        lh('div', { className: "lc-vol-row" },
-          lh('input', { id: "a11y-volume", type: "range", min: 0, max: 100, step: 10, value: a.earconVolume, className: "lc-range",
-            "aria-valuetext": a.earconVolume + " percent", onChange: function (e) { set("earconVolume", +e.target.value); } }),
-          lh('span', { className: "lc-vol-n", "aria-hidden": "true" }, a.earconVolume + "%"))),
-      sw("pitchCues", "Pitch cues", "On by default. Earcons rise and fall in pitch, like a higher note when something opens and a lower note when it closes. Off: each earcon keeps one steady pitch. Switching feeds never uses pitch changes."),
-      lh('button', { key: "test", type: "button", className: "btn bgb lc-big", onClick: function () { Earcon.play("run", { test: true }); } }, "Play a test sound"),
-    ]),
+    lh('section', { key: "audio", className: "lc-grp", "aria-labelledby": "lcg-sounds" },
+      lh('h2', { id: "lcg-sounds", className: "lc-grp-h" }, "Sounds"),
+      lh('p', { className: "lc-desc" }, "Earcons, sound packs, volume and haptics moved to their own section, Settings, Audio. Pitch cues are in Screen reader and braille, " + lcSrName("speech") + "."),
+      lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { navigate("settings_audio"); } }, "Open Audio settings")),
     group("terminal", "Terminal", [
       lh('fieldset', { key: "to", className: "lc-fs" },
         lh('legend', { className: "lc-fs-l" }, "Terminal output"),
@@ -3663,6 +3846,8 @@ function CherryOverlay({onClose, cherryCtx, initMsg, navigate}) {
   const [inp, setInp] = useState(initMsg||"");
   const [typing, setTyping] = useState(false);
   const [agentStatus, setAgentStatus] = useState(null);
+  // Speech > "Read Cherry's answers aloud"
+  useEffect(function () { const m = msgs[msgs.length - 1]; if (msgs.length > 1 && m && !m.me && m.text && A11Y_NOW.cherryAloud) LcSpeech.speak([{ text: m.text }]); }, [msgs.length]);
   const [agentTask, setAgentTask] = useState("");
   const [showHistory, setShowHistory] = useState(false);
   const [showHistoryDialog, setShowHistoryDialog] = useState(false);
@@ -4397,7 +4582,10 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"Alerts", label:"Alerts",          sub:"Push, activity, smart alerts, news", action(){onClose();navigate("settings_notifications");} },
       { icon:"Privacy", label:"Privacy",         sub:"Visibility, blocked users",   action(){onClose();navigate("settings_privacy");} },
       { icon:"Customizability", label:"Customizability", sub:"Themes, feeds, Cherry AI, menu",     action(){onClose();navigate("settings_customizability");} },
-      { icon:"Accessibility", label:"Accessibility",  sub:"Font size, contrast, motion",  action(){onClose();navigate("settings_accessibility");} },
+      { icon:"Accessibility", label:"Accessibility",  sub:"Screen reader and braille, vision, hearing, motion",  action(){onClose();navigate("settings_accessibility");} },
+      { icon:"Audio", label:"Audio",  sub:"Earcons, sound packs, your own sounds, haptics",  action(){onClose();navigate("settings_audio");} },
+      { icon:"Keyboard", label:"Keyboard shortcuts",  sub:"Built-in keys and your own shortcuts",  action(){onClose();navigate("settings_keyboard");} },
+      { icon:"Backup", label:"Settings backup",  sub:"Export, import or reset all settings",  action(){onClose();navigate("settings_backup");} },
       { icon:"Cherry", label:"Cherry Settings", sub:"Personality, memory, agent",  action(){onClose();navigate("settings_cherry");} },
       { icon:"Labs", label:"Looscid Labs", sub:"Early access to features we are still building", action(){onClose();navigate("settings_labs");} },
     ]},
@@ -5052,7 +5240,7 @@ function LoginMethods() {
   const prov = adding && ID_PROVIDERS.find(function (p) { return p.id === adding; });
   const done = function (m) { setAdding(null); setMethods(getMethods()); setNote(m); announce("Login method added"); };
   return lh('section', { 'aria-labelledby': "lid-methods-h", className: "lid-panel" },
-    lh('h3', { id: "lid-methods-h", className: "lid-label", tabIndex: -1 }, "Login methods"),
+    lh('h3', { id: "lid-methods-h", className: "lid-label", tabIndex: -1 }, "Linked to your LooscidID"),
     lh('p', { className: "lid-help" }, "Your LooscidID already exists on this device. Login methods are optional: add any network to log in with it, and add as many as you like."),
     note && lh('p', { className: "lid-saved" }, note),
     lh('ul', { className: "lid-links", 'aria-label': "Login methods" },
@@ -5063,6 +5251,7 @@ function LoginMethods() {
       lh('li', { key: "local" }, lh('span', null, "Local profile, this device"), lh('span', { className: "lid-field-v", style: { flex: "none" } }, "always on"))),
     lh(MenuPopupButton, { id: "lid-add-method", label: "Add login method", value: adding || "", items: items, placeholder: "Choose a network",
       onSelect: function (v) { setNote(""); setAdding(v); } }),
+    prov && prov.status === "ready" ? lh(LcFindMeSwitch, { provider: prov.id }) : null,
     prov && (prov.status === "ready" ? lh(prov.Panel, { onDone: done, from: "account" }) : lh(ComingSoonPanel, { provider: prov })),
     confirmRm && lh(AlertDialog, { title: "Remove " + PROVIDER_NAMES[confirmRm.provider] + " login?",
       message: confirmRm.provider === "nostr" && confirmRm.nostrMethod === "local" ? "This deletes the Nostr key stored on this device. If you haven't saved it, it's gone for good. Your local profile stays." : "You won't be able to log in with " + PROVIDER_NAMES[confirmRm.provider] + " until you add it again. Your local profile stays.",
@@ -5092,6 +5281,7 @@ function LooscidIDChooser({ onDone, onLocal, headingLevel, from, localLabel }) {
     lh('p', { className: "lid-help" }, "Your LooscidID is ready. Link Nostr, Pubky, Mastodon and the fediverse, Bluesky and more to log in with it. This is optional."),
     lh(MenuPopupButton, { id: "lid-provider", label: "Login method", value: pick, items: ID_PROVIDERS.map(function (p) { return Object.assign({}, p, { note: p.status === "ready" ? null : "coming soon" }); }), prefix: "Login with ",
       onSelect: function (v) { setPick(v); const p = ID_PROVIDERS.find(function (x) { return x.id === v; }); announce(p.status === "ready" ? p.name + " selected" : p.name + " selected, coming soon"); } }),
+    prov.status === "ready" ? lh(LcFindMeSwitch, { provider: prov.id }) : null,
     prov.status === "ready" ? lh(prov.Panel, { onDone: onDone, from: from }) : lh(ComingSoonPanel, { provider: prov }),
     onLocal && lh('button', { type: "button", className: "btn bgb lid-wide", onClick: onLocal }, localLabel || "Skip for now, add one later in LooscidID"));
 }
@@ -5101,7 +5291,7 @@ function LooscidIDChooser({ onDone, onLocal, headingLevel, from, localLabel }) {
    Makes it"): a header with your avatar, name and @username, then real tabs:
    Home, Personal info, Data & privacy, Security, People & sharing. No payments.
    Alerts are not here; they have their own section. */
-const LID_TABS = [["home", "Home"], ["info", "Personal info"], ["data", "Data & privacy"], ["security", "Security"], ["sharing", "People & sharing"]];
+const LID_TABS = [["home", "Home"], ["info", "Profile"], ["methods", "Login methods"], ["security", "Security"], ["devices", "Devices"], ["data", "Data"], ["apps", "Connected apps"]];
 function lidWhen(t) { try { return new Date(t).toLocaleString(undefined, { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return ""; } }
 function thisDeviceLabel() {
   const ua = navigator.userAgent || "";
@@ -5185,16 +5375,17 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   if (tab === "home") panel = lh(React.Fragment, null,
     PH("Welcome, " + name, "Manage your info, privacy and security to make Looscid work better for you."),
     lh('ul', { className: "lid-gcards", 'aria-label': "Your LooscidID at a glance" },
+      Card("info", "Profile", "Name " + name + ", username " + handle, function () { go("info"); }),
+      Card("methods", "Login methods", methodsText, function () { go("methods", "lid-methods-h"); }),
       Card("checkup", "Security checkup", checkup, function () { go("security", "lid-checkup-h"); }),
-      Card("info", "Personal info", "Name " + name + ", username " + handle, function () { go("info"); }),
-      Card("methods", "Login methods", methodsText, function () { go("security", "lid-methods-h"); }),
-      Card("data", "Data & privacy", summary.length + " kinds of data, stored only on this device", function () { go("data"); }),
-      Card("sharing", "People & sharing", "Profile visibility, " + (u.private ? "private" : "public"), function () { go("sharing"); })));
+      Card("devices", "Devices", "This device, " + thisDeviceLabel(), function () { go("devices"); }),
+      Card("data", "Data", summary.length + " kinds of data, stored only on this device", function () { go("data"); }),
+      Card("apps", "Connected apps", methods.length ? methods.length + " linked " + (methods.length === 1 ? "identity" : "identities") : "None yet", function () { go("apps"); })));
   else if (tab === "info") panel = lh(React.Fragment, null,
-    PH("Personal info", "Info about you and your preferences. Choose a field to change it."),
+    PH("Profile", "Your name, username, avatar and bio. Choose a field to change it."),
     ed.list);
   else if (tab === "data") panel = lh(React.Fragment, null,
-    PH("Data & privacy", "Your data stays on this device. Nothing is sent to a Looscid server."),
+    PH("Data", "Your data stays on this device. Nothing is sent to a Looscid server."),
     lh('h3', { className: "lid-label" }, "What's stored on this device"),
     lh('dl', { className: "lid-dl" }, summary.map(function (r) { return lh(React.Fragment, { key: r.k }, lh('dt', null, r.k), lh('dd', null, r.v)); })),
     lh('h3', { className: "lid-label" }, "Download your data"),
@@ -5204,6 +5395,10 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
     lh('h3', { className: "lid-label" }, "Delete your data"),
     lh('p', { className: "lid-help", id: "lid-delete-help" }, "Erase your LooscidID, logins, keys, drafts and settings from this device. Looscid then starts fresh with a new LooscidID."),
     lh('button', { type: "button", id: "lid-delete-data", className: "btn bgb lid-wide", 'aria-describedby': "lid-delete-help", onClick: function () { setConfirmDel(true); } }, "Delete local data"),
+    lh('h3', { className: "lid-label" }, "Settings and privacy"),
+    lh('p', { className: "lid-help" }, "Who can see and reply to your Dreams, and how people find you, are in Settings, Privacy, Permissions. A file with just your settings is in Settings backup."),
+    lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { navigate("settings_privacy"); } }, "Open Privacy and permissions"),
+    lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { navigate("settings_backup"); } }, "Open Settings backup"),
     confirmDel && lh(AlertDialog, { title: "Delete all Looscid data on this device?",
       message: "This erases your LooscidID, login methods, any Nostr key saved here, drafts and settings. It can't be undone. Export your data first if you want a copy.",
       confirmLabel: "Delete", onCancel: function () { setConfirmDel(false); setTimeout(function () { const b = document.getElementById("lid-delete-data"); if (b) b.focus(); }, 0); },
@@ -5214,30 +5409,36 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
         lh('h3', { id: "lid-checkup-h", className: "lid-label", tabIndex: -1 }, "Security checkup"),
         suggestions.length ? lh('ul', { className: "lid-help", style: { paddingLeft: 20, margin: 0 } }, suggestions.map(function (s2) { return lh('li', { key: s2 }, s2); }))
           : lh('p', { className: "lid-help" }, "No issues found.")),
-      lh(LoginMethods, null),
       idn && idn.method === "nip07" && lh('p', { className: "lid-help" }, "Your Nostr key stays in your signer extension. Looscid never sees it."),
       idn && idn.method === "local" && sk && lh(React.Fragment, null,
         lh('h3', { className: "lid-label" }, "Your Nostr key"),
         lh('p', { className: "lid-warn", id: "lid-sec-warn" }, "Your secret key is saved only in this browser on this device. Anyone with it can post as you."),
         lh(SecretField, { id: "lid-nsec-view", label: "Your secret key (nsec)", value: (window.NostrTools ? window.NostrTools.nip19.nsecEncode(hexToBytes(sk)) : sk), readOnly: true, describedBy: "lid-sec-warn" })),
-      lh('h3', { className: "lid-label" }, "Your devices"),
-      lh('ul', { className: "lid-links", 'aria-label': "Your devices" }, lh('li', null, lh('span', null, "This device, " + thisDeviceLabel() + ", active now"))),
       lh('h3', { className: "lid-label" }, "Recent security activity"),
       (function () { const acts = getActivity().slice(0, 8); return acts.length
         ? lh('ul', { className: "lid-links", 'aria-label': "Recent security activity" }, acts.map(function (a2, i2) { return lh('li', { key: i2 }, lh('span', null, a2.what + ", " + lidWhen(a2.at))); }))
         : lh('p', { className: "lid-help" }, "No security activity yet."); })(),
       securityExtra || null);
+  else if (tab === "methods") panel = lh(React.Fragment, null,
+    PH("Login methods", "Optional ways to log in with your LooscidID. When you link one, you choose whether people can find you by it."),
+    lh(LoginMethods, null));
+  else if (tab === "devices") panel = lh(React.Fragment, null,
+    PH("Devices", "Where your LooscidID is signed in."),
+    lh('h3', { className: "lid-label" }, "This device"),
+    lh('ul', { className: "lid-links", 'aria-label': "Your devices" }, lh('li', null, lh('span', null, "This device, " + thisDeviceLabel() + ", active now"))),
+    lh('h3', { className: "lid-label" }, "Other devices"),
+    lh('p', { className: "lid-help" }, "Seeing and signing out other devices is coming soon. Your LooscidID lives only on this device for now."),
+    lh('button', { type: "button", className: "btn bgb lid-wide", disabled: true }, "Sign out other devices, coming soon"));
   else panel = lh(React.Fragment, null,
-    PH("People & sharing", "Decide what others see about you."),
-    lh('h3', { className: "lid-label" }, "Profile visibility"),
-    lh('div', { className: "sr", style: { padding: "10px 0" } },
-      lh('div', null,
-        lh('div', { className: "sr-title" }, "Private account"),
-        lh('div', { style: { fontSize: 12, color: "var(--tx2)", marginTop: 2 } }, "Only approved followers see your Dreams")),
-      lh(Cbx, { on: !!u.private, onToggle: function () { onUpdateProfile({ private: !u.private }); announce(u.private ? "Profile is public" : "Profile is private"); }, label: "Private account" })),
-    lh('p', { className: "lid-help" }, "Right now your profile is saved only on this device. When it connects to Nostr and other networks, you'll choose here what to share."),
-    lh('h3', { className: "lid-label" }, "Blocked Dreamors"),
-    lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { navigate("settings_privacy"); } }, "Blocked Dreamors, 0 blocked"));
+    PH("Connected apps", "Networks and apps linked to your LooscidID."),
+    lh('h3', { className: "lid-label" }, "Linked identities"),
+    methods.length ? lh('ul', { className: "lid-links", 'aria-label': "Linked identities" }, methods.map(function (m) {
+      const fk = LC_FIND_KEY[m.provider];
+      return lh('li', { key: m.id }, lh('span', null, methodLabel(m) + (fk ? (A11Y_NOW[fk] ? ", people can find you by it" : ", hidden from search") : "")));
+    })) : lh('p', { className: "lid-help" }, "None yet. Link Nostr, Mastodon, Bluesky or Pubky in Login methods."),
+    lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { go("methods", "lid-methods-h"); } }, "Open Login methods"),
+    lh('h3', { className: "lid-label" }, "Apps using your LooscidID"),
+    lh('p', { className: "lid-help" }, "No apps use your LooscidID yet. Letting other apps sign in with it is coming soon."));
   return lh('div', { className: "pg", ref: wrapRef },
     lh(BackHeader, { title: title || "LooscidID", onBack: onBack || function () { navigate("settings"); } }),
     lh('div', { className: "lid-ghead" },
@@ -5582,14 +5783,436 @@ const A11Y_DEFAULTS = {
   termOutput: "collapsible", termHeadings: true,
   flashSafety: true,
 };
+
+/* --- Round 4: one settings registry ---------------------------------------
+   Every round-4 setting is one row here: its section, label, kind, options and
+   the words the command bar and Cherry accept. The Settings screens, commands,
+   Cherry, the "settings" read-out, per-section reset and export/import all read
+   this list. Older settings keep their key in looscid_a11y; new ones are saved
+   in dbm_settings (Hasan, Oct 9 2026). */
+const LC_SETTINGS_KEY = "dbm_settings";
+const LC_FOCUSMEM_KEY = "dbm_focus_memory";
+const LC_AUTOSAVE_KEY = "dbm_compose_autosave";
+const LC_SR_NAMES_DEF = { general: "General", speech: "Speech", braille: "Braille" };
+const LC_WHO3 = [["everyone", "Everyone", ["everyone", "anyone", "all"]], ["following", "People I follow", ["people i follow", "following", "follow"]], ["nobody", "Nobody", ["nobody", "no one", "none"]]];
+const LC_WHO4 = [["everyone", "Everyone", ["everyone", "anyone", "all"]], ["following", "People I follow", ["people i follow", "following", "follow"]], ["friends", "Friends", ["friends", "mutuals"]], ["nobody", "Nobody", ["nobody", "no one", "none"]]];
+const LC_LANGS = [["en", "English"], ["es", "Spanish"], ["fr", "French"], ["de", "German"], ["it", "Italian"], ["pt", "Portuguese"], ["ar", "Arabic"], ["tr", "Turkish"], ["ur", "Urdu"], ["hi", "Hindi"], ["zh", "Chinese"], ["ja", "Japanese"], ["ko", "Korean"]];
+const LC_SECTIONS = {
+  vision: { t: "Vision", where: "Settings, Accessibility", al: ["vision"], keys: ["textSize", "highContrast", "boldText", "dyslexiaFont"] },
+  sr_general: { t: "General", sr: "general", where: "Settings, Accessibility, Screen reader and braille", al: ["general", "screen reader general"] },
+  sr_speech: { t: "Speech", sr: "speech", where: "Settings, Accessibility, Screen reader and braille", al: ["speech"] },
+  sr_braille: { t: "Braille", sr: "braille", where: "Settings, Accessibility, Screen reader and braille", al: ["braille"] },
+  hearing: { t: "Hearing", where: "Settings, Accessibility", al: ["hearing"], keys: ["captions", "visualCue"] },
+  motion: { t: "Motion and seizure", where: "Settings, Accessibility", al: ["motion", "seizure", "motion and seizure"], keys: ["calmMode", "flashSafety", "reduceMotion"] },
+  terminal: { t: "Terminal", where: "Settings, Accessibility", al: ["terminal"], keys: ["termOutput", "termHeadings"] },
+  motor: { t: "Motor and switch", where: "Settings, Accessibility", al: ["motor", "switch", "motor and switch"], keys: ["largeBtns", "switchAccess"] },
+  audio: { t: "Audio", where: "Settings, Audio", al: ["audio", "sounds", "sound", "earcons"] },
+  quiet: { t: "Quiet hours", where: "Settings, Alerts", al: ["quiet hours", "quiet"] },
+  feeds: { t: "Feeds", where: "Settings, Customizability", al: ["feeds", "feed"] },
+  posting: { t: "Posting", where: "Settings, Customizability", al: ["posting", "composer", "compose"] },
+  media: { t: "Media and translation", where: "Settings, Customizability", al: ["media", "translation"] },
+  filters: { t: "Muted words and content warnings", where: "Settings, Privacy", al: ["muted words", "content warnings", "filters"] },
+  perm: { t: "Permissions", where: "Settings, Privacy", al: ["permissions", "privacy"] },
+  keyboard: { t: "Keyboard shortcuts", where: "Settings, Keyboard shortcuts", al: ["keyboard", "shortcuts", "keyboard shortcuts"] },
+};
+// [key, section, label, kind, default, options|range, aliases, description, extra]
+const LC_SET = [
+  // Screen reader and braille > General
+  { k: "verbosity", s: "sr_general", l: "Verbosity", t: "choice", d: "normal", al: ["verbosity", "verbose"], o: [["short", "Short", ["short", "low", "less"]], ["normal", "Normal", ["normal", "medium", "default"]], ["detailed", "Detailed", ["detailed", "high", "more", "full"]]],
+    desc: "How much Looscid says about each Dream. Short: name and text. Normal: adds the time. Detailed: adds the handle, the kind of Dream and its counts." },
+  { k: "readOrder", s: "sr_general", l: "Dream read order", t: "choice", d: "name", al: ["read order", "reading order", "dream read order"], o: [["name", "Name first", ["name first", "name"]], ["text", "Text first", ["text first", "text"]]],
+    desc: "Whether you hear who posted a Dream before or after what it says." },
+  { k: "announceNew", s: "sr_general", l: "Announce new Dreams", t: "choice", d: "count", al: ["announce new dreams", "announce new", "new dreams announcements", "announce dreams"], o: [["off", "Off", ["off", "never"]], ["count", "Count only", ["count only", "count"]], ["read", "Read them", ["read them", "read", "full"]]],
+    desc: "When new Dreams arrive in the feed. Count only says \u201c3 new Dreams\u201d. Read them reads up to three. Polite: it never interrupts what you are hearing." },
+  { k: "skipLinks", s: "sr_general", l: "Skip links and landmarks", t: "bool", d: true, al: ["skip links", "skip link", "landmarks"],
+    desc: "On: a Skip to content link at the very top and named landmarks for the main area and the navigation bar." },
+  { k: "focusMemory", s: "sr_general", l: "Focus memory", t: "bool", d: true, al: ["focus memory", "remember focus", "remember my place"],
+    desc: "Coming back to a feed puts you back on the same Dream you were on." },
+  { k: "screenReader", s: "sr_general", l: "Screen reader hints", t: "bool", d: false, old: true, al: ["screen reader hints", "hints"],
+    desc: "Adds short how-to hints to what Looscid reads out, like which keys work in the command bar and the Terminal. Works with VoiceOver, TalkBack, NVDA and JAWS." },
+  { k: "readingMode", s: "sr_general", l: "Reading mode", t: "bool", d: false, al: ["reading mode", "one dream at a time"],
+    desc: "Shows one Dream at a time, read top to bottom. Next and Previous buttons, the left and right arrow keys, a swipe or braille Enter move between Dreams." },
+  // Speech
+  { k: "pitchCues", s: "sr_speech", l: "Pitch cues", t: "bool", d: true, old: true, al: ["pitch cues", "pitch cue", "pitch changes", "pitch"],
+    desc: "On by default. Replies, Redreams and secondary details are read aloud at a lower pitch, and earcons rise and fall. Switching feeds never changes pitch." },
+  { k: "speakTime", s: "sr_speech", l: "Speak timestamps", t: "choice", d: "full", al: ["speak timestamps", "timestamps", "speak time"], o: [["off", "Off", ["off", "none"]], ["short", "Short, like 5m", ["short"]], ["full", "Full, like 5 minutes ago", ["full", "long"]]] },
+  { k: "speakEmoji", s: "sr_speech", l: "Speak emoji", t: "choice", d: "name", al: ["speak emoji", "emoji speech", "emoji"], o: [["name", "Say its name", ["name", "names", "say name"]], ["skip", "Skip", ["skip", "off", "none"]], ["word", "Just say \u201cemoji\u201d", ["word", "just emoji", "say emoji"]]] },
+  { k: "speakTags", s: "sr_speech", l: "Hashtags and mentions", t: "choice", d: "read", al: ["hashtags and mentions", "hashtags", "mentions", "speak hashtags"], o: [["read", "Read as is", ["read as is", "read", "as is"]], ["skip", "Skip the # and @", ["skip", "skip symbols", "no symbols"]]] },
+  { k: "ttsVoice", s: "sr_speech", l: "Read-aloud voice", t: "voice", d: "", al: ["read aloud voice", "voice"] },
+  { k: "ttsRate", s: "sr_speech", l: "Read-aloud rate", t: "range", d: 100, min: 50, max: 200, step: 10, unit: "percent", al: ["read aloud rate", "speech rate", "rate"] },
+  { k: "ttsPitch", s: "sr_speech", l: "Read-aloud pitch", t: "range", d: 100, min: 50, max: 150, step: 10, unit: "percent", al: ["read aloud pitch", "voice pitch"] },
+  { k: "cherryAloud", s: "sr_speech", l: "Read Cherry's answers aloud", t: "bool", d: false, al: ["read cherry aloud", "cherry aloud", "cherry read aloud"],
+    desc: "Cherry's answers are spoken with the read-aloud voice, as well as shown." },
+  { k: "typingEcho", s: "sr_speech", l: "Typing echo in the composer", t: "choice", d: "off", al: ["typing echo", "echo"], o: [["chars", "Characters", ["characters", "chars", "letters"]], ["words", "Words", ["words"]], ["both", "Both", ["both"]], ["off", "Off", ["off", "none"]]],
+    desc: "Looscid's own echo while you write a Dream, on top of your screen reader's. Off by default, so nothing is said twice." },
+  // Braille
+  { k: "brailleOutput", s: "sr_braille", l: "Braille display output", t: "bool", d: false, old: true, al: ["braille display output", "braille output", "braille display"],
+    desc: "Sends short braille labels for the command bar, the Terminal, Dreams and their results to a connected braille display, through your screen reader. Sighted people still see the normal text." },
+  { k: "enterSend", s: "sr_braille", l: "Enter = Send", t: "bool", d: true, old: true, al: ["enter send", "enter to send", "enter sends"],
+    desc: "On: Enter sends messages and Cherry questions, from a keyboard or a braille display. Off: Enter does not send there, so a stray Enter never sends; use the Send button. Commands always run on Enter." },
+  { k: "closeLabels", s: "sr_braille", l: "Short labels on braille", t: "bool", d: true, old: true, al: ["short labels on braille", "braille short labels", "short braille labels", "short labels", "close labels"],
+    desc: "On by default. Braille shows just \u201cClose\u201d while speech says what it closes, like \u201cClose menu\u201d. Off: braille shows the full name too." },
+  { k: "brailleTime", s: "sr_braille", l: "Short timestamps on braille", t: "bool", d: true, al: ["short timestamps on braille", "braille timestamps", "braille time"],
+    desc: "Braille shows 5m instead of 5 minutes ago." },
+  { k: "brailleEmoji", s: "sr_braille", l: "Emoji on braille", t: "choice", d: "name", al: ["emoji on braille", "braille emoji"], o: [["name", "Show as :name:", ["name", "names", "colon"]], ["strip", "Strip them", ["strip", "remove", "off"]]] },
+  { k: "braillePrefix", s: "sr_braille", l: "Type prefix on braille", t: "bool", d: true, al: ["type prefix", "braille prefix", "prefix"],
+    desc: "Starts each Dream's braille label with D: for a Dream, R: for a reply or RD: for a Redream, so you know what you are on in a few cells." },
+  // Audio
+  { k: "earcons", s: "audio", l: "Earcons", t: "bool", d: true, old: true, al: ["earcons", "earcon", "sound effects"],
+    desc: "Short sounds for moving around Looscid, sending, likes, new Dreams, errors and alerts." },
+  { k: "earconVolume", s: "audio", l: "Master earcon volume", t: "range", d: 40, min: 0, max: 100, step: 10, unit: "percent", old: true, al: ["earcon volume", "master volume", "volume"] },
+  { k: "earconFocus", s: "audio", l: "Play earcon on every swipe or focus move", t: "bool", d: false, al: ["earcon on every swipe", "earcon on swipe", "swipe earcon", "focus earcon", "earcon on focus"],
+    desc: "A tiny tick each time focus moves. On by default when you choose \u201cWith a screen reader\u201d at setup." },
+  { k: "soundPack", s: "audio", l: "Sound pack", t: "choice", d: "looscid", al: ["sound pack", "soundpack", "sound theme"], o: [["looscid", "Looscid", ["looscid", "default"]], ["nexos", "NexOS classic", ["nexos classic", "nexos"]], ["insomnia", "Insomnia", ["insomnia", "insomnia os"]], ["custom", "Your imported pack", ["custom", "imported", "my pack", "mine"]]] },
+  { k: "ev_send", s: "audio", l: "Send sound", t: "bool", d: true, ev: "send", al: ["send sound", "sent sound"] },
+  { k: "ev_like", s: "audio", l: "Like sound", t: "bool", d: true, ev: "like", al: ["like sound"] },
+  { k: "ev_newDream", s: "audio", l: "New Dream sound", t: "bool", d: true, ev: "newDream", al: ["new dream sound"] },
+  { k: "ev_error", s: "audio", l: "Error sound", t: "bool", d: true, ev: "error", al: ["error sound"] },
+  { k: "ev_alert", s: "audio", l: "Alert sound", t: "bool", d: true, ev: "alerts", al: ["alert sound", "alerts sound"] },
+  { k: "ev_feed", s: "audio", l: "Feed switch sound", t: "bool", d: false, ev: "feedSwitch", al: ["feed switch sound", "feed sound"],
+    desc: "One steady sound when you switch feeds. It never changes pitch. Off by default." },
+  { k: "ducking", s: "audio", l: "Ducking", t: "bool", d: true, al: ["ducking", "duck music"],
+    desc: "Music gets quieter while Looscid's read-aloud voice is speaking. A website can't hear VoiceOver itself, so this follows Looscid's own voice." },
+  { k: "haptics", s: "audio", l: "Haptics", t: "bool", d: false, al: ["haptics", "vibration", "vibrate"],
+    desc: "A short vibration for send, like, errors and alerts, on phones that support it. Off by default. Never more than three pulses a second." },
+  // Alerts > Quiet hours
+  { k: "quietHours", s: "quiet", l: "Quiet hours", t: "bool", d: false, al: ["quiet hours", "do not disturb"],
+    desc: "No sounds, vibrations or new-Dream announcements between the times below. Looscid still works normally." },
+  { k: "quietFrom", s: "quiet", l: "Quiet from", t: "time", d: "22:00", al: ["quiet from", "quiet hours from", "quiet start"] },
+  { k: "quietTo", s: "quiet", l: "Quiet until", t: "time", d: "07:00", al: ["quiet until", "quiet hours until", "quiet to", "quiet end"] },
+  // Customizability > Feeds
+  { k: "calmFeed", s: "feeds", l: "Calm feed", t: "bool", d: false, al: ["calm feed", "hide counts", "hide like counts"],
+    desc: "Hides like and Redream counts on every Dream, for you only." },
+  // Customizability > Posting
+  { k: "undoSend", s: "posting", l: "Undo send", t: "choice", d: "0", al: ["undo send", "undo"], o: [["0", "Off", ["off", "none", "0"]], ["5", "5 seconds", ["5", "five", "5 seconds"]], ["10", "10 seconds", ["10", "ten", "10 seconds"]]],
+    desc: "Waits before a Dream is posted, with an Undo button." },
+  { k: "altReminder", s: "posting", l: "Alt text reminder", t: "bool", d: true, al: ["alt text reminder", "alt reminder", "alt text"],
+    desc: "Before you post a photo with no alt text, Looscid asks if you want to add it." },
+  { k: "draftAutosave", s: "posting", l: "Draft autosave", t: "bool", d: true, al: ["draft autosave", "autosave", "auto save"],
+    desc: "Saves what you're writing on this device as you type. Next time you open New Dream, you can recover it or discard it." },
+  // Customizability > Media and translation
+  { k: "autoplay", s: "media", l: "Auto-play media", t: "choice", d: "wifi", al: ["auto play media", "autoplay", "auto play"], o: [["always", "Always", ["always", "on"]], ["wifi", "Wi-Fi only", ["wifi only", "wifi", "wi fi"]], ["never", "Never", ["never", "off"]]],
+    desc: "Wi-Fi only uses your browser's connection type. When the browser doesn't say, like Safari on iPhone, Looscid plays it safe and doesn't auto-play." },
+  { k: "translateTo", s: "media", l: "Translate Dreams into", t: "choice", d: "en", al: ["translate into", "translate to", "translation language"], o: LC_LANGS.map(function (x) { return [x[0], x[1], [x[1].toLowerCase()]]; }), menu: true },
+  // Privacy > Muted words and content warnings
+  { k: "mutedWords", s: "filters", l: "Muted words", t: "words", d: "", al: ["muted words", "mute words"],
+    desc: "Dreams with any of these words are hidden from your feeds. Separate words with commas." },
+  { k: "cwWords", s: "filters", l: "Content warnings", t: "words", d: "", al: ["content warnings", "content warning", "cw"],
+    desc: "Dreams about these topics or words are folded under a warning, with a Show Dream button. Separate them with commas." },
+  // Privacy > Permissions
+  { k: "whoSee", s: "perm", g: "Your Dreams", l: "Who can see my Dreams", t: "choice", d: "everyone", al: ["who can see my dreams", "who can see"], o: [["everyone", "Everyone", ["everyone"]], ["followers", "Followers", ["followers"]], ["friends", "Friends", ["friends"]]] },
+  { k: "whoReply", s: "perm", g: "Your Dreams", l: "Who can reply", t: "choice", d: "everyone", al: ["who can reply", "replies from"], o: LC_WHO4 },
+  { k: "whoRedream", s: "perm", g: "Your Dreams", l: "Who can Redream my Dreams", t: "choice", d: "everyone", al: ["who can redream", "redreams from"], o: LC_WHO3 },
+  { k: "whoQuote", s: "perm", g: "Your Dreams", l: "Who can quote my Dreams", t: "choice", d: "everyone", al: ["who can quote", "quotes from"], o: LC_WHO3 },
+  { k: "mediaDownload", s: "perm", g: "Your Dreams", l: "Let people download my media", t: "bool", d: false, al: ["download my media", "media downloads"] },
+  { k: "whoFollow", s: "perm", g: "Interactions", l: "Who can follow me", t: "choice", d: "everyone", al: ["who can follow me", "who can follow"], o: [["everyone", "Everyone", ["everyone"]], ["approve", "Approve requests", ["approve requests", "approve", "requests"]]] },
+  { k: "whoMention", s: "perm", g: "Interactions", l: "Who can mention me", t: "choice", d: "everyone", al: ["who can mention me", "who can mention"], o: LC_WHO3 },
+  { k: "whoTag", s: "perm", g: "Interactions", l: "Who can tag me in photos", t: "choice", d: "following", al: ["who can tag me", "who can tag"], o: LC_WHO3 },
+  { k: "whoCircles", s: "perm", g: "Interactions", l: "Who can add me to Circles", t: "choice", d: "following", al: ["who can add me to circles", "add me to circles"], o: LC_WHO3 },
+  { k: "whoLists", s: "perm", g: "Discoverability", l: "Who can see my followers and following", t: "choice", d: "everyone", al: ["who can see my followers", "followers list", "following list"], o: [["everyone", "Everyone", ["everyone"]], ["followers", "Followers", ["followers"]], ["me", "Only me", ["only me", "me", "just me"]]] },
+  { k: "inSearch", s: "perm", g: "Discoverability", l: "Show my Dreams in search", t: "bool", d: true, al: ["show my dreams in search", "dreams in search", "search visibility"] },
+  { k: "findHandle", s: "perm", g: "Discoverability", l: "Find me by my LooscidID handle", t: "bool", d: true, id: "local", al: ["find me by my handle", "find me by handle", "find me by looscidid"] },
+  { k: "findNostr", s: "perm", g: "Discoverability", l: "Find me by my Nostr npub", t: "bool", d: false, id: "nostr", al: ["find me by my npub", "find me by nostr", "find me by npub"] },
+  { k: "findMastodon", s: "perm", g: "Discoverability", l: "Find me by my Mastodon or fediverse username", t: "bool", d: false, id: "activitypub", al: ["find me by mastodon", "find me by fediverse"] },
+  { k: "findBluesky", s: "perm", g: "Discoverability", l: "Find me by my Bluesky handle", t: "bool", d: false, id: "atproto", al: ["find me by bluesky"] },
+  { k: "findPubky", s: "perm", g: "Discoverability", l: "Find me by my Pubky public key", t: "bool", d: false, id: "pubky", al: ["find me by pubky"] },
+  { k: "cherryUse", s: "perm", g: "Discoverability", l: "Let Cherry use my Dreams for suggestions", t: "bool", d: false, al: ["cherry use my dreams", "cherry suggestions from my dreams"] },
+  { k: "whoMessage", s: "perm", g: "Messages", l: "Who can message me", t: "choice", d: "following", al: ["who can message me", "who can message", "who can dm me"], o: LC_WHO4 },
+  { k: "showOnline", s: "perm", g: "Messages", l: "Show when I'm online", t: "bool", d: false, al: ["show when i'm online", "show online", "online status"] },
+  { k: "readReceipts", s: "perm", g: "Messages", l: "Read receipts", t: "bool", d: false, al: ["read receipts"] },
+];
+const LC_SET_BY = {}; LC_SET.forEach(function (x) { LC_SET_BY[x.k] = x; });
+const LC_NEW_DEFAULTS = { srNames: LC_SR_NAMES_DEF, shortcuts: [] };
+LC_SET.forEach(function (x) { if (!x.old) LC_NEW_DEFAULTS[x.k] = x.d; });
+Object.assign(A11Y_DEFAULTS, LC_NEW_DEFAULTS);
+const LC_OLD_KEYS = ["textSize", "highContrast", "boldText", "dyslexiaFont", "screenReader", "captions", "visualCue", "calmMode", "reduceMotion", "brailleOutput", "enterSend", "earcons", "earconVolume", "pitchCues", "closeLabels", "feedSwitch", "largeBtns", "switchAccess", "termOutput", "termHeadings", "flashSafety"];
+function lcSectionKeys(sec) { const s = LC_SECTIONS[sec]; return (s && s.keys ? s.keys.slice() : []).concat(LC_SET.filter(function (x) { return x.s === sec; }).map(function (x) { return x.k; })).concat(sec === "sr_general" ? ["srNames"] : []).concat(sec === "keyboard" ? ["shortcuts"] : []); }
+function lcSectionDefaults(sec) { const o = {}; lcSectionKeys(sec).forEach(function (k) { o[k] = A11Y_DEFAULTS[k]; }); if (sec === "sr_general") delete o.srNames; return o; }
+function lcSrName(id) { const n = (A11Y_NOW && A11Y_NOW.srNames) || {}; const v = String(n[id] || "").trim(); return v || LC_SR_NAMES_DEF[id]; }
+function lcSectionTitle(sec) { const s = LC_SECTIONS[sec]; return s.sr ? lcSrName(s.sr) : s.t; }
+// Lets screens outside the App props change a setting (App fills it in).
+let LC_SET_A11Y = null;
+let LC_FORCED = {}; // Private account forces two Permissions
+function lcSet(patch) { if (LC_SET_A11Y) LC_SET_A11Y(patch); else { A11Y_NOW = Object.assign({}, A11Y_NOW, patch); saveA11y(A11Y_NOW); } }
+function lcValueText(def, v) {
+  if (def.t === "bool") return v ? "on" : "off";
+  if (def.t === "choice") { const o = def.o.find(function (x) { return String(x[0]) === String(v); }); return o ? o[1] : String(v); }
+  if (def.t === "range") return v + (def.unit ? " " + def.unit : "");
+  if (def.t === "voice") return v ? v : "your device's default voice";
+  if (def.t === "words") return lcWords(v).length ? lcWords(v).join(", ") : "none";
+  if (def.t === "time") return lcTimeSpoken(v);
+  return String(v);
+}
+function lcTimeSpoken(v) { const m = /^(\d{1,2}):(\d{2})$/.exec(String(v || "")); if (!m) return String(v || ""); let h = +m[1]; const ap = h >= 12 ? "PM" : "AM"; h = h % 12 || 12; return h + ":" + m[2] + " " + ap; }
+function lcWords(v) { return String(v || "").split(/[,\n]/).map(function (w) { return w.trim().toLowerCase(); }).filter(Boolean).slice(0, 200); }
+
+/* --- Quiet hours, haptics ------------------------------------------------ */
+function lcQuietNow(d) {
+  const a = A11Y_NOW; if (!a || !a.quietHours) return false;
+  const p = function (s) { const m = /^(\d{1,2}):(\d{2})$/.exec(String(s || "")); return m ? (+m[1]) * 60 + (+m[2]) : null; };
+  const f = p(a.quietFrom), t = p(a.quietTo); if (f === null || t === null || f === t) return false;
+  const now = d || (window.__LC_NOW ? new Date(window.__LC_NOW) : new Date()), n = now.getHours() * 60 + now.getMinutes();
+  return f < t ? (n >= f && n < t) : (n >= f || n < t);
+}
+// Auto-play media (Settings > Customizability > Media): the one check every media player uses.
+function lcAutoplayAllowed() { const m = A11Y_NOW.autoplay || "wifi"; if (m === "always") return true; if (m === "never") return false; try { const c = navigator.connection; return !!(c && (c.type === "wifi" || c.type === "ethernet")); } catch (e) { return false; } }
+function lcHapticsSupported() { return typeof navigator !== "undefined" && typeof navigator.vibrate === "function"; }
+let lcLastBuzz = 0;
+function lcBuzz(kind) {
+  const a = A11Y_NOW; if (!a.haptics || !lcHapticsSupported() || lcQuietNow()) return;
+  const now = Date.now(); if (now - lcLastBuzz < 340) return; lcLastBuzz = now; // three pulses a second at most
+  const pat = kind === "error" ? [30, 80, 30] : kind === "alerts" ? [40] : [15];
+  try { navigator.vibrate(a.calmMode ? pat.map(function (x, i) { return i % 2 ? x : Math.round(x * 0.7); }) : pat); } catch (e) {}
+}
+
+/* --- Emoji, timestamps and the words each Dream is read with ------------- */
+const LC_EMOJI = { "😀": "grinning face", "😃": "grinning face with big eyes", "😄": "grinning face with smiling eyes", "😁": "beaming face", "😆": "grinning squinting face", "😅": "grinning face with sweat", "🤣": "rolling on the floor laughing", "😂": "face with tears of joy", "🙂": "slightly smiling face", "😉": "winking face", "😊": "smiling face with smiling eyes", "😇": "smiling face with halo", "🥰": "smiling face with hearts", "😍": "smiling face with heart eyes", "😘": "face blowing a kiss", "😋": "face savoring food", "😛": "face with tongue", "😜": "winking face with tongue", "🤪": "zany face", "🤔": "thinking face", "🤗": "hugging face", "🤫": "shushing face", "😐": "neutral face", "😑": "expressionless face", "😶": "face without mouth", "🙄": "face with rolling eyes", "😏": "smirking face", "😬": "grimacing face", "😌": "relieved face", "😔": "pensive face", "😪": "sleepy face", "😴": "sleeping face", "😷": "face with medical mask", "🤒": "face with thermometer", "🥵": "hot face", "🥶": "cold face", "🥴": "woozy face", "😵": "dizzy face", "🤯": "exploding head", "🤠": "cowboy hat face", "🥳": "partying face", "😎": "smiling face with sunglasses", "🤓": "nerd face", "😕": "confused face", "😟": "worried face", "🙁": "slightly frowning face", "😮": "face with open mouth", "😲": "astonished face", "😳": "flushed face", "🥺": "pleading face", "😢": "crying face", "😭": "loudly crying face", "😱": "face screaming in fear", "😤": "face with steam from nose", "😡": "pouting face", "😠": "angry face", "🤬": "face with symbols on mouth", "💀": "skull", "💩": "pile of poo", "🤡": "clown face", "👻": "ghost", "👽": "alien", "🤖": "robot", "😺": "grinning cat", "❤️": "red heart", "❤": "red heart", "🧡": "orange heart", "💛": "yellow heart", "💚": "green heart", "💙": "blue heart", "💜": "purple heart", "🖤": "black heart", "🤍": "white heart", "💔": "broken heart", "💕": "two hearts", "💖": "sparkling heart", "💯": "hundred points", "💤": "zzz", "💫": "dizzy", "💥": "collision", "👋": "waving hand", "👌": "OK hand", "✌️": "victory hand", "🤞": "crossed fingers", "🤟": "love-you gesture", "👍": "thumbs up", "👎": "thumbs down", "👏": "clapping hands", "🙌": "raising hands", "🙏": "folded hands", "💪": "flexed biceps", "👀": "eyes", "🧠": "brain", "🔥": "fire", "✨": "sparkles", "⭐": "star", "🌟": "glowing star", "🌙": "crescent moon", "☀️": "sun", "🌈": "rainbow", "⚡": "high voltage", "🎉": "party popper", "🎊": "confetti ball", "🎂": "birthday cake", "🎁": "wrapped gift", "🎵": "musical note", "🎶": "musical notes", "🎧": "headphone", "🎮": "video game", "📱": "mobile phone", "💻": "laptop", "⌨️": "keyboard", "📷": "camera", "📌": "pushpin", "📍": "round pushpin", "✅": "check mark button", "❌": "cross mark", "⚠️": "warning", "❓": "question mark", "❗": "exclamation mark", "➡️": "right arrow", "⬅️": "left arrow", "🚀": "rocket", "☕": "hot beverage", "🍕": "pizza", "🍔": "hamburger", "🍟": "french fries", "🍩": "doughnut", "🍪": "cookie", "🌸": "cherry blossom", "🍒": "cherries", "🌹": "rose", "🐶": "dog face", "🐱": "cat face", "🦄": "unicorn", "🐐": "goat", "🏆": "trophy", "⚽": "soccer ball", "🏀": "basketball", "👑": "crown", "💎": "gem stone", "💰": "money bag", "🙈": "see-no-evil monkey", "🤝": "handshake", "🫶": "heart hands", "🥲": "smiling face with tear", "🫠": "melting face", "🤌": "pinched fingers" };
+const LC_EMOJI_RE = /(\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic}|\p{Emoji_Modifier})*)/gu;
+function lcEmojiName(e) { return LC_EMOJI[e] || LC_EMOJI[e.replace(/\uFE0F/g, "")] || LC_EMOJI[e + "\uFE0F"] || "emoji"; }
+function lcSpeechText(t, a) {
+  a = a || A11Y_NOW; let s = String(t || "");
+  if (a.speakEmoji === "skip") s = s.replace(LC_EMOJI_RE, "");
+  else if (a.speakEmoji === "word") s = s.replace(LC_EMOJI_RE, " emoji ");
+  else s = s.replace(LC_EMOJI_RE, function (m) { return " " + lcEmojiName(m) + " "; });
+  if (a.speakTags === "skip") s = s.replace(/(^|\s)[#@](?=[\w])/g, "$1");
+  return s.replace(/\s+/g, " ").replace(/\s+([,.!?;:])/g, "$1").trim();
+}
+function lcBrailleText(t, a) {
+  a = a || A11Y_NOW; let s = String(t || "");
+  s = a.brailleEmoji === "strip" ? s.replace(LC_EMOJI_RE, "") : s.replace(LC_EMOJI_RE, function (m) { return ":" + lcEmojiName(m).replace(/\s+/g, "_") + ":"; });
+  return s.replace(/\s+/g, " ").trim();
+}
+// "5m", "2h", "just now" -> short / full words
+function lcTimeParts(time) {
+  const s = String(time || "").trim(); let m;
+  if (!s) return null;
+  if (/^just now$|^now$/i.test(s)) return { short: "now", full: "just now" };
+  if ((m = /^(\d+)\s*(s|m|h|d|w|y)$/i.exec(s))) { const n = +m[1], u = { s: "second", m: "minute", h: "hour", d: "day", w: "week", y: "year" }[m[2].toLowerCase()]; return { short: n + m[2].toLowerCase(), full: n + " " + u + (n === 1 ? "" : "s") + " ago" }; }
+  return { short: s, full: s };
+}
+function lcDreamKind(d) { return d.redreamOf || d.isRedream ? "Redream" : d.replyTo || d.isReply ? "Reply" : "Dream"; }
+// The words a Dream is announced with (speech) or shown with (braille), from the settings.
+function lcDreamWords(d, mode, a) {
+  a = a || A11Y_NOW; const u = d.user || {}, kind = lcDreamKind(d), tp = lcTimeParts(d.time);
+  if (mode === "braille") {
+    const pre = a.braillePrefix !== false ? ({ Dream: "D:", Reply: "R:", Redream: "RD:" }[kind]) + " " : "";
+    const tm = tp ? (a.brailleTime !== false ? tp.short : tp.full) : "";
+    return (pre + (u.name || "") + (tm ? " " + tm : "") + ": " + lcBrailleText(d.text, a)).trim();
+  }
+  const v = a.verbosity || "normal", parts = [];
+  const name = (v === "detailed" && kind !== "Dream" ? kind + " from " : "") + (u.name || "Someone") + (v === "detailed" && u.handle ? ", " + lcSpeechText(u.handle, a) : "");
+  const text = lcSpeechText(d.text, a);
+  const tm = v !== "short" && tp && a.speakTime !== "off" ? (a.speakTime === "short" ? tp.short : tp.full) : "";
+  if (a.readOrder === "text") { parts.push(text); parts.push(name); } else { parts.push(name); parts.push(text); }
+  if (tm) parts.push(tm);
+  if (v === "detailed" && !a.calmFeed) parts.push((d.likes || 0) + ((d.likes || 0) === 1 ? " like" : " likes") + ", " + (d.comments || 0) + ((d.comments || 0) === 1 ? " reply" : " replies") + ", " + (d.redreams || 0) + ((d.redreams || 0) === 1 ? " Redream" : " Redreams"));
+  return parts.filter(Boolean).join(". ").replace(/\.\./g, ".");
+}
+function lcFiltered(d, a) {
+  a = a || A11Y_NOW; const t = " " + lcNorm(d.text) + " ", hit = function (w) { const n = lcNorm(w); return n && t.indexOf(" " + n + " ") >= 0 || (n && n.indexOf(" ") > 0 && t.indexOf(n) >= 0); };
+  const mute = lcWords(a.mutedWords).find(hit); if (mute) return { hide: true, word: mute };
+  const cw = lcWords(a.cwWords).find(hit); if (cw) return { cw: cw };
+  return null;
+}
+
+/* --- Read-aloud (speechSynthesis), with ducking and pitch cues ----------- */
+const LcSpeech = (function () {
+  const ok = typeof window !== "undefined" && "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
+  let ducked = false;
+  function voices() { try { return ok ? window.speechSynthesis.getVoices() : []; } catch (e) { return []; } }
+  function duck(on) { if (on === ducked) return; ducked = on; try { if (Music.duck) Music.duck(on); } catch (e) {} }
+  // parts: [{ text, secondary }]; secondary parts drop pitch when Pitch cues are on.
+  function speak(parts, opts) {
+    if (!ok) { announce("Read aloud isn't available in this browser."); return false; }
+    const a = A11Y_NOW, ss = window.speechSynthesis; try { ss.cancel(); } catch (e) {}
+    if (typeof parts === "string") parts = [{ text: parts }];
+    const vs = voices(), v = a.ttsVoice ? vs.find(function (x) { return x.voiceURI === a.ttsVoice || x.name === a.ttsVoice; }) : null;
+    const list = parts.filter(function (p) { return p && String(p.text || "").trim(); });
+    list.forEach(function (p, i) {
+      const u = new SpeechSynthesisUtterance(lcSpeechText(p.text, a));
+      if (v) u.voice = v;
+      u.rate = Math.max(0.5, Math.min(2, (+a.ttsRate || 100) / 100));
+      const base = Math.max(0.5, Math.min(1.5, (+a.ttsPitch || 100) / 100));
+      u.pitch = p.secondary && a.pitchCues !== false ? Math.max(0.1, base * 0.8) : base;
+      if (i === 0) u.onstart = function () { if (a.ducking !== false) duck(true); };
+      if (i === list.length - 1) { u.onend = u.onerror = function () { duck(false); if (opts && opts.onEnd) opts.onEnd(); }; }
+      try { ss.speak(u); } catch (e) {}
+    });
+    window.__lcSpoke = list.map(function (p) { return (p.secondary ? "~" : "") + lcSpeechText(p.text, a); });
+    return true;
+  }
+  function stop() { try { if (ok) window.speechSynthesis.cancel(); } catch (e) {} duck(false); }
+  return { ok: ok, speak: speak, stop: stop, voices: voices, duck: duck, ducked: function () { return ducked; } };
+})();
+function lcDreamSpeechParts(d) {
+  const u = d.user || {}, kind = lcDreamKind(d), tp = lcTimeParts(d.time), a = A11Y_NOW;
+  const parts = [{ text: (kind !== "Dream" ? kind + " from " : "") + (u.name || "Someone") }, { text: d.text }];
+  if (a.readOrder === "text") parts.reverse();
+  if (tp && a.speakTime !== "off") parts.push({ text: a.speakTime === "short" ? tp.short : tp.full, secondary: true });
+  if (kind !== "Dream") parts[0].secondary = true;
+  return parts;
+}
+
+/* --- Sound packs: Looscid, NexOS classic, Insomnia, and your own ---------- */
+// Notes: [frequency Hz, start s, length s, wave?, gain?, slide-to Hz?]
+// NexOS classic: the square-wave system sounds from NexOS Web (script.js SFX: install,
+// uninstall, error, update, blip, key) at NexOS's own levels. Insomnia: the soft sine
+// chimes from Insomnia OS (click, tick, open, close, ding) through its echo.
+const LC_PACKS = {
+  nexos: {
+    label: "NexOS classic", echo: false, gain: 0.55,
+    sounds: {
+      send:     { label: "Send", wave: "square", notes: [[523, 0, .09], [659, .09, .09], [784, .18, .12]] },
+      like:     { label: "Like", wave: "square", notes: [[880, 0, .05, "square", .7]] },
+      newDream: { label: "New Dream", wave: "square", notes: [[440, 0, .07], [660, .07, .07], [880, .14, .1]] },
+      error:    { label: "Error", wave: "square", notes: [[110, 0, .12], [98, .14, .14]] },
+      alerts:   { label: "Alert", wave: "square", notes: [[988, 0, .06], [988, .1, .06]] },
+      feedSwitch: { label: "Feed switch", wave: "square", notes: [[600, 0, .05, "square", .5]] },
+      focus:    { label: "Focus move", wave: "square", notes: [[1400, 0, .018, "square", .35]] },
+      open:     { label: "Open", wave: "square", notes: [[523, 0, .08], [784, .08, .1]] },
+      close:    { label: "Close", wave: "square", notes: [[784, 0, .08], [523, .08, .1]] },
+      run:      { label: "Done", wave: "square", notes: [[660, 0, .06, "square", .8]] },
+      settings: { label: "Settings", wave: "square", notes: [[523, 0, .08], [392, .08, .1]] },
+      feed:     { label: "Feed", wave: "square", notes: [[523, 0, .07], [784, .07, .08]] },
+      circles:  { label: "Circles", wave: "square", notes: [[392, 0, .06], [494, .06, .06], [587, .12, .08]] },
+      help:     { label: "Help", wave: "square", notes: [[523, 0, .06], [698, .06, .08]] },
+      clear:    { label: "Clear", wave: "square", notes: [[1046, 0, .04, "square", .5]] },
+      on:       { label: "Sound on", wave: "square", notes: [[523, 0, .06], [659, .06, .08]] },
+      off:      { label: "Sound off", wave: "square", notes: [[659, 0, .06], [523, .06, .08]] },
+    },
+  },
+  insomnia: {
+    label: "Insomnia", echo: true, gain: 0.9,
+    sounds: {
+      send:     { label: "Send", wave: "sine", notes: [[784, 0, .3], [1175, .1, .5]] },
+      like:     { label: "Like", wave: "sine", notes: [[1175, 0, .12, "sine", .8]] },
+      newDream: { label: "New Dream", wave: "sine", notes: [[880, 0, .9, "sine", .9], [1318.5, .12, .7, "sine", .5]] },
+      error:    { label: "Error", wave: "triangle", notes: [[220, 0, .18], [196, .16, .22]] },
+      alerts:   { label: "Alert", wave: "sine", notes: [[1046.5, 0, .5], [1318.5, .15, .6]] },
+      feedSwitch: { label: "Feed switch", wave: "sine", notes: [[660, 0, .06, "sine", .6]] },
+      focus:    { label: "Focus move", wave: "sine", notes: [[1760, 0, .02, "sine", .35]] },
+      open:     { label: "Open", wave: "sine", notes: [[523, 0, .12, "sine", .9, 784]] },
+      close:    { label: "Close", wave: "sine", notes: [[784, 0, .12, "sine", .9, 523]] },
+      run:      { label: "Done", wave: "sine", notes: [[1046.5, 0, .2]] },
+      settings: { label: "Settings", wave: "sine", notes: [[660, 0, .1], [494, .08, .14]] },
+      feed:     { label: "Feed", wave: "sine", notes: [[523, 0, .12], [784, .08, .16]] },
+      circles:  { label: "Circles", wave: "sine", notes: [[392, 0, .1], [494, .08, .1], [587, .16, .14]] },
+      help:     { label: "Help", wave: "sine", notes: [[523, 0, .1], [698, .08, .14]] },
+      clear:    { label: "Clear", wave: "sine", notes: [[1568, 0, .05, "sine", .5]] },
+      on:       { label: "Sound on", wave: "sine", notes: [[523, 0, .1], [659, .08, .14]] },
+      off:      { label: "Sound off", wave: "sine", notes: [[659, 0, .1], [523, .08, .14]] },
+    },
+  },
+};
+// Looscid's own pack: the round-1 earcons, plus the new events.
+const LC_LOOSCID_EXTRA = {
+  send:     { label: "Send", wave: "triangle", notes: [[659.25, 0, .05], [987.77, .05, .08]] },
+  like:     { label: "Like", wave: "sine", notes: [[1174.66, 0, .06]] },
+  newDream: { label: "New Dream", wave: "sine", notes: [[783.99, 0, .06], [1046.5, .06, .08]] },
+  feedSwitch: { label: "Feed switch", wave: "sine", notes: [[587.33, 0, .06]] },
+  focus:    { label: "Focus move", wave: "sine", notes: [[1600, 0, .015, "sine", .4]] },
+};
+// What each event is called, for previews, mapping and captions.
+const LC_EVENTS = [["send", "Send"], ["like", "Like"], ["newDream", "New Dream"], ["error", "Error"], ["alerts", "Alert"], ["feedSwitch", "Feed switch"], ["focus", "Focus move"], ["open", "Open"], ["close", "Close"], ["run", "Done"]];
+const LC_EVENT_SWITCH = { send: "ev_send", like: "ev_like", newDream: "ev_newDream", error: "ev_error", alerts: "ev_alert", feedSwitch: "ev_feed", focus: "earconFocus" };
+
+/* --- Custom sound packs: a .zip or files, checked, saved in IndexedDB ------- */
+const LC_PACK_DB = "dbm_soundpacks";
+const LC_AUDIO_EXT = { wav: "audio/wav", mp3: "audio/mpeg", ogg: "audio/ogg", oga: "audio/ogg", opus: "audio/ogg", m4a: "audio/mp4", aac: "audio/aac", webm: "audio/webm", flac: "audio/flac" };
+const LC_PACK_LIMITS = { fileBytes: 1024 * 1024, totalBytes: 8 * 1024 * 1024, files: 24, seconds: 3 };
+function lcIdb() {
+  return new Promise(function (res, rej) {
+    if (!window.indexedDB) { rej(new Error("This browser can't store sound packs.")); return; }
+    const r = indexedDB.open(LC_PACK_DB, 1);
+    r.onupgradeneeded = function () { r.result.createObjectStore("packs"); };
+    r.onsuccess = function () { res(r.result); }; r.onerror = function () { rej(r.error || new Error("Storage error")); };
+  });
+}
+function lcIdbDo(mode, fn) { return lcIdb().then(function (db) { return new Promise(function (res, rej) { const tx = db.transaction("packs", mode), st = tx.objectStore("packs"); const r = fn(st); tx.oncomplete = function () { res(r && r.result); db.close(); }; tx.onerror = function () { rej(tx.error); db.close(); }; }); }); }
+const lcPackGet = function () { return lcIdbDo("readonly", function (s) { return s.get("custom"); }); };
+const lcPackPut = function (v) { return lcIdbDo("readwrite", function (s) { return s.put(v, "custom"); }); };
+const lcPackDel = function () { return lcIdbDo("readwrite", function (s) { return s.delete("custom"); }); };
+// A small zip reader: stored and deflated entries (DecompressionStream "deflate-raw").
+async function lcUnzip(buf) {
+  const dv = new DataView(buf), u8 = new Uint8Array(buf); let eocd = -1;
+  for (let i = buf.byteLength - 22; i >= Math.max(0, buf.byteLength - 66000); i--) if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  if (eocd < 0) throw new Error("That file isn't a zip.");
+  const count = dv.getUint16(eocd + 10, true); let p = dv.getUint32(eocd + 16, true); const out = [];
+  for (let n = 0; n < count && n < 200; n++) {
+    if (dv.getUint32(p, true) !== 0x02014b50) break;
+    const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true), usize = dv.getUint32(p + 24, true);
+    const nlen = dv.getUint16(p + 28, true), xlen = dv.getUint16(p + 30, true), clen = dv.getUint16(p + 32, true), loc = dv.getUint32(p + 42, true);
+    const name = new TextDecoder().decode(u8.subarray(p + 46, p + 46 + nlen)); p += 46 + nlen + xlen + clen;
+    if (/\/$/.test(name) || /(^|\/)(__MACOSX|\.)/.test(name)) continue;
+    const ds = loc + 30 + dv.getUint16(loc + 26, true) + dv.getUint16(loc + 28, true), raw = u8.slice(ds, ds + csize);
+    let data;
+    if (method === 0) data = raw.buffer;
+    else if (method === 8) {
+      if (typeof DecompressionStream === "undefined") throw new Error("This browser can't open compressed zips. Add the files one by one instead.");
+      data = await new Response(new Response(new Blob([raw])).body.pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer();
+    }
+    else { out.push({ name: name.split("/").pop(), size: usize, bad: "uses a zip method Looscid can't open" }); continue; }
+    out.push({ name: name.split("/").pop(), size: data.byteLength, data: data });
+  }
+  return out;
+}
+// Check files: audio type by extension and header, size, and that it decodes and is short.
+async function lcCheckPackFiles(entries) {
+  const ok = [], bad = []; let total = 0;
+  const AC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  for (const f of entries) {
+    if (f.bad) { bad.push(f.name + ": " + f.bad); continue; }
+    const ext = (f.name.split(".").pop() || "").toLowerCase();
+    if (!LC_AUDIO_EXT[ext]) { bad.push(f.name + ": not an audio file"); continue; }
+    if (f.size > LC_PACK_LIMITS.fileBytes) { bad.push(f.name + ": bigger than 1 MB"); continue; }
+    if (ok.length >= LC_PACK_LIMITS.files) { bad.push(f.name + ": more than " + LC_PACK_LIMITS.files + " files"); continue; }
+    if (total + f.size > LC_PACK_LIMITS.totalBytes) { bad.push(f.name + ": the pack would pass 8 MB"); continue; }
+    let dur = null;
+    try { if (AC) { const ctx = new AC(1, 44100, 44100); const b = await ctx.decodeAudioData(f.data.slice(0)); dur = b.duration; } }
+    catch (e) { bad.push(f.name + ": couldn't be played as audio"); continue; }
+    if (dur !== null && dur > LC_PACK_LIMITS.seconds) { bad.push(f.name + ": longer than 3 seconds"); continue; }
+    total += f.size; ok.push({ name: f.name, type: LC_AUDIO_EXT[ext], size: f.size, data: f.data, dur: dur });
+  }
+  return { ok: ok, bad: bad };
+}
+function lcAutoMap(files) {
+  const map = {}, words = { send: ["send", "sent", "post"], like: ["like", "heart", "fav"], newDream: ["new", "dream", "incoming", "notify"], error: ["error", "fail", "bad", "wrong"], alerts: ["alert", "notification", "ding", "bell"], feedSwitch: ["feed", "switch", "tab"], focus: ["focus", "tick", "swipe", "move"], open: ["open"], close: ["close"], run: ["done", "run", "ok", "success"] };
+  LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return words[ev[0]].some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
+  return map;
+}
+const LC_REPLIES = {}; // replies written this session, by Dream id (for Hear thread)
+let LC_LAST_DREAM = null;
+let LC_FEED_SEEN = false; // the first Home visit never jumps to a remembered Dream // the Dream that last had focus (for "read this dream")
+function lcCurrentDream() { return LC_LAST_DREAM; }
+let LC_UNDO_SET = null;
+// Undo send (Settings > Customizability > Posting): waits 5 or 10 seconds with an Undo button.
+function lcSendWithUndo(what, fn, text) {
+  const s = +A11Y_NOW.undoSend || 0;
+  const send = function () { fn(); Earcon.play("send"); announce(what + " posted."); };
+  if (!s || !LC_UNDO_SET) { send(); return; }
+  const t = setTimeout(function () { if (LC_UNDO_SET) LC_UNDO_SET(null); send(); }, s * 1000);
+  LC_UNDO_SET({ id: Date.now(), what: what, secs: s, cancel: function () { clearTimeout(t); if (LC_UNDO_SET) LC_UNDO_SET(null); if (text) { try { localStorage.setItem(LC_AUTOSAVE_KEY, text); } catch (e) {} } announce(what + " not posted." + (text ? " Open New Dream to recover it." : "")); } });
+}
+let LC_CUSTOM_PACK = null; // { files: [...], map: { event: fileName } } loaded from IndexedDB
+function lcLoadCustomPack() { return lcPackGet().then(function (v) { LC_CUSTOM_PACK = v || null; return LC_CUSTOM_PACK; }, function () { return null; }); }
+try { if (typeof window !== "undefined") setTimeout(lcLoadCustomPack, 0); } catch (e) {}
 const LOOSCID_VERSION = "0.6.1"; // matches NexOS Web 0.6.1 (Hasan, Oct 9 2026)
 const LOOSCID_BUILD = "preview, October 9, 2026";
 function loadA11y() {
-  try { const s = JSON.parse(localStorage.getItem(A11Y_KEY) || "null"); return Object.assign({}, A11Y_DEFAULTS, s && typeof s === "object" ? s : {}); }
-  catch (e) { return Object.assign({}, A11Y_DEFAULTS); }
+  const rd = function (k) { try { const s = JSON.parse(localStorage.getItem(k) || "null"); return s && typeof s === "object" && !Array.isArray(s) ? s : {}; } catch (e) { return {}; } };
+  const o = Object.assign({}, A11Y_DEFAULTS, rd(A11Y_KEY), rd(LC_SETTINGS_KEY));
+  o.srNames = Object.assign({}, LC_SR_NAMES_DEF, o.srNames && typeof o.srNames === "object" ? o.srNames : {});
+  if (!Array.isArray(o.shortcuts)) o.shortcuts = [];
+  return o;
 }
+// Older settings stay in looscid_a11y; round-4 settings go to dbm_settings.
 function saveA11y(a) {
-  try { const o = {}; Object.keys(A11Y_DEFAULTS).forEach(function (k) { if (k in a) o[k] = a[k]; }); localStorage.setItem(A11Y_KEY, JSON.stringify(o)); } catch (e) {}
+  try {
+    const o = {}, n = {};
+    LC_OLD_KEYS.forEach(function (k) { if (k in a) o[k] = a[k]; });
+    Object.keys(LC_NEW_DEFAULTS).forEach(function (k) { if (k in a) n[k] = a[k]; });
+    localStorage.setItem(A11Y_KEY, JSON.stringify(o)); localStorage.setItem(LC_SETTINGS_KEY, JSON.stringify(n));
+  } catch (e) {}
 }
 function a11yAsked() { try { return localStorage.getItem(A11Y_ASKED_KEY) === "1"; } catch (e) { return true; } }
 function setA11yAsked() { try { localStorage.setItem(A11Y_ASKED_KEY, "1"); } catch (e) {} }
@@ -5609,7 +6232,7 @@ const LC_INTRO = [
   "Looscid works the way you do, with a screen reader, a braille display, a keyboard, a switch or just your thumbs.",
 ];
 const DEVICE_PRESETS = [
-  { id: "screenreader", label: "With a screen reader", sub: "VoiceOver, TalkBack, NVDA or JAWS", set: { screenReader: true, earcons: true, calmMode: true } },
+  { id: "screenreader", label: "With a screen reader", sub: "VoiceOver, TalkBack, NVDA or JAWS", set: { screenReader: true, earcons: true, calmMode: true, earconFocus: true } },
   { id: "braille", label: "With a braille display", sub: "Braille output, and Enter sends", set: { screenReader: true, brailleOutput: true, enterSend: true } },
   { id: "lowvision", label: "With low vision", sub: "Larger text, high contrast and bold text", set: { textSize: 2, highContrast: true, boldText: true } },
   { id: "hearing", label: "Deaf or hard of hearing", sub: "Captions, and a gentle visual cue instead of sounds", set: { captions: true, visualCue: true } },
@@ -5655,13 +6278,21 @@ const Earcon = (function () {
   GESTURES.forEach(function (t) { window.addEventListener(t, onGesture, true); });
   // Battery: the context sleeps between sounds.
   function sleepSoon() { clearTimeout(idle); idle = setTimeout(function () { try { if (ac && ac.state === "running") ac.suspend(); } catch (e) {} }, 1500); }
-  function tone(e, vol) {
-    const t0 = ac.currentTime + 0.005, out = ac.createGain(); out.gain.value = vol; out.connect(ac.destination);
+  function tone(e, vol, opts) {
+    const t0 = ac.currentTime + 0.005, out = ac.createGain(); out.gain.value = vol;
+    if (opts && opts.echo) {
+      // Insomnia OS: a soft echo (delay with low-passed feedback), as in its chime bus.
+      const d = ac.createDelay(0.5), fb = ac.createGain(), lp = ac.createBiquadFilter(), wet = ac.createGain();
+      d.delayTime.value = 0.22; fb.gain.value = 0.3; lp.type = "lowpass"; lp.frequency.value = 2400; wet.gain.value = 0.35;
+      out.connect(ac.destination); out.connect(d); d.connect(lp); lp.connect(fb); fb.connect(d); lp.connect(wet); wet.connect(ac.destination);
+    } else out.connect(ac.destination);
     const calm = !!A11Y_NOW.calmMode;
     // Pitch cues off: every note of an earcon plays at its first note's pitch (same rhythm, no rise or fall).
-    const steady = A11Y_NOW.pitchCues === false;
+    // The feed switch sound is always steady: feed switching never changes pitch.
+    const steady = A11Y_NOW.pitchCues === false || (opts && opts.steady);
     e.notes.forEach(function (n) {
       const f = steady ? e.notes[0][0] : n[0], st = n[1], d = n[2], env = ac.createGain();
+      const peak = n[4] != null ? n[4] : 1;
       let src;
       if (e.wave === "noise") {
         if (!noise) { noise = ac.createBuffer(1, Math.floor(ac.sampleRate * 0.15), ac.sampleRate); const ch = noise.getChannelData(0); for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1; }
@@ -5669,14 +6300,28 @@ const Earcon = (function () {
         const bp = ac.createBiquadFilter(); bp.type = "bandpass"; if (steady) bp.frequency.setValueAtTime(f, t0 + st); else { bp.frequency.setValueAtTime(f / 3, t0 + st); bp.frequency.exponentialRampToValueAtTime(f, t0 + st + d); } bp.Q.value = 1.2;
         src.connect(bp); bp.connect(env);
       } else {
-        src = ac.createOscillator(); src.type = calm ? "sine" : e.wave; src.frequency.value = f; src.connect(env);
+        src = ac.createOscillator(); src.type = calm ? "sine" : (n[3] || e.wave); src.frequency.value = f;
+        if (n[5] && !steady) src.frequency.exponentialRampToValueAtTime(n[5], t0 + st + d);
+        src.connect(env);
       }
       env.gain.setValueAtTime(0.0001, t0 + st);
-      env.gain.exponentialRampToValueAtTime(1, t0 + st + 0.006);
+      env.gain.exponentialRampToValueAtTime(peak, t0 + st + 0.006);
       env.gain.exponentialRampToValueAtTime(0.0001, t0 + st + d);
       env.connect(out); src.start(t0 + st); src.stop(t0 + st + d + 0.01);
     });
   }
+  // Imported sounds: decoded once, played through one gain, cut at 3 seconds.
+  const bufs = {};
+  function customBuffer(name) {
+    const P = LC_CUSTOM_PACK; if (!P || !P.map || !P.map[name]) return null;
+    const fn = P.map[name], f = (P.files || []).find(function (x) { return x.name === fn; }); if (!f) return null;
+    const key = fn + ":" + f.size;
+    if (bufs[key] && bufs[key] !== "loading") return bufs[key];
+    if (!bufs[key]) { bufs[key] = "loading"; ac.decodeAudioData(f.data.slice(0)).then(function (b) { bufs[key] = b; playBuf(b, lastVol); }, function () { delete bufs[key]; }); }
+    return "loading";
+  }
+  let lastVol = 0.1;
+  function playBuf(b, vol) { const s = ac.createBufferSource(), g = ac.createGain(); s.buffer = b; g.gain.value = Math.min(1, vol * 5); s.connect(g); g.connect(ac.destination); s.start(); s.stop(ac.currentTime + Math.min(b.duration, 3)); }
   // Gentle visual cue: one soft fade at the screen edge, at most once a second
   // (well under the three-flashes-a-second limit). Reduce Motion makes it a still outline.
   function cue() {
@@ -5690,20 +6335,38 @@ const Earcon = (function () {
     el.textContent = text; el.classList.add("on");
     clearTimeout(capT); capT = setTimeout(function () { el.classList.remove("on"); el.textContent = ""; }, 1800);
   }
+  function soundFor(name, pack) {
+    const p = pack || A11Y_NOW.soundPack || "looscid";
+    if (p !== "looscid" && p !== "custom" && LC_PACKS[p] && LC_PACKS[p].sounds[name]) return { e: LC_PACKS[p].sounds[name], echo: LC_PACKS[p].echo, gain: LC_PACKS[p].gain };
+    const e = EARCONS[name] || LC_LOOSCID_EXTRA[name]; return e ? { e: e, gain: 1 } : null;
+  }
+  // opts: { test: play even when sounds are off; pack: preview another pack }
   function play(name, opts) {
-    const e = EARCONS[name]; if (!e) return;
-    const a = A11Y_NOW, test = opts && opts.test;
-    if (a.visualCue) { if (a.flashSafety) caption("[" + e.label + "]"); else { cue(); if (a.captions) caption("[" + e.label + "]"); } return; }
+    const s = soundFor(name, opts && opts.pack); if (!s) return;
+    const e = s.e, a = A11Y_NOW, test = opts && opts.test;
+    const sw = LC_EVENT_SWITCH[name];
+    if (!test && sw && a[sw] === false) return;          // that event's switch is off
+    if (!test && lcQuietNow()) return;                     // quiet hours: no sounds at all
+    window.__lcSounds = (window.__lcSounds || []).concat([name + ":" + ((opts && opts.pack) || a.soundPack || "looscid")]).slice(-60);
+    if (!test && (name === "send" || name === "like" || name === "error" || name === "alerts")) lcBuzz(name);
+    if (a.visualCue) { if (name === "focus") return; if (a.flashSafety) caption("[" + e.label + "]"); else { cue(); if (a.captions) caption("[" + e.label + "]"); } return; }
     if (!a.earcons && !test) return;
     if (test) unlock();
     if (!ac) return; // nothing pressed yet: stay silent
-    const vol = 0.14 * (Math.max(0, Math.min(100, +a.earconVolume || 0)) / 100) * (a.calmMode ? 0.6 : 1);
-    if (vol <= 0) return;
-    const go = function () { try { tone(e, vol); } catch (er) {} sleepSoon(); };
+    const vol = 0.14 * (Math.max(0, Math.min(100, +a.earconVolume || 0)) / 100) * (a.calmMode ? 0.6 : 1) * (s.gain || 1);
+    if (vol <= 0) return; lastVol = vol;
+    const usePack = (opts && opts.pack) || a.soundPack;
+    const go = function () {
+      try {
+        if (usePack === "custom") { const b = customBuffer(name); if (b && b !== "loading") playBuf(b, vol); else if (!b) tone(e, vol, { steady: name === "feedSwitch" }); }
+        else tone(e, vol, { echo: s.echo, steady: name === "feedSwitch" });
+      } catch (er) {}
+      sleepSoon();
+    };
     if (ac.state === "suspended") ac.resume().then(go, function () {}); else go();
-    if (a.captions) caption("[" + e.label + " sound]");
+    if (a.captions && name !== "focus") caption("[" + e.label + " sound]");
   }
-  return { play: play, unlock: unlock, _ctx: function () { return ac; } };
+  return { play: play, unlock: unlock, _ctx: function () { return ac; }, soundFor: soundFor };
 })();
 function areaOfPage(p) {
   if (p === "feed") return "feed";
@@ -5751,7 +6414,8 @@ const Music = (function () {
     if (routed) return; routed = true;
     try { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; ac = new AC(); const src = ac.createMediaElementSource(el); gain = ac.createGain(); src.connect(gain); gain.connect(ac.destination); } catch (e) { ac = null; gain = null; }
   }
-  function applyVol() { const v = Math.max(0, Math.min(100, st.volume)) / 100; if (gain) { gain.gain.value = v; if (el) el.volume = 1; } else if (el) el.volume = v; }
+  let ducked = false;
+  function applyVol() { const v = Math.max(0, Math.min(100, st.volume)) / 100 * (ducked ? 0.3 : 1); if (gain) { gain.gain.value = v; if (el) el.volume = 1; } else if (el) el.volume = v; }
   function play(id) {
     const g = (id && MUSIC_GENRES.find(function (x) { return x.id === id; })) || cur();
     st.genre = g.id; save(); ensure();
@@ -5771,6 +6435,9 @@ const Music = (function () {
     volume: function () { return st.volume; },
     setVolume: function (v) { st.volume = Math.max(0, Math.min(100, Math.round(v))); save(); applyVol(); emit(); },
     subscribe: function (f) { subs.add(f); return function () { subs.delete(f); }; },
+    // Ducking (Settings > Audio): music drops to 30 percent while Looscid's read-aloud voice speaks.
+    duck: function (on) { ducked = !!on; applyVol(); },
+    ducked: function () { return ducked; },
     _el: function () { return el; },
   };
 })();
@@ -5824,19 +6491,98 @@ const A11Y_NAMES = [
   ["switchAccess", "Strong focus outline", ["strong focus outline", "focus outline", "switch access"]],
   ["termHeadings", "Heading per command", ["heading per command", "command headings"]],
 ];
+// Round-4 on/off settings first, so "send sound off" never matches plain "sound".
+LC_SET.filter(function (d) { return d.t === "bool" && !d.old; }).reverse().forEach(function (d) { A11Y_NAMES.unshift([d.k, d.l, d.al.concat([lcNorm(d.l)])]); });
 const TEXT_SIZES = ["Default", "Large", "Larger"];
 const TERM_MODES = { collapsible: "Collapsible section", expanded: "Always expanded", latest: "Latest only" };
 function lcLev(a, b) { const m = a.length, n = b.length; if (!m) return n; if (!n) return m; let p = []; for (let j = 0; j <= n; j++) p[j] = j; for (let i = 1; i <= m; i++) { const c = [i]; for (let j = 1; j <= n; j++) c[j] = Math.min(p[j] + 1, c[j - 1] + 1, p[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); p = c; } return p[n]; }
+
+// Round 4: settings from the registry, by name, in the command bar and in Cherry.
+function lcSectionReport(sec) {
+  const a = A11Y_NOW, defs = LC_SET.filter(function (x) { return x.s === sec; });
+  if (!defs.length) return null;
+  return lcSectionTitle(sec) + " (" + LC_SECTIONS[sec].where + "): " + defs.map(function (d) { return d.l + ": " + lcValueText(d, a[d.k]); }).join(". ") + ".";
+}
+function lcFindSection(t) {
+  let best = null, bl = 0;
+  Object.keys(LC_SECTIONS).forEach(function (id) { const s = LC_SECTIONS[id]; const names = s.al.concat([lcNorm(lcSectionTitle(id))]); names.forEach(function (al) { if ((" " + t + " ").indexOf(" " + al + " ") >= 0 && al.length > bl) { best = id; bl = al.length; } }); });
+  return best;
+}
+function lcParseTime(t) {
+  let m = /\b(\d{1,2})(?::| )?(\d{2})?\s*(am|pm|a m|p m)?\b/.exec(t); if (!m) return null;
+  let h = +m[1]; const mi = m[2] ? +m[2] : 0, ap = m[3] ? m[3].replace(" ", "") : "";
+  if (h > 23 || mi > 59) return null; if (ap === "pm" && h < 12) h += 12; if (ap === "am" && h === 12) h = 0;
+  return (h < 10 ? "0" : "") + h + ":" + (mi < 10 ? "0" : "") + mi;
+}
+function lcRegistryIntent(n, isOn, isOff) {
+  const a = A11Y_NOW, t = " " + n + " "; let m;
+  // reset
+  if ((m = /^(reset|restore)( all)? (.+?)( settings| section)?( to defaults?| defaults?)?$/.exec(n)) || /^reset( all)?( settings)?$/.test(n)) {
+    if (/^reset( all)?( settings)?$/.test(n) || (m && /^(all|everything|all settings)$/.test(m[3]))) return { say: "To reset every setting, open Settings, Settings backup, and choose Reset all settings. To reset one section, say reset and its name, like reset audio or reset speech." };
+    const sec = lcFindSection(m[3]); if (!sec) return null;
+    return { patch: lcSectionDefaults(sec), say: lcSectionTitle(sec) + " is back to its defaults." };
+  }
+  // muted words and content warnings
+  if ((m = /^(?:mute word|mute the word|add muted word|muted words add|mute words?) (.+)$/.exec(n))) {
+    const w = m[1].trim(), cur = lcWords(a.mutedWords); if (cur.indexOf(w) >= 0) return { say: "\u201c" + w + "\u201d is already muted." };
+    return { patch: { mutedWords: cur.concat([w]).join(", ") }, say: "Muted \u201c" + w + "\u201d. Dreams with it are hidden. Muted words: " + cur.concat([w]).join(", ") + "." };
+  }
+  if ((m = /^(?:unmute word|remove muted word|muted words remove|unmute) (.+)$/.exec(n)) && lcWords(a.mutedWords).indexOf(m[1].trim()) >= 0) {
+    const w = m[1].trim(), rest = lcWords(a.mutedWords).filter(function (x) { return x !== w; });
+    return { patch: { mutedWords: rest.join(", ") }, say: "\u201c" + w + "\u201d is no longer muted." };
+  }
+  if ((m = /^(?:add content warning|content warning add|content warnings add|warn me about|add cw) (.+)$/.exec(n))) {
+    const w = m[1].trim(), cur = lcWords(a.cwWords); if (cur.indexOf(w) >= 0) return { say: "There's already a content warning for \u201c" + w + "\u201d." };
+    return { patch: { cwWords: cur.concat([w]).join(", ") }, say: "Dreams about \u201c" + w + "\u201d now fold under a content warning." };
+  }
+  if ((m = /^(?:remove content warning|content warning remove|content warnings remove|remove cw) (.+)$/.exec(n))) {
+    const w = m[1].trim(), rest = lcWords(a.cwWords).filter(function (x) { return x !== w; });
+    return { patch: { cwWords: rest.join(", ") }, say: "Removed the content warning for \u201c" + w + "\u201d." };
+  }
+  // find the setting with the longest name in the sentence
+  let def = null, al = "";
+  LC_SET.forEach(function (d) { if (d.t === "bool") return; d.al.concat([lcNorm(d.l)]).forEach(function (x) { if (t.indexOf(" " + x + " ") >= 0 && x.length > al.length) { def = d; al = x; } }); });
+  if (!def) return null;
+  const rest = (" " + t.replace(" " + al + " ", " ") + " ").replace(/\s+/g, " ");
+  const cur = lcValueText(def, a[def.k]), soon = def.k === "translateTo" && !lcTranslateOk();
+  if (def.t === "choice") {
+    let pick = null, pl = 0;
+    def.o.forEach(function (o) { o[2].concat([lcNorm(o[1])]).forEach(function (x) { if (rest.indexOf(" " + x + " ") >= 0 && x.length > pl) { pick = o; pl = x.length; } }); });
+    if (!pick && isOff) pick = def.o.find(function (o) { return o[0] === "off" || o[0] === "never" || o[0] === "0"; });
+    if (!pick) return n.split(" ").length > 5 ? null : { say: def.l + " is " + cur + ". Choices: " + def.o.map(function (o) { return o[1]; }).join(", ") + ". It's in " + LC_SECTIONS[def.s].where + "." };
+    if (def.k === "soundPack" && pick[0] === "custom" && !(LC_CUSTOM_PACK && LC_CUSTOM_PACK.files && LC_CUSTOM_PACK.files.length)) return { say: "You haven't imported a sound pack yet. Open Settings, Audio, and choose Import a sound pack." };
+    const patch = {}; patch[def.k] = pick[0];
+    return { patch: patch, say: def.l + " is now " + pick[1] + "." + (soon ? " Translation itself is coming soon in this browser." : "") };
+  }
+  if (def.t === "range") {
+    m = /\b(\d{1,3})\b/.exec(rest); if (!m) return n.split(" ").length > 5 ? null : { say: def.l + " is " + cur + ". Say " + def.al[0] + " and a number from " + def.min + " to " + def.max + "." };
+    const v = Math.max(def.min, Math.min(def.max, Math.round(+m[1] / def.step) * def.step)), patch = {}; patch[def.k] = v;
+    return { patch: patch, say: def.l + " is now " + lcValueText(def, v) + "." };
+  }
+  if (def.t === "time") {
+    const v = lcParseTime(rest); if (!v) return { say: def.l + " is " + cur + ". Say " + def.al[0] + " and a time, like " + def.al[0] + " 10 pm." };
+    const patch = {}; patch[def.k] = v; return { patch: patch, say: def.l + " is now " + lcTimeSpoken(v) + "." };
+  }
+  if (def.t === "voice") {
+    const want = rest.trim(); if (!want) return { say: "The read-aloud voice is " + cur + ". Pick one in Settings, Accessibility, Screen reader and braille, " + lcSrName("speech") + "." };
+    if (/^(default|device default)$/.test(want)) return { patch: { ttsVoice: "" }, say: "The read-aloud voice is now your device's default." };
+    const v = LcSpeech.voices().find(function (x) { return lcNorm(x.name).indexOf(want) >= 0; });
+    return v ? { patch: { ttsVoice: v.voiceURI }, say: "The read-aloud voice is now " + v.name + "." } : { say: "No voice called \u201c" + want + "\u201d on this device." };
+  }
+  if (def.t === "words") return { say: def.l + ": " + cur + ". Say mute word and a word, or add content warning and a word." };
+  return null;
+}
+function lcTranslateOk() { try { return typeof self !== "undefined" && "Translator" in self; } catch (e) { return false; } }
 function lcA11yReport() {
   const a = A11Y_NOW, o = function (v) { return v ? "on" : "off"; };
   return [
     "Text size: " + TEXT_SIZES[a.textSize || 0] + ". High contrast: " + o(a.highContrast) + ". Bold text: " + o(a.boldText) + ". Dyslexia-friendly spacing: " + o(a.dyslexiaFont) + ".",
-    "Screen reader and braille: Screen reader hints: " + o(a.screenReader) + ". Braille display output: " + o(a.brailleOutput) + ". Enter = Send: " + o(a.enterSend) + ". Short labels on braille: " + o(a.closeLabels !== false) + ".",
     "Captions: " + o(a.captions) + ". Visual cue instead of sounds: " + o(a.visualCue) + ".",
     "Calm mode: " + o(a.calmMode) + ". Flash safety: " + o(a.flashSafety) + ". Reduce Motion: " + o(motionReduced()) + (systemReducedMotion() ? ", set by your device" : "") + ". Three-flash limit: always enforced.",
-    "Sounds: " + o(a.earcons) + ", volume " + a.earconVolume + " percent. Pitch cues: " + o(a.pitchCues !== false) + ". Terminal output: " + TERM_MODES[a.termOutput || "collapsible"] + ". Heading per command: " + o(a.termHeadings !== false) + ".",
+    "Terminal output: " + TERM_MODES[a.termOutput || "collapsible"] + ". Heading per command: " + o(a.termHeadings !== false) + ".",
     "Customizability: Feed switching: " + LC_FEED_MODES.find(function (x) { return x[0] === lcFeedMode(a.feedSwitch); })[1] + ".",
-  ];
+  ].concat(["sr_general", "sr_speech", "sr_braille", "audio", "quiet", "feeds", "posting", "media", "filters", "perm"].map(lcSectionReport).filter(Boolean))
+   .concat([(a.shortcuts || []).length ? "Your shortcuts: " + a.shortcuts.map(function (s) { return s.keys + " runs " + s.cmd; }).join("; ") + "." : "Your shortcuts: none yet. Add them in Settings, Keyboard shortcuts."]);
 }
 // Returns null (not a settings request), or { patch, say } / { say } / { report: lines }.
 function lcA11yIntent(raw) {
@@ -5872,6 +6618,8 @@ function lcA11yIntent(raw) {
     const v = /\blatest\b/.test(n) ? "latest" : /\b(expanded|always|expand)\b/.test(n) ? "expanded" : "collapsible";
     return { patch: { termOutput: v }, say: "Terminal output is now " + TERM_MODES[v] + "." };
   }
+  const ri = lcRegistryIntent(n, isOn, isOff);
+  if (ri) return ri;
   // On / off settings, matched loosely
   let rest = " " + n + " "; const hits = [];
   A11Y_NAMES.forEach(function (row) { for (const ph of row[2]) { if (rest.indexOf(" " + ph + " ") >= 0) { hits.push(row); rest = rest.replace(" " + ph + " ", " "); break; } } });
@@ -5930,6 +6678,7 @@ function lcSetFeed(id, quiet) {
   LC_FEED = id; try { sessionStorage.setItem("looscid_feed", id); } catch (e) {}
   window.dispatchEvent(new CustomEvent("looscid:feed", { detail: id }));
   if (LC_GO_FEED) LC_GO_FEED();
+  Earcon.play("feedSwitch"); // off by default (Settings > Audio); one steady note, never a pitch change
   if (!quiet) announce("Feed: " + lcFeedLabel(id) + ".");
 }
 function lcStepFeed(d, quiet) { const i = LC_FEEDS.findIndex(function (f) { return f.id === LC_FEED; }); const n = LC_FEEDS[(i + d + LC_FEEDS.length) % LC_FEEDS.length]; lcSetFeed(n.id, quiet); return n; }
@@ -5953,6 +6702,7 @@ function lcSetShowFriends(v, quiet) {
 function lcFeedIntent(raw) {
   const n = lcNorm(raw); let m;
   if (/\bfeed (switching|switcher|switch mode|mode|control)\b/.test(n)) return null; // a setting: lcA11yIntent
+  if (/\b(sound|sounds|earcon|reset|calm feed)\b/.test(n)) return null; // round-4 settings like "feed switch sound on", "reset feeds"
 
   if (/^(next feed|feed next|next tab)$/.test(n)) return { step: 1 };
   if (/^(previous feed|prev feed|feed previous|feed prev|last feed|previous tab)$/.test(n)) return { step: -1 };
@@ -6104,6 +6854,10 @@ const LC_PLACES = {
   about: { label: "About Looscid", page: "settings_about" },
   labs: { label: "Looscid Labs", page: "settings_labs" },
   music: { label: "Music", page: "music" },
+  audio: { label: "Audio settings", page: "settings_audio" },
+  keyboard: { label: "Keyboard shortcuts", page: "settings_keyboard" },
+  backup: { label: "Settings backup", page: "settings_backup" },
+  alertsettings: { label: "Alerts settings", page: "settings_notifications" },
 };
 // NexOS features: the same labels and descriptions on the More screen and in the main menu.
 let LC_OPEN_CMD = null; // set by App: opens the command bar
@@ -6111,12 +6865,15 @@ const LC_NEXOS_ITEMS = [
   { id: "terminal", l: "Terminal", sub: "Command line from NexOS", go: function (nav) { nav("terminal"); } },
   { id: "music", l: "Music", sub: "The NexOS beats", go: function (nav) { nav("music"); } },
   { id: "cmd", l: "Command bar", sub: "Ctrl+K or Cmd+K, or the command button at the top", go: function () { setTimeout(function () { if (LC_OPEN_CMD) LC_OPEN_CMD(); }, 60); } },
-  { id: "sounds", l: "Sounds & earcons", sub: "Settings, Accessibility, Sounds", go: function (nav) { nav("settings_accessibility"); setTimeout(function () { const h = document.getElementById("lcg-sounds"); if (h) { h.setAttribute("tabindex", "-1"); h.scrollIntoView({ block: "start" }); h.focus(); } }, 450); } },
+  { id: "sounds", l: "Sounds & earcons", sub: "Settings, Audio", go: function (nav) { nav("settings_audio"); } },
 ];
-const LC_EXACT = { "open feed": "feed", "open alerts": "alerts", "open notifications": "notifications", "open messages": "messages", "open circles": "circles", "open settings": "settings", "open accessibility": "accessibility", "open customizability": "customizability", "open terminal": "terminal", "open music": "music", "open about": "about", "open account": "account", "open labs": "labs", "open looscid labs": "labs", "open looscidid": "account", "open looscid id": "account" };
+const LC_EXACT = { "open feed": "feed", "open alerts": "alerts", "open notifications": "notifications", "open messages": "messages", "open circles": "circles", "open settings": "settings", "open accessibility": "accessibility", "open customizability": "customizability", "open terminal": "terminal", "open music": "music", "open about": "about", "open account": "account", "open labs": "labs", "open looscid labs": "labs", "open looscidid": "account", "open looscid id": "account", "open audio": "audio", "open sounds": "audio", "open keyboard shortcuts": "keyboard", "open shortcuts": "keyboard", "open settings backup": "backup", "open backup": "backup", "open privacy": "privacy", "open permissions": "privacy", "open quiet hours": "alertsettings", "open alerts settings": "alertsettings", "import settings": "backup" };
 const LC_PLACE_WORDS = [
-  ["accessibility", ["accessibility", "a11y", "voiceover", "screen reader", "braille", "contrast", "captions", "earcons", "text size", "calm mode", "reduce motion"]],
-  ["privacy", ["privacy", "blocked"]],
+  ["accessibility", ["accessibility", "a11y", "voiceover", "screen reader", "braille", "contrast", "captions", "text size", "calm mode", "reduce motion", "speech", "verbosity"]],
+  ["audio", ["audio", "earcons", "sound pack", "sounds", "haptics"]],
+  ["keyboard", ["keyboard", "shortcuts", "keyboard shortcuts"]],
+  ["backup", ["backup", "export settings", "import settings"]],
+  ["privacy", ["privacy", "blocked", "permissions", "muted words", "content warnings"]],
   ["customizability", ["customizability", "customize", "customise", "theme", "themes"]],
   ["account", ["account", "looscidid", "looscid id", "login", "security"]],
   ["alerts", ["alerts", "alert"]],
@@ -6142,6 +6899,17 @@ const LC_COMMANDS = [
   ["music", "the beat styles; music and a style plays one, like music hyperpop; music pause, music stop. beat works too"],
   ["set", "change an accessibility setting, like set calm on, set sounds off, set volume 50, braille output on, braille short labels off or pitch cues off"],
   ["about", "About Looscid: version, what's new and system info"], ["version", "the Looscid version"],
+  ["settings", "read out every setting"], ["open audio", "Settings, Audio"], ["open keyboard shortcuts", "Settings, Keyboard shortcuts"], ["open privacy", "Settings, Privacy, with Permissions"],
+  ["verbosity", "verbosity short, normal or detailed"], ["read order", "read order name first or text first"], ["announce new dreams", "off, count or read"],
+  ["speak timestamps", "off, short or full"], ["speak emoji", "name, skip or word"], ["hashtags", "hashtags read or skip"], ["typing echo", "characters, words, both or off"], ["read aloud rate", "read aloud rate and a number from 50 to 200; read aloud pitch 50 to 150; voice and a name"],
+  ["braille emoji", "braille emoji name or strip; braille timestamps on or off; braille prefix on or off"],
+  ["sound pack", "sound pack looscid, nexos, insomnia or custom"], ["send sound", "send sound, like sound, new dream sound, error sound, alert sound or feed switch sound, on or off"], ["earcon on swipe", "earcon on swipe on or off"], ["ducking", "ducking on or off; haptics on or off"],
+  ["quiet hours", "quiet hours on or off; quiet from 10 pm; quiet until 7 am"], ["calm feed", "calm feed on or off, hides like and Redream counts"],
+  ["mute word", "mute word and a word; unmute word and a word"], ["add content warning", "add content warning and a topic; remove content warning and a topic"],
+  ["auto play media", "always, wifi only or never"], ["alt text reminder", "on or off"], ["undo send", "off, 5 or 10 seconds"], ["draft autosave", "on or off"], ["reading mode", "reading mode on or off"],
+  ["who can reply", "everyone, people I follow, friends or nobody; also who can mention me, who can message me, who can redream, who can quote, who can tag me, who can follow me, who can see my dreams"],
+  ["reset", "reset and a section, like reset audio, reset speech or reset permissions"], ["export settings", "download all settings as one file"], ["import settings", "open Settings backup to import a file"],
+  ["shortcuts", "your own keyboard shortcuts"], ["read this dream", "read the Dream you're on aloud"],
 ];
 function lcNorm(s) { return String(s || "").toLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim(); }
 function lcClosestPlace(n) {
@@ -6205,7 +6973,18 @@ function lcRun(raw, api) {
     case "exit": case "quit": case "q": out.close = true; L("Closing.", "dimt"); out.earcon = "close"; return out;
   }
   if (w === "echo") { L(text.replace(/^\s*echo\s*/i, "")); return out; }
-  if (w === "sound" || w === "mute" || w === "unmute" || w === "volume" || w === "beep") {
+  if (n === "export settings" || n === "export all settings" || n === "backup settings") { try { lcDownloadSettings(); L("Exported all your settings as looscid-settings.json.", "ok"); } catch (e) { return err("Couldn't export settings here."); } return out; }
+  if (n === "shortcuts" || n === "my shortcuts" || n === "keyboard shortcuts" || n === "list shortcuts") {
+    L("Built-in: " + LC_BUILTIN_KEYS.map(function (k) { return k[0] + ": " + k[1]; }).join(". ") + ".", "hi");
+    const sc = a.shortcuts || []; L(sc.length ? "Yours: " + sc.map(function (s) { return s.keys + " runs " + s.cmd; }).join(". ") + "." : "You have no shortcuts of your own yet. Add them in Settings, Keyboard shortcuts.");
+    return out;
+  }
+  if (n === "read this dream" || n === "read dream" || n === "read aloud" || n === "stop reading" || n === "stop reading aloud") {
+    if (/^stop/.test(n)) { LcSpeech.stop(); L("Stopped reading aloud.", "ok"); return out; }
+    const d = lcCurrentDream(); if (!d) return err("Move to a Dream in the feed first, then say read this dream.");
+    LcSpeech.speak(lcDreamSpeechParts(d)); L("Reading " + ((d.user && d.user.name) || "this") + "'s Dream aloud.", "ok"); out.earcon = null; return out;
+  }
+  if ((w === "sound" || w === "mute" || w === "unmute" || w === "volume" || w === "beep") && !(w === "sound" && /^(pack|packs)\b/.test(arg)) && !(w === "mute" && /^words?\b/.test(arg)) && !(w === "unmute" && /^words?\b/.test(arg))) {
     const s = w === "mute" ? "off" : w === "unmute" ? "on" : w === "beep" ? "test" : w === "volume" ? arg : arg;
     if (s === "on") { api.setA11y({ earcons: true }); L("Sounds (earcons) are now on.", "ok"); out.earcon = "on"; return out; }
     if (s === "off") { api.setA11y({ earcons: false }); L("Sounds (earcons) are now off.", "ok"); out.earcon = "off"; out.earconForce = true; return out; }
@@ -6517,6 +7296,364 @@ function DeviceQuestion({ onDone }) {
 }
 
 /* --- Settings > Accessibility ---------------------------------------------- */
+
+/* --- Round 4 settings screens -------------------------------------------- */
+// Re-render on any settings change made outside React state (lcSet from a deep component).
+function useA11yNow() { const [, f] = useState(0); useEffect(function () { const h = function () { f(function (x) { return x + 1; }); }; window.addEventListener("looscid:a11y", h); return function () { window.removeEventListener("looscid:a11y", h); }; }, []); return A11Y_NOW; }
+function lcLinkedProviders() { const o = { local: true }; try { getMethods().forEach(function (m) { o[m.provider] = true; }); } catch (e) {} return o; }
+function LcSetRow({ def, onChange }) {
+  const a = A11Y_NOW, v = a[def.k], id = def.k === "earconVolume" ? "a11y-volume" : (def.old ? "a11y-" : "set-") + def.k; // older settings keep their round-1 ids
+  const put = function (val, say) { const p = {}; p[def.k] = val; lcSet(p); if (onChange) onChange(val); if (say !== false) announce(def.l + ": " + lcValueText(def, val) + "."); };
+  if (def.t === "bool") {
+    if (def.k === "haptics" && !lcHapticsSupported()) return lh(A11ySwitch, { id: id, label: def.l + ", not supported on this device", desc: "This device or browser has no vibration support, so Haptics stays off. " + (def.desc || ""), on: false, locked: true });
+    if (def.id && def.id !== "local" && !lcLinkedProviders()[def.id]) return lh(A11ySwitch, { id: id, label: def.l + ", link it in LooscidID first", desc: "Link this identity in Settings, LooscidID, Login methods. Then you can turn this on.", on: false, locked: true });
+    return lh(A11ySwitch, { id: id, label: def.l, desc: def.desc, on: !!v, onToggle: function () { put(!v, false); } });
+  }
+  if (def.t === "choice" && def.menu) {
+    const soon = def.k === "translateTo" && !lcTranslateOk();
+    return lh('div', { className: "lc-row" },
+      lh('label', { htmlFor: id, className: "lc-fs-l", style: { display: "block" } }, def.l),
+      lh('select', { id: id, className: "lc-select", value: v, onChange: function (e) { put(e.target.value); }, "aria-describedby": soon ? id + "-d" : undefined },
+        def.o.map(function (o) { return lh('option', { key: o[0], value: o[0] }, o[1]); })),
+      soon ? lh('p', { id: id + "-d", className: "lc-desc" }, "Translating needs the browser's own on-device translator, which this browser doesn't have yet, so the Translate action is coming soon here. Looscid never sends your Dreams to an outside service to translate them.") : lh('p', { className: "lc-desc" }, "Translate uses your browser's own on-device translator. Nothing leaves your device."));
+  }
+  if (def.t === "choice") {
+    const forced = LC_FORCED[def.k];
+    if (forced) return lh('fieldset', { className: "lc-fs", id: id, disabled: true },
+      lh('legend', { className: "lc-fs-l" }, def.l + ", set by Private account"),
+      lh('div', { className: "lc-radios lc-radios-col" }, def.o.map(function (o) {
+        const on = forced === o[0];
+        return lh('label', { key: o[0], className: "lc-radio" + (on ? " on" : "") }, lh('input', { type: "radio", name: "lcs-" + def.k, value: o[0], checked: on, readOnly: true }), lh('span', null, o[1]));
+      })));
+    return lh('fieldset', { className: "lc-fs", id: id },
+      lh('legend', { className: "lc-fs-l" }, def.l),
+      def.desc ? lh('p', { className: "lc-desc lc-fs-d" }, def.desc) : null,
+      lh('div', { className: "lc-radios lc-radios-col" }, def.o.map(function (o) {
+        const on = String(v) === String(o[0]);
+        return lh('label', { key: o[0], className: "lc-radio" + (on ? " on" : "") },
+          lh('input', { type: "radio", name: "lcs-" + def.k, value: o[0], checked: on, onChange: function () { put(o[0]); } }), lh('span', null, o[1]));
+      })));
+  }
+  if (def.t === "range") {
+    return lh('div', { className: "lc-row lc-vol" },
+      lh('label', { htmlFor: id, className: "lc-fs-l" }, def.l),
+      lh('div', { className: "lc-vol-row" },
+        lh('input', { id: id, type: "range", min: def.min, max: def.max, step: def.step, value: v, className: "lc-range", "aria-valuetext": lcValueText(def, v),
+          onChange: function (e) { put(+e.target.value, false); } }),
+        lh('span', { className: "lc-vol-n", "aria-hidden": "true" }, v + (def.unit === "percent" ? "%" : ""))));
+  }
+  if (def.t === "time") {
+    return lh('div', { className: "lc-row" },
+      lh('label', { htmlFor: id, className: "lc-fs-l", style: { display: "block" } }, def.l),
+      lh('input', { id: id, type: "time", className: "lc-text", value: v || "", onChange: function (e) { if (e.target.value) put(e.target.value, false); } }));
+  }
+  if (def.t === "words") return lh(LcWordsRow, { def: def });
+  if (def.t === "voice") return lh(LcVoiceRow, { def: def });
+  return null;
+}
+function LcWordsRow({ def }) {
+  const [txt, setTxt] = useState(String(A11Y_NOW[def.k] || ""));
+  const [msg, setMsg] = useState("");
+  const id = "set-" + def.k;
+  useEffect(function () { setTxt(String(A11Y_NOW[def.k] || "")); }, [A11Y_NOW[def.k]]);
+  const save = function () { const w = lcWords(txt); const p = {}; p[def.k] = w.join(", "); lcSet(p); const m = def.l + " saved: " + (w.length ? w.join(", ") : "none") + "."; setMsg(m); announce(m); };
+  return lh('div', { className: "lc-row" },
+    lh('label', { htmlFor: id, className: "lc-fs-l", style: { display: "block" } }, def.l),
+    lh('p', { id: id + "-d", className: "lc-desc" }, def.desc),
+    lh('div', { className: "lc-inrow" },
+      lh('input', { id: id, type: "text", className: "lc-text", value: txt, "aria-describedby": id + "-d", autoComplete: "off", onChange: function (e) { setTxt(e.target.value); }, onKeyDown: function (e) { if (e.key === "Enter") { e.preventDefault(); save(); } } }),
+      lh('button', { type: "button", className: "btn bgb lc-btn", onClick: save, "aria-label": "Save " + def.l.toLowerCase() }, "Save")),
+    msg ? lh('p', { className: "lc-desc", role: "status" }, msg) : null);
+}
+function LcVoiceRow({ def }) {
+  const [voices, setVoices] = useState(LcSpeech.voices());
+  useEffect(function () { if (!LcSpeech.ok) return; const f = function () { setVoices(LcSpeech.voices()); }; try { window.speechSynthesis.addEventListener("voiceschanged", f); } catch (e) {} const t = setTimeout(f, 400); return function () { clearTimeout(t); try { window.speechSynthesis.removeEventListener("voiceschanged", f); } catch (e) {} }; }, []);
+  const id = "set-" + def.k, v = A11Y_NOW[def.k] || "";
+  if (!LcSpeech.ok) return lh('p', { className: "lc-desc" }, "Read aloud isn't available in this browser, so the voice, rate and pitch below have no effect here.");
+  return lh('div', { className: "lc-row" },
+    lh('label', { htmlFor: id, className: "lc-fs-l", style: { display: "block" } }, def.l),
+    lh('select', { id: id, className: "lc-select", value: v, onChange: function (e) { lcSet({ ttsVoice: e.target.value }); const vv = voices.find(function (x) { return x.voiceURI === e.target.value; }); announce("Voice: " + (vv ? vv.name : "device default") + "."); } },
+      lh('option', { value: "" }, "Device default"),
+      voices.map(function (x) { return lh('option', { key: x.voiceURI, value: x.voiceURI }, x.name + (x.lang ? " (" + x.lang + ")" : "")); })));
+}
+function lcResetSection(sec) { lcSet(lcSectionDefaults(sec)); announce(lcSectionTitle(sec) + " is back to its defaults."); }
+function LcResetBtn({ sec, label }) {
+  const t = label || lcSectionTitle(sec);
+  return lh('button', { type: "button", className: "btn bgb lc-big lc-reset", onClick: function () { lcResetSection(sec); } }, "Reset " + t + " to defaults");
+}
+// A settings section: heading, its rows (optionally grouped by g with h3 subheadings), extras, Reset.
+function LcSection({ sec, level, title, intro, before, after, noReset, only }) {
+  const defs = LC_SET.filter(function (d) { return d.s === sec && (!only || only.indexOf(d.k) >= 0); });
+  const sfx = title && title !== LC_SECTIONS[sec].t ? "-" + String(title).toLowerCase().replace(/[^a-z0-9]+/g, "-") : "";
+  const H = level === 3 ? 'h3' : 'h2', SubH = level === 3 ? 'h4' : 'h3', hid = "lcs-h-" + sec + sfx;
+  const groups = []; defs.forEach(function (d) { const g = d.g || ""; let x = groups.find(function (y) { return y[0] === g; }); if (!x) { x = [g, []]; groups.push(x); } x[1].push(d); });
+  return lh('section', { className: "lc-grp", "aria-labelledby": hid, id: "lcs-" + sec + sfx },
+    lh(H, { id: hid, className: level === 3 ? "lc-sub-h" : "lc-grp-h", tabIndex: -1 }, title || lcSectionTitle(sec)),
+    intro ? lh('p', { className: "lc-desc" }, intro) : null,
+    before || null,
+    groups.map(function (g) { return lh(React.Fragment, { key: g[0] || "x" }, g[0] ? lh(SubH, { className: "lc-sub-h" }, g[0]) : null, g[1].map(function (d) { return lh(LcSetRow, { key: d.k, def: d }); })); }),
+    after || null,
+    noReset ? null : lh(LcResetBtn, { sec: sec, label: title }));
+}
+
+// Settings > Accessibility > Screen reader and braille: General | Speech | Braille as real tabs.
+const LC_SR_TABS = [["general", "sr_general"], ["speech", "sr_speech"], ["braille", "sr_braille"]];
+function SrTabs() {
+  useA11yNow();
+  const [cur, setCur] = useState(function () { try { return sessionStorage.getItem("dbm_sr_tab") || "general"; } catch (e) { return "general"; } });
+  const pick = function (id, focus) { setCur(id); try { sessionStorage.setItem("dbm_sr_tab", id); } catch (e) {} if (focus) setTimeout(function () { const b = document.getElementById("srtab-" + id); if (b) b.focus(); }, 0); };
+  const idx = LC_SR_TABS.findIndex(function (t) { return t[0] === cur; });
+  const onKey = function (e) {
+    const n = LC_SR_TABS.length; let i = null;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") i = (idx + 1) % n; else if (e.key === "ArrowLeft" || e.key === "ArrowUp") i = (idx - 1 + n) % n; else if (e.key === "Home") i = 0; else if (e.key === "End") i = n - 1;
+    if (i !== null) { e.preventDefault(); pick(LC_SR_TABS[i][0], true); }
+  };
+  return lh('div', { className: "lc-srtabs" },
+    lh('div', { role: "tablist", "aria-label": "Screen reader and braille sections", className: "lc-stabs", onKeyDown: onKey },
+      LC_SR_TABS.map(function (t, i) {
+        const on = t[0] === cur;
+        return lh('button', { key: t[0], id: "srtab-" + t[0], type: "button", role: "tab", "aria-selected": on, "aria-controls": "srpanel-" + t[0], tabIndex: on ? 0 : -1, className: "lc-stab" + (on ? " on" : ""), onClick: function () { pick(t[0], false); } }, lcSrName(t[0]));
+      })),
+    // All three panels stay in the page; only the selected one is shown (hidden ones are out of the a11y tree).
+    LC_SR_TABS.map(function (t) {
+      const sec = t[1];
+      return lh('div', { key: t[0], role: "tabpanel", id: "srpanel-" + t[0], "aria-labelledby": "srtab-" + t[0], className: "lc-stpanel", hidden: t[0] !== cur },
+        lh(LcSection, { sec: sec, level: 3,
+          before: sec === "sr_braille" ? lh('p', { className: "lc-desc" }, "Your display\u2019s own settings, like contracted braille, cells and cursor, are set in VoiceOver, TalkBack or NVDA on your device.") : null,
+          after: lh(React.Fragment, null,
+            sec === "sr_speech" ? lh(LcSpeechTest, null) : null,
+            sec === "sr_braille" ? lh(A11ySwitch, { id: "a11y-nativeBraille", label: "Native braille drivers, coming soon", desc: "Direct USB and Bluetooth braille display support, without a screen reader.", on: false, soon: true }) : null,
+            sec === "sr_general" ? lh(LcSrRename, null) : null) }));
+    }));
+}
+function LcSpeechTest() {
+  return lh('div', { className: "lc-row" },
+    lh('button', { type: "button", className: "btn bgb lc-big", disabled: !LcSpeech.ok, onClick: function () { LcSpeech.speak([{ text: "This is how Looscid reads Dreams aloud." }, { text: "And this is a reply, read at a lower pitch.", secondary: true }]); } }, LcSpeech.ok ? "Test the read-aloud voice" : "Test the read-aloud voice, not available in this browser"),
+    lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { LcSpeech.stop(); } }, "Stop reading aloud"));
+}
+// Rename the three sections (text field + Save, Reset to default), saved on this device.
+function LcSrRename() {
+  const [vals, setVals] = useState(function () { return { general: lcSrName("general"), speech: lcSrName("speech"), braille: lcSrName("braille") }; });
+  const [msg, setMsg] = useState("");
+  const save = function (id) { const v = String(vals[id] || "").trim().slice(0, 30); const n = Object.assign({}, A11Y_NOW.srNames || {}); n[id] = v || LC_SR_NAMES_DEF[id]; lcSet({ srNames: n }); const m = "Renamed " + LC_SR_NAMES_DEF[id] + " to " + n[id] + "."; setMsg(m); announce(m); };
+  const reset = function () { lcSet({ srNames: Object.assign({}, LC_SR_NAMES_DEF) }); setVals(Object.assign({}, LC_SR_NAMES_DEF)); setMsg("Section names are back to General, Speech and Braille."); announce("Section names are back to General, Speech and Braille."); };
+  return lh('section', { className: "lc-rename", "aria-labelledby": "lc-rename-h" },
+    lh('h4', { id: "lc-rename-h", className: "lc-sub-h" }, "Rename sections"),
+    lh('p', { className: "lc-desc" }, "Give General, Speech and Braille your own names. The tabs, headings and the command bar use them."),
+    LC_SR_TABS.map(function (t) {
+      const id = "lc-rn-" + t[0];
+      return lh('div', { key: t[0], className: "lc-row" },
+        lh('label', { htmlFor: id, className: "lc-fs-l", style: { display: "block" } }, "Name for " + LC_SR_NAMES_DEF[t[0]]),
+        lh('div', { className: "lc-inrow" },
+          lh('input', { id: id, type: "text", className: "lc-text", maxLength: 30, value: vals[t[0]], onChange: function (e) { const v = e.target.value; setVals(function (o) { const x = Object.assign({}, o); x[t[0]] = v; return x; }); }, onKeyDown: function (e) { if (e.key === "Enter") { e.preventDefault(); save(t[0]); } } }),
+          lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { save(t[0]); }, "aria-label": "Save name for " + LC_SR_NAMES_DEF[t[0]] }, "Save")));
+    }),
+    lh('button', { type: "button", className: "btn bgb lc-big", onClick: reset }, "Reset names to default"),
+    msg ? lh('p', { className: "lc-desc", role: "status" }, msg) : null);
+}
+
+// Settings > Audio
+function AudioSettings({ navigate }) {
+  useA11yNow();
+  const a = A11Y_NOW;
+  const evDefs = LC_SET.filter(function (d) { return d.s === "audio" && d.ev; });
+  const head = ["earcons", "earconVolume", "earconFocus"];
+  return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
+    lh(BackHeader, { title: "Audio", onBack: function () { navigate("settings"); } }),
+    lh('p', { className: "lc-intro" }, "Every sound Looscid makes, in one place. Sounds are short, quiet and battery-friendly: the audio engine sleeps between sounds. Nothing here changes Reduce Motion or Flash safety."),
+    lh(LcSection, { sec: "audio", title: "Earcons", only: head, noReset: true }),
+    lh('section', { className: "lc-grp", "aria-labelledby": "lca-ev-h" },
+      lh('h2', { id: "lca-ev-h", className: "lc-grp-h" }, "Sounds for each event"),
+      lh('p', { className: "lc-desc" }, "Turn each sound on or off, and preview it in the sound pack you're using."),
+      evDefs.map(function (d) {
+        return lh('div', { key: d.k, className: "lc-evrow" }, lh(LcSetRow, { def: d }),
+          lh('button', { type: "button", className: "btn bgb lc-btn lc-prev", onClick: function () { Earcon.play(d.ev, { test: true }); }, "aria-label": "Preview " + d.l.toLowerCase() }, "Preview"));
+      }),
+      lh('div', { className: "lc-evrow" }, lh('p', { className: "lc-fs-l", style: { margin: 0 } }, "Focus move sound"),
+        lh('button', { type: "button", className: "btn bgb lc-btn lc-prev", onClick: function () { Earcon.play("focus", { test: true }); }, "aria-label": "Preview focus move sound" }, "Preview"))),
+    lh(LcSection, { sec: "audio", title: "Sound pack", only: ["soundPack"], noReset: true,
+      intro: "NexOS classic and Insomnia are the sounds from NexOS Web and Insomnia OS, rebuilt here so they work offline.",
+      after: lh(React.Fragment, null,
+        lh('div', { className: "lc-packprev" }, ["looscid", "nexos", "insomnia"].map(function (p) {
+          const lab = { looscid: "Looscid", nexos: "NexOS classic", insomnia: "Insomnia" }[p];
+          return lh('button', { key: p, type: "button", className: "btn bgb lc-btn", onClick: function () { Earcon.play("send", { test: true, pack: p }); }, "aria-label": "Preview the " + lab + " pack" }, "Preview " + lab);
+        })),
+        lh(LcPackImport, null)) }),
+    lh(LcSection, { sec: "audio", title: "Music and haptics", only: ["ducking", "haptics"], noReset: true }),
+    lh('section', { className: "lc-grp", "aria-labelledby": "lca-more-h" },
+      lh('h2', { id: "lca-more-h", className: "lc-grp-h" }, "More"),
+      lh('p', { className: "lc-desc" }, "Pitch cues live in Accessibility, Screen reader and braille, " + lcSrName("speech") + ". Quiet hours live in Alerts. Captions and the visual cue live in Accessibility, Hearing."),
+      lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { Earcon.play("run", { test: true }); } }, "Play a test sound"),
+      lh(LcResetBtn, { sec: "audio" })));
+}
+// Import your own pack: a .zip or audio files, checked, mapped to events, previewed, stored in IndexedDB.
+function LcPackImport() {
+  const [pack, setPack] = useState(LC_CUSTOM_PACK);
+  const [msg, setMsg] = useState("");
+  const [bad, setBad] = useState([]);
+  const [busy, setBusy] = useState(false);
+  useEffect(function () { lcLoadCustomPack().then(function (p) { setPack(p); }); }, []);
+  const say = function (m) { setMsg(m); announce(m); };
+  const onFiles = async function (e) {
+    const list = Array.prototype.slice.call(e.target.files || []); e.target.value = "";
+    if (!list.length) return;
+    setBusy(true); setBad([]);
+    try {
+      let entries = [];
+      for (const f of list) {
+        if (/\.zip$/i.test(f.name) || f.type === "application/zip") {
+          if (f.size > 12 * 1024 * 1024) { entries.push({ name: f.name, size: f.size, bad: "the zip is bigger than 12 MB" }); continue; }
+          entries = entries.concat(await lcUnzip(await f.arrayBuffer()));
+        } else entries.push({ name: f.name, size: f.size, data: await f.arrayBuffer() });
+      }
+      const r = await lcCheckPackFiles(entries);
+      setBad(r.bad);
+      if (!r.ok.length) { say("No sounds were added. " + (r.bad.length ? r.bad.length + " file" + (r.bad.length === 1 ? " was" : "s were") + " left out." : "")); setBusy(false); return; }
+      const prev = pack && pack.files ? pack.files.filter(function (x) { return !r.ok.find(function (y) { return y.name === x.name; }); }) : [];
+      const files = prev.concat(r.ok).slice(0, LC_PACK_LIMITS.files);
+      const map = Object.assign({}, lcAutoMap(files), (pack && pack.map) || {});
+      Object.keys(map).forEach(function (k) { if (!files.find(function (f) { return f.name === map[k]; })) delete map[k]; });
+      const np = { files: files, map: map, at: Date.now() };
+      await lcPackPut(np); LC_CUSTOM_PACK = np; setPack(np);
+      say("Added " + r.ok.length + " sound" + (r.ok.length === 1 ? "" : "s") + ". " + Object.keys(map).length + " event" + (Object.keys(map).length === 1 ? " has" : "s have") + " a sound." + (r.bad.length ? " " + r.bad.length + " file" + (r.bad.length === 1 ? " was" : "s were") + " left out, listed below." : ""));
+    } catch (er) { say("Couldn't import that: " + (er && er.message ? er.message : "unknown error") + "."); }
+    setBusy(false);
+  };
+  const setMap = function (ev, name) { const np = Object.assign({}, pack, { map: Object.assign({}, pack.map) }); if (name) np.map[ev] = name; else delete np.map[ev]; lcPackPut(np).then(function () { LC_CUSTOM_PACK = np; setPack(np); }); };
+  const remove = async function () { try { await lcPackDel(); } catch (e) {} LC_CUSTOM_PACK = null; setPack(null); if (A11Y_NOW.soundPack === "custom") lcSet({ soundPack: "looscid" }); say("Your imported sound pack was removed." + (A11Y_NOW.soundPack === "looscid" ? " The Looscid pack is back on." : "")); };
+  const n = pack && pack.files ? pack.files.length : 0;
+  return lh('section', { className: "lc-import", "aria-labelledby": "lc-imp-h" },
+    lh('h3', { id: "lc-imp-h", className: "lc-sub-h" }, "Import a sound pack"),
+    lh('p', { id: "lc-imp-d", className: "lc-desc" }, "Choose a .zip of sounds, or audio files. WAV, MP3, OGG, M4A, AAC, WebM or FLAC, up to 1 MB and 3 seconds each, 24 files and 8 MB in all. Files named like send, like, error or alert are matched to events for you. Saved only on this device."),
+    lh('label', { htmlFor: "lc-imp-file", className: "btn bgb lc-big lc-filebtn" }, busy ? "Checking sounds\u2026" : "Choose a .zip or audio files"),
+    lh('input', { id: "lc-imp-file", type: "file", className: "lc-file", multiple: true, accept: ".zip,application/zip,audio/*,.wav,.mp3,.ogg,.oga,.opus,.m4a,.aac,.webm,.flac", "aria-describedby": "lc-imp-d", onChange: onFiles }),
+    msg ? lh('p', { className: "lc-desc", role: "status" }, msg) : null,
+    bad.length ? lh('ul', { className: "lc-badlist", "aria-label": "Files left out" }, bad.map(function (b, i) { return lh('li', { key: i }, b); })) : null,
+    n ? lh('div', { className: "lc-pack" },
+      lh('h4', { className: "lc-sub-h" }, "Your pack: " + n + " sound" + (n === 1 ? "" : "s")),
+      lh('ul', { className: "lc-maplist", "aria-label": "Sounds for each event" }, LC_EVENTS.map(function (ev) {
+        const sid = "lc-map-" + ev[0], cur = (pack.map || {})[ev[0]] || "";
+        return lh('li', { key: ev[0], className: "lc-maprow" },
+          lh('label', { htmlFor: sid, className: "lc-fs-l" }, ev[1]),
+          lh('select', { id: sid, className: "lc-select", value: cur, onChange: function (e) { setMap(ev[0], e.target.value); } },
+            lh('option', { value: "" }, "Looscid's sound"),
+            pack.files.map(function (f) { return lh('option', { key: f.name, value: f.name }, f.name); })),
+          lh('button', { type: "button", className: "btn bgb lc-btn", "aria-label": "Preview " + ev[1].toLowerCase() + " from your pack", onClick: function () { Earcon.play(ev[0], { test: true, pack: "custom" }); } }, "Preview"));
+      })),
+      lh('button', { type: "button", className: "btn bp lc-big", disabled: A11Y_NOW.soundPack === "custom", onClick: function () { lcSet({ soundPack: "custom" }); announce("Sound pack: your imported pack."); } }, A11Y_NOW.soundPack === "custom" ? "Using your pack" : "Use this pack"),
+      lh('button', { type: "button", className: "btn bgb lc-big", onClick: remove }, "Remove your sound pack")) : null);
+}
+
+// Settings > Keyboard shortcuts: the built-in list, plus your own.
+const LC_BUILTIN_KEYS = [
+  ["Control+K or Command+K", "Open the command bar, anywhere"], ["Escape", "Close the command bar, a menu or a dialog"],
+  ["Left and Right arrows, Home, End", "Move between tabs, like feeds, Alerts tabs and Screen reader sections"], ["Page Up and Page Down", "Previous and next feed"],
+  ["Up and Down arrows in the command bar", "Your earlier commands"], ["Enter", "Run a command, or send when Enter = Send is on"],
+  ["Left and Right arrows in Reading mode", "Previous and next Dream"],
+];
+function lcKeyName(e) {
+  const k = e.key; if (!k || /^(Control|Shift|Alt|Meta|Dead|Unidentified)$/.test(k)) return null;
+  const parts = []; if (e.ctrlKey) parts.push("Control"); if (e.altKey) parts.push("Alt"); if (e.shiftKey) parts.push("Shift"); if (e.metaKey) parts.push("Command");
+  const key = k.length === 1 ? k.toUpperCase() : k; parts.push(key === " " ? "Space" : key); return parts.join("+");
+}
+function lcShortcutOk(keys) { const p = keys.split("+"); return p.length > 1 && /Control|Alt|Command/.test(keys) && !/^(Control|Command)\+K$/.test(keys) || /^F\d{1,2}$/.test(keys); }
+function KeyboardSettings({ navigate }) {
+  useA11yNow();
+  const list = A11Y_NOW.shortcuts || [];
+  const [keys, setKeys] = useState("");
+  const [cmd, setCmd] = useState("");
+  const [msg, setMsg] = useState("");
+  const say = function (m) { setMsg(m); announce(m); };
+  const add = function () {
+    const c = cmd.trim(); if (!keys) return say("Press the keys for the shortcut in the Keys field first.");
+    if (!lcShortcutOk(keys)) return say(keys + " can't be a shortcut. Use Control, Alt or Command with a key, or a function key. Control+K is the command bar.");
+    if (!c) return say("Type the command it runs, like open music or feed following.");
+    if (list.find(function (s) { return s.keys === keys; })) return say(keys + " is already a shortcut. Remove it first.");
+    lcSet({ shortcuts: list.concat([{ keys: keys, cmd: c }]).slice(0, 30) }); setKeys(""); setCmd(""); say("Added: " + keys + " runs " + c + ".");
+  };
+  return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
+    lh(BackHeader, { title: "Keyboard shortcuts", onBack: function () { navigate("settings"); } }),
+    lh('section', { className: "lc-grp", "aria-labelledby": "kb-b-h" },
+      lh('h2', { id: "kb-b-h", className: "lc-grp-h" }, "Built-in shortcuts"),
+      lh('dl', { className: "lc-keys" }, LC_BUILTIN_KEYS.map(function (k) { return lh(React.Fragment, { key: k[0] }, lh('dt', null, k[0]), lh('dd', null, k[1])); }))),
+    lh('section', { className: "lc-grp", "aria-labelledby": "kb-c-h" },
+      lh('h2', { id: "kb-c-h", className: "lc-grp-h" }, "Your shortcuts"),
+      list.length ? lh('ul', { className: "lc-maplist", "aria-label": "Your shortcuts" }, list.map(function (s) {
+        return lh('li', { key: s.keys, className: "lc-maprow" }, lh('span', null, s.keys + " runs " + s.cmd),
+          lh('button', { type: "button", className: "btn bgb lc-btn", "aria-label": "Remove shortcut " + s.keys, onClick: function () { lcSet({ shortcuts: list.filter(function (x) { return x.keys !== s.keys; }) }); say("Removed " + s.keys + "."); } }, "Remove"));
+      })) : lh('p', { className: "lc-desc" }, "None yet."),
+      lh('h3', { className: "lc-sub-h" }, "Add a shortcut"),
+      lh('div', { className: "lc-row" },
+        lh('label', { htmlFor: "kb-keys", className: "lc-fs-l", style: { display: "block" } }, "Keys"),
+        lh('p', { id: "kb-keys-d", className: "lc-desc" }, "Focus this field and press the keys, like Alt+M. Tab and Escape still move on."),
+        lh('input', { id: "kb-keys", type: "text", readOnly: true, className: "lc-text", value: keys, placeholder: "Press keys", "aria-describedby": "kb-keys-d",
+          onKeyDown: function (e) { if (e.key === "Tab" || e.key === "Escape" || (e.key === "Enter" && !e.ctrlKey && !e.altKey && !e.metaKey)) return; const k = lcKeyName(e); if (!k) return; e.preventDefault(); e.stopPropagation(); setKeys(k); announce(k); } })),
+      lh('div', { className: "lc-row" },
+        lh('label', { htmlFor: "kb-cmd", className: "lc-fs-l", style: { display: "block" } }, "Command it runs"),
+        lh('input', { id: "kb-cmd", type: "text", className: "lc-text", value: cmd, placeholder: "open music", autoComplete: "off", onChange: function (e) { setCmd(e.target.value); }, onKeyDown: function (e) { if (e.key === "Enter") { e.preventDefault(); add(); } } })),
+      lh('button', { type: "button", className: "btn bp lc-big", onClick: add }, "Add shortcut"),
+      msg ? lh('p', { className: "lc-desc", role: "status" }, msg) : null,
+      lh(LcResetBtn, { sec: "keyboard", label: "Your shortcuts" })));
+}
+
+// Settings > Settings backup: export and import every setting as one JSON file; reset all.
+const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "dbm_theme", "dbm_ai_prefs", "dbm_cherry_attrib", "looscid_music", "looscid_alerts_tab", "looscid_show_friends", "looscid_term_output_open", "looscid_topics"];
+function lcExportSettings() {
+  const o = { app: "Looscid", kind: "settings", version: LOOSCID_VERSION, exported: new Date().toISOString(), settings: {} };
+  LC_EXPORT_KEYS.forEach(function (k) { try { const v = localStorage.getItem(k); if (v !== null) o.settings[k] = v; } catch (e) {} });
+  return o;
+}
+function lcDownloadSettings() {
+  const o = lcExportSettings(), blob = new Blob([JSON.stringify(o, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob), el = document.createElement("a"); el.href = url; el.download = "looscid-settings.json"; document.body.appendChild(el); el.click(); el.remove(); setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+  window.__lcLastExport = o; return o;
+}
+function lcImportSettings(text) {
+  let o; try { o = JSON.parse(text); } catch (e) { return { err: "That file isn't a Looscid settings file." }; }
+  if (!o || o.app !== "Looscid" || o.kind !== "settings" || !o.settings || typeof o.settings !== "object") return { err: "That file isn't a Looscid settings file." };
+  let n = 0; LC_EXPORT_KEYS.forEach(function (k) { if (typeof o.settings[k] === "string") { try { if (k === A11Y_KEY || k === LC_SETTINGS_KEY) JSON.parse(o.settings[k]); localStorage.setItem(k, o.settings[k]); n++; } catch (e) {} } });
+  return { n: n };
+}
+function BackupSettings({ navigate, onImported }) {
+  const [msg, setMsg] = useState("");
+  const say = function (m) { setMsg(m); announce(m); };
+  const onFile = function (e) {
+    const f = e.target.files && e.target.files[0]; e.target.value = ""; if (!f) return;
+    if (f.size > 512 * 1024) return say("That file is too big to be a settings file.");
+    f.text().then(function (t) { const r = lcImportSettings(t); if (r.err) return say(r.err); if (onImported) onImported(); say("Settings imported: " + r.n + " groups of settings restored."); });
+  };
+  return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
+    lh(BackHeader, { title: "Settings backup", onBack: function () { navigate("settings"); } }),
+    lh('section', { className: "lc-grp", "aria-labelledby": "bk-e-h" },
+      lh('h2', { id: "bk-e-h", className: "lc-grp-h" }, "Export and import"),
+      lh('p', { className: "lc-desc" }, "One JSON file with all your settings: accessibility, audio, screen reader and braille, permissions, muted words, shortcuts, theme, music and Cherry. No keys, passwords or Dreams are in it. Imported sound packs stay on this device."),
+      lh('button', { type: "button", className: "btn bp lc-big", onClick: function () { lcDownloadSettings(); say("Exported looscid-settings.json."); } }, "Export all settings"),
+      lh('label', { htmlFor: "bk-file", className: "btn bgb lc-big lc-filebtn" }, "Import settings from a file"),
+      lh('input', { id: "bk-file", type: "file", className: "lc-file", accept: ".json,application/json", onChange: onFile })),
+    lh('section', { className: "lc-grp", "aria-labelledby": "bk-r-h" },
+      lh('h2', { id: "bk-r-h", className: "lc-grp-h" }, "Reset"),
+      lh('p', { className: "lc-desc" }, "Each settings section has its own Reset button. This one resets every setting at once. Flash safety and Calm mode come back on."),
+      lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { if (!window.confirm("Reset every setting to its default?")) return; lcSet(Object.assign({}, A11Y_DEFAULTS, { srNames: Object.assign({}, LC_SR_NAMES_DEF), shortcuts: [] })); say("Every setting is back to its default."); } }, "Reset all settings")),
+    msg ? lh('p', { className: "lc-desc lc-grp", role: "status" }, msg) : null);
+}
+
+// LooscidID link flow + Privacy > Permissions share this switch ("Let people find me by this").
+const LC_FIND_KEY = { nostr: "findNostr", activitypub: "findMastodon", atproto: "findBluesky", pubky: "findPubky" };
+function LcFindMeSwitch({ provider }) {
+  useA11yNow();
+  const k = LC_FIND_KEY[provider]; if (!k) return null;
+  const what = { nostr: "this npub", activitypub: "this fediverse username", atproto: "this Bluesky handle", pubky: "this Pubky key" }[provider];
+  return lh('div', { className: "lc-findme" },
+    lh(A11ySwitch, { id: "findme-" + provider, label: "Let people find me by this", on: !!A11Y_NOW[k], onToggle: function () { const p = {}; p[k] = !A11Y_NOW[k]; lcSet(p); announce("Find me by " + what + ": " + (p[k] ? "on" : "off") + "."); },
+      desc: "People can find your Looscid profile by searching " + what + ". Off by default. You can change this anytime in Settings, Privacy, Permissions." }));
+}
+function LcUndoBar({ undo }) {
+  const ref = useRef(null);
+  useEffect(function () { if (ref.current) ref.current.focus(); }, [undo.id]);
+  return lh('div', { className: "lc-undo", role: "region", "aria-label": "Undo send" },
+    lh('p', { className: "lc-undo-t" }, undo.what + " sends in " + undo.secs + " seconds."),
+    lh('button', { ref: ref, type: "button", className: "btn bp lc-btn", onClick: function () { undo.cancel(); } }, "Undo"));
+}
 function A11ySwitch({ id, label, desc, on, onToggle, soon, locked }) {
   const off = soon || locked;
   return lh('div', { className: "lc-row" + (soon ? " lc-soon" : "") },
@@ -6532,6 +7669,7 @@ const SETTINGS_MENU_ITEM = {
   settings_account: ["settings", "LooscidID"], settings_notifications: ["settings", "Alerts"], settings_privacy: ["settings", "Privacy"],
   settings_customizability: ["settings", "Customizability"], settings_accessibility: ["settings", "Accessibility"], settings_cherry: ["settings", "Cherry Settings"],
   settings_cherry_algo: ["settings", "Cherry Settings"], settings_labs: ["settings", "Looscid Labs"], settings_about: ["about", "About Looscid"],
+  settings_audio: ["settings", "Audio"], settings_keyboard: ["settings", "Keyboard shortcuts"], settings_backup: ["settings", "Settings backup"],
 };
 function App() {
   // Local profile — no login gate. The profile is stored on this device only.
@@ -6706,7 +7844,12 @@ useEffect(() => {
     const inp = document.getElementById("lc-cmd-input"); if (inp) { inp.focus(); return; }
     cmdReturn.current = document.activeElement; setCmdOpen(true);
   };
-  openCmdRef.current = openCmd; LC_OPEN_CMD = openCmd;
+  openCmdRef.current = openCmd; LC_OPEN_CMD = openCmd; LC_SET_A11Y = setA11yPatch;
+  // The one door for Dreams arriving from outside this device (the network layer, later); also used by tests.
+  window.lcReceiveDreams = function (list) { const arr = (Array.isArray(list) ? list : [list]).map(function (d) { return Object.assign({ likes: 0, comments: 0, redreams: 0, quotes: 0, liked: false, redreamed: false, quoted: false, bookmarked: false, time: "now" }, d, { id: d.id || Date.now() + Math.random(), user: typeof d.user === "number" ? USERS[d.user] : (d.user || { name: "Someone", handle: "" }) }); }); setAppDreams(function (ds) { return arr.concat(ds); }); };
+  // Undo send bar
+  const [undo, setUndo] = useState(null); LC_UNDO_SET = setUndo;
+  const runRef = useRef(null);
   LC_GO_FEED = () => { if (pageRef.current !== "feed") { setPage("feed"); setPdata(null); } };
   const closeCmd = restore => {
     setCmdOpen(false); const el = cmdReturn.current; cmdReturn.current = null;
@@ -6752,9 +7895,29 @@ useEffect(() => {
     focusMainHeading();
   };
 
+  runRef.current = execCommand;
+  // Custom keyboard shortcuts (Settings > Keyboard shortcuts) and the focus-move earcon.
+  useEffect(() => {
+    const onKey = e => {
+      const sc = A11Y_NOW.shortcuts || []; if (!sc.length || e.defaultPrevented) return;
+      const t = e.target; if (t && t.id === "kb-keys") return;
+      const k = lcKeyName(e); if (!k) return;
+      const hit = sc.find(s => s.keys === k); if (!hit) return;
+      e.preventDefault(); if (runRef.current) runRef.current(hit.cmd, "shortcut");
+    };
+    let last = 0;
+    const onFocus = e => {
+      const a = A11Y_NOW; if (!a.earconFocus || !a.earcons) return;
+      const now = Date.now(); if (now - last < 90) return; last = now; // battery: at most about 11 ticks a second
+      Earcon.play("focus");
+    };
+    window.addEventListener("keydown", onKey); document.addEventListener("focusin", onFocus);
+    return () => { window.removeEventListener("keydown", onKey); document.removeEventListener("focusin", onFocus); };
+  }, []);
   useEffect(() => {
     const acc = Object.assign({}, A11Y_DEFAULTS, prefs.accessibility || {});
     A11Y_NOW = acc; saveA11y(acc);
+    window.dispatchEvent(new CustomEvent("looscid:a11y"));
     window.dispatchEvent(new CustomEvent("looscid:feedmode", { detail: lcFeedMode(acc.feedSwitch) }));
     const b = document.body.classList;
     b.toggle("acc-text-1", acc.textSize === 1);
@@ -6814,6 +7977,9 @@ useEffect(() => {
       settings_privacy: "Privacy",
       settings_customizability: "Customizability",
       settings_accessibility: "Accessibility",
+      settings_audio: "Audio",
+      settings_keyboard: "Keyboard shortcuts",
+      settings_backup: "Settings backup",
       settings_cherry: "Cherry Settings",
       settings_cherry_algo: "Cherry Algorithm",
       settings_about: "About",
@@ -6843,7 +8009,10 @@ useEffect(() => {
       case "dp":            return pdata ? React.createElement(DreamerProfilePage, { user: pdata, navigate: navigate, cherryCtx: cherryCtx,}) : React.createElement(FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
       case "settings_account":        return React.createElement(AccountSettings, { key: "acct-" + ((pdata && pdata.tab) || "home"), navigate: navigate, authUser: authUser, onSignOut: handleSignOut, onRenameProfile: handleRenameProfile, onUpdateProfile: handleUpdateProfile, initialTab: pdata && pdata.tab,});
       case "settings_notifications":  return React.createElement(NotificationsSettings, { navigate: navigate, prefs: prefs, setPrefs: setPrefs,});
-      case "settings_privacy":        return React.createElement(PrivacySettings, { navigate: navigate,});
+      case "settings_privacy":        return React.createElement(PrivacySettings, { navigate: navigate, authUser: authUser, onUpdateProfile: handleUpdateProfile,});
+      case "settings_audio":          return React.createElement(AudioSettings, { navigate: navigate,});
+      case "settings_keyboard":       return React.createElement(KeyboardSettings, { navigate: navigate,});
+      case "settings_backup":         return React.createElement(BackupSettings, { navigate: navigate, onImported: function () { const acc = loadA11y(); A11Y_NOW = acc; setPrefs(function (p) { return Object.assign({}, p, { accessibility: acc }); }); try { setTheme(getSavedTheme() || "dark"); } catch (e) {} },});
       case "settings_customizability":return React.createElement(CustomizabilitySettings, { navigate: navigate, prefs: prefs, setPrefs: setPrefs, theme: theme, setTheme: setTheme,});
       case "settings_accessibility":  return React.createElement(AccessibilitySettings, { navigate: navigate, prefs: prefs, setPrefs: setPrefs, onAskDevice: ()=>setAskDevice(true),});
       case "music":         return React.createElement(MusicPage, { onBack: ()=>{ setPage(termBack.current && termBack.current !== "music" ? termBack.current : "feed"); setPdata(null); },});
@@ -6898,9 +8067,11 @@ useEffect(() => {
     React.createElement('div', { className: "app",}
       , lh('button', { type: "button", className: "lc-cmd-btn", onClick: () => openCmd(), "aria-label": "Command bar", "aria-haspopup": "dialog", "aria-expanded": cmdOpen,
           "aria-keyshortcuts": "Control+K Meta+K", "aria-braillelabel": A11Y_NOW.brailleOutput ? "cmd" : undefined }, lh('span', { "aria-hidden": "true" }, ">_"))
+      , A11Y_NOW.skipLinks !== false && lh('a', { href: "#main-content", className: "skip-link", onClick: e => { e.preventDefault(); const h = document.querySelector("#main-content h1"); if (h) { if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); h.focus(); } } }, "Skip to content")
       , React.createElement('main', {id:"main-content", "aria-live":"polite", "aria-atomic":"false", style:{display:"contents"}}, renderPage())
+      , undo && lh(LcUndoBar, { undo: undo })
       /* 5-tab nav: Home | Discover | Create | Alerts | More */
-      , React.createElement('div', { role: "navigation", 'aria-label': "Main", className: "bnav-wrap",}, React.createElement('nav', {
+      , React.createElement('div', { role: A11Y_NOW.skipLinks !== false ? "navigation" : undefined, 'aria-label': A11Y_NOW.skipLinks !== false ? "Main" : undefined, className: "bnav-wrap",}, React.createElement('nav', {
           className: "bnav",
           role: "tablist",
           "aria-label": "Main navigation",
