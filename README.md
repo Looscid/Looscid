@@ -1,8 +1,13 @@
-The official Looscid Repo
+# Looscid
 
-Looscid is a social app that aims to bring back the customizability and freedom that was lost
+Accessibility first, always.
 
-    The goal is to make this platform successful. We're deciding to be Open Source because it means that customizability is in the hands of the user
+Looscid is a social app built for VoiceOver, braille and keyboard from day one. It brings back the customization and freedom other apps took away. It's open source, so that power stays with the people who use it.
+
+**Works today:** Dreams, Discover, Alerts, sound packs and settings backup, right in your browser.
+**Not yet:** the full OS and Work mode.
+
+**Try it:** [looscid.github.io/Looscid](https://looscid.github.io/Looscid)
 
 ## Fun fact
 
