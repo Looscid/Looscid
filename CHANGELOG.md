@@ -2,6 +2,24 @@
 
 Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.112.31 (143): Round 6.5.2
+
+Released October 10, 2026 at 4:15 PM (Eastern Time, 2026-10-10T20:15:00Z UTC)
+
+A feature update: Cherry gets its own page, from Alhasan's blueprint.
+
+- Cherry is a page now, not a pop-up over the app. Open Cherry in More, the Cherry button on Home, Ask Cherry on Discover, or Ask Cherry about this Dream all go to the same page. Focus lands on the "Cherry" heading.
+- At the top: Back, then Close Cherry (braille: "Close"). Both take you back to where you opened Cherry; from More, the menu opens again on Open Cherry. Then New Chat.
+- The chat: each message is a list item that starts with "You:" or "Cherry:". The message box is "Message Cherry"; Enter sends from a keyboard or a braille display, and so does the Send button. Try asking has the suggestion buttons.
+- A stream of announcements: every answer from Cherry is said once in the one live region, as "Cherry: ...". Settings and feed changes are said once in their own words, as before ("High contrast is now off."). Focus stays in the message box; nothing in the background moves it.
+- Your History: your chats with Cherry, newest first, with All and Pinned tabs (arrow keys, Home and End, or tap). Each chat has its title, when it was last used, how many messages, and a Pin or Unpin button. Opening a chat says "Opened <title>, N messages." and puts focus on its heading. Unpinning in Pinned moves focus to the next pinned chat, or to the Pinned tab.
+- New Chat starts an empty chat, says "New chat started." and puts focus in the message box. Your last chat stays in Your History.
+- What Cherry did: the actions Cherry took for you, each with Undo where it can be undone.
+- Chats are saved on this device (dbm_cherry_chats): up to 50 chats plus every pinned one. They are added to Settings backup at the end of the list, so older backup files still import and the file format is the same.
+- The words Cherry uses to match what you type still ignore capitals, extra spaces and curly quotes. "Find Circles" now finds Circles.
+- The old pop-up, its made-up history list and its "Clear All" button that did nothing are gone.
+- Unchanged: the More menu layout, sounds, pitch cues, earcons, Calm mode, flash safety and Reduce Motion.
+
 ## Looscid 2026.111.31 (142): Round 6.5.1
 
 Released October 10, 2026 at 2:42 PM (Eastern Time, 2026-10-10T18:42:07Z UTC)

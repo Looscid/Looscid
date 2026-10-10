@@ -993,6 +993,7 @@ const PRIVACY_CONTENT = `<p><strong>Last updated: October 10, 2026</strong></p>
 <ul>
 <li>Your profile, settings, drafts, Dreams and sound packs are saved on this device only, in your browser's storage (the keys start with <code>dbm_</code>).</li>
 <li>Replies you write are saved on this device too, the same way. Like Dreams, they are not in Settings backup.</li>
+<li>Your chats with Cherry (Your History, and which ones you pinned) are saved on this device only. They are in Settings backup, so a backup file brings them to another device.</li>
 <li>There are no Looscid sign-up servers. Supabase and Cloudflare are gone.</li>
 <li>You never need a phone number or an email address, and Looscid never uses them to find you or to suggest you to others.</li>
 </ul>
@@ -2652,13 +2653,13 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    A commit is a fix when its subject matches (?i)^\s*(fix|hotfix|bugfix|chore|typo|revert|patch|docs?|style|refactor|cleanup|tweak|ci)\b
    or has fix, fixes or fixed anywhere; anything else is a feature update. Builds = commits.
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
-   Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update).
+   Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.111.31";
+const LOOSCID_VERSION = "2026.112.31";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 142;
+const LOOSCID_BUILD = 143;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-10T18:42:07Z"; // the Round 6.5.1 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-10T20:15:00Z"; // the Round 6.5.2 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4146,7 +4147,9 @@ function lcKeyName(e) {
   const key = k.length === 1 ? k.toUpperCase() : k; parts.push(key === " " ? "Space" : key); return parts.join("+");
 }
 // Settings > Settings backup: export and import every setting as one JSON file; reset all.
-const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "dbm_braille_styles", "dbm_theme", "dbm_ai_prefs", "dbm_cherry_attrib", "looscid_music", "looscid_alerts_tab", "looscid_show_friends", "looscid_term_output_open", "looscid_topics"];
+const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "dbm_braille_styles", "dbm_theme", "dbm_ai_prefs", "dbm_cherry_attrib", "looscid_music", "looscid_alerts_tab", "looscid_show_friends", "looscid_term_output_open", "looscid_topics",
+  // Round 6.5.2: Cherry's Your History (chats and which are pinned). Added at the end, so older backups still import.
+  "dbm_cherry_chats"];
 Looscid.LC_EXPORT_KEYS = LC_EXPORT_KEYS;
 function lcExportSettings() {
   const o = { app: "Looscid", kind: "settings", version: LOOSCID_VERSION, exported: new Date().toISOString(), settings: {} };
@@ -4222,6 +4225,7 @@ function App() {
   const [cmdOpen, setCmdOpen] = useState(false);
   const [menuInit, setMenuInit] = useState(null); // { open, focus, n } when Back reopens the More menu
   const pageRef = useRef("feed"); pageRef.current = page;
+  const pdataRef = useRef(null); pdataRef.current = pdata;
   const mainBack = useRef("feed");   // last page that is not a Settings screen
   const subFrom = useRef({});        // Settings screen -> the Settings screen it was opened from
   const cmdReturn = useRef(null);
@@ -4319,11 +4323,10 @@ useEffect(() => {
   const [appFollowing, setAppFollowing] = useState(new Set(LC_FIX.following || [])); // IDs we follow
   const [appGroups, setAppGroups] = useState(GROUPS);                                     // joined state
   const [appNotifs, setAppNotifs] = useState(NOTIFS_INIT);
-  const [cherryOpen, setCherryOpen] = useState(false);          // overlay chat from anywhere
+  const cherryBack = useRef(null);                              // Round 6.5.2: where Back on the Cherry page goes
   // Round 6.5: the composer in Reply or Quote mode, opened from anywhere with lcCompose().
   const [composeReq, setComposeReq] = useState(null);
   useEffect(function () { const f = function (e) { setComposeReq(Object.assign({ n: Date.now() }, (e && e.detail) || {})); }; window.addEventListener("looscid-compose", f); return function () { window.removeEventListener("looscid-compose", f); }; }, []);
-  const [cherryInitMsg, setCherryInitMsg] = useState(null);     // pre-fill a message into Cherry
 
   // Cherry context object passed everywhere Cherry is accessible
   const [cherryLog, setCherryLog] = useState([]); // action log
@@ -4349,7 +4352,8 @@ useEffect(() => {
     joinGroup:   id => { setAppGroups(gs => gs.map(g => g.id===id ? {...g,joined:!g.joined} : g)); const g=GROUPS.find(x=>x.id===id); if(g) addLog("🏘️","Joined "+g.name, ()=>setAppGroups(gs=>gs.map(x=>x.id===id?{...x,joined:false}:x))); },
     markNotifsRead: () => { lcAlertsMarkAll(); addLog("🔔","Marked all notifications read"); },
     fillCompose: null, // set by CreateMenu when compose is open
-    openCherry:  msg => { if (!lcAiOn()) { navigate("cherry"); return; } setCherryInitMsg(msg||null); setCherryOpen(true); },
+    // Round 6.5.2: Cherry is its own page. "Ask Cherry about this" opens it and asks in a new chat.
+    openCherry:  msg => { if (!lcAiOn()) { navigate("cherry"); return; } navigate("cherry", msg ? { ask: msg, n: Date.now() } : null); },
     setA11y:     patch => { Looscid.A11Y_NOW = Object.assign({}, Looscid.A11Y_NOW, patch); setPrefs(p => Object.assign({}, p, { accessibility: Object.assign({}, A11Y_DEFAULTS, p.accessibility || {}, patch) })); },
   };
 
@@ -4377,17 +4381,26 @@ useEffect(() => {
     if (!showMenuRef.current && cur === "settings_about" && /^(terms|privacy|guidelines|feedback|credits)$/.test(target)) subFrom.current[target] = cur;
     // No accounts: old login/signup links open the local profile settings
     if (target === "login" || target === "signup") { setPage("settings_account"); setPdata(null); return; }
-    if (target === "cherry") { setCherryOpen(true); return; }
+    // Round 6.5.2: Cherry is a page. Back returns to where you opened it (the More menu reopens on Open Cherry).
+    if (target === "cherry" && cur !== "cherry") cherryBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
     if (target === "intro") { setShowWelcome(true); return; }
     setPage(target); setPdata(data);
   }, []);
   const goRoot = id => {
     if(id==="create"){setShowCreate(true);return;}
-    if(id==="cherry"){setCherryOpen(true);return;}
+    if(id==="cherry"){navigate("cherry");return;}
     if(id==="circles"){setPage("groups");setPdata(null);return;}
     setPage(id); setPdata(null);
   };
   const focusMainHeading = () => setTimeout(() => { const h = document.querySelector("#main-content h1"); if (h) { if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); h.focus(); } }, 60);
+  // Round 6.5.2: Back (or Close) on the Cherry page. Opened from the More menu: the menu reopens on Open Cherry.
+  const cherryGoBack = () => {
+    const b = cherryBack.current || { page: "feed", data: null, menu: false }; cherryBack.current = null;
+    const to = b.page && b.page !== "cherry" ? b.page : "feed";
+    setPage(to); setPdata(b.data || null);
+    if (b.menu) { setMenuInit({ open: "cherry", focus: "Open Cherry", n: Date.now() }); setShowMenu(true); }
+    else focusMainHeading();
+  };
   const setA11yPatch = patch => { Looscid.A11Y_NOW = Object.assign({}, Looscid.A11Y_NOW, patch); setPrefs(p => Object.assign({}, p, { accessibility: Object.assign({}, A11Y_DEFAULTS, p.accessibility || {}, patch) })); };
   const openCmd = () => {
     if (showWelcome) return;
@@ -4662,6 +4675,7 @@ useEffect(() => {
       case "admin":                   return React.createElement(Looscid.AdminPanel, { navigate: navigate,});
       case "feedback":                return React.createElement(Looscid.FeedbackPage, { navigate: navigate,});
       case "drafts":        return React.createElement(Looscid.DraftsPage, { navigate: navigate, onLoadDraft: d=>{ setShowCreate(true); },});
+      case "cherry":        return React.createElement(Looscid.CherryPage, { navigate: navigate, cherryCtx: cherryCtx, data: pdata, onBack: cherryGoBack,});
       case "more":          return React.createElement(Looscid.MorePage, { navigate: navigate, cherryCtx: cherryCtx, authUser: authUser,});
       case "hour_story":    return React.createElement(Looscid.HourStoryPage, { navigate: navigate, back: pdata||"more",});
       case "terms":         return React.createElement(Looscid.PolicyPage, { title: "Terms", content: TERMS_CONTENT, navigate: navigate, back: "settings",});
@@ -4790,36 +4804,6 @@ useEffect(() => {
       , composeReq && Looscid.LcComposer && React.createElement(Looscid.LcComposer, Object.assign({ key: "cmp-" + composeReq.n }, composeReq, { prefs: prefs, navigate: navigate, cherryCtx: cherryCtx, onClose: function () { setComposeReq(null); } }))
       , showCreate && React.createElement(Looscid.CreateMenu, { onClose: ()=>setShowCreate(false), prefs: prefs, navigate: navigate, cherryCtx: cherryCtx, drafts: drafts, onDraftSave: ()=>setDrafts(getDrafts()),})
       , showMenu && React.createElement(MainMenu, { key: menuInit ? "m-" + menuInit.n : "m", initOpen: menuInit && menuInit.open, initFocus: menuInit && menuInit.focus, onClose: ()=>{ setShowMenu(false); setMenuInit(null); }, navigate: navigate, goRoot: goRoot, prefs: prefs, unreadNotifs: unreadNotifs, unreadMsgs: unreadMsgs, appDreams: appDreams,})
-      /* Cherry onboarding - shown on first open */
-      , !cherryOnboarded && cherryOpen && (
-        React.createElement('div', { className: "cherry-onboard", onClick: e=>{if(e.target===e.currentTarget)setCherryOnboarded(true);},}
-          , React.createElement('div', { className: "cherry-onboard-card",}
-            , React.createElement('div', { style: {textAlign:"center",marginBottom:20},}
-              , React.createElement('div', { className: "aiorb", style: {width:60,height:60,fontSize:28,margin:"0 auto 12px"},}, "Cherry")
-              , React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:22,marginBottom:6},}, "Meet Cherry" )
-              , React.createElement('div', { style: {fontSize:13,color:"var(--tx2)",lineHeight:1.6},}, "Your AI Agent for Looscid. Cherry isn't just a chatbot — it can take real actions across the entire app."                     )
-            )
-            , [
-              {ic:"Write & share Dreams", title:"Write & share Dreams", desc:"Ask Cherry to draft a Dream and share it to your feed instantly"},
-              {ic:"Follow & connect", title:"Follow & connect", desc:"Cherry can follow Dreamors that match your interests"},
-              {ic:"Join Circles", title:"Join Circles", desc:"Cherry finds and joins communities you'll love"},
-              {ic:"Manage notifications", title:"Manage notifications", desc:"Cherry summarises and clears your alerts"},
-              {ic:"Analyse your feed", title:"Analyse your feed", desc:"Get real-time insights on trending content and your activity"},
-            ].map(f=>(
-              React.createElement('div', { key: f.title, style: {display:"flex",gap:12,marginBottom:13,alignItems:"flex-start"},}
-                , React.createElement('div', { style: {width:34,height:34,borderRadius:10,background:"rgba(168,85,247,.15)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0},}, f.ic)
-                , React.createElement('div', null, React.createElement('div', { style: {fontWeight:700,fontSize:13,marginBottom:2},}, f.title), React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",lineHeight:1.4},}, f.desc))
-              )
-            ))
-            , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:13,marginTop:6,fontSize:15}, onClick: ()=>{setCherryOnboarded(true);}, 'aria-label': "Get started with Cherry"   ,}, "Let Cherry in"
-
-            )
-            , React.createElement('button', { style: {width:"100%",marginTop:8,background:"none",border:"none",cursor:"pointer",fontSize:12,color:"var(--tx3)",padding:6,fontFamily:"inherit"}, onClick: ()=>{setCherryOnboarded(true);setCherryOpen(false);},}, "Maybe later" )
-          )
-        )
-      )
-      /* Cherry overlay - slides up from anywhere in the app */
-      , cherryOpen && cherryOnboarded && React.createElement(Looscid.CherryOverlay, { onClose: ()=>{setCherryOpen(false);setCherryInitMsg(null);}, cherryCtx: cherryCtx, initMsg: cherryInitMsg, navigate: navigate,})
       , showAnalytics && React.createElement(AnalyticsBanner, { onDone: () => setShowAnalytics(false),})
       , showHabitCard && React.createElement(HabitInsightCard, { onDismiss: ()=>setShowHabitCard(false),})
       , cmdOpen && lh(CommandBar, { onClose: closeCmd, exec: execCommand, onFull: function () { setCmdOpen(false); cmdReturn.current = null; if (page !== "terminal") termBack.current = page; navigate("terminal"); } })

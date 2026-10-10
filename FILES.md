@@ -18,7 +18,7 @@ Looscid has no build step. The browser loads plain files in a fixed order: no mo
 | `js/create.js` | Create, and the composer for New Dream, Reply and Quote (`LcComposer`, Round 6.5), attachments with the alt text helper, symbols and Drafts. Still React. Saved replies (`dbm_replies`), the Replies page and link previews are in `js/core.js`. |
 | `js/alerts.js` | The Alerts tab and messages. **Plain JavaScript.** |
 | `js/more.js` | The More tab and everything it opens: Settings, LooscidID pages, About, Apps, Admin, policies. Still React. |
-| `js/cherry.js` | Cherry, the assistant overlay. Still React. |
+| `js/cherry.js` | Cherry, the assistant, on its own page (Round 6.5.2): the chat, New Chat, Your History (All and Pinned, saved in `dbm_cherry_chats`) and What Cherry did. The page is **plain JavaScript**; the model picker in Settings, Intelligence is still React. Cherry's answers (`cherryRespond`) live here too. |
 | `nexos/` | NexOS and its apps, unchanged. |
 
 ## Load order
@@ -27,7 +27,7 @@ Looscid has no build step. The browser loads plain files in a fixed order: no mo
 2. `js/core.js`
 3. `js/nostr.js` (small; `js/vendor/nostr-tools-2.25.2.min.js` is added later, only when Nostr is used)
 4. The tabs: `js/discover.js`, `js/circles.js`, `js/feed.js`, `js/create.js`, `js/alerts.js`, `js/more.js`
-5. `js/cherry.js`
+5. `js/cherry.js` (Round 6.5.2: same place in the order; the frame shows its page with `case "cherry"` in `js/core.js`)
 6. The mount: a short inline script at the end of `index.html` that starts the app.
 
 ## One namespace

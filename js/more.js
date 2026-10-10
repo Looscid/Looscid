@@ -1885,12 +1885,18 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 111; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 112; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 31;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.111.31", build: 142, released: LOOSCID_RELEASED, title: "Round 6.5.1", notes: [
+  { version: "2026.112.31", build: 143, released: LOOSCID_RELEASED, title: "Round 6.5.2", notes: [
+    "Round 6.5.2: Cherry gets its own page.",
+    "Cherry is a page now, not a pop-up: open it from More, the Home button or Ask Cherry, and Back takes you to where you were. New Chat is at the top.",
+    "Your History lists your chats with Cherry, with All and Pinned tabs. Pin a chat to keep it handy. Chats are saved on this device and are in Settings backup.",
+    "Cherry's answers are read out as they arrive, and focus stays in the message box.",
+  ] },
+  { version: "2026.111.31", build: 142, released: "2026-10-10T18:42:07Z", title: "Round 6.5.1", notes: [
     "Round 6.5.1: Dreamor everywhere.",
     "A fix update: Dreamor and Dreamors are the words for you and everyone on Looscid again, in the app, the docs and the LICENSE. Redream keeps its one spelling.",
   ] },
@@ -2723,7 +2729,7 @@ function BackupSettings({ navigate, onImported }) {
     lh(BackHeader, { title: "Settings backup", onBack: function () { navigate("settings"); } }),
     lh('section', { className: "lc-grp", "aria-labelledby": "bk-e-h" },
       lh('h2', { id: "bk-e-h", className: "lc-grp-h" }, "Export and import"),
-      lh('p', { className: "lc-desc" }, "One JSON file with all your settings: accessibility, audio, screen reader and braille, permissions, muted words, shortcuts, theme, music and Cherry. No keys, passwords or Dreams are in it. Imported sound packs stay on this device."),
+      lh('p', { className: "lc-desc" }, "One JSON file with all your settings: accessibility, audio, screen reader and braille, permissions, muted words, shortcuts, theme, music and Cherry. Your Cherry chats are in it too. No keys, passwords or Dreams are in it. Imported sound packs stay on this device."),
       lh('button', { type: "button", className: "btn bp lc-big", onClick: function () { lcDownloadSettings(); say("Exported looscid-settings.json."); } }, "Export all settings"),
       lh('label', { htmlFor: "bk-file", className: "btn bgb lc-big lc-filebtn" }, "Import settings from a file"),
       lh('input', { id: "bk-file", type: "file", className: "lc-file", accept: ".json,application/json", onChange: onFile })),

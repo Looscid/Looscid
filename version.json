@@ -1,14 +1,14 @@
 {
   "app": "Looscid",
   "branch": "preview",
-  "version": "2026.111.31",
-  "build": 142,
-  "features": 111,
+  "version": "2026.112.31",
+  "build": 143,
+  "features": 112,
   "fixes": 31,
-  "builds_without_fixes": 111,
-  "released": "2026-10-10T18:42:07Z",
-  "title": "Round 6.5.1",
-  "notes": "Dreamor everywhere: Dreamor and Dreamors are the words for you and everyone on Looscid again, in the app, the docs and the LICENSE. A fix update.",
+  "builds_without_fixes": 112,
+  "released": "2026-10-10T20:15:00Z",
+  "title": "Round 6.5.2",
+  "notes": "Cherry gets its own page. Open Cherry from More and it's a page, not a pop-up, with New Chat at the top and Your History (All and Pinned). Your chats stay on your device and are in Settings backup. A feature update.",
   "branches": {
     "MainV1": {
       "version": "2026.70.103",
@@ -29,9 +29,9 @@
       "fixes": 103
     },
     "preview": {
-      "version": "2026.111.31",
-      "build": 142,
-      "features": 111,
+      "version": "2026.112.31",
+      "build": 143,
+      "features": 112,
       "fixes": 31
     },
     "refactor/discover-extraction": {
@@ -60,10 +60,10 @@
     }
   },
   "all_branches": {
-    "version": "2026.766.517",
-    "build": 1283,
-    "features": 766,
+    "version": "2026.767.517",
+    "build": 1284,
+    "features": 767,
     "fixes": 517,
-    "builds_without_fixes": 766
+    "builds_without_fixes": 767
   }
 }

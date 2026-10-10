@@ -635,3 +635,17 @@ One composer for New Dream, Reply and Quote, laid out like Feditext's composer, 
 - Where Feditext uses VoiceOver hints (content warning, characters left, changing accounts), Looscid uses visible words or plain paragraphs instead, because Looscid never uses aria-describedby, aria-description or title on controls.
 - Feditext puts its content warning field above the text. Looscid puts it after the text box, so the Dream you answer stays the one thing right before your text.
 - Announcements go only through #looscid-live: what you sent ("Reply dreamed."), the characters-left count once at 20 left and once over, and Nostr results. Focus moves only when you act: opening, sending, closing, adding another Dream, turning on a content warning, and taking an alt text suggestion.
+
+### The Cherry page (Round 6.5.2)
+
+Cherry is a page, not a dialog. It is built screen-reader first: the page is a stream of announcements, and focus only moves when you act.
+
+- Order: Back, the heading "Cherry" (h1), Close Cherry (braille label "Close"), New Chat, a plain paragraph about Cherry, then the chat (an h2 with the chat's title), Your History (h2) and What Cherry did (h2).
+- Each message is a list item that starts with "You:" or "Cherry:", so it reads the same in speech and on braille.
+- The message box is "Message Cherry". Enter sends from a keyboard, and from a braille display's Enter (beforeinput insertParagraph or insertLineBreak), the same as other Looscid text boxes. The Send button works too.
+- Announcements go only through #looscid-live: each answer once, as "Cherry: ...", and settings changes in their own words. Also "New chat started.", "Pinned <title>.", "Unpinned <title>.", "Opened <title>, N messages." and "Undone: ...".
+- Focus moves only when you act: opening the page (to the h1), New Chat (to the message box), opening a chat from Your History (to its heading), and unpinning a chat in Pinned (to the next pinned chat's button, or to the Pinned tab). Cherry's answers never move focus.
+- Your History has a tablist named "Your History" with the tabs All and Pinned, each with its count. Arrow keys, Home and End move between the tabs; only the selected tab is in the Tab order. The tab panel is labelled by the selected tab.
+- Pin and Unpin are buttons named with the chat's title ("Pin What is Looscid?"), so the list makes sense when you move by buttons.
+- No aria-describedby, aria-description or title anywhere on the page. Explanations are plain paragraphs under their headings.
+- No animation on the page, so Reduce Motion and flash safety have nothing to stop.

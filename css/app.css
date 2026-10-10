@@ -529,3 +529,26 @@ label.lc-cr-tool{color:var(--tx2)}
 .lc-link-what{margin:0 0 6px;font-size:13px;color:var(--tx2)}
 .lc-link-frame{display:block;width:100%;aspect-ratio:16/9;height:auto;border:0;border-radius:8px;margin:0 0 8px}
 .lc-quoted{margin:8px 0;padding:8px 10px;border-left:3px solid var(--bd2)}
+
+/* Round 6.5.2: the Cherry page */
+.lc-cherry .lc-cherry-top{padding:8px 16px 10px}
+.lc-cherry .lc-cherry-top .btn{width:100%}
+.lc-cherry > .lc-desc,.lc-cherry section{padding:0 16px}
+.lc-cherry section{margin:14px 0}
+.lc-cherry-msgs,.lc-cherry-list,.lc-cherry-chips{list-style:none;margin:0;padding:0}
+.lc-cherry-msg{padding:10px 12px;margin:0 0 8px;border:1px solid var(--bd);border-radius:12px;background:var(--sf)}
+.lc-cherry-msg.me{background:var(--sf2)}
+.lc-cherry-msg-t{margin:0;font-size:16px;line-height:1.5;color:var(--tx);white-space:pre-line;overflow-wrap:anywhere}
+.lc-cherry-msg .lc-btn{margin-top:8px}
+.lc-cherry-input{display:flex;gap:8px;align-items:center;margin:10px 0}
+.lc-cherry-input .inp{flex:1;font-size:16px;min-height:48px}
+.lc-cherry-h3{font-size:15px;margin:12px 0 6px;color:var(--tx2)}
+.lc-cherry-chips{display:flex;flex-wrap:wrap;gap:6px}
+.lc-cherry-chips .aisc{min-height:44px}
+.lc-cherry-tabs .ftab{min-height:44px;align-items:center;font-size:15px}
+.lc-cherry-count{margin-left:6px;font-weight:700}
+.lc-cherry-item{padding:10px 0;border-bottom:1px solid var(--bd)}
+.lc-cherry-open{display:block;width:100%;min-height:44px;padding:6px 0;background:none;border:none;color:var(--tx);font:inherit;font-size:16px;font-weight:600;text-align:left;cursor:pointer}
+.lc-cherry-open:focus-visible{outline:3px solid var(--ac3);outline-offset:2px}
+.lc-cherry-now{font-weight:500;color:var(--tx2)}
+.lc-cherry-item .lc-muted{margin:2px 0 6px}

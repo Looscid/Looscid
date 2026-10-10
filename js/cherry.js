@@ -1,406 +1,262 @@
-/* Looscid cherry.js: Cherry, the assistant overlay.
-   Plain script (not a module). Everything it shares goes on window.Looscid; see FILES.md for the load order. */
+/* Looscid cherry.js: Cherry, the assistant, on its own page (Round 6.5.2).
+   Plain script (not a module). Everything it shares goes on window.Looscid; see FILES.md for the load order.
+   The Cherry page is plain JavaScript: it is built with Looscid.lcEl and redrawn in place with Looscid.lcPatch,
+   so the message box keeps focus and its text while Cherry answers. The model picker below is still React. */
 (function (Looscid) {
 const { AlertDialog, Ic, LC_PLACES, LcMenu, LcSpeech, USERS, a11yEnterSends, announce, getAIPrefs, lcA11yIntent, lcApplyFeedIntent, lcCloseProps, lcExtraIntent, lcFeedIntent, lcFeedLabel, lh, setAIPrefs, useEffect, useRef, useState } = Looscid;
-Object.assign(Looscid, { CherryPage, CherryOverlay, lcLlmPrefs, lcLlmSetPrefs, lcLlmGpu, lcLlmLoad, lcLlmAsk, CherryModelPicker, SourcesPanel, cherryNorm, cherryRespond });
+const { lcEl: h, lcPatch, lcPlainScreen, lcIconEl } = Looscid;
 
-function CherryPage({navigate, cherryCtx}) {
-  // CherryPage is now a rich hub - shows live stats, action log preview, and opens the full overlay agent
-  const log = cherryCtx ? (cherryCtx.cherryLog||[]) : [];
-  const ctx = cherryCtx ? {
-    likedCount: cherryCtx.dreams.filter(d=>d.liked).length,
-    savedCount: cherryCtx.dreams.filter(d=>d.bookmarked).length,
-    followingCount: cherryCtx.following.size,
-    groupCount: cherryCtx.groups.filter(g=>g.joined).length,
-    unread: cherryCtx.notifs.filter(n=>n.unread).length,
-  } : {likedCount:0,savedCount:0,followingCount:0,groupCount:0,unread:0};
-
-  const capabilities = [
-    {ic:"Draft & share Dreams", label:"Draft & share Dreams", prompt:"Draft a Dream for me"},
-    {ic:"Follow Dreamors", label:"Follow Dreamors", prompt:"Who should I follow?"},
-    {ic:"Join Circles", label:"Join Circles", prompt:"Find groups for me"},
-    {ic:"Read notifications", label:"Read notifications", prompt:"My notifications"},
-    {ic:"Feed insights", label:"Feed insights", prompt:"Summarise my feed"},
-    {ic:"Trending topics", label:"Trending topics", prompt:"What's trending?"},
-  ];
-
-  return (
-    React.createElement('div', { className: "pg",}
-      , React.createElement('div', { className: "hdr",}
-        , React.createElement('div', { className: "hdr-row",}
-          , React.createElement('button', { className: "bi", onClick: ()=>navigate("more"), 'aria-label': "Back",}, React.createElement(Ic.Bck, { style: {width:21,height:21},}))
-          , React.createElement('span', { className: "hdr-title",}, "Cherry")
-          , React.createElement('div', { style: {width:8,height:8,borderRadius:"50%",background:"var(--gr)",boxShadow:"0 0 8px var(--gr)"},})
-        )
-      )
-
-      /* Hero */
-      , React.createElement('div', { style: {textAlign:"center",padding:"24px 20px 20px",borderBottom:"1px solid var(--bd)"},}
-        , React.createElement('div', { className: "aiorb", style: {width:64,height:64,fontSize:30,margin:"0 auto 12px"},}, "Cherry")
-        , React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:22,marginBottom:4},}, "Cherry AI Agent"  )
-        , React.createElement('div', { style: {fontSize:12,color:"var(--gr)",display:"flex",alignItems:"center",justifyContent:"center",gap:5,marginBottom:12},}
-          , React.createElement('span', { style: {width:6,height:6,borderRadius:"50%",background:"var(--gr)",display:"inline-block"},}), "Connected, Real actions, Live app state"
-
-        )
-        , React.createElement('button', { className: "btn bp" , style: {padding:"11px 28px",fontSize:15}, onClick: ()=>cherryCtx&&cherryCtx.openCherry(), 'aria-label': "Open Cherry chat"  ,}, "Open Cherry"
-
-        )
-      )
-
-      /* Live stats Cherry can see */
-      , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "What Cherry can see"   )
-      , React.createElement('div', { style: {display:"flex",flexWrap:"wrap",gap:10,padding:"0 14px 14px"},}
-        , [
-          {ic:"❤️", val:ctx.likedCount, label:"Liked Dreams"},
-          {ic:"Save", val:ctx.savedCount, label:"Saved Dreams"},
-          {ic:"👥", val:ctx.followingCount, label:"Following"},
-          {ic:"Joined", val:ctx.groupCount, label:"Circles"},
-          {ic:"🔔", val:ctx.unread, label:"Unread alerts"},
-          {ic:"✏️", val:cherryCtx?cherryCtx.dreams.length:0, label:"Dreams in feed"},
-        ].map(s=>(
-          React.createElement('div', { key: s.label, style: {flex:"1 1 calc(33% - 10px)",background:"var(--sf2)",border:"1px solid var(--bd)",borderRadius:12,padding:"10px 12px",textAlign:"center"},}
-            , React.createElement('div', { style: {fontSize:20,marginBottom:4},}, s.ic)
-            , React.createElement('div', { style: {fontWeight:800,fontSize:18,color:"var(--tx)"},}, s.val)
-            , React.createElement('div', { style: {fontSize:10,color:"var(--tx3)",marginTop:1},}, s.label)
-          )
-        ))
-      )
-
-      /* Capabilities */
-      , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "What Cherry can do"   )
-      , React.createElement('div', { style: {padding:"0 14px 14px",display:"flex",flexDirection:"column",gap:8},}
-        , capabilities.map(cap=>(
-          React.createElement('button', { key: cap.label, style: {display:"flex",alignItems:"center",gap:12,background:"var(--sf2)",border:"1px solid var(--bd)",borderRadius:12,padding:"11px 14px",cursor:"pointer",textAlign:"left",width:"100%",fontFamily:"inherit"},
-            onClick: ()=>cherryCtx&&cherryCtx.openCherry(cap.prompt), 'aria-label': "Ask Cherry: "+cap.prompt,}
-            , React.createElement('div', { style: {width:36,height:36,borderRadius:10,background:"rgba(168,85,247,.12)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0},}, cap.ic)
-            , React.createElement('div', { style: {flex:1},}
-              , React.createElement('div', { style: {fontWeight:600,fontSize:14,color:"var(--tx)"},}, cap.label)
-            )
-            , React.createElement(Ic.Chv, { style: {width:14,height:14,color:"var(--tx3)"},})
-          )
-        ))
-      )
-
-      /* Recent actions */
-      , log.length > 0 && React.createElement(React.Fragment, null
-        , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Recent actions" )
-        , React.createElement('div', { className: "cherry-action-log",}
-          , log.slice(0,5).map((entry,i)=>(
-            React.createElement('div', { key: entry.id, className: "cherry-log-item",}
-              , React.createElement('div', { className: "cherry-log-ic",}, entry.ic)
-              , React.createElement('div', { style: {flex:1},}
-                , React.createElement('div', { style: {fontWeight:600,color:"var(--tx)"},}, entry.text)
-                , React.createElement('div', { style: {fontSize:10,color:"var(--tx3)"},}, new Date(entry.id).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}))
-              )
-            )
-          ))
-          , log.length > 5 && React.createElement('div', { style: {textAlign:"center",padding:"10px",fontSize:12,color:"var(--tx3)"},}, log.length-5, " more in Cherry agent view"     )
-        )
-      )
-
-      /* CherrySettings shortcut */
-      , React.createElement('div', { style: {padding:"14px 14px 8px"},}
-        , React.createElement('button', { style: {display:"flex",alignItems:"center",gap:12,background:"none",border:"1px solid var(--bd2)",borderRadius:12,padding:"11px 14px",cursor:"pointer",width:"100%",fontFamily:"inherit"},
-          onClick: ()=>navigate("settings_intelligence"), 'aria-label': "Intelligence settings" ,}
-          , React.createElement('span', { style: {fontSize:18},}, "Settings")
-          , React.createElement('div', { style: {flex:1,textAlign:"left"},}
-            , React.createElement('div', { style: {fontWeight:600,fontSize:14,color:"var(--tx)"},}, "Cherry Settings" )
-            , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:1},}, "Agent permissions, memory, privacy"   )
-          )
-          , React.createElement(Ic.Chv, { style: {width:14,height:14,color:"var(--tx3)"},})
-        )
-      )
-    )
-  );
+/* --- Your History: Cherry chats saved on this device --------------------------------------------
+   localStorage dbm_cherry_chats holds a list of chats, newest first:
+   { id, title, created, updated, pinned, msgs: [{ me, text, t }] }
+   Nothing leaves the device. The key is in Settings backup (added to the list, so older backups still import).
+   Pinned chats are never dropped; at most 50 unpinned chats and 200 messages per chat are kept. */
+const LC_CHERRY_CHATS_KEY = "dbm_cherry_chats";
+const LC_CHERRY_MAX_CHATS = 50, LC_CHERRY_MAX_MSGS = 200;
+function lcCherryChats() {
+  try {
+    const a = JSON.parse(localStorage.getItem(LC_CHERRY_CHATS_KEY) || "[]");
+    if (!Array.isArray(a)) return [];
+    return a.filter(function (c) { return c && typeof c.id === "string" && Array.isArray(c.msgs); })
+      .map(function (c) { return { id: c.id, title: String(c.title || "Chat"), created: +c.created || 0, updated: +c.updated || +c.created || 0, pinned: c.pinned === true,
+        msgs: c.msgs.filter(function (m) { return m && typeof m.text === "string"; }).map(function (m) { return { me: m.me === true, text: m.text, t: +m.t || 0 }; }) }; });
+  } catch (e) { return []; }
 }
-/* --- CHERRY OVERLAY ---------------------- */
-function CherryOverlay({onClose, cherryCtx, initMsg, navigate}) {
-  const INIT = {me:false, text:"Hey! I'm Cherry — your Looscid AI Agent. I can see your feed, your Groups, your notifications, and I can take actions for you. What would you like to do?"};
-  const [msgs, setMsgs] = useState([INIT]);
-  const [inp, setInp] = useState(initMsg||"");
-  const [typing, setTyping] = useState(false);
-  const [agentStatus, setAgentStatus] = useState(null);
-  // Speech > "Read Cherry's answers aloud"
-  useEffect(function () { const m = msgs[msgs.length - 1]; if (msgs.length > 1 && m && !m.me && m.text && Looscid.A11Y_NOW.cherryAloud) LcSpeech.speak([{ text: m.text }]); }, [msgs.length]);
-  const [agentTask, setAgentTask] = useState("");
-  const [showHistory, setShowHistory] = useState(false);
-  const [showHistoryDialog, setShowHistoryDialog] = useState(false);
-  const [pendingAction, setPendingAction] = useState(null); // {label, fn}
-  const endRef = useRef(null);
+function lcCherrySaveChats(list) {
+  let unpinned = 0;
+  const keep = list.slice().sort(function (a, b) { return b.updated - a.updated; }).filter(function (c) {
+    if (!c.msgs.length) return false;
+    if (c.pinned) return true;
+    unpinned++; return unpinned <= LC_CHERRY_MAX_CHATS;
+  }).map(function (c) { return Object.assign({}, c, { msgs: c.msgs.slice(-LC_CHERRY_MAX_MSGS) }); });
+  try { localStorage.setItem(LC_CHERRY_CHATS_KEY, JSON.stringify(keep)); } catch (e) {}
+  return keep;
+}
+function lcCherryTitle(text) {
+  const t = String(text || "").replace(/\s+/g, " ").trim();
+  return t.length > 40 ? t.slice(0, 39).replace(/\s+\S*$/, "") + "\u2026" : (t || "Chat");
+}
+function lcCherryWhen(ms) {
+  if (!ms) return "";
+  const d = new Date(ms), now = new Date();
+  const time = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  if (d.toDateString() === now.toDateString()) return "Today, " + time;
+  const y = new Date(now); y.setDate(now.getDate() - 1);
+  if (d.toDateString() === y.toDateString()) return "Yesterday, " + time;
+  return d.toLocaleDateString([], { month: "long", day: "numeric", year: d.getFullYear() === now.getFullYear() ? undefined : "numeric" });
+}
+const LC_CHERRY_CHIPS = ["Summarise my feed", "What's trending?", "Draft a Dream", "Who should I follow?", "Find Circles", "My notifications"];
 
-  const {dreams, following, groups, notifs, likeDream, saveDream, postDream, followUser, joinGroup, markNotifsRead, openCherry} = cherryCtx;
+/* The page's state lives here while the app runs, so leaving Cherry (to Settings, say) and coming back
+   keeps the chat you were in. A reload starts a new chat; your earlier chats are in Your History. */
+const LC_CHERRY = { cur: null, tab: "all", busy: false, undone: {}, askN: null };
+function lcCherryNewChat() { return { id: "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), title: "New chat", created: Date.now(), updated: Date.now(), pinned: false, msgs: [] }; }
 
-  // Build real context string from live app state
-  const appContext = () => {
-    const likedDreams = dreams.filter(d=>d.liked).map(d=>d.user.name+"'s dream").join(", ") || "none yet";
-    const savedDreams = dreams.filter(d=>d.bookmarked).map(d=>d.user.name+"'s dream").join(", ") || "none yet";
-    const followingNames = USERS.filter(u=>following.has(u.id)).map(u=>u.name).join(", ") || "no one yet";
-    const joinedGroups = groups.filter(g=>g.joined).map(g=>g.name).join(", ") || "none yet";
-    const unread = notifs.filter(n=>n.unread).length;
-    return {likedDreams, savedDreams, followingNames, joinedGroups, unread};
+function cherryView(st, p, act) {
+  const chats = lcCherryChats();
+  const cur = LC_CHERRY.cur;
+  const pinned = chats.filter(function (c) { return c.pinned; });
+  const tab = LC_CHERRY.tab === "pinned" ? "pinned" : "all";
+  const shown = tab === "pinned" ? pinned : chats;
+  const log = (p.cherryCtx && p.cherryCtx.cherryLog) || [];
+  const TABS = [["all", "All", chats.length], ["pinned", "Pinned", pinned.length]];
+  const onTabKey = function (e) {
+    const i = TABS.findIndex(function (t) { return t[0] === tab; }); let n = -1;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") n = (i + 1) % TABS.length; else if (e.key === "ArrowLeft" || e.key === "ArrowUp") n = (i - 1 + TABS.length) % TABS.length;
+    else if (e.key === "Home") n = 0; else if (e.key === "End") n = TABS.length - 1;
+    if (n < 0) return; e.preventDefault(); act.setTab(TABS[n][0]);
+    setTimeout(function () { const b = document.getElementById("cherry-tab-" + TABS[n][0]); if (b) b.focus(); }, 0);
   };
+  const curTitle = cur && cur.msgs.length ? cur.title : "New chat";
 
-  // Rich agentic response engine - reads real app state
-  const getResponse = text => cherryRespond(text, cherryCtx);
+  return h('div', { className: "pg lc-cherry" },
+    h('div', { className: "hdr" },
+      h('div', { className: "hdr-row" },
+        h('button', { type: "button", className: "bi", onClick: act.back, "aria-label": "Back" }, lcIconEl("Bck", { style: { width: 21, height: 21 } })),
+        h('h1', { className: "hdr-title", tabIndex: -1 }, "Cherry"),
+        h('button', Object.assign({ type: "button", className: "lc-close", onClick: act.back }, lcCloseProps("Cherry")), "Close")),
+      h('div', { className: "lc-cherry-top" },
+        h('button', { type: "button", id: "cherry-new", className: "btn bp lc-btn", onClick: act.newChat }, "New Chat"))),
 
-  const send = t => {
-    const msg = t||inp;
-    if (!msg.trim()) return;
-    setMsgs(m=>[...m,{me:true,text:msg}]);
-    setInp("");
-    const resp = getResponse(msg);
-    // A chosen on-device model answers the open questions Cherry's own rules don't cover.
-    const pm = lcLlmPrefs().model;
-    if (resp.fallback && pm !== "builtin" && lcLlmGpu()) {
-      setTyping(true);
-      (LC_LLM.engine && LC_LLM.id === pm ? Promise.resolve() : lcLlmLoad(pm)).then(function () { return lcLlmAsk(msg); })
-        .then(function (t) { setTyping(false); setMsgs(m=>[...m,{me:false,text:t}]); }, function () { setTyping(false); setMsgs(m=>[...m,{me:false,text:resp.result}]); });
-      return;
-    }
-    if (resp.autoFn) {
-      // Immediate action - no confirm needed
-      setAgentTask(resp.agentLabel||"Working…");
-      setAgentStatus("running");
-      setTimeout(()=>{
+    h('p', { className: "lc-desc lc-cherry-intro" }, "Cherry is your on-device assistant. Ask a question or give a command, like \u201cturn on high contrast\u201d. Cherry's answers are read out as they arrive. Your chats are saved on this device only."),
+
+    /* The chat you're in */
+    h('section', { className: "lc-cherry-chat", "aria-labelledby": "cherry-chat-h" },
+      h('h2', { id: "cherry-chat-h", className: "lc-sub-h", tabIndex: -1 }, curTitle),
+      // One wrapper that is always there, so the message box after it never moves (moving it would drop focus).
+      h('div', { key: "log", className: "lc-cherry-log" },
+      cur && cur.msgs.length
+        ? h('ul', { key: "msgs", className: "lc-cherry-msgs", "aria-label": "Messages" },
+            cur.msgs.map(function (m, i) {
+              return h('li', { key: "m" + i, className: "lc-cherry-msg" + (m.me ? " me" : "") },
+                h('p', { className: "lc-cherry-msg-t" }, h('strong', null, m.me ? "You: " : "Cherry: "), m.text),
+                m.confirm && !m.done ? h('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { act.confirm(i); } }, m.confirm) : null);
+            }))
+        : h('p', { key: "empty", className: "lc-muted lc-cherry-empty" }, "No messages yet. Ask Cherry anything."),
+      LC_CHERRY.busy ? h('p', { key: "busy", className: "lc-muted" }, "Cherry is thinking\u2026") : null),
+      h('div', { key: "in", className: "lc-cherry-input" },
+        h('input', { id: "cherry-input", className: "inp", type: "text", autoComplete: "off", placeholder: "Ask Cherry or give a command",
+          value: st.inp, "aria-label": "Message Cherry",
+          onChange: function (e) { st.inp = e.target.value; act.draw(); },
+          onKeyDown: function (e) { if (e.key === "Enter" && !e.isComposing && a11yEnterSends()) { e.preventDefault(); act.send(); } },
+          onBeforeinput: function (e) { if ((e.inputType === "insertParagraph" || e.inputType === "insertLineBreak") && a11yEnterSends()) { e.preventDefault(); act.send(); } } }),
+        h('button', { type: "button", id: "cherry-send", className: "btn bp lc-btn", onClick: function () { act.send(); }, disabled: !String(st.inp || "").trim() }, "Send")),
+      h('h3', { key: "h3", className: "lc-cherry-h3" }, "Try asking"),
+      h('ul', { key: "chips", className: "lc-cherry-chips" },
+        LC_CHERRY_CHIPS.map(function (s) {
+          return h('li', { key: s }, h('button', { type: "button", className: "aisc", onClick: function () { act.send(s); } }, s));
+        }))),
+
+    /* Your History: All and Pinned */
+    h('section', { className: "lc-cherry-hist", "aria-labelledby": "cherry-hist-h" },
+      h('h2', { id: "cherry-hist-h", className: "lc-sub-h" }, "Your History"),
+      h('p', { className: "lc-desc" }, "Your chats with Cherry, newest first. Pin a chat to keep it in Pinned."),
+      h('div', { className: "ftabs lc-cherry-tabs", role: "tablist", "aria-label": "Your History", onKeyDown: onTabKey },
+        TABS.map(function (t) {
+          const on = tab === t[0];
+          return h('button', { key: t[0], id: "cherry-tab-" + t[0], type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false",
+              "aria-controls": "cherry-panel", tabIndex: on ? 0 : -1, onClick: function () { act.setTab(t[0]); } },
+            t[1], h('span', { className: "sr-only" }, ", "), h('span', { className: "lc-cherry-count" }, String(t[2])));
+        })),
+      h('div', { id: "cherry-panel", role: "tabpanel", "aria-labelledby": "cherry-tab-" + tab },
+        shown.length
+          ? h('ul', { className: "lc-cherry-list", "aria-label": tab === "pinned" ? "Pinned chats" : "All chats" },
+              shown.map(function (c) {
+                const n = c.msgs.length, open = cur && cur.id === c.id;
+                return h('li', { key: c.id, className: "lc-cherry-item" },
+                  h('button', { type: "button", className: "lc-cherry-open", "data-chat": c.id, onClick: function () { act.open(c.id); } },
+                    c.title, open ? h('span', { className: "lc-cherry-now" }, ", open now") : null),
+                  h('p', { className: "lc-muted" }, lcCherryWhen(c.updated) + ", " + n + (n === 1 ? " message" : " messages") + (c.pinned ? ", pinned" : "")),
+                  h('button', { type: "button", className: "btn bgb lc-btn lc-cherry-pin", "data-chat": c.id, onClick: function () { act.pin(c.id); } }, (c.pinned ? "Unpin " : "Pin ") + c.title));
+              }))
+          : h('p', { className: "lc-muted" }, tab === "pinned" ? "No pinned chats yet. Pin a chat in All to keep it here." : "No chats yet. Your chats with Cherry will be listed here."))),
+
+    /* What Cherry did, with Undo */
+    h('section', { className: "lc-cherry-acts", "aria-labelledby": "cherry-acts-h" },
+      h('h2', { id: "cherry-acts-h", className: "lc-sub-h" }, "What Cherry did"),
+      log.length
+        ? h('ul', { className: "lc-cherry-list" },
+            log.map(function (entry) {
+              const undone = entry.undone || LC_CHERRY.undone[entry.id];
+              return h('li', { key: "a" + entry.id, className: "lc-cherry-item" },
+                h('p', { className: "lc-cherry-msg-t" }, entry.text, ", ", new Date(entry.id).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }), undone ? ", undone" : ""),
+                entry.undoFn && !undone ? h('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { act.undo(entry); } }, "Undo " + entry.text) : null);
+            }))
+        : h('p', { className: "lc-muted" }, "Nothing yet. Everything Cherry does for you is listed here, and most of it can be undone.")));
+}
+
+/* The Cherry page. props: navigate, cherryCtx, data ({ ask, n } from "Ask Cherry about this"), onBack. */
+const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
+  let p = props, alive = true;
+  const st = { inp: "" };
+  if (!LC_CHERRY.cur) LC_CHERRY.cur = lcCherryNewChat();
+  const draw = function () { if (alive) lcPatch(host, cherryView(st, p, act)); };
+  const saveCur = function () {
+    const c = LC_CHERRY.cur; if (!c || !c.msgs.length) return;
+    const list = lcCherryChats().filter(function (x) { return x.id !== c.id; });
+    list.unshift({ id: c.id, title: c.title, created: c.created, updated: c.updated, pinned: c.pinned, msgs: c.msgs.map(function (m) { return { me: m.me, text: m.text, t: m.t }; }) });
+    lcCherrySaveChats(list);
+  };
+  const addMsg = function (me, text, extra) {
+    const c = LC_CHERRY.cur;
+    if (me && !c.msgs.length) c.title = lcCherryTitle(text);
+    c.msgs.push(Object.assign({ me: me, text: String(text), t: Date.now() }, extra || {})); c.updated = Date.now();
+    saveCur();
+  };
+  // Cherry's answer: one announcement in the live region (and read aloud when that's on). Focus stays where it is.
+  const reply = function (text, extra, said) {
+    addMsg(false, text, extra); draw();
+    if (!said) announce("Cherry: " + text);
+    if (Looscid.A11Y_NOW && Looscid.A11Y_NOW.cherryAloud && LcSpeech && LcSpeech.speak) { try { LcSpeech.speak([{ text: text }]); } catch (e) {} }
+  };
+  const act = {
+    draw: draw,
+    back: function () { if (p.onBack) p.onBack(); else if (p.navigate) p.navigate("feed"); },
+    send: function (t) {
+      const msg = String(t != null ? t : st.inp);
+      if (!msg.trim() || LC_CHERRY.busy) return;
+      if (t == null) st.inp = "";
+      addMsg(true, msg.trim());
+      const ctx = p.cherryCtx;
+      const resp = ctx ? cherryRespond(msg, ctx) : { result: "Cherry isn't ready yet. Try again in a moment." };
+      // A chosen on-device model answers the open questions Cherry's own rules don't cover.
+      const pm = lcLlmPrefs().model;
+      if (resp.fallback && pm !== "builtin" && lcLlmGpu()) {
+        LC_CHERRY.busy = true; draw();
+        (LC_LLM.engine && LC_LLM.id === pm ? Promise.resolve() : lcLlmLoad(pm)).then(function () { return lcLlmAsk(msg); })
+          .then(function (txt) { LC_CHERRY.busy = false; reply(txt); }, function () { LC_CHERRY.busy = false; reply(resp.result); });
+        return;
+      }
+      if (resp.autoFn) {
+        // Settings, feeds and other actions: the action itself says what changed, once.
+        addMsg(false, resp.result); draw();
         resp.autoFn();
-        setAgentStatus("done");
-        setTimeout(()=>{
-          setAgentStatus(null); setAgentTask("");
-          setMsgs(m=>[...m,{me:false,text:resp.result,agent:true,draft:resp.draft||null}]);
-        },500);
-      },1600);
-    } else if (resp.action) {
-      // Agentic with optional confirm button
-      setAgentTask(resp.agentLabel||"Working…");
-      setAgentStatus("running");
-      setTimeout(()=>{
-        setAgentStatus("done");
-        setTimeout(()=>{
-          setAgentStatus(null); setAgentTask("");
-          setMsgs(m=>[...m,{me:false,text:resp.result,agent:true,confirm:resp.confirm||null,draft:resp.draft||null}]);
-        },500);
-      },1800);
-    } else {
-      setTyping(true);
-      setTimeout(()=>{setTyping(false);setMsgs(m=>[...m,{me:false,text:resp.result}]);},900+Math.random()*600);
-    }
+        if (Looscid.A11Y_NOW && Looscid.A11Y_NOW.cherryAloud && LcSpeech && LcSpeech.speak) { try { LcSpeech.speak([{ text: resp.result }]); } catch (e) {} }
+        return;
+      }
+      draw();
+      reply(resp.result, resp.confirm ? { confirm: resp.confirm.label, confirmFn: resp.confirm.fn } : null);
+    },
+    confirm: function (i) {
+      const m = LC_CHERRY.cur.msgs[i]; if (!m || !m.confirmFn || m.done) return;
+      m.done = true; try { m.confirmFn(); } catch (e) {}
+      reply("Done: " + m.confirm + ".");
+    },
+    newChat: function () {
+      saveCur();
+      LC_CHERRY.cur = lcCherryNewChat(); st.inp = ""; draw();
+      announce("New chat started.");
+      setTimeout(function () { const i = document.getElementById("cherry-input"); if (i) i.focus(); }, 0);
+    },
+    open: function (id) {
+      saveCur();
+      const c = lcCherryChats().find(function (x) { return x.id === id; }); if (!c) return;
+      LC_CHERRY.cur = c; draw();
+      announce("Opened " + c.title + ", " + c.msgs.length + (c.msgs.length === 1 ? " message." : " messages."));
+      setTimeout(function () { const hd = document.getElementById("cherry-chat-h"); if (hd) hd.focus(); }, 0);
+    },
+    pin: function (id) {
+      const list = lcCherryChats(), c = list.find(function (x) { return x.id === id; }); if (!c) return;
+      const wasTab = LC_CHERRY.tab, before = (wasTab === "pinned" ? list.filter(function (x) { return x.pinned; }) : list).map(function (x) { return x.id; });
+      c.pinned = !c.pinned;
+      lcCherrySaveChats(list);
+      if (LC_CHERRY.cur && LC_CHERRY.cur.id === id) LC_CHERRY.cur.pinned = c.pinned;
+      draw();
+      announce((c.pinned ? "Pinned " : "Unpinned ") + c.title + ".");
+      // In Pinned, an unpinned chat leaves the list: focus goes to the next chat's Pin button, or the Pinned tab.
+      if (wasTab === "pinned" && !c.pinned) setTimeout(function () {
+        const left = before.filter(function (x) { return x !== id; }), at = before.indexOf(id);
+        const nextId = left[Math.min(at, left.length - 1)];
+        const b = nextId ? host.querySelector('.lc-cherry-pin[data-chat="' + nextId + '"]') : null;
+        (b || document.getElementById("cherry-tab-pinned") || host).focus();
+      }, 0);
+    },
+    setTab: function (t) { LC_CHERRY.tab = t === "pinned" ? "pinned" : "all"; draw(); },
+    undo: function (entry) {
+      if (!entry.undoFn) return;
+      try { entry.undoFn(); } catch (e) {}
+      LC_CHERRY.undone[entry.id] = true; draw();
+      announce("Undone: " + entry.text + ".");
+    },
   };
+  const takeAsk = function () {
+    const d = p.data;
+    if (d && d.ask && d.n !== LC_CHERRY.askN) {
+      LC_CHERRY.askN = d.n;
+      saveCur(); if (LC_CHERRY.cur.msgs.length) LC_CHERRY.cur = lcCherryNewChat();
+      act.send(String(d.ask));
+      return true;
+    }
+    return false;
+  };
+  draw();
+  takeAsk();
+  // You opened Cherry: focus goes to its heading, the same as every other page.
+  setTimeout(function () { if (!alive) return; const hd = host.querySelector("h1"); if (hd && !host.contains(document.activeElement)) hd.focus(); }, 60);
+  return { update: function (np) { p = np; if (!takeAsk()) draw(); }, stop: function () { alive = false; saveCur(); } };
+});
 
-  useEffect(()=>{endRef.current && endRef.current.scrollIntoView({behavior:"smooth"});},[msgs,typing,agentStatus]);
-  useEffect(()=>{ if(initMsg){send(initMsg);} },[]);
-
-  const chips = ["Summarise my feed","What's trending?","Draft a Dream","Who should I follow?","Find groups","My notifications"];
-  const [overlayTab, setOverlayTab] = useState("chat"); // "chat" | "actions"
-  const actionLog = cherryCtx.cherryLog || [];
-
-  const histSessions = [
-    {id:1,title:"Feed Summary",preview:"You have 3 unread notifications…",date:"Today"},
-    {id:2,title:"Group Recommendations",preview:"I'd recommend Consciousness Lab…",date:"Yesterday"},
-    {id:3,title:"Dream Drafted",preview:"Here's a draft: The mind doesn't just…",date:"Feb 20"},
-  ];
-
-  if (showHistory) return (
-    React.createElement('div', { className: "ov", style: {alignItems:"stretch"},}
-      , React.createElement('div', { style: {flex:1,background:"var(--bg)",display:"flex",flexDirection:"column",maxWidth:430,margin:"0 auto",width:"100%"},}
-        , React.createElement('div', { className: "hdr", style: {position:"sticky",top:0},}
-          , React.createElement('div', { className: "hdr-row",}
-            , React.createElement('button', { className: "bi", onClick: ()=>setShowHistory(false), 'aria-label': "Back",}, React.createElement(Ic.Bck, { style: {width:21,height:21},}))
-            , React.createElement('span', { className: "hdr-title",}, "Chat History" )
-            , React.createElement('button', { style: {background:"none",border:"none",cursor:"pointer",fontSize:12,color:"var(--rd)",padding:"4px 8px"}, 'aria-label': "Clear all" ,}, "Clear All" )
-          )
-        )
-        , React.createElement('div', { style: {flex:1,overflowY:"auto"},}
-          , histSessions.map(s=>(
-            React.createElement('button', { key: s.id, onClick: ()=>setShowHistory(false), style: {display:"flex",gap:12,padding:"13px 16px",borderBottom:"1px solid var(--bd)",background:"none",border:"none",borderBottom:"1px solid var(--bd)",width:"100%",cursor:"pointer",textAlign:"left"},}
-              , React.createElement('div', { className: "aiorb", style: {width:38,height:38,fontSize:17,flexShrink:0},}, "Cherry")
-              , React.createElement('div', { style: {flex:1,minWidth:0},}
-                , React.createElement('div', { style: {fontWeight:700,fontSize:14,marginBottom:3,color:"var(--tx)"},}, s.title)
-                , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"},}, s.preview)
-                , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:4},}, s.date)
-              )
-              , React.createElement(Ic.Chv, { style: {width:15,height:15,color:"var(--tx3)",flexShrink:0,alignSelf:"center"},})
-            )
-          ))
-        )
-      )
-    )
-  );
-
-  return (
-    React.createElement('div', { className: "ov", style: {alignItems:"stretch"},}
-      , React.createElement('div', { style: {flex:1,background:"var(--bg)",display:"flex",flexDirection:"column",maxWidth:430,margin:"0 auto",width:"100%",paddingBottom:"env(safe-area-inset-bottom)"},}
-        /* Header */
-        , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:8,padding:"52px 14px 10px",borderBottom:"1px solid var(--bd)",background:"rgba(7,5,15,.95)"},}
-          , React.createElement('button', { className: "bi", onClick: onClose, 'aria-label': "Back" ,}, React.createElement(Ic.Bck, { style: {width:21,height:21},}))
-          , React.createElement('div', { className: "aiorb", style: {width:32,height:32,fontSize:15,flexShrink:0},}, "Cherry")
-          , React.createElement('div', { style: {flex:1},}
-            , React.createElement('div', { style: {fontWeight:700,fontSize:15,color:"var(--tx)"},}, "Cherry")
-            , React.createElement('div', { style: {fontSize:10,color:"var(--gr)",display:"flex",alignItems:"center",gap:4},}
-              , React.createElement('span', { style: {width:5,height:5,borderRadius:"50%",background:"var(--gr)",display:"inline-block"},}), "AI Agent, Connected to your Looscid"
-            )
-          )
-          , React.createElement('button', { className: "bi", onClick: ()=>setShowHistoryDialog(true), 'aria-label': "History and new conversation", title: "History / New chat",}
-            , React.createElement('svg', { width: "17", height: "17", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round"},
-              React.createElement('path', {d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"})
-            )
-          )
-          , React.createElement('button', Object.assign({ type: "button", className: "lc-close", onClick: onClose }, lcCloseProps("Cherry")), "Close")
-        )
-
-        /* History / New conversation dialog at top */
-        , showHistoryDialog && React.createElement('div', {
-            style: {position:"absolute",top:80,left:12,right:12,zIndex:200,
-              background:"var(--sf)",border:"1px solid var(--bd2)",borderRadius:14,
-              boxShadow:"0 4px 24px rgba(0,0,0,.45)",padding:"6px 0 4px",
-              animation:"fu .18s ease"},
-            role: "dialog", 'aria-label': "Chat options",}
-          , React.createElement('div', {style:{padding:"8px 16px 8px",fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".08em"}}, "Cherry Chat")
-          , React.createElement('button', {
-              onClick: ()=>{setShowHistoryDialog(false);setShowHistory(true);},
-              style: {display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 16px",
-                background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",borderTop:"1px solid var(--bd)"},
-              'aria-label': "View chat history",}
-            , React.createElement('span', {style:{fontSize:18},}, "🕐")
-            , React.createElement('div', {style:{textAlign:"left"}},
-              React.createElement('div', {style:{fontSize:14,fontWeight:600,color:"var(--tx)"}}, "Chat History"),
-              React.createElement('div', {style:{fontSize:12,color:"var(--tx3)"}}, "View past conversations")
-            )
-          )
-          , React.createElement('button', {
-              onClick: ()=>{setShowHistoryDialog(false);setMsgs([{me:false,text:"Hey! I am Cherry — starting a new conversation. What would you like to do?"}]);},
-              style: {display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 16px",
-                background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",borderTop:"1px solid var(--bd)"},
-              'aria-label': "Start a new conversation",}
-            , React.createElement('span', {style:{fontSize:18},}, "✏️")
-            , React.createElement('div', {style:{textAlign:"left"}},
-              React.createElement('div', {style:{fontSize:14,fontWeight:600,color:"var(--tx)"}}, "New Conversation"),
-              React.createElement('div', {style:{fontSize:12,color:"var(--tx3)"}}, "Clear history, start fresh")
-            )
-          )
-          , React.createElement('button', {
-              onClick: ()=>setShowHistoryDialog(false),
-              style: {display:"block",width:"calc(100% - 28px)",margin:"8px 14px 6px",padding:"10px",
-                background:"var(--sf2)",border:"none",borderRadius:10,fontSize:14,
-                fontWeight:600,color:"var(--tx3)",cursor:"pointer",fontFamily:"inherit"},
-              'aria-label': "Cancel",}, "Cancel")
-        )
-
-        /* Click outside to close history dialog */
-        , showHistoryDialog && React.createElement('div', {
-            onClick: ()=>setShowHistoryDialog(false),
-            style: {position:"absolute",inset:0,zIndex:199},
-            'aria-hidden': "true",})
-
-        /* Quick status strip */
-        , React.createElement('div', { style: {display:"flex",gap:7,padding:"8px 14px",overflowX:"auto",scrollbarWidth:"none",borderBottom:"1px solid var(--bd)",background:"var(--sf)"},}
-          , [
-            {label:`${appContext().unread}`, color:"var(--rd)", ic:"Alerts"},
-            {label:`${groups.filter(g=>g.joined).length}`, color:"var(--ac3)", ic:"Groups"},
-            {label:`${following.size}`, color:"var(--ac3)", ic:"Following"},
-            {label:`${dreams.filter(d=>d.liked).length}`, color:"var(--rd)", ic:"Likes"},
-          ].map(s=>(
-            React.createElement('div', { key: s.label, style: {display:"flex",alignItems:"center",gap:4,background:"var(--sf2)",border:"1px solid var(--bd)",borderRadius:100,padding:"3px 9px",whiteSpace:"nowrap",flexShrink:0},}
-              , React.createElement('span', { style: {fontSize:11},}, s.ic)
-              , React.createElement('span', { style: {fontSize:11,color:s.color,fontWeight:600},}, s.label)
-            )
-          ))
-        )
-
-        /* Chat / Actions tabs */
-        , React.createElement('div', { style: {display:"flex",borderBottom:"1px solid var(--bd)"},}
-          , React.createElement('button', { onClick: ()=>setOverlayTab("chat"), style: {flex:1,background:"none",border:"none",padding:"9px 0",fontSize:13,fontWeight:600,color:overlayTab==="chat"?"var(--ac3)":"var(--tx3)",borderBottom:overlayTab==="chat"?"2px solid var(--ac2)":"2px solid transparent",marginBottom:-1,cursor:"pointer",fontFamily:"inherit"},}, "Chat" )
-          , React.createElement('button', { onClick: ()=>setOverlayTab("actions"), style: {flex:1,background:"none",border:"none",padding:"9px 0",fontSize:13,fontWeight:600,color:overlayTab==="actions"?"var(--ac3)":"var(--tx3)",borderBottom:overlayTab==="actions"?"2px solid var(--ac2)":"2px solid transparent",marginBottom:-1,cursor:"pointer",fontFamily:"inherit"},}, "Actions "
-              , actionLog.length>0&&React.createElement('span', { style: {background:"var(--gr)",color:"#000",borderRadius:100,fontSize:9,fontWeight:800,padding:"1px 5px",marginLeft:3},}, actionLog.length)
-          )
-        )
-        /* Suggestion chips - only in chat tab */
-        , overlayTab==="chat" && React.createElement('div', { style: {display:"flex",gap:6,padding:"8px 12px",overflowX:"auto",scrollbarWidth:"none",borderBottom:"1px solid var(--bd)"},}
-          , chips.map(s=>React.createElement('button', { key: s, className: "aisc", onClick: ()=>send(s), style: {flexShrink:0}, 'aria-label': "Ask: "+s,}, s))
-        )
-
-        /* Agent status */
-        , agentStatus && overlayTab==="chat" && (
-          React.createElement('div', { style: {margin:"8px 12px 0",padding:"9px 12px",background:"rgba(168,85,247,.1)",border:"1px solid rgba(168,85,247,.22)",borderRadius:10,display:"flex",alignItems:"center",gap:8},}
-            , React.createElement('div', { style: {display:"flex",gap:3},}
-              , [0,1,2].map(i=>React.createElement('div', { key: i, className: "tdt", style: {animationDelay:i*.15+"s",background:"var(--ac)"},}))
-            )
-            , React.createElement('div', { style: {flex:1},}
-              , React.createElement('div', { style: {fontSize:12,fontWeight:700,color:"var(--ac)"},}, agentStatus==="done"?"Done":"Cherry is acting…")
-              , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)"},}, agentTask)
-            )
-          )
-        )
-
-        /* Action log tab */
-        , overlayTab==="actions" && (
-          React.createElement('div', { className: "msgs", style: {flex:1},}
-            , actionLog.length===0 && (
-              React.createElement('div', { className: "es", style: {paddingTop:32},}
-                , React.createElement('div', { className: "esi",}, "No actions yet")
-                , React.createElement('div', { className: "esl",}, "No actions yet"  )
-                , React.createElement('p', { style: {fontSize:12,color:"var(--tx3)",marginTop:6},}, "Cherry will log every action it takes here. You can undo most actions."            )
-                , React.createElement('button', { className: "cherry-card-act", style: {marginTop:12}, onClick: ()=>setOverlayTab("chat"),}, "Start chatting with Cherry"   )
-              )
-            )
-            , actionLog.map((entry,i)=>(
-              React.createElement('div', { key: entry.id, className: "cherry-log-item",}
-                , React.createElement('div', { className: "cherry-log-ic",}, entry.ic)
-                , React.createElement('div', { style: {flex:1},}
-                  , React.createElement('div', { style: {fontWeight:600,color:"var(--tx)",marginBottom:1},}, entry.text)
-                  , React.createElement('div', { style: {fontSize:10,color:"var(--tx3)"},}, new Date(entry.id).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}))
-                )
-                , entry.undoFn && !entry.undone && (
-                  React.createElement('button', { className: "cherry-log-undo", onClick: ()=>{entry.undoFn();setCherryLog(l=>l.map((x,j)=>j===i?{...x,undone:true}:x));}, 'aria-label': "Undo "+entry.text,}, "Undo")
-                )
-                , entry.undone && React.createElement('span', { style: {fontSize:10,color:"var(--tx3)",marginLeft:"auto"},}, "Undone")
-              )
-            ))
-          )
-        )
-
-        /* Messages */
-        , overlayTab==="chat" && React.createElement('div', { className: "msgs", style: {flex:1},}
-          , msgs.map((m,i)=>(
-            React.createElement('div', { key: i, className: "mr"+(m.me?" me":""),}
-              , !m.me && React.createElement('div', { className: "aiorb", style: {width:27,height:27,fontSize:13,flexShrink:0},}, "Cherry")
-              , React.createElement('div', { style: {maxWidth:"82%"},}
-                , React.createElement('div', { className: "bub"+(m.me?" me":" th"), style: m.agent?{border:"1px solid rgba(168,85,247,.28)",background:"rgba(109,40,217,.08)",whiteSpace:"pre-line"}:{whiteSpace:"pre-line"},}
-                  , m.agent && React.createElement('div', { style: {fontSize:9,fontWeight:800,color:"var(--ac3)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:5},}, "Agent action"  )
-                  , m.text
-                )
-                , m.confirm && (
-                  React.createElement('button', { className: "agent-action-pill", onClick: ()=>{m.confirm.fn();setMsgs(ms=>ms.map((x,j)=>j===i?{...x,confirm:null}:x));setMsgs(ms=>[...ms,{me:false,text:"Done Action completed!",agent:true}]);}, 'aria-label': m.confirm.label,}, "⚡ "
-                     , m.confirm.label
-                  )
-                )
-              )
-            )
-          ))
-          , typing && (
-            React.createElement('div', { className: "mr",}
-              , React.createElement('div', { className: "aiorb", style: {width:27,height:27,fontSize:13,flexShrink:0},}, "Cherry")
-              , React.createElement('div', { className: "bub th" , style: {display:"flex",gap:4,alignItems:"center",padding:"11px 14px"},}
-                , [0,1,2].map(i=>React.createElement('div', { key: i, className: "tdt", style: {animationDelay:i*.2+"s"},}))
-              )
-            )
-          )
-          , React.createElement('div', { ref: endRef,})
-        )
-
-        /* Input - only in chat tab */
-        , overlayTab==="chat" && React.createElement('div', { className: "cir", style: {background:"var(--sf)",borderTop:"1px solid var(--bd2)"},}
-          , React.createElement('input', { className: "inp", style: {borderRadius:100,flex:1,fontSize:14}, placeholder: "Ask Cherry or give a command…"     ,
-            value: inp, onChange: e=>setInp(e.target.value), onKeyDown: e=>e.key==="Enter"&&a11yEnterSends()&&send(), 'aria-label': "Message Cherry" ,})
-          , React.createElement('button', { className: "btn bp" , style: {padding:9,borderRadius:"50%",width:38,height:38,flexShrink:0}, onClick: ()=>send(), disabled: !inp.trim(), 'aria-label': "Send",}
-            , React.createElement(Ic.Snd, { style: {width:15,height:15},})
-          )
-        )
-      )
-    )
-  );
-}
-// "visible" | "private" | "hidden"
-
+Object.assign(Looscid, { CherryPage, LC_CHERRY, LC_CHERRY_CHATS_KEY, lcCherryChats, lcCherrySaveChats, lcLlmPrefs, lcLlmSetPrefs, lcLlmGpu, lcLlmLoad, lcLlmAsk, CherryModelPicker, SourcesPanel, cherryNorm, cherryRespond });
 
 /* --- Cherry model picker (round-5 queue item 1) ----------------------------------
    One searchable, grouped pop-up menu (the shared mini pop-up). Cherry built-in needs
@@ -630,17 +486,17 @@ Shall I follow them for you?`,
         confirm:{label:"Follow them", fn:()=>unfollowed.slice(0,2).forEach(u=>followUser(u.id))}};
     }
 
-    if (lo.includes("find group") || lo.includes("suggest group") || lo.includes("recommend group")) {
+    if (lo.includes("find group") || lo.includes("suggest group") || lo.includes("recommend group") || lo.includes("find circle") || lo.includes("suggest circle") || lo.includes("recommend circle")) {
       const unjoined = groups.filter(g=>!g.joined);
       if (!unjoined.length) return {action:null, result:"You've joined all available Circles."};
       const picks = unjoined.slice(0,2).map(g=>`${g.emoji} ${g.name} — ${g.description.slice(0,50)}…`).join("\n");
-      return {action:"Scanning groups that match your interests…", agentLabel:"Finding groups",
-        result:`Groups I'd recommend for you:
+      return {action:"Scanning Circles that match your interests…", agentLabel:"Finding Circles",
+        result:`Circles I'd recommend for you:
 
 ${picks}
 
 Want me to join any of these?`,
-        confirm:{label:"Join these groups", fn:()=>unjoined.slice(0,2).forEach(g=>joinGroup(g.id))}};
+        confirm:{label:"Join these Circles", fn:()=>unjoined.slice(0,2).forEach(g=>joinGroup(g.id))}};
     }
 
     if (lo.includes("trending") || lo.includes("what's hot") || lo.includes("whats hot"))
