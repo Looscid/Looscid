@@ -12,7 +12,7 @@ const LC_CMD_GROUPS = [
   ["Commandbar", ["help", "commands", "status", "version", "history", "clear", "output collapse", "output expand", "shortcuts"]],
   ["Feeds and Dreams", ["feed and a name", "feed switching", "show friends on", "calm feed", "announce new dreams", "read this dream"]],
   ["Screen reader and braille", ["verbosity", "read order", "speak timestamps", "speak emoji", "hashtags", "typing echo", "read aloud rate", "braille style", "braille emoji"]],
-  ["Sounds and music", ["sound", "sound pack", "send sound", "earcon on swipe", "ducking", "music"]],
+  ["Earcons and music", ["sound", "soundpack", "soundvault", "send sound", "earcon on swipe", "ducking", "music"]],
   ["Settings", ["settings", "set", "find setting and a word", "quiet hours", "mute word", "add content warning", "auto play media", "alt text reminder", "undo send", "draft autosave", "reading mode", "who can reply", "reset", "export settings"]],
 ];
 /* Commands that need a word: the button opens Commandbar with the command typed in, ready for that word. */

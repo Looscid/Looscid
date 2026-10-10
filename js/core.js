@@ -688,7 +688,7 @@ const LC_RESET_G = {
   terminal: { l: "Commandbar output", items: function () { return lcResetKeyItems("terminal"); } },
   motor: { l: "Motor and switch", items: function () { return lcResetKeyItems("motor"); } },
   snd_volume: { l: "Volume, focus sounds and keyboard clicks", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[0].keys, LC_AUDIO_CATS[0].keys); } },
-  snd_pack: { l: "Sound pack", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[1].keys, LC_AUDIO_CATS[1].keys); } },
+  snd_pack: { l: "Soundpacks", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[1].keys, LC_AUDIO_CATS[1].keys); } },
   snd_events: { l: "Event sounds", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[2].keys, LC_AUDIO_CATS[2].keys); } },
   snd_haptics: { l: "Music and haptics", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[3].keys, LC_AUDIO_CATS[3].keys); } },
   theme: { l: "Theme and colors", items: function () { return [{ id: "theme", l: "Light or dark mode", run: function () { saveTheme("dark"); if (Looscid.LC_SET_THEME) Looscid.LC_SET_THEME("dark"); } }]; } },
@@ -713,7 +713,7 @@ const LC_RESET_G = {
 Looscid.LC_RESET_G = LC_RESET_G;
 const LC_RESET_SECTIONS = [
   ["accessibility", "Accessibility", ["vision", "sr_general", "sr_speech", "verbosity", "sr_braille", "hearing", "motion", "terminal", "motor"]],
-  ["sounds", "Sounds", ["snd_volume", "snd_pack", "snd_events", "snd_haptics"]],
+  ["sounds", "Earcons", ["snd_volume", "snd_pack", "snd_events", "snd_haptics"]],
   ["customizability", "Customizability", ["theme", "feeds", "menu", "posting", "media"]],
   ["alerts", "Alerts", ["alertTypes", "quiet", "cats"]],
   ["privacy", "Privacy", ["perm", "pmedia", "blocked", "filters"]],
@@ -821,7 +821,7 @@ const LC_A11Y_CATS = [
   { id: "motion", page: "settings_a11y_motion", l: "Motion and seizure", sub: "Calm mode, Flash safety, Reduce Motion" },
   { id: "motor", page: "settings_a11y_motor", l: "Motor and switch", sub: "Larger buttons, strong focus outline" },
   { id: "terminal", page: "settings_a11y_terminal", l: "Commandbar", sub: "How Commandbar output is laid out and read" },
-  { id: "audio", page: "settings_audio", l: "Sounds and earcons", sub: "Opens Settings, Sounds: sound packs, volume, keyboard clicks, haptics" },
+  { id: "audio", page: "settings_audio", l: "Earcons", sub: "Opens Settings, Earcons: Soundpacks, volume, keyboard and command earcons, haptics" },
 ];
 Looscid.LC_A11Y_CATS = LC_A11Y_CATS;
 const LC_A11Y_PAGE = {};
@@ -849,7 +849,7 @@ const LC_FIND_STATIC = [
   { l: "Commandbar output", w: "terminal collapsible expanded latest", page: "settings_a11y_terminal", focus: "a11y-termOutput" },
   { l: "Heading per command", w: "terminal headings", page: "settings_a11y_terminal", focus: "a11y-termHeadings" },
   { l: "Rename screen reader sections", w: "rename tabs general speech braille names", page: "settings_a11y_sr", tab: "general", focus: "lc-rename-h" },
-  { l: "Import a sound pack", w: "custom sounds zip import earcons", page: "settings_audio", focus: "lc-imp-h" },
+  { l: "Import a Soundpack", w: "soundpack custom sounds zip import earcons", page: "settings_audio", focus: "lc-imp-h" },
   { l: "Accessibility", w: "a11y categories", page: "settings_accessibility", where: "Settings" },
   { l: "Screen reader and braille", w: "voiceover talkback nvda speech braille", page: "settings_a11y_sr", where: "Settings, Accessibility" },
   { l: "LooscidID", w: "account profile login methods security nostr mastodon bluesky funkwhale hubzilla friendica", page: "settings_account", where: "Settings" },
@@ -866,7 +866,7 @@ const LC_FIND_STATIC = [
   { l: "Blocked words", w: "block word blocked words hide words everywhere", page: "settings_privacy", priv: "blocked", privTab: "words", focus: "priv-bl-words-in", where: "Settings, Privacy, Blocked and muted" },
   { l: "Forget what Cherry knows about my media", w: "cherry forget media", page: "settings_privacy", priv: "pmedia", focus: "priv-cherry-forget", where: "Settings, Privacy, Media and content" },
   { l: "Customizability", w: "themes feeds dreaming posting media", page: "settings_customizability", where: "Settings" },
-  { l: "Sounds", w: "audio earcons sounds sound pack nexos volume haptics beeps keyboard clicks", page: "settings_audio", where: "Settings" },
+  { l: "Earcons", w: "audio earcons earcon sounds sound pack soundpack soundpacks nexos volume haptics beeps keyboard clicks keyboard earcons command earcons", page: "settings_audio", where: "Settings" },
   { l: "Keyboard shortcuts", w: "keys shortcuts", page: "settings_keyboard", where: "Settings" },
   { l: "Settings backup", w: "export import reset", page: "settings_backup", where: "Settings" },
   { l: "Intelligence", w: "ai cherry assistant artificial intelligence", page: "settings_intelligence", where: "Settings" },
@@ -883,8 +883,9 @@ const LC_FIND_STATIC = [
   { l: "Looscid Labs and Coming soon", w: "labs planned coming soon roadmap", page: "settings_labs", where: "Settings" },
   { l: "Apps", w: "apps nexos insomnia meme projects easyconvert desktop kernel app store", page: "nexos_apps", where: "Menu, Apps" },
   { l: "Looscid App Store", w: "app store nexos app store store apps install", page: "nexos_apps", focus: "lc-nx-shell-store", where: "Apps, Desktop" },
-  { l: "Insomnia sound pack", w: "insomnia sounds sound pack chimes", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Sounds, Sound pack", pri: true },
-  { l: "Hyper Synth sound pack", w: "synth hyper synth sounds sound pack", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Sounds, Sound pack", pri: true },
+  { l: "Insomnia Soundpack", w: "insomnia sounds sound pack soundpack chimes", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Earcons, Soundpacks", pri: true },
+  { l: "Hyper Synth Soundpack", w: "synth hyper synth sounds sound pack soundpack", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Earcons, Soundpacks", pri: true },
+  { l: "FastSM-inspired Soundpack", w: "fastsm fast sm fastsmrw fastsm inspired earcons sounds sound pack soundpack mastodon bluesky client", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Earcons, Soundpacks", pri: true },
   { l: "Alerts settings", w: "alerts settings notifications alert types sound who can trigger quiet hours", page: "settings_notifications", where: "Alerts tab, Alerts settings" },
   { l: "Notification settings", w: "notification settings notifications categories order", page: "settings_notifications", where: "Alerts tab, Notifications" },
   { l: "Message settings", w: "message settings messages who can message me categories order starred", page: "settings_messages", where: "Alerts tab, Messages" },
@@ -899,7 +900,7 @@ function lcSettingIndex() {
     const sec = LC_SECTIONS[d.s];
     const id = d.k === "earconVolume" ? "a11y-volume" : (d.old ? "a11y-" : "set-") + d.k;
     const ac = LC_AUDIO_KEYPAGE[d.k] ? LC_AUDIO_CATS.find(function (c) { return c.page === LC_AUDIO_KEYPAGE[d.k]; }) : null;
-    if (ac) { out.push({ l: d.l, w: (d.al || []).join(" ") + " sound audio", where: "Settings, Sounds, " + ac.l, page: ac.page, focus: id }); return; }
+    if (ac) { out.push({ l: d.l, w: (d.al || []).join(" ") + " sound audio", where: "Settings, Earcons, " + ac.l, page: ac.page, focus: id }); return; }
     if (d.pc) { out.push({ l: d.l + " pitch cue", w: (d.al || []).join(" ") + " pitch cue cues", where: "Settings, Accessibility, Screen reader and braille, Verbosity", page: "settings_a11y_sr", tab: "verbosity", focus: id }); return; }
     out.push({ l: d.l, w: (d.al || []).join(" ") + " " + (d.g || ""), where: sec.where + (sp[1] ? ", " + lcSrName(sp[1]) : (sec.t && sec.where.indexOf(sec.t) < 0 ? ", " + sec.t : "")), page: sp[0], tab: sp[1], focus: id,
       priv: sp[0] === "settings_privacy" ? (d.s === "filters" ? "blocked" : d.s) : undefined, privTab: d.s === "filters" ? "words" : undefined });
@@ -991,7 +992,7 @@ const PRIVACY_CONTENT = `<p><strong>Last updated: October 10, 2026</strong></p>
 <p>The short version: Looscid keeps your data on your device, and we don't sell it, track you or show ads.</p>
 <h2>What Looscid stores, and where</h2>
 <ul>
-<li>Your profile, settings, drafts, Dreams and sound packs are saved on this device only, in your browser's storage (the keys start with <code>dbm_</code>).</li>
+<li>Your profile, settings, drafts, Dreams and Soundpacks are saved on this device only, in your browser's storage (the keys start with <code>dbm_</code>).</li>
 <li>Replies you write are saved on this device too, the same way. Like Dreams, they are not in Settings backup.</li>
 <li>Your chats with Cherry (Your History, and which ones you pinned) are saved on this device only. They are in Settings backup, so a backup file brings them to another device.</li>
 <li>There are no Looscid sign-up servers. Supabase and Cloudflare are gone.</li>
@@ -1294,19 +1295,20 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
   const pos = (prefs.menu || {}).pos || "bottom";
   const likedCount = appDreams ? appDreams.filter(d => d.liked).length : 0;
   const totalAlerts = unreadNotifs + unreadMsgs;
-  const [open, setOpen] = useState(() => initOpen ? {[initOpen]: true} : {});
+  // Round 6.6: the Projects section remembers whether you left it open (dbm_more_projects_open, in the settings backup).
+  const [open, setOpen] = useState(() => Object.assign(Looscid.lcProjectsOpen && Looscid.lcProjectsOpen() ? {projects: true} : {}, initOpen ? {[initOpen]: true} : {}));
   // Back from a Settings screen reopens this menu on the item it came from.
   useEffect(() => {
     if (!initOpen) return;
     const t = setTimeout(() => {
       const body = document.getElementById("msec-" + initOpen);
       const item = body && initFocus ? Array.from(body.querySelectorAll(".mitem")).find(b => b.getAttribute("aria-label") === initFocus) : null;
-      const el = item || document.querySelector('button.msec-toggle[aria-controls="msec-' + initOpen + '"]');
+      const el = item || document.querySelector('button.msec-toggle[aria-controls="msec-' + initOpen + '"]') || document.getElementById("msec-btn-" + initOpen);
       if (el) el.focus();
     }, 30);
     return () => clearTimeout(t);
   }, []);
-  const toggle = id => setOpen(o => ({...o, [id]: !o[id]}));
+  const toggle = id => { const v = !open[id]; if (id === "projects" && Looscid.lcProjectsSetOpen) Looscid.lcProjectsSetOpen(v); setOpen(o => ({...o, [id]: v})); };
   const isOpen = id => !!open[id]; // default closed
 
   const SECTIONS = [
@@ -1335,7 +1337,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"Privacy", label:"Privacy",         sub:"Visibility, blocked users",   action(){onClose();navigate("settings_privacy");} },
       { icon:"Customizability", label:"Customizability", sub:"Theme, feeds, menu, Dreaming, media",     action(){onClose();navigate("settings_customizability");} },
       { icon:"Accessibility", label:"Accessibility",  sub:"Screen reader and braille, vision, hearing, motion",  action(){onClose();navigate("settings_accessibility");} },
-      { icon:"Audio", label:"Sounds",  sub:"Earcons, sound packs, keyboard clicks, your own sounds, haptics",  action(){onClose();navigate("settings_audio");} },
+      { icon:"Audio", label:"Earcons",  sub:"Soundpacks, volume, keyboard and command earcons, your own sounds, haptics",  action(){onClose();navigate("settings_audio");} },
       { icon:"Apps", label:"Apps",  sub:"Insomnia, Meme Projects, Easyconvert, Desktop and Kernel",  action(){onClose();navigate("settings_apps");} },
       { icon:"Keyboard", label:"Keyboard shortcuts",  sub:"Built-in keys and your own shortcuts",  action(){onClose();navigate("settings_keyboard");} },
       { icon:"Backup", label:"Settings backup",  sub:"Export, import or reset all settings",  action(){onClose();navigate("settings_backup");} },
@@ -1343,26 +1345,24 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"Labs", label:"Looscid Labs", sub:"Early access to features we are still building", action(){onClose();navigate("settings_labs");} },
       { icon:"Reset", label:"Reset", sub:"Reset the whole app, or just some settings", action(){ lcOpenReset("all"); } },
     ]},
-    { id:"about", emoji:"About", label:"About", items:[
-      { icon:"About", label:"About Looscid", sub:"Our story, version, what's new and credits", action(){onClose();navigate("settings_about");} },
-      { icon:"Credits", label:"Credits and open source", sub:"Projects Looscid uses and learned from, with their licenses", action(){onClose();navigate("credits");} },
-      { icon:"Feedback", label:"Send Feedback", sub:"Tell us what works and what doesn't", action(){onClose();navigate("feedback");} },
-      { icon:"Intro", label:"Welcome intro", sub:"The welcome intro and terminology guide", action(){onClose();navigate("intro");} },
-      { icon:"Terms", label:"Terms",   sub:"Plain-language terms",  action(){onClose();navigate("terms");} },
-      { icon:"Privacy", label:"Privacy", sub:"What stays on your device",       action(){onClose();navigate("privacy");} },
-      { icon:"Rules", label:"Community rules", sub:"How we treat each other",       action(){onClose();navigate("guidelines");} },
-        { icon:"License", label:"License", sub:"Looscid Public License", href:"LICENSE" },
-        { icon:"Commitments", label:"Commitments", sub:"Accessibility, fairness, humor", href:"COMMITMENTS.md" },
-    ]},
+    { id:"about", emoji:"About", label:"About Looscid", direct(){onClose();navigate("settings_about");}, items:[] }, // Round 6.6 (Alhasan 5:24 PM): one About page, no submenu
     { id:"findus", emoji:"Social", label:"Social", intro:"Find us on your favorite platforms", items:[
 
       { icon:"\ud835\udd4f", label:"Twitter",         sub:"@Looscid",                href:"https://x.com/Looscid" },
 
       { icon:"GitHub", label:"GitHub",            sub:"Looscid/Looscid",        href:"https://github.com/Looscid/Looscid" },
     ]},
+    // Round 6.6: Projects, Alhasan's own projects, built in (js/projects.js). Added near the end; Commands stays last.
+    { id:"projects", emoji:"Projects", label:"Projects", intro:"Alhasan's own projects, built into Looscid. Each one opens here, with Back and Close. Nothing loads until you open one.",
+      outro: ["Help build Looscid on GitHub", "https://github.com/Looscid/Looscid"],
+      items: (Looscid.LC_PROJECTS || []).map(function (p) { return { icon:"Projects", label:p.name, sub:p.sub, action(){ onClose(); Looscid.lcOpenProject(p, navigate); } }; }) },
     // Round 6.5.3: last in More. The other sections keep their order.
     { id:"commands", emoji:"Commands", label:"Commands", items:[
       { icon:"Commands", label:"All commands", sub:"Every Commandbar command, each one a button that runs it", action(){onClose();navigate("commands");} },
+    ]},
+    // Round 6.6 (Alhasan): Help, after Commands. The other sections keep their order.
+    { id:"help", emoji:"Help", label:"Help", items:[
+      { icon:"Help", label:"Help Center", sub:"Getting started, commands, Cherry, earcons, accessibility, projects, backup, and how to get help", action(){onClose();navigate("helpcenter");} },
     ]},
   ];
 
@@ -1377,6 +1377,11 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
 
       SECTIONS.map(function(s) {
         var sOpen = isOpen(s.id);
+        // Round 6.6: a section that is one page (About Looscid) is one plain button: no submenu, it opens the page.
+        if (s.direct) return React.createElement('h2', {key:s.id, className:"msec-hdr", style:{padding:0}},
+          React.createElement('button', {type:"button", id:"msec-btn-"+s.id, className:"msec-direct", "data-sec":s.id, onClick:s.direct,
+            "aria-braillelabel": Looscid.A11Y_NOW.brailleOutput ? s.label : undefined},
+            React.createElement('span', null, s.label)));
         return React.createElement(React.Fragment, {key:s.id},
 
           React.createElement('h2', {className:"msec-hdr",style:{padding:0}},
@@ -1437,7 +1442,9 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
               }, iconEl, lblEl, count,
                 React.createElement(Ic.Chv,{key:"chv",style:{width:13,height:13,color:"var(--tx3)",flexShrink:0},"aria-hidden":"true"})
               ), subP);
-            }))
+            })),
+            // Round 6.6 (Alhasan): a plain link after a section's buttons (Projects: Help build Looscid).
+            s.outro ? React.createElement('p', {style:{padding:"8px 16px",margin:0,fontSize:13}}, React.createElement('a', {href:s.outro[1], target:"_blank", rel:"noopener noreferrer", className:"lc-help-link"}, s.outro[0])) : null
           )
         );
       }),
@@ -1570,13 +1577,14 @@ function LcMenu(props) {
     document.addEventListener("pointerdown", onDoc, true);
     return function () { document.removeEventListener("pointerdown", onDoc, true); };
   }, [open]);
-  const close = function () { if (btnRef.current) btnRef.current.focus(); setOpen(false); };
+  // Round 6.6: closing a menu with Escape and choosing with the keyboard play the Soundpack's sounds too (Looscid: unchanged).
+  const close = function () { if (btnRef.current) btnRef.current.focus(); setOpen(false); lcPackChime("close"); };
   const choose = function (it) {
     if (!it) return;
     if (it.close) { close(); return; }
     if (it.disabled) return;
     if (btnRef.current) btnRef.current.focus();
-    setOpen(false);
+    setOpen(false); lcPackChime("run");
     if (props.onSelect) props.onSelect(it.id, it);
   };
   const typeAhead = function (key) {
@@ -2202,7 +2210,7 @@ const LC_SECTIONS = {
   motion: { t: "Motion and seizure", d: "Calmer movement and protection from flashing.", where: "Settings, Accessibility, Motion and seizure", al: ["motion", "seizure", "motion and seizure"], keys: ["calmMode", "flashSafety", "reduceMotion"] },
   terminal: { t: "Commandbar", d: "How Commandbar shows its output.", where: "Settings, Accessibility, Commandbar", al: ["commandbar", "command bar", "terminal"], keys: ["termOutput", "termHeadings"] },
   motor: { t: "Motor and switch", d: "Bigger buttons and switch access.", where: "Settings, Accessibility, Motor and switch", al: ["motor", "switch", "motor and switch"], keys: ["largeBtns", "switchAccess"] },
-  audio: { t: "Sounds", d: "Looscid's sounds and how loud they are.", where: "Settings, Sounds", al: ["sounds", "sound", "audio", "earcons"] },
+  audio: { t: "Earcons", d: "Looscid's earcons and how loud they are.", where: "Settings, Earcons", al: ["sounds", "sound", "audio", "earcons", "earcon"] },
   verbosity: { t: "Verbosity", where: "Settings, Accessibility, Screen reader and braille, Verbosity", al: ["verbosity", "verbosity settings", "pitch cue settings"] },
   quiet: { t: "Quiet hours", d: "Times when Looscid stays silent.", where: "Settings, Alerts", al: ["quiet hours", "quiet"] },
   feeds: { t: "Feeds", d: "Which feeds you see and how you switch between them.", where: "Settings, Customizability, Feeds and home", al: ["feeds", "feed"] },
@@ -2280,11 +2288,14 @@ const LC_SET = [
   { k: "earconFocus", s: "audio", l: "Play earcon on every swipe or focus move", t: "bool", d: false, al: ["earcon on every swipe", "earcon on swipe", "swipe earcon", "focus earcon", "earcon on focus"],
     desc: "A short beep each time focus moves. On by default when you choose \u201cWith a screen reader\u201d at setup." },
   { k: "linkPitch", s: "verbosity", l: "Links", t: "bool", d: true, pc: true, al: ["link pitch cue", "link pitch", "link cue", "link sound", "link earcon", "links pitch"] },
-  { k: "keyClicks", s: "audio", l: "Keyboard clicks", t: "bool", d: true, al: ["keyboard clicks", "key clicks", "keyboard click", "typing sounds", "typing clicks", "key sounds"],
+  { k: "keyClicks", s: "audio", l: "Keyboard earcons", t: "bool", d: true, al: ["keyboard clicks", "key clicks", "keyboard click", "typing sounds", "typing clicks", "key sounds", "keyboard sounds"],
     desc: "On by default. A short click for each key you type in a text field. Follows the Earcons switch and the master volume, still plays in Calm mode, and never changes pitch." },
+  // Round 6.6 (Alhasan): every Commandbar command has its own short sound. Additive: no earcon or pitch cue changed.
+  { k: "cmdSounds", s: "audio", l: "Command earcons", t: "bool", d: true, al: ["command sounds", "command sound", "commandbar sounds", "sounds for commands", "command earcons"],
+    desc: "On by default. Each Commandbar command plays its own short sound when it runs; commands in the same area sound related. A command that fails plays the error sound. Follows the Earcons switch and the master volume, and still plays in Calm mode. Off: commands play the one run sound, as before." },
   { k: "nexosBoot", s: "audio", l: "NexOS boot text", t: "bool", d: true, al: ["nexos boot text", "boot text", "boot screen", "nexos boot", "startup text"],
-    desc: "With the NexOS classic sound pack, Looscid starts with the NexOS boot text and its boot chime, once per visit. Text only, nothing flashes, and Skip or Escape ends it." },
-  { k: "soundPack", s: "audio", l: "Sound pack", t: "choice", d: "looscid", al: ["sound pack", "soundpack", "sound theme", "insomnia sounds", "synth", "hyper synth", "nexos sounds", "good morning", "good night"], o: [["looscid", "Looscid", ["looscid", "default"]], ["nexos", "NexOS classic", ["nexos classic", "nexos"]], ["insomnia", "Insomnia", ["insomnia", "insomnia os", "insomnia sounds"]], ["synth", "Hyper Synth", ["hyper synth", "synth", "hyper", "synth pack"]], ["custom", "Your imported pack", ["custom", "imported", "my pack", "mine"]]] },
+    desc: "With the NexOS classic Soundpack, Looscid starts with the NexOS boot text and its boot chime, once per visit. Text only, nothing flashes, and Skip or Escape ends it." },
+  { k: "soundPack", s: "audio", l: "Soundpack", t: "choice", d: "looscid", al: ["sound pack", "soundpack", "sound theme", "insomnia sounds", "synth", "hyper synth", "fastsm", "fastsm inspired", "soundvault", "soundpack", "soundpacks", "sound packs", "nexos sounds", "good morning", "good night"], o: [["looscid", "Looscid", ["looscid", "default"]], ["nexos", "NexOS classic", ["nexos classic", "nexos"]], ["insomnia", "Insomnia", ["insomnia", "insomnia os", "insomnia sounds"]], ["synth", "Hyper Synth", ["hyper synth", "synth", "hyper", "synth pack"]], ["fastsm", "FastSM-inspired", ["fastsm inspired", "fastsm", "fast sm", "fastsmrw", "fastsm sounds"]], ["soundvault", "Soundvault", ["soundvault", "sound vault", "soundvault pack", "soundvault sounds"]], ["custom", "Your imported pack", ["custom", "imported", "my pack", "mine"]]] },
   { k: "ev_send", s: "audio", l: "Send sound", t: "bool", d: true, ev: "send", al: ["send sound", "sent sound"] },
   { k: "ev_like", s: "audio", l: "Like sound", t: "bool", d: true, ev: "like", al: ["like sound"] },
   { k: "ev_newDream", s: "audio", l: "New Dream sound", t: "bool", d: true, ev: "newDream", al: ["new dream sound"] },
@@ -2513,7 +2524,7 @@ Looscid.N_ = N_;
 const LC_PACKS = {
   // NexOS classic: ported from NexOS Web (github.com/2three1y/nexos, gh-pages, script.js SFX and UI).
   nexos: {
-    label: "NexOS classic", echo: false, gain: 1, chimes: true,
+    label: "NexOS classic", echo: false, gain: 1, chimes: true, cmdVoice: "square",
     sounds: {
       boot:     { label: "Boot chime", ops: [60, 64, 67, 72].map(function (m, i) { return LcT(N_(m), i * 0.09, 0.22, "triangle", 0.4); }).concat([LcT(N_(84), 0.36, 0.5, "sine", 0.25)]) },          // SFX.boot
       send:     { label: "Send", ops: [LcC(1800, 0, 0.11, 0.28, 0.9, 500), LcC(140, 0.1, 0.03, 0.4, 0.8), LcT(2637, 0.14, 0.7, "sine", 0.22, 0, 0.003)] }, // UI.enter: carriage return and bell
@@ -2570,7 +2581,7 @@ const LC_PACKS = {
   // Insomnia OS (nexos/apps/insomnia/script.js A.play): its own click, tick, open, close, ding, boot and goodnight,
   // through a soft echo like its chime bus. Round 6 maps each Looscid event to the closest one (see the round 6 report).
   insomnia: {
-    label: "Insomnia", echo: true, gain: 2.2,
+    label: "Insomnia", echo: true, gain: 2.2, cmdVoice: "sine",
     sounds: {
       boot:     { label: "Good Morning", ops: [[277.2, 0], [415.3, .18], [523.3, .36], [698.5, .54], [1046.5, .78]].reduce(function (a, n) { return a.concat([LcT(n[0], n[1], 1.2, "sine", 0.2, 0, 0.04, 0.8), LcT(n[0] * 2.001, n[1], 0.8, "sine", 0.04, 0, 0.04)]); }, []) }, // A.play("boot")
       send:     { label: "Ding", ops: [LcT(1318, 0, 0.35, "sine", 0.18, 0, 0.005, 0.25), LcT(1976, 0, 0.25, "sine", 0.06, 0, 0.005)] },          // "ding"
@@ -2599,7 +2610,7 @@ const LC_PACKS = {
   // Hyper Synth (round 6): bright detuned supersaw stabs and plucky square/saw leads with a fast filter sweep and a
   // little FM sparkle, after the synths in the Looscid beats. Every sound is under 250 ms. LcS = a synth voice.
   synth: {
-    label: "Hyper Synth", echo: false, gain: 1,
+    label: "Hyper Synth", echo: false, gain: 1, cmdVoice: "sawtooth",
     sounds: {
       boot:     { label: "Arp up", ops: [72, 76, 79, 84].map(function (m, i) { return LcS(N_(m), i * 0.05, 0.08, "sawtooth", 0.13, 3, 18, 8000, 1500, 0.3); }) },
       open:     { label: "Rising arp", ops: [72, 76, 79].map(function (m, i) { return LcS(N_(m), i * 0.05, 0.08, "sawtooth", 0.14, 3, 18, 7000, 1500); }) },
@@ -2625,6 +2636,58 @@ const LC_PACKS = {
       uninstall:{ label: "Falling arp", ops: [79, 76, 72].map(function (m, i) { return LcS(N_(m), i * 0.05, 0.08, "sawtooth", 0.14, 3, 18, 7000, 1200); }) },
     },
   },
+  // Round 6.6 (Alhasan, 5:18 PM): Soundvault as a Soundpack. Soundvault (his project, in More, Projects) lists these
+  // sounds; they stream from where Soundvault links them (MG Storage) when one plays, under their own terms. Nothing is
+  // copied into Looscid. A sound Soundvault doesn't have plays Looscid's own.
+  soundvault: {
+    label: "Soundvault", echo: false, gain: 1, cmdVoice: "triangle",
+    stream: {
+      focus:    ["Focus", "https://files.mad-gamer.com/Audio/macOS%20VoiceOver%20Sounds/Focus.wav"],
+      open:     ["Quick nav on", "https://files.mad-gamer.com/Audio/macOS%20VoiceOver%20Sounds/QuickNavOn.wav"],
+      alerts:   ["Alert", "https://files.mad-gamer.com/Audio/macOS%20VoiceOver%20Sounds/Alert.wav"],
+      newDream: ["Announcement", "https://files.mad-gamer.com/Audio/macOS%20VoiceOver%20Sounds/Announcement.wav"],
+      run:      ["Actions available", "https://files.mad-gamer.com/Audio/macOS%20VoiceOver%20Sounds/ActionsAvailable.wav"],
+      on:       ["Braille display connected", "https://files.mad-gamer.com/Audio/macOS%20VoiceOver%20Sounds/BrailleDisplayConnected.wav"],
+      boot:     ["Web page loaded", "https://files.mad-gamer.com/Audio/macOS%20VoiceOver%20Sounds/WebPageLoaded.wav"],
+      feed:     ["Web page loaded", "https://files.mad-gamer.com/Audio/macOS%20VoiceOver%20Sounds/WebPageLoaded.wav"],
+      settings: ["Web page loaded", "https://files.mad-gamer.com/Audio/macOS%20VoiceOver%20Sounds/WebPageLoaded.wav"],
+      circles:  ["Web page loaded", "https://files.mad-gamer.com/Audio/macOS%20VoiceOver%20Sounds/WebPageLoaded.wav"],
+    },
+    sounds: {},
+  },
+  // Round 6.6 (Alhasan): FastSM-inspired. ORIGINAL sounds made here with WebAudio, in the spirit of FastSMRW by masonasons
+  // (an accessible Mastodon and Bluesky client): short, soft, round blips with quick glides and airy swooshes.
+  // FastSMRW has no license, so no code or audio from it is copied. Opt-in in Settings, Earcons, Sound pack.
+  fastsm: {
+    label: "FastSM-inspired", echo: false, gain: 1.3, cmdVoice: "sine",
+    sounds: {
+      boot:     { label: "Soft rise", ops: [67, 71, 74, 79].map(function (m, i) { return LcT(N_(m), i * 0.06, 0.16, "sine", 0.26, 0, 0.004, 0.08); }) },
+      send:     { label: "Swoosh and pop", ops: [LcC(900, 0, 0.12, 0.22, 0.7, 3200), LcT(N_(84), 0.1, 0.09, "sine", 0.28, N_(91), 0.003, 0.05)] },
+      like:     { label: "Bubble up", ops: [LcT(N_(76), 0, 0.06, "sine", 0.3, N_(83), 0.002, 0.03), LcT(N_(88), 0.06, 0.08, "sine", 0.24, 0, 0.002, 0.05)] },
+      newDream: { label: "Water drop", ops: [LcT(1400, 0, 0.09, "sine", 0.3, 700, 0.002, 0.05)] },
+      error:    { label: "Soft bonk", ops: [LcT(330, 0, 0.11, "triangle", 0.34, 196, 0.003, 0.06), LcT(196, 0.13, 0.16, "triangle", 0.3, 147, 0.003, 0.08)] },
+      alerts:   { label: "Ding ding", ops: [LcT(N_(88), 0, 0.14, "sine", 0.26, 0, 0.002, 0.1), LcT(N_(84), 0.15, 0.2, "sine", 0.24, 0, 0.002, 0.14)] },
+      feedSwitch: { label: "Flick", ops: [LcC(2600, 0, 0.03, 0.22, 2, 1600), LcT(N_(81), 0.01, 0.04, "sine", 0.16, 0, 0.002, 0.02)] },
+      focus:    { label: "Tap", ops: [LcT(N_(93), 0, 0.025, "sine", 0.14, N_(88), 0.001, 0.015)] },
+      key:      { label: "Soft tap", ops: [LcC(2400, 0, 0.012, 0.26, 2.4)] },
+      keySpace: { label: "Soft thump", ops: [LcC(1200, 0, 0.02, 0.28, 1.2)] },
+      keyDelete:{ label: "Soft back tick", ops: [LcC(1800, 0, 0.012, 0.24, 2.4, 1100), LcC(1100, 0.02, 0.012, 0.2, 2.4)] },
+      keyEnter: { label: "Soft pop", ops: [LcC(2200, 0, 0.012, 0.24, 2.4), LcT(N_(76), 0.025, 0.05, "sine", 0.16, 0, 0.002, 0.03)] },
+      open:     { label: "Glide up", ops: [LcT(N_(72), 0, 0.09, "sine", 0.26, N_(79), 0.003, 0.05)] },
+      close:    { label: "Glide down", ops: [LcT(N_(79), 0, 0.09, "sine", 0.26, N_(72), 0.003, 0.05)] },
+      run:      { label: "Pop", ops: [LcT(N_(81), 0, 0.05, "sine", 0.3, N_(76), 0.002, 0.03)] },
+      settings: { label: "Two-step up", ops: [LcT(N_(74), 0, 0.05, "triangle", 0.24, 0, 0.002, 0.03), LcT(N_(79), 0.055, 0.07, "triangle", 0.24, 0, 0.002, 0.05)] },
+      feed:     { label: "Two-step up", ops: [LcT(N_(76), 0, 0.05, "sine", 0.26, 0, 0.002, 0.03), LcT(N_(83), 0.055, 0.07, "sine", 0.26, 0, 0.002, 0.05)] },
+      circles:  { label: "Three-step up", ops: [72, 76, 79].map(function (m, i) { return LcT(N_(m), i * 0.05, 0.06, "sine", 0.24, 0, 0.002, 0.04); }) },
+      help:     { label: "Question chirp", ops: [LcT(N_(79), 0, 0.06, "sine", 0.24, 0, 0.002, 0.03), LcT(N_(81), 0.07, 0.1, "sine", 0.24, N_(86), 0.002, 0.06)] },
+      clear:    { label: "Swish", ops: [LcC(3000, 0, 0.1, 0.2, 0.8, 700)] },
+      on:       { label: "Click up", ops: [LcT(N_(79), 0, 0.05, "triangle", 0.24, N_(86), 0.002, 0.03)] },
+      off:      { label: "Click down", ops: [LcT(N_(86), 0, 0.05, "triangle", 0.24, N_(79), 0.002, 0.03)] },
+      link:     { label: "Ping", ops: [LcT(N_(96), 0, 0.04, "sine", 0.14, 0, 0.001, 0.03)] },
+      install:  { label: "Soft rise", ops: [72, 76, 79, 84].map(function (m, i) { return LcT(N_(m), i * 0.05, 0.1, "sine", 0.24, 0, 0.003, 0.06); }) },
+      uninstall:{ label: "Soft fall", ops: [84, 79, 76, 72].map(function (m, i) { return LcT(N_(m), i * 0.05, 0.1, "sine", 0.24, 0, 0.003, 0.06); }) },
+    },
+  },
 };
 Looscid.LC_PACKS = LC_PACKS;
 const LC_EVENT_SWITCH = { send: "ev_send", like: "ev_like", newDream: "ev_newDream", error: "ev_error", alerts: "ev_alert", feedSwitch: "ev_feed", focus: "earconFocus", link: "linkPitch" };
@@ -2634,7 +2697,7 @@ const LC_PACK_DB = "dbm_soundpacks";
 Looscid.LC_PACK_DB = LC_PACK_DB;
 function lcIdb() {
   return new Promise(function (res, rej) {
-    if (!window.indexedDB) { rej(new Error("This browser can't store sound packs.")); return; }
+    if (!window.indexedDB) { rej(new Error("This browser can't store Soundpacks.")); return; }
     const r = indexedDB.open(LC_PACK_DB, 1);
     r.onupgradeneeded = function () { r.result.createObjectStore("packs"); };
     r.onsuccess = function () { res(r.result); }; r.onerror = function () { rej(r.error || new Error("Storage error")); };
@@ -2659,11 +2722,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.113.31";
+const LOOSCID_VERSION = "2026.114.31";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 144;
+const LOOSCID_BUILD = 145;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-10T21:10:00Z"; // the Round 6.5.3 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-10T21:30:00Z"; // the Round 6.6 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -2920,10 +2983,22 @@ const Earcon = (function () {
   }
   function soundFor(name, pack) {
     const p = pack || Looscid.A11Y_NOW.soundPack || "looscid";
+    if (p !== "custom" && LC_PACKS[p] && LC_PACKS[p].stream && LC_PACKS[p].stream[name]) { const st = LC_PACKS[p].stream[name]; return { e: { label: st[0], ops: (LC_PACKS.looscid.sounds[name] || LC_PACKS.looscid.sounds.run).ops }, url: st[1], gain: LC_PACKS[p].gain }; }
     if (p !== "custom" && LC_PACKS[p] && LC_PACKS[p].sounds[name]) return { e: LC_PACKS[p].sounds[name], echo: LC_PACKS[p].echo, gain: LC_PACKS[p].gain };
     const e = LC_PACKS.looscid.sounds[name]; return e ? { e: e, gain: 1 } : null;
   }
   // opts: { test: play even when sounds are off; pack: preview another pack }
+  // Round 6.6: a streamed sound (the Soundvault Soundpack). An <audio> element, so the file needs no special server
+  // headers; the master volume sets its level. If it can't load (offline), the Looscid sound plays instead.
+  const streamEls = {};
+  function streamPlay(url, vol, e) {
+    try {
+      let el = streamEls[url]; if (!el) { el = new Audio(); el.preload = "auto"; el.src = url; streamEls[url] = el; }
+      el.volume = Math.max(0, Math.min(1, vol / 1.6)); el.currentTime = 0;
+      const pr = el.play(); if (pr && pr.catch) pr.catch(function () { try { tone(e, vol, {}); } catch (x) {} });
+      window.__lcStreams = (window.__lcStreams || []).concat([url.split("/").pop()]).slice(-40);
+    } catch (x) { try { tone(e, vol, {}); } catch (y) {} }
+  }
   function play(name, opts) {
     const s = soundFor(name, opts && opts.pack); if (!s) return;
     const e = s.e, a = Looscid.A11Y_NOW, test = opts && opts.test;
@@ -2943,6 +3018,7 @@ const Earcon = (function () {
     const go = function () {
       try {
         if (usePack === "custom") { const b = customBuffer(name); if (b && b !== "loading") playBuf(b, vol); else if (!b) tone(e, vol, { steady: name === "feedSwitch", free: name === "link" }); }
+        else if (s.url) streamPlay(s.url, vol, e);
         else tone(e, vol, { echo: s.echo, steady: name === "feedSwitch", free: name === "link" });
       } catch (er) {}
       sleepSoon();
@@ -2953,6 +3029,37 @@ const Earcon = (function () {
   // Keyboard clicks (Settings, Sounds): one short noise tick, same pitch every time. Master Earcons switch,
   // master volume and quiet hours apply; Calm mode only rounds it off. No pitch, ever.
   let keyAt = 0;
+  const LC_KEY_KINDS = {
+    space:  { label: "Space key", ops: [["n", 1500, 0, 0.022, 0.55, 1.1, 0]] },                                  // a lower, wider thock
+    delete: { label: "Delete key", ops: [["n", 900, 0, 0.016, 0.5, 2.2, 0], ["n", 700, 0.022, 0.012, 0.35, 2.2, 0]] }, // a low double tick
+    enter:  { label: "Enter key", ops: [["n", 2600, 0, 0.012, 0.5, 1.4, 0], ["n", 1800, 0.03, 0.03, 0.55, 1.2, 0]] },  // a click and a carriage thunk
+  };
+  // Round 6.6 (Alhasan): Command sounds. Each command gets two short notes: the area picks the voice and the register,
+  // the command picks the notes (from a pentatonic set), so related commands sound related and each one is its own.
+  const LC_CMD_AREAS = { "Go to a place": ["sine", 523.25], "Cherry": ["triangle", 659.25], "Commandbar": ["square", 440], "Feeds and Dreams": ["sine", 392],
+    "Screen reader and braille": ["triangle", 587.33], "Earcons and music": ["sawtooth", 349.23], "Settings": ["square", 493.88], "Projects": ["triangle", 698.46] };
+  const LC_PENTA = [0, 2, 4, 7, 9, 12, 14];
+  function cmdNotes(id, area) {
+    let h = 0; const s = String(id || ""); for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    const v = LC_CMD_AREAS[area] || ["sine", 466.16], i1 = h % LC_PENTA.length; let i2 = Math.floor(h / 7) % LC_PENTA.length; if (i2 === i1) i2 = (i1 + 3) % LC_PENTA.length;
+    return { wave: v[0], f1: v[1] * Math.pow(2, LC_PENTA[i1] / 12), f2: v[1] * Math.pow(2, LC_PENTA[i2] / 12) };
+  }
+  function cmd(id, area, opts) {
+    const a = Looscid.A11Y_NOW, test = opts && opts.test;
+    if (!test && (a.cmdSounds === false || !a.earcons || lcQuietNow() || a.visualCue)) return false;
+    const n = cmdNotes(id, area);
+    // Round 6.6: the Soundpack gives command earcons its voice (cmdVoice); the Looscid pack keeps the area voices.
+    const CP = LC_PACKS[a.soundPack]; if (CP && CP.cmdVoice) n.wave = CP.cmdVoice;
+    window.__lcCmdSounds = (window.__lcCmdSounds || []).concat([area + "|" + id + "|" + n.wave + ":" + Math.round(n.f1) + ">" + Math.round(n.f2) + "|" + (a.soundPack || "looscid")]).slice(-60);
+    if (test) unlock();
+    if (!ac) return true;
+    const vol = lcLevel(a);
+    if (vol <= 0) return true;
+    const g = n.wave === "square" || n.wave === "sawtooth" ? 0.09 : 0.18;
+    const go = function () { try { tone({ label: "Command", ops: [LcT(n.f1, 0, 0.06, n.wave, g, 0), LcT(n.f2, 0.065, 0.08, n.wave, g, 0)] }, vol * 0.7, { free: true }); } catch (e) {} sleepSoon(); };
+    if (ac.state === "suspended") ac.resume().then(go, function () {}); else go();
+    return true;
+  }
   function key(opts) {
     const a = Looscid.A11Y_NOW, test = opts && opts.test;
     if (!test && (a.keyClicks === false || !a.earcons || lcQuietNow() || a.visualCue)) return;
@@ -2964,7 +3071,13 @@ const Earcon = (function () {
     if (vol <= 0) return;
     // Round 6: a pack can bring its own key click (Insomnia's click, Hyper Synth's filtered tick).
     const pk = LC_PACKS[a.soundPack] && LC_PACKS[a.soundPack].sounds.key;
-    const go = function () { try { if (pk) tone(pk, vol * 0.5 * (LC_PACKS[a.soundPack].gain || 1), { steady: true, echo: false }); else tone({ label: "Key", ops: [["n", 3200, 0, 0.012, 0.5, 1.4, 0]] }, vol * 0.5, { steady: true }); } catch (e) {} sleepSoon(); };
+    // Round 6.6 (Alhasan): Space, Delete (and Backspace) and Enter have their own clicks, in every pack. Letters keep their click.
+    // Round 6.6: a Soundpack can bring its own Space, Delete and Enter (keySpace, keyDelete, keyEnter); else Looscid's.
+    const KP = LC_PACKS[a.soundPack], kind = opts && opts.kind, kk = kind && "key" + kind[0].toUpperCase() + kind.slice(1);
+    const packSpecial = kk && KP && KP.sounds[kk], special = kind && (packSpecial || LC_KEY_KINDS[kind]);
+    if (kind) window.__lcKeyKinds = (window.__lcKeyKinds || []).concat([kind]).slice(-60);
+    window.__lcKeyPacks = (window.__lcKeyPacks || []).concat([(packSpecial || (!kind && pk)) ? a.soundPack : "looscid"]).slice(-60);
+    const go = function () { try { if (special) tone(special, vol * 0.5 * (packSpecial ? (KP.gain || 1) : 1), { steady: true }); else if (pk) tone(pk, vol * 0.5 * (LC_PACKS[a.soundPack].gain || 1), { steady: true, echo: false }); else tone({ label: "Key", ops: [["n", 3200, 0, 0.012, 0.5, 1.4, 0]] }, vol * 0.5, { steady: true }); } catch (e) {} sleepSoon(); };
     if (ac.state === "suspended") ac.resume().then(go, function () {}); else go();
   }
   // Pitch cues (Settings, Accessibility, Screen reader and braille, Verbosity): one very short tone whose
@@ -2999,7 +3112,7 @@ const Earcon = (function () {
     } finally { ac = saved[0]; chain = saved[1]; lpNode = saved[2]; noise = saved[3]; }
     return off.startRendering().then(function (buf) { const d = buf.getChannelData(0); let pk = 0, ss = 0, n = 0; for (let i = 0; i < d.length; i++) { const v = Math.abs(d[i]); if (v > pk) pk = v; if (v > 1e-4) { ss += d[i] * d[i]; n++; } } return { peak: pk, rms: n ? Math.sqrt(ss / n) : 0 }; });
   }
-  return { play: play, unlock: unlock, key: key, cue: pcue, _render: _render, _ctx: function () { return ac; }, soundFor: soundFor };
+  return { play: play, unlock: unlock, key: key, cue: pcue, cmd: cmd, cmdNotes: cmdNotes, _render: _render, _ctx: function () { return ac; }, soundFor: soundFor };
 })();
 Looscid.Earcon = Earcon;
 /* Pitch cues: which kind of thing got focus, and its pitch. Each kind has its own switch in Verbosity. */
@@ -3016,14 +3129,28 @@ Looscid.LC_PC_BACK_AT = 0; // a Back or Close press: the page change then plays 
 function lcPcOn(kind) { const a = Looscid.A11Y_NOW, p = LC_PC[kind]; return !!p && a.earcons && a.pitchCues !== false && a[p[0]] !== false; }
 // Round 6: a pack with chimes (NexOS classic) plays its open chime (Good Morning) whenever anything opens and its
 // close chime (Good Night) on Back or Close, alongside the pitch cue (which is unchanged).
+// Round 6.6 (Alhasan, 5:17 PM: "the soundpacks don't play on certain elements, like on the Home feed only the Tab bar"):
+// every Soundpack, not only NexOS classic, now plays its own sound for what you do to an element, wherever it is:
+// opening and closing (menus, Redream or Quote, Replies, pages, Back and Close), switches and checkboxes on and off,
+// and choosing from a menu. This is the one place element sounds go through. The Looscid pack stays exactly as it
+// was (its elements speak with pitch cues only), and pitch cues are unchanged in every pack. A pack without its own
+// sound for one of these plays nothing extra there.
 Looscid.LC_CHIME_AT = 0;
-function lcPackChime(kind) {
-  const P = LC_PACKS[Looscid.A11Y_NOW.soundPack]; if (!P || !P.chimes) return;
-  const now = Date.now();
-  if (kind === "open" && now - Looscid.LC_PC_BACK_AT < 600) return; // the page that Back lands on doesn't say Good Morning
-  if (now - Looscid.LC_CHIME_AT < 300) return; Looscid.LC_CHIME_AT = now;
-  Earcon.play(kind);
+function lcPackHas(id, kind) {
+  if (!id || id === "looscid") return false;
+  if (id === "custom") return !!(Looscid.LC_CUSTOM_PACK && Looscid.LC_CUSTOM_PACK.files && Looscid.LC_CUSTOM_PACK.files.length);
+  const P = LC_PACKS[id]; return !!(P && (P.sounds[kind] || (P.stream && P.stream[kind])));
 }
+function lcPackChime(kind) {
+  const id = Looscid.A11Y_NOW.soundPack || "looscid"; if (!lcPackHas(id, kind)) return false;
+  const now = Date.now();
+  if (kind === "open" && now - Looscid.LC_PC_BACK_AT < 600) return false; // the page that Back lands on doesn't say Good Morning
+  if (now - Looscid.LC_CHIME_AT < 300) return false; Looscid.LC_CHIME_AT = now;
+  window.__lcPackEl = (window.__lcPackEl || []).concat([id + ":" + kind]).slice(-80);
+  Earcon.play(kind);
+  return true;
+}
+Looscid.lcPackHas = lcPackHas;
 function lcPitchCue(kind, detail, opts) {
   if ((kind === "open" || kind === "close") && !(opts && opts.test)) lcPackChime(kind);
   if (!(opts && opts.test) && (!lcPcOn(kind) || Date.now() < Looscid.LC_PC_QUIET_UNTIL)) return false;
@@ -3141,7 +3268,7 @@ const A11Y_NAMES = [
   ["closeLabels", "Short labels on braille", ["short labels on braille", "braille short labels", "short braille labels", "short labels", "close labels", "close label", "close button labels"]],
   ["brailleOutput", "Braille display output", ["braille display output", "braille output", "braille display", "braille"]],
   ["enterSend", "Enter = Send", ["enter send", "enter to send", "enter sends", "enter key"]],
-  ["earcons", "Sounds (earcons)", ["earcons", "earcon", "sound effects", "sounds", "sound"]],
+  ["earcons", "Earcons", ["earcons", "earcon", "sound effects", "sounds", "sound"]],
   ["pitchCues", "Pitch cues", ["pitch cues", "pitch cue", "pitch changes", "pitch"]],
   ["largeBtns", "Larger buttons", ["larger buttons", "large buttons", "bigger buttons", "big buttons"]],
   ["switchAccess", "Strong focus outline", ["strong focus outline", "focus outline", "switch access"]],
@@ -3208,7 +3335,7 @@ function lcRegistryIntent(n, isOn, isOff) {
     def.o.forEach(function (o) { o[2].concat([lcNorm(o[1])]).forEach(function (x) { if (rest.indexOf(" " + x + " ") >= 0 && x.length > pl) { pick = o; pl = x.length; } }); });
     if (!pick && isOff) pick = def.o.find(function (o) { return o[0] === "off" || o[0] === "never" || o[0] === "0"; });
     if (!pick) return n.split(" ").length > 5 ? null : { say: def.l + " is " + cur + ". Choices: " + def.o.map(function (o) { return o[1]; }).join(", ") + ". It's in " + LC_SECTIONS[def.s].where + "." };
-    if (def.k === "soundPack" && pick[0] === "custom" && !(Looscid.LC_CUSTOM_PACK && Looscid.LC_CUSTOM_PACK.files && Looscid.LC_CUSTOM_PACK.files.length)) return { say: "You haven't imported a sound pack yet. Open Settings, Sounds, and choose Import a sound pack." };
+    if (def.k === "soundPack" && pick[0] === "custom" && !(Looscid.LC_CUSTOM_PACK && Looscid.LC_CUSTOM_PACK.files && Looscid.LC_CUSTOM_PACK.files.length)) return { say: "You haven't imported a Soundpack yet. Open Settings, Earcons, Soundpacks, and choose Import a Soundpack." };
     const patch = {}; patch[def.k] = pick[0];
     return { patch: patch, say: def.l + " is now " + pick[1] + "." + (soon ? " This browser has no on-device translator, so Translate stays hidden here." : "") };
   }
@@ -3511,7 +3638,7 @@ const LC_PLACES = {
   about: { label: "About Looscid", page: "settings_about" },
   labs: { label: "Looscid Labs", page: "settings_labs" },
   music: { label: "Music", page: "music" },
-  audio: { label: "Sounds settings", page: "settings_audio" },
+  audio: { label: "Earcons settings", page: "settings_audio" },
   verbosity: { label: "Verbosity settings", page: "settings_a11y_sr", srTab: "verbosity" },
   keyboard: { label: "Keyboard shortcuts", page: "settings_keyboard" },
   backup: { label: "Settings backup", page: "settings_backup" },
@@ -3526,6 +3653,8 @@ const LC_PLACES = {
   cherryhistory: { label: "Cherry, Your History, All", page: "cherry", data: { cmd: "all" }, ownFocus: true },
   // Round 6.5.3: every Commandbar command on one page, each a button that runs it.
   commands: { label: "Commands", page: "commands" },
+  helpcenter: { label: "Help Center", page: "helpcenter" }, // Round 6.6
+  legal: { label: "Legal", page: "legal" }, // Round 6.6
 };
 Looscid.LC_PLACES = LC_PLACES;
 // NexOS features: the same labels and descriptions on the More screen and in the main menu.
@@ -3550,6 +3679,7 @@ const LC_EXACT = { "open commandbar": "terminal", "commandbar": "terminal", "ope
   "cherry pinned chats": "cherrypinned", "cherry pinned": "cherrypinned", "open cherry pinned": "cherrypinned", "open cherry pinned chats": "cherrypinned", "pinned cherry chats": "cherrypinned", "cherry pins": "cherrypinned",
   "cherry history": "cherryhistory", "open cherry history": "cherryhistory", "cherry chat history": "cherryhistory", "cherry all chats": "cherryhistory", "cherry chats": "cherryhistory", "cherry your history": "cherryhistory", "cherry all": "cherryhistory",
   "pinned chats": "cherrypinned", "pinned cherry": "cherrypinned",
+  "about looscid": "about", "open about looscid": "about", "aboutlooscid": "about", // Round 6.6
   "commands": "commands", "open commands": "commands", "commands page": "commands", "open commands page": "commands", "all commands": "commands", "command list": "commands", "open command list": "commands", "list commands": "commands", "help page": "commands", "open help": "commands" };
 // Round 6.5.3: spaces are optional, terminal style: "opencherry", "cherrychats", "pinnedchats", "openfeed".
 const LC_EXACT_SQ = {};
@@ -3608,11 +3738,11 @@ const LC_COMMANDS = [
   ["music", "the beat styles; music and a style plays one, like music hyperpop; music pause, music stop. beat works too"],
   ["set", "change an accessibility setting, like set calm on, set sounds off, set volume 50, braille output on, braille short labels off or pitch cues off"],
   ["about", "About Looscid: version, what's new and system info"], ["version", "the Looscid version"],
-  ["settings", "read out every setting"], ["open sounds", "Settings, Sounds"], ["open insomnia", "an app, inside Looscid: insomnia, memes, easyconvert, desktop or kernel"], ["open verbosity", "Verbosity and pitch cues"], ["open keyboard shortcuts", "Settings, Keyboard shortcuts"], ["open privacy", "Settings, Privacy, with Permissions"],
+  ["settings", "read out every setting"], ["open sounds", "Settings, Earcons (open earcons works too)"], ["open insomnia", "an app, inside Looscid: insomnia, memes, easyconvert, desktop or kernel"], ["open verbosity", "Verbosity and pitch cues"], ["open keyboard shortcuts", "Settings, Keyboard shortcuts"], ["open privacy", "Settings, Privacy, with Permissions"],
   ["verbosity", "verbosity low, medium or high"], ["read order", "read order name first or text first"], ["announce new dreams", "off, count or read"],
   ["speak timestamps", "off, short or full"], ["speak emoji", "name, skip or word"], ["hashtags", "hashtags read or skip"], ["typing echo", "characters, words, both or off"], ["read aloud rate", "read aloud rate and a number from 50 to 200; read aloud pitch 50 to 150; voice and a name"],
   ["braille emoji", "braille emoji name or strip; braille timestamps on or off; braille prefix on or off"],
-  ["sound pack", "sound pack looscid, nexos, insomnia or custom"], ["send sound", "send sound, like sound, new dream sound, error sound, alert sound or feed switch sound, on or off"], ["earcon on swipe", "earcon on swipe on or off"], ["ducking", "ducking on or off; haptics on or off"],
+  ["soundpack", "soundpack looscid, nexos, insomnia, synth, fastsm, soundvault or custom (sound pack works too)"], ["send sound", "send sound, like sound, new dream sound, error sound, alert sound or feed switch sound, on or off"], ["earcon on swipe", "earcon on swipe on or off"], ["ducking", "ducking on or off; haptics on or off"],
   ["quiet hours", "quiet hours on or off; quiet from 10 pm; quiet until 7 am"], ["calm feed", "calm feed on or off, hides like and Redream counts"],
   ["mute word", "mute word and a word; unmute word and a word"], ["add content warning", "add content warning and a topic; remove content warning and a topic"],
   ["auto play media", "always, wifi only or never"], ["alt text reminder", "on or off"], ["undo send", "off, 5 or 10 seconds"], ["draft autosave", "on or off"], ["reading mode", "reading mode on or off"],
@@ -3654,6 +3784,8 @@ function lcExtraIntent(raw) {
     const id = /insomnia/.test(m[1]) ? "insomnia" : /meme/.test(m[1]) ? "memes" : /^easy/.test(m[1]) ? "easyconvert" : /kernel/.test(m[1]) || (m[0].indexOf("boot ") === 0 && m[1] === "nexos") ? "real" : "web", app = LC_NEXOS_APPS.find(function (x) { return x.id === id; });
     return { say: "Opened " + app.name + ".", fn: function () { Looscid.LC_NEXOS_OPEN = app; if (Looscid.LC_NAV) Looscid.LC_NAV("nexos_app", app); } };
   }
+  // Round 6.6: projects, open <project> and lyrics <song> (js/projects.js). Last, so older words keep their meaning.
+  if (Looscid.lcProjectIntent) { const pj = Looscid.lcProjectIntent(raw); if (pj) return pj; }
   return null;
 }
 Looscid.LC_NAV = null; // set by App: navigate
@@ -3680,6 +3812,17 @@ function lcPathIntent(raw) {
   if (r) return { id: r.id, prefix: r.exact ? "" : "Closest match: " + LC_PLACES[r.id].label + ". " };
   return scoped ? { err: "Nothing matches \u201c" + q + "\u201d. Type commands to see every command." } : null;
 }
+/* Round 6.6: which command ran, and its area (the Commands page groups), for Command sounds. */
+function lcCmdSoundSpec(text, r) {
+  const n = lcNorm(text || "");
+  if (r && r.go) return { id: "go:" + r.go, area: /^cherry/.test(r.go) ? "Cherry" : /^(commands|terminal)$/.test(r.go) ? "Commandbar" : "Go to a place" };
+  const c = LC_COMMANDS.map(function (x) { return x[0]; }).filter(function (k) { return n === k || n.indexOf(k + " ") === 0; }).sort(function (a, b) { return b.length - a.length; })[0];
+  const id = c || n.split(" ")[0] || "command";
+  const g = (Looscid.LC_CMD_GROUPS || []).find(function (x) { return x[1].indexOf(id) >= 0; });
+  const proj = !g && Looscid.lcProjectIntent && Looscid.lcProjectIntent(n);
+  return { id: proj ? "project:" + n : id, area: g ? g[0] : proj ? "Projects" : "More commands" };
+}
+Looscid.lcCmdSoundSpec = lcCmdSoundSpec;
 function lcRun(raw, api) {
   const text = String(raw || "").trim();
   const out = { lines: [], earcon: "run" };
@@ -3702,6 +3845,20 @@ function lcRun(raw, api) {
     out.go = id; L((prefix || "") + "Opened " + LC_PLACES[id].label + ".", "ok"); out.earcon = null; return out;
   };
 
+  // Round 6.6 (Alhasan): help is the top commands; an area and help (cherry help, cherryhelp) reads that area; help list
+  // reads every command; help center opens the Help Center; new dream opens the composer (js/helpcenter.js).
+  const hlp = Looscid.lcHelpIntent ? Looscid.lcHelpIntent(n) : null;
+  if (hlp) {
+    if (hlp.place) return goTo(hlp.place);
+    if (hlp.fn) { setTimeout(hlp.fn, 0); out.leave = true; L(hlp.say, "ok"); out.earcon = null; return out; }
+    if (hlp.full) {
+      L("Commands:", "hi"); LC_COMMANDS.forEach(function (c) { L(c[0] + ": " + c[1]); });
+      L("Anything else goes to Cherry, the Looscid assistant. Ctrl+K or Cmd+K opens Commandbar anywhere. Type commands for the Commands page, where every command is a button.", "info");
+      out.say = "Commands: " + LC_COMMANDS.map(function (c) { return c[0]; }).join(", ") + ". Anything else goes to Cherry. Type commands for the Commands page.";
+      out.earcon = "help"; return out;
+    }
+    hlp.lines.forEach(function (l) { L(l[0], l[1]); }); out.say = hlp.say; out.earcon = "help"; return out;
+  }
   if (LC_EXACT[n]) return goTo(LC_EXACT[n]);
   // Round 6.5.3: path style (fil > Cherry pinned), and spaces optional (opencherry, pinnedchats).
   const pth = lcPathIntent(text);
@@ -3718,7 +3875,7 @@ function lcRun(raw, api) {
       const p = api.profile || {};
       L((navigator.onLine === false ? "Offline" : "Online") + ". Looscid " + LOOSCID_VERSION + " is local-first, so your data stays on this device." + (Looscid.lcNostr && Looscid.lcNostr.state().canDream ? " Your Dreams with Audience Everyone also go to your Nostr relays." : ""), "ok");
       L("LooscidID: " + (p.displayName || "Dreamor") + (p.handle ? " (" + p.handle + ")" : "") + ", saved on this device.");
-      L("Sounds: " + (a.visualCue ? "replaced by the visual cue" : a.earcons ? "on, volume " + a.earconVolume + " percent" : "off") + ". Captions: " + (a.captions ? "on" : "off") + ".");
+      L("Earcons: " + (a.visualCue ? "replaced by the visual cue" : a.earcons ? "on, volume " + a.earconVolume + " percent" : "off") + ". Captions: " + (a.captions ? "on" : "off") + ".");
       L("Calm mode: " + (a.calmMode ? "on" : "off") + ". Flash safety: " + (a.flashSafety ? "on" : "off") + ". Reduce Motion: " + (motionReduced() ? "on" + (systemReducedMotion() ? ", set by your device" : "") : "off") + ". Three-flash limit: always enforced.");
       if (Music.playing()) L("Music: " + Music.current().label + ", playing.");
       L("Screen reader and braille: Screen reader hints " + (a.screenReader ? "on" : "off") + ", Braille output " + (a.brailleOutput ? "on" : "off") + ", Enter = Send " + (a.enterSend ? "on" : "off") + ", Short labels on braille " + (a.closeLabels !== false ? "on" : "off") + ".");
@@ -3756,8 +3913,8 @@ function lcRun(raw, api) {
   }
   if ((w === "sound" || w === "mute" || w === "unmute" || w === "volume" || w === "beep") && !(w === "sound" && /^(pack|packs)\b/.test(arg)) && !(w === "mute" && /^words?\b/.test(arg)) && !(w === "unmute" && /^words?\b/.test(arg))) {
     const s = w === "mute" ? "off" : w === "unmute" ? "on" : w === "beep" ? "test" : w === "volume" ? arg : arg;
-    if (s === "on") { api.setA11y({ earcons: true }); L("Sounds (earcons) are now on.", "ok"); out.earcon = "on"; return out; }
-    if (s === "off") { api.setA11y({ earcons: false }); L("Sounds (earcons) are now off.", "ok"); out.earcon = "off"; out.earconForce = true; return out; }
+    if (s === "on") { api.setA11y({ earcons: true }); L("Earcons are now on.", "ok"); out.earcon = "on"; return out; }
+    if (s === "off") { api.setA11y({ earcons: false }); L("Earcons are now off.", "ok"); out.earcon = "off"; out.earconForce = true; return out; }
     if (s === "test") { if (!a.earcons && !a.visualCue) return err("Sound is off. Type sound on first."); L("Test sound played at volume " + a.earconVolume + " percent.", "ok"); out.earcon = "run"; return out; }
     const v = parseInt(s, 10);
     if (!isNaN(v)) { const vol = Math.max(0, Math.min(100, Math.round(v / 10) * 10)); api.setA11y({ earconVolume: vol }); L("Earcon volume is now " + vol + " percent.", "ok"); return out; }
@@ -4194,8 +4351,8 @@ function lcBrIntent(raw) {
 }
 // Settings > Sounds (was Audio; storage keys and page ids unchanged). Pitch cues live in Verbosity.
 const LC_AUDIO_CATS = [
-  { id: "volume", page: "settings_audio_volume", l: "Volume, focus sounds and keyboard clicks", sub: "Earcons on or off, master volume, a sound on every swipe, a click per key", keys: ["earcons", "earconVolume", "earconFocus", "keyClicks"] },
-  { id: "pack", page: "settings_audio_pack", l: "Sound pack", sub: "Looscid, NexOS classic, Insomnia, Hyper Synth or your own pack", keys: ["soundPack", "nexosBoot"] },
+  { id: "volume", page: "settings_audio_volume", l: "Volume, focus, keyboard and command earcons", sub: "Earcons on or off, master volume, a sound on every swipe, a click per key, a sound per command", keys: ["earcons", "earconVolume", "earconFocus", "keyClicks", "cmdSounds"] },
+  { id: "pack", page: "settings_audio_pack", l: "Soundpacks", sub: "Looscid, NexOS classic, Insomnia, Hyper Synth, FastSM-inspired, Soundvault or your own", keys: ["soundPack", "nexosBoot"] },
   { id: "events", page: "settings_audio_events", l: "Event sounds", sub: "Send, like, new Dream, error, alert, feed switch, with previews", keys: ["ev_send", "ev_like", "ev_newDream", "ev_error", "ev_alert", "ev_feed"] },
   { id: "haptics", page: "settings_audio_haptics", l: "Music and haptics", sub: "Ducking, haptics", keys: ["ducking", "haptics"] },
 ];
@@ -4219,7 +4376,9 @@ function lcKeyName(e) {
 // Settings > Settings backup: export and import every setting as one JSON file; reset all.
 const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "dbm_braille_styles", "dbm_theme", "dbm_ai_prefs", "dbm_cherry_attrib", "looscid_music", "looscid_alerts_tab", "looscid_show_friends", "looscid_term_output_open", "looscid_topics",
   // Round 6.5.2: Cherry's Your History (chats and which are pinned). Added at the end, so older backups still import.
-  "dbm_cherry_chats"];
+  "dbm_cherry_chats",
+  // Round 6.6: whether the More menu's Projects section is open. Added at the end, so older backups still import.
+  "dbm_more_projects_open"];
 Looscid.LC_EXPORT_KEYS = LC_EXPORT_KEYS;
 function lcExportSettings() {
   const o = { app: "Looscid", kind: "settings", version: LOOSCID_VERSION, exported: new Date().toISOString(), settings: {} };
@@ -4263,7 +4422,7 @@ function A11ySwitch({ id, label, desc, on, onToggle, soon, locked }) {
 const SETTINGS_MENU_ITEM = {
   settings_account: ["settings", "LooscidID"], settings_notifications: ["settings", "Alerts"], settings_privacy: ["settings", "Privacy"],
   settings_customizability: ["settings", "Customizability"], settings_accessibility: ["settings", "Accessibility"], settings_intelligence: ["settings", "Intelligence"], settings_labs: ["settings", "Looscid Labs"], settings_about: ["about", "About Looscid"],
-  settings_audio: ["settings", "Sounds"], settings_keyboard: ["settings", "Keyboard shortcuts"], settings_apps: ["settings", "Apps"], settings_messages: ["settings", "Alerts"], settings_backup: ["settings", "Settings backup"],
+  settings_audio: ["settings", "Earcons"], settings_keyboard: ["settings", "Keyboard shortcuts"], settings_apps: ["settings", "Apps"], settings_messages: ["settings", "Alerts"], settings_backup: ["settings", "Settings backup"],
   settings_a11y_sr: ["settings", "Accessibility"], settings_a11y_vision: ["settings", "Accessibility"], settings_a11y_hearing: ["settings", "Accessibility"],
   settings_a11y_motion: ["settings", "Accessibility"], settings_a11y_motor: ["settings", "Accessibility"], settings_a11y_terminal: ["settings", "Accessibility"],
   terms: ["about", "Terms"], privacy: ["about", "Privacy"], guidelines: ["about", "Community rules"], feedback: ["about", "Send Feedback"],
@@ -4395,6 +4554,9 @@ useEffect(() => {
   const [appNotifs, setAppNotifs] = useState(NOTIFS_INIT);
   const cherryBack = useRef(null);                              // Round 6.5.2: where Back on the Cherry page goes
   const commandsBack = useRef(null);                            // Round 6.5.3: where Back on the Commands page goes
+  const projectBack = useRef(null);                             // Round 6.6: where Back on a project goes
+  const helpBack = useRef(null);                                // Round 6.6: where Back on the Help Center goes
+  const legalBack = useRef(null);                               // Round 6.6: where Back on Legal goes
   // Round 6.5: the composer in Reply or Quote mode, opened from anywhere with lcCompose().
   const [composeReq, setComposeReq] = useState(null);
   useEffect(function () { const f = function (e) { setComposeReq(Object.assign({ n: Date.now() }, (e && e.detail) || {})); }; window.addEventListener("looscid-compose", f); return function () { window.removeEventListener("looscid-compose", f); }; }, []);
@@ -4450,12 +4612,19 @@ useEffect(() => {
     } else if (/^settings_/.test(target) && !/^settings_/.test(cur)) delete subFrom.current[target];
     // About Looscid's own buttons (Terms, Privacy, Community rules, Send Feedback): Back returns to About.
     if (!showMenuRef.current && cur === "settings_about" && /^(terms|privacy|guidelines|feedback|credits)$/.test(target)) subFrom.current[target] = cur;
+    // Round 6.6: Legal's buttons (Terms, Privacy, Community rules, Credits): Back returns to Legal.
+    if (!showMenuRef.current && cur === "legal" && /^(terms|privacy|guidelines|credits)$/.test(target)) subFrom.current[target] = cur;
     // No accounts: old login/signup links open the local profile settings
     if (target === "login" || target === "signup") { setPage("settings_account"); setPdata(null); return; }
     // Round 6.5.2: Cherry is a page. Back returns to where you opened it (the More menu reopens on Open Cherry).
     if (target === "cherry" && cur !== "cherry") cherryBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
     // Round 6.5.3: the Commands page works the same way (the More menu reopens on Commands).
     if (target === "commands" && cur !== "commands") commandsBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
+    // Round 6.6: a project works the same way (the More menu reopens on Projects, on that project).
+    if (target === "project" && cur !== "project") projectBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
+    // Round 6.6: the Help Center works the same way (the More menu reopens on Help).
+    if (target === "helpcenter" && cur !== "helpcenter") helpBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
+    if (target === "legal" && cur !== "legal") legalBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
     if (target === "intro") { setShowWelcome(true); return; }
     setPage(target); setPdata(data);
   }, []);
@@ -4482,6 +4651,33 @@ useEffect(() => {
     if (b.menu) { setMenuInit({ open: "commands", focus: "All commands", n: Date.now() }); setShowMenu(true); }
     else focusMainHeading();
   };
+  // Round 6.6: Back (or Close) on the Help Center.
+  const helpGoBack = () => {
+    const b = helpBack.current || { page: "feed", data: null, menu: false }; helpBack.current = null;
+    const to = b.page && b.page !== "helpcenter" ? b.page : "feed";
+    setPage(to); setPdata(b.data || null);
+    if (b.menu) { setMenuInit({ open: "help", focus: "Help Center", n: Date.now() }); setShowMenu(true); }
+    else focusMainHeading();
+  };
+  // Round 6.6: Back (or Close) on Legal: back where it was opened (About Looscid, the Help Center, Commandbar).
+  const legalGoBack = () => {
+    const b = legalBack.current || { page: "settings_about", data: null, menu: false }; legalBack.current = null;
+    const to = b.page && b.page !== "legal" ? b.page : "settings_about";
+    setPage(to); setPdata(b.data || null);
+    if (b.menu) { setMenuInit({ open: "about", focus: null, n: Date.now() }); setShowMenu(true); }
+    else focusMainHeading();
+  };
+  // Round 6.6: Back (or Close) on a project. Opened from the More menu: the menu reopens on Projects, on that project.
+  const projectGoBack = () => {
+    const b = projectBack.current || { page: "feed", data: null, menu: false }; projectBack.current = null;
+    const was = pdataRef.current;
+    const to = b.page && b.page !== "project" ? b.page : "feed";
+    setPage(to); setPdata(b.data || null);
+    if (b.menu) { setMenuInit({ open: "projects", focus: was && was.name, n: Date.now() }); setShowMenu(true); }
+    else focusMainHeading();
+  };
+  // Round 6.6: Commandbar's projects command opens the More menu on a section (the Projects section).
+  Looscid.LC_OPEN_MENU = (sec, focus) => { if (sec === "projects" && Looscid.lcProjectsSetOpen) Looscid.lcProjectsSetOpen(true); setMenuInit({ open: sec, focus: focus || null, n: Date.now() }); setShowMenu(true); };
   const setA11yPatch = patch => { Looscid.A11Y_NOW = Object.assign({}, Looscid.A11Y_NOW, patch); setPrefs(p => Object.assign({}, p, { accessibility: Object.assign({}, A11Y_DEFAULTS, p.accessibility || {}, patch) })); };
   const openCmd = (prefill) => {
     if (showWelcome) return;
@@ -4516,6 +4712,9 @@ useEffect(() => {
     const r = lcRun(t, { cherryCtx: cherryCtx, setA11y: setA11yPatch, profile: authUser });
     const say0 = r.say || r.lines.map(l => l.text).join(" ");
     // Round 6: blocked words stay hidden in Commandbar too, unless you typed them yourself.
+    // Round 6.6: Command sounds. The command's own sound plays where the one run sound played (and where none did);
+    // errors keep the error sound, and on, off, help, clear and close keep theirs. Off in Settings: the run sound, as before.
+    const cmdSound = () => r.earcon === "error" ? false : Earcon.cmd ? (function () { const s = lcCmdSoundSpec(t, r); return Earcon.cmd(s.id, s.area); })() : false;
     const bwHit = lcWordHit(say0), say = bwHit && (" " + lcNorm(t) + " ").indexOf(" " + lcNorm(bwHit) + " ") < 0 ? "Hidden: contains a blocked word." : say0;
     if (r.go) {
       if (LC_PLACES[r.go].alertsTab) lcSetAlertsTab(LC_PLACES[r.go].alertsTab, true);
@@ -4523,7 +4722,7 @@ useEffect(() => {
       const pl = LC_PLACES[r.go], target = pl.root ? (pl.root === "circles" ? "groups" : pl.root) : pl.page;
       if (target !== page || pl.data) {
         const ta = areaOfPage(target);
-        if (!ta || ta === areaOfPage(page)) Earcon.play("run");
+        if (!cmdSound() && (!ta || ta === areaOfPage(page))) Earcon.play("run");
         if (where === "bar") { setCmdOpen(false); cmdReturn.current = null; }
         if (target === "terminal") termBack.current = page;
         // Round 6.5.3: a Cherry command gets a fresh n each time, so running it again on the Cherry page works again.
@@ -4532,7 +4731,7 @@ useEffect(() => {
         announce(say + (lcHints() && target !== "terminal" ? " Press Control K or Command K for commands." : ""));
         return Object.assign({}, r, { closed: true });
       }
-      Earcon.play("run");
+      if (!cmdSound()) Earcon.play("run");
       if (r.keepLines) { announce(say); return r; }
       if (where === "bar") { closeCmd(true); announce("Already on " + pl.label + "."); return Object.assign({}, r, { closed: true }); }
       r.lines = [{ text: "Already on " + pl.label + ".", kind: "ok" }];
@@ -4545,10 +4744,12 @@ useEffect(() => {
     if (r.leave) {
       // The command opens another screen itself (Find a setting, a NexOS app, the boot text).
       if (where === "bar") { setCmdOpen(false); cmdReturn.current = null; }
+      cmdSound();
       announce(say);
       return Object.assign({}, r, { closed: where === "bar" });
     }
-    if (r.earcon) Earcon.play(r.earcon, r.earconForce ? { test: true } : undefined);
+    if (r.earcon && r.earcon !== "run") Earcon.play(r.earcon, r.earconForce ? { test: true } : undefined);
+    else if (!cmdSound() && r.earcon) Earcon.play("run");
     announce(say);
     return r;
   };
@@ -4582,7 +4783,12 @@ useEffect(() => {
       const k = lcPcKindOf(e.target);
       if (k && Date.now() >= Looscid.LC_PC_QUIET_UNTIL) {
         if (k[0] === "link") { if (lcPcOn("link")) { const now = Date.now(); if (now - last < 90) return; last = now; window.__lcCues = (window.__lcCues || []).concat(["link:pack"]).slice(-80); Earcon.play("link"); return; } }
-        else if (lcPitchCue(k[0], k[1])) { last = Date.now(); return; }
+        else if (lcPitchCue(k[0], k[1])) {
+          last = Date.now();
+          // Round 6.6: with another Soundpack and "Play earcon on every swipe" on, its focus sound plays too (Looscid: as before).
+          if (a.earconFocus && a.earcons && lcPackHas(a.soundPack, "focus")) Earcon.play("focus");
+          return;
+        }
       }
       if (isLink(e.target) && lcPcOn("link")) return;
       if (!a.earconFocus || !a.earcons) return;
@@ -4595,7 +4801,7 @@ useEffect(() => {
       if (!isEdit(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
       if (e.key.length !== 1 && !/^(Backspace|Delete|Enter)$/.test(e.key)) return;
       Looscid.LC_PC_QUIET_UNTIL = Date.now() + 450;
-      Earcon.key();
+      Earcon.key(e.key === " " ? { kind: "space" } : e.key === "Backspace" || e.key === "Delete" ? { kind: "delete" } : e.key === "Enter" ? { kind: "enter" } : undefined);
     };
     // Open and close, switches: cues on the change itself (Back and Close fall, opening rises, on up, off down).
     const onTap = e => {
@@ -4606,15 +4812,20 @@ useEffect(() => {
       if (t.classList.contains("bi") || /^(Back|Close)\b/.test(lab)) { Looscid.LC_PC_BACK_AT = Date.now(); Looscid.LC_CHIME_AT = 0; lcPackChime("close"); }
       setTimeout(() => {
         if (Date.now() < Looscid.LC_PC_QUIET_UNTIL) return;
-        if (sw) { lcPitchCue("toggle", (t.getAttribute("aria-checked") === "true" || t.checked) ? "on" : "off", { force: true }); return; }
+        if (sw) { const st = (t.getAttribute("aria-checked") === "true" || t.checked) ? "on" : "off"; lcPackChime(st); lcPitchCue("toggle", st, { force: true }); return; }
         const after = t.getAttribute("aria-expanded");
         if (before !== null && after !== null && before !== after) { lcPitchCue(after === "true" ? "open" : "close", null, { force: true }); return; }
+        // Round 6.6: a choice in a menu (Dream options, Redream or Quote, feeds, Settings menus) plays the pack's run sound.
+        if (/^menuitem/.test(t.getAttribute("role") || "") || t.getAttribute("role") === "option") lcPackChime("run");
         if (t.classList.contains("bi") || /^(Back|Close)\b/.test(lab)) lcPitchCue("close", null, { force: true });
       }, 30);
     };
+    // Round 6.6: Back and Close are noted before the page changes (capture), so the page they land on never plays the opening sound.
+    const onTapEarly = e => { const t = e.target && e.target.closest && e.target.closest('button, [role="button"]'); if (!t) return; const lab = (t.getAttribute("aria-label") || t.textContent || "").trim(); if (t.classList.contains("bi") || /^(Back|Close)\b/.test(lab)) Looscid.LC_PC_BACK_AT = Date.now(); };
     window.addEventListener("keydown", onKey); document.addEventListener("focusin", onFocus);
+    document.addEventListener("click", onTapEarly, true);
     document.addEventListener("keydown", onType, true); document.addEventListener("click", onTap);
-    return () => { window.removeEventListener("keydown", onKey); document.removeEventListener("focusin", onFocus); document.removeEventListener("mouseover", onOver); document.removeEventListener("mouseout", onOut); document.removeEventListener("keydown", onType, true); document.removeEventListener("click", onTap); };
+    return () => { window.removeEventListener("keydown", onKey); document.removeEventListener("focusin", onFocus); document.removeEventListener("mouseover", onOver); document.removeEventListener("mouseout", onOut); document.removeEventListener("keydown", onType, true); document.removeEventListener("click", onTap); document.removeEventListener("click", onTapEarly, true); };
   }, []);
   useEffect(() => {
     const acc = Object.assign({}, A11Y_DEFAULTS, prefs.accessibility || {});
@@ -4679,7 +4890,7 @@ useEffect(() => {
       settings_privacy: "Privacy",
       settings_customizability: "Customizability",
       settings_cz_theme: "Theme and colors", settings_cz_feeds: "Feeds and home", settings_cz_menu: "Menu", settings_cz_posting: "Dreaming", settings_cz_media: "Media and translation",
-      settings_audio_volume: "Volume and focus sounds", settings_audio_pack: "Sound pack", settings_audio_events: "Event sounds", settings_audio_haptics: "Music and haptics",
+      settings_audio_volume: "Volume and focus sounds", settings_audio_pack: "Soundpacks", settings_audio_events: "Event sounds", settings_audio_haptics: "Music and haptics",
       settings_intelligence: "Intelligence", settings_ai_model: "Cherry model", settings_ai_cmd: "Commandbar",
       settings_accessibility: "Accessibility",
       settings_a11y_sr: "Screen reader and braille",
@@ -4691,7 +4902,7 @@ useEffect(() => {
       nexos_app: "App",
       nexos_apps: "Apps",
       credits: "Credits and open source",
-      settings_audio: "Sounds",
+      settings_audio: "Earcons",
       settings_keyboard: "Keyboard shortcuts",
       settings_apps: "Apps",
       settings_messages: "Message settings",
@@ -4709,6 +4920,7 @@ useEffect(() => {
       guidelines: "Community rules",
       cherry: "Cherry",
       commands: "Commands",
+      project: pdata && pdata.name ? pdata.name : "Project",
       groups: "Circles",
       music: "Music",
       terminal: "Commandbar",
@@ -4762,6 +4974,9 @@ useEffect(() => {
       case "drafts":        return React.createElement(Looscid.DraftsPage, { navigate: navigate, onLoadDraft: d=>{ setShowCreate(true); },});
       case "cherry":        return React.createElement(Looscid.CherryPage, { navigate: navigate, cherryCtx: cherryCtx, data: pdata, onBack: cherryGoBack,});
       case "commands":      return Looscid.CommandsPage ? React.createElement(Looscid.CommandsPage, { exec: execCommand, onBack: commandsGoBack,}) : null;
+      case "helpcenter":    return Looscid.HelpCenterPage ? React.createElement(Looscid.HelpCenterPage, { onBack: helpGoBack }) : null;
+      case "legal":         return Looscid.LegalPage ? React.createElement(Looscid.LegalPage, { onBack: legalGoBack }) : null;
+      case "project":       return Looscid.ProjectPage ? React.createElement(Looscid.ProjectPage, { key: "pj-" + ((pdata && pdata.id) || "x"), data: pdata, onBack: projectGoBack,}) : null;
       case "more":          return React.createElement(Looscid.MorePage, { navigate: navigate, cherryCtx: cherryCtx, authUser: authUser,});
       case "hour_story":    return React.createElement(Looscid.HourStoryPage, { navigate: navigate, back: pdata||"more",});
       case "terms":         return React.createElement(Looscid.PolicyPage, { title: "Terms", content: TERMS_CONTENT, navigate: navigate, back: "settings",});

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<!-- Ported into Looscid (Round 6.6, Projects) from https://github.com/2three1y/codetranslator by Alhasan (2three1y), MIT. Looscid's changes: a page heading, labels for the language menu and the code box, and the output is a polite live region. In Looscid it runs in a sandboxed frame, so code you run cannot touch Looscid's data. -->
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Translator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100vh;
+            gap: 1px;
+            background: #1a1a1a;
+        }
+
+        .panel {
+            background: #0f0f0f;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            background: #151515;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .panel-title {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: #888;
+        }
+
+        .language-select {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            color: #e0e0e0;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .language-select:hover {
+            border-color: #3a3a3a;
+        }
+
+        .language-select:focus {
+            outline: none;
+            border-color: #0ea5e9;
+        }
+
+        .editor-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+            background: #0f0f0f;
+            color: #e0e0e0;
+            border: none;
+            padding: 20px;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+        }
+
+        .output-container {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+            background: #0a0a0a;
+        }
+
+        .output-container.error {
+            color: #ff6b6b;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        .run-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+        }
+
+        .run-button:hover {
+            background: #0284c7;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4);
+        }
+
+        .run-button:active {
+            transform: translateY(0);
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .canvas-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+        }
+            .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+        h2.panel-title{margin:0}
+        .language-select:focus-visible,.run-button:focus-visible,textarea:focus-visible,.output-container:focus-visible{outline:3px solid #0ea5e9;outline-offset:2px}
+    </style>
+</head>
+<body>
+    <h1 class="sr-only">Code Translator</h1>
+    <div class="container">
+        <div class="panel">
+            <div class="panel-header">
+                <div class="status-indicator"></div>
+                <label class="panel-title" for="language">Input language</label>
+                <select class="language-select" id="language">
+                    <option value="javascript">JavaScript</option>
+                    <option value="html">HTML</option>
+                    <option value="python">Python</option>
+                    <option value="svg">SVG</option>
+                </select>
+            </div>
+            <div class="editor-container">
+                <label for="code" class="sr-only">Code</label>
+                    <textarea id="code" placeholder="// Type your code here...">// Try drawing a circle
+const canvas = document.createElement('canvas');
+canvas.width = 400;
+canvas.height = 400;
+const ctx = canvas.getContext('2d');
+
+ctx.fillStyle = '#0ea5e9';
+ctx.beginPath();
+ctx.arc(200, 200, 150, 0, Math.PI * 2);
+ctx.fill();
+
+canvas;</textarea>
+                <button class="run-button" id="runBtn">Run ▶</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <h2 class="panel-title" id="out-h">Output</h2>
+            </div>
+            <div class="output-container" id="output" role="region" aria-labelledby="out-h" aria-live="polite" tabindex="0">
+                <pre>Press Run to execute code...</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const codeInput = document.getElementById('code');
+        const output = document.getElementById('output');
+        const runBtn = document.getElementById('runBtn');
+        const languageSelect = document.getElementById('language');
+
+        function clearOutput() {
+            output.innerHTML = '';
+            output.className = 'output-container';
+        }
+
+        function displayError(error) {
+            output.className = 'output-container error';
+            output.innerHTML = `<pre>Error: ${error}</pre>`;
+        }
+
+        function displayResult(result) {
+            clearOutput();
+            
+            if (result instanceof HTMLElement) {
+                output.appendChild(result);
+            } else if (typeof result === 'object' && result !== null) {
+                output.innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+            } else if (result !== undefined) {
+                output.innerHTML = `<pre>${String(result)}</pre>`;
+            }
+        }
+
+        async function runCode() {
+            const code = codeInput.value;
+            const language = languageSelect.value;
+
+            try {
+                clearOutput();
+
+                if (language === 'javascript') {
+                    // Capture console output
+                    const logs = [];
+                    const originalLog = console.log;
+                    console.log = (...args) => {
+                        logs.push(args.map(a => String(a)).join(' '));
+                        originalLog(...args);
+                    };
+
+                    try {
+                        const result = eval(code);
+                        console.log = originalLog;
+
+                        if (logs.length > 0) {
+                            output.innerHTML = `<pre>${logs.join('\n')}</pre>`;
+                        }
+                        
+                        if (result !== undefined) {
+                            displayResult(result);
+                        } else if (logs.length === 0) {
+                            output.innerHTML = '<pre>Code executed successfully (no output)</pre>';
+                        }
+                    } catch (err) {
+                        console.log = originalLog;
+                        displayError(err.message);
+                    }
+
+                } else if (language === 'html') {
+                    const iframe = document.createElement('iframe');
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                    output.appendChild(iframe);
+                    
+                    const doc = iframe.contentDocument;
+                    doc.open();
+                    doc.write(code);
+                    doc.close();
+
+                } else if (language === 'svg') {
+                    const container = document.createElement('div');
+                    container.innerHTML = code;
+                    output.appendChild(container);
+
+                } else if (language === 'python') {
+                    output.innerHTML = '<pre>Python execution not available in browser.\nTry JavaScript, HTML, or SVG instead!</pre>';
+                }
+
+            } catch (err) {
+                displayError(err.message);
+            }
+        }
+
+        runBtn.addEventListener('click', runCode);
+
+        // Run on Ctrl/Cmd + Enter
+        codeInput.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                runCode();
+            }
+        });
+
+        // Change placeholder based on language
+        languageSelect.addEventListener('change', () => {
+            const placeholders = {
+                javascript: '// Type your JavaScript code here...',
+                html: '<!-- Type your HTML here -->',
+                python: '# Python execution coming soon...',
+                svg: '<!-- Type your SVG code here -->'
+            };
+            codeInput.placeholder = placeholders[languageSelect.value];
+        });
+
+        // Auto-run on load
+        runCode();
+    </script>
+</body>
+</html>

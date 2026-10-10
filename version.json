@@ -1,14 +1,14 @@
 {
   "app": "Looscid",
   "branch": "preview",
-  "version": "2026.113.31",
-  "build": 144,
-  "features": 113,
+  "version": "2026.114.31",
+  "build": 145,
+  "features": 114,
   "fixes": 31,
-  "builds_without_fixes": 113,
-  "released": "2026-10-10T21:10:00Z",
-  "title": "Round 6.5.3",
-  "notes": "Cherry in Commandbar and a Commands page: open cherry, new cherry chat, cherry pinned chats and cherry history, spaces optional (pinnedchats) and path style (fil > Cherry pinned). The Commands page lists every command as a button. A feature update.",
+  "builds_without_fixes": 114,
+  "released": "2026-10-10T21:30:00Z",
+  "title": "Round 6.6",
+  "notes": "Projects: Alhasan's own projects built into Looscid, in More and in Commandbar; Meme Projects gets Dream Results. Earcons: every command has its own earcon, keyboard earcons, the FastSM-inspired and Soundvault Soundpacks, and Soundpacks now play on every element and switch right away. help is a short list (cherry help for one area), a Help Center, one About Looscid page and a Legal page. A feature update.",
   "branches": {
     "MainV1": {
       "version": "2026.70.103",
@@ -29,9 +29,9 @@
       "fixes": 103
     },
     "preview": {
-      "version": "2026.113.31",
-      "build": 144,
-      "features": 113,
+      "version": "2026.114.31",
+      "build": 145,
+      "features": 114,
       "fixes": 31
     },
     "refactor/discover-extraction": {

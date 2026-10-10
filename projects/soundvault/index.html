@@ -1,0 +1,251 @@
+<!doctype html>
+<!-- Ported into Looscid (Round 6.6, Projects) from https://github.com/2three1y/soundvault by Alhasan (2three1y), MIT. Looscid's changes: the Looscid bridge (settings and sounds). -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Accessible catalog of soundpacks, speech tools, audio themes, and system sounds.">
+<title>Soundvault Audio Archive — A Curated Archive of Accessible Audio &amp; Speech Tools</title>
+<style>
+:root { color-scheme: light dark; --bg:#141821; --panel:#202936; --text:#f7f3e8; --muted:#d1ccbe; --accent:#f3c969; }
+* { box-sizing:border-box; }
+body { margin:0; font:1rem/1.65 system-ui,sans-serif; background:var(--bg); color:var(--text); }
+header, main, footer { width:min(100% - 2rem,64rem); margin-inline:auto; }
+header { padding:3rem 0 1rem; }
+h1 { font-size:clamp(2rem,6vw,3.5rem); line-height:1.1; margin:0 0 1rem; }
+h2 { line-height:1.2; color:var(--accent); }
+a { color:var(--accent); text-underline-offset:.18em; }
+a:focus-visible, input:focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+.search { position:sticky; top:0; z-index:1; padding:1rem; background:var(--bg); }
+input { width:100%; padding:.9rem 1rem; border:2px solid #718096; border-radius:.6rem; font:inherit; color:var(--text); background:var(--panel); }
+section { margin:1.5rem 0; padding:1.25rem; background:var(--panel); border-radius:.8rem; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr)); gap:1rem; }
+.card { padding:1rem; border:1px solid #536174; border-radius:.6rem; }
+.card h3 { margin-top:0; }
+.button { display:inline-block; padding:.55rem .85rem; border:2px solid var(--accent); border-radius:.45rem; font-weight:700; }
+.button:focus-visible { outline:3px solid var(--text); outline-offset:3px; }
+.muted { color:var(--muted); }
+[hidden] { display:none !important; }
+
+.share-controls { display:flex; flex-wrap:wrap; align-items:center; gap:.75rem; margin:1rem 0; }
+.share-controls select, .share-controls button, .share-button { min-height:2.75rem; padding:.55rem .85rem; border:2px solid var(--accent); border-radius:.45rem; background:var(--panel); color:var(--text); font:inherit; font-weight:700; }
+.share-controls button, .share-button { color:var(--accent); cursor:pointer; }
+.share-controls select:focus-visible, .share-controls button:focus-visible, .share-button:focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+.share-status { min-height:1.65em; }
+.mastodon-instance { margin:1rem 0; flex-basis:100%; }
+.mastodon-instance label { display:block; margin-bottom:.35rem; }
+.mastodon-instance input { width:min(100%, 34rem); }
+</style>
+<link rel="icon" href="data:,">
+<style id="ps-style">
+/* Photosensitivity notice + Calm mode (no flashing; motion off under Calm mode or the system Reduce Motion setting) */
+#ps-notice{box-sizing:border-box;display:block;width:100%;margin:0;padding:.7rem 1rem .6rem;background:#fff4c2;color:#1b1b1b;border-bottom:2px solid #1b1b1b;font:1rem/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;text-align:left;position:relative;z-index:60;min-height:0}
+#ps-notice *{box-sizing:border-box;color:#1b1b1b;font-family:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;-webkit-text-fill-color:#1b1b1b}
+#ps-notice h2{font-size:1.05rem;font-weight:700;line-height:1.3;margin:0 0 .2rem;padding:0;border:0;background:none}
+#ps-notice p{margin:0 0 .45rem;padding:0;max-width:62rem;font-size:1rem}
+#ps-notice .ps-row{display:flex;flex-wrap:wrap;gap:.5rem .75rem;align-items:flex-start}
+#ps-notice button,#ps-notice summary{font:600 1rem/1.2 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;cursor:pointer;background:#fff;border:2px solid #1b1b1b;border-radius:8px;padding:.55rem .85rem;min-height:44px;margin:0;box-shadow:none;width:auto;transform:none}
+#ps-notice button[aria-pressed="true"]{background:#1b1b1b;color:#fff;-webkit-text-fill-color:#fff}
+#ps-notice button[aria-pressed="true"] *{color:#fff;-webkit-text-fill-color:#fff}
+#ps-notice summary{display:inline-block;list-style-position:inside}
+#ps-notice details{flex:1 1 16rem;min-width:0}
+#ps-notice details > div{margin-top:.5rem;padding:.6rem .8rem;background:#fffdf3;border:1px solid #1b1b1b;border-radius:8px;max-width:62rem}
+#ps-notice ul{margin:.2rem 0 .3rem 1.2rem;padding:0}
+#ps-notice li{margin:.2rem 0}
+#ps-notice a{text-decoration:underline}
+#ps-notice :focus-visible{outline:3px solid #1b1b1b;outline-offset:2px;box-shadow:0 0 0 6px #fff4c2}
+#ps-notice .ps-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+html.calm *,html.calm *::before,html.calm *::after{animation-duration:.001ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.001ms!important;transition-delay:0s!important;scroll-behavior:auto!important}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.001ms!important;transition-delay:0s!important;scroll-behavior:auto!important}}
+html.ps-hidden *,html.ps-hidden *::before,html.ps-hidden *::after{animation-play-state:paused!important}
+</style>
+<script id="ps-script">
+/* Calm mode: ON unless the visitor turns it off (remembered on this device). The system Reduce Motion setting always wins. */
+(function(){var K="calm-mode",d=document.documentElement,mq=window.matchMedia?window.matchMedia("(prefers-reduced-motion: reduce)"):{matches:false};
+function pref(){try{return localStorage.getItem(K)!=="off";}catch(e){return true;}}
+window.calmMode=function(){return !!mq.matches||pref();};
+function sync(say){var on=window.calmMode();d.classList.toggle("calm",on);var b=document.getElementById("ps-calm"),s=document.getElementById("ps-state"),st=document.getElementById("ps-status");
+if(b)b.setAttribute("aria-pressed",String(on));if(s)s.textContent=on?"on":"off";
+if(say&&st){st.textContent="";setTimeout(function(){st.textContent=on?(mq.matches&&!pref()?"Motion stays off because your device's Reduce Motion setting is on.":"Calm mode on. Motion is off."):"Calm mode off. Motion is on.";},50);}
+try{document.dispatchEvent(new CustomEvent("calmchange",{detail:{calm:on}}));}catch(e){}}
+window.__psSync=sync;sync(false);
+if(mq.addEventListener)mq.addEventListener("change",function(){sync(false);});else if(mq.addListener)mq.addListener(function(){sync(false);});
+document.addEventListener("visibilitychange",function(){d.classList.toggle("ps-hidden",document.hidden);});
+document.addEventListener("click",function(e){var b=e.target&&e.target.closest&&e.target.closest("#ps-calm");if(!b)return;var on=b.getAttribute("aria-pressed")==="true";try{localStorage.setItem(K,on?"off":"on");}catch(x){}sync(true);});
+document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
+</script>
+<script src="../../nexos/looscid-bridge.js"></script>
+</head>
+<body>
+<section id="ps-notice" aria-labelledby="ps-title">
+  <h2 id="ps-title">Photosensitivity notice</h2>
+  <p>This site has no flashing or moving content and follows the three-flash safety limit.</p>
+  <div class="ps-row">
+  <details>
+    <summary>More details</summary>
+    <div>
+    <ul>
+      <li>What was checked: every animation, transition and script on this page, plus a frame-by-frame screen recording measured against the WCAG 2.3.1 limits (no more than three flashes in any second, including red flashes).</li>
+      <li>Nothing on this site moves or blinks on its own.</li>
+      <li>Your device's Reduce Motion setting is honoured: if anything is ever added that moves, it stays still when that setting is on.</li>
+      <li>This site doesn't play sound on its own.</li>
+      <li>This was tested with automated measurement, not a clinical tool like PEAT, and not on every device.</li>
+    </ul>
+    <p>If anything here ever flickers, please <a href="https://github.com/2three1y/soundvault/issues">report it on GitHub</a>.</p>
+    </div>
+  </details>
+  </div>
+  <p id="ps-status" class="ps-sr" role="status" aria-live="polite"></p>
+</section>
+
+<header id="top">
+<p class="muted">Keyboard- and screen reader-friendly navigation</p>
+<h1>Soundvault Audio Archive</h1>
+<p>A curated shelf of soundpacks, speech tools, and audio resources for accessible computing.</p>
+</header>
+<main>
+<form class="search" id="search-form" role="search">
+<label for="search"><strong>Search cards</strong></label>
+<input id="search" type="search" placeholder="Search voices, sound themes, tools..." autocomplete="off" aria-controls="catalog">
+<p id="search-status" class="muted" aria-live="polite">Showing all entries.</p>
+</form>
+<div id="catalog">
+<section aria-labelledby="voices"><h2 id="voices">Voices &amp; Speech Synthesizers</h2><div class="grid">
+<article class="card"><h3>Eloquence</h3><p>Classic multi-language formant synthesizer known for crisp phoneme definition, instant response, and intelligibility at extreme reading rates.</p><a class="button" href="https://files.mad-gamer.com/NVDA/Add-ons/Eloquence.nvda-addon">Download Eloquence (NVDA Add-on)</a></article>
+<article class="card"><h3>Flite</h3><p>Lightweight open-source runtime speech engine derived from Festival, optimized for minimal memory footprint and fast phoneme execution.</p><a class="button" href="https://files.mad-gamer.com/NVDA/Add-ons/Flite.nvda-addon">Download Flite (NVDA Add-on)</a></article>
+<article class="card"><h3>STAR Coagulator Synth</h3><p>Experimental additive and granular audio synthesizer designed for custom acoustic speech modeling and sound design.</p><a class="button" href="https://files.mad-gamer.com/NVDA/Add-ons/STAR%20Coagulator%20Synth.nvda-addon">Download STAR Coagulator Synth (NVDA Add-on)</a></article>
+<article class="card"><h3>DECtalk TTS</h3><p>Vintage 1980s formant speech synthesizer featuring classic Paul, Betty, and Harry voices with built-in singing modes and distinct robotic timbre.</p><a class="button" href="https://files.mad-gamer.com/Misc/DECtalk.apk">Download DECtalk TTS (Android APK)</a></article>
+<article class="card"><h3>Eloquence TTS</h3><p>Compact formant TTS port bringing the low-latency Eloquence engine to system-wide text-to-speech services.</p><a class="button" href="https://files.mad-gamer.com/Misc/Eloquence_for_Android.apk">Download Eloquence TTS (Android APK)</a></article>
+<article class="card"><h3>Flite STAR Provider</h3><p>Speech provider plugin integrating the Flite acoustic engine into STAR synthesizer environments.</p><a class="button" href="https://files.mad-gamer.com/Misc/Flite%20STAR%20Provider.zip">Download Flite STAR Provider (ZIP)</a></article>
+<article class="card"><h3>Classic Vocalizer</h3><p>Naturalistic concatenative speech synthesis package providing smooth prosody and clear pronunciation across varied text corpora.</p><a class="button" href="https://files.mad-gamer.com/Misc/Classic%20Vocalizer.zip">Download Classic Vocalizer (ZIP)</a></article>
+<article class="card"><h3>STAR Synthesizer</h3><p>Standalone speech and audio generation toolkit for custom acoustic synthesis and rule-based phoneme rendering.</p><a class="button" href="https://files.mad-gamer.com/Misc/STAR.zip">Download STAR Synthesizer (ZIP)</a></article>
+<article class="card"><h3>Google TTS STAR Provider</h3><p>Integration bridge allowing STAR speech frameworks to drive and route through Google neural and standard TTS engines.</p><a class="button" href="https://files.mad-gamer.com/Misc/google_tts_star_provider.tar.gz">Download Google TTS STAR Provider (TAR.GZ)</a></article>
+<article class="card"><h3>DoubleTalk PC ROM</h3><p>Binary firmware dump of the RC Systems DoubleTalk PC hardware speech card for emulation, synthesis reverse engineering, or ISA sound reproduction.</p><a class="button" href="https://files.mad-gamer.com/Misc/doubletalkpc.bin">Download DoubleTalk PC ROM (BIN)</a></article>
+<article class="card"><h3>Gryphon</h3><p>Specialized accessibility add-on providing alternative speech output channels and low-latency audio routing.</p><a class="button" href="https://files.mad-gamer.com/NVDA/Add-ons/Gryphon.nvda-addon">Download Gryphon (NVDA Add-on)</a></article>
+</div></section>
+<section aria-labelledby="macos"><h2 id="macos">macOS VoiceOver Sounds</h2><div class="grid">
+<article class="card"><h3>Actions Available Tone</h3><p>High-frequency subtle chime triggered when the cursor lands on an element with custom accessibility actions or rotor options.</p><a class="button" href="https://files.mad-gamer.com/Audio/macOS%20VoiceOver%20Sounds/ActionsAvailable.wav">Download Actions Available Tone (ActionsAvailable.wav)</a></article>
+<article class="card"><h3>Alert Tone</h3><p>Sharp auditory warning signifying modal errors, validation failures, or unhandled system exceptions.</p><a class="button" href="https://files.mad-gamer.com/Audio/macOS%20VoiceOver%20Sounds/Alert.wav">Download Alert Tone (Alert.wav)</a></article>
+<article class="card"><h3>Announcement Tone</h3><p>Upward-inflecting chime preceding dynamic live region announcements or asynchronous status messages.</p><a class="button" href="https://files.mad-gamer.com/Audio/macOS%20VoiceOver%20Sounds/Announcement.wav">Download Announcement Tone (Announcement.wav)</a></article>
+<article class="card"><h3>Braille Display Connected Tone</h3><p>Low resonant chime confirming successful handshake and cell initialization with a refreshable Braille terminal.</p><a class="button" href="https://files.mad-gamer.com/Audio/macOS%20VoiceOver%20Sounds/BrailleDisplayConnected.wav">Download Braille Display Connected Tone (BrailleDisplayConnected.wav)</a></article>
+<article class="card"><h3>Focus Tone</h3><p>Brief neutral click indicating cursor movement to a new interactive accessibility element.</p><a class="button" href="https://files.mad-gamer.com/Audio/macOS%20VoiceOver%20Sounds/Focus.wav">Download Focus Tone (Focus.wav)</a></article>
+<article class="card"><h3>QuickNav On Tone</h3><p>Double-beep confirmation indicating single-key hardware keyboard navigation has been activated.</p><a class="button" href="https://files.mad-gamer.com/Audio/macOS%20VoiceOver%20Sounds/QuickNavOn.wav">Download QuickNav On Tone (QuickNavOn.wav)</a></article>
+<article class="card"><h3>Web Page Loaded Tone</h3><p>Cascading chime signaling complete DOM rendering and accessibility tree synchronization.</p><a class="button" href="https://files.mad-gamer.com/Audio/macOS%20VoiceOver%20Sounds/WebPageLoaded.wav">Download Web Page Loaded Tone (WebPageLoaded.wav)</a></article>
+<article class="card"><h3>Full macOS VoiceOver Archive</h3><p>Complete package containing the full suite of native VoiceOver system sound effects and cues.</p><a class="button" href="https://files.mad-gamer.com/?dir=Audio/macOS%20VoiceOver%20Sounds">Download Full macOS VoiceOver Archive (ZIP)</a></article>
+</div></section>
+<section aria-labelledby="systems"><h2 id="systems">System Audio Collections</h2><div class="grid">
+<article class="card"><h3>AirPods Case Sounds</h3><p>High-volume acoustic chirps and locator beacons designed for charging status, pairing prompts, and physical case finding.</p><a class="button" href="https://files.mad-gamer.com/?dir=Audio/AirPods%20Sounds/Case">Download AirPods Case Sounds (WAV / ZIP)</a></article>
+<article class="card"><h3>iOS System Tones</h3><p>System audio archive containing lock clicks, keyboard taps, ringtones, and notification chimes.</p><a class="button" href="https://files.mad-gamer.com/?dir=Audio/iOS%20Tones">Download iOS System Tones (ZIP)</a></article>
+<article class="card"><h3>ChromeOS UI Soundpack</h3><p>Complete interface audio package containing subtle navigation thuds, window snapping cues, and system alerts.</p><a class="button" href="https://files.mad-gamer.com/?dir=Audio/ChromeOS%20Sounds">Download ChromeOS UI Soundpack (ZIP)</a></article>
+<article class="card"><h3>Windows 11 System Sounds</h3><p>Soft, rounded ambient system soundpack containing Fluent Design navigation clicks, logon cues, and modal prompts.</p><a class="button" href="https://files.mad-gamer.com/?dir=Audio/Windows%2011%20Sounds">Download Windows 11 System Sounds (ZIP)</a></article>
+<article class="card"><h3>Ubuntu Desktop Sounds</h3><p>Sound theme containing classic desktop alerts, session login drums, dialog chimes, and hardware unplug cues.</p><a class="button" href="https://files.mad-gamer.com/?dir=Ubuntu%20Sounds">Download Ubuntu Desktop Sounds (ZIP)</a></article>
+<article class="card"><h3>FastSM TweeseCake Soundpack</h3><p>High-speed audio pack optimized for rapid timeline scrolling, notification pings, and direct messaging.</p><a class="button" href="https://files.mad-gamer.com/FastSM%20Soundpacks/TweeseCake.zip">Download FastSM TweeseCake Soundpack (ZIP)</a></article>
+</div></section>
+<section aria-labelledby="addons"><h2 id="addons">NVDA Add-ons &amp; Audio Themes</h2><div class="grid">
+<article class="card"><h3>VoiceOver Audio Theme</h3><p>Complete sound theme packaging macOS interface tones for direct import into the NVDA Audio Themes framework.</p><a class="button" href="https://files.mad-gamer.com/NVDA/Audio%20Themes/VoiceOver.atp">Download VoiceOver Audio Theme (.atp)</a></article>
+<article class="card"><h3>Android Audio Theme</h3><p>Tactile interface theme porting TalkBack interaction clicks, gestures, and boundary thuds to NVDA.</p><a class="button" href="https://files.mad-gamer.com/NVDA/Audio%20Themes/android.atp">Download Android Audio Theme (.atp)</a></article>
+<article class="card"><h3>Ask ChatGPT Add-on</h3><p>Global shortcut add-on routing selected text or clipboard buffers directly to an LLM endpoint for quick queries.</p><a class="button" href="https://files.mad-gamer.com/NVDA/Add-ons/Ask%20ChatGPT.nvda-addon">Download Ask ChatGPT Add-on (.nvda-addon)</a></article>
+<article class="card"><h3>Audio Manager Add-on</h3><p>Audio device switcher and volume balancer allowing independent sound card assignment for speech and applications.</p><a class="button" href="https://files.mad-gamer.com/NVDA/Add-ons/Audio%20Manager.nvda-addon">Download Audio Manager Add-on (.nvda-addon)</a></article>
+<article class="card"><h3>MG Enhancements Add-on</h3><p>Utility suite adding workflow shortcuts, quick system toggles, and audio monitoring tools to the screen reader environment.</p><a class="button" href="https://files.mad-gamer.com/NVDA/Add-ons/MG%20Enhancements.nvda-addon">Download MG Enhancements Add-on (.nvda-addon)</a></article>
+</div></section>
+<section aria-labelledby="schemes"><h2 id="schemes">Sound Manager Schemes</h2><div class="grid">
+<article class="card"><h3>Windows 10 Scheme</h3><p>Authentic modern operating-system event audio configured for direct loading in Sound Manager.</p><a class="button" href="https://files.mad-gamer.com/Sound%20Manager%20Schemes/Windows%2010.ths">Download Windows 10 Scheme (THS)</a></article>
+<article class="card"><h3>Windows 11 Dark Mode Scheme</h3><p>Authentic modern operating-system event audio configured for direct loading in Sound Manager.</p><a class="button" href="https://files.mad-gamer.com/Sound%20Manager%20Schemes/Windows%2011%20Dark%20Mode.ths">Download Windows 11 Dark Mode Scheme (THS)</a></article>
+<article class="card"><h3>Windows 7 Scheme</h3><p>Authentic operating-system event audio configured for direct loading in Sound Manager.</p><a class="button" href="https://files.mad-gamer.com/Sound%20Manager%20Schemes/Windows%207.ths">Download Windows 7 Scheme (THS)</a></article>
+<article class="card"><h3>Windows 95 Scheme</h3><p>Authentic retro operating-system event audio configured for direct loading in Sound Manager.</p><a class="button" href="https://files.mad-gamer.com/Sound%20Manager%20Schemes/Windows%2095.ths">Download Windows 95 Scheme (THS)</a></article>
+<article class="card"><h3>Windows Vista Glass Scheme</h3><p>Authentic operating-system event audio configured for direct loading in Sound Manager.</p><a class="button" href="https://files.mad-gamer.com/Sound%20Manager%20Schemes/Windows%20Vista%20Glass.ths">Download Windows Vista Glass Scheme (THS)</a></article>
+<article class="card"><h3>Windows XP Build 2481 Scheme</h3><p>Authentic legacy operating-system event audio configured for direct loading in Sound Manager.</p><a class="button" href="https://files.mad-gamer.com/Sound%20Manager%20Schemes/Windows%20XP%20Build%202481.ths">Download Windows XP Build 2481 Scheme (THS)</a></article>
+</div></section>
+<section aria-labelledby="fonts"><h2 id="fonts">Soundfonts (SF2)</h2><div class="grid">
+<article class="card"><h3>Android Soundfont</h3><p>General MIDI instrument sample bank for software synthesizers, MIDI playback, and game audio reproduction.</p><a class="button" href="https://files.mad-gamer.com/?dir=Soundfonts/Android">Download Android Soundfont (SF2)</a></article>
+<article class="card"><h3>Crisis Soundfont</h3><p>General MIDI instrument sample bank for software synthesizers, MIDI playback, and game audio reproduction.</p><a class="button" href="https://files.mad-gamer.com/?dir=Soundfonts/Crisis">Download Crisis Soundfont (SF2)</a></article>
+<article class="card"><h3>Elten Soundfont</h3><p>General MIDI instrument sample bank for software synthesizers, MIDI playback, and game audio reproduction.</p><a class="button" href="https://files.mad-gamer.com/?dir=Soundfonts/Elten">Download Elten Soundfont (SF2)</a></article>
+<article class="card"><h3>Live HQ Natural GM Soundfont</h3><p>High-quality General MIDI instrument sample bank for software synthesizers, MIDI playback, and game audio reproduction.</p><a class="button" href="https://files.mad-gamer.com/?dir=Soundfonts/Live%20HQ%20Natural%20GM">Download Live HQ Natural GM Soundfont (SF2)</a></article>
+<article class="card"><h3>Microsoft GS Wavetable Synth Soundfont</h3><p>General MIDI instrument sample bank reproducing the Microsoft GS Wavetable synthesizer for MIDI playback and software synth use.</p><a class="button" href="https://files.mad-gamer.com/?dir=Soundfonts/Microsoft%20GS%20Wavetable">Download Microsoft GS Wavetable Synth Soundfont (SF2)</a></article>
+<article class="card"><h3>All in One GM Soundfont</h3><p>General MIDI instrument sample bank for software synthesizers, MIDI playback, and game audio reproduction.</p><a class="button" href="https://files.mad-gamer.com/?dir=Soundfonts/All%20in%20One%20GM">Download All in One GM Soundfont (SF2)</a></article>
+</div></section>
+<section aria-labelledby="nvgt"><h2 id="nvgt">NVGT Scripts</h2><div class="grid">
+<article class="card"><h3>Audio Spacer Script</h3><p>Real-time 3D spatial sound calculation applying distance attenuation, stereo panning, and room reverb for audio games.</p><a class="button" href="https://files.mad-gamer.com/NVGT%20Scripts/Audio%20Spacer.nvgt">Download Audio Spacer Script (NVGT)</a></article>
+<article class="card"><h3>Basic Mastodon Client</h3><p>Accessible, keyboard-driven Fediverse microblogging client for reading feeds and posting statuses without browser overhead.</p><a class="button" href="https://files.mad-gamer.com/NVGT%20Scripts/Basic%20Mastodon%20Client.nvgt">Download Basic Mastodon Client (NVGT)</a></article>
+<article class="card"><h3>MG Notify Script</h3><p>Lightweight desktop notification daemon delivering auditory and screen reader alerts for background events.</p><a class="button" href="https://files.mad-gamer.com/NVGT%20Scripts/MG%20Notify.nvgt">Download MG Notify Script (NVGT)</a></article>
+<article class="card"><h3>Pack Manager Script</h3><p>Command-line soundpack archiver and extractor designed for managing game sound assets.</p><a class="button" href="https://files.mad-gamer.com/NVGT%20Scripts/Pack%20Manager.nvgt">Download Pack Manager Script (NVGT)</a></article>
+</div></section>
+<section aria-labelledby="ttcom"><h2 id="ttcom">TTCom Sound Resources</h2><div class="grid">
+<article class="card"><h3>Apple Scheme</h3><p>Custom notification sound scheme for TeamTalk client sessions.</p><a class="button" href="https://files.mad-gamer.com/?dir=TTCom/Apple">Download Apple Scheme (TTCom)</a></article>
+<article class="card"><h3>MajorlyG Scheme</h3><p>Custom notification sound scheme for TeamTalk client sessions.</p><a class="button" href="https://files.mad-gamer.com/?dir=TTCom/MajorlyG">Download MajorlyG Scheme (TTCom)</a></article>
+<article class="card"><h3>Default Scheme</h3><p>Custom notification sound scheme for TeamTalk client sessions.</p><a class="button" href="https://files.mad-gamer.com/?dir=TTCom/default">Download Default Scheme (TTCom)</a></article>
+<article class="card"><h3>Electron Scheme</h3><p>Custom notification sound scheme for TeamTalk client sessions.</p><a class="button" href="https://files.mad-gamer.com/?dir=TTCom/electron">Download Electron Scheme (TTCom)</a></article>
+<article class="card"><h3>Electron 2 Scheme</h3><p>Custom notification sound scheme for TeamTalk client sessions.</p><a class="button" href="https://files.mad-gamer.com/?dir=TTCom/electron2">Download Electron 2 Scheme (TTCom)</a></article>
+<article class="card"><h3>Firestar Scheme</h3><p>Custom notification sound scheme for TeamTalk client sessions.</p><a class="button" href="https://files.mad-gamer.com/?dir=TTCom/firestar">Download Firestar Scheme (TTCom)</a></article>
+<article class="card"><h3>LW Scheme</h3><p>Custom notification sound scheme for TeamTalk client sessions.</p><a class="button" href="https://files.mad-gamer.com/?dir=TTCom/lw">Download LW Scheme (TTCom)</a></article>
+<article class="card"><h3>Masonasons Scheme</h3><p>Custom notification sound scheme for TeamTalk client sessions.</p><a class="button" href="https://files.mad-gamer.com/?dir=TTCom/masonasons">Download Masonasons Scheme (TTCom)</a></article>
+<article class="card"><h3>Mixed Scheme</h3><p>Custom notification sound scheme for TeamTalk client sessions.</p><a class="button" href="https://files.mad-gamer.com/?dir=TTCom/mixed">Download Mixed Scheme (TTCom)</a></article>
+<article class="card"><h3>OldTT Scheme</h3><p>Custom notification sound scheme for TeamTalk client sessions.</p><a class="button" href="https://files.mad-gamer.com/?dir=TTCom/oldtt">Download OldTT Scheme (TTCom)</a></article>
+<article class="card"><h3>SuperTT Scheme</h3><p>Custom notification sound scheme for TeamTalk client sessions.</p><a class="button" href="https://files.mad-gamer.com/?dir=TTCom/supertt">Download SuperTT Scheme (TTCom)</a></article>
+<article class="card"><h3>Logins and Logouts Reference Lists</h3><p>Text lists of login and logout sounds used for TeamTalk session notifications.</p><a class="button" href="https://files.mad-gamer.com/TTCom%20Sounds%20and%20Texts/text/logins.txt">Download Logins and Logouts Reference Lists (TXT)</a></article>
+</div></section>
+<section aria-labelledby="misc"><h2 id="misc">Miscellaneous Tools &amp; Utilities</h2><div class="grid">
+<article class="card"><h3>Audex Accessibility Sound Feedback</h3><p>Background accessibility service providing distinct acoustic feedback on screen touches, gestures, scrolls, and UI transitions.</p><a class="button" href="https://files.mad-gamer.com/Misc/Audex%20Installer.apk">Download Audex Accessibility Sound Feedback (Android APK)</a></article>
+<article class="card"><h3>AudioDefense: Zombie Arena</h3><p>Binaural 3D audio-only combat game where players track, target, and fight enemies entirely through sound cues.</p><a class="button" href="https://files.mad-gamer.com/Misc/AudioDefense.ipa">Download AudioDefense: Zombie Arena (Accessible Audio Game iOS IPA)</a></article>
+<article class="card"><h3>Cheat Engine 6.7 Installer</h3><p>Memory scanner, debugger, and hex editor for modifying process memory values and inspecting runtime variables.</p><a class="button" href="https://files.mad-gamer.com/Misc/Cheat%20Engine%206.7.exe">Download Cheat Engine 6.7 Installer (Windows EXE)</a></article>
+<article class="card"><h3>MG Notify Tool</h3><p>Android notification broadcaster routing push notifications into customizable auditory and tactile alerts.</p><a class="button" href="https://files.mad-gamer.com/Misc/MG%20Notify.apk">Download MG Notify Tool (Android APK)</a></article>
+<article class="card"><h3>NVDA Remote Setup</h3><p>Official client and server setup for controlling and troubleshooting remote computers running NVDA over an encrypted link.</p><a class="button" href="https://files.mad-gamer.com/Misc/NVDA%20Remote%20Setup.exe">Download NVDA Remote Setup (Windows EXE)</a></article>
+<article class="card"><h3>STARTube Accessible YouTube Downloader</h3><p>Accessible YouTube audio extractor that streams or downloads audio streams directly without web ads or tracking scripts.</p><a class="button" href="https://files.mad-gamer.com/Misc/STARTubeSetup.exe">Download STARTube Accessible YouTube Downloader (Windows EXE)</a></article>
+<article class="card"><h3>TTCom Configurator</h3><p>Setup utility for managing server profiles, audio codecs, hotkeys, and channel settings in TeamTalk.</p><a class="button" href="https://files.mad-gamer.com/Misc/TTCom%20Configurator.exe">Download TTCom Configurator (Windows EXE)</a></article>
+<article class="card"><h3>Unimic Audio Utility</h3><p>Virtual microphone router piping sound effects, media files, and synthesizer output directly into microphone streams.</p><a class="button" href="https://files.mad-gamer.com/Misc/Unimic.exe">Download Unimic Audio Utility (Windows EXE)</a></article>
+<article class="card"><h3>Windows Spammer Utility</h3><p>High-rate window creation and messaging loop stress-testing tool for benchmarking window manager performance.</p><a class="button" href="https://files.mad-gamer.com/Misc/Windows%20Spammer.exe">Download Windows Spammer Utility (Windows EXE)</a></article>
+<article class="card">
+<h3>Windows ISO &amp; Virtual Machine Archive</h3>
+
+<p>A curated directory of Windows disc images and pre-configured virtual machines for hypervisors, gathered for legacy operating system and software testing.</p>
+
+<a class="button" href="https://files.mad-gamer.com/?dir=Misc">Download Windows ISO &amp; Virtual Machine Archive</a>
+</article>
+</div></section>
+</div>
+<p id="no-results" hidden>Couldn't find any matching sounds or tools this time. Try a broader search like 'VoiceOver', 'Apex', or 'soundfont'.</p>
+</main>
+
+<script src="app.js" defer></script>
+
+<footer>
+  <p class="muted">Soundvault is an index; downloads are hosted by the original <a href="https://mad-gamer.com/">MG Storage</a> site. Browse the <a href="https://files.mad-gamer.com/">source archive</a> for files. Check the source for availability, file details, permissions, and licensing. View the <a href="https://github.com/2three1y/soundvault">source code</a> on GitHub</p>
+
+
+<section class="share-section" aria-labelledby="share-heading">
+<h2 id="share-heading">The Vault of sounds. For everyone to access</h2>
+
+<p>Whether you're hunting for retro screen reader chimes, legacy hypervisor images, or just want your workstation to sound distinctly superior, pass the vault key along. Zero trackers, no algorithms, pure sound.</p>
+
+<div class="share-controls">
+<label for="share-platform">Select platform:</label>
+
+<select id="share-platform">
+<option value="twitter">Twitter (X)</option>
+<option value="mastodon">Mastodon</option>
+<option value="threads">Threads</option>
+<option value="nostr">Nostr</option>
+<option value="facebook">Facebook</option>
+</select>
+
+<div id="mastodon-instance-field" class="mastodon-instance" hidden>
+<label for="mastodon-instance">Mastodon instance domain:</label>
+
+<input id="mastodon-instance" type="text" placeholder="e.g. techhub.social or mastodon.social" autocomplete="off" aria-keyshortcuts="Enter">
+</div>
+
+<button id="share-action-btn" type="button">Open share window</button>
+
+<button id="share-copy-btn" type="button">Copy share text</button>
+</div>
+
+<p class="muted">Selecting Nostr lets you copy the note text to paste directly into your preferred client (Damus, Primal, Coracle, Amethyst, etc.). The copy button works for every platform.</p>
+
+<p><button type="button" id="device-share" class="share-button" hidden>Share via device...</button></p>
+
+<p id="share-status" class="muted share-status" role="status" aria-live="polite"></p>
+</section>
+<p class="muted"><a href="#top">Back to top</a></p>
+</footer>
+</body>
+</html>

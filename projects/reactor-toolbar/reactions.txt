@@ -1,0 +1,14 @@
+# Reactor Toolbar community reaction list
+# Format: emoji | accessible name
+# Add one reaction per line; keep names descriptive and welcoming.
+✨ | Sparkle reaction
+😂 | Laughing reaction
+🔥 | Fire reaction
+👏 | Applause reaction
+💡 | Bright idea reaction
+🎉 | Celebration reaction
+🤔 | Thinking reaction
+❤️ | Heart reaction
+🚀 | Launch reaction
+
+The full product concept supports 2,931 reactions. This prototype keeps a small editable sample in app.js so it works offline without tracking or a network request.

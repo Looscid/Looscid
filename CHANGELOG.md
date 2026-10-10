@@ -2,6 +2,34 @@
 
 Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.114.31 (145): Round 6.6
+
+Released October 10, 2026 (Eastern Time)
+
+A feature update, asked for by Alhasan: his projects built into Looscid, and Earcons.
+
+- Projects: More has a new Projects section near the end (the other sections keep their order). Press it to open it: a short description, then a button for each project. It remembers whether you left it open (dbm_more_projects_open, added to the settings backup; older backups still import).
+- Twelve projects: Meme Projects, Lyric Finder, Vibework, Soundvault, Reactor Toolbar, Code Translator, Easyconvert and MyWEB run right inside Looscid. chaoticmodel, Yapper, Alex Classic and Agentsync say plainly what they are and what is Coming soon, with no fake controls. MyWEB's Nostr feedback and Code Translator's Python are partly Coming soon too.
+- Each project page has Back and Close (braille: "Close"), its credits and a link to its repo. Projects that are Coming soon, or partly, say "Want to help build this? Contributions welcome." with a link like "Help build chaoticmodel on GitHub". The Projects section ends with Help build Looscid on GitHub.
+- Meme Projects: after a result, Dream Results opens the Dream composer with the result filled in, and says "Dream composer filled." once. It never sends: you press Dream yourself.
+- Commandbar: projects, open and a project's name (open lyric finder, open vibework), and lyrics and a song (lyrics imagine by john lennon). They are on the Commands page in a new Projects group.
+- Music has a Lyrics section with Open Lyric Finder. Settings, Earcons, Soundpacks has Open Soundvault to find more sound packs.
+- Sounds are now called Earcons: Settings, Earcons, with Command earcons and Keyboard earcons. Only the words changed; storage keys and backups are the same.
+- Command earcons (on by default): every Commandbar command plays its own short two-note earcon. The area picks the voice and register, the command picks the notes, so related commands sound related and each one is its own. A command that fails, or one Commandbar doesn't know, plays the error earcon, the same one as before. On, off, help, clear and close keep their own sounds.
+- Keyboard earcons (on by default): a click for each key you type in a text field (the composer, Commandbar, search, Cherry), with their own sounds for Space, Delete or Backspace, and Enter. Throttled and played off the typing path, so typing and braille input never lag.
+- New opt-in sound pack, FastSM-inspired: soft, round blips, quick glides and airy swooshes, inspired by FastSMRW by masonasons (no code or audio copied; FastSMRW has no license, so every sound is made fresh with Web Audio). Looscid's own earcons stay the default.
+- Both earcon switches follow the Earcons switch, the master volume and quiet hours, and still play in Calm mode. Settings, Earcons has previews for each.
+- New file js/projects.js, loaded after js/commands.js, and the ported projects in projects/ (FILES.md has the order). Every project is credited in More, About, Credits and open source, with its license.
+- Soundpacks (one word now) work everywhere. Before, a Soundpack other than Looscid only played on the tab bar and a few events (send, like, alerts), because everything else spoke with pitch cues only, and only NexOS classic added its chimes. Now one player gives every Soundpack its sounds for what you do to any element: opening and closing menus (Dream options, Redream or Quote, Escape), choosing from a menu, opening pages like Replies, switches and checkboxes on and off, and Back and Close. Keyboard earcons (with each pack's own Space, Delete and Enter where it has them) and command earcons (in each pack's voice) go through it too. The Looscid pack and every pitch cue are unchanged.
+- Choosing a Soundpack switches everything to it right away, says "Soundpack: Insomnia." once in the live region, and stays after a restart. Moving to a choice plays a short preview of it, so you can hear a pack before you pick it.
+- New Soundpack, Soundvault: sounds from the Soundvault catalog, loaded from where Soundvault links them when they play (nothing copied into Looscid); anything it doesn't have plays Looscid's own. The soundvault command switches to it; open soundvault still opens the project.
+- help is now a short list of the top commands, ending "Type commands for all of them." An area and help reads just that area, the same areas as the Commands page: cherry help (or cherryhelp, or help cherry), projects help, earcons help, braille help, settings help, feed help. help list reads every command, like help used to. new dream opens the Dream composer, empty.
+- Help Center: a new Help section at the end of More (the others keep their order), and the help center command. Short plain sections: Getting started, Commands, Cherry, Earcons and sounds, Accessibility, Projects, Legal, Backup and data, and Get help or contribute, with links to report a problem or help build Looscid on GitHub. Back and Close Help Center (braille: "Close").
+- One About Looscid page. More's About is now one button, About Looscid, that opens the page; there is no submenu. Send Feedback, Legal and the Welcome intro are buttons on the page, next to the version, What's new, System info and Credits. The page's inner "About Looscid" heading is now "Looscid in short".
+- Legal, from the Legal button on About Looscid and the legal command: Terms, Privacy, Community rules, Looscid's license (LPL v1.0: no ads, no commercial use, with a link to it), and the open source credits and licenses, including the MIT notices and the FastSMRW note. Back from Terms, Privacy or Community rules returns to Legal.
+- Back and Close are noted before the page changes, so the page they land on never plays the opening sound.
+- Unchanged: existing earcons and pitch cues, Insomnia and NexOS, the backup format, Calm mode, flash safety and Reduce Motion.
+
 ## Looscid 2026.113.31 (144): Round 6.5.3
 
 Released October 10, 2026 at 5:10 PM (Eastern Time, 2026-10-10T21:10:00Z UTC)

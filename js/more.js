@@ -380,7 +380,7 @@ function CustomizabilitySettings({navigate, prefs, setPrefs, theme, setTheme, pa
   const hideBotClose = !!mp.hideBotClose;
   const setMenu = (k,v) => setPrefs(p=>({...p,menu:{...(p.menu||{}),pos:mp.pos||"bottom",hideTopClose:!!mp.hideTopClose,hideBotClose:!!mp.hideBotClose,[k]:v}}));
   const cat = LC_CZ_CATS.find(function (c) { return c.page === page; });
-  if (!cat) return lh(LcCatMenu, { id: "lc-cz-cats", title: "Customizability", intro: "Choose a category. Sounds are in Settings, Sounds. Cherry and AI are in Settings, Intelligence.", cats: LC_CZ_CATS, navigate: navigate });
+  if (!cat) return lh(LcCatMenu, { id: "lc-cz-cats", title: "Customizability", intro: "Choose a category. Earcons are in Settings, Earcons. Cherry and AI are in Settings, Intelligence.", cats: LC_CZ_CATS, navigate: navigate });
   const radios = function (name, legend, opts, cur, onPick, fid) {
     return lh('fieldset', { className: "lc-fs", id: fid },
       lh('legend', { className: "lc-fs-l" }, legend),
@@ -568,10 +568,12 @@ function AboutSettings({navigate}) {
       lh('button', { type: "button", id: "about-check", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { lcCheckUpdate(true); } }, "Check for updates"),
       lh(A11ySwitch, { id: "about-autoupdate", label: "Automatically check for updates", on: auto, onToggle: function () { lcUpdateAutoSet(!auto); tick(function (x) { return x + 1; }); announce("Automatically check for updates: " + (!auto ? "on" : "off") + "."); } })),
     lh('section', { "aria-labelledby": "about-lead", style: { padding: "8px 16px 12px" } },
-      lh('h2', { id: "about-lead", className: "lid-sub" }, "About Looscid"),
+      lh('h2', { id: "about-lead", className: "lid-sub" }, "Looscid in short"),
       lh('p', { className: "lid-help" }, "Looscid is a decentralized, free and open source social app that works the way you do: with a screen reader, a braille display, a keyboard, a switch or just your thumbs. Your data stays on your device, and your LooscidID is yours."),
-      lh('ul', { className: "mlist", "aria-label": "Terms, rules and feedback" },
-        [["terms", "Terms"], ["privacy", "Privacy"], ["guidelines", "Community rules"], ["feedback", "Send Feedback"]].map(function (x) {
+      // Round 6.6 (Alhasan 5:24 and 5:25 PM): everything that was in More's About submenu is on this one page.
+      // Terms, Privacy, Community rules and the license are under Legal.
+      lh('ul', { className: "mlist", "aria-label": "Feedback, legal and the welcome intro" },
+        [["feedback", "Send Feedback"], ["legal", "Legal"], ["intro", "Welcome intro"]].map(function (x) {
           return lh('li', { key: x[0], className: "mli" }, lh('button', { type: "button", id: "about-btn-" + x[0], className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { navigate(x[0]); } }, x[1]));
         }))),
     lh('section', { "aria-labelledby": "about-story", style: { padding: "8px 16px 12px" } },
@@ -597,8 +599,9 @@ function AboutSettings({navigate}) {
       lh('h2', { id: "about-links", className: "lid-sub" }, "Find Looscid"),
       lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } },
         link("https://github.com/Looscid/Looscid", "Looscid on GitHub, the source code"),
-        link("https://x.com/Looscid", "@Looscid on X")),
-      lh('p', { className: "lid-help" }, "The welcome intro is in the menu, under About.")));
+        link("https://x.com/Looscid", "@Looscid on X"),
+        link("COMMITMENTS.md", "Looscid's commitments: accessibility, fairness, humor")),
+      lh('p', { className: "lid-help" }, "The welcome intro and terminology guide is the Welcome intro button above.")));
 }
 function MorePage({navigate, cherryCtx, authUser}) {
   const IS_ADMIN = true;
@@ -1885,12 +1888,33 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 113; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 114; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 31;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.113.31", build: 144, released: LOOSCID_RELEASED, title: "Round 6.5.3", notes: [
+  { version: "2026.114.31", build: 145, released: LOOSCID_RELEASED, title: "Round 6.6", notes: [
+    "Round 6.6: Projects. Alhasan's own projects are built into Looscid.",
+    "More has a new Projects section, near the end: Meme Projects, Lyric Finder, Vibework, Soundvault, Reactor Toolbar, Code Translator, chaoticmodel, Yapper, Alex Classic, Easyconvert, MyWEB and Agentsync. It remembers whether you left it open.",
+    "Each project opens right here, with Back and Close. Projects that need a server say Coming soon instead of showing a fake control.",
+    "Meme Projects: after a result, Dream Results opens the Dream composer with the result filled in. You still press Dream yourself.",
+    "Commandbar: projects, open and a project's name, and lyrics and a song (lyrics imagine by john lennon). Settings, Earcons has Open Soundvault to find more Soundpacks.",
+    "Projects that are Coming soon, or partly, ask for help, with a link to their GitHub repo. The Projects section ends with Help build Looscid on GitHub.",
+    "Music has a Lyrics section with Open Lyric Finder.",
+    "Sounds are now called Earcons: Settings, Earcons. Storage and backups are unchanged.",
+    "Command earcons, on by default: every Commandbar command plays its own short sound, and commands in the same area sound related. A command that fails plays the error sound, the same one as before.",
+    "Keyboard earcons, on by default: a click for each key you type in a text field, with their own sounds for Space, Delete and Enter. Throttled, so typing and braille input never lag.",
+    "New opt-in Soundpack, FastSM-inspired: soft, round blips and airy swooshes, inspired by FastSMRW by masonasons (no code or audio copied). Looscid's own earcons stay the default.",
+    "Both earcon switches follow the Earcons switch and the master volume, and still play in Calm mode. No existing earcon or pitch cue changed.",
+    "Soundpacks (one word now) work everywhere: before, a Soundpack other than Looscid only played on the tab bar and a few events. Now it plays on menus (opening, choosing, Escape), Redream or Quote, Replies and other pages, switches and checkboxes, and Back and Close, and keyboard and command earcons use it too. The Looscid pack and pitch cues are unchanged.",
+    "Choosing a Soundpack switches everything to it right away and says \u201cSoundpack: Insomnia.\u201d once. Moving to a choice plays a short preview of it. It stays after a restart.",
+    "New Soundpack, Soundvault: sounds from the Soundvault catalog, loaded from there when they play; anything it doesn't have plays Looscid's own. The soundvault command switches to it.",
+    "help is now a short list of the top commands. An area and help reads just that area: cherry help (or cherryhelp), projects help, earcons help, braille help. help list reads every command. new dream opens the Dream composer.",
+    "Help Center, in More and with the help center command: getting started, commands, Cherry, earcons, accessibility, projects, legal, backup, and links to report a problem or help build Looscid.",
+    "One About Looscid page: More's About is now one button that opens it, with no submenu. Send Feedback, Legal and the Welcome intro are on the page.",
+    "Legal, from About Looscid and the legal command: Terms, Privacy, Community rules, Looscid's license (LPL v1.0: no ads, no commercial use), the open source credits and the MIT notices.",
+  ] },
+  { version: "2026.113.31", build: 144, released: "2026-10-10T21:10:00Z", title: "Round 6.5.3", notes: [
     "Round 6.5.3: Cherry in Commandbar, and a Commands page.",
     "New Commandbar commands: open cherry, new cherry chat, cherry pinned chats and cherry history. Capitals and colons don't matter, so Cherry: Pinned chats works too. New cherry chat puts focus in the message box; the Pinned and All commands put focus on that tab and say how many chats are there.",
     "Spaces are optional: opencherry, cherrychats and pinnedchats work. Path style too: fil > Cherry pinned.",
@@ -1980,7 +2004,12 @@ function MusicPage({ onBack }) {
         lh('label', { htmlFor: "mu-volume", className: "lc-fs-l" }, "Music volume"),
         lh('div', { className: "lc-vol-row" },
           lh('input', { id: "mu-volume", type: "range", min: 0, max: 100, step: 10, value: vol, className: "lc-range", "aria-valuetext": vol + " percent", onChange: function (e) { Music.setVolume(+e.target.value); } }),
-          lh('span', { className: "lc-vol-n", "aria-hidden": "true" }, vol + "%")))));
+          lh('span', { className: "lc-vol-n", "aria-hidden": "true" }, vol + "%")))),
+    // Round 6.6 (Alhasan): Lyric Finder, one of his projects, right next to the music.
+    Looscid.lcFindProject && Looscid.lcFindProject("lyricfinder") ? lh('section', { className: "lc-grp", "aria-labelledby": "mu-lyr-h" },
+      lh('h2', { id: "mu-lyr-h", className: "lc-grp-h" }, "Lyrics"),
+      lh('p', { className: "lc-desc" }, "Lyric Finder finds a song's lyrics by title and artist. In Commandbar, type lyrics and a song, like lyrics imagine by john lennon."),
+      lh('button', { type: "button", id: "mu-lyrics", className: "btn bgb lc-btn", onClick: function () { Looscid.lcOpenProject(Looscid.lcFindProject("lyricfinder")); } }, "Open Lyric Finder")) : null);
 }
 /* --- Round 6: audiences (who can do something), shared by Alerts and Privacy ----------------
    Everyone / Dreamors I follow / My followers / Followers I follow back / My circles / Only me / Custom.
@@ -2073,22 +2102,34 @@ const LC_CREDITS = {
     { n: "React and React DOM 18.2.0", u: "https://github.com/facebook/react", l: "MIT", w: "Draws every screen of Looscid. Loaded from jsDelivr." },
     { n: "nostr-tools 2.25.2", u: "https://github.com/nbd-wtf/nostr-tools", l: "Unlicense", w: "Nostr keys, signing and checking notes, npub and nsec, and passcode-locked keys. Kept in js/vendor with its license." },
     { n: "noble curves, hashes and ciphers, and scure base, by Paul Miller", u: "https://github.com/paulmillr/noble-curves", l: "MIT", w: "The audited cryptography inside nostr-tools." },
-    { n: "NexOS, by Alhasan (2three1y)", u: "https://github.com/2three1y/nexos", l: "MIT", w: "Commandbar's full-screen view, the Apps, the Desktop and the NexOS sound pack." },
-    { n: "Insomnia OS, by Alhasan (2three1y)", u: "https://github.com/2three1y/insomnia-os", l: "MIT", w: "The Insomnia app in Apps, and the Insomnia sound pack." },
+    { n: "NexOS, by Alhasan (2three1y)", u: "https://github.com/2three1y/nexos", l: "MIT", w: "Commandbar's full-screen view, the Apps, the Desktop and the NexOS Soundpack." },
+    { n: "Insomnia OS, by Alhasan (2three1y)", u: "https://github.com/2three1y/insomnia-os", l: "MIT", w: "The Insomnia app in Apps, and the Insomnia Soundpack." },
     { n: "Meme Projects, by Alhasan (2three1y)", u: "https://github.com/2three1y/memeprojects", l: "MIT", w: "The Meme Projects app in Apps." },
-    { n: "Easyconvert, by Alhasan (2three1y)", u: "https://github.com/2three1y/Easyconvert", l: "MIT", w: "The Easyconvert app in Apps." },
+    { n: "Easyconvert, by Alhasan (2three1y)", u: "https://github.com/2three1y/Easyconvert", l: "MIT", w: "The Easyconvert app in Apps, and the newest Easyconvert (with the Claude export reader) in More, Projects." },
+    // Round 6.6: Projects in More. Each project's own LICENSE file is kept next to its copy in projects/.
+    { n: "Lyric Finder, by Alhasan (2three1y)", u: "https://github.com/2three1y/lyricfinder", l: "MIT", w: "Lyric Finder in More, Projects, and the lyrics command. Lyrics come from LRCLIB and lyrics.ovh, under their own terms." },
+    { n: "Vibework, by Alhasan (2three1y) and the Vibework contributors", u: "https://github.com/2three1y/vibework", l: "MIT", w: "Vibework in More, Projects." },
+    { n: "Soundvault, by Alhasan (2three1y)", u: "https://github.com/2three1y/soundvault", l: "MIT", w: "Soundvault in More, Projects, and its button in Settings, Earcons. The Soundpacks it links to stay at MG Storage, under their own terms." },
+    { n: "Reactor Toolbar, by Alhasan (2three1y)", u: "https://github.com/2three1y/reactor-toolbar", l: "MIT", w: "Reactor Toolbar in More, Projects." },
+    { n: "Code Translator, by Alhasan (2three1y)", u: "https://github.com/2three1y/codetranslator", l: "MIT", w: "Code Translator in More, Projects." },
+    { n: "MyWEB, by Alhasan (2three1y)", u: "https://github.com/2three1y/MyWEB", l: "Alhasan's own code", w: "MyWEB in More, Projects (its Nostr feedback is Coming soon)." },
+    { n: "chaoticmodel, by Alhasan (2three1y)", u: "https://github.com/2three1y/chaoticmodel", l: "MIT", w: "Its page in More, Projects." },
+    { n: "Alex Classic, by Alhasan (2three1y)", u: "https://github.com/2three1y/alexclassic", l: "MIT", w: "Its page in More, Projects." },
+    { n: "Agentsync, by Alhasan (2three1y)", u: "https://github.com/2three1y/Agentsync", l: "Alhasan's own code", w: "Its page in More, Projects." },
+    { n: "Yapper website, by Alhasan (2three1y); Yapper by MystyDev", u: "https://github.com/2three1y/yapper-site", l: "Alhasan's own code", w: "The Yapper page in More, Projects. Yapper itself is MystyDev's app." },
     { n: "v86", u: "https://github.com/copy/v86", l: "BSD 2-Clause", w: "Runs the real NexOS kernel in Apps, right in the browser." },
     { n: "SeaBIOS and SeaVGABIOS", u: "https://www.seabios.org", l: "LGPL-3.0", w: "The start-up firmware v86 uses, unchanged." },
     { n: "DM Sans and DM Serif Display", u: "https://fonts.google.com/specimen/DM+Sans", l: "SIL Open Font License 1.1", w: "Looscid's fonts, from Google Fonts." },
   ],
   ideas: [
     { n: "Feditext", u: "https://github.com/feditext/feditext", l: "GPL-3.0", w: "Composer design inspiration (GPL-3.0); no code used. The Round 6.5 composer follows its layout: the Dream you answer above your text, the toolbar order and writing a thread in one go." },
+    // Round 6.6: FastSMRW has no license, so only the idea is borrowed.
+    { n: "FastSMRW, by masonasons", u: "https://github.com/masonasons/FastSMRW", l: "No license", w: "The FastSM-inspired earcon pack in Settings, Earcons, Soundpack: inspired by FastSMRW by masonasons (no code or audio copied). Every sound in it is made fresh with Web Audio." },
   ],
   planned: [
-    { n: "MyWEB", u: "https://github.com/Looscid/MyWEB", w: "Feedback sent to Alhasan as an encrypted Nostr message." },
-    { n: "AgentSync", u: "https://github.com/Looscid/Agentsync", w: "Slash commands for Cherry, handled on your device, and its step-by-step Allow dialog." },
-    { n: "Soundvault", u: "https://github.com/2three1y/soundvault", w: "A sound pack browser in Settings, Sounds, and new earcons where the license allows." },
-    { n: "Lyricfinder", u: "https://github.com/2three1y/lyricfinder", w: "A small app next to Insomnia." },
+    { n: "MyWEB", u: "https://github.com/2three1y/MyWEB", w: "Feedback sent to Alhasan as an encrypted Nostr message, signed with your own key." },
+    { n: "AgentSync", u: "https://github.com/2three1y/Agentsync", w: "Slash commands for Cherry, handled on your device, and its step-by-step Allow dialog." },
+    { n: "Soundvault", u: "https://github.com/2three1y/soundvault", w: "Installing a pack from Soundvault straight into Settings, Earcons, and new earcons where the license allows." },
     { n: "Vibework", u: "https://github.com/2three1y/vibework", w: "Other places to hang out, in Discover." },
     { n: "Codetranslator", u: "https://github.com/2three1y/codetranslator", w: "A Commandbar tool." },
   ],
@@ -2368,7 +2409,11 @@ function LcSetRow({ def, onChange }) {
       lh('div', { className: "lc-radios lc-radios-col" }, def.o.map(function (o) {
         const on = String(v) === String(o[0]);
         return lh('label', { key: o[0], className: "lc-radio" + (on ? " on" : "") },
-          lh('input', { type: "radio", name: "lcs-" + def.k, value: o[0], checked: on, onChange: function () { put(o[0]); } }), lh('span', null, o[1]));
+          lh('input', { type: "radio", name: "lcs-" + def.k, value: o[0], checked: on,
+            // Round 6.6 (Alhasan, 5:19 PM): Soundpacks. Moving to a pack plays a short preview of it; choosing it (Space,
+            // arrows, a tap, VoiceOver double-tap, braille Enter) switches every earcon to it right away and says so once.
+            onFocus: def.k === "soundPack" ? function () { if (o[0] === "custom") return; Looscid.LC_PACK_PREV_AT = Date.now(); Earcon.play(o[0] === "soundvault" ? "open" : "send", { test: true, pack: o[0] }); } : undefined,
+            onChange: function () { if (def.k === "soundPack") { put(o[0], false); announce("Soundpack: " + o[1] + ".", "essential"); } else put(o[0]); if (def.k === "soundPack") { window.__lcPackSwitch = (window.__lcPackSwitch || 0) + 1; if (Date.now() - (Looscid.LC_PACK_PREV_AT || 0) > 200) setTimeout(function () { Earcon.play(o[0] === "soundvault" ? "open" : "send", { test: true }); }, 40); } } }), lh('span', null, o[1]));
       })));
   }
   if (def.t === "range") {
@@ -2590,7 +2635,7 @@ function LcSrRename() {
 function AudioSettings({ navigate, page }) {
   useA11yNow();
   const cat = LC_AUDIO_CATS.find(function (c) { return c.page === page; });
-  if (!cat) return lh(LcCatMenu, { id: "lc-audio-cats", title: "Sounds", navigate: navigate, cats: LC_AUDIO_CATS,
+  if (!cat) return lh(LcCatMenu, { id: "lc-audio-cats", title: "Earcons", navigate: navigate, cats: LC_AUDIO_CATS,
     intro: "Looscid's sounds live here. Pitch cues are in Accessibility, Screen reader and braille, Verbosity. Sounds are short and battery-friendly: the audio engine sleeps between sounds.",
     after: lh('div', { className: "lc-grp" },
       lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { Earcon.play("run", { test: true }); } }, "Play a test sound"),
@@ -2599,19 +2644,29 @@ function AudioSettings({ navigate, page }) {
   const evDefs = LC_SET.filter(function (d) { return d.s === "audio" && d.ev; });
   let body;
   if (cat.id === "volume") body = lh(LcSection, { sec: "audio", title: "Earcons", only: cat.keys, noReset: true,
-      after: lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { Earcon.key({ test: true }); } }, "Preview a keyboard click") });
-  else if (cat.id === "pack") body = lh(LcSection, { sec: "audio", title: "Sound pack", only: cat.keys, noReset: true,
-      intro: "Looscid has its own loud, classic beeps and boops. NexOS classic is the NexOS sound set, with the Good Morning chime when something opens and Good Night on Back. Insomnia is Insomnia's own clicks, chimes and dings. Hyper Synth is bright synth arps and stabs.",
+      intro: "Command earcons: every Commandbar command plays its own short sound, and commands in the same area sound related. A command that fails plays the error sound. Keyboard earcons: a click for each key you type in a text field, with their own sounds for Space, Delete and Enter. Both are on by default, follow the Earcons switch and the master volume, and still play in Calm mode.",
+      after: lh('div', { className: "lc-packprev" },
+        lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { Earcon.key({ test: true }); } }, "Preview a keyboard click"),
+        lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { Earcon.key({ test: true, kind: "space" }); } }, "Preview the Space key"),
+        lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { Earcon.key({ test: true, kind: "delete" }); } }, "Preview the Delete key"),
+        lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { Earcon.key({ test: true, kind: "enter" }); } }, "Preview the Enter key"),
+        lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { Earcon.cmd("help", "Commandbar", { test: true }); } }, "Preview a command earcon")) });
+  else if (cat.id === "pack") body = lh(LcSection, { sec: "audio", title: "Soundpacks", only: cat.keys, noReset: true,
+      intro: "Choose a Soundpack and every earcon switches to it right away, all over Looscid, and stays after a restart. Moving to a choice plays a short preview of it. Looscid has its own loud, classic beeps and boops. NexOS classic is the NexOS sound set, with the Good Morning chime when something opens and Good Night on Back. Insomnia is Insomnia's own clicks, chimes and dings. Hyper Synth is bright synth arps and stabs. FastSM-inspired is soft, round blips and airy swooshes, inspired by FastSMRW by masonasons (no code or audio copied). Soundvault plays sounds from the Soundvault catalog, loaded from there when they play, and anything it doesn't have plays Looscid's own.",
       after: lh(React.Fragment, null,
-        lh('div', { className: "lc-packprev" }, ["looscid", "nexos", "insomnia", "synth"].map(function (p) {
-          const lab = { looscid: "Looscid", nexos: "NexOS classic", insomnia: "Insomnia", synth: "Hyper Synth" }[p];
+        lh('div', { className: "lc-packprev" }, ["looscid", "nexos", "insomnia", "synth", "fastsm", "soundvault"].map(function (p) {
+          const lab = { looscid: "Looscid", nexos: "NexOS classic", insomnia: "Insomnia", synth: "Hyper Synth", fastsm: "FastSM-inspired", soundvault: "Soundvault" }[p];
           return lh('button', { key: p, type: "button", className: "btn bgb lc-btn", onClick: function () { Earcon.play("send", { test: true, pack: p }); }, "aria-label": "Preview the " + lab + " pack" }, "Preview " + lab);
         })),
         lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { Earcon.play("boot", { test: true }); } }, "Preview boot chime"),
-        lh(LcPackImport, null)) });
+        lh(LcPackImport, null),
+        // Round 6.6: Soundvault (a project in More) lists sound packs. Opt-in: nothing changes until you import and choose a pack.
+        lh('h3', { className: "lc-sub-h" }, "Find more sounds"),
+        lh('p', { className: "lc-desc" }, "Soundvault, one of Alhasan's projects, lists Soundpacks and audio made for screen reader users. Download a pack there, then import its sounds above as your own pack. Looscid's earcons and pitch cues stay the same unless you choose that pack."),
+        lh('button', { type: "button", id: "lc-open-soundvault", className: "btn bgb lc-btn", onClick: function () { const p = Looscid.lcFindProject && Looscid.lcFindProject("soundvault"); if (p) Looscid.lcOpenProject(p, navigate); } }, "Open Soundvault")) });
   else if (cat.id === "events") body = lh('section', { className: "lc-grp", "aria-labelledby": "lca-ev-h" },
-      lh('h2', { id: "lca-ev-h", className: "lc-grp-h" }, "Sounds for each event"),
-      lh('p', { className: "lc-desc" }, "Turn each sound on or off, and preview it in the sound pack you're using."),
+      lh('h2', { id: "lca-ev-h", className: "lc-grp-h" }, "Earcons for each event"),
+      lh('p', { className: "lc-desc" }, "Turn each sound on or off, and preview it in the Soundpack you're using."),
       evDefs.map(function (d) {
         return lh('div', { key: d.k, className: "lc-evrow" }, lh(LcSetRow, { def: d }),
           lh('button', { type: "button", className: "btn bgb lc-btn lc-prev", onClick: function () { Earcon.play(d.ev, { test: true }); }, "aria-label": "Preview " + d.l.toLowerCase() }, "Preview"));
@@ -2657,10 +2712,10 @@ function LcPackImport() {
     setBusy(false);
   };
   const setMap = function (ev, name) { const np = Object.assign({}, pack, { map: Object.assign({}, pack.map) }); if (name) np.map[ev] = name; else delete np.map[ev]; lcPackPut(np).then(function () { Looscid.LC_CUSTOM_PACK = np; setPack(np); }); };
-  const remove = async function () { try { await lcPackDel(); } catch (e) {} Looscid.LC_CUSTOM_PACK = null; setPack(null); if (Looscid.A11Y_NOW.soundPack === "custom") lcSet({ soundPack: "looscid" }); say("Your imported sound pack was removed." + (Looscid.A11Y_NOW.soundPack === "looscid" ? " The Looscid pack is back on." : "")); };
+  const remove = async function () { try { await lcPackDel(); } catch (e) {} Looscid.LC_CUSTOM_PACK = null; setPack(null); if (Looscid.A11Y_NOW.soundPack === "custom") lcSet({ soundPack: "looscid" }); say("Your imported Soundpack was removed." + (Looscid.A11Y_NOW.soundPack === "looscid" ? " The Looscid pack is back on." : "")); };
   const n = pack && pack.files ? pack.files.length : 0;
   return lh('section', { className: "lc-import", "aria-labelledby": "lc-imp-h" },
-    lh('h3', { id: "lc-imp-h", className: "lc-sub-h" }, "Import a sound pack"),
+    lh('h3', { id: "lc-imp-h", className: "lc-sub-h" }, "Import a Soundpack"),
     lh('p', { id: "lc-imp-d", className: "lc-desc" }, "Choose a .zip of sounds, or audio files. WAV, MP3, OGG, M4A, AAC, WebM or FLAC, up to 1 MB and 3 seconds each, 24 files and 8 MB in all. Files named like send, like, error or alert are matched to events for you. Saved only on this device."),
     lh('label', { htmlFor: "lc-imp-file", className: "btn bgb lc-big lc-filebtn" }, busy ? "Checking sounds\u2026" : "Choose a .zip or audio files"),
     lh('input', { id: "lc-imp-file", type: "file", className: "lc-file", multiple: true, accept: ".zip,application/zip,audio/*,.wav,.mp3,.ogg,.oga,.opus,.m4a,.aac,.webm,.flac", onChange: onFiles }),
@@ -2668,14 +2723,14 @@ function LcPackImport() {
     bad.length ? lh('ul', { className: "lc-badlist", "aria-label": "Files left out" }, bad.map(function (b, i) { return lh('li', { key: i }, b); })) : null,
     n ? lh('div', { className: "lc-pack" },
       lh('h4', { className: "lc-sub-h" }, "Your pack: " + n + " sound" + (n === 1 ? "" : "s")),
-      lh('ul', { className: "lc-maplist", "aria-label": "Sounds for each event" }, LC_EVENTS.map(function (ev) {
+      lh('ul', { className: "lc-maplist", "aria-label": "Earcons for each event" }, LC_EVENTS.map(function (ev) {
         const sid = "lc-map-" + ev[0], cur = (pack.map || {})[ev[0]] || "";
         return lh('li', { key: ev[0], className: "lc-maprow" },
           lh(LcMenu, { id: sid, label: ev[1], value: cur, items: [{ id: "", name: "Looscid's sound" }].concat(pack.files.map(function (f) { return { id: f.name, name: f.name }; })), onSelect: function (val) { setMap(ev[0], val); } }),
           lh('button', { type: "button", className: "btn bgb lc-btn", "aria-label": "Preview " + ev[1].toLowerCase() + " from your pack", onClick: function () { Earcon.play(ev[0], { test: true, pack: "custom" }); } }, "Preview"));
       })),
-      lh('button', { type: "button", className: "btn bp lc-big", disabled: Looscid.A11Y_NOW.soundPack === "custom", onClick: function () { lcSet({ soundPack: "custom" }); announce("Sound pack: your imported pack."); } }, Looscid.A11Y_NOW.soundPack === "custom" ? "Using your pack" : "Use this pack"),
-      lh('button', { type: "button", className: "btn bgb lc-big", onClick: remove }, "Remove your sound pack")) : null);
+      lh('button', { type: "button", className: "btn bp lc-big", disabled: Looscid.A11Y_NOW.soundPack === "custom", onClick: function () { lcSet({ soundPack: "custom" }); announce("Soundpack: your imported pack."); } }, Looscid.A11Y_NOW.soundPack === "custom" ? "Using your pack" : "Use this pack"),
+      lh('button', { type: "button", className: "btn bgb lc-big", onClick: remove }, "Remove your Soundpack")) : null);
 }
 function lcShortcutOk(keys) { const p = keys.split("+"); return p.length > 1 && /Control|Alt|Command/.test(keys) && !/^(Control|Command)\+K$/.test(keys) || /^F\d{1,2}$/.test(keys); }
 function KeyboardSettings({ navigate }) {
@@ -2735,7 +2790,7 @@ function BackupSettings({ navigate, onImported }) {
     lh(BackHeader, { title: "Settings backup", onBack: function () { navigate("settings"); } }),
     lh('section', { className: "lc-grp", "aria-labelledby": "bk-e-h" },
       lh('h2', { id: "bk-e-h", className: "lc-grp-h" }, "Export and import"),
-      lh('p', { className: "lc-desc" }, "One JSON file with all your settings: accessibility, audio, screen reader and braille, permissions, muted words, shortcuts, theme, music and Cherry. Your Cherry chats are in it too. No keys, passwords or Dreams are in it. Imported sound packs stay on this device."),
+      lh('p', { className: "lc-desc" }, "One JSON file with all your settings: accessibility, audio, screen reader and braille, permissions, muted words, shortcuts, theme, music and Cherry. Your Cherry chats are in it too. No keys, passwords or Dreams are in it. Imported Soundpacks stay on this device."),
       lh('button', { type: "button", className: "btn bp lc-big", onClick: function () { lcDownloadSettings(); say("Exported looscid-settings.json."); } }, "Export all settings"),
       lh('label', { htmlFor: "bk-file", className: "btn bgb lc-big lc-filebtn" }, "Import settings from a file"),
       lh('input', { id: "bk-file", type: "file", className: "lc-file", accept: ".json,application/json", onChange: onFile })),

@@ -1,7 +1,7 @@
 /* Looscid app styles (moved verbatim from index.html). */
 /* Collapsible menu sections */
-.msec-toggle{color:var(--tx2);display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;padding:13px 18px 5px;cursor:pointer;font-family:inherit;text-align:left}
-.msec-toggle:focus-visible{outline:3px solid var(--ac3);outline-offset:-2px}
+.msec-toggle,.msec-direct{color:var(--tx2);display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;padding:13px 18px 5px;cursor:pointer;font-family:inherit;text-align:left}
+.msec-toggle:focus-visible,.msec-direct:focus-visible{outline:3px solid var(--ac3);outline-offset:-2px}
 .msec-toggle-ic{font-size:12px;color:var(--tx3);transition:transform .2s;flex-shrink:0}
 .msec-toggle-ic.open{transform:rotate(90deg)}
 .msec-body[hidden]{display:none}
@@ -510,6 +510,7 @@ h2.slbl,div.slbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:
 
 /* Round 6.4: Dreams on Nostr (composer link, Nostr key in Settings) */
 .lc-link{color:var(--ac4);text-decoration:underline;text-underline-offset:2px;display:inline-block;padding:6px 0;min-height:24px}
+.lc-help-link{color:var(--ac4);text-decoration:underline;text-underline-offset:2px;display:inline-block;padding:6px 0;min-height:24px} /* Round 6.6: Help build links */
 .lid-details{margin:10px 0}
 .lid-details>summary{cursor:pointer;color:var(--ac4);text-decoration:underline;padding:8px 0;font-size:14px}
 .lid-details>summary:focus-visible{outline:2px solid var(--ac4);outline-offset:2px;border-radius:6px}
