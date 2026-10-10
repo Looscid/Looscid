@@ -1,0 +1,301 @@
+<!doctype html>
+<!-- Insomnia OS · made by Tab at 4 AM · MIT -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Insomnia OS 🌙 — a cozy desktop for 4 AM</title>
+<meta name="description" content="A retro desktop for when you can't sleep: a live-synthesized sleep soundscape mixer, Sheep.exe, a local-first 4am notepad, a starfield screensaver, and a gentle Shut Down. Fully keyboard and screen-reader friendly.">
+<meta property="og:title" content="Insomnia OS 🌙">
+<meta property="og:description" content="A cozy retro desktop for 4 AM. Rain, fan hum, old computer whir and crickets, synthesized live. Made by Tab at 4 AM.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#14123a">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌙</text></svg>">
+<link rel="stylesheet" href="styles.css">
+<style id="ps-style">
+/* Photosensitivity notice + Calm mode (no flashing; motion off under Calm mode or the system Reduce Motion setting) */
+#ps-notice{box-sizing:border-box;display:block;width:100%;margin:0;padding:.7rem 1rem .6rem;background:#fff4c2;color:#1b1b1b;border-bottom:2px solid #1b1b1b;font:1rem/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;text-align:left;position:relative;z-index:60;min-height:0}
+#ps-notice *{box-sizing:border-box;color:#1b1b1b;font-family:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;-webkit-text-fill-color:#1b1b1b}
+#ps-notice h2{font-size:1.05rem;font-weight:700;line-height:1.3;margin:0 0 .2rem;padding:0;border:0;background:none}
+#ps-notice p{margin:0 0 .45rem;padding:0;max-width:62rem;font-size:1rem}
+#ps-notice .ps-row{display:flex;flex-wrap:wrap;gap:.5rem .75rem;align-items:flex-start}
+#ps-notice button,#ps-notice summary{font:600 1rem/1.2 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;cursor:pointer;background:#fff;border:2px solid #1b1b1b;border-radius:8px;padding:.55rem .85rem;min-height:44px;margin:0;box-shadow:none;width:auto;transform:none}
+#ps-notice button[aria-pressed="true"]{background:#1b1b1b;color:#fff;-webkit-text-fill-color:#fff}
+#ps-notice button[aria-pressed="true"] *{color:#fff;-webkit-text-fill-color:#fff}
+#ps-notice summary{display:inline-block;list-style-position:inside}
+#ps-notice details{flex:1 1 16rem;min-width:0}
+#ps-notice details > div{margin-top:.5rem;padding:.6rem .8rem;background:#fffdf3;border:1px solid #1b1b1b;border-radius:8px;max-width:62rem}
+#ps-notice ul{margin:.2rem 0 .3rem 1.2rem;padding:0}
+#ps-notice li{margin:.2rem 0}
+#ps-notice a{text-decoration:underline}
+#ps-notice :focus-visible{outline:3px solid #1b1b1b;outline-offset:2px;box-shadow:0 0 0 6px #fff4c2}
+#ps-notice .ps-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+html.calm *,html.calm *::before,html.calm *::after{animation-duration:.001ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.001ms!important;transition-delay:0s!important;scroll-behavior:auto!important}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.001ms!important;transition-delay:0s!important;scroll-behavior:auto!important}}
+html.ps-hidden *,html.ps-hidden *::before,html.ps-hidden *::after{animation-play-state:paused!important}
+</style>
+<script id="ps-script">
+/* Calm mode: ON unless the visitor turns it off (remembered on this device). The system Reduce Motion setting always wins. */
+(function(){var K="calm-mode",d=document.documentElement,mq=window.matchMedia?window.matchMedia("(prefers-reduced-motion: reduce)"):{matches:false};
+function pref(){try{return localStorage.getItem(K)!=="off";}catch(e){return true;}}
+window.calmMode=function(){return !!mq.matches||pref();};
+function sync(say){var on=window.calmMode();d.classList.toggle("calm",on);var b=document.getElementById("ps-calm"),s=document.getElementById("ps-state"),st=document.getElementById("ps-status");
+if(b)b.setAttribute("aria-pressed",String(on));if(s)s.textContent=on?"on":"off";
+if(say&&st){st.textContent="";setTimeout(function(){st.textContent=on?(mq.matches&&!pref()?"Motion stays off because your device's Reduce Motion setting is on.":"Calm mode on. Motion is off."):"Calm mode off. Motion is on.";},50);}
+try{document.dispatchEvent(new CustomEvent("calmchange",{detail:{calm:on}}));}catch(e){}}
+window.__psSync=sync;sync(false);
+if(mq.addEventListener)mq.addEventListener("change",function(){sync(false);});else if(mq.addListener)mq.addListener(function(){sync(false);});
+document.addEventListener("visibilitychange",function(){d.classList.toggle("ps-hidden",document.hidden);});
+document.addEventListener("click",function(e){var b=e.target&&e.target.closest&&e.target.closest("#ps-calm");if(!b)return;var on=b.getAttribute("aria-pressed")==="true";try{localStorage.setItem(K,on?"off":"on");}catch(x){}sync(true);});
+document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
+</script>
+<script src="../nexos-embed.js"></script>
+<script src="../../looscid-bridge.js"></script>
+</head>
+<body>
+<a class="skip" href="#desktop-icons">Skip to desktop</a>
+<section id="ps-notice" aria-labelledby="ps-title">
+  <h2 id="ps-title">Photosensitivity notice</h2>
+  <p>This site has no flashing content and follows the three-flash safety limit. Calm mode, which turns off all motion, is on by default.</p>
+  <div class="ps-row">
+  <button type="button" id="ps-calm" aria-pressed="true">Calm mode<span aria-hidden="true">: <span id="ps-state">on</span></span></button>
+  <details>
+    <summary>More details</summary>
+    <div>
+    <ul>
+      <li>What was checked: every animation, transition and script on this page, plus a frame-by-frame screen recording measured against the WCAG 2.3.1 limits (no more than three flashes in any second, including red flashes).</li>
+      <li>What moves: windows pop open, the sheep hops, the night screen fades slowly, and the Starfield screensaver drifts. None of it flashes. In Calm mode they appear instantly and the Starfield is a still picture.</li>
+      <li>Calm mode turns off all motion. It starts on, and your choice is remembered on this device.</li>
+      <li>Your device's Reduce Motion setting is always honoured: when it is on, nothing animates, even with Calm mode off.</li>
+      <li>Sound plays only after you press something. Turn it off with the speaker (Mute all sound) button in the taskbar. When no soundscape is playing, sound sleeps while the tab is in the background. A soundscape you start keeps playing, so it can help you fall asleep.</li>
+      <li>This was tested with automated measurement, not a clinical tool like PEAT, and not on every device.</li>
+    </ul>
+    <p>If anything here ever flickers, please <a href="https://github.com/2three1y/insomnia-os/issues">report it on GitHub</a>.</p>
+    </div>
+  </details>
+  </div>
+  <p id="ps-status" class="ps-sr" role="status" aria-live="polite"></p>
+</section>
+
+
+<!-- Screen reader announcements -->
+<div id="announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ===== Boot screen ===== -->
+<section id="boot" class="boot" aria-labelledby="boot-title">
+  <div class="boot-inner">
+    <p class="boot-logo" aria-hidden="true">🌙</p>
+    <h1 id="boot-title">Insomnia OS <span class="ver">4.0 AM Edition</span></h1>
+    <p class="boot-sub">A cozy desktop for when sleep is not answering its texts.</p>
+    <div id="boot-log" class="boot-log" aria-hidden="true"></div>
+    <form id="name-boot" class="name-form" hidden>
+      <label for="name-boot-in">What should I call you? <span class="opt">(optional)</span></label>
+      <div class="row">
+        <input id="name-boot-in" class="name-in" type="text" maxlength="40" autocomplete="given-name" spellcheck="false" aria-describedby="name-boot-hint">
+        <button class="btn" type="submit">Save</button>
+        <button class="btn name-skip" type="button">Skip</button>
+      </div>
+      <p id="name-boot-hint" class="boot-hint">Stays in this browser only. Change or clear it later in Read Me.txt.</p>
+    </form>
+    <p id="boot-greet" class="boot-greet" hidden></p>
+    <button id="boot-btn" class="btn btn-big" type="button">Press to boot 🔊</button>
+    <p class="boot-hint">Sound starts only after you press. You can mute any time from the taskbar.</p>
+  </div>
+</section>
+
+<!-- ===== Desktop ===== -->
+<div id="os" class="os" hidden>
+  <main id="desktop" class="desktop" aria-label="Insomnia OS desktop">
+    <h2 class="sr-only">Desktop</h2>
+    <p id="desk-help" class="sr-only">Desktop icons. Use arrow keys to move between icons and Enter to open. In a window, Escape closes it. The grip button on each title bar moves the window with arrow keys.</p>
+    <div id="desktop-icons" class="icons" role="toolbar" aria-label="Desktop icons" aria-describedby="desk-help" aria-orientation="vertical">
+      <button class="icon" type="button" data-open="win-sound"><span class="glyph" aria-hidden="true">🌧️</span><span class="label">Soundscape.exe</span></button>
+      <button class="icon" type="button" data-open="win-sheep" tabindex="-1"><span class="glyph" aria-hidden="true">🐑</span><span class="label">Sheep.exe</span></button>
+      <button class="icon" type="button" data-open="win-notes" tabindex="-1"><span class="glyph" aria-hidden="true">📝</span><span class="label">4am Thoughts.txt</span></button>
+      <button class="icon" type="button" data-action="stars" tabindex="-1"><span class="glyph" aria-hidden="true">✨</span><span class="label">Starfield.scr</span></button>
+      <button class="icon" type="button" data-open="win-about" tabindex="-1"><span class="glyph" aria-hidden="true">💾</span><span class="label">Read Me.txt</span></button>
+      <button class="icon" type="button" data-open="win-shutdown" tabindex="-1"><span class="glyph" aria-hidden="true">🛌</span><span class="label">Shut Down…</span></button>
+    </div>
+
+    <!-- Soundscape -->
+    <section id="win-sound" class="win" role="dialog" aria-modal="false" aria-labelledby="win-sound-t" hidden data-x="140" data-y="40">
+      <div class="titlebar">
+        <button class="wmove" type="button" aria-label="Move Soundscape mixer window with arrow keys"><span aria-hidden="true">⠿</span></button>
+        <h2 id="win-sound-t" class="wtitle"><span aria-hidden="true">🌧️</span> Soundscape.exe</h2>
+        <button class="wclose" type="button" aria-label="Close Soundscape">✕</button>
+      </div>
+      <div class="wbody">
+        <p class="note">Everything is synthesized live in your browser. No recordings, no downloads.</p>
+        <div class="chan master-chan">
+          <label for="v-master"><span aria-hidden="true">🔊</span> Master volume</label>
+          <input id="v-master" type="range" min="0" max="150" step="1" value="100">
+          <output for="v-master" id="o-master">100%</output>
+        </div>
+        <div class="mixer">
+          <div class="chan">
+            <label for="v-rain"><span aria-hidden="true">🌧️</span> Rain</label>
+            <input id="v-rain" type="range" min="0" max="100" step="1" value="0" data-ch="rain">
+            <output for="v-rain" id="o-rain">0%</output>
+          </div>
+          <div class="chan">
+            <label for="v-fan"><span aria-hidden="true">🌀</span> Fan hum</label>
+            <input id="v-fan" type="range" min="0" max="100" step="1" value="0" data-ch="fan">
+            <output for="v-fan" id="o-fan">0%</output>
+          </div>
+          <div class="chan">
+            <label for="v-whir"><span aria-hidden="true">🖥️</span> Old computer whir</label>
+            <input id="v-whir" type="range" min="0" max="100" step="1" value="0" data-ch="whir">
+            <output for="v-whir" id="o-whir">0%</output>
+          </div>
+          <div class="chan">
+            <label for="v-crick"><span aria-hidden="true">🦗</span> Crickets</label>
+            <input id="v-crick" type="range" min="0" max="100" step="1" value="0" data-ch="crick">
+            <output for="v-crick" id="o-crick">0%</output>
+          </div>
+        </div>
+        <fieldset class="presets">
+          <legend>Presets</legend>
+          <button class="btn" type="button" data-preset="storm">⛈️ Rainy server room</button>
+          <button class="btn" type="button" data-preset="summer">🌾 Summer porch</button>
+          <button class="btn" type="button" data-preset="lab">🧪 Looscid lab, 3 AM</button>
+          <button class="btn" type="button" data-preset="off">🔇 All off</button>
+        </fieldset>
+      </div>
+    </section>
+
+    <!-- Sheep -->
+    <section id="win-sheep" class="win" role="dialog" aria-modal="false" aria-labelledby="win-sheep-t" hidden data-x="420" data-y="90">
+      <div class="titlebar">
+        <button class="wmove" type="button" aria-label="Move Sheep.exe window with arrow keys"><span aria-hidden="true">⠿</span></button>
+        <h2 id="win-sheep-t" class="wtitle"><span aria-hidden="true">🐑</span> Sheep.exe</h2>
+        <button class="wclose" type="button" aria-label="Close Sheep.exe">✕</button>
+      </div>
+      <div class="wbody">
+        <div class="pasture" aria-hidden="true">
+          <span class="moon">🌙</span>
+          <span class="fence">🚧</span>
+          <span id="sheep-sprite" class="sheep">🐑</span>
+        </div>
+        <p class="count-line">Sheep counted: <strong id="sheep-count">0</strong></p>
+        <p id="sheep-msg" class="sheep-msg">The flock is assembling. Press the button.</p>
+        <h3 id="sheep-log-h" class="sr-only">Recent sheep, newest first</h3>
+        <ul id="sheep-log" class="sheep-log" aria-labelledby="sheep-log-h"></ul>
+        <div class="sr-only" aria-live="polite" aria-atomic="true" id="sheep-live-a"></div>
+        <div class="sr-only" aria-live="polite" aria-atomic="true" id="sheep-live-b"></div>
+        <div class="row">
+          <button id="sheep-btn" class="btn btn-big" type="button">Count a sheep 🐑</button>
+          <button id="sheep-reset" class="btn" type="button">Release the flock</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Notes -->
+    <section id="win-notes" class="win" role="dialog" aria-modal="false" aria-labelledby="win-notes-t" hidden data-x="220" data-y="150">
+      <div class="titlebar">
+        <button class="wmove" type="button" aria-label="Move 4am Thoughts window with arrow keys"><span aria-hidden="true">⠿</span></button>
+        <h2 id="win-notes-t" class="wtitle"><span aria-hidden="true">📝</span> 4am Thoughts.txt</h2>
+        <button class="wclose" type="button" aria-label="Close 4am Thoughts">✕</button>
+      </div>
+      <div class="wbody">
+        <label for="notes" class="notes-label">Write down whatever's keeping you up. It stays on this device.</label>
+        <textarea id="notes" rows="9" spellcheck="true" aria-describedby="notes-status"></textarea>
+        <div class="row between">
+          <p id="notes-status" class="small">Saved locally <span aria-hidden="true">💾</span> nothing leaves this device</p>
+          <div class="row">
+            <button id="notes-dl" class="btn" type="button">Save as .txt</button>
+            <button id="notes-clear" class="btn" type="button">Clear</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section id="win-about" class="win" role="dialog" aria-modal="false" aria-labelledby="win-about-t" hidden data-x="300" data-y="60">
+      <div class="titlebar">
+        <button class="wmove" type="button" aria-label="Move Read Me window with arrow keys"><span aria-hidden="true">⠿</span></button>
+        <h2 id="win-about-t" class="wtitle"><span aria-hidden="true">💾</span> Read Me.txt</h2>
+        <button class="wclose" type="button" aria-label="Close Read Me">✕</button>
+      </div>
+      <div class="wbody prose">
+        <p><strong>Insomnia OS 4.0 AM Edition</strong>, built at 4 AM for anyone whose brain won't switch off.</p>
+        <h3 id="name-h">Your name</h3>
+        <form id="name-about" class="name-form" aria-labelledby="name-h">
+          <label for="name-about-in">What should I call you? <span class="opt">(optional)</span></label>
+          <div class="row">
+            <input id="name-about-in" class="name-in" type="text" maxlength="40" autocomplete="given-name" spellcheck="false">
+            <button class="btn" type="submit">Save</button>
+            <button class="btn name-clear" type="button">Clear name</button>
+          </div>
+          <p id="name-about-status" class="small"></p>
+        </form>
+        <ul>
+          <li><span aria-hidden="true">🌧️</span> <strong>Soundscape.exe</strong>: four live-synthesized sounds with their own volume, plus a master volume up to 150%.</li>
+          <li><span aria-hidden="true">🐑</span> <strong>Sheep.exe</strong>: the oldest sleep algorithm, now with sound.</li>
+          <li><span aria-hidden="true">📝</span> <strong>4am Thoughts.txt</strong>: local-first. Your words live in this browser, nowhere else.</li>
+          <li><span aria-hidden="true">✨</span> <strong>Starfield.scr</strong>: tap, double tap or press any key to wake.</li>
+        </ul>
+        <h3>Keyboard</h3>
+        <ul>
+          <li>Arrow keys move between desktop icons, Enter opens.</li>
+          <li>Escape closes the window you're in and returns you to its icon.</li>
+          <li>The grip button ⠿ on a title bar moves the window with arrow keys (Shift for bigger steps).</li>
+          <li>The taskbar lists open windows; the speaker button mutes everything.</li>
+        </ul>
+        <p>Respects reduced motion, works with screen readers, and never makes a sound before you ask.</p>
+      </div>
+    </section>
+
+    <!-- Shut down -->
+    <section id="win-shutdown" class="win win-small" role="dialog" aria-modal="false" aria-labelledby="win-shutdown-t" aria-describedby="sd-q" hidden data-x="360" data-y="140">
+      <div class="titlebar">
+        <button class="wmove" type="button" aria-label="Move Shut Down window with arrow keys"><span aria-hidden="true">⠿</span></button>
+        <h2 id="win-shutdown-t" class="wtitle"><span aria-hidden="true">🛌</span> Shut Down Insomnia OS</h2>
+        <button class="wclose" type="button" aria-label="Cancel shut down">✕</button>
+      </div>
+      <div class="wbody">
+        <p id="sd-q"><span aria-hidden="true">🌙</span> Ready to try sleeping again?</p>
+        <label class="check"><input id="sd-keep" type="checkbox" checked> Keep the soundscape playing while I sleep</label>
+        <div class="row">
+          <button id="sd-yes" class="btn btn-big" type="button">Shut down</button>
+          <button class="btn sd-no" type="button">Not yet</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Taskbar -->
+  <footer class="foot">
+  <p class="credit">Made by Tab at 4 AM <span aria-hidden="true">🌙</span></p>
+  <div class="taskbar">
+    <span class="start" aria-hidden="true">🌙 Insomnia</span>
+    <nav class="tasks" aria-label="Open windows"><ul id="task-list"></ul></nav>
+    <div class="tray">
+      <button id="mute" class="tray-btn" type="button" aria-pressed="false" aria-label="Mute all sound"><span aria-hidden="true">🔊</span></button>
+      <span class="clock"><span class="sr-only">Time: </span><span id="clock"></span></span>
+    </div>
+  </div>
+  </footer>
+</div>
+
+<!-- Starfield -->
+<button id="stars" class="stars" type="button" aria-label="Close screensaver. Double tap or press any key to wake." hidden>
+  <canvas id="stars-canvas" aria-hidden="true"></canvas>
+  <span class="stars-hint" aria-hidden="true">✨ Tap or press any key to wake ✨</span>
+</button>
+
+<!-- Goodnight -->
+<section id="night" class="night" aria-labelledby="night-t" tabindex="-1" hidden>
+  <div>
+    <h2 id="night-t"><span id="night-name">Goodnight, friend</span> <span aria-hidden="true">🌙</span></h2>
+    <p>It's now safe to turn off your brain.</p>
+    <p id="night-sound" class="small"></p>
+    <button id="reboot" class="btn" type="button">Restart Insomnia OS</button>
+    <p class="credit">Made by Tab at 4 AM</p>
+  </div>
+</section>
+
+<script src="script.js"></script>
+<script>/* Looscid port: keep the desktop below the photosensitivity notice, so the notice never covers the desktop icons on a phone. */
+(function(){var n=document.getElementById("ps-notice"),d=document.documentElement;function f(){var h=n&&getComputedStyle(n).display!=="none"?n.offsetHeight:0;d.style.setProperty("--ps-h",h+"px");}f();if(window.ResizeObserver&&n)new ResizeObserver(f).observe(n);window.addEventListener("resize",f);document.addEventListener("DOMContentLoaded",f);})();</script>
+</body>
+</html>

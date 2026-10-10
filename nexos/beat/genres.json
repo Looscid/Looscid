@@ -1,0 +1,37 @@
+[
+ {
+  "id": "original",
+  "label": "Original",
+  "file": "beat/nexos-beat.m4a",
+  "seconds": 69,
+  "bpm": 96
+ },
+ {
+  "id": "hyperpop",
+  "label": "Hyperpop",
+  "file": "beat/nexos-beat-hyperpop.m4a",
+  "seconds": 66,
+  "bpm": 160
+ },
+ {
+  "id": "lofi",
+  "label": "Lo-fi chill",
+  "file": "beat/nexos-beat-lofi.m4a",
+  "seconds": 64,
+  "bpm": 80
+ },
+ {
+  "id": "dnb",
+  "label": "Drum and bass",
+  "file": "beat/nexos-beat-dnb.m4a",
+  "seconds": 70,
+  "bpm": 172
+ },
+ {
+  "id": "chiptune",
+  "label": "Chiptune (8-bit)",
+  "file": "beat/nexos-beat-chiptune.m4a",
+  "seconds": 64,
+  "bpm": 140
+ }
+]

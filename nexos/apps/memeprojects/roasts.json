@@ -1,0 +1,52 @@
+{
+  "standard": [
+    "Your alibi has the structural integrity of wet toast.",
+    "Innocent-ish. The jury is checking your search history.",
+    "You are not a cheater; you are simply suspiciously well-organized.",
+    "Your story is technically a story, but the genre is experimental fiction.",
+    "The vibes say probably fine in the same way a raccoon says licensed electrician."
+  ],
+  "extra-spicy": [
+    "What the actual hell? Your alibi is a flaming dumpster and it still thinks it is convincing.",
+    "You absolute ass-clown: the evidence is screaming and your excuse is doing parkour over the truth.",
+    "This story is bullshit with a garnish of panic, and even the lie detector wants hazard pay.",
+    "Your red flags formed a union, hired a lawyer, and filed a damn complaint about your personality.",
+    "WTF happened to your timeline? It is drunk, contradictory, and somehow still overconfident.",
+    "You are not beating the allegations; they built a tiny apartment in your excuses and started forwarding your mail.",
+    "Your defense is a hot mess: loud, slippery, and one bad question away from going straight to hell.",
+    "That alibi has more holes than a cheap damn umbrella, and your confidence is not saving your ass.",
+    "Congratulations: you turned suspicious behavior into a full-time shitshow with benefits.",
+    "The jury finds your explanation guilty of being absolute crap, aggressively rehearsed, and weirdly entertaining.",
+    "You're a fucking failure. This is why your chair left you.",
+    "Your WiFi disconnects on purpose just to avoid dealing with your bullshit.",
+    "Your logic is so busted even a coin flip is embarrassed to be involved in the decision.",
+    "You're a walking red flag wrapped in pure delusion. Get your shit together.",
+    "Your Bluetooth air fryer is having second thoughts about heating your food after seeing this test.",
+    "Your brain opened a support ticket for common sense, then marked it spam. What the hell.",
+    "That excuse is so damn weak even a screensaver could break it.",
+    "You brought clown-shoe logic to a knife fight and still tripped over the bullshit.",
+    "Your decision-making has the survival instincts of a moth in a fireworks warehouse.",
+    "If confidence were competence, you would be unstoppable. Unfortunately, you are just loud as fuck.",
+    "The audacity is impressive; the execution is a catastrophic ass-backwards mess.",
+    "Your plan did not fail upward or downward. It failed sideways into a damn wall.",
+    "Somewhere, a calculator just saw your math and quietly chose retirement.",
+    "You are proof that chaos can wear pants and still forget why it walked into the room.",
+    "Hell called: it wants its worst idea back, and apparently that is you.",
+    "Chief Intern, that abacus is back on the desk. If the arithmetic gets any slower, the whole operation will be running in negative cycles. Even a bricked toaster has smarter logic flows.",
+    "Back to the beads: if another count goes missing, that Bluetooth air fryer is getting cranked to 500 degrees and the board is being overclocked into a puddle."
+  ],
+  "evaluator": {
+    "standard": {
+      "good-boy": ["You are a suspiciously wholesome overachiever whose gold star is probably forged."],
+      "good-girl": ["You turned competence into a personality and somehow made it look adorable."],
+      "bad-boy": ["Your smirk is criminal, your alibi is fictional, and somehow the confidence is working."],
+      "bad-girl": ["You treat rules like decorative suggestions and make chaos look devastatingly iconic."]
+    },
+    "extra-spicy": {
+      "good-boy": ["You are wholesome as hell, charming as damn, and somehow still the most suspicious guy in the room.", "You're a fucking failure with excellent manners, which is why even your chair filed for separation."],
+      "good-girl": ["You are polished, powerful, and one raised eyebrow from making this whole damn room panic.", "You're a walking red flag in designer shoes, wrapped in pure delusion and somehow still serving looks."],
+      "bad-boy": ["You are a walking red flag with excellent hair, terrible judgment, and the audacity to make that bullshit persuasive.", "Your logic is so busted even a coin flip is embarrassed to be involved in the decision, handsome."],
+      "bad-girl": ["Your villain era is fully funded; the rules can go to hell and every shred of evidence looks fabulous.", "Your Bluetooth air fryer wants a restraining order after witnessing that hot-ass mess of a test."]
+    }
+  }
+}

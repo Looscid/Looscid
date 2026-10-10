@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NexOS Web: a browser twin of NexOS</title>
+<meta name="description" content="A screen-reader friendly browser twin of the NexOS operating system: the nexos shell, an App Store and native apps, with classic synthesized sounds. Works offline.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0000aa">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="styles.css">
+<script src="script.js" defer></script>
+<script src="../looscid-bridge.js" defer></script>
+<style id="ps-style">
+/* Photosensitivity notice + Calm mode (no flashing; motion off under Calm mode or the system Reduce Motion setting) */
+#ps-notice{box-sizing:border-box;display:block;width:100%;margin:0;padding:.7rem 1rem .6rem;background:#fff4c2;color:#1b1b1b;border-bottom:2px solid #1b1b1b;font:1rem/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;text-align:left;position:relative;z-index:60;min-height:0}
+#ps-notice *{box-sizing:border-box;color:#1b1b1b;font-family:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;-webkit-text-fill-color:#1b1b1b}
+#ps-notice h2{font-size:1.05rem;font-weight:700;line-height:1.3;margin:0 0 .2rem;padding:0;border:0;background:none}
+#ps-notice p{margin:0 0 .45rem;padding:0;max-width:62rem;font-size:1rem}
+#ps-notice .ps-row{display:flex;flex-wrap:wrap;gap:.5rem .75rem;align-items:flex-start}
+#ps-notice button,#ps-notice summary{font:600 1rem/1.2 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;cursor:pointer;background:#fff;border:2px solid #1b1b1b;border-radius:8px;padding:.55rem .85rem;min-height:44px;margin:0;box-shadow:none;width:auto;transform:none}
+#ps-notice button[aria-pressed="true"]{background:#1b1b1b;color:#fff;-webkit-text-fill-color:#fff}
+#ps-notice button[aria-pressed="true"] *{color:#fff;-webkit-text-fill-color:#fff}
+#ps-notice summary{display:inline-block;list-style-position:inside}
+#ps-notice details{flex:1 1 16rem;min-width:0}
+#ps-notice details > div{margin-top:.5rem;padding:.6rem .8rem;background:#fffdf3;border:1px solid #1b1b1b;border-radius:8px;max-width:62rem}
+#ps-notice ul{margin:.2rem 0 .3rem 1.2rem;padding:0}
+#ps-notice li{margin:.2rem 0}
+#ps-notice a{text-decoration:underline}
+#ps-notice :focus-visible{outline:3px solid #1b1b1b;outline-offset:2px;box-shadow:0 0 0 6px #fff4c2}
+#ps-notice .ps-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+html.calm *,html.calm *::before,html.calm *::after{animation-duration:.001ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.001ms!important;transition-delay:0s!important;scroll-behavior:auto!important}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.001ms!important;transition-delay:0s!important;scroll-behavior:auto!important}}
+html.ps-hidden *,html.ps-hidden *::before,html.ps-hidden *::after{animation-play-state:paused!important}
+</style>
+<script id="ps-script">
+/* Calm mode: ON unless the visitor turns it off (remembered on this device). The system Reduce Motion setting always wins. */
+(function(){var K="calm-mode",d=document.documentElement,mq=window.matchMedia?window.matchMedia("(prefers-reduced-motion: reduce)"):{matches:false};
+function pref(){try{return localStorage.getItem(K)!=="off";}catch(e){return true;}}
+window.calmMode=function(){return !!mq.matches||pref();};
+function sync(say){var on=window.calmMode();d.classList.toggle("calm",on);var b=document.getElementById("ps-calm"),s=document.getElementById("ps-state"),st=document.getElementById("ps-status");
+if(b)b.setAttribute("aria-pressed",String(on));if(s)s.textContent=on?"on":"off";
+if(say&&st){st.textContent="";setTimeout(function(){st.textContent=on?(mq.matches&&!pref()?"Motion stays off because your device's Reduce Motion setting is on.":"Calm mode on. Motion is off."):"Calm mode off. Motion is on.";},50);}
+try{document.dispatchEvent(new CustomEvent("calmchange",{detail:{calm:on}}));}catch(e){}}
+window.__psSync=sync;sync(false);
+if(mq.addEventListener)mq.addEventListener("change",function(){sync(false);});else if(mq.addListener)mq.addListener(function(){sync(false);});
+document.addEventListener("visibilitychange",function(){d.classList.toggle("ps-hidden",document.hidden);});
+document.addEventListener("click",function(e){var b=e.target&&e.target.closest&&e.target.closest("#ps-calm");if(!b)return;var on=b.getAttribute("aria-pressed")==="true";try{localStorage.setItem(K,on?"off":"on");}catch(x){}sync(true);});
+document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<section id="ps-notice" aria-labelledby="ps-title">
+  <h2 id="ps-title">Photosensitivity notice</h2>
+  <p>This site has no flashing content and follows the three-flash safety limit. Calm mode, which turns off all motion, is on by default.</p>
+  <div class="ps-row">
+  <button type="button" id="ps-calm" aria-pressed="true">Calm mode<span aria-hidden="true">: <span id="ps-state">on</span></span></button>
+  <details>
+    <summary>More details</summary>
+    <div>
+    <ul>
+      <li>What was checked: every animation, transition and script on this page, plus a frame-by-frame screen recording measured against the WCAG 2.3.1 limits (no more than three flashes in any second, including red flashes).</li>
+      <li>What moves: new lines in Terminal fade in over a quarter of a second. In Insomnia OS, windows pop open, the sheep hops, the night screen fades and the Starfield screensaver drifts; with Calm mode on, all of that stops and the Starfield is a still picture. Easyconvert and Meme Projects have no motion of their own beyond Calm-safe transitions. Nothing flashes or blinks.</li>
+      <li>Calm mode turns off all motion. It starts on, and your choice is remembered on this device.</li>
+      <li>Your device's Reduce Motion setting is always honoured: when it is on, nothing animates, even with Calm mode off.</li>
+      <li>Sound plays only after you press something. Mute and volume are under Sound settings, or type <code>mute</code> in Terminal. Sound pauses when this tab is in the background, unless a soundscape or the beat is playing.</li>
+      <li>This was tested with automated measurement, not a clinical tool like PEAT, and not on every device.</li>
+    </ul>
+    <p>If anything here ever flickers, please <a href="https://github.com/2three1y/nexos/issues">report it on GitHub</a>.</p>
+    </div>
+  </details>
+  </div>
+  <p id="ps-status" class="ps-sr" role="status" aria-live="polite"></p>
+</section>
+
+<header class="bar">
+  <h1>NexOS <span class="dim">Web</span></h1>
+  <p class="tag">A browser twin of the NexOS operating system</p>
+</header>
+
+<main id="main">
+  <section id="home" class="view" aria-labelledby="home-h">
+    <h2 id="home-h" tabindex="-1">Home</h2>
+    <p class="hint" id="home-hint">Pick an app. Terminal is the command line, if you like typing. Close or Escape brings you back here.</p>
+    <div class="disclosure">
+      <button id="sound-toggle" type="button" aria-expanded="false" aria-controls="sound-panel"><span class="tri" aria-hidden="true">&#9656;</span>Sound settings</button>
+    </div>
+    <div id="sound-panel" class="sound" role="group" aria-label="Sound settings" hidden>
+      <div class="sound-row">
+        <label for="vol">Master volume</label>
+        <input id="vol" type="range" min="0" max="150" step="5" value="100" aria-valuetext="100 percent">
+        <output id="vol-out" for="vol">100%</output>
+      </div>
+      <div class="sound-row">
+        <button id="mute" type="button" aria-pressed="false">Mute</button>
+        <button id="test-sound" type="button">Play test chime</button>
+        <button id="beat" type="button" aria-pressed="false">Listen to the beat</button>
+        <label for="beat-genre">Beat style</label>
+        <select id="beat-genre"><option value="original">Original</option></select>
+      </div>
+      <div class="sound-row">
+        <input id="key-sounds" type="checkbox" checked aria-describedby="key-sounds-hint">
+        <label for="key-sounds">Typing clicks</label>
+        <span id="key-sounds-hint" class="hint">Every button already has its own sound. This turns just the key clicks on or off.</span>
+      </div>
+      <p id="sound-status" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+    </div>
+    <ul id="launcher" class="launcher" aria-labelledby="home-h">
+      <li class="static"><a class="launch-link" href="../real/">Boot the real kernel</a><span class="hint">: the actual 32-bit NexOS kernel, running in an emulated PC right in your browser.</span></li>
+    </ul>
+  </section>
+
+  <section id="terminal-view" class="view term" aria-labelledby="term-h" hidden>
+    <div class="view-head"><h2 id="term-h" tabindex="-1">Terminal</h2><button type="button" class="close" data-close>Close Terminal</button></div>
+    <div id="log" class="log" role="log" aria-live="polite" aria-relevant="additions" aria-label="Terminal output" tabindex="0">
+      <div class="entry boot">
+        <p class="hi">Welcome to NexOS. Type <kbd>help</kbd> and press Enter.</p>
+      </div>
+    </div>
+
+    <form id="cmd-form" class="cmdline" autocomplete="off">
+      <label for="cmd" id="prompt-label"><span class="prompt" id="prompt" aria-hidden="true">nexos&gt;</span><span class="sr-only" id="cmd-label-text">Command</span></label>
+      <input id="cmd" name="cmd" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" aria-describedby="cmd-hint">
+      <button type="submit" class="run">Run</button>
+    </form>
+    <p id="cmd-hint" class="hint">Enter runs. Up and Down arrows recall earlier commands.</p>
+
+    <h3 id="choices-h">Quick buttons: <span id="mode-name">Shell</span></h3>
+    <ul id="choices" class="choice-list" aria-labelledby="choices-h"></ul>
+  </section>
+
+  <section id="app-view" class="view app" aria-labelledby="app-h" hidden>
+    <div class="view-head"><h2 id="app-h" tabindex="-1">App</h2><button type="button" class="close" data-close>Close</button></div>
+    <div id="app-log" class="log app-log" role="log" aria-live="polite" aria-relevant="additions" aria-label="App output" tabindex="0"></div>
+    <h3 id="app-choices-h" class="sr-only">Buttons</h3>
+    <ul id="app-choices" class="choice-list" aria-labelledby="app-choices-h"></ul>
+    <form id="app-form" class="cmdline" autocomplete="off">
+      <label for="app-input" id="app-input-label">Type in App</label>
+      <input id="app-input" name="app-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send">
+      <button type="submit" class="run">Enter</button>
+    </form>
+  </section>
+
+  <section id="about-view" class="view about" aria-labelledby="about-h" hidden>
+    <div class="view-head"><h2 id="about-h" tabindex="-1">About this NexOS</h2><button type="button" class="close" data-close>Close</button></div>
+    <div id="about-body"></div>
+    <div class="sound-row"><button id="about-refresh" type="button">Refresh system info</button></div>
+    <p id="about-status" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+  </section>
+
+  <section id="insomnia-view" class="view embed-app" aria-labelledby="ins-h" hidden>
+    <div class="view-head"><h2 id="ins-h" tabindex="-1">Insomnia OS</h2><button type="button" class="close" data-close>Close</button></div>
+    <p class="src-link"><a href="https://github.com/2three1y/insomnia-os">View source for Insomnia OS on GitHub</a></p>
+    <p class="hint" id="ins-hint">The full Insomnia OS, the same as its own site. Escape on its desktop, or Close, brings you back to Home. A soundscape you start keeps playing after you close it, so it can help you fall asleep; open Insomnia OS again to stop it.</p>
+    <iframe id="ins-frame" class="app-frame" title="Insomnia OS" data-src="../apps/insomnia/index.html" aria-describedby="ins-hint"></iframe>
+  </section>
+
+  <section id="easyconvert-view" class="view ec" aria-labelledby="ec-h" hidden>
+    <div class="view-head"><h2 id="ec-h" tabindex="-1">Easyconvert</h2><button type="button" class="close" data-close>Close</button></div>
+    <p class="src-link"><a href="https://github.com/2three1y/Easyconvert">View source for Easyconvert on GitHub</a></p>
+    <p class="hint">Convert files right in your browser. Nothing is uploaded: your files are read and converted on this device.</p>
+    <div class="ec-field"><label for="ec-input">Files to convert</label><input id="ec-input" type="file" multiple></div>
+    <div class="ec-field"><label for="ec-format">Convert to</label>
+      <select id="ec-format"><option value="txt">TXT / Markdown</option><option value="docx">DOCX</option><option value="zip">ZIP archive</option><option value="pdf">PDF</option><option value="json">JSON</option><option value="html">HTML</option></select></div>
+    <div class="sound-row"><button id="ec-convert" type="button">Convert</button><button id="ec-download-all" type="button">Download all</button></div>
+    <h3 id="ec-files-h">Your files</h3>
+    <div id="ec-list" class="ec-list"></div>
+    <p id="ec-status" class="ec-status" role="status" aria-live="polite" aria-atomic="true"></p>
+  </section>
+
+  <section id="memes-view" class="view embed-app" aria-labelledby="memes-h" hidden>
+    <div class="view-head"><h2 id="memes-h" tabindex="-1">Meme Projects</h2><button type="button" class="close" data-close>Close</button></div>
+    <p class="src-link"><a href="https://github.com/2three1y/memeprojects">View source for Meme Projects on GitHub</a></p>
+    <p class="hint" id="memes-hint">The Meme Projects chaos tool suite, the same as its own site. Escape, or Close, brings you back to Home.</p>
+    <iframe id="memes-frame" class="app-frame" title="Meme Projects" data-src="../apps/memeprojects/index.html" aria-describedby="memes-hint"></iframe>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <p>NexOS Web 0.6.1 · a web twin of NexOS, not the real kernel · MIT licensed · <a href="https://github.com/2three1y/nexos">Source on GitHub</a></p>
+</footer>
+<audio id="beat-audio" preload="none" src="../beat/nexos-beat.m4a"></audio>
+<p id="note-status" class="sr-only" aria-live="assertive" aria-atomic="true"></p>
+<p id="status" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+<div id="alert" class="sr-only" role="alert"></div>
+</body>
+</html>

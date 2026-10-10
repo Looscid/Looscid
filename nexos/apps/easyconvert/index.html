@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Easyconvert</title>
+<meta name="description" content="Convert text files to TXT, DOCX, ZIP, JSON and HTML right in your browser. Nothing is uploaded.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="easyconvert.css">
+</head>
+<body>
+<main id="main" class="ec" aria-labelledby="ec-h">
+  <p class="toplink" id="ec-top" hidden><a href="../../web/">Back to NexOS Web</a></p>
+  <h1 id="ec-h">Easyconvert</h1>
+  <p class="hint">Convert files right in your browser. Nothing is uploaded: your files are read and converted on this device.</p>
+  <div class="ec-field"><label for="ec-input">Files to convert</label><input id="ec-input" type="file" multiple></div>
+  <div class="ec-field"><label for="ec-format">Convert to</label>
+    <select id="ec-format"><option value="txt">TXT / Markdown</option><option value="docx">DOCX</option><option value="zip">ZIP archive</option><option value="pdf">PDF</option><option value="json">JSON</option><option value="html">HTML</option></select></div>
+  <div class="ec-row"><button id="ec-convert" type="button">Convert</button><button id="ec-download-all" type="button">Download all</button><button id="ec-clear" type="button">Clear files</button></div>
+  <h2 id="ec-files-h">Your files</h2>
+  <div id="ec-list" class="ec-list"></div>
+  <p id="ec-status" class="ec-status" role="status" aria-live="polite" aria-atomic="true"></p>
+  <p class="src-link">Part of NexOS, ported into Looscid. <a href="https://github.com/2three1y/Easyconvert">Easyconvert source on GitHub</a>. ZIP and DOCX use <a href="JSZIP-LICENSE.txt">JSZip (MIT)</a>.</p>
+</main>
+<script src="../../looscid-bridge.js"></script>
+<script src="easyconvert.js"></script>
+</body>
+</html>

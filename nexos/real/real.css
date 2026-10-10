@@ -1,0 +1,52 @@
+:root{
+  --bg:#000; --fg:#d0d0d0; --hi:#fff; --dim:#b0b0b0;
+  --blue:#0000aa; --cyan:#55ffff; --green:#55ff55; --yellow:#ffff55;
+  --panel:#0a0a1e; --line:#5a5aa0; --focus:#ffff55;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+*{box-sizing:border-box}
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 var(--mono);overflow-x:hidden}
+h1,h2,h3{color:var(--hi);margin:0}
+h1{font-size:1.35rem}
+h2{font-size:1.1rem;color:var(--cyan);margin:1.5rem 0 .5rem}
+h3{font-size:1rem;margin:.75rem 0 .35rem}
+a{color:var(--cyan)}
+code{color:var(--yellow)}
+.dim{color:var(--yellow);font-weight:400}
+.skip{position:absolute;left:.5rem;top:-4rem;background:var(--yellow);color:#000;padding:.5rem .75rem;z-index:10;font-weight:700;text-decoration:none}
+.skip:focus{top:.5rem}
+:focus{outline:none}
+:focus-visible,.skip:focus,input:focus,button:focus,.log:focus,a:focus{outline:3px solid var(--focus);outline-offset:2px}
+.bar{background:var(--blue);color:var(--hi);padding:.75rem 1rem;border-bottom:3px solid var(--cyan)}
+.tag{margin:.15rem 0 0;color:#e8e8ff;font-size:.9rem}
+main{max-width:60rem;margin:0 auto;padding:1rem}
+.status{margin:0 0 .5rem;padding:.5rem .75rem;border:2px solid var(--line);background:var(--panel);color:var(--hi);font-weight:700}
+.hint{color:var(--dim);font-size:.9rem;margin:.25rem 0 .5rem}
+.log{background:#000;border:2px solid var(--line);padding:.5rem .75rem;height:22rem;max-height:60vh;overflow-y:auto;overflow-x:hidden;white-space:pre-wrap;overflow-wrap:anywhere}
+.log .entry{margin:0 0 .5rem;font:inherit;white-space:pre-wrap;overflow-wrap:anywhere}
+.log .prompt{color:var(--green)}
+.cmdrow{margin:.75rem 0}
+.cmdrow > label{display:block;color:var(--hi);font-weight:700;margin-bottom:.25rem}
+.cmdline{display:flex;gap:.5rem}
+.cmdline input{flex:1;min-width:0}
+input[type=text]{font:inherit;color:var(--hi);background:#111;border:2px solid var(--line);padding:.5rem .6rem;border-radius:4px}
+button{font:inherit;color:#000;background:var(--cyan);border:2px solid var(--cyan);padding:.45rem .8rem;border-radius:4px;min-height:44px;min-width:44px;cursor:pointer}
+button:hover{background:#9ff}
+.keys{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:.25rem 0 .75rem}
+.keys h3{flex-basis:100%}
+.keys button{background:#222;color:var(--hi);border-color:var(--line)}
+.keys button:hover{background:#333}
+.check{display:flex;align-items:center;gap:.5rem;margin:.4rem 0}
+input[type=checkbox]{width:1.4rem;height:1.4rem;accent-color:var(--cyan)}
+input[type=range]{width:12rem;max-width:60%;vertical-align:middle;accent-color:var(--cyan)}
+.screen-wrap{border:2px solid var(--line);background:#000;overflow:hidden;max-width:100%}
+#screen{transform-origin:0 0;width:max-content}
+#screen .text{white-space:pre;font:14px/16px monospace;color:#aaa}
+#screen canvas{display:none}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
+/* Looscid port: Back and Stop, big touch targets */
+.runbar{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.6rem}
+.runbar button{font:700 1rem/1.2 var(--mono);min-height:44px;min-width:44px;padding:.55rem 1rem;background:#000;color:var(--hi);border:2px solid var(--cyan);border-radius:6px;cursor:pointer}
+.runbar button[aria-disabled="true"]{opacity:.6}
