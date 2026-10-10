@@ -24,14 +24,17 @@ Anyone on Nostr can do the same.
 
 ---
 
-### What Works Today (Round 6.4)
+### What Works Today (Rounds 6.4 and 6.5)
 
 Dreams on Nostr, with no server of ours:
 
 - **Your key.** Settings, LooscidID, Keys and IDs, "Nostr key": use a signer (NIP-07), enter your nsec in a secure field, or create a new key. An optional passcode saves it locked as a **NIP-49** ncryptsec (scrypt plus XChaCha20-Poly1305). Without one it's saved unlocked under `dbm_nostr_sk` on this device. It's never in Settings backup.
 - **Dreaming.** With Audience Everyone, a new Dream is a kind:1 note signed on your device, tagged `["client","Looscid"]` and `["t","looscid"]`, sent to your relays (default: relay.damus.io, nos.lol, relay.primal.net, relay.nostr.band; you can change the list). Relays that don't answer are retried. Audience "Only this device" never sends.
 - **Reading back.** On start, Looscid asks your relays for your own kind:1 notes tagged `looscid`, checks each signature, and adds the ones it doesn't have yet. That's how your Dreams show on a new device.
-- **Not yet:** a global feed, replies, ReDreams and profiles on Nostr, and deleting a Dream from relays (NIP-09).
+- **Replies (Round 6.5).** A reply to a Dream that's on Nostr is a kind:1 note with **NIP-10** marked tags: `["e", <root id>, <relay>, "root", <author>]`, plus `["e", <parent id>, <relay>, "reply", <author>]` when it answers a reply, and a `["p", ...]` for the author of what it answers and everyone that note tagged. Only Audience Everyone sends; a reply to a Dream that isn't on Nostr stays on the device. Replies are saved in `dbm_replies`.
+- **Quotes and warnings (Round 6.5).** A Quote of a Nostr Dream carries a **NIP-18** `["q", <id>, <relay>, <author>]` tag and ends with a `nostr:nevent1...` link. A content warning is a **NIP-36** `["content-warning", <reason>]` tag.
+- **Reading back keeps threads (Round 6.5).** Each note read back keeps its author key and its `e`, `p`, `q` and `content-warning` tags, so replies come back under their Dream on a new device.
+- **Not yet:** a global feed, Redreams and profiles on Nostr, replies to other people's notes (Looscid only reads your own notes for now), and deleting a Dream from relays (NIP-09).
 - The code is `js/nostr.js`; the crypto is vendored in `js/vendor/` and loads only when you use Nostr.
 
 ---
@@ -48,8 +51,8 @@ Dreams on Nostr, with no server of ours:
 
 #### Dreams (Social Posts)
 - **NIP-01 kind:1** — Short text notes. These are Dreams.
-- **NIP-10** — Reply threading. Comments on Dreams.
-- **NIP-18** — Reposts. These are ReDreams.
+- **NIP-10** — Reply threading. Replies to Dreams (Round 6.5).
+- **NIP-18** — Reposts. These are Redreams.
 - **NIP-36** — Sensitive content tagging.
 - **NIP-94** — File attachments. Images, audio, video in Dreams.
 
@@ -195,7 +198,7 @@ You are Cherry, Looscid's AI assistant. You embody these core values:
 Always use this terminology (NEVER use alternatives):
 - Dreams (not Posts)
 - Dreamers (not Users)  
-- ReDreams (not Reposts)
+- Redreams (not Reposts)
 - Circles (not Groups)
 - LooscidID (not Account)
 - Feed (not Home)

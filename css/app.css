@@ -513,3 +513,19 @@ h2.slbl,div.slbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:
 .lid-details{margin:10px 0}
 .lid-details>summary{cursor:pointer;color:var(--ac4);text-decoration:underline;padding:8px 0;font-size:14px}
 .lid-details>summary:focus-visible{outline:2px solid var(--ac4);outline-offset:2px;border-radius:6px}
+
+/* Round 6.5: the composer (New Dream, Reply, Quote) and link cards */
+.lc-cr-tool{background:none;border:1px solid transparent;cursor:pointer;padding:7px 8px;border-radius:8px;color:var(--ac3);font-size:12px;min-height:36px;display:inline-flex;align-items:center;gap:4px}
+.lc-cr-tool:focus-visible{outline:2px solid var(--ac2);outline-offset:2px}
+label.lc-cr-tool{color:var(--tx2)}
+.lc-cr-ctx{padding:10px 16px 0 16px}
+.lc-cr-parent{margin:0;padding:6px 0 6px 14px;border-left:3px solid var(--bd2);color:var(--tx2);font-size:14px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.lc-cr-notify{border:1px solid var(--bd);border-radius:10px;margin:0 16px 8px;padding:6px 12px 8px}
+.lc-cr-notify legend{padding:0 4px}
+.lc-check{display:flex;align-items:center;gap:6px;min-height:36px;font-size:14px;cursor:pointer}
+.lc-check input{width:20px;height:20px;accent-color:var(--ac2)}
+.lc-cr-more{border-top:1px dashed var(--bd);padding-top:8px}
+.lc-link-card{margin:8px 0;padding:10px 12px;border:1px solid var(--bd);border-radius:12px;background:var(--sf2)}
+.lc-link-what{margin:0 0 6px;font-size:13px;color:var(--tx2)}
+.lc-link-frame{display:block;width:100%;aspect-ratio:16/9;height:auto;border:0;border-radius:8px;margin:0 0 8px}
+.lc-quoted{margin:8px 0;padding:8px 10px;border-left:3px solid var(--bd2)}

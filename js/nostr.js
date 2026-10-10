@@ -8,12 +8,17 @@
    - dbm_nostr_relays      your relay list, when you changed it
    - dbm_nostr_queue       Dreams waiting to reach relays (signed notes, or Dreams waiting for your passcode)
    - dbm_nostr_hidden      ids of Nostr notes you removed here, so they don't come back on the next fetch
+   Round 6.5: replies to a Dream that's on Nostr go out as NIP-10 replies ("e" tags marked root and reply,
+   "p" tags for the people in the thread), a Quote carries a NIP-18 "q" tag, and a content warning goes
+   as a NIP-36 "content-warning" tag. Reading back keeps each note's author key and these tags, so a reply
+   finds its Dream on a new device. Replies are saved in dbm_replies (see js/core.js).
    An unlocked key lives only in this file's memory until the page closes or reloads.
    The crypto (js/vendor/nostr-tools-2.25.2.min.js) loads only when a Nostr feature is used. */
 (function (Looscid) {
 "use strict";
 const SK_KEY = "dbm_nostr_sk", ENC_KEY = "dbm_nostr_ncryptsec", RELAYS_KEY = "dbm_nostr_relays", QUEUE_KEY = "dbm_nostr_queue", HIDDEN_KEY = "dbm_nostr_hidden";
-const IDENTITY_KEY = "looscid_identity", IDS_KEY = "dbm_linked_ids", DREAMS_KEY = "dbm_dreams";
+const IDENTITY_KEY = "looscid_identity", IDS_KEY = "dbm_linked_ids", DREAMS_KEY = "dbm_dreams", REPLIES_KEY = "dbm_replies";
+const KEEP_TAGS = ["e", "p", "q", "content-warning"];
 const DEFAULT_RELAYS = ["wss://relay.damus.io", "wss://nos.lol", "wss://relay.primal.net", "wss://relay.nostr.band"];
 const VENDOR_SRC = "js/vendor/nostr-tools-2.25.2.min.js";
 const TAGS = [["client", "Looscid"], ["t", "looscid"]];
@@ -214,11 +219,33 @@ function schedule() {
   const next = Math.min.apply(null, q.map(function (x) { return x.next || 0; }));
   retryTimer = setTimeout(processQueue, Math.max(1000, next - Date.now()));
 }
-function tagNid(dreamRef, nid) {
-  const a = lsJson(DREAMS_KEY, []); if (!Array.isArray(a)) return;
-  const d = a.find(function (x) { return x && String(x.id) === String(dreamRef); });
-  if (d && d.nid !== nid) { d.nid = nid; lsSet(DREAMS_KEY, JSON.stringify(a)); }
+// After signing: the saved Dream or reply learns its note id, author key and threading tags (Round 6.5).
+function tagNid(dreamRef, nid, ev) {
+  [DREAMS_KEY, REPLIES_KEY].some(function (key) {
+    const a = lsJson(key, []); if (!Array.isArray(a)) return false;
+    const d = a.find(function (x) { return x && String(x.id) === String(dreamRef); });
+    if (!d) return false;
+    d.nid = nid;
+    if (ev) { d.pk = ev.pubkey; const t = keepTags(ev.tags); if (t.length) d.tags = t; else delete d.tags; }
+    lsSet(key, JSON.stringify(a)); return true;
+  });
 }
+function keepTags(tags) {
+  return (Array.isArray(tags) ? tags : []).filter(function (t) { return Array.isArray(t) && KEEP_TAGS.indexOf(t[0]) >= 0 && typeof t[1] === "string"; }).map(function (t) { return t.slice(0, 5).map(String); }).slice(0, 50);
+}
+// A Dream or reply saved on this device, by its Looscid id.
+function findLocal(ref) {
+  if (ref == null) return null; const k = String(ref); let out = null;
+  [DREAMS_KEY, REPLIES_KEY].some(function (key) { const a = lsJson(key, []); if (!Array.isArray(a)) return false; out = a.find(function (x) { return x && String(x.id) === k; }) || null; return !!out; });
+  return out;
+}
+function findByNid(nid) {
+  let out = null;
+  [DREAMS_KEY, REPLIES_KEY].some(function (key) { const a = lsJson(key, []); if (!Array.isArray(a)) return false; out = a.find(function (x) { return x && x.nid === nid; }) || null; return !!out; });
+  return out;
+}
+// Is this Dream waiting to reach Nostr (signed later, after your passcode)?
+function isPending(ref) { return queue().some(function (q) { return q.draft && String(q.draft.dreamRef) === String(ref); }); }
 async function sign(tpl) {
   const st = state();
   if (st.mode === "signer") {
@@ -231,9 +258,52 @@ async function sign(tpl) {
   const NT = await load();
   return NT.finalizeEvent(tpl, sk);
 }
-function dreamTemplate(d) {
-  return { kind: 1, created_at: Math.floor((+d.created || Date.now()) / 1000), tags: TAGS.map(function (t) { return t.slice(); }), content: String(d.text || "") };
+/* The note for a Dream. d.parentRef: the Dream or reply it answers (NIP-10). d.quoteRef: the Dream it quotes
+   (NIP-18). d.cw: a content warning (NIP-36). d.notifyPks: extra people to notify. Returns null when the
+   Dream it answers isn't on Nostr yet (it waits, and is tried again). */
+function dreamTemplate(d, NT, myPk) {
+  const tags = TAGS.map(function (t) { return t.slice(); });
+  let content = String(d.text || "");
+  const hint = relays()[0] || "";
+  const ps = [];
+  const addP = function (pk) { if (isHex64(pk) && ps.indexOf(pk.toLowerCase()) < 0) ps.push(pk.toLowerCase()); };
+  if (d.parentRef != null) {
+    const par = findLocal(d.parentRef);
+    if (!par || !isHex64(par.nid)) return null;
+    const ppk = isHex64(par.pk) ? par.pk : myPk;
+    const pt = Array.isArray(par.tags) ? par.tags : [];
+    const rootTag = pt.find(function (t) { return t[0] === "e" && t[3] === "root" && isHex64(t[1]); }) || pt.find(function (t) { return t[0] === "e" && isHex64(t[1]) && !t[3]; });
+    if (rootTag && rootTag[1] !== par.nid) {
+      const rl = findByNid(rootTag[1]);
+      const rpk = isHex64(rootTag[4]) ? rootTag[4] : rl ? (isHex64(rl.pk) ? rl.pk : myPk) : null;
+      tags.push(rpk ? ["e", rootTag[1], rootTag[2] || hint, "root", rpk] : ["e", rootTag[1], rootTag[2] || hint, "root"]);
+      tags.push(ppk ? ["e", par.nid, hint, "reply", ppk] : ["e", par.nid, hint, "reply"]);
+    } else {
+      tags.push(ppk ? ["e", par.nid, hint, "root", ppk] : ["e", par.nid, hint, "root"]);
+    }
+    // NIP-10: the author of what you answer, plus everyone it already tagged.
+    addP(ppk); pt.forEach(function (t) { if (t[0] === "p") addP(t[1]); });
+  }
+  (d.notifyPks || []).forEach(addP);
+  ps.forEach(function (pk) { tags.push(["p", pk]); });
+  if (d.quoteRef != null) {
+    const q = findLocal(d.quoteRef);
+    if (q && isHex64(q.nid)) {
+      const qpk = isHex64(q.pk) ? q.pk : myPk;
+      tags.push(qpk ? ["q", q.nid, hint, qpk] : ["q", q.nid, hint]);
+      try { if (NT && NT.nip19) content += "\n\nnostr:" + NT.nip19.neventEncode({ id: q.nid, relays: hint ? [hint] : [], author: qpk || undefined }); } catch (e) {}
+    }
+  }
+  if (d.cw && String(d.cw).trim()) tags.push(["content-warning", String(d.cw).trim().slice(0, 200)]);
+  return { kind: 1, created_at: Math.floor((+d.created || Date.now()) / 1000), tags: tags, content: content };
 }
+async function signDream(d) {
+  const NT = await load();
+  const tpl = dreamTemplate(d, NT, state().pubkey);
+  if (!tpl) return { wait: true };
+  return { ev: await sign(tpl) };
+}
+const DRAFT_KEYS = ["parentRef", "quoteRef", "cw", "notifyPks"];
 async function processQueue() {
   if (busyQueue) return; busyQueue = true;
   try {
@@ -243,9 +313,9 @@ async function processQueue() {
       if ((it.next || 0) > now + 500 && !it.kick) { out.push(it); continue; }
       delete it.kick;
       if (!it.ev && it.draft) {
-        let ev = null; try { ev = await sign(dreamTemplate(it.draft)); } catch (e) {}
-        if (!ev) { out.push(it); continue; }  // still locked: waits for the passcode
-        tagNid(it.draft.dreamRef, ev.id);
+        let ev = null; try { const r = await signDream(it.draft); ev = r.ev || null; } catch (e) {}
+        if (!ev) { out.push(it); continue; }  // still locked (waits for the passcode), or what it answers isn't on Nostr yet
+        tagNid(it.draft.dreamRef, ev.id, ev);
         it = { ev: ev, dreamRef: it.draft.dreamRef, todo: relays(), tries: 0 };
       }
       if (!it.ev) continue;
@@ -270,14 +340,17 @@ async function publishDream(d, opts) {
   if (!st.canDream || !d || !String(d.text || "").trim()) return { skipped: true };
   const quiet = opts && opts.quiet;
   if (st.mode === "locked") {
-    const q = queue(); q.push({ draft: { dreamRef: d.id, text: d.text, created: d.created || Date.now() }, at: Date.now() }); saveQueue(q); emit();
+    const dr = { dreamRef: d.id, text: d.text, created: d.created || Date.now() };
+    DRAFT_KEYS.forEach(function (k) { if (d[k] != null) dr[k] = d[k]; });
+    const q = queue(); q.push({ draft: dr, at: Date.now() }); saveQueue(q); emit();
     if (!quiet) sayLater("Saved on this device. Enter your passcode to send it to relays.");
     return { queued: true, locked: true };
   }
-  let ev = null;
-  try { ev = await sign(dreamTemplate(d)); } catch (e) { ev = null; }
+  let ev = null, wait = false;
+  try { const r = await signDream(d); ev = r.ev || null; wait = !!r.wait; } catch (e) { ev = null; }
+  if (wait) { if (!quiet) sayLater("Saved on this device. The Dream it answers isn't on Nostr, so it stays here."); return { skipped: true, reason: "parent" }; }
   if (!ev) { if (!quiet) sayLater("Saved on this device. Your signer didn't sign it, so it wasn't sent."); return { error: "sign" }; }
-  tagNid(d.id, ev.id);
+  tagNid(d.id, ev.id, ev);
   const list = relays();
   const r = await sendToRelays(ev, list);
   if (r.failed.length) { const q = queue(); q.push({ ev: ev, dreamRef: d.id, todo: r.failed, tries: 1, next: Date.now() + RETRY_MS[0] }); saveQueue(q); schedule(); }
@@ -297,8 +370,9 @@ async function fetchOwn() {
   const all = await Promise.all(list.map(function (u) { return relayReq(u, filter); }));
   const seen = new Set(), hid = new Set(hidden());
   const saved = lsJson(DREAMS_KEY, []); const savedArr = Array.isArray(saved) ? saved : [];
-  savedArr.forEach(function (s) { if (s && s.nid) seen.add(s.nid); if (s && typeof s.id === "string" && isHex64(s.id)) seen.add(s.id); });
-  const fresh = [];
+  const savedR = lsJson(REPLIES_KEY, []); const savedRArr = Array.isArray(savedR) ? savedR : [];
+  savedArr.concat(savedRArr).forEach(function (s) { if (s && s.nid) seen.add(s.nid); if (s && typeof s.id === "string" && isHex64(s.id)) seen.add(s.id); });
+  const fresh = [], freshR = [];
   all.forEach(function (evs) { evs.forEach(function (ev) {
     if (!ev || seen.has(ev.id) || hid.has(ev.id)) return;
     if (ev.kind !== 1 || ev.pubkey !== pk || typeof ev.content !== "string") return;
@@ -306,13 +380,39 @@ async function fetchOwn() {
     let ok = false; try { ok = NT.verifyEvent(ev); } catch (e) {}
     if (!ok) return;
     seen.add(ev.id);
-    fresh.push({ id: ev.id, nid: ev.id, text: ev.content.slice(0, 20000), created: ev.created_at * 1000, likes: 0, redreams: 0, quotes: 0 });
+    // Round 6.5: keep the author key and the threading tags (they were dropped in 6.4).
+    const tags = keepTags(ev.tags);
+    const rec = { id: ev.id, nid: ev.id, pk: ev.pubkey, text: ev.content.slice(0, 20000), created: ev.created_at * 1000, likes: 0 };
+    if (tags.length) rec.tags = tags;
+    const cwT = tags.find(function (t) { return t[0] === "content-warning"; }); if (cwT) rec.cw = cwT[1] || "Content warning";
+    const es = tags.filter(function (t) { return t[0] === "e" && isHex64(t[1]); });
+    if (es.length) {
+      const root = es.find(function (t) { return t[3] === "root"; }) || es[0];
+      const par = es.find(function (t) { return t[3] === "reply"; }) || root;
+      rec._root = root[1]; rec._par = par[1];
+      freshR.push(rec);
+    } else { rec.redreams = 0; rec.quotes = 0; fresh.push(rec); }
   }); });
-  if (!fresh.length) return { added: 0, relaysAnswered: all.filter(function (a) { return a.length; }).length };
-  const merged = savedArr.concat(fresh).sort(function (a, b) { return (+b.created || 0) - (+a.created || 0); });
-  lsSet(DREAMS_KEY, JSON.stringify(merged.slice(0, 1000)));
-  try { window.dispatchEvent(new CustomEvent("looscid-dreams-fetched", { detail: { ids: fresh.map(function (f) { return f.id; }) } })); } catch (e) {}
-  return { added: fresh.length };
+  if (fresh.length) {
+    const merged = savedArr.concat(fresh).sort(function (a, b) { return (+b.created || 0) - (+a.created || 0); });
+    lsSet(DREAMS_KEY, JSON.stringify(merged.slice(0, 1000)));
+    try { window.dispatchEvent(new CustomEvent("looscid-dreams-fetched", { detail: { ids: fresh.map(function (f) { return f.id; }) } })); } catch (e) {}
+  }
+  if (freshR.length) {
+    // A reply hangs under the Dream it belongs to (found by note id); a reply to a reply also knows that reply.
+    const allR = savedRArr.concat(freshR);
+    freshR.forEach(function (r) {
+      const rootLocal = findByNid(r._root);
+      r.replyTo = rootLocal ? rootLocal.id : r._root;
+      if (r._par !== r._root) { const pl = allR.find(function (x) { return x.nid === r._par; }); r.replyToReply = pl ? pl.id : r._par; }
+      delete r._root; delete r._par;
+    });
+    const mergedR = savedRArr.concat(freshR).sort(function (a, b) { return (+b.created || 0) - (+a.created || 0); });
+    lsSet(REPLIES_KEY, JSON.stringify(mergedR.slice(0, 2000)));
+    try { window.dispatchEvent(new Event("looscid-replies")); } catch (e) {}
+  }
+  if (!fresh.length && !freshR.length) return { added: 0, relaysAnswered: all.filter(function (a) { return a.length; }).length };
+  return { added: fresh.length, replies: freshR.length };
 }
 
 // On start: read your Dreams back and send anything waiting. Quiet: no announcement, no focus moves.
@@ -329,5 +429,5 @@ if (document.readyState === "complete") start(); else window.addEventListener("l
 
 Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, load: load, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
   importKey: importKey, createKey: createKey, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, nsecNow: nsecNow,
-  publishDream: publishDream, fetchOwn: fetchOwn, processQueue: processQueue, queue: queue, hide: hide };
+  publishDream: publishDream, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
 })(window.Looscid = window.Looscid || {});

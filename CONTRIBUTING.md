@@ -6,7 +6,7 @@ Welcome, and thank you for being here. Looscid is an open source project built w
 
 ## Language and terminology
 
-We have our own language here. Please read TERMINOLOGY.md before anything else. Dreams, ReDreams, Circles and Dreamors are the words of this platform and they belong everywhere — in code, in comments, in UI text and in documentation. It's a small thing that means a lot to us.
+We have our own language here. Please read TERMINOLOGY.md before anything else. Dreams, Redreams, Replies, Circles and Dreamers are the words of this platform and they belong everywhere — in code, in comments, in UI text and in documentation. It's a small thing that means a lot to us.
 
 ---
 

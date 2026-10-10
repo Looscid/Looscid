@@ -2,11 +2,11 @@
    Plain script (not a module). Everything it shares goes on window.Looscid; see FILES.md for the load order. */
 (function (Looscid) {
 const { A11Y_DEFAULTS, A11Y_KEY, A11ySwitch, AlertDialog, Av, BackHeader, Cbx, CommentView, DREAMS_INIT, DreamCard, Earcon, GROUPS, ID_PROVIDERS, Ic, LC_A11Y_CATS, LC_A11Y_PAGE, LC_ALERT_PREFS_KEY, LC_ALERT_TYPES, LC_AUDIO_CATS, LC_BOOT, LC_BR_BUILTIN, LC_BR_MAX, LC_BUILTIN_KEYS, LC_EXPORT_KEYS, LC_FEED_MODES, LC_FIND_KEY, LC_MSG_CATS, LC_NEXOS_APPS, LC_NEXOS_SHELL, LC_SECTIONS, LC_SET, LC_SETTINGS_KEY, LC_SET_BY, LC_SR_NAMES_DEF, LC_UPDATE_AUTO_KEY, LID_NOSTR_SK_KEY, LOOSCID_BUILD, LOOSCID_RELEASED, LOOSCID_SLOGAN, LOOSCID_VERSION, LcCmdLog, LcFindMeSwitch, LcMenu, LcSpeech, ME, MUSIC_GENRES, MenuPopupButton, Music, PROVIDER_NAMES, SecretField, TRENDING, USERS, announce, getAIPrefs, getActivity, getDrafts, getIdentity, getLocalProfile, getMethods, getTopics, hexToBytes, lcAiOn, lcAlertCats, lcAlertPrefs, lcAlerts, lcAlertsMarkAll, lcAppItems, lcAudCustom, lcBlocked, lcBlockedSet, lcBrCreate, lcBrDate, lcBrDelete, lcBrForget, lcBrList, lcBrNotice, lcBrRename, lcBrSelect, lcBrStamp, lcBrUndo, lcBrUsePast, lcBrowserName, lcCatState, lcCheckUpdate, lcCloseProps, lcDownloadSettings, lcFeedMode, lcHandle, lcHapticsSupported, lcHints, lcIdbDo, lcKeyName, lcLoadCustomPack, lcNexosSend, lcOpenReset, lcPitchCue, lcQuietNow, lcReleasedText, lcSectionTitle, lcSet, lcSpoken, lcSrName, lcStorageKB, lcTranslateOk, lcUpdateAuto, lcValueText, lcVerb, lcVersionLabel, lcWords, lh, logActivity, removeMethod, sanitizeInput, setAIPrefs, shortNpub, systemReducedMotion, updateLocalProfile, useA11yNow, useCats, useCmdHistory, useCmdLog, useDreams, useEffect, useEnterSubmit, useKeyboardInset, useOAuthReturn, useRef, useState } = Looscid;
-Object.assign(Looscid, { ProfileView, ProfilePage, DreamerProfilePage, AccountSettings, LcAudience, lcCatSave, LcCatCustomize, MessageSettings, NotificationsSettings, PrivacySettings, LcResetLast, LcTabs, LcBlockedPanel, LcPrivacyMedia, FeedSwitchSetting, LcCatMenu, LcCatPage, CustomizabilitySettings, lcSetAiPref, IntelligenceSettings, lcMenuList, lcSubLine, AccessibilitySettings, A11yCategory, AboutSettings, MorePage, MoreAppsGroup, FeedbackPage, AdminPanel, AdminUsers, AdminContent, AdminReports, AdminAnalytics, AdminPlatform, AdminAnnouncements, PolicyPage, HourStoryPage, normalizeUrl, fieldValueText, ProfileInfoList, ChangeInfoScreen, useProfileEditor, lcJoin, methodLabel, getStoredNostrSk, ComingSoonPanel, LoginMethods, lcGetIds, lcSaveIds, lcBech32Polymod, lcDecodeBech32Key, lcCheckId, lcVerifyId, LcKeysPanel, lcIdLabel, lidWhen, thisDeviceLabel, localDataSummary, exportLocalData, deleteLocalData, LooscidIDManager, lcUnzip, lcCheckPackFiles, lcAutoMap, lcUpdateAutoSet, lcPitchPreview, MusicPage, lcAudCustomSet, useBlocked, lcAlertPrefsSet, termOutputOpen, setTermOutputOpen, lcOsName, lcAboutInfo, AboutLooscidMore, TerminalPage, LabsSettings, lcAppGet, lcAppPut, LcAppRange, AppsSettings, NexosAppsPage, NexosAppFrame, lcLinkedProviders, LcSetRow, LcWordsRow, LcVoiceRow, LcResetBtn, LcSection, BrailleStyle, LcVerbosityPanel, SrTabs, LcSpeechTest, LcSrRename, AudioSettings, LcPackImport, lcShortcutOk, KeyboardSettings, lcImportSettings, BackupSettings });
+Object.assign(Looscid, { CreditsPage, ProfileView, ProfilePage, DreamerProfilePage, AccountSettings, LcAudience, lcCatSave, LcCatCustomize, MessageSettings, NotificationsSettings, PrivacySettings, LcResetLast, LcTabs, LcBlockedPanel, LcPrivacyMedia, FeedSwitchSetting, LcCatMenu, LcCatPage, CustomizabilitySettings, lcSetAiPref, IntelligenceSettings, lcMenuList, lcSubLine, AccessibilitySettings, A11yCategory, AboutSettings, MorePage, MoreAppsGroup, FeedbackPage, AdminPanel, AdminUsers, AdminContent, AdminReports, AdminAnalytics, AdminPlatform, AdminAnnouncements, PolicyPage, HourStoryPage, normalizeUrl, fieldValueText, ProfileInfoList, ChangeInfoScreen, useProfileEditor, lcJoin, methodLabel, getStoredNostrSk, ComingSoonPanel, LoginMethods, lcGetIds, lcSaveIds, lcBech32Polymod, lcDecodeBech32Key, lcCheckId, lcVerifyId, LcKeysPanel, lcIdLabel, lidWhen, thisDeviceLabel, localDataSummary, exportLocalData, deleteLocalData, LooscidIDManager, lcUnzip, lcCheckPackFiles, lcAutoMap, lcUpdateAutoSet, lcPitchPreview, MusicPage, lcAudCustomSet, useBlocked, lcAlertPrefsSet, termOutputOpen, setTermOutputOpen, lcOsName, lcAboutInfo, AboutLooscidMore, TerminalPage, LabsSettings, lcAppGet, lcAppPut, LcAppRange, AppsSettings, NexosAppsPage, NexosAppFrame, lcLinkedProviders, LcSetRow, LcWordsRow, LcVoiceRow, LcResetBtn, LcSection, BrailleStyle, LcVerbosityPanel, SrTabs, LcSpeechTest, LcSrRename, AudioSettings, LcPackImport, lcShortcutOk, KeyboardSettings, lcImportSettings, BackupSettings });
 
 /* --- PROFILE (OWN) ----------------------- */
 
-/* --- Profile (one view for you and for other Dreamors) ---------------------- */
+/* --- Profile (one view for you and for other Dreamers) ---------------------- */
 function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile }) {
   const [tab, setTab] = useState("dreams");
   const [editing, setEditing] = useState(false);
@@ -615,7 +615,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
         React.createElement('div', {style:{padding:"20px",background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",border:"1px solid rgba(168,85,247,.2)",borderRadius:16,textAlign:"center"}},
           React.createElement('div', {style:{fontSize:44,marginBottom:12}}, "Guest Mode"),
           React.createElement('div', {style:{fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,marginBottom:8}}, "You are in Guest Mode"),
-          React.createElement('p', {style:{fontSize:13,color:"var(--tx2)",lineHeight:1.7,marginBottom:20}}, "Create a free LooscidID to share Dreams, follow Dreamors, get notifications and make the app yours."),
+          React.createElement('p', {style:{fontSize:13,color:"var(--tx2)",lineHeight:1.7,marginBottom:20}}, "Create a free LooscidID to share Dreams, follow Dreamers, get notifications and make the app yours."),
           React.createElement('button', {className:"btn bp",style:{width:"100%",padding:13,fontSize:14,marginBottom:10},onClick:()=>navigate("login"),"aria-label":"Create a LooscidID"}, "Create a LooscidID"),
           React.createElement('button', {className:"btn bgb",style:{width:"100%",padding:11,fontSize:13},onClick:()=>navigate("login"),"aria-label":"Login to your LooscidID"}, "Login")
         ),
@@ -769,7 +769,7 @@ function AdminPanel({navigate}) {
         , React.createElement('div', { style: {fontSize:11,fontWeight:700,color:"#f59e0b",textTransform:"uppercase",letterSpacing:".08em",marginBottom:10},}, "Platform Health" )
         , React.createElement('div', { style: {display:"grid",gridTemplateColumns:"1fr 1fr",gap:10},}
           , [
-            {l:"Total Dreamors",v:stats.users.toLocaleString()},
+            {l:"Total Dreamers",v:stats.users.toLocaleString()},
             {l:"Total Dreams",v:stats.dreams.toLocaleString()},
             {l:"Daily Active",v:stats.dau.toLocaleString()},
             {l:"Monthly Active",v:stats.mau.toLocaleString()},
@@ -794,7 +794,7 @@ function AdminPanel({navigate}) {
       , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Management")
       , [
         {id:"users",icon:"Dreamor Management",title:"Dreamor Management",sub:"Search, ban, verify, manage accounts",color:"#6d28d9",badge:0},
-        {id:"content",icon:"Content Moderation",title:"Content Moderation",sub:"Review Dreams, comments, Groups",color:"#be185d",badge:stats.flagged},
+        {id:"content",icon:"Content Moderation",title:"Content Moderation",sub:"Review Dreams, replies, Groups",color:"#be185d",badge:stats.flagged},
         {id:"reports",icon:"Reports Queue",title:"Reports Queue",sub:"Handle reported content and users",color:"#dc2626",badge:stats.reports},
         {id:"announcements",icon:"Announcements",title:"Announcements",sub:"Share platform-wide announcements",color:"#0e7490",badge:0},
         {id:"analytics",icon:"Analytics",title:"Analytics",sub:"Deep platform metrics and trends",color:"#15803d",badge:0},
@@ -893,7 +893,7 @@ function AdminContent({onBack}) {
 }
 function AdminReports({onBack}) {
   const [reports] = useState([
-    /* reports appear here when Dreamors file them */
+    /* reports appear here when Dreamers file them */
   ]);
   const [filter, setFilter] = useState("pending");
   const visible = reports.filter(r=>filter==="all"||r.status===filter);
@@ -930,8 +930,8 @@ function AdminReports({onBack}) {
 }
 function AdminAnalytics({onBack, stats}) {
   const metrics = [
-    {label:"Daily Active Dreamors",value:stats.dau.toLocaleString(),change:"+4.2%",up:true},
-    {label:"Monthly Active Dreamors",value:stats.mau.toLocaleString(),change:"+12.1%",up:true},
+    {label:"Daily Active Dreamers",value:stats.dau.toLocaleString(),change:"+4.2%",up:true},
+    {label:"Monthly Active Dreamers",value:stats.mau.toLocaleString(),change:"+12.1%",up:true},
     {label:"Dreams Today",value:"4,218",change:"+7.8%",up:true},
     {label:"New Signups Today",value:"312",change:"-2.1%",up:false},
     {label:"Avg. Session Length",value:"8m 42s",change:"+0.9%",up:true},
@@ -994,7 +994,7 @@ function AdminPlatform({onBack}) {
           {k:"groups",l:"Groups",d:"Enable Groups feature platform-wide"},
           {k:"cherry",l:"Cherry AI",d:"Enable Cherry AI assistant for all users"},
           {k:"polls",l:"Polls",d:"Allow users to create poll Dreams"},
-          {k:"dm",l:"Direct Messages",d:"Enable private messaging between Dreamors"},
+          {k:"dm",l:"Direct Messages",d:"Enable private messaging between Dreamers"},
           {k:"apiAccess",l:"API Access",d:"Allow third-party API integrations"},
           {k:"betaFeatures",l:"Beta Features",d:"Enable unreleased beta features for all users"},
         ].map(r=>(
@@ -1046,7 +1046,7 @@ function AdminAnnouncements({onBack}) {
           , React.createElement('textarea', { className: "inp", style: {minHeight:100,lineHeight:1.6,fontSize:14,marginBottom:10}, placeholder: "Write your announcement to all Dreamers…", value: txt, onChange: e=>setTxt(e.target.value), 'aria-label': "Announcement text" ,})
           , React.createElement('div', { style: {fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",marginBottom:6},}, "Send To" )
           , React.createElement('div', { style: {display:"flex",gap:6,marginBottom:12,flexWrap:"wrap"},}
-            , [{id:"all",l:"All Dreamors"},{id:"verified",l:"Verified Only"},{id:"admins",l:"Admins Only"},{id:"beta",l:"Beta Testers"}].map(t=>(
+            , [{id:"all",l:"All Dreamers"},{id:"verified",l:"Verified Only"},{id:"admins",l:"Admins Only"},{id:"beta",l:"Beta Testers"}].map(t=>(
               React.createElement('button', { key: t.id, className: "btn"+(target===t.id?" bp":" bgb"), style: {padding:"5px 12px",fontSize:11}, onClick: ()=>setTarget(t.id), 'aria-label': "Send to "+t.l,}, t.l)
             ))
           )
@@ -1058,7 +1058,7 @@ function AdminAnnouncements({onBack}) {
           React.createElement('div', { key: h.id, style: {background:"var(--sf2)",borderRadius:11,padding:13,marginBottom:10,border:"1px solid var(--bd)"},}
             , React.createElement('p', { style: {fontSize:13,color:"var(--tx)",lineHeight:1.55,marginBottom:7},}, h.text)
             , React.createElement('div', { style: {display:"flex",gap:10,fontSize:11,color:"var(--tx3)"},}
-              , React.createElement('span', null, "To: " , h.target==="all"?"All Dreamors":h.target)
+              , React.createElement('span', null, "To: " , h.target==="all"?"All Dreamers":h.target)
               , React.createElement('span', null, "Audience: " , h.reach, " reached" )
               , React.createElement('span', null, "Sent: " , h.time)
             )
@@ -1190,7 +1190,7 @@ const PROFILE_FIELDS = [
   { key: "name", label: "Name", heading: "Change name", help: "Change the name that shows on your profile.",
     get: function (p) { return p.displayName || ""; }, max: 40, autoComplete: "name",
     toPatch: function (v) { v = sanitizeInput(v); if (!v) return { error: "Your name can't be empty." }; return { patch: { displayName: v.slice(0, 40) } }; } },
-  { key: "username", label: "Username", heading: "Change username", help: "Change the username connected with your LooscidID. This also changes how Dreamors @mention you.",
+  { key: "username", label: "Username", heading: "Change username", help: "Change the username connected with your LooscidID. This also changes how Dreamers @mention you.",
     get: function (p) { return (p.handle || "").replace(/^@/, ""); }, show: function (p) { return p.handle || ""; }, max: 30, prefix: "@", autoComplete: "username",
     toPatch: function (v) { v = (v || "").trim().replace(/^@+/, "").toLowerCase(); if (!/^[a-z0-9_]{3,30}$/.test(v)) return { error: "Use 3 to 30 letters, numbers or underscores." }; return { patch: { handle: "@" + v } }; } },
   { key: "bio", label: "Bio", heading: "Change bio", help: "A short line about you, up to 160 characters.",
@@ -1885,12 +1885,20 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 110; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 111; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 30;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.110.30", build: 140, released: LOOSCID_RELEASED, title: "Round 6.4", notes: [
+  { version: "2026.111.30", build: 141, released: LOOSCID_RELEASED, title: "Round 6.5", notes: [
+    "Round 6.5: the new composer, Replies that stay, and Nostr threads.",
+    "One composer for New Dream, Reply and Quote, laid out like Feditext's: the Dream you answer sits right before your text box, so one swipe left reads it. Hear Dream reads it aloud, and Read back my reply reads yours.",
+    "Who gets notified is a list of checkboxes, not typed handles. A reply starts with the Dream's Audience and content warning, and you can change both. Write a whole thread in one go with Add another Dream.",
+    "Replies are saved on your device and stay after a reload. With a Nostr key, a reply to a Dream on Nostr goes out as a real Nostr reply, and a Quote links the Dream it quotes.",
+    "Alt text helper for photos, link previews (YouTube, Vimeo and Spotify players load only when you press Play), and a Credits and open source page in the menu.",
+    "One word everywhere: Replies. Dreamers and Redream are spelled one way too.",
+  ] },
+  { version: "2026.110.30", build: 140, released: "2026-10-10T16:52:30Z", title: "Round 6.4", notes: [
     "Round 6.4: Dreams on Nostr, your key in a secure field with an optional passcode.",
     "Set up a Nostr key in Settings, LooscidID, Keys and IDs: use a signer, enter your key in a secure field with a Show key button, or create a new key. An optional passcode keeps it locked on this device.",
     "With Audience Everyone, a new Dream also goes to Nostr relays, so you and anyone can see it from any device. Your own Dreams load back from the relays when you open Looscid with your key. Audience has a new choice: Only this device.",
@@ -1995,6 +2003,7 @@ function lcAboutInfo() {
   const a = Looscid.A11Y_NOW, dpr = window.devicePixelRatio || 1;
   return {
     whatsNew: [
+      "Replies: one composer for New Dream, Reply and Quote. The Dream you answer sits right before your text box, replies stay after a reload, and they reach Nostr as real replies.",
       "Commandbar: press Ctrl+K or Cmd+K anywhere, or the command button at the top. Exact commands run at once; anything else goes to Cherry, which answers or opens the closest match.",
       "Commandbar: one place for commands. Ctrl+K or Cmd+K opens the bar anywhere; Full screen (or Apps, Commandbar) shows the same output and history, with quick commands and output you can fold away.",
       "Earcons: a short, quiet sound for Feed, Alerts, Circles, Settings and Commandbar, made live with Web Audio.",
@@ -2035,10 +2044,56 @@ function lcAboutInfo() {
     credits: [
       "Looscid is open source under the Looscid Public License.",
       "Commandbar's full-screen view is ported from the Terminal in NexOS Web, by the NexOS project.",
+      "The composer's layout is inspired by Feditext's composer (GPL-3.0); no code was used.",
       "Every sound is synthesized live with Web Audio. There are no recorded samples.",
       "Source code: github.com/Looscid/Looscid",
     ],
   };
+}
+/* Round 6.5 (Alhasan): Credits and open source. Every outside or open-source project Looscid uses or
+   learned from, with its link, license and what Looscid took from it. Plain headings, lists and links. */
+const LC_CREDITS = {
+  uses: [
+    { n: "React and React DOM 18.2.0", u: "https://github.com/facebook/react", l: "MIT", w: "Draws every screen of Looscid. Loaded from jsDelivr." },
+    { n: "nostr-tools 2.25.2", u: "https://github.com/nbd-wtf/nostr-tools", l: "Unlicense", w: "Nostr keys, signing and checking notes, npub and nsec, and passcode-locked keys. Kept in js/vendor with its license." },
+    { n: "noble curves, hashes and ciphers, and scure base, by Paul Miller", u: "https://github.com/paulmillr/noble-curves", l: "MIT", w: "The audited cryptography inside nostr-tools." },
+    { n: "NexOS, by Alhasan (2three1y)", u: "https://github.com/2three1y/nexos", l: "MIT", w: "Commandbar's full-screen view, the Apps, the Desktop and the NexOS sound pack." },
+    { n: "Insomnia OS, by Alhasan (2three1y)", u: "https://github.com/2three1y/insomnia-os", l: "MIT", w: "The Insomnia app in Apps, and the Insomnia sound pack." },
+    { n: "Meme Projects, by Alhasan (2three1y)", u: "https://github.com/2three1y/memeprojects", l: "MIT", w: "The Meme Projects app in Apps." },
+    { n: "Easyconvert, by Alhasan (2three1y)", u: "https://github.com/2three1y/Easyconvert", l: "MIT", w: "The Easyconvert app in Apps." },
+    { n: "v86", u: "https://github.com/copy/v86", l: "BSD 2-Clause", w: "Runs the real NexOS kernel in Apps, right in the browser." },
+    { n: "SeaBIOS and SeaVGABIOS", u: "https://www.seabios.org", l: "LGPL-3.0", w: "The start-up firmware v86 uses, unchanged." },
+    { n: "DM Sans and DM Serif Display", u: "https://fonts.google.com/specimen/DM+Sans", l: "SIL Open Font License 1.1", w: "Looscid's fonts, from Google Fonts." },
+  ],
+  ideas: [
+    { n: "Feditext", u: "https://github.com/feditext/feditext", l: "GPL-3.0", w: "Composer design inspiration (GPL-3.0); no code used. The Round 6.5 composer follows its layout: the Dream you answer above your text, the toolbar order and writing a thread in one go." },
+  ],
+  planned: [
+    { n: "MyWEB", u: "https://github.com/Looscid/MyWEB", w: "Feedback sent to Alhasan as an encrypted Nostr message." },
+    { n: "AgentSync", u: "https://github.com/Looscid/Agentsync", w: "Slash commands for Cherry, handled on your device, and its step-by-step Allow dialog." },
+    { n: "Soundvault", u: "https://github.com/2three1y/soundvault", w: "A sound pack browser in Settings, Sounds, and new earcons where the license allows." },
+    { n: "Lyricfinder", u: "https://github.com/2three1y/lyricfinder", w: "A small app next to Insomnia." },
+    { n: "Vibework", u: "https://github.com/2three1y/vibework", w: "Other places to hang out, in Discover." },
+    { n: "Codetranslator", u: "https://github.com/2three1y/codetranslator", w: "A Commandbar tool." },
+  ],
+};
+Looscid.LC_CREDITS = LC_CREDITS;
+function CreditsPage({ navigate }) {
+  const item = function (c) { return lh('li', { key: c.n, style: { marginBottom: 10 } },
+    lh('a', { href: c.u, target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, c.n),
+    lh('p', { className: "lid-help", style: { margin: "2px 0 0" } }, (c.l ? "License: " + c.l + ". " : "") + c.w)); };
+  const sec = function (id, title, intro, list) { return lh('section', { "aria-labelledby": id, style: { padding: "0 16px 12px" } },
+    lh('h2', { id: id, className: "lid-sub" }, title), intro && lh('p', { className: "lid-help" }, intro),
+    lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } }, list.map(item))); };
+  return lh('div', { className: "pg lc-credits" },
+    lh(BackHeader, { title: "Credits and open source", onBack: function () { navigate("settings"); } }),
+    lh('p', { className: "lid-help", style: { padding: "8px 16px 0" } }, "Looscid is open source under the Looscid Public License. These are the projects it uses and the ones it learned from. Each keeps its own license. Every sound is made live with Web Audio, with no recorded samples."),
+    sec("credits-uses", "Code Looscid uses", null, LC_CREDITS.uses),
+    sec("credits-ideas", "Design ideas", null, LC_CREDITS.ideas),
+    sec("credits-planned", "Coming from Alhasan's repos", "Planned, not in Looscid yet. They'll move up to Code Looscid uses when they arrive.", LC_CREDITS.planned),
+    lh('section', { "aria-labelledby": "credits-src", style: { padding: "0 16px 24px" } },
+      lh('h2', { id: "credits-src", className: "lid-sub" }, "Looscid's own source code"),
+      lh('p', { className: "lid-help" }, lh('a', { href: "https://github.com/Looscid/Looscid", target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, "Looscid on GitHub"), ". The full license is in the LICENSE file there.")));
 }
 function AboutLooscidMore() {
   const [info, setInfo] = useState(lcAboutInfo());
@@ -2051,7 +2106,8 @@ function AboutLooscidMore() {
       lh('div', { key: "dl", className: "lc-sysinfo" }, info.facts.map(function (f) { return lh('p', { key: f[0], className: "lid-help" }, f[0] + ": " + f[1]); })),
       lh('button', { key: "rf", type: "button", className: "btn bgb lc-big", onClick: function () { setInfo(lcAboutInfo()); announce("System info refreshed."); } }, "Refresh system info")]),
     sec("about-access", "Accessibility notes", list(info.access)),
-    sec("about-credits", "Credits", list(info.credits)));
+    sec("about-credits", "Credits", [list(info.credits),
+      lh('button', { key: "cr", type: "button", id: "about-credits-btn", className: "btn bgb lc-big", onClick: function () { if (Looscid.LC_NAV) Looscid.LC_NAV("credits"); } }, "Credits and open source")]));
 }
 function TerminalPage({ exec, onClose, a11y }) {
   const entries = useCmdLog(); // round 6: the same log the bar shows
@@ -2118,8 +2174,8 @@ const LC_COMING_SOON = [
   { name: "AI image descriptions", where: "Accessibility, Vision", desc: "Cherry describes images in Dreams, on this device." },
   { name: "RTT and TTY", where: "Accessibility, Hearing", desc: "Real-time text for calls." },
   { name: "Native braille drivers", where: "Screen reader and braille", desc: "Direct USB and Bluetooth braille display support, without a screen reader." },
-  { name: "Mute and Block", where: "Dream and comment options", desc: "Stop seeing a Dreamor's Dreams and comments." },
-  { name: "Report", where: "Dream and comment options", desc: "Flag a Dream or comment for review." },
+  { name: "Mute and Block", where: "Dream and reply options", desc: "Stop seeing a Dreamor's Dreams and replies." },
+  { name: "Report", where: "Dream and reply options", desc: "Flag a Dream or reply for review." },
   { name: "Custom feeds", where: "Feeds and Create", desc: "Build your own feed, as its own tab." },
   { name: "Pubky login", where: "LooscidID", desc: "Log in with the Pubky Ring app. No email or phone number." },
   { name: "Plume", where: "LooscidID", desc: "Its login needs your password, so Looscid will follow Plume blogs over ActivityPub instead." },
@@ -2127,7 +2183,7 @@ const LC_COMING_SOON = [
   { name: "Log in with LooscidID", where: "LooscidID, Connected apps", desc: "Let other apps log in with your LooscidID." },
   { name: "Joining Looscid Labs", where: "Looscid Labs", desc: "Sign up for early access." },
   { name: "Marketplace", where: "Labs, beta", desc: "Buy and sell inside Looscid. Early testers shape how it works before launch." },
-  { name: "Store", where: "Labs, alpha", desc: "Apps, tools and add-ons for Dreamors." },
+  { name: "Store", where: "Labs, alpha", desc: "Apps, tools and add-ons for Dreamers." },
   { name: "Mini Apps", where: "Labs, alpha", desc: "Tiny utilities that live inside Looscid." },
   { name: "Advanced Analytics", where: "Labs, beta", desc: "Deeper stats: reach, engagement and best times to Dream." },
   { name: "Collaborative Dreams", where: "Labs, concept", desc: "Write a Dream together with another Dreamor. Two voices, one Dream." },

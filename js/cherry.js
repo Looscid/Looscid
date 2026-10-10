@@ -17,7 +17,7 @@ function CherryPage({navigate, cherryCtx}) {
 
   const capabilities = [
     {ic:"Draft & share Dreams", label:"Draft & share Dreams", prompt:"Draft a Dream for me"},
-    {ic:"Follow Dreamors", label:"Follow Dreamors", prompt:"Who should I follow?"},
+    {ic:"Follow Dreamers", label:"Follow Dreamers", prompt:"Who should I follow?"},
     {ic:"Join Circles", label:"Join Circles", prompt:"Find groups for me"},
     {ic:"Read notifications", label:"Read notifications", prompt:"My notifications"},
     {ic:"Feed insights", label:"Feed insights", prompt:"Summarise my feed"},
@@ -514,10 +514,10 @@ function cherryRespond(text, cherryCtx) {
       return {action:null, result:"Circles are what Looscid calls groups. Instead of joining a generic 'group', you join a Circle — a community of people sharing the same interests or vibe. You can share Dreams inside a Circle, chat with members, and follow what's happening there. Same idea as a group, just our name for it. You can find yours in the Discover tab."};
 
     if (lo.includes("what is a dream") || lo.includes("what are dreams") || (lo.includes("dream") && lo.includes("what does") && lo.includes("mean")))
-      return {action:null, result:"On Looscid, a Dream is just what you share — anything at all. A thought, a take, a photo, a link, a question. The name comes from the idea that every idea starts somewhere. You can like Dreams, ReDream them (repost), or Quote Dream them with your own comment on top."};
+      return {action:null, result:"On Looscid, a Dream is just what you share — anything at all. A thought, a take, a photo, a link, a question. The name comes from the idea that every idea starts somewhere. You can like Dreams, Redream them (share them with your followers), or Quote Dream them with your own words on top."};
 
     if (lo.includes("what is redream") || lo.includes("how does redream") || lo.includes("what is reboard") || lo.includes("reboard"))
-      return {action:null, result:"ReDreaming instantly shares someone else's Dream to your followers — like a repost or retweet. Quote Dreaming lets you add your own thoughts on top of it. You can undo either at any time from the Dream Options menu (the  button)."};
+      return {action:null, result:"Redreaming instantly shares someone else's Dream to your followers — like a repost or retweet. Quote Dreaming lets you add your own thoughts on top of it. You can undo either at any time from the Dream Options menu (the  button)."};
 
     if (lo.includes("what is looscid") || lo.includes("what is this app") || lo.includes("tell me about looscid") || lo.includes("how does this app work"))
       return {action:null, result:"Looscid is a social platform where you share what's on your mind — your thoughts, takes, moments, whatever. No ads, no algorithm deciding who sees your Dreams. You follow people, they follow you, and you see each other's Dreams in your feed. Circles let you find communities around topics you care about. I'm Cherry, the built-in AI — I can help you Dream, find people to follow, navigate the app or just answer questions."};
@@ -621,7 +621,7 @@ Want me to publish it, or would you like to tweak it first?`,
       const unfollowed = USERS.filter(u=>!following.has(u.id));
       if (!unfollowed.length) return {action:null, result:"You're already following everyone on Looscid!"};
       const picks = unfollowed.slice(0,2).map(u=>`${u.name} (${u.handle}) — ${u.bio.slice(0,40)}…`).join("\n");
-      return {action:"Analysing your interests and engagement…", agentLabel:"Finding Dreamors",
+      return {action:"Analysing your interests and engagement…", agentLabel:"Finding Dreamers",
         result:`Based on your activity, I suggest:
 
 ${picks}
@@ -659,7 +659,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just dreamed a ne
     }
 
     if (lo.includes("redream") || lo.includes("how does redream") || lo.includes("what is redream"))
-      return {action:null, result:"ReDreaming instantly shares someone else's Dream to your followers — like a repost. Quote Dreaming lets you add your own commentary on top. You can undo either from Dream Options anytime."};
+      return {action:null, result:"Redreaming instantly shares someone else's Dream to your followers — like a repost. Quote Dreaming lets you add your own words on top. You can undo either from Dream Options anytime."};
 
     if (lo.includes("like") && lo.includes("luna"))
       return {action:"Liking Luna's latest Dream…", agentLabel:"Liking Dream",

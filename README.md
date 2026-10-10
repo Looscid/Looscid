@@ -4,20 +4,20 @@ Accessibility first, always.
 
 Looscid is a social app built for VoiceOver, braille and keyboard from day one. It brings back the customization and freedom other apps took away. It's open source, so that power stays with the people who use it.
 
-**Works today:** Dreams, Discover, Alerts, sound packs and settings backup, right in your browser.
+**Works today:** Dreams and Replies, Discover, Alerts, sound packs and settings backup, right in your browser.
 **Not yet:** the full OS and Work mode.
 
 **Try it:** [looscid.github.io/Looscid](https://looscid.github.io/Looscid)
 
 ## Fun fact
 
-Fun fact: counting all 8 branches of Looscid together, Looscid would be on version 2026.765.516 (1281): 765 feature updates, 516 fixes, 1281 builds, or 765 without the fix updates.
+Fun fact: counting all 8 branches of Looscid together, Looscid would be on version 2026.766.516 (1282): 766 feature updates, 516 fixes, 1282 builds, or 766 without the fix updates.
 
-The app itself is on Looscid 2026.110.30 (140), counted on the preview branch. Versions are YEAR.FEATURES.FIXES (BUILD): fix updates only fix things, feature updates add something, and builds count every update.
+The app itself is on Looscid 2026.111.30 (141), counted on the preview branch. Versions are YEAR.FEATURES.FIXES (BUILD): fix updates only fix things, feature updates add something, and builds count every update.
 
 <details><summary>Branches</summary>
 
-- preview: 2026.110.30 (140)
+- preview: 2026.111.30 (141)
 - main: 2026.154.120 (274)
 - MainV1: 2026.70.103 (173)
 - main-reset: 2026.70.103 (173)

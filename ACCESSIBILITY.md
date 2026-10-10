@@ -621,3 +621,17 @@ struct AccessibleMenuButton_Previews: PreviewProvider {
 3. **Zoom**: Test at 200% zoom level
 4. **Color**: Verify readability in high contrast mode
 5. **Motion**: Test with reduced motion enabled
+
+
+---
+
+### The composer (Round 6.5)
+
+One composer for New Dream, Reply and Quote, laid out like Feditext's composer, with Looscid's rules where they differ.
+
+- Order in Reply mode: the heading "Reply to Maya", the heading "Replying to Maya" with the Dream as one plain paragraph, then the text box. Focus starts in the text box, so one swipe left (or VO+Left, or panning back on braille) reads the Dream.
+- After the text box: the Notify checkboxes (a fieldset with the legend "Notify"), the content warning text when it's on, attachments with their alt text fields, the link preview line, the toolbar (Photo, Poll, Audience, Content warning, Insert symbol, characters left, + Dream), Hear Dream, Read back my reply, Ask Cherry, then Reply and Close.
+- The send button's name is its visible word: Dream, or Reply. No aria-label says anything different.
+- Where Feditext uses VoiceOver hints (content warning, characters left, changing accounts), Looscid uses visible words or plain paragraphs instead, because Looscid never uses aria-describedby, aria-description or title on controls.
+- Feditext puts its content warning field above the text. Looscid puts it after the text box, so the Dream you answer stays the one thing right before your text.
+- Announcements go only through #looscid-live: what you sent ("Reply dreamed."), the characters-left count once at 20 left and once over, and Nostr results. Focus moves only when you act: opening, sending, closing, adding another Dream, turning on a content warning, and taking an alt text suggestion.

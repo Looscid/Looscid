@@ -2,6 +2,27 @@
 
 Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.111.30 (141): Round 6.5
+
+Released October 10, 2026 at 1:50 PM (Eastern Time, 2026-10-10T17:50:27Z UTC)
+
+A feature update: the new composer, Replies that stay, and Nostr threads. The composer's layout follows Feditext's composer (design inspiration only; no Feditext code or text is used).
+
+- One composer for New Dream, Reply and Quote. The text box is still first, Dream (Reply in Reply mode) still comes right after the content, then Close. Ctrl+Enter or Command+Enter sends, Esc closes, focus lands on what you just wrote, and it's announced once: "Dream dreamed.", "Reply dreamed.", "Quote dreamed." or "Thread of 3 Dreams dreamed.".
+- In a reply, the Dream you answer sits right before your text box as plain text under the heading "Replying to Maya", so one VoiceOver swipe left reads it. A Dream with a content warning shows the warning and a Show Dream button. Hear Dream reads it aloud with Looscid's read-aloud voice, and Read back my reply reads yours.
+- The send button is read as just "Dream", or "Reply" in Reply mode. The Close button is "Close reply" (braille: "Close").
+- Who gets notified is a Notify list of checkboxes (the author, the Dream's author and anyone it mentions; never you), not handles typed into your text.
+- A reply starts with the Dream's Audience and content warning, and you can change both. If you change the Audience, a plain line under it says so.
+- The toolbar follows Feditext's order: Photo, Poll, Audience, Content warning, Insert symbol, characters left, then + Dream (Add another Dream) to write a whole thread in one go. Each extra Dream has its own Remove button. Ask Cherry, Drafts, the passcode unlock and the Nostr notes stay.
+- The characters-left count is never read on each key: once at 20 left, and once when you go over. A link counts as 23 characters.
+- Replies are saved on this device (dbm_replies) and stay after a reload. A reply draft is kept per Dream, apart from your New Dream draft. Settings backup is unchanged.
+- Nostr: a reply to a Dream that's on Nostr is a NIP-10 reply ("e" tags marked root and reply, with relay hint and author, and "p" tags). A Quote carries a NIP-18 "q" tag and a nostr:nevent link. A content warning goes as a NIP-36 "content-warning" tag. Followers only, My Circles and Only this device still never leave your device. Reading your Dreams back now keeps each note's author key and tags, so replies come back under their Dream on a new device.
+- Alt text helper: each photo has a plain "Alt text for photo N" field and says "No alt text yet." until you write one. With Cherry turned on, Suggest alt text makes a start on this device from the photo's shape, colours and name, which you then edit. Nothing is sent anywhere.
+- Link previews with no server: YouTube, Vimeo and Spotify links get their own player, which loads only when you press Play. Any other link gets a plain card with its domain. Looscid never fetches the linked page.
+- Credits and open source: a new page in the menu (and from About) listing every project Looscid uses or learned from, with links and licenses, plus the repos planned next. It's in search too.
+- Words: Replies is the one word, everywhere: the Replies page, "No replies yet", "Sort replies", "Reply options" and braille labels. The Audience note now says "Visible to all Dreamers", and Redream is spelled one way.
+- Same sounds, pitch cues, earcons, Calm mode, flash safety and Reduce Motion.
+
 ## Looscid 2026.110.30 (140): Round 6.4
 
 Released October 10, 2026 at 12:52 PM (Eastern Time, 2026-10-10T16:52:30Z UTC)

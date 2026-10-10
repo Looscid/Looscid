@@ -18,7 +18,7 @@ Groups must have a clear, positive purpose. Group moderators must enforce these 
 
 ## 5. Reporting
 
-Use the report button on any Dream, comment or profile to flag content that violates these guidelines. Our team reviews all reports.
+Use the report button on any Dream, reply or profile to flag content that violates these guidelines. Our team reviews all reports.
 
 ## 6. Consequences
 

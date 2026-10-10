@@ -56,7 +56,7 @@ function CreateGroupFlow({onClose, navigate}) {
             )
           ))
           , React.createElement('h2', { className: "slbl", style: {padding:"12px 0 8px"}, role: "heading", 'aria-level': "2",}, "Moderation")
-          , [{k:"joinApproval",l:"Approve new Dreamors",d:"Review and approve each join request"},{k:"postApproval",l:"Approve Dreams",d:"Dreams require admin approval before publishing"},{k:"minAge",l:"18+ only",d:"Restrict group to adult Dreamors"}].map(r=>(
+          , [{k:"joinApproval",l:"Approve new Dreamers",d:"Review and approve each join request"},{k:"postApproval",l:"Approve Dreams",d:"Dreams require admin approval before publishing"},{k:"minAge",l:"18+ only",d:"Restrict group to adult Dreamers"}].map(r=>(
             React.createElement('div', { key: r.k, className: "sr",}
               , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, r.l), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3},}, r.d))
               , React.createElement(Cbx, { on: form[r.k], onToggle: ()=>set(r.k,!form[r.k]), label: r.l,})
@@ -302,7 +302,7 @@ function GroupAdminModal({group, onClose}) {
                 )
               ))
             )
-            , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "All Dreamors ("  , USERS.length, ")")
+            , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "All Dreamers ("  , USERS.length, ")")
             , USERS.map(u=>(
               React.createElement('div', { key: u.id, style: {display:"flex",gap:10,padding:"10px 16px",borderBottom:"1px solid var(--bd)",alignItems:"center"},}
                 , React.createElement(Av, { user: u, size: 36,})

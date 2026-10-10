@@ -1,7 +1,7 @@
 /* Looscid core.js: state, prefs, icons, nav, routing, sounds and shared helpers; App() is the frame.
    Plain script (not a module). Everything it shares goes on window.Looscid; see FILES.md for the load order. */
 (function (Looscid) {
-Object.assign(Looscid, { lcLoadDreams, lcMergeDreams, lcSyncOwnDreams, useSavedDreams, _optionalChain, getDrafts, saveDraftItem, getSavedTheme, saveTheme, applyTheme, getOnboardingSeen, setOnboardingSeen, resetOnboarding, getLinkInfo, useDreams, Av, ChkMark, Cbx, Modal, lcThreadOf, lcHearThread, DreamExtra, lcTranslate, lcShareText, DreamOptionsMenu, BackHeader, DreamText, SiteEmbed, CommentItem, CommentView, DreamCard, lcCatState, useCats, lcAlertCats, lcResetKeyItems, lcLsDel, lcResetModel, lcOpenReset, LcResetHost, lcAiOn, lcSettingIndex, lcFindSettings, lcGoSetting, LcSettingFind, sanitizeInput, makeLocalProfile, saveLocalProfile, getLocalProfile, applyLocalProfileToMe, ensureLocalProfile, renameLocalProfile, resetLocalProfile, getAnalyticsConsent, setAnalyticsConsent, AnalyticsBanner, getWelcomeSeen, setWelcomeSeen, getAIPrefs, setAIPrefs, getActiveAI, getHabits, recordHabit, getPredictions, spellCheck, applySpellFix, detectAutoLinks, getAttribPref, HabitInsightCard, MainMenu, lcVerb, lcHints, announce, useEnterSubmit, updateLocalProfile, LcMenu, lcViewLimits, lcAnnounceCount, MenuPopupButton, getIdentity, setIdentity, getMethods, saveMethods, addMethod, getActivity, logActivity, getSessions, setSession, removeMethod, setStoredNostrSk, signOutIdentity, loadNostrTools, bytesToHex, hexToBytes, shortNpub, identityLabel, SecretField, NostrPanel, b64url, randomToken, pkceChallenge, appRedirectUri, normalizeHost, startMastodonLogin, startFunkwhaleLogin, startHubzillaLogin, lidOAuthIdentity, finishOAuthIfReturning, useOAuthReturn, MastodonPanel, LidOAuthPanel, FunkwhalePanel, HubzillaPanel, resolvePds, BlueskyPanel, AlertDialog, LooscidIDChooser, getTopics, TopicPicker, LooscidOnboarding, lcSectionKeys, lcSectionDefaults, lcSrName, lcSectionTitle, lcSet, lcValueText, lcTimeSpoken, lcWords, lcQuietNow, lcAutoplayAllowed, lcHapticsSupported, lcBuzz, lcEmojiName, lcSpeechText, lcBrailleText, lcTimeParts, lcDreamKind, lcDreamWords, lcFiltered, lcDreamSpeechParts, lcIdb, lcIdbDo, lcCurrentDream, lcLoadCustomPack, lcUpdateAuto, lcFetchVersion, lcCheckUpdate, lcApplyUpdate, LcUpdateBanner, lcVersionLabel, lcReleasedText, loadA11y, saveA11y, a11yAsked, setA11yAsked, systemReducedMotion, motionReduced, a11yEnterSends, lcCloseProps, lcPcOn, lcPackChime, lcPitchCue, lcPcKindOf, areaOfPage, musicFind, lcLev, lcSectionReport, lcFindSection, lcParseTime, lcRegistryIntent, lcTranslateOk, lcA11yReport, lcA11yIntent, lcFeedFind, lcFeedMode, lcFeedLabel, lcSetFeed, lcStepFeed, lcAudCustom, lcHandle, lcAudienceOk, lcBlocked, lcBlockedSet, lcBlockedUser, lcWordHit, LcBlockedHidden, lcAlertPrefs, lcAlerts, lcAlertsSave, lcNotify, lcAlertsMarkAll, useAlerts, lcVersionAlert, lcSetAlertsTab, lcSetShowFriends, lcFeedIntent, lcApplyFeedIntent, lcAppItems, lcNorm, lcClosestPlace, lcHistory, lcPushHistory, lcSpoken, lcExtraIntent, lcRun, lcTrapTab, useCmdHistory, useKeyboardInset, LcCmdLog, CommandBar, lcLogSave, lcLogAdd, lcLogClear, useCmdLog, lcBrowserName, lcStorageKB, lcNexosSettings, lcNexosSend, lcNexosBroadcast, lcBootLines, LcBoot, useInertBehind, DeviceQuestion, useA11yNow, lcResetSection, lcBrList, lcBrSave, lcBrWord, lcBrStyleLabel, lcBrDate, lcBrFind, lcBrCheck, lcBrNotice, lcBrSelect, lcBrCreate, lcBrRename, lcBrDelete, lcBrUndo, lcBrUsePast, lcBrForget, lcBrStamp, lcBrWatch, lcBrIntent, lcKeyName, lcExportSettings, lcDownloadSettings, LcFindMeSwitch, LcUndoBar, A11ySwitch, App });
+Object.assign(Looscid, { lcNewId, lcRepliesRaw, lcRepliesFor, lcAddReply, lcRepliesChanged, useRepliesTick, lcCompose, lcLinkCard, LinkCard, ReplyItem, lcLoadDreams, lcMergeDreams, lcSyncOwnDreams, useSavedDreams, _optionalChain, getDrafts, saveDraftItem, getSavedTheme, saveTheme, applyTheme, getOnboardingSeen, setOnboardingSeen, resetOnboarding, getLinkInfo, useDreams, Av, ChkMark, Cbx, Modal, lcThreadOf, lcHearThread, DreamExtra, lcTranslate, lcShareText, DreamOptionsMenu, BackHeader, DreamText, SiteEmbed, CommentItem, CommentView, DreamCard, lcCatState, useCats, lcAlertCats, lcResetKeyItems, lcLsDel, lcResetModel, lcOpenReset, LcResetHost, lcAiOn, lcSettingIndex, lcFindSettings, lcGoSetting, LcSettingFind, sanitizeInput, makeLocalProfile, saveLocalProfile, getLocalProfile, applyLocalProfileToMe, ensureLocalProfile, renameLocalProfile, resetLocalProfile, getAnalyticsConsent, setAnalyticsConsent, AnalyticsBanner, getWelcomeSeen, setWelcomeSeen, getAIPrefs, setAIPrefs, getActiveAI, getHabits, recordHabit, getPredictions, spellCheck, applySpellFix, detectAutoLinks, getAttribPref, HabitInsightCard, MainMenu, lcVerb, lcHints, announce, useEnterSubmit, updateLocalProfile, LcMenu, lcViewLimits, lcAnnounceCount, MenuPopupButton, getIdentity, setIdentity, getMethods, saveMethods, addMethod, getActivity, logActivity, getSessions, setSession, removeMethod, setStoredNostrSk, signOutIdentity, loadNostrTools, bytesToHex, hexToBytes, shortNpub, identityLabel, SecretField, NostrPanel, b64url, randomToken, pkceChallenge, appRedirectUri, normalizeHost, startMastodonLogin, startFunkwhaleLogin, startHubzillaLogin, lidOAuthIdentity, finishOAuthIfReturning, useOAuthReturn, MastodonPanel, LidOAuthPanel, FunkwhalePanel, HubzillaPanel, resolvePds, BlueskyPanel, AlertDialog, LooscidIDChooser, getTopics, TopicPicker, LooscidOnboarding, lcSectionKeys, lcSectionDefaults, lcSrName, lcSectionTitle, lcSet, lcValueText, lcTimeSpoken, lcWords, lcQuietNow, lcAutoplayAllowed, lcHapticsSupported, lcBuzz, lcEmojiName, lcSpeechText, lcBrailleText, lcTimeParts, lcDreamKind, lcDreamWords, lcFiltered, lcDreamSpeechParts, lcIdb, lcIdbDo, lcCurrentDream, lcLoadCustomPack, lcUpdateAuto, lcFetchVersion, lcCheckUpdate, lcApplyUpdate, LcUpdateBanner, lcVersionLabel, lcReleasedText, loadA11y, saveA11y, a11yAsked, setA11yAsked, systemReducedMotion, motionReduced, a11yEnterSends, lcCloseProps, lcPcOn, lcPackChime, lcPitchCue, lcPcKindOf, areaOfPage, musicFind, lcLev, lcSectionReport, lcFindSection, lcParseTime, lcRegistryIntent, lcTranslateOk, lcA11yReport, lcA11yIntent, lcFeedFind, lcFeedMode, lcFeedLabel, lcSetFeed, lcStepFeed, lcAudCustom, lcHandle, lcAudienceOk, lcBlocked, lcBlockedSet, lcBlockedUser, lcWordHit, LcBlockedHidden, lcAlertPrefs, lcAlerts, lcAlertsSave, lcNotify, lcAlertsMarkAll, useAlerts, lcVersionAlert, lcSetAlertsTab, lcSetShowFriends, lcFeedIntent, lcApplyFeedIntent, lcAppItems, lcNorm, lcClosestPlace, lcHistory, lcPushHistory, lcSpoken, lcExtraIntent, lcRun, lcTrapTab, useCmdHistory, useKeyboardInset, LcCmdLog, CommandBar, lcLogSave, lcLogAdd, lcLogClear, useCmdLog, lcBrowserName, lcStorageKB, lcNexosSettings, lcNexosSend, lcNexosBroadcast, lcBootLines, LcBoot, useInertBehind, DeviceQuestion, useA11yNow, lcResetSection, lcBrList, lcBrSave, lcBrWord, lcBrStyleLabel, lcBrDate, lcBrFind, lcBrCheck, lcBrNotice, lcBrSelect, lcBrCreate, lcBrRename, lcBrDelete, lcBrUndo, lcBrUsePast, lcBrForget, lcBrStamp, lcBrWatch, lcBrIntent, lcKeyName, lcExportSettings, lcDownloadSettings, LcFindMeSwitch, LcUndoBar, A11ySwitch, App });
 
  function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 const {useState, useEffect, useRef, useCallback} = React;
@@ -82,7 +82,56 @@ function getLinkInfo(text) {
 const LC_DREAMS_KEY = "dbm_dreams";
 Looscid.LC_DREAMS_KEY = LC_DREAMS_KEY;
 // Round 6.4: "nid" is the Nostr note id of a Dream that went to Nostr, so it is never fetched twice.
-const LC_DREAM_SAVE = ["id", "text", "likes", "redreams", "quotes", "liked", "redreamed", "quoted", "bookmarked", "created", "nid"];
+const LC_DREAM_SAVE = ["id", "text", "likes", "redreams", "quotes", "liked", "redreamed", "quoted", "bookmarked", "created", "nid",
+  // Round 6.5: Audience, content warning, a Quote's source, link preview off, and for Nostr notes the author key and threading tags.
+  "aud", "cw", "quoteOf", "qWho", "qText", "nopv", "pk", "tags"];
+/* Round 6.5: Replies are saved on this device too (localStorage dbm_replies), so they're still there after a
+   reload. Each one keeps the Dream it answers (replyTo), the reply it answers when it's a reply to a reply
+   (replyToReply), its Audience and content warning, who was notified, and for Nostr its note id and tags.
+   Like dbm_dreams, Settings backup doesn't include them, so the backup format is unchanged. */
+const LC_REPLIES_KEY = "dbm_replies";
+Looscid.LC_REPLIES_KEY = LC_REPLIES_KEY;
+const LC_REPLY_SAVE = ["id", "replyTo", "replyToReply", "text", "created", "aud", "cw", "notify", "likes", "liked", "nid", "pk", "tags", "nopv"];
+let lcLastId = 0;
+// A new id for something you write: the time in milliseconds, never the same twice (a thread is written in one go).
+function lcNewId() { let t = Date.now(); if (t <= lcLastId) t = lcLastId + 1; lcLastId = t; return t; }
+function lcRepliesRaw() {
+  try { const a = JSON.parse(localStorage.getItem(LC_REPLIES_KEY) || "[]"); return Array.isArray(a) ? a.filter(function (r) { return r && r.id != null && r.replyTo != null && typeof r.text === "string"; }) : []; } catch (e) { return []; }
+}
+function lcReplyObj(r) {
+  const o = { likes: 0, liked: false, isReply: true };
+  LC_REPLY_SAVE.forEach(function (k) { if (r[k] !== undefined) o[k] = r[k]; });
+  o.user = ME; o.time = lcAgo(r.created);
+  return o;
+}
+// Your saved replies to one Dream, newest first.
+function lcRepliesFor(parentId) {
+  const k = String(parentId);
+  return lcRepliesRaw().filter(function (r) { return String(r.replyTo) === k; }).sort(function (a, b) { return (+b.created || 0) - (+a.created || 0); }).map(lcReplyObj);
+}
+function lcAddReply(r) {
+  const id = r.id != null ? r.id : lcNewId();
+  const o = { id: id, created: r.created || (typeof id === "number" ? id : Date.now()) };
+  LC_REPLY_SAVE.forEach(function (k) { if (r[k] !== undefined && o[k] === undefined) o[k] = r[k]; });
+  const all = lcRepliesRaw().filter(function (x) { return String(x.id) !== String(id); });
+  all.unshift(o);
+  try { localStorage.setItem(LC_REPLIES_KEY, JSON.stringify(all.slice(0, 2000))); } catch (e) {}
+  lcRepliesChanged();
+  return id;
+}
+// When something was written: its time, or its id when that is a time (Nostr ids are not).
+function lcWhen(x) { return +x.created || (typeof x.id === "number" ? x.id : 0) || 0; }
+// How many replies a Dream has: its count plus the replies saved on this device.
+function lcReplyCount(d) { return (d.comments || 0) + (d.isReply ? 0 : lcRepliesFor(d.id).length); }
+function lcRepliesChanged() { try { window.dispatchEvent(new Event("looscid-replies")); } catch (e) {} }
+// Redraws a card when your replies change (a new reply, or replies read back from Nostr).
+function useRepliesTick() {
+  const [n, setN] = useState(0);
+  useEffect(function () { const f = function () { setN(function (x) { return x + 1; }); }; window.addEventListener("looscid-replies", f); return function () { window.removeEventListener("looscid-replies", f); }; }, []);
+  return n;
+}
+// Open the composer from anywhere: { mode: "new" | "reply" | "quote", parent, root, onSent }.
+function lcCompose(req) { try { window.dispatchEvent(new CustomEvent("looscid-compose", { detail: req || {} })); } catch (e) {} }
 function lcAgo(t) {
   const s = Math.max(0, (Date.now() - (+t || Date.now())) / 1000);
   if (s < 60) return "just now";
@@ -123,6 +172,8 @@ function lcSyncOwnDreams(prev, next) {
     const old = saved.find(function (s) { return s.id === d.id; });
     if (!o.created) o.created = (old && old.created) || (typeof d.id === "number" && d.id > 1e12 ? d.id : Date.now());
     if (!o.nid && old && old.nid) o.nid = old.nid;
+    // Round 6.5: the note's author key and threading tags are learned after signing, so keep them too.
+    if (old) ["pk", "tags"].forEach(function (k) { if (o[k] === undefined && old[k] !== undefined) o[k] = old[k]; });
     if (old) saved[saved.indexOf(old)] = o; else saved.unshift(o);
   });
   try { localStorage.setItem(LC_DREAMS_KEY, JSON.stringify(saved.slice(0, 1000))); } catch (e) {}
@@ -233,7 +284,7 @@ function Modal({onClose, title, subtitle, children}) {
 /* Bottom-anchored pop-up menu — matches Base44 design */
 
 /* --- Dream options: an inline disclosure under each Dream (no modal, no focus trap) --- */
-function lcThreadOf(d) { const reps = (LC_REPLIES[d.id] || []).concat((typeof MOCK_COMMENTS !== "undefined" && MOCK_COMMENTS[d.id]) || []).slice().sort(function (x, y) { return (x.id || 0) - (y.id || 0); }); return [d].concat(reps.map(function (r) { return Object.assign({ isReply: true }, r); })); }
+function lcThreadOf(d) { const reps = lcRepliesFor(d.id).concat((typeof MOCK_COMMENTS !== "undefined" && MOCK_COMMENTS[d.id]) || []).slice().sort(function (x, y) { return lcWhen(x) - lcWhen(y); }); return [d].concat(reps.map(function (r) { return Object.assign({ isReply: true }, r); })); }
 function lcHearThread(d) {
   const parts = []; lcThreadOf(d).forEach(function (x, i) { const p = lcDreamSpeechParts(x); if (i > 0) p.forEach(function (q) { q.secondary = true; }); parts.push.apply(parts, p); });
   return LcSpeech.speak(parts);
@@ -336,71 +387,95 @@ function SiteEmbed({domain}) {
     )
   );
 }
-/* --- COMMENT VIEW ------------------------ */
-function CommentItem({cm, navigate, onReply}) {
-  const [liked, setLiked] = useState(cm.liked);
-  const [likes, setLikes] = useState(cm.likes);
-  const toggle = () => { setLiked(l=>!l); setLikes(n=>liked?n-1:n+1); };
-  return (
-    React.createElement('div', { className: "cm-item",}
-      , React.createElement('div', { className: "cm-meta",}
-        , React.createElement(Av, { user: cm.user, size: 30,})
-        , React.createElement('div', { style: {flex:1},}
-          , React.createElement('span', { style: {fontWeight:700,fontSize:13},}, cm.user.name)
-          , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",marginLeft:6},}, cm.user.handle, ", "  , cm.time)
-        )
-        , lh(LcMenu, { id: "cmo-" + cm.id, kind: "action", title: "Comment options", btnLabel: "Comment options", btnClass: "bi", noCaret: true, align: "right",
-            btnText: lh(Ic.Dots, { style: {width:14,height:14} }), onSelect: function (k, it) { it.a(); }, items: [
-              onReply ? { id: "reply", name: "Reply", a: function () { onReply(cm); } } : null,
-              { id: "copy", name: "Copy text", a: function () { if (navigator.clipboard) navigator.clipboard.writeText(cm.text || "").then(function () { announce("Comment copied."); }, function () { announce("Copy is not available here."); }); else announce("Copy is not available here."); } },
-              { id: "share", name: "Share comment", a: function () { lcShareText(cm.user.name + ": " + (cm.text || ""), "Comment"); } },
-              navigate ? { id: "profile", name: "View @" + cm.user.handle.replace("@","") + "'s profile", a: function () { navigate("dp", cm.user); } } : null,
-            ].filter(Boolean) })
-      )
-      , (lcWordHit(cm.text) ? lh(LcBlockedHidden, { what: "reply" }, React.createElement('p', { className: "cm-body",}, cm.text)) : React.createElement('p', { className: "cm-body",}, cm.text))
-      , React.createElement('div', { className: "cm-actions",}
-        , onReply ? React.createElement('button', { className: "cm-act", type: "button", onClick: function () { onReply(cm); }, 'aria-label': "Reply to " + cm.user.name,}, React.createElement('span', { style: {fontSize:11},}, "Reply")) : null
-      )
-    )
-  );
+/* Round 6.5: link previews with no server. YouTube, Vimeo and Spotify have their own players, which
+   load only when you press Play (nothing from those sites loads before that). Any other link gets a
+   plain card with its domain. Looscid never fetches the page itself, through any proxy or otherwise. */
+const LC_EMBED_NAMES = { youtube: "YouTube", vimeo: "Vimeo", spotify: "Spotify" };
+function lcLinkCard(text) {
+  const m = String(text || "").match(/https?:\/\/[^\s<>"']+/i);
+  if (!m) return null;
+  let u; try { u = new URL(m[0].replace(/[.,!?;:)\]}]+$/, "")); } catch (e) { return null; }
+  if (!/^https?:$/.test(u.protocol)) return null;
+  const host = u.hostname.toLowerCase().replace(/^(www|m)\./, "");
+  let kind = "site", id = null, sub = null;
+  if (host === "youtube.com" || host === "music.youtube.com") { id = u.searchParams.get("v") || (u.pathname.match(/^\/(?:shorts|embed|live)\/([\w-]{6,})/) || [])[1]; }
+  else if (host === "youtu.be") { id = (u.pathname.match(/^\/([\w-]{6,})/) || [])[1]; }
+  if (id && /^[\w-]{6,20}$/.test(id)) kind = "youtube"; else id = null;
+  if (host === "vimeo.com" || host === "player.vimeo.com") { const v = (u.pathname.match(/(?:^|\/)(\d{5,12})(?:\/|$)/) || [])[1]; if (v) { kind = "vimeo"; id = v; } }
+  if (host === "open.spotify.com") { const s = u.pathname.match(/^\/(?:intl-[a-z-]+\/)?(track|album|playlist|episode|show|artist)\/([A-Za-z0-9]{10,40})/); if (s) { kind = "spotify"; sub = s[1]; id = s[2]; } }
+  const what = kind === "youtube" ? "YouTube video" : kind === "vimeo" ? "Vimeo video" : kind === "spotify" ? "Spotify " + sub : "Link to " + host;
+  const embed = kind === "youtube" ? "https://www.youtube-nocookie.com/embed/" + id : kind === "vimeo" ? "https://player.vimeo.com/video/" + id + "?dnt=1" : kind === "spotify" ? "https://open.spotify.com/embed/" + sub + "/" + id : null;
+  return { url: u.href, kind: kind, id: id, sub: sub, domain: host, label: what, embed: embed, site: LC_EMBED_NAMES[kind] || host };
 }
+// The card under a Dream. Plain text says what it is; Play loads the player only when you ask; the link opens the page.
+function LinkCard({ info }) {
+  const [play, setPlay] = useState(false);
+  if (!info) return null;
+  const tall = info.kind === "spotify" ? (info.sub === "track" || info.sub === "episode" ? 152 : 352) : null;
+  return lh('div', { className: "lc-link-card embed" },
+    lh('p', { className: "lc-link-what" }, info.label + ", " + info.domain),
+    info.embed && play && lh('iframe', { src: info.embed, "aria-label": info.label, className: "lc-link-frame", loading: "lazy", referrerPolicy: "strict-origin-when-cross-origin",
+      allow: "encrypted-media; picture-in-picture; fullscreen", allowFullScreen: true, style: tall ? { height: tall, aspectRatio: "auto" } : undefined }),
+    lh('div', { className: "lc-inrow" },
+      info.embed && lh('button', { type: "button", className: "btn bgb lc-btn", "aria-pressed": play, onClick: function () { setPlay(!play); } }, play ? "Stop " + info.site + " player" : "Play " + info.label),
+      lh('a', { href: info.url, target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, "Open " + (info.embed ? "on " + info.site : info.domain))));
+}
+/* --- REPLIES PAGE (Round 6.5: one word for these everywhere, Replies) --- */
+/* One reply in the list. It can take focus (after you reply, focus lands on it), and a reply with a
+   content warning keeps its text behind "Show reply". */
+function ReplyItem({cm, navigate, onReply}) {
+  const [liked, setLiked] = useState(!!cm.liked);
+  const [likes, setLikes] = useState(cm.likes || 0);
+  const [open, setOpen] = useState(false);
+  const toggle = () => { setLiked(l=>!l); setLikes(n=>liked?n-1:n+1); };
+  const name = (cm.user && cm.user.name) || "Someone", handle = (cm.user && cm.user.handle) || "";
+  const body = lcWordHit(cm.text) ? lh(LcBlockedHidden, { what: "reply" }, lh('p', { className: "cm-body" }, cm.text)) : lh('p', { className: "cm-body" }, cm.text);
+  return lh('div', { className: "cm-item", "data-dream-id": String(cm.id), tabIndex: -1 },
+    lh('div', { className: "cm-meta" },
+      lh(Av, { user: cm.user, size: 30 }),
+      lh('div', { style: {flex:1} },
+        lh('span', { style: {fontWeight:700,fontSize:13} }, name),
+        lh('span', { style: {fontSize:11,color:"var(--tx3)",marginLeft:6} }, handle, ", ", cm.time)),
+      lh(LcMenu, { id: "cmo-" + cm.id, kind: "action", title: "Reply options", btnLabel: "Reply options", btnClass: "bi", noCaret: true, align: "right",
+        btnText: lh(Ic.Dots, { style: {width:14,height:14} }), onSelect: function (k, it) { it.a(); }, items: [
+          onReply ? { id: "reply", name: "Reply", a: function () { onReply(cm); } } : null,
+          { id: "hear", name: "Hear reply", a: function () { LcSpeech.speak(lcDreamSpeechParts(cm)); } },
+          { id: "copy", name: "Copy text", a: function () { if (navigator.clipboard) navigator.clipboard.writeText(cm.text || "").then(function () { announce("Reply copied."); }, function () { announce("Copy is not available here."); }); else announce("Copy is not available here."); } },
+          { id: "share", name: "Share reply", a: function () { lcShareText(name + ": " + (cm.text || ""), "Reply"); } },
+          navigate && handle ? { id: "profile", name: "View @" + handle.replace("@","") + "'s profile", a: function () { navigate("dp", cm.user); } } : null,
+        ].filter(Boolean) })),
+    cm.cw ? lh(React.Fragment, null,
+      lh('p', { className: "lc-cw-t" }, "Content warning: " + cm.cw),
+      lh('button', { type: "button", className: "btn bgb lc-btn", "aria-expanded": open, onClick: function () { setOpen(!open); } }, open ? "Hide reply" : "Show reply"),
+      open && body) : body,
+    lh('div', { className: "cm-actions" },
+      lh('button', { type: "button", className: "cm-act" + (liked ? " liked" : ""), "aria-pressed": liked, onClick: toggle }, lh('span', { style: {fontSize:11} }, likes ? likes + " Likes" : "Like")),
+      onReply ? lh('button', { className: "cm-act", type: "button", onClick: function (e) { onReply(cm, e.currentTarget); } }, lh('span', { style: {fontSize:11} }, "Reply to " + name)) : null));
+}
+function CommentItem(props) { return lh(ReplyItem, props); } // the old name, kept for anything that still uses it
+/* The Replies page: the Dream, a Reply button that opens the composer in Reply mode, then the replies.
+   Replies you write are saved on this device (dbm_replies) and come back after a reload. */
 function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onCommentPosted, navigate}) {
-  const [ctxt, setCtxt] = useState("");
-  const [comments, setComments] = useState(function () { return (LC_REPLIES[dream.id] || []).concat(MOCK_COMMENTS[dream.id] || []); });
+  const tick = useRepliesTick();
+  const comments = React.useMemo(function () { return lcRepliesFor(dream.id).concat(MOCK_COMMENTS[dream.id] || []); }, [dream.id, tick]);
   const [sort, setSort] = useState("newest");
-  const [showRD, setShowRD] = useState(false);
-  const [showQC, setShowQC] = useState(false);
-  const [showDreamOpts, setShowDreamOpts] = useState(false);
   const dreamOptsBtn = useRef(null);
-  const [cmAttachments, setCmAttachments] = useState([]);
-  const [showCmAttach, setShowCmAttach] = useState(false);
   const endRef = useRef(null);
   const rdTotal = dream.redreams + (dream.quotes||0);
   const rdActive = dream.redreamed || dream.quoted;
-
-  const sendComment = () => {
-    if (!ctxt.trim()) return;
-    const nc = {id:Date.now(), user:ME, text:ctxt, time:"now", likes:0, liked:false, isReply:true};
-    LC_REPLIES[dream.id] = [nc].concat(LC_REPLIES[dream.id] || []); Earcon.play("send");
-    setComments(cs => [nc, ...cs]);
-    if (onCommentPosted) onCommentPosted(dream.id);
-    setCtxt("");
-  };
-
+  const reply = function (parent, opener) { lcCompose({ mode: "reply", parent: parent || dream, root: dream, opener: opener || document.activeElement }); };
   const sorted = [...comments].sort((a,b) => {
-    if (sort==="oldest") return a.id-b.id;
-    if (sort==="top") return b.likes-a.likes;
-    return b.id-a.id;
+    if (sort==="oldest") return lcWhen(a)-lcWhen(b);
+    if (sort==="top") return (b.likes||0)-(a.likes||0);
+    return lcWhen(b)-lcWhen(a);
   });
-
-  const linkInfo = getLinkInfo(dream.text);
-
+  const linkInfo = lcLinkCard(dream.text);
   return (
     React.createElement('div', { className: "pg", style: {display:"flex",flexDirection:"column",paddingBottom:0},}
       , React.createElement('div', { className: "hdr",}
         , React.createElement('div', { className: "hdr-row",}
           , React.createElement('button', { className: "bi", onClick: onBack, 'aria-label': "Back",}, React.createElement(Ic.Bck, { style: {width:21,height:21},}))
-          , React.createElement('span', { className: "hdr-title",}, "Comments")
+          , React.createElement('span', { className: "hdr-title",}, "Replies")
           , React.createElement('span', { style: {fontSize:13,color:"var(--tx3)",fontWeight:600},}, comments.length)
         )
       )
@@ -420,18 +495,17 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
             , React.createElement('p', { style: {fontSize:14,lineHeight:1.65,color:"var(--tx)",marginBottom:8},}
               , React.createElement(DreamText, {text: dream.text})
             )
-            , linkInfo && linkInfo.type==="youtube" && React.createElement(SiteEmbed, { domain: "youtube.com",})
-            , linkInfo && linkInfo.type==="site" && React.createElement(SiteEmbed, { domain: linkInfo.domain,})
-            /* Dream interaction row inside comment view */
+            , linkInfo && !dream.nopv && lh(LinkCard, { info: linkInfo })
+            /* Dream interaction row on the Replies page */
             , React.createElement('div', { className: "ixn-row", style: {margin:"0 -16px",borderTop:"1px solid var(--bd)"},}
               , React.createElement('button', { className: "cbx-wrap" + (dream.liked?" liked":""), onClick: ()=>onLike(dream.id), 'aria-label': fmt(dream.likes) + " likes",}
                 , React.createElement('div', { className: "cbx-box",}, dream.liked && React.createElement(ChkMark, null))
                 , React.createElement('span', null, fmt(dream.likes), " Likes" )
               )
-              , lh(LcMenu, { id: "rd-cv-" + dream.id, kind: "action", title: "ReDream or Quote", btnLabel: fmt(rdTotal) + " ReDreams", btnClass: "cbx-wrap" + (rdActive?" redd":""), noCaret: true, up: true,
-                  btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, fmt(rdTotal), " ReDreams")],
-                  items: [{ id: "rd", name: dream.redreamed ? "Undo ReDream" : "ReDream" }, { id: "q", name: "Quote Dream" }],
-                  onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); } else setShowQC(true); } })
+              , lh(LcMenu, { id: "rd-cv-" + dream.id, kind: "action", title: "Redream or Quote", btnLabel: fmt(rdTotal) + " Redreams", btnClass: "cbx-wrap" + (rdActive?" redd":""), noCaret: true, up: true,
+                  btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, fmt(rdTotal), " Redreams")],
+                  items: [{ id: "rd", name: dream.redreamed ? "Undo Redream" : "Redream" }, { id: "q", name: dream.quoted ? "Undo Quote" : "Quote Dream" }],
+                  onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
               , React.createElement('button', { className: "cbx-wrap" + (dream.bookmarked?" bookd":""), onClick: ()=>onBookmark(dream.id), 'aria-label': dream.bookmarked?"Saved":"Save",}
                 , React.createElement('div', { className: "cbx-box",}, dream.bookmarked && React.createElement(ChkMark, null))
                 , React.createElement('span', null, dream.bookmarked?"Saved":"Save")
@@ -439,51 +513,23 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
               , lh(DreamOptionsMenu, { id: "dopts-cv-" + dream.id, dream: dream, btnRef: dreamOptsBtn, onBookmark: onBookmark, navigate: navigate })
             )
           )
-          /* Compose */
-          , React.createElement('div', { style: {padding:"10px 14px",borderBottom:"1px solid var(--bd)"},}
-            , React.createElement('div', { style: {display:"flex",gap:9,alignItems:"flex-start",marginBottom:7},}
-              , React.createElement(Av, { user: ME, size: 32,})
-              , React.createElement('textarea', { className: "inp", style: {border:"none",background:"var(--sf2)",borderRadius:10,fontSize:14,padding:"8px 11px",minHeight:54,lineHeight:1.5,flex:1}, placeholder: "Write a comment…"  , value: ctxt, id: "cv-comment-input", onChange: e=>setCtxt(e.target.value), 'aria-label': "Write your comment"  ,})
-            )
-            , cmAttachments.length>0&&(
-              React.createElement('ul', { role: "list", "aria-label": "Attachments", style: {listStyle:"none",margin:"0 0 7px",paddingLeft:41,display:"flex",gap:6,flexWrap:"wrap"},}
-                , cmAttachments.map((att,i)=>(
-                  React.createElement('li', { key: i, style: {display:"flex",alignItems:"center",gap:4,background:"var(--sf3)",border:"1px solid var(--bd2)",borderRadius:100,padding:"3px 9px 3px 6px",fontSize:11},}
-                    , React.createElement('button', { type: "button", onClick: ()=>setCmAttachments(as=>as.filter((_,j)=>j!==i)), style: {background:"none",border:"none",cursor:"pointer",color:"var(--tx3)",padding:0,fontSize:12,minWidth:24,minHeight:24}, 'aria-label': "Remove " + (att.type==="link"?"link " + att.url:att.type),}, "✕")
-                    , React.createElement('span', { "aria-hidden": "true" }, {photo:"🖼️",gif:"🎞️",link:"🔗",mood:"😌"}[att.type]||"📎")
-                    , React.createElement('span', { style: {color:"var(--tx2)"},}, att.type==="link"?att.url:att.type)
-                  )
-                ))
-              )
-            )
-            , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:3,paddingLeft:41},}
-              , ["Photo","GIF","Link","Mood"].map((ic,i)=>(
-                React.createElement('button', { key: i, style: {background:"none",border:"none",cursor:"pointer",padding:"5px",borderRadius:7,fontSize:16,color:"var(--ac3)",opacity:.75}, onClick: ()=>setShowCmAttach(true), 'aria-label': "Add "+["Photo","GIF","Link","Mood"][i],}, ic)
-              ))
-              , React.createElement('div', { style: {flex:1},})
-              , React.createElement('button', { className: "btn bp" , style: {padding:"6px 16px",fontSize:12}, onClick: sendComment, disabled: !ctxt.trim(), 'aria-label': "Dream reply" ,}, "Dream")
-            )
-          )
+          /* Reply: opens the composer in Reply mode (Round 6.5) */
+          , lh('div', { style: {padding:"10px 14px",borderBottom:"1px solid var(--bd)",display:"flex",gap:9,alignItems:"center"} },
+              lh(Av, { user: ME, size: 32 }),
+              lh('button', { type: "button", id: "cv-reply-btn", className: "btn bp", style: {padding:"8px 16px",fontSize:13}, onClick: function (e) { reply(dream, e.currentTarget); } }, "Reply to " + dream.user.name))
           /* Sort bar */
           , React.createElement('div', { className: "sort-bar",}
-            , React.createElement('span', { className: "sort-lbl",}, "Comments " , React.createElement('strong', { style: {color:"var(--tx)"},}, comments.length))
-            , lh(LcMenu, { id: "cv-sort", label: "Sort comments", hideLabel: true, title: "Sort comments", btnClass: "sort-btn", prefix: "Sort: ", align: "right", value: sort,
+            , React.createElement('span', { className: "sort-lbl",}, "Replies " , React.createElement('strong', { style: {color:"var(--tx)"},}, comments.length))
+            , lh(LcMenu, { id: "cv-sort", label: "Sort replies", hideLabel: true, title: "Sort replies", btnClass: "sort-btn", prefix: "Sort: ", align: "right", value: sort,
                 items: SORT_OPTIONS.map(function (o) { return { id: o.id, name: o.label }; }), onSelect: function (v) { setSort(v); announce("Sorted by " + (SORT_OPTIONS.find(o=>o.id===v)||{label:v}).label + "."); } })
           )
-          /* Comments */
-          , sorted.map(cm => React.createElement(CommentItem, { key: cm.id, cm: cm, navigate: navigate, onReply: function (c) { setCtxt("@" + c.user.handle.replace("@", "") + " "); setTimeout(function () { const t = document.getElementById("cv-comment-input"); if (t) t.focus(); }, 0); announce("Replying to " + c.user.name + "."); },}))
-          , comments.length===0 && React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "No comments yet"), React.createElement('div', { className: "esl",}, "No comments yet"  ))
+          /* Replies */
+          , lh('div', { id: "cv-replies", role: "list", "aria-label": "Replies" }, sorted.map(cm => lh('div', { role: "listitem", key: cm.id }, lh(ReplyItem, { cm: cm, navigate: navigate, onReply: function (c, el) { reply(c, el); } }))))
+          , comments.length===0 && React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "No replies yet"), React.createElement('div', { className: "esl",}, "Be the first to reply."))
           , React.createElement('div', { ref: endRef, style: {height:16},})
         )
       )
       , React.createElement('div', { style: {height:72},})
-      , showQC && (
-        React.createElement(Modal, { onClose: ()=>setShowQC(false), title: "Quote Dream" ,}
-          , React.createElement('textarea', { className: "inp", style: {border:"none",background:"var(--sf2)",fontSize:14,padding:"9px 12px",minHeight:72,marginBottom:12}, placeholder: "Add your thoughts…"  , autoFocus: true, 'aria-label': "Quote text" ,})
-          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12}, onClick: ()=>{onQuote(dream.id);setShowQC(false);},}, "Quote Dream"  )
-        )
-      )
-      , showCmAttach&&React.createElement(Looscid.AttachPanel, { onClose: ()=>setShowCmAttach(false), onAttach: att=>setCmAttachments(as=>[...as,att]), mode: "comment",})
     )
   );
 }
@@ -492,10 +538,10 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
   const [showRD, setShowRD] = useState(false);
   const [showOpts, setShowOpts] = useState(false);
   const optsBtn = useRef(null);
-  const [showQC, setShowQC] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
-  const [qtxt, setQtxt] = useState("");
-  const linkInfo = getLinkInfo(dream.text);
+  useRepliesTick(); // Round 6.5: the reply count includes your saved replies
+  const nReplies = lcReplyCount(dream);
+  const linkInfo = lcLinkCard(dream.text);
   const rdTotal = dream.redreams + (dream.quotes||0);
   const rdActive = dream.redreamed || dream.quoted;
   // Round 4: how the Dream is read (Verbosity, read order, timestamps, emoji, hashtags) and shown on braille.
@@ -522,7 +568,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
   return (
     React.createElement(React.Fragment, null
       , dream.reddreamer && (
-        React.createElement('div', { className: "rd-source",}, React.createElement(Ic.Rep, { style: {width:11,height:11},}), React.createElement('strong', { style: {fontWeight:600},}, dream.reddreamer.name), " ReDreamed")
+        React.createElement('div', { className: "rd-source",}, React.createElement(Ic.Rep, { style: {width:11,height:11},}), React.createElement('strong', { style: {fontWeight:600},}, dream.reddreamer.name), " Redreamed")
       )
       , React.createElement('div', artProps
         , React.createElement('div', { className: "dc-inner",}
@@ -545,8 +591,8 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
           )
           , rewrite && !textFirst && lh('p', { className: "sr-only" }, srText)
           , extra && lh(DreamExtra, { extra: extra, dream: dream, onClose: function () { setExtra(null); setTimeout(function () { if (optsBtn.current) optsBtn.current.focus(); }, 0); } })
-          , linkInfo && linkInfo.type==="youtube" && React.createElement(SiteEmbed, { domain: "youtube.com",})
-          , linkInfo && linkInfo.type==="site" && React.createElement(SiteEmbed, { domain: linkInfo.domain,})
+          , dream.quoteOf != null && dream.qText != null && lh('div', { className: "qbub lc-quoted" }, lh('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.5,margin:0} }, "Quoting " + (dream.qWho || "a Dream") + ": " + dream.qText))
+          , linkInfo && !dream.nopv && lh(LinkCard, { info: linkInfo })
           /* Cherry Insights panel */
           , cherryCtx && showInsights && (()=>{
             const tags = dream.text.match(/#\w+/g)||[];
@@ -582,13 +628,13 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
         )
         /* Interaction row - Save removed, lives in Dream Options menu */
         , React.createElement('div', { className: "ixn-row",}
-          , React.createElement('button', { className: "ixn-btn", onClick: ()=>onComment && onComment(dream), 'aria-label': fmt(dream.comments)+" comments",}
-            , React.createElement(Ic.Cmt, { style: {width:15,height:15},}), React.createElement('span', null, fmt(dream.comments), " Comments" )
+          , React.createElement('button', { className: "ixn-btn", onClick: ()=>onComment && onComment(dream), 'aria-label': fmt(nReplies)+(nReplies === 1 ? " reply" : " replies"),}
+            , React.createElement(Ic.Cmt, { style: {width:15,height:15},}), React.createElement('span', null, fmt(nReplies), nReplies === 1 ? " Reply" : " Replies" )
           )
-          , lh(LcMenu, { id: "rd-" + dream.id, kind: "action", title: "ReDream or Quote", btnLabel: calm ? "ReDreams" + (rdActive ? ", ReDreamed" : "") : fmt(rdTotal)+" ReDreams", btnClass: "cbx-wrap"+(rdActive?" redd":""), noCaret: true, up: true, className: "lc-rdmenu",
-              btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, calm ? "" : fmt(rdTotal), calm ? "ReDreams" : " ReDreams")],
-              items: [{ id: "rd", name: dream.redreamed ? "Undo ReDream" : "ReDream" }, { id: "q", name: dream.quoted ? "Undo Quote" : "Quote Dream" }],
-              onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); } else if (dream.quoted) onUndoQuote(dream.id); else setShowQC(true); } })
+          , lh(LcMenu, { id: "rd-" + dream.id, kind: "action", title: "Redream or Quote", btnLabel: calm ? "Redreams" + (rdActive ? ", Redreamed" : "") : fmt(rdTotal)+" Redreams", btnClass: "cbx-wrap"+(rdActive?" redd":""), noCaret: true, up: true, className: "lc-rdmenu",
+              btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, calm ? "" : fmt(rdTotal), calm ? "Redreams" : " Redreams")],
+              items: [{ id: "rd", name: dream.redreamed ? "Undo Redream" : "Redream" }, { id: "q", name: dream.quoted ? "Undo Quote" : "Quote Dream" }],
+              onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
           , React.createElement('button', { className: "cbx-wrap"+(dream.liked?" liked":""), onClick: ()=>{ if (!dream.liked) Earcon.play("like"); onLike(dream.id); }, 'aria-label': lcVerb() === "low" ? "Like" + (dream.liked ? ", liked" : "") : (calm ? "Likes" + (dream.liked ? ", liked" : "") : fmt(dream.likes)+" likes") + (lcVerb() === "high" ? ", double tap to " + (dream.liked ? "unlike" : "like") : ""),}
             , React.createElement('div', { className: "cbx-box",}, dream.liked && React.createElement(ChkMark, null))
             , React.createElement('span', null, calm ? "" : fmt(dream.likes), calm ? "Likes" : " Likes" )
@@ -597,16 +643,6 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
         )
         )
 
-      , showQC && (
-        React.createElement(Modal, { onClose: ()=>setShowQC(false), title: "Quote Dream" , subtitle: "Add your thoughts when sharing"    ,}
-          , React.createElement('textarea', { className: "inp", style: {border:"none",background:"var(--sf2)",fontSize:14,padding:"9px 12px",minHeight:80,marginBottom:12}, placeholder: "Add your thoughts…"  , value: qtxt, onChange: e=>setQtxt(e.target.value), autoFocus: true, 'aria-label': "Quote commentary" ,})
-          , React.createElement('div', { className: "qbub", style: {marginBottom:14},}
-            , React.createElement('div', { className: "qbub-head",}, React.createElement(Av, { user: dream.user, size: 18,}), React.createElement('span', { style: {fontSize:12,fontWeight:700,marginLeft:4},}, dream.user.name))
-            , React.createElement('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.5},}, dream.text.slice(0,100), "…")
-          )
-          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12}, onClick: ()=>{onQuote(dream.id);setShowQC(false);setQtxt("");},}, "Quote Dream"  )
-        )
-      )
     )
   );
 }
@@ -824,6 +860,7 @@ const LC_FIND_STATIC = [
   { l: "Automatically check for updates", w: "auto update updates automatic", page: "settings_about", focus: "about-autoupdate", where: "About Looscid" },
   { l: "Version and version history", w: "version build history changelog release what's new", page: "settings_about", focus: "about-version", where: "About Looscid" },
   { l: "System info", w: "system info device browser storage", page: "settings_about", focus: "about-sys", where: "About Looscid" },
+  { l: "Credits and open source", w: "credits open source licenses license thanks third party react nostr-tools noble nexos insomnia feditext v86 fonts repos", page: "credits", where: "Menu, About" },
   { l: "Blocked Dreamers", w: "block dreamer block user blocked list unblock", page: "settings_privacy", priv: "blocked", privTab: "dreamers", focus: "priv-bl-dreamers-in", where: "Settings, Privacy, Blocked and muted" },
   { l: "Blocked Circles", w: "block circle blocked circles", page: "settings_privacy", priv: "blocked", privTab: "circles", focus: "priv-bl-tab-circles", where: "Settings, Privacy, Blocked and muted" },
   { l: "Blocked words", w: "block word blocked words hide words everywhere", page: "settings_privacy", priv: "blocked", privTab: "words", focus: "priv-bl-words-in", where: "Settings, Privacy, Blocked and muted" },
@@ -955,13 +992,15 @@ const PRIVACY_CONTENT = `<p><strong>Last updated: October 10, 2026</strong></p>
 <h2>What Looscid stores, and where</h2>
 <ul>
 <li>Your profile, settings, drafts, Dreams and sound packs are saved on this device only, in your browser's storage (the keys start with <code>dbm_</code>).</li>
+<li>Replies you write are saved on this device too, the same way. Like Dreams, they are not in Settings backup.</li>
 <li>There are no Looscid sign-up servers. Supabase and Cloudflare are gone.</li>
 <li>You never need a phone number or an email address, and Looscid never uses them to find you or to suggest you to others.</li>
 </ul>
 <h2>When Looscid talks to the network</h2>
 <ul>
 <li>When you link a login method (Nostr, Mastodon and the fediverse, Bluesky, Funkwhale or Hubzilla), Looscid talks straight to that network from your device. Your server may have your email; Looscid never asks for it.</li>
-<li>Dreams on Nostr: when you set up a Nostr key in Settings, LooscidID, a Dream with Audience Everyone goes from your device straight to the Nostr relays in your list, and it's public there. Looscid also reads your own Dreams back from those relays, so they show on any device with your key. Your secret key never leaves this device, and it's never in Settings backup. With Audience "Only this device", or without a key, nothing is sent.</li>
+<li>Dreams on Nostr: when you set up a Nostr key in Settings, LooscidID, a Dream with Audience Everyone goes from your device straight to the Nostr relays in your list, and it's public there. Looscid also reads your own Dreams back from those relays, so they show on any device with your key. Your secret key never leaves this device, and it's never in Settings backup. With Audience "Only this device", or without a key, nothing is sent. A reply to a Dream that's on Nostr goes as a Nostr reply (threaded under it), and only with Audience Everyone; Followers only, My Circles and Only this device never leave your device.</li>
+<li>Link previews are made on your device from the link alone. Looscid never fetches the linked page. A YouTube, Vimeo or Spotify player loads from that site only when you press Play.</li>
 <li>Music and the apps load only when you open them.</li>
 <li>Cherry is off until you turn it on. Its on-device model downloads only after you say yes. After that it runs on your device, offline.</li>
 <li>When you link a Bluesky or fediverse handle in Keys and IDs, Looscid looks it up once on that network to check it exists. A Nostr public key is checked on your device.</li>
@@ -1305,6 +1344,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
     ]},
     { id:"about", emoji:"About", label:"About", items:[
       { icon:"About", label:"About Looscid", sub:"Our story, version, what's new and credits", action(){onClose();navigate("settings_about");} },
+      { icon:"Credits", label:"Credits and open source", sub:"Projects Looscid uses and learned from, with their licenses", action(){onClose();navigate("credits");} },
       { icon:"Feedback", label:"Send Feedback", sub:"Tell us what works and what doesn't", action(){onClose();navigate("feedback");} },
       { icon:"Intro", label:"Welcome intro", sub:"The welcome intro and terminology guide", action(){onClose();navigate("intro");} },
       { icon:"Terms", label:"Terms",   sub:"Plain-language terms",  action(){onClose();navigate("terms");} },
@@ -2079,7 +2119,8 @@ function LooscidOnboarding({ onDone }) {
     H2("A quick terminology guide"),
     lh('dl', { className: "lid-terms" },
       lh('dt', null, "Dreams"), lh('dd', null, "A Dream is what you share, like how Twitter used \u201Ctweet.\u201D"),
-      lh('dt', null, "Redreams"), lh('dd', null, "A Redream is a repost. Write it Redream or ReDream, your choice."),
+      lh('dt', null, "Redreams"), lh('dd', null, "A Redream shares someone else\u2019s Dream with your followers. It\u2019s always written Redream."),
+      lh('dt', null, "Replies"), lh('dd', null, "Replies are what you write under a Dream, one or several in a row."),
       lh('dt', null, "Dreamor"), lh('dd', null, "That's you. Instead of \u201Cmember\u201D or \u201Cuser,\u201D you're a Dreamor, spelled D R E A M O R. It's time for a change, and we hope it inspires you to dream up something cool."),
       lh('dt', null, "Circles"), lh('dd', null, "Circles are communities. They should be created with care, so the conversations in them are valuable, memorable and special.")),
     P("You can reread this guide any time in Settings, About Looscid."),
@@ -2392,7 +2433,7 @@ function lcDreamWords(d, mode, a) {
   const tm = v !== "short" && tp && a.speakTime !== "off" ? (a.speakTime === "short" ? tp.short : tp.full) : "";
   if (a.readOrder === "text") { parts.push(text); parts.push(name); } else { parts.push(name); parts.push(text); }
   if (tm) parts.push(tm);
-  if (v === "detailed" && !a.calmFeed) parts.push((d.likes || 0) + ((d.likes || 0) === 1 ? " like" : " likes") + ", " + (d.comments || 0) + ((d.comments || 0) === 1 ? " reply" : " replies") + ", " + (d.redreams || 0) + ((d.redreams || 0) === 1 ? " Redream" : " Redreams"));
+  if (v === "detailed" && !a.calmFeed) parts.push((d.likes || 0) + ((d.likes || 0) === 1 ? " like" : " likes") + ", " + lcReplyCount(d) + (lcReplyCount(d) === 1 ? " reply" : " replies") + ", " + (d.redreams || 0) + ((d.redreams || 0) === 1 ? " Redream" : " Redreams"));
   return parts.filter(Boolean).join(". ").replace(/\.\./g, ".");
 }
 function lcFiltered(d, a) {
@@ -2611,13 +2652,13 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    A commit is a fix when its subject matches (?i)^\s*(fix|hotfix|bugfix|chore|typo|revert|patch|docs?|style|refactor|cleanup|tweak|ci)\b
    or has fix, fixes or fixed anywhere; anything else is a feature update. Builds = commits.
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
-   Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update).
+   Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.110.30";
+const LOOSCID_VERSION = "2026.111.30";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 140;
+const LOOSCID_BUILD = 141;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-10T16:52:30Z"; // the Round 6.4 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-10T17:50:27Z"; // the Round 6.5 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -3454,6 +3495,7 @@ const LC_PLACES = {
   motor: { label: "Motor and switch settings", page: "settings_a11y_motor" },
   terminalsettings: { label: "Commandbar settings", page: "settings_a11y_terminal" },
   nexosapps: { label: "Apps", page: "nexos_apps" },
+  credits: { label: "Credits and open source", page: "credits" },
   appsettings: { label: "App settings", page: "settings_apps" },
   comingsoon: { label: "Looscid Labs, Coming soon", page: "settings_labs" },
   customizability: { label: "Customizability settings", page: "settings_customizability" },
@@ -3486,6 +3528,7 @@ function lcAppItems() {
 }
 const LC_EXACT = { "open commandbar": "terminal", "commandbar": "terminal", "open command bar": "terminal", "open commandbar full screen": "terminal", "open apps": "nexosapps", "apps": "nexosapps", "open app settings": "appsettings", "app settings": "appsettings", "open apps settings": "appsettings", "open feed": "feed", "open alerts": "alerts", "open notifications": "notifications", "open messages": "messages", "open circles": "circles", "open settings": "settings", "open accessibility": "accessibility", "open customizability": "customizability", "open terminal": "terminal", "open music": "music", "open about": "about", "open account": "account", "open labs": "labs", "open looscid labs": "labs", "open looscidid": "account", "open looscid id": "account", "open audio": "audio", "open sounds": "audio", "open verbosity": "verbosity", "open pitch cues": "verbosity", "open keyboard shortcuts": "keyboard", "open shortcuts": "keyboard", "open settings backup": "backup", "open backup": "backup", "open privacy": "privacy", "open permissions": "privacy", "open quiet hours": "alertsettings", "open alerts settings": "alertsettings", "import settings": "backup",
   "open braille": "braille", "open braille settings": "braille", "open screen reader": "screenreader", "open screen reader settings": "screenreader", "open screen reader and braille": "screenreader",
+  "open credits": "credits", "credits": "credits", "open source": "credits", "licenses": "credits",
   "open vision": "vision", "open hearing": "hearing", "open motion": "motion", "open motion and seizure": "motion", "open motor": "motor", "open motor and switch": "motor", "open terminal settings": "terminalsettings",
   "open nexos apps": "nexosapps", "nexos apps": "nexosapps", "apps": "nexosapps", "open apps": "nexosapps", "coming soon": "comingsoon", "open coming soon": "comingsoon",
   "open intelligence": "intelligence", "open cherry settings": "cherrysettings", "open keys": "keys", "open keys and ids": "keys" };
@@ -4277,6 +4320,9 @@ useEffect(() => {
   const [appGroups, setAppGroups] = useState(GROUPS);                                     // joined state
   const [appNotifs, setAppNotifs] = useState(NOTIFS_INIT);
   const [cherryOpen, setCherryOpen] = useState(false);          // overlay chat from anywhere
+  // Round 6.5: the composer in Reply or Quote mode, opened from anywhere with lcCompose().
+  const [composeReq, setComposeReq] = useState(null);
+  useEffect(function () { const f = function (e) { setComposeReq(Object.assign({ n: Date.now() }, (e && e.detail) || {})); }; window.addEventListener("looscid-compose", f); return function () { window.removeEventListener("looscid-compose", f); }; }, []);
   const [cherryInitMsg, setCherryInitMsg] = useState(null);     // pre-fill a message into Cherry
 
   // Cherry context object passed everywhere Cherry is accessible
@@ -4298,7 +4344,7 @@ useEffect(() => {
     // Actions Cherry agent can perform - all log their actions
     likeDream:   id => { recordHabit("likeDream", (appDreams.find(x=>x.id===id)||{}).text?(appDreams.find(x=>x.id===id).text.split(" ").slice(0,3).join(" ")):null); setAppDreams(ds => ds.map(d => d.id===id ? {...d,liked:!d.liked,likes:d.liked?d.likes-1:d.likes+1} : d)); const d=appDreams.find(x=>x.id===id); if(d) addLog("❤️","Liked "+d.user.name+"'s Dream", ()=>setAppDreams(ds=>ds.map(x=>x.id===id?{...x,liked:!x.liked,likes:x.liked?x.likes-1:x.likes+1}:x))); },
     saveDream:   id => { setAppDreams(ds => ds.map(d => d.id===id ? {...d,bookmarked:!d.bookmarked} : d)); const d=appDreams.find(x=>x.id===id); if(d) addLog("Save","Saved "+d.user.name+"'s Dream"); },
-    postDream:   text => { const id=Date.now(); setAppDreams(ds => [{id,user:ME,time:"just now",text,likes:0,comments:0,redreams:0,quotes:0,liked:false,redreamed:false,quoted:false,bookmarked:false},...ds]); addLog("✏️","Dreamed: "+text.slice(0,40)+"…", ()=>setAppDreams(ds=>ds.filter(d=>d.id!==id))); return id; },
+    postDream:   (text, extra) => { const id=lcNewId(); setAppDreams(ds => [Object.assign({id,user:ME,time:"just now",text,likes:0,comments:0,redreams:0,quotes:0,liked:false,redreamed:false,quoted:false,bookmarked:false}, extra || {}),...ds]); addLog("✏️","Dreamed: "+text.slice(0,40)+"…", ()=>setAppDreams(ds=>ds.filter(d=>d.id!==id))); return id; },
     followUser:  id => { setAppFollowing(s => { const n=new Set(s); n.has(id)?n.delete(id):n.add(id); return n; }); const u=USERS.find(x=>x.id===id); if(u) addLog("👥","Followed "+u.name, ()=>setAppFollowing(s=>{const n=new Set(s);n.delete(id);return n;})); },
     joinGroup:   id => { setAppGroups(gs => gs.map(g => g.id===id ? {...g,joined:!g.joined} : g)); const g=GROUPS.find(x=>x.id===id); if(g) addLog("🏘️","Joined "+g.name, ()=>setAppGroups(gs=>gs.map(x=>x.id===id?{...x,joined:false}:x))); },
     markNotifsRead: () => { lcAlertsMarkAll(); addLog("🔔","Marked all notifications read"); },
@@ -4328,7 +4374,7 @@ useEffect(() => {
       if (subFrom.current[cur] === target) delete subFrom.current[cur]; else subFrom.current[target] = cur;
     } else if (/^settings_/.test(target) && !/^settings_/.test(cur)) delete subFrom.current[target];
     // About Looscid's own buttons (Terms, Privacy, Community rules, Send Feedback): Back returns to About.
-    if (!showMenuRef.current && cur === "settings_about" && /^(terms|privacy|guidelines|feedback)$/.test(target)) subFrom.current[target] = cur;
+    if (!showMenuRef.current && cur === "settings_about" && /^(terms|privacy|guidelines|feedback|credits)$/.test(target)) subFrom.current[target] = cur;
     // No accounts: old login/signup links open the local profile settings
     if (target === "login" || target === "signup") { setPage("settings_account"); setPdata(null); return; }
     if (target === "cherry") { setCherryOpen(true); return; }
@@ -4547,6 +4593,7 @@ useEffect(() => {
       settings_a11y_terminal: "Commandbar settings",
       nexos_app: "App",
       nexos_apps: "Apps",
+      credits: "Credits and open source",
       settings_audio: "Sounds",
       settings_keyboard: "Keyboard shortcuts",
       settings_apps: "Apps",
@@ -4608,6 +4655,7 @@ useEffect(() => {
       case "settings_about":          return React.createElement(Looscid.AboutSettings, { navigate: navigate,});
       case "settings_labs":           return React.createElement(Looscid.LabsSettings, { navigate: navigate,});
       case "nexos_apps":              return React.createElement(Looscid.NexosAppsPage, { navigate: navigate,});
+      case "credits":                 return React.createElement(Looscid.CreditsPage, { navigate: navigate,});
       case "nexos_app":               return React.createElement(Looscid.NexosAppFrame, { key: (pdata && pdata.id) || "app", app: pdata, navigate: navigate,});
       case "settings_intelligence": case "settings_ai_cherry": case "settings_ai_model": case "settings_ai_cmd":
                                       return React.createElement(Looscid.IntelligenceSettings, { key: page, page: page, navigate: navigate, prefs: prefs, setPrefs: setPrefs,});
@@ -4739,6 +4787,7 @@ useEffect(() => {
           React.createElement('span', {"aria-hidden":"true"}, "More")
         )
       ))
+      , composeReq && Looscid.LcComposer && React.createElement(Looscid.LcComposer, Object.assign({ key: "cmp-" + composeReq.n }, composeReq, { prefs: prefs, navigate: navigate, cherryCtx: cherryCtx, onClose: function () { setComposeReq(null); } }))
       , showCreate && React.createElement(Looscid.CreateMenu, { onClose: ()=>setShowCreate(false), prefs: prefs, navigate: navigate, cherryCtx: cherryCtx, drafts: drafts, onDraftSave: ()=>setDrafts(getDrafts()),})
       , showMenu && React.createElement(MainMenu, { key: menuInit ? "m-" + menuInit.n : "m", initOpen: menuInit && menuInit.open, initFocus: menuInit && menuInit.focus, onClose: ()=>{ setShowMenu(false); setMenuInit(null); }, navigate: navigate, goRoot: goRoot, prefs: prefs, unreadNotifs: unreadNotifs, unreadMsgs: unreadMsgs, appDreams: appDreams,})
       /* Cherry onboarding - shown on first open */

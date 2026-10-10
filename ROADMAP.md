@@ -2,7 +2,7 @@
 
 ## Product identity and vision
 
-Looscid is a privacy-respecting, local-first operating system experience for Dreamors: accessible by design, interoperable through open protocols, and sovereign in identity and data ownership. The application should remain useful without an account, network connection, build service, or proprietary runtime. Do not de-bloat: preserve robust functionality, accessibility, terminology, and local-first behavior as capabilities expand.
+Looscid is a privacy-respecting, local-first operating system experience for Dreamers: accessible by design, interoperable through open protocols, and sovereign in identity and data ownership. The application should remain useful without an account, network connection, build service, or proprietary runtime. Do not de-bloat: preserve robust functionality, accessibility, terminology, and local-first behavior as capabilities expand.
 
 ## Architecture
 
@@ -79,8 +79,8 @@ Every interaction uses a semantic native control. Images require meaningful Alt 
 | Use | Never use |
 |-----|-----------|
 | Dreams | Posts |
-| Dreamors | Users |
-| ReDreams | Reposts |
+| Dreamers | Users |
+| Redreams | Reposts |
 | Circles | Groups |
 | LooscidID | Account |
 | Feed | Home tab |
@@ -123,7 +123,7 @@ These decisions guide the next navigation, Feed, Discover, and catalog changes; 
 
 - `Refine` is a plain button with no heading on the toggle. On expansion, the panel opens with a real heading and a one-line description such as `Narrow what shows in Discover`, followed by groups.
 - Groups use headings and plain descriptions with no length cap. A heading is not a label; every control retains its own accessible name.
-- Under `Filters`, separate `Content` (Apps, Games, Images, Videos) from `People` (Dreamors, Circles), rather than mixing content and people.
+- Under `Filters`, separate `Content` (Apps, Games, Images, Videos) from `People` (Dreamers, Circles), rather than mixing content and people.
 - `Price` uses radios `All`, `Free`, `Paid`, defaulting to `All`; never-selected is not a landing state. `Paid` reveals `Lifetime` and `Subscription` checkboxes; `Free` hides them. These are checkboxes, not radios: an app can sell both a lifetime unlock and a monthly subscription, and both may be on.
 - Visible chip text: `Lifetime`; accessible name: `Lifetime, one-time purchase`. `Media` includes Has media and Verified.
 - A time/recency group (Any time, Today, This week, This month) is optional: Tomo's suggestion, not Alhasan's, and cuttable.

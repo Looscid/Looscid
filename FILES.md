@@ -15,7 +15,7 @@ Looscid has no build step. The browser loads plain files in a fixed order: no mo
 | `js/discover.js` | The Discover tab. **Plain JavaScript.** |
 | `js/circles.js` | Circles: create a Circle, a Circle's page, its admin settings, the Circles list. Still React. |
 | `js/feed.js` | The Feed (Home) tab. Still React. |
-| `js/create.js` | Create (New Dream), attachments, symbols and Drafts. Still React. |
+| `js/create.js` | Create, and the composer for New Dream, Reply and Quote (`LcComposer`, Round 6.5), attachments with the alt text helper, symbols and Drafts. Still React. Saved replies (`dbm_replies`), the Replies page and link previews are in `js/core.js`. |
 | `js/alerts.js` | The Alerts tab and messages. **Plain JavaScript.** |
 | `js/more.js` | The More tab and everything it opens: Settings, LooscidID pages, About, Apps, Admin, policies. Still React. |
 | `js/cherry.js` | Cherry, the assistant overlay. Still React. |
