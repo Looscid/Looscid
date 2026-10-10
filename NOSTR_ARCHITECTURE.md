@@ -4,7 +4,7 @@ Combined from `NOSTR_ARCHITECTURE.md` and `CHERRY_AI_NOSTR_INTEGRATION.md`. See 
 
 ## NOSTR_ARCHITECTURE.md
 
-DreamOS is built on Nostr as its foundation.
+Looscid is built on Nostr as its foundation.
 Your nsec key IS your Dream ID.
 Everything syncs across every device automatically.
 No central server owns your data. Ever.
@@ -14,17 +14,17 @@ No central server owns your data. Ever.
 ### How It Works
 
 When you create a Dream ID you generate a Nostr keypair.
-Your public key (npub) is your identity across all of DreamOS
+Your public key (npub) is your identity across all of Looscid
 and the entire Nostr network simultaneously.
 Your private key (nsec) never leaves your device.
 
-Jack Dorsey can log into DreamOS with his nsec key.
+Jack Dorsey can log into Looscid with his nsec key.
 His follows, his content, his identity — all there instantly.
 Anyone on Nostr can do the same.
 
 ---
 
-### Nostr NIPs DreamOS Uses
+### Nostr NIPs Looscid Uses
 
 #### Identity and Login
 - **NIP-01** — Core protocol. Events, signatures, keypairs.
@@ -58,28 +58,28 @@ Anyone on Nostr can do the same.
 
 #### Circles (Groups)
 - **NIP-29** — Relay-based groups. Moderated communities.
-  This powers DreamOS Circles.
+  This powers Looscid Circles.
 
 #### Live Streaming
 - **NIP-53 kind:30311** — Live activities.
-  DreamOS live streams are Nostr live events.
+  Looscid live streams are Nostr live events.
   Anyone on Nostr can see when you go live.
 
 #### Audio Rooms (Calls and Nests)
 - **Nostr Nests + NIP-53** — Decentralized audio rooms.
   Powered by MoQ (Media over QUIC) for real-time audio.
-  DreamOS phone calls and audio rooms use this.
+  Looscid phone calls and audio rooms use this.
   kind:30312 for rooms, kind:1311 for live chat,
   kind:10312 for presence (who is in the room).
 
 #### Alerts and Notifications
 - **NIP-27** — Mentions. @YourHandle in a Dream.
 - **NIP-65 kind:10002** — Relay lists.
-  DreamOS knows which relays to check for your alerts.
+  Looscid knows which relays to check for your alerts.
 
 #### Zaps (Future — Tipping Dreamors)
 - **NIP-57** — Lightning zaps.
-  Send sats to a Dreamor directly from DreamOS.
+  Send sats to a Dreamer directly from Looscid.
   No payment processor. No middleman.
 
 #### Cherry AI on Nostr
@@ -90,9 +90,9 @@ Anyone on Nostr can do the same.
 
 ---
 
-### DreamOS Relay List
+### Looscid Relay List
 
-DreamOS connects to these relays by default.
+Looscid connects to these relays by default.
 Dreamors can add their own.
 
 - wss://relay.damus.io
@@ -117,7 +117,7 @@ device where your nsec key IS the device identity.
 
 ---
 
-### What Changes About DreamOS
+### What Changes About Looscid
 
 Not much changes in how it feels. Everything changes underneath.
 
@@ -128,7 +128,7 @@ Not much changes in how it feels. Everything changes underneath.
 - Your calls are Nostr Nests audio rooms
 - Your live streams are NIP-53 live events
 
-DreamOS becomes a Nostr client that looks and feels like
+Looscid becomes a Nostr client that looks and feels like
 a full operating system. The best Nostr client ever built.
 Accessible first. Open source. Free for life.
 
@@ -145,7 +145,7 @@ All MIT licensed or public domain.
   The protocol specification itself. Reference for all NIPs.
 
 - **Nostr Nests** (github.com/nostrnests/nests)
-  Audio rooms. Powers DreamOS calls and live audio.
+  Audio rooms. Powers Looscid calls and live audio.
   MIT licensed. We integrate their MoQ audio transport.
 
 - **awesome-nostr** (github.com/aljazceru/awesome-nostr)
@@ -155,7 +155,7 @@ All MIT licensed or public domain.
 
 ### Credit
 
-DreamOS is built on top of the work of the Nostr community.
+Looscid is built on top of the work of the Nostr community.
 We credit everyone whose code or protocol we use.
 We contribute back where we can.
 That is what open source means.

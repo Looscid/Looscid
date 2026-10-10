@@ -2563,13 +2563,13 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    A commit is a fix when its subject matches (?i)^\s*(fix|hotfix|bugfix|chore|typo|revert|patch|docs?|style|refactor|cleanup|tweak|ci)\b
    or has fix, fixes or fixed anywhere; anything else is a feature update. Builds = commits.
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
-   and Round 6.1, the split into files, is build 137 (a fix update).
+   Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.109.28";
+const LOOSCID_VERSION = "2026.109.29";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 137;
+const LOOSCID_BUILD = 138;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-10T14:08:08Z"; // the Round 6.1 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-10T14:33:35Z"; // the Round 6.2 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never

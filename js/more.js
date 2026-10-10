@@ -1719,10 +1719,14 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 109; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 28;
+const LOOSCID_FIXES = 29;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.109.28", build: 137, released: LOOSCID_RELEASED, title: "Round 6.1", notes: [
+  { version: "2026.109.29", build: 138, released: LOOSCID_RELEASED, title: "Round 6.2", notes: [
+    "A fix update: Looscid has its icon.",
+    "Add to Home Screen on iPhone and Android shows the Looscid logo, named Looscid, and the browser tab shows it too.",
+  ] },
+  { version: "2026.109.28", build: 137, released: "2026-10-10T14:08:08Z", title: "Round 6.1", notes: [
     "A fix update: nothing you see or hear changes.",
     "Looscid is split into files: styles in css/, code in js/, one file per tab.",
     "Alerts and Discover are plain JavaScript with native HTML elements. The other tabs follow one at a time.",

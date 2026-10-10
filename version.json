@@ -1,14 +1,14 @@
 {
   "app": "Looscid",
   "branch": "preview",
-  "version": "2026.109.28",
-  "build": 137,
+  "version": "2026.109.29",
+  "build": 138,
   "features": 109,
-  "fixes": 28,
+  "fixes": 29,
   "builds_without_fixes": 109,
-  "released": "2026-10-10T14:08:08Z",
-  "title": "Round 6.1",
-  "notes": "Split into files (css/, js/, FILES.md); Alerts and Discover in plain JavaScript. A fix update: nothing you see or hear changes.",
+  "released": "2026-10-10T14:33:35Z",
+  "title": "Round 6.2",
+  "notes": "App icon: Add to Home Screen on iPhone and Android and the browser tab show the Looscid logo. A fix update.",
   "branches": {
     "MainV1": {
       "version": "2026.70.103",
@@ -29,10 +29,10 @@
       "fixes": 103
     },
     "preview": {
-      "version": "2026.109.28",
-      "build": 137,
+      "version": "2026.109.29",
+      "build": 138,
       "features": 109,
-      "fixes": 28
+      "fixes": 29
     },
     "refactor/discover-extraction": {
       "version": "2026.95.10",
@@ -60,10 +60,10 @@
     }
   },
   "all_branches": {
-    "version": "2026.764.514",
-    "build": 1278,
+    "version": "2026.764.515",
+    "build": 1279,
     "features": 764,
-    "fixes": 514,
+    "fixes": 515,
     "builds_without_fixes": 764
   }
 }

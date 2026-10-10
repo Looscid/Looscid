@@ -2,6 +2,17 @@
 
 Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.109.29 (138): Round 6.2
+
+Released October 10, 2026 at 10:33 AM (Eastern Time, 2026-10-10T14:33:35Z UTC)
+
+A fix update: Looscid has its icon.
+
+- Add to Home Screen on iPhone and Android shows the Looscid logo, a white L in a C ring on blue, named Looscid.
+- The browser tab shows the logo too.
+- Docs: NOSTR_ARCHITECTURE.md says Looscid instead of the old name DreamOS.
+- Same words, sounds, pitch cues, settings, storage keys and accessibility.
+
 ## Looscid 2026.109.28 (137): Round 6.1
 
 Released October 10, 2026 at 10:08 AM (Eastern Time, 2026-10-10T14:08:08Z UTC)
