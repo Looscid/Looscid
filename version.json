@@ -1,14 +1,14 @@
 {
   "app": "Looscid",
   "branch": "preview",
-  "version": "2026.109.29",
-  "build": 138,
+  "version": "2026.109.30",
+  "build": 139,
   "features": 109,
-  "fixes": 29,
+  "fixes": 30,
   "builds_without_fixes": 109,
-  "released": "2026-10-10T14:33:35Z",
-  "title": "Round 6.2",
-  "notes": "App icon: Add to Home Screen on iPhone and Android and the browser tab show the Looscid logo. A fix update.",
+  "released": "2026-10-10T15:40:22Z",
+  "title": "Round 6.3",
+  "notes": "Dreams are saved on your device, so they stay after a reload. The New Dream composer is a dialog with the text box first, then attachments, Dream and Close. A fix update.",
   "branches": {
     "MainV1": {
       "version": "2026.70.103",
@@ -29,10 +29,10 @@
       "fixes": 103
     },
     "preview": {
-      "version": "2026.109.29",
-      "build": 138,
+      "version": "2026.109.30",
+      "build": 139,
       "features": 109,
-      "fixes": 29
+      "fixes": 30
     },
     "refactor/discover-extraction": {
       "version": "2026.95.10",
@@ -60,10 +60,10 @@
     }
   },
   "all_branches": {
-    "version": "2026.764.515",
-    "build": 1279,
+    "version": "2026.764.516",
+    "build": 1280,
     "features": 764,
-    "fixes": 515,
+    "fixes": 516,
     "builds_without_fixes": 764
   }
 }

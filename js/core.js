@@ -1,7 +1,7 @@
 /* Looscid core.js: state, prefs, icons, nav, routing, sounds and shared helpers; App() is the frame.
    Plain script (not a module). Everything it shares goes on window.Looscid; see FILES.md for the load order. */
 (function (Looscid) {
-Object.assign(Looscid, { _optionalChain, getDrafts, saveDraftItem, getSavedTheme, saveTheme, applyTheme, getOnboardingSeen, setOnboardingSeen, resetOnboarding, getLinkInfo, useDreams, Av, ChkMark, Cbx, Modal, lcThreadOf, lcHearThread, DreamExtra, lcTranslate, lcShareText, DreamOptionsMenu, BackHeader, DreamText, SiteEmbed, CommentItem, CommentView, DreamCard, lcCatState, useCats, lcAlertCats, lcResetKeyItems, lcLsDel, lcResetModel, lcOpenReset, LcResetHost, lcAiOn, lcSettingIndex, lcFindSettings, lcGoSetting, LcSettingFind, sanitizeInput, makeLocalProfile, saveLocalProfile, getLocalProfile, applyLocalProfileToMe, ensureLocalProfile, renameLocalProfile, resetLocalProfile, getAnalyticsConsent, setAnalyticsConsent, AnalyticsBanner, getWelcomeSeen, setWelcomeSeen, getAIPrefs, setAIPrefs, getActiveAI, getHabits, recordHabit, getPredictions, spellCheck, applySpellFix, detectAutoLinks, getAttribPref, HabitInsightCard, MainMenu, lcVerb, lcHints, announce, useEnterSubmit, updateLocalProfile, LcMenu, lcViewLimits, lcAnnounceCount, MenuPopupButton, getIdentity, setIdentity, getMethods, saveMethods, addMethod, getActivity, logActivity, getSessions, setSession, removeMethod, setStoredNostrSk, signOutIdentity, loadNostrTools, bytesToHex, hexToBytes, shortNpub, identityLabel, SecretField, NostrPanel, b64url, randomToken, pkceChallenge, appRedirectUri, normalizeHost, startMastodonLogin, startFunkwhaleLogin, startHubzillaLogin, lidOAuthIdentity, finishOAuthIfReturning, useOAuthReturn, MastodonPanel, LidOAuthPanel, FunkwhalePanel, HubzillaPanel, resolvePds, BlueskyPanel, AlertDialog, LooscidIDChooser, getTopics, TopicPicker, LooscidOnboarding, lcSectionKeys, lcSectionDefaults, lcSrName, lcSectionTitle, lcSet, lcValueText, lcTimeSpoken, lcWords, lcQuietNow, lcAutoplayAllowed, lcHapticsSupported, lcBuzz, lcEmojiName, lcSpeechText, lcBrailleText, lcTimeParts, lcDreamKind, lcDreamWords, lcFiltered, lcDreamSpeechParts, lcIdb, lcIdbDo, lcCurrentDream, lcLoadCustomPack, lcUpdateAuto, lcFetchVersion, lcCheckUpdate, lcApplyUpdate, LcUpdateBanner, lcVersionLabel, lcReleasedText, loadA11y, saveA11y, a11yAsked, setA11yAsked, systemReducedMotion, motionReduced, a11yEnterSends, lcCloseProps, lcPcOn, lcPackChime, lcPitchCue, lcPcKindOf, areaOfPage, musicFind, lcLev, lcSectionReport, lcFindSection, lcParseTime, lcRegistryIntent, lcTranslateOk, lcA11yReport, lcA11yIntent, lcFeedFind, lcFeedMode, lcFeedLabel, lcSetFeed, lcStepFeed, lcAudCustom, lcHandle, lcAudienceOk, lcBlocked, lcBlockedSet, lcBlockedUser, lcWordHit, LcBlockedHidden, lcAlertPrefs, lcAlerts, lcAlertsSave, lcNotify, lcAlertsMarkAll, useAlerts, lcVersionAlert, lcSetAlertsTab, lcSetShowFriends, lcFeedIntent, lcApplyFeedIntent, lcAppItems, lcNorm, lcClosestPlace, lcHistory, lcPushHistory, lcSpoken, lcExtraIntent, lcRun, lcTrapTab, useCmdHistory, useKeyboardInset, LcCmdLog, CommandBar, lcLogSave, lcLogAdd, lcLogClear, useCmdLog, lcBrowserName, lcStorageKB, lcNexosSettings, lcNexosSend, lcNexosBroadcast, lcBootLines, LcBoot, useInertBehind, DeviceQuestion, useA11yNow, lcResetSection, lcBrList, lcBrSave, lcBrWord, lcBrStyleLabel, lcBrDate, lcBrFind, lcBrCheck, lcBrNotice, lcBrSelect, lcBrCreate, lcBrRename, lcBrDelete, lcBrUndo, lcBrUsePast, lcBrForget, lcBrStamp, lcBrWatch, lcBrIntent, lcKeyName, lcExportSettings, lcDownloadSettings, LcFindMeSwitch, LcUndoBar, A11ySwitch, App });
+Object.assign(Looscid, { lcLoadDreams, lcMergeDreams, lcSyncOwnDreams, useSavedDreams, _optionalChain, getDrafts, saveDraftItem, getSavedTheme, saveTheme, applyTheme, getOnboardingSeen, setOnboardingSeen, resetOnboarding, getLinkInfo, useDreams, Av, ChkMark, Cbx, Modal, lcThreadOf, lcHearThread, DreamExtra, lcTranslate, lcShareText, DreamOptionsMenu, BackHeader, DreamText, SiteEmbed, CommentItem, CommentView, DreamCard, lcCatState, useCats, lcAlertCats, lcResetKeyItems, lcLsDel, lcResetModel, lcOpenReset, LcResetHost, lcAiOn, lcSettingIndex, lcFindSettings, lcGoSetting, LcSettingFind, sanitizeInput, makeLocalProfile, saveLocalProfile, getLocalProfile, applyLocalProfileToMe, ensureLocalProfile, renameLocalProfile, resetLocalProfile, getAnalyticsConsent, setAnalyticsConsent, AnalyticsBanner, getWelcomeSeen, setWelcomeSeen, getAIPrefs, setAIPrefs, getActiveAI, getHabits, recordHabit, getPredictions, spellCheck, applySpellFix, detectAutoLinks, getAttribPref, HabitInsightCard, MainMenu, lcVerb, lcHints, announce, useEnterSubmit, updateLocalProfile, LcMenu, lcViewLimits, lcAnnounceCount, MenuPopupButton, getIdentity, setIdentity, getMethods, saveMethods, addMethod, getActivity, logActivity, getSessions, setSession, removeMethod, setStoredNostrSk, signOutIdentity, loadNostrTools, bytesToHex, hexToBytes, shortNpub, identityLabel, SecretField, NostrPanel, b64url, randomToken, pkceChallenge, appRedirectUri, normalizeHost, startMastodonLogin, startFunkwhaleLogin, startHubzillaLogin, lidOAuthIdentity, finishOAuthIfReturning, useOAuthReturn, MastodonPanel, LidOAuthPanel, FunkwhalePanel, HubzillaPanel, resolvePds, BlueskyPanel, AlertDialog, LooscidIDChooser, getTopics, TopicPicker, LooscidOnboarding, lcSectionKeys, lcSectionDefaults, lcSrName, lcSectionTitle, lcSet, lcValueText, lcTimeSpoken, lcWords, lcQuietNow, lcAutoplayAllowed, lcHapticsSupported, lcBuzz, lcEmojiName, lcSpeechText, lcBrailleText, lcTimeParts, lcDreamKind, lcDreamWords, lcFiltered, lcDreamSpeechParts, lcIdb, lcIdbDo, lcCurrentDream, lcLoadCustomPack, lcUpdateAuto, lcFetchVersion, lcCheckUpdate, lcApplyUpdate, LcUpdateBanner, lcVersionLabel, lcReleasedText, loadA11y, saveA11y, a11yAsked, setA11yAsked, systemReducedMotion, motionReduced, a11yEnterSends, lcCloseProps, lcPcOn, lcPackChime, lcPitchCue, lcPcKindOf, areaOfPage, musicFind, lcLev, lcSectionReport, lcFindSection, lcParseTime, lcRegistryIntent, lcTranslateOk, lcA11yReport, lcA11yIntent, lcFeedFind, lcFeedMode, lcFeedLabel, lcSetFeed, lcStepFeed, lcAudCustom, lcHandle, lcAudienceOk, lcBlocked, lcBlockedSet, lcBlockedUser, lcWordHit, LcBlockedHidden, lcAlertPrefs, lcAlerts, lcAlertsSave, lcNotify, lcAlertsMarkAll, useAlerts, lcVersionAlert, lcSetAlertsTab, lcSetShowFriends, lcFeedIntent, lcApplyFeedIntent, lcAppItems, lcNorm, lcClosestPlace, lcHistory, lcPushHistory, lcSpoken, lcExtraIntent, lcRun, lcTrapTab, useCmdHistory, useKeyboardInset, LcCmdLog, CommandBar, lcLogSave, lcLogAdd, lcLogClear, useCmdLog, lcBrowserName, lcStorageKB, lcNexosSettings, lcNexosSend, lcNexosBroadcast, lcBootLines, LcBoot, useInertBehind, DeviceQuestion, useA11yNow, lcResetSection, lcBrList, lcBrSave, lcBrWord, lcBrStyleLabel, lcBrDate, lcBrFind, lcBrCheck, lcBrNotice, lcBrSelect, lcBrCreate, lcBrRename, lcBrDelete, lcBrUndo, lcBrUsePast, lcBrForget, lcBrStamp, lcBrWatch, lcBrIntent, lcKeyName, lcExportSettings, lcDownloadSettings, LcFindMeSwitch, LcUndoBar, A11ySwitch, App });
 
  function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 const {useState, useEffect, useRef, useCallback} = React;
@@ -75,8 +75,60 @@ function getLinkInfo(text) {
   if (m) return {type:"site",domain:m[0].replace(/^www\./,"")};
   return null;
 }
+/* Round 6.3: your own Dreams are saved on this device (localStorage dbm_dreams), so they're still
+   there after a reload. Only Dreams you wrote are saved, and nothing leaves the device. Likes,
+   Redreams, Quotes and bookmarks on them are saved too, and a Dream that's removed is removed here.
+   Settings backup doesn't include them, so the backup format is unchanged. */
+const LC_DREAMS_KEY = "dbm_dreams";
+Looscid.LC_DREAMS_KEY = LC_DREAMS_KEY;
+const LC_DREAM_SAVE = ["id", "text", "likes", "redreams", "quotes", "liked", "redreamed", "quoted", "bookmarked", "created"];
+function lcAgo(t) {
+  const s = Math.max(0, (Date.now() - (+t || Date.now())) / 1000);
+  if (s < 60) return "just now";
+  if (s < 3600) return Math.floor(s / 60) + "m";
+  if (s < 86400) return Math.floor(s / 3600) + "h";
+  if (s < 604800) return Math.floor(s / 86400) + "d";
+  return Math.floor(s / 604800) + "w";
+}
+function lcSavedDreamsRaw() {
+  try { const a = JSON.parse(localStorage.getItem(LC_DREAMS_KEY) || "[]"); return Array.isArray(a) ? a.filter(function (d) { return d && d.id != null && typeof d.text === "string"; }) : []; } catch (e) { return []; }
+}
+function lcLoadDreams() {
+  return lcSavedDreamsRaw().map(function (d) {
+    const o = { likes: 0, comments: 0, redreams: 0, quotes: 0, liked: false, redreamed: false, quoted: false, bookmarked: false };
+    LC_DREAM_SAVE.forEach(function (k) { if (d[k] !== undefined) o[k] = d[k]; });
+    o.user = ME; o.time = lcAgo(d.created);
+    return o;
+  });
+}
+// Saved Dreams first (newest first), then the built-in ones, with no duplicates.
+function lcMergeDreams(saved, init) {
+  const have = new Set(saved.map(function (d) { return d.id; }));
+  return saved.concat((init || []).filter(function (d) { return !have.has(d.id); }));
+}
+// Write only what changed between two lists: your Dreams that are new or edited, and your Dreams that are gone.
+function lcSyncOwnDreams(prev, next) {
+  if (!prev || prev === next || !next) return;
+  const pm = new Map(prev.map(function (d) { return [d.id, d]; })), nm = new Set(next.map(function (d) { return d.id; }));
+  const changed = next.filter(function (d) { return d.user === ME && pm.get(d.id) !== d; });
+  const gone = new Set(prev.filter(function (d) { return d.user === ME && !nm.has(d.id); }).map(function (d) { return d.id; }));
+  if (!changed.length && !gone.size) return;
+  let saved = lcSavedDreamsRaw().filter(function (s) { return !gone.has(s.id); });
+  changed.slice().reverse().forEach(function (d) {
+    const o = {}; LC_DREAM_SAVE.forEach(function (k) { if (d[k] !== undefined) o[k] = d[k]; });
+    const old = saved.find(function (s) { return s.id === d.id; });
+    if (!o.created) o.created = (old && old.created) || (typeof d.id === "number" && d.id > 1e12 ? d.id : Date.now());
+    if (old) saved[saved.indexOf(old)] = o; else saved.unshift(o);
+  });
+  try { localStorage.setItem(LC_DREAMS_KEY, JSON.stringify(saved.slice(0, 1000))); } catch (e) {}
+}
+function useSavedDreams(dreams) {
+  const prev = useRef(dreams);
+  useEffect(function () { lcSyncOwnDreams(prev.current, dreams); prev.current = dreams; }, [dreams]);
+}
 function useDreams(init) {
   const [dreams, setDreams] = useState(init);
+  useSavedDreams(dreams);
   const tl = id => setDreams(ds => ds.map(d => d.id===id ? {...d, liked:!d.liked, likes:d.liked?d.likes-1:d.likes+1} : d));
   const tr = id => setDreams(ds => ds.map(d => d.id===id ? {...d, redreamed:true, redreams:d.redreams+1} : d));
   const tur = id => setDreams(ds => ds.map(d => d.id===id ? {...d, redreamed:false, redreams:Math.max(0,d.redreams-1)} : d));
@@ -896,7 +948,7 @@ const PRIVACY_CONTENT = `<p><strong>Last updated: October 10, 2026</strong></p>
 <p>The short version: Looscid keeps your data on your device, and we don't sell it, track you or show ads.</p>
 <h2>What Looscid stores, and where</h2>
 <ul>
-<li>Your profile, settings, drafts and sound packs are saved on this device only, in your browser's storage (the keys start with <code>dbm_</code>).</li>
+<li>Your profile, settings, drafts, Dreams and sound packs are saved on this device only, in your browser's storage (the keys start with <code>dbm_</code>).</li>
 <li>There are no Looscid sign-up servers. Supabase and Cloudflare are gone.</li>
 <li>You never need a phone number or an email address, and Looscid never uses them to find you or to suggest you to others.</li>
 </ul>
@@ -2563,13 +2615,13 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    A commit is a fix when its subject matches (?i)^\s*(fix|hotfix|bugfix|chore|typo|revert|patch|docs?|style|refactor|cleanup|tweak|ci)\b
    or has fix, fixes or fixed anywhere; anything else is a feature update. Builds = commits.
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
-   Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update).
+   Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.109.29";
+const LOOSCID_VERSION = "2026.109.30";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 138;
+const LOOSCID_BUILD = 139;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-10T14:33:35Z"; // the Round 6.2 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-10T15:40:22Z"; // the Round 6.3 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4212,7 +4264,8 @@ useEffect(() => {
 
 
   // -- Global app state Cherry can read & mutate ------------------------------
-  const [appDreams, setAppDreams] = useState(DREAMS_INIT);
+  const [appDreams, setAppDreams] = useState(() => lcMergeDreams(lcLoadDreams(), DREAMS_INIT));
+  useSavedDreams(appDreams);
   const [appFollowing, setAppFollowing] = useState(new Set(LC_FIX.following || [])); // IDs we follow
   const [appGroups, setAppGroups] = useState(GROUPS);                                     // joined state
   const [appNotifs, setAppNotifs] = useState(NOTIFS_INIT);
@@ -4238,7 +4291,7 @@ useEffect(() => {
     // Actions Cherry agent can perform - all log their actions
     likeDream:   id => { recordHabit("likeDream", (appDreams.find(x=>x.id===id)||{}).text?(appDreams.find(x=>x.id===id).text.split(" ").slice(0,3).join(" ")):null); setAppDreams(ds => ds.map(d => d.id===id ? {...d,liked:!d.liked,likes:d.liked?d.likes-1:d.likes+1} : d)); const d=appDreams.find(x=>x.id===id); if(d) addLog("❤️","Liked "+d.user.name+"'s Dream", ()=>setAppDreams(ds=>ds.map(x=>x.id===id?{...x,liked:!x.liked,likes:x.liked?x.likes-1:x.likes+1}:x))); },
     saveDream:   id => { setAppDreams(ds => ds.map(d => d.id===id ? {...d,bookmarked:!d.bookmarked} : d)); const d=appDreams.find(x=>x.id===id); if(d) addLog("Save","Saved "+d.user.name+"'s Dream"); },
-    postDream:   text => { const id=Date.now(); setAppDreams(ds => [{id,user:ME,time:"just now",text,likes:0,comments:0,redreams:0,quotes:0,liked:false,redreamed:false,quoted:false,bookmarked:false},...ds]); addLog("✏️","Dreamed: "+text.slice(0,40)+"…", ()=>setAppDreams(ds=>ds.filter(d=>d.id!==id))); },
+    postDream:   text => { const id=Date.now(); setAppDreams(ds => [{id,user:ME,time:"just now",text,likes:0,comments:0,redreams:0,quotes:0,liked:false,redreamed:false,quoted:false,bookmarked:false},...ds]); addLog("✏️","Dreamed: "+text.slice(0,40)+"…", ()=>setAppDreams(ds=>ds.filter(d=>d.id!==id))); return id; },
     followUser:  id => { setAppFollowing(s => { const n=new Set(s); n.has(id)?n.delete(id):n.add(id); return n; }); const u=USERS.find(x=>x.id===id); if(u) addLog("👥","Followed "+u.name, ()=>setAppFollowing(s=>{const n=new Set(s);n.delete(id);return n;})); },
     joinGroup:   id => { setAppGroups(gs => gs.map(g => g.id===id ? {...g,joined:!g.joined} : g)); const g=GROUPS.find(x=>x.id===id); if(g) addLog("🏘️","Joined "+g.name, ()=>setAppGroups(gs=>gs.map(x=>x.id===id?{...x,joined:false}:x))); },
     markNotifsRead: () => { lcAlertsMarkAll(); addLog("🔔","Marked all notifications read"); },

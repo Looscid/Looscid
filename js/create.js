@@ -1,7 +1,7 @@
 /* Looscid create.js: Create (New Dream), attachments, symbols and Drafts.
    Plain script (not a module). Everything it shares goes on window.Looscid; see FILES.md for the load order. */
 (function (Looscid) {
-const { AlertDialog, Av, BackHeader, CreateGroupFlow, DRAFTS_KEY, Earcon, LC_AUTOSAVE_KEY, LcMenu, ME, Modal, _optionalChain, announce, getDrafts, lcCloseProps, lcSpeechText, lh, recordHabit, useEffect, useState } = Looscid;
+const { AlertDialog, Av, BackHeader, CreateGroupFlow, DRAFTS_KEY, Earcon, LC_AUTOSAVE_KEY, LcMenu, ME, Modal, _optionalChain, announce, getDrafts, lcCloseProps, lcSpeechText, lh, recordHabit, useEffect, useInertBehind, useRef, useState } = Looscid;
 Object.assign(Looscid, { deleteDraftItem, AttachPanel, CreateMenu, DraftsPage, evalInlineCalc, SymbolPicker, lcSendWithUndo, lcPrepImage });
 
 function deleteDraftItem(id) {
@@ -130,8 +130,21 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
     const text = txt.trim(); if (!text) return;
     recordHabit("postDream", text.slice(0,30));
     try { localStorage.removeItem(LC_AUTOSAVE_KEY); } catch (e) {}
+    const opener = openerRef.current;
+    postedRef.current = true;
     setScreen("menu"); onClose();
-    lcSendWithUndo("Dream", function () { if (cherryCtx && cherryCtx.postDream) cherryCtx.postDream(text); }, text);
+    // Round 6.3: once it's dreamed, focus moves to the new Dream in the feed (or back to what opened the composer).
+    lcSendWithUndo("Dream", function () { const id = cherryCtx && cherryCtx.postDream ? cherryCtx.postDream(text) : null; lcFocusAfterPost(id, opener); }, text);
+  };
+  // Round 6.3: the composer is a dialog. Esc closes it, Ctrl+Enter or Command+Enter dreams,
+  // Tab stays inside, and closing without dreaming puts focus back on what opened it.
+  const openerRef = useRef(null), postedRef = useRef(false), boxRef = useRef(null);
+  if (openerRef.current === null) openerRef.current = document.activeElement || false;
+  const closeDream = function () { const o = openerRef.current; onClose(); setTimeout(function () { lcRefocus(o); }, 0); };
+  const onComposerKey = function (e) {
+    if (e.key === "Escape" && !e.defaultPrevented) { e.preventDefault(); e.stopPropagation(); closeDream(); return; }
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && !e.altKey && !e.isComposing) { e.preventDefault(); e.stopPropagation(); tryPost(); return; }
+    lcTrapComposer(e, boxRef.current);
   };
   const tryPost = function () {
     if (!canPost) return;
@@ -153,17 +166,13 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
   if (screen==="group") return React.createElement(CreateGroupFlow, { onClose: onClose, navigate: navigate,});
 
   if (screen==="dream") return (
-    React.createElement('div', { className: "ov", onClick: e=>e.target===e.currentTarget&&onClose(),}
-      , React.createElement('div', { className: "msh", style: {borderRadius:"20px 20px 0 0",maxHeight:"95vh"},}
-        /* Header */
-        , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:8,padding:"14px 16px 10px",borderBottom:"1px solid var(--bd)"},}
-          , React.createElement('button', Object.assign({ type: "button", className: "lc-close", onClick: onClose, style: {marginRight:4} }, lcCloseProps("new Dream")), "Close")
-          , React.createElement('span', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:17,flex:1},}, "New Dream" )
-          , lh(LcMenu, { id: "cr-audience", label: "Audience", hideLabel: true, title: "Who can see this?", prefix: "Audience: ", btnClass: "btn bgb lc-aud-btn", align: "right", value: audience,
-              items: audiences.map(function (a) { return { id: a.id, name: a.l, note: a.sub }; }), onSelect: function (v) { setAudience(v); } })
-          , React.createElement('button', { className: "btn bgb", style: {padding:"7px 10px",fontSize:13}, onClick: ()=>{ if(window._openSymPicker) window._openSymPicker(s=>{setTxt(t=>t+s);}); }, 'aria-label': "Insert symbol", title: "Symbol picker",}, "Ω")
-          , React.createElement('button', { className: "btn bp" , style: {padding:"7px 16px",fontSize:13,marginLeft:4}, onClick: tryPost, disabled: !canPost, 'aria-label': "Dream" ,}, "Dream" )
-        )
+    lh(LcComposerShell, { onClose: closeDream, onKeyDown: onComposerKey, boxRef: boxRef, after: [
+        showAttach&&React.createElement(AttachPanel, { key: "attach", onClose: ()=>setShowAttach(false), onAttach: addAttachment, mode: "dream",}),
+        altAsk && lh(AlertDialog, { key: "alt", title: "Add alt text?", message: "Your photo has no alt text, so people using a screen reader won't know what's in it. Cancel goes back so you can add it.", confirmLabel: "Dream anyway",
+          onCancel: function () { setAltAsk(false); setTimeout(function () { const f = document.querySelector(".lc-photo-att input"); if (f) f.focus(); }, 40); }, onConfirm: function () { setAltAsk(false); doPost(); } })] }
+        /* Header: the dialog's heading */
+        , lh('div', { style: {display:"flex",alignItems:"center",gap:8,padding:"14px 16px 10px",borderBottom:"1px solid var(--bd)"} },
+            lh('h2', { id: "cr-dream-h", style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:17,fontWeight:400,margin:0,flex:1} }, "New Dream"))
 
         , recover && lh('section', { className: "lc-recover", "aria-labelledby": "lc-recover-h" },
             lh('h2', { id: "lc-recover-h", className: "lc-sub-h", tabIndex: -1 }, "Recover draft?"),
@@ -181,6 +190,12 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
               autoFocus: true, 'aria-label': "Dream content" ,})
           )
         )
+
+        /* Audience, with an honest note: nothing leaves this device yet (Round 6.3). */
+        , lh('div', { className: "lc-cr-aud", style: {padding:"0 16px 6px"} },
+            lh(LcMenu, { id: "cr-audience", label: "Audience", hideLabel: true, title: "Who can see this?", prefix: "Audience: ", btnClass: "btn bgb lc-aud-btn", align: "left", value: audience,
+              items: audiences.map(function (a) { return { id: a.id, name: a.l, note: a.sub }; }), onSelect: function (v) { setAudience(v); } }),
+            lh('p', { id: "cr-device-note", className: "lc-desc", style: {margin:"6px 0 0",fontSize:12,color:"var(--tx3)"} }, "For now, Dreams are saved only on this device."))
 
         /* Attachments preview */
         , attachments.length>0 && (
@@ -217,14 +232,6 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
           )
         )
 
-        /* Cherry AI writing assistant */
-        , cherryCtx && (
-          React.createElement('div', { style: {padding:"2px 16px 6px"},}
-            , React.createElement('button', { className: "cherry-compose-btn", onClick: ()=>{onClose();cherryCtx.openCherry("Draft a Dream for me to share");}, 'aria-label': "Ask Cherry to write a Dream"     ,}, "Ask Cherry to write this Dream"
-
-            )
-          )
-        )
         /* Toolbar */
         , React.createElement('div', { style: {display:"flex",gap:2,padding:"8px 12px 4px",borderTop:"1px solid var(--bd)"},}
           , [
@@ -238,17 +245,25 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
           ].map(t=>(
             React.createElement('button', { key: t.l, style: {background:"none",border:"none",cursor:"pointer",padding:"7px 6px",borderRadius:8,display:"flex",flexDirection:"column",alignItems:"center",gap:1,opacity:attachments.find(a=>a.type===t.l.toLowerCase())?1:.6,color:"var(--ac3)"},
               onClick: ()=>setShowAttach(true), 'aria-label': "Add "+t.l,}
-              , React.createElement('span', { style: {fontSize:17},}, t.ic)
-              , React.createElement('span', { style: {fontSize:8,color:"var(--tx3)"},}, t.l)
+              , React.createElement('span', { style: {fontSize:12},}, t.l)
             )
           ))
+          , React.createElement('button', { type: "button", style: {background:"none",border:"none",cursor:"pointer",padding:"7px 6px",borderRadius:8,color:"var(--ac3)",fontSize:12}, onClick: ()=>{ if(window._openSymPicker) window._openSymPicker(s=>{setTxt(t=>t+s);}); }, 'aria-label': "Insert symbol",}, "Ω")
           , React.createElement('div', { style: {flex:1},})
         )
+        /* Cherry AI writing assistant */
+        , cherryCtx && (
+          React.createElement('div', { style: {padding:"2px 16px 6px"},}
+            , React.createElement('button', { className: "cherry-compose-btn", onClick: ()=>{postedRef.current=true;onClose();cherryCtx.openCherry("Draft a Dream for me to share");}, 'aria-label': "Ask Cherry to write a Dream"     ,}, "Ask Cherry to write this Dream"
+
+            )
+          )
+        )
+        /* Dream, then Close (Round 6.3: after the text box and attachments, in reading order). */
+        , lh('div', { style: {display:"flex",justifyContent:"flex-end",gap:8,padding:"10px 16px 6px",borderTop:"1px solid var(--bd)"} },
+            lh('button', { type: "button", id: "cr-dream-btn", className: "btn bp", style: {padding:"8px 18px",fontSize:14}, onClick: tryPost, disabled: !canPost, 'aria-label': "Dream" }, "Dream"),
+            lh('button', Object.assign({ type: "button", className: "lc-close", onClick: closeDream }, lcCloseProps("new Dream")), "Close"))
         , React.createElement('div', { style: {height:"env(safe-area-inset-bottom,8px)"},})
-      )
-      , showAttach&&React.createElement(AttachPanel, { onClose: ()=>setShowAttach(false), onAttach: addAttachment, mode: "dream",})
-      , altAsk && lh(AlertDialog, { title: "Add alt text?", message: "Your photo has no alt text, so people using a screen reader won't know what's in it. Cancel goes back so you can add it.", confirmLabel: "Dream anyway",
-          onCancel: function () { setAltAsk(false); setTimeout(function () { const f = document.querySelector(".lc-photo-att input"); if (f) f.focus(); }, 40); }, onConfirm: function () { setAltAsk(false); doPost(); } })
     )
   );
 
@@ -400,6 +415,38 @@ function SymbolPicker({ onInsert, onClose }) {
   );
 }
 // Undo send (Settings > Customizability > Posting): waits 5 or 10 seconds with an Undo button.
+/* Round 6.3: the New Dream dialog. Everything behind it is inert while it's open (the live region
+   sits outside the app, so announcements still speak). */
+function LcComposerShell(props) {
+  const ovRef = useRef(null);
+  useInertBehind(ovRef);
+  return lh('div', { ref: ovRef, className: "ov", onClick: function (e) { if (e.target === e.currentTarget) props.onClose(); } },
+    lh('div', { ref: props.boxRef, className: "msh", role: "dialog", "aria-modal": "true", "aria-labelledby": "cr-dream-h", onKeyDown: props.onKeyDown, style: {borderRadius:"20px 20px 0 0",maxHeight:"95vh"} }, props.children),
+    props.after);
+}
+function lcTrapComposer(e, box) {
+  if (e.key !== "Tab" || !box) return;
+  const f = Array.from(box.querySelectorAll('textarea:not([disabled]), button:not([disabled]), input:not([disabled]), select:not([disabled]), [href], [tabindex]:not([tabindex="-1"])')).filter(function (x) { return x.offsetParent !== null || x === document.activeElement; });
+  if (!f.length) return;
+  const first = f[0], last = f[f.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+}
+function lcRefocus(opener) {
+  const el = opener && opener.isConnected && opener !== document.body && opener.focus ? opener : document.querySelector(".nb-create");
+  if (el && el.focus) el.focus();
+}
+function lcFocusAfterPost(id, opener) {
+  let n = 0;
+  const go = function () {
+    const sel = '[data-dream-id="' + String(id).replace(/"/g, "") + '"]';
+    const el = id != null ? (document.querySelector("#feed-list " + sel) || document.querySelector(sel)) : null;
+    if (el) { el.focus(); return; }
+    if (++n < 20) { setTimeout(go, 50); return; }
+    lcRefocus(opener);
+  };
+  setTimeout(go, 30);
+}
 function lcSendWithUndo(what, fn, text) {
   const s = +Looscid.A11Y_NOW.undoSend || 0;
   const send = function () { fn(); Earcon.play("send"); announce(what + " dreamed."); };

@@ -2,6 +2,20 @@
 
 Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.109.30 (139): Round 6.3
+
+Released October 10, 2026 at 11:40 AM (Eastern Time, 2026-10-10T15:40:22Z UTC)
+
+A fix update: Dreams are saved on your device, and the composer is easier with a keyboard and VoiceOver.
+
+- Your Dreams stay after a reload. They're saved only on this device for now (the dbm_dreams key), and the composer says so under Audience. Likes, Redreams and bookmarks on them are kept too.
+- The Privacy page lists Dreams among what's saved on this device. Settings backup is unchanged, and old backups import exactly as before.
+- New Dream is a dialog with a "New Dream" heading. The text box comes first, then attachments, then the Dream button, then Close, and Tab stays inside.
+- Control+Enter or Command+Enter dreams it, and Escape closes. Then focus moves to your new Dream, and Looscid says "Dream dreamed." once. Closing without dreaming puts focus back on Create.
+- The attachment buttons say their word once (Photo, not Photo Photo).
+- Docs: NOSTR_ARCHITECTURE.md says Dreamers instead of Dreamors.
+- Same sounds, pitch cues, earcons, Calm mode, flash safety and Reduce Motion.
+
 ## Looscid 2026.109.29 (138): Round 6.2
 
 Released October 10, 2026 at 10:33 AM (Eastern Time, 2026-10-10T14:33:35Z UTC)

@@ -1719,10 +1719,15 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 109; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 29;
+const LOOSCID_FIXES = 30;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.109.29", build: 138, released: LOOSCID_RELEASED, title: "Round 6.2", notes: [
+  { version: "2026.109.30", build: 139, released: LOOSCID_RELEASED, title: "Round 6.3", notes: [
+    "Round 6.3: Dreams are saved on your device, composer order and focus fixes.",
+    "Your Dreams stay after a reload. They're saved only on this device for now, and the composer says so.",
+    "New Dream is a dialog: the text box comes first, then attachments, then Dream and Close. Control+Enter or Command+Enter dreams it, Escape closes, and then focus moves to your new Dream.",
+  ] },
+  { version: "2026.109.29", build: 138, released: "2026-10-10T14:33:35Z", title: "Round 6.2", notes: [
     "A fix update: Looscid has its icon.",
     "Add to Home Screen on iPhone and Android shows the Looscid logo, named Looscid, and the browser tab shows it too.",
   ] },

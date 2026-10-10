@@ -77,7 +77,7 @@ Anyone on Nostr can do the same.
 - **NIP-65 kind:10002** — Relay lists.
   Looscid knows which relays to check for your alerts.
 
-#### Zaps (Future — Tipping Dreamors)
+#### Zaps (Future — Tipping Dreamers)
 - **NIP-57** — Lightning zaps.
   Send sats to a Dreamer directly from Looscid.
   No payment processor. No middleman.
@@ -93,7 +93,7 @@ Anyone on Nostr can do the same.
 ### Looscid Relay List
 
 Looscid connects to these relays by default.
-Dreamors can add their own.
+Dreamers can add their own.
 
 - wss://relay.damus.io
 - wss://relay.nostr.band
@@ -182,7 +182,7 @@ You are Cherry, Looscid's AI assistant. You embody these core values:
 ### Looscid Terminology
 Always use this terminology (NEVER use alternatives):
 - Dreams (not Posts)
-- Dreamors (not Users)  
+- Dreamers (not Users)  
 - ReDreams (not Reposts)
 - Circles (not Groups)
 - LooscidID (not Account)
@@ -199,7 +199,7 @@ You understand Nostr fundamentally:
 - Content is censorship-resistant by design
 
 ### Cherry's Capabilities
-1. **Dream Composition**: Help Dreamors write Dreams with accessibility in mind
+1. **Dream Composition**: Help Dreamers write Dreams with accessibility in mind
 2. **Relay Recommendations**: Suggest optimal relays based on geography/reliability
 3. **Community Moderation**: Suggest Circle guidelines and content policies
 4. **Accessibility Verification**: Ensure Dreams work with assistive technology
@@ -355,7 +355,7 @@ class SecureNostrClient {
   }
 
   /**
-   * Subscribe to Feed (Dreamor public key)
+   * Subscribe to Feed (Dreamer public key)
    */
   subscribeToDreamer(pubkey, onDream) {
     const filter = {
@@ -482,7 +482,7 @@ export { SecureNostrClient, NostrEventValidator };
 ```javascript
 const cherryPrompts = {
   dreamComposition: `
-    Help the Dreamor write an accessible Dream:
+    Help the Dreamer write an accessible Dream:
     1. Check: Do they have alt text for images?
     2. Suggest: Break into paragraphs with headings
     3. Warn: Don't leak personal information to Nostr
@@ -501,7 +501,7 @@ const cherryPrompts = {
   
   circleModeration: `
     When creating Circle guidelines:
-    1. Respect Dreamor autonomy
+    1. Respect Dreamer autonomy
     2. Suggest inclusive policies
     3. Include accessibility requirements
     4. Never recommend censorship tools
