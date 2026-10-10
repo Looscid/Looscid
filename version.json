@@ -1,0 +1,69 @@
+{
+  "app": "Looscid",
+  "branch": "preview",
+  "version": "2026.109.27",
+  "build": 136,
+  "features": 109,
+  "fixes": 27,
+  "builds_without_fixes": 109,
+  "released": "2026-10-10T12:41:40Z",
+  "title": "Round 6",
+  "notes": "Privacy sections, Reset in every settings list, update check, louder sounds, Commandbar, Looscid's own apps.",
+  "branches": {
+    "MainV1": {
+      "version": "2026.70.103",
+      "build": 173,
+      "features": 70,
+      "fixes": 103
+    },
+    "main": {
+      "version": "2026.154.120",
+      "build": 274,
+      "features": 154,
+      "fixes": 120
+    },
+    "main-reset": {
+      "version": "2026.70.103",
+      "build": 173,
+      "features": 70,
+      "fixes": 103
+    },
+    "preview": {
+      "version": "2026.109.27",
+      "build": 136,
+      "features": 109,
+      "fixes": 27
+    },
+    "refactor/discover-extraction": {
+      "version": "2026.95.10",
+      "build": 105,
+      "features": 95,
+      "fixes": 10
+    },
+    "refactor/terminology-rename": {
+      "version": "2026.102.11",
+      "build": 113,
+      "features": 102,
+      "fixes": 11
+    },
+    "refactor/vite-build": {
+      "version": "2026.42.24",
+      "build": 66,
+      "features": 42,
+      "fixes": 24
+    },
+    "rewrite/vanilla-phase-1": {
+      "version": "2026.122.115",
+      "build": 237,
+      "features": 122,
+      "fixes": 115
+    }
+  },
+  "all_branches": {
+    "version": "2026.764.513",
+    "build": 1277,
+    "features": 764,
+    "fixes": 513,
+    "builds_without_fixes": 764
+  }
+}

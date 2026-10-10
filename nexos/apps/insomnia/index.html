@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
     <form id="name-boot" class="name-form" hidden>
       <label for="name-boot-in">What should I call you? <span class="opt">(optional)</span></label>
       <div class="row">
-        <input id="name-boot-in" class="name-in" type="text" maxlength="40" autocomplete="given-name" spellcheck="false" aria-describedby="name-boot-hint">
+        <input id="name-boot-in" class="name-in" type="text" maxlength="40" autocomplete="given-name" spellcheck="false">
         <button class="btn" type="submit">Save</button>
         <button class="btn name-skip" type="button">Skip</button>
       </div>
@@ -107,8 +107,7 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
 <div id="os" class="os" hidden>
   <main id="desktop" class="desktop" aria-label="Insomnia OS desktop">
     <h2 class="sr-only">Desktop</h2>
-    <p id="desk-help" class="sr-only">Desktop icons. Use arrow keys to move between icons and Enter to open. In a window, Escape closes it. The grip button on each title bar moves the window with arrow keys.</p>
-    <div id="desktop-icons" class="icons" role="toolbar" aria-label="Desktop icons" aria-describedby="desk-help" aria-orientation="vertical">
+    <div id="desktop-icons" class="icons" role="toolbar" aria-label="Desktop icons" aria-orientation="vertical">
       <button class="icon" type="button" data-open="win-sound"><span class="glyph" aria-hidden="true">🌧️</span><span class="label">Soundscape.exe</span></button>
       <button class="icon" type="button" data-open="win-sheep" tabindex="-1"><span class="glyph" aria-hidden="true">🐑</span><span class="label">Sheep.exe</span></button>
       <button class="icon" type="button" data-open="win-notes" tabindex="-1"><span class="glyph" aria-hidden="true">📝</span><span class="label">4am Thoughts.txt</span></button>
@@ -198,7 +197,7 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
       </div>
       <div class="wbody">
         <label for="notes" class="notes-label">Write down whatever's keeping you up. It stays on this device.</label>
-        <textarea id="notes" rows="9" spellcheck="true" aria-describedby="notes-status"></textarea>
+        <textarea id="notes" rows="9" spellcheck="true"></textarea>
         <div class="row between">
           <p id="notes-status" class="small">Saved locally <span aria-hidden="true">💾</span> nothing leaves this device</p>
           <div class="row">
@@ -246,7 +245,7 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
     </section>
 
     <!-- Shut down -->
-    <section id="win-shutdown" class="win win-small" role="dialog" aria-modal="false" aria-labelledby="win-shutdown-t" aria-describedby="sd-q" hidden data-x="360" data-y="140">
+    <section id="win-shutdown" class="win win-small" role="dialog" aria-modal="false" aria-labelledby="win-shutdown-t" hidden data-x="360" data-y="140">
       <div class="titlebar">
         <button class="wmove" type="button" aria-label="Move Shut Down window with arrow keys"><span aria-hidden="true">⠿</span></button>
         <h2 id="win-shutdown-t" class="wtitle"><span aria-hidden="true">🛌</span> Shut Down Insomnia OS</h2>

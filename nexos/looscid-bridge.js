@@ -25,7 +25,7 @@
   var d = document.documentElement, S = null;
   d.classList.add("in-looscid");
   function post(m) { try { LW.postMessage(m, location.origin); } catch (e) {} }
-  function level() { return !S ? 1 : (S.sound ? Math.max(0, Math.min(1, (+S.volume || 0) / 40)) : 0); }
+  function level() { return !S ? 1 : (S.sound ? Math.max(0, Math.min(1, (+S.volume || 0) / 50)) : 0); } // round 6: Looscid's default volume is 50
 
   // Sound: one Looscid-controlled gain in front of every AudioContext's speakers.
   var gains = [];

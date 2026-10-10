@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
         <select id="beat-genre"><option value="original">Original</option></select>
       </div>
       <div class="sound-row">
-        <input id="key-sounds" type="checkbox" checked aria-describedby="key-sounds-hint">
+        <input id="key-sounds" type="checkbox" checked>
         <label for="key-sounds">Typing clicks</label>
         <span id="key-sounds-hint" class="hint">Every button already has its own sound. This turns just the key clicks on or off.</span>
       </div>
@@ -121,7 +121,7 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
 
     <form id="cmd-form" class="cmdline" autocomplete="off">
       <label for="cmd" id="prompt-label"><span class="prompt" id="prompt" aria-hidden="true">nexos&gt;</span><span class="sr-only" id="cmd-label-text">Command</span></label>
-      <input id="cmd" name="cmd" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" aria-describedby="cmd-hint">
+      <input id="cmd" name="cmd" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send">
       <button type="submit" class="run">Run</button>
     </form>
     <p id="cmd-hint" class="hint">Enter runs. Up and Down arrows recall earlier commands.</p>
@@ -153,7 +153,7 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
     <div class="view-head"><h2 id="ins-h" tabindex="-1">Insomnia OS</h2><button type="button" class="close" data-close>Close</button></div>
     <p class="src-link"><a href="https://github.com/2three1y/insomnia-os">View source for Insomnia OS on GitHub</a></p>
     <p class="hint" id="ins-hint">The full Insomnia OS, the same as its own site. Escape on its desktop, or Close, brings you back to Home. A soundscape you start keeps playing after you close it, so it can help you fall asleep; open Insomnia OS again to stop it.</p>
-    <iframe id="ins-frame" class="app-frame" title="Insomnia OS" data-src="../apps/insomnia/index.html" aria-describedby="ins-hint"></iframe>
+    <iframe id="ins-frame" class="app-frame" title="Insomnia OS" data-src="../apps/insomnia/index.html"></iframe>
   </section>
 
   <section id="easyconvert-view" class="view ec" aria-labelledby="ec-h" hidden>
@@ -173,7 +173,7 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
     <div class="view-head"><h2 id="memes-h" tabindex="-1">Meme Projects</h2><button type="button" class="close" data-close>Close</button></div>
     <p class="src-link"><a href="https://github.com/2three1y/memeprojects">View source for Meme Projects on GitHub</a></p>
     <p class="hint" id="memes-hint">The Meme Projects chaos tool suite, the same as its own site. Escape, or Close, brings you back to Home.</p>
-    <iframe id="memes-frame" class="app-frame" title="Meme Projects" data-src="../apps/memeprojects/index.html" aria-describedby="memes-hint"></iframe>
+    <iframe id="memes-frame" class="app-frame" title="Meme Projects" data-src="../apps/memeprojects/index.html"></iframe>
   </section>
 
 </main>

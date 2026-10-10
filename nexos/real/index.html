@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
     <form id="send-form" class="cmdrow" autocomplete="off">
       <label for="cmd">Command for NexOS</label>
       <div class="cmdline">
-        <input id="cmd" name="cmd" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" aria-describedby="cmd-help">
+        <input id="cmd" name="cmd" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send">
         <button id="send" type="submit">Send</button>
       </div>
       <p id="cmd-help" class="hint">Press Enter, including Enter on a braille display, to send. Send types your text into NexOS and presses Enter. With live keys on, each key goes straight in, which suits Piano and menus.</p>
@@ -121,7 +121,7 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
     <h2 id="sound-h">Sound</h2>
     <p class="hint" id="sound-note">NexOS beeps through the emulated PC speaker. Browsers only allow sound after you click or press a key on the page.</p>
     <p class="check"><input id="sound" type="checkbox" checked> <label for="sound">Sound on</label></p>
-    <p><label for="vol">Volume</label> <input id="vol" type="range" min="0" max="150" step="5" value="100" aria-describedby="vol-out"> <output id="vol-out" for="vol">100%</output></p>
+    <p><label for="vol">Volume</label> <input id="vol" type="range" min="0" max="150" step="5" value="100"> <output id="vol-out" for="vol">100%</output></p>
   </section>
 
   <section aria-labelledby="screen-h">
