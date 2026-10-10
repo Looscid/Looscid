@@ -1360,6 +1360,10 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
 
       { icon:"GitHub", label:"GitHub",            sub:"Looscid/Looscid",        href:"https://github.com/Looscid/Looscid" },
     ]},
+    // Round 6.5.3: last in More. The other sections keep their order.
+    { id:"commands", emoji:"Commands", label:"Commands", items:[
+      { icon:"Commands", label:"All commands", sub:"Every Commandbar command, each one a button that runs it", action(){onClose();navigate("commands");} },
+    ]},
   ];
 
   return React.createElement('div', {
@@ -2653,13 +2657,13 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    A commit is a fix when its subject matches (?i)^\s*(fix|hotfix|bugfix|chore|typo|revert|patch|docs?|style|refactor|cleanup|tweak|ci)\b
    or has fix, fixes or fixed anywhere; anything else is a feature update. Builds = commits.
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
-   Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update).
+   Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.112.31";
+const LOOSCID_VERSION = "2026.113.31";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 143;
+const LOOSCID_BUILD = 144;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-10T20:15:00Z"; // the Round 6.5.2 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-10T21:10:00Z"; // the Round 6.5.3 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -3515,6 +3519,13 @@ const LC_PLACES = {
   intelligence: { label: "Intelligence settings", page: "settings_intelligence" },
   cherrysettings: { label: "Intelligence, Cherry", page: "settings_ai_cherry" },
   keys: { label: "LooscidID, Keys and IDs", page: "settings_account", data: { tab: "keys" } },
+  // Round 6.5.3: the Cherry page from Commandbar. cmd tells the page what to do; ownFocus: the page puts focus where the command points.
+  cherry: { label: "Cherry", page: "cherry" },
+  cherrynew: { label: "Cherry with a new chat", page: "cherry", data: { cmd: "new" }, ownFocus: true },
+  cherrypinned: { label: "Cherry, Your History, Pinned", page: "cherry", data: { cmd: "pinned" }, ownFocus: true },
+  cherryhistory: { label: "Cherry, Your History, All", page: "cherry", data: { cmd: "all" }, ownFocus: true },
+  // Round 6.5.3: every Commandbar command on one page, each a button that runs it.
+  commands: { label: "Commands", page: "commands" },
 };
 Looscid.LC_PLACES = LC_PLACES;
 // NexOS features: the same labels and descriptions on the More screen and in the main menu.
@@ -3532,7 +3543,18 @@ const LC_EXACT = { "open commandbar": "terminal", "commandbar": "terminal", "ope
   "open credits": "credits", "credits": "credits", "open source": "credits", "licenses": "credits",
   "open vision": "vision", "open hearing": "hearing", "open motion": "motion", "open motion and seizure": "motion", "open motor": "motor", "open motor and switch": "motor", "open terminal settings": "terminalsettings",
   "open nexos apps": "nexosapps", "nexos apps": "nexosapps", "apps": "nexosapps", "open apps": "nexosapps", "coming soon": "comingsoon", "open coming soon": "comingsoon",
-  "open intelligence": "intelligence", "open cherry settings": "cherrysettings", "open keys": "keys", "open keys and ids": "keys" };
+  "open intelligence": "intelligence", "open cherry settings": "cherrysettings", "open keys": "keys", "open keys and ids": "keys",
+  // Round 6.5.3: Cherry. Typed with or without the colon ("Cherry: Pinned chats" is "cherry pinned chats").
+  "open cherry": "cherry", "cherry": "cherry", "go to cherry": "cherry", "ask cherry": "cherry", "open cherry page": "cherry",
+  "new cherry chat": "cherrynew", "cherry new chat": "cherrynew", "new chat with cherry": "cherrynew", "new chat cherry": "cherrynew", "start a cherry chat": "cherrynew", "start a new cherry chat": "cherrynew", "open new cherry chat": "cherrynew",
+  "cherry pinned chats": "cherrypinned", "cherry pinned": "cherrypinned", "open cherry pinned": "cherrypinned", "open cherry pinned chats": "cherrypinned", "pinned cherry chats": "cherrypinned", "cherry pins": "cherrypinned",
+  "cherry history": "cherryhistory", "open cherry history": "cherryhistory", "cherry chat history": "cherryhistory", "cherry all chats": "cherryhistory", "cherry chats": "cherryhistory", "cherry your history": "cherryhistory", "cherry all": "cherryhistory",
+  "pinned chats": "cherrypinned", "pinned cherry": "cherrypinned",
+  "commands": "commands", "open commands": "commands", "commands page": "commands", "open commands page": "commands", "all commands": "commands", "command list": "commands", "open command list": "commands", "list commands": "commands", "help page": "commands", "open help": "commands" };
+// Round 6.5.3: spaces are optional, terminal style: "opencherry", "cherrychats", "pinnedchats", "openfeed".
+const LC_EXACT_SQ = {};
+Object.keys(LC_EXACT).forEach(function (k) { const q = k.replace(/ /g, ""); if (!(q in LC_EXACT_SQ)) LC_EXACT_SQ[q] = LC_EXACT[k]; });
+Looscid.LC_EXACT_SQ = LC_EXACT_SQ;
 Looscid.LC_EXACT = LC_EXACT;
 const LC_PLACE_WORDS = [
   ["braille", ["braille", "braille settings", "button style", "button labels", "button labeling", "braille labels", "custom label"]],
@@ -3563,6 +3585,13 @@ const LC_PLACE_WORDS = [
   ["labs", ["labs", "looscid labs", "early access"]],
   ["profile", ["profile", "my profile"]],
   ["settings", ["settings", "setting", "preferences", "options"]],
+  // Round 6.5.3: Cherry. The longest match wins, so "cherry settings" still goes to Settings and "cherry pinned" to Pinned.
+  ["cherrysettings", ["cherry settings", "cherry model"]],
+  ["cherrypinned", ["cherry pinned", "pinned chats", "pinned chat", "cherry pins"]],
+  ["cherryhistory", ["cherry history", "cherry chats", "chat history", "your history", "cherry all chats"]],
+  ["cherrynew", ["new cherry chat", "cherry new chat", "new chat with cherry"]],
+  ["cherry", ["cherry"]],
+  ["commands", ["commands", "command list", "all commands", "list of commands"]],
 ];
 Looscid.LC_PLACE_WORDS = LC_PLACE_WORDS;
 const LC_COMMANDS = [
@@ -3590,6 +3619,9 @@ const LC_COMMANDS = [
   ["who can reply", "everyone, people I follow, friends or nobody; also who can mention me, who can message me, who can redream, who can quote, who can tag me, who can follow me, who can see my dreams"],
   ["reset", "reset and a section, like reset audio, reset speech or reset permissions"], ["export settings", "download all settings as one file"], ["import settings", "open Settings backup to import a file"],
   ["shortcuts", "your own keyboard shortcuts"], ["read this dream", "read the Dream you're on aloud"],
+  ["open cherry", "Cherry, your on-device assistant"], ["new cherry chat", "open Cherry with a new chat, focus in the message box"],
+  ["cherry pinned chats", "Cherry, Your History, the Pinned tab"], ["cherry history", "Cherry, Your History, the All tab with every chat"],
+  ["commands", "the Commands page: every command, each one a button that runs it"],
 ];
 Looscid.LC_COMMANDS = LC_COMMANDS;
 function lcNorm(s) { return String(s || "").toLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim(); }
@@ -3625,6 +3657,29 @@ function lcExtraIntent(raw) {
   return null;
 }
 Looscid.LC_NAV = null; // set by App: navigate
+/* Round 6.5.3: places by name, the same way everywhere: exact words, then without spaces, then the closest match.
+   Returns { id, exact } or null. */
+function lcResolvePlace(q) {
+  const n = lcNorm(q); if (!n) return null;
+  const sq = n.replace(/ /g, "");
+  const hit = LC_EXACT[n] || LC_EXACT["open " + n] || LC_EXACT_SQ[sq] || LC_EXACT_SQ["open" + sq];
+  if (hit) return { id: hit, exact: true };
+  const p = lcClosestPlace(n);
+  return p ? { id: p, exact: false } : null;
+}
+/* Round 6.5.3: path style, "<scope> > <target>". "fil > Cherry pinned" (fil, filter or nothing before the >)
+   finds the target; "Cherry > Pinned" reads as "Cherry Pinned". Returns { id, prefix }, { err } or null. */
+function lcPathIntent(raw) {
+  const t = String(raw || "");
+  if (t.indexOf(">") < 0) return null;
+  const parts = t.split(">").map(function (x) { return lcNorm(x); });
+  const scoped = /^(fil|filt|filter|path|go|open)?$/.test(parts[0]);
+  const q = (scoped ? parts.slice(1) : parts).filter(Boolean).join(" ");
+  if (!q) return scoped ? { err: "Type what to open after the >, like fil > Cherry pinned." } : null;
+  const r = lcResolvePlace(q);
+  if (r) return { id: r.id, prefix: r.exact ? "" : "Closest match: " + LC_PLACES[r.id].label + ". " };
+  return scoped ? { err: "Nothing matches \u201c" + q + "\u201d. Type commands to see every command." } : null;
+}
 function lcRun(raw, api) {
   const text = String(raw || "").trim();
   const out = { lines: [], earcon: "run" };
@@ -3634,14 +3689,29 @@ function lcRun(raw, api) {
   const n = text === "?" ? "help" : lcNorm(text);
   const w = n.split(" ")[0], arg = n.split(" ").slice(1).join(" ");
   const a = Looscid.A11Y_NOW;
-  const goTo = function (id, prefix) { out.go = id; L((prefix || "") + "Opened " + LC_PLACES[id].label + ".", "ok"); out.earcon = null; return out; };
+  const goTo = function (id, prefix) {
+    // Round 6.5.3: the Cherry commands. Cherry off: open Intelligence, Cherry, where it is turned on, and say so.
+    if (LC_PLACES[id].page === "cherry") {
+      if (!lcAiOn()) { out.go = "cherrysettings"; L((prefix || "") + "Cherry is off. Opened Intelligence, Cherry, where you can turn it on.", "ok"); out.earcon = null; return out; }
+      const cmd = LC_PLACES[id].data && LC_PLACES[id].data.cmd;
+      if (cmd === "pinned" || cmd === "all") {
+        const cs = Looscid.lcCherryChats ? Looscid.lcCherryChats() : [], k = cmd === "pinned" ? cs.filter(function (c) { return c.pinned; }).length : cs.length;
+        out.go = id; L((prefix || "") + "Opened " + LC_PLACES[id].label + ", " + k + (cmd === "pinned" ? (k === 1 ? " pinned chat." : " pinned chats.") : (k === 1 ? " chat." : " chats.")), "ok"); out.earcon = null; return out;
+      }
+    }
+    out.go = id; L((prefix || "") + "Opened " + LC_PLACES[id].label + ".", "ok"); out.earcon = null; return out;
+  };
 
   if (LC_EXACT[n]) return goTo(LC_EXACT[n]);
+  // Round 6.5.3: path style (fil > Cherry pinned), and spaces optional (opencherry, pinnedchats).
+  const pth = lcPathIntent(text);
+  if (pth) { if (pth.err) return err(pth.err); return goTo(pth.id, pth.prefix); }
+  if (n.indexOf(" ") < 0 && LC_EXACT_SQ[n]) return goTo(LC_EXACT_SQ[n]);
   switch (n) {
-    case "help": case "commands":
+    case "help":
       L("Commands:", "hi"); LC_COMMANDS.forEach(function (c) { L(c[0] + ": " + c[1]); });
-      L("Anything else goes to Cherry, the Looscid assistant. Ctrl+K or Cmd+K opens Commandbar anywhere.", "info");
-      out.say = "Commands: " + LC_COMMANDS.map(function (c) { return c[0]; }).join(", ") + ". Anything else goes to Cherry.";
+      L("Anything else goes to Cherry, the Looscid assistant. Ctrl+K or Cmd+K opens Commandbar anywhere. Type commands for the Commands page, where every command is a button.", "info");
+      out.say = "Commands: " + LC_COMMANDS.map(function (c) { return c[0]; }).join(", ") + ". Anything else goes to Cherry. Type commands for the Commands page.";
       out.earcon = "help"; return out;
     case "terminal": return goTo("terminal");
     case "status": case "health": {
@@ -3776,7 +3846,7 @@ function LcCmdLog({ entries, headings, idp }) {
   });
 }
 function CommandBar({ onClose, exec, onFull }) {
-  const [val, setVal] = useState("");
+  const [val, setVal] = useState(function () { const v = Looscid.LC_CMD_PREFILL || ""; Looscid.LC_CMD_PREFILL = null; return v; });
   const log = useCmdLog();
   const inRef = useRef(null), boxRef = useRef(null), outRef = useRef(null);
   const hist = useCmdHistory(setVal);
@@ -4324,6 +4394,7 @@ useEffect(() => {
   const [appGroups, setAppGroups] = useState(GROUPS);                                     // joined state
   const [appNotifs, setAppNotifs] = useState(NOTIFS_INIT);
   const cherryBack = useRef(null);                              // Round 6.5.2: where Back on the Cherry page goes
+  const commandsBack = useRef(null);                            // Round 6.5.3: where Back on the Commands page goes
   // Round 6.5: the composer in Reply or Quote mode, opened from anywhere with lcCompose().
   const [composeReq, setComposeReq] = useState(null);
   useEffect(function () { const f = function (e) { setComposeReq(Object.assign({ n: Date.now() }, (e && e.detail) || {})); }; window.addEventListener("looscid-compose", f); return function () { window.removeEventListener("looscid-compose", f); }; }, []);
@@ -4383,6 +4454,8 @@ useEffect(() => {
     if (target === "login" || target === "signup") { setPage("settings_account"); setPdata(null); return; }
     // Round 6.5.2: Cherry is a page. Back returns to where you opened it (the More menu reopens on Open Cherry).
     if (target === "cherry" && cur !== "cherry") cherryBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
+    // Round 6.5.3: the Commands page works the same way (the More menu reopens on Commands).
+    if (target === "commands" && cur !== "commands") commandsBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
     if (target === "intro") { setShowWelcome(true); return; }
     setPage(target); setPdata(data);
   }, []);
@@ -4401,9 +4474,19 @@ useEffect(() => {
     if (b.menu) { setMenuInit({ open: "cherry", focus: "Open Cherry", n: Date.now() }); setShowMenu(true); }
     else focusMainHeading();
   };
+  // Round 6.5.3: Back (or Close) on the Commands page.
+  const commandsGoBack = () => {
+    const b = commandsBack.current || { page: "feed", data: null, menu: false }; commandsBack.current = null;
+    const to = b.page && b.page !== "commands" ? b.page : "feed";
+    setPage(to); setPdata(b.data || null);
+    if (b.menu) { setMenuInit({ open: "commands", focus: "All commands", n: Date.now() }); setShowMenu(true); }
+    else focusMainHeading();
+  };
   const setA11yPatch = patch => { Looscid.A11Y_NOW = Object.assign({}, Looscid.A11Y_NOW, patch); setPrefs(p => Object.assign({}, p, { accessibility: Object.assign({}, A11Y_DEFAULTS, p.accessibility || {}, patch) })); };
-  const openCmd = () => {
+  const openCmd = (prefill) => {
     if (showWelcome) return;
+    // Round 6.5.3: the Commands page can open Commandbar with a command typed in, ready for its word.
+    Looscid.LC_CMD_PREFILL = typeof prefill === "string" ? prefill : null;
     const inp = document.getElementById("lc-cmd-input"); if (inp) { inp.focus(); return; }
     cmdReturn.current = document.activeElement; setCmdOpen(true);
   };
@@ -4443,8 +4526,9 @@ useEffect(() => {
         if (!ta || ta === areaOfPage(page)) Earcon.play("run");
         if (where === "bar") { setCmdOpen(false); cmdReturn.current = null; }
         if (target === "terminal") termBack.current = page;
-        if (pl.root) goRoot(pl.root); else navigate(pl.page, pl.data || null);
-        if (target !== "terminal" && target !== "settings") focusMainHeading();
+        // Round 6.5.3: a Cherry command gets a fresh n each time, so running it again on the Cherry page works again.
+        if (pl.root) goRoot(pl.root); else navigate(pl.page, pl.data && pl.data.cmd ? Object.assign({}, pl.data, { n: Date.now() }) : (pl.data || null));
+        if (target !== "terminal" && target !== "settings" && !pl.ownFocus) focusMainHeading();
         announce(say + (lcHints() && target !== "terminal" ? " Press Control K or Command K for commands." : ""));
         return Object.assign({}, r, { closed: true });
       }
@@ -4624,6 +4708,7 @@ useEffect(() => {
       privacy: "Privacy",
       guidelines: "Community rules",
       cherry: "Cherry",
+      commands: "Commands",
       groups: "Circles",
       music: "Music",
       terminal: "Commandbar",
@@ -4676,6 +4761,7 @@ useEffect(() => {
       case "feedback":                return React.createElement(Looscid.FeedbackPage, { navigate: navigate,});
       case "drafts":        return React.createElement(Looscid.DraftsPage, { navigate: navigate, onLoadDraft: d=>{ setShowCreate(true); },});
       case "cherry":        return React.createElement(Looscid.CherryPage, { navigate: navigate, cherryCtx: cherryCtx, data: pdata, onBack: cherryGoBack,});
+      case "commands":      return Looscid.CommandsPage ? React.createElement(Looscid.CommandsPage, { exec: execCommand, onBack: commandsGoBack,}) : null;
       case "more":          return React.createElement(Looscid.MorePage, { navigate: navigate, cherryCtx: cherryCtx, authUser: authUser,});
       case "hour_story":    return React.createElement(Looscid.HourStoryPage, { navigate: navigate, back: pdata||"more",});
       case "terms":         return React.createElement(Looscid.PolicyPage, { title: "Terms", content: TERMS_CONTENT, navigate: navigate, back: "settings",});

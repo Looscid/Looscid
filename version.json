@@ -1,14 +1,14 @@
 {
   "app": "Looscid",
   "branch": "preview",
-  "version": "2026.112.31",
-  "build": 143,
-  "features": 112,
+  "version": "2026.113.31",
+  "build": 144,
+  "features": 113,
   "fixes": 31,
-  "builds_without_fixes": 112,
-  "released": "2026-10-10T20:15:00Z",
-  "title": "Round 6.5.2",
-  "notes": "Cherry gets its own page. Open Cherry from More and it's a page, not a pop-up, with New Chat at the top and Your History (All and Pinned). Your chats stay on your device and are in Settings backup. A feature update.",
+  "builds_without_fixes": 113,
+  "released": "2026-10-10T21:10:00Z",
+  "title": "Round 6.5.3",
+  "notes": "Cherry in Commandbar and a Commands page: open cherry, new cherry chat, cherry pinned chats and cherry history, spaces optional (pinnedchats) and path style (fil > Cherry pinned). The Commands page lists every command as a button. A feature update.",
   "branches": {
     "MainV1": {
       "version": "2026.70.103",
@@ -29,9 +29,9 @@
       "fixes": 103
     },
     "preview": {
-      "version": "2026.112.31",
-      "build": 143,
-      "features": 112,
+      "version": "2026.113.31",
+      "build": 144,
+      "features": 113,
       "fixes": 31
     },
     "refactor/discover-extraction": {

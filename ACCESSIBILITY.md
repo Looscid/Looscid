@@ -649,3 +649,13 @@ Cherry is a page, not a dialog. It is built screen-reader first: the page is a s
 - Pin and Unpin are buttons named with the chat's title ("Pin What is Looscid?"), so the list makes sense when you move by buttons.
 - No aria-describedby, aria-description or title anywhere on the page. Explanations are plain paragraphs under their headings.
 - No animation on the page, so Reduce Motion and flash safety have nothing to stop.
+
+### Cherry in Commandbar, and the Commands page (Round 6.5.3)
+
+- Commands: open cherry, new cherry chat, cherry pinned chats and cherry history ("Cherry: Pinned chats" and "Cherry: History" work as typed; capitals and punctuation are ignored). Spaces are optional (opencherry, cherrychats, pinnedchats), and path style works: fil > Cherry pinned.
+- Commandbar says what opened, once, in #looscid-live ("Opened Cherry, Your History, Pinned, 2 pinned chats."). The Cherry page adds no second announcement.
+- Focus moves because you ran the command: open cherry to the "Cherry" heading, new cherry chat to the message box, cherry pinned chats to the Pinned tab and cherry history to the All tab.
+- With Cherry off, the commands open Settings, Intelligence, Cherry and say "Cherry is off."
+- The Commands page (commands, or More, Commands, All commands): Back, the heading "Commands" (h1, focus lands here), Close Commands (braille label "Close"), two plain paragraphs, then one h2 per area with a list. Each list item is a real button named by the command itself ("open feed"), followed by a plain paragraph saying what it does and, when there are any, a paragraph with the other ways to type it.
+- Pressing a command runs it exactly as Commandbar would: the result is said once in #looscid-live and focus stays on the button, unless the command opens a page (then that page's heading, or what the command points at, gets focus). A command that needs a word opens Commandbar with the command typed in and focus in the text box; Escape returns focus to the button.
+- No aria-describedby, aria-description or title on the page, and no animation.

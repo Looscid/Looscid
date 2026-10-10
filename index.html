@@ -40,7 +40,7 @@
 <div id="lc-cue" aria-hidden="true"></div><div id="lc-caption" aria-hidden="true"></div>
 <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
-<!-- Load order: React, then core, then nostr (small; its crypto loads only when used), then one file per tab, then Cherry, then the mount below (see FILES.md) -->
+<!-- Load order: React, then core, then nostr (small; its crypto loads only when used), then one file per tab, then Cherry, then the Commands page, then the mount below (see FILES.md) -->
 <script src="js/core.js"></script>
 <script src="js/nostr.js"></script>
 <script src="js/discover.js"></script>
@@ -50,6 +50,7 @@
 <script src="js/alerts.js"></script>
 <script src="js/more.js"></script>
 <script src="js/cherry.js"></script>
+<script src="js/commands.js"></script>
 <script>
 /* Mount: core and every tab file are loaded, so start the app. */
 ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(Looscid.ErrorBoundary, null, React.createElement(Looscid.App, null)));

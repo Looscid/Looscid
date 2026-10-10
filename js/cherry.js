@@ -49,7 +49,7 @@ const LC_CHERRY_CHIPS = ["Summarise my feed", "What's trending?", "Draft a Dream
 
 /* The page's state lives here while the app runs, so leaving Cherry (to Settings, say) and coming back
    keeps the chat you were in. A reload starts a new chat; your earlier chats are in Your History. */
-const LC_CHERRY = { cur: null, tab: "all", busy: false, undone: {}, askN: null };
+const LC_CHERRY = { cur: null, tab: "all", busy: false, undone: {}, askN: null, cmdN: null };
 function lcCherryNewChat() { return { id: "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), title: "New chat", created: Date.now(), updated: Date.now(), pinned: false, msgs: [] }; }
 
 function cherryView(st, p, act) {
@@ -145,7 +145,7 @@ function cherryView(st, p, act) {
         : h('p', { className: "lc-muted" }, "Nothing yet. Everything Cherry does for you is listed here, and most of it can be undone.")));
 }
 
-/* The Cherry page. props: navigate, cherryCtx, data ({ ask, n } from "Ask Cherry about this"), onBack. */
+/* The Cherry page. props: navigate, cherryCtx, data ({ ask, n } from "Ask Cherry about this", or { cmd, n } from a Commandbar command), onBack. */
 const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
   let p = props, alive = true;
   const st = { inp: "" };
@@ -249,11 +249,31 @@ const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
     }
     return false;
   };
+  // Round 6.5.3: Commandbar commands. "new cherry chat" starts a new chat (focus in the message box);
+  // "cherry pinned chats" and "cherry history" select Pinned or All (focus on that tab). Commandbar says what opened,
+  // once, in #looscid-live, so the page adds no announcement of its own. Returns the id to focus, or null.
+  const takeCmd = function () {
+    const d = p.data;
+    if (!d || !d.cmd || d.n === LC_CHERRY.cmdN) return null;
+    LC_CHERRY.cmdN = d.n;
+    if (d.cmd === "new") {
+      saveCur(); if (LC_CHERRY.cur.msgs.length) LC_CHERRY.cur = lcCherryNewChat(); st.inp = "";
+      draw(); return "cherry-input";
+    }
+    if (d.cmd === "pinned" || d.cmd === "all") { LC_CHERRY.tab = d.cmd; draw(); return "cherry-tab-" + d.cmd; }
+    return null;
+  };
+  const focusId = function (id) { const el = document.getElementById(id); if (el) el.focus(); };
   draw();
   takeAsk();
-  // You opened Cherry: focus goes to its heading, the same as every other page.
-  setTimeout(function () { if (!alive) return; const hd = host.querySelector("h1"); if (hd && !host.contains(document.activeElement)) hd.focus(); }, 60);
-  return { update: function (np) { p = np; if (!takeAsk()) draw(); }, stop: function () { alive = false; saveCur(); } };
+  const firstFocus = takeCmd();
+  // You opened Cherry: focus goes to its heading, the same as every other page (or where the command points).
+  setTimeout(function () {
+    if (!alive) return;
+    if (firstFocus) { focusId(firstFocus); return; }
+    const hd = host.querySelector("h1"); if (hd && !host.contains(document.activeElement)) hd.focus();
+  }, 60);
+  return { update: function (np) { p = np; const f = takeCmd(); if (f) { setTimeout(function () { if (alive) focusId(f); }, 60); return; } if (!takeAsk()) draw(); }, stop: function () { alive = false; saveCur(); } };
 });
 
 Object.assign(Looscid, { CherryPage, LC_CHERRY, LC_CHERRY_CHATS_KEY, lcCherryChats, lcCherrySaveChats, lcLlmPrefs, lcLlmSetPrefs, lcLlmGpu, lcLlmLoad, lcLlmAsk, CherryModelPicker, SourcesPanel, cherryNorm, cherryRespond });

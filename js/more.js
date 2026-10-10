@@ -1885,12 +1885,18 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 112; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 113; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 31;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.112.31", build: 143, released: LOOSCID_RELEASED, title: "Round 6.5.2", notes: [
+  { version: "2026.113.31", build: 144, released: LOOSCID_RELEASED, title: "Round 6.5.3", notes: [
+    "Round 6.5.3: Cherry in Commandbar, and a Commands page.",
+    "New Commandbar commands: open cherry, new cherry chat, cherry pinned chats and cherry history. Capitals and colons don't matter, so Cherry: Pinned chats works too. New cherry chat puts focus in the message box; the Pinned and All commands put focus on that tab and say how many chats are there.",
+    "Spaces are optional: opencherry, cherrychats and pinnedchats work. Path style too: fil > Cherry pinned.",
+    "The Commands page lists every command by area, each a button that runs it. Open it with commands, or from More, Commands, the new last section.",
+  ] },
+  { version: "2026.112.31", build: 143, released: "2026-10-10T20:15:00Z", title: "Round 6.5.2", notes: [
     "Round 6.5.2: Cherry gets its own page.",
     "Cherry is a page now, not a pop-up: open it from More, the Home button or Ask Cherry, and Back takes you to where you were. New Chat is at the top.",
     "Your History lists your chats with Cherry, with All and Pinned tabs. Pin a chat to keep it handy. Chats are saved on this device and are in Settings backup.",

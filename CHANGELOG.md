@@ -2,6 +2,26 @@
 
 Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.113.31 (144): Round 6.5.3
+
+Released October 10, 2026 at 5:10 PM (Eastern Time, 2026-10-10T21:10:00Z UTC)
+
+A feature update, asked for by Alhasan: Cherry in Commandbar, shortcuts without spaces, path style, and a Commands page.
+
+- Four new Commandbar commands: open cherry, new cherry chat, cherry pinned chats and cherry history. Capitals, colons and extra spaces don't matter, so "Cherry: Pinned chats" and "Cherry: History" work as typed. Close words work too, like "go to cherry pinned" or "show cherry chats".
+- open cherry opens the Cherry page, with focus on its heading like every other page.
+- new cherry chat opens Cherry with a new, empty chat and puts focus in the message box. Your last chat stays in Your History.
+- cherry pinned chats opens Your History on the Pinned tab, and cherry history on the All tab. Focus goes to that tab, and Commandbar says how many chats are there ("Opened Cherry, Your History, Pinned, 2 pinned chats.").
+- Spaces are optional, terminal style: opencherry, cherrychats (All) and pinnedchats (Pinned) work, and so does every other "open" word without its spaces, like openfeed.
+- Path style: fil > Cherry pinned opens Cherry's Pinned chats. fil or filter before the > means "find this"; Cherry > Pinned works too. If nothing matches, Commandbar says so and stays where you are.
+- The Commands page lists every Commandbar command, grouped by area (Go to a place, Cherry, Commandbar, Feeds and Dreams, Screen reader and braille, Sounds and music, Settings), each with what it does and the other ways to type it. Every command is a real button: press it and it runs, exactly as if you typed it. A command that needs a word, like a feed's name, opens Commandbar with the command typed in, ready for the word.
+- Open it with the commands command, or from More: Commands is the new last section, with All commands inside. The other sections keep their order. The page has Back and Close Commands (braille: "Close"); both return to where you opened it, and from More the menu opens again on All commands.
+- help still reads the list of commands, and now ends with "Type commands for the Commands page."
+- Each command is said once, in the one live region (#looscid-live). Focus only moves because you ran a command or pressed a button.
+- If Cherry is off, the Cherry commands open Settings, Intelligence, Cherry, where you can turn it on, and say so.
+- New file js/commands.js, loaded after js/cherry.js (FILES.md has the order).
+- Unchanged: the Cherry page, the rest of More, the backup format, sounds, pitch cues, earcons, Calm mode, flash safety and Reduce Motion.
+
 ## Looscid 2026.112.31 (143): Round 6.5.2
 
 Released October 10, 2026 at 4:15 PM (Eastern Time, 2026-10-10T20:15:00Z UTC)
