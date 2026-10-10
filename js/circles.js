@@ -22,7 +22,7 @@ function CreateGroupFlow({onClose, navigate}) {
             , React.createElement('div', { className: "mtt", style: {margin:0},}, "Circle Rules" )
             , React.createElement('span', { style: {marginLeft:"auto",fontSize:11,color:"var(--tx3)"},}, "Step 3/3" )
           )
-          , React.createElement('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6,marginBottom:14},}, "Rules help your community stay healthy. Dreamers agree to these when joining."           )
+          , React.createElement('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6,marginBottom:14},}, "Rules help your community stay healthy. Dreamors agree to these when joining."           )
           , form.rules.map((rule,i)=>(
             React.createElement('div', { key: i, style: {display:"flex",gap:8,marginBottom:8,alignItems:"center"},}
               , React.createElement('div', { style: {width:22,height:22,borderRadius:"50%",background:"var(--ac)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#fff",fontWeight:700,flexShrink:0},}, i+1)
@@ -56,7 +56,7 @@ function CreateGroupFlow({onClose, navigate}) {
             )
           ))
           , React.createElement('h2', { className: "slbl", style: {padding:"12px 0 8px"}, role: "heading", 'aria-level': "2",}, "Moderation")
-          , [{k:"joinApproval",l:"Approve new Dreamers",d:"Review and approve each join request"},{k:"postApproval",l:"Approve Dreams",d:"Dreams require admin approval before publishing"},{k:"minAge",l:"18+ only",d:"Restrict group to adult Dreamers"}].map(r=>(
+          , [{k:"joinApproval",l:"Approve new Dreamors",d:"Review and approve each join request"},{k:"postApproval",l:"Approve Dreams",d:"Dreams require admin approval before publishing"},{k:"minAge",l:"18+ only",d:"Restrict group to adult Dreamors"}].map(r=>(
             React.createElement('div', { key: r.k, className: "sr",}
               , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, r.l), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3},}, r.d))
               , React.createElement(Cbx, { on: form[r.k], onToggle: ()=>set(r.k,!form[r.k]), label: r.l,})
@@ -302,7 +302,7 @@ function GroupAdminModal({group, onClose}) {
                 )
               ))
             )
-            , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "All Dreamers ("  , USERS.length, ")")
+            , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "All Dreamors ("  , USERS.length, ")")
             , USERS.map(u=>(
               React.createElement('div', { key: u.id, style: {display:"flex",gap:10,padding:"10px 16px",borderBottom:"1px solid var(--bd)",alignItems:"center"},}
                 , React.createElement(Av, { user: u, size: 36,})
@@ -384,7 +384,7 @@ function GroupsPage({navigate, cherryCtx}) {
             , React.createElement('div', { style: {display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8},}
               , React.createElement('div', null
                 , React.createElement('div', { className: "gnm",}, g.name, g.joined&&g.id===1&&React.createElement('span', { style: {marginLeft:6,fontSize:9,background:"rgba(245,158,11,.2)",color:"#f59e0b",padding:"1px 5px",borderRadius:4,fontWeight:700},}, "★ ADMIN" ))
-                , React.createElement('div', { className: "gmt",}, g.members.toLocaleString(), " Dreamers, "   , g.category)
+                , React.createElement('div', { className: "gmt",}, g.members.toLocaleString(), " Dreamors, "   , g.category)
               )
               , g.joined&&React.createElement('button', { className: "btn bgb" , style: {fontSize:11,padding:"5px 10px",flexShrink:0}, onClick: e=>{e.stopPropagation();tj(g.id);}, 'aria-label': "Leave "+g.name,}, "Joined ✓" )
               , !g.joined&&React.createElement('button', { className: "btn bp" , style: {fontSize:11,padding:"5px 10px",flexShrink:0}, onClick: e=>{e.stopPropagation();tj(g.id);}, 'aria-label': "Join "+g.name,}, "Join")

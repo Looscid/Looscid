@@ -2,7 +2,7 @@
 
 ## 1. Be Kind
 
-Treat all Dreamers with respect. Harassment, bullying or targeted hate speech is not permitted on Looscid.
+Treat all Dreamors with respect. Harassment, bullying or targeted hate speech is not permitted on Looscid.
 
 ## 2. Authentic Dreams
 

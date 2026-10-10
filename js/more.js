@@ -2,11 +2,11 @@
    Plain script (not a module). Everything it shares goes on window.Looscid; see FILES.md for the load order. */
 (function (Looscid) {
 const { A11Y_DEFAULTS, A11Y_KEY, A11ySwitch, AlertDialog, Av, BackHeader, Cbx, CommentView, DREAMS_INIT, DreamCard, Earcon, GROUPS, ID_PROVIDERS, Ic, LC_A11Y_CATS, LC_A11Y_PAGE, LC_ALERT_PREFS_KEY, LC_ALERT_TYPES, LC_AUDIO_CATS, LC_BOOT, LC_BR_BUILTIN, LC_BR_MAX, LC_BUILTIN_KEYS, LC_EXPORT_KEYS, LC_FEED_MODES, LC_FIND_KEY, LC_MSG_CATS, LC_NEXOS_APPS, LC_NEXOS_SHELL, LC_SECTIONS, LC_SET, LC_SETTINGS_KEY, LC_SET_BY, LC_SR_NAMES_DEF, LC_UPDATE_AUTO_KEY, LID_NOSTR_SK_KEY, LOOSCID_BUILD, LOOSCID_RELEASED, LOOSCID_SLOGAN, LOOSCID_VERSION, LcCmdLog, LcFindMeSwitch, LcMenu, LcSpeech, ME, MUSIC_GENRES, MenuPopupButton, Music, PROVIDER_NAMES, SecretField, TRENDING, USERS, announce, getAIPrefs, getActivity, getDrafts, getIdentity, getLocalProfile, getMethods, getTopics, hexToBytes, lcAiOn, lcAlertCats, lcAlertPrefs, lcAlerts, lcAlertsMarkAll, lcAppItems, lcAudCustom, lcBlocked, lcBlockedSet, lcBrCreate, lcBrDate, lcBrDelete, lcBrForget, lcBrList, lcBrNotice, lcBrRename, lcBrSelect, lcBrStamp, lcBrUndo, lcBrUsePast, lcBrowserName, lcCatState, lcCheckUpdate, lcCloseProps, lcDownloadSettings, lcFeedMode, lcHandle, lcHapticsSupported, lcHints, lcIdbDo, lcKeyName, lcLoadCustomPack, lcNexosSend, lcOpenReset, lcPitchCue, lcQuietNow, lcReleasedText, lcSectionTitle, lcSet, lcSpoken, lcSrName, lcStorageKB, lcTranslateOk, lcUpdateAuto, lcValueText, lcVerb, lcVersionLabel, lcWords, lh, logActivity, removeMethod, sanitizeInput, setAIPrefs, shortNpub, systemReducedMotion, updateLocalProfile, useA11yNow, useCats, useCmdHistory, useCmdLog, useDreams, useEffect, useEnterSubmit, useKeyboardInset, useOAuthReturn, useRef, useState } = Looscid;
-Object.assign(Looscid, { CreditsPage, ProfileView, ProfilePage, DreamerProfilePage, AccountSettings, LcAudience, lcCatSave, LcCatCustomize, MessageSettings, NotificationsSettings, PrivacySettings, LcResetLast, LcTabs, LcBlockedPanel, LcPrivacyMedia, FeedSwitchSetting, LcCatMenu, LcCatPage, CustomizabilitySettings, lcSetAiPref, IntelligenceSettings, lcMenuList, lcSubLine, AccessibilitySettings, A11yCategory, AboutSettings, MorePage, MoreAppsGroup, FeedbackPage, AdminPanel, AdminUsers, AdminContent, AdminReports, AdminAnalytics, AdminPlatform, AdminAnnouncements, PolicyPage, HourStoryPage, normalizeUrl, fieldValueText, ProfileInfoList, ChangeInfoScreen, useProfileEditor, lcJoin, methodLabel, getStoredNostrSk, ComingSoonPanel, LoginMethods, lcGetIds, lcSaveIds, lcBech32Polymod, lcDecodeBech32Key, lcCheckId, lcVerifyId, LcKeysPanel, lcIdLabel, lidWhen, thisDeviceLabel, localDataSummary, exportLocalData, deleteLocalData, LooscidIDManager, lcUnzip, lcCheckPackFiles, lcAutoMap, lcUpdateAutoSet, lcPitchPreview, MusicPage, lcAudCustomSet, useBlocked, lcAlertPrefsSet, termOutputOpen, setTermOutputOpen, lcOsName, lcAboutInfo, AboutLooscidMore, TerminalPage, LabsSettings, lcAppGet, lcAppPut, LcAppRange, AppsSettings, NexosAppsPage, NexosAppFrame, lcLinkedProviders, LcSetRow, LcWordsRow, LcVoiceRow, LcResetBtn, LcSection, BrailleStyle, LcVerbosityPanel, SrTabs, LcSpeechTest, LcSrRename, AudioSettings, LcPackImport, lcShortcutOk, KeyboardSettings, lcImportSettings, BackupSettings });
+Object.assign(Looscid, { CreditsPage, ProfileView, ProfilePage, DreamorProfilePage, AccountSettings, LcAudience, lcCatSave, LcCatCustomize, MessageSettings, NotificationsSettings, PrivacySettings, LcResetLast, LcTabs, LcBlockedPanel, LcPrivacyMedia, FeedSwitchSetting, LcCatMenu, LcCatPage, CustomizabilitySettings, lcSetAiPref, IntelligenceSettings, lcMenuList, lcSubLine, AccessibilitySettings, A11yCategory, AboutSettings, MorePage, MoreAppsGroup, FeedbackPage, AdminPanel, AdminUsers, AdminContent, AdminReports, AdminAnalytics, AdminPlatform, AdminAnnouncements, PolicyPage, HourStoryPage, normalizeUrl, fieldValueText, ProfileInfoList, ChangeInfoScreen, useProfileEditor, lcJoin, methodLabel, getStoredNostrSk, ComingSoonPanel, LoginMethods, lcGetIds, lcSaveIds, lcBech32Polymod, lcDecodeBech32Key, lcCheckId, lcVerifyId, LcKeysPanel, lcIdLabel, lidWhen, thisDeviceLabel, localDataSummary, exportLocalData, deleteLocalData, LooscidIDManager, lcUnzip, lcCheckPackFiles, lcAutoMap, lcUpdateAutoSet, lcPitchPreview, MusicPage, lcAudCustomSet, useBlocked, lcAlertPrefsSet, termOutputOpen, setTermOutputOpen, lcOsName, lcAboutInfo, AboutLooscidMore, TerminalPage, LabsSettings, lcAppGet, lcAppPut, LcAppRange, AppsSettings, NexosAppsPage, NexosAppFrame, lcLinkedProviders, LcSetRow, LcWordsRow, LcVoiceRow, LcResetBtn, LcSection, BrailleStyle, LcVerbosityPanel, SrTabs, LcSpeechTest, LcSrRename, AudioSettings, LcPackImport, lcShortcutOk, KeyboardSettings, lcImportSettings, BackupSettings });
 
 /* --- PROFILE (OWN) ----------------------- */
 
-/* --- Profile (one view for you and for other Dreamers) ---------------------- */
+/* --- Profile (one view for you and for other Dreamors) ---------------------- */
 function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile }) {
   const [tab, setTab] = useState("dreams");
   const [editing, setEditing] = useState(false);
@@ -78,7 +78,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile }) {
 function ProfilePage({navigate, authUser, cherryCtx, onUpdateProfile}) {
   return lh(ProfileView, { user: ME, isMe: true, navigate: navigate, cherryCtx: cherryCtx, onUpdateProfile: onUpdateProfile });
 }
-function DreamerProfilePage({user, navigate, cherryCtx}) {
+function DreamorProfilePage({user, navigate, cherryCtx}) {
   return lh(ProfileView, { key: user.id, user: user, isMe: user.id === ME.id, navigate: navigate, cherryCtx: cherryCtx });
 }
 /* --- SETTINGS ---------------------------- */
@@ -114,12 +114,12 @@ function LcAudience({ id, legend, value, onChange, customKey, options, note }) {
         lh('input', { type: "radio", name: id + "-r", value: o[0], checked: on, onChange: function () { onChange(o[0]); announce(legend + ": " + o[1] + "."); } }), lh('span', null, o[1]));
     })),
     value === "custom" ? lh('div', { className: "lc-aud-custom" },
-      lh('label', { htmlFor: id + "-h", className: "lc-fs-l", style: { display: "block" } }, "Add a Dreamer by handle"),
+      lh('label', { htmlFor: id + "-h", className: "lc-fs-l", style: { display: "block" } }, "Add a Dreamor by handle"),
       lh('div', { className: "lc-inrow" },
         lh('input', { id: id + "-h", type: "text", className: "lc-text", value: h, placeholder: "@handle", autoCapitalize: "off", autoCorrect: "off", spellCheck: false,
           onChange: function (e) { setH(e.target.value); }, onKeyDown: function (e) { if (e.key === "Enter") { e.preventDefault(); add(); } } }),
         lh('button', { type: "button", className: "btn bp lc-btn", id: id + "-add", onClick: add }, "Add")),
-      list.length ? lh('ul', { className: "lc-aud-list", "aria-label": "Chosen Dreamers" }, list.map(function (x) {
+      list.length ? lh('ul', { className: "lc-aud-list", "aria-label": "Chosen Dreamors" }, list.map(function (x) {
         return lh('li', { key: x }, lh('span', null, "@" + x), lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { lcAudCustomSet(customKey, list.filter(function (y) { return y !== x; })); announce("Removed @" + x + "."); } }, "Remove @" + x));
       })) : lh('p', { className: "lc-desc" }, "No one chosen yet.")) : null,
     note ? lh('p', { className: "lc-desc" }, note) : null);
@@ -250,7 +250,7 @@ function LcTabs({ id, label, tabs, cur, onPick }) {
     })),
     tabs.map(function (t) { return cur === t[0] ? lh('div', { key: t[0], role: "tabpanel", id: id + "-panel-" + t[0], "aria-labelledby": id + "-tab-" + t[0], className: "lc-tabpanel" }, t[2]()) : null; }));
 }
-// Privacy > Blocked and muted: Dreamers / Circles / Words.
+// Privacy > Blocked and muted: Dreamors / Circles / Words.
 function LcBlockedPanel() {
   useBlocked();
   const [tab, setTab] = useState(function () { try { return sessionStorage.getItem("dbm_priv_tab") || "dreamers"; } catch (e) { return "dreamers"; } });
@@ -273,15 +273,15 @@ function LcBlockedPanel() {
   const circles = (Looscid.LC_GROUPS_NOW && Looscid.LC_GROUPS_NOW.length ? Looscid.LC_GROUPS_NOW : (typeof GROUPS !== "undefined" ? GROUPS : [])) || [];
   const bc = lcBlocked("circles");
   return lh('div', { className: "lc-grp" },
-    lh('p', { className: "lc-desc lc-sec-d" }, "Blocked Dreamers and Circles disappear from your feeds, replies, messages and alerts. Blocked words hide anything that contains them, everywhere in Looscid."),
+    lh('p', { className: "lc-desc lc-sec-d" }, "Blocked Dreamors and Circles disappear from your feeds, replies, messages and alerts. Blocked words hide anything that contains them, everywhere in Looscid."),
     lh(LcTabs, { id: "priv-bl", label: "Blocked and muted", cur: tab, onPick: pick, tabs: [
-      ["dreamers", "Dreamers", function () { return lh(React.Fragment, null,
-        lh('label', { htmlFor: "priv-bl-dreamers-in", className: "lc-fs-l", style: { display: "block" } }, "Block a Dreamer by handle"),
+      ["dreamers", "Dreamors", function () { return lh(React.Fragment, null,
+        lh('label', { htmlFor: "priv-bl-dreamers-in", className: "lc-fs-l", style: { display: "block" } }, "Block a Dreamor by handle"),
         lh('div', { className: "lc-inrow" },
           lh('input', { id: "priv-bl-dreamers-in", type: "text", className: "lc-text", value: hIn, placeholder: "@handle", autoCapitalize: "off", autoCorrect: "off", spellCheck: false,
             onChange: function (e) { setHIn(e.target.value); }, onKeyDown: function (e) { if (e.key === "Enter") { e.preventDefault(); addList("dreamers", hIn, setHIn, at); } } }),
           lh('button', { type: "button", className: "btn bp lc-btn", id: "priv-bl-dreamers-add", onClick: function () { addList("dreamers", hIn, setHIn, at); } }, "Block")),
-        listOf("dreamers", "Blocked Dreamers", at)); }],
+        listOf("dreamers", "Blocked Dreamors", at)); }],
       ["circles", "Circles", function () { return circles.length ? lh('fieldset', { className: "lc-fs", id: "priv-bl-circles" },
         lh('legend', { className: "lc-fs-l" }, "Blocked Circles"),
         lh('div', { className: "lc-radios lc-radios-col" }, circles.map(function (g) {
@@ -615,7 +615,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
         React.createElement('div', {style:{padding:"20px",background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",border:"1px solid rgba(168,85,247,.2)",borderRadius:16,textAlign:"center"}},
           React.createElement('div', {style:{fontSize:44,marginBottom:12}}, "Guest Mode"),
           React.createElement('div', {style:{fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,marginBottom:8}}, "You are in Guest Mode"),
-          React.createElement('p', {style:{fontSize:13,color:"var(--tx2)",lineHeight:1.7,marginBottom:20}}, "Create a free LooscidID to share Dreams, follow Dreamers, get notifications and make the app yours."),
+          React.createElement('p', {style:{fontSize:13,color:"var(--tx2)",lineHeight:1.7,marginBottom:20}}, "Create a free LooscidID to share Dreams, follow Dreamors, get notifications and make the app yours."),
           React.createElement('button', {className:"btn bp",style:{width:"100%",padding:13,fontSize:14,marginBottom:10},onClick:()=>navigate("login"),"aria-label":"Create a LooscidID"}, "Create a LooscidID"),
           React.createElement('button', {className:"btn bgb",style:{width:"100%",padding:11,fontSize:13},onClick:()=>navigate("login"),"aria-label":"Login to your LooscidID"}, "Login")
         ),
@@ -769,7 +769,7 @@ function AdminPanel({navigate}) {
         , React.createElement('div', { style: {fontSize:11,fontWeight:700,color:"#f59e0b",textTransform:"uppercase",letterSpacing:".08em",marginBottom:10},}, "Platform Health" )
         , React.createElement('div', { style: {display:"grid",gridTemplateColumns:"1fr 1fr",gap:10},}
           , [
-            {l:"Total Dreamers",v:stats.users.toLocaleString()},
+            {l:"Total Dreamors",v:stats.users.toLocaleString()},
             {l:"Total Dreams",v:stats.dreams.toLocaleString()},
             {l:"Daily Active",v:stats.dau.toLocaleString()},
             {l:"Monthly Active",v:stats.mau.toLocaleString()},
@@ -893,7 +893,7 @@ function AdminContent({onBack}) {
 }
 function AdminReports({onBack}) {
   const [reports] = useState([
-    /* reports appear here when Dreamers file them */
+    /* reports appear here when Dreamors file them */
   ]);
   const [filter, setFilter] = useState("pending");
   const visible = reports.filter(r=>filter==="all"||r.status===filter);
@@ -930,8 +930,8 @@ function AdminReports({onBack}) {
 }
 function AdminAnalytics({onBack, stats}) {
   const metrics = [
-    {label:"Daily Active Dreamers",value:stats.dau.toLocaleString(),change:"+4.2%",up:true},
-    {label:"Monthly Active Dreamers",value:stats.mau.toLocaleString(),change:"+12.1%",up:true},
+    {label:"Daily Active Dreamors",value:stats.dau.toLocaleString(),change:"+4.2%",up:true},
+    {label:"Monthly Active Dreamors",value:stats.mau.toLocaleString(),change:"+12.1%",up:true},
     {label:"Dreams Today",value:"4,218",change:"+7.8%",up:true},
     {label:"New Signups Today",value:"312",change:"-2.1%",up:false},
     {label:"Avg. Session Length",value:"8m 42s",change:"+0.9%",up:true},
@@ -994,7 +994,7 @@ function AdminPlatform({onBack}) {
           {k:"groups",l:"Groups",d:"Enable Groups feature platform-wide"},
           {k:"cherry",l:"Cherry AI",d:"Enable Cherry AI assistant for all users"},
           {k:"polls",l:"Polls",d:"Allow users to create poll Dreams"},
-          {k:"dm",l:"Direct Messages",d:"Enable private messaging between Dreamers"},
+          {k:"dm",l:"Direct Messages",d:"Enable private messaging between Dreamors"},
           {k:"apiAccess",l:"API Access",d:"Allow third-party API integrations"},
           {k:"betaFeatures",l:"Beta Features",d:"Enable unreleased beta features for all users"},
         ].map(r=>(
@@ -1035,7 +1035,7 @@ function AdminAnnouncements({onBack}) {
   const [sent, setSent] = useState(false);
   const [history] = useState([
     {id:1,text:"Welcome to Looscid Beta! We are so excited to have you here. Share your first Dream today",target:"all",time:"3 days ago",reach:"24,817"},
-    {id:2,text:"New feature: Groups are now live! Create or join a Group to connect with Dreamers who share your interests.",target:"all",time:"1 week ago",reach:"21,400"},
+    {id:2,text:"New feature: Groups are now live! Create or join a Group to connect with Dreamors who share your interests.",target:"all",time:"1 week ago",reach:"21,400"},
   ]);
   return (
     React.createElement('div', { className: "pg",}
@@ -1043,10 +1043,10 @@ function AdminAnnouncements({onBack}) {
       , React.createElement('div', { style: {padding:"14px 16px 24px"},}
         , React.createElement('div', { style: {marginBottom:20},}
           , React.createElement('div', { style: {fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",marginBottom:8},}, "New Announcement" )
-          , React.createElement('textarea', { className: "inp", style: {minHeight:100,lineHeight:1.6,fontSize:14,marginBottom:10}, placeholder: "Write your announcement to all Dreamers…", value: txt, onChange: e=>setTxt(e.target.value), 'aria-label': "Announcement text" ,})
+          , React.createElement('textarea', { className: "inp", style: {minHeight:100,lineHeight:1.6,fontSize:14,marginBottom:10}, placeholder: "Write your announcement to all Dreamors…", value: txt, onChange: e=>setTxt(e.target.value), 'aria-label': "Announcement text" ,})
           , React.createElement('div', { style: {fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",marginBottom:6},}, "Send To" )
           , React.createElement('div', { style: {display:"flex",gap:6,marginBottom:12,flexWrap:"wrap"},}
-            , [{id:"all",l:"All Dreamers"},{id:"verified",l:"Verified Only"},{id:"admins",l:"Admins Only"},{id:"beta",l:"Beta Testers"}].map(t=>(
+            , [{id:"all",l:"All Dreamors"},{id:"verified",l:"Verified Only"},{id:"admins",l:"Admins Only"},{id:"beta",l:"Beta Testers"}].map(t=>(
               React.createElement('button', { key: t.id, className: "btn"+(target===t.id?" bp":" bgb"), style: {padding:"5px 12px",fontSize:11}, onClick: ()=>setTarget(t.id), 'aria-label': "Send to "+t.l,}, t.l)
             ))
           )
@@ -1058,7 +1058,7 @@ function AdminAnnouncements({onBack}) {
           React.createElement('div', { key: h.id, style: {background:"var(--sf2)",borderRadius:11,padding:13,marginBottom:10,border:"1px solid var(--bd)"},}
             , React.createElement('p', { style: {fontSize:13,color:"var(--tx)",lineHeight:1.55,marginBottom:7},}, h.text)
             , React.createElement('div', { style: {display:"flex",gap:10,fontSize:11,color:"var(--tx3)"},}
-              , React.createElement('span', null, "To: " , h.target==="all"?"All Dreamers":h.target)
+              , React.createElement('span', null, "To: " , h.target==="all"?"All Dreamors":h.target)
               , React.createElement('span', null, "Audience: " , h.reach, " reached" )
               , React.createElement('span', null, "Sent: " , h.time)
             )
@@ -1151,7 +1151,7 @@ function HourStoryPage({ navigate, back }) {
           , React.createElement('div', { style: {background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",border:"1px solid rgba(168,85,247,.2)",borderRadius:16,padding:"20px 18px",textAlign:"center"},}
             , React.createElement('div', { style: {fontSize:28,marginBottom:10,'aria-hidden':"true"},}, "🌙")
             , React.createElement('p', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:17,color:"var(--tx)",lineHeight:1.6,fontStyle:"italic"},},
-              "'A platform that puts the dreamer first. Free, accessible, and always yours.'"
+              "'A platform that puts the Dreamor first. Free, accessible, and always yours.'"
             )
             , React.createElement('p', { style: {fontSize:11,color:"var(--tx3)",marginTop:8},}, "Looscid mission statement")
           )
@@ -1190,7 +1190,7 @@ const PROFILE_FIELDS = [
   { key: "name", label: "Name", heading: "Change name", help: "Change the name that shows on your profile.",
     get: function (p) { return p.displayName || ""; }, max: 40, autoComplete: "name",
     toPatch: function (v) { v = sanitizeInput(v); if (!v) return { error: "Your name can't be empty." }; return { patch: { displayName: v.slice(0, 40) } }; } },
-  { key: "username", label: "Username", heading: "Change username", help: "Change the username connected with your LooscidID. This also changes how Dreamers @mention you.",
+  { key: "username", label: "Username", heading: "Change username", help: "Change the username connected with your LooscidID. This also changes how Dreamors @mention you.",
     get: function (p) { return (p.handle || "").replace(/^@/, ""); }, show: function (p) { return p.handle || ""; }, max: 30, prefix: "@", autoComplete: "username",
     toPatch: function (v) { v = (v || "").trim().replace(/^@+/, "").toLowerCase(); if (!/^[a-z0-9_]{3,30}$/.test(v)) return { error: "Use 3 to 30 letters, numbers or underscores." }; return { patch: { handle: "@" + v } }; } },
   { key: "bio", label: "Bio", heading: "Change bio", help: "A short line about you, up to 160 characters.",
@@ -1887,16 +1887,20 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 111; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 30;
+const LOOSCID_FIXES = 31;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.111.30", build: 141, released: LOOSCID_RELEASED, title: "Round 6.5", notes: [
+  { version: "2026.111.31", build: 142, released: LOOSCID_RELEASED, title: "Round 6.5.1", notes: [
+    "Round 6.5.1: Dreamor everywhere.",
+    "A fix update: Dreamor and Dreamors are the words for you and everyone on Looscid again, in the app, the docs and the LICENSE. Redream keeps its one spelling.",
+  ] },
+  { version: "2026.111.30", build: 141, released: "2026-10-10T17:50:27Z", title: "Round 6.5", notes: [
     "Round 6.5: the new composer, Replies that stay, and Nostr threads.",
     "One composer for New Dream, Reply and Quote, laid out like Feditext's: the Dream you answer sits right before your text box, so one swipe left reads it. Hear Dream reads it aloud, and Read back my reply reads yours.",
     "Who gets notified is a list of checkboxes, not typed handles. A reply starts with the Dream's Audience and content warning, and you can change both. Write a whole thread in one go with Add another Dream.",
     "Replies are saved on your device and stay after a reload. With a Nostr key, a reply to a Dream on Nostr goes out as a real Nostr reply, and a Quote links the Dream it quotes.",
     "Alt text helper for photos, link previews (YouTube, Vimeo and Spotify players load only when you press Play), and a Credits and open source page in the menu.",
-    "One word everywhere: Replies. Dreamers and Redream are spelled one way too.",
+    "One word everywhere: Replies. Redream is spelled one way too.",
   ] },
   { version: "2026.110.30", build: 140, released: "2026-10-10T16:52:30Z", title: "Round 6.4", notes: [
     "Round 6.4: Dreams on Nostr, your key in a secure field with an optional passcode.",
@@ -1967,9 +1971,9 @@ function MusicPage({ onBack }) {
           lh('span', { className: "lc-vol-n", "aria-hidden": "true" }, vol + "%")))));
 }
 /* --- Round 6: audiences (who can do something), shared by Alerts and Privacy ----------------
-   Everyone / Dreamers I follow / My followers / Followers I follow back / My circles / Only me / Custom.
+   Everyone / Dreamors I follow / My followers / Followers I follow back / My circles / Only me / Custom.
    Custom is a list of handles saved under dbm_aud_custom_<key>. */
-const LC_AUD = [["everyone", "Everyone"], ["following", "Dreamers I follow"], ["followers", "My followers"], ["mutuals", "Followers I follow back (mutuals)"], ["circles", "My circles"], ["nobody", "Only me / Nobody"], ["custom", "Custom"]];
+const LC_AUD = [["everyone", "Everyone"], ["following", "Dreamors I follow"], ["followers", "My followers"], ["mutuals", "Followers I follow back (mutuals)"], ["circles", "My circles"], ["nobody", "Only me / Nobody"], ["custom", "Custom"]];
 Looscid.LC_AUD = LC_AUD;
 function lcAudCustomSet(key, list) { try { localStorage.setItem("dbm_aud_custom_" + key, JSON.stringify(list.slice(0, 200))); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:aud")); }
 function useBlocked() {
@@ -2183,7 +2187,7 @@ const LC_COMING_SOON = [
   { name: "Log in with LooscidID", where: "LooscidID, Connected apps", desc: "Let other apps log in with your LooscidID." },
   { name: "Joining Looscid Labs", where: "Looscid Labs", desc: "Sign up for early access." },
   { name: "Marketplace", where: "Labs, beta", desc: "Buy and sell inside Looscid. Early testers shape how it works before launch." },
-  { name: "Store", where: "Labs, alpha", desc: "Apps, tools and add-ons for Dreamers." },
+  { name: "Store", where: "Labs, alpha", desc: "Apps, tools and add-ons for Dreamors." },
   { name: "Mini Apps", where: "Labs, alpha", desc: "Tiny utilities that live inside Looscid." },
   { name: "Advanced Analytics", where: "Labs, beta", desc: "Deeper stats: reach, engagement and best times to Dream." },
   { name: "Collaborative Dreams", where: "Labs, concept", desc: "Write a Dream together with another Dreamor. Two voices, one Dream." },

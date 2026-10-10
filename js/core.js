@@ -701,7 +701,7 @@ const LC_RESET_G = {
   cats: { l: "Category order", items: function () { return [{ id: "catOrder", l: "Category order and hidden categories on Messages and Alerts", run: lcLsDel(["dbm_msg_cat_order", "dbm_msg_cat_hidden", "dbm_alert_cat_order", "dbm_alert_cat_hidden"], "looscid:cats") }]; } },
   perm: { l: "Permissions", items: function () { return lcResetKeyItems("perm").concat([{ id: "audCustom", l: "Custom audience lists", run: function () { try { Object.keys(localStorage).filter(function (k) { return k.indexOf("dbm_aud_custom_perm_") === 0; }).forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:aud")); } }]); } },
   pmedia: { l: "Media and content", items: function () { return lcResetKeyItems("pmedia"); } },
-  blocked: { l: "Blocked", items: function () { return [["dreamers", "Blocked Dreamers"], ["circles", "Blocked Circles"], ["words", "Blocked words"]].map(function (x) { return { id: "bl_" + x[0], l: x[1], run: function () { lcBlockedSet(x[0], []); } }; }); } },
+  blocked: { l: "Blocked", items: function () { return [["dreamers", "Blocked Dreamors"], ["circles", "Blocked Circles"], ["words", "Blocked words"]].map(function (x) { return { id: "bl_" + x[0], l: x[1], run: function () { lcBlockedSet(x[0], []); } }; }); } },
   filters: { l: "Muted words and content warnings", items: function () { return lcResetKeyItems("filters"); } },
   ai: { l: "Cherry settings", items: function () { return lcResetKeyItems("ai").concat([{ id: "habits", l: "Learn from my habits, and what Cherry learned", run: function () { lcLsDel(["dbm_habits"])(); if (Looscid.LC_SET_PREFS) Looscid.LC_SET_PREFS(function (p) { return Object.assign({}, p, { cherry: {} }); }); } }]); } },
   cherry: { l: "Cherry on or off, model and Commandbar answers", items: function () { return [{ id: "aiPrefs", l: "Cherry on or off, model and Commandbar answers", run: lcLsDel([AI_PREFS_KEY], "looscid:llm") }]; } },
@@ -861,7 +861,7 @@ const LC_FIND_STATIC = [
   { l: "Version and version history", w: "version build history changelog release what's new", page: "settings_about", focus: "about-version", where: "About Looscid" },
   { l: "System info", w: "system info device browser storage", page: "settings_about", focus: "about-sys", where: "About Looscid" },
   { l: "Credits and open source", w: "credits open source licenses license thanks third party react nostr-tools noble nexos insomnia feditext v86 fonts repos", page: "credits", where: "Menu, About" },
-  { l: "Blocked Dreamers", w: "block dreamer block user blocked list unblock", page: "settings_privacy", priv: "blocked", privTab: "dreamers", focus: "priv-bl-dreamers-in", where: "Settings, Privacy, Blocked and muted" },
+  { l: "Blocked Dreamors", w: "block dreamor block user blocked list unblock", page: "settings_privacy", priv: "blocked", privTab: "dreamers", focus: "priv-bl-dreamers-in", where: "Settings, Privacy, Blocked and muted" },
   { l: "Blocked Circles", w: "block circle blocked circles", page: "settings_privacy", priv: "blocked", privTab: "circles", focus: "priv-bl-tab-circles", where: "Settings, Privacy, Blocked and muted" },
   { l: "Blocked words", w: "block word blocked words hide words everywhere", page: "settings_privacy", priv: "blocked", privTab: "words", focus: "priv-bl-words-in", where: "Settings, Privacy, Blocked and muted" },
   { l: "Forget what Cherry knows about my media", w: "cherry forget media", page: "settings_privacy", priv: "pmedia", focus: "priv-cherry-forget", where: "Settings, Privacy, Media and content" },
@@ -1315,7 +1315,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
         : { icon:"Cherry", label:"Turn on Cherry",  sub:"Cherry is off. Opens Settings, Intelligence", action(){onClose();navigate("settings_ai_cherry");} },
     ]},
     { id:"discover", emoji:"Discover", label:"Discover", items:[
-      { icon:"Discover", label:"Discover", sub:"Dreamers, topics, trending", discoverLink:true, action(){onClose();goRoot("discover");} },
+      { icon:"Discover", label:"Discover", sub:"Dreamors, topics, trending", discoverLink:true, action(){onClose();goRoot("discover");} },
       { icon:"Circles", label:"Circles",  sub:"Your communities",                              action(){onClose();goRoot("circles");} },
     ]},
     { id:"apps", emoji:"Apps", label:"Apps", items: lcAppItems().map(function (it) { return { icon: it.l, label: it.l, sub: it.sub, action(){ onClose(); it.go(navigate); } }; }) },
@@ -2184,7 +2184,7 @@ Looscid.LC_WHO3 = LC_WHO3;
 const LC_WHO4 = [["everyone", "Everyone", ["everyone", "anyone", "all"]], ["following", "People I follow", ["people i follow", "following", "follow"]], ["friends", "Friends", ["friends", "mutuals"]], ["nobody", "Nobody", ["nobody", "no one", "none"]]];
 Looscid.LC_WHO4 = LC_WHO4;
 // Round 6: the audience choices for Privacy (native radios, fieldset and legend). "friends" from older builds means mutuals.
-const LC_AUD_O = [["everyone", "Everyone", ["everyone", "anyone", "all"]], ["following", "Dreamers I follow", ["dreamers i follow", "people i follow", "following", "follow"]], ["followers", "My followers", ["my followers", "followers"]], ["mutuals", "Mutuals", ["mutuals", "friends", "followers i follow back"]], ["circles", "My circles", ["my circles", "circles"]], ["nobody", "Only me", ["only me", "nobody", "no one", "none"]], ["custom", "Custom", ["custom", "chosen dreamers"]]];
+const LC_AUD_O = [["everyone", "Everyone", ["everyone", "anyone", "all"]], ["following", "Dreamors I follow", ["dreamors i follow", "people i follow", "following", "follow"]], ["followers", "My followers", ["my followers", "followers"]], ["mutuals", "Mutuals", ["mutuals", "friends", "followers i follow back"]], ["circles", "My circles", ["my circles", "circles"]], ["nobody", "Only me", ["only me", "nobody", "no one", "none"]], ["custom", "Custom", ["custom", "chosen dreamers"]]];
 Looscid.LC_AUD_O = LC_AUD_O;
 const LC_LANGS = [["en", "English"], ["es", "Spanish"], ["fr", "French"], ["de", "German"], ["it", "Italian"], ["pt", "Portuguese"], ["ar", "Arabic"], ["tr", "Turkish"], ["ur", "Urdu"], ["hi", "Hindi"], ["zh", "Chinese"], ["ja", "Japanese"], ["ko", "Korean"]];
 Looscid.LC_LANGS = LC_LANGS;
@@ -2652,13 +2652,13 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    A commit is a fix when its subject matches (?i)^\s*(fix|hotfix|bugfix|chore|typo|revert|patch|docs?|style|refactor|cleanup|tweak|ci)\b
    or has fix, fixes or fixed anywhere; anything else is a feature update. Builds = commits.
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
-   Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update).
+   Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.111.30";
+const LOOSCID_VERSION = "2026.111.31";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 141;
+const LOOSCID_BUILD = 142;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-10T17:50:27Z"; // the Round 6.5 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-10T18:42:07Z"; // the Round 6.5.1 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4635,7 +4635,7 @@ useEffect(() => {
       case "alerts":        return React.createElement(Looscid.AlertsPage, { cherryCtx: cherryCtx,});
       case "groups":        return React.createElement(Looscid.GroupsPage, { navigate: navigate, cherryCtx: cherryCtx,});
       case "profile":       return React.createElement(Looscid.ProfilePage, { key: "me-" + (authUser && authUser.displayName), navigate: navigate, cherryCtx: cherryCtx, authUser: authUser, onUpdateProfile: handleUpdateProfile,});
-      case "dp":            return pdata ? React.createElement(Looscid.DreamerProfilePage, { user: pdata, navigate: navigate, cherryCtx: cherryCtx,}) : React.createElement(Looscid.FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
+      case "dp":            return pdata ? React.createElement(Looscid.DreamorProfilePage, { user: pdata, navigate: navigate, cherryCtx: cherryCtx,}) : React.createElement(Looscid.FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
       case "settings_account":        return React.createElement(Looscid.AccountSettings, { key: "acct-" + ((pdata && pdata.tab) || "home"), navigate: navigate, authUser: authUser, onSignOut: handleSignOut, onRenameProfile: handleRenameProfile, onUpdateProfile: handleUpdateProfile, initialTab: pdata && pdata.tab,});
       case "settings_notifications":  return React.createElement(Looscid.NotificationsSettings, { navigate: navigate, prefs: prefs, setPrefs: setPrefs,});
       case "settings_privacy":        return React.createElement(Looscid.PrivacySettings, { navigate: navigate, authUser: authUser, onUpdateProfile: handleUpdateProfile,});
@@ -4801,7 +4801,7 @@ useEffect(() => {
             )
             , [
               {ic:"Write & share Dreams", title:"Write & share Dreams", desc:"Ask Cherry to draft a Dream and share it to your feed instantly"},
-              {ic:"Follow & connect", title:"Follow & connect", desc:"Cherry can follow Dreamers that match your interests"},
+              {ic:"Follow & connect", title:"Follow & connect", desc:"Cherry can follow Dreamors that match your interests"},
               {ic:"Join Circles", title:"Join Circles", desc:"Cherry finds and joins communities you'll love"},
               {ic:"Manage notifications", title:"Manage notifications", desc:"Cherry summarises and clears your alerts"},
               {ic:"Analyse your feed", title:"Analyse your feed", desc:"Get real-time insights on trending content and your activity"},

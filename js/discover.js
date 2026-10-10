@@ -14,7 +14,7 @@ const FILTER_OPTS = [
   { id: "week",     label: "This Week", icon: "This Week", group: "time", radio: "time" },
   { id: "alltime",  label: "All Time",  icon: "All Time",  group: "time", radio: "time" },
 ];
-const tabLabel = function (t) { return ({ all: "All", dreamers: "Dreamers", dreams: "Dreams", circles: "Circles", trending: "Trending" })[t] || t; };
+const tabLabel = function (t) { return ({ all: "All", dreamers: "Dreamors", dreams: "Dreams", circles: "Circles", trending: "Trending" })[t] || t; };
 
 /* st: { q, tab, filters, filtersOpen }; p: the frame's props (navigate, cherryCtx). */
 function discoverView(st, p, draw) {
@@ -39,7 +39,7 @@ function discoverView(st, p, draw) {
   const circleResults = GROUPS.filter(function (g) { return !q || g.name.toLowerCase().includes(ql); });
   const filterGroups = [
     { label: "Content",  opts: FILTER_OPTS.filter(function (f) { return f.group === "content"; }) },
-    { label: "Dreamers", opts: FILTER_OPTS.filter(function (f) { return f.group === "dreamers"; }) },
+    { label: "Dreamors", opts: FILTER_OPTS.filter(function (f) { return f.group === "dreamers"; }) },
     { label: "Time",     opts: FILTER_OPTS.filter(function (f) { return f.group === "time"; }) },
   ];
   const noResults = q && dreamResults.length === 0 && dreamerResults.length === 0 && circleResults.length === 0;
@@ -50,7 +50,7 @@ function discoverView(st, p, draw) {
         h('h1', { className: "htit", tabIndex: -1 }, "Discover"),
         cherryCtx && h('button', { className: "cherry-ctx-btn", onClick: function () { cherryCtx.openCherry("What is trending right now?"); }, "aria-label": "Ask Cherry what is trending right now" }, "Trending")),
       h('div', { style: { padding: "10px 16px 6px" } },
-        h('input', { className: "inp", style: { fontSize: 14 }, placeholder: "Search Dreamers, Dreams, Circles, topics", value: q,
+        h('input', { className: "inp", style: { fontSize: 14 }, placeholder: "Search Dreamors, Dreams, Circles, topics", value: q,
           onChange: function (e) { st.q = e.target.value; if (e.target.value && st.tab === "trending") st.tab = "all"; draw(); },
           "aria-label": "Search", role: "searchbox" })),
       q && h('div', { style: { padding: "0 16px 8px", display: "flex", gap: 8, alignItems: "center" } },
@@ -109,11 +109,11 @@ function discoverView(st, p, draw) {
 
       (tab === "dreamers" || tab === "all") && dreamerResults.map(function (u) {
         return h('div', { key: u.id, className: "ci", onClick: function () { navigate("dp", u); }, role: "button", tabIndex: 0,
-            "aria-label": u.name + (u.verified ? " verified" : "") + " · " + u.handle + " · " + fmt(u.followers) + " Dreamers following" },
+            "aria-label": u.name + (u.verified ? " verified" : "") + " · " + u.handle + " · " + fmt(u.followers) + " Dreamors following" },
           lcAvEl(u, 44),
           h('div', { className: "cif" },
             h('div', { className: "cnm" }, u.name, u.verified && h('span', { style: { color: "var(--ac2)", fontSize: 11 } }, " \u2713")),
-            h('div', { className: "cpv" }, u.handle, " \u00b7 ", fmt(u.followers), " Dreamers following")),
+            h('div', { className: "cpv" }, u.handle, " \u00b7 ", fmt(u.followers), " Dreamors following")),
           h('button', { className: "btn bp", style: { padding: "7px 14px", fontSize: 12 }, onClick: function (e) { e.stopPropagation(); }, "aria-label": "Follow " + u.name }, "Follow"));
       }),
 
@@ -133,11 +133,11 @@ function discoverView(st, p, draw) {
       }),
 
       (tab === "circles" || tab === "all") && circleResults.map(function (g) {
-        return h('div', { key: g.id, className: "ci", "aria-label": g.name + " Circle, " + fmt(g.members) + " Dreamers" },
+        return h('div', { key: g.id, className: "ci", "aria-label": g.name + " Circle, " + fmt(g.members) + " Dreamors" },
           h('div', { style: { width: 44, height: 44, borderRadius: 11, background: "var(--sf2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 } }, g.emoji),
           h('div', { className: "cif" },
             h('div', { className: "cnm" }, g.name),
-            h('div', { className: "cpv" }, fmt(g.members), " Dreamers in this Circle")),
+            h('div', { className: "cpv" }, fmt(g.members), " Dreamors in this Circle")),
           h('button', { className: "btn bgb", style: { fontSize: 12 }, "aria-label": "Join the " + g.name + " Circle" }, "Join"));
       }),
 
@@ -148,7 +148,7 @@ function discoverView(st, p, draw) {
         cherryCtx && h('button', { className: "cherry-ctx-btn", style: { margin: "10px auto 0", display: "flex" }, onClick: function () { cherryCtx.openCherry("Help me find: " + q); }, "aria-label": "Ask Cherry to help find " + q }, "Ask Cherry to find this"))));
 }
 
-/* The Discover tab: search, filters, and Trending / Dreamers / Dreams / Circles. */
+/* The Discover tab: search, filters, and Trending / Dreamors / Dreams / Circles. */
 const DiscoverPage = lcPlainScreen("DiscoverPage", function (host, props) {
   const st = { q: "", tab: "trending", filters: [], filtersOpen: false };
   let p = props;

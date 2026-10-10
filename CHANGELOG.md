@@ -2,6 +2,18 @@
 
 Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.111.31 (142): Round 6.5.1
+
+Released October 10, 2026 at 2:42 PM (Eastern Time, 2026-10-10T18:42:07Z UTC)
+
+A fix update: Dreamor everywhere. A Dreamor is you, and Dreamors is the plural; Redream keeps its one spelling.
+
+- Dreamor and Dreamors are back everywhere Round 6.5 and earlier rounds had changed them: the Audience note ("Visible to all Dreamors" and "Dreamors I follow"), Discover, Circles, Cherry, Blocked Dreamors, the admin pages, the status page and the docs.
+- The welcome glossary still defines Dreamor, spelled D R E A M O R, and a new LooscidID still starts as Dreamor.
+- LICENSE: the protected names are Dreamors™ and Redreams™ (one spelling, no capital D in the middle).
+- Search: "dreamors i follow" and "block dreamor" find the right settings.
+- Unchanged: storage keys, the Settings backup format, sounds, pitch cues, earcons, Calm mode, flash safety and Reduce Motion.
+
 ## Looscid 2026.111.30 (141): Round 6.5
 
 Released October 10, 2026 at 1:50 PM (Eastern Time, 2026-10-10T17:50:27Z UTC)
@@ -20,7 +32,7 @@ A feature update: the new composer, Replies that stay, and Nostr threads. The co
 - Alt text helper: each photo has a plain "Alt text for photo N" field and says "No alt text yet." until you write one. With Cherry turned on, Suggest alt text makes a start on this device from the photo's shape, colours and name, which you then edit. Nothing is sent anywhere.
 - Link previews with no server: YouTube, Vimeo and Spotify links get their own player, which loads only when you press Play. Any other link gets a plain card with its domain. Looscid never fetches the linked page.
 - Credits and open source: a new page in the menu (and from About) listing every project Looscid uses or learned from, with links and licenses, plus the repos planned next. It's in search too.
-- Words: Replies is the one word, everywhere: the Replies page, "No replies yet", "Sort replies", "Reply options" and braille labels. The Audience note now says "Visible to all Dreamers", and Redream is spelled one way.
+- Words: Replies is the one word, everywhere: the Replies page, "No replies yet", "Sort replies", "Reply options" and braille labels. The Audience note says "Visible to all Dreamors", and Redream is spelled one way.
 - Same sounds, pitch cues, earcons, Calm mode, flash safety and Reduce Motion.
 
 ## Looscid 2026.110.30 (140): Round 6.4
@@ -50,7 +62,7 @@ A fix update: Dreams are saved on your device, and the composer is easier with a
 - New Dream is a dialog with a "New Dream" heading. The text box comes first, then attachments, then the Dream button, then Close, and Tab stays inside.
 - Control+Enter or Command+Enter dreams it, and Escape closes. Then focus moves to your new Dream, and Looscid says "Dream dreamed." once. Closing without dreaming puts focus back on Create.
 - The attachment buttons say their word once (Photo, not Photo Photo).
-- Docs: NOSTR_ARCHITECTURE.md says Dreamers instead of Dreamors.
+- Docs: NOSTR_ARCHITECTURE.md terminology fixes.
 - Same sounds, pitch cues, earcons, Calm mode, flash safety and Reduce Motion.
 
 ## Looscid 2026.109.29 (138): Round 6.2

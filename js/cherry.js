@@ -17,7 +17,7 @@ function CherryPage({navigate, cherryCtx}) {
 
   const capabilities = [
     {ic:"Draft & share Dreams", label:"Draft & share Dreams", prompt:"Draft a Dream for me"},
-    {ic:"Follow Dreamers", label:"Follow Dreamers", prompt:"Who should I follow?"},
+    {ic:"Follow Dreamors", label:"Follow Dreamors", prompt:"Who should I follow?"},
     {ic:"Join Circles", label:"Join Circles", prompt:"Find groups for me"},
     {ic:"Read notifications", label:"Read notifications", prompt:"My notifications"},
     {ic:"Feed insights", label:"Feed insights", prompt:"Summarise my feed"},
@@ -523,7 +523,7 @@ function cherryRespond(text, cherryCtx) {
       return {action:null, result:"Looscid is a social platform where you share what's on your mind — your thoughts, takes, moments, whatever. No ads, no algorithm deciding who sees your Dreams. You follow people, they follow you, and you see each other's Dreams in your feed. Circles let you find communities around topics you care about. I'm Cherry, the built-in AI — I can help you Dream, find people to follow, navigate the app or just answer questions."};
 
     if (lo.includes("what is cherry") || lo.includes("who is cherry") || lo.includes("what can you do") || lo.includes("what can cherry do"))
-      return {action:null, result:"I'm Cherry — Looscid's AI assistant. I'm built into the app so I actually know what's happening here. I can: share Dreams for you, follow Dreamers, join Circles, read and clear your notifications, draft content, find trending topics, answer questions about the app, and generally help you get the most out of Looscid. Just ask and I'll do it — or try to."};
+      return {action:null, result:"I'm Cherry — Looscid's AI assistant. I'm built into the app so I actually know what's happening here. I can: share Dreams for you, follow Dreamors, join Circles, read and clear your notifications, draft content, find trending topics, answer questions about the app, and generally help you get the most out of Looscid. Just ask and I'll do it — or try to."};
 
     if (lo.includes("help") && (lo.includes("how do i") || lo.includes("how to") || lo.includes("where is") || lo.includes("can't find") || lo.includes("cannot find")))
       return {action:null, result:"Happy to help. What are you trying to do? Just describe it and I'll walk you through it or do it for you. There's no separate help centre — I'm it. Some common things I can help with: sharing a Dream, finding someone to follow, joining a Circle, changing your settings, or understanding how something works."};
@@ -532,7 +532,7 @@ function cherryRespond(text, cherryCtx) {
       return {action:null, result:"Tap the Menu button, then tap New Dream. Type what's on your mind — there's no topic requirement, just share what you feel like. You can attach photos, links, polls, a mood, or music. Hit Dream when you're ready. Want me to open the composer for you, or draft something?"};
 
     if (lo.includes("how do i follow") || lo.includes("find people") || lo.includes("find dreamers") || lo.includes("who to follow"))
-      return {action:null, result:"Go to Discover (in the Menu or tap Discover from the main menu sheet) and you'll see suggested Dreamers and trending topics. You can also search by name or LooscidID. Or just tell me who you're looking for and I'll find them."};
+      return {action:null, result:"Go to Discover (in the Menu or tap Discover from the main menu sheet) and you'll see suggested Dreamors and trending topics. You can also search by name or LooscidID. Or just tell me who you're looking for and I'll find them."};
 
     if (lo.includes("settings") && (lo.includes("where") || lo.includes("find") || lo.includes("how do i")))
       return {action:null, result:"Settings are in the Menu — tap the Menu button at the bottom (or top, depending on your preference) and you'll see Settings with all the sub-sections. Or I can take you straight to a specific one — just say which: LooscidID, Privacy, Notifications, Customizability, Accessibility, Cherry AI settings."};
@@ -553,7 +553,7 @@ function cherryRespond(text, cherryCtx) {
       return {action:null, result:`Your saved Dreams: ${ctx.savedDreams}.`};
 
     if (lo.includes("who am i following") || lo.includes("following") && lo.includes("who"))
-      return {action:null, result:`You're currently following: ${ctx.followingNames}. Want me to suggest more Dreamers?`};
+      return {action:null, result:`You're currently following: ${ctx.followingNames}. Want me to suggest more Dreamors?`};
 
     if (lo.includes("my circles") || lo.includes("joined groups"))
       return {action:null, result:`You're in: ${ctx.joinedGroups}. I can join more groups for you — just say which ones.`};
@@ -621,7 +621,7 @@ Want me to publish it, or would you like to tweak it first?`,
       const unfollowed = USERS.filter(u=>!following.has(u.id));
       if (!unfollowed.length) return {action:null, result:"You're already following everyone on Looscid!"};
       const picks = unfollowed.slice(0,2).map(u=>`${u.name} (${u.handle}) — ${u.bio.slice(0,40)}…`).join("\n");
-      return {action:"Analysing your interests and engagement…", agentLabel:"Finding Dreamers",
+      return {action:"Analysing your interests and engagement…", agentLabel:"Finding Dreamors",
         result:`Based on your activity, I suggest:
 
 ${picks}
@@ -677,7 +677,7 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just dreamed a ne
     if (lo.includes("hello") || lo.includes("hi cherry") || lo.includes("hey"))
       return {action:null, result:`Hey! I can see you're following ${appContext().followingNames || "no one yet"} and you're in ${appContext().joinedGroups || "no groups yet"}. I can share Dreams, follow people, join Groups, check notifications, and more. What would you like?`};
 
-    return {action:null, fallback:true, result:"I can help you share Dreams, follow Dreamers, join Groups, check your notifications, summarise your feed, find trending topics, or draft content. Just ask — I have full access to your Looscid."};
+    return {action:null, fallback:true, result:"I can help you share Dreams, follow Dreamors, join Groups, check your notifications, summarise your feed, find trending topics, or draft content. Just ask — I have full access to your Looscid."};
   };
   return getResponse(text);
 }

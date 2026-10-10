@@ -1,14 +1,14 @@
 {
   "app": "Looscid",
   "branch": "preview",
-  "version": "2026.111.30",
-  "build": 141,
+  "version": "2026.111.31",
+  "build": 142,
   "features": 111,
-  "fixes": 30,
+  "fixes": 31,
   "builds_without_fixes": 111,
-  "released": "2026-10-10T17:50:27Z",
-  "title": "Round 6.5",
-  "notes": "The new composer, Replies that stay, and Nostr threads. One composer for New Dream, Reply and Quote, laid out like Feditext's, with the Dream you answer right before your text box. Replies are saved on your device, and reach Nostr as real replies. A feature update.",
+  "released": "2026-10-10T18:42:07Z",
+  "title": "Round 6.5.1",
+  "notes": "Dreamor everywhere: Dreamor and Dreamors are the words for you and everyone on Looscid again, in the app, the docs and the LICENSE. A fix update.",
   "branches": {
     "MainV1": {
       "version": "2026.70.103",
@@ -29,10 +29,10 @@
       "fixes": 103
     },
     "preview": {
-      "version": "2026.111.30",
-      "build": 141,
+      "version": "2026.111.31",
+      "build": 142,
       "features": 111,
-      "fixes": 30
+      "fixes": 31
     },
     "refactor/discover-extraction": {
       "version": "2026.95.10",
@@ -60,10 +60,10 @@
     }
   },
   "all_branches": {
-    "version": "2026.766.516",
-    "build": 1282,
+    "version": "2026.766.517",
+    "build": 1283,
     "features": 766,
-    "fixes": 516,
+    "fixes": 517,
     "builds_without_fixes": 766
   }
 }

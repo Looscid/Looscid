@@ -587,7 +587,7 @@ function LcComposer(props) {
       lh('button', Object.assign({}, tb, { onClick: function () { setAttach("poll"); }, "aria-label": "Add Poll" }), "Poll"),
       lh(LcMenu, { id: "cr-audience", label: "Audience", hideLabel: true, title: "Who can see this?", prefix: "Audience: ", btnClass: "btn bgb lc-aud-btn", align: "left", up: true, value: audience,
         items: [
-          { id: "everyone", name: "Everyone", note: "Visible to all Dreamers" },
+          { id: "everyone", name: "Everyone", note: "Visible to all Dreamors" },
           { id: "followers", name: "Followers only", note: "Only your followers see this" },
           { id: "groups", name: "My Circles", note: "Shared to your Circles" },
           { id: "device", name: "Only this device", note: "Never sent anywhere" }], onSelect: function (v) { setAudience(v); } }),
