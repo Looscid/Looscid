@@ -4614,6 +4614,8 @@ useEffect(() => {
     if (!showMenuRef.current && cur === "settings_about" && /^(terms|privacy|guidelines|feedback|credits)$/.test(target)) subFrom.current[target] = cur;
     // Round 6.6: Legal's buttons (Terms, Privacy, Community rules, Credits): Back returns to Legal.
     if (!showMenuRef.current && cur === "legal" && /^(terms|privacy|guidelines|credits)$/.test(target)) subFrom.current[target] = cur;
+    // Round 6.6: the Help Center's Getting help opens Send Feedback; Back returns to the Help Center.
+    if (!showMenuRef.current && cur === "helpcenter" && target === "feedback") subFrom.current[target] = cur;
     // No accounts: old login/signup links open the local profile settings
     if (target === "login" || target === "signup") { setPage("settings_account"); setPdata(null); return; }
     // Round 6.5.2: Cherry is a page. Back returns to where you opened it (the More menu reopens on Open Cherry).

@@ -1910,7 +1910,7 @@ const LC_VERSION_HISTORY = [
     "Choosing a Soundpack switches everything to it right away and says \u201cSoundpack: Insomnia.\u201d once. Moving to a choice plays a short preview of it. It stays after a restart.",
     "New Soundpack, Soundvault: sounds from the Soundvault catalog, loaded from there when they play; anything it doesn't have plays Looscid's own. The soundvault command switches to it.",
     "help is now a short list of the top commands. An area and help reads just that area: cherry help (or cherryhelp), projects help, earcons help, braille help. help list reads every command. new dream opens the Dream composer.",
-    "Help Center, in More and with the help center command: getting started, commands, Cherry, earcons, accessibility, projects, legal, backup, and links to report a problem or help build Looscid.",
+    "Help Center, in More and with the help center command: getting started, commands, Cherry, earcons, accessibility, projects, legal, backup, and Getting help: Send Feedback, GitHub issues, helping build Looscid and quick reminders.",
     "One About Looscid page: More's About is now one button that opens it, with no submenu. Send Feedback, Legal and the Welcome intro are on the page.",
     "Legal, from About Looscid and the legal command: Terms, Privacy, Community rules, Looscid's license (LPL v1.0: no ads, no commercial use), the open source credits and the MIT notices.",
   ] },

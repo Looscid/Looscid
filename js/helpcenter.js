@@ -102,7 +102,7 @@ const LC_HELP_SECTIONS = [
     "Turn Cherry on or off in Settings, Intelligence.",
   ]],
   ["Earcons and sounds", [
-    "Earcons are Looscid's short sounds. Settings, Earcons has the master volume, Soundpacks (Looscid, NexOS classic, Insomnia, Hyper Synth and FastSM-inspired), and switches for each sound.",
+    "Earcons are Looscid's short sounds. Settings, Earcons has the master volume, Soundpacks (Looscid, NexOS classic, Insomnia, Hyper Synth, FastSM-inspired, Soundvault, or your own imported pack), and switches for each sound.",
     "Command earcons give every command its own sound, and a failed command plays the error sound. Keyboard earcons click as you type, with their own sounds for Space, Delete and Enter. Both are on by default, and Calm mode never mutes them.",
   ]],
   ["Accessibility", [
@@ -139,18 +139,27 @@ function helpView(p, act) {
         s[2] === "commands" ? h('button', { type: "button", id: "lc-help-commands", className: "btn bgb lc-btn", onClick: act.commands }, "Open the Commands page") : null,
         s[2] === "legal" ? h('button', { type: "button", id: "lc-help-legal", className: "btn bgb lc-btn", onClick: function () { if (Looscid.LC_NAV) Looscid.LC_NAV("legal"); } }, "Open Legal") : null);
     }),
-    h('section', { className: "lc-grp lc-help-sec", "aria-labelledby": "lc-help-h-get", style: { padding: "0 16px 24px" } },
-      h('h2', { id: "lc-help-h-get", className: "lc-sub-h" }, "Get help or contribute"),
-      h('p', { className: "lc-desc" }, "Found a bug, or have an idea? Tell us on GitHub. Looscid is open source, and help is welcome."),
-      h('ul', { className: "lid-help" },
-        h('li', null, h('a', { href: "https://github.com/Looscid/Looscid/issues", target: "_blank", rel: "noopener noreferrer" }, "Report a problem or share an idea on GitHub")),
-        h('li', null, h('a', { href: "https://github.com/Looscid/Looscid", target: "_blank", rel: "noopener noreferrer" }, "Help build Looscid on GitHub")))));
+    // Round 6.6 (Alhasan, 7:13 PM: yes to a Getting help section): the last section. Plain headings, paragraphs and links.
+    h('section', { className: "lc-grp lc-help-sec", "aria-labelledby": "lc-help-h-gethelp", style: { padding: "0 16px 24px" } },
+      h('h2', { id: "lc-help-h-gethelp", className: "lc-sub-h" }, "Getting help"),
+      h('h3', { className: "lid-sub" }, "Send Feedback"),
+      h('p', { className: "lc-desc" }, "Send Feedback is on the About Looscid page: More, About Looscid, Send Feedback. Choose a category, like Bug report, Feature request or Accessibility, write what happened, and press Open it on GitHub. That opens a new issue on Looscid's public GitHub page with your words filled in, so everyone can follow it. GitHub asks you to log in there."),
+      h('button', { type: "button", id: "lc-help-feedback", className: "btn bgb lc-btn", onClick: act.feedback }, "Open Send Feedback"),
+      h('h3', { className: "lid-sub" }, "Report a bug or ask for a feature"),
+      h('p', { className: "lc-desc" }, "You can also go straight to GitHub issues. It opens in a new tab."),
+      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-issues", className: "lc-link", href: "https://github.com/Looscid/Looscid/issues", target: "_blank", rel: "noopener noreferrer" }, "Looscid's GitHub issues: https://github.com/Looscid/Looscid/issues")),
+      h('h3', { className: "lid-sub" }, "Help build Looscid"),
+      h('p', { className: "lc-desc" }, "Looscid is open source, and help is welcome. The Coming soon projects in More, Projects each have a link to help build them on GitHub too."),
+      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-build", className: "lc-link", href: "https://github.com/Looscid/Looscid", target: "_blank", rel: "noopener noreferrer" }, "Help build Looscid on GitHub")),
+      h('h3', { className: "lid-sub" }, "Quick reminders"),
+      h('p', { className: "lc-desc" }, "Type help for the top commands, an area and help for one area, like cherry help or projects help, and commands for every command.")));
 }
 const HelpCenterPage = lcPlainScreen("HelpCenterPage", function (host, props) {
   let p = props, alive = true;
   const act = {
     back: function () { if (p.onBack) p.onBack(); },
     commands: function () { if (Looscid.LC_NAV) Looscid.LC_NAV("commands"); },
+    feedback: function () { if (Looscid.LC_NAV) Looscid.LC_NAV("feedback"); },
   };
   const draw = function () { if (alive) lcPatch(host, helpView(p, act)); };
   draw();
