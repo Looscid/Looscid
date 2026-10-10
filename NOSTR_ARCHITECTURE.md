@@ -24,6 +24,18 @@ Anyone on Nostr can do the same.
 
 ---
 
+### What Works Today (Round 6.4)
+
+Dreams on Nostr, with no server of ours:
+
+- **Your key.** Settings, LooscidID, Keys and IDs, "Nostr key": use a signer (NIP-07), enter your nsec in a secure field, or create a new key. An optional passcode saves it locked as a **NIP-49** ncryptsec (scrypt plus XChaCha20-Poly1305). Without one it's saved unlocked under `dbm_nostr_sk` on this device. It's never in Settings backup.
+- **Dreaming.** With Audience Everyone, a new Dream is a kind:1 note signed on your device, tagged `["client","Looscid"]` and `["t","looscid"]`, sent to your relays (default: relay.damus.io, nos.lol, relay.primal.net, relay.nostr.band; you can change the list). Relays that don't answer are retried. Audience "Only this device" never sends.
+- **Reading back.** On start, Looscid asks your relays for your own kind:1 notes tagged `looscid`, checks each signature, and adds the ones it doesn't have yet. That's how your Dreams show on a new device.
+- **Not yet:** a global feed, replies, ReDreams and profiles on Nostr, and deleting a Dream from relays (NIP-09).
+- The code is `js/nostr.js`; the crypto is vendored in `js/vendor/` and loads only when you use Nostr.
+
+---
+
 ### Nostr NIPs Looscid Uses
 
 #### Identity and Login

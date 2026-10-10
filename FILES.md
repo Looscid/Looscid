@@ -10,6 +10,8 @@ Looscid has no build step. The browser loads plain files in a fixed order: no mo
 | `css/app.css` | The app's styles. |
 | `css/a11y.css` | Startup screen, Commandbar, earcon cues and Settings > Accessibility styles (`<link id="lc-a11y-css">`). |
 | `js/core.js` | Shared state and preferences (`dbm_` storage keys), icons, sounds (earcons, pitch cues), navigation and routing (`App`, the frame), Alerts storage, the update check and version, shared screens and helpers, and the plain DOM helpers (`lcEl`, `lcPatch`, `lcPlainScreen`). |
+| `js/nostr.js` | Dreams on Nostr (Round 6.4): your Nostr key (plain, or locked with a passcode as NIP-49), relays, sending Dreams with a retry queue, and reading your own Dreams back. **Plain JavaScript.** It loads the crypto from `js/vendor/` only when a Nostr feature is used. |
+| `js/vendor/` | Vendored code, committed as is: `nostr-tools-2.25.2.min.js` (keys, signing, nip19, nip49), its `LICENSE`, and a `README.md` with how it was built. |
 | `js/discover.js` | The Discover tab. **Plain JavaScript.** |
 | `js/circles.js` | Circles: create a Circle, a Circle's page, its admin settings, the Circles list. Still React. |
 | `js/feed.js` | The Feed (Home) tab. Still React. |
@@ -23,9 +25,10 @@ Looscid has no build step. The browser loads plain files in a fixed order: no mo
 
 1. React and ReactDOM (UMD). They go once the last React tab is rewritten.
 2. `js/core.js`
-3. The tabs: `js/discover.js`, `js/circles.js`, `js/feed.js`, `js/create.js`, `js/alerts.js`, `js/more.js`
-4. `js/cherry.js`
-5. The mount: a short inline script at the end of `index.html` that starts the app.
+3. `js/nostr.js` (small; `js/vendor/nostr-tools-2.25.2.min.js` is added later, only when Nostr is used)
+4. The tabs: `js/discover.js`, `js/circles.js`, `js/feed.js`, `js/create.js`, `js/alerts.js`, `js/more.js`
+5. `js/cherry.js`
+6. The mount: a short inline script at the end of `index.html` that starts the app.
 
 ## One namespace
 

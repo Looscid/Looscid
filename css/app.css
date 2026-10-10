@@ -507,3 +507,9 @@ h2.slbl,div.slbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:
 .lc-boot .cy{color:#7ff}
 .lc-boot-skip{margin-top:16px;align-self:flex-start;min-height:48px;padding:10px 18px;border-radius:12px;background:#222;color:#fff;border:1px solid #666;font:inherit;cursor:pointer}
 .lc-apps-frame{width:100%;height:calc(100vh - 140px);min-height:420px;border:0;background:#000}
+
+/* Round 6.4: Dreams on Nostr (composer link, Nostr key in Settings) */
+.lc-link{color:var(--ac4);text-decoration:underline;text-underline-offset:2px;display:inline-block;padding:6px 0;min-height:24px}
+.lid-details{margin:10px 0}
+.lid-details>summary{cursor:pointer;color:var(--ac4);text-decoration:underline;padding:8px 0;font-size:14px}
+.lid-details>summary:focus-visible{outline:2px solid var(--ac4);outline-offset:2px;border-radius:6px}

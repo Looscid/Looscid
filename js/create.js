@@ -1,7 +1,7 @@
 /* Looscid create.js: Create (New Dream), attachments, symbols and Drafts.
    Plain script (not a module). Everything it shares goes on window.Looscid; see FILES.md for the load order. */
 (function (Looscid) {
-const { AlertDialog, Av, BackHeader, CreateGroupFlow, DRAFTS_KEY, Earcon, LC_AUTOSAVE_KEY, LcMenu, ME, Modal, _optionalChain, announce, getDrafts, lcCloseProps, lcSpeechText, lh, recordHabit, useEffect, useInertBehind, useRef, useState } = Looscid;
+const { AlertDialog, Av, BackHeader, CreateGroupFlow, DRAFTS_KEY, Earcon, LC_AUTOSAVE_KEY, LcMenu, ME, Modal, _optionalChain, announce, getDrafts, lcCloseProps, lcSpeechText, lh, recordHabit, useEffect, useEnterSubmit, useInertBehind, useRef, useState } = Looscid;
 Object.assign(Looscid, { deleteDraftItem, AttachPanel, CreateMenu, DraftsPage, evalInlineCalc, SymbolPicker, lcSendWithUndo, lcPrepImage });
 
 function deleteDraftItem(id) {
@@ -99,12 +99,36 @@ function AttachPanel({onClose, onAttach, mode}) {
     )
   );
 }
+/* Round 6.4: what the Nostr side can do right now (js/nostr.js), redrawn when it changes. */
+function useNostrState() {
+  const get = function () { return Looscid.lcNostr ? Looscid.lcNostr.state() : { mode: "none", canDream: false }; };
+  const [st, setSt] = useState(get);
+  useEffect(function () { const f = function () { setSt(get()); }; window.addEventListener("looscid-nostr", f); window.addEventListener("looscid-methods", f); return function () { window.removeEventListener("looscid-nostr", f); window.removeEventListener("looscid-methods", f); }; }, []);
+  return st;
+}
+Looscid.useNostrState = useNostrState;
+// Open Settings, LooscidID, Keys and IDs on its "Nostr key" heading (a person chose this, so focus moves there).
+function lcOpenNostrKey(navigate) {
+  navigate("settings_account", { tab: "keys" });
+  let n = 0; const go = function () { const h = document.getElementById("nostr-key-h"); if (h) { h.focus(); return; } if (++n < 30) setTimeout(go, 50); }; setTimeout(go, 80);
+}
+Looscid.lcOpenNostrKey = lcOpenNostrKey;
 function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
   const [screen, setScreen] = useState("menu"); // menu | dream | group
   const [txt, setTxt] = useState("");
   const [attachments, setAttachments] = useState([]);
   const [showAttach, setShowAttach] = useState(false);
   const [audience, setAudience] = useState("everyone");
+  const nst = useNostrState();
+  const [pass, setPass] = useState("");
+  const [passMsg, setPassMsg] = useState("");
+  const unlockKey = async function () {
+    const r = await Looscid.lcNostr.unlock(pass);
+    if (r.err) { setPassMsg(r.err); announce(r.err); return; }
+    setPass(""); setPassMsg(""); announce(r.waiting ? "Unlocked. Sending " + r.waiting + (r.waiting === 1 ? " waiting Dream." : " waiting Dreams.") : "Unlocked.");
+    setTimeout(function () { const t = document.querySelector('textarea[aria-label="Dream content"]'); if (t) t.focus(); }, 30);
+  };
+  const passRef = useEnterSubmit(unlockKey);
   const charLimit = (prefs && prefs.charLimitEnabled) ? prefs.charLimit : null;
   const overLimit = charLimit && txt.length > charLimit;
   const canPost = txt.trim().length>0 && !overLimit;
@@ -131,10 +155,15 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
     recordHabit("postDream", text.slice(0,30));
     try { localStorage.removeItem(LC_AUTOSAVE_KEY); } catch (e) {}
     const opener = openerRef.current;
+    const toNostr = audience === "everyone";
     postedRef.current = true;
     setScreen("menu"); onClose();
     // Round 6.3: once it's dreamed, focus moves to the new Dream in the feed (or back to what opened the composer).
-    lcSendWithUndo("Dream", function () { const id = cherryCtx && cherryCtx.postDream ? cherryCtx.postDream(text) : null; lcFocusAfterPost(id, opener); }, text);
+    // Round 6.4: with Audience Everyone and a Nostr key or signer, it also goes to Nostr relays (one announcement, after "Dream dreamed.").
+    lcSendWithUndo("Dream", function () {
+      const id = cherryCtx && cherryCtx.postDream ? cherryCtx.postDream(text) : null; lcFocusAfterPost(id, opener);
+      if (toNostr && id != null && Looscid.lcNostr) setTimeout(function () { Looscid.lcNostr.publishDream({ id: id, text: text, created: typeof id === "number" ? id : Date.now() }); }, 0);
+    }, text);
   };
   // Round 6.3: the composer is a dialog. Esc closes it, Ctrl+Enter or Command+Enter dreams,
   // Tab stays inside, and closing without dreaming puts focus back on what opened it.
@@ -161,7 +190,13 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
     {id:"everyone",icon:"Everyone",l:"Everyone",sub:"Visible to all Dreamors"},
     {id:"followers",icon:"Followers only",l:"Followers only",sub:"Only your followers see this"},
     {id:"groups",icon:"My Circles",l:"My Circles",sub:"Shared to your Circles"},
+    {id:"device",icon:"Only this device",l:"Only this device",sub:"Never sent anywhere"},
   ];
+  // Round 6.4: the note under Audience says honestly where this Dream goes.
+  const audNote = audience === "device" ? "Only this device: this Dream stays here and is never sent."
+    : !nst.canDream ? "For now, Dreams are saved only on this device."
+    : audience === "everyone" ? "Everyone: your Dream is public on Nostr and can't be fully deleted."
+    : "Followers and Circles aren't on Nostr yet, so this Dream is saved only on this device.";
 
   if (screen==="group") return React.createElement(CreateGroupFlow, { onClose: onClose, navigate: navigate,});
 
@@ -195,7 +230,16 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
         , lh('div', { className: "lc-cr-aud", style: {padding:"0 16px 6px"} },
             lh(LcMenu, { id: "cr-audience", label: "Audience", hideLabel: true, title: "Who can see this?", prefix: "Audience: ", btnClass: "btn bgb lc-aud-btn", align: "left", value: audience,
               items: audiences.map(function (a) { return { id: a.id, name: a.l, note: a.sub }; }), onSelect: function (v) { setAudience(v); } }),
-            lh('p', { id: "cr-device-note", className: "lc-desc", style: {margin:"6px 0 0",fontSize:12,color:"var(--tx3)"} }, "For now, Dreams are saved only on this device."))
+            lh('p', { id: "cr-device-note", className: "lc-desc", style: {margin:"6px 0 0",fontSize:12,color:"var(--tx3)"} }, audNote),
+            !nst.canDream && audience !== "device" && lh('p', { className: "lc-desc", style: {margin:"4px 0 0",fontSize:12} },
+              lh('a', { id: "cr-nostr-link", href: "#nostr-key", className: "lc-link", onClick: function (e) { e.preventDefault(); setScreen("menu"); onClose(); lcOpenNostrKey(navigate); } }, "Set up a Nostr key to Dream to everyone")),
+            nst.mode === "locked" && audience === "everyone" && lh('div', { className: "lc-cr-unlock", style: {margin:"8px 0 0"} },
+              lh('p', { className: "lc-desc", style: {margin:"0 0 4px",fontSize:12} }, "Your Nostr key is locked. Enter your passcode so this Dream goes to Nostr too, or Dream now and it's sent after you unlock."),
+              lh('label', { htmlFor: "cr-pass", className: "lc-fs-l" }, "Passcode"),
+              lh('div', { className: "lc-inrow" },
+                lh('input', { id: "cr-pass", ref: passRef, type: "password", className: "lc-text", autoComplete: "off", autoCapitalize: "off", spellCheck: false, value: pass, onChange: function (e) { setPass(e.target.value); } }),
+                lh('button', { type: "button", className: "btn bgb lc-btn", onClick: unlockKey }, "Unlock")),
+              passMsg && lh('p', { className: "lid-err" }, passMsg)))
 
         /* Attachments preview */
         , attachments.length>0 && (

@@ -1412,6 +1412,173 @@ async function lcVerifyId(kind, c) {
     return { ok: true }; // a valid npub checksum is the whole check: it is a public key
   } catch (e) { return { ok: false, offline: true }; } finally { clearTimeout(t); }
 }
+/* --- Round 6.4: Nostr key (Settings > LooscidID > Keys and IDs) ----------------------------
+   Three ways in: a signer (NIP-07, the key never touches Looscid), entering your key in a secure
+   field, or creating a new key here. An optional passcode saves the key locked (NIP-49 ncryptsec).
+   The key is never in Settings backup. js/nostr.js does the work; this is only the screen. */
+function lcCopyText(text, ok) {
+  const fail = function () { announce("Couldn't copy. Use Show key and copy it yourself."); };
+  try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { announce(ok); }, fail); else fail(); } catch (e) { fail(); }
+}
+function lcFocusId(id) { setTimeout(function () { const el = document.getElementById(id); if (el) el.focus(); }, 40); }
+function NostrPassFields({ pass, setPass, pass2, setPass2 }) {
+  return lh(React.Fragment, null,
+    lh('label', { htmlFor: "nostr-pass", className: "lid-label" }, "Passcode (optional)"),
+    lh('input', { id: "nostr-pass", className: "inp", type: "password", autoComplete: "off", autoCapitalize: "off", spellCheck: false, value: pass, onChange: function (e) { setPass(e.target.value); } }),
+    lh('label', { htmlFor: "nostr-pass2", className: "lid-label" }, "Type the passcode again"),
+    lh('input', { id: "nostr-pass2", className: "inp", type: "password", autoComplete: "off", autoCapitalize: "off", spellCheck: false, value: pass2, onChange: function (e) { setPass2(e.target.value); } }),
+    lh('p', { className: "lid-help" }, "With a passcode, your key is saved locked (encrypted with NIP-49), and Looscid asks for the passcode once each time you open it, before you Dream. Without a passcode, your key is saved unlocked in this browser's storage on this device, so anyone who can open this browser could read it."));
+}
+function NostrKeySection() {
+  const N = Looscid.lcNostr;
+  const st = Looscid.useNostrState();
+  const hasExt = typeof window !== "undefined" && !!window.nostr && typeof window.nostr.getPublicKey === "function";
+  const [how, setHow] = useState(hasExt ? "signer" : "enter");
+  const [nsec, setNsec] = useState("");
+  const [pass, setPass] = useState(""); const [pass2, setPass2] = useState("");
+  const [unl, setUnl] = useState("");
+  const [msg, setMsg] = useState(null); // {t, err}
+  const [busy, setBusy] = useState(false);
+  const [created, setCreated] = useState(null); // {nsec, npub}
+  const [confirmRm, setConfirmRm] = useState(false);
+  const [relayIn, setRelayIn] = useState("");
+  const [relayList, setRelayList] = useState(N ? N.relays() : []);
+  useEffect(function () { const f = function () { if (N) setRelayList(N.relays()); }; window.addEventListener("looscid-nostr", f); return function () { window.removeEventListener("looscid-nostr", f); }; }, []);
+  const say = function (t, err) { setMsg({ t: t, err: !!err }); announce(t, err ? "error" : undefined); };
+  const passOk = function () {
+    if (pass !== pass2) { say("The two passcodes don't match. Type them again.", true); lcFocusId("nostr-pass"); return false; }
+    return true;
+  };
+  const saveKey = async function () {
+    if (busy) return;
+    if (!nsec.trim()) { say("Type or paste your nsec key first.", true); lcFocusId("nostr-nsec"); return; }
+    if (!passOk()) return;
+    setBusy(true); const r = await N.importKey(nsec, pass); setBusy(false);
+    if (r.err) { say(r.err, true); lcFocusId("nostr-nsec"); return; }
+    setNsec(""); setPass(""); setPass2("");
+    say(pass ? "Key saved on this device, locked with your passcode." : "Key saved on this device.");
+    lcFocusId("nostr-key-h");
+    // Read your Dreams back from Nostr now; say so only if some came back.
+    N.fetchOwn().then(function (f) { if (f && f.added) setTimeout(function () { announce(f.added === 1 ? "Found 1 of your Dreams on Nostr." : "Found " + f.added + " of your Dreams on Nostr."); }, 1600); }, function () {});
+  };
+  const nsecRef = useEnterSubmit(saveKey);
+  const create = async function () {
+    if (busy || !passOk()) return;
+    setBusy(true); const r = await N.createKey(pass); setBusy(false);
+    if (r.err) { say(r.err, true); return; }
+    setPass(""); setPass2(""); setMsg(null);
+    setCreated({ nsec: r.nsec, npub: r.npub });
+    lcFocusId("nostr-new-h");
+  };
+  const signer = async function () {
+    if (busy) return;
+    setBusy(true); const r = await N.useSigner(); setBusy(false);
+    if (r.err) { say(r.err, true); return; }
+    say("Using your signer. Your key stays in your signer.");
+    lcFocusId("nostr-key-h");
+    N.fetchOwn().catch(function () {});
+  };
+  const unlock = async function () {
+    if (busy) return;
+    setBusy(true); const r = await N.unlock(unl); setBusy(false);
+    if (r.err) { say(r.err, true); lcFocusId("nostr-unlock"); return; }
+    setUnl(""); say(r.waiting ? "Unlocked. Sending " + r.waiting + (r.waiting === 1 ? " waiting Dream." : " waiting Dreams.") : "Unlocked until you close Looscid.");
+    lcFocusId("nostr-key-h");
+  };
+  const unlockRef = useEnterSubmit(unlock);
+  const lock = async function () {
+    if (busy) return;
+    if (!pass) { say("Type a passcode first.", true); lcFocusId("nostr-pass"); return; }
+    if (!passOk()) return;
+    setBusy(true); const r = await N.setPasscode(pass); setBusy(false);
+    if (r.err) { say(r.err, true); return; }
+    setPass(""); setPass2(""); say("Your key is now locked with your passcode."); lcFocusId("nostr-key-h");
+  };
+  const unlockPass = function () { const r = N.removePasscode(); if (r.err) { say(r.err, true); return; } say("Passcode removed. Your key is saved unlocked on this device."); lcFocusId("nostr-key-h"); };
+  const addRelay = function () {
+    const u = N.cleanRelay(relayIn);
+    if (!u) { say("That isn't a relay address. It starts with wss://", true); lcFocusId("nostr-relay-in"); return; }
+    if (relayList.indexOf(u) >= 0) { say(u + " is already in your list.", true); return; }
+    setRelayList(N.setRelays(relayList.concat([u]))); setRelayIn(""); say("Added " + u + ".");
+  };
+  const relayRef = useEnterSubmit(addRelay);
+  const rmRelay = function (u) {
+    if (relayList.length <= 1) { say("Keep at least one relay, or use the default relays.", true); return; }
+    setRelayList(N.setRelays(relayList.filter(function (x) { return x !== u; }))); say("Removed " + u + "."); lcFocusId("nostr-relays-h");
+  };
+  if (!N) return null;
+  const status = st.mode === "signer" ? "Your signer holds your key. Looscid asks it to sign each Dream."
+    : st.mode === "locked" ? "Your key is saved on this device, locked with a passcode. Enter it to Dream to Nostr."
+    : st.mode === "key" && st.encrypted ? "Your key is saved on this device, locked with a passcode, and unlocked until you close Looscid."
+    : st.mode === "key" ? "Your key is saved on this device without a passcode."
+    : st.mode === "view" ? "No key yet. Your Dreams from your linked public key load here, but this device can't Dream to Nostr until you add your key."
+    : "No key yet. Dreams are saved only on this device.";
+  const has = st.mode === "signer" || st.mode === "key" || st.mode === "locked";
+  let body;
+  if (created) body = lh('div', null,
+    lh('h4', { id: "nostr-new-h", className: "lid-label", tabIndex: -1 }, "Save your new key"),
+    lh('p', { className: "lid-warn" }, "Save this key somewhere safe. It's the only way to get your Dreams on another device. Looscid can't recover it."),
+    lh(SecretField, { id: "nostr-nsec-new", label: "Your new Nostr secret key (nsec)", value: created.nsec, readOnly: true }),
+    lh('div', { className: "lid-actions" },
+      lh('button', { type: "button", className: "btn bgb", onClick: function () { lcCopyText(created.nsec, "Key copied."); } }, "Copy key"),
+      lh('button', { type: "button", className: "btn bp", onClick: function () { setCreated(null); say("Your Nostr key is ready."); lcFocusId("nostr-key-h"); } }, "I saved my key")));
+  else if (has) body = lh('div', null,
+    st.npub && lh('p', { className: "lid-help" }, "Your public key (npub), safe to share: ", lh('span', { className: "lid-mono", id: "nostr-npub" }, st.npub)),
+    st.npub && lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bgb", onClick: function () { lcCopyText(st.npub, "npub copied."); } }, "Copy npub")),
+    st.mode === "locked" && lh(React.Fragment, null,
+      lh('label', { htmlFor: "nostr-unlock", className: "lid-label" }, "Passcode"),
+      lh('input', { id: "nostr-unlock", ref: unlockRef, className: "inp", type: "password", autoComplete: "off", autoCapitalize: "off", spellCheck: false, value: unl, onChange: function (e) { setUnl(e.target.value); } }),
+      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", disabled: busy, onClick: unlock }, "Unlock"))),
+    st.mode === "key" && !st.encrypted && lh('details', { className: "lid-details" },
+      lh('summary', null, "Lock your key with a passcode"),
+      lh(NostrPassFields, { pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2 }),
+      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", disabled: busy, onClick: lock }, "Lock with passcode"))),
+    st.mode === "key" && st.encrypted && lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bgb", onClick: unlockPass }, "Remove passcode")),
+    st.queued > 0 && lh(React.Fragment, null,
+      lh('p', { className: "lid-help" }, st.queued === 1 ? "1 Dream is waiting to reach relays." : st.queued + " Dreams are waiting to reach relays."),
+      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bgb", onClick: function () { N.processQueue().then(function () { const q = N.queue().length; say(q ? "Still couldn't reach relays. Looscid will try again." : "All waiting Dreams reached relays."); }); } }, "Try again now"))),
+    lh('div', { className: "lid-actions" }, lh('button', { type: "button", id: "nostr-remove", className: "btn bgb", onClick: function () { setConfirmRm(true); } }, "Remove key from this device")));
+  else body = lh('div', null,
+    lh('fieldset', { className: "lc-fs" },
+      lh('legend', { className: "lc-fs-l" }, "How do you want to add your key?"),
+      lh('div', { className: "lc-radios lc-radios-col" }, [hasExt ? ["signer", "Use a signer"] : null, ["enter", "Enter my key"], ["create", "Create a new key"]].filter(Boolean).map(function (x) {
+        return lh('label', { key: x[0], className: "lc-radio" + (how === x[0] ? " on" : "") },
+          lh('input', { type: "radio", name: "nostr-how", value: x[0], checked: how === x[0], onChange: function () { setHow(x[0]); setMsg(null); } }), lh('span', null, x[1]));
+      }))),
+    how === "signer" && hasExt && lh(React.Fragment, null,
+      lh('p', { className: "lid-help" }, "Your signer keeps your key. Looscid only asks it for your public key and to sign each Dream."),
+      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", disabled: busy, onClick: signer }, "Use my signer"))),
+    how === "enter" && lh(React.Fragment, null,
+      lh(SecretField, { id: "nostr-nsec", label: "Your Nostr secret key (nsec)", value: nsec, onChange: setNsec, inputRef: nsecRef }),
+      lh('p', { className: "lid-help" }, "It starts with nsec1. It's saved only on this device and never sent anywhere. Never share it with anyone."),
+      lh(NostrPassFields, { pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2 }),
+      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", disabled: busy, onClick: saveKey }, "Save key"))),
+    how === "create" && lh(React.Fragment, null,
+      lh('p', { className: "lid-help" }, "Looscid makes a new key on this device. Nothing is sent anywhere until you Dream."),
+      lh(NostrPassFields, { pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2 }),
+      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", disabled: busy, onClick: create }, "Create key"))));
+  return lh('section', { className: "lid-panel", 'aria-labelledby': "nostr-key-h" },
+    lh('h3', { id: "nostr-key-h", className: "lid-label", tabIndex: -1 }, "Nostr key"),
+    lh('p', { className: "lid-help" }, "With a Nostr key, your Dreams with Audience Everyone also go to Nostr relays, so you and anyone can see them anytime, from any device. Looscid has no server."),
+    lh('p', { className: "lid-help", id: "nostr-status" }, status),
+    msg && lh('p', { className: msg.err ? "lid-err" : "lid-help" }, msg.t),
+    body,
+    lh('h4', { id: "nostr-relays-h", className: "lid-label", tabIndex: -1 }, "Relays"),
+    lh('p', { className: "lid-help" }, "Your Dreams go to these relays and are read back from them."),
+    lh('ul', { className: "lid-links", role: "list", 'aria-labelledby': "nostr-relays-h" }, relayList.map(function (u) {
+      return lh('li', { key: u }, lh('span', { className: "lid-mono" }, u),
+        lh('button', { type: "button", className: "btn bgb", 'aria-label': "Remove relay " + u, onClick: function () { rmRelay(u); } }, "Remove"));
+    })),
+    lh('label', { htmlFor: "nostr-relay-in", className: "lid-label" }, "Add a relay"),
+    lh('input', { id: "nostr-relay-in", ref: relayRef, className: "inp", type: "url", inputMode: "url", autoComplete: "off", autoCapitalize: "off", spellCheck: false, placeholder: "wss://", value: relayIn, onChange: function (e) { setRelayIn(e.target.value); } }),
+    lh('div', { className: "lid-actions" },
+      lh('button', { type: "button", className: "btn bgb", onClick: addRelay }, "Add relay"),
+      !N.usingDefaultRelays() && lh('button', { type: "button", className: "btn bgb", onClick: function () { setRelayList(N.resetRelays()); say("Using the default relays."); } }, "Use default relays")),
+    confirmRm && lh(AlertDialog, { title: "Remove your Nostr key from this device?",
+      message: "Your Dreams stay on this device and on Nostr. This device can't Dream to Nostr until you add your key again. Make sure you saved your key first: Looscid can't recover it.",
+      confirmLabel: "Remove", onCancel: function () { setConfirmRm(false); lcFocusId("nostr-remove"); },
+      onConfirm: function () { setConfirmRm(false); N.forget(); say("Your Nostr key was removed from this device."); lcFocusId("nostr-key-h"); } }));
+}
 function LcKeysPanel({ goMethods }) {
   const [kind, setKind] = useState("nostr");
   const [val, setVal] = useState("");
@@ -1625,6 +1792,7 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
     lh(LoginMethods, null));
   else if (tab === "keys") panel = lh(React.Fragment, null,
     PH("Keys and IDs", "Your Nostr key and your fediverse and Bluesky handles. Link one by pasting it: no password, nothing shared."),
+    lh(NostrKeySection, null),
     lh(LcKeysPanel, { goMethods: function () { go("methods", "lid-methods-h"); } }));
   else if (tab === "devices") panel = lh(React.Fragment, null,
     PH("Devices", "Where your LooscidID is signed in."),
@@ -1717,12 +1885,17 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 109; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 110; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 30;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.109.30", build: 139, released: LOOSCID_RELEASED, title: "Round 6.3", notes: [
+  { version: "2026.110.30", build: 140, released: LOOSCID_RELEASED, title: "Round 6.4", notes: [
+    "Round 6.4: Dreams on Nostr, your key in a secure field with an optional passcode.",
+    "Set up a Nostr key in Settings, LooscidID, Keys and IDs: use a signer, enter your key in a secure field with a Show key button, or create a new key. An optional passcode keeps it locked on this device.",
+    "With Audience Everyone, a new Dream also goes to Nostr relays, so you and anyone can see it from any device. Your own Dreams load back from the relays when you open Looscid with your key. Audience has a new choice: Only this device.",
+  ] },
+  { version: "2026.109.30", build: 139, released: "2026-10-10T15:40:22Z", title: "Round 6.3", notes: [
     "Round 6.3: Dreams are saved on your device, composer order and focus fixes.",
     "Your Dreams stay after a reload. They're saved only on this device for now, and the composer says so.",
     "New Dream is a dialog: the text box comes first, then attachments, then Dream and Close. Control+Enter or Command+Enter dreams it, Escape closes, and then focus moves to your new Dream.",

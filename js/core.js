@@ -81,7 +81,8 @@ function getLinkInfo(text) {
    Settings backup doesn't include them, so the backup format is unchanged. */
 const LC_DREAMS_KEY = "dbm_dreams";
 Looscid.LC_DREAMS_KEY = LC_DREAMS_KEY;
-const LC_DREAM_SAVE = ["id", "text", "likes", "redreams", "quotes", "liked", "redreamed", "quoted", "bookmarked", "created"];
+// Round 6.4: "nid" is the Nostr note id of a Dream that went to Nostr, so it is never fetched twice.
+const LC_DREAM_SAVE = ["id", "text", "likes", "redreams", "quotes", "liked", "redreamed", "quoted", "bookmarked", "created", "nid"];
 function lcAgo(t) {
   const s = Math.max(0, (Date.now() - (+t || Date.now())) / 1000);
   if (s < 60) return "just now";
@@ -113,11 +114,15 @@ function lcSyncOwnDreams(prev, next) {
   const changed = next.filter(function (d) { return d.user === ME && pm.get(d.id) !== d; });
   const gone = new Set(prev.filter(function (d) { return d.user === ME && !nm.has(d.id); }).map(function (d) { return d.id; }));
   if (!changed.length && !gone.size) return;
-  let saved = lcSavedDreamsRaw().filter(function (s) { return !gone.has(s.id); });
+  const all = lcSavedDreamsRaw();
+  // A Dream from Nostr that you remove here stays removed: it isn't fetched again (Round 6.4).
+  all.forEach(function (s) { if (gone.has(s.id) && s.nid && Looscid.lcNostr) Looscid.lcNostr.hide(s.nid); });
+  let saved = all.filter(function (s) { return !gone.has(s.id); });
   changed.slice().reverse().forEach(function (d) {
     const o = {}; LC_DREAM_SAVE.forEach(function (k) { if (d[k] !== undefined) o[k] = d[k]; });
     const old = saved.find(function (s) { return s.id === d.id; });
     if (!o.created) o.created = (old && old.created) || (typeof d.id === "number" && d.id > 1e12 ? d.id : Date.now());
+    if (!o.nid && old && old.nid) o.nid = old.nid;
     if (old) saved[saved.indexOf(old)] = o; else saved.unshift(o);
   });
   try { localStorage.setItem(LC_DREAMS_KEY, JSON.stringify(saved.slice(0, 1000))); } catch (e) {}
@@ -837,6 +842,7 @@ const LC_FIND_STATIC = [
   { l: "Menu Close buttons", w: "menu close button top bottom", page: "settings_cz_menu", focus: "cz-topclose", where: "Settings, Customizability, Menu" },
   { l: "Character limit", w: "character limit length dream posting", page: "settings_cz_posting", focus: "cz-charlimit", where: "Settings, Customizability, Dreaming" },
   { l: "Keys and IDs", w: "nostr npub key fediverse mastodon bluesky handle link id keys login", page: "settings_account", data: { tab: "keys" }, focus: "lid-panel-h", where: "Settings, LooscidID" },
+  { l: "Nostr key", w: "nostr key nsec npub passcode signer relays create key secret key dream on nostr", page: "settings_account", data: { tab: "keys" }, focus: "nostr-key-h", where: "Settings, LooscidID, Keys and IDs" },
   { l: "Looscid Labs and Coming soon", w: "labs planned coming soon roadmap", page: "settings_labs", where: "Settings" },
   { l: "Apps", w: "apps nexos insomnia meme projects easyconvert desktop kernel app store", page: "nexos_apps", where: "Menu, Apps" },
   { l: "Looscid App Store", w: "app store nexos app store store apps install", page: "nexos_apps", focus: "lc-nx-shell-store", where: "Apps, Desktop" },
@@ -955,6 +961,7 @@ const PRIVACY_CONTENT = `<p><strong>Last updated: October 10, 2026</strong></p>
 <h2>When Looscid talks to the network</h2>
 <ul>
 <li>When you link a login method (Nostr, Mastodon and the fediverse, Bluesky, Funkwhale or Hubzilla), Looscid talks straight to that network from your device. Your server may have your email; Looscid never asks for it.</li>
+<li>Dreams on Nostr: when you set up a Nostr key in Settings, LooscidID, a Dream with Audience Everyone goes from your device straight to the Nostr relays in your list, and it's public there. Looscid also reads your own Dreams back from those relays, so they show on any device with your key. Your secret key never leaves this device, and it's never in Settings backup. With Audience "Only this device", or without a key, nothing is sent.</li>
 <li>Music and the apps load only when you open them.</li>
 <li>Cherry is off until you turn it on. Its on-device model downloads only after you say yes. After that it runs on your device, offline.</li>
 <li>When you link a Bluesky or fediverse handle in Keys and IDs, Looscid looks it up once on that network to check it exists. A Nostr public key is checked on your device.</li>
@@ -1610,8 +1617,8 @@ function lcAnnounceCount(q, n, one, many) { clearTimeout(Looscid.LC_COUNT_T); if
 // Kept for the older call sites (LooscidID): the same component.
 function MenuPopupButton(props) { return lh(LcMenu, props); }
 /* --- LooscidID: identity store and Nostr ------------------------------------
-   Everything stays on this device. Nothing here makes a network request except
-   loading nostr-tools from jsDelivr (pinned version + SRI) when Nostr is used. */
+   Everything here stays on this device. Dreams on Nostr (Round 6.4) live in js/nostr.js:
+   it talks only to the relays in your list, and only when you have a key or a public key set. */
 const LID_IDENTITY_KEY = "looscid_identity";
 Looscid.LID_IDENTITY_KEY = LID_IDENTITY_KEY;
 const LID_NOSTR_SK_KEY = "dbm_nostr_sk"; // was looscid_nostr_sk; moved on first read
@@ -1659,24 +1666,13 @@ function removeMethod(id) {
 }
 const PROVIDER_NAMES = { nostr: "Nostr", activitypub: "Mastodon & fediverse", atproto: "Bluesky", pubky: "Pubky", funkwhale: "Funkwhale", hubzilla: "Hubzilla" };
 Looscid.PROVIDER_NAMES = PROVIDER_NAMES;
-function setStoredNostrSk(hex) { try { if (hex) localStorage.setItem(LID_NOSTR_SK_KEY, hex); else localStorage.removeItem(LID_NOSTR_SK_KEY); } catch (e) {} }
+function setStoredNostrSk(hex) { try { if (hex) { localStorage.setItem(LID_NOSTR_SK_KEY, hex); localStorage.removeItem("dbm_nostr_ncryptsec"); } else { localStorage.removeItem(LID_NOSTR_SK_KEY); localStorage.removeItem("dbm_nostr_ncryptsec"); } } catch (e) {} try { window.dispatchEvent(new Event("looscid-nostr")); } catch (e) {} }
 function signOutIdentity() { const m = getMethods().find(function (x) { return x.provider === "nostr"; }); if (m) removeMethod(m.id); else { setStoredNostrSk(null); setIdentity(null); } }
-const NOSTR_TOOLS_SRC = "https://cdn.jsdelivr.net/npm/nostr-tools@2.25.2/lib/nostr.bundle.js";
-Looscid.NOSTR_TOOLS_SRC = NOSTR_TOOLS_SRC;
-const NOSTR_TOOLS_SRI = "sha384-FXQAsrQPF8+Yw4G9sjW+s9sUIozKgjjidpD4OPcUaIxR5Z7gMcDFArOKmEq+KES2";
-Looscid.NOSTR_TOOLS_SRI = NOSTR_TOOLS_SRI;
-Looscid.nostrToolsPromise = null;
+// Round 6.4: nostr-tools is vendored (js/vendor, see its README) and loaded by js/nostr.js only when
+// a Nostr feature is used. No CDN.
 function loadNostrTools() {
-  if (window.NostrTools) return Promise.resolve(window.NostrTools);
-  if (Looscid.nostrToolsPromise) return Looscid.nostrToolsPromise;
-  Looscid.nostrToolsPromise = new Promise(function (resolve, reject) {
-    const s = document.createElement("script");
-    s.src = NOSTR_TOOLS_SRC; s.integrity = NOSTR_TOOLS_SRI; s.crossOrigin = "anonymous"; s.referrerPolicy = "no-referrer";
-    s.onload = function () { window.NostrTools ? resolve(window.NostrTools) : reject(new Error("missing")); };
-    s.onerror = function () { Looscid.nostrToolsPromise = null; reject(new Error("load")); };
-    document.head.appendChild(s);
-  });
-  return Looscid.nostrToolsPromise;
+  if (window.NostrTools && window.NostrTools.nip49) return Promise.resolve(window.NostrTools);
+  return Looscid.lcNostr ? Looscid.lcNostr.load() : Promise.reject(new Error("load"));
 }
 function bytesToHex(b) { return Array.from(b, function (x) { return x.toString(16).padStart(2, "0"); }).join(""); }
 function hexToBytes(hex) { const out = new Uint8Array(hex.length / 2); for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.substr(i * 2, 2), 16); return out; }
@@ -2615,13 +2611,13 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    A commit is a fix when its subject matches (?i)^\s*(fix|hotfix|bugfix|chore|typo|revert|patch|docs?|style|refactor|cleanup|tweak|ci)\b
    or has fix, fixes or fixed anywhere; anything else is a feature update. Builds = commits.
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
-   Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update).
+   Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.109.30";
+const LOOSCID_VERSION = "2026.110.30";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 139;
+const LOOSCID_BUILD = 140;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-10T15:40:22Z"; // the Round 6.3 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-10T16:52:30Z"; // the Round 6.4 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -3606,7 +3602,7 @@ function lcRun(raw, api) {
     case "terminal": return goTo("terminal");
     case "status": case "health": {
       const p = api.profile || {};
-      L((navigator.onLine === false ? "Offline" : "Online") + ". Looscid " + LOOSCID_VERSION + " is local-first, so your data stays on this device.", "ok");
+      L((navigator.onLine === false ? "Offline" : "Online") + ". Looscid " + LOOSCID_VERSION + " is local-first, so your data stays on this device." + (Looscid.lcNostr && Looscid.lcNostr.state().canDream ? " Your Dreams with Audience Everyone also go to your Nostr relays." : ""), "ok");
       L("LooscidID: " + (p.displayName || "Dreamor") + (p.handle ? " (" + p.handle + ")" : "") + ", saved on this device.");
       L("Sounds: " + (a.visualCue ? "replaced by the visual cue" : a.earcons ? "on, volume " + a.earconVolume + " percent" : "off") + ". Captions: " + (a.captions ? "on" : "off") + ".");
       L("Calm mode: " + (a.calmMode ? "on" : "off") + ". Flash safety: " + (a.flashSafety ? "on" : "off") + ". Reduce Motion: " + (motionReduced() ? "on" + (systemReducedMotion() ? ", set by your device" : "") : "off") + ". Three-flash limit: always enforced.");
@@ -4266,6 +4262,17 @@ useEffect(() => {
   // -- Global app state Cherry can read & mutate ------------------------------
   const [appDreams, setAppDreams] = useState(() => lcMergeDreams(lcLoadDreams(), DREAMS_INIT));
   useSavedDreams(appDreams);
+  // Round 6.4: your Dreams read back from Nostr relays (js/nostr.js) join the app quietly: no announcement, no focus move.
+  useEffect(() => {
+    const f = function (e) {
+      const ids = new Set(((e && e.detail && e.detail.ids) || []).map(String));
+      const add = lcLoadDreams().filter(function (d) { return ids.has(String(d.id)); });
+      if (!add.length) return;
+      setAppDreams(function (ds) { const have = new Set(ds.map(function (d) { return String(d.id); })); const nids = new Set(ds.map(function (d) { return d.nid; }).filter(Boolean)); return add.filter(function (d) { return !have.has(String(d.id)) && !nids.has(d.nid); }).concat(ds); });
+    };
+    window.addEventListener("looscid-dreams-fetched", f);
+    return function () { window.removeEventListener("looscid-dreams-fetched", f); };
+  }, []);
   const [appFollowing, setAppFollowing] = useState(new Set(LC_FIX.following || [])); // IDs we follow
   const [appGroups, setAppGroups] = useState(GROUPS);                                     // joined state
   const [appNotifs, setAppNotifs] = useState(NOTIFS_INIT);

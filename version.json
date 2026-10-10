@@ -1,14 +1,14 @@
 {
   "app": "Looscid",
   "branch": "preview",
-  "version": "2026.109.30",
-  "build": 139,
-  "features": 109,
+  "version": "2026.110.30",
+  "build": 140,
+  "features": 110,
   "fixes": 30,
-  "builds_without_fixes": 109,
-  "released": "2026-10-10T15:40:22Z",
-  "title": "Round 6.3",
-  "notes": "Dreams are saved on your device, so they stay after a reload. The New Dream composer is a dialog with the text box first, then attachments, Dream and Close. A fix update.",
+  "builds_without_fixes": 110,
+  "released": "2026-10-10T16:52:30Z",
+  "title": "Round 6.4",
+  "notes": "Dreams on Nostr. Set up your Nostr key in Settings (a signer, your key in a secure field, or a new key), with an optional passcode. Dreams with Audience Everyone also go to Nostr relays and load back on any device with your key. A feature update.",
   "branches": {
     "MainV1": {
       "version": "2026.70.103",
@@ -29,9 +29,9 @@
       "fixes": 103
     },
     "preview": {
-      "version": "2026.109.30",
-      "build": 139,
-      "features": 109,
+      "version": "2026.110.30",
+      "build": 140,
+      "features": 110,
       "fixes": 30
     },
     "refactor/discover-extraction": {
@@ -60,10 +60,10 @@
     }
   },
   "all_branches": {
-    "version": "2026.764.516",
-    "build": 1280,
-    "features": 764,
+    "version": "2026.765.516",
+    "build": 1281,
+    "features": 765,
     "fixes": 516,
-    "builds_without_fixes": 764
+    "builds_without_fixes": 765
   }
 }
