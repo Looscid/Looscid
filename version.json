@@ -1,14 +1,14 @@
 {
   "app": "Looscid",
   "branch": "preview",
-  "version": "2026.109.27",
-  "build": 136,
+  "version": "2026.109.28",
+  "build": 137,
   "features": 109,
-  "fixes": 27,
+  "fixes": 28,
   "builds_without_fixes": 109,
-  "released": "2026-10-10T12:41:40Z",
-  "title": "Round 6",
-  "notes": "Privacy sections, Reset in every settings list, update check, louder sounds, Commandbar, Looscid's own apps.",
+  "released": "2026-10-10T14:08:08Z",
+  "title": "Round 6.1",
+  "notes": "Split into files (css/, js/, FILES.md); Alerts and Discover in plain JavaScript. A fix update: nothing you see or hear changes.",
   "branches": {
     "MainV1": {
       "version": "2026.70.103",
@@ -29,10 +29,10 @@
       "fixes": 103
     },
     "preview": {
-      "version": "2026.109.27",
-      "build": 136,
+      "version": "2026.109.28",
+      "build": 137,
       "features": 109,
-      "fixes": 27
+      "fixes": 28
     },
     "refactor/discover-extraction": {
       "version": "2026.95.10",
@@ -60,10 +60,10 @@
     }
   },
   "all_branches": {
-    "version": "2026.764.513",
-    "build": 1277,
+    "version": "2026.764.514",
+    "build": 1278,
     "features": 764,
-    "fixes": 513,
+    "fixes": 514,
     "builds_without_fixes": 764
   }
 }
