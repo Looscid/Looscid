@@ -10,6 +10,8 @@ const lh = React.createElement;
 // Cherry chats sit in Chats (Alhasan said yes, Oct 10), and a Marketplace like is a listing.
 const LC_LIKED_TABS = [
   { id: "dreams", label: "Dreams", k: "dream", none: "No liked Dreams yet. Like a Dream and it shows up here." },
+  // Build 150 (#59, Alhasan 10:52 AM Oct 11): the Media tab, with Photos, GIFs and Videos filters (was "Images only").
+  { id: "media", label: "Media", k: "media", none: "No liked Dreams with photos, GIFs or videos yet." },
   { id: "circles", label: "Circles", k: "circle", none: "No liked Circles yet. Like a Circle and it shows up here." },
   { id: "apps", label: "Apps", k: "app", none: "No liked Apps yet. Like an App and it shows up here." },
   { id: "marketplace", label: "Marketplace", k: "listing", none: "No liked listings yet. Marketplace isn't open in Looscid yet, so there are no listings to like." },
@@ -26,6 +28,24 @@ function lcLikedHasImage(x) {
   return IMG_RE.test(String(x.text || "").split(/\s+/).filter(function (w) { return /^https?:\/\//i.test(w); }).join(" "));
 }
 Looscid.lcLikedHasImage = lcLikedHasImage;
+// Build 150 (#59): what media a liked Dream carries: photos, GIFs, videos (its media list, then links in its text).
+const LC_LK_GIF = /\.gif(\?|#|$)/i, LC_LK_PHOTO = /\.(jpe?g|png|webp|avif|heic)(\?|#|$)/i, LC_LK_VIDEO = /\.(mp4|mov|webm|m4v)(\?|#|$)/i;
+function lcLikedMediaKinds(x) {
+  const r = { photos: false, gifs: false, videos: false };
+  if (!x) return r;
+  const urls = [];
+  (Array.isArray(x.media) ? x.media : []).concat(Array.isArray(x.images) ? x.images : [], x.image ? [x.image] : []).forEach(function (m) {
+    const t = typeof m === "string" ? "" : String((m && (m.type || m.mime || m.kind)) || "").toLowerCase();
+    const u = typeof m === "string" ? m : String((m && (m.url || m.src)) || "");
+    if (/gif/.test(t) || LC_LK_GIF.test(u)) r.gifs = true;
+    else if (/video/.test(t) || LC_LK_VIDEO.test(u)) r.videos = true;
+    else if (/image|photo/.test(t) || LC_LK_PHOTO.test(u) || (!t && u)) r.photos = true;
+  });
+  String(x.text || "").split(/\s+/).forEach(function (w) { if (!/^https?:\/\//i.test(w)) return; if (LC_LK_GIF.test(w)) r.gifs = true; else if (LC_LK_VIDEO.test(w)) r.videos = true; else if (LC_LK_PHOTO.test(w)) r.photos = true; });
+  return r;
+}
+Looscid.lcLikedMediaKinds = lcLikedMediaKinds;
+const LC_LK_MEDIA = [["photos", "Photos"], ["gifs", "GIFs"], ["videos", "Videos"]];
 function LikedRow({ item, label, onOpen, openLabel }) {
   return lh('li', { className: "lc-liked-row" },
     lh('span', { className: "lc-liked-name" }, label),
@@ -38,7 +58,7 @@ function LikedView({ navigate, cherryCtx, idp, intro, onComment, extraPanels }) 
   useLikedTick();
   const [tab, setTabS] = useState(lcLikedTabMem[idp] || "dreams");
   const setTab = function (t) { lcLikedTabMem[idp] = t; setTabS(t); };
-  const [imgs, setImgs] = useState(false);
+  const [mf, setMf] = useState({ photos: true, gifs: true, videos: true }); // build 150 (#59): Media tab filters
   const [activeComment, setActiveComment] = useState(null);
   const [, bump] = useState(0);
   // A Dream you unlike here stays in the list (shown as not liked) until you leave, so focus never jumps.
@@ -64,19 +84,22 @@ function LikedView({ navigate, cherryCtx, idp, intro, onComment, extraPanels }) 
     setTimeout(function () { const b = document.getElementById(idp + "-tab-" + LC_LIKED_TABS[n].id); if (b) b.focus(); }, 0);
   };
   const ai = lcAiOn();
+  const mediaOf = function (list) { return list.filter(function (d) { const k = lcLikedMediaKinds(d); return (mf.photos && k.photos) || (mf.gifs && k.gifs) || (mf.videos && k.videos); }); };
   const listFor = function (t) {
-    if (t.k === "dream") return imgs ? dreams.filter(lcLikedHasImage) : dreams;
+    if (t.k === "dream") return dreams;
+    if (t.k === "media") return mediaOf(dreams);
     let a = lcLikedItems(t.k);
     if (t.k === "chat" && !ai) a = a.filter(function (x) { return !x.cherry; }); // Cherry's chats show only while Cherry is on
-    return imgs ? a.filter(lcLikedHasImage) : a;
+    return a;
   };
+  const imgs = false; // build 150: "Images only" is gone; the Media tab has Photos, GIFs and Videos instead
   const panel = function (t) {
     const list = listFor(t);
     const custom = (extraPanels && extraPanels[t.id]) || (t.k === "search" ? function (o) { return lh(LikedSearches, { list: o.list, cherryCtx: cherryCtx }); } : null);
     let body;
     if (custom) body = custom({ list: list, imgs: imgs });
-    else if (!list.length) body = lh('p', { className: "lc-muted lc-liked-none" }, imgs ? "No liked " + t.label + " with images." : t.none);
-    else if (t.k === "dream") body = list.map(function (d) {
+    else if (!list.length) body = lh('p', { className: "lc-muted lc-liked-none" }, t.none);
+    else if (t.k === "dream" || t.k === "media") body = list.map(function (d) {
       return lh(DreamCard, { key: d.id, dream: d, onLike: toggleDream, onBookmark: toggleDream, onRedream: noop, onUndoRedream: noop, onQuote: noop, onUndoQuote: noop,
         onComment: function (x) { if (onComment) onComment(x); else setActiveComment(x); }, navigate: navigate, cherryCtx: cherryCtx });
     });
@@ -86,7 +109,18 @@ function LikedView({ navigate, cherryCtx, idp, intro, onComment, extraPanels }) 
       const open = x.k === "circle" ? function () { navigate("groups"); } : x.k === "app" ? function () { Looscid.lcOpenLikedApp && Looscid.lcOpenLikedApp(x, navigate); } : x.k === "chat" ? function () { if (x.cherry && Looscid.lcCherryOpenChat) Looscid.lcCherryOpenChat(x.id); navigate(x.cherry ? "cherry" : "alerts"); } : null;
       return lh(LikedRow, { key: x.k + ":" + x.id, item: x, label: label, onOpen: open });
     }));
-    return lh('div', { key: t.id, id: idp + "-panel-" + t.id, role: "tabpanel", "aria-labelledby": idp + "-tab-" + t.id, hidden: tab !== t.id, className: "lc-liked-panel" }, body);
+    // Build 150 (#59): the Media tab starts with Show: Photos, GIFs, Videos, native checkboxes in a fieldset (all on to start).
+    const filters = t.k === "media" ? lh('fieldset', { className: "lc-fs lc-liked-mf", id: idp + "-media-show" },
+      lh('legend', { className: "lc-fs-l" }, "Show"),
+      lh('div', { className: "lc-radios" }, LC_LK_MEDIA.map(function (o) {
+        return lh('label', { key: o[0], className: "lc-radio" + (mf[o[0]] ? " on" : ""), htmlFor: idp + "-mf-" + o[0] },
+          lh('input', { type: "checkbox", id: idp + "-mf-" + o[0], checked: !!mf[o[0]], onChange: function (e) {
+            const next = Object.assign({}, mf); next[o[0]] = e.target.checked; setMf(next);
+            const n = dreams.filter(function (d) { const k = lcLikedMediaKinds(d); return (next.photos && k.photos) || (next.gifs && k.gifs) || (next.videos && k.videos); }).length;
+            announce(o[1] + (e.target.checked ? " on. " : " off. ") + n + (n === 1 ? " liked Dream." : " liked Dreams."));
+          } }), lh('span', null, o[1]));
+      }))) : null;
+    return lh('div', { key: t.id, id: idp + "-panel-" + t.id, role: "tabpanel", "aria-labelledby": idp + "-tab-" + t.id, hidden: tab !== t.id, className: "lc-liked-panel" }, filters, body);
   };
   return lh('div', { className: "lc-liked" },
     intro ? lh('p', { className: "lc-liked-intro" }, intro) : null,
@@ -95,9 +129,6 @@ function LikedView({ navigate, cherryCtx, idp, intro, onComment, extraPanels }) 
         const on = tab === t.id;
         return lh('button', { key: t.id, id: idp + "-tab-" + t.id, type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", "aria-controls": idp + "-panel-" + t.id, tabIndex: on ? 0 : -1, onClick: function () { setTab(t.id); } }, t.label);
       })),
-    lh('label', { className: "lc-radio lc-liked-img", htmlFor: idp + "-images" },
-      lh('input', { type: "checkbox", id: idp + "-images", checked: imgs, onChange: function (e) { setImgs(e.target.checked); announce(e.target.checked ? "Images only. Showing liked things with images." : "Showing everything you liked."); } }),
-      " Images only"),
     LC_LIKED_TABS.map(panel));
 }
 Object.assign(Looscid, { LikedView });
@@ -202,7 +233,7 @@ function LikedPage({ navigate, cherryCtx }) {
   useEffect(function () { if (head.current) head.current.focus(); }, []);
   return lh('div', { className: "pg lc-liked-page" },
     lh('div', { className: "hdr" }, lh('div', { className: "hdr-row" },
-      lh('button', { type: "button", className: "bi", onClick: function () { navigate("feed"); }, "aria-label": "Back" }, lh(Looscid.Ic.Bck, { style: { width: 21, height: 21 } })),
+      lh('button', { type: "button", className: "bi", onClick: function () { navigate("settings"); }, "aria-label": "Back" }, lh(Looscid.Ic.Bck, { style: { width: 21, height: 21 } })),
       lh('h1', { className: "hdr-title", tabIndex: -1, ref: head }, "Liked"))),
     lh(LikedView, { navigate: navigate, cherryCtx: cherryCtx, idp: "lk", intro: "Everything you liked, in one place. Only you can see this page." }));
 }

@@ -652,7 +652,7 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
               )
               , lh(LcMenu, { id: "rd-cv-" + dream.id, kind: "action", title: "Redream or Quote", btnLabel: fmt(rdTotal) + " Redreams", btnClass: "cbx-wrap" + (rdActive?" redd":""), noCaret: true, up: true,
                   btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, fmt(rdTotal), " Redreams")],
-                  items: [{ id: "rd", name: dream.redreamed ? "Undo Redream" : "Redream" }, { id: "q", name: dream.quoted ? "Undo Quote" : "Quote Dream" }],
+                  items: [{ id: "rd", name: dream.redreamed ? "Unredream" : "Redream" }, { id: "q", name: dream.quoted ? "Unquote Dream" : "Quote Dream" }],
                   onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
               /* Build 147: liking is saving, so the separate Save box is gone (Like above is the one toggle). */
               , lh(DreamOptionsMenu, { id: "dopts-cv-" + dream.id, dream: dream, btnRef: dreamOptsBtn, onBookmark: onBookmark, onLike: onLike, navigate: navigate })
@@ -782,7 +782,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
           )
           , lh(LcMenu, { id: "rd-" + dream.id, kind: "action", title: "Redream or Quote", btnLabel: calm ? "Redreams" + (rdActive ? ", Redreamed" : "") : fmt(rdTotal)+" Redreams", btnClass: "cbx-wrap"+(rdActive?" redd":""), noCaret: true, up: true, className: "lc-rdmenu",
               btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, calm ? "" : fmt(rdTotal), calm ? "Redreams" : " Redreams")],
-              items: [{ id: "rd", name: dream.redreamed ? "Undo Redream" : "Redream" }, { id: "q", name: dream.quoted ? "Undo Quote" : "Quote Dream" }],
+              items: [{ id: "rd", name: dream.redreamed ? "Unredream" : "Redream" }, { id: "q", name: dream.quoted ? "Unquote Dream" : "Quote Dream" }],
               onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
           , React.createElement('button', { className: "cbx-wrap"+(dream.liked?" liked":""), onClick: ()=>{ if (!dream.liked) Earcon.play("like"); onLike(dream.id); }, 'aria-label': lcVerb() === "low" ? "Like" + (dream.liked ? ", liked" : "") : (calm ? "Likes" + (dream.liked ? ", liked" : "") : fmt(dream.likes)+" likes") + (lcVerb() === "high" ? ", double tap to " + (dream.liked ? "unlike" : "like") : ""),}
             , React.createElement('div', { className: "cbx-box",}, dream.liked && React.createElement(ChkMark, null))
@@ -1450,6 +1450,8 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
   const [open, setOpen] = useState(() => Object.assign(Looscid.lcProjectsOpen && Looscid.lcProjectsOpen() ? {projects: true} : {}, initOpen ? {[initOpen]: true} : {}));
   // Back from a Settings screen reopens this menu on the item it came from.
   useEffect(() => {
+    // Build 150 (#60): Back from Liked or your profile reopens More on the button that opened it (focus "#more-liked").
+    if (!initOpen && initFocus && initFocus.charAt(0) === "#") { const t0 = setTimeout(() => { const el = document.getElementById(initFocus.slice(1)); if (el) el.focus(); }, 30); return () => clearTimeout(t0); }
     if (!initOpen) return;
     const t = setTimeout(() => {
       const body = document.getElementById("msec-" + initOpen);
@@ -4902,6 +4904,9 @@ const SETTINGS_MENU_ITEM = {
   settings_a11y_sr: ["settings", "Accessibility"], settings_a11y_vision: ["settings", "Accessibility"], settings_a11y_hearing: ["settings", "Accessibility"],
   settings_a11y_motion: ["settings", "Accessibility"], settings_a11y_motor: ["settings", "Accessibility"], settings_a11y_terminal: ["settings", "Accessibility"],
   terms: ["about", "Terms"], privacy: ["about", "Privacy"], guidelines: ["about", "Community rules"], feedback: ["about", "Send Feedback"],
+  // Build 150 (#60): Liked and your own profile are opened from More's top buttons, so Back returns there with the same
+  // sound as every Settings screen (it used to drop you on Home with no Back sound).
+  liked: [null, "#more-liked"], profile: [null, "#more-view-profile"], nexos_apps: ["settings", "Apps"],
 };
 Looscid.SETTINGS_MENU_ITEM = SETTINGS_MENU_ITEM;
 function App() {
@@ -5095,7 +5100,7 @@ useEffect(() => {
       if (subFrom.current[cur] === target) delete subFrom.current[cur]; else subFrom.current[target] = cur;
     } else if (/^settings_/.test(target) && !/^settings_/.test(cur)) delete subFrom.current[target];
     // About Looscid's own buttons (Terms, Privacy, Community rules, Send Feedback): Back returns to About.
-    if (!showMenuRef.current && cur === "settings_about" && /^(terms|privacy|guidelines|feedback|credits)$/.test(target)) subFrom.current[target] = cur;
+    if (!showMenuRef.current && cur === "settings_about" && /^(terms|privacy|guidelines|feedback|credits|nexos_apps)$/.test(target)) subFrom.current[target] = cur;
     // Round 6.6: Legal's buttons (Terms, Privacy, Community rules, Credits): Back returns to Legal.
     if (!showMenuRef.current && cur === "legal" && /^(terms|privacy|guidelines|credits)$/.test(target)) subFrom.current[target] = cur;
     // Round 6.6: the Help Center's Getting help opens Send Feedback; Back returns to the Help Center.

@@ -403,7 +403,8 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   };
   return lh('div', { className: "pg lc-prof" },
     lh('div', { className: "hdr" }, lh('div', { className: "hdr-row" },
-      lh('button', { type: "button", className: "bi", onClick: function () { navigate("feed"); }, 'aria-label': "Back" }, lh(Ic.Bck, { style: { width: 21, height: 21 } })),
+      // Build 150 (#60): your own profile lives in More (View your profile), so Back returns there with the Back sound.
+      lh('button', { type: "button", className: "bi", onClick: function () { navigate(isMe ? "settings" : "feed"); }, 'aria-label': "Back" }, lh(Ic.Bck, { style: { width: 21, height: 21 } })),
       lh('span', { className: "hdr-title", "aria-hidden": "true" }, "Profile"),
       lh('button', { type: "button", ref: moreBtn, id: "pf-more-btn", className: "bi lc-prof-morebtn", "aria-expanded": moreOpen ? "true" : "false", "aria-controls": "pf-more",
           onClick: function () { setMoreOpen(!moreOpen); } }, lh(Ic.Dots, { style: { width: 18, height: 18 }, "aria-hidden": "true" }), lh('span', null, "Dreamor options")))), // build 150 (#49): not "More" on profiles
@@ -596,7 +597,7 @@ function NotificationsSettings({navigate}) {
 // Build 147 (Alhasan, 9:44-9:48 PM): who sees your Liked tab. One "Show on my profile" box per Liked tab, all off.
 function LcLikedPrivacy() {
   const [pub, setPub] = useState(lcLikedPublic);
-  const tabs = Looscid.LC_LIKED_TABS || [];
+  const tabs = (Looscid.LC_LIKED_TABS || []).filter(function (t) { return t.k !== "media"; }); // build 150: Media is a view of Dreams, not its own kind
   const flip = function (id, on) {
     const next = tabs.map(function (t) { return t.id; }).filter(function (x) { return x === id ? on : pub.indexOf(x) >= 0; });
     lcSetLikedPublic(next); setPub(next);
@@ -2327,6 +2328,9 @@ const LC_VERSION_HISTORY = [
     "Thread view, like Alhasan's Feditext idea: opening a Dream's replies shows just that Dream. Expand thread shows the whole thread, the Dreams above it and every reply; the same button then says Collapse thread. The words change in place and focus stays on the button.",
     "Each Dream's options button is Feditext's More button now. Its pop-up starts with Feditext's items in Feditext's order: Like (Feditext's Bookmark), Mute, Block, and Report (coming soon) for someone else's Dream, then Looscid's own (Read, Hear thread, Translate, Share, profile, Ask Cherry). Closing it says Close More.",
     "Help in More is a real pop-up menu button now (Alhasan, 4:36 PM): it opens a menu with Help Center and Commands. Up and Down move, Enter opens, Escape closes it and puts you back on Help. Commands isn't its own section in More anymore. Back from Commands puts you on Help.",
+    "Liked: the Images only checkbox is gone. Liked has a Media tab (after Dreams) that starts with Show: Photos, GIFs and Videos, three checkboxes, all on; turn any off and Looscid says how many liked Dreams are left.",
+    "Back sounds (Alhasan: Liked's Back played no sound): every Back was checked. Liked, your own profile and Apps now go Back the same way Settings screens do: More opens again on the button you came from, with the same Back sound.",
+    "Undo words: Unredream (not Undo Redream), Unquote Dream (not Undo Quote), and Unlike / Unliked, everywhere they appear.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by Alhasan. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
@@ -2811,7 +2815,7 @@ function AppsSettings({ navigate }) {
 function NexosAppsPage({ navigate }) {
   // Round 6: Looscid's Apps page (page id kept as nexos_apps so old links still land here).
   return lh('div', { className: "pg" },
-    lh(BackHeader, { title: "Apps", onBack: function () { navigate("feed"); } }),
+    lh(BackHeader, { title: "Apps", onBack: function () { navigate("settings"); } }), // build 150 (#60): Back returns where Apps was opened, with the Back sound
     lh('div', { style: { padding: "0 16px 24px" } },
       lh('p', { className: "lc-desc", style: { fontSize: 15 } }, "Looscid's own apps. Each opens right here, with Back. Nothing loads until you open one."),
       lh('h2', { className: "slbl", id: "lc-nx-h" }, "Apps"),
