@@ -2290,6 +2290,7 @@ const LC_VERSION_HISTORY = [
   { version: "2026.117.33", build: 150, released: LOOSCID_RELEASED, title: "Round 7", notes: [
     "Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each.",
     "Every menu, sheet, dialog and pop-up is truly modal (Alhasan: after the last item in Create, VoiceOver read Home and the status page behind it). While one is open, everything outside it is hidden from VoiceOver, braille and the keyboard; Tab and Shift+Tab stay inside a dialog; when it closes, focus goes back to the button that opened it. The live announcer still speaks. Covers Create, More, the Commandbar, pop-up menus, Dream options, alerts, Circle sheets and Reset. Escape now closes More too.",
+    "Braille roles like a BrailleNote (KeySoft): every button shows edbt instead of btn, a radio button shows ⠺⠿⠗ when it's on and ⠺⠤⠗ when it's off, and a checkbox shows ⠸⠿⠇ when it's on and ⠸⠤⠇ when it's off. BrailleNote is the new Button style on braille and the default (iPhone btn moves to it once). Braille only: nothing changes on screen, and speech still says button, radio button and checkbox with their state. Still to be checked on a real iPhone with a braille display.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by Alhasan. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
@@ -2920,7 +2921,7 @@ function BrailleStyle() {
     return function () { window.removeEventListener("looscid:braillestyles", f); window.removeEventListener("looscid:brnotice", f); Looscid.LC_BR_NOTICE = null; }; // leaving the page ends the notice
   }, []);
   const list = lcBrList();
-  const style = a.brailleStyle || "iphone";
+  const style = a.brailleStyle || "braillenote";
   const selCustom = list.find(function (x) { return "c:" + x.id === style; });
   const [isNew, setIsNew] = useState(false);
   const [txt, setTxt] = useState(selCustom ? selCustom.name : "");
@@ -2942,7 +2943,7 @@ function BrailleStyle() {
     else return;
     if (r.err) { setErr(r.err); announce(r.err); if (fieldRef.current) fieldRef.current.focus(); return; }
     setIsNew(false);
-    const now = Looscid.A11Y_NOW.brailleStyle || "iphone";
+    const now = Looscid.A11Y_NOW.brailleStyle || "braillenote";
     setTxt(r.entry && now === "c:" + r.entry.id ? r.entry.name : "");
     announce(r.ok.replace(/\. Undo is available\.$/, ", Undo"));
     focusRadio(now);
@@ -2967,7 +2968,7 @@ function BrailleStyle() {
   return lh('section', { className: "lc-bs", "aria-labelledby": "lc-bs-h", id: "lc-bs" },
     lh('h3', { id: "lc-bs-h", className: "lc-sub-h", tabIndex: -1 }, "Button style on braille"),
     lh(A11ySwitch, { id: "set-brailleRoles", label: "Short roles on braille", on: a.brailleRoles !== false, onToggle: function () { const v = !(a.brailleRoles !== false); lcSet({ brailleRoles: v }); announce("Short roles on braille: " + (v ? "on" : "off") + "."); setTimeout(lcBrStamp, 0); },
-      desc: "Buttons show a short role on your braille display, like btn, while speech still says button." }),
+      desc: "Buttons show a short role on your braille display, like edbt, while speech still says button. With BrailleNote, radio buttons and checkboxes show their state the BrailleNote way too." }),
     lh('fieldset', { className: "lc-fs", id: "set-brailleStyle", disabled: a.brailleRoles === false },
       lh('legend', { className: "lc-fs-l" }, "Button style on braille"),
       lh('div', { className: "lc-radios lc-radios-col" },
@@ -2996,7 +2997,7 @@ function BrailleStyle() {
     n ? lh('div', { className: "lc-bs-notice", id: "lc-bs-notice" },
       lh('p', { className: "lc-bs-nt" }, n.text + "."),
       n.undo ? lh('button', { type: "button", className: "btn bp lc-btn", id: "lc-bs-undo", onClick: function () { const r = lcBrUndo(); announce(r.err || r.ok); if (!r.err) focusRadio("c:" + r.entry.id); } }, "Undo") : null,
-      lh('button', { type: "button", className: "btn bgb lc-btn", id: "lc-bs-dismiss", "aria-label": "Dismiss notice", "aria-braillelabel": "Dismiss", onClick: function () { lcBrNotice(null); focusRadio(Looscid.A11Y_NOW.brailleStyle || "iphone"); } }, "Dismiss")) : null);
+      lh('button', { type: "button", className: "btn bgb lc-btn", id: "lc-bs-dismiss", "aria-label": "Dismiss notice", "aria-braillelabel": "Dismiss", onClick: function () { lcBrNotice(null); focusRadio(Looscid.A11Y_NOW.brailleStyle || "braillenote"); } }, "Dismiss")) : null);
 }
 // Settings > Accessibility > Screen reader and braille: General | Speech | Braille as real tabs.
 const LC_SR_TABS = [["general", "sr_general"], ["speech", "sr_speech"], ["verbosity", "verbosity"], ["braille", "sr_braille"]];

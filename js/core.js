@@ -949,7 +949,7 @@ Looscid.LC_A11Y_PAGE = LC_A11Y_PAGE;
    Typing "label" or "braille" lists the matching settings; picking one opens its page
    (and tab) and puts focus on it. The result count goes to the one polite live region. */
 const LC_FIND_STATIC = [
-  { l: "Button style on braille", pri: true, w: "label labels labeling labelling button role roles edbt btn short role custom braille iphone android", page: "settings_a11y_sr", tab: "braille", focus: "lc-bs-h" },
+  { l: "Button style on braille", pri: true, w: "label labels labeling labelling button role roles edbt btn short role custom braille iphone android braillenote keysoft radio checkbox", page: "settings_a11y_sr", tab: "braille", focus: "lc-bs-h" },
   { l: "Custom braille label", w: "custom label new custom edbt2 rename delete name braille button labeling", page: "settings_a11y_sr", tab: "braille", focus: "lc-bs-r-new" },
   { l: "Past names for custom braille labels", w: "history past names old names label braille", page: "settings_a11y_sr", tab: "braille", focus: "lc-bs-h" },
   { l: "Text size", w: "font bigger larger", page: "settings_a11y_vision", focus: "a11y-textSize" },
@@ -2400,8 +2400,8 @@ const LC_SET = [
     desc: "Looscid's own echo while you write a Dream, on top of your screen reader's. Off by default, so nothing is said twice." },
   // Braille
   { k: "brailleRoles", s: "sr_braille", hide: true, l: "Short roles on braille", t: "bool", d: true, al: ["short roles on braille", "short roles", "braille roles", "braille role"],
-    desc: "Buttons show a short role on your braille display, like btn, while speech still says button. Pick the style under Button style on braille." },
-  { k: "brailleStyle", s: "sr_braille", hide: true, l: "Button style on braille", t: "bstyle", d: "iphone", al: [] },
+    desc: "Buttons show a short role on your braille display, like edbt, while speech still says button. With BrailleNote, radio buttons and checkboxes show their state the BrailleNote way too. Pick the style under Button style on braille." },
+  { k: "brailleStyle", s: "sr_braille", hide: true, l: "Button style on braille", t: "bstyle", d: "braillenote", al: [] },
   { k: "brailleOutput", s: "sr_braille", l: "Braille display output", t: "bool", d: false, old: true, al: ["braille display output", "braille output", "braille display"],
     desc: "Sends short braille labels for Commandbar, Dreams and their results to a connected braille display, through your screen reader. Sighted people still see the normal text." },
   { k: "enterSend", s: "sr_braille", l: "Enter = Send", t: "bool", d: true, old: true, al: ["enter send", "enter to send", "enter sends"],
@@ -4591,20 +4591,24 @@ function lcResetSection(sec) { lcSet(lcSectionDefaults(sec)); announce(lcSection
    real iPhone with a braille display: WebKit decides whether it uses the word. */
 const LC_BR_KEY = "dbm_braille_styles";
 Looscid.LC_BR_KEY = LC_BR_KEY;
-const LC_BR_BUILTIN = [["iphone", "iPhone", "btn"], ["android", "Android", "edbt"]];
+// Build 150 (#63, Alhasan 11:01 AM Oct 11): BrailleNote, like KeySoft: buttons edbt, radio buttons w + a full or dash cell + r,
+// checkboxes dots 4-5-6 + a full or dash cell + l. The default now. Braille only: speech is unchanged.
+const LC_BR_BUILTIN = [["braillenote", "BrailleNote", "edbt"], ["iphone", "iPhone", "btn"], ["android", "Android", "edbt"]];
+const LC_BR_STATE = { radio: ["\u283a\u283f\u2817", "\u283a\u2824\u2817"], checkbox: ["\u2838\u283f\u2807", "\u2838\u2824\u2807"] }; // [on, off]: ⠺⠿⠗ ⠺⠤⠗, ⠸⠿⠇ ⠸⠤⠇
+Looscid.LC_BR_STATE = LC_BR_STATE;
 Looscid.LC_BR_BUILTIN = LC_BR_BUILTIN;
 const LC_BR_MAX = 10, LC_BR_LEN = 8;
 Looscid.LC_BR_MAX = LC_BR_MAX; Looscid.LC_BR_LEN = LC_BR_LEN;
 function lcBrList() { try { const v = JSON.parse(localStorage.getItem(LC_BR_KEY) || "[]"); return Array.isArray(v) ? v.filter(function (x) { return x && x.id && x.name; }) : []; } catch (e) { return []; } }
 function lcBrSave(list) { try { localStorage.setItem(LC_BR_KEY, JSON.stringify(list)); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:braillestyles")); lcBrStamp(); }
 function lcBrWord(style) {
-  const s = style || Looscid.A11Y_NOW.brailleStyle || "iphone";
+  const s = style || Looscid.A11Y_NOW.brailleStyle || "braillenote";
   const b = LC_BR_BUILTIN.find(function (x) { return x[0] === s; }); if (b) return b[2];
-  const c = lcBrList().find(function (x) { return "c:" + x.id === s; }); return c ? c.name : "btn";
+  const c = lcBrList().find(function (x) { return "c:" + x.id === s; }); return c ? c.name : "edbt";
 }
 function lcBrStyleLabel(s) {
   const b = LC_BR_BUILTIN.find(function (x) { return x[0] === s; }); if (b) return b[1] + " (" + b[2] + ")";
-  const c = lcBrList().find(function (x) { return "c:" + x.id === s; }); return c ? "Custom (" + c.name + ")" : "iPhone (btn)";
+  const c = lcBrList().find(function (x) { return "c:" + x.id === s; }); return c ? "Custom (" + c.name + ")" : "BrailleNote (edbt)";
 }
 function lcBrDate(t) { try { return new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); } catch (e) { return ""; } }
 function lcBrFind(name) { const n = String(name || "").trim().toLowerCase(); return lcBrList().find(function (x) { return x.name.toLowerCase() === n; }) || null; }
@@ -4650,7 +4654,7 @@ function lcBrDelete(id) {
   const list = lcBrList(), i = list.findIndex(function (x) { return x.id === id; }); if (i < 0) return { err: "That custom style is gone." };
   const e = list[i], wasSel = Looscid.A11Y_NOW.brailleStyle === "c:" + id;
   list.splice(i, 1); lcBrSave(list);
-  if (wasSel) lcSet({ brailleStyle: "iphone" });
+  if (wasSel) lcSet({ brailleStyle: "braillenote" });
   lcBrStamp();
   lcBrNotice({ kind: "deleted", text: "Deleted " + e.name, undo: { entry: e, index: i, wasSel: wasSel } });
   return { ok: "Deleted " + e.name + ". Undo is available.", entry: e };
@@ -4687,12 +4691,33 @@ function lcBrStamp() {
     if (!w) { if (b.hasAttribute("data-lcbr")) { b.removeAttribute("aria-roledescription"); b.removeAttribute("aria-brailleroledescription"); b.removeAttribute("data-lcbr"); } return; }
     if (b.getAttribute("aria-brailleroledescription") !== w) { b.setAttribute("aria-roledescription", "button"); b.setAttribute("aria-brailleroledescription", w); b.setAttribute("data-lcbr", "1"); }
   });
+  // Build 150 (#63): BrailleNote radio buttons and checkboxes, one braille role for on and one for off.
+  // Only aria-brailleroledescription: nothing on screen, and speech keeps "radio button" / "checkbox" and the state.
+  const bn = on && (Looscid.A11Y_NOW.brailleStyle || "braillenote") === "braillenote";
+  document.querySelectorAll('input[type="radio"], [role="radio"], input[type="checkbox"], [role="checkbox"]').forEach(function (el) {
+    const r = el.getAttribute("role");
+    if (r && r !== "radio" && r !== "checkbox") { if (el.hasAttribute("data-lcbr")) { el.removeAttribute("aria-brailleroledescription"); el.removeAttribute("data-lcbr"); } return; } // a switch keeps its own role
+    if (!bn) { if (el.hasAttribute("data-lcbr")) { el.removeAttribute("aria-brailleroledescription"); el.removeAttribute("data-lcbr"); } return; }
+    const kind = (r || el.type) === "radio" ? "radio" : "checkbox";
+    const checked = el.tagName === "INPUT" && !r ? el.checked : el.getAttribute("aria-checked") === "true";
+    const word = LC_BR_STATE[kind][checked ? 0 : 1];
+    if (el.getAttribute("aria-brailleroledescription") !== word) { el.setAttribute("aria-brailleroledescription", word); el.setAttribute("data-lcbr", "1"); }
+  });
 }
+function lcBrSoon() { if (Looscid.LC_BR_RAF) return; Looscid.LC_BR_RAF = requestAnimationFrame(function () { Looscid.LC_BR_RAF = 0; lcBrStamp(); }); }
 function lcBrWatch() {
   if (Looscid.LC_BR_MO || typeof MutationObserver === "undefined") return;
-  Looscid.LC_BR_MO = new MutationObserver(function () { if (Looscid.LC_BR_RAF) return; Looscid.LC_BR_RAF = requestAnimationFrame(function () { Looscid.LC_BR_RAF = 0; lcBrStamp(); }); });
-  Looscid.LC_BR_MO.observe(document.body, { childList: true, subtree: true });
+  Looscid.LC_BR_MO = new MutationObserver(lcBrSoon);
+  Looscid.LC_BR_MO.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["aria-checked", "role", "type"] });
   window.addEventListener("looscid:a11y", lcBrStamp);
+  // A checkbox or radio that changes (a tap, a key, or React setting .checked) gets its new braille role right away.
+  document.addEventListener("change", lcBrSoon, true); document.addEventListener("click", lcBrSoon, true);
+  try {
+    const d = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "checked");
+    if (d && d.set && !d.set.__lcbr) { const set = function (v) { d.set.call(this, v); if (this.type === "radio" || this.type === "checkbox") lcBrSoon(); }; set.__lcbr = true; Object.defineProperty(HTMLInputElement.prototype, "checked", { configurable: true, enumerable: d.enumerable, get: d.get, set: set }); }
+  } catch (e) {}
+  // Build 150 (Alhasan: "every button shows edbt"): iPhone (btn) was the old default, so it moves to BrailleNote once.
+  try { if (!localStorage.getItem("dbm_br_bn150")) { localStorage.setItem("dbm_br_bn150", "1"); if (Looscid.A11Y_NOW.brailleStyle === "iphone") lcSet({ brailleStyle: "braillenote" }); } } catch (e) {}
   lcBrStamp();
 }
 // Commands and Cherry: every braille-style action (queue 4g).
@@ -4704,7 +4729,7 @@ function lcBrIntent(raw) {
   if (n === "undo") { if (!Looscid.LC_BR_NOTICE || !Looscid.LC_BR_NOTICE.undo) return null; return res(lcBrUndo()); }
   if (new RegExp("^(?:list )?" + T + "s?$|^braille styles$|^button styles$").test(n)) {
     const list = lcBrList();
-    return { say: "Button style on braille: " + lcBrStyleLabel(Looscid.A11Y_NOW.brailleStyle) + ". Styles: iPhone (btn), Android (edbt)" + list.map(function (x) { return ", Custom (" + x.name + ")"; }).join("") + ". Short roles on braille is " + (Looscid.A11Y_NOW.brailleRoles !== false ? "on" : "off") + "." };
+    return { say: "Button style on braille: " + lcBrStyleLabel(Looscid.A11Y_NOW.brailleStyle) + ". Styles: BrailleNote (edbt), iPhone (btn), Android (edbt)" + list.map(function (x) { return ", Custom (" + x.name + ")"; }).join("") + ". Short roles on braille is " + (Looscid.A11Y_NOW.brailleRoles !== false ? "on" : "off") + "." };
   }
   if ((m = new RegExp("^(?:new|add|create|save) " + T + " (.+)$").exec(n))) return res(lcBrCreate(m[1]));
   if ((m = new RegExp("^rename " + T + " (.+?) to (.+)$").exec(n)) || (m = /^rename (\S+) to (\S+)$/.exec(n))) { const e = lcBrFind(m[1]); if (!e) return { err: "No custom style called \u201c" + m[1] + "\u201d." }; return res(lcBrRename(e.id, m[2])); }
@@ -4726,6 +4751,7 @@ function lcBrIntent(raw) {
   if ((m = /^(?:remove|forget|permanently remove) past name (.+?) (?:from|for) (.+?)(?: history)?$/.exec(n))) { const e = lcBrFind(m[2]); if (!e) return { err: "No custom style called \u201c" + m[2] + "\u201d." }; const i = (e.history || []).findIndex(function (p) { return p.name.toLowerCase() === m[1].trim(); }); if (i < 0) return { err: e.name + " has no past name \u201c" + m[1] + "\u201d." }; return res(lcBrForget(e.id, i)); }
   if ((m = new RegExp("^(?:set |use |select |choose |pick )?" + T + "(?: to)? (.+)$").exec(n))) {
     const v = m[1].trim();
+    if (/^(braillenote|braille note|keysoft|humanware)$/.test(v)) return sel("braillenote");
     if (/^(iphone|ios|btn|apple)$/.test(v)) return sel("iphone");
     if (/^(android|edbt|talkback)$/.test(v)) return sel("android");
     const e = lcBrFind(v.replace(/^custom /, "")); if (e) return sel("c:" + e.id);
