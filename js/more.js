@@ -830,10 +830,15 @@ const LC_AI_CATS = [
   { id: "cherry", page: "settings_ai_cherry", l: "Cherry", sub: "Turn Cherry on or off, learning from your habits, privacy" },
   { id: "model", page: "settings_ai_model", l: "Cherry model", sub: "Built-in, or an on-device model you download once" },
   { id: "cmd", page: "settings_ai_cmd", l: "Commandbar", sub: "Cherry's answers when a command doesn't match" },
+  // Build 150 (#66): Cherry's memory, tools and audit. Feed algorithm settings are not here: they are in Feeds.
+  { id: "memory", page: "settings_ai_memory", l: "Memory", sub: "Saving chats in Your History, deleting them" },
+  { id: "tools", page: "settings_ai_tools", l: "Tools", sub: "What Cherry is allowed to do for you" },
+  { id: "audit", page: "settings_ai_audit", l: "What Cherry did", sub: "Everything Cherry did for you, with Undo" },
 ];
 Looscid.LC_AI_CATS = LC_AI_CATS;
-function IntelligenceSettings({ navigate, page, prefs, setPrefs }) {
+function IntelligenceSettings({ navigate, page, prefs, setPrefs, cherryCtx }) {
   const [, tick] = useState(0);
+  const [askDel, setAskDel] = useState(false);
   useEffect(function () { const f = function () { tick(function (x) { return x + 1; }); }; window.addEventListener("looscid:llm", f); return function () { window.removeEventListener("looscid:llm", f); }; }, []);
   const ap = getAIPrefs();
   const cat = LC_AI_CATS.find(function (c) { return c.page === page; });
@@ -859,6 +864,57 @@ function IntelligenceSettings({ navigate, page, prefs, setPrefs }) {
       lh(Looscid.CherryModelPicker, null),
       lh('p', { className: "lc-desc" }, "On-device models need WebGPU: Safari 26 on iPhone, or a recent Chrome or Edge. Sizes are the download size. Cherry built-in needs no download."),
       lcAiOn() ? null : lh('p', { className: "lc-desc" }, "Cherry is off, so the model is only used after you turn Cherry on in Intelligence, Cherry."));
+  } else if (cat.id === "memory") {
+    const chats = Looscid.lcCherryChats(), pins = chats.filter(function (c) { return c.pinned; }).length;
+    const keep = getAIPrefs().keepChats !== false;
+    body = lh(React.Fragment, null,
+      lh(A11ySwitch, { id: "ai-keep", label: "Save chats in Your History", desc: "On: your chats with Cherry are kept on this device, in Your History and in Settings backup. Off: new chats are not kept after you leave them.", on: keep,
+        onToggle: function () { const v = !(getAIPrefs().keepChats !== false); lcSetAiPref({ keepChats: v }); announce("Save chats in Your History: " + (v ? "on" : "off") + "."); } }),
+      lh('p', { className: "lc-desc", id: "ai-mem-count" }, chats.length ? chats.length + (chats.length === 1 ? " chat" : " chats") + " saved on this device" + (pins ? ", " + pins + " pinned." : ".") : "No chats saved on this device."),
+      lh('button', { type: "button", id: "ai-mem-del", className: "btn bgb lc-big", disabled: !chats.length, onClick: function () { setAskDel(true); } }, "Delete all chats"),
+      lh('p', { className: "lc-desc" }, "Cherry keeps nothing else about you. Learned habits are in Intelligence, Cherry, and media memory is in Privacy, Media and content."),
+      askDel ? lh(AlertDialog, { title: "Delete all chats?", message: "This deletes all " + chats.length + (chats.length === 1 ? " chat" : " chats") + " with Cherry from this device, pinned ones too. It can't be undone.", confirmLabel: "Delete all",
+        onCancel: function () { setAskDel(false); },
+        onConfirm: function () {
+          const n = chats.length;
+          try { localStorage.removeItem(Looscid.LC_CHERRY_CHATS_KEY); } catch (e) {}
+          if (Looscid.lcCherryStartNew) Looscid.lcCherryStartNew();
+          setAskDel(false); tick(function (x) { return x + 1; });
+          announce("Deleted " + n + (n === 1 ? " chat." : " chats."));
+          setTimeout(function () { const b = document.getElementById("ai-keep"); if (b) b.focus(); }, 0);
+        } }) : null);
+  } else if (cat.id === "tools") {
+    const tools = Looscid.LC_CHERRY_TOOLS || [];
+    body = lh(React.Fragment, null,
+      lh('fieldset', { className: "lc-fs lc-ai-tools", id: "ai-tools" },
+        lh('legend', { className: "lc-fs-l" }, "Cherry can"),
+        lh('div', { className: "lc-radios" }, tools.map(function (t) {
+          const on = Looscid.lcCherryToolOn(t[0]);
+          return lh('label', { key: t[0], className: "lc-radio" + (on ? " on" : ""), htmlFor: "ai-tool-" + t[0] },
+            lh('input', { type: "checkbox", id: "ai-tool-" + t[0], checked: on, onChange: function (e) {
+              const next = Object.assign({}, getAIPrefs().tools || {}); next[t[0]] = e.target.checked; lcSetAiPref({ tools: next });
+              announce(t[1] + (e.target.checked ? ": on." : ": off."));
+            } }), lh('span', null, t[1]));
+        }))),
+      lh('p', { className: "lc-desc" }, "When a tool is off and you ask for it, Cherry tells you and changes nothing. Publishing a Dream always waits for you to press Publish this Dream, unless you asked Cherry to publish it."));
+  } else if (cat.id === "audit") {
+    const log = (cherryCtx && cherryCtx.cherryLog) || [];
+    const undone = (Looscid.LC_CHERRY && Looscid.LC_CHERRY.undone) || {};
+    body = lh(React.Fragment, null,
+      lh('p', { className: "lc-desc" }, "Everything Cherry did for you since you opened Looscid, newest first. Most of it can be undone."),
+      log.length
+        ? lh('ul', { className: "lc-cherry-list lc-ai-audit", "aria-label": "What Cherry did" },
+            log.map(function (entry) {
+              const was = entry.undone || undone[entry.id];
+              return lh('li', { key: "a" + entry.id, className: "lc-cherry-item" },
+                lh('p', { className: "lc-cherry-msg-t" }, Looscid.lcNameJoin(entry.text, new Date(entry.id).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }), was ? "undone" : "")),
+                entry.undoFn && !was ? lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () {
+                  try { entry.undoFn(); } catch (e) {}
+                  undone[entry.id] = true; tick(function (x) { return x + 1; });
+                  announce("Undone: " + entry.text + ".");
+                } }, "Undo " + entry.text) : null);
+            }))
+        : lh('p', { className: "lc-muted" }, "Nothing yet. Everything Cherry does for you is listed here."));
   } else {
     body = lh(React.Fragment, null,
       lh(A11ySwitch, { id: "ai-cmd", label: "Cherry answers in Commandbar", desc: "When what you type isn't a command, Cherry answers from Looscid's own built-in rules, in Commandbar. No model, nothing sent anywhere.", on: ap.cmdAnswers !== false,
@@ -1091,7 +1147,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
       )
       , React.createElement('div', { style: {marginTop:8},}
         , [
-          {icon:"Cherry",l:"Cherry AI",sub:"Your Looscid companion",a:()=>navigate("cherry"),color:"#6d28d9"},
+          {icon:"Cherry",l:"Cherry",sub:"Cherry - DO IT YOUR WAY",a:()=>navigate("cherry"),color:"#6d28d9"},
           {icon:"Drafts",l:"Drafts",sub:"Your saved Dream drafts",a:()=>navigate("drafts"),color:"#374151"},
           authUser && (authUser.isGuest || authUser.uid==="guest")
             ? {icon:"Login",l:"Login or create a LooscidID",sub:"Get a LooscidID",a:()=>navigate("login"),color:"#6d28d9"}
@@ -2318,7 +2374,7 @@ const LC_VERSION_HISTORY = [
     "Every menu, sheet, dialog and pop-up is truly modal (Alhasan: after the last item in Create, VoiceOver read Home and the status page behind it). While one is open, everything outside it is hidden from VoiceOver, braille and the keyboard; Tab and Shift+Tab stay inside a dialog; when it closes, focus goes back to the button that opened it. The live announcer still speaks. Covers Create, More, the Commandbar, pop-up menus, Dream options, alerts, Circle sheets and Reset. Escape now closes More too.",
     "Fix (Alhasan, testing on iPhone): VoiceOver read a whole menu's contents as its hint. Every menu, sheet and dialog now has one short hint of its own: menus say Swipe to choose. Escape or a two-finger scrub closes; sheets and dialogs say Swipe to move through it. Escape or a two-finger scrub closes. Only the menu or dialog itself has a hint, never a button or other control.",
     "Braille roles like a BrailleNote (KeySoft): every button shows edbt instead of btn, a radio button shows ⠺⠿⠗ when it's on and ⠺⠤⠗ when it's off, and a checkbox shows ⠸⠿⠇ when it's on and ⠸⠤⠇ when it's off. BrailleNote is the new Button style on braille and the default (iPhone btn moves to it once). Braille only: nothing changes on screen, and speech still says button, radio button and checkbox with their state. Still to be checked on a real iPhone with a braille display.",
-    "The Screen reader and braille settings page is called Sense now, everywhere: Settings, Accessibility, Find a setting, the Commandbar (open sense works, and the old words still work), Help Center and status. The tabs inside are the same.",
+    "The settings page for screen readers and braille is called Sense now, everywhere: Settings, Accessibility, Find a setting, the Commandbar (open sense works, and the old words still work), Help Center and status. The tabs inside are the same.",
     "Pitch cues moved from the Verbosity tab to the Speech tab: the switch, the Pitch cue for checkboxes and Preview every pitch cue. Moved only: the cues, the settings and what they sound like are exactly the same.",
     "Settings are laid out like Feditext's Preferences: rows that follow each other join into one rounded group with thin lines between them, the value (On, Off) sits on the right in grey, and section headings are small and grey above their group. Only the look changed.",
     "Profiles: the header count is in parentheses, like Dreams (400), and it updates live. If the Dreamor publishes while you're on their profile (your own too), Looscid says “<their name> just published”. Focus never moves.",
@@ -2330,8 +2386,10 @@ const LC_VERSION_HISTORY = [
     "Help in More is a real pop-up menu button now (Alhasan, 4:36 PM): it opens a menu with Help Center and Commands. Up and Down move, Enter opens, Escape closes it and puts you back on Help. Commands isn't its own section in More anymore. Back from Commands puts you on Help.",
     "Liked: the Images only checkbox is gone. Liked has a Media tab (after Dreams) that starts with Show: Photos, GIFs and Videos, three checkboxes, all on; turn any off and Looscid says how many liked Dreams are left.",
     "Back sounds (Alhasan: Liked's Back played no sound): every Back was checked. Liked, your own profile and Apps now go Back the same way Settings screens do: More opens again on the button you came from, with the same Back sound.",
-    "Undo words: Unredream (not Undo Redream), Unquote Dream (not Undo Quote), and Unlike / Unliked, everywhere they appear.",
+    "Undo words: Unredream, Unquote Dream, and Unlike / Unliked, everywhere they appear (the old two-word Undo labels are gone).",
     "Memeprojects is one word everywhere now (Alhasan: it is Memeprojects, not Meme Projects): Apps, Projects, the Commandbar (open memeprojects; the old words still work), Find a setting, Help Center, Credits and NexOS.",
+    "Cherry has its own page called Cherry - DO IT YOUR WAY (More just links to it). The Try asking suggestions and the canned answer are gone: when Cherry doesn't understand, it says so and changes nothing. New Chat is at the top, then Your History with All and Pinned, then the chat you're in. Each chat has a Chat options pop-up menu: Pin or Unpin, Edit name, Project and Share access (both coming soon), Delete (asks first), New Chat, History and Close Menu. Capitals never matter to Cherry.",
+    "Settings, Intelligence has three new pages for Cherry, kept apart from the feed settings: Memory (save chats in Your History on or off, Delete all chats), Tools (what Cherry may do for you, all on to start; a tool that's off is never run) and What Cherry did (everything Cherry did, with Undo; it used to be on the Cherry page).",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by Alhasan. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
@@ -2705,7 +2763,7 @@ function TerminalPage({ exec, onClose, a11y }) {
 // Everything planned lives here, in ONE place (round 5): no "coming soon" controls anywhere else.
 const LC_COMING_SOON = [
   { name: "Cherry personality and tone", where: "Intelligence", desc: "Friendly or concise answers, and how often Cherry offers suggestions." },
-  { name: "Cherry algorithm controls", where: "Intelligence", desc: "Tune what Cherry puts in your For You feed." },
+  { name: "Cherry algorithm controls", where: "Feeds", desc: "Tune what Cherry puts in your For You feed. Kept with the feed settings, not in Intelligence." },
   { name: "Spelling, grammar and inline math", where: "Intelligence", desc: "Cherry fixes typos and solves sums as you write, on this device." },
   { name: "AI image descriptions", where: "Accessibility, Vision", desc: "Cherry describes images in Dreams, on this device." },
   { name: "RTT and TTY", where: "Accessibility, Hearing", desc: "Real-time text for calls." },

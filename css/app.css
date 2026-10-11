@@ -553,3 +553,9 @@ label.lc-cr-tool{color:var(--tx2)}
 .lc-cherry-open:focus-visible{outline:3px solid var(--ac3);outline-offset:2px}
 .lc-cherry-now{font-weight:500;color:var(--tx2)}
 .lc-cherry-item .lc-muted{margin:2px 0 6px}
+/* Build 150 (#66): Chat options (a pop-up menu) beside Like; the page's footer link to Cherry settings. */
+.lc-cherry-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.lc-cherry-opt{display:inline-flex}
+.lc-cherry-opt .lmenu-list{right:auto;min-width:240px}
+.lc-cherry-chat .lc-cherry-opt{margin:0 0 8px}
+.lc-cherry-foot{padding:4px 16px 24px}

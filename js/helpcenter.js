@@ -99,7 +99,8 @@ const LC_HELP_SECTIONS = [
   ], "commands"],
   ["Cherry", [
     "Cherry is the Looscid assistant. Open it from More, or type open cherry. new cherry chat starts fresh; cherry history and cherry pinned chats open Your History.",
-    "Turn Cherry on or off in Settings, Intelligence.",
+    "The Cherry page is called Cherry - DO IT YOUR WAY. New Chat is at the top, then Your History (All and Pinned), then the chat you're in. Each chat has Chat options: Pin, Edit name, Delete, New Chat and History.",
+    "Turn Cherry on or off in Settings, Intelligence. Intelligence also has Memory (saving chats), Tools (what Cherry may do for you) and What Cherry did, with Undo.",
   ]],
   ["Earcons and sounds", [
     "Earcons are Looscid's short sounds. Settings, Earcons has the master volume, Soundpacks (Looscid, NexOS classic, Insomnia, Hyper Synth, FastSM-inspired, Soundvault, or your own imported pack), and switches for each sound.",

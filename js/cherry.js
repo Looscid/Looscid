@@ -45,12 +45,79 @@ function lcCherryWhen(ms) {
   if (d.toDateString() === y.toDateString()) return "Yesterday, " + time;
   return d.toLocaleDateString([], { month: "long", day: "numeric", year: d.getFullYear() === now.getFullYear() ? undefined : "numeric" });
 }
-const LC_CHERRY_CHIPS = ["Summarise my feed", "What's trending?", "Draft a Dream", "Who should I follow?", "Find Circles", "My notifications"];
 
 /* The page's state lives here while the app runs, so leaving Cherry (to Settings, say) and coming back
    keeps the chat you were in. A reload starts a new chat; your earlier chats are in Your History. */
-const LC_CHERRY = { cur: null, tab: "all", busy: false, undone: {}, askN: null, cmdN: null };
+const LC_CHERRY_TOOLS = [
+  ["settings", "Change settings for you", "Settings"], ["feeds", "Switch your feed", "Switching feeds"], ["like", "Like Dreams", "Liking Dreams"],
+  ["follow", "Follow Dreamors", "Following Dreamors"], ["circles", "Join Circles", "Joining Circles"], ["alerts", "Mark notifications read", "Marking notifications read"],
+  ["publish", "Publish Dreams you asked for", "Publishing Dreams"]];
+const LC_CHERRY = { cur: null, tab: "all", busy: false, undone: {}, askN: null, cmdN: null, menu: null, dlg: null };
 function lcCherryNewChat() { return { id: "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), title: "New chat", created: Date.now(), updated: Date.now(), pinned: false, msgs: [] }; }
+
+/* Build 150 (#66): a chat's options are a real pop-up menu (same markup and keys as LcMenu, so the one modal manager
+   makes it modal, gives it its short hint and puts focus back on the button when it closes). Unfinished items are
+   disabled and say "coming soon". */
+function lcCherryMenuItems(c) {
+  return [
+    { id: "pin", name: c.pinned ? "Unpin" : "Pin" },
+    { id: "rename", name: "Edit name" },
+    { id: "project", name: "Project", note: "coming soon", disabled: true },
+    { id: "share", name: "Share access", note: "coming soon", disabled: true },
+    { id: "delete", name: "Delete", danger: true },
+    { id: "new", name: "New Chat" },
+    { id: "history", name: "History" },
+    { id: "close", name: "Close Menu", close: true },
+  ];
+}
+function lcCherryKeepChats() { return getAIPrefs().keepChats !== false; }
+function cherryMenuEl(c, where, act) {
+  const key = where + ":" + c.id, m = LC_CHERRY.menu, open = !!(m && m.key === key);
+  const btnId = "cherry-opt-" + where + "-" + c.id, menuId = btnId + "-menu";
+  const items = lcCherryMenuItems(c), name = "Chat options for " + c.title;
+  return h('div', { key: "opt-" + key, className: "lmenu lc-cherry-opt" },
+    h('button', { id: btnId, type: "button", className: "btn bgb lc-btn lmenu-btn", "aria-haspopup": "menu", "aria-expanded": open ? "true" : "false",
+        "aria-controls": open ? menuId : undefined, "aria-label": where === "cur" ? "Chat options" : name, "data-chat": c.id,
+        onClick: function () { open ? act.menuClose(false) : act.menuOpen(key, c.id, btnId, 0); },
+        onKeyDown: function (e) { if (e.key === "ArrowDown") { e.preventDefault(); act.menuOpen(key, c.id, btnId, 0); } else if (e.key === "ArrowUp") { e.preventDefault(); act.menuOpen(key, c.id, btnId, items.length - 1); } } },
+      "Chat options"),
+    open ? h('div', { key: "list", className: "lmenu-list" },
+      h('ul', { id: menuId, role: "menu", className: "lmenu-ul", "aria-label": where === "cur" ? "Chat options" : name, onKeyDown: function (e) { act.menuKey(e, items); } },
+        items.map(function (it, i) {
+          const label = it.note ? Looscid.lcNameJoin(it.name, it.note) : it.name;
+          return h('li', { key: it.id, "data-mi": "1", role: "menuitem", tabIndex: i === m.active ? 0 : -1, "aria-disabled": it.disabled ? "true" : undefined,
+              "aria-label": it.close ? "Close Menu" : (it.note ? label : undefined), "aria-braillelabel": it.close ? "Close" : undefined,
+              className: "lmenu-item" + (i === m.active ? " act" : "") + (it.close ? " lmenu-close" : "") + (it.danger ? " lmenu-danger" : ""),
+              onClick: function () { act.menuChoose(it); } },
+            h('span', null, label));
+        }))) : null);
+}
+function cherryDialogEl(act) {
+  const d = LC_CHERRY.dlg; if (!d) return null;
+  const c = lcCherryChats().find(function (x) { return x.id === d.id; }) || (LC_CHERRY.cur && LC_CHERRY.cur.id === d.id ? LC_CHERRY.cur : null);
+  if (!c) return null;
+  const onKey = function (e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); act.dlgCancel(); } };
+  if (d.kind === "rename") {
+    return h('div', { key: "dlg-rename", className: "lid-alert-bg" },
+      h('div', { className: "lid-alert", role: "dialog", "aria-modal": "true", "aria-labelledby": "cherry-dlg-t", onKeyDown: onKey },
+        h('h2', { id: "cherry-dlg-t", className: "lid-sub" }, "Edit name"),
+        h('label', { htmlFor: "cherry-dlg-in", className: "lid-label" }, "Chat name"),
+        h('input', { id: "cherry-dlg-in", className: "inp", type: "text", autoComplete: "off", "data-lc-autofocus": "1", value: d.val,
+          onChange: function (e) { d.val = e.target.value; },
+          onKeyDown: function (e) { if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); act.renameSave(); } } }),
+        h('div', { className: "lid-actions" },
+          h('button', { type: "button", className: "btn bgb", onClick: act.dlgCancel }, "Cancel"),
+          h('button', { type: "button", className: "btn bp", onClick: act.renameSave }, "Save"))));
+  }
+  const n = c.msgs.length;
+  return h('div', { key: "dlg-delete", className: "lid-alert-bg" },
+    h('div', { className: "lid-alert", role: "alertdialog", "aria-modal": "true", "aria-labelledby": "cherry-dlg-t", onKeyDown: onKey },
+      h('h2', { id: "cherry-dlg-t", className: "lid-sub" }, "Delete " + c.title + "?"),
+      h('p', { className: "lid-help" }, "This deletes the chat and its " + n + (n === 1 ? " message" : " messages") + " from this device. It can't be undone."),
+      h('div', { className: "lid-actions" },
+        h('button', { type: "button", className: "btn bgb", "data-lc-autofocus": "1", onClick: act.dlgCancel }, "Cancel"),
+        h('button', { type: "button", className: "btn bp", onClick: act.deleteNow }, "Delete"))));
+}
 
 function cherryView(st, p, act) {
   const chats = lcCherryChats();
@@ -58,7 +125,6 @@ function cherryView(st, p, act) {
   const pinned = chats.filter(function (c) { return c.pinned; });
   const tab = LC_CHERRY.tab === "pinned" ? "pinned" : "all";
   const shown = tab === "pinned" ? pinned : chats;
-  const log = (p.cherryCtx && p.cherryCtx.cherryLog) || [];
   const TABS = [["all", "All", chats.length], ["pinned", "Pinned", pinned.length]];
   const onTabKey = function (e) {
     const i = TABS.findIndex(function (t) { return t[0] === tab; }); let n = -1;
@@ -67,50 +133,27 @@ function cherryView(st, p, act) {
     if (n < 0) return; e.preventDefault(); act.setTab(TABS[n][0]);
     setTimeout(function () { const b = document.getElementById("cherry-tab-" + TABS[n][0]); if (b) b.focus(); }, 0);
   };
-  const curTitle = cur && cur.msgs.length ? cur.title : "New chat";
+  const hasCur = !!(cur && cur.msgs.length);
+  const curTitle = hasCur ? cur.title : "New chat";
+  const keep = lcCherryKeepChats();
 
+  // Build 150 (#65, #66): the page is "Cherry - DO IT YOUR WAY". Reading order: heading, New Chat, Your History,
+  // then the chat you're in. No "Try asking" suggestions and no canned answer. What Cherry did is in Settings, Intelligence.
   return h('div', { className: "pg lc-cherry" },
     h('div', { className: "hdr" },
       h('div', { className: "hdr-row" },
         h('button', { type: "button", className: "bi", onClick: act.back, "aria-label": "Back" }, lcIconEl("Bck", { style: { width: 21, height: 21 } })),
-        h('h1', { className: "hdr-title", tabIndex: -1 }, "Cherry"),
+        h('h1', { className: "hdr-title", tabIndex: -1 }, "Cherry - DO IT YOUR WAY"),
         h('button', Object.assign({ type: "button", className: "lc-close", onClick: act.back }, lcCloseProps("Cherry")), "Close")),
       h('div', { className: "lc-cherry-top" },
         h('button', { type: "button", id: "cherry-new", className: "btn bp lc-btn", onClick: act.newChat }, "New Chat"))),
 
-    h('p', { className: "lc-desc lc-cherry-intro" }, "Cherry is your on-device assistant. Ask a question or give a command, like \u201cturn on high contrast\u201d. Cherry's answers are read out as they arrive. Your chats are saved on this device only."),
-
-    /* The chat you're in */
-    h('section', { className: "lc-cherry-chat", "aria-labelledby": "cherry-chat-h" },
-      h('h2', { id: "cherry-chat-h", className: "lc-sub-h", tabIndex: -1 }, curTitle),
-      // One wrapper that is always there, so the message box after it never moves (moving it would drop focus).
-      h('div', { key: "log", className: "lc-cherry-log" },
-      cur && cur.msgs.length
-        ? h('ul', { key: "msgs", className: "lc-cherry-msgs", "aria-label": "Messages" },
-            cur.msgs.map(function (m, i) {
-              return h('li', { key: "m" + i, className: "lc-cherry-msg" + (m.me ? " me" : "") },
-                h('p', { className: "lc-cherry-msg-t" }, h('strong', null, m.me ? "You: " : "Cherry: "), m.text),
-                m.confirm && !m.done ? h('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { act.confirm(i); } }, m.confirm) : null);
-            }))
-        : h('p', { key: "empty", className: "lc-muted lc-cherry-empty" }, "No messages yet. Ask Cherry anything."),
-      LC_CHERRY.busy ? h('p', { key: "busy", className: "lc-muted" }, "Cherry is thinking\u2026") : null),
-      h('div', { key: "in", className: "lc-cherry-input" },
-        h('input', { id: "cherry-input", className: "inp", type: "text", autoComplete: "off", placeholder: "Ask Cherry or give a command",
-          value: st.inp, "aria-label": "Message Cherry",
-          onChange: function (e) { st.inp = e.target.value; act.draw(); },
-          onKeyDown: function (e) { if (e.key === "Enter" && !e.isComposing && a11yEnterSends()) { e.preventDefault(); act.send(); } },
-          onBeforeinput: function (e) { if ((e.inputType === "insertParagraph" || e.inputType === "insertLineBreak") && a11yEnterSends()) { e.preventDefault(); act.send(); } } }),
-        h('button', { type: "button", id: "cherry-send", className: "btn bp lc-btn", onClick: function () { act.send(); }, disabled: !String(st.inp || "").trim() }, "Send")),
-      h('h3', { key: "h3", className: "lc-cherry-h3" }, "Try asking"),
-      h('ul', { key: "chips", className: "lc-cherry-chips" },
-        LC_CHERRY_CHIPS.map(function (s) {
-          return h('li', { key: s }, h('button', { type: "button", className: "aisc", onClick: function () { act.send(s); } }, s));
-        }))),
+    h('p', { className: "lc-desc lc-cherry-intro" }, "Cherry is your on-device assistant. Ask a question or give a command, like \u201cturn on high contrast\u201d. Capitals don't matter. Cherry's answers are read out as they arrive. Your chats are saved on this device only."),
 
     /* Your History: All and Pinned */
     h('section', { className: "lc-cherry-hist", "aria-labelledby": "cherry-hist-h" },
-      h('h2', { id: "cherry-hist-h", className: "lc-sub-h" }, "Your History"),
-      h('p', { className: "lc-desc" }, "Your chats with Cherry, newest first. Pin a chat to keep it in Pinned."),
+      h('h2', { id: "cherry-hist-h", className: "lc-sub-h", tabIndex: -1 }, "Your History"),
+      h('p', { className: "lc-desc" }, keep ? "Your chats with Cherry, newest first. Chat options has Pin, Edit name and Delete." : "Saving chats is off, so new chats aren't kept. Turn it on in Settings, Intelligence, Memory."),
       h('div', { className: "ftabs lc-cherry-tabs", role: "tablist", "aria-label": "Your History", onKeyDown: onTabKey },
         TABS.map(function (t) {
           const on = tab === t[0];
@@ -127,24 +170,39 @@ function cherryView(st, p, act) {
                   h('button', { type: "button", className: "lc-cherry-open", "data-chat": c.id, onClick: function () { act.open(c.id); } },
                     c.title, open ? h('span', { className: "lc-cherry-now" }, ", open now") : null),
                   h('p', { className: "lc-muted" }, lcCherryWhen(c.updated) + ", " + n + (n === 1 ? " message" : " messages") + (c.pinned ? ", pinned" : "")),
-                  h('button', { type: "button", className: "btn bgb lc-btn lc-cherry-pin", "data-chat": c.id, onClick: function () { act.pin(c.id); } }, (c.pinned ? "Unpin " : "Pin ") + c.title),
-                  // Build 148: like a Cherry chat and it's in Liked, Chats.
-                  Looscid.lcLikeBtnEl ? Looscid.lcLikeBtnEl("chat", c.id, c.title, { cherry: true }, act.draw) : null);
+                  h('div', { className: "lc-cherry-row" },
+                    cherryMenuEl(c, "list", act),
+                    // Build 148: like a Cherry chat and it's in Liked, Chats.
+                    Looscid.lcLikeBtnEl ? Looscid.lcLikeBtnEl("chat", c.id, c.title, { cherry: true }, act.draw) : null));
               }))
-          : h('p', { className: "lc-muted" }, tab === "pinned" ? "No pinned chats yet. Pin a chat in All to keep it here." : "No chats yet. Your chats with Cherry will be listed here."))),
+          : h('p', { className: "lc-muted" }, tab === "pinned" ? "No pinned chats yet. Use Chat options, Pin to keep a chat here." : "No chats yet. Your chats with Cherry will be listed here."))),
 
-    /* What Cherry did, with Undo */
-    h('section', { className: "lc-cherry-acts", "aria-labelledby": "cherry-acts-h" },
-      h('h2', { id: "cherry-acts-h", className: "lc-sub-h" }, "What Cherry did"),
-      log.length
-        ? h('ul', { className: "lc-cherry-list" },
-            log.map(function (entry) {
-              const undone = entry.undone || LC_CHERRY.undone[entry.id];
-              return h('li', { key: "a" + entry.id, className: "lc-cherry-item" },
-                h('p', { className: "lc-cherry-msg-t" }, entry.text, ", ", new Date(entry.id).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }), undone ? ", undone" : ""),
-                entry.undoFn && !undone ? h('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { act.undo(entry); } }, "Undo " + entry.text) : null);
+    /* The chat you're in */
+    h('section', { className: "lc-cherry-chat", "aria-labelledby": "cherry-chat-h" },
+      h('h2', { id: "cherry-chat-h", className: "lc-sub-h", tabIndex: -1 }, curTitle),
+      hasCur ? cherryMenuEl(cur, "cur", act) : null,
+      // One wrapper that is always there, so the message box after it never moves (moving it would drop focus).
+      h('div', { key: "log", className: "lc-cherry-log" },
+      hasCur
+        ? h('ul', { key: "msgs", className: "lc-cherry-msgs", "aria-label": "Messages" },
+            cur.msgs.map(function (m, i) {
+              return h('li', { key: "m" + i, className: "lc-cherry-msg" + (m.me ? " me" : "") },
+                h('p', { className: "lc-cherry-msg-t" }, h('strong', null, m.me ? "You: " : "Cherry: "), m.text),
+                m.confirm && !m.done ? h('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { act.confirm(i); } }, m.confirm) : null);
             }))
-        : h('p', { className: "lc-muted" }, "Nothing yet. Everything Cherry does for you is listed here, and most of it can be undone.")));
+        : h('p', { key: "empty", className: "lc-muted lc-cherry-empty" }, "No messages yet."),
+      LC_CHERRY.busy ? h('p', { key: "busy", className: "lc-muted" }, "Cherry is thinking\u2026") : null),
+      h('div', { key: "in", className: "lc-cherry-input" },
+        h('input', { id: "cherry-input", className: "inp", type: "text", autoComplete: "off", placeholder: "Ask Cherry or give a command",
+          value: st.inp, "aria-label": "Message Cherry",
+          onChange: function (e) { st.inp = e.target.value; act.draw(); },
+          onKeyDown: function (e) { if (e.key === "Enter" && !e.isComposing && a11yEnterSends()) { e.preventDefault(); act.send(); } },
+          onBeforeinput: function (e) { if ((e.inputType === "insertParagraph" || e.inputType === "insertLineBreak") && a11yEnterSends()) { e.preventDefault(); act.send(); } } }),
+        h('button', { type: "button", id: "cherry-send", className: "btn bp lc-btn", onClick: function () { act.send(); }, disabled: !String(st.inp || "").trim() }, "Send"))),
+
+    h('div', { className: "lc-cherry-foot" },
+      h('button', { type: "button", id: "cherry-settings", className: "btn bgb lc-btn", onClick: act.settings }, "Cherry settings: memory, tools and What Cherry did")),
+    cherryDialogEl(act));
 }
 
 /* The Cherry page. props: navigate, cherryCtx, data ({ ask, n } from "Ask Cherry about this", or { cmd, n } from a Commandbar command), onBack. */
@@ -155,6 +213,8 @@ const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
   const draw = function () { if (alive) lcPatch(host, cherryView(st, p, act)); };
   const saveCur = function () {
     const c = LC_CHERRY.cur; if (!c || !c.msgs.length) return;
+    // Build 150: Settings, Intelligence, Memory can turn saving off. A chat already in Your History still keeps its changes.
+    if (!lcCherryKeepChats() && !lcCherryChats().some(function (x) { return x.id === c.id; })) return;
     const list = lcCherryChats().filter(function (x) { return x.id !== c.id; });
     list.unshift({ id: c.id, title: c.title, created: c.created, updated: c.updated, pinned: c.pinned, msgs: c.msgs.map(function (m) { return { me: m.me, text: m.text, t: m.t }; }) });
     lcCherrySaveChats(list);
@@ -229,18 +289,91 @@ const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
       if (wasTab === "pinned" && !c.pinned) setTimeout(function () {
         const left = before.filter(function (x) { return x !== id; }), at = before.indexOf(id);
         const nextId = left[Math.min(at, left.length - 1)];
-        const b = nextId ? host.querySelector('.lc-cherry-pin[data-chat="' + nextId + '"]') : null;
+        const b = nextId ? host.querySelector('.lc-cherry-hist .lc-cherry-opt button[data-chat="' + nextId + '"]') : null;
         (b || document.getElementById("cherry-tab-pinned") || host).focus();
       }, 0);
     },
     setTab: function (t) { LC_CHERRY.tab = t === "pinned" ? "pinned" : "all"; draw(); },
-    undo: function (entry) {
-      if (!entry.undoFn) return;
-      try { entry.undoFn(); } catch (e) {}
-      LC_CHERRY.undone[entry.id] = true; draw();
-      announce("Undone: " + entry.text + ".");
+    settings: function () { if (p.navigate) p.navigate("settings_intelligence"); },
+    // Chat options menu (build 150, #66). Keys like every Looscid pop-up menu: Up/Down/Home/End move, Enter or Space
+    // chooses, Escape and Tab close with focus back on Chat options. Choosing plays the same Soundpack sounds as LcMenu.
+    menuOpen: function (key, id, btnId, at) { LC_CHERRY.menu = { key: key, id: id, btn: btnId, active: at || 0 }; draw(); focusItem(); },
+    menuClose: function (refocus, chime) {
+      const m = LC_CHERRY.menu; if (!m) return;
+      LC_CHERRY.menu = null;
+      if (refocus) { const b = document.getElementById(m.btn); if (b) b.focus(); }
+      draw();
+      if (refocus) setTimeout(function () { const b = document.getElementById(m.btn); if (b && document.activeElement !== b) b.focus(); }, 0);
+      if (chime && Looscid.lcPackChime) Looscid.lcPackChime(chime);
+    },
+    menuKey: function (e, items) {
+      const m = LC_CHERRY.menu; if (!m) return;
+      const n = items.length, k = e.key;
+      const move = function (i) { e.preventDefault(); e.stopPropagation(); m.active = (i + n) % n; draw(); focusItem(); };
+      if (k === "ArrowDown") move(m.active + 1);
+      else if (k === "ArrowUp") move(m.active - 1);
+      else if (k === "Home") move(0);
+      else if (k === "End") move(n - 1);
+      else if (k === "Escape") { e.preventDefault(); e.stopPropagation(); act.menuClose(true, "close"); }
+      else if (k === "Tab") { e.preventDefault(); e.stopPropagation(); act.menuClose(true); }
+      else if (k === "Enter" || k === " ") { e.preventDefault(); e.stopPropagation(); act.menuChoose(items[m.active]); }
+      else if (k.length === 1 && /\S/.test(k) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault(); e.stopPropagation();
+        const s = k.toLowerCase();
+        for (let j = 1; j <= n; j++) { const i = (m.active + j) % n; if (items[i].name.toLowerCase().indexOf(s) === 0) { move(i); return; } }
+      }
+    },
+    menuChoose: function (it) {
+      const m = LC_CHERRY.menu; if (!m || !it) return;
+      if (it.close) { act.menuClose(true, "close"); return; }
+      if (it.disabled) return; // "coming soon": stays open, nothing happens
+      const id = m.id, btn = m.btn;
+      act.menuClose(true, "run");
+      if (it.id === "pin") act.pin(id);
+      else if (it.id === "rename") { const c = findChat(id); if (c) { LC_CHERRY.dlg = { kind: "rename", id: id, val: c.title, from: btn }; draw(); } }
+      else if (it.id === "delete") { LC_CHERRY.dlg = { kind: "delete", id: id, from: btn }; draw(); }
+      else if (it.id === "new") act.newChat();
+      else if (it.id === "history") setTimeout(function () { const hd = document.getElementById("cherry-hist-h"); if (hd) hd.focus(); }, 0);
+    },
+    dlgCancel: function () { const d = LC_CHERRY.dlg; LC_CHERRY.dlg = null; draw(); refocus(d && d.from); },
+    renameSave: function () {
+      const d = LC_CHERRY.dlg; if (!d) return;
+      const t = String(d.val || "").replace(/\s+/g, " ").trim().slice(0, 80) || "Chat";
+      const list = lcCherryChats(), c = list.find(function (x) { return x.id === d.id; });
+      if (c) { c.title = t; lcCherrySaveChats(list); }
+      if (LC_CHERRY.cur && LC_CHERRY.cur.id === d.id) LC_CHERRY.cur.title = t;
+      LC_CHERRY.dlg = null; draw();
+      announce("Renamed to " + t + ".");
+      refocus(d.from);
+    },
+    deleteNow: function () {
+      const d = LC_CHERRY.dlg; if (!d) return;
+      const list = lcCherryChats(), c = findChat(d.id), title = c ? c.title : "chat";
+      const order = Array.prototype.map.call(host.querySelectorAll(".lc-cherry-hist .lc-cherry-opt button[data-chat]"), function (b) { return b.getAttribute("data-chat"); });
+      lcCherrySaveChats(list.filter(function (x) { return x.id !== d.id; }));
+      try { if (Looscid.lcLikedHas && Looscid.lcLikedHas("chat", d.id)) Looscid.lcLikedSet("chat", d.id, false); } catch (e) {}
+      if (LC_CHERRY.cur && LC_CHERRY.cur.id === d.id) { LC_CHERRY.cur = lcCherryNewChat(); st.inp = ""; }
+      LC_CHERRY.dlg = null; draw();
+      announce("Deleted " + title + ".");
+      // Focus: the next chat's Chat options, else the tab you're on.
+      const at = order.indexOf(d.id), left = order.filter(function (x) { return x !== d.id; });
+      const nextId = left.length ? left[Math.min(Math.max(at, 0), left.length - 1)] : null;
+      setTimeout(function () {
+        const b = nextId ? host.querySelector('.lc-cherry-hist .lc-cherry-opt button[data-chat="' + nextId + '"]') : null;
+        (b || document.getElementById("cherry-tab-" + (LC_CHERRY.tab === "pinned" ? "pinned" : "all")) || document.getElementById("cherry-new")).focus();
+      }, 0);
     },
   };
+  const findChat = function (id) { return lcCherryChats().find(function (x) { return x.id === id; }) || (LC_CHERRY.cur && LC_CHERRY.cur.id === id ? LC_CHERRY.cur : null); };
+  const focusItem = function () { setTimeout(function () { const m = LC_CHERRY.menu; if (!m) return; const ul = document.getElementById(m.btn + "-menu"); const el = ul && ul.querySelectorAll("[data-mi]")[m.active]; if (el) el.focus(); }, 0); };
+  const refocus = function (id) { setTimeout(function () { const b = id && document.getElementById(id); if (b) b.focus(); }, 0); };
+  // A tap outside an open Chat options menu closes it (like LcMenu); focus is left where the tap put it.
+  const onDoc = function (e) {
+    const m = LC_CHERRY.menu; if (!m) return;
+    const b = document.getElementById(m.btn), w = b && b.parentElement;
+    if (w && !w.contains(e.target)) act.menuClose(false);
+  };
+  document.addEventListener("pointerdown", onDoc, true);
   const takeAsk = function () {
     const d = p.data;
     if (d && d.ask && d.n !== LC_CHERRY.askN) {
@@ -275,13 +408,13 @@ const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
     if (firstFocus) { focusId(firstFocus); return; }
     const hd = host.querySelector("h1"); if (hd && !host.contains(document.activeElement)) hd.focus();
   }, 60);
-  return { update: function (np) { p = np; const f = takeCmd(); if (f) { setTimeout(function () { if (alive) focusId(f); }, 60); return; } if (!takeAsk()) draw(); }, stop: function () { alive = false; saveCur(); } };
+  return { update: function (np) { p = np; const f = takeCmd(); if (f) { setTimeout(function () { if (alive) focusId(f); }, 60); return; } if (!takeAsk()) draw(); }, stop: function () { alive = false; LC_CHERRY.menu = null; LC_CHERRY.dlg = null; document.removeEventListener("pointerdown", onDoc, true); saveCur(); } };
 });
 
 // Build 148: Create, New Chat with Cherry starts a fresh chat; Liked, Chats opens a liked one.
 function lcCherryStartNew() { LC_CHERRY.cur = lcCherryNewChat(); }
 function lcCherryOpenChat(id) { const c = lcCherryChats().find(function (x) { return x.id === id; }); if (c) LC_CHERRY.cur = c; }
-Object.assign(Looscid, { lcCherryStartNew, lcCherryOpenChat, CherryPage, LC_CHERRY, LC_CHERRY_CHATS_KEY, lcCherryChats, lcCherrySaveChats, lcLlmPrefs, lcLlmSetPrefs, lcLlmGpu, lcLlmLoad, lcLlmAsk, CherryModelPicker, SourcesPanel, cherryNorm, cherryRespond });
+Object.assign(Looscid, { LC_CHERRY_TOOLS, lcCherryToolOn, lcCherryKeepChats, lcCherryStartNew, lcCherryOpenChat, CherryPage, LC_CHERRY, LC_CHERRY_CHATS_KEY, lcCherryChats, lcCherrySaveChats, lcLlmPrefs, lcLlmSetPrefs, lcLlmGpu, lcLlmLoad, lcLlmAsk, CherryModelPicker, SourcesPanel, cherryNorm, cherryRespond });
 
 /* --- Cherry model picker (round-5 queue item 1) ----------------------------------
    One searchable, grouped pop-up menu (the shared mini pop-up). Cherry built-in needs
@@ -366,15 +499,26 @@ function SourcesPanel({ sources, onClose }) {
    Both sides are normalized: the input is lowercased and every phrase it is matched
    against is lowercase too ("what is Looscid" used to never match). */
 function cherryNorm(s) { return String(s || "").toLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/\s+/g, " ").trim(); }
+/* Build 150 (#66): Settings, Intelligence, Tools says what Cherry may do for you. A tool that's off is never run:
+   Cherry says so, and nothing changes. All tools are on by default (the same as before build 150). */
+function lcCherryToolOn(k) { const t = getAIPrefs().tools || {}; return t[k] !== false; }
 function cherryRespond(text, cherryCtx) {
+  const r = cherryRespond0(text, cherryCtx);
+  if (r && r.tool && (r.autoFn || r.confirm) && !lcCherryToolOn(r.tool)) {
+    const t = LC_CHERRY_TOOLS.find(function (x) { return x[0] === r.tool; });
+    return { action: null, result: (t ? t[2] : "That") + " is off for Cherry, so nothing was changed. You can turn it on in Settings, Intelligence, Tools." };
+  }
+  return r;
+}
+function cherryRespond0(text, cherryCtx) {
   const xi = lcExtraIntent(text);
-  if (xi) return xi.err ? { action: null, result: xi.err } : { action: "Working on it\u2026", agentLabel: "Settings", result: xi.say, autoFn: function () { if (xi.fn) xi.fn(); if (xi.go && Looscid.LC_NAV) { const pl = LC_PLACES[xi.go]; if (pl.srTab) { try { sessionStorage.setItem("dbm_sr_tab", pl.srTab); } catch (e) {} } Looscid.LC_NAV(pl.page); } announce(xi.say); } };
+  if (xi) return xi.err ? { action: null, result: xi.err } : { tool: "settings", action: "Working on it\u2026", agentLabel: "Settings", result: xi.say, autoFn: function () { if (xi.fn) xi.fn(); if (xi.go && Looscid.LC_NAV) { const pl = LC_PLACES[xi.go]; if (pl.srTab) { try { sessionStorage.setItem("dbm_sr_tab", pl.srTab); } catch (e) {} } Looscid.LC_NAV(pl.page); } announce(xi.say); } };
   const fi = lcFeedIntent(text);
   if (fi && !fi.miss) { const say = fi.friends !== undefined ? (fi.friends ? "Showing friends only." : "Showing everyone you follow.") : fi.step ? "Switching feed." : "Feed: " + lcFeedLabel(fi.feed) + ".";
-    return { action: "Switching your feed\u2026", agentLabel: "Feeds", result: say, autoFn: function () { const t = lcApplyFeedIntent(fi); announce(t); } }; }
+    return { tool: "feeds", action: "Switching your feed\u2026", agentLabel: "Feeds", result: say, autoFn: function () { const t = lcApplyFeedIntent(fi); announce(t); } }; }
   if (cherryCtx.setA11y) {
     const it = lcA11yIntent(text);
-    if (it && it.patch) return { action: "Updating your accessibility settings\u2026", agentLabel: "Accessibility settings", result: it.say, autoFn: function () { cherryCtx.setA11y(it.patch); announce(it.say); } };
+    if (it && it.patch) return { tool: "settings", action: "Updating your accessibility settings\u2026", agentLabel: "Accessibility settings", result: it.say, autoFn: function () { cherryCtx.setA11y(it.patch); announce(it.say); } };
     if (it) return { action: null, result: it.report ? "Your accessibility settings: " + it.report.join(" ") : it.say };
   }
   const {dreams, following, groups, notifs, likeDream, saveDream, postDream, followUser, joinGroup, markNotifsRead} = cherryCtx;
@@ -440,41 +584,41 @@ function cherryRespond(text, cherryCtx) {
       return {action:null, result:`You're in: ${ctx.joinedGroups}. I can join more groups for you — just say which ones.`};
 
     if (lo.includes("notification") || lo.includes("alerts"))
-      return {action:"Checking your notifications…", agentLabel:"Reading notifications",
+      return {tool:"alerts", action:"Checking your notifications…", agentLabel:"Reading notifications",
         result:`You have ${ctx.unread} unread notification${ctx.unread!==1?"s":""}. ${ctx.unread>0?"Recent: "+notifs.filter(n=>n.unread).map(n=>(n.user?n.user.name+" ":"")+n.text).slice(0,2).join("; ") + ". Want me to mark them all read?" : "You are all caught up!"}`,
         confirm:{label:"Mark all read", fn:()=>markNotifsRead()}};
 
     if ((lo.includes("mark") && lo.includes("read")) || lo.includes("clear notif"))
-      return {action:"Marking all notifications as read…", agentLabel:"Clearing notifications",
+      return {tool:"alerts", action:"Marking all notifications as read…", agentLabel:"Clearing notifications",
         result:"Done All notifications marked as read.",
         autoFn: markNotifsRead};
 
 
 
     if (lo.includes("join consciousness") || (lo.includes("join") && lo.includes("consciousness")))
-      return {action:"Joining Consciousness Lab…", agentLabel:"Joining group",
+      return {tool:"circles", action:"Joining Consciousness Lab…", agentLabel:"Joining group",
         result:(groups.find(g=>g.id===1)||{}).joined ? "You're already in Consciousness Lab" : "Done You've joined Consciousness Lab! Check it out in your Groups tab.",
         autoFn: ()=>joinGroup(1)};
 
     if (lo.includes("join philosophy") || (lo.includes("join") && lo.includes("philosophy")))
-      return {action:"Joining Philosophy Circle…", agentLabel:"Joining group",
+      return {tool:"circles", action:"Joining Philosophy Circle…", agentLabel:"Joining group",
         result:(groups.find(g=>g.id===3)||{}).joined ? "You're already in Philosophy Circle." : "Done You've joined Philosophy Circle!",
         autoFn: ()=>joinGroup(3)};
 
     if (lo.includes("join creative") || (lo.includes("join") && lo.includes("creative")))
-      return {action:"Joining Creative Minds…", agentLabel:"Joining group",
+      return {tool:"circles", action:"Joining Creative Minds…", agentLabel:"Joining group",
         result:(groups.find(g=>g.id===2)||{}).joined ? "Already in Creative Minds." : "Done You've joined Creative Minds!",
         autoFn: ()=>joinGroup(2)};
 
     if (lo.includes("join mindful") || (lo.includes("join") && lo.includes("mindful")))
-      return {action:"Joining Mindful Living…", agentLabel:"Joining group",
+      return {tool:"circles", action:"Joining Mindful Living…", agentLabel:"Joining group",
         result:(groups.find(g=>g.id===4)||{}).joined ? "Already in Mindful Living." : "Done You've joined Mindful Living!",
         autoFn: ()=>joinGroup(4)};
 
     if (lo.includes("post") && (lo.includes("dream") || lo.includes("it") || lo.includes("this")) && msgs.some(m=>m.draft)) {
       const draftMsg = [...msgs].reverse().find(m=>m.draft);
       const draftText = draftMsg ? draftMsg.draft : null;
-      if (draftText) return {action:"Publishing your Dream to the feed…", agentLabel:"Publishing Dream",
+      if (draftText) return {tool:"publish", action:"Publishing your Dream to the feed…", agentLabel:"Publishing Dream",
         result:"Done Your Dream is live! Head to your feed to see it.",
         autoFn: ()=>postDream(draftText)};
     }
@@ -489,7 +633,7 @@ function cherryRespond(text, cherryCtx) {
         `We spend so much energy building who we are, and so little time asking what we're building it for. ${topic}`,
       ];
       const draft = drafts[Math.floor(Math.random()*drafts.length)];
-      return {action:"Drafting a Dream based on your interests…", agentLabel:"Drafting Dream",
+      return {tool:"publish", action:"Drafting a Dream based on your interests…", agentLabel:"Drafting Dream",
         result:`Here's a draft:
 
 "${draft}"
@@ -501,8 +645,8 @@ Want me to publish it, or would you like to tweak it first?`,
     if (lo.includes("who should i follow") || lo.includes("suggest") && lo.includes("follow")) {
       const unfollowed = USERS.filter(u=>!following.has(u.id));
       if (!unfollowed.length) return {action:null, result:"You're already following everyone on Looscid!"};
-      const picks = unfollowed.slice(0,2).map(u=>`${u.name} (${u.handle}) — ${u.bio.slice(0,40)}…`).join("\n");
-      return {action:"Analysing your interests and engagement…", agentLabel:"Finding Dreamors",
+      const picks = unfollowed.slice(0,2).map(u=>u.name+" ("+u.handle+")"+(u.bio?" — "+String(u.bio).slice(0,40)+(String(u.bio).length>40?"…":""):"")).join("\n"); // build 150: a Dreamor with no bio no longer breaks Cherry
+      return {tool:"follow", action:"Analysing your interests and engagement…", agentLabel:"Finding Dreamors",
         result:`Based on your activity, I suggest:
 
 ${picks}
@@ -514,8 +658,8 @@ Shall I follow them for you?`,
     if (lo.includes("find group") || lo.includes("suggest group") || lo.includes("recommend group") || lo.includes("find circle") || lo.includes("suggest circle") || lo.includes("recommend circle")) {
       const unjoined = groups.filter(g=>!g.joined);
       if (!unjoined.length) return {action:null, result:"You've joined all available Circles."};
-      const picks = unjoined.slice(0,2).map(g=>`${g.emoji} ${g.name} — ${g.description.slice(0,50)}…`).join("\n");
-      return {action:"Scanning Circles that match your interests…", agentLabel:"Finding Circles",
+      const picks = unjoined.slice(0,2).map(g=>`${g.name} — ${String(g.description||"").slice(0,50)}…`).join("\n");
+      return {tool:"circles", action:"Scanning Circles that match your interests…", agentLabel:"Finding Circles",
         result:`Circles I'd recommend for you:
 
 ${picks}
@@ -532,9 +676,9 @@ Want me to join any of these?`,
       const ctx2 = appContext();
       return {action:"Reading your feed and activity…", agentLabel:"Summarising feed",
         result:`Here's your Looscid summary: ${ctx2.unread} unread notification${ctx2.unread!==1?"s":""}
-👥 Following: ${ctx2.followingNames}
-🏘️ Groups: ${ctx2.joinedGroups}
-❤️ Recently liked: ${ctx2.likedDreams}
+Following: ${ctx2.followingNames}
+Groups: ${ctx2.joinedGroups}
+Recently liked: ${ctx2.likedDreams}
 
 Top trending: #Consciousness and #CreativeProcess. Luna Rivera just dreamed a new Dream about consciousness and creativity — you might love it.`};
     }
@@ -543,12 +687,12 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just dreamed a ne
       return {action:null, result:"Redreaming instantly shares someone else's Dream to your followers — like a repost. Quote Dreaming lets you add your own words on top. You can undo either from Dream Options anytime."};
 
     if (lo.includes("like") && lo.includes("luna"))
-      return {action:"Liking Luna's latest Dream…", agentLabel:"Liking Dream",
+      return {tool:"like", action:"Liking Luna's latest Dream…", agentLabel:"Liking Dream",
         result:"Done Liked Luna Rivera's Dream about consciousness and creativity.",
         autoFn: ()=>likeDream(1)};
 
     if (lo.includes("save") && (lo.includes("luna") || lo.includes("first") || lo.includes("top")))
-      return {action:"Saving Dream…", agentLabel:"Saving Dream",
+      return {tool:"like", action:"Saving Dream…", agentLabel:"Saving Dream",
         result:"Done Dream saved to your profile.",
         autoFn: ()=>saveDream(1)};
 
@@ -558,7 +702,8 @@ Top trending: #Consciousness and #CreativeProcess. Luna Rivera just dreamed a ne
     if (lo.includes("hello") || lo.includes("hi cherry") || lo.includes("hey"))
       return {action:null, result:`Hey! I can see you're following ${appContext().followingNames || "no one yet"} and you're in ${appContext().joinedGroups || "no groups yet"}. I can share Dreams, follow people, join Groups, check notifications, and more. What would you like?`};
 
-    return {action:null, fallback:true, result:"I can help you share Dreams, follow Dreamors, join Groups, check your notifications, summarise your feed, find trending topics, or draft content. Just ask — I have full access to your Looscid."};
+    // Build 150 (#65): no canned answer. Cherry says plainly that it didn't understand, and that nothing changed.
+    return {action:null, fallback:true, result:"I don't know how to do that yet. Nothing was changed."};
   };
   return getResponse(text);
 }

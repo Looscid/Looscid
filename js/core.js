@@ -1023,6 +1023,9 @@ const LC_FIND_STATIC = [
   { l: "Learn from my habits", w: "ai cherry habits habit learning tips clear", page: "settings_ai_cherry", focus: "ai-habits", where: "Settings, Intelligence, Cherry" },
   { l: "Cherry model", w: "ai model on-device download qwen gemma phi webllm llm", page: "settings_ai_model", focus: "cherry-model", where: "Settings, Intelligence, Cherry model" },
   { l: "Cherry answers in Commandbar", w: "ai Commandbar terminal answers cherry", page: "settings_ai_cmd", focus: "ai-cmd", where: "Settings, Intelligence, Commandbar" },
+  { l: "Save chats in Your History", w: "ai cherry memory history chats save keep delete all chats forget", page: "settings_ai_memory", focus: "ai-keep", where: "Settings, Intelligence, Memory" },
+  { l: "Cherry tools", w: "ai cherry tools allowed permissions can do actions", page: "settings_ai_tools", focus: "ai-tool-settings", where: "Settings, Intelligence, Tools" },
+  { l: "What Cherry did", w: "ai cherry what cherry did audit log actions undo history", page: "settings_ai_audit", where: "Settings, Intelligence, What Cherry did" },
   { l: "Light mode", w: "theme colors colours dark light appearance", page: "settings_cz_theme", focus: "cz-theme", where: "Settings, Customizability, Theme and colors" },
   { l: "Menu button position", w: "menu top bottom one handed position", page: "settings_cz_menu", focus: "cz-menupos", where: "Settings, Customizability, Menu" },
   { l: "Menu Close buttons", w: "menu close button top bottom", page: "settings_cz_menu", focus: "cz-topclose", where: "Settings, Customizability, Menu" },
@@ -1465,9 +1468,9 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
   const isOpen = id => !!open[id]; // default closed
 
   const SECTIONS = [
-    { id:"cherry", emoji:"Cherry", label:"Cherry AI", items:[
+    { id:"cherry", emoji:"Cherry", label:"Cherry", items:[
       lcAiOn()
-        ? { icon:"Cherry", label:"Open Cherry",     sub:"Your on-device assistant", special:"cherry", action(){onClose();goRoot("cherry");} }
+        ? { icon:"Cherry", label:"Open Cherry",     sub:"Cherry - DO IT YOUR WAY", special:"cherry", action(){onClose();goRoot("cherry");} }
         : { icon:"Cherry", label:"Turn on Cherry",  sub:"Cherry is off. Opens Settings, Intelligence", action(){onClose();navigate("settings_ai_cherry");} },
     ]},
     { id:"discover", emoji:"Discover", label:"Discover", items:[
@@ -1492,7 +1495,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"Apps", label:"Apps",  sub:"Insomnia, Memeprojects, Easyconvert, Desktop and Kernel",  action(){onClose();navigate("settings_apps");} },
       { icon:"Keyboard", label:"Keyboard shortcuts",  sub:"Built-in keys and your own shortcuts",  action(){onClose();navigate("settings_keyboard");} },
       { icon:"Backup", label:"Settings backup",  sub:"Export, import or reset all settings",  action(){onClose();navigate("settings_backup");} },
-      { icon:"Intelligence", label:"Intelligence", sub:"Cherry, the on-device model, Commandbar answers",  action(){onClose();navigate("settings_intelligence");} },
+      { icon:"Intelligence", label:"Intelligence", sub:"Cherry, the on-device model, Commandbar answers, memory, tools and What Cherry did",  action(){onClose();navigate("settings_intelligence");} },
       { icon:"Labs", label:"Looscid Labs", sub:"Early access to features we are still building", action(){onClose();navigate("settings_labs");} },
       { icon:"Reset", label:"Reset", sub:"Reset the whole app, or just some settings", action(){ lcOpenReset("all"); } },
     ]},
@@ -5382,7 +5385,7 @@ useEffect(() => {
       settings_customizability: "Customizability",
       settings_cz_theme: "Theme and colors", settings_cz_feeds: "Feeds and home", settings_cz_menu: "Menu", settings_cz_posting: "Dreaming", settings_cz_media: "Media and translation",
       settings_audio_volume: "Volume and focus sounds", settings_audio_pack: "Soundpacks", settings_audio_events: "Event sounds", settings_audio_haptics: "Music and haptics",
-      settings_intelligence: "Intelligence", settings_ai_model: "Cherry model", settings_ai_cmd: "Commandbar",
+      settings_intelligence: "Intelligence", settings_ai_model: "Cherry model", settings_ai_cmd: "Commandbar", settings_ai_memory: "Memory", settings_ai_tools: "Tools", settings_ai_audit: "What Cherry did",
       settings_accessibility: "Accessibility",
       settings_a11y_sr: "Sense",
       settings_a11y_vision: "Vision",
@@ -5409,7 +5412,7 @@ useEffect(() => {
       terms: "Terms",
       privacy: "Privacy",
       guidelines: "Community rules",
-      cherry: "Cherry",
+      cherry: "Cherry - DO IT YOUR WAY",
       commands: "Commands",
       project: pdata && pdata.name ? pdata.name : "Project",
       groups: "Circles",
@@ -5459,8 +5462,8 @@ useEffect(() => {
       case "nexos_apps":              return React.createElement(Looscid.NexosAppsPage, { navigate: navigate,});
       case "credits":                 return React.createElement(Looscid.CreditsPage, { navigate: navigate,});
       case "nexos_app":               return React.createElement(Looscid.NexosAppFrame, { key: (pdata && pdata.id) || "app", app: pdata, navigate: navigate,});
-      case "settings_intelligence": case "settings_ai_cherry": case "settings_ai_model": case "settings_ai_cmd":
-                                      return React.createElement(Looscid.IntelligenceSettings, { key: page, page: page, navigate: navigate, prefs: prefs, setPrefs: setPrefs,});
+      case "settings_intelligence": case "settings_ai_cherry": case "settings_ai_model": case "settings_ai_cmd": case "settings_ai_memory": case "settings_ai_tools": case "settings_ai_audit":
+                                      return React.createElement(Looscid.IntelligenceSettings, { key: page, page: page, navigate: navigate, prefs: prefs, setPrefs: setPrefs, cherryCtx: cherryCtx,});
       case "admin":                   return React.createElement(Looscid.AdminPanel, { navigate: navigate,});
       case "feedback":                return React.createElement(Looscid.FeedbackPage, { navigate: navigate,});
       case "drafts":        return React.createElement(Looscid.DraftsPage, { navigate: navigate, onLoadDraft: d=>{ setShowCreate(true); },});

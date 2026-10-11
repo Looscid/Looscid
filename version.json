@@ -6,9 +6,9 @@
   "features": 117,
   "fixes": 33,
   "builds_without_fixes": 117,
-  "released": "2026-10-11T20:53:52Z",
+  "released": "2026-10-11T21:07:51Z",
   "title": "Round 7",
-  "notes": "Round 7 (build 150), in progress: truly modal menus, BrailleNote braille roles, Sense, Pitch cues on Speech, Feditext-style settings, live profile counts, no Home feed tab, Expand/Collapse thread, Feditext More button, Help as a real menu, short menu hints, Liked Media filters, Back sounds, Unredream/Unquote Dream, Memeprojects spelled right.",
+  "notes": "Round 7 (build 150), in progress: truly modal menus, BrailleNote braille roles, Sense, Pitch cues on Speech, Feditext-style settings, live profile counts, no Home feed tab, Expand/Collapse thread, Feditext More button, Help as a real menu, short menu hints, Liked Media filters, Back sounds, Unredream/Unquote Dream, Memeprojects spelled right, the Cherry page and Intelligence.",
   "branches": {
     "MainV1": {
       "version": "2026.70.103",
