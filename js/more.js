@@ -2282,12 +2282,16 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 116; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 117; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 33;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.116.33", build: 149, released: LOOSCID_RELEASED, title: "Round 6.8.1", notes: [
+  { version: "2026.117.33", build: 150, released: LOOSCID_RELEASED, title: "Round 7", notes: [
+    "Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each.",
+    "Every menu, sheet, dialog and pop-up is truly modal (Alhasan: after the last item in Create, VoiceOver read Home and the status page behind it). While one is open, everything outside it is hidden from VoiceOver, braille and the keyboard; Tab and Shift+Tab stay inside a dialog; when it closes, focus goes back to the button that opened it. The live announcer still speaks. Covers Create, More, the Commandbar, pop-up menus, Dream options, alerts, Circle sheets and Reset. Escape now closes More too.",
+  ] },
+  { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by Alhasan. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
     "The stray comma: hidden commas stood in for the bullet between N Dreams and Joined, and before Follows you, Muted and Blocked. VoiceOver read each one on its own as comma. They're gone; each part is its own piece with a plain space.",
     "The bio is shown like Feditext's: paragraphs and line breaks kept, links, mentions and hashtags as real links. A mention opens that Dreamor's profile, a hashtag opens Discover.",

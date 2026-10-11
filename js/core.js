@@ -1,7 +1,7 @@
 /* Looscid core.js: state, prefs, icons, nav, routing, sounds and shared helpers; App() is the frame.
    Plain script (not a module). Everything it shares goes on window.Looscid; see FILES.md for the load order. */
 (function (Looscid) {
-Object.assign(Looscid, { lcReplyObj, lcRedreamsRaw, lcRedreamHas, lcPeopleList, lcPeopleSet, lcPeopleHas, lcIsMuted, lcNoteFor, lcSetNote, useUntagTick, lcLikedRaw, lcLikedHas, lcLikedItems, lcLikedSet, lcLikedPatch, lcDreamSnap, lcWithLiked, lcLikedDreams, useLikedTick, lcIsUntagged, lcSetUntagged, lcTagsMe, lcUntaggedText, lcNewId, lcRepliesRaw, lcRepliesFor, lcAddReply, lcRepliesChanged, useRepliesTick, lcCompose, lcLinkCard, LinkCard, ReplyItem, lcLoadDreams, lcMergeDreams, lcSyncOwnDreams, useSavedDreams, _optionalChain, getDrafts, saveDraftItem, getSavedTheme, saveTheme, applyTheme, getOnboardingSeen, setOnboardingSeen, resetOnboarding, getLinkInfo, useDreams, Av, ChkMark, Cbx, Modal, lcThreadOf, lcHearThread, DreamExtra, lcTranslate, lcShareText, DreamOptionsMenu, BackHeader, DreamText, SiteEmbed, CommentItem, CommentView, DreamCard, lcCatState, useCats, lcAlertCats, lcResetKeyItems, lcLsDel, lcResetModel, lcOpenReset, LcResetHost, lcAiOn, lcSettingIndex, lcFindSettings, lcGoSetting, LcSettingFind, sanitizeInput, makeLocalProfile, saveLocalProfile, getLocalProfile, applyLocalProfileToMe, ensureLocalProfile, renameLocalProfile, resetLocalProfile, getAnalyticsConsent, setAnalyticsConsent, AnalyticsBanner, getWelcomeSeen, setWelcomeSeen, getAIPrefs, setAIPrefs, getActiveAI, getHabits, recordHabit, getPredictions, spellCheck, applySpellFix, detectAutoLinks, getAttribPref, HabitInsightCard, MainMenu, lcVerb, lcHints, announce, useEnterSubmit, updateLocalProfile, LcMenu, lcViewLimits, lcAnnounceCount, MenuPopupButton, getIdentity, setIdentity, getMethods, saveMethods, addMethod, getActivity, logActivity, getSessions, setSession, removeMethod, setStoredNostrSk, signOutIdentity, loadNostrTools, bytesToHex, hexToBytes, shortNpub, identityLabel, SecretField, NostrPanel, b64url, randomToken, pkceChallenge, appRedirectUri, normalizeHost, startMastodonLogin, startFunkwhaleLogin, startHubzillaLogin, lidOAuthIdentity, finishOAuthIfReturning, useOAuthReturn, MastodonPanel, LidOAuthPanel, FunkwhalePanel, HubzillaPanel, resolvePds, BlueskyPanel, AlertDialog, LooscidIDChooser, getTopics, TopicPicker, LooscidOnboarding, lcSectionKeys, lcSectionDefaults, lcSrName, lcSectionTitle, lcSet, lcValueText, lcTimeSpoken, lcWords, lcQuietNow, lcAutoplayAllowed, lcHapticsSupported, lcBuzz, lcEmojiName, lcSpeechText, lcBrailleText, lcTimeParts, lcDreamKind, lcDreamWords, lcFiltered, lcDreamSpeechParts, lcIdb, lcIdbDo, lcCurrentDream, lcLoadCustomPack, lcUpdateAuto, lcFetchVersion, lcCheckUpdate, lcApplyUpdate, LcUpdateBanner, lcVersionLabel, lcReleasedText, loadA11y, saveA11y, a11yAsked, setA11yAsked, systemReducedMotion, motionReduced, a11yEnterSends, lcCloseProps, lcPcOn, lcPackChime, lcPitchCue, lcPcKindOf, areaOfPage, musicFind, lcLev, lcSectionReport, lcFindSection, lcParseTime, lcRegistryIntent, lcTranslateOk, lcA11yReport, lcA11yIntent, lcFeedFind, lcFeedMode, lcFeedLabel, lcSetFeed, lcStepFeed, lcAudCustom, lcHandle, lcAudienceOk, lcBlocked, lcBlockedSet, lcBlockedUser, lcWordHit, LcBlockedHidden, lcAlertPrefs, lcAlerts, lcAlertsSave, lcNotify, lcAlertsMarkAll, useAlerts, lcVersionAlert, lcSetAlertsTab, lcSetShowFriends, lcFeedIntent, lcApplyFeedIntent, lcAppItems, lcNorm, lcClosestPlace, lcHistory, lcPushHistory, lcSpoken, lcExtraIntent, lcRun, lcTrapTab, useCmdHistory, useKeyboardInset, LcCmdLog, CommandBar, lcLogSave, lcLogAdd, lcLogClear, useCmdLog, lcBrowserName, lcStorageKB, lcNexosSettings, lcNexosSend, lcNexosBroadcast, lcBootLines, LcBoot, useInertBehind, DeviceQuestion, useA11yNow, lcResetSection, lcBrList, lcBrSave, lcBrWord, lcBrStyleLabel, lcBrDate, lcBrFind, lcBrCheck, lcBrNotice, lcBrSelect, lcBrCreate, lcBrRename, lcBrDelete, lcBrUndo, lcBrUsePast, lcBrForget, lcBrStamp, lcBrWatch, lcBrIntent, lcKeyName, lcExportSettings, lcDownloadSettings, LcFindMeSwitch, LcUndoBar, A11ySwitch, App });
+Object.assign(Looscid, { lcModalSync, lcModalState, lcReplyObj, lcRedreamsRaw, lcRedreamHas, lcPeopleList, lcPeopleSet, lcPeopleHas, lcIsMuted, lcNoteFor, lcSetNote, useUntagTick, lcLikedRaw, lcLikedHas, lcLikedItems, lcLikedSet, lcLikedPatch, lcDreamSnap, lcWithLiked, lcLikedDreams, useLikedTick, lcIsUntagged, lcSetUntagged, lcTagsMe, lcUntaggedText, lcNewId, lcRepliesRaw, lcRepliesFor, lcAddReply, lcRepliesChanged, useRepliesTick, lcCompose, lcLinkCard, LinkCard, ReplyItem, lcLoadDreams, lcMergeDreams, lcSyncOwnDreams, useSavedDreams, _optionalChain, getDrafts, saveDraftItem, getSavedTheme, saveTheme, applyTheme, getOnboardingSeen, setOnboardingSeen, resetOnboarding, getLinkInfo, useDreams, Av, ChkMark, Cbx, Modal, lcThreadOf, lcHearThread, DreamExtra, lcTranslate, lcShareText, DreamOptionsMenu, BackHeader, DreamText, SiteEmbed, CommentItem, CommentView, DreamCard, lcCatState, useCats, lcAlertCats, lcResetKeyItems, lcLsDel, lcResetModel, lcOpenReset, LcResetHost, lcAiOn, lcSettingIndex, lcFindSettings, lcGoSetting, LcSettingFind, sanitizeInput, makeLocalProfile, saveLocalProfile, getLocalProfile, applyLocalProfileToMe, ensureLocalProfile, renameLocalProfile, resetLocalProfile, getAnalyticsConsent, setAnalyticsConsent, AnalyticsBanner, getWelcomeSeen, setWelcomeSeen, getAIPrefs, setAIPrefs, getActiveAI, getHabits, recordHabit, getPredictions, spellCheck, applySpellFix, detectAutoLinks, getAttribPref, HabitInsightCard, MainMenu, lcVerb, lcHints, announce, useEnterSubmit, updateLocalProfile, LcMenu, lcViewLimits, lcAnnounceCount, MenuPopupButton, getIdentity, setIdentity, getMethods, saveMethods, addMethod, getActivity, logActivity, getSessions, setSession, removeMethod, setStoredNostrSk, signOutIdentity, loadNostrTools, bytesToHex, hexToBytes, shortNpub, identityLabel, SecretField, NostrPanel, b64url, randomToken, pkceChallenge, appRedirectUri, normalizeHost, startMastodonLogin, startFunkwhaleLogin, startHubzillaLogin, lidOAuthIdentity, finishOAuthIfReturning, useOAuthReturn, MastodonPanel, LidOAuthPanel, FunkwhalePanel, HubzillaPanel, resolvePds, BlueskyPanel, AlertDialog, LooscidIDChooser, getTopics, TopicPicker, LooscidOnboarding, lcSectionKeys, lcSectionDefaults, lcSrName, lcSectionTitle, lcSet, lcValueText, lcTimeSpoken, lcWords, lcQuietNow, lcAutoplayAllowed, lcHapticsSupported, lcBuzz, lcEmojiName, lcSpeechText, lcBrailleText, lcTimeParts, lcDreamKind, lcDreamWords, lcFiltered, lcDreamSpeechParts, lcIdb, lcIdbDo, lcCurrentDream, lcLoadCustomPack, lcUpdateAuto, lcFetchVersion, lcCheckUpdate, lcApplyUpdate, LcUpdateBanner, lcVersionLabel, lcReleasedText, loadA11y, saveA11y, a11yAsked, setA11yAsked, systemReducedMotion, motionReduced, a11yEnterSends, lcCloseProps, lcPcOn, lcPackChime, lcPitchCue, lcPcKindOf, areaOfPage, musicFind, lcLev, lcSectionReport, lcFindSection, lcParseTime, lcRegistryIntent, lcTranslateOk, lcA11yReport, lcA11yIntent, lcFeedFind, lcFeedMode, lcFeedLabel, lcSetFeed, lcStepFeed, lcAudCustom, lcHandle, lcAudienceOk, lcBlocked, lcBlockedSet, lcBlockedUser, lcWordHit, LcBlockedHidden, lcAlertPrefs, lcAlerts, lcAlertsSave, lcNotify, lcAlertsMarkAll, useAlerts, lcVersionAlert, lcSetAlertsTab, lcSetShowFriends, lcFeedIntent, lcApplyFeedIntent, lcAppItems, lcNorm, lcClosestPlace, lcHistory, lcPushHistory, lcSpoken, lcExtraIntent, lcRun, lcTrapTab, useCmdHistory, useKeyboardInset, LcCmdLog, CommandBar, lcLogSave, lcLogAdd, lcLogClear, useCmdLog, lcBrowserName, lcStorageKB, lcNexosSettings, lcNexosSend, lcNexosBroadcast, lcBootLines, LcBoot, useInertBehind, DeviceQuestion, useA11yNow, lcResetSection, lcBrList, lcBrSave, lcBrWord, lcBrStyleLabel, lcBrDate, lcBrFind, lcBrCheck, lcBrNotice, lcBrSelect, lcBrCreate, lcBrRename, lcBrDelete, lcBrUndo, lcBrUsePast, lcBrForget, lcBrStamp, lcBrWatch, lcBrIntent, lcKeyName, lcExportSettings, lcDownloadSettings, LcFindMeSwitch, LcUndoBar, A11ySwitch, App });
 
  function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 const {useState, useEffect, useRef, useCallback} = React;
@@ -375,7 +375,7 @@ function Cbx({on, onToggle, label}) {
 function Modal({onClose, title, subtitle, children}) {
   return (
     React.createElement('div', { className: "ov", onClick: e => e.target===e.currentTarget && onClose(),}
-      , React.createElement('div', { className: "msh", role: "dialog", 'aria-label': title||"Menu",}
+      , React.createElement('div', { className: "msh", role: "dialog", "aria-modal": "true", 'aria-label': title||"Menu", onKeyDown: e => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); onClose(); } },}
         , React.createElement('div', { className: "mhd", "aria-hidden":"true",})
         , React.createElement('div', { className: "min",}
           , title && React.createElement('div', {
@@ -1486,6 +1486,8 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
     className:"menu-ov",
     onClick:e=>{if(e.target===e.currentTarget)onClose();},
     role:"dialog","aria-modal":"true","aria-label":"Main menu",
+    // Build 150 (#62): Escape closes More like every other menu and dialog; focus goes back to the More button.
+    onKeyDown:e=>{ if (e.key === "Escape" && !e.defaultPrevented) { e.preventDefault(); e.stopPropagation(); onClose(); } },
   },
     React.createElement('div', {className:"menu-sh "+(pos==="top"?"from-top":"from-bot")},
 
@@ -1726,7 +1728,7 @@ function LcMenu(props) {
     else if (k === "Home") { e.preventDefault(); e.stopPropagation(); setActive(0); }
     else if (k === "End") { e.preventDefault(); e.stopPropagation(); setActive(n - 1); }
     else if (k === "Escape") { e.preventDefault(); e.stopPropagation(); close(); }
-    else if (k === "Tab") { setOpen(false); }
+    else if (k === "Tab") { e.preventDefault(); e.stopPropagation(); if (btnRef.current) btnRef.current.focus(); setOpen(false); } // build 150 (#62): Tab closes and focus goes back to the button
     else if (k === "Enter" || k === " ") { e.preventDefault(); e.stopPropagation(); choose(all[active]); }
     else if (k.length === 1 && /\S/.test(k) && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); e.stopPropagation(); typeAhead(k); }
   };
@@ -1735,7 +1737,7 @@ function LcMenu(props) {
     if (e.key === "ArrowDown") { e.preventDefault(); setActive(0); setInList(true); }
     else if (e.key === "Enter") { e.preventDefault(); if (shown.length) choose(shown[0]); }
     else if (e.key === "Escape") { e.preventDefault(); close(); }
-    else if (e.key === "Tab") { setOpen(false); }
+    else if (e.key === "Tab") { e.preventDefault(); if (btnRef.current) btnRef.current.focus(); setOpen(false); }
   };
   const labelled = !props.hideLabel && props.label;
   const btnText = props.btnText != null ? props.btnText : (current ? (props.prefix || "") + current.name : (props.placeholder || "Choose"));
@@ -2858,11 +2860,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.116.33";
+const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 149;
+const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-11T08:18:22Z"; // the Round 6.8.1 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-11T20:18:58Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4426,6 +4428,125 @@ function useInertBehind(ref) {
     return function () { sibs.forEach(function (el) { el.inert = false; el.removeAttribute("data-lc-inert"); }); };
   }, []);
 }
+/* Build 150 (#62, Alhasan: "after the last item VoiceOver reads Home and the status page behind it"):
+   ONE modal manager for every menu, sheet, dialog and pop-up in the app. Whatever is open on top
+   (a role=dialog or alertdialog, anything aria-modal, or an open pop-up menu list) is the only thing
+   VoiceOver, a braille display or the keyboard can reach: everything outside it, at every level up to
+   <body>, gets inert and aria-hidden="true" (the #looscid-live announcer always stays reachable).
+   Tab and Shift+Tab wrap inside a dialog; a pop-up menu keeps its own keys (Tab closes it).
+   When it closes, focus goes back where it came from (or wherever the closing code asked for it). */
+const LC_MODAL_SEL = '[role="dialog"],[role="alertdialog"],[aria-modal="true"],.lmenu-list,.msh';
+const LC_MODAL_KEEP = { "looscid-live": 1, "lc-cue": 1, "lc-caption": 1 };
+const LcModal = { stack: [], applied: [], pending: null, last: null, busy: false };
+function lcModalShown(el) {
+  if (!el.isConnected) return false;
+  for (let e = el; e && e !== document.body; e = e.parentElement) {
+    if (e.hidden) return false;
+    if (e.getAttribute("aria-hidden") === "true" && !e.hasAttribute("data-lc-modal-hid")) return false;
+  }
+  const cs = getComputedStyle(el); return cs.display !== "none" && cs.visibility !== "hidden";
+}
+function lcModalState() { return { open: LcModal.stack.length, top: LcModal.stack.length ? LcModal.stack[LcModal.stack.length - 1].el : null, hidden: LcModal.applied.length }; }
+function lcModalRelease() {
+  LcModal.applied.forEach(function (r) {
+    if (r.inert) { r.el.inert = false; r.el.removeAttribute("data-lc-modal-inert"); }
+    if (r.hid) { r.el.removeAttribute("aria-hidden"); r.el.removeAttribute("data-lc-modal-hid"); }
+  });
+  LcModal.applied = [];
+}
+function lcModalApply(top) {
+  for (let me = top; me && me.parentElement && me !== document.body; me = me.parentElement) {
+    Array.prototype.forEach.call(me.parentElement.children, function (el) {
+      if (el === me || LC_MODAL_KEEP[el.id] || /^(SCRIPT|STYLE|LINK|TEMPLATE)$/.test(el.tagName)) return;
+      const r = { el: el, inert: false, hid: false };
+      if (!el.inert) { el.inert = true; el.setAttribute("data-lc-modal-inert", "1"); r.inert = true; }
+      if (el.getAttribute("aria-hidden") !== "true") { el.setAttribute("aria-hidden", "true"); el.setAttribute("data-lc-modal-hid", "1"); r.hid = true; }
+      if (r.inert || r.hid) LcModal.applied.push(r);
+    });
+  }
+}
+function lcModalFirst(top) {
+  const want = top.querySelector("[data-lc-autofocus]") || top.querySelector('[role="menuitem"][tabindex="0"],[role="menuitemradio"][tabindex="0"]');
+  if (want) return want;
+  const list = lcModalFocusables(top); return list[0] || null;
+}
+function lcModalFocusables(top) {
+  return Array.prototype.filter.call(top.querySelectorAll('a[href],button,input,select,textarea,summary,[tabindex]'), function (el) {
+    return !el.disabled && el.getAttribute("tabindex") !== "-1" && el.type !== "hidden" && !el.closest("[inert]") && el.getClientRects().length > 0;
+  });
+}
+function lcModalSync() {
+  if (LcModal.busy) return; LcModal.busy = true;
+  try {
+    const found = Array.prototype.filter.call(document.querySelectorAll(LC_MODAL_SEL), function (el) {
+      // A dialog role on an element inside a pop-up list (or the list's own menu) is the same modal.
+      return !(el.parentElement && el.parentElement.closest(".lmenu-list")) && lcModalShown(el);
+    });
+    const before = LcModal.stack[LcModal.stack.length - 1] || null;
+    const kept = LcModal.stack.filter(function (m) { return found.indexOf(m.el) >= 0; });
+    let fresh = false;
+    found.forEach(function (el) {
+      if (kept.some(function (m) { return m.el === el; })) return;
+      fresh = true; LcModal.pending = null;
+      // An open modal remembers where focus was (or the control last pressed: Safari doesn't focus buttons on tap).
+      let from = document.activeElement;
+      if (!from || from === document.body || el.contains(from)) from = LcModal.last;
+      kept.push({ el: el, from: from && !el.contains(from) ? from : null });
+    });
+    LcModal.stack = kept;
+    const top = kept[kept.length - 1] || null;
+    if ((top && top.el) === (before && before.el)) return;
+    lcModalRelease();
+    if (top) {
+      lcModalApply(top.el);
+      const a = document.activeElement;
+      if (!a || a === document.body || !top.el.contains(a)) {
+        setTimeout(function () {
+          const cur = LcModal.stack[LcModal.stack.length - 1];
+          if (!cur || cur.el !== top.el) return;
+          const a2 = document.activeElement;
+          if (a2 && a2 !== document.body && top.el.contains(a2)) return;
+          const f = lcModalFirst(top.el); if (f) f.focus();
+        }, 60);
+      }
+    }
+    // Closed (or a nested one closed): focus goes where the closing code asked, else back where it came from.
+    if (before && kept.indexOf(before) < 0 && !fresh) {
+      const ask = LcModal.pending; LcModal.pending = null;
+      const a = document.activeElement;
+      const lost = !a || a === document.body || !a.isConnected || !!a.closest("[inert]");
+      const go = [ask, before.from].find(function (x) { return x && x.isConnected && !x.closest("[inert]"); });
+      if (go && (lost || (ask && a !== ask))) { try { go.focus(); } catch (e) {} }
+    }
+  } finally { LcModal.busy = false; }
+}
+(function lcModalBoot() {
+  if (typeof document === "undefined" || typeof MutationObserver === "undefined") return;
+  // A focus() call aimed at something behind the open modal (closing code moving focus back to its button)
+  // can't land while that part is inert; remember it and honour it the moment the modal is gone.
+  const realFocus = HTMLElement.prototype.focus;
+  HTMLElement.prototype.focus = function () {
+    if (LcModal.stack.length && this.closest && this.closest("[data-lc-modal-inert]")) LcModal.pending = this;
+    return realFocus.apply(this, arguments);
+  };
+  document.addEventListener("pointerdown", function (e) { const t = e.target && e.target.closest && e.target.closest('button,a[href],[role="button"],[role="tab"],[tabindex]'); if (t) LcModal.last = t; }, true);
+  document.addEventListener("click", function (e) { const t = e.target && e.target.closest && e.target.closest('button,a[href],[role="button"],[role="tab"],[tabindex]'); if (t && !t.closest(LC_MODAL_SEL)) LcModal.last = t; }, true);
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Tab" || !LcModal.stack.length) return;
+    const top = LcModal.stack[LcModal.stack.length - 1].el;
+    if (top.classList.contains("lmenu-list")) return; // pop-up menus: Tab closes them (their own key handler)
+    const list = lcModalFocusables(top); if (!list.length) { e.preventDefault(); return; }
+    const first = list[0], lastEl = list[list.length - 1], a = document.activeElement;
+    if (!top.contains(a)) { e.preventDefault(); first.focus(); }
+    else if (e.shiftKey && a === first) { e.preventDefault(); lastEl.focus(); }
+    else if (!e.shiftKey && a === lastEl) { e.preventDefault(); first.focus(); }
+  }, true);
+  const start = function () {
+    new MutationObserver(function () { lcModalSync(); }).observe(document.body, { childList: true, subtree: true });
+    lcModalSync();
+  };
+  if (document.body) start(); else document.addEventListener("DOMContentLoaded", start);
+})();
 function DeviceQuestion({ onDone }) {
   const [sel, setSel] = useState({});
   const hRef = useRef(null), boxRef = useRef(null), ovRef = useRef(null);

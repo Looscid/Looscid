@@ -166,7 +166,7 @@ function CreateMenu({onClose, prefs, navigate, cherryCtx, start}) {
   if (screen==="dream") return lh(LcComposer, { mode: "new", prefs: prefs, navigate: navigate, cherryCtx: cherryCtx, opener: openerRef.current, onClose: onClose });
   const close = function () { onClose(); const o = openerRef.current; if (o && o.focus && document.contains(o)) setTimeout(function () { try { o.focus(); } catch (e) {} }, 0); };
   return lh('div', { className: "ov", onClick: function (e) { if (e.target === e.currentTarget) close(); } },
-    lh('div', { className: "msh", role: "dialog", "aria-labelledby": "create-h", onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(); } } },
+    lh('div', { className: "msh", role: "dialog", "aria-modal": "true", "aria-labelledby": "create-h", onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(); } } },
       lh('div', { className: "mhd", "aria-hidden": "true" }),
       lh('div', { className: "min" },
         lh('div', { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 } },

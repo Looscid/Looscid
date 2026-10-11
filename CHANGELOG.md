@@ -2,6 +2,14 @@
 
 Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.117.33 (150): Round 7
+
+Released October 11, 2026 at 4:18 PM (Eastern Time, 2026-10-11T20:18:58Z UTC)
+
+Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each.
+
+- Every menu, sheet, dialog and pop-up is truly modal (Alhasan: after the last item in Create, VoiceOver read Home and the status page behind it). While one is open, everything outside it is hidden from VoiceOver, braille and the keyboard; Tab and Shift+Tab stay inside a dialog; when it closes, focus goes back to the button that opened it. The live announcer still speaks. Covers Create, More, the Commandbar, pop-up menus, Dream options, alerts, Circle sheets and Reset. Escape now closes More too.
+
 ## Looscid 2026.116.33 (149): Round 6.8.1
 
 Released October 11, 2026 at 4:18 AM (Eastern Time, 2026-10-11T08:18:22Z UTC)

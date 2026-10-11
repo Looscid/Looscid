@@ -1,14 +1,14 @@
 {
   "app": "Looscid",
   "branch": "preview",
-  "version": "2026.116.33",
-  "build": 149,
-  "features": 116,
+  "version": "2026.117.33",
+  "build": 150,
+  "features": 117,
   "fixes": 33,
-  "builds_without_fixes": 116,
-  "released": "2026-10-11T08:18:22Z",
-  "title": "Round 6.8.1",
-  "notes": "The stray comma on profiles is gone (hidden commas stood in for the bullet before Joined and before Follows you). The bio and fields look like Feditext's, with real links. Follows you turns into Mutuals in place. Joined shows the full date and time in your time zone. Tab names have no position numbers, and profile tabs show counts like Dreams (106). The Media tab has Show: Images, Videos or Both. A fix update.",
+  "builds_without_fixes": 117,
+  "released": "2026-10-11T20:18:58Z",
+  "title": "Round 7",
+  "notes": "Round 7 (build 150), in progress: every menu, sheet, dialog and pop-up is truly modal.",
   "branches": {
     "MainV1": {
       "version": "2026.70.103",
@@ -29,9 +29,9 @@
       "fixes": 103
     },
     "preview": {
-      "version": "2026.116.33",
-      "build": 149,
-      "features": 116,
+      "version": "2026.117.33",
+      "build": 150,
+      "features": 117,
       "fixes": 33
     },
     "refactor/discover-extraction": {
@@ -60,10 +60,10 @@
     }
   },
   "all_branches": {
-    "version": "2026.769.519",
-    "build": 1288,
-    "features": 769,
+    "version": "2026.770.519",
+    "build": 1289,
+    "features": 770,
     "fixes": 519,
-    "builds_without_fixes": 769
+    "builds_without_fixes": 770
   }
 }

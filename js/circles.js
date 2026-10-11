@@ -14,7 +14,7 @@ function CreateGroupFlow({onClose, navigate}) {
 
   if (step===3) return (
     React.createElement('div', { className: "ov", onClick: e=>e.target===e.currentTarget&&onClose(),}
-      , React.createElement('div', { className: "msh",}
+      , React.createElement('div', { className: "msh", role: "dialog", "aria-modal": "true", "aria-label": "Circle Rules",}
         , React.createElement('div', { className: "mhd",})
         , React.createElement('div', { className: "min",}
           , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:8,marginBottom:16},}
@@ -39,7 +39,7 @@ function CreateGroupFlow({onClose, navigate}) {
 
   if (step===2) return (
     React.createElement('div', { className: "ov", onClick: e=>e.target===e.currentTarget&&onClose(),}
-      , React.createElement('div', { className: "msh",}
+      , React.createElement('div', { className: "msh", role: "dialog", "aria-modal": "true", "aria-label": "Circle Settings",}
         , React.createElement('div', { className: "mhd",})
         , React.createElement('div', { className: "min",}
           , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:8,marginBottom:16},}
@@ -71,7 +71,7 @@ function CreateGroupFlow({onClose, navigate}) {
   // Step 1
   return (
     React.createElement('div', { className: "ov", onClick: e=>e.target===e.currentTarget&&onClose(),}
-      , React.createElement('div', { className: "msh",}
+      , React.createElement('div', { className: "msh", role: "dialog", "aria-modal": "true", "aria-label": "New Circle",}
         , React.createElement('div', { className: "mhd",})
         , React.createElement('div', { className: "min",}
           , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:8,marginBottom:16},}
@@ -245,7 +245,7 @@ function GroupAdminModal({group, onClose}) {
 
   return (
     React.createElement('div', { className: "ov", onClick: e=>e.target===e.currentTarget&&onClose(),}
-      , React.createElement('div', { className: "msh", style: {maxHeight:"92vh"},}
+      , React.createElement('div', { className: "msh", role: "dialog", "aria-modal": "true", "aria-label": group.name + " Circle Admin", style: {maxHeight:"92vh"},}
         , React.createElement('div', { className: "mhd",})
         , React.createElement('div', { style: {padding:"12px 16px 8px",borderBottom:"1px solid var(--bd)",display:"flex",alignItems:"center",gap:8},}
           , React.createElement('span', { style: {fontSize:18},}, "Settings")
