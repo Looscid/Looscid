@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 11, 2026 at 5:17 PM (Eastern Time, 2026-10-11T21:17:01Z UTC)
+Released October 11, 2026 at 6:51 PM (Eastern Time, 2026-10-11T22:51:56Z UTC)
 
 Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each.
 
@@ -28,6 +28,7 @@ Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each
 - Cherry has its own page called Cherry - DO IT YOUR WAY (More just links to it). The Try asking suggestions and the canned answer are gone: when Cherry doesn't understand, it says so and changes nothing. New Chat is at the top, then Your History with All and Pinned, then the chat you're in. Each chat has a Chat options pop-up menu: Pin or Unpin, Edit name, Project and Share access (both coming soon), Delete (asks first), New Chat, History and Close Menu. Capitals never matter to Cherry.
 - Settings, Intelligence has three new pages for Cherry, kept apart from the feed settings: Memory (save chats in Your History on or off, Delete all chats), Tools (what Cherry may do for you, all on to start; a tool that's off is never run) and What Cherry did (everything Cherry did, with Undo; it used to be on the Cherry page).
 - Credits and open source is rewritten in my own words: it starts with "This page is where I say thanks", my own projects have their own section, every license is a link to that project's real license, and every project has a link like "NexOS on GitHub" instead of a raw web address.
+- Create Circle makes a real Circle now (Alhasan: it just closed the sheet). It opens your new Circle with focus on its name and says "Circle created" once. Circles you make stay after a reload: they're kept on this device as looscid_circles, and Settings backup exports and imports them (older backups still import).
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 

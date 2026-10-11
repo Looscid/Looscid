@@ -154,14 +154,14 @@ function CreateOptions({ idp, navigate, close, open }) {
     })));
 }
 // The Create tab: a dialog with a focusable Create heading, then the shared options.
-function CreateMenu({onClose, prefs, navigate, cherryCtx, start}) {
+function CreateMenu({onClose, onCircleCreate, prefs, navigate, cherryCtx, start}) {
   const [screen, setScreen] = useState(start || "menu"); // menu | dream | group
   // Round 6.3: closing the composer without dreaming puts focus back on what opened Create.
   const openerRef = useRef(null);
   if (openerRef.current === null) openerRef.current = document.activeElement || false;
   const headRef = useRef(null);
   useEffect(function () { if (screen === "menu" && headRef.current) headRef.current.focus(); }, [screen]);
-  if (screen==="group") return React.createElement(CreateGroupFlow, { onClose: onClose, navigate: navigate,});
+  if (screen==="group") return React.createElement(CreateGroupFlow, { onClose: onClose, onCreate: onCircleCreate, navigate: navigate,});
   // Round 6.5: New Dream is the shared composer (js/create.js, LcComposer), the same one Reply and Quote use.
   if (screen==="dream") return lh(LcComposer, { mode: "new", prefs: prefs, navigate: navigate, cherryCtx: cherryCtx, opener: openerRef.current, onClose: onClose });
   const close = function () { onClose(); const o = openerRef.current; if (o && o.focus && document.contains(o)) setTimeout(function () { try { o.focus(); } catch (e) {} }, 0); };

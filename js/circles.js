@@ -1,16 +1,25 @@
 /* Looscid circles.js: Circles (create a Circle, a Circle's page, its admin settings, the Circles list).
    Still drawn with React, like the tabs not yet rewritten. Plain script (not a module); see FILES.md. */
 (function (Looscid) {
-const { Av, Cbx, CommentView, DreamCard, GROUPS, Ic, ME, Modal, USERS, fmt, lcCloseProps, useDreams, useState } = Looscid;
+const { Av, Cbx, CommentView, DREAMS_INIT, DreamCard, GROUPS, Ic, ME, Modal, USERS, fmt, lcCloseProps, useDreams, useState } = Looscid;
 Object.assign(Looscid, { CreateGroupFlow, GroupDetailPage, GroupAdminModal, GroupsPage });
 
-function CreateGroupFlow({onClose, navigate}) {
+function CreateGroupFlow({onClose, onCreate, navigate}) {
   const [step, setStep] = useState(1); // 1=basics, 2=settings, 3=rules
   const [form, setForm] = useState({name:"",description:"",category:"",emoji:"🌙",privacy:"public",joinApproval:false,postApproval:false,minAge:false,rules:["Be kind and respectful","Stay on topic","No spam or self-promotion"]});
   const set = (k,v) => setForm(f=>({...f,[k]:v}));
   const categories = ["Science","Creative","Philosophy","Wellness","Technology","Art","Music","Sports","Discussion","Other"];
   const emojis = ["🌙","🧠","🎨","🔭","🌿","💡","✨","🔥","💎","🌊","⚡","🎯"];
   const canNext1 = form.name.trim().length>2 && form.category;
+  // Create Circle: make it, save it on this device, then open it. Its page moves focus to its name and says "Circle created" once.
+  const create = () => {
+    if (!canNext1) { setStep(1); return; }
+    const g = Looscid.lcCircleCreate(form);
+    Looscid.LC_CIRCLE_JUST_MADE = g.id;
+    if (onCreate) onCreate(g);
+    onClose();
+    if (navigate) navigate("groups", { circle: g.id });
+  };
 
   if (step===3) return (
     React.createElement('div', { className: "ov", onClick: e=>e.target===e.currentTarget&&onClose(),}
@@ -31,7 +40,7 @@ function CreateGroupFlow({onClose, navigate}) {
             )
           ))
           , form.rules.length<8&&React.createElement('button', { className: "btn bgb" , style: {width:"100%",padding:9,fontSize:12,marginBottom:16}, onClick: ()=>set("rules",[...form.rules,""]),}, "+ Add Rule"  )
-          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:13,fontSize:14}, onClick: ()=>{onClose();}, 'aria-label': "Create Circle" ,}, "Create Circle"  )
+          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:13,fontSize:14}, onClick: create, 'aria-label': "Create Circle" ,}, "Create Circle"  )
         )
       )
     )
@@ -114,7 +123,15 @@ function CreateGroupFlow({onClose, navigate}) {
 function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
   const [tab, setTab] = useState("feed");
   const [joined, setJoined] = useState(group.joined||false);
-  const [isAdmin] = useState(group.id===1); // user is admin of group 1
+  const [isAdmin] = useState(group.id===1 || !!group.mine); // user is admin of group 1, and of every Circle they made
+  const headRef = React.useRef(null);
+  // Just made with Create Circle: focus goes to the Circle's name and "Circle created" is said once.
+  React.useEffect(() => {
+    if (Looscid.LC_CIRCLE_JUST_MADE !== group.id) return;
+    Looscid.LC_CIRCLE_JUST_MADE = null;
+    const t = setTimeout(() => { if (headRef.current) headRef.current.focus(); if (Looscid.announce) Looscid.announce("Circle created"); }, 120);
+    return () => clearTimeout(t);
+  }, []);
   const [showAdmin, setShowAdmin] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
   const {dreams, tl, tr, tur, tq, tuq, tb, tc} = useDreams(DREAMS_INIT.slice(0,3).map(d=>({...d,id:d.id+200})));
@@ -122,8 +139,8 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
 
   if (activeComment) return React.createElement(CommentView, { dream: activeComment, onBack: ()=>setActiveComment(null), onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onCommentPosted: tc, navigate: navigate,});
 
-  const members = USERS.slice(0,group.id+1);
-  const RULES = ["Be kind and respectful","Stay on topic","No spam or self-promotion","Use relevant hashtags"];
+  const members = group.mine ? [ME] : USERS.slice(0,group.id+1);
+  const RULES = group.mine ? (group.rules||[]) : ["Be kind and respectful","Stay on topic","No spam or self-promotion","Use relevant hashtags"];
 
   return (
     React.createElement('div', { className: "pg",}
@@ -132,7 +149,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
         , React.createElement('button', { className: "bi", style: {position:"absolute",top:48,left:12,background:"rgba(0,0,0,.55)"}, onClick: onBack, 'aria-label': "Back",}, React.createElement(Ic.Bck, { style: {width:19,height:19},}))
         , isAdmin&&React.createElement('button', { className: "bi", style: {position:"absolute",top:48,right:12,background:"rgba(245,158,11,.2)",color:"#f59e0b"}, onClick: ()=>setShowAdmin(true), 'aria-label': "Circle admin settings"  ,}, React.createElement(Ic.Dots, { style: {width:19,height:19},}))
         , React.createElement('div', { style: {fontSize:38,marginBottom:4},}, group.emoji)
-        , React.createElement('div', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:18,color:"#fff",textShadow:"0 2px 8px rgba(0,0,0,.6)"},}, group.name)
+        , React.createElement('h1', { ref: headRef, tabIndex: -1, style: {margin:0,fontWeight:400,fontFamily:"'DM Serif Display',Georgia,serif",fontSize:18,color:"#fff",textShadow:"0 2px 8px rgba(0,0,0,.6)"},}, group.name)
       )
 
       /* Group meta */
@@ -143,7 +160,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
             , React.createElement('div', { style: {display:"flex",gap:12,flexWrap:"wrap",marginBottom:10},}
               , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "Members: "), group.members.toLocaleString() )
               , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "Category: "), group.category)
-              , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "Visibility: "), group.id===1||group.id===4?"Public":"Private")
+              , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "Visibility: "), group.mine?({public:"Public",private:"Private",restricted:"Restricted"}[group.privacy]||"Public"):group.id===1||group.id===4?"Public":"Private")
               , isAdmin&&React.createElement('span', { style: {fontSize:10,background:"rgba(245,158,11,.15)",color:"#f59e0b",padding:"1px 7px",borderRadius:100,fontWeight:700},}, "★ Admin" )
             )
           )
@@ -204,7 +221,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
         , React.createElement('div', { style: {background:"var(--sf2)",borderRadius:13,padding:16,marginBottom:12},}
           , React.createElement('div', { style: {fontSize:12,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",marginBottom:10},}, "Stats")
           , React.createElement('div', { style: {display:"grid",gridTemplateColumns:"1fr 1fr",gap:8},}
-            , [{l:"Members",v:group.members.toLocaleString()},{l:"Dreams",v:"4,218"},{l:"Category",v:group.category},{l:"Created",v:"Jan 2024"}].map(s=>(
+            , [{l:"Members",v:group.members.toLocaleString()},{l:"Dreams",v:group.mine?"0":"4,218"},{l:"Category",v:group.category},{l:"Created",v:group.created?new Date(group.created).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}):"Jan 2024"}].map(s=>(
               React.createElement('div', { key: s.l, style: {background:"var(--sf3)",borderRadius:9,padding:"9px 11px"},}, React.createElement('div', { style: {fontSize:10,color:"var(--tx3)"},}, s.l), React.createElement('div', { style: {fontSize:14,fontWeight:700,marginTop:2},}, s.v))
             ))
           )
@@ -352,10 +369,12 @@ function GroupAdminModal({group, onClose}) {
     )
   );
 }
-function GroupsPage({navigate, cherryCtx}) {
-  const [tab, setTab] = useState("discover");
+function GroupsPage({navigate, cherryCtx, data}) {
+  // Opened with { circle: id } (Create Circle just made it): that Circle opens, and Back lands on My Circles.
+  const openId = data && data.circle != null ? data.circle : null;
+  const [tab, setTab] = useState(openId != null ? "my circles" : "discover");
   const [groups, setGroups] = useState(GROUPS);
-  const [activeGroup, setActiveGroup] = useState(null);
+  const [activeGroup, setActiveGroup] = useState(() => openId != null ? (GROUPS.find(g=>g.id===openId) || null) : null);
   const tj = id => setGroups(gs=>gs.map(g=>g.id===id?{...g,joined:!g.joined}:g));
   const list = groups.filter(g=>tab==="discover"?!g.joined:g.joined);
 
@@ -381,7 +400,7 @@ function GroupsPage({navigate, cherryCtx}) {
           , React.createElement('div', { className: "gin",}
             , React.createElement('div', { style: {display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8},}
               , React.createElement('div', null
-                , React.createElement('div', { className: "gnm",}, g.name, g.joined&&g.id===1&&React.createElement('span', { style: {marginLeft:6,fontSize:9,background:"rgba(245,158,11,.2)",color:"#f59e0b",padding:"1px 5px",borderRadius:4,fontWeight:700},}, "★ ADMIN" ))
+                , React.createElement('div', { className: "gnm",}, g.name, g.joined&&(g.id===1||g.mine)&&React.createElement('span', { style: {marginLeft:6,fontSize:9,background:"rgba(245,158,11,.2)",color:"#f59e0b",padding:"1px 5px",borderRadius:4,fontWeight:700},}, "★ ADMIN" ))
                 , React.createElement('div', { className: "gmt",}, g.members.toLocaleString(), " Dreamors, "   , g.category)
               )
               , g.joined&&React.createElement('button', { className: "btn bgb" , style: {fontSize:11,padding:"5px 10px",flexShrink:0}, onClick: e=>{e.stopPropagation();tj(g.id);}, 'aria-label': "Leave "+g.name,}, "Joined ✓" )
@@ -392,7 +411,7 @@ function GroupsPage({navigate, cherryCtx}) {
             , React.createElement('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.5,marginTop:5},}, g.description)
             , React.createElement('div', { style: {display:"flex",marginTop:8,gap:-6},}
               , USERS.slice(0,4).map((u,i)=>(React.createElement('div', { key: u.id, style: {marginLeft:i?-6:0,border:"2px solid var(--sf)",borderRadius:"50%"},}, React.createElement(Av, { user: u, size: 20,}))))
-              , React.createElement('span', { style: {fontSize:10,color:"var(--tx3)",marginLeft:10,alignSelf:"center"},}, "+", g.members-4, " more" )
+              , g.members>4&&React.createElement('span', { style: {fontSize:10,color:"var(--tx3)",marginLeft:10,alignSelf:"center"},}, "+", g.members-4, " more" )
             )
           )
         )

@@ -25,6 +25,50 @@ const NOTIFS_INIT = [];
 Looscid.NOTIFS_INIT = NOTIFS_INIT;
 const GROUPS = [];
 Looscid.GROUPS = GROUPS;
+/* Circles you make (Alhasan, Oct 11 2026): kept on this device in looscid_circles, a JSON array, oldest first,
+   200 at most (the oldest go first). Loaded into GROUPS right here, at startup. Each one is
+   { id, name, description, category, emoji, privacy, joinApproval, postApproval, minAge, rules, members, memberIds,
+   joined, mine, created }. In Backup and Import (LC_EXPORT_KEYS); an import adds the backup's circles to yours. */
+const LC_CIRCLES_KEY = "looscid_circles", LC_CIRCLES_MAX = 200;
+function lcCircleOk(g) { return !!g && typeof g === "object" && typeof g.id === "number" && typeof g.name === "string" && g.name.trim() !== ""; }
+function lcCirclesRead() {
+  try { const a = JSON.parse(localStorage.getItem(LC_CIRCLES_KEY) || "[]"); return Array.isArray(a) ? a.filter(lcCircleOk) : []; } catch (e) { return []; }
+}
+function lcCirclesWrite(list) {
+  try { localStorage.setItem(LC_CIRCLES_KEY, JSON.stringify(list.slice(-LC_CIRCLES_MAX))); return true; } catch (e) { return false; }
+}
+// Puts the saved circles into GROUPS (replacing any loaded before), and returns them.
+function lcCirclesLoad() {
+  const saved = lcCirclesRead();
+  for (let i = GROUPS.length - 1; i >= 0; i--) if (GROUPS[i].mine) GROUPS.splice(i, 1);
+  saved.forEach(function (g) { if (!GROUPS.some(function (x) { return x.id === g.id; })) GROUPS.push(Object.assign({}, g, { mine: true })); });
+  return saved;
+}
+// Import: the backup's circles join yours (same id: yours is kept). Returns false when the value isn't a list.
+function lcCirclesMerge(text) {
+  let a; try { a = JSON.parse(text); } catch (e) { return false; }
+  if (!Array.isArray(a)) return false;
+  const have = lcCirclesRead();
+  a.filter(lcCircleOk).forEach(function (g) { if (!have.some(function (x) { return x.id === g.id; })) have.push(g); });
+  lcCirclesWrite(have); lcCirclesLoad(); return true;
+}
+// Create Circle: makes the circle from the New Circle form, adds it to GROUPS and saves it. You made it, so you're in it.
+function lcCircleCreate(form) {
+  const ids = GROUPS.map(function (g) { return typeof g.id === "number" ? g.id : 0; }).concat(lcCirclesRead().map(function (g) { return g.id; }));
+  const g = {
+    id: Math.max.apply(null, [1000].concat(ids)) + 1,
+    name: String(form.name || "").trim().slice(0, 40), description: String(form.description || "").trim().slice(0, 200),
+    category: form.category || "Other", emoji: form.emoji || "", privacy: form.privacy || "public",
+    joinApproval: !!form.joinApproval, postApproval: !!form.postApproval, minAge: !!form.minAge,
+    rules: (form.rules || []).map(function (r) { return String(r || "").trim(); }).filter(Boolean),
+    members: 1, memberIds: [ME.id], joined: true, mine: true, created: new Date().toISOString()
+  };
+  GROUPS.push(g);
+  lcCirclesWrite(lcCirclesRead().concat([g]));
+  return g;
+}
+lcCirclesLoad();
+Object.assign(Looscid, { LC_CIRCLES_KEY, lcCirclesRead, lcCirclesLoad, lcCirclesMerge, lcCircleCreate });
 const TRENDING = [];
 Looscid.TRENDING = TRENDING;
 const SORT_OPTIONS = [
@@ -2907,7 +2951,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-11T20:18:58Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-11T22:51:56Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -3790,7 +3834,7 @@ function lcAudienceOk(who, user, key) {
     case "following": return fol;
     case "followers": return fby;
     case "mutuals": case "friends": return fol && fby;
-    case "circles": return Looscid.LC_GROUPS_NOW.some(function (g) { return g.joined && (g.members || []).indexOf(id) >= 0; });
+    case "circles": return Looscid.LC_GROUPS_NOW.some(function (g) { return g.joined && (Array.isArray(g.members) ? g.members : (g.memberIds || [])).indexOf(id) >= 0; });
     case "nobody": return false;
     case "custom": return lcAudCustom(key).indexOf(lcHandle(user.handle)) >= 0;
     default: return true;
@@ -4859,7 +4903,9 @@ const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "dbm_braille_styles", "dbm_th
   // Added at the end, so older backups still import. What you liked (dbm_liked) is your data, like dbm_dreams, so it isn't here.
   "dbm_profile_more_open", "dbm_profile_rd_show", "dbm_liked_public",
   // Build 149: the profile Media tab's Show choice (Images, Videos or Both). Added at the end, so older backups still import.
-  "dbm_profile_media_show"];
+  "dbm_profile_media_show",
+  // Build 150: the Circles you made (looscid_circles). Added at the end, so older backups still import; a backup without it changes none.
+  "looscid_circles"];
 Looscid.LC_EXPORT_KEYS = LC_EXPORT_KEYS;
 function lcExportSettings() {
   const o = { app: "Looscid", kind: "settings", version: LOOSCID_VERSION, exported: new Date().toISOString(), settings: {} };
@@ -5437,7 +5483,7 @@ useEffect(() => {
       case "feed":          return React.createElement(Looscid.FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
       case "discover":      return React.createElement(Looscid.DiscoverPage, { navigate: navigate, cherryCtx: cherryCtx,});
       case "alerts":        return React.createElement(Looscid.AlertsPage, { cherryCtx: cherryCtx,});
-      case "groups":        return React.createElement(Looscid.GroupsPage, { navigate: navigate, cherryCtx: cherryCtx,});
+      case "groups":        return React.createElement(Looscid.GroupsPage, { key: "groups-" + (pdata && pdata.circle != null ? pdata.circle : ""), data: pdata, navigate: navigate, cherryCtx: cherryCtx,});
       case "profile":       return React.createElement(Looscid.ProfilePage, { key: "me", navigate: navigate, cherryCtx: cherryCtx, authUser: authUser, onUpdateProfile: handleUpdateProfile,});
       case "liked":         return React.createElement(Looscid.LikedPage, { navigate: navigate, cherryCtx: cherryCtx,}); // build 148: Liked, in More
       case "dp":            return pdata ? React.createElement(Looscid.DreamorProfilePage, { user: pdata, navigate: navigate, cherryCtx: cherryCtx,}) : React.createElement(Looscid.FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
@@ -5598,7 +5644,7 @@ useEffect(() => {
         )
       ))
       , composeReq && Looscid.LcComposer && React.createElement(Looscid.LcComposer, Object.assign({ key: "cmp-" + composeReq.n }, composeReq, { prefs: prefs, navigate: navigate, cherryCtx: cherryCtx, onClose: function () { setComposeReq(null); } }))
-      , showCreate && React.createElement(Looscid.CreateMenu, { start: typeof showCreate === "string" ? showCreate : undefined, onClose: ()=>setShowCreate(false), prefs: prefs, navigate: navigate, cherryCtx: cherryCtx, drafts: drafts, onDraftSave: ()=>setDrafts(getDrafts()),})
+      , showCreate && React.createElement(Looscid.CreateMenu, { start: typeof showCreate === "string" ? showCreate : undefined, onClose: ()=>setShowCreate(false), onCircleCreate: c=>setAppGroups(gs=>gs.some(x=>x.id===c.id)?gs:[...gs,c]), prefs: prefs, navigate: navigate, cherryCtx: cherryCtx, drafts: drafts, onDraftSave: ()=>setDrafts(getDrafts()),})
       , showMenu && React.createElement(MainMenu, { key: menuInit ? "m-" + menuInit.n : "m", initOpen: menuInit && menuInit.open, initFocus: menuInit && menuInit.focus, onClose: ()=>{ setShowMenu(false); setMenuInit(null); }, navigate: navigate, goRoot: goRoot, prefs: prefs, unreadNotifs: unreadNotifs, unreadMsgs: unreadMsgs, appDreams: appDreams,})
       , showAnalytics && React.createElement(AnalyticsBanner, { onDone: () => setShowAnalytics(false),})
       , showHabitCard && React.createElement(HabitInsightCard, { onDismiss: ()=>setShowHabitCard(false),})
