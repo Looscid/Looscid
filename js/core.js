@@ -3023,7 +3023,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-11T23:27:58Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-11T23:35:40Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -3897,6 +3897,14 @@ Looscid.LC_SETTINGS_BACK = null; // round 6: a settings page opened from a tab g
 Looscid.LC_FOLLOWING_NOW = new Set(); Looscid.LC_GROUPS_NOW = []; // mirrored by App each render
 function lcAudCustom(key) { try { const v = JSON.parse(localStorage.getItem("looscid_aud_custom_" + key) || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
 function lcHandle(h) { return String(h || "").trim().replace(/^@/, "").toLowerCase(); }
+function lcOpenProfileLink() {
+  const m = /^#@([A-Za-z0-9_.\-]{1,64})$/.exec(location.hash || ""); if (!m || !Looscid.LC_NAV) return;
+  const h = lcHandle(m[1]);
+  try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+  if (lcHandle(ME.handle) === h) { Looscid.LC_NAV("profile"); return; }
+  const u = USERS.find(function (x) { return lcHandle(x.handle) === h; });
+  if (u) Looscid.LC_NAV("dp", u); else announce("@" + m[1] + " isn't on this device yet.");
+}
 // Is this person inside the audience? user = a USERS entry (or null for Looscid itself).
 function lcAudienceOk(who, user, key) {
   if (!user) return who !== "nobody";
@@ -5281,6 +5289,9 @@ useEffect(() => {
     cmdReturn.current = document.activeElement; setCmdOpen(true);
   };
   openCmdRef.current = openCmd; Looscid.LC_OPEN_CMD = openCmd; Looscid.LC_SET_A11Y = setA11yPatch; Looscid.LC_NAV = navigate; Looscid.LC_OPEN_CREATE = function (scr) { setShowCreate(scr || true); }; Looscid.LC_SET_PREFS = setPrefs; Looscid.LC_SET_THEME = setTheme;
+  // Build 150, part 16: a LooscidID link (Dreamor options, Copy LooscidID link) is this page with #@handle. Opening one,
+  // or changing the hash to one, opens that profile; the hash is then cleared so Back and reloads behave as before.
+  useEffect(function () { lcOpenProfileLink(); window.addEventListener("hashchange", lcOpenProfileLink); return function () { window.removeEventListener("hashchange", lcOpenProfileLink); }; }, []);
   // The one door for Dreams arriving from outside this device (the network layer, later); also used by tests.
   window.lcReceiveDreams = function (list) { const arr = (Array.isArray(list) ? list : [list]).map(function (d) { return Object.assign({ likes: 0, comments: 0, redreams: 0, quotes: 0, liked: false, redreamed: false, quoted: false, bookmarked: false, time: "now" }, d, { id: d.id || Date.now() + Math.random(), user: typeof d.user === "number" ? USERS[d.user] : (d.user || { name: "Someone", handle: "" }) }); }); setAppDreams(function (ds) { return arr.map(function (x) { return lcWithLiked(x, true); }).concat(ds); }); };
   // Undo send bar

@@ -665,3 +665,12 @@ Cherry is a page, not a dialog. It is built screen-reader first: the page is a s
 - Every menu, sheet and dialog is truly modal: while one is open, everything outside it is hidden from VoiceOver, braille and the keyboard, and when it closes focus goes back to the button that opened it. The live announcer (#looscid-live) always stays reachable.
 - No menu, sheet, dialog, pop-up, More, Create, Commandbar, Circle sheet, Cherry dialog or onboarding screen has aria-describedby or any other hint of its own. VoiceOver on iPhone reads a container's description as "description" and repeats it on every move inside it, so containers never get one. Their name and role say what they are; Escape or a two-finger scrub closes them.
 - No definition lists (dl, dt, dd) anywhere. WebKit names a <dd> "description" and VoiceOver says it after every value, so label-and-value pairs (profile About and fields, the LooscidID data summary, Built-in shortcuts, the welcome glossary) are plain list rows that read "Label: value". The colon is for VoiceOver and braille only, so the look is unchanged.
+
+### The profile (Round 7)
+
+- Order: Back, the avatar (hidden), Direct message and Follow (someone else's profile) or Edit profile (yours), the name (h1), the @handle line, then the Dreamor options pop-up button, the note, fields, bio, the Following and Followers buttons and the tabs. There is no "Dreams (N) • Joined" line: the Dreams tab says how many, and About has Date joined.
+- Dreamor options is a real pop-up menu button, like every other action menu: it opens with focus on the first item, Escape or a two-finger scrub closes it, choosing an item closes it, and focus goes back to the button. It never remembers being open.
+- Someone else's profile: Follow or Unfollow, Message, Ask Cherry for a summary, Share, Copy LooscidID link, Hide or Show Redreams, Add note, Mute, Block, Report. Your own: Edit profile, Share, Copy LooscidID link, View as others see it, Settings. An item that isn't ready yet stays in the list, unavailable, with the reason.
+- View as others see it shows your profile without your own controls, with focus on your name and a "Done viewing as others" button (Back works too) that returns focus to Dreamor options.
+- The About tab's heading is "About" and the display name, or "About this LooscidID" when there isn't one.
+- "<name> just published" is said once, only for a Dream with a real time from the last few minutes.

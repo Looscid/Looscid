@@ -16,7 +16,8 @@ Object.assign(Looscid, { CreditsPage, ProfileView, ProfilePage, DreamorProfilePa
    expands inline. Alhasan's own asks sit where Feditext's closest part is: Edit profile (the same LooscidID editor
    as Settings), a private Liked tab on your own profile, an About tab, and Mutual likes on other people's. */
 const LC_PROFILE_MORE_KEY = "looscid_profile_more_open", LC_PROFILE_RD_KEY = "looscid_profile_rd_show", LC_LIKED_PUBLIC_KEY = "looscid_liked_public";
-function lcProfileMoreOpen() { try { return localStorage.getItem(LC_PROFILE_MORE_KEY) === "1"; } catch (e) { return false; } }
+// Build 150, part 16: Dreamor options is a real pop-up menu that never remembers being open. The old open state is cleared once.
+try { localStorage.removeItem(LC_PROFILE_MORE_KEY); } catch (e) {}
 function lcRdShow() { try { const v = localStorage.getItem(LC_PROFILE_RD_KEY); return v === "quotes" || v === "redreams" ? v : "both"; } catch (e) { return "both"; } }
 // Settings > Privacy: which Liked tabs are public on your profile. All off (private) by default.
 function lcLikedPublic() { try { const a = JSON.parse(localStorage.getItem(LC_LIKED_PUBLIC_KEY) || "[]"); return Array.isArray(a) ? a.filter(function (x) { return typeof x === "string"; }) : []; } catch (e) { return []; } }
@@ -204,9 +205,9 @@ function ProfilePeoplePage({ kind, user, isMe, people, onBack, navigate, followi
                   })())));
           })));
 }
-function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUser }) {
+function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUser, preview, onExitPreview }) {
   const [tab, setTab] = useState("dreams");
-  const [moreOpen, setMoreOpenS] = useState(lcProfileMoreOpen);
+  const [viewAs, setViewAs] = useState(false); // your own profile, shown the way others see it
   const [editOpen, setEditOpen] = useState(false);
   const [people, setPeople] = useState(null); // "following" | "followers"
   const [noteEdit, setNoteEdit] = useState(false);
@@ -216,16 +217,19 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const [, bump] = useState(0);
   const [activeComment, setActiveComment] = useState(null);
   Looscid.useLikedTick();
-  const moreBtn = useRef(null), editBtn = useRef(null), countRef = useRef(null), noteRef = useRef(null);
+  const moreBtn = useRef(null), editBtn = useRef(null), noteRef = useRef(null), headRef = useRef(null);
+  // preview: your own profile as others see it. Your own data, nobody else's controls.
+  const self = isMe || !!preview;
   const all = (cherryCtx && cherryCtx.dreams) || [];
-  const lp = isMe ? (Looscid.getLocalProfile() || authUser || {}) : null;
+  const lp = self ? (Looscid.getLocalProfile() || authUser || {}) : null;
   const upd = onUpdateProfile || Looscid.LC_UPDATE_PROFILE || function (patch) { Looscid.updateLocalProfile(null, patch); bump(function (n) { return n + 1; }); };
   const ed = useProfileEditor(lp || {}, upd, navigate);
   const handle = (user.handle || "").replace(/^@/, "");
   const mineOf = function (d) { return d.user && (d.user === user || d.user.id === user.id); };
   const ownDreams = all.filter(function (d) { return mineOf(d) && !d.replyTo; });
-  // Build 150 (#48, Alhasan 4:21 AM Oct 11): the header count updates live. Dreams this Dreamor publishes while their
-  // profile is open (your own too) are added to it, and #looscid-live says "<display name> just published".
+  // Build 150 (#48, Alhasan 4:21 AM Oct 11): Dreams this Dreamor publishes while their profile is open (your own too)
+  // make #looscid-live say "<display name> just published". Part 16: the header count is gone (the Dreams tab has it),
+  // and only a Dream with a real time from the last 5 minutes counts, so an old Dream that syncs in late is never news.
   const seenRef = useRef(null);
   if (!seenRef.current || seenRef.current.u !== (user.id || user.handle)) seenRef.current = { u: user.id || user.handle, ids: new Set(ownDreams.map(function (d) { return String(d.id); })) };
   const freshDreams = ownDreams.filter(function (d) { return !seenRef.current.ids.has(String(d.id)); });
@@ -234,21 +238,21 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
     const key = String(user.id || user.handle);
     if (!saidRef.current || saidRef.current.u !== key) { saidRef.current = { u: key, said: new Set() }; return; }
     const now = Date.now();
-    const news = freshDreams.filter(function (d) { return !saidRef.current.said.has(String(d.id)) && (!+d.created || now - +d.created < 5 * 60 * 1000); });
+    const news = freshDreams.filter(function (d) { return !saidRef.current.said.has(String(d.id)) && (+d.created > 0 && now - +d.created >= -60 * 1000 && now - +d.created < 5 * 60 * 1000); });
     if (!news.length) return;
     news.forEach(function (d) { saidRef.current.said.add(String(d.id)); });
     announce((user.name || user.displayName || "Dreamor") + " just published"); // never moves focus
   }, [freshDreams.length, user.id, user.handle]);
-  const myReplies = isMe ? Looscid.lcRepliesRaw().map(Looscid.lcReplyObj).map(function (r) { return Object.assign({ redreams: 0, quotes: 0, comments: 0, redreamed: false, quoted: false, bookmarked: false }, r); }) : all.filter(function (d) { return mineOf(d) && d.replyTo; });
-  const plainRd = isMe ? all.filter(function (d) { return d.redreamed && !mineOf(d); }) : all.filter(function (d) { return d.reddreamer && (d.reddreamer.id === user.id || d.reddreamer.handle === user.handle); });
+  const myReplies = self ? Looscid.lcRepliesRaw().map(Looscid.lcReplyObj).map(function (r) { return Object.assign({ redreams: 0, quotes: 0, comments: 0, redreamed: false, quoted: false, bookmarked: false }, r); }) : all.filter(function (d) { return mineOf(d) && d.replyTo; });
+  const plainRd = self ? all.filter(function (d) { return d.redreamed && !mineOf(d); }) : all.filter(function (d) { return d.reddreamer && (d.reddreamer.id === user.id || d.reddreamer.handle === user.handle); });
   const quotes = ownDreams.filter(function (d) { return d.quoteOf != null; });
   const pool = ownDreams.concat(myReplies, plainRd.filter(function (d) { return ownDreams.indexOf(d) < 0; }));
   const {dreams, tl, tr, tur, tq, tuq, tb, tc} = useDreams(pool);
   const byId = function (list) { const ids = new Set(list.map(function (d) { return String(d.id); })); return dreams.filter(function (d) { return ids.has(String(d.id)); }); };
   const following = !!(cherryCtx && cherryCtx.following && cherryCtx.following.has(user.id));
-  const blocked = !isMe && Looscid.lcBlockedUser(user), muted = !isMe && Looscid.lcIsMuted(user);
-  const hidesRd = !isMe && Looscid.lcPeopleHas("looscid_hide_redreams", user.handle);
-  const note = isMe ? "" : Looscid.lcNoteFor(user.handle);
+  const blocked = !self && Looscid.lcBlockedUser(user), muted = !self && Looscid.lcIsMuted(user);
+  const hidesRd = !self && Looscid.lcPeopleHas("looscid_hide_redreams", user.handle);
+  const note = self ? "" : Looscid.lcNoteFor(user.handle);
   const theirLikes = !isMe && Array.isArray(user.likes) ? user.likes : null;
   const myLikedIds = Looscid.lcLikedItems("dream").map(function (x) { return x.id; });
   const theirVisible = theirLikes ? lcLikedVisibleTo(theirLikes, user.likesPublic || [], ME.handle, myLikedIds) : [];
@@ -256,37 +260,56 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   // Mutual likes (others), About.
   const TABS = [["dreams", "Dreams"], ["replies", "Dreams & Replies"], ["redreams", "Redreams"], ["media", "Media"]]
     .concat(isMe ? [["liked", "Liked"]] : theirVisible.length ? [["liked", "Liked"]] : [])
-    .concat(isMe ? [] : [["mutual", "Mutual likes"]])
+    .concat(self ? [] : [["mutual", "Mutual likes"]])
     .concat([["about", "About"]]);
   const cur = TABS.some(function (t) { return t[0] === tab; }) ? tab : "dreams";
   useEffect(function () { if (noteEdit && noteRef.current) noteRef.current.focus(); }, [noteEdit]);
+  useEffect(function () { if (preview && headRef.current) headRef.current.focus(); }, [preview]);
   if (ed.editing) return ed.screen;
+  if (viewAs) return lh(ProfileView, { user: user, isMe: false, preview: true, navigate: navigate, cherryCtx: cherryCtx,
+    onExitPreview: function () { setViewAs(false); announce("Back to your profile."); setTimeout(function () { const b = document.getElementById("pf-more-btn"); if (b) b.focus(); }, 30); } });
   if (people) {
     const fol = people === "following";
-    const list = isMe ? (fol ? USERS.filter(function (u) { return cherryCtx && cherryCtx.following.has(u.id); }) : USERS.filter(function (u) { return u.followsYou; }))
+    const list = self ? (fol ? USERS.filter(function (u) { return cherryCtx && cherryCtx.following.has(u.id); }) : USERS.filter(function (u) { return u.followsYou; }))
       : (fol ? (Array.isArray(user.followingList) ? user.followingList : null) : (Array.isArray(user.followersList) ? user.followersList : null));
-    return lh(ProfilePeoplePage, { kind: people, user: user, isMe: isMe, people: list, navigate: navigate, followingSet: cherryCtx && cherryCtx.following,
+    return lh(ProfilePeoplePage, { kind: people, user: user, isMe: self, people: list, navigate: navigate, followingSet: cherryCtx && cherryCtx.following,
       onBack: function () { const k = people; setPeople(null); setTimeout(function () { const b = document.getElementById("pf-count-" + k); if (b) b.focus(); }, 0); } });
   }
   if (activeComment) return lh(CommentView, { dream: activeComment, onBack: function () { setActiveComment(null); }, onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onCommentPosted: tc, navigate: navigate });
-  const setMoreOpen = function (v) { try { localStorage.setItem(LC_PROFILE_MORE_KEY, v ? "1" : "0"); } catch (e) {} setMoreOpenS(v); };
-  const closeMore = function () { setMoreOpen(false); setTimeout(function () { if (moreBtn.current) moreBtn.current.focus(); }, 0); };
   const say = function (m) { announce(m); bump(function (n) { return n + 1; }); };
   const share = function () { Looscid.lcShareText(user.name + " (@" + handle + ") on Looscid", "Profile"); };
   const openEdit = function (fromMore) { setEditOpen(true); if (fromMore) setTimeout(function () { const a = document.getElementById("pf-link-name") || editBtn.current; if (a) a.focus(); }, 30); };
   const follow = function () { cherryCtx && cherryCtx.followUser(user.id); announce(following ? "Unfollowed " + user.name + "." : "Following " + user.name + "."); };
-  // The top More (Feditext's profile menu), expanded in place.
+  // A LooscidID link opens this profile (#@handle, see lcOpenProfileLink in core.js).
+  const copyLink = function () { lcCopy(location.origin + location.pathname + "#@" + handle, "LooscidID link"); };
+  const cherryOn = !!cherryCtx && lcAiOn();
+  const askCherry = function () { cherryCtx.openCherry("Give me a short summary of " + (user.name || "this Dreamor") + " (@" + handle + "): who they are and what they Dream about."); };
+  // Build 150, part 16 (Alhasan, Oct 11): Dreamor options is a real pop-up menu, like the other action menus. It opens
+  // with focus on the first item, Escape (or a two-finger scrub) closes it, choosing closes it, focus goes back to the
+  // button, and it never remembers being open. Unfinished items stay in the list, unavailable, with the reason.
   const moreItems = isMe
-    ? [{ id: "share", name: "Share", a: share }, { id: "edit", name: "Edit profile", a: function () { openEdit(true); } }]
-    : [{ id: "share", name: "Share", a: share },
-       following ? (hidesRd ? { id: "showrd", name: "Show Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, false); say("Showing Redreams from " + user.name + "."); } }
-                            : { id: "hiderd", name: "Hide Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, true); say("Hiding Redreams from " + user.name + "."); } }) : null,
+    ? [{ id: "edit", name: "Edit profile", a: function () { openEdit(true); } },
+       { id: "share", name: "Share", a: share },
+       { id: "copylink", name: "Copy LooscidID link", a: copyLink },
+       { id: "viewas", name: "View as others see it", a: function () { setViewAs(true); announce("Viewing your profile as others see it."); } },
+       { id: "settings", name: "Settings", a: function () { navigate("settings"); } }]
+    : [following ? { id: "unfollow", name: "Unfollow", a: follow } : { id: "follow", name: "Follow", a: follow },
+       { id: "message", name: "Message", note: "unavailable: direct messages aren't ready yet", disabled: true },
+       cherryOn ? { id: "cherry", name: "Ask Cherry for a summary", a: askCherry } : { id: "cherry", name: "Ask Cherry for a summary", note: "unavailable: Cherry is off", disabled: true },
+       { id: "share", name: "Share", a: share },
+       { id: "copylink", name: "Copy LooscidID link", a: copyLink },
+       hidesRd ? { id: "showrd", name: "Show Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, false); say("Showing Redreams from " + user.name + "."); } }
+               : { id: "hiderd", name: "Hide Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, true); say("Hiding Redreams from " + user.name + "."); } },
        { id: "note", name: note ? "Edit note" : "Add note", a: function () { setNoteText(note); setNoteEdit(true); } },
        muted ? { id: "unmute", name: "Unmute", a: function () { Looscid.lcPeopleSet("looscid_muted_dreamors", user.handle, false); say("Unmuted " + user.name + "."); } }
              : { id: "mute", name: "Mute", a: function () { Looscid.lcPeopleSet("looscid_muted_dreamors", user.handle, true); say("Muted " + user.name + ". Their Dreams are hidden from your feed."); } },
        blocked ? { id: "unblock", name: "Unblock", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").filter(function (h) { return h !== Looscid.lcHandle(user.handle); })); say("Unblocked " + user.name + "."); } }
                : { id: "block", name: "Block", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").concat([user.handle])); say("Blocked " + user.name + ". Unblock here or in Settings, Privacy."); } },
-       { id: "report", name: "Report", off: "unavailable: Looscid has nowhere to send reports yet" }].filter(Boolean);
+       { id: "report", name: "Report", note: "unavailable: Looscid has nowhere to send reports yet", disabled: true }];
+  const moreMenu = preview ? null : lh(LcMenu, { id: "pf-more-btn", menuId: "pf-more", kind: "action", title: "Dreamor options", btnLabel: "Dreamor options", btnRef: moreBtn,
+    btnClass: "btn bgb lc-big lc-prof-morebtn", className: "lc-prof-more", itemClass: "lc-dopt",
+    btnText: lh('span', null, lh(Ic.Dots, { style: { width: 18, height: 18 }, "aria-hidden": "true" }), " Dreamor options"), items: moreItems,
+    onSelect: function (k, it) { if (it.a) it.a(); } });
   const onTabKey = function (e) {
     const i = TABS.findIndex(function (t) { return t[0] === cur; }); let n = null;
     if (e.key === "ArrowRight") n = (i + 1) % TABS.length; else if (e.key === "ArrowLeft") n = (i + TABS.length - 1) % TABS.length; else if (e.key === "Home") n = 0; else if (e.key === "End") n = TABS.length - 1;
@@ -294,17 +317,16 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   };
   const card = function (d) { return lh(DreamCard, { key: d.id, dream: d, onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onComment: function (x) { setActiveComment(x); }, navigate: navigate, cherryCtx: cherryCtx }); };
   const empty = function (title, sub) { return lh('div', { className: "es" }, lh('p', { className: "esl" }, title), sub ? lh('p', { className: "lc-muted", style: { textAlign: "center", marginTop: 6 } }, sub) : null); };
-  const nDreams = isMe ? ownDreams.length : (user.dreamCount ? user.dreamCount + freshDreams.length : ownDreams.length);
-  const nFollowing = isMe ? USERS.filter(function (u) { return cherryCtx && cherryCtx.following.has(u.id); }).length : (user.following || 0);
-  const nFollowers = isMe ? USERS.filter(function (u) { return u.followsYou; }).length : (user.followers || 0);
+  const nFollowing = self ? USERS.filter(function (u) { return cherryCtx && cherryCtx.following.has(u.id); }).length : (user.following || 0);
+  const nFollowers = self ? USERS.filter(function (u) { return u.followsYou; }).length : (user.followers || 0);
   // Build 150 (#53): your own Joined is the exact moment your LooscidID was made. Older profiles only kept "October 2026",
   // so the moment comes from the "LooscidID created" activity line, or from the time stamped into the LooscidID's own id.
-  const joined = lcJoinedText(isMe ? lcOwnCreatedAt(lp) : (user.createdAt || user.joined || ""));
-  const locked = isMe ? !!(lp && lp.private) : !!(user.locked || user.private);
+  const joined = lcJoinedText(self ? lcOwnCreatedAt(lp) : (user.createdAt || user.joined || ""));
+  const locked = self ? !!(lp && lp.private) : !!(user.locked || user.private);
   const fields = [];
-  const site = isMe ? lp && lp.website : user.website;
+  const site = self ? lp && lp.website : user.website;
   if (site) fields.push({ name: "Website", value: site });
-  ((isMe ? lp && lp.links : user.links) || []).forEach(function (l) { if (l && l.name && l.url) fields.push({ name: l.name, value: l.url }); });
+  ((self ? lp && lp.links : user.links) || []).forEach(function (l) { if (l && l.name && l.url) fields.push({ name: l.name, value: l.url }); });
   (user.fields || []).forEach(function (f) { if (f && f.name && f.value) fields.push({ name: f.name, value: f.value, verified: f.verified, verifiedAt: f.verifiedAt || f.verified_at || null }); });
   const rdList = (function () {
     const r = byId(plainRd), q = byId(quotes);
@@ -387,15 +409,15 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
         const rows = [];
         rows.push(["LooscidID", "@" + handle, lh('button', { key: "c", type: "button", className: "btn bgb lc-btn", onClick: function () { lcCopy("@" + handle, "LooscidID"); } }, "Copy LooscidID")]);
         if (joined) rows.push(["Date joined", joined]);
-        const based = isMe ? lp && lp.location : user.location; if (based) rows.push(["Account based in", based]);
-        const logins = isMe ? Looscid.getMethods() : (user.logins || []);
+        const based = self ? lp && lp.location : user.location; if (based) rows.push(["Account based in", based]);
+        const logins = self ? Looscid.getMethods() : (user.logins || []);
         if (logins.length) rows.push(["Connected Logins", lh('ul', { key: "l", className: "lc-about-logins", role: "list" }, logins.map(function (m) { return lh('li', { key: m.id || m.provider }, Looscid.lcNameJoin(Looscid.PROVIDER_NAMES && Looscid.PROVIDER_NAMES[m.provider] || m.provider, m.provider === "nostr" && Looscid.shortNpub ? Looscid.shortNpub(m.publicId) : m.publicId)); }))]);
         const npubM = logins.find(function (m) { return m.provider === "nostr" && /^npub1/.test(m.publicId || ""); });
         const npub = npubM ? npubM.publicId : user.npub;
         if (npub) rows.push(["Nostr public key", lh('span', { key: "n", className: "lc-break" }, npub), lh('button', { key: "c", type: "button", className: "btn bgb lc-btn", onClick: function () { lcCopy(npub, "Nostr public key"); } }, "Copy Nostr public key")]);
         if (user.verified) rows.push(["Verified", "Yes"]);
         return lh('section', { className: "lc-prof-about", "aria-labelledby": "pf-about-h" },
-          lh('h2', { id: "pf-about-h", className: "lc-sub-h" }, "About this account"),
+          lh('h2', { id: "pf-about-h", className: "lc-sub-h" }, (user.name || user.displayName) ? "About " + (user.name || user.displayName) : "About this LooscidID"),
           // Build 150, part 15: plain rows, not a dl. WebKit calls a <dd> "description", so VoiceOver said it after every value.
           lh('ul', { className: "lc-dl lc-rows", role: "list" }, rows.map(function (r) { return lh('li', { key: r[0] }, lh('span', { className: "lc-dt" }, r[0], lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, r[1], r[2] ? " " : null, r[2] || null)); })));
       }
@@ -405,48 +427,42 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   return lh('div', { className: "pg lc-prof" },
     lh('div', { className: "hdr" }, lh('div', { className: "hdr-row" },
       // Build 150 (#60): your own profile lives in More (View your profile), so Back returns there with the Back sound.
-      lh('button', { type: "button", className: "bi", onClick: function () { navigate(isMe ? "settings" : "feed"); }, 'aria-label': "Back" }, lh(Ic.Bck, { style: { width: 21, height: 21 } })),
-      lh('span', { className: "hdr-title", "aria-hidden": "true" }, "Profile"),
-      lh('button', { type: "button", ref: moreBtn, id: "pf-more-btn", className: "bi lc-prof-morebtn", "aria-expanded": moreOpen ? "true" : "false", "aria-controls": "pf-more",
-          onClick: function () { setMoreOpen(!moreOpen); } }, lh(Ic.Dots, { style: { width: 18, height: 18 }, "aria-hidden": "true" }), lh('span', null, "Dreamor options")))), // build 150 (#49): not "More" on profiles
-    lh('div', { id: "pf-more", className: "lc-prof-more", hidden: !moreOpen, onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); closeMore(); } } },
-      lh('ul', { className: "lc-prof-more-list", role: "list", "aria-label": isMe ? "Dreamor options for your profile" : "Dreamor options for " + user.name },
-        moreItems.map(function (it) {
-          return lh('li', { key: it.id }, lh('button', { type: "button", id: "pf-more-" + it.id, className: "lc-prof-more-i", disabled: !!it.off, onClick: function () { if (it.a) it.a(); } },
-            it.name, it.off ? lh('span', { className: "lc-muted" }, " (" + it.off + ")") : null));
-        }))),
+      lh('button', { type: "button", className: "bi", onClick: function () { if (preview) { if (onExitPreview) onExitPreview(); return; } navigate(isMe ? "settings" : "feed"); }, 'aria-label': "Back" }, lh(Ic.Bck, { style: { width: 21, height: 21 } })),
+      lh('span', { className: "hdr-title", "aria-hidden": "true" }, "Profile"))),
+      // build 150 (#49): "Dreamor options", not "More". Part 16: it is a pop-up menu button after the name and @handle.
+    preview ? lh('div', { className: "lc-prof-preview" },
+      lh('p', { className: "lc-muted" }, "This is how other Dreamors see your profile."),
+      lh('button', { type: "button", id: "pf-preview-done", className: "btn bp lc-big", onClick: function () { if (onExitPreview) onExitPreview(); } }, "Done viewing as others")) : null,
     lh('div', { className: "lc-prof-head" },
       lh('div', { "aria-hidden": "true" }, lh(Av, { user: user, size: 72 })),
-      isMe
+      preview ? null : isMe
         ? lh('div', { className: "lc-prof-acts" },
             lh('button', { type: "button", ref: editBtn, id: "pf-edit-btn", className: "btn bgb lc-big", "aria-expanded": editOpen ? "true" : "false", "aria-controls": "pf-edit", onClick: function () { setEditOpen(!editOpen); } }, "Edit profile"))
         : lh('div', { className: "lc-prof-acts" },
             lh('button', { type: "button", className: "btn bgb lc-big", disabled: true }, "Direct message", lh('span', { className: "lc-muted" }, " (unavailable)")),
             lh('button', { type: "button", className: "btn " + (following ? "bgb" : "bp") + " lc-big", "aria-pressed": following ? "true" : "false", onClick: follow }, following ? "Following" : "Follow")),
       isMe && lh('div', { id: "pf-edit", className: "lc-prof-edit", hidden: !editOpen }, editOpen ? ed.list : null),
-      lh('h1', { className: "lc-prof-name", tabIndex: -1 }, user.name || "Dreamor"),
+      lh('h1', { className: "lc-prof-name", tabIndex: -1, ref: headRef }, user.name || "Dreamor"),
       // Feditext's account line: @handle, the lock for a private (locked) account, then the "Follows you", "Muted" and
       // "Blocked" capsules. Build 149: each is its own piece with a plain space between, no hidden commas.
       lh('p', { className: "lc-prof-handle" }, lh('span', { className: "sr-only" }, "LooscidID"), " ", lh('span', { className: "lc-prof-acct" }, "@" + handle),
         locked ? lh('span', { className: "lc-prof-lock" }, " ", lh(Ic.Lock, { style: { width: 13, height: 13 }, "aria-hidden": "true" }), lh('span', { className: "sr-only" }, "Locked account")) : null,
         // Alhasan 3:23/3:30 AM: "Follows you" becomes "Mutuals" once you follow back. It is one element whose words change
         // in place: nothing new appears, nothing is announced, focus stays where it is.
-        !isMe && user.followsYou ? [" ", lh('span', { key: "fy", id: "pf-rel", className: "lc-cap" }, following ? "Mutuals" : "Follows you")] : null,
+        !self && user.followsYou ? [" ", lh('span', { key: "fy", id: "pf-rel", className: "lc-cap" }, following ? "Mutuals" : "Follows you")] : null,
         muted ? [" ", lh('span', { key: "mu", className: "lc-cap" }, "Muted")] : null,
         blocked ? [" ", lh('span', { key: "bl", className: "lc-cap" }, "Blocked")] : null),
+      moreMenu,
       user.isOriginals ? lh('p', { className: "lc-muted" }, "Founding account") : null,
-      // Feditext: "N Dreams • Joined …"; the bullet is hidden from VoiceOver and nothing stands in for it (build 149:
-      // the hidden ", " that stood in for it here was the stray comma).
-      // Build 150 (#48, #53): "Dreams (400)", then the full Joined date and time in your own time zone (same as About).
-      lh('p', { className: "lc-prof-stats" }, lh('span', { className: "lc-prof-count", ref: countRef }, "Dreams (" + nDreams.toLocaleString() + ")"),
-        joined ? [lh('span', { key: "d", className: "lc-prof-dot", "aria-hidden": "true" }, " \u2022 "), lh('span', { key: "j", className: "lc-prof-joined" }, "Joined " + joined)] : null),
+      // Build 150, part 16: no "Dreams (N) • Joined" line here any more. The Dreams tab already says how many, and the
+      // About tab has Date joined, so VoiceOver no longer reads both twice.
       note && !noteEdit ? lh('div', { className: "lc-prof-note" }, lh('span', { className: "lc-prof-note-l" }, "Note"), " ", lh('span', { className: "lc-prof-note-t" }, note)) : null,
-      noteEdit && lh('form', { className: "lc-prof-noteform", onSubmit: function (e) { e.preventDefault(); Looscid.lcSetNote(user.handle, noteText); setNoteEdit(false); announce(noteText.trim() ? "Note saved." : "Note removed."); setTimeout(function () { const b = document.getElementById("pf-more-note"); if (b) b.focus(); }, 30); },
-          onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); setNoteEdit(false); setTimeout(function () { const b = document.getElementById("pf-more-note"); if (b) b.focus(); }, 30); } } },
+      noteEdit && lh('form', { className: "lc-prof-noteform", onSubmit: function (e) { e.preventDefault(); Looscid.lcSetNote(user.handle, noteText); setNoteEdit(false); announce(noteText.trim() ? "Note saved." : "Note removed."); setTimeout(function () { const b = document.getElementById("pf-more-btn"); if (b) b.focus(); }, 30); },
+          onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); setNoteEdit(false); setTimeout(function () { const b = document.getElementById("pf-more-btn"); if (b) b.focus(); }, 30); } } },
         lh('label', { htmlFor: "pf-note" }, "Note for " + user.name + ", only you can see it"),
         lh('textarea', { id: "pf-note", ref: noteRef, className: "inp", rows: 3, maxLength: 500, value: noteText, onChange: function (e) { setNoteText(e.target.value); } }),
         lh('div', { className: "lc-q-btns" }, lh('button', { type: "submit", className: "btn bp lc-big" }, "Save"),
-          lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { setNoteEdit(false); setTimeout(function () { const b = document.getElementById("pf-more-note"); if (b) b.focus(); }, 30); } }, "Cancel"))),
+          lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { setNoteEdit(false); setTimeout(function () { const b = document.getElementById("pf-more-btn"); if (b) b.focus(); }, 30); } }, "Cancel"))),
       // Feditext's fields: a bordered table of rows, the label on the left third, the value (its links live) on the right;
       // a verified value gets a green row and a checkmark, read as "Verified" and the date when there is one.
       fields.length ? lh('ul', { className: "lc-prof-fields lc-rows", role: "list" }, fields.map(function (f, i) {
@@ -2397,6 +2413,7 @@ const LC_VERSION_HISTORY = [
     "The old Dream Board name is gone, even under the hood (Alhasan): everything Looscid saves on your device is named looscid_ now. The first time you open this build, it moves your Dreams, Liked, Cherry chats, settings, Nostr key and Soundpacks over by itself and deletes the old copies. Nothing is lost, and older settings backups still import.",
     "Fix (Alhasan: VoiceOver kept saying description on every item): the short hints on every menu, sheet and dialog are gone. VoiceOver read each one as \"description\" and repeated it on every move inside More, Create, menus, sheets and Circle steps. Menus and dialogs say only their name now; Escape or a two-finger scrub still closes them.",
     "Fix (Alhasan: VoiceOver said description after every value): profile About and fields, Built-in shortcuts, the LooscidID data summary and the welcome glossary are plain list rows now, read as \"Label: value\". They looked like definition lists, which VoiceOver on iPhone calls \"description\". They look the same as before.",
+    "Fix (Alhasan): Dreamor options is a real pop-up menu now, after the name and @handle. It opens on the first item, closes with Escape or a two-finger scrub, closes after you choose, and never stays open from one profile to the next. Someone else's profile: Follow, Message, Ask Cherry for a summary, Share, Copy LooscidID link, Hide Redreams, Add note, Mute, Block, Report. Yours: Edit profile, Share, Copy LooscidID link, View as others see it, Settings. The header no longer repeats \"Dreams (N)\" and Joined, About says \"About\" and the name, and \"just published\" no longer fires for old Dreams.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by Alhasan. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
