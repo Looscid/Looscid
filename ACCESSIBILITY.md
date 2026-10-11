@@ -659,3 +659,8 @@ Cherry is a page, not a dialog. It is built screen-reader first: the page is a s
 - The Commands page (commands, or More, Commands, All commands): Back, the heading "Commands" (h1, focus lands here), Close Commands (braille label "Close"), two plain paragraphs, then one h2 per area with a list. Each list item is a real button named by the command itself ("open feed"), followed by a plain paragraph saying what it does and, when there are any, a paragraph with the other ways to type it.
 - Pressing a command runs it exactly as Commandbar would: the result is said once in #looscid-live and focus stays on the button, unless the command opens a page (then that page's heading, or what the command points at, gets focus). A command that needs a word opens Commandbar with the command typed in and focus in the text box; Escape returns focus to the button.
 - No aria-describedby, aria-description or title on the page, and no animation.
+
+### Menus, sheets and dialogs (Round 7)
+
+- Every menu, sheet and dialog is truly modal: while one is open, everything outside it is hidden from VoiceOver, braille and the keyboard, and when it closes focus goes back to the button that opened it. The live announcer (#looscid-live) always stays reachable.
+- No menu, sheet, dialog, pop-up, More, Create, Commandbar, Circle sheet, Cherry dialog or onboarding screen has aria-describedby or any other hint of its own. VoiceOver on iPhone reads a container's description as "description" and repeats it on every move inside it, so containers never get one. Their name and role say what they are; Escape or a two-finger scrub closes them.

@@ -3022,7 +3022,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-11T22:59:30Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-11T23:24:28Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4595,7 +4595,7 @@ function useInertBehind(ref) {
    Tab and Shift+Tab wrap inside a dialog; a pop-up menu keeps its own keys (Tab closes it).
    When it closes, focus goes back where it came from (or wherever the closing code asked for it). */
 const LC_MODAL_SEL = '[role="dialog"],[role="alertdialog"],[aria-modal="true"],.lmenu-list,.msh';
-const LC_MODAL_KEEP = { "looscid-live": 1, "lc-cue": 1, "lc-caption": 1, "lc-modal-hints": 1 };
+const LC_MODAL_KEEP = { "looscid-live": 1, "lc-cue": 1, "lc-caption": 1 };
 const LcModal = { stack: [], applied: [], pending: null, last: null, busy: false };
 function lcModalShown(el) {
   if (!el.isConnected) return false;
@@ -4613,29 +4613,11 @@ function lcModalRelease() {
   });
   LcModal.applied = [];
 }
-// Build 150 (Alhasan 4:38 PM, VoiceOver on iPhone read a whole menu's contents as its hint): every modal container
-// gets one short, useful hint through aria-describedby, pointing at a plain <p> kept out of view. Containers only,
-// never a control. Kept in one hidden holder outside the app, so nothing is added inside React's own markup.
-const LC_MODAL_HINT_MENU = "Swipe to choose. Escape or a two-finger scrub closes.";
-const LC_MODAL_HINT_SHEET = "Swipe to move through it. Escape or a two-finger scrub closes.";
-function lcModalHint(top) {
-  const box = top.classList.contains("lmenu-list") ? (top.querySelector('[role="menu"]') || top) : top;
-  if (box.hasAttribute("aria-describedby")) return;
-  let holder = document.getElementById("lc-modal-hints");
-  if (!holder) { holder = document.createElement("div"); holder.id = "lc-modal-hints"; holder.hidden = true; document.body.appendChild(holder); }
-  const menu = box.getAttribute("role") === "menu";
-  const words = box.getAttribute("data-lc-hint") || (menu ? LC_MODAL_HINT_MENU : LC_MODAL_HINT_SHEET);
-  const id = menu ? "lc-mhint-menu" : "lc-mhint-sheet";
-  let p = document.getElementById(id);
-  if (!p || p.textContent !== words) {
-    const own = box.getAttribute("data-lc-hint") ? "lc-mhint-" + Math.random().toString(36).slice(2, 8) : id;
-    p = document.getElementById(own) || document.createElement("p"); p.id = own; p.textContent = words; holder.appendChild(p);
-    box.setAttribute("aria-describedby", own);
-  } else box.setAttribute("aria-describedby", id);
-  box.setAttribute("data-lc-modal-desc", "1");
-}
+// Build 150, part 14 (Alhasan, Oct 11 7:05 PM: "VoiceOver keeps saying description on every single item"): menus,
+// sheets and dialogs carry NO aria-describedby. VoiceOver on iPhone reads a container's description as "description"
+// and repeats it on every move inside it (the same thing the Oct 10 note on the device question records), so the
+// container hints from part 6 are gone. A hint, when one is needed, goes on the one control that needs it.
 function lcModalApply(top) {
-  try { lcModalHint(top); } catch (e) {}
   for (let me = top; me && me.parentElement && me !== document.body; me = me.parentElement) {
     Array.prototype.forEach.call(me.parentElement.children, function (el) {
       if (el === me || LC_MODAL_KEEP[el.id] || /^(SCRIPT|STYLE|LINK|TEMPLATE)$/.test(el.tagName)) return;
