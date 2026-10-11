@@ -32,7 +32,7 @@ const LC_HELP_AREAS = [
   ["Go to a place", ["places", "place", "go", "go to", "go to a place", "navigation", "open", "navigate"]],
   ["Commandbar", ["commandbar", "command bar", "terminal", "commands"]],
   ["Feeds and Dreams", ["feeds", "feed", "dreams", "dream", "feeds and dreams"]],
-  ["Screen reader and braille", ["braille", "screen reader", "voiceover", "voice over", "speech", "screen reader and braille"]],
+  ["Sense", ["braille", "screen reader", "voiceover", "voice over", "speech", "screen reader and braille", "sense"]],
   ["Settings", ["settings", "setting"]],
 ];
 function lcHelpArea(word) {
@@ -107,7 +107,7 @@ const LC_HELP_SECTIONS = [
   ]],
   ["Accessibility", [
     "VoiceOver: every control has a name, and Looscid speaks results once, politely. Focus only moves when you do something.",
-    "Braille: Settings, Accessibility, Screen reader and braille has braille output, short labels, and Enter to send. Close buttons show Close on a braille display.",
+    "Braille: Settings, Accessibility, Sense has braille output, short labels, and Enter to send. Close buttons show Close on a braille display.",
     "Keyboard: Tab and Shift Tab move, Enter and Space press, Escape closes. Settings, Keyboard shortcuts lists them all.",
     "Calm mode, Flash safety and Reduce Motion are in Settings, Accessibility, Motion and seizure.",
   ]],

@@ -840,7 +840,7 @@ function IntelligenceSettings({ navigate, page, prefs, setPrefs }) {
   }
   return lh(LcCatPage, { title: cat.l, navigate: navigate, reset: cat.id === "cherry" ? "g:ai,cherry" : "g:cherry" }, body);
 }
-// Round 6: Verbosity is a tab on Screen reader and braille (General / Speech / Verbosity / Braille), not a page.
+// Round 6: Verbosity is a tab on Sense (General / Speech / Verbosity / Braille), not a page.
 function lcMenuList(id, label, items) {
   // ul role=list > li > button first: VoiceOver says "button, 1 of 7" (round-5 queue item 3).
   const vb = lcVerb();
@@ -930,7 +930,7 @@ function A11yCategory({ page, navigate, prefs, setPrefs }) {
   }, []);
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
     lh(BackHeader, { title: cat.l, onBack: function () { if (cat.parent) { try { sessionStorage.setItem("dbm_cat_from_lc-sr-more", cat.id); } catch (e) {} } navigate(cat.parent || "settings_accessibility"); } }),
-    // Round 6: one line of plain text under the page heading (Screen reader and braille has one per tab instead).
+    // Round 6: one line of plain text under the page heading (Sense has one per tab instead).
     cat.id !== "sr" && LC_SECTIONS[cat.id] && LC_SECTIONS[cat.id].d ? lh('p', { className: "lc-desc lc-sec-d", style: { padding: "0 16px" } }, LC_SECTIONS[cat.id].d) : null,
     lh('div', { className: "lc-grp lc-catpage" }, body),
     lh(LcResetLast, { scope: cat.id === "sr" ? "g:sr_general,sr_speech,verbosity,sr_braille" : "g:" + cat.id }));
@@ -2291,6 +2291,9 @@ const LC_VERSION_HISTORY = [
     "Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each.",
     "Every menu, sheet, dialog and pop-up is truly modal (Alhasan: after the last item in Create, VoiceOver read Home and the status page behind it). While one is open, everything outside it is hidden from VoiceOver, braille and the keyboard; Tab and Shift+Tab stay inside a dialog; when it closes, focus goes back to the button that opened it. The live announcer still speaks. Covers Create, More, the Commandbar, pop-up menus, Dream options, alerts, Circle sheets and Reset. Escape now closes More too.",
     "Braille roles like a BrailleNote (KeySoft): every button shows edbt instead of btn, a radio button shows ⠺⠿⠗ when it's on and ⠺⠤⠗ when it's off, and a checkbox shows ⠸⠿⠇ when it's on and ⠸⠤⠇ when it's off. BrailleNote is the new Button style on braille and the default (iPhone btn moves to it once). Braille only: nothing changes on screen, and speech still says button, radio button and checkbox with their state. Still to be checked on a real iPhone with a braille display.",
+    "The Screen reader and braille settings page is called Sense now, everywhere: Settings, Accessibility, Find a setting, the Commandbar (open sense works, and the old words still work), Help Center and status. The tabs inside are the same.",
+    "Pitch cues moved from the Verbosity tab to the Speech tab: the switch, the Pitch cue for checkboxes and Preview every pitch cue. Moved only: the cues, the settings and what they sound like are exactly the same.",
+    "Settings are laid out like Feditext's Preferences: rows that follow each other join into one rounded group with thin lines between them, the value (On, Off) sits on the right in grey, and section headings are small and grey above their group. Only the look changed.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by Alhasan. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
@@ -2396,7 +2399,7 @@ const LC_VERSION_HISTORY = [
   ] },
   { version: "2026.109.27", build: 136, released: "2026-10-10T12:41:40Z", title: "Round 6", notes: [
     "No extra descriptions: VoiceOver reads each control's name, role and state, and explanations are plain text under headings.",
-    "Verbosity is a tab on Screen reader and braille.",
+    "Verbosity is a tab on Sense.",
     "Apps are Looscid's own: Settings, Apps, and the Looscid App Store.",
     "Commandbar: the bar and full screen share one history.",
     "Alerts only for things that really happen, with settings for each.",
@@ -2668,7 +2671,7 @@ const LC_COMING_SOON = [
   { name: "Spelling, grammar and inline math", where: "Intelligence", desc: "Cherry fixes typos and solves sums as you write, on this device." },
   { name: "AI image descriptions", where: "Accessibility, Vision", desc: "Cherry describes images in Dreams, on this device." },
   { name: "RTT and TTY", where: "Accessibility, Hearing", desc: "Real-time text for calls." },
-  { name: "Native braille drivers", where: "Screen reader and braille", desc: "Direct USB and Bluetooth braille display support, without a screen reader." },
+  { name: "Native braille drivers", where: "Sense", desc: "Direct USB and Bluetooth braille display support, without a screen reader." },
   { name: "Mute and Block", where: "Dream and reply options", desc: "Stop seeing a Dreamor's Dreams and replies." },
   { name: "Report", where: "Dream and reply options", desc: "Flag a Dream or reply for review." },
   { name: "Custom feeds", where: "Feeds and Create", desc: "Build your own feed, as its own tab." },
@@ -2999,7 +3002,7 @@ function BrailleStyle() {
       n.undo ? lh('button', { type: "button", className: "btn bp lc-btn", id: "lc-bs-undo", onClick: function () { const r = lcBrUndo(); announce(r.err || r.ok); if (!r.err) focusRadio("c:" + r.entry.id); } }, "Undo") : null,
       lh('button', { type: "button", className: "btn bgb lc-btn", id: "lc-bs-dismiss", "aria-label": "Dismiss notice", "aria-braillelabel": "Dismiss", onClick: function () { lcBrNotice(null); focusRadio(Looscid.A11Y_NOW.brailleStyle || "braillenote"); } }, "Dismiss")) : null);
 }
-// Settings > Accessibility > Screen reader and braille: General | Speech | Braille as real tabs.
+// Settings > Accessibility > Sense: General | Speech | Braille as real tabs.
 const LC_SR_TABS = [["general", "sr_general"], ["speech", "sr_speech"], ["verbosity", "verbosity"], ["braille", "sr_braille"]];
 Looscid.LC_SR_TABS = LC_SR_TABS;
 // Round 6: the Verbosity tab panel (was its own page). Same settings and storage keys.
@@ -3008,6 +3011,12 @@ function LcVerbosityPanel() {
     lh('h2', { id: "lcs-h-verbosity", className: "lc-grp-h", tabIndex: -1 }, lcSrName("verbosity")),
     lh('p', { className: "lc-desc" }, "What Looscid itself says and plays. Your screen reader's own verbosity is set in VoiceOver, TalkBack or NVDA."),
     lh(LcSetRow, { def: LC_SET_BY.verbosity }),
+    lh(LcResetBtn, { sec: "verbosity", label: "Verbosity" }));
+}
+// Build 150 (#56, Alhasan 5:15 AM Oct 11): Pitch cues live on the Speech tab now. Moved only: the same switch,
+// the same "Pitch cue for" checkboxes and Preview, the same settings and storage (still reset with Verbosity's defaults).
+function LcPitchCuesPanel() {
+  return lh(React.Fragment, null,
     lh('section', { className: "lc-grp", "aria-labelledby": "lc-pc-h" },
       lh('h3', { id: "lc-pc-h", className: "lc-grp-h" }, "Pitch cues"),
       lh(LcSetRow, { def: LC_SET_BY.pitchCues }),
@@ -3015,8 +3024,7 @@ function LcVerbosityPanel() {
       lh('fieldset', { className: "lc-fs", id: "lc-pc-types" },
         lh('legend', { className: "lc-fs-l" }, "Pitch cue for"),
         lh('div', { className: "lc-radios lc-radios-col" }, LC_SET.filter(function (d) { return d.pc; }).map(function (d) { return lh(LcSetRow, { key: d.k, def: d }); }))),
-      lh('button', { type: "button", className: "btn bgb lc-btn", id: "lc-pc-preview", onClick: function () { lcPitchPreview(); } }, "Preview every pitch cue")),
-    lh(LcResetBtn, { sec: "verbosity", label: "Verbosity" }));
+      lh('button', { type: "button", className: "btn bgb lc-btn", id: "lc-pc-preview", onClick: function () { lcPitchPreview(); } }, "Preview every pitch cue")));
 }
 function SrTabs() {
   useA11yNow();
@@ -3029,7 +3037,7 @@ function SrTabs() {
     if (i !== null) { e.preventDefault(); pick(LC_SR_TABS[i][0], true); }
   };
   return lh('div', { className: "lc-srtabs" },
-    lh('div', { role: "tablist", "aria-label": "Screen reader and braille sections", className: "lc-stabs", onKeyDown: onKey },
+    lh('div', { role: "tablist", "aria-label": "Sense sections", className: "lc-stabs", onKeyDown: onKey },
       LC_SR_TABS.map(function (t, i) {
         const on = t[0] === cur;
         return lh('button', { key: t[0], id: "srtab-" + t[0], type: "button", role: "tab", "aria-selected": on, "aria-controls": "srpanel-" + t[0], tabIndex: on ? 0 : -1, className: "lc-stab" + (on ? " on" : ""), onClick: function () { pick(t[0], false); } }, lcSrName(t[0]));
@@ -3042,6 +3050,7 @@ function SrTabs() {
           before: sec === "sr_braille" ? lh(React.Fragment, null, lh(BrailleStyle, null), lh('p', { className: "lc-desc" }, "Your display\u2019s own settings, like contracted braille, cells and cursor, are set in VoiceOver, TalkBack or NVDA on your device.")) : null,
           after: lh(React.Fragment, null,
             sec === "sr_speech" ? lh(LcSpeechTest, null) : null,
+            sec === "sr_speech" ? lh(LcPitchCuesPanel, null) : null,
             sec === "sr_general" ? lh(LcSrRename, null) : null) }));
     }));
 }
@@ -3074,7 +3083,7 @@ function AudioSettings({ navigate, page }) {
   useA11yNow();
   const cat = LC_AUDIO_CATS.find(function (c) { return c.page === page; });
   if (!cat) return lh(LcCatMenu, { id: "lc-audio-cats", title: "Earcons", navigate: navigate, cats: LC_AUDIO_CATS,
-    intro: "Looscid's sounds live here. Pitch cues are in Accessibility, Screen reader and braille, Verbosity. Sounds are short and battery-friendly: the audio engine sleeps while Looscid is in the background.",
+    intro: "Looscid's sounds live here. Pitch cues are in Accessibility, Sense, Speech. Sounds are short and battery-friendly: the audio engine sleeps while Looscid is in the background.",
     after: lh('div', { className: "lc-grp" },
       lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { Earcon.play("run", { test: true }); } }, "Play a test sound"),
       // Build 146: Test earcons plays a short sequence and says whether the sound engine started.
@@ -3233,7 +3242,7 @@ function BackupSettings({ navigate, onImported }) {
     lh(BackHeader, { title: "Settings backup", onBack: function () { navigate("settings"); } }),
     lh('section', { className: "lc-grp", "aria-labelledby": "bk-e-h" },
       lh('h2', { id: "bk-e-h", className: "lc-grp-h" }, "Export and import"),
-      lh('p', { className: "lc-desc" }, "One JSON file with all your settings: accessibility, audio, screen reader and braille, permissions, muted words, shortcuts, theme, music and Cherry. Your Cherry chats are in it too. No keys, passwords or Dreams are in it. Imported Soundpacks stay on this device."),
+      lh('p', { className: "lc-desc" }, "One JSON file with all your settings: accessibility, audio, Sense, permissions, muted words, shortcuts, theme, music and Cherry. Your Cherry chats are in it too. No keys, passwords or Dreams are in it. Imported Soundpacks stay on this device."),
       lh('button', { type: "button", className: "btn bp lc-big", onClick: function () { lcDownloadSettings(); say("Exported looscid-settings.json."); } }, "Export all settings"),
       lh('label', { htmlFor: "bk-file", className: "btn bgb lc-big lc-filebtn" }, "Import settings from a file"),
       lh('input', { id: "bk-file", type: "file", className: "lc-file", accept: ".json,application/json", onChange: onFile })),

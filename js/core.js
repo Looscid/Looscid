@@ -930,10 +930,10 @@ function LcResetHost() {
    Cherry is OFF until you turn it on. Only real controls: the model picker downloads a
    real on-device model (WebLLM, needs WebGPU) after you say yes; nothing leaves the device. */
 function lcAiOn() { return getAIPrefs().enabled === true; }
-// Settings > Accessibility (round 5): a short menu of categories, Screen reader and braille first.
+// Settings > Accessibility (round 5): a short menu of categories, Sense first.
 // Each category is its own page with a Back button (Hasan: "not all one gigantic list").
 const LC_A11Y_CATS = [
-  { id: "sr", page: "settings_a11y_sr", l: "Screen reader and braille", sub: "General, Speech and Braille tabs, button style on braille" },
+  { id: "sr", page: "settings_a11y_sr", l: "Sense", sub: "General, Speech and Braille tabs, button style on braille" },
   { id: "vision", page: "settings_a11y_vision", l: "Vision", sub: "Text size, high contrast, bold text, spacing" },
   { id: "hearing", page: "settings_a11y_hearing", l: "Hearing", sub: "Captions and visual cues for sounds" },
   { id: "motion", page: "settings_a11y_motion", l: "Motion and seizure", sub: "Calm mode, Flash safety, Reduce Motion" },
@@ -969,7 +969,7 @@ const LC_FIND_STATIC = [
   { l: "Rename screen reader sections", w: "rename tabs general speech braille names", page: "settings_a11y_sr", tab: "general", focus: "lc-rename-h" },
   { l: "Import a Soundpack", w: "soundpack custom sounds zip import earcons", page: "settings_audio", focus: "lc-imp-h" },
   { l: "Accessibility", w: "a11y categories", page: "settings_accessibility", where: "Settings" },
-  { l: "Screen reader and braille", w: "voiceover talkback nvda speech braille", page: "settings_a11y_sr", where: "Settings, Accessibility" },
+  { l: "Sense", w: "sense screen reader and braille voiceover talkback nvda speech braille", page: "settings_a11y_sr", where: "Settings, Accessibility" },
   { l: "LooscidID", w: "account profile login methods security nostr mastodon bluesky funkwhale hubzilla friendica", page: "settings_account", where: "Settings" },
   { l: "Alerts settings", w: "notifications push quiet hours", page: "settings_notifications", where: "Settings" },
   { l: "Privacy", w: "permissions muted words blocked", page: "settings_privacy", where: "Settings" },
@@ -1019,7 +1019,9 @@ function lcSettingIndex() {
     const id = d.k === "earconVolume" ? "a11y-volume" : (d.old ? "a11y-" : "set-") + d.k;
     const ac = LC_AUDIO_KEYPAGE[d.k] ? LC_AUDIO_CATS.find(function (c) { return c.page === LC_AUDIO_KEYPAGE[d.k]; }) : null;
     if (ac) { out.push({ l: d.l, w: (d.al || []).join(" ") + " sound audio", where: "Settings, Earcons, " + ac.l, page: ac.page, focus: id }); return; }
-    if (d.pc) { out.push({ l: d.l + " pitch cue", w: (d.al || []).join(" ") + " pitch cue cues", where: "Settings, Accessibility, Screen reader and braille, Verbosity", page: "settings_a11y_sr", tab: "verbosity", focus: id }); return; }
+    // Build 150 (#56): Pitch cues moved from the Verbosity tab to the Speech tab (same settings, same storage).
+    if (d.pc) { out.push({ l: d.l + " pitch cue", w: (d.al || []).join(" ") + " pitch cue cues", where: "Settings, Accessibility, Sense, " + lcSrName("speech"), page: "settings_a11y_sr", tab: "speech", focus: id }); return; }
+    if (d.k === "pitchCues") { out.push({ l: d.l, w: (d.al || []).join(" ") + " " + (d.g || ""), where: "Settings, Accessibility, Sense, " + lcSrName("speech"), page: "settings_a11y_sr", tab: "speech", focus: id }); return; }
     out.push({ l: d.l, w: (d.al || []).join(" ") + " " + (d.g || ""), where: sec.where + (sp[1] ? ", " + lcSrName(sp[1]) : (sec.t && sec.where.indexOf(sec.t) < 0 ? ", " + sec.t : "")), page: sp[0], tab: sp[1], focus: id,
       priv: sp[0] === "settings_privacy" ? (d.s === "filters" ? "blocked" : d.s) : undefined, privTab: d.s === "filters" ? "words" : undefined });
   });
@@ -1452,7 +1454,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"Alerts", label:"Alerts",          sub:"New Dreams, mentions, replies, quiet hours", action(){onClose();navigate("settings_notifications");} },
       { icon:"Privacy", label:"Privacy",         sub:"Visibility, blocked users",   action(){onClose();navigate("settings_privacy");} },
       { icon:"Customizability", label:"Customizability", sub:"Theme, feeds, menu, Dreaming, media",     action(){onClose();navigate("settings_customizability");} },
-      { icon:"Accessibility", label:"Accessibility",  sub:"Screen reader and braille, vision, hearing, motion",  action(){onClose();navigate("settings_accessibility");} },
+      { icon:"Accessibility", label:"Accessibility",  sub:"Sense, vision, hearing, motion",  action(){onClose();navigate("settings_accessibility");} },
       { icon:"Audio", label:"Earcons",  sub:"Soundpacks, volume, keyboard and command earcons, your own sounds, haptics",  action(){onClose();navigate("settings_audio");} },
       { icon:"Apps", label:"Apps",  sub:"Insomnia, Meme Projects, Easyconvert, Desktop and Kernel",  action(){onClose();navigate("settings_apps");} },
       { icon:"Keyboard", label:"Keyboard shortcuts",  sub:"Built-in keys and your own shortcuts",  action(){onClose();navigate("settings_keyboard");} },
@@ -1586,7 +1588,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
 const lh = React.createElement;
 Looscid.lh = lh;
 // One polite live region for short confirmations ("Profile saved").
-// Verbosity (Settings, Accessibility, Screen reader and braille, Verbosity): stored as short / normal / detailed.
+// Verbosity (Settings, Accessibility, Sense, Verbosity): stored as short / normal / detailed.
 function lcVerb() { const v = (typeof Looscid.A11Y_NOW !== "undefined" && Looscid.A11Y_NOW && Looscid.A11Y_NOW.verbosity) || "normal"; return v === "short" ? "low" : v === "detailed" ? "high" : "medium"; }
 // Hints ("Press Control K for commands", "double tap to open"): High always, Medium with Screen reader hints on, Low never.
 function lcHints() { const v = lcVerb(); return v === "high" || (v === "medium" && !!(Looscid.A11Y_NOW && Looscid.A11Y_NOW.screenReader)); }
@@ -2335,15 +2337,15 @@ const LC_LANGS = [["en", "English"], ["es", "Spanish"], ["fr", "French"], ["de",
 Looscid.LC_LANGS = LC_LANGS;
 const LC_SECTIONS = {
   vision: { t: "Vision", d: "Text size, contrast, bold text and spacing.", where: "Settings, Accessibility, Vision", al: ["vision"], keys: ["textSize", "highContrast", "boldText", "dyslexiaFont"] },
-  sr_general: { t: "General", sr: "general", d: "How Looscid works with VoiceOver, TalkBack or NVDA.", where: "Settings, Accessibility, Screen reader and braille", al: ["general", "screen reader general"] },
-  sr_speech: { t: "Speech", sr: "speech", d: "What Looscid reads aloud with its own voice, and how.", where: "Settings, Accessibility, Screen reader and braille", al: ["speech"] },
-  sr_braille: { t: "Braille", sr: "braille", d: "How buttons and labels show on your braille display.", where: "Settings, Accessibility, Screen reader and braille", al: ["braille"] },
+  sr_general: { t: "General", sr: "general", d: "How Looscid works with VoiceOver, TalkBack or NVDA.", where: "Settings, Accessibility, Sense", al: ["general", "screen reader general"] },
+  sr_speech: { t: "Speech", sr: "speech", d: "What Looscid reads aloud with its own voice, and how.", where: "Settings, Accessibility, Sense", al: ["speech"] },
+  sr_braille: { t: "Braille", sr: "braille", d: "How buttons and labels show on your braille display.", where: "Settings, Accessibility, Sense", al: ["braille"] },
   hearing: { t: "Hearing", d: "Captions and a visual cue in place of sounds.", where: "Settings, Accessibility, Hearing", al: ["hearing"], keys: ["captions", "visualCue"] },
   motion: { t: "Motion and seizure", d: "Calmer movement and protection from flashing.", where: "Settings, Accessibility, Motion and seizure", al: ["motion", "seizure", "motion and seizure"], keys: ["calmMode", "flashSafety", "reduceMotion"] },
   terminal: { t: "Commandbar", d: "How Commandbar shows its output.", where: "Settings, Accessibility, Commandbar", al: ["commandbar", "command bar", "terminal"], keys: ["termOutput", "termHeadings"] },
   motor: { t: "Motor and switch", d: "Bigger buttons and switch access.", where: "Settings, Accessibility, Motor and switch", al: ["motor", "switch", "motor and switch"], keys: ["largeBtns", "switchAccess"] },
   audio: { t: "Earcons", d: "Looscid's earcons and how loud they are.", where: "Settings, Earcons", al: ["sounds", "sound", "audio", "earcons", "earcon"] },
-  verbosity: { t: "Verbosity", where: "Settings, Accessibility, Screen reader and braille, Verbosity", al: ["verbosity", "verbosity settings", "pitch cue settings"] },
+  verbosity: { t: "Verbosity", where: "Settings, Accessibility, Sense, Verbosity", al: ["verbosity", "verbosity settings", "pitch cue settings"] },
   quiet: { t: "Quiet hours", d: "Times when Looscid stays silent.", where: "Settings, Alerts", al: ["quiet hours", "quiet"] },
   feeds: { t: "Feeds", d: "Which feeds you see and how you switch between them.", where: "Settings, Customizability, Feeds and home", al: ["feeds", "feed"] },
   posting: { t: "Dreaming", d: "How writing and sending a Dream works.", where: "Settings, Customizability, Dreaming", al: ["dreaming", "posting", "composer", "compose"] },
@@ -2363,7 +2365,7 @@ const LC_SECTION_PAGE = { vision: ["settings_a11y_vision"], sr_general: ["settin
   filters: ["settings_privacy"], perm: ["settings_privacy"], pmedia: ["settings_privacy"], keyboard: ["settings_keyboard"], ai: ["settings_ai_cherry"] };
 Looscid.LC_SECTION_PAGE = LC_SECTION_PAGE;
 const LC_SET = [
-  // Screen reader and braille > General
+  // Sense > General
   { k: "verbosity", s: "verbosity", l: "Verbosity", t: "choice", d: "normal", al: ["verbosity", "verbose", "verbosity level"], o: [["short", "Low", ["low", "short", "less"]], ["normal", "Medium", ["medium", "normal", "default"]], ["detailed", "High", ["high", "detailed", "more", "full"]]],
     desc: "How much Looscid says. Low: short labels, no hints or counts, only essential announcements. Medium: labels with state and counts, and confirmations like Saved. High: Medium plus short hints, position like 2 of 5, and the page name when you move." },
   { k: "readOrder", s: "sr_general", l: "Dream read order", t: "choice", d: "name", al: ["read order", "reading order", "dream read order"], o: [["name", "Name first", ["name first", "name"]], ["text", "Text first", ["text first", "text"]]],
@@ -2963,7 +2965,7 @@ function motionReduced() { return !!Looscid.A11Y_NOW.reduceMotion || systemReduc
 function a11yEnterSends() { return Looscid.A11Y_NOW.enterSend !== false; }
 // Close buttons: visible text says "Close"; speech says what closes ("Close menu"); braille shows "Close".
 // aria-label carries the full name, aria-braillelabel the short one, so a braille display shows "Close".
-// Settings > Accessibility > Screen reader and braille > Braille > "Short labels on braille" (closeLabels, default on).
+// Settings > Accessibility > Sense > Braille > "Short labels on braille" (closeLabels, default on).
 function lcCloseProps(target) {
   return { "aria-label": target ? "Close " + target : "Close", "aria-braillelabel": Looscid.A11Y_NOW.closeLabels !== false ? "Close" : undefined };
 }
@@ -3290,7 +3292,7 @@ const Earcon = (function () {
   // Round 6.6 (Alhasan): Command sounds. Each command gets two short notes: the area picks the voice and the register,
   // the command picks the notes (from a pentatonic set), so related commands sound related and each one is its own.
   const LC_CMD_AREAS = { "Go to a place": ["sine", 523.25], "Cherry": ["triangle", 659.25], "Commandbar": ["square", 440], "Feeds and Dreams": ["sine", 392],
-    "Screen reader and braille": ["triangle", 587.33], "Earcons and music": ["sawtooth", 349.23], "Settings": ["square", 493.88], "Projects": ["triangle", 698.46] };
+    "Sense": ["triangle", 587.33], "Earcons and music": ["sawtooth", 349.23], "Settings": ["square", 493.88], "Projects": ["triangle", 698.46] };
   const LC_PENTA = [0, 2, 4, 7, 9, 12, 14];
   function cmdNotes(id, area) {
     let h = 0; const s = String(id || ""); for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
@@ -3333,7 +3335,7 @@ const Earcon = (function () {
     const go = function () { try { if (special) tone(special, vol * 0.5 * (packSpecial ? (KP.gain || 1) : 1), { steady: true, minor: true }); else if (pk) tone(pk, vol * 0.5 * (LC_PACKS[a.soundPack].gain || 1), { steady: true, echo: false, minor: true }); else tone({ label: "Key", ops: [["n", 3200, 0, 0.012, 0.5, 1.4, 0]] }, vol * 0.5, { steady: true, minor: true }); } catch (e) {} };
     run("key", go);
   }
-  // Pitch cues (Settings, Accessibility, Screen reader and braille, Verbosity): one very short tone whose
+  // Pitch cues (Settings, Accessibility, Sense, Verbosity): one very short tone whose
   // pitch says what kind of thing this is. f2 slides (open rises, close falls, on up, off down).
   let pcAt = 0;
   function pcue(kind, f, f2, opts) {
@@ -3612,7 +3614,7 @@ function lcRegistryIntent(n, isOn, isOff) {
     const patch = {}; patch[def.k] = v; return { patch: patch, say: def.l + " is now " + lcTimeSpoken(v) + "." };
   }
   if (def.t === "voice") {
-    const want = rest.trim(); if (!want) return { say: "The read-aloud voice is " + cur + ". Pick one in Settings, Accessibility, Screen reader and braille, " + lcSrName("speech") + "." };
+    const want = rest.trim(); if (!want) return { say: "The read-aloud voice is " + cur + ". Pick one in Settings, Accessibility, Sense, " + lcSrName("speech") + "." };
     if (/^(default|device default)$/.test(want)) return { patch: { ttsVoice: "" }, say: "The read-aloud voice is now your device's default." };
     const v = LcSpeech.voices().find(function (x) { return lcNorm(x.name).indexOf(want) >= 0; });
     return v ? { patch: { ttsVoice: v.voiceURI }, say: "The read-aloud voice is now " + v.name + "." } : { say: "No voice called \u201c" + want + "\u201d on this device." };
@@ -3882,8 +3884,8 @@ const LC_PLACES = {
   discover: { label: "Discover", root: "discover" },
   settings: { label: "Settings", page: "settings" },
   accessibility: { label: "Accessibility settings", page: "settings_accessibility" },
-  screenreader: { label: "Screen reader and braille settings", page: "settings_a11y_sr" },
-  braille: { label: "Screen reader and braille settings, Braille", page: "settings_a11y_sr", srTab: "braille" },
+  screenreader: { label: "Sense settings", page: "settings_a11y_sr" },
+  braille: { label: "Sense settings, Braille", page: "settings_a11y_sr", srTab: "braille" },
   vision: { label: "Vision settings", page: "settings_a11y_vision" },
   hearing: { label: "Hearing settings", page: "settings_a11y_hearing" },
   motion: { label: "Motion and seizure settings", page: "settings_a11y_motion" },
@@ -3903,6 +3905,7 @@ const LC_PLACES = {
   music: { label: "Music", page: "music" },
   audio: { label: "Earcons settings", page: "settings_audio" },
   verbosity: { label: "Verbosity settings", page: "settings_a11y_sr", srTab: "verbosity" },
+  pitchcues: { label: "Pitch cues", page: "settings_a11y_sr", srTab: "speech" }, // build 150 (#56): Pitch cues live on the Speech tab
   keyboard: { label: "Keyboard shortcuts", page: "settings_keyboard" },
   backup: { label: "Settings backup", page: "settings_backup" },
   alertsettings: { label: "Alerts settings", page: "settings_notifications" },
@@ -3930,8 +3933,8 @@ function lcAppItems() {
     { id: "appsettings", l: "App settings", sub: "Settings, Apps", go: function (nav) { nav("settings_apps"); } },
   ]);
 }
-const LC_EXACT = { "open commandbar": "terminal", "commandbar": "terminal", "open command bar": "terminal", "open commandbar full screen": "terminal", "open apps": "nexosapps", "apps": "nexosapps", "open app settings": "appsettings", "app settings": "appsettings", "open apps settings": "appsettings", "open feed": "feed", "open alerts": "alerts", "open notifications": "notifications", "open messages": "messages", "open circles": "circles", "open settings": "settings", "open accessibility": "accessibility", "open customizability": "customizability", "open terminal": "terminal", "open music": "music", "open about": "about", "open account": "account", "open labs": "labs", "open looscid labs": "labs", "open looscidid": "account", "open looscid id": "account", "open audio": "audio", "open sounds": "audio", "open verbosity": "verbosity", "open pitch cues": "verbosity", "open keyboard shortcuts": "keyboard", "open shortcuts": "keyboard", "open settings backup": "backup", "open backup": "backup", "open privacy": "privacy", "open permissions": "privacy", "open quiet hours": "alertsettings", "open alerts settings": "alertsettings", "import settings": "backup",
-  "open braille": "braille", "open braille settings": "braille", "open screen reader": "screenreader", "open screen reader settings": "screenreader", "open screen reader and braille": "screenreader",
+const LC_EXACT = { "open commandbar": "terminal", "commandbar": "terminal", "open command bar": "terminal", "open commandbar full screen": "terminal", "open apps": "nexosapps", "apps": "nexosapps", "open app settings": "appsettings", "app settings": "appsettings", "open apps settings": "appsettings", "open feed": "feed", "open alerts": "alerts", "open notifications": "notifications", "open messages": "messages", "open circles": "circles", "open settings": "settings", "open accessibility": "accessibility", "open customizability": "customizability", "open terminal": "terminal", "open music": "music", "open about": "about", "open account": "account", "open labs": "labs", "open looscid labs": "labs", "open looscidid": "account", "open looscid id": "account", "open audio": "audio", "open sounds": "audio", "open verbosity": "verbosity", "open pitch cues": "pitchcues", "open keyboard shortcuts": "keyboard", "open shortcuts": "keyboard", "open settings backup": "backup", "open backup": "backup", "open privacy": "privacy", "open permissions": "privacy", "open quiet hours": "alertsettings", "open alerts settings": "alertsettings", "import settings": "backup",
+  "open braille": "braille", "open braille settings": "braille", "open screen reader": "screenreader", "open screen reader settings": "screenreader", "open screen reader and braille": "screenreader", "open sense": "screenreader", "sense": "screenreader", "sense settings": "screenreader",
   "open credits": "credits", "credits": "credits", "open source": "credits", "licenses": "credits",
   "open vision": "vision", "open hearing": "hearing", "open motion": "motion", "open motion and seizure": "motion", "open motor": "motor", "open motor and switch": "motor", "open terminal settings": "terminalsettings",
   "open nexos apps": "nexosapps", "nexos apps": "nexosapps", "apps": "nexosapps", "open apps": "nexosapps", "coming soon": "comingsoon", "open coming soon": "comingsoon",
@@ -3991,7 +3994,7 @@ const LC_COMMANDS = [
   ["open feed", "your Home feed"], ["open alerts", "Alerts"], ["open notifications", "Alerts, Notifications"], ["open messages", "Alerts, Messages"], ["open circles", "your Circles"],
   ["open settings", "Settings"], ["open accessibility", "Settings, Accessibility"], ["open terminal", "Commandbar"], ["open music", "Music"],
   ["help", "this list"], ["status", "what is on, and what is saved on this device"],
-  ["open braille", "Settings, Accessibility, Screen reader and braille, Braille"], ["find setting and a word", "jump to a setting, like find setting label or find setting braille"],
+  ["open braille", "Settings, Accessibility, Sense, Braille"], ["find setting and a word", "jump to a setting, like find setting label or find setting braille"],
   ["braille style", "the button style on braille: braille style iphone, braille style android, braille style and a custom name; new braille style, rename braille style old to new, delete braille style, edit braille style, past names, use past name, remove past name, undo"],
   ["apps", "Looscid's apps, like open insomnia; boot shows the boot text"], ["coming soon", "what is planned, in Looscid Labs"],
   ["sound", "earcons: sound on, sound off, sound test, or sound and a volume from 0 to 100"],
@@ -4143,7 +4146,7 @@ function lcRun(raw, api) {
       L("Earcons: " + (a.visualCue ? "replaced by the visual cue" : a.earcons ? "on, volume " + a.earconVolume + " percent" : "off") + ". Captions: " + (a.captions ? "on" : "off") + ".");
       L("Calm mode: " + (a.calmMode ? "on" : "off") + ". Flash safety: " + (a.flashSafety ? "on" : "off") + ". Reduce Motion: " + (motionReduced() ? "on" + (systemReducedMotion() ? ", set by your device" : "") : "off") + ". Three-flash limit: always enforced.");
       if (Music.playing()) L("Music: " + Music.current().label + ", playing.");
-      L("Screen reader and braille: Screen reader hints " + (a.screenReader ? "on" : "off") + ", Braille output " + (a.brailleOutput ? "on" : "off") + ", Enter = Send " + (a.enterSend ? "on" : "off") + ", Short labels on braille " + (a.closeLabels !== false ? "on" : "off") + ".");
+      L("Sense: Screen reader hints " + (a.screenReader ? "on" : "off") + ", Braille output " + (a.brailleOutput ? "on" : "off") + ", Enter = Send " + (a.enterSend ? "on" : "off") + ", Short labels on braille " + (a.closeLabels !== false ? "on" : "off") + ".");
       L("Feed switching: " + LC_FEED_MODES.find(function (x) { return x[0] === lcFeedMode(a.feedSwitch); })[1] + ", in Settings, Customizability.");
       return out;
     }
@@ -5317,7 +5320,7 @@ useEffect(() => {
       settings_audio_volume: "Volume and focus sounds", settings_audio_pack: "Soundpacks", settings_audio_events: "Event sounds", settings_audio_haptics: "Music and haptics",
       settings_intelligence: "Intelligence", settings_ai_model: "Cherry model", settings_ai_cmd: "Commandbar",
       settings_accessibility: "Accessibility",
-      settings_a11y_sr: "Screen reader and braille",
+      settings_a11y_sr: "Sense",
       settings_a11y_vision: "Vision",
       settings_a11y_hearing: "Hearing",
       settings_a11y_motion: "Motion and seizure",

@@ -189,3 +189,19 @@ body.acc-text-2 .pg{zoom:1.3}
 .lc-create-opt{min-height:48px;width:100%;justify-content:space-between}
 .lc-create-opt.lc-unavail{opacity:.75;cursor:default}
 .lc-unavail-tag{font-size:12px;font-weight:600;color:var(--tx3);border:1px solid var(--bd2);border-radius:100px;padding:2px 8px}
+
+/* Build 150 (#46, Alhasan: "Feditext's Preferences layout"): settings read like Feditext's Preferences, a grouped list.
+   Rows that follow each other join into one rounded group with thin separators; a row's value (On, Off) sits on the right
+   in grey; section headings are small and grey above their group. Layout only: names, roles, order and keys are unchanged. */
+.lc-grp > .lc-row{padding:0}
+.lc-grp > .lc-row > .lc-sw{border-radius:0;border-width:0 1px;min-height:48px;font-weight:500;padding:10px 16px}
+.lc-grp > .lc-row + .lc-row > .lc-sw{border-top:1px solid var(--bd)}
+.lc-grp > .lc-row:first-child > .lc-sw,.lc-grp > :not(.lc-row) + .lc-row > .lc-sw{border-top:1px solid var(--bd2);border-top-left-radius:12px;border-top-right-radius:12px;margin-top:4px}
+.lc-grp > .lc-row:last-child > .lc-sw,.lc-grp > .lc-row:has(+ :not(.lc-row)) > .lc-sw{border-bottom:1px solid var(--bd2);border-bottom-left-radius:12px;border-bottom-right-radius:12px;margin-bottom:4px}
+.lc-grp > .lc-row > .lc-sw .lc-sw-v{color:var(--tx2);font-weight:400}
+.lc-fs .lc-radios-col{gap:0 !important;border:1px solid var(--bd2);border-radius:12px;overflow:hidden;background:var(--sf2)}
+.lc-fs .lc-radios-col > .lc-radio{flex:0 0 auto;border:0;border-radius:0;border-top:1px solid var(--bd);min-height:46px}
+.lc-fs .lc-radios-col > .lc-radio:first-child{border-top:0}
+.lc-fs .lc-radios-col > .lc-radio.on{border-color:var(--bd);box-shadow:inset 3px 0 0 var(--ac3)}
+.lc-grp-h{font-size:15px;font-weight:600;color:var(--tx2);margin:18px 4px 6px}
+.lc-fs-l{color:var(--tx2);font-size:14px;font-weight:600;margin:0 4px 6px}
