@@ -2417,6 +2417,7 @@ const LC_VERSION_HISTORY = [
     "Fix (Alhasan): Create Circle reads properly now. Each step's heading says \"Step 1 of 3\" and gets focus when you go to the next or previous step. Icon, Category and Privacy are radio buttons that say when they're checked, and Privacy reads its explanation as part of each choice. No more \"star\", \"slash\" or \"right arrow\", and Escape closes the sheet.",
     "Real hints, like a Swift app's (Alhasan): only controls whose action isn't obvious get one, and VoiceOver reads it after a short pause, following your Hints setting. A Dream's replies count says \"Opens the thread.\", Redreams \"Opens Redream and Quote.\", More \"Opens actions for this Dream.\", Expand thread and Collapse thread say what they show, and the Following and Followers counts say \"Opens the list.\" Unavailable items say just their name, with the reason as the hint. No hints on menus, dialogs, lists, tabs or obvious buttons like Like.",
     "Words, per Alhasan's rule: the status page now says \"Publishing, viewing and interacting with Dreams\", and the community rules say \"Share authentic Dreams\" and \"Do not publish\". Every word you read in Looscid uses publish or Dream, and so do the new hints.",
+    "Added a terminology guide.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by Alhasan. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

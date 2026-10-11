@@ -9,6 +9,8 @@ Looscid is a social app built for VoiceOver, braille and keyboard from day one. 
 
 **Try it:** [looscid.github.io/Looscid](https://looscid.github.io/Looscid)
 
+**Our words:** Dreams, Redreams, Dreamors and the rest are explained in [TERMINOLOGY.md](TERMINOLOGY.md).
+
 ## Fun fact
 
 Fun fact: counting all 8 branches of Looscid together, Looscid would be on version 2026.772.519 (1291): 772 feature updates, 519 fixes, 1291 builds, or 772 without the fix updates.
