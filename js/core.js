@@ -1505,13 +1505,11 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
     { id:"projects", emoji:"Projects", label:"Projects", intro:"My own projects, built into Looscid. Each one opens here, with Back and Close. Nothing loads until you open one.",
       // Build 147 (Alhasan: one link per place): GitHub is already in Social, so the Projects section no longer repeats it.
       items: (Looscid.LC_PROJECTS || []).map(function (p) { return { icon:"Projects", label:p.name, sub:p.sub, action(){ onClose(); Looscid.lcOpenProject(p, navigate); } }; }) },
-    // Round 6.5.3: last in More. The other sections keep their order.
-    { id:"commands", emoji:"Commands", label:"Commands", items:[
-      { icon:"Commands", label:"All commands", sub:"Every Commandbar command, each one a button that runs it", action(){onClose();navigate("commands");} },
-    ]},
-    // Round 6.6 (Alhasan): Help, after Commands. The other sections keep their order.
-    { id:"help", emoji:"Help", label:"Help", items:[
+    // Build 150 (#71, Alhasan 4:36 PM Oct 11): Help is a real pop-up menu button (aria-haspopup="menu"), last in More.
+    // It holds Help Center and Commands; Commands is no longer its own section. Actions, so a menu, not a value picker.
+    { id:"help", emoji:"Help", label:"Help", menu:true, items:[
       { icon:"Help", label:"Help Center", sub:"Getting started, commands, Cherry, earcons, accessibility, projects, backup, and how to get help", action(){onClose();navigate("helpcenter");} },
+      { icon:"Commands", label:"Commands", sub:"Every Commandbar command and keyboard shortcut, each one a button that runs it", action(){onClose();navigate("commands");} },
     ]},
   ];
 
@@ -1537,6 +1535,13 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
           React.createElement('button', {type:"button", id:"msec-btn-"+s.id, className:"msec-direct", "data-sec":s.id, onClick:s.direct,
             "aria-braillelabel": Looscid.A11Y_NOW.brailleOutput ? s.label : undefined},
             React.createElement('span', null, s.label)));
+        // Build 150 (#71): a section that is a menu (Help) is one pop-up menu button: Up/Down, Enter, Escape back to it.
+        if (s.menu) return React.createElement('h2', {key:s.id, className:"msec-hdr", style:{padding:0}},
+          lh(LcMenu, { id: "msec-btn-" + s.id, menuId: "msec-menu-" + s.id, kind: "action", title: s.label, btnClass: "msec-toggle msec-menu", noCaret: true, inline: true,
+            btnBraille: Looscid.A11Y_NOW.brailleOutput ? s.label : undefined,
+            btnText: [lh('span', { key: "l" }, s.label), lh('span', { key: "i", className: "msec-toggle-ic", "aria-hidden": "true" }, "\u203a")],
+            items: s.items.map(function (it) { return { id: it.label, name: it.label, a: it.action }; }),
+            onSelect: function (k, it) { if (it && it.a) it.a(); } }));
         return React.createElement(React.Fragment, {key:s.id},
 
           React.createElement('h2', {className:"msec-hdr",style:{padding:0}},
@@ -5107,7 +5112,7 @@ useEffect(() => {
     const b = commandsBack.current || { page: "feed", data: null, menu: false }; commandsBack.current = null;
     const to = b.page && b.page !== "commands" ? b.page : "feed";
     setPage(to); setPdata(b.data || null);
-    if (b.menu) { setMenuInit({ open: "commands", focus: "All commands", n: Date.now() }); setShowMenu(true); }
+    if (b.menu) { setMenuInit({ open: "help", focus: null, n: Date.now() }); setShowMenu(true); } // build 150: Commands lives in the Help menu; focus goes back to Help
     else focusMainHeading();
   };
   // Round 6.6: Back (or Close) on the Help Center.

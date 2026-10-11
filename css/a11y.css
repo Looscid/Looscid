@@ -205,3 +205,8 @@ body.acc-text-2 .pg{zoom:1.3}
 .lc-fs .lc-radios-col > .lc-radio.on{border-color:var(--bd);box-shadow:inset 3px 0 0 var(--ac3)}
 .lc-grp-h{font-size:15px;font-weight:600;color:var(--tx2);margin:18px 4px 6px}
 .lc-fs-l{color:var(--tx2);font-size:14px;font-weight:600;margin:0 4px 6px}
+
+/* Build 150 (#71): Help in More is a pop-up menu button; it looks like the other section buttons, and its menu items use normal case. */
+.msec-hdr .lmenu{width:100%;display:block}
+.msec-hdr .msec-menu{width:100%}
+.msec-hdr .lmenu-list{text-transform:none;letter-spacing:normal;font-size:16px;font-weight:600}

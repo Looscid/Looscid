@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 11, 2026 at 4:40 PM (Eastern Time, 2026-10-11T20:40:29Z UTC)
+Released October 11, 2026 at 4:42 PM (Eastern Time, 2026-10-11T20:42:35Z UTC)
 
 Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each.
 
@@ -19,6 +19,7 @@ Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each
 - The Home tab before the feed tabs is gone: the feed tabs start at For You. If you were on Home, you land on For You.
 - Thread view, like Alhasan's Feditext idea: opening a Dream's replies shows just that Dream. Expand thread shows the whole thread, the Dreams above it and every reply; the same button then says Collapse thread. The words change in place and focus stays on the button.
 - Each Dream's options button is Feditext's More button now. Its pop-up starts with Feditext's items in Feditext's order: Like (Feditext's Bookmark), Mute, Block, and Report (coming soon) for someone else's Dream, then Looscid's own (Read, Hear thread, Translate, Share, profile, Ask Cherry). Closing it says Close More.
+- Help in More is a real pop-up menu button now (Alhasan, 4:36 PM): it opens a menu with Help Center and Commands. Up and Down move, Enter opens, Escape closes it and puts you back on Help. Commands isn't its own section in More anymore. Back from Commands puts you on Help.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 
