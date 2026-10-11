@@ -1,5 +1,5 @@
 /* Looscid liked.js: Liked (build 147, Alhasan Oct 10 2026): liking is saving, so everything you like is in one place.
-   One component (LikedView) and one store (dbm_liked, in js/core.js) for both doors: the private Liked tab on your
+   One component (LikedView) and one store (looscid_liked, in js/core.js) for both doors: the private Liked tab on your
    own profile and the Liked page in More (build 148). Tabs, from Alhasan's spec sheet: Dreams, Circles, Apps,
    Marketplace, Chats and Searches. Images is a filter across them, not a tab. Wording is Like and Unlike, never
    Save or Bookmark. Still React, like the profile it sits in. Plain script (not a module); see FILES.md. */
@@ -201,7 +201,7 @@ function lcLikedSearchCheck(dreams) {
 // The From Looscid filter in Alerts: if you hid it, a Liked Search alert brings it back (so the alert has somewhere to show).
 function lcShowFromLooscid() {
   try {
-    const k = "dbm_alert_cat_hidden", v = JSON.parse(localStorage.getItem(k) || "[]");
+    const k = "looscid_alert_cat_hidden", v = JSON.parse(localStorage.getItem(k) || "[]");
     if (Array.isArray(v) && v.indexOf("system") >= 0) { localStorage.setItem(k, JSON.stringify(v.filter(function (x) { return x !== "system"; }))); window.dispatchEvent(new CustomEvent("looscid:cats")); }
   } catch (e) {}
 }

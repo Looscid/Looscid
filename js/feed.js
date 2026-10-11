@@ -127,7 +127,7 @@ function FeedPage({navigate, prefs, cherryCtx}) {
     )
   );
 }
-const LC_FOCUSMEM_KEY = "dbm_focus_memory";
+const LC_FOCUSMEM_KEY = "looscid_focus_memory";
 Looscid.LC_FOCUSMEM_KEY = LC_FOCUSMEM_KEY;
 Looscid.LC_FEED_SEEN = false; // the first Home visit never jumps to a remembered Dream // the Dream that last had focus (for "read this dream")
 // Incoming Dreams from others: a mention of you, a reply to one of your Dreams, or a new Dream.

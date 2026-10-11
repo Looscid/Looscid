@@ -238,21 +238,21 @@ function SymbolPicker({ onInsert, onClose }) {
   const [tab, setTab] = React.useState(0);
   const [search, setSearch] = React.useState("");
   const [favs, setFavs] = React.useState(() => {
-    try { return JSON.parse(localStorage.getItem("dbm_sym_favs")||"[]"); } catch (e21) { return []; }
+    try { return JSON.parse(localStorage.getItem("looscid_sym_favs")||"[]"); } catch (e21) { return []; }
   });
   const [recent, setRecent] = React.useState(() => {
-    try { return JSON.parse(localStorage.getItem("dbm_sym_recent")||"[]"); } catch (e22) { return []; }
+    try { return JSON.parse(localStorage.getItem("looscid_sym_recent")||"[]"); } catch (e22) { return []; }
   });
 
   const addFav = s => {
     const f = favs.includes(s) ? favs.filter(x=>x!==s) : [s,...favs].slice(0,20);
     setFavs(f);
-    try { localStorage.setItem("dbm_sym_favs", JSON.stringify(f)); } catch (e23) {}
+    try { localStorage.setItem("looscid_sym_favs", JSON.stringify(f)); } catch (e23) {}
   };
   const insertSym = s => {
     const r = [s,...recent.filter(x=>x!==s)].slice(0,20);
     setRecent(r);
-    try { localStorage.setItem("dbm_sym_recent", JSON.stringify(r)); } catch (e24) {}
+    try { localStorage.setItem("looscid_sym_recent", JSON.stringify(r)); } catch (e24) {}
     onInsert(s);
   };
 
@@ -355,7 +355,7 @@ function lcSendWithUndo(what, fn, text, draftKey) {
    Looscid's rules on top: explanations are plain <p>, #looscid-live is the only announcement
    channel, and focus moves only when you act. */
 const LC_AUD_NAMES = { everyone: "Everyone", followers: "Followers only", groups: "My Circles", device: "Only this device" };
-const LC_REPLY_DRAFTS_KEY = "dbm_reply_drafts";
+const LC_REPLY_DRAFTS_KEY = "looscid_reply_drafts";
 const LC_THREAD_MAX = 10;
 function lcReplyDrafts() { try { const o = JSON.parse(localStorage.getItem(LC_REPLY_DRAFTS_KEY) || "{}"); return o && typeof o === "object" && !Array.isArray(o) ? o : {}; } catch (e) { return {}; } }
 function lcReplyDraftSet(k, v) {
@@ -657,8 +657,8 @@ function LcComposer(props) {
       lh('button', Object.assign({ type: "button", className: "lc-close", onClick: close }, lcCloseProps(isReply ? "reply" : isQuote ? "Quote" : "new Dream")), "Close")),
     lh('div', { style: {height:"env(safe-area-inset-bottom,8px)"} }));
 }
-/* --- Round 6: Blocked and muted. Saved on this device: dbm_blocked_dreamers (handles),
-   dbm_blocked_circles (Circle ids) and dbm_blocked_words. Blocked words apply everywhere:
+/* --- Round 6: Blocked and muted. Saved on this device: looscid_blocked_dreamers (handles),
+   looscid_blocked_circles (Circle ids) and looscid_blocked_words. Blocked words apply everywhere:
    Dreams, replies, messages, alerts, Discover, search and Commandbar. Muted words (Settings,
    Privacy, Words) apply to feeds and alerts. */
 /* Round 6: a photo you add is redrawn on a canvas when "Remove location and camera details" is on

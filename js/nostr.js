@@ -3,21 +3,21 @@
    signed here (or by your signer), and come back from those relays on any device that has your key.
 
    What is stored on this device (localStorage), and never in Settings backup:
-   - dbm_nostr_sk          your secret key as hex, only when you chose no passcode
-   - dbm_nostr_ncryptsec   your secret key locked with your passcode (NIP-49), instead of the one above
-   - dbm_nostr_relays      your relay list, when you changed it
-   - dbm_nostr_queue       Dreams waiting to reach relays (signed notes, or Dreams waiting for your passcode)
-   - dbm_nostr_hidden      ids of Nostr notes you removed here, so they don't come back on the next fetch
+   - looscid_nostr_sk          your secret key as hex, only when you chose no passcode
+   - looscid_nostr_ncryptsec   your secret key locked with your passcode (NIP-49), instead of the one above
+   - looscid_nostr_relays      your relay list, when you changed it
+   - looscid_nostr_queue       Dreams waiting to reach relays (signed notes, or Dreams waiting for your passcode)
+   - looscid_nostr_hidden      ids of Nostr notes you removed here, so they don't come back on the next fetch
    Round 6.5: replies to a Dream that's on Nostr go out as NIP-10 replies ("e" tags marked root and reply,
    "p" tags for the people in the thread), a Quote carries a NIP-18 "q" tag, and a content warning goes
    as a NIP-36 "content-warning" tag. Reading back keeps each note's author key and these tags, so a reply
-   finds its Dream on a new device. Replies are saved in dbm_replies (see js/core.js).
+   finds its Dream on a new device. Replies are saved in looscid_replies (see js/core.js).
    An unlocked key lives only in this file's memory until the page closes or reloads.
    The crypto (js/vendor/nostr-tools-2.25.2.min.js) loads only when a Nostr feature is used. */
 (function (Looscid) {
 "use strict";
-const SK_KEY = "dbm_nostr_sk", ENC_KEY = "dbm_nostr_ncryptsec", RELAYS_KEY = "dbm_nostr_relays", QUEUE_KEY = "dbm_nostr_queue", HIDDEN_KEY = "dbm_nostr_hidden";
-const IDENTITY_KEY = "looscid_identity", IDS_KEY = "dbm_linked_ids", DREAMS_KEY = "dbm_dreams", REPLIES_KEY = "dbm_replies";
+const SK_KEY = "looscid_nostr_sk", ENC_KEY = "looscid_nostr_ncryptsec", RELAYS_KEY = "looscid_nostr_relays", QUEUE_KEY = "looscid_nostr_queue", HIDDEN_KEY = "looscid_nostr_hidden";
+const IDENTITY_KEY = "looscid_identity", IDS_KEY = "looscid_linked_ids", DREAMS_KEY = "looscid_dreams", REPLIES_KEY = "looscid_replies";
 const KEEP_TAGS = ["e", "p", "q", "content-warning"];
 const DEFAULT_RELAYS = ["wss://relay.damus.io", "wss://nos.lol", "wss://relay.primal.net", "wss://relay.nostr.band"];
 const VENDOR_SRC = "js/vendor/nostr-tools-2.25.2.min.js";

@@ -66,7 +66,7 @@ LC_PROJECTS.forEach(function (p) { p.gh = GH + p.repo; });
 // Round 6.6 (Alhasan, 5:02 PM): projects that are Coming soon, or partly, ask for help, with a real link to the repo.
 const LC_LOOSCID_GH = "https://github.com/Looscid/Looscid";
 
-const LC_PROJECTS_OPEN_KEY = "dbm_more_projects_open"; // the More menu's Projects section: "1" open, "0" closed (in the settings backup)
+const LC_PROJECTS_OPEN_KEY = "looscid_more_projects_open"; // the More menu's Projects section: "1" open, "0" closed (in the settings backup)
 function lcProjectsOpen() { try { return localStorage.getItem(LC_PROJECTS_OPEN_KEY) === "1"; } catch (e) { return false; } }
 function lcProjectsSetOpen(on) { try { localStorage.setItem(LC_PROJECTS_OPEN_KEY, on ? "1" : "0"); } catch (e) {} }
 function lcFindProject(q) {

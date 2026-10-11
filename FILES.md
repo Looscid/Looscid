@@ -9,20 +9,20 @@ Looscid has no build step. The browser loads plain files in a fixed order: no mo
 | `index.html` | The frame only: meta tags, the startup screen, the live region `#looscid-live`, the script tags in load order, and the mount at the end. |
 | `css/app.css` | The app's styles. |
 | `css/a11y.css` | Startup screen, Commandbar, earcon cues and Settings > Accessibility styles (`<link id="lc-a11y-css">`). |
-| `js/core.js` | Shared state and preferences (`dbm_` storage keys), icons, sounds (earcons, pitch cues), navigation and routing (`App`, the frame), Alerts storage, the update check and version, shared screens and helpers, and the plain DOM helpers (`lcEl`, `lcPatch`, `lcPlainScreen`). |
+| `js/core.js` | Shared state and preferences (`looscid_` storage keys), icons, sounds (earcons, pitch cues), navigation and routing (`App`, the frame), Alerts storage, the update check and version, shared screens and helpers, and the plain DOM helpers (`lcEl`, `lcPatch`, `lcPlainScreen`). |
 | `js/nostr.js` | Dreams on Nostr (Round 6.4): your Nostr key (plain, or locked with a passcode as NIP-49), relays, sending Dreams with a retry queue, and reading your own Dreams back. **Plain JavaScript.** It loads the crypto from `js/vendor/` only when a Nostr feature is used. |
 | `js/vendor/` | Vendored code, committed as is: `nostr-tools-2.25.2.min.js` (keys, signing, nip19, nip49), its `LICENSE`, and a `README.md` with how it was built. |
 | `js/discover.js` | The Discover tab. **Plain JavaScript.** |
 | `js/circles.js` | Circles: create a Circle, a Circle's page, its admin settings, the Circles list. Still React. |
 | `js/feed.js` | The Feed (Home) tab. Still React. |
-| `js/create.js` | Create, and the composer for New Dream, Reply and Quote (`LcComposer`, Round 6.5), attachments with the alt text helper, symbols and Drafts. Still React. Saved replies (`dbm_replies`), the Replies page and link previews are in `js/core.js`. |
+| `js/create.js` | Create, and the composer for New Dream, Reply and Quote (`LcComposer`, Round 6.5), attachments with the alt text helper, symbols and Drafts. Still React. Saved replies (`looscid_replies`), the Replies page and link previews are in `js/core.js`. |
 | `js/alerts.js` | The Alerts tab and messages. **Plain JavaScript.** |
 | `js/more.js` | The More tab and everything it opens: Settings, LooscidID pages, About, Apps, Admin, policies. Still React. |
-| `js/cherry.js` | Cherry, the assistant, on its own page (Round 6.5.2): the chat, New Chat, Your History (All and Pinned, saved in `dbm_cherry_chats`) and What Cherry did. The page is **plain JavaScript**; the model picker in Settings, Intelligence is still React. Cherry's answers (`cherryRespond`) live here too. |
+| `js/cherry.js` | Cherry, the assistant, on its own page (Round 6.5.2): the chat, New Chat, Your History (All and Pinned, saved in `looscid_cherry_chats`) and What Cherry did. The page is **plain JavaScript**; the model picker in Settings, Intelligence is still React. Cherry's answers (`cherryRespond`) live here too. |
 | `js/commands.js` | The Commands page (Round 6.5.3): every Commandbar command grouped by area, each a button that runs it through Commandbar's own runner. **Plain JavaScript.** The commands themselves (`LC_COMMANDS`, `LC_EXACT`, `lcRun`) stay in `js/core.js`. |
 | `js/projects.js` | Projects (Round 6.6): Alhasan's own projects (`LC_PROJECTS`), the project page with Back and Close, the Commandbar words (projects, open and a project, lyrics and a song) and Dream Results from Memeprojects. **Plain JavaScript.** |
 | `js/helpcenter.js` | Help (Round 6.6): `help` (the top commands), an area and `help` (cherry help), `help list`, `new dream`, and the Help Center page. **Plain JavaScript.** |
-| `js/liked.js` | Liked (build 147): `LikedView`, one component for everything you like (Dreams, Circles, Apps, Marketplace, Chats, Searches, with an Images filter), used by your profile's Liked tab. Its store, `dbm_liked`, is in `js/core.js`. Still React, like the profile. |
+| `js/liked.js` | Liked (build 147): `LikedView`, one component for everything you like (Dreams, Circles, Apps, Marketplace, Chats, Searches, with an Images filter), used by your profile's Liked tab. Its store, `looscid_liked`, is in `js/core.js`. Still React, like the profile. |
 | `projects/` | The ported projects, one folder each with its own `LICENSE`, plus `dream-results.js` (the Dream Results button inside Memeprojects). |
 | `nexos/` | NexOS and its apps, unchanged (Memeprojects also loads `projects/dream-results.js`). |
 

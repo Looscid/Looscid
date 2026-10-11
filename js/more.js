@@ -15,7 +15,7 @@ Object.assign(Looscid, { CreditsPage, ProfileView, ProfilePage, DreamorProfilePa
    Media). Its top menu (Share, Hide/Show Redreams, Add/Edit note, Mute, Block, Report) is a More button that
    expands inline. Alhasan's own asks sit where Feditext's closest part is: Edit profile (the same LooscidID editor
    as Settings), a private Liked tab on your own profile, an About tab, and Mutual likes on other people's. */
-const LC_PROFILE_MORE_KEY = "dbm_profile_more_open", LC_PROFILE_RD_KEY = "dbm_profile_rd_show", LC_LIKED_PUBLIC_KEY = "dbm_liked_public";
+const LC_PROFILE_MORE_KEY = "looscid_profile_more_open", LC_PROFILE_RD_KEY = "looscid_profile_rd_show", LC_LIKED_PUBLIC_KEY = "looscid_liked_public";
 function lcProfileMoreOpen() { try { return localStorage.getItem(LC_PROFILE_MORE_KEY) === "1"; } catch (e) { return false; } }
 function lcRdShow() { try { const v = localStorage.getItem(LC_PROFILE_RD_KEY); return v === "quotes" || v === "redreams" ? v : "both"; } catch (e) { return "both"; } }
 // Settings > Privacy: which Liked tabs are public on your profile. All off (private) by default.
@@ -83,7 +83,7 @@ function lcDreamMediaKinds(d) {
   if (LC_VID_RE.test(tx)) r.vid = r.any = true;
   return r;
 }
-const LC_PROFILE_MEDIA_KEY = "dbm_profile_media_show";
+const LC_PROFILE_MEDIA_KEY = "looscid_profile_media_show";
 function lcMediaShow() { try { const v = localStorage.getItem(LC_PROFILE_MEDIA_KEY); return v === "images" || v === "videos" ? v : "both"; } catch (e) { return "both"; } }
 /* The bio, shown the way Feditext shows an account's bio (its "note"): rich text in paragraphs, line breaks kept,
    and links, mentions and hashtags as real links. A bio that arrives as HTML (Mastodon) keeps only its paragraphs,
@@ -247,7 +247,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const byId = function (list) { const ids = new Set(list.map(function (d) { return String(d.id); })); return dreams.filter(function (d) { return ids.has(String(d.id)); }); };
   const following = !!(cherryCtx && cherryCtx.following && cherryCtx.following.has(user.id));
   const blocked = !isMe && Looscid.lcBlockedUser(user), muted = !isMe && Looscid.lcIsMuted(user);
-  const hidesRd = !isMe && Looscid.lcPeopleHas("dbm_hide_redreams", user.handle);
+  const hidesRd = !isMe && Looscid.lcPeopleHas("looscid_hide_redreams", user.handle);
   const note = isMe ? "" : Looscid.lcNoteFor(user.handle);
   const theirLikes = !isMe && Array.isArray(user.likes) ? user.likes : null;
   const myLikedIds = Looscid.lcLikedItems("dream").map(function (x) { return x.id; });
@@ -279,11 +279,11 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const moreItems = isMe
     ? [{ id: "share", name: "Share", a: share }, { id: "edit", name: "Edit profile", a: function () { openEdit(true); } }]
     : [{ id: "share", name: "Share", a: share },
-       following ? (hidesRd ? { id: "showrd", name: "Show Redreams", a: function () { Looscid.lcPeopleSet("dbm_hide_redreams", user.handle, false); say("Showing Redreams from " + user.name + "."); } }
-                            : { id: "hiderd", name: "Hide Redreams", a: function () { Looscid.lcPeopleSet("dbm_hide_redreams", user.handle, true); say("Hiding Redreams from " + user.name + "."); } }) : null,
+       following ? (hidesRd ? { id: "showrd", name: "Show Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, false); say("Showing Redreams from " + user.name + "."); } }
+                            : { id: "hiderd", name: "Hide Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, true); say("Hiding Redreams from " + user.name + "."); } }) : null,
        { id: "note", name: note ? "Edit note" : "Add note", a: function () { setNoteText(note); setNoteEdit(true); } },
-       muted ? { id: "unmute", name: "Unmute", a: function () { Looscid.lcPeopleSet("dbm_muted_dreamors", user.handle, false); say("Unmuted " + user.name + "."); } }
-             : { id: "mute", name: "Mute", a: function () { Looscid.lcPeopleSet("dbm_muted_dreamors", user.handle, true); say("Muted " + user.name + ". Their Dreams are hidden from your feed."); } },
+       muted ? { id: "unmute", name: "Unmute", a: function () { Looscid.lcPeopleSet("looscid_muted_dreamors", user.handle, false); say("Unmuted " + user.name + "."); } }
+             : { id: "mute", name: "Mute", a: function () { Looscid.lcPeopleSet("looscid_muted_dreamors", user.handle, true); say("Muted " + user.name + ". Their Dreams are hidden from your feed."); } },
        blocked ? { id: "unblock", name: "Unblock", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").filter(function (h) { return h !== Looscid.lcHandle(user.handle); })); say("Unblocked " + user.name + "."); } }
                : { id: "block", name: "Block", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").concat([user.handle])); say("Blocked " + user.name + ". Unblock here or in Settings, Privacy."); } },
        { id: "report", name: "Report", off: "unavailable: Looscid has nowhere to send reports yet" }].filter(Boolean);
@@ -521,7 +521,7 @@ function LcAudience({ id, legend, value, onChange, customKey, options, note }) {
     note ? lh('p', { className: "lc-desc" }, note) : null);
 }
 function lcCatSave(kind, st) {
-  try { localStorage.setItem("dbm_" + kind + "_cat_order", JSON.stringify(st.order)); localStorage.setItem("dbm_" + kind + "_cat_hidden", JSON.stringify(st.hidden)); } catch (e) {}
+  try { localStorage.setItem("looscid_" + kind + "_cat_order", JSON.stringify(st.order)); localStorage.setItem("looscid_" + kind + "_cat_hidden", JSON.stringify(st.hidden)); } catch (e) {}
   window.dispatchEvent(new CustomEvent("looscid:cats"));
 }
 function LcCatCustomize({ kind, defs, title }) {
@@ -566,7 +566,7 @@ function MessageSettings({ navigate }) {
 }
 function NotificationsSettings({navigate}) {
   // Round 6: only alert types that really fire, each with on/off, sound and who can trigger it.
-  // Stored in dbm_alert_prefs. Quiet hours are the real ones (Sounds and announcements obey them).
+  // Stored in looscid_alert_prefs. Quiet hours are the real ones (Sounds and announcements obey them).
   useA11yNow();
   const [P, setP] = useState(lcAlertPrefs());
   useEffect(function () { const f = function () { setP(lcAlertPrefs()); }; window.addEventListener("looscid:alerts", f); return function () { window.removeEventListener("looscid:alerts", f); }; }, []);
@@ -623,12 +623,12 @@ function PrivacySettings({navigate, authUser, onUpdateProfile}) {
   Looscid.LC_FORCED = priv ? { whoSee: "followers", whoFollow: "approve" } : {};
   // Round 6: an accordion. Disclosure buttons (aria-expanded); one section open at a time.
   const rd = function (k, d) { try { return sessionStorage.getItem(k) || d; } catch (e) { return d; } };
-  const [open, setOpen] = useState(function () { const v = rd("dbm_priv_open", "perm"); return v === "none" ? "" : v; });
+  const [open, setOpen] = useState(function () { const v = rd("looscid_priv_open", "perm"); return v === "none" ? "" : v; });
   useEffect(function () {
     const f = function (e) { setOpen(e.detail); };
     window.addEventListener("looscid:privopen", f); return function () { window.removeEventListener("looscid:privopen", f); };
   }, []);
-  const toggle = function (id) { const v = open === id ? "" : id; setOpen(v); try { sessionStorage.setItem("dbm_priv_open", v || "none"); } catch (e) {} };
+  const toggle = function (id) { const v = open === id ? "" : id; setOpen(v); try { sessionStorage.setItem("looscid_priv_open", v || "none"); } catch (e) {} };
   // Private account forces "Who can see my Dreams" to Followers and "Who can follow me" to Approve requests.
   const privSwitch = lh('div', { style: { padding: "0 0 6px" } }, lh(A11ySwitch, { id: "set-privateAccount", label: "Private account", on: priv,
     onToggle: function () { if (onUpdateProfile) onUpdateProfile({ private: !priv }); announce(priv ? "Private account off." : "Private account on."); } }));
@@ -673,9 +673,9 @@ function LcTabs({ id, label, tabs, cur, onPick }) {
 // Privacy > Blocked and muted: Dreamors / Circles / Words.
 function LcBlockedPanel() {
   useBlocked();
-  const [tab, setTab] = useState(function () { try { return sessionStorage.getItem("dbm_priv_tab") || "dreamers"; } catch (e) { return "dreamers"; } });
+  const [tab, setTab] = useState(function () { try { return sessionStorage.getItem("looscid_priv_tab") || "dreamers"; } catch (e) { return "dreamers"; } });
   useEffect(function () { const f = function (e) { setTab(e.detail); }; window.addEventListener("looscid:privtab", f); return function () { window.removeEventListener("looscid:privtab", f); }; }, []);
-  const pick = function (t) { setTab(t); try { sessionStorage.setItem("dbm_priv_tab", t); } catch (e) {} };
+  const pick = function (t) { setTab(t); try { sessionStorage.setItem("looscid_priv_tab", t); } catch (e) {} };
   const [hIn, setHIn] = useState(""), [wIn, setWIn] = useState("");
   const addList = function (kind, raw, clear, say) {
     const v = kind === "dreamers" ? lcHandle(raw) : String(raw || "").trim().toLowerCase();
@@ -742,7 +742,7 @@ function LcPrivacyMedia({ navigate }) {
         lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { navigate("settings_ai_cherry"); } }, "Turn on Cherry in Intelligence")),
     row("cherryMediaLook"), row("cherryMediaAlt"), row("cherryMediaRemember"),
     lh('button', { type: "button", id: "priv-cherry-forget", className: "btn bgb lc-big", onClick: function () {
-      try { localStorage.removeItem("dbm_cherry_media"); } catch (e) {}
+      try { localStorage.removeItem("looscid_cherry_media"); } catch (e) {}
       lcSet({ cherryMediaLook: false, cherryMediaAlt: false, cherryMediaRemember: false });
       announce("Cherry forgot your media, and its media permissions are off."); } }, "Forget what Cherry knows about my media"));
 }
@@ -766,14 +766,14 @@ const LC_CATMENU_RESET = { "lc-cz-cats": "customizability", "lc-ai-cats": "intel
 Looscid.LC_CATMENU_RESET = LC_CATMENU_RESET;
 function LcCatMenu({ id, title, intro, cats, navigate, after, reset }) {
   useEffect(function () {
-    let from = null; try { from = sessionStorage.getItem("dbm_cat_from_" + id); sessionStorage.removeItem("dbm_cat_from_" + id); } catch (e) {}
+    let from = null; try { from = sessionStorage.getItem("looscid_cat_from_" + id); sessionStorage.removeItem("looscid_cat_from_" + id); } catch (e) {}
     if (from) setTimeout(function () { const b = document.getElementById(id + "-" + from); if (b) b.focus(); }, 90);
   }, []);
   return lh('div', { className: "pg lc-a11y" },
     lh(BackHeader, { title: title, onBack: function () { navigate("settings"); } }),
     intro ? lh('p', { className: "lc-intro" }, intro) : null,
     lcMenuList(id, title + " categories", cats.map(function (c) {
-      return { id: c.id, l: c.l, sub: c.sub, a: function () { try { sessionStorage.setItem("dbm_cat_from_" + id, c.id); } catch (e) {} navigate(c.page); } };
+      return { id: c.id, l: c.l, sub: c.sub, a: function () { try { sessionStorage.setItem("looscid_cat_from_" + id, c.id); } catch (e) {} navigate(c.page); } };
     }).concat(reset !== false && (reset || LC_CATMENU_RESET[id]) ? [{ id: "reset", l: "Reset", a: function () { lcOpenReset(reset || LC_CATMENU_RESET[id]); } }] : [])),
     after || null);
 }
@@ -852,7 +852,7 @@ function IntelligenceSettings({ navigate, page, prefs, setPrefs, cherryCtx }) {
         onToggle: function () { const v = !lcAiOn(); lcSetAiPref({ enabled: v }); announce("Cherry is now " + (v ? "on" : "off") + "."); } }),
       lh(A11ySwitch, { id: "ai-habits", label: "Learn from my habits", desc: "Cherry notices when you usually Dream or read and offers a tip now and then. Kept only on this device.", on: cs.habitLearning !== false,
         onToggle: function () { setPrefs(function (p) { const c = Object.assign({}, p.cherry || {}); c.habitLearning = !(c.habitLearning !== false); return Object.assign({}, p, { cherry: c }); }); } }),
-      lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { try { localStorage.removeItem("dbm_habits"); } catch (e) {} announce("Learned habits cleared."); } }, "Clear learned habits"),
+      lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { try { localStorage.removeItem("looscid_habits"); } catch (e) {} announce("Learned habits cleared."); } }, "Clear learned habits"),
       lh(LcSetRow, { def: LC_SET_BY.cherryAloud }),
       lh('h2', { className: "lc-grp-h" }, "Privacy"),
       lh('ul', { className: "lc-desc", role: "list" },
@@ -941,14 +941,14 @@ function lcMenuList(id, label, items) {
 function lcSubLine() { return null; }
 function AccessibilitySettings({ navigate, onAskDevice }) {
   useEffect(function () {
-    let from = null; try { from = sessionStorage.getItem("dbm_a11y_from"); sessionStorage.removeItem("dbm_a11y_from"); } catch (e) {}
+    let from = null; try { from = sessionStorage.getItem("looscid_a11y_from"); sessionStorage.removeItem("looscid_a11y_from"); } catch (e) {}
     if (from) setTimeout(function () { const b = document.getElementById("lc-a11y-cats-" + from); if (b) b.focus(); }, 90);
   }, []);
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
     lh(BackHeader, { title: "Accessibility", onBack: function () { navigate("settings"); } }),
     lh('p', { className: "lc-intro" }, "Choose a category. Everything is saved on this device."),
     lcMenuList("lc-a11y-cats", "Accessibility categories", LC_A11Y_CATS.map(function (c) {
-      return { id: c.id, l: c.l, sub: c.sub, a: function () { try { sessionStorage.setItem("dbm_a11y_from", c.id); } catch (e) {} navigate(c.page); } };
+      return { id: c.id, l: c.l, sub: c.sub, a: function () { try { sessionStorage.setItem("looscid_a11y_from", c.id); } catch (e) {} navigate(c.page); } };
     }).concat([{ id: "reset", l: "Reset", a: function () { lcOpenReset("accessibility"); } }])),
     lh('div', { className: "lc-grp" },
       lh('button', { type: "button", className: "btn bgb lc-big", onClick: onAskDevice }, "Ask me again: How do you use your device?"),
@@ -1007,11 +1007,11 @@ function A11yCategory({ page, navigate, prefs, setPrefs }) {
     reset("terminal")];
   useEffect(function () {
     if (cat.id !== "sr") return;
-    let from = null; try { from = sessionStorage.getItem("dbm_cat_from_lc-sr-more"); sessionStorage.removeItem("dbm_cat_from_lc-sr-more"); } catch (e) {}
+    let from = null; try { from = sessionStorage.getItem("looscid_cat_from_lc-sr-more"); sessionStorage.removeItem("looscid_cat_from_lc-sr-more"); } catch (e) {}
     if (from) setTimeout(function () { const b = document.getElementById("lc-sr-more-" + from); if (b) b.focus(); }, 90);
   }, []);
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
-    lh(BackHeader, { title: cat.l, onBack: function () { if (cat.parent) { try { sessionStorage.setItem("dbm_cat_from_lc-sr-more", cat.id); } catch (e) {} } navigate(cat.parent || "settings_accessibility"); } }),
+    lh(BackHeader, { title: cat.l, onBack: function () { if (cat.parent) { try { sessionStorage.setItem("looscid_cat_from_lc-sr-more", cat.id); } catch (e) {} } navigate(cat.parent || "settings_accessibility"); } }),
     // Round 6: one line of plain text under the page heading (Sense has one per tab instead).
     cat.id !== "sr" && LC_SECTIONS[cat.id] && LC_SECTIONS[cat.id].d ? lh('p', { className: "lc-desc lc-sec-d", style: { padding: "0 16px" } }, LC_SECTIONS[cat.id].d) : null,
     lh('div', { className: "lc-grp lc-catpage" }, body),
@@ -1792,7 +1792,7 @@ function useProfileEditor(authUser, onUpdateProfile, navigate) {
 // Accessible names: join only the parts that have words, so a missing value never leaves "Profile , " behind.
 function lcJoin() { return Array.prototype.slice.call(arguments).map(function (x) { return x == null ? "" : String(x).replace(/\s+/g, " ").trim().replace(/^[,.;:]\s*|\s*[,;:]$/g, ""); }).filter(Boolean).join(", "); }
 function methodLabel(m) { const pid = m.provider === "nostr" ? shortNpub(m.publicId) : m.publicId; return PROVIDER_NAMES[m.provider] + ", " + pid + (m.how ? ", " + m.how : ""); }
-function getStoredNostrSk() { try { const old = localStorage.getItem("looscid_nostr_sk"); if (old) { if (!localStorage.getItem(LID_NOSTR_SK_KEY)) localStorage.setItem(LID_NOSTR_SK_KEY, old); localStorage.removeItem("looscid_nostr_sk"); } return localStorage.getItem(LID_NOSTR_SK_KEY); } catch (e) { return null; } }
+function getStoredNostrSk() { try { return localStorage.getItem(LID_NOSTR_SK_KEY); } catch (e) { return null; } }
 function ComingSoonPanel({ provider }) {
   return lh('div', { className: "lid-panel" },
     lh('p', { className: "lid-soon" }, provider.name + " login is coming soon."),
@@ -1838,7 +1838,7 @@ function LoginMethods() {
    No login needed: paste your Nostr npub, your Mastodon / fediverse handle or your Bluesky handle.
    Checks are real (npub bech32 checksum, handle formats). If the network can confirm it
    (Bluesky handle lookup, fediverse WebFinger) it says "verified"; if not, "saved, not verified yet". */
-const LC_IDS_KEY = "dbm_linked_ids";
+const LC_IDS_KEY = "looscid_linked_ids";
 Looscid.LC_IDS_KEY = LC_IDS_KEY;
 function lcGetIds() { try { const v = JSON.parse(localStorage.getItem(LC_IDS_KEY) || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
 function lcSaveIds(list) { try { localStorage.setItem(LC_IDS_KEY, JSON.stringify(list)); } catch (e) {} try { window.dispatchEvent(new Event("looscid-methods")); } catch (e) {} return list; }
@@ -2174,7 +2174,7 @@ function exportLocalData() {
   logActivity("Data exported");
 }
 function deleteLocalData() {
-  try { Object.keys(localStorage).forEach(function (k) { if (/^(looscid_|dbm_)/.test(k)) localStorage.removeItem(k); }); } catch (e) {}
+  try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf("looscid_") === 0 || k.indexOf(Looscid.LC_OLD_PREFIX) === 0) localStorage.removeItem(k); /* and any old-prefix key left from before build 150 */ }); } catch (e) {}
 }
 function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onBack, title, securityExtra }) {
   const [tab, setTab] = useState(initialTab || "home");
@@ -2393,6 +2393,7 @@ const LC_VERSION_HISTORY = [
     "Settings, Intelligence has three new pages for Cherry, kept apart from the feed settings: Memory (save chats in Your History on or off, Delete all chats), Tools (what Cherry may do for you, all on to start; a tool that's off is never run) and What Cherry did (everything Cherry did, with Undo; it used to be on the Cherry page).",
     "Credits and open source is rewritten in my own words: it starts with \"This page is where I say thanks\", my own projects have their own section, every license is a link to that project's real license, and every project has a link like \"NexOS on GitHub\" instead of a raw web address.",
     "Create Circle makes a real Circle now (Alhasan: it just closed the sheet). It opens your new Circle with focus on its name and says \"Circle created\" once. Circles you make stay after a reload: they're kept on this device as looscid_circles, and Settings backup exports and imports them (older backups still import).",
+    "The old Dream Board name is gone, even under the hood (Alhasan): everything Looscid saves on your device is named looscid_ now. The first time you open this build, it moves your Dreams, Liked, Cherry chats, settings, Nostr key and Soundpacks over by itself and deletes the old copies. Nothing is lost, and older settings backups still import.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by Alhasan. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
@@ -2551,10 +2552,10 @@ function MusicPage({ onBack }) {
 }
 /* --- Round 6: audiences (who can do something), shared by Alerts and Privacy ----------------
    Everyone / Dreamors I follow / My followers / Followers I follow back / My circles / Only me / Custom.
-   Custom is a list of handles saved under dbm_aud_custom_<key>. */
+   Custom is a list of handles saved under looscid_aud_custom_<key>. */
 const LC_AUD = [["everyone", "Everyone"], ["following", "Dreamors I follow"], ["followers", "My followers"], ["mutuals", "Followers I follow back (mutuals)"], ["circles", "My circles"], ["nobody", "Only me / Nobody"], ["custom", "Custom"]];
 Looscid.LC_AUD = LC_AUD;
-function lcAudCustomSet(key, list) { try { localStorage.setItem("dbm_aud_custom_" + key, JSON.stringify(list.slice(0, 200))); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:aud")); }
+function lcAudCustomSet(key, list) { try { localStorage.setItem("looscid_aud_custom_" + key, JSON.stringify(list.slice(0, 200))); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:aud")); }
 function useBlocked() {
   const [, tick] = useState(0);
   useEffect(function () { const f = function () { tick(function (x) { return x + 1; }); }; window.addEventListener("looscid:blocked", f); return function () { window.removeEventListener("looscid:blocked", f); }; }, []);
@@ -2612,7 +2613,7 @@ function lcAboutInfo() {
       ["Memory", navigator.deviceMemory ? "about " + navigator.deviceMemory + " GB, as reported by the browser" : "not reported by this browser"],
       ["Processor cores", navigator.hardwareConcurrency ? String(navigator.hardwareConcurrency) : "not reported by this browser"],
       ["Uptime", lcSpoken(Date.now() - LC_BOOT)],
-      ["Stored on this device", lcStorageKB() + " KB in all, " + lcStorageKB("dbm_") + " KB of it in Looscid settings and lists"],
+      ["Stored on this device", lcStorageKB() + " KB in all, " + lcStorageKB("looscid_") + " KB of it in Looscid settings and lists"],
       ["Sound", (window.AudioContext || window.webkitAudioContext ? "Web Audio available. " : "Web Audio not available. ") + (a.visualCue ? "Visual cue instead of sounds" : a.earcons ? "Earcons on, volume " + a.earconVolume + " percent" : "Earcons off")],
       ["Speech", "speechSynthesis" in window ? "Read aloud available" + (function () { try { const n = window.speechSynthesis.getVoices().length; return n ? ", " + n + " voices" : ""; } catch (e) { return ""; } })() : "Read aloud not available in this browser"],
       ["Braille", a.brailleOutput ? "Braille output on: short labels go to your braille display through your screen reader" : "Braille output off"],
@@ -3045,13 +3046,13 @@ function BrailleStyle() {
   const [isNew, setIsNew] = useState(false);
   const [txt, setTxt] = useState(selCustom ? selCustom.name : "");
   const [err, setErr] = useState("");
-  const [past, setPast] = useState(function () { try { const p = sessionStorage.getItem("dbm_br_past"); sessionStorage.removeItem("dbm_br_past"); return p; } catch (e) { return null; } });
+  const [past, setPast] = useState(function () { try { const p = sessionStorage.getItem("looscid_br_past"); sessionStorage.removeItem("looscid_br_past"); return p; } catch (e) { return null; } });
   const fieldRef = useRef(null);
   const editing = isNew || !!selCustom;
   // the field always shows the selected custom entry's text
   const lastSel = useRef(style);
   useEffect(function () { if (lastSel.current !== style) { lastSel.current = style; setTxt(selCustom ? selCustom.name : ""); setErr(""); if (selCustom) setIsNew(false); } });
-  useEffect(function () { let f = null; try { f = sessionStorage.getItem("dbm_br_focus"); sessionStorage.removeItem("dbm_br_focus"); } catch (e) {} if (f === "field") setTimeout(function () { if (fieldRef.current) fieldRef.current.focus(); }, 120); }, []);
+  useEffect(function () { let f = null; try { f = sessionStorage.getItem("looscid_br_focus"); sessionStorage.removeItem("looscid_br_focus"); } catch (e) {} if (f === "field") setTimeout(function () { if (fieldRef.current) fieldRef.current.focus(); }, 120); }, []);
   const radioId = function (s) { return "lc-bs-r-" + s.replace(/[^a-z0-9]/gi, "-"); };
   const focusRadio = function (s) { setTimeout(function () { const r = document.getElementById(radioId(s)); if (r) r.focus(); }, 30); };
   const save = function () {
@@ -3144,8 +3145,8 @@ function LcPitchCuesPanel() {
 }
 function SrTabs() {
   useA11yNow();
-  const [cur, setCur] = useState(function () { let t = "general"; try { t = sessionStorage.getItem("dbm_sr_tab") || "general"; } catch (e) {} return LC_SR_TABS.some(function (x) { return x[0] === t; }) ? t : "general"; });
-  const pick = function (id, focus) { setCur(id); try { sessionStorage.setItem("dbm_sr_tab", id); } catch (e) {} if (focus) setTimeout(function () { const b = document.getElementById("srtab-" + id); if (b) b.focus(); }, 0); };
+  const [cur, setCur] = useState(function () { let t = "general"; try { t = sessionStorage.getItem("looscid_sr_tab") || "general"; } catch (e) {} return LC_SR_TABS.some(function (x) { return x[0] === t; }) ? t : "general"; });
+  const pick = function (id, focus) { setCur(id); try { sessionStorage.setItem("looscid_sr_tab", id); } catch (e) {} if (focus) setTimeout(function () { const b = document.getElementById("srtab-" + id); if (b) b.focus(); }, 0); };
   const idx = LC_SR_TABS.findIndex(function (t) { return t[0] === cur; });
   const onKey = function (e) {
     const n = LC_SR_TABS.length; let i = null;
@@ -3343,6 +3344,9 @@ function KeyboardSettings({ navigate }) {
 function lcImportSettings(text) {
   let o; try { o = JSON.parse(text); } catch (e) { return { err: "That file isn't a Looscid settings file." }; }
   if (!o || o.app !== "Looscid" || o.kind !== "settings" || !o.settings || typeof o.settings !== "object") return { err: "That file isn't a Looscid settings file." };
+  // Build 150: backups made before the rename use the old prefix; each key is read as its looscid_ name (a looscid_ value wins).
+  const set = {}; Object.keys(o.settings).forEach(function (k) { const nk = Looscid.lcNewKey(k); if (typeof o.settings[k] === "string" && (nk === k || !(nk in o.settings))) set[nk] = o.settings[k]; });
+  o = Object.assign({}, o, { settings: set });
   let n = 0; LC_EXPORT_KEYS.forEach(function (k) { if (typeof o.settings[k] === "string") { try {
     // Build 150: Circles you made join the ones on this device (nothing of yours is replaced). A backup without them changes none.
     if (k === Looscid.LC_CIRCLES_KEY) { if (Looscid.lcCirclesMerge(o.settings[k])) n++; return; }

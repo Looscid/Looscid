@@ -7,11 +7,11 @@ const { AlertDialog, Ic, LC_PLACES, LcMenu, LcSpeech, USERS, a11yEnterSends, ann
 const { lcEl: h, lcPatch, lcPlainScreen, lcIconEl } = Looscid;
 
 /* --- Your History: Cherry chats saved on this device --------------------------------------------
-   localStorage dbm_cherry_chats holds a list of chats, newest first:
+   localStorage looscid_cherry_chats holds a list of chats, newest first:
    { id, title, created, updated, pinned, msgs: [{ me, text, t }] }
    Nothing leaves the device. The key is in Settings backup (added to the list, so older backups still import).
    Pinned chats are never dropped; at most 50 unpinned chats and 200 messages per chat are kept. */
-const LC_CHERRY_CHATS_KEY = "dbm_cherry_chats";
+const LC_CHERRY_CHATS_KEY = "looscid_cherry_chats";
 const LC_CHERRY_MAX_CHATS = 50, LC_CHERRY_MAX_MSGS = 200;
 function lcCherryChats() {
   try {
@@ -512,7 +512,7 @@ function cherryRespond(text, cherryCtx) {
 }
 function cherryRespond0(text, cherryCtx) {
   const xi = lcExtraIntent(text);
-  if (xi) return xi.err ? { action: null, result: xi.err } : { tool: "settings", action: "Working on it\u2026", agentLabel: "Settings", result: xi.say, autoFn: function () { if (xi.fn) xi.fn(); if (xi.go && Looscid.LC_NAV) { const pl = LC_PLACES[xi.go]; if (pl.srTab) { try { sessionStorage.setItem("dbm_sr_tab", pl.srTab); } catch (e) {} } Looscid.LC_NAV(pl.page); } announce(xi.say); } };
+  if (xi) return xi.err ? { action: null, result: xi.err } : { tool: "settings", action: "Working on it\u2026", agentLabel: "Settings", result: xi.say, autoFn: function () { if (xi.fn) xi.fn(); if (xi.go && Looscid.LC_NAV) { const pl = LC_PLACES[xi.go]; if (pl.srTab) { try { sessionStorage.setItem("looscid_sr_tab", pl.srTab); } catch (e) {} } Looscid.LC_NAV(pl.page); } announce(xi.say); } };
   const fi = lcFeedIntent(text);
   if (fi && !fi.miss) { const say = fi.friends !== undefined ? (fi.friends ? "Showing friends only." : "Showing everyone you follow.") : fi.step ? "Switching feed." : "Feed: " + lcFeedLabel(fi.feed) + ".";
     return { tool: "feeds", action: "Switching your feed\u2026", agentLabel: "Feeds", result: say, autoFn: function () { const t = lcApplyFeedIntent(fi); announce(t); } }; }
