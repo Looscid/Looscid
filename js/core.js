@@ -2384,12 +2384,13 @@ function LooscidOnboarding({ onDone }) {
     P("Looscid is built to be accessible, usable and private. Our app, features and goal reflect that, strongly. You have the right to make, and change, your choices."),
     H2("Feed"), P("The Home feed shows Dreams we think you'll like. You can change your preferences in Settings."),
     H2("A quick terminology guide"),
-    lh('dl', { className: "lid-terms" },
-      lh('dt', null, "Dreams"), lh('dd', null, "A Dream is what you share, like how Twitter used \u201Ctweet.\u201D"),
-      lh('dt', null, "Redreams"), lh('dd', null, "A Redream shares someone else\u2019s Dream with your followers. It\u2019s always written Redream."),
-      lh('dt', null, "Replies"), lh('dd', null, "Replies are what you write under a Dream, one or several in a row."),
-      lh('dt', null, "Dreamor"), lh('dd', null, "That's you. Instead of \u201Cmember\u201D or \u201Cuser,\u201D you're a Dreamor, spelled D R E A M O R. It's time for a change, and we hope it inspires you to dream up something cool."),
-      lh('dt', null, "Circles"), lh('dd', null, "Circles are communities. They should be created with care, so the conversations in them are valuable, memorable and special.")),
+    // Build 150, part 15: plain rows, not a dl (WebKit calls a <dd> "description", and VoiceOver said it after every one).
+    lh('ul', { className: "lid-terms lc-rows", role: "list", "aria-label": "Terminology" },
+      lh('li', null, lh('span', { className: "lc-dt" }, "Dreams", lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, "A Dream is what you share, like how Twitter used \u201Ctweet.\u201D")),
+      lh('li', null, lh('span', { className: "lc-dt" }, "Redreams", lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, "A Redream shares someone else\u2019s Dream with your followers. It\u2019s always written Redream.")),
+      lh('li', null, lh('span', { className: "lc-dt" }, "Replies", lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, "Replies are what you write under a Dream, one or several in a row.")),
+      lh('li', null, lh('span', { className: "lc-dt" }, "Dreamor", lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, "That's you. Instead of \u201Cmember\u201D or \u201Cuser,\u201D you're a Dreamor, spelled D R E A M O R. It's time for a change, and we hope it inspires you to dream up something cool.")),
+      lh('li', null, lh('span', { className: "lc-dt" }, "Circles", lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, "Circles are communities. They should be created with care, so the conversations in them are valuable, memorable and special."))),
     P("You can reread this guide any time in Settings, About Looscid."),
     primary("Continue"));
   else if (step === 4) body = lh(React.Fragment, null,
@@ -3022,7 +3023,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-11T23:24:28Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-11T23:27:58Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never

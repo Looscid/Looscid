@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 11, 2026 at 7:24 PM (Eastern Time, 2026-10-11T23:24:28Z UTC)
+Released October 11, 2026 at 7:27 PM (Eastern Time, 2026-10-11T23:27:58Z UTC)
 
 Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each.
 
@@ -31,6 +31,7 @@ Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each
 - Create Circle makes a real Circle now (Alhasan: it just closed the sheet). It opens your new Circle with focus on its name and says "Circle created" once. Circles you make stay after a reload: they're kept on this device as looscid_circles, and Settings backup exports and imports them (older backups still import).
 - The old Dream Board name is gone, even under the hood (Alhasan): everything Looscid saves on your device is named looscid_ now. The first time you open this build, it moves your Dreams, Liked, Cherry chats, settings, Nostr key and Soundpacks over by itself and deletes the old copies. Nothing is lost, and older settings backups still import.
 - Fix (Alhasan: VoiceOver kept saying description on every item): the short hints on every menu, sheet and dialog are gone. VoiceOver read each one as "description" and repeated it on every move inside More, Create, menus, sheets and Circle steps. Menus and dialogs say only their name now; Escape or a two-finger scrub still closes them.
+- Fix (Alhasan: VoiceOver said description after every value): profile About and fields, Built-in shortcuts, the LooscidID data summary and the welcome glossary are plain list rows now, read as "Label: value". They looked like definition lists, which VoiceOver on iPhone calls "description". They look the same as before.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 

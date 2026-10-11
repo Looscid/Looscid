@@ -396,7 +396,8 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
         if (user.verified) rows.push(["Verified", "Yes"]);
         return lh('section', { className: "lc-prof-about", "aria-labelledby": "pf-about-h" },
           lh('h2', { id: "pf-about-h", className: "lc-sub-h" }, "About this account"),
-          lh('dl', { className: "lc-dl" }, rows.map(function (r) { return lh(React.Fragment, { key: r[0] }, lh('dt', null, r[0]), lh('dd', null, r[1], r[2] ? " " : null, r[2] || null)); })));
+          // Build 150, part 15: plain rows, not a dl. WebKit calls a <dd> "description", so VoiceOver said it after every value.
+          lh('ul', { className: "lc-dl lc-rows", role: "list" }, rows.map(function (r) { return lh('li', { key: r[0] }, lh('span', { className: "lc-dt" }, r[0], lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, r[1], r[2] ? " " : null, r[2] || null)); })));
       }
     }
     return null;
@@ -448,11 +449,11 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
           lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { setNoteEdit(false); setTimeout(function () { const b = document.getElementById("pf-more-note"); if (b) b.focus(); }, 30); } }, "Cancel"))),
       // Feditext's fields: a bordered table of rows, the label on the left third, the value (its links live) on the right;
       // a verified value gets a green row and a checkmark, read as "Verified" and the date when there is one.
-      fields.length ? lh('dl', { className: "lc-prof-fields" }, fields.map(function (f, i) {
+      fields.length ? lh('ul', { className: "lc-prof-fields lc-rows", role: "list" }, fields.map(function (f, i) {
         const vAt = f.verifiedAt ? lcJoinedText(f.verifiedAt).replace(/ at .*$/, "") : "";
-        return lh('div', { key: i, className: "lc-prof-field" + (f.verified || f.verifiedAt ? " lc-verified" : "") },
-          lh('dt', null, f.name),
-          lh('dd', null,
+        return lh('li', { key: i, className: "lc-prof-field" + (f.verified || f.verifiedAt ? " lc-verified" : "") },
+          lh('span', { className: "lc-dt" }, f.name, lh('span', { className: "sr-only" }, ":")), " ",
+          lh('span', { className: "lc-dd" },
             f.verified || f.verifiedAt ? lh('span', { className: "lc-prof-check", "aria-hidden": "true" }, "\u2713 ") : null,
             lh('span', { className: "lc-prof-fv" }, lcFieldValue(f.value, "f" + i, navigate)),
             f.verified || f.verifiedAt ? lh('span', { className: "sr-only" }, " Verified" + (vAt ? " " + vAt : "")) : null));
@@ -2235,7 +2236,7 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   else if (tab === "data") panel = lh(React.Fragment, null,
     PH("Data", "Your data stays on this device. Nothing is sent to a Looscid server."),
     lh('h3', { className: "lid-label" }, "What's stored on this device"),
-    lh('dl', { className: "lid-dl" }, summary.map(function (r) { return lh(React.Fragment, { key: r.k }, lh('dt', null, r.k), lh('dd', null, r.v)); })),
+    lh('ul', { className: "lid-dl lc-rows", role: "list" }, summary.map(function (r) { return lh('li', { key: r.k }, lh('span', { className: "lc-dt" }, r.k, lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, r.v)); })),
     lh('h3', { className: "lid-label" }, "Download your data"),
     lh('p', { className: "lid-help", id: "lid-export-help" }, "Get a copy of your profile, login methods, topics, drafts and security activity as a JSON file. Secret keys and login tokens are left out."),
     lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { exportLocalData(); setNote("Your data was downloaded as looscid-my-data.json."); announce("Data downloaded"); } }, "Export my data"),
@@ -2395,6 +2396,7 @@ const LC_VERSION_HISTORY = [
     "Create Circle makes a real Circle now (Alhasan: it just closed the sheet). It opens your new Circle with focus on its name and says \"Circle created\" once. Circles you make stay after a reload: they're kept on this device as looscid_circles, and Settings backup exports and imports them (older backups still import).",
     "The old Dream Board name is gone, even under the hood (Alhasan): everything Looscid saves on your device is named looscid_ now. The first time you open this build, it moves your Dreams, Liked, Cherry chats, settings, Nostr key and Soundpacks over by itself and deletes the old copies. Nothing is lost, and older settings backups still import.",
     "Fix (Alhasan: VoiceOver kept saying description on every item): the short hints on every menu, sheet and dialog are gone. VoiceOver read each one as \"description\" and repeated it on every move inside More, Create, menus, sheets and Circle steps. Menus and dialogs say only their name now; Escape or a two-finger scrub still closes them.",
+    "Fix (Alhasan: VoiceOver said description after every value): profile About and fields, Built-in shortcuts, the LooscidID data summary and the welcome glossary are plain list rows now, read as \"Label: value\". They looked like definition lists, which VoiceOver on iPhone calls \"description\". They look the same as before.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by Alhasan. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
@@ -3321,7 +3323,7 @@ function KeyboardSettings({ navigate }) {
     lh(BackHeader, { title: "Keyboard shortcuts", onBack: function () { navigate("settings"); } }),
     lh('section', { className: "lc-grp", "aria-labelledby": "kb-b-h" },
       lh('h2', { id: "kb-b-h", className: "lc-grp-h" }, "Built-in shortcuts"),
-      lh('dl', { className: "lc-keys" }, LC_BUILTIN_KEYS.map(function (k) { return lh(React.Fragment, { key: k[0] }, lh('dt', null, k[0]), lh('dd', null, k[1])); }))),
+      lh('ul', { className: "lc-keys lc-rows", role: "list", "aria-label": "Built-in shortcuts" }, LC_BUILTIN_KEYS.map(function (k) { return lh('li', { key: k[0] }, lh('span', { className: "lc-dt" }, k[0], lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, k[1])); }))),
     lh('section', { className: "lc-grp", "aria-labelledby": "kb-c-h" },
       lh('h2', { id: "kb-c-h", className: "lc-grp-h" }, "Your shortcuts"),
       list.length ? lh('ul', { className: "lc-maplist", "aria-label": "Your shortcuts" }, list.map(function (s) {
