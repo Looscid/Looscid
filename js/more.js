@@ -2390,6 +2390,7 @@ const LC_VERSION_HISTORY = [
     "Memeprojects is one word everywhere now (Alhasan: it is Memeprojects, not Meme Projects): Apps, Projects, the Commandbar (open memeprojects; the old words still work), Find a setting, Help Center, Credits and NexOS.",
     "Cherry has its own page called Cherry - DO IT YOUR WAY (More just links to it). The Try asking suggestions and the canned answer are gone: when Cherry doesn't understand, it says so and changes nothing. New Chat is at the top, then Your History with All and Pinned, then the chat you're in. Each chat has a Chat options pop-up menu: Pin or Unpin, Edit name, Project and Share access (both coming soon), Delete (asks first), New Chat, History and Close Menu. Capitals never matter to Cherry.",
     "Settings, Intelligence has three new pages for Cherry, kept apart from the feed settings: Memory (save chats in Your History on or off, Delete all chats), Tools (what Cherry may do for you, all on to start; a tool that's off is never run) and What Cherry did (everything Cherry did, with Undo; it used to be on the Cherry page).",
+    "Credits and open source is rewritten in my own words: it starts with \"This page is where I say thanks\", my own projects have their own section, every license is a link to that project's real license, and every project has a link like \"NexOS on GitHub\" instead of a raw web address.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by Alhasan. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
@@ -2630,64 +2631,81 @@ function lcAboutInfo() {
     ],
   };
 }
-/* Round 6.5 (Alhasan): Credits and open source. Every outside or open-source project Looscid uses or
-   learned from, with its link, license and what Looscid took from it. Plain headings, lists and links. */
+/* Round 6.5 (Alhasan): Credits and open source. Build 150 part 11: rewritten in 2three1y's own voice.
+   Every project keeps its credit and license. Each license is a real link to that project's own license text,
+   and each project's home is a link named "<project> on GitHub" (or on its own site), so no raw URLs on the page.
+   Fields: n name, s short name for link names, u home, site link site name (default GitHub), l license,
+   lu license link (none = plain text), w what it is. Planned items are plain text (each repo is linked above). */
 const LC_CREDITS = {
+  intro: ["This page is where I say thanks. Looscid is open source under the ", "Looscid Public License", ". Below is every project Looscid uses and every one I learned from, and each of them keeps its own license. Oh, and every sound you hear is made live with Web Audio. No recorded samples, at all."],
+  licenseUrl: "https://github.com/Looscid/Looscid/blob/preview/LICENSE",
   uses: [
-    { n: "React and React DOM 18.2.0", u: "https://github.com/facebook/react", l: "MIT", w: "Draws every screen of Looscid. Loaded from jsDelivr." },
-    { n: "nostr-tools 2.25.2", u: "https://github.com/nbd-wtf/nostr-tools", l: "Unlicense", w: "Nostr keys, signing and checking notes, npub and nsec, and passcode-locked keys. Kept in js/vendor with its license." },
-    { n: "noble curves, hashes and ciphers, and scure base, by Paul Miller", u: "https://github.com/paulmillr/noble-curves", l: "MIT", w: "The audited cryptography inside nostr-tools." },
-    { n: "NexOS, by Alhasan (2three1y)", u: "https://github.com/2three1y/nexos", l: "MIT", w: "Commandbar's full-screen view, the Apps, the Desktop and the NexOS Soundpack." },
-    { n: "Insomnia OS, by Alhasan (2three1y)", u: "https://github.com/2three1y/insomnia-os", l: "MIT", w: "The Insomnia app in Apps, and the Insomnia Soundpack." },
-    { n: "Memeprojects, by Alhasan (2three1y)", u: "https://github.com/2three1y/memeprojects", l: "MIT", w: "The Memeprojects app in Apps." },
-    { n: "Easyconvert, by Alhasan (2three1y)", u: "https://github.com/2three1y/Easyconvert", l: "MIT", w: "The Easyconvert app in Apps, and the newest Easyconvert (with the Claude export reader) in More, Projects." },
-    // Round 6.6: Projects in More. Each project's own LICENSE file is kept next to its copy in projects/.
-    { n: "Lyric Finder, by Alhasan (2three1y)", u: "https://github.com/2three1y/lyricfinder", l: "MIT", w: "Lyric Finder in More, Projects, and the lyrics command. Lyrics come from LRCLIB and lyrics.ovh, under their own terms." },
-    { n: "Vibework, by Alhasan (2three1y) and the Vibework contributors", u: "https://github.com/2three1y/vibework", l: "MIT", w: "Vibework in More, Projects." },
-    { n: "Soundvault, by Alhasan (2three1y)", u: "https://github.com/2three1y/soundvault", l: "MIT", w: "Soundvault in More, Projects, and its button in Settings, Earcons. The Soundpacks it links to stay at MG Storage, under their own terms." },
-    { n: "Reactor Toolbar, by Alhasan (2three1y)", u: "https://github.com/2three1y/reactor-toolbar", l: "MIT", w: "Reactor Toolbar in More, Projects." },
-    { n: "Code Translator, by Alhasan (2three1y)", u: "https://github.com/2three1y/codetranslator", l: "MIT", w: "Code Translator in More, Projects." },
-    { n: "MyWEB, by Alhasan (2three1y)", u: "https://github.com/2three1y/MyWEB", l: "Alhasan's own code", w: "MyWEB in More, Projects (its Nostr feedback is Coming soon)." },
-    { n: "chaoticmodel, by Alhasan (2three1y)", u: "https://github.com/2three1y/chaoticmodel", l: "MIT", w: "Its page in More, Projects." },
-    { n: "Alex Classic, by Alhasan (2three1y)", u: "https://github.com/2three1y/alexclassic", l: "MIT", w: "Its page in More, Projects." },
-    { n: "Agentsync, by Alhasan (2three1y)", u: "https://github.com/2three1y/Agentsync", l: "Alhasan's own code", w: "Its page in More, Projects." },
-    { n: "Yapper website, by Alhasan (2three1y); Yapper by MystyDev", u: "https://github.com/2three1y/yapper-site", l: "Alhasan's own code", w: "The Yapper page in More, Projects. Yapper itself is MystyDev's app." },
-    { n: "v86", u: "https://github.com/copy/v86", l: "BSD 2-Clause", w: "Runs the real NexOS kernel in Apps, right in the browser." },
-    { n: "SeaBIOS and SeaVGABIOS", u: "https://www.seabios.org", l: "LGPL-3.0", w: "The start-up firmware v86 uses, unchanged." },
-    { n: "DM Sans and DM Serif Display", u: "https://fonts.google.com/specimen/DM+Sans", l: "SIL Open Font License 1.1", w: "Looscid's fonts, from Google Fonts." },
+    { n: "React and React DOM 18.2.0", s: "React", u: "https://github.com/react/react", l: "MIT", lu: "https://github.com/react/react/blob/main/LICENSE", w: "This draws every single screen of Looscid. Loaded from jsDelivr." },
+    { n: "nostr-tools 2.25.2", s: "nostr-tools", u: "https://github.com/nbd-wtf/nostr-tools", l: "Unlicense", lu: "https://github.com/nbd-wtf/nostr-tools/blob/master/LICENSE", w: "Nostr keys, signing and checking notes, npub and nsec, and passcode-locked keys. It lives in js/vendor with its license right next to it." },
+    { n: "noble curves, hashes and ciphers, and scure base, by Paul Miller", s: "noble curves", u: "https://github.com/paulmillr/noble-curves", l: "MIT", lu: "https://github.com/paulmillr/noble-curves/blob/main/LICENSE", w: "The audited cryptography inside nostr-tools. The math that keeps your keys safe." },
+    { n: "v86", s: "v86", u: "https://github.com/copy/v86", l: "BSD 2-Clause", lu: "https://github.com/copy/v86/blob/master/LICENSE", w: "This is what runs the real NexOS kernel in Apps, right in your browser. Still blows my mind." },
+    { n: "SeaBIOS and SeaVGABIOS", s: "SeaBIOS", u: "https://www.seabios.org/", site: "seabios.org", l: "LGPL-3.0", lu: "https://github.com/coreboot/seabios/blob/master/COPYING.LESSER", w: "The start-up firmware v86 uses. I didn't change it." },
+    { n: "DM Sans and DM Serif Display", s: "DM Sans", u: "https://fonts.google.com/specimen/DM+Sans", site: "Google Fonts", l: "SIL Open Font License 1.1", lu: "https://openfontlicense.org/open-font-license-official-text/", w: "Looscid's fonts, from Google Fonts." },
+  ],
+  // Round 6.6: Projects in More. Each project's own LICENSE file is kept next to its copy in projects/ or nexos/.
+  mine: [
+    { n: "NexOS", u: "https://github.com/2three1y/nexos", l: "MIT", lu: "https://github.com/2three1y/nexos/blob/main/LICENSE", w: "My operating system project. Commandbar's full-screen view is ported from the Terminal in NexOS Web, plus the Apps, the Desktop and the NexOS Soundpack." },
+    { n: "Insomnia OS", u: "https://github.com/2three1y/insomnia-os", l: "MIT", lu: "https://github.com/2three1y/insomnia-os/blob/main/LICENSE", w: "The Insomnia app in Apps, and the Insomnia Soundpack." },
+    { n: "Memeprojects", u: "https://github.com/2three1y/memeprojects", l: "MIT", lu: "https://github.com/2three1y/memeprojects/blob/main/LICENSE", w: "The Memeprojects app in Apps. Pure chaos, you're welcome." },
+    { n: "Easyconvert", u: "https://github.com/2three1y/Easyconvert", l: "MIT", lu: "https://github.com/2three1y/Easyconvert/blob/main/LICENSE", w: "The Easyconvert app in Apps, and the newest Easyconvert (with the Claude export reader) in More, Projects." },
+    { n: "Lyric Finder", u: "https://github.com/2three1y/lyricfinder", l: "MIT", lu: "https://github.com/2three1y/lyricfinder/blob/main/LICENSE", w: "Lyric Finder in More, Projects, and the lyrics command. The lyrics themselves come from LRCLIB and lyrics.ovh, under their own terms." },
+    { n: "Vibework, by me and the Vibework contributors", s: "Vibework", u: "https://github.com/2three1y/vibework", l: "MIT", lu: "https://github.com/2three1y/vibework/blob/main/LICENSE", w: "Vibework in More, Projects." },
+    { n: "Soundvault", u: "https://github.com/2three1y/soundvault", l: "MIT", lu: "https://github.com/2three1y/soundvault/blob/main/LICENSE", w: "Soundvault in More, Projects, and its button in Settings, Earcons. The Soundpacks it links to stay at MG Storage, under their own terms." },
+    { n: "Reactor Toolbar", u: "https://github.com/2three1y/reactor-toolbar", l: "MIT", lu: "https://github.com/2three1y/reactor-toolbar/blob/main/LICENSE", w: "Reactor Toolbar in More, Projects." },
+    { n: "Code Translator", u: "https://github.com/2three1y/codetranslator", l: "MIT", lu: "https://github.com/2three1y/codetranslator/blob/main/LICENSE", w: "Code Translator in More, Projects." },
+    { n: "chaoticmodel", u: "https://github.com/2three1y/chaoticmodel", l: "MIT", lu: "https://github.com/2three1y/chaoticmodel/blob/main/LICENSE", w: "Its page in More, Projects." },
+    { n: "Alex Classic", u: "https://github.com/2three1y/alexclassic", l: "MIT", lu: "https://github.com/2three1y/alexclassic/blob/main/LICENSE", w: "Its page in More, Projects." },
+    // These three repos have no LICENSE file, so their license stays plain text.
+    { n: "MyWEB", u: "https://github.com/2three1y/MyWEB", l: "my own code", w: "MyWEB in More, Projects. Its Nostr feedback is coming soon." },
+    { n: "Agentsync", u: "https://github.com/2three1y/Agentsync", l: "my own code", w: "Its page in More, Projects." },
+    { n: "Yapper website", u: "https://github.com/2three1y/yapper-site", l: "my own code", w: "The Yapper page in More, Projects. I made the website; Yapper itself is MystyDev's app, so the credit for the app goes to them." },
   ],
   ideas: [
-    { n: "Feditext, by Metabolist", u: "https://github.com/feditext/feditext", l: "GPL-3.0", w: "Composer design inspiration (GPL-3.0); no code used. The Round 6.5 composer follows its layout: the Dream you answer above your text, the toolbar order and writing a thread in one go. Profile design recreated from Feditext by Metabolist (GPL-3.0); no Feditext code is used." },
+    { n: "Feditext, by Metabolist", s: "Feditext", u: "https://github.com/feditext/feditext", l: "GPL-3.0", lu: "https://github.com/feditext/feditext/blob/develop/LICENSE", w: "Design inspiration only, no Feditext code is used anywhere in Looscid. The composer follows Feditext's layout: the Dream you're answering above your text, the toolbar order, and writing a whole thread in one go. The profile design, the More button and the Preferences-style settings are recreated from Feditext by Metabolist, again with zero code copied. Feditext is honestly one of the best accessible apps out there, go check it out." },
     // Round 6.6: FastSMRW has no license, so only the idea is borrowed.
-    { n: "FastSMRW, by masonasons", u: "https://github.com/masonasons/FastSMRW", l: "No license", w: "The FastSM-inspired earcon pack in Settings, Earcons, Soundpack: inspired by FastSMRW by masonasons (no code or audio copied). Every sound in it is made fresh with Web Audio." },
+    { n: "FastSMRW, by masonasons", s: "FastSMRW", u: "https://github.com/masonasons/FastSMRW", lead: "No license, so I only borrowed the idea.", w: "The FastSM-inspired earcon pack in Settings, Earcons, Soundpack is inspired by FastSMRW. No code or audio was copied: every sound in that pack is made fresh with Web Audio." },
   ],
   planned: [
-    { n: "MyWEB", u: "https://github.com/2three1y/MyWEB", w: "Feedback sent to Alhasan as an encrypted Nostr message, signed with your own key." },
-    { n: "AgentSync", u: "https://github.com/2three1y/Agentsync", w: "Slash commands for Cherry, handled on your device, and its step-by-step Allow dialog." },
-    { n: "Soundvault", u: "https://github.com/2three1y/soundvault", w: "Installing a pack from Soundvault straight into Settings, Earcons, and new earcons where the license allows." },
-    { n: "Vibework", u: "https://github.com/2three1y/vibework", w: "Other places to hang out, in Discover." },
-    { n: "Codetranslator", u: "https://github.com/2three1y/codetranslator", w: "A Commandbar tool." },
+    { n: "MyWEB", w: "feedback sent to me as an encrypted Nostr message, signed with your own key." },
+    { n: "AgentSync", w: "slash commands for Cherry, handled on your device, with its step-by-step Allow dialog." },
+    { n: "Soundvault", w: "installing a pack from Soundvault straight into Settings, Earcons, and new earcons where the license allows." },
+    { n: "Vibework", w: "other places to hang out, in Discover." },
+    { n: "Codetranslator", w: "a Commandbar tool." },
   ],
 };
 Looscid.LC_CREDITS = LC_CREDITS;
 function CreditsPage({ navigate }) {
-  // Build 147: one link per place. A planned item whose repository is already linked above shows its name only.
-  const linked = new Set(LC_CREDITS.uses.concat(LC_CREDITS.ideas).map(function (c) { return c.u; }));
-  const item = function (c, i, all) { return lh('li', { key: c.n, style: { marginBottom: 10 } },
-    all === LC_CREDITS.planned && linked.has(c.u) ? lh('strong', null, c.n) : lh('a', { href: c.u, target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, c.n),
-    lh('p', { className: "lid-help", style: { margin: "2px 0 0" } }, (c.l ? "License: " + c.l + ". " : "") + c.w)); };
-  const sec = function (id, title, intro, list) { return lh('section', { "aria-labelledby": id, style: { padding: "0 16px 12px" } },
-    lh('h2', { id: id, className: "lid-sub" }, title), intro && lh('p', { className: "lid-help" }, intro),
-    lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } }, list.map(function (c, i) { return item(c, i, list); }))); };
+  // Build 150: no raw URLs. The home link reads "<project> on GitHub"; the license name links to the license itself,
+  // and its name adds whose license it is, so the links rotor never lists a row of bare "MIT" links.
+  const ext = function (href, text, label, key) { return lh('a', { key: key, href: href, target: "_blank", rel: "noopener noreferrer", className: "lc-link", "aria-label": label || undefined }, text); };
+  const help = { className: "lid-help", style: { margin: "2px 0 0" } };
+  const item = function (c) { const s = c.s || c.n;
+    return lh('li', { key: c.n, style: { marginBottom: 12 } },
+      lh('p', { className: "lid-help", style: { margin: 0 } }, lh('strong', null, c.n)),
+      lh('p', help, c.lead ? c.lead + " " :
+        ["License: ", c.lu ? ext(c.lu, c.l, c.l + ", " + s + " license", "l") : c.l, ". "], c.w),
+      lh('p', help, ext(c.u, s + " on " + (c.site || "GitHub"), null, "u"))); };
+  const ul = function (kids) { return lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } }, kids); };
+  const sec = function (id, title, intro, kids) { return lh('section', { "aria-labelledby": id, style: { padding: "0 16px 12px" } },
+    lh('h2', { id: id, className: "lid-sub" }, title), intro && lh('p', { className: "lid-help" }, intro), kids); };
+  const lic = LC_CREDITS.licenseUrl;
   return lh('div', { className: "pg lc-credits" },
     lh(BackHeader, { title: "Credits and open source", onBack: function () { navigate("settings"); } }),
-    lh('p', { className: "lid-help", style: { padding: "8px 16px 0" } }, "Looscid is open source under the Looscid Public License. These are the projects it uses and the ones it learned from. Each keeps its own license. Every sound is made live with Web Audio, with no recorded samples."),
-    sec("credits-uses", "Code Looscid uses", null, LC_CREDITS.uses),
-    sec("credits-ideas", "Design ideas", null, LC_CREDITS.ideas),
-    sec("credits-planned", "Coming from my repos", "Planned, not in Looscid yet. They'll move up to Code Looscid uses when they arrive.", LC_CREDITS.planned),
-    lh('section', { "aria-labelledby": "credits-src", style: { padding: "0 16px 24px" } },
-      lh('h2', { id: "credits-src", className: "lid-sub" }, "Looscid's own source code"),
-      lh('p', { className: "lid-help" }, lh('a', { href: "https://github.com/Looscid/Looscid", target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, "Looscid on GitHub"), ". The full license is in the LICENSE file there.")));
+    lh('p', { className: "lid-help", style: { padding: "8px 16px 0" } }, LC_CREDITS.intro[0], ext(lic, LC_CREDITS.intro[1], null, "i"), LC_CREDITS.intro[2]),
+    sec("credits-uses", "Code Looscid uses", null, ul(LC_CREDITS.uses.map(item))),
+    sec("credits-mine", "My own projects inside Looscid", "These are mine. They're MIT unless it says otherwise, and each one keeps its own LICENSE file next to its copy in Looscid.", ul(LC_CREDITS.mine.map(item))),
+    sec("credits-ideas", "Design ideas (no code copied)", "These projects inspired how parts of Looscid look and work. I didn't copy any of their code, I just learned from them.", ul(LC_CREDITS.ideas.map(item))),
+    sec("credits-planned", "Coming from my repos", "Planned, not in Looscid yet. They'll move up to \"My own projects inside Looscid\" when they land.",
+      ul(LC_CREDITS.planned.map(function (c) { return lh('li', { key: c.n, style: { marginBottom: 6 } }, c.n + ": " + c.w); }))),
+    sec("credits-src", "Looscid's own source code", null, [
+      lh('p', { key: "p", className: "lid-help" }, "Everything is on GitHub: ", ext("https://github.com/Looscid/Looscid", "Looscid on GitHub", null, "g"), ". The full license is in the ", ext(lic, "LICENSE file", "LICENSE file, Looscid's license", "l"), " there."),
+      lh('p', { key: "t", className: "lid-help", style: { marginTop: 12 } }, "Thanks to everyone who made these. Looscid wouldn't exist without you."),
+      lh('p', { key: "s", className: "lid-help" }, "- 2three1y")]));
 }
 function AboutLooscidMore() {
   const [info, setInfo] = useState(lcAboutInfo());
