@@ -674,3 +674,10 @@ Cherry is a page, not a dialog. It is built screen-reader first: the page is a s
 - View as others see it shows your profile without your own controls, with focus on your name and a "Done viewing as others" button (Back works too) that returns focus to Dreamor options.
 - The About tab's heading is "About" and the display name, or "About this LooscidID" when there isn't one.
 - "<name> just published" is said once, only for a Dream with a real time from the last few minutes.
+
+### Create Circle (Round 7)
+
+- Each step's heading is an h2 that says where you are: "New Circle, Step 1 of 3", "Circle Settings, Step 2 of 3", "Circle Rules, Step 3 of 3". When the step changes (Next or Back), focus moves to that heading.
+- Icon, Category and Privacy are radio groups: each choice is a radio button with its checked state, Arrow keys move and choose, and only the chosen one is in the Tab order. A Privacy choice's name includes its sub-line ("Public, Anyone can find and join"); nothing is read through a description.
+- No asterisks: the name field is required (VoiceOver says "required") and the visible labels say "(required)". No arrows in the Next buttons, no slashes in the step count, and the rule numbers are hidden (each field is "Rule 1", "Rule 2"...).
+- Escape or a two-finger scrub closes the sheet, like every other sheet.

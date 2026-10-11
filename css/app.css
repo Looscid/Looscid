@@ -560,3 +560,5 @@ label.lc-cr-tool{color:var(--tx2)}
 .lc-cherry-opt .lmenu-list{right:auto;min-width:240px}
 .lc-cherry-chat .lc-cherry-opt{margin:0 0 8px}
 .lc-cherry-foot{padding:4px 16px 24px}
+.lc-cc-h{display:flex;align-items:baseline;gap:8px;flex:1}
+.lc-cc-h .lc-cc-step{margin-left:auto;font-size:11px;font-weight:400;color:var(--tx3)}

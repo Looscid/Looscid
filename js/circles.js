@@ -11,6 +11,28 @@ function CreateGroupFlow({onClose, onCreate, navigate}) {
   const categories = ["Science","Creative","Philosophy","Wellness","Technology","Art","Music","Sports","Discussion","Other"];
   const emojis = ["🌙","🧠","🎨","🔭","🌿","💡","✨","🔥","💎","🌊","⚡","🎯"];
   const canNext1 = form.name.trim().length>2 && form.category;
+  // Build 150, part 17 (Alhasan, Oct 11): each step's heading says where you are ("Circle Settings, Step 2 of 3") and
+  // gets focus when the step changes, so VoiceOver starts at the top of the new step instead of a stray button.
+  const headRef = React.useRef(null), firstStep = React.useRef(true);
+  React.useEffect(() => {
+    if (firstStep.current) { firstStep.current = false; return; }
+    const t = setTimeout(() => { if (headRef.current) headRef.current.focus(); }, 30);
+    return () => clearTimeout(t);
+  }, [step]);
+  const onSheetKey = e => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); onClose(); } };
+  const stepHead = (title, n) => React.createElement('h2', { ref: headRef, tabIndex: -1, className: "mtt lc-cc-h", style: {margin:0},},
+    React.createElement('span', null, title), React.createElement('span', { className: "sr-only" }, ", "), React.createElement('span', { className: "lc-cc-step" }, "Step " + n + " of 3"));
+  // Single choices (privacy, category, icon) are real radio groups: Arrow keys move and choose, only the chosen one is
+  // in the Tab order, and VoiceOver says "radio button, checked" (BrailleNote braille roles apply, see lcBrStamp).
+  const radio = (key, val, cur, props, kids) => { const p = Object.assign({}, props); const first = p.first; delete p.first;
+    return React.createElement('button', Object.assign({ type: "button", role: "radio", "aria-checked": cur === val ? "true" : "false",
+      tabIndex: cur === val || (!cur && first) ? 0 : -1, "data-rg": key, onClick: () => set(key, val) }, p), ...kids); };
+  const rgKey = (key, vals) => e => {
+    const i = Math.max(0, vals.indexOf(form[key])); let n = null;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") n = (i + 1) % vals.length; else if (e.key === "ArrowLeft" || e.key === "ArrowUp") n = (i + vals.length - 1) % vals.length;
+    if (n === null) return; e.preventDefault(); set(key, vals[n]);
+    const box = e.currentTarget; setTimeout(() => { const b = box.querySelectorAll('[data-rg="' + key + '"]')[n]; if (b) b.focus(); }, 0);
+  };
   // Create Circle: make it, save it on this device, then open it. Its page moves focus to its name and says "Circle created" once.
   const create = () => {
     if (!canNext1) { setStep(1); return; }
@@ -23,23 +45,22 @@ function CreateGroupFlow({onClose, onCreate, navigate}) {
 
   if (step===3) return (
     React.createElement('div', { className: "ov", onClick: e=>e.target===e.currentTarget&&onClose(),}
-      , React.createElement('div', { className: "msh", role: "dialog", "aria-modal": "true", "aria-label": "Circle Rules",}
+      , React.createElement('div', { className: "msh", role: "dialog", "aria-modal": "true", "aria-label": "Circle Rules", onKeyDown: onSheetKey,}
         , React.createElement('div', { className: "mhd",})
         , React.createElement('div', { className: "min",}
           , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:8,marginBottom:16},}
             , React.createElement('button', { className: "bi", onClick: ()=>setStep(2), 'aria-label': "Back",}, React.createElement(Ic.Bck, { style: {width:18,height:18},}))
-            , React.createElement('div', { className: "mtt", style: {margin:0},}, "Circle Rules" )
-            , React.createElement('span', { style: {marginLeft:"auto",fontSize:11,color:"var(--tx3)"},}, "Step 3/3" )
+            , stepHead("Circle Rules", 3)
           )
           , React.createElement('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.6,marginBottom:14},}, "Rules help your community stay healthy. Dreamors agree to these when joining."           )
           , form.rules.map((rule,i)=>(
             React.createElement('div', { key: i, style: {display:"flex",gap:8,marginBottom:8,alignItems:"center"},}
-              , React.createElement('div', { style: {width:22,height:22,borderRadius:"50%",background:"var(--ac)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#fff",fontWeight:700,flexShrink:0},}, i+1)
+              , React.createElement('div', { style: {width:22,height:22,borderRadius:"50%",background:"var(--ac)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#fff",fontWeight:700,flexShrink:0}, "aria-hidden": "true",}, i+1)
               , React.createElement('input', { className: "inp", style: {flex:1,fontSize:13}, value: rule, onChange: e=>set("rules",form.rules.map((r,j)=>j===i?e.target.value:r)), 'aria-label': "Rule "+(i+1),})
               , form.rules.length>1&&React.createElement('button', { className: "bi", style: {padding:2,flexShrink:0}, onClick: ()=>set("rules",form.rules.filter((_,j)=>j!==i)), 'aria-label': "Remove rule" ,}, React.createElement('span', { style: {color:"var(--tx3)",fontSize:14},}, "✕"))
             )
           ))
-          , form.rules.length<8&&React.createElement('button', { className: "btn bgb" , style: {width:"100%",padding:9,fontSize:12,marginBottom:16}, onClick: ()=>set("rules",[...form.rules,""]),}, "+ Add Rule"  )
+          , form.rules.length<8&&React.createElement('button', { className: "btn bgb" , style: {width:"100%",padding:9,fontSize:12,marginBottom:16}, onClick: ()=>set("rules",[...form.rules,""]),}, React.createElement('span', { "aria-hidden": "true" }, "+ "), "Add Rule"  )
           , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:13,fontSize:14}, onClick: create, 'aria-label': "Create Circle" ,}, "Create Circle"  )
         )
       )
@@ -48,22 +69,23 @@ function CreateGroupFlow({onClose, onCreate, navigate}) {
 
   if (step===2) return (
     React.createElement('div', { className: "ov", onClick: e=>e.target===e.currentTarget&&onClose(),}
-      , React.createElement('div', { className: "msh", role: "dialog", "aria-modal": "true", "aria-label": "Circle Settings",}
+      , React.createElement('div', { className: "msh", role: "dialog", "aria-modal": "true", "aria-label": "Circle Settings", onKeyDown: onSheetKey,}
         , React.createElement('div', { className: "mhd",})
         , React.createElement('div', { className: "min",}
           , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:8,marginBottom:16},}
             , React.createElement('button', { className: "bi", onClick: ()=>setStep(1), 'aria-label': "Back",}, React.createElement(Ic.Bck, { style: {width:18,height:18},}))
-            , React.createElement('div', { className: "mtt", style: {margin:0},}, "Circle Settings" )
-            , React.createElement('span', { style: {marginLeft:"auto",fontSize:11,color:"var(--tx3)"},}, "Step 2/3" )
+            , stepHead("Circle Settings", 2)
           )
-          , React.createElement('h2', { className: "slbl", style: {padding:"0 0 8px"}, role: "heading", 'aria-level': "2",}, "Privacy")
+          , React.createElement('h2', { id: "cc-priv-h", className: "slbl", style: {padding:"0 0 8px"}, role: "heading", 'aria-level': "2",}, "Privacy")
+          , React.createElement('div', { role: "radiogroup", "aria-labelledby": "cc-priv-h", onKeyDown: rgKey("privacy", ["public","private","restricted"]),}
           , [{id:"public",icon:"Public",l:"Public",sub:"Anyone can find and join"},{id:"private",icon:"Private",l:"Private",sub:"Invite-only, hidden from Discover"},{id:"restricted",icon:"Restricted",l:"Restricted",sub:"Visible but requires approval to join"}].map(p=>(
-            React.createElement('button', { key: p.id, className: "osb", onClick: ()=>set("privacy",p.id), 'aria-label': p.l,}
-              , React.createElement('span', { style: {fontSize:18},}, p.icon)
-              , React.createElement('div', { style: {flex:1},}, React.createElement('div', { style: {fontWeight:form.privacy===p.id?700:400,color:form.privacy===p.id?"var(--tx)":"var(--tx2)"},}, p.l), React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, p.sub))
-              , form.privacy===p.id&&React.createElement('span', { style: {color:"var(--ac3)",fontSize:16},}, "✓")
-            )
-          ))
+            // The name carries the sub-line ("Public, Anyone can find and join"); the icon word and the check are hidden.
+            radio("privacy", p.id, form.privacy, { key: p.id, className: "osb", 'aria-label': p.l + ", " + p.sub,}, [
+              React.createElement('span', { key: "i", style: {fontSize:18}, "aria-hidden": "true",}, p.icon)
+              , React.createElement('div', { key: "t", style: {flex:1},}, React.createElement('div', { style: {fontWeight:form.privacy===p.id?700:400,color:form.privacy===p.id?"var(--tx)":"var(--tx2)"},}, p.l), React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, p.sub))
+              , form.privacy===p.id&&React.createElement('span', { key: "c", style: {color:"var(--ac3)",fontSize:16}, "aria-hidden": "true",}, "✓")
+            ])
+          )))
           , React.createElement('h2', { className: "slbl", style: {padding:"12px 0 8px"}, role: "heading", 'aria-level': "2",}, "Moderation")
           , [{k:"joinApproval",l:"Approve new Dreamors",d:"Review and approve each join request"},{k:"postApproval",l:"Approve Dreams",d:"Dreams require admin approval before publishing"},{k:"minAge",l:"18+ only",d:"Restrict group to adult Dreamors"}].map(r=>(
             React.createElement('div', { key: r.k, className: "sr",}
@@ -71,7 +93,7 @@ function CreateGroupFlow({onClose, onCreate, navigate}) {
               , React.createElement(Cbx, { on: form[r.k], onToggle: ()=>set(r.k,!form[r.k]), label: r.l,})
             )
           ))
-          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12,marginTop:10,fontSize:14}, onClick: ()=>setStep(3),}, "Next: Circle Rules →"   )
+          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12,marginTop:10,fontSize:14}, onClick: ()=>setStep(3),}, "Next: Circle Rules"   )
         )
       )
     )
@@ -80,25 +102,24 @@ function CreateGroupFlow({onClose, onCreate, navigate}) {
   // Step 1
   return (
     React.createElement('div', { className: "ov", onClick: e=>e.target===e.currentTarget&&onClose(),}
-      , React.createElement('div', { className: "msh", role: "dialog", "aria-modal": "true", "aria-label": "New Circle",}
+      , React.createElement('div', { className: "msh", role: "dialog", "aria-modal": "true", "aria-label": "New Circle", onKeyDown: onSheetKey,}
         , React.createElement('div', { className: "mhd",})
         , React.createElement('div', { className: "min",}
           , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:8,marginBottom:16},}
             , React.createElement('button', Object.assign({ type: "button", className: "lc-close", onClick: onClose }, lcCloseProps("new Circle")), "Close")
-            , React.createElement('div', { className: "mtt", style: {margin:0},}, "New Circle" )
-            , React.createElement('span', { style: {marginLeft:"auto",fontSize:11,color:"var(--tx3)"},}, "Step 1/3" )
+            , stepHead("New Circle", 1)
           )
           , React.createElement('div', { style: {textAlign:"center",marginBottom:16},}
-            , React.createElement('div', { style: {fontSize:48,marginBottom:8},}, form.emoji)
-            , React.createElement('div', { style: {display:"flex",gap:6,flexWrap:"wrap",justifyContent:"center"},}
+            , React.createElement('div', { style: {fontSize:48,marginBottom:8}, "aria-hidden": "true",}, form.emoji)
+            , React.createElement('div', { role: "radiogroup", "aria-label": "Icon", onKeyDown: rgKey("emoji", emojis), style: {display:"flex",gap:6,flexWrap:"wrap",justifyContent:"center"},}
               , emojis.map(e=>(
-                React.createElement('button', { key: e, style: {background:form.emoji===e?"var(--ac)":"var(--sf2)",border:"1px solid"+(form.emoji===e?"var(--ac)":"var(--bd)"),borderRadius:8,width:34,height:34,fontSize:18,cursor:"pointer"}, onClick: ()=>set("emoji",e), 'aria-label': "Choose "+e,}, e)
+                radio("emoji", e, form.emoji, { key: e, style: {background:form.emoji===e?"var(--ac)":"var(--sf2)",border:"1px solid"+(form.emoji===e?"var(--ac)":"var(--bd)"),borderRadius:8,width:34,height:34,fontSize:18,cursor:"pointer"}, 'aria-label': e,}, [e])
               ))
             )
           )
           , React.createElement('div', { style: {marginBottom:12},}
-            , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",marginBottom:6},}, "Circle Name *"  )
-            , React.createElement('input', { className: "inp", placeholder: "e.g. Consciousness Lab"  , value: form.name, onChange: e=>set("name",e.target.value), maxLength: 40, 'aria-label': "Circle name" ,})
+            , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",marginBottom:6}, "aria-hidden": "true",}, "Circle Name (required)"  )
+            , React.createElement('input', { className: "inp", placeholder: "e.g. Consciousness Lab"  , value: form.name, onChange: e=>set("name",e.target.value), maxLength: 40, required: true, 'aria-label': "Circle name" ,})
             , React.createElement('div', { style: {fontSize:10,color:"var(--tx3)",textAlign:"right",marginTop:3},}, form.name.length, "/40")
           )
           , React.createElement('div', { style: {marginBottom:12},}
@@ -106,14 +127,14 @@ function CreateGroupFlow({onClose, onCreate, navigate}) {
             , React.createElement('textarea', { className: "inp", style: {minHeight:68,fontSize:13}, placeholder: "What is this group about?"    , value: form.description, onChange: e=>set("description",e.target.value), maxLength: 200, 'aria-label': "Circle description" ,})
           )
           , React.createElement('div', { style: {marginBottom:16},}
-            , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",marginBottom:6},}, "Category *" )
-            , React.createElement('div', { style: {display:"flex",gap:6,flexWrap:"wrap"},}
-              , categories.map(cat=>(
-                React.createElement('button', { key: cat, className: "btn"+(form.category===cat?" bp":" bgb"), style: {padding:"6px 12px",fontSize:12}, onClick: ()=>set("category",cat), 'aria-label': "Category: "+cat,}, cat)
+            , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",marginBottom:6}, id: "cc-cat-h",}, "Category (required)" )
+            , React.createElement('div', { role: "radiogroup", "aria-labelledby": "cc-cat-h", "aria-required": "true", onKeyDown: rgKey("category", categories), style: {display:"flex",gap:6,flexWrap:"wrap"},}
+              , categories.map((cat, ci)=>(
+                radio("category", cat, form.category, { key: cat, first: ci === 0, className: "btn"+(form.category===cat?" bp":" bgb"), style: {padding:"6px 12px",fontSize:12}, 'aria-label': cat,}, [cat])
               ))
             )
           )
-          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12,fontSize:14}, disabled: !canNext1, onClick: ()=>setStep(2),}, "Next: Settings →"  )
+          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12,fontSize:14}, disabled: !canNext1, onClick: ()=>setStep(2),}, "Next: Settings"  )
         )
       )
     )

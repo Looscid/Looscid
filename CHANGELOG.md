@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 11, 2026 at 7:35 PM (Eastern Time, 2026-10-11T23:35:40Z UTC)
+Released October 11, 2026 at 7:39 PM (Eastern Time, 2026-10-11T23:39:24Z UTC)
 
 Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each.
 
@@ -33,6 +33,7 @@ Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each
 - Fix (Alhasan: VoiceOver kept saying description on every item): the short hints on every menu, sheet and dialog are gone. VoiceOver read each one as "description" and repeated it on every move inside More, Create, menus, sheets and Circle steps. Menus and dialogs say only their name now; Escape or a two-finger scrub still closes them.
 - Fix (Alhasan: VoiceOver said description after every value): profile About and fields, Built-in shortcuts, the LooscidID data summary and the welcome glossary are plain list rows now, read as "Label: value". They looked like definition lists, which VoiceOver on iPhone calls "description". They look the same as before.
 - Fix (Alhasan): Dreamor options is a real pop-up menu now, after the name and @handle. It opens on the first item, closes with Escape or a two-finger scrub, closes after you choose, and never stays open from one profile to the next. Someone else's profile: Follow, Message, Ask Cherry for a summary, Share, Copy LooscidID link, Hide Redreams, Add note, Mute, Block, Report. Yours: Edit profile, Share, Copy LooscidID link, View as others see it, Settings. The header no longer repeats "Dreams (N)" and Joined, About says "About" and the name, and "just published" no longer fires for old Dreams.
+- Fix (Alhasan): Create Circle reads properly now. Each step's heading says "Step 1 of 3" and gets focus when you go to the next or previous step. Icon, Category and Privacy are radio buttons that say when they're checked, and Privacy reads its explanation as part of each choice. No more "star", "slash" or "right arrow", and Escape closes the sheet.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 
