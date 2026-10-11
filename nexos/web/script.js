@@ -317,7 +317,7 @@ const DEFAULT_CATALOG = [
   { id: "guess",    name: "Guess the Number", version: "1.0", size: "5 KB", category: "Games",        pre: false, desc: "I pick a number from 1 to 100. You guess, I say higher or lower." },
   { id: "morse",    name: "Morse Code",      version: "1.0", size: "6 KB",  category: "Learning",     pre: false, desc: "Type a word and hear it beeped in Morse code, with the dits and dahs spelled out." },
   { id: "easyconvert", name: "Easyconvert",  version: "1.0", size: "100 KB", category: "Utilities",   pre: true,  window: true, desc: "Convert text files to TXT, DOCX, JSON, HTML and more, right in your browser. Nothing is uploaded." },
-  { id: "memes",    name: "Meme Projects",   version: "1.0", size: "60 KB", category: "Fun",          pre: true,  window: true, desc: "The Meme Projects chaos tool suite, the same as its own site." },
+  { id: "memes",    name: "Memeprojects",   version: "1.0", size: "60 KB", category: "Fun",          pre: true,  window: true, desc: "The Memeprojects chaos tool suite, the same as its own site." },
 ];
 let catalog = load("catalog_rev", 0) === CATALOG_REV ? load("catalog", DEFAULT_CATALOG) : DEFAULT_CATALOG;
 save("catalog", catalog); save("catalog_rev", CATALOG_REV);
@@ -874,7 +874,7 @@ const Morse = {
   choices() { return [{ label: "SOS", cmd: "sos" }, { label: "Hello", cmd: "hello" }, { label: "Type a word", fill: "" }, { label: "Help", cmd: "h" }, { label: "Quit", cmd: "q" }]; },
 };
 
-// Apps with their own window (not the command line): Insomnia OS and Meme Projects are their own sites' files, Easyconvert is native.
+// Apps with their own window (not the command line): Insomnia OS and Memeprojects are their own sites' files, Easyconvert is native.
 const WINDOW_APPS = { insomnia: "insomnia", easyconvert: "easyconvert", memes: "memes" };
 let openAfterRun = null;
 const APPS = { notes: Notes, calc: Calc, clock: Clock, piano: Piano, sysinfo: SysInfo, insomnia: Insomnia, hello: Hello, guess: Guess, morse: Morse };
@@ -893,7 +893,7 @@ const STATUS_TIMEOUT = 5000;
 function statusChecks() {
   return [
     ["Home page", "index.html"], ["System code", "script.js"], ["Styles", "styles.css"], ["Beat styles list", "../beat/genres.json"],
-    ["Insomnia OS app", "../apps/insomnia/index.html"], ["Meme Projects app", "../apps/memeprojects/index.html"],
+    ["Insomnia OS app", "../apps/insomnia/index.html"], ["Memeprojects app", "../apps/memeprojects/index.html"],
     [curGenre().label + " beat", genreFile(curGenre())],
   ];
 }
@@ -973,7 +973,7 @@ function flushStatus() {
 /* ---------- shell ---------- */
 const HELP = [
   ["help", "this list"], ["ls", "list files"], ["cat file", "show a file"], ["write file text", "save a file"], ["rm file", "delete a file"],
-  ["apps", "your installed apps"], ["store", "the App Store"], ["insomnia", "open Insomnia OS (insomnia lite is the old text version)"], ["easyconvert", "open Easyconvert, the file converter"], ["memes", "open Meme Projects"], ["sound", "on, off, test, list, keys on or off, or a volume like sound 120"],
+  ["apps", "your installed apps"], ["store", "the App Store"], ["insomnia", "open Insomnia OS (insomnia lite is the old text version)"], ["easyconvert", "open Easyconvert, the file converter"], ["memes", "open Memeprojects"], ["sound", "on, off, test, list, keys on or off, or a volume like sound 120"],
   ["name", "set what I call you, or name clear"], ["about or sysinfo", "About this NexOS: what it is, system info and credits"], ["files", "the Files app"], ["beat", "play or stop the NexOS beat"], ["home", "close the terminal and go to the Home screen"], ["status", "how NexOS and the site are doing: version, connection, a live site check, apps, Calm mode, sound and storage"], ["settings or sound", "open Sound settings on Home, with Beat style and volume"], ["uptime", "time since boot"], ["echo text", "repeat text"], ["clear", "clear the screen"],
 ];
 function shell(raw) {
@@ -1073,7 +1073,7 @@ const SOUND_LIST = [
   "Typing: a soft key click, a deeper space bar, a tick for Backspace, and a faint tick for Tab and the arrow keys. In the Calculator, digits are tuned and operators click twice.",
   "Apps: Clock has a tick tock, a timer wind up, and stopwatch start, stop, lap and reset beeps. Notes flicks a page. Guess the Number slides up for higher and down for lower.",
   "Listen to the beat, in Sound settings on Home or the beat command, plays the NexOS beat made from these sounds. Beat style, next to it, or beat list and beat and a style in Terminal, picks which version plays.",
-  "Insomnia OS, Easyconvert and Meme Projects: each one's button plays its own little tune. In Easyconvert, choosing files is a soft tick, Convert a bright double blip, a finished conversion three rising notes, Download a paper flick and Copy a short beep. Insomnia OS keeps its own chimes, baa, soundscapes and volume, the same as on its own site. Meme Projects is silent.",
+  "Insomnia OS, Easyconvert and Memeprojects: each one's button plays its own little tune. In Easyconvert, choosing files is a soft tick, Convert a bright double blip, a finished conversion three rising notes, Download a paper flick and Copy a short beep. Insomnia OS keeps its own chimes, baa, soundscapes and volume, the same as on its own site. Memeprojects is silent.",
   "Store and system sounds stay the same: rising chime for install, falling pair for uninstall, low double buzz for errors.",
 ];
 function setKeySounds(on, speak) {
@@ -1212,7 +1212,7 @@ setVolume(volume, false); setMuted(muted, "silent");
 // and back to the button that opened it on close (Close button, or Escape).
 const VIEWS = { home: $("#home"), terminal: $("#terminal-view"), app: $("#app-view"), about: $("#about-view"), insomnia: $("#insomnia-view"), easyconvert: $("#easyconvert-view"), memes: $("#memes-view") };
 const HEADS = { home: $("#home-h"), terminal: $("#term-h"), app: appH, about: $("#about-h"), insomnia: $("#ins-h"), easyconvert: $("#ec-h"), memes: $("#memes-h") };
-const FRAMES = { insomnia: $("#ins-frame"), memes: $("#memes-frame") }; // Insomnia OS and Meme Projects: their own sites' files, in a frame
+const FRAMES = { insomnia: $("#ins-frame"), memes: $("#memes-frame") }; // Insomnia OS and Memeprojects: their own sites' files, in a frame
 let view = "home", opener = null, returnTo = null;
 function leaveAppWindow() { if (view === "app") { if (mode && mode.onQuit) mode.onQuit(); mode = null; CTX.app.mode = null; useCtx(CTX.terminal); } }
 function frameSoundscape(k) { try { const w = FRAMES[k] && FRAMES[k].contentWindow; return !!(w && w.__nexosEmbed && w.__nexosEmbed.soundscape()); } catch (e) { return false; } }
@@ -1292,7 +1292,7 @@ launcherEl.addEventListener("click", (e) => {
 $(".skip").addEventListener("click", (e) => { e.preventDefault(); HEADS[view].focus(); }); // skip to the open view's heading
 document.addEventListener("click", (e) => { const b = e.target.closest("[data-close]"); if (!b) return; gesture(); closeView(); });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && view !== "home" && !e.defaultPrevented) { e.preventDefault(); gesture(); closeView(); } });
-// Escape pressed inside Insomnia OS or Meme Projects (when nothing inside used it) closes the app, the same as everywhere else.
+// Escape pressed inside Insomnia OS or Memeprojects (when nothing inside used it) closes the app, the same as everywhere else.
 window.addEventListener("message", (e) => {
   if (e.origin !== location.origin || !e.data || e.data.nexos !== "escape") return;
   const k = Object.keys(FRAMES).find((x) => FRAMES[x].contentWindow === e.source);

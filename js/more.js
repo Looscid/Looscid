@@ -1012,7 +1012,7 @@ function AboutSettings({navigate}) {
     lh(AboutLooscidMore, null),
     lh('section', { "aria-labelledby": "about-nexos", style: { padding: "0 16px 12px" } },
       lh('h2', { id: "about-nexos", className: "lid-sub" }, "NexOS"),
-      lh('p', { className: "lid-help" }, "Looscid's apps came from NexOS, my operating system project: Insomnia, Meme Projects, Easyconvert, Desktop, Kernel and the Looscid App Store. I built them into Looscid, and NexOS keeps its own repository."),
+      lh('p', { className: "lid-help" }, "Looscid's apps came from NexOS, my operating system project: Insomnia, Memeprojects, Easyconvert, Desktop, Kernel and the Looscid App Store. I built them into Looscid, and NexOS keeps its own repository."),
       lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } }, link("https://github.com/2three1y/nexos", "NexOS on GitHub")),
       lh('button', { type: "button", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { navigate("nexos_apps"); } }, "Apps")),
     lh('section', { "aria-labelledby": "about-links", style: { padding: "0 16px 24px" } },
@@ -2331,6 +2331,7 @@ const LC_VERSION_HISTORY = [
     "Liked: the Images only checkbox is gone. Liked has a Media tab (after Dreams) that starts with Show: Photos, GIFs and Videos, three checkboxes, all on; turn any off and Looscid says how many liked Dreams are left.",
     "Back sounds (Alhasan: Liked's Back played no sound): every Back was checked. Liked, your own profile and Apps now go Back the same way Settings screens do: More opens again on the button you came from, with the same Back sound.",
     "Undo words: Unredream (not Undo Redream), Unquote Dream (not Undo Quote), and Unlike / Unliked, everywhere they appear.",
+    "Memeprojects is one word everywhere now (Alhasan: it is Memeprojects, not Meme Projects): Apps, Projects, the Commandbar (open memeprojects; the old words still work), Find a setting, Help Center, Credits and NexOS.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by Alhasan. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
@@ -2371,9 +2372,9 @@ const LC_VERSION_HISTORY = [
   ] },
   { version: "2026.114.31", build: 145, released: "2026-10-10T23:28:24Z", title: "Round 6.6", notes: [
     "Round 6.6: Projects. Alhasan's own projects are built into Looscid.",
-    "More has a new Projects section, near the end: Meme Projects, Lyric Finder, Vibework, Soundvault, Reactor Toolbar, Code Translator, chaoticmodel, Yapper, Alex Classic, Easyconvert, MyWEB and Agentsync. It remembers whether you left it open.",
+    "More has a new Projects section, near the end: Memeprojects, Lyric Finder, Vibework, Soundvault, Reactor Toolbar, Code Translator, chaoticmodel, Yapper, Alex Classic, Easyconvert, MyWEB and Agentsync. It remembers whether you left it open.",
     "Each project opens right here, with Back and Close. Projects that need a server say Coming soon instead of showing a fake control.",
-    "Meme Projects: after a result, Dream Results opens the Dream composer with the result filled in. You still press Dream yourself.",
+    "Memeprojects: after a result, Dream Results opens the Dream composer with the result filled in. You still press Dream yourself.",
     "Commandbar: projects, open and a project's name, and lyrics and a song (lyrics imagine by john lennon). Settings, Earcons has Open Soundvault to find more Soundpacks.",
     "Projects that are Coming soon, or partly, ask for help, with a link to their GitHub repo. The Projects section ends with Help build Looscid on GitHub.",
     "Music has a Lyrics section with Open Lyric Finder.",
@@ -2580,7 +2581,7 @@ const LC_CREDITS = {
     { n: "noble curves, hashes and ciphers, and scure base, by Paul Miller", u: "https://github.com/paulmillr/noble-curves", l: "MIT", w: "The audited cryptography inside nostr-tools." },
     { n: "NexOS, by Alhasan (2three1y)", u: "https://github.com/2three1y/nexos", l: "MIT", w: "Commandbar's full-screen view, the Apps, the Desktop and the NexOS Soundpack." },
     { n: "Insomnia OS, by Alhasan (2three1y)", u: "https://github.com/2three1y/insomnia-os", l: "MIT", w: "The Insomnia app in Apps, and the Insomnia Soundpack." },
-    { n: "Meme Projects, by Alhasan (2three1y)", u: "https://github.com/2three1y/memeprojects", l: "MIT", w: "The Meme Projects app in Apps." },
+    { n: "Memeprojects, by Alhasan (2three1y)", u: "https://github.com/2three1y/memeprojects", l: "MIT", w: "The Memeprojects app in Apps." },
     { n: "Easyconvert, by Alhasan (2three1y)", u: "https://github.com/2three1y/Easyconvert", l: "MIT", w: "The Easyconvert app in Apps, and the newest Easyconvert (with the Claude export reader) in More, Projects." },
     // Round 6.6: Projects in More. Each project's own LICENSE file is kept next to its copy in projects/.
     { n: "Lyric Finder, by Alhasan (2three1y)", u: "https://github.com/2three1y/lyricfinder", l: "MIT", w: "Lyric Finder in More, Projects, and the lyrics command. Lyrics come from LRCLIB and lyrics.ovh, under their own terms." },
@@ -2739,7 +2740,7 @@ function LabsSettings({ navigate }) {
 }
 /* --- Settings > Apps (round 6): real per-app settings, written to each app's own saved settings
    (same site, so the apps read them the next time they open). Looscid's Sounds switch and master
-   volume still apply on top inside Looscid. Meme Projects and Easyconvert have no settings of their own. */
+   volume still apply on top inside Looscid. Memeprojects and Easyconvert have no settings of their own. */
 const LC_APP_GENRES = [["original", "Original"], ["hyperpop", "Hyperpop"], ["lofi", "Lo-fi chill"], ["dnb", "Drum and bass"], ["chiptune", "Chiptune (8-bit)"]];
 Looscid.LC_APP_GENRES = LC_APP_GENRES;
 const LC_INS_CH = [["rain", "Rain"], ["fan", "Fan hum"], ["whir", "Old computer whir"], ["crick", "Crickets"]];
@@ -2804,9 +2805,9 @@ function AppsSettings({ navigate }) {
       sw("set-app-kerSound", "kerSound", "Kernel sound", "The emulated PC speaker's beeps."),
       lh(LcAppRange, { key: "v", id: "set-app-kerVolume", label: "Kernel volume", value: LC_APP_SET.kerVolume.get(), onSet: function (v) { put("kerVolume", v); } }),
       lh('div', { key: "o", className: "lc-row" }, openBtn("real", "Kernel"))]),
-    sec("memes", "Meme Projects", [
-      lh('p', { key: "n", className: "lc-desc" }, "Meme Projects has no settings of its own yet."),
-      lh('div', { key: "o", className: "lc-row" }, openBtn("memes", "Meme Projects"))]),
+    sec("memes", "Memeprojects", [
+      lh('p', { key: "n", className: "lc-desc" }, "Memeprojects has no settings of its own yet."),
+      lh('div', { key: "o", className: "lc-row" }, openBtn("memes", "Memeprojects"))]),
     sec("easyconvert", "Easyconvert", [
       lh('p', { key: "n", className: "lc-desc" }, "Easyconvert has no settings of its own yet."),
       lh('div', { key: "o", className: "lc-row" }, openBtn("easyconvert", "Easyconvert"))]),

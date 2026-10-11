@@ -16,7 +16,7 @@ The original NexOS README is kept as `NEXOS-README.md`, and the app list as `APP
 | `real/` | The real NexOS kernel in the browser: `nexos-i686.iso` booted by the v86 emulator (`real/v86/`, BSD-2-Clause, see `real/v86/LICENSE`) | `/Looscid/nexos/real/` |
 | `web/` | NexOS Web, the desktop (index.html, script.js, styles.css, sw.js) | `/Looscid/nexos/web/` |
 | `apps/insomnia/` | Insomnia OS | `/Looscid/nexos/apps/insomnia/` |
-| `apps/memeprojects/` | Meme Projects (MIT, see its `LICENSE`), with `lib/` | `/Looscid/nexos/apps/memeprojects/` |
+| `apps/memeprojects/` | Memeprojects (MIT, see its `LICENSE`), with `lib/` | `/Looscid/nexos/apps/memeprojects/` |
 | `apps/easyconvert/` | Easyconvert, now with its own page (`index.html`, `easyconvert.js`, `easyconvert.css`) plus JSZip (MIT, `JSZIP-LICENSE.txt`) | `/Looscid/nexos/apps/easyconvert/` |
 | `apps/nexos-embed.js` | The small bridge the apps load when they run inside the NexOS Web desktop | |
 | `beat/` | The NexOS beats (`.m4a`) and `genres.json` | `/Looscid/nexos/beat/` |

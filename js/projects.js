@@ -1,13 +1,13 @@
 /* Looscid projects.js: Projects (Round 6.6). Alhasan's own projects, built into Looscid.
    Plain script (not a module), plain JavaScript (Looscid.lcEl and lcPatch). Everything it shares goes on window.Looscid;
    see FILES.md for the load order.
-   - LC_PROJECTS: the list. An "app" opens its ported copy (projects/<id>/, or the Meme Projects copy in nexos/apps/) in a
+   - LC_PROJECTS: the list. An "app" opens its ported copy (projects/<id>/, or the Memeprojects copy in nexos/apps/) in a
      frame on the project page; an "info" project has nothing that runs in a browser yet, so its page says what it is and
      what is coming soon, in plain paragraphs. Nothing loads until you open a project.
    - ProjectPage: Back, the project's name, Close (aria-braillelabel "Close"), then the project.
    - The More menu's Projects section (core.js MainMenu) and the Commandbar words (projects, open <project>, lyrics <song>)
      read this list.
-   - Dream Results: Meme Projects asks for the Dream composer ({nexos: "dream", text}); Looscid opens it with the text
+   - Dream Results: Memeprojects asks for the Dream composer ({nexos: "dream", text}); Looscid opens it with the text
      filled in and says "Dream composer filled." once. It never sends: you press Dream yourself. */
 (function (Looscid) {
 const { announce, lcCloseProps, lcCompose, lcNorm } = Looscid;
@@ -15,7 +15,7 @@ const { lcEl: h, lcPatch, lcPlainScreen, lcIconEl } = Looscid;
 
 const GH = "https://github.com/2three1y/";
 const LC_PROJECTS = [
-  { id: "memeprojects", name: "Meme Projects", repo: "memeprojects", kind: "app", url: Looscid.NEXOS_BASE + "apps/memeprojects/",
+  { id: "memeprojects", name: "Memeprojects", repo: "memeprojects", kind: "app", url: Looscid.NEXOS_BASE + "apps/memeprojects/",
     sub: "RU a Cheater and the Persona Evaluator, the unscientific chaos tools. After a result, Dream Results fills the Dream composer",
     words: ["meme projects", "memeprojects", "memes", "meme", "ru a cheater", "persona evaluator"] },
   { id: "lyricfinder", name: "Lyric Finder", repo: "lyricfinder", kind: "app", url: "projects/lyricfinder/",
@@ -77,8 +77,8 @@ function lcFindProject(q) {
 function lcOpenProject(p, nav) { nav = nav || Looscid.LC_NAV; if (p && nav) nav("project", p); }
 
 /* Commandbar: projects (More, Projects section open), open <project>, lyrics <song> [by <artist>].
-   Called last in lcExtraIntent (core.js), so older words keep their meaning: open meme projects and open easyconvert
-   still open the copies in Apps (Meme Projects there is the same app, with Dream Results too). */
+   Called last in lcExtraIntent (core.js), so older words keep their meaning: open memeprojects and open easyconvert
+   still open the copies in Apps (Memeprojects there is the same app, with Dream Results too). */
 function lcProjectIntent(raw) {
   const n = lcNorm(raw || ""); let m;
   if (/^(projects|my projects|open projects|show projects|project list|alhasan'?s projects|open my projects)$/.test(n))
@@ -104,15 +104,15 @@ function lcProjectIntent(raw) {
 /* The Commands page and help: one command per project, plus projects and lyrics. */
 (function () {
   const C = Looscid.LC_COMMANDS; if (!C) return;
-  C.push(["projects", "My projects, in More: Meme Projects, Lyric Finder, Vibework, Soundvault and more"]);
-  C.push(["open meme projects", "Meme Projects, a project (also in Apps): after a result, Dream Results fills the Dream composer"]);
+  C.push(["projects", "My projects, in More: Memeprojects, Lyric Finder, Vibework, Soundvault and more"]);
+  C.push(["open memeprojects", "Memeprojects, a project (also in Apps): after a result, Dream Results fills the Dream composer"]);
   C.push(["soundvault", "switch to the Soundvault Soundpack (open soundvault opens the project)"]);
   C.push(["lyrics", "lyrics and a song, like lyrics imagine by john lennon: opens Lyric Finder and searches"]);
   LC_PROJECTS.forEach(function (p) { if (p.id !== "memeprojects" && p.id !== "easyconvert") C.push(["open " + lcNorm(p.name), p.name + ", a project: " + p.sub.split(". ")[0].toLowerCase()]); });
   C.push(["open easyconvert latest", "the newest Easyconvert, a project (open easyconvert opens the one in Apps)"]);
   // The Commands page (Round 6.5.3, js/commands.js): a Projects group, and lyrics opens Commandbar ready for the song.
   if (Looscid.LC_CMD_FILL) Looscid.LC_CMD_FILL["lyrics"] = "lyrics ";
-  if (Looscid.LC_CMD_GROUPS) Looscid.LC_CMD_GROUPS.push(["Projects", ["projects", "open meme projects", "lyrics"].concat(LC_PROJECTS.filter(function (p) { return p.id !== "memeprojects" && p.id !== "easyconvert"; }).map(function (p) { return "open " + lcNorm(p.name); })).concat(["open easyconvert latest"])]);
+  if (Looscid.LC_CMD_GROUPS) Looscid.LC_CMD_GROUPS.push(["Projects", ["projects", "open memeprojects", "lyrics"].concat(LC_PROJECTS.filter(function (p) { return p.id !== "memeprojects" && p.id !== "easyconvert"; }).map(function (p) { return "open " + lcNorm(p.name); })).concat(["open easyconvert latest"])]);
 })();
 /* The project page. props: data (the project), onBack. */
 function projectView(p, act) {

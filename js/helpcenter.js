@@ -112,7 +112,7 @@ const LC_HELP_SECTIONS = [
     "Calm mode, Flash safety and Reduce Motion are in Settings, Accessibility, Motion and seizure.",
   ]],
   ["Projects", [
-    "More, Projects has my own projects, built into Looscid: Meme Projects, Lyric Finder, Vibework, Soundvault and more. Each opens with Back and Close.",
+    "More, Projects has my own projects, built into Looscid: Memeprojects, Lyric Finder, Vibework, Soundvault and more. Each opens with Back and Close.",
     "Some say Coming soon, with a link to help me build them.",
   ]],
   ["Legal", [
@@ -172,7 +172,7 @@ const LC_MIT_NOTICES = [
   ["React and React DOM 18.2.0", "Copyright (c) Meta Platforms, Inc. and affiliates."],
   ["noble curves, noble hashes, noble ciphers and scure base (inside nostr-tools)", "Copyright (c) Paul Miller (https://paulmillr.com)."],
   ["NexOS, with its Insomnia app", "Copyright (c) 2026 Hasan (2three1y)."],
-  ["Meme Projects, Easyconvert, Lyric Finder, Soundvault, Reactor Toolbar and Code Translator", "Copyright (c) 2026 Alhasan Altameemi."],
+  ["Memeprojects, Easyconvert, Lyric Finder, Soundvault, Reactor Toolbar and Code Translator", "Copyright (c) 2026 Alhasan Altameemi."],
   ["Vibework", "Copyright (c) 2026 Vibework contributors."],
 ];
 /* Round 6.6 (Alhasan, 5:25 PM: "where is the legal button?"): the Legal page, from About Looscid's Legal button,

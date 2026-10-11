@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 11, 2026 at 4:50 PM (Eastern Time, 2026-10-11T20:50:43Z UTC)
+Released October 11, 2026 at 4:53 PM (Eastern Time, 2026-10-11T20:53:52Z UTC)
 
 Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each.
 
@@ -24,6 +24,7 @@ Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each
 - Liked: the Images only checkbox is gone. Liked has a Media tab (after Dreams) that starts with Show: Photos, GIFs and Videos, three checkboxes, all on; turn any off and Looscid says how many liked Dreams are left.
 - Back sounds (Alhasan: Liked's Back played no sound): every Back was checked. Liked, your own profile and Apps now go Back the same way Settings screens do: More opens again on the button you came from, with the same Back sound.
 - Undo words: Unredream (not Undo Redream), Unquote Dream (not Undo Quote), and Unlike / Unliked, everywhere they appear.
+- Memeprojects is one word everywhere now (Alhasan: it is Memeprojects, not Meme Projects): Apps, Projects, the Commandbar (open memeprojects; the old words still work), Find a setting, Help Center, Credits and NexOS.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 
@@ -106,9 +107,9 @@ Released October 10, 2026 (Eastern Time)
 A feature update, asked for by Alhasan: his projects built into Looscid, and Earcons.
 
 - Projects: More has a new Projects section near the end (the other sections keep their order). Press it to open it: a short description, then a button for each project. It remembers whether you left it open (dbm_more_projects_open, added to the settings backup; older backups still import).
-- Twelve projects: Meme Projects, Lyric Finder, Vibework, Soundvault, Reactor Toolbar, Code Translator, Easyconvert and MyWEB run right inside Looscid. chaoticmodel, Yapper, Alex Classic and Agentsync say plainly what they are and what is Coming soon, with no fake controls. MyWEB's Nostr feedback and Code Translator's Python are partly Coming soon too.
+- Twelve projects: Memeprojects, Lyric Finder, Vibework, Soundvault, Reactor Toolbar, Code Translator, Easyconvert and MyWEB run right inside Looscid. chaoticmodel, Yapper, Alex Classic and Agentsync say plainly what they are and what is Coming soon, with no fake controls. MyWEB's Nostr feedback and Code Translator's Python are partly Coming soon too.
 - Each project page has Back and Close (braille: "Close"), its credits and a link to its repo. Projects that are Coming soon, or partly, say "Want to help build this? Contributions welcome." with a link like "Help build chaoticmodel on GitHub". The Projects section ends with Help build Looscid on GitHub.
-- Meme Projects: after a result, Dream Results opens the Dream composer with the result filled in, and says "Dream composer filled." once. It never sends: you press Dream yourself.
+- Memeprojects: after a result, Dream Results opens the Dream composer with the result filled in, and says "Dream composer filled." once. It never sends: you press Dream yourself.
 - Commandbar: projects, open and a project's name (open lyric finder, open vibework), and lyrics and a song (lyrics imagine by john lennon). They are on the Commands page in a new Projects group.
 - Music has a Lyrics section with Open Lyric Finder. Settings, Earcons, Soundpacks has Open Soundvault to find more sound packs.
 - Sounds are now called Earcons: Settings, Earcons, with Command earcons and Keyboard earcons. Only the words changed; storage keys and backups are the same.

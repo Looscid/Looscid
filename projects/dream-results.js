@@ -1,4 +1,4 @@
-/* Dream Results (Looscid Round 6.6, Projects): after Meme Projects shows a result, a "Dream Results" button appears
+/* Dream Results (Looscid Round 6.6, Projects): after Memeprojects shows a result, a "Dream Results" button appears
    right after it. Pressing it asks Looscid to open the Dream composer with the result filled in. Nothing is sent:
    you read it, change it if you like, and press Dream yourself. Outside Looscid this file does nothing. */
 (function () {
@@ -22,7 +22,7 @@
       btn.type = "button"; btn.id = el.id + "-dream"; btn.className = "dream-results"; btn.textContent = "Dream Results"; btn.hidden = true;
       btn.addEventListener("click", function () {
         var t = text(el); if (!t) return;
-        try { LW.postMessage({ nexos: "dream", text: t, from: "Meme Projects" }, location.origin); } catch (e) {}
+        try { LW.postMessage({ nexos: "dream", text: t, from: "Memeprojects" }, location.origin); } catch (e) {}
       });
       // After the result, never inside it: the result is a live region, the button is not.
       el.parentNode.insertBefore(btn, el.nextSibling);
