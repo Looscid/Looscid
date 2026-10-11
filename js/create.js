@@ -574,7 +574,7 @@ function LcComposer(props) {
         const nm = { gif: "GIF", poll: "poll", link: "link", location: "place", mood: "mood", music: "music", schedule: "schedule" }[att.type] || "attachment";
         return lh('li', { key: i, style: {display:"flex",alignItems:"center",gap:5,background:"var(--sf2)",border:"1px solid var(--bd2)",borderRadius:100,padding:"4px 10px 4px 7px",fontSize:12} },
           lh('span', { style: {color:"var(--tx2)",maxWidth:160,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"} }, att.type === "poll" ? "Poll: " + att.question : att.type === "link" ? att.url : att.type === "location" ? att.place : att.type),
-          lh('button', { type: "button", onClick: function () { setAttachments(function (as) { return as.filter(function (_, j) { return j !== i; }); }); }, style: {background:"none",border:"none",cursor:"pointer",color:"var(--tx3)",padding:0,fontSize:14,lineHeight:1,minWidth:24,minHeight:24}, "aria-label": "Remove " + nm + " " + nth }, "\u2715"));
+          lh('button', { type: "button", onClick: function () { setAttachments(function (as) { return as.filter(function (_, j) { return j !== i; }); }); }, style: {background:"none",border:"none",cursor:"pointer",color:"var(--tx3)",padding:0,fontSize:14,lineHeight:1,minWidth:24,minHeight:24}, "aria-label": ("Remove " + nm + " " + (nth || "")).trim() }, "\u2715"));
       })),
     aiOn && attachments.some(function (a) { return a.type === "photo"; }) && lh('p', { className: "lc-desc", style: {padding:"0 16px 6px",fontSize:12} }, "Suggest alt text makes a start on this device from the photo's shape, colours and name. Cherry can't see what's in it, so check and edit it."),
     /* Link preview (Round 6.5, queue #37): a plain card, made on this device */

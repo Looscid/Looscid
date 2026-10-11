@@ -47,7 +47,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile }) {
     lh('div', { className: "lc-prof-head" },
       lh('div', { "aria-hidden": "true" }, lh(Av, { user: user, size: 72 })),
       lh('h1', { className: "lc-prof-name", tabIndex: -1 }, user.name || "Dreamor"),
-      lh('p', { className: "lc-prof-handle" }, lh('span', { className: "sr-only" }, "LooscidID "), "@" + handle),
+      lh('p', { className: "lc-prof-handle" }, lh('span', { className: "sr-only" }, "LooscidID"), " @" + handle),
       user.bio ? lh('p', { className: "lc-prof-bio" }, user.bio) : (isMe ? lh('p', { className: "lc-prof-bio lc-muted" }, "No bio yet.") : null),
       lh('p', { className: "lc-prof-stats" }, n(isMe ? mine.length : (user.dreamCount || mine.length), "Dream", "Dreams") + ", " + n(user.followers, "follower", "followers") + ", " + n(user.following, "following", "following")),
       isMe
@@ -1214,7 +1214,7 @@ function ProfileInfoList({ profile, onOpen, saved, onView }) {
     lh('ul', { className: "lid-list", 'aria-label': "Your info" },
       PROFILE_FIELDS.map(function (f) {
         return lh('li', { key: f.key },
-          lh('a', { href: "#change-" + f.key, id: "pf-link-" + f.key, className: "lid-field", 'aria-label': f.label + ", " + fieldValueText(f, profile),
+          lh('a', { href: "#change-" + f.key, id: "pf-link-" + f.key, className: "lid-field", 'aria-label': Looscid.lcNameJoin(f.label, fieldValueText(f, profile)),
               onClick: function (e) { e.preventDefault(); onOpen(f.key); } },
             lh('span', { className: "lid-field-l" }, f.label),
             lh('span', { className: "sr-pause" }, ", "),
@@ -1890,10 +1890,18 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 114; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 31;
+const LOOSCID_FIXES = 32;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.114.31", build: 145, released: LOOSCID_RELEASED, title: "Round 6.6", notes: [
+  { version: "2026.114.32", build: 146, released: LOOSCID_RELEASED, title: "Round 6.6.1", notes: [
+    "Round 6.6.1: a fix update for Earcons on iPhone, and names that ended in a comma.",
+    "Earcons no longer break up or go quiet on iPhone. The sound engine stays awake while Looscid is on screen, and every tap or key press wakes it if iPhone put it to sleep (after a lock, a call or Siri). Earcons, pitch cues and Soundpacks sound exactly the same.",
+    "Many earcons at once (fast swiping, a double-tap that opens something) no longer pile up and crackle.",
+    "Soundvault: if a sound can't load, or is slow, Looscid's own sound plays instead, never silence.",
+    "Settings, Earcons: a Test earcons button plays a short sequence and says Earcons playing. New switch: Earcons when iPhone is on silent.",
+    "Menu items no longer read with a stray comma when Verbosity is High. The position is now part of one name: Redream, 1 of 2. Tab badges and a few labels too.",
+  ] },
+  { version: "2026.114.31", build: 145, released: "2026-10-10T23:28:24Z", title: "Round 6.6", notes: [
     "Round 6.6: Projects. Alhasan's own projects are built into Looscid.",
     "More has a new Projects section, near the end: Meme Projects, Lyric Finder, Vibework, Soundvault, Reactor Toolbar, Code Translator, chaoticmodel, Yapper, Alex Classic, Easyconvert, MyWEB and Agentsync. It remembers whether you left it open.",
     "Each project opens right here, with Back and Close. Projects that need a server say Coming soon instead of showing a fake control.",
@@ -2636,9 +2644,14 @@ function AudioSettings({ navigate, page }) {
   useA11yNow();
   const cat = LC_AUDIO_CATS.find(function (c) { return c.page === page; });
   if (!cat) return lh(LcCatMenu, { id: "lc-audio-cats", title: "Earcons", navigate: navigate, cats: LC_AUDIO_CATS,
-    intro: "Looscid's sounds live here. Pitch cues are in Accessibility, Screen reader and braille, Verbosity. Sounds are short and battery-friendly: the audio engine sleeps between sounds.",
+    intro: "Looscid's sounds live here. Pitch cues are in Accessibility, Screen reader and braille, Verbosity. Sounds are short and battery-friendly: the audio engine sleeps while Looscid is in the background.",
     after: lh('div', { className: "lc-grp" },
       lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { Earcon.play("run", { test: true }); } }, "Play a test sound"),
+      // Build 146: Test earcons plays a short sequence and says whether the sound engine started.
+      lh('button', { type: "button", id: "lc-test-earcons", className: "btn bgb lc-big", onClick: function () {
+        Earcon.selfTest(); announce("Earcons playing.", "essential");
+        setTimeout(function () { const st = Earcon.state(); if (st !== "running") announce("Earcons couldn't start, the sound engine is " + st + ". Check the volume, and Earcons when iPhone is on silent, then try Test earcons again.", "essential"); }, 1500);
+      } }, "Test earcons"),
       lh(LcResetBtn, { sec: "audio" }),
       lh('p', { className: "lc-desc" }, "Quiet hours are in Settings, Alerts. Captions and the visual cue for sounds are in Accessibility, Hearing.")) });
   const evDefs = LC_SET.filter(function (d) { return d.s === "audio" && d.ev; });

@@ -1395,6 +1395,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
               "aria-expanded":sOpen ? "true" : "false",
               "aria-controls":"msec-"+s.id,
               "aria-braillelabel": Looscid.A11Y_NOW.brailleOutput ? s.label : undefined,
+              "aria-label": s.badge>0 ? lcNameJoin(s.label, s.badge + " unread") : undefined,
             },
               React.createElement('span', {style:{display:"flex",alignItems:"center",gap:7}},
                 React.createElement('span', null, s.label),
@@ -1474,6 +1475,12 @@ Looscid.LC_OK_RE = LC_OK_RE;
 Looscid.LC_ANN_AT = 0;
 // kind: "confirm" (Medium and High), "nav" or "hint" (High only); anything else is essential and always said.
 // A message that reads like a confirmation ("Profile saved.") counts as one.
+// Build 146: one accessible name from parts. Empty parts are dropped, each part is trimmed of spaces and dangling
+// commas, and the rest is joined with ", " so nothing ever reads "Block ," or has double spaces.
+function lcNameJoin() {
+  return Array.prototype.slice.call(arguments).map(function (x) { return x == null || x === false ? "" : String(x).replace(/\s+/g, " ").trim().replace(/^[,;:]\s*|\s*[,;:]$/g, "").trim(); }).filter(Boolean).join(", ");
+}
+Looscid.lcNameJoin = lcNameJoin;
 function announce(msg, kind) {
   const vb = lcVerb(), s = String(msg || "");
   const isErr = kind === "error" || (kind !== "success" && LC_ERR_RE.test(s));
@@ -1614,15 +1621,18 @@ function LcMenu(props) {
   const btnText = props.btnText != null ? props.btnText : (current ? (props.prefix || "") + current.name : (props.placeholder || "Choose"));
   const itemEl = function (it, i) {
     const radio = !action && !it.close;
+    // Build 146 (Alhasan: names read "Redream ," on VoiceOver): the note and the High-verbosity position, like "2 of 5"
+    // (Close is not counted), are joined into one name here, never as separate pieces that leave a dangling comma.
+    const counted = all.filter(function (x) { return !x.close; });
+    const pos = !it.close && lcVerb() === "high" ? (counted.indexOf(it) + 1) + " of " + counted.length : "";
+    const nm = it.close ? "Close " + menuName : (it.note || pos || it.aria ? lcNameJoin(it.aria || it.name, it.note, pos) : undefined);
     return lh('li', { key: it.id, "data-mi": "1", role: radio ? "menuitemradio" : "menuitem", "aria-checked": radio ? (it.id === value ? "true" : "false") : undefined,
         "aria-disabled": it.disabled ? "true" : undefined, tabIndex: i === active ? 0 : -1,
-        "aria-label": it.close ? "Close " + menuName : (it.aria || undefined), "aria-braillelabel": it.close ? "Close" : undefined,
+        "aria-label": nm, "aria-braillelabel": it.close ? "Close" : undefined,
         className: "lmenu-item" + (i === active ? " act" : "") + (it.close ? " lmenu-close" : "") + (it.danger ? " lmenu-danger" : "") + (props.itemClass && !it.close ? " " + props.itemClass : ""),
         onClick: function () { choose(it); }, onMouseMove: function () { if (active !== i) setActive(i); } },
       radio ? lh('span', { className: "lmenu-check", "aria-hidden": "true" }, it.id === value ? "\u2713" : "") : null,
-      lh('span', null, it.name, it.note ? lh('span', { className: "lmenu-note" }, ", " + it.note) : null,
-        // High verbosity: position, like "2 of 5" (Close is not counted).
-        !it.close && lcVerb() === "high" ? lh('span', { className: "sr-only" }, ", " + (all.filter(function (x) { return !x.close; }).indexOf(it) + 1) + " of " + all.filter(function (x) { return !x.close; }).length) : null));
+      lh('span', null, it.name, it.note ? lh('span', { className: "lmenu-note" }, ", " + it.note) : null));
   };
   // Group headings: each group is role=group, named by its heading.
   const body = [];
@@ -2293,6 +2303,9 @@ const LC_SET = [
   // Round 6.6 (Alhasan): every Commandbar command has its own short sound. Additive: no earcon or pitch cue changed.
   { k: "cmdSounds", s: "audio", l: "Command earcons", t: "bool", d: true, al: ["command sounds", "command sound", "commandbar sounds", "sounds for commands", "command earcons"],
     desc: "On by default. Each Commandbar command plays its own short sound when it runs; commands in the same area sound related. A command that fails plays the error sound. Follows the Earcons switch and the master volume, and still plays in Calm mode. Off: commands play the one run sound, as before." },
+  // Build 146: iPhone mutes web sounds on silent; this asks iOS to play Earcons anyway (off by default: it can stop music in other apps).
+  { k: "earconsOnSilent", s: "audio", l: "Earcons when iPhone is on silent", t: "bool", d: false, al: ["earcons on silent", "silent mode earcons", "play on silent", "ignore silent switch", "sounds on silent"],
+    desc: "Off by default. iPhone mutes sounds from web pages when it's on silent, so Earcons go quiet too. On: Earcons play even on silent, like VoiceOver does. Music playing in another app may stop when an earcon plays." },
   { k: "nexosBoot", s: "audio", l: "NexOS boot text", t: "bool", d: true, al: ["nexos boot text", "boot text", "boot screen", "nexos boot", "startup text"],
     desc: "With the NexOS classic Soundpack, Looscid starts with the NexOS boot text and its boot chime, once per visit. Text only, nothing flashes, and Skip or Escape ends it." },
   { k: "soundPack", s: "audio", l: "Soundpack", t: "choice", d: "looscid", al: ["sound pack", "soundpack", "sound theme", "insomnia sounds", "synth", "hyper synth", "fastsm", "fastsm inspired", "soundvault", "soundpack", "soundpacks", "sound packs", "nexos sounds", "good morning", "good night"], o: [["looscid", "Looscid", ["looscid", "default"]], ["nexos", "NexOS classic", ["nexos classic", "nexos"]], ["insomnia", "Insomnia", ["insomnia", "insomnia os", "insomnia sounds"]], ["synth", "Hyper Synth", ["hyper synth", "synth", "hyper", "synth pack"]], ["fastsm", "FastSM-inspired", ["fastsm inspired", "fastsm", "fast sm", "fastsmrw", "fastsm sounds"]], ["soundvault", "Soundvault", ["soundvault", "sound vault", "soundvault pack", "soundvault sounds"]], ["custom", "Your imported pack", ["custom", "imported", "my pack", "mine"]]] },
@@ -2722,11 +2735,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.114.31";
+const LOOSCID_VERSION = "2026.114.32";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 145;
+const LOOSCID_BUILD = 146;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-10T21:30:00Z"; // the Round 6.6 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-11T01:25:26Z"; // the Round 6.6.1 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -2845,28 +2858,92 @@ Looscid.DEVICE_PRESETS = DEVICE_PRESETS;
 /* --- Earcons: short (150 ms or less), quiet Web Audio sounds ------------- */
 // [frequency Hz, start s, length s]; every earcon ends by 0.15 s.
 const Earcon = (function () {
-  let ac = null, idle = null, cueAt = 0, capT = null, noise = null;
+  let ac = null, idle = null, cueAt = 0, capT = null, noise = null, rendering = false;
   const GESTURES = ["pointerdown", "touchend", "keydown", "click"];
-  // No audio context until the person presses something (and only if sounds are on).
-  // iOS Safari: the context is created and a silent buffer played inside the first tap.
-  function unlock() {
+  // Build 146 (Alhasan, 8:07 PM: "sounds break or don't play" on iPhone). One audio context for the whole app, made
+  // inside the first tap, and kept awake while Looscid is on screen. Before, it slept 1.5 s after every sound; on iPhone
+  // waking it again without a tap (a VoiceOver swipe is not a tap to the page) failed or clipped the start of the sound,
+  // and after iOS interrupted audio (lock, a call, Siri) it only woke on the very first tap. Now every tap wakes it if it
+  // needs waking, sounds that wait for it are dropped once stale (no pile-up), and it sleeps only in the background.
+  // Sound design unchanged: same earcons, same pitch cues, same levels.
+  const LC_UA = (navigator && navigator.userAgent) || "";
+  const LC_TOUCH_WEBKIT = /iP(hone|ad|od)/.test(LC_UA) || (/Macintosh/.test(LC_UA) && (navigator.maxTouchPoints || 0) > 1);
+  let wakeQ = [], wokeAt = 0, hiddenSlept = false, live = [];
+  function lcSession() {
+    // iPhone mutes web sounds on silent. "Earcons when iPhone is on silent" (Settings, Earcons) asks iOS to play them anyway.
+    try { if (navigator.audioSession) { const t = Looscid.A11Y_NOW.earconsOnSilent ? "playback" : "auto"; if (navigator.audioSession.type !== t) navigator.audioSession.type = t; } } catch (e) {}
+  }
+  function lcNote(s) { window.__lcAcStates = (window.__lcAcStates || []).concat([s]).slice(-30); }
+  function flush() {
+    if (!ac || ac.state !== "running") return;
+    const q = wakeQ, now = Date.now(); wakeQ = []; if (q.length) wokeAt = now;
+    q.forEach(function (w) { if (now - w.at <= 450) { try { w.fn(); } catch (e) {} } else window.__lcStale = (window.__lcStale || 0) + 1; });
+  }
+  function wake() {
+    if (!ac || ac.state === "closed") return;
+    if (ac.state === "running") { flush(); return; }
+    try { const p = ac.resume(); if (p && p.then) p.then(flush, function () {}); } catch (e) {}
+  }
+  function unlock(pack) {
     try {
       if (!ac) {
         const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+        lcSession();
         ac = new AC();
-        const b = ac.createBuffer(1, 1, 22050), s = ac.createBufferSource(); s.buffer = b; s.connect(ac.destination); s.start(0);
-      }
-      if (ac.state === "suspended") ac.resume();
+        // iOS Safari: a silent buffer played inside the first tap starts the audio hardware (made at the context's own rate).
+        const b = ac.createBuffer(1, 1, ac.sampleRate || 44100), s = ac.createBufferSource(); s.buffer = b; s.connect(ac.destination); s.start(0);
+        lcNote("made:" + ac.state + "@" + ac.sampleRate);
+        ac.onstatechange = function () { lcNote(ac.state); if (ac.state === "running") { wokeAt = Date.now(); flush(); } };
+      } else lcSession();
+      if (ac.state !== "running") wake();
+      streamPrep(pack || Looscid.A11Y_NOW.soundPack);
     } catch (e) {}
   }
+  // Every tap, click or key press wakes the context if iOS put it to sleep (interrupted or suspended). Cheap when awake.
   function onGesture() {
     if (!Looscid.A11Y_NOW.earcons || Looscid.A11Y_NOW.visualCue) return;
+    if (ac && ac.state === "running" && primedFor === Looscid.A11Y_NOW.soundPack) return;
     unlock();
-    if (ac) GESTURES.forEach(function (t) { window.removeEventListener(t, onGesture, true); });
   }
   GESTURES.forEach(function (t) { window.addEventListener(t, onGesture, true); });
-  // Battery: the context sleeps between sounds.
-  function sleepSoon() { clearTimeout(idle); idle = setTimeout(function () { try { if (ac && ac.state === "running") ac.suspend(); } catch (e) {} }, 1500); }
+  // Battery: the context sleeps while Looscid is in the background and wakes when it's back. On computers it also
+  // sleeps after a minute without sounds; on iPhone and iPad it stays awake on screen, so no sound has to wake it.
+  function sleepSoon() {
+    if (LC_TOUCH_WEBKIT) return;
+    clearTimeout(idle); idle = setTimeout(function () { try { if (ac && ac.state === "running" && !wakeQ.length) ac.suspend(); } catch (e) {} }, 60000);
+  }
+  function onVis() {
+    if (!ac) return;
+    try {
+      if (document.hidden) { if (ac.state === "running") { hiddenSlept = true; ac.suspend(); } }
+      else if (hiddenSlept || ac.state !== "running") { hiddenSlept = false; wake(); }
+    } catch (e) {}
+  }
+  document.addEventListener("visibilitychange", onVis); window.addEventListener("pageshow", onVis);
+  // One way in for every sound: plays now when the context is awake; else waits for it to wake (the newest of each kind,
+  // at most four, and only if still fresh when it wakes), so a burst never lands all at once.
+  function run(key, fn) {
+    if (!ac) return;
+    const go = function () { fn(); sleepSoon(); };
+    if (ac.state === "running") { go(); return; }
+    wakeQ = wakeQ.filter(function (w) { return w.key !== key; }); wakeQ.push({ key: key, at: Date.now(), fn: go }); if (wakeQ.length > 4) wakeQ.shift();
+    window.__lcWaits = (window.__lcWaits || 0) + 1;
+    wake();
+  }
+  // Stacking cap: a focus tick, key click or pitch cue is skipped while 4 sounds are already ringing, and anything while 8 are,
+  // so fast VoiceOver swipes and a double-tap's open, chime and cue can't pile into crackle. Single sounds are untouched.
+  function lcRoom(minor, len) {
+    if (rendering) return true;
+    const now = ac.currentTime; live = live.filter(function (x) { return x > now; });
+    if (live.length >= 8 || (minor && live.length >= 4)) { window.__lcCapped = (window.__lcCapped || 0) + 1; return false; }
+    live.push(now + len); return true;
+  }
+  function lcLen(e, opts) {
+    let m = 0.15;
+    if (e.ops) e.ops.forEach(function (o) { m = Math.max(m, (+o[2] || 0) + (+o[3] || 0) + 0.06); });
+    else if (e.notes) e.notes.forEach(function (n) { m = Math.max(m, (+n[1] || 0) + (+n[2] || 0) + 0.02); });
+    return m + (opts && opts.echo ? 0.6 : 0);
+  }
   // master -> limiter -> out, like NexOS Web's makeChain (script.js). Built once.
   let chain = null, lpNode = null;
   // Round 6 (louder): master gain x2 (+6 dB) into a brick-wall limiter (-1 dBFS ceiling, fast attack),
@@ -2886,7 +2963,9 @@ const Earcon = (function () {
     return noise;
   }
   function tone(e, vol, opts) {
-    const t0 = ac.currentTime + 0.005, out = ac.createGain(); out.gain.value = vol;
+    if (!lcRoom(opts && opts.minor, lcLen(e, opts))) return;
+    // A little lookahead so iOS never starts a sound mid-envelope (a click); a bit more right after the context wakes.
+    const t0 = ac.currentTime + (rendering ? 0.005 : (Date.now() - wokeAt < 500 ? 0.06 : 0.02)), out = ac.createGain(); out.gain.value = vol;
     const calm = !!Looscid.A11Y_NOW.calmMode;
     const dest = bus();
     // Calm mode: same beeps, just rounded off at the top (no harsh highs). Never turns waves into sines.
@@ -2990,14 +3069,64 @@ const Earcon = (function () {
   // opts: { test: play even when sounds are off; pack: preview another pack }
   // Round 6.6: a streamed sound (the Soundvault Soundpack). An <audio> element, so the file needs no special server
   // headers; the master volume sets its level. If it can't load (offline), the Looscid sound plays instead.
-  const streamEls = {};
+  // Build 146: decoded once through the one context when the host allows it (cached for the session); else an <audio>
+  // element per sound, primed inside a tap so iPhone lets it play later. Never silence: if a sound fails, is blocked, or
+  // hasn't started within a quarter second, Looscid's own sound for that event plays instead (a failed one retries after a minute).
+  const streamEls = {}, streamBad = {}, streamBufs = {};
+  let primedFor = null;
+  function streamFallback(url, vol, e, why) {
+    window.__lcFallbacks = (window.__lcFallbacks || []).concat([url.split("/").pop() + ":" + why]).slice(-40);
+    try { tone(e, vol, {}); } catch (x) {}
+  }
+  function streamGet(url) {
+    let el = streamEls[url];
+    if (!el) {
+      el = new Audio(); el.preload = "auto";
+      el.addEventListener("error", function () { streamBad[url] = Date.now(); });
+      el.addEventListener("canplaythrough", function () { delete streamBad[url]; });
+      el.addEventListener("playing", function () { if (!el.muted) window.__lcStreamPlays = (window.__lcStreamPlays || 0) + 1; });
+      el.src = url; streamEls[url] = el; try { el.load(); } catch (x) {}
+    }
+    if (ac && window.fetch && streamBufs[url] === undefined) {
+      streamBufs[url] = "loading";
+      fetch(url, { mode: "cors", credentials: "omit" }).then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.arrayBuffer(); })
+        .then(function (d) { return new Promise(function (res, rej) { const p = ac.decodeAudioData(d, res, rej); if (p && p.catch) p.catch(function () {}); }); })
+        .then(function (b) { streamBufs[url] = b; }, function () { streamBufs[url] = null; });
+    }
+    return el;
+  }
+  function streamPrep(pack) {
+    const P = LC_PACKS[pack]; if (!P || !P.stream || primedFor === pack) return;
+    primedFor = pack;
+    Object.keys(P.stream).forEach(function (k) {
+      const url = P.stream[k][1], el = streamGet(url); if (el._lcPrimed) return; el._lcPrimed = true;
+      try { el._lcPriming = true; el.muted = true; const pr = el.play();
+        const done = function () { if (!el._lcPriming) return; el._lcPriming = false; try { el.pause(); el.currentTime = 0; } catch (x) {} el.muted = false; };
+        if (pr && pr.then) pr.then(done, function () { if (el._lcPriming) { el._lcPriming = false; el.muted = false; } }); else done(); } catch (x) { el._lcPriming = false; el.muted = false; }
+    });
+  }
   function streamPlay(url, vol, e) {
+    window.__lcStreams = (window.__lcStreams || []).concat([url.split("/").pop()]).slice(-40);
+    const b = streamBufs[url];
+    if (b && b !== "loading") { const s = ac.createBufferSource(), g = ac.createGain(); s.buffer = b; g.gain.value = Math.max(0, Math.min(1, vol / 1.6)) / LC_MASTER_GAIN; s.connect(g); g.connect(bus()); s.start(ac.currentTime + 0.02); s.stop(ac.currentTime + 0.02 + Math.min(b.duration, 3)); return; }
+    let el;
+    try { el = streamGet(url); } catch (x) { return streamFallback(url, vol, e, "error"); }
+    if (streamBad[url]) {
+      if (Date.now() - streamBad[url] < 60000) return streamFallback(url, vol, e, "failed");
+      delete streamBad[url]; try { el.src = url; el.load(); } catch (x) {}
+    }
+    if (el.networkState === 3 && el.readyState === 0) { streamBad[url] = Date.now(); return streamFallback(url, vol, e, "no source"); }
     try {
-      let el = streamEls[url]; if (!el) { el = new Audio(); el.preload = "auto"; el.src = url; streamEls[url] = el; }
-      el.volume = Math.max(0, Math.min(1, vol / 1.6)); el.currentTime = 0;
-      const pr = el.play(); if (pr && pr.catch) pr.catch(function () { try { tone(e, vol, {}); } catch (x) {} });
-      window.__lcStreams = (window.__lcStreams || []).concat([url.split("/").pop()]).slice(-40);
-    } catch (x) { try { tone(e, vol, {}); } catch (y) {} }
+      el._lcPriming = false; el.muted = false; el.volume = Math.max(0, Math.min(1, vol / 1.6));
+      let started = false, settled = false;
+      const onP = function () { started = true; };
+      el.addEventListener("playing", onP);
+      try { el.currentTime = 0; } catch (x) {}
+      const giveUp = function (why) { if (settled) return; settled = true; el.removeEventListener("playing", onP); try { el.pause(); } catch (x) {} streamFallback(url, vol, e, why); };
+      const pr = el.play();
+      if (pr && pr.then) pr.then(function () { started = true; }, function () { giveUp("blocked"); });
+      setTimeout(function () { if (settled) return; if (started) { settled = true; el.removeEventListener("playing", onP); } else giveUp("slow"); }, 250);
+    } catch (x) { streamFallback(url, vol, e, "error"); }
   }
   function play(name, opts) {
     const s = soundFor(name, opts && opts.pack); if (!s) return;
@@ -3009,7 +3138,7 @@ const Earcon = (function () {
     if (!test && (name === "send" || name === "like" || name === "error" || name === "alerts")) lcBuzz(name);
     if (a.visualCue) { if (name === "focus" || name === "link") return; if (a.flashSafety) caption("[" + e.label + "]"); else { cue(); if (a.captions) caption("[" + e.label + "]"); } return; }
     if (!a.earcons && !test) return;
-    if (test) unlock();
+    if (test) unlock(opts && opts.pack);
     if (!ac) return; // nothing pressed yet: stay silent
     // Loud and classic: NexOS Web's level curve (volume / 100 x 1.6) into the limiter. Calm mode is a bit softer.
     const vol = lcLevel(a) * (s.gain || 1);
@@ -3019,11 +3148,10 @@ const Earcon = (function () {
       try {
         if (usePack === "custom") { const b = customBuffer(name); if (b && b !== "loading") playBuf(b, vol); else if (!b) tone(e, vol, { steady: name === "feedSwitch", free: name === "link" }); }
         else if (s.url) streamPlay(s.url, vol, e);
-        else tone(e, vol, { echo: s.echo, steady: name === "feedSwitch", free: name === "link" });
+        else tone(e, vol, { echo: s.echo, steady: name === "feedSwitch", free: name === "link", minor: name === "focus" || name === "link" });
       } catch (er) {}
-      sleepSoon();
     };
-    if (ac.state === "suspended") ac.resume().then(go, function () {}); else go();
+    run("e:" + name, go);
     if (a.captions && name !== "focus" && name !== "link") caption("[" + e.label + " sound]");
   }
   // Keyboard clicks (Settings, Sounds): one short noise tick, same pitch every time. Master Earcons switch,
@@ -3056,8 +3184,8 @@ const Earcon = (function () {
     const vol = lcLevel(a);
     if (vol <= 0) return true;
     const g = n.wave === "square" || n.wave === "sawtooth" ? 0.09 : 0.18;
-    const go = function () { try { tone({ label: "Command", ops: [LcT(n.f1, 0, 0.06, n.wave, g, 0), LcT(n.f2, 0.065, 0.08, n.wave, g, 0)] }, vol * 0.7, { free: true }); } catch (e) {} sleepSoon(); };
-    if (ac.state === "suspended") ac.resume().then(go, function () {}); else go();
+    const go = function () { try { tone({ label: "Command", ops: [LcT(n.f1, 0, 0.06, n.wave, g, 0), LcT(n.f2, 0.065, 0.08, n.wave, g, 0)] }, vol * 0.7, { free: true }); } catch (e) {} };
+    run("cmd", go);
     return true;
   }
   function key(opts) {
@@ -3077,8 +3205,8 @@ const Earcon = (function () {
     const packSpecial = kk && KP && KP.sounds[kk], special = kind && (packSpecial || LC_KEY_KINDS[kind]);
     if (kind) window.__lcKeyKinds = (window.__lcKeyKinds || []).concat([kind]).slice(-60);
     window.__lcKeyPacks = (window.__lcKeyPacks || []).concat([(packSpecial || (!kind && pk)) ? a.soundPack : "looscid"]).slice(-60);
-    const go = function () { try { if (special) tone(special, vol * 0.5 * (packSpecial ? (KP.gain || 1) : 1), { steady: true }); else if (pk) tone(pk, vol * 0.5 * (LC_PACKS[a.soundPack].gain || 1), { steady: true, echo: false }); else tone({ label: "Key", ops: [["n", 3200, 0, 0.012, 0.5, 1.4, 0]] }, vol * 0.5, { steady: true }); } catch (e) {} sleepSoon(); };
-    if (ac.state === "suspended") ac.resume().then(go, function () {}); else go();
+    const go = function () { try { if (special) tone(special, vol * 0.5 * (packSpecial ? (KP.gain || 1) : 1), { steady: true, minor: true }); else if (pk) tone(pk, vol * 0.5 * (LC_PACKS[a.soundPack].gain || 1), { steady: true, echo: false, minor: true }); else tone({ label: "Key", ops: [["n", 3200, 0, 0.012, 0.5, 1.4, 0]] }, vol * 0.5, { steady: true, minor: true }); } catch (e) {} };
+    run("key", go);
   }
   // Pitch cues (Settings, Accessibility, Screen reader and braille, Verbosity): one very short tone whose
   // pitch says what kind of thing this is. f2 slides (open rises, close falls, on up, off down).
@@ -3093,8 +3221,8 @@ const Earcon = (function () {
     const vol = lcLevel(a);
     if (vol <= 0) return true;
     const wave = kind === "heading" ? "triangle" : kind === "field" ? "square" : "sine";
-    const go = function () { try { tone({ label: "Pitch cue", ops: [LcT(f, 0, f2 ? 0.07 : 0.04, wave, 0.16, f2 || 0)] }, vol * 0.6, { free: true }); } catch (e) {} sleepSoon(); };
-    if (ac.state === "suspended") ac.resume().then(go, function () {}); else go();
+    const go = function () { try { tone({ label: "Pitch cue", ops: [LcT(f, 0, f2 ? 0.07 : 0.04, wave, 0.16, f2 || 0)] }, vol * 0.6, { free: true, minor: true }); } catch (e) {} };
+    run("cue:" + kind, go);
     return true;
   }
 
@@ -3102,17 +3230,27 @@ const Earcon = (function () {
   function _render(kind, name) {
     const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext; if (!OAC) return null;
     const saved = [ac, chain, lpNode, noise], off = new OAC(1, 44100 * 1.5, 44100);
-    ac = off; chain = null; lpNode = null; noise = null;
+    ac = off; chain = null; lpNode = null; noise = null; rendering = true;
     try {
       const a = Looscid.A11Y_NOW;
       const vol = lcLevel(a);
       if (kind === "earcon") { const s = soundFor(name); tone(s.e, vol * (s.gain || 1), { echo: s.echo, steady: name === "feedSwitch", free: name === "link" }); }
       else if (kind === "key") tone({ label: "Key", ops: [["n", 3200, 0, 0.012, 0.5, 1.4, 0]] }, vol * 0.5, { steady: true });
       else tone({ label: "Pitch cue", ops: [LcT(+name || 880, 0, 0.04, "sine", 0.16, 0)] }, vol * 0.6, { free: true });
-    } finally { ac = saved[0]; chain = saved[1]; lpNode = saved[2]; noise = saved[3]; }
+    } finally { ac = saved[0]; chain = saved[1]; lpNode = saved[2]; noise = saved[3]; rendering = false; }
     return off.startRendering().then(function (buf) { const d = buf.getChannelData(0); let pk = 0, ss = 0, n = 0; for (let i = 0; i < d.length; i++) { const v = Math.abs(d[i]); if (v > pk) pk = v; if (v > 1e-4) { ss += d[i] * d[i]; n++; } } return { peak: pk, rms: n ? Math.sqrt(ss / n) : 0 }; });
   }
-  return { play: play, unlock: unlock, key: key, cue: pcue, cmd: cmd, cmdNotes: cmdNotes, _render: _render, _ctx: function () { return ac; }, soundFor: soundFor };
+  // Build 146: Settings, Earcons, Test earcons. A short sequence through the same path every earcon takes.
+  function selfTest() {
+    unlock();
+    const steps = [function () { play("open", { test: true }); }, function () { play("send", { test: true }); }, function () { play("like", { test: true }); },
+      function () { key({ test: true, kind: "enter" }); }, function () { cmd("help", "Commandbar", { test: true }); }, function () { play("alerts", { test: true }); }];
+    steps.forEach(function (f, i) { setTimeout(f, i * 320); });
+    window.__lcSelfTests = (window.__lcSelfTests || 0) + 1;
+    return steps.length;
+  }
+  return { play: play, unlock: unlock, key: key, cue: pcue, cmd: cmd, cmdNotes: cmdNotes, _render: _render, _ctx: function () { return ac; }, soundFor: soundFor,
+    selfTest: selfTest, state: function () { return ac ? ac.state : "not started"; }, _wake: wake };
 })();
 Looscid.Earcon = Earcon;
 /* Pitch cues: which kind of thing got focus, and its pitch. Each kind has its own switch in Verbosity. */
@@ -4351,7 +4489,7 @@ function lcBrIntent(raw) {
 }
 // Settings > Sounds (was Audio; storage keys and page ids unchanged). Pitch cues live in Verbosity.
 const LC_AUDIO_CATS = [
-  { id: "volume", page: "settings_audio_volume", l: "Volume, focus, keyboard and command earcons", sub: "Earcons on or off, master volume, a sound on every swipe, a click per key, a sound per command", keys: ["earcons", "earconVolume", "earconFocus", "keyClicks", "cmdSounds"] },
+  { id: "volume", page: "settings_audio_volume", l: "Volume, focus, keyboard and command earcons", sub: "Earcons on or off, master volume, a sound on every swipe, a click per key, a sound per command", keys: ["earcons", "earconVolume", "earconFocus", "keyClicks", "cmdSounds", "earconsOnSilent"] },
   { id: "pack", page: "settings_audio_pack", l: "Soundpacks", sub: "Looscid, NexOS classic, Insomnia, Hyper Synth, FastSM-inspired, Soundvault or your own", keys: ["soundPack", "nexosBoot"] },
   { id: "events", page: "settings_audio_events", l: "Event sounds", sub: "Send, like, new Dream, error, alert, feed switch, with previews", keys: ["ev_send", "ev_like", "ev_newDream", "ev_error", "ev_alert", "ev_feed"] },
   { id: "haptics", page: "settings_audio_haptics", l: "Music and haptics", sub: "Ducking, haptics", keys: ["ducking", "haptics"] },

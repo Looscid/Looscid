@@ -2,6 +2,23 @@
 
 Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.114.32 (146): Round 6.6.1
+
+Released October 10, 2026 at 9:25 PM (Eastern Time, 2026-10-11T01:25:26Z UTC)
+
+A fix update, asked for by Alhasan: Earcons broke up or didn't play on his iPhone, and names read with a stray comma, like "Block ,".
+
+- Earcons on iPhone: the one sound engine now stays awake while Looscid is on screen. Before, it went to sleep 1.5 seconds after every sound, and on iPhone waking it again without a tap (a VoiceOver swipe isn't a tap to the page) failed or cut off the start of the sound.
+- After iPhone pauses audio (screen lock, a call, Siri, another app), every tap, click or key press wakes the engine again, not only the very first tap. It still sleeps while Looscid is in the background, for the battery.
+- Sounds that wait for the engine to wake play once each when it's back, and only if they're still fresh: no heap of late sounds. A little lookahead stops a sound starting mid-envelope with a click.
+- Many earcons at once (fast swiping with the earcon on every swipe, a double-tap that opens something) no longer pile up into crackle: a focus tick, key click or pitch cue is skipped while 4 sounds are already ringing, anything while 8 are.
+- Soundvault: each sound is fetched and decoded once when its host allows it. Otherwise it plays through an audio element that's readied inside a tap so iPhone lets it play later. If a sound fails, is blocked or hasn't started within a quarter second, Looscid's own sound for that event plays instead, never silence; a failed one is retried after a minute.
+- Settings, Earcons: Test earcons plays a short sequence (open, send, like, the Enter key, a command, an alert) and says "Earcons playing." If the engine can't start, it says so.
+- New switch in Settings, Earcons: Earcons when iPhone is on silent (off by default). iPhone mutes sounds from web pages on silent; on, Earcons play anyway. Music playing in another app may stop when an earcon plays.
+- Every earcon, pitch cue and Soundpack sounds the same as before, at the same levels. Calm mode still never mutes them.
+- Names with a stray comma: at High verbosity, menu items (Dream options, Redream or Quote, Send Feedback) read like "Redream , 1 of 2", because the position was a separate hidden piece. Now it's one name: "Redream, 1 of 2". The same fix for the unread count on the Alerts tabs and More sections, the counts on Cherry's history tabs, LooscidID on profiles, your profile info links, Messages, and Discover's trends.
+- A shared helper, lcNameJoin, builds names from parts: empty parts are dropped and no part leaves a dangling comma or double space.
+
 ## Looscid 2026.114.31 (145): Round 6.6
 
 Released October 10, 2026 (Eastern Time)

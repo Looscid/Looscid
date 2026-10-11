@@ -97,7 +97,7 @@ function discoverView(st, p, draw) {
         lcIconEl("Chv", { style: { width: 14, height: 14, color: "var(--ac3)" } })),
 
       (tab === "trending" || (tab === "all" && !q)) && TRENDING.map(function (t) {
-        return h('div', { key: t.tag, className: "trtg", role: "button", tabIndex: 0, onClick: function () { st.q = "#" + t.tag; st.tab = "dreams"; draw(); }, "aria-label": "#" + t.tag + ", " + t.cat + ", " + t.count },
+        return h('div', { key: t.tag, className: "trtg", role: "button", tabIndex: 0, onClick: function () { st.q = "#" + t.tag; st.tab = "dreams"; draw(); }, "aria-label": Looscid.lcNameJoin("#" + t.tag, t.cat, t.count) },
           h('div', null,
             h('div', { style: { fontSize: 11, color: "var(--tx3)" } }, t.cat, " \u00b7 Trending"),
             h('div', { style: { fontSize: 14, fontWeight: 700, margin: "2px 0" } }, "#", t.tag),
@@ -118,7 +118,7 @@ function discoverView(st, p, draw) {
       }),
 
       (tab === "dreams" || tab === "all") && dreamResults.map(function (d) {
-        return h('div', { key: d.id, style: { borderBottom: "1px solid var(--bd)", padding: "11px 14px" }, "aria-label": "Dream by " + d.user.name + ", " + d.text.replace(/\n/g, " ").slice(0, 80) },
+        return h('div', { key: d.id, style: { borderBottom: "1px solid var(--bd)", padding: "11px 14px" }, "aria-label": Looscid.lcNameJoin("Dream by " + d.user.name, String(d.text || "").replace(/\n/g, " ").slice(0, 80)) },
           h('div', { style: { display: "flex", gap: 8, alignItems: "center", marginBottom: 4 } },
             lcAvEl(d.user, 28),
             h('span', { style: { fontWeight: 700, fontSize: 13 } }, d.user.name),

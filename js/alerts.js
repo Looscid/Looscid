@@ -96,7 +96,8 @@ function alertsView(st, draw) {
       ALERT_VIEWS.map(function (v) {
         const on = view === v[0];
         return h('button', { key: v[0], id: "alerts-tab-" + v[0], type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false",
-            "aria-controls": "alerts-panel-" + v[0], tabIndex: on ? 0 : -1, onClick: function () { lcSetAlertsTab(v[0]); } },
+            "aria-controls": "alerts-panel-" + v[0], tabIndex: on ? 0 : -1, onClick: function () { lcSetAlertsTab(v[0]); },
+            "aria-label": v[2] > 0 ? Looscid.lcNameJoin(v[1], v[2] + " unread") : undefined },
           v[1], v[2] > 0 ? h('span', { className: "lc-alert-badge" }, h('span', { className: "sr-only" }, ", "), v[2], h('span', { className: "sr-only" }, " unread")) : null);
       })),
 
@@ -111,7 +112,7 @@ function alertsView(st, draw) {
         ? h('div', { className: "es", style: { paddingTop: 24, paddingBottom: 24 } }, h('div', { className: "esl" }, "No messages yet"))
         : filteredMsgs.map(function (c) {
             return h('div', { key: c.id, className: "ci", onClick: function () { st.convo = { convo: c, msgs: c.msgs || [], inp: "", shown: new Set(), scroll: true }; draw(); },
-                role: "button", tabIndex: 0, "aria-label": c.user.name + (c.unread > 0 ? ", " + c.unread + " unread" : "") + ". " + c.preview },
+                role: "button", tabIndex: 0, "aria-label": Looscid.lcNameJoin(c.user.name, c.unread > 0 ? c.unread + " unread" : "") + (String(c.preview || "").trim() ? ". " + String(c.preview).trim() : "") },
               h('div', { style: { position: "relative" } },
                 lcAvEl(c.user, 46),
                 c.unread > 0 && h('div', { style: { position: "absolute", bottom: 0, right: 0, width: 11, height: 11, borderRadius: "50%", background: "var(--gr)", border: "2px solid var(--bg)" }, "aria-hidden": "true" })),
