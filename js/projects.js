@@ -35,20 +35,20 @@ const LC_PROJECTS = [
     words: ["code translator", "codetranslator", "code runner"] },
   { id: "chaoticmodel", help: true, name: "chaoticmodel", repo: "chaoticmodel", kind: "info",
     sub: "A chaotic little model with three voices: Static, Null and Seg. Coming soon",
-    about: ["A language model with a real character, built to be fun first: it has opinions, it roasts you back, and it never sounds like a help desk. One model, three voices, Static, Null and Seg, and who answers depends on the vibe of your message, or you ask for one by name."],
-    soon: ["Talking to chaoticmodel is coming soon. It needs the trained model running somewhere, and Looscid has no server of its own. When it can run on your device, it can come here, maybe as a voice for Cherry."],
+    about: ["I'm building a language model with a real character, fun first: it has opinions, it roasts you back, and it never sounds like a help desk. One model, three voices, Static, Null and Seg, and who answers depends on the vibe of your message, or you ask for one by name."],
+    soon: ["Talking to chaoticmodel is coming soon. It needs the trained model running somewhere, and Looscid has no server of its own. When it can run on your device, I'll bring it here, maybe as a voice for Cherry."],
     words: ["chaoticmodel", "chaotic model", "chaotic"] },
   { id: "yapper", help: true, lic: "Alhasan's own code", name: "Yapper", repo: "yapper-site", kind: "info",
     sub: "Yapper, the social app by MystyDev, and its website. Android download; more coming soon",
     about: ["Yapper is a social app made by MystyDev, a place to express yourself away from AI-generated, political and brainrot content. It's free. Right now it's on Android only, and it's not on the Google Play Store: you download it from its GitHub releases."],
     links: [["Download Yapper for Android (APK, from GitHub)", "https://github.com/MysteryNBS/mysty-social-public/releases/latest/download/Yapper.apk"]],
-    soon: ["Yapper on iPhone and on the web is coming soon. The website itself is a Vite app, so Looscid shows its facts here instead of a copy of the page."],
-    by: "The Yapper website, by Alhasan (2three1y) for Yapper. Yapper is made by MystyDev.",
+    soon: ["Yapper on iPhone and on the web is coming soon. The website itself is a Vite app, so I show its facts here instead of a copy of the page."],
+    by: "I made the Yapper website for Yapper. Yapper itself is made by MystyDev.",
     words: ["yapper", "yapper site", "yapperweb", "yapper-site"] },
   { id: "alexclassic", help: true, name: "Alex Classic", repo: "alexclassic", kind: "info",
     sub: "Bringing back Alex, the Mac OS X Leopard voice, as an offline voice engine. Coming soon",
-    about: ["A preservation project for Alex, the voice that shipped with Mac OS X 10.5 Leopard. The plan: catalog its wavetables, study its formants, pitch, timing and breaths, and rebuild it as an offline voice engine that blind developers and listeners can inspect, so it can't change underneath you."],
-    soon: ["There's no code to run yet: the repository is the plan. When the engine exists, Looscid could offer Alex for read aloud. Coming soon."],
+    about: ["My preservation project for Alex, the voice that shipped with Mac OS X 10.5 Leopard. My plan: catalog its wavetables, study its formants, pitch, timing and breaths, and rebuild it as an offline voice engine that blind developers and listeners can inspect, so it can't change underneath you."],
+    soon: ["There's no code to run yet: the repository is the plan. When the engine exists, I'd like Looscid to offer Alex for read aloud. Coming soon."],
     words: ["alex classic", "alexclassic", "alex"] },
   { id: "easyconvert", name: "Easyconvert", repo: "Easyconvert", kind: "app", url: "projects/easyconvert/",
     sub: "The newest Easyconvert: read your Claude export, and convert files to Word, PDF, HTML, Markdown, TXT, JSON or CSV. Nothing is uploaded",
@@ -58,7 +58,7 @@ const LC_PROJECTS = [
     words: ["myweb", "my web", "dns", "tunneling console"] },
   { id: "agentsync", help: true, lic: "Alhasan's own code", name: "Agentsync", repo: "Agentsync", kind: "info",
     sub: "A hub for local-first agent orchestration. Coming soon",
-    about: ["Agentsync is a hub for running your own agents on your own machine: a messaging bus between them, a connector controller, memory, and a token vault that keeps keys encrypted on your device. No cloud in the middle."],
+    about: ["I'm building Agentsync as a hub for running your own agents on your own machine: a messaging bus between them, a connector controller, memory, and a token vault that keeps keys encrypted on your device. No cloud in the middle."],
     soon: ["The hub runs next to your agents, and its page is a landing page for now, so there is nothing to run inside Looscid yet. Coming soon. Ideas from it may land in Cherry first."],
     words: ["agentsync", "agent sync", "agents"] },
 ];
@@ -104,7 +104,7 @@ function lcProjectIntent(raw) {
 /* The Commands page and help: one command per project, plus projects and lyrics. */
 (function () {
   const C = Looscid.LC_COMMANDS; if (!C) return;
-  C.push(["projects", "Alhasan's projects, in More: Meme Projects, Lyric Finder, Vibework, Soundvault and more"]);
+  C.push(["projects", "My projects, in More: Meme Projects, Lyric Finder, Vibework, Soundvault and more"]);
   C.push(["open meme projects", "Meme Projects, a project (also in Apps): after a result, Dream Results fills the Dream composer"]);
   C.push(["soundvault", "switch to the Soundvault Soundpack (open soundvault opens the project)"]);
   C.push(["lyrics", "lyrics and a song, like lyrics imagine by john lennon: opens Lyric Finder and searches"]);
@@ -140,7 +140,7 @@ function projectView(p, act) {
         h('p', { className: "lc-desc" }, "Want to help build this? Contributions welcome."),
         h('p', { className: "lc-desc" }, h('a', { href: pr.gh, target: "_blank", rel: "noopener noreferrer", className: "lc-help-link" }, "Help build " + pr.name + " on GitHub"))] : null,
       h('h2', { className: "lc-sub-h" }, "Credits"),
-      h('p', { className: "lc-desc" }, (pr.by || pr.name + ", by Alhasan (2three1y).") + " " + (pr.lic ? pr.lic + "." : "MIT License.") + " Full credits are in More, About, Credits and open source."),
+      h('p', { className: "lc-desc" }, (pr.by || "I made " + pr.name + ".") + " " + (pr.lic ? pr.lic + "." : "MIT License.") + " Full credits are in More, About, Credits and open source."),
       h('p', { className: "lc-desc" }, h('a', { href: pr.gh, target: "_blank", rel: "noopener noreferrer" }, pr.name + " on GitHub"))));
 }
 const ProjectPage = lcPlainScreen("ProjectPage", function (host, props) {

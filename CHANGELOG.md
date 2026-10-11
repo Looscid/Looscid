@@ -2,6 +2,30 @@
 
 Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.115.32 (147): Round 6.7
+
+Released October 10, 2026 at 10:44 PM (Eastern Time, 2026-10-11T02:44:37Z UTC)
+
+A feature update, asked for by Alhasan: his profile page, rebuilt, and "liking is saving".
+
+- Profiles are recreated from Feditext's profile (Feditext by Metabolist, GPL-3.0). Only its layout, order and controls are used; no Feditext code. In Feditext's order: the avatar, the buttons (Direct message, which says unavailable because Looscid has no direct messages to start yet, and Follow or Following; on your own profile, Edit profile), your name, your LooscidID with Follows you, Muted or Blocked, your Dreams count and Joined date, a private note, fields (website and links), bio, then Following and Followers buttons that open their own pages (Back returns to the button), then the tabs: Dreams, Dreams & Replies, Redreams and Media.
+- Alhasan's own asks sit where Feditext's closest part is: a private Liked tab on your own profile, an About tab, Mutual likes on other people's profiles, and a More button at the top.
+- More at the top of a profile is Feditext's profile menu as a button that expands in place (aria-expanded; Escape closes it and puts focus back on More; it remembers whether you left it open). Other people: Share, Hide Redreams or Show Redreams (when you follow them), Add note or Edit note, Mute or Unmute, Block or Unblock, and Report, which says unavailable because Looscid has nowhere to send reports yet. Yours: Share and Edit profile.
+- Edit profile, on the profile and in its More, opens the same LooscidID editor as Settings, LooscidID: same fields, same save, same "Profile saved".
+- Liking is saving: one store and one name, Liked (dbm_liked). The old Save in Dream options and on the Replies page is gone; Like is the one toggle. Every Dream you saved or liked before is in Liked, so nothing is lost. A like shows everywhere at once and stays after a reload. Your plain Redreams are kept on this device too, so the Redreams tab can show them.
+- The Liked tab on your profile follows Alhasan's spec sheet: tabs Dreams, Circles, Apps, Marketplace, Chats and Searches, with Images only as a filter, not a tab. Every panel is in the page, shown or hidden, and labelled by its tab. A Dream you unlike there stays in the list until you leave, so focus doesn't jump. Cherry's chats show in Chats only while Cherry is on (Looscid has no Show Cherry setting). Marketplace isn't open yet, and the Liked page says so.
+- Settings, Privacy, Liked tab: a Show on my profile box for each Liked tab, all off. "Even when off, people can see your likes on their own Dreams." With every box off, a visitor sees a Dream you liked only if they wrote it or liked it too; anyone else sees nothing. Each box you turn on shows that part to everyone.
+- Other people's profiles: Mutual likes (Dreams you both liked), and their Liked tab only for what they made public or what the same rule lets you see. When their likes aren't public, it says so.
+- About tab: About this account, like X's: your LooscidID with Copy LooscidID, Date joined (when your LooscidID was made), Account based in only if you set one, your connected Logins, your Nostr public key with a Copy button, and Verified only if true. Nothing is guessed, and an empty field is left out.
+- The Redreams tab has a radio group, Show: Quotes only, Redreams only or Both (the default). It filters in place, says the count, keeps focus on the radio and remembers your choice.
+- A Dream that tags you has Remove me from this Dream in its options: the mention stops being a link to you on this device, a line says "You removed yourself from this Dream.", and Add me back to this Dream undoes it (dbm_untagged).
+- More has View your profile near the top.
+- At High verbosity a profile tab says its position in one name, like "Dreams, 1 of 6".
+- Projects, About Looscid and Help now speak in Alhasan's own voice: "My own projects", "I'm Alhasan, a blind developer".
+- One link per place: the Projects section no longer repeats the GitHub link that's in Social, and Credits shows a planned project's repository link only once.
+- Legal and Credits: "Profile design recreated from Feditext by Metabolist (GPL-3.0); no Feditext code is used."
+- The settings backup adds dbm_profile_more_open, dbm_profile_rd_show and dbm_liked_public (the Liked tab switches) at the end. Older backups still import. What you liked stays on this device and isn't in the settings backup, like your Dreams.
+
 ## Looscid 2026.114.32 (146): Round 6.6.1
 
 Released October 10, 2026 at 9:25 PM (Eastern Time, 2026-10-11T01:25:26Z UTC)

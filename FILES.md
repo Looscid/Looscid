@@ -22,6 +22,7 @@ Looscid has no build step. The browser loads plain files in a fixed order: no mo
 | `js/commands.js` | The Commands page (Round 6.5.3): every Commandbar command grouped by area, each a button that runs it through Commandbar's own runner. **Plain JavaScript.** The commands themselves (`LC_COMMANDS`, `LC_EXACT`, `lcRun`) stay in `js/core.js`. |
 | `js/projects.js` | Projects (Round 6.6): Alhasan's own projects (`LC_PROJECTS`), the project page with Back and Close, the Commandbar words (projects, open and a project, lyrics and a song) and Dream Results from Meme Projects. **Plain JavaScript.** |
 | `js/helpcenter.js` | Help (Round 6.6): `help` (the top commands), an area and `help` (cherry help), `help list`, `new dream`, and the Help Center page. **Plain JavaScript.** |
+| `js/liked.js` | Liked (build 147): `LikedView`, one component for everything you like (Dreams, Circles, Apps, Marketplace, Chats, Searches, with an Images filter), used by your profile's Liked tab. Its store, `dbm_liked`, is in `js/core.js`. Still React, like the profile. |
 | `projects/` | The ported projects, one folder each with its own `LICENSE`, plus `dream-results.js` (the Dream Results button inside Meme Projects). |
 | `nexos/` | NexOS and its apps, unchanged (Meme Projects also loads `projects/dream-results.js`). |
 
@@ -35,7 +36,8 @@ Looscid has no build step. The browser loads plain files in a fixed order: no mo
 6. `js/commands.js` (Round 6.5.3: new, right after `js/cherry.js`; the frame shows its page with `case "commands"` in `js/core.js`)
 7. `js/projects.js` (Round 6.6: new, right after `js/commands.js`; the frame shows a project with `case "project"` in `js/core.js`)
 8. `js/helpcenter.js` (Round 6.6: new, right after `js/projects.js`; the frame shows its page with `case "helpcenter"` in `js/core.js`)
-9. The mount: a short inline script at the end of `index.html` that starts the app.
+9. `js/liked.js` (build 147: new, right after `js/helpcenter.js`; the profile's Liked tab renders `Looscid.LikedView`)
+10. The mount: a short inline script at the end of `index.html` that starts the app.
 
 ## One namespace
 

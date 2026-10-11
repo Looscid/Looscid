@@ -6,81 +6,266 @@ Object.assign(Looscid, { CreditsPage, ProfileView, ProfilePage, DreamorProfilePa
 
 /* --- PROFILE (OWN) ----------------------- */
 
-/* --- Profile (one view for you and for other Dreamors) ---------------------- */
-function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile }) {
+/* --- Profile (one view for you and for other Dreamors) ----------------------
+   Build 147 (Alhasan, Oct 10 2026): the profile is recreated from Feditext's profile (Feditext by Metabolist,
+   GPL-3.0; no Feditext code is used, only its layout, order and controls), written fresh for Looscid.
+   Feditext's order: avatar, the relationship buttons (Direct message, Follow / Following), the name, @handle with
+   "Follows you" / "Muted" / "Blocked", "N Dreams • Joined", a private note, fields, bio, the Following and
+   Followers count buttons (each opens its own list page) and the tab row (Dreams, Dreams & Replies, Redreams,
+   Media). Its top menu (Share, Hide/Show Redreams, Add/Edit note, Mute, Block, Report) is a More button that
+   expands inline. Alhasan's own asks sit where Feditext's closest part is: Edit profile (the same LooscidID editor
+   as Settings), a private Liked tab on your own profile, an About tab, and Mutual likes on other people's. */
+const LC_PROFILE_MORE_KEY = "dbm_profile_more_open", LC_PROFILE_RD_KEY = "dbm_profile_rd_show", LC_LIKED_PUBLIC_KEY = "dbm_liked_public";
+function lcProfileMoreOpen() { try { return localStorage.getItem(LC_PROFILE_MORE_KEY) === "1"; } catch (e) { return false; } }
+function lcRdShow() { try { const v = localStorage.getItem(LC_PROFILE_RD_KEY); return v === "quotes" || v === "redreams" ? v : "both"; } catch (e) { return "both"; } }
+// Settings > Privacy: which Liked tabs are public on your profile. All off (private) by default.
+function lcLikedPublic() { try { const a = JSON.parse(localStorage.getItem(LC_LIKED_PUBLIC_KEY) || "[]"); return Array.isArray(a) ? a.filter(function (x) { return typeof x === "string"; }) : []; } catch (e) { return []; } }
+function lcSetLikedPublic(list) { try { if (list.length) localStorage.setItem(LC_LIKED_PUBLIC_KEY, JSON.stringify(list)); else localStorage.removeItem(LC_LIKED_PUBLIC_KEY); } catch (e) {} }
+const LC_LIKED_KIND_TAB = { dream: "dreams", circle: "circles", app: "apps", listing: "marketplace", chat: "chats", search: "searches" };
+/* What a visitor sees on someone's Liked tab (Alhasan, 9:46 and 9:48 PM): everything in the tabs made public, plus,
+   even with every switch off, each liked Dream the visitor wrote or liked too. Anyone else sees none of those. */
+function lcLikedVisibleTo(items, publicTabs, visitorHandle, visitorLikedIds) {
+  const v = Looscid.lcHandle(visitorHandle || ""), pub = publicTabs || [], vl = new Set((visitorLikedIds || []).map(String));
+  return (items || []).filter(function (x) {
+    if (!x) return false;
+    if (pub.indexOf(LC_LIKED_KIND_TAB[x.k] || "") >= 0) return true;
+    if (x.k !== "dream") return false;
+    // With the switches off: the visitor wrote it, or the visitor liked it too.
+    return (!!v && !!x.user && Looscid.lcHandle(x.user.handle || "") === v) || vl.has(String(x.id));
+  });
+}
+function lcFmtJoined(t) { try { return new Date(+t).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }); } catch (e) { return ""; } }
+function lcCopy(text, what) {
+  const done = function () { announce(what + " copied."); };
+  try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text).then(done, function () { announce("Couldn't copy. " + what + ": " + text); }); return; } } catch (e) {}
+  announce("Couldn't copy. " + what + ": " + text);
+}
+function lcDreamHasMedia(d) { return !!(d && ((Array.isArray(d.media) && d.media.length) || (Array.isArray(d.images) && d.images.length) || /\.(jpe?g|png|gif|webp|avif|mp4|mov)(\?|#|\s|$)/i.test(String(d.text || "")))); }
+// The Following / Followers page Feditext opens from its count buttons.
+function ProfilePeoplePage({ kind, user, isMe, people, onBack, navigate }) {
+  const head = useRef(null);
+  useEffect(function () { if (head.current) head.current.focus(); }, []);
+  const title = kind === "following" ? "Following" : "Followers";
+  return lh('div', { className: "pg lc-prof lc-prof-people", onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); onBack(); } } },
+    lh('div', { className: "hdr" }, lh('div', { className: "hdr-row" },
+      lh('button', { type: "button", className: "bi", onClick: onBack, 'aria-label': "Back" }, lh(Ic.Bck, { style: { width: 21, height: 21 } })),
+      lh('h1', { className: "hdr-title", tabIndex: -1, ref: head }, title))),
+    people === null
+      ? lh('p', { className: "lc-muted lc-prof-none" }, kind === "following" ? "Looscid can't see who " + user.name + " follows yet. Only the count comes with their profile." : "Looscid can't see who follows " + user.name + " yet. Only the count comes with their profile.")
+      : people.length === 0
+        ? lh('p', { className: "lc-muted lc-prof-none" }, kind === "following" ? (isMe ? "You don't follow anyone yet." : user.name + " doesn't follow anyone yet.") : (isMe ? "No followers yet." : "No followers yet."))
+        : lh('ul', { className: "lc-people", role: "list" }, people.map(function (u) {
+            return lh('li', { key: u.id },
+              lh('button', { type: "button", className: "lc-person", onClick: function () { navigate("dp", u); } },
+                lh('span', { "aria-hidden": "true" }, lh(Av, { user: u, size: 36 })),
+                lh('span', { className: "lc-person-n" }, u.name),
+                lh('span', { className: "sr-pause" }, ", "),
+                lh('span', { className: "lc-person-h" }, u.handle || "")));
+          })));
+}
+function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUser }) {
   const [tab, setTab] = useState("dreams");
-  const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({ name: user.name || "", bio: user.bio || "" });
+  const [moreOpen, setMoreOpenS] = useState(lcProfileMoreOpen);
+  const [editOpen, setEditOpen] = useState(false);
+  const [people, setPeople] = useState(null); // "following" | "followers"
+  const [noteEdit, setNoteEdit] = useState(false);
+  const [noteText, setNoteText] = useState("");
+  const [rdShow, setRdShowS] = useState(lcRdShow);
   const [, bump] = useState(0);
   const [activeComment, setActiveComment] = useState(null);
-  const editBtn = useRef(null), nameRef = useRef(null);
+  Looscid.useLikedTick();
+  const moreBtn = useRef(null), editBtn = useRef(null), countRef = useRef(null), noteRef = useRef(null);
   const all = (cherryCtx && cherryCtx.dreams) || [];
-  const mine = all.filter(function (d) { return d.user && d.user.id === user.id; });
-  const redreams = isMe ? all.filter(function (d) { return d.redreamed; }) : [];
-  const {dreams, tl, tr, tur, tq, tuq, tb, tc} = useDreams(mine);
-  const following = !!(cherryCtx && cherryCtx.following && cherryCtx.following.has(user.id));
-  const mutual = following && !!user.followsYou;
+  const lp = isMe ? (Looscid.getLocalProfile() || authUser || {}) : null;
+  const upd = onUpdateProfile || Looscid.LC_UPDATE_PROFILE || function (patch) { Looscid.updateLocalProfile(null, patch); bump(function (n) { return n + 1; }); };
+  const ed = useProfileEditor(lp || {}, upd, navigate);
   const handle = (user.handle || "").replace(/^@/, "");
-  const TABS = [["dreams", "Dreams"], ["redreams", "Redreams"], ["about", "About"]];
-  useEffect(function () { if (editing && nameRef.current) nameRef.current.focus(); }, [editing]);
+  const mineOf = function (d) { return d.user && (d.user === user || d.user.id === user.id); };
+  const ownDreams = all.filter(function (d) { return mineOf(d) && !d.replyTo; });
+  const myReplies = isMe ? Looscid.lcRepliesRaw().map(Looscid.lcReplyObj).map(function (r) { return Object.assign({ redreams: 0, quotes: 0, comments: 0, redreamed: false, quoted: false, bookmarked: false }, r); }) : all.filter(function (d) { return mineOf(d) && d.replyTo; });
+  const plainRd = isMe ? all.filter(function (d) { return d.redreamed && !mineOf(d); }) : all.filter(function (d) { return d.reddreamer && (d.reddreamer.id === user.id || d.reddreamer.handle === user.handle); });
+  const quotes = ownDreams.filter(function (d) { return d.quoteOf != null; });
+  const pool = ownDreams.concat(myReplies, plainRd.filter(function (d) { return ownDreams.indexOf(d) < 0; }));
+  const {dreams, tl, tr, tur, tq, tuq, tb, tc} = useDreams(pool);
+  const byId = function (list) { const ids = new Set(list.map(function (d) { return String(d.id); })); return dreams.filter(function (d) { return ids.has(String(d.id)); }); };
+  const following = !!(cherryCtx && cherryCtx.following && cherryCtx.following.has(user.id));
+  const blocked = !isMe && Looscid.lcBlockedUser(user), muted = !isMe && Looscid.lcIsMuted(user);
+  const hidesRd = !isMe && Looscid.lcPeopleHas("dbm_hide_redreams", user.handle);
+  const note = isMe ? "" : Looscid.lcNoteFor(user.handle);
+  const theirLikes = !isMe && Array.isArray(user.likes) ? user.likes : null;
+  const myLikedIds = Looscid.lcLikedItems("dream").map(function (x) { return x.id; });
+  const theirVisible = theirLikes ? lcLikedVisibleTo(theirLikes, user.likesPublic || [], ME.handle, myLikedIds) : [];
+  // Tabs: Feditext's four, then Alhasan's: Liked (your own, private; on others only what they made visible to you),
+  // Mutual likes (others), About.
+  const TABS = [["dreams", "Dreams"], ["replies", "Dreams & Replies"], ["redreams", "Redreams"], ["media", "Media"]]
+    .concat(isMe ? [["liked", "Liked"]] : theirVisible.length ? [["liked", "Liked"]] : [])
+    .concat(isMe ? [] : [["mutual", "Mutual likes"]])
+    .concat([["about", "About"]]);
+  const cur = TABS.some(function (t) { return t[0] === tab; }) ? tab : "dreams";
+  useEffect(function () { if (noteEdit && noteRef.current) noteRef.current.focus(); }, [noteEdit]);
+  if (ed.editing) return ed.screen;
+  if (people) {
+    const fol = people === "following";
+    const list = isMe ? (fol ? USERS.filter(function (u) { return cherryCtx && cherryCtx.following.has(u.id); }) : USERS.filter(function (u) { return u.followsYou; }))
+      : (fol ? (Array.isArray(user.followingList) ? user.followingList : null) : (Array.isArray(user.followersList) ? user.followersList : null));
+    return lh(ProfilePeoplePage, { kind: people, user: user, isMe: isMe, people: list, navigate: navigate,
+      onBack: function () { const k = people; setPeople(null); setTimeout(function () { const b = document.getElementById("pf-count-" + k); if (b) b.focus(); }, 0); } });
+  }
   if (activeComment) return lh(CommentView, { dream: activeComment, onBack: function () { setActiveComment(null); }, onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onCommentPosted: tc, navigate: navigate });
-  const save = function (e) {
-    e.preventDefault();
-    const name = form.name.trim(); if (!name) { announce("Name can't be empty."); return; }
-    const p = updateLocalProfile(null, { displayName: name, bio: form.bio.trim() });
-    if (onUpdateProfile) onUpdateProfile(p);
-    setEditing(false); bump(function (n) { return n + 1; }); announce("Profile saved.");
-    setTimeout(function () { if (editBtn.current) editBtn.current.focus(); }, 0);
-  };
-  const cancel = function () { setEditing(false); setForm({ name: user.name || "", bio: user.bio || "" }); setTimeout(function () { if (editBtn.current) editBtn.current.focus(); }, 0); };
+  const setMoreOpen = function (v) { try { localStorage.setItem(LC_PROFILE_MORE_KEY, v ? "1" : "0"); } catch (e) {} setMoreOpenS(v); };
+  const closeMore = function () { setMoreOpen(false); setTimeout(function () { if (moreBtn.current) moreBtn.current.focus(); }, 0); };
+  const say = function (m) { announce(m); bump(function (n) { return n + 1; }); };
+  const share = function () { Looscid.lcShareText(user.name + " (@" + handle + ") on Looscid", "Profile"); };
+  const openEdit = function (fromMore) { setEditOpen(true); if (fromMore) setTimeout(function () { const a = document.getElementById("pf-link-name") || editBtn.current; if (a) a.focus(); }, 30); };
+  const follow = function () { cherryCtx && cherryCtx.followUser(user.id); announce(following ? "Unfollowed " + user.name + "." : "Following " + user.name + "."); };
+  // The top More (Feditext's profile menu), expanded in place.
+  const moreItems = isMe
+    ? [{ id: "share", name: "Share", a: share }, { id: "edit", name: "Edit profile", a: function () { openEdit(true); } }]
+    : [{ id: "share", name: "Share", a: share },
+       following ? (hidesRd ? { id: "showrd", name: "Show Redreams", a: function () { Looscid.lcPeopleSet("dbm_hide_redreams", user.handle, false); say("Showing Redreams from " + user.name + "."); } }
+                            : { id: "hiderd", name: "Hide Redreams", a: function () { Looscid.lcPeopleSet("dbm_hide_redreams", user.handle, true); say("Hiding Redreams from " + user.name + "."); } }) : null,
+       { id: "note", name: note ? "Edit note" : "Add note", a: function () { setNoteText(note); setNoteEdit(true); } },
+       muted ? { id: "unmute", name: "Unmute", a: function () { Looscid.lcPeopleSet("dbm_muted_dreamors", user.handle, false); say("Unmuted " + user.name + "."); } }
+             : { id: "mute", name: "Mute", a: function () { Looscid.lcPeopleSet("dbm_muted_dreamors", user.handle, true); say("Muted " + user.name + ". Their Dreams are hidden from your feed."); } },
+       blocked ? { id: "unblock", name: "Unblock", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").filter(function (h) { return h !== Looscid.lcHandle(user.handle); })); say("Unblocked " + user.name + "."); } }
+               : { id: "block", name: "Block", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").concat([user.handle])); say("Blocked " + user.name + ". Unblock here or in Settings, Privacy."); } },
+       { id: "report", name: "Report", off: "unavailable: Looscid has nowhere to send reports yet" }].filter(Boolean);
   const onTabKey = function (e) {
-    const i = TABS.findIndex(function (t) { return t[0] === tab; }); let n = null;
+    const i = TABS.findIndex(function (t) { return t[0] === cur; }); let n = null;
     if (e.key === "ArrowRight") n = (i + 1) % TABS.length; else if (e.key === "ArrowLeft") n = (i + TABS.length - 1) % TABS.length; else if (e.key === "Home") n = 0; else if (e.key === "End") n = TABS.length - 1;
     if (n === null) return; e.preventDefault(); setTab(TABS[n][0]); setTimeout(function () { const b = document.getElementById("pf-tab-" + TABS[n][0]); if (b) b.focus(); }, 0);
   };
-  const n = function (v, one, many) { v = v || 0; return v.toLocaleString() + " " + (v === 1 ? one : many); };
-  const list = tab === "about" ? null : tab === "redreams" ? redreams : dreams;
+  const card = function (d) { return lh(DreamCard, { key: d.id, dream: d, onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onComment: function (x) { setActiveComment(x); }, navigate: navigate, cherryCtx: cherryCtx }); };
+  const empty = function (title, sub) { return lh('div', { className: "es" }, lh('p', { className: "esl" }, title), sub ? lh('p', { className: "lc-muted", style: { textAlign: "center", marginTop: 6 } }, sub) : null); };
+  const nDreams = isMe ? ownDreams.length : (user.dreamCount || ownDreams.length);
+  const nFollowing = isMe ? USERS.filter(function (u) { return cherryCtx && cherryCtx.following.has(u.id); }).length : (user.following || 0);
+  const nFollowers = isMe ? USERS.filter(function (u) { return u.followsYou; }).length : (user.followers || 0);
+  const joined = isMe ? (lp && lp.createdAt ? lcFmtJoined(lp.createdAt) : (lp && lp.joined) || "") : (user.joined || "");
+  const fields = [];
+  const site = isMe ? lp && lp.website : user.website;
+  if (site) fields.push({ name: "Website", value: site });
+  ((isMe ? lp && lp.links : user.links) || []).forEach(function (l) { if (l && l.name && l.url) fields.push({ name: l.name, value: l.url }); });
+  (user.fields || []).forEach(function (f) { if (f && f.name && f.value) fields.push({ name: f.name, value: f.value, verified: f.verified }); });
+  const rdList = (function () {
+    const r = byId(plainRd), q = byId(quotes);
+    return rdShow === "quotes" ? q : rdShow === "redreams" ? r : r.concat(q);
+  })();
+  const setRdShow = function (v) {
+    try { localStorage.setItem(LC_PROFILE_RD_KEY, v); } catch (e) {}
+    setRdShowS(v);
+    const r = byId(plainRd).length, q = byId(quotes).length, n = v === "quotes" ? q : v === "redreams" ? r : r + q;
+    const what = v === "quotes" ? (n === 1 ? "Quote" : "Quotes") : v === "redreams" ? (n === 1 ? "Redream" : "Redreams") : (n === 1 ? "Redream or Quote" : "Redreams and Quotes");
+    announce(n + " " + what + ".");
+  };
+  const pubTabs = lcLikedPublic();
+  const likedIntro = isMe ? (pubTabs.length
+      ? "Public on your profile: " + LC_LIKED_TABS_LABELS(pubTabs) + ". The rest only you can see, and people can see your likes on their own Dreams."
+      : "Only you can see your Liked tab. People can see your likes on their own Dreams.") : "";
+  const panel = function () {
+    switch (cur) {
+      case "dreams": { const l = byId(ownDreams); return l.length ? l.map(card) : empty("No Dreams yet", isMe ? "Your Dreams will show up here." : "Nothing to show yet."); }
+      case "replies": { const l = byId(ownDreams.concat(myReplies)); return l.length ? l.map(card) : empty("No Dreams or Replies yet", isMe ? "Your Dreams and Replies will show up here." : "Nothing to show yet."); }
+      case "redreams":
+        return lh(React.Fragment, null,
+          lh('fieldset', { className: "lc-fs lc-rd-show" },
+            lh('legend', null, "Show"),
+            [["quotes", "Quotes only"], ["redreams", "Redreams only"], ["both", "Both"]].map(function (o) {
+              return lh('label', { key: o[0], className: "lc-radio", htmlFor: "pf-rd-" + o[0] },
+                lh('input', { type: "radio", id: "pf-rd-" + o[0], name: "pf-rd-show", value: o[0], checked: rdShow === o[0], onChange: function () { setRdShow(o[0]); } }), " " + o[1]);
+            })),
+          rdList.length ? rdList.map(card) : empty(rdShow === "quotes" ? "No Quotes yet" : rdShow === "redreams" ? "No Redreams yet" : "No Redreams or Quotes yet",
+            isMe ? "Dreams you redream or quote will show up here." : "Nothing to show yet."));
+      case "media": { const l = byId(ownDreams).filter(lcDreamHasMedia); return l.length ? l.map(card) : empty("No media yet", isMe ? "Dreams with photos or videos will show up here." : "Nothing to show yet."); }
+      case "liked":
+        if (isMe) return lh(Looscid.LikedView, { navigate: navigate, cherryCtx: cherryCtx, idp: "pfl", intro: likedIntro, onComment: function (x) { setActiveComment(x); } });
+        return theirVisible.length ? lh(React.Fragment, null,
+          theirVisible.filter(function (x) { return x.k === "dream"; }).map(function (x) {
+            const live = all.find(function (d) { return String(d.id) === String(x.id); });
+            return card(live || Object.assign({ likes: x.likes || 0, comments: 0, redreams: 0, quotes: 0, liked: false, redreamed: false, quoted: false, bookmarked: false, time: "" }, x, { user: x.user && Looscid.lcHandle(x.user.handle) === Looscid.lcHandle(ME.handle) ? ME : x.user }));
+          }),
+          lh('ul', { className: "lc-liked-list", role: "list" }, theirVisible.filter(function (x) { return x.k !== "dream"; }).map(function (x) { return lh('li', { key: x.k + x.id, className: "lc-liked-row" }, x.name || x.q || "Untitled"); })))
+          : empty("Nothing liked to show", null);
+      case "mutual": {
+        if (!theirLikes) return empty("No mutual likes", user.name + "'s likes aren't public, so there are no mutual likes to show.");
+        const mine = new Set(Looscid.lcLikedItems("dream").map(function (x) { return String(x.id); }));
+        const both = theirVisible.filter(function (x) { return x.k === "dream" && mine.has(String(x.id)); });
+        return both.length ? both.map(function (x) { const live = all.find(function (d) { return String(d.id) === String(x.id); }); return card(live || Object.assign({ likes: 1, comments: 0, redreams: 0, quotes: 0, liked: true, redreamed: false, quoted: false, bookmarked: true, time: "" }, x)); })
+          : empty("No mutual likes", "No Dreams you both liked yet.");
+      }
+      case "about": {
+        const rows = [];
+        rows.push(["LooscidID", "@" + handle, lh('button', { key: "c", type: "button", className: "btn bgb lc-btn", onClick: function () { lcCopy("@" + handle, "LooscidID"); } }, "Copy LooscidID")]);
+        if (joined) rows.push(["Date joined", joined]);
+        const based = isMe ? lp && lp.location : user.location; if (based) rows.push(["Account based in", based]);
+        const logins = isMe ? Looscid.getMethods() : (user.logins || []);
+        if (logins.length) rows.push(["Connected Logins", lh('ul', { key: "l", className: "lc-about-logins", role: "list" }, logins.map(function (m) { return lh('li', { key: m.id || m.provider }, Looscid.lcNameJoin(Looscid.PROVIDER_NAMES && Looscid.PROVIDER_NAMES[m.provider] || m.provider, m.provider === "nostr" && Looscid.shortNpub ? Looscid.shortNpub(m.publicId) : m.publicId)); }))]);
+        const npubM = logins.find(function (m) { return m.provider === "nostr" && /^npub1/.test(m.publicId || ""); });
+        const npub = npubM ? npubM.publicId : user.npub;
+        if (npub) rows.push(["Nostr public key", lh('span', { key: "n", className: "lc-break" }, npub), lh('button', { key: "c", type: "button", className: "btn bgb lc-btn", onClick: function () { lcCopy(npub, "Nostr public key"); } }, "Copy Nostr public key")]);
+        if (user.verified) rows.push(["Verified", "Yes"]);
+        return lh('section', { className: "lc-prof-about", "aria-labelledby": "pf-about-h" },
+          lh('h2', { id: "pf-about-h", className: "lc-sub-h" }, "About this account"),
+          lh('dl', { className: "lc-dl" }, rows.map(function (r) { return lh(React.Fragment, { key: r[0] }, lh('dt', null, r[0]), lh('dd', null, r[1], r[2] ? " " : null, r[2] || null)); })));
+      }
+    }
+    return null;
+  };
   return lh('div', { className: "pg lc-prof" },
     lh('div', { className: "hdr" }, lh('div', { className: "hdr-row" },
-      lh('button', { className: "bi", onClick: function () { navigate("feed"); }, 'aria-label': "Back" }, lh(Ic.Bck, { style: { width: 21, height: 21 } })),
-      lh('span', { className: "hdr-title", "aria-hidden": "true" }, "Profile"))),
+      lh('button', { type: "button", className: "bi", onClick: function () { navigate("feed"); }, 'aria-label': "Back" }, lh(Ic.Bck, { style: { width: 21, height: 21 } })),
+      lh('span', { className: "hdr-title", "aria-hidden": "true" }, "Profile"),
+      lh('button', { type: "button", ref: moreBtn, id: "pf-more-btn", className: "bi lc-prof-morebtn", "aria-expanded": moreOpen ? "true" : "false", "aria-controls": "pf-more",
+          onClick: function () { setMoreOpen(!moreOpen); } }, lh(Ic.Dots, { style: { width: 18, height: 18 }, "aria-hidden": "true" }), lh('span', null, "More")))),
+    lh('div', { id: "pf-more", className: "lc-prof-more", hidden: !moreOpen, onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); closeMore(); } } },
+      lh('ul', { className: "lc-prof-more-list", role: "list", "aria-label": isMe ? "More for your profile" : "More for " + user.name },
+        moreItems.map(function (it) {
+          return lh('li', { key: it.id }, lh('button', { type: "button", id: "pf-more-" + it.id, className: "lc-prof-more-i", disabled: !!it.off, onClick: function () { if (it.a) it.a(); } },
+            it.name, it.off ? lh('span', { className: "lc-muted" }, " (" + it.off + ")") : null));
+        }))),
     lh('div', { className: "lc-prof-head" },
       lh('div', { "aria-hidden": "true" }, lh(Av, { user: user, size: 72 })),
-      lh('h1', { className: "lc-prof-name", tabIndex: -1 }, user.name || "Dreamor"),
-      lh('p', { className: "lc-prof-handle" }, lh('span', { className: "sr-only" }, "LooscidID"), " @" + handle),
-      user.bio ? lh('p', { className: "lc-prof-bio" }, user.bio) : (isMe ? lh('p', { className: "lc-prof-bio lc-muted" }, "No bio yet.") : null),
-      lh('p', { className: "lc-prof-stats" }, n(isMe ? mine.length : (user.dreamCount || mine.length), "Dream", "Dreams") + ", " + n(user.followers, "follower", "followers") + ", " + n(user.following, "following", "following")),
       isMe
-        ? lh('button', { type: "button", ref: editBtn, className: "btn bgb lc-big", "aria-expanded": editing, "aria-controls": "pf-edit", onClick: function () { setEditing(function (v) { return !v; }); } }, "Edit profile")
+        ? lh('div', { className: "lc-prof-acts" },
+            lh('button', { type: "button", ref: editBtn, id: "pf-edit-btn", className: "btn bgb lc-big", "aria-expanded": editOpen ? "true" : "false", "aria-controls": "pf-edit", onClick: function () { setEditOpen(!editOpen); } }, "Edit profile"))
         : lh('div', { className: "lc-prof-acts" },
-            lh('button', { type: "button", className: "btn " + (following ? "bgb" : "bp") + " lc-big", "aria-pressed": following, onClick: function () { cherryCtx && cherryCtx.followUser(user.id); announce(following ? "Unfollowed " + user.name + "." : "Following " + user.name + "."); } }, mutual ? "Friends" : following ? "Following" : "Follow"),
-            mutual ? lh('p', { className: "lc-muted" }, "You follow each other.") : user.followsYou ? lh('p', { className: "lc-muted" }, "Follows you.") : null),
-      isMe && editing && lh('form', { id: "pf-edit", className: "lc-prof-edit", onSubmit: save, "aria-label": "Edit profile" },
-        lh('label', { htmlFor: "pf-name" }, "Display name"),
-        lh('input', { id: "pf-name", ref: nameRef, className: "inp", value: form.name, maxLength: 50, autoComplete: "name", onChange: function (e) { setForm(Object.assign({}, form, { name: e.target.value })); } }),
-        lh('label', { htmlFor: "pf-bio" }, "Bio"),
-        lh('textarea', { id: "pf-bio", className: "inp", rows: 3, maxLength: 160, value: form.bio, onChange: function (e) { setForm(Object.assign({}, form, { bio: e.target.value })); } }),
-        lh('div', { className: "lc-q-btns" }, lh('button', { type: "submit", className: "btn bp lc-big" }, "Save"), lh('button', { type: "button", className: "btn bgb lc-big", onClick: cancel }, "Cancel")))),
+            lh('button', { type: "button", className: "btn bgb lc-big", disabled: true }, "Direct message", lh('span', { className: "lc-muted" }, " (unavailable)")),
+            lh('button', { type: "button", className: "btn " + (following ? "bgb" : "bp") + " lc-big", "aria-pressed": following ? "true" : "false", onClick: follow }, following ? "Following" : "Follow")),
+      isMe && lh('div', { id: "pf-edit", className: "lc-prof-edit", hidden: !editOpen }, editOpen ? ed.list : null),
+      lh('h1', { className: "lc-prof-name", tabIndex: -1 }, user.name || "Dreamor"),
+      lh('p', { className: "lc-prof-handle" }, lh('span', { className: "sr-only" }, "LooscidID"), " @" + handle,
+        !isMe && user.followsYou ? lh('span', { className: "lc-cap" }, lh('span', { className: "sr-pause" }, ", "), "Follows you") : null,
+        muted ? lh('span', { className: "lc-cap" }, lh('span', { className: "sr-pause" }, ", "), "Muted") : null,
+        blocked ? lh('span', { className: "lc-cap" }, lh('span', { className: "sr-pause" }, ", "), "Blocked") : null),
+      user.isOriginals ? lh('p', { className: "lc-muted" }, "Founding account") : null,
+      lh('p', { className: "lc-prof-stats" }, nDreams.toLocaleString() + " " + (nDreams === 1 ? "Dream" : "Dreams"),
+        joined ? [lh('span', { key: "d", "aria-hidden": "true" }, " \u2022 "), lh('span', { key: "s", className: "sr-pause" }, ", "), "Joined " + joined] : null),
+      note && !noteEdit ? lh('div', { className: "lc-prof-note" }, lh('span', { className: "lc-prof-note-l" }, "Note"), lh('span', { className: "sr-pause" }, ": "), note) : null,
+      noteEdit && lh('form', { className: "lc-prof-noteform", onSubmit: function (e) { e.preventDefault(); Looscid.lcSetNote(user.handle, noteText); setNoteEdit(false); announce(noteText.trim() ? "Note saved." : "Note removed."); setTimeout(function () { const b = document.getElementById("pf-more-note"); if (b) b.focus(); }, 30); },
+          onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); setNoteEdit(false); setTimeout(function () { const b = document.getElementById("pf-more-note"); if (b) b.focus(); }, 30); } } },
+        lh('label', { htmlFor: "pf-note" }, "Note for " + user.name + ", only you can see it"),
+        lh('textarea', { id: "pf-note", ref: noteRef, className: "inp", rows: 3, maxLength: 500, value: noteText, onChange: function (e) { setNoteText(e.target.value); } }),
+        lh('div', { className: "lc-q-btns" }, lh('button', { type: "submit", className: "btn bp lc-big" }, "Save"),
+          lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { setNoteEdit(false); setTimeout(function () { const b = document.getElementById("pf-more-note"); if (b) b.focus(); }, 30); } }, "Cancel"))),
+      fields.length ? lh('dl', { className: "lc-dl lc-prof-fields" }, fields.map(function (f, i) {
+        return lh(React.Fragment, { key: i }, lh('dt', null, f.name), lh('dd', null, /^https?:\/\//.test(f.value) ? lh('a', { href: f.value, target: "_blank", rel: "noopener noreferrer me" }, f.value.replace(/^https?:\/\//, "")) : f.value, f.verified ? lh('span', { className: "lc-muted" }, ", verified") : null));
+      })) : null,
+      user.bio ? lh('p', { className: "lc-prof-bio" }, user.bio) : (isMe ? lh('p', { className: "lc-prof-bio lc-muted" }, "No bio yet.") : null),
+      lh('div', { className: "lc-prof-counts" },
+        lh('button', { type: "button", id: "pf-count-following", className: "btn bgb lc-big", onClick: function () { setPeople("following"); } }, nFollowing.toLocaleString() + " Following"),
+        lh('button', { type: "button", id: "pf-count-followers", className: "btn bgb lc-big", onClick: function () { setPeople("followers"); } }, nFollowers.toLocaleString() + " " + (nFollowers === 1 ? "Follower" : "Followers")))),
     lh('div', { className: "ftabs lc-prof-tabs", role: "tablist", "aria-label": "Profile sections", onKeyDown: onTabKey },
-      TABS.map(function (t) { const on = tab === t[0]; return lh('button', { key: t[0], id: "pf-tab-" + t[0], type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on, tabIndex: on ? 0 : -1, "aria-controls": "pf-panel", onClick: function () { setTab(t[0]); } }, t[1]); })),
-    lh('div', { id: "pf-panel", role: "tabpanel", "aria-labelledby": "pf-tab-" + tab },
-      tab === "about"
-        ? lh('dl', { className: "lc-dl lc-prof-about" },
-            lh('dt', null, "LooscidID"), lh('dd', null, "@" + handle),
-            lh('dt', null, "Joined"), lh('dd', null, user.joined || "Recently"),
-            user.location ? [lh('dt', { key: "lt" }, "Location"), lh('dd', { key: "ld" }, user.location)] : null,
-            user.website ? [lh('dt', { key: "wt" }, "Website"), lh('dd', { key: "wd" }, lh('a', { href: user.website, target: "_blank", rel: "noopener noreferrer me" }, user.website.replace(/^https?:\/\//, "")))] : null)
-        : list.length === 0
-          ? lh('div', { className: "es" }, lh('p', { className: "esl" }, tab === "dreams" ? "No Dreams yet" : "No Redreams yet"),
-              lh('p', { className: "lc-muted", style: { textAlign: "center", marginTop: 6 } }, isMe ? (tab === "dreams" ? "Your Dreams will show up here." : "Dreams you redream will show up here.") : "Nothing to show yet."))
-          : list.map(function (d) { return lh(DreamCard, { key: d.id, dream: d, onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onComment: function (x) { setActiveComment(x); }, navigate: navigate, cherryCtx: cherryCtx }); })));
+      TABS.map(function (t, i) { const on = cur === t[0]; const name = lcVerb() === "high" ? Looscid.lcNameJoin(t[1], (i + 1) + " of " + TABS.length) : undefined;
+        return lh('button', { key: t[0], id: "pf-tab-" + t[0], type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", "aria-label": name, tabIndex: on ? 0 : -1, "aria-controls": "pf-panel", onClick: function () { setTab(t[0]); } }, t[1]); })),
+    lh('div', { id: "pf-panel", role: "tabpanel", "aria-labelledby": "pf-tab-" + cur }, panel()));
 }
+function LC_LIKED_TABS_LABELS(ids) { return (Looscid.LC_LIKED_TABS || []).filter(function (t) { return ids.indexOf(t.id) >= 0; }).map(function (t) { return t.label; }).join(", "); }
 function ProfilePage({navigate, authUser, cherryCtx, onUpdateProfile}) {
-  return lh(ProfileView, { user: ME, isMe: true, navigate: navigate, cherryCtx: cherryCtx, onUpdateProfile: onUpdateProfile });
+  return lh(ProfileView, { user: ME, isMe: true, navigate: navigate, cherryCtx: cherryCtx, onUpdateProfile: onUpdateProfile, authUser: authUser });
 }
 function DreamorProfilePage({user, navigate, cherryCtx}) {
   return lh(ProfileView, { key: user.id, user: user, isMe: user.id === ME.id, navigate: navigate, cherryCtx: cherryCtx });
 }
+Object.assign(Looscid, { lcLikedPublic, lcSetLikedPublic, lcLikedVisibleTo, LC_LIKED_PUBLIC_KEY });
 /* --- SETTINGS ---------------------------- */
 /* --- ACCOUNT SETTINGS ---------------------------------------------------- */
 function AccountSettings({navigate, authUser, onSignOut, onRenameProfile, onUpdateProfile, initialTab}) {
@@ -198,6 +383,29 @@ function NotificationsSettings({navigate}) {
     )
   );
 }
+// Build 147 (Alhasan, 9:44-9:48 PM): who sees your Liked tab. One "Show on my profile" box per Liked tab, all off.
+function LcLikedPrivacy() {
+  const [pub, setPub] = useState(lcLikedPublic);
+  const tabs = Looscid.LC_LIKED_TABS || [];
+  const flip = function (id, on) {
+    const next = tabs.map(function (t) { return t.id; }).filter(function (x) { return x === id ? on : pub.indexOf(x) >= 0; });
+    lcSetLikedPublic(next); setPub(next);
+    const t = tabs.find(function (x) { return x.id === id; });
+    announce("Liked " + (t ? t.label : id) + (on ? ": shown on your profile." : ": only you."));
+  };
+  return lh('div', { className: "lc-liked-priv" },
+    lh('p', { className: "lc-intro" }, "Choose which parts of your Liked tab show on your profile. All of them are off, so only you can see them, until you turn one on."),
+    lh('p', { className: "lc-intro" }, "Even when off, people can see your likes on their own Dreams."),
+    lh('fieldset', { className: "lc-fs" },
+      lh('legend', null, "Liked tab"),
+      tabs.map(function (t) {
+        return lh('div', { key: t.id, className: "lc-liked-priv-row" },
+          lh('h3', { className: "lc-sub-h", id: "priv-liked-h-" + t.id }, t.label),
+          lh('label', { className: "lc-radio", htmlFor: "priv-liked-" + t.id },
+            lh('input', { type: "checkbox", id: "priv-liked-" + t.id, checked: pub.indexOf(t.id) >= 0, "aria-labelledby": "priv-liked-l-" + t.id + " priv-liked-h-" + t.id, onChange: function (e) { flip(t.id, e.target.checked); } }),
+            lh('span', { id: "priv-liked-l-" + t.id }, " Show on my profile")));
+      })));
+}
 function PrivacySettings({navigate, authUser, onUpdateProfile}) {
   useA11yNow(); useBlocked();
   const priv = !!(authUser && authUser.private);
@@ -218,6 +426,7 @@ function PrivacySettings({navigate, authUser, onUpdateProfile}) {
       intro: priv ? "Private account is on, so Who can see my Dreams counts as Followers and Who can follow me as Approve requests." : "Who can see, reply to and message you. Saved on this device and sent with your Dreams as your preferences. Looscid is decentralized, so other apps on the same networks decide whether they follow them." }); }],
     ["blocked", "Blocked and muted", function () { return lh(LcBlockedPanel, null); }],
     ["pmedia", "Media and content", function () { return lh(LcPrivacyMedia, { navigate: navigate }); }],
+    ["pliked", "Liked tab", function () { return lh(LcLikedPrivacy, null); }],
   ];
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
     lh(BackHeader, { title: "Privacy", onBack: function () { navigate("settings"); } }),
@@ -578,21 +787,21 @@ function AboutSettings({navigate}) {
         }))),
     lh('section', { "aria-labelledby": "about-story", style: { padding: "8px 16px 12px" } },
       lh('h2', { id: "about-story", className: "lid-sub" }, "Our story"),
-      lh('p', { className: "lid-help" }, "Looscid is a side project, not a company. It is made by Alhasan, a blind developer, who wanted a social app that works as well with a screen reader and a braille display as it does with eyes."),
-      lh('p', { className: "lid-help" }, "So Looscid is built accessibility first: VoiceOver, TalkBack and NVDA, braille displays, keyboards and switches are tested from the start, sounds have captions, and nothing flashes."),
-      lh('p', { className: "lid-help" }, "Development was paused for a while. It is back on now, and we build in public, with Tab, Alhasan's digital assistant, helping write and test the code.")),
+      lh('p', { className: "lid-help" }, "Looscid is my side project, not a company. I'm Alhasan, a blind developer, and I wanted a social app that works as well with a screen reader and a braille display as it does with eyes."),
+      lh('p', { className: "lid-help" }, "So I build Looscid accessibility first: VoiceOver, TalkBack and NVDA, braille displays, keyboards and switches are tested from the start, sounds have captions, and nothing flashes."),
+      lh('p', { className: "lid-help" }, "I paused development for a while. It's back on now, and I build in public, with Tab, my digital assistant, helping write and test the code.")),
     lh('section', { "aria-labelledby": "about-purpose", style: { padding: "0 16px 12px" } },
       lh('h2', { id: "about-purpose", className: "lid-sub" }, "What Looscid is"),
-      lh('p', { className: "lid-help" }, "A decentralized, free, open source and accessible everything app. It was created to:"),
+      lh('p', { className: "lid-help" }, "A decentralized, free, open source and accessible everything app. I made it to:"),
       lh('ol', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } },
         lh('li', null, "Give people a more decentralized experience, away from Big Tech."),
         lh('li', null, "Show that everything can be accessible for anyone."),
         lh('li', null, "Give you control and privacy.")),
-      lh('p', { className: "lid-help" }, "Your LooscidID is made on this device the first time you open Looscid, with no phone number or email. Add login methods any time: Nostr, Mastodon and the fediverse, Bluesky, Funkwhale or Hubzilla. What we plan next is listed in Settings, Looscid Labs.")),
+      lh('p', { className: "lid-help" }, "Your LooscidID is made on this device the first time you open Looscid, with no phone number or email. Add login methods any time: Nostr, Mastodon and the fediverse, Bluesky, Funkwhale or Hubzilla. What I plan next is listed in Settings, Looscid Labs.")),
     lh(AboutLooscidMore, null),
     lh('section', { "aria-labelledby": "about-nexos", style: { padding: "0 16px 12px" } },
       lh('h2', { id: "about-nexos", className: "lid-sub" }, "NexOS"),
-      lh('p', { className: "lid-help" }, "Looscid's apps came from NexOS, Alhasan's operating system project: Insomnia, Meme Projects, Easyconvert, Desktop, Kernel and the Looscid App Store. They are now built into Looscid, and NexOS keeps its own repository."),
+      lh('p', { className: "lid-help" }, "Looscid's apps came from NexOS, my operating system project: Insomnia, Meme Projects, Easyconvert, Desktop, Kernel and the Looscid App Store. I built them into Looscid, and NexOS keeps its own repository."),
       lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } }, link("https://github.com/2three1y/nexos", "NexOS on GitHub")),
       lh('button', { type: "button", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { navigate("nexos_apps"); } }, "Apps")),
     lh('section', { "aria-labelledby": "about-links", style: { padding: "0 16px 24px" } },
@@ -1104,10 +1313,10 @@ function HourStoryPage({ navigate, back }) {
           , React.createElement('section', { 'aria-label': "How it started",}
             , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10},}, "How it started")
             , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8},},
-              "Looscid started as a late-night idea. Not a business plan. Not a pitch deck. Just a feeling that the internet needed a place that was quieter, kinder, and more yours."
+              "Looscid started as my late-night idea. Not a business plan. Not a pitch deck. Just a feeling that the internet needed a place that was quieter, kinder, and more yours."
             )
             , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8,marginTop:10},},
-              "It was built from scratch — one screen at a time, one feature at a time — by Alhasan, a developer who wanted something that did not exist yet. A place where accessibility was not an afterthought. Where you were not the product. Where there were no ads telling you what to want."
+              "I built it from scratch, one screen at a time, one feature at a time, because I wanted something that did not exist yet. A place where accessibility was not an afterthought. Where you were not the product. Where there were no ads telling you what to want."
             )
           )
 
@@ -1888,12 +2097,23 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 114; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 115; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 32;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.114.32", build: 146, released: LOOSCID_RELEASED, title: "Round 6.6.1", notes: [
+  { version: "2026.115.32", build: 147, released: LOOSCID_RELEASED, title: "Round 6.7", notes: [
+    "Round 6.7: a feature update. Your profile, rebuilt, and Liked.",
+    "Profiles are recreated from Feditext's profile layout (no Feditext code is used): the buttons, your name, your LooscidID with Follows you, your Dreams count and Joined date, fields, bio, then Following and Followers buttons that open their own pages, then the tabs Dreams, Dreams & Replies, Redreams and Media.",
+    "Liking is saving: one store, one name, Liked. Your own profile has a private Liked tab with Dreams, Circles, Apps, Marketplace, Chats and Searches, and an Images only filter. Anything you saved before is in Liked.",
+    "Settings, Privacy, Liked tab: a Show on my profile box for each part, all off. Even when off, people can see your likes on their own Dreams, and Dreams you both liked.",
+    "Other people's profiles: Mutual likes, and their Liked tab when they made part of it public or liked your Dreams.",
+    "More at the top of a profile expands in place: Share, Hide Redreams, Add note, Mute, Block. Yours: Share and Edit profile, which is the same editor as Settings, LooscidID.",
+    "About tab: About this account, with your LooscidID, the date it was made and your connected Logins. Only what's really there.",
+    "The Redreams tab has Show: Quotes only, Redreams only or Both.",
+    "A Dream that tags you has Remove me from this Dream in its options. More has View your profile near the top.",
+  ] },
+  { version: "2026.114.32", build: 146, released: "2026-10-11T01:25:26Z", title: "Round 6.6.1", notes: [
     "Round 6.6.1: a fix update for Earcons on iPhone, and names that ended in a comma.",
     "Earcons no longer break up or go quiet on iPhone. The sound engine stays awake while Looscid is on screen, and every tap or key press wakes it if iPhone put it to sleep (after a lock, a call or Siri). Earcons, pitch cues and Soundpacks sound exactly the same.",
     "Many earcons at once (fast swiping, a double-tap that opens something) no longer pile up and crackle.",
@@ -2130,7 +2350,7 @@ const LC_CREDITS = {
     { n: "DM Sans and DM Serif Display", u: "https://fonts.google.com/specimen/DM+Sans", l: "SIL Open Font License 1.1", w: "Looscid's fonts, from Google Fonts." },
   ],
   ideas: [
-    { n: "Feditext", u: "https://github.com/feditext/feditext", l: "GPL-3.0", w: "Composer design inspiration (GPL-3.0); no code used. The Round 6.5 composer follows its layout: the Dream you answer above your text, the toolbar order and writing a thread in one go." },
+    { n: "Feditext, by Metabolist", u: "https://github.com/feditext/feditext", l: "GPL-3.0", w: "Composer design inspiration (GPL-3.0); no code used. The Round 6.5 composer follows its layout: the Dream you answer above your text, the toolbar order and writing a thread in one go. Profile design recreated from Feditext by Metabolist (GPL-3.0); no Feditext code is used." },
     // Round 6.6: FastSMRW has no license, so only the idea is borrowed.
     { n: "FastSMRW, by masonasons", u: "https://github.com/masonasons/FastSMRW", l: "No license", w: "The FastSM-inspired earcon pack in Settings, Earcons, Soundpack: inspired by FastSMRW by masonasons (no code or audio copied). Every sound in it is made fresh with Web Audio." },
   ],
@@ -2144,18 +2364,20 @@ const LC_CREDITS = {
 };
 Looscid.LC_CREDITS = LC_CREDITS;
 function CreditsPage({ navigate }) {
-  const item = function (c) { return lh('li', { key: c.n, style: { marginBottom: 10 } },
-    lh('a', { href: c.u, target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, c.n),
+  // Build 147: one link per place. A planned item whose repository is already linked above shows its name only.
+  const linked = new Set(LC_CREDITS.uses.concat(LC_CREDITS.ideas).map(function (c) { return c.u; }));
+  const item = function (c, i, all) { return lh('li', { key: c.n, style: { marginBottom: 10 } },
+    all === LC_CREDITS.planned && linked.has(c.u) ? lh('strong', null, c.n) : lh('a', { href: c.u, target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, c.n),
     lh('p', { className: "lid-help", style: { margin: "2px 0 0" } }, (c.l ? "License: " + c.l + ". " : "") + c.w)); };
   const sec = function (id, title, intro, list) { return lh('section', { "aria-labelledby": id, style: { padding: "0 16px 12px" } },
     lh('h2', { id: id, className: "lid-sub" }, title), intro && lh('p', { className: "lid-help" }, intro),
-    lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } }, list.map(item))); };
+    lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } }, list.map(function (c, i) { return item(c, i, list); }))); };
   return lh('div', { className: "pg lc-credits" },
     lh(BackHeader, { title: "Credits and open source", onBack: function () { navigate("settings"); } }),
     lh('p', { className: "lid-help", style: { padding: "8px 16px 0" } }, "Looscid is open source under the Looscid Public License. These are the projects it uses and the ones it learned from. Each keeps its own license. Every sound is made live with Web Audio, with no recorded samples."),
     sec("credits-uses", "Code Looscid uses", null, LC_CREDITS.uses),
     sec("credits-ideas", "Design ideas", null, LC_CREDITS.ideas),
-    sec("credits-planned", "Coming from Alhasan's repos", "Planned, not in Looscid yet. They'll move up to Code Looscid uses when they arrive.", LC_CREDITS.planned),
+    sec("credits-planned", "Coming from my repos", "Planned, not in Looscid yet. They'll move up to Code Looscid uses when they arrive.", LC_CREDITS.planned),
     lh('section', { "aria-labelledby": "credits-src", style: { padding: "0 16px 24px" } },
       lh('h2', { id: "credits-src", className: "lid-sub" }, "Looscid's own source code"),
       lh('p', { className: "lid-help" }, lh('a', { href: "https://github.com/Looscid/Looscid", target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, "Looscid on GitHub"), ". The full license is in the LICENSE file there.")));
@@ -2675,7 +2897,7 @@ function AudioSettings({ navigate, page }) {
         lh(LcPackImport, null),
         // Round 6.6: Soundvault (a project in More) lists sound packs. Opt-in: nothing changes until you import and choose a pack.
         lh('h3', { className: "lc-sub-h" }, "Find more sounds"),
-        lh('p', { className: "lc-desc" }, "Soundvault, one of Alhasan's projects, lists Soundpacks and audio made for screen reader users. Download a pack there, then import its sounds above as your own pack. Looscid's earcons and pitch cues stay the same unless you choose that pack."),
+        lh('p', { className: "lc-desc" }, "Soundvault, one of my projects, lists Soundpacks and audio made for screen reader users. Download a pack there, then import its sounds above as your own pack. Looscid's earcons and pitch cues stay the same unless you choose that pack."),
         lh('button', { type: "button", id: "lc-open-soundvault", className: "btn bgb lc-btn", onClick: function () { const p = Looscid.lcFindProject && Looscid.lcFindProject("soundvault"); if (p) Looscid.lcOpenProject(p, navigate); } }, "Open Soundvault")) });
   else if (cat.id === "events") body = lh('section', { className: "lc-grp", "aria-labelledby": "lca-ev-h" },
       lh('h2', { id: "lca-ev-h", className: "lc-grp-h" }, "Earcons for each event"),

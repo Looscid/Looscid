@@ -1,7 +1,7 @@
 /* Looscid core.js: state, prefs, icons, nav, routing, sounds and shared helpers; App() is the frame.
    Plain script (not a module). Everything it shares goes on window.Looscid; see FILES.md for the load order. */
 (function (Looscid) {
-Object.assign(Looscid, { lcNewId, lcRepliesRaw, lcRepliesFor, lcAddReply, lcRepliesChanged, useRepliesTick, lcCompose, lcLinkCard, LinkCard, ReplyItem, lcLoadDreams, lcMergeDreams, lcSyncOwnDreams, useSavedDreams, _optionalChain, getDrafts, saveDraftItem, getSavedTheme, saveTheme, applyTheme, getOnboardingSeen, setOnboardingSeen, resetOnboarding, getLinkInfo, useDreams, Av, ChkMark, Cbx, Modal, lcThreadOf, lcHearThread, DreamExtra, lcTranslate, lcShareText, DreamOptionsMenu, BackHeader, DreamText, SiteEmbed, CommentItem, CommentView, DreamCard, lcCatState, useCats, lcAlertCats, lcResetKeyItems, lcLsDel, lcResetModel, lcOpenReset, LcResetHost, lcAiOn, lcSettingIndex, lcFindSettings, lcGoSetting, LcSettingFind, sanitizeInput, makeLocalProfile, saveLocalProfile, getLocalProfile, applyLocalProfileToMe, ensureLocalProfile, renameLocalProfile, resetLocalProfile, getAnalyticsConsent, setAnalyticsConsent, AnalyticsBanner, getWelcomeSeen, setWelcomeSeen, getAIPrefs, setAIPrefs, getActiveAI, getHabits, recordHabit, getPredictions, spellCheck, applySpellFix, detectAutoLinks, getAttribPref, HabitInsightCard, MainMenu, lcVerb, lcHints, announce, useEnterSubmit, updateLocalProfile, LcMenu, lcViewLimits, lcAnnounceCount, MenuPopupButton, getIdentity, setIdentity, getMethods, saveMethods, addMethod, getActivity, logActivity, getSessions, setSession, removeMethod, setStoredNostrSk, signOutIdentity, loadNostrTools, bytesToHex, hexToBytes, shortNpub, identityLabel, SecretField, NostrPanel, b64url, randomToken, pkceChallenge, appRedirectUri, normalizeHost, startMastodonLogin, startFunkwhaleLogin, startHubzillaLogin, lidOAuthIdentity, finishOAuthIfReturning, useOAuthReturn, MastodonPanel, LidOAuthPanel, FunkwhalePanel, HubzillaPanel, resolvePds, BlueskyPanel, AlertDialog, LooscidIDChooser, getTopics, TopicPicker, LooscidOnboarding, lcSectionKeys, lcSectionDefaults, lcSrName, lcSectionTitle, lcSet, lcValueText, lcTimeSpoken, lcWords, lcQuietNow, lcAutoplayAllowed, lcHapticsSupported, lcBuzz, lcEmojiName, lcSpeechText, lcBrailleText, lcTimeParts, lcDreamKind, lcDreamWords, lcFiltered, lcDreamSpeechParts, lcIdb, lcIdbDo, lcCurrentDream, lcLoadCustomPack, lcUpdateAuto, lcFetchVersion, lcCheckUpdate, lcApplyUpdate, LcUpdateBanner, lcVersionLabel, lcReleasedText, loadA11y, saveA11y, a11yAsked, setA11yAsked, systemReducedMotion, motionReduced, a11yEnterSends, lcCloseProps, lcPcOn, lcPackChime, lcPitchCue, lcPcKindOf, areaOfPage, musicFind, lcLev, lcSectionReport, lcFindSection, lcParseTime, lcRegistryIntent, lcTranslateOk, lcA11yReport, lcA11yIntent, lcFeedFind, lcFeedMode, lcFeedLabel, lcSetFeed, lcStepFeed, lcAudCustom, lcHandle, lcAudienceOk, lcBlocked, lcBlockedSet, lcBlockedUser, lcWordHit, LcBlockedHidden, lcAlertPrefs, lcAlerts, lcAlertsSave, lcNotify, lcAlertsMarkAll, useAlerts, lcVersionAlert, lcSetAlertsTab, lcSetShowFriends, lcFeedIntent, lcApplyFeedIntent, lcAppItems, lcNorm, lcClosestPlace, lcHistory, lcPushHistory, lcSpoken, lcExtraIntent, lcRun, lcTrapTab, useCmdHistory, useKeyboardInset, LcCmdLog, CommandBar, lcLogSave, lcLogAdd, lcLogClear, useCmdLog, lcBrowserName, lcStorageKB, lcNexosSettings, lcNexosSend, lcNexosBroadcast, lcBootLines, LcBoot, useInertBehind, DeviceQuestion, useA11yNow, lcResetSection, lcBrList, lcBrSave, lcBrWord, lcBrStyleLabel, lcBrDate, lcBrFind, lcBrCheck, lcBrNotice, lcBrSelect, lcBrCreate, lcBrRename, lcBrDelete, lcBrUndo, lcBrUsePast, lcBrForget, lcBrStamp, lcBrWatch, lcBrIntent, lcKeyName, lcExportSettings, lcDownloadSettings, LcFindMeSwitch, LcUndoBar, A11ySwitch, App });
+Object.assign(Looscid, { lcReplyObj, lcRedreamsRaw, lcRedreamHas, lcPeopleList, lcPeopleSet, lcPeopleHas, lcIsMuted, lcNoteFor, lcSetNote, useUntagTick, lcLikedRaw, lcLikedHas, lcLikedItems, lcLikedSet, lcLikedPatch, lcDreamSnap, lcWithLiked, lcLikedDreams, useLikedTick, lcIsUntagged, lcSetUntagged, lcTagsMe, lcUntaggedText, lcNewId, lcRepliesRaw, lcRepliesFor, lcAddReply, lcRepliesChanged, useRepliesTick, lcCompose, lcLinkCard, LinkCard, ReplyItem, lcLoadDreams, lcMergeDreams, lcSyncOwnDreams, useSavedDreams, _optionalChain, getDrafts, saveDraftItem, getSavedTheme, saveTheme, applyTheme, getOnboardingSeen, setOnboardingSeen, resetOnboarding, getLinkInfo, useDreams, Av, ChkMark, Cbx, Modal, lcThreadOf, lcHearThread, DreamExtra, lcTranslate, lcShareText, DreamOptionsMenu, BackHeader, DreamText, SiteEmbed, CommentItem, CommentView, DreamCard, lcCatState, useCats, lcAlertCats, lcResetKeyItems, lcLsDel, lcResetModel, lcOpenReset, LcResetHost, lcAiOn, lcSettingIndex, lcFindSettings, lcGoSetting, LcSettingFind, sanitizeInput, makeLocalProfile, saveLocalProfile, getLocalProfile, applyLocalProfileToMe, ensureLocalProfile, renameLocalProfile, resetLocalProfile, getAnalyticsConsent, setAnalyticsConsent, AnalyticsBanner, getWelcomeSeen, setWelcomeSeen, getAIPrefs, setAIPrefs, getActiveAI, getHabits, recordHabit, getPredictions, spellCheck, applySpellFix, detectAutoLinks, getAttribPref, HabitInsightCard, MainMenu, lcVerb, lcHints, announce, useEnterSubmit, updateLocalProfile, LcMenu, lcViewLimits, lcAnnounceCount, MenuPopupButton, getIdentity, setIdentity, getMethods, saveMethods, addMethod, getActivity, logActivity, getSessions, setSession, removeMethod, setStoredNostrSk, signOutIdentity, loadNostrTools, bytesToHex, hexToBytes, shortNpub, identityLabel, SecretField, NostrPanel, b64url, randomToken, pkceChallenge, appRedirectUri, normalizeHost, startMastodonLogin, startFunkwhaleLogin, startHubzillaLogin, lidOAuthIdentity, finishOAuthIfReturning, useOAuthReturn, MastodonPanel, LidOAuthPanel, FunkwhalePanel, HubzillaPanel, resolvePds, BlueskyPanel, AlertDialog, LooscidIDChooser, getTopics, TopicPicker, LooscidOnboarding, lcSectionKeys, lcSectionDefaults, lcSrName, lcSectionTitle, lcSet, lcValueText, lcTimeSpoken, lcWords, lcQuietNow, lcAutoplayAllowed, lcHapticsSupported, lcBuzz, lcEmojiName, lcSpeechText, lcBrailleText, lcTimeParts, lcDreamKind, lcDreamWords, lcFiltered, lcDreamSpeechParts, lcIdb, lcIdbDo, lcCurrentDream, lcLoadCustomPack, lcUpdateAuto, lcFetchVersion, lcCheckUpdate, lcApplyUpdate, LcUpdateBanner, lcVersionLabel, lcReleasedText, loadA11y, saveA11y, a11yAsked, setA11yAsked, systemReducedMotion, motionReduced, a11yEnterSends, lcCloseProps, lcPcOn, lcPackChime, lcPitchCue, lcPcKindOf, areaOfPage, musicFind, lcLev, lcSectionReport, lcFindSection, lcParseTime, lcRegistryIntent, lcTranslateOk, lcA11yReport, lcA11yIntent, lcFeedFind, lcFeedMode, lcFeedLabel, lcSetFeed, lcStepFeed, lcAudCustom, lcHandle, lcAudienceOk, lcBlocked, lcBlockedSet, lcBlockedUser, lcWordHit, LcBlockedHidden, lcAlertPrefs, lcAlerts, lcAlertsSave, lcNotify, lcAlertsMarkAll, useAlerts, lcVersionAlert, lcSetAlertsTab, lcSetShowFriends, lcFeedIntent, lcApplyFeedIntent, lcAppItems, lcNorm, lcClosestPlace, lcHistory, lcPushHistory, lcSpoken, lcExtraIntent, lcRun, lcTrapTab, useCmdHistory, useKeyboardInset, LcCmdLog, CommandBar, lcLogSave, lcLogAdd, lcLogClear, useCmdLog, lcBrowserName, lcStorageKB, lcNexosSettings, lcNexosSend, lcNexosBroadcast, lcBootLines, LcBoot, useInertBehind, DeviceQuestion, useA11yNow, lcResetSection, lcBrList, lcBrSave, lcBrWord, lcBrStyleLabel, lcBrDate, lcBrFind, lcBrCheck, lcBrNotice, lcBrSelect, lcBrCreate, lcBrRename, lcBrDelete, lcBrUndo, lcBrUsePast, lcBrForget, lcBrStamp, lcBrWatch, lcBrIntent, lcKeyName, lcExportSettings, lcDownloadSettings, LcFindMeSwitch, LcUndoBar, A11ySwitch, App });
 
  function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 const {useState, useEffect, useRef, useCallback} = React;
@@ -182,15 +182,127 @@ function useSavedDreams(dreams) {
   const prev = useRef(dreams);
   useEffect(function () { lcSyncOwnDreams(prev.current, dreams); prev.current = dreams; }, [dreams]);
 }
+/* Build 147 (Alhasan, Oct 10 2026): liking is saving. One store, one name: Liked.
+   dbm_liked keeps what you liked on this device, newest first (1000 at most): { k: kind, id, at, ...a small copy }.
+   k is "dream" in build 147 (more kinds join in build 148). A Dream you liked or saved before build 147 is
+   read as a like the first time it's seen, so nothing is lost. "bookmarked" now always equals "liked", so
+   older code and backups keep working. Like dbm_dreams, it isn't in the settings backup (that holds settings). */
+const LC_LIKED_KEY = "dbm_liked";
+Looscid.LC_LIKED_KEY = LC_LIKED_KEY;
+function lcLikedRaw() {
+  try { const a = JSON.parse(localStorage.getItem(LC_LIKED_KEY) || "[]"); return Array.isArray(a) ? a.filter(function (x) { return x && x.k && x.id != null; }) : []; } catch (e) { return []; }
+}
+function lcLikedWrite(list) {
+  try { if (list.length) localStorage.setItem(LC_LIKED_KEY, JSON.stringify(list.slice(0, 1000))); else localStorage.removeItem(LC_LIKED_KEY); } catch (e) {}
+  try { window.dispatchEvent(new CustomEvent("looscid-liked")); } catch (e) {}
+}
+function lcLikedHas(k, id) { const s = String(id); return lcLikedRaw().some(function (x) { return x.k === k && String(x.id) === s; }); }
+function lcLikedItems(k) { const a = lcLikedRaw(); return k ? a.filter(function (x) { return x.k === k; }) : a; }
+function lcDreamSnap(d) {
+  const u = d.user || {};
+  return { text: String(d.text || "").slice(0, 2000), nid: d.nid, created: d.created, likes: d.likes || 0, comments: d.comments || 0, redreams: d.redreams || 0, quotes: d.quotes || 0,
+    user: { id: u.id, name: u.name, handle: u.handle, initials: u.initials, color: u.color, verified: !!u.verified } };
+}
+// Like or unlike one thing. snap is the small copy kept so it still shows in Liked after it scrolls away.
+function lcLikedSet(k, id, on, snap) {
+  const s = String(id), list = lcLikedRaw().filter(function (x) { return !(x.k === k && String(x.id) === s); });
+  if (on) list.unshift(Object.assign({}, snap || {}, { k: k, id: s, at: Date.now() }));
+  lcLikedWrite(list);
+  return on;
+}
+// One item's fields, changed in place (148: a Liked Search's Alerts switch). Returns the new item or null.
+function lcLikedPatch(k, id, patch) {
+  const s = String(id), list = lcLikedRaw(); let out = null;
+  list.forEach(function (x, i) { if (x.k === k && String(x.id) === s) { out = Object.assign({}, x, patch); list[i] = out; } });
+  if (out) lcLikedWrite(list);
+  return out;
+}
+// A Dream with its Liked state from the store. write=true also carries an older like or save into the store.
+function lcWithLiked(d, write) {
+  if (!d || d.id == null) return d;
+  const has = lcLikedHas("dream", d.id), old = !!(d.liked || d.bookmarked);
+  if (!has && old && write) { lcLikedSet("dream", d.id, true, lcDreamSnap(d)); }
+  const on = has || (old && write);
+  if (on === !!d.liked && on === !!d.bookmarked) return d;
+  return Object.assign({}, d, { liked: on, bookmarked: on, likes: Math.max(0, (d.likes || 0) + (on && !d.liked ? 1 : !on && d.liked ? -1 : 0)) });
+}
+// Your liked Dreams for the Liked tab: the live copy when the Dream is loaded, else the copy kept when you liked it.
+function lcLikedDreams(live) {
+  const m = new Map((live || []).map(function (d) { return [String(d.id), d]; }));
+  return lcLikedItems("dream").map(function (x) {
+    const d = m.get(String(x.id));
+    if (d) return Object.assign({}, d, { liked: true, bookmarked: true, likedAt: x.at });
+    const u = x.user || {}, num = Number(x.id);
+    return { id: String(num) === String(x.id) ? num : x.id, text: x.text || "", nid: x.nid, created: x.created, likes: Math.max(1, x.likes || 0), comments: x.comments || 0, redreams: x.redreams || 0, quotes: x.quotes || 0,
+      liked: true, bookmarked: true, redreamed: false, quoted: false, likedAt: x.at, time: lcAgo(x.created || x.at),
+      user: u.id === ME.id || (u.handle && u.handle === ME.handle) ? ME : { id: u.id, name: u.name || "Dreamor", handle: u.handle || "", initials: u.initials || String(u.name || "D").slice(0, 2).toUpperCase(), color: u.color || "#6d28d9", verified: !!u.verified } };
+  });
+}
+// Re-render on any change to Liked.
+function useLikedTick() { const [n, t] = useState(0); useEffect(function () { const f = function () { t(function (x) { return x + 1; }); }; window.addEventListener("looscid-liked", f); return function () { window.removeEventListener("looscid-liked", f); }; }, []); return n; }
+/* Build 147: "Remove me from this Dream". A Dream that mentions your LooscidID (or tags your Nostr key)
+   can be untagged on this device: the mention stops being a link to you and it stays that way (dbm_untagged). */
+const LC_UNTAGGED_KEY = "dbm_untagged";
+function lcUntaggedList() { try { const a = JSON.parse(localStorage.getItem(LC_UNTAGGED_KEY) || "[]"); return Array.isArray(a) ? a.map(String) : []; } catch (e) { return []; } }
+function lcIsUntagged(d) { return !!d && lcUntaggedList().indexOf(String(d.id)) >= 0; }
+function lcSetUntagged(d, on) {
+  const s = String(d.id), a = lcUntaggedList().filter(function (x) { return x !== s; });
+  if (on) a.unshift(s);
+  try { if (a.length) localStorage.setItem(LC_UNTAGGED_KEY, JSON.stringify(a.slice(0, 1000))); else localStorage.removeItem(LC_UNTAGGED_KEY); } catch (e) {}
+  try { window.dispatchEvent(new CustomEvent("looscid-untagged")); } catch (e) {}
+}
+function lcMyHandle() { return String(ME.handle || "").replace(/^@/, "").toLowerCase(); }
+function lcMentionRe() { const h = lcMyHandle(); return h ? new RegExp("(^|[^\\w@])@" + h.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(?![\\w.-]*\\w)", "gi") : null; }
+// Is this someone else's Dream that mentions or tags you?
+function lcTagsMe(d) {
+  if (!d || !d.user || d.user === ME || d.user.id === ME.id) return false;
+  const re = lcMentionRe(); if (re && re.test(String(d._origText != null ? d._origText : (d.text || "")))) return true;
+  let pk = ""; try { const idn = getIdentity(); pk = (idn && idn.pubkey) || ""; } catch (e) {}
+  return !!pk && Array.isArray(d.tags) && d.tags.some(function (t) { return Array.isArray(t) && t[0] === "p" && t[1] === pk; });
+}
+// The Dream's text with your @mention turned into plain text once you removed yourself.
+function lcUntaggedText(d) { const re = lcMentionRe(); return re ? String(d.text || "").replace(re, function (m, pre) { return pre + lcMyHandle(); }) : d.text; }
+function useUntagTick() { const [, t] = useState(0); useEffect(function () { const f = function () { t(function (x) { return x + 1; }); }; window.addEventListener("looscid-untagged", f); return function () { window.removeEventListener("looscid-untagged", f); }; }, []); }
+/* Build 147: your plain Redreams are kept on this device too (dbm_redreams: { id, at, ...a small copy }), so the
+   Redreams tab on your profile shows them after you move around or reload. Quotes are Dreams you wrote, kept in dbm_dreams. */
+const LC_REDREAMS_KEY = "dbm_redreams";
+function lcRedreamsRaw() { try { const a = JSON.parse(localStorage.getItem(LC_REDREAMS_KEY) || "[]"); return Array.isArray(a) ? a.filter(function (x) { return x && x.id != null; }) : []; } catch (e) { return []; } }
+function lcRedreamHas(id) { const s = String(id); return lcRedreamsRaw().some(function (x) { return String(x.id) === s; }); }
+function lcRedreamSet(d, on) {
+  const s = String(d.id), list = lcRedreamsRaw().filter(function (x) { return String(x.id) !== s; });
+  if (on) list.unshift(Object.assign(lcDreamSnap(d), { id: s, at: Date.now() }));
+  try { if (list.length) localStorage.setItem(LC_REDREAMS_KEY, JSON.stringify(list.slice(0, 1000))); else localStorage.removeItem(LC_REDREAMS_KEY); } catch (e) {}
+}
+/* Build 147, from Feditext's profile menu: a private note about a Dreamor, Mute, and Hide Redreams. All on this device,
+   by @handle: dbm_dreamor_notes { handle: text }, dbm_muted_dreamors [handles], dbm_hide_redreams [handles]. */
+function lcPeopleList(key) { try { const a = JSON.parse(localStorage.getItem(key) || "[]"); return Array.isArray(a) ? a.map(String) : []; } catch (e) { return []; } }
+function lcPeopleSet(key, handle, on) {
+  const h = lcHandle(handle); if (!h) return;
+  const a = lcPeopleList(key).filter(function (x) { return x !== h; }); if (on) a.unshift(h);
+  try { if (a.length) localStorage.setItem(key, JSON.stringify(a.slice(0, 500))); else localStorage.removeItem(key); } catch (e) {}
+  try { window.dispatchEvent(new CustomEvent("looscid:blocked")); } catch (e) {}
+}
+function lcPeopleHas(key, handle) { const h = lcHandle(handle); return !!h && lcPeopleList(key).indexOf(h) >= 0; }
+function lcIsMuted(user) { return !!user && typeof user === "object" && lcPeopleHas("dbm_muted_dreamors", user.handle); }
+function lcNoteFor(handle) { try { const o = JSON.parse(localStorage.getItem("dbm_dreamor_notes") || "{}"); return (o && typeof o === "object" && o[lcHandle(handle)]) || ""; } catch (e) { return ""; } }
+function lcSetNote(handle, text) {
+  let o = {}; try { o = JSON.parse(localStorage.getItem("dbm_dreamor_notes") || "{}") || {}; } catch (e) {}
+  const h = lcHandle(handle), t = String(text || "").trim().slice(0, 500); if (!h) return;
+  if (t) o[h] = t; else delete o[h];
+  try { if (Object.keys(o).length) localStorage.setItem("dbm_dreamor_notes", JSON.stringify(o)); else localStorage.removeItem("dbm_dreamor_notes"); } catch (e) {}
+}
 function useDreams(init) {
-  const [dreams, setDreams] = useState(init);
+  const [dreams, setDreams] = useState(function () { return (init || []).map(function (d) { d = lcWithLiked(d, true); return !d.redreamed && d.id != null && lcRedreamHas(d.id) ? Object.assign({}, d, { redreamed: true, redreams: (d.redreams || 0) + 1 }) : d; }); });
   useSavedDreams(dreams);
-  const tl = id => setDreams(ds => ds.map(d => d.id===id ? {...d, liked:!d.liked, likes:d.liked?d.likes-1:d.likes+1} : d));
-  const tr = id => setDreams(ds => ds.map(d => d.id===id ? {...d, redreamed:true, redreams:d.redreams+1} : d));
-  const tur = id => setDreams(ds => ds.map(d => d.id===id ? {...d, redreamed:false, redreams:Math.max(0,d.redreams-1)} : d));
+  // Build 147: a like anywhere shows everywhere (the feed, a profile, Liked), with no reload.
+  useEffect(function () { const f = function () { setDreams(function (ds) { let ch = false; const out = ds.map(function (d) { const n = lcWithLiked(d, false); if (n !== d) ch = true; return n; }); return ch ? out : ds; }); }; window.addEventListener("looscid-liked", f); return function () { window.removeEventListener("looscid-liked", f); }; }, []);
+  // Liking is saving (build 147): one toggle, kept in Liked. tb (the old Save) is the same toggle.
+  const tl = id => setDreams(ds => ds.map(d => { if (d.id !== id) return d; const on = !d.liked; lcLikedSet("dream", d.id, on, lcDreamSnap(d)); return {...d, liked:on, bookmarked:on, likes:Math.max(0,(d.likes||0)+(on?1:-1))}; }));
+  const tr = id => setDreams(ds => ds.map(d => { if (d.id !== id) return d; lcRedreamSet(d, true); return {...d, redreamed:true, redreams:(d.redreams||0)+1}; }));
+  const tur = id => setDreams(ds => ds.map(d => { if (d.id !== id) return d; lcRedreamSet(d, false); return {...d, redreamed:false, redreams:Math.max(0,(d.redreams||0)-1)}; }));
   const tq = id => setDreams(ds => ds.map(d => d.id===id ? {...d, quoted:true, quotes:(d.quotes||0)+1} : d));
   const tuq = id => setDreams(ds => ds.map(d => d.id===id ? {...d, quoted:false, quotes:Math.max(0,(d.quotes||1)-1)} : d));
-  const tb = id => setDreams(ds => ds.map(d => d.id===id ? {...d, bookmarked:!d.bookmarked} : d));
+  const tb = tl;
   // Increment comment count when a comment is posted - keeps feed count in sync
   const tc = id => setDreams(ds => ds.map(d => d.id===id ? {...d, comments:d.comments+1} : d));
   return {dreams, setDreams, tl, tr, tur, tq, tuq, tb, tc};
@@ -322,7 +434,7 @@ function lcShareText(text, what) {
   if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () { announce(what + " copied, ready to share."); }, function () { announce("Copy is not available here."); });
   else announce("Sharing is not available in this browser.");
 }
-function DreamOptionsMenu({ id, dream, btnRef, onBookmark, navigate, cherryCtx, onExtra }) {
+function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, cherryCtx, onExtra }) {
   const handle = (dream.user && dream.user.handle || "").replace("@", "");
   const lang = Looscid.A11Y_NOW.translateTo || "en", langName = (LC_LANGS.find(function (x) { return x[0] === lang; }) || [0, "English"])[1];
   const items = [
@@ -333,9 +445,14 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, navigate, cherryCtx, 
       lcTranslate(dream.text || "", lang).then(function (r) { onExtra({ kind: "translation", text: r.same ? "This Dream is already in " + langName + "." : r.text, lang: lang }); announce("Translated."); },
         function () { onExtra({ kind: "translation", text: "This browser couldn't translate it on this device." }); });
     } } : null,
-    { id: "save", name: dream.bookmarked ? "Unsave Dream" : "Save Dream", a: function () { onBookmark && onBookmark(dream.id); announce(dream.bookmarked ? "Dream removed from saved." : "Dream saved."); } },
+    // Build 147: liking is saving, so the old Save item is Like (the same toggle as the Like button).
+    (onLike || onBookmark) ? { id: "like", name: dream.liked ? "Unlike Dream" : "Like Dream", a: function () { if (!dream.liked) Earcon.play("like"); (onLike || onBookmark)(dream.id); announce(dream.liked ? "Unliked. Removed from Liked." : "Liked. It's in Liked on your profile."); } } : null,
     { id: "share", name: "Share Dream", a: function () { lcShareText((dream.user ? dream.user.name + ": " : "") + (dream.text || ""), "Dream"); } },
     handle ? { id: "profile", name: "View @" + handle + "'s profile", a: function () { navigate && navigate("dp", dream.user); } } : null,
+    // Build 147 (Alhasan): when a Dream tags you, you can remove yourself from it (on this device).
+    lcTagsMe(dream) ? (lcIsUntagged(dream)
+      ? { id: "retag", name: "Add me back to this Dream", a: function () { lcSetUntagged(dream, false); announce("You're back in this Dream."); } }
+      : { id: "untag", name: "Remove me from this Dream", a: function () { lcSetUntagged(dream, true); announce("Removed you from this Dream. Your mention in it isn't a link to you anymore."); } }) : null,
     cherryCtx ? { id: "cherry", name: "Ask Cherry about this Dream", a: function () { cherryCtx.openCherry("Tell me about this Dream: " + String(dream.text || "").slice(0, 200)); } } : null,
   ].filter(Boolean);
   return lh(LcMenu, { id: id + "-btn", menuId: id, kind: "action", title: "Dream options", btnLabel: "Dream options", btnClass: "ixn-btn", btnRef: btnRef, noCaret: true, align: "right", up: true,
@@ -506,11 +623,8 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
                   btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, fmt(rdTotal), " Redreams")],
                   items: [{ id: "rd", name: dream.redreamed ? "Undo Redream" : "Redream" }, { id: "q", name: dream.quoted ? "Undo Quote" : "Quote Dream" }],
                   onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
-              , React.createElement('button', { className: "cbx-wrap" + (dream.bookmarked?" bookd":""), onClick: ()=>onBookmark(dream.id), 'aria-label': dream.bookmarked?"Saved":"Save",}
-                , React.createElement('div', { className: "cbx-box",}, dream.bookmarked && React.createElement(ChkMark, null))
-                , React.createElement('span', null, dream.bookmarked?"Saved":"Save")
-              )
-              , lh(DreamOptionsMenu, { id: "dopts-cv-" + dream.id, dream: dream, btnRef: dreamOptsBtn, onBookmark: onBookmark, navigate: navigate })
+              /* Build 147: liking is saving, so the separate Save box is gone (Like above is the one toggle). */
+              , lh(DreamOptionsMenu, { id: "dopts-cv-" + dream.id, dream: dream, btnRef: dreamOptsBtn, onBookmark: onBookmark, onLike: onLike, navigate: navigate })
             )
           )
           /* Reply: opens the composer in Reply mode (Round 6.5) */
@@ -540,6 +654,9 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
   const optsBtn = useRef(null);
   const [showInsights, setShowInsights] = useState(false);
   useRepliesTick(); // Round 6.5: the reply count includes your saved replies
+  useUntagTick(); // Build 147: Remove me from this Dream
+  const untagged = lcTagsMe(dream) && lcIsUntagged(dream);
+  if (untagged) dream = Object.assign({}, dream, { text: lcUntaggedText(dream), _origText: dream.text });
   const nReplies = lcReplyCount(dream);
   const linkInfo = lcLinkCard(dream.text);
   const rdTotal = dream.redreams + (dream.quotes||0);
@@ -590,6 +707,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
             , React.createElement(DreamText, {text: dream.text})
           )
           , rewrite && !textFirst && lh('p', { className: "sr-only" }, srText)
+          , untagged && lh('p', { className: "lc-muted lc-untagged" }, "You removed yourself from this Dream.")
           , extra && lh(DreamExtra, { extra: extra, dream: dream, onClose: function () { setExtra(null); setTimeout(function () { if (optsBtn.current) optsBtn.current.focus(); }, 0); } })
           , dream.quoteOf != null && dream.qText != null && lh('div', { className: "qbub lc-quoted" }, lh('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.5,margin:0} }, "Quoting " + (dream.qWho || "a Dream") + ": " + dream.qText))
           , linkInfo && !dream.nopv && lh(LinkCard, { info: linkInfo })
@@ -639,7 +757,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
             , React.createElement('div', { className: "cbx-box",}, dream.liked && React.createElement(ChkMark, null))
             , React.createElement('span', null, calm ? "" : fmt(dream.likes), calm ? "Likes" : " Likes" )
           )
-          , lh(DreamOptionsMenu, { id: "dopts-" + dream.id, dream: dream, btnRef: optsBtn, onBookmark: onBookmark, navigate: navigate, cherryCtx: cherryCtx, onExtra: setExtra })
+          , lh(DreamOptionsMenu, { id: "dopts-" + dream.id, dream: dream, btnRef: optsBtn, onBookmark: onBookmark, onLike: onLike, navigate: navigate, cherryCtx: cherryCtx, onExtra: setExtra })
         )
         )
 
@@ -961,7 +1079,7 @@ function LcSettingFind({ navigate, onClose }) {
 const TERMS_CONTENT = `<p><strong>Last updated: October 10, 2026</strong></p>
 <p>These are the terms for using Looscid, in plain language. They are not legal advice.</p>
 <h2>Who we are</h2>
-<p>Looscid is a side project by Alhasan, a blind developer. It is not a company, and it has no investors, ads or paid plans.</p>
+<p>Looscid is my side project. I'm Alhasan, a blind developer. It is not a company, and it has no investors, ads or paid plans.</p>
 <h2>Using Looscid</h2>
 <ul>
 <li>You can use Looscid without a phone number or an email address. Your LooscidID is made on your own device.</li>
@@ -1293,7 +1411,7 @@ Looscid.ErrorBoundary = ErrorBoundary;
 /* --- MAIN MENU ------------------------------------------------------------ */
 function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, appDreams, initOpen, initFocus }) {
   const pos = (prefs.menu || {}).pos || "bottom";
-  const likedCount = appDreams ? appDreams.filter(d => d.liked).length : 0;
+  const likedCount = lcLikedItems().length; // build 147: one Liked store
   const totalAlerts = unreadNotifs + unreadMsgs;
   // Round 6.6: the Projects section remembers whether you left it open (dbm_more_projects_open, in the settings backup).
   const [open, setOpen] = useState(() => Object.assign(Looscid.lcProjectsOpen && Looscid.lcProjectsOpen() ? {projects: true} : {}, initOpen ? {[initOpen]: true} : {}));
@@ -1353,8 +1471,8 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"GitHub", label:"GitHub",            sub:"Looscid/Looscid",        href:"https://github.com/Looscid/Looscid" },
     ]},
     // Round 6.6: Projects, Alhasan's own projects, built in (js/projects.js). Added near the end; Commands stays last.
-    { id:"projects", emoji:"Projects", label:"Projects", intro:"Alhasan's own projects, built into Looscid. Each one opens here, with Back and Close. Nothing loads until you open one.",
-      outro: ["Help build Looscid on GitHub", "https://github.com/Looscid/Looscid"],
+    { id:"projects", emoji:"Projects", label:"Projects", intro:"My own projects, built into Looscid. Each one opens here, with Back and Close. Nothing loads until you open one.",
+      // Build 147 (Alhasan: one link per place): GitHub is already in Social, so the Projects section no longer repeats it.
       items: (Looscid.LC_PROJECTS || []).map(function (p) { return { icon:"Projects", label:p.name, sub:p.sub, action(){ onClose(); Looscid.lcOpenProject(p, navigate); } }; }) },
     // Round 6.5.3: last in More. The other sections keep their order.
     { id:"commands", emoji:"Commands", label:"Commands", items:[
@@ -1374,6 +1492,8 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
     React.createElement('div', {className:"menu-sh "+(pos==="top"?"from-top":"from-bot")},
 
       React.createElement('button', Object.assign({type:"button",className:"mclose-btn mclose-top",onClick:onClose}, lcCloseProps("menu")), "Close"),
+      // Build 147 (Alhasan): View your profile, near the top of More.
+      React.createElement('button', {type:"button", id:"more-view-profile", className:"lc-more-profile", onClick:function(){ onClose(); navigate("profile"); }}, React.createElement('span', null, "View your profile")),
 
       SECTIONS.map(function(s) {
         var sOpen = isOpen(s.id);
@@ -2468,6 +2588,9 @@ function lcDreamWords(d, mode, a) {
 function lcFiltered(d, a) {
   a = a || Looscid.A11Y_NOW; const t = " " + lcNorm(d.text) + " ", hit = function (w) { const n = lcNorm(w); return n && t.indexOf(" " + n + " ") >= 0 || (n && n.indexOf(" ") > 0 && t.indexOf(n) >= 0); };
   if (d.user && typeof d.user === "object" && lcBlockedUser(d.user)) return { hide: true, blockedUser: true };
+  // Build 147 (Feditext's profile menu): Mute hides a Dreamor's Dreams; Hide Redreams hides the Redreams they make.
+  if (d.user && typeof d.user === "object" && d.user !== ME && lcIsMuted(d.user)) return { hide: true, mutedUser: true };
+  if (d.reddreamer && typeof d.reddreamer === "object" && lcPeopleHas("dbm_hide_redreams", d.reddreamer.handle)) return { hide: true, hiddenRedream: true };
   if (d.circleId != null && lcBlocked("circles").indexOf(String(d.circleId)) >= 0) return { hide: true, blockedCircle: true };
   const bw = lcBlocked("words").find(hit); if (bw) return { bw: bw };
   const mute = lcWords(a.mutedWords).find(hit); if (mute) return { hide: true, word: mute };
@@ -2735,11 +2858,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.114.32";
+const LOOSCID_VERSION = "2026.115.32";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 146;
+const LOOSCID_BUILD = 147;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-11T01:25:26Z"; // the Round 6.6.1 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-11T02:44:37Z"; // the Round 6.7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4516,7 +4639,10 @@ const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "dbm_braille_styles", "dbm_th
   // Round 6.5.2: Cherry's Your History (chats and which are pinned). Added at the end, so older backups still import.
   "dbm_cherry_chats",
   // Round 6.6: whether the More menu's Projects section is open. Added at the end, so older backups still import.
-  "dbm_more_projects_open"];
+  "dbm_more_projects_open",
+  // Build 147: whether a profile's More is open, the Redreams tab's Show choice, and which Liked tabs show on your profile.
+  // Added at the end, so older backups still import. What you liked (dbm_liked) is your data, like dbm_dreams, so it isn't here.
+  "dbm_profile_more_open", "dbm_profile_rd_show", "dbm_liked_public"];
 Looscid.LC_EXPORT_KEYS = LC_EXPORT_KEYS;
 function lcExportSettings() {
   const o = { app: "Looscid", kind: "settings", version: LOOSCID_VERSION, exported: new Date().toISOString(), settings: {} };
@@ -4671,11 +4797,14 @@ useEffect(() => {
   const handleUpdateProfile = useCallback(patch => {
     setAuthUser(cur => updateLocalProfile(cur, patch));
   }, []);
+  Looscid.LC_UPDATE_PROFILE = handleUpdateProfile; // build 147: Edit profile on any profile page uses the same save path
 
 
   // -- Global app state Cherry can read & mutate ------------------------------
-  const [appDreams, setAppDreams] = useState(() => lcMergeDreams(lcLoadDreams(), DREAMS_INIT));
+  const [appDreams, setAppDreams] = useState(() => lcMergeDreams(lcLoadDreams(), DREAMS_INIT).map(function (d) { d = lcWithLiked(d, true); return !d.redreamed && lcRedreamHas(d.id) ? Object.assign({}, d, { redreamed: true, redreams: (d.redreams || 0) + 1 }) : d; }));
   useSavedDreams(appDreams);
+  // Build 147: Liked is one store; the app's own copy follows it.
+  useEffect(() => { const f = function () { setAppDreams(function (ds) { let ch = false; const out = ds.map(function (d) { const n = lcWithLiked(d, false); if (n !== d) ch = true; return n; }); return ch ? out : ds; }); }; window.addEventListener("looscid-liked", f); return function () { window.removeEventListener("looscid-liked", f); }; }, []);
   // Round 6.4: your Dreams read back from Nostr relays (js/nostr.js) join the app quietly: no announcement, no focus move.
   useEffect(() => {
     const f = function (e) {
@@ -4716,8 +4845,9 @@ useEffect(() => {
     cherryOnboarded,
     setCherryOnboarded,
     // Actions Cherry agent can perform - all log their actions
-    likeDream:   id => { recordHabit("likeDream", (appDreams.find(x=>x.id===id)||{}).text?(appDreams.find(x=>x.id===id).text.split(" ").slice(0,3).join(" ")):null); setAppDreams(ds => ds.map(d => d.id===id ? {...d,liked:!d.liked,likes:d.liked?d.likes-1:d.likes+1} : d)); const d=appDreams.find(x=>x.id===id); if(d) addLog("❤️","Liked "+d.user.name+"'s Dream", ()=>setAppDreams(ds=>ds.map(x=>x.id===id?{...x,liked:!x.liked,likes:x.liked?x.likes-1:x.likes+1}:x))); },
-    saveDream:   id => { setAppDreams(ds => ds.map(d => d.id===id ? {...d,bookmarked:!d.bookmarked} : d)); const d=appDreams.find(x=>x.id===id); if(d) addLog("Save","Saved "+d.user.name+"'s Dream"); },
+    likeDream:   id => { recordHabit("likeDream", (appDreams.find(x=>x.id===id)||{}).text?(appDreams.find(x=>x.id===id).text.split(" ").slice(0,3).join(" ")):null); const d=appDreams.find(x=>x.id===id); if(!d) return; const flip = function () { const cur = lcLikedHas("dream", id); lcLikedSet("dream", id, !cur, lcDreamSnap(d)); }; flip(); addLog("❤️",(d.liked?"Unliked ":"Liked ")+d.user.name+"'s Dream", flip); },
+    // Build 147: liking is saving, so Save is Like.
+    saveDream:   id => { cherryCtx.likeDream(id); },
     postDream:   (text, extra) => { const id=lcNewId(); setAppDreams(ds => [Object.assign({id,user:ME,time:"just now",text,likes:0,comments:0,redreams:0,quotes:0,liked:false,redreamed:false,quoted:false,bookmarked:false}, extra || {}),...ds]); addLog("✏️","Dreamed: "+text.slice(0,40)+"…", ()=>setAppDreams(ds=>ds.filter(d=>d.id!==id))); return id; },
     followUser:  id => { setAppFollowing(s => { const n=new Set(s); n.has(id)?n.delete(id):n.add(id); return n; }); const u=USERS.find(x=>x.id===id); if(u) addLog("👥","Followed "+u.name, ()=>setAppFollowing(s=>{const n=new Set(s);n.delete(id);return n;})); },
     joinGroup:   id => { setAppGroups(gs => gs.map(g => g.id===id ? {...g,joined:!g.joined} : g)); const g=GROUPS.find(x=>x.id===id); if(g) addLog("🏘️","Joined "+g.name, ()=>setAppGroups(gs=>gs.map(x=>x.id===id?{...x,joined:false}:x))); },
@@ -4828,7 +4958,7 @@ useEffect(() => {
   };
   openCmdRef.current = openCmd; Looscid.LC_OPEN_CMD = openCmd; Looscid.LC_SET_A11Y = setA11yPatch; Looscid.LC_NAV = navigate; Looscid.LC_SET_PREFS = setPrefs; Looscid.LC_SET_THEME = setTheme;
   // The one door for Dreams arriving from outside this device (the network layer, later); also used by tests.
-  window.lcReceiveDreams = function (list) { const arr = (Array.isArray(list) ? list : [list]).map(function (d) { return Object.assign({ likes: 0, comments: 0, redreams: 0, quotes: 0, liked: false, redreamed: false, quoted: false, bookmarked: false, time: "now" }, d, { id: d.id || Date.now() + Math.random(), user: typeof d.user === "number" ? USERS[d.user] : (d.user || { name: "Someone", handle: "" }) }); }); setAppDreams(function (ds) { return arr.concat(ds); }); };
+  window.lcReceiveDreams = function (list) { const arr = (Array.isArray(list) ? list : [list]).map(function (d) { return Object.assign({ likes: 0, comments: 0, redreams: 0, quotes: 0, liked: false, redreamed: false, quoted: false, bookmarked: false, time: "now" }, d, { id: d.id || Date.now() + Math.random(), user: typeof d.user === "number" ? USERS[d.user] : (d.user || { name: "Someone", handle: "" }) }); }); setAppDreams(function (ds) { return arr.map(function (x) { return lcWithLiked(x, true); }).concat(ds); }); };
   // Undo send bar
   const [undo, setUndo] = useState(null); Looscid.LC_UNDO_SET = setUndo;
   const runRef = useRef(null);
@@ -5084,7 +5214,7 @@ useEffect(() => {
       case "discover":      return React.createElement(Looscid.DiscoverPage, { navigate: navigate, cherryCtx: cherryCtx,});
       case "alerts":        return React.createElement(Looscid.AlertsPage, { cherryCtx: cherryCtx,});
       case "groups":        return React.createElement(Looscid.GroupsPage, { navigate: navigate, cherryCtx: cherryCtx,});
-      case "profile":       return React.createElement(Looscid.ProfilePage, { key: "me-" + (authUser && authUser.displayName), navigate: navigate, cherryCtx: cherryCtx, authUser: authUser, onUpdateProfile: handleUpdateProfile,});
+      case "profile":       return React.createElement(Looscid.ProfilePage, { key: "me", navigate: navigate, cherryCtx: cherryCtx, authUser: authUser, onUpdateProfile: handleUpdateProfile,});
       case "dp":            return pdata ? React.createElement(Looscid.DreamorProfilePage, { user: pdata, navigate: navigate, cherryCtx: cherryCtx,}) : React.createElement(Looscid.FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
       case "settings_account":        return React.createElement(Looscid.AccountSettings, { key: "acct-" + ((pdata && pdata.tab) || "home"), navigate: navigate, authUser: authUser, onSignOut: handleSignOut, onRenameProfile: handleRenameProfile, onUpdateProfile: handleUpdateProfile, initialTab: pdata && pdata.tab,});
       case "settings_notifications":  return React.createElement(Looscid.NotificationsSettings, { navigate: navigate, prefs: prefs, setPrefs: setPrefs,});

@@ -426,7 +426,7 @@ function cherryRespond(text, cherryCtx) {
       return {action:null, result:`You've liked: ${ctx.likedDreams}. Want me to find more Dreams like those?`};
 
     if (lo.includes("saved") || lo.includes("bookmarked"))
-      return {action:null, result:`Your saved Dreams: ${ctx.savedDreams}.`};
+      return {action:null, result:`Liking is saving now, so your saved Dreams are in Liked: ${ctx.likedDreams}.`};
 
     if (lo.includes("who am i following") || lo.includes("following") && lo.includes("who"))
       return {action:null, result:`You're currently following: ${ctx.followingNames}. Want me to suggest more Dreamors?`};

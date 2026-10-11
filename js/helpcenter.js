@@ -17,7 +17,7 @@ const LC_HELP_TOP = [
   ["new cherry chat", "a new, empty Cherry chat"],
   ["new dream", "the Dream composer"],
   ["feed and a name", "switch feeds, like feed following"],
-  ["projects", "Alhasan's projects, in More"],
+  ["projects", "My projects, in More"],
   ["settings", "read out every setting"],
   ["status", "online, version and your main settings"],
   ["commands", "the Commands page, every command as a button"],
@@ -112,8 +112,8 @@ const LC_HELP_SECTIONS = [
     "Calm mode, Flash safety and Reduce Motion are in Settings, Accessibility, Motion and seizure.",
   ]],
   ["Projects", [
-    "More, Projects has Alhasan's own projects, built into Looscid: Meme Projects, Lyric Finder, Vibework, Soundvault and more. Each opens with Back and Close.",
-    "Some say Coming soon, with a link to help build them.",
+    "More, Projects has my own projects, built into Looscid: Meme Projects, Lyric Finder, Vibework, Soundvault and more. Each opens with Back and Close.",
+    "Some say Coming soon, with a link to help me build them.",
   ]],
   ["Legal", [
     "About Looscid has a Legal button, and the legal command opens it too: Terms, Privacy, Community rules, Looscid's license (no ads, no commercial use) and the open source credits.",
@@ -194,8 +194,8 @@ function legalView(p, act) {
       h('p', { key: "p1", className: "lc-desc" }, "Looscid is open source under the Looscid Public License (LPL) v1.0. You can read, share and change the code. Two rules: no ads, and no commercial use."),
       h('p', { key: "p2", className: "lc-desc" }, h('a', { href: "https://github.com/Looscid/Looscid/blob/preview/LICENSE", target: "_blank", rel: "noopener noreferrer" }, "The Looscid Public License, in full, on GitHub"))]),
     sec("lc-legal-h-oss", "Open source credits and licenses", [
-      h('p', { key: "p1", className: "lc-desc" }, "Looscid uses and learns from other open source projects. Each one keeps its own license: most are MIT, and their notices stay with their code. Alhasan's own projects in More, Projects keep their LICENSE files next to them."),
-      h('p', { key: "p2", className: "lc-desc" }, "The FastSM-inspired Soundpack is inspired by FastSMRW by masonasons (no code or audio copied). The composer's layout is inspired by Feditext (GPL-3.0); no code was used. The Soundvault Soundpack plays sounds from where Soundvault links them, loaded when they play, under their own terms; nothing is copied into Looscid."),
+      h('p', { key: "p1", className: "lc-desc" }, "Looscid uses and learns from other open source projects. Each one keeps its own license: most are MIT, and their notices stay with their code. My own projects in More, Projects keep their LICENSE files next to them."),
+      h('p', { key: "p2", className: "lc-desc" }, "The FastSM-inspired Soundpack is inspired by FastSMRW by masonasons (no code or audio copied). The composer's layout is inspired by Feditext (GPL-3.0); no code was used. Profile design recreated from Feditext by Metabolist (GPL-3.0); no Feditext code is used. The Soundvault Soundpack plays sounds from where Soundvault links them, loaded when they play, under their own terms; nothing is copied into Looscid."),
       h('ul', { key: "u", className: "mlist", "aria-label": "Credits" }, go("credits", "Credits and open source", "legal-credits"))]),
     // Round 6.6: the MIT notices of the MIT code Looscid carries or loads. Each LICENSE file also stays next to its code.
     sec("lc-legal-h-mit", "MIT notices", [
