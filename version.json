@@ -6,9 +6,9 @@
   "features": 117,
   "fixes": 33,
   "builds_without_fixes": 117,
-  "released": "2026-10-11T20:32:49Z",
+  "released": "2026-10-11T20:36:41Z",
   "title": "Round 7",
-  "notes": "Round 7 (build 150), in progress: truly modal menus and dialogs, BrailleNote braille roles, Sense (was Screen reader and braille), Pitch cues on the Speech tab, Feditext-style settings layout.",
+  "notes": "Round 7 (build 150), in progress: truly modal menus and dialogs, BrailleNote braille roles, Sense, Pitch cues on Speech, Feditext-style settings, live Dreams (N) and full Joined on profiles, Dreamor options.",
   "branches": {
     "MainV1": {
       "version": "2026.70.103",

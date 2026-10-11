@@ -5014,6 +5014,7 @@ useEffect(() => {
     openCherry:  msg => { if (!lcAiOn()) { navigate("cherry"); return; } navigate("cherry", msg ? { ask: msg, n: Date.now() } : null); },
     setA11y:     patch => { Looscid.A11Y_NOW = Object.assign({}, Looscid.A11Y_NOW, patch); setPrefs(p => Object.assign({}, p, { accessibility: Object.assign({}, A11Y_DEFAULTS, p.accessibility || {}, patch) })); },
   };
+  Looscid.LC_CHERRY_CTX = cherryCtx; // build 150: the same actions, reachable from Cherry's own page and tests
 
   const navigate = useCallback((target, data=null) => {
     if (target === "about") target = "settings_about"; // the old separate About page is gone: one About Looscid

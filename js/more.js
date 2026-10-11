@@ -42,6 +42,13 @@ function lcTzName(d) {
   const pick = function (style) { try { const p = new Intl.DateTimeFormat(undefined, { timeZoneName: style }).formatToParts(d || new Date()).find(function (x) { return x.type === "timeZoneName"; }); return p && p.value && !/^(GMT|UTC)[+-]?/.test(p.value) ? p.value : ""; } catch (e) { return ""; } };
   return pick("longGeneric") || pick("long") || "your time zone";
 }
+function lcOwnCreatedAt(lp) {
+  if (!lp) return "";
+  if (lp.createdAt) return lp.createdAt;
+  try { const a = (Looscid.getActivity ? Looscid.getActivity() : JSON.parse(localStorage.getItem("looscid_security_activity") || "[]")).filter(function (x) { return /LooscidID created/i.test(x.what || ""); }).pop(); if (a && a.at) return a.at; } catch (e) {}
+  const m = /^local-([0-9a-z]{8})/.exec(lp.uid || ""); if (m) { const t = parseInt(m[1], 36); if (t > 1.6e12 && t <= Date.now()) return t; }
+  return lp.joined || "";
+}
 function lcJoinedText(v) {
   if (v == null || v === "") return "";
   let ts = null;
@@ -217,6 +224,21 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const handle = (user.handle || "").replace(/^@/, "");
   const mineOf = function (d) { return d.user && (d.user === user || d.user.id === user.id); };
   const ownDreams = all.filter(function (d) { return mineOf(d) && !d.replyTo; });
+  // Build 150 (#48, Alhasan 4:21 AM Oct 11): the header count updates live. Dreams this Dreamor publishes while their
+  // profile is open (your own too) are added to it, and #looscid-live says "<display name> just published".
+  const seenRef = useRef(null);
+  if (!seenRef.current || seenRef.current.u !== (user.id || user.handle)) seenRef.current = { u: user.id || user.handle, ids: new Set(ownDreams.map(function (d) { return String(d.id); })) };
+  const freshDreams = ownDreams.filter(function (d) { return !seenRef.current.ids.has(String(d.id)); });
+  const saidRef = useRef(null);
+  useEffect(function () {
+    const key = String(user.id || user.handle);
+    if (!saidRef.current || saidRef.current.u !== key) { saidRef.current = { u: key, said: new Set() }; return; }
+    const now = Date.now();
+    const news = freshDreams.filter(function (d) { return !saidRef.current.said.has(String(d.id)) && (!+d.created || now - +d.created < 5 * 60 * 1000); });
+    if (!news.length) return;
+    news.forEach(function (d) { saidRef.current.said.add(String(d.id)); });
+    announce((user.name || user.displayName || "Dreamor") + " just published"); // never moves focus
+  }, [freshDreams.length, user.id, user.handle]);
   const myReplies = isMe ? Looscid.lcRepliesRaw().map(Looscid.lcReplyObj).map(function (r) { return Object.assign({ redreams: 0, quotes: 0, comments: 0, redreamed: false, quoted: false, bookmarked: false }, r); }) : all.filter(function (d) { return mineOf(d) && d.replyTo; });
   const plainRd = isMe ? all.filter(function (d) { return d.redreamed && !mineOf(d); }) : all.filter(function (d) { return d.reddreamer && (d.reddreamer.id === user.id || d.reddreamer.handle === user.handle); });
   const quotes = ownDreams.filter(function (d) { return d.quoteOf != null; });
@@ -272,10 +294,12 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   };
   const card = function (d) { return lh(DreamCard, { key: d.id, dream: d, onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onComment: function (x) { setActiveComment(x); }, navigate: navigate, cherryCtx: cherryCtx }); };
   const empty = function (title, sub) { return lh('div', { className: "es" }, lh('p', { className: "esl" }, title), sub ? lh('p', { className: "lc-muted", style: { textAlign: "center", marginTop: 6 } }, sub) : null); };
-  const nDreams = isMe ? ownDreams.length : (user.dreamCount || ownDreams.length);
+  const nDreams = isMe ? ownDreams.length : (user.dreamCount ? user.dreamCount + freshDreams.length : ownDreams.length);
   const nFollowing = isMe ? USERS.filter(function (u) { return cherryCtx && cherryCtx.following.has(u.id); }).length : (user.following || 0);
   const nFollowers = isMe ? USERS.filter(function (u) { return u.followsYou; }).length : (user.followers || 0);
-  const joined = lcJoinedText(isMe ? (lp && (lp.createdAt || lp.joined)) || "" : (user.createdAt || user.joined || ""));
+  // Build 150 (#53): your own Joined is the exact moment your LooscidID was made. Older profiles only kept "October 2026",
+  // so the moment comes from the "LooscidID created" activity line, or from the time stamped into the LooscidID's own id.
+  const joined = lcJoinedText(isMe ? lcOwnCreatedAt(lp) : (user.createdAt || user.joined || ""));
   const locked = isMe ? !!(lp && lp.private) : !!(user.locked || user.private);
   const fields = [];
   const site = isMe ? lp && lp.website : user.website;
@@ -382,9 +406,9 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       lh('button', { type: "button", className: "bi", onClick: function () { navigate("feed"); }, 'aria-label': "Back" }, lh(Ic.Bck, { style: { width: 21, height: 21 } })),
       lh('span', { className: "hdr-title", "aria-hidden": "true" }, "Profile"),
       lh('button', { type: "button", ref: moreBtn, id: "pf-more-btn", className: "bi lc-prof-morebtn", "aria-expanded": moreOpen ? "true" : "false", "aria-controls": "pf-more",
-          onClick: function () { setMoreOpen(!moreOpen); } }, lh(Ic.Dots, { style: { width: 18, height: 18 }, "aria-hidden": "true" }), lh('span', null, "More")))),
+          onClick: function () { setMoreOpen(!moreOpen); } }, lh(Ic.Dots, { style: { width: 18, height: 18 }, "aria-hidden": "true" }), lh('span', null, "Dreamor options")))), // build 150 (#49): not "More" on profiles
     lh('div', { id: "pf-more", className: "lc-prof-more", hidden: !moreOpen, onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); closeMore(); } } },
-      lh('ul', { className: "lc-prof-more-list", role: "list", "aria-label": isMe ? "More for your profile" : "More for " + user.name },
+      lh('ul', { className: "lc-prof-more-list", role: "list", "aria-label": isMe ? "Dreamor options for your profile" : "Dreamor options for " + user.name },
         moreItems.map(function (it) {
           return lh('li', { key: it.id }, lh('button', { type: "button", id: "pf-more-" + it.id, className: "lc-prof-more-i", disabled: !!it.off, onClick: function () { if (it.a) it.a(); } },
             it.name, it.off ? lh('span', { className: "lc-muted" }, " (" + it.off + ")") : null));
@@ -411,7 +435,8 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       user.isOriginals ? lh('p', { className: "lc-muted" }, "Founding account") : null,
       // Feditext: "N Dreams • Joined …"; the bullet is hidden from VoiceOver and nothing stands in for it (build 149:
       // the hidden ", " that stood in for it here was the stray comma).
-      lh('p', { className: "lc-prof-stats" }, lh('span', { className: "lc-prof-count" }, nDreams.toLocaleString() + " " + (nDreams === 1 ? "Dream" : "Dreams")),
+      // Build 150 (#48, #53): "Dreams (400)", then the full Joined date and time in your own time zone (same as About).
+      lh('p', { className: "lc-prof-stats" }, lh('span', { className: "lc-prof-count", ref: countRef }, "Dreams (" + nDreams.toLocaleString() + ")"),
         joined ? [lh('span', { key: "d", className: "lc-prof-dot", "aria-hidden": "true" }, " \u2022 "), lh('span', { key: "j", className: "lc-prof-joined" }, "Joined " + joined)] : null),
       note && !noteEdit ? lh('div', { className: "lc-prof-note" }, lh('span', { className: "lc-prof-note-l" }, "Note"), " ", lh('span', { className: "lc-prof-note-t" }, note)) : null,
       noteEdit && lh('form', { className: "lc-prof-noteform", onSubmit: function (e) { e.preventDefault(); Looscid.lcSetNote(user.handle, noteText); setNoteEdit(false); announce(noteText.trim() ? "Note saved." : "Note removed."); setTimeout(function () { const b = document.getElementById("pf-more-note"); if (b) b.focus(); }, 30); },
@@ -2294,6 +2319,9 @@ const LC_VERSION_HISTORY = [
     "The Screen reader and braille settings page is called Sense now, everywhere: Settings, Accessibility, Find a setting, the Commandbar (open sense works, and the old words still work), Help Center and status. The tabs inside are the same.",
     "Pitch cues moved from the Verbosity tab to the Speech tab: the switch, the Pitch cue for checkboxes and Preview every pitch cue. Moved only: the cues, the settings and what they sound like are exactly the same.",
     "Settings are laid out like Feditext's Preferences: rows that follow each other join into one rounded group with thin lines between them, the value (On, Off) sits on the right in grey, and section headings are small and grey above their group. Only the look changed.",
+    "Profiles: the header count is in parentheses, like Dreams (400), and it updates live. If the Dreamor publishes while you're on their profile (your own too), Looscid says “<their name> just published”. Focus never moves.",
+    "Profiles: the header shows the exact moment you joined, like Joined Sunday, October 11, 2026 at 3:12 PM (Eastern Time), in your own time zone, the same as About. Older LooscidIDs that only kept the month now show the full date and time too.",
+    "Profiles: the top button is called Dreamor options instead of More. Same list, same behavior.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by Alhasan. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
