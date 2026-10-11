@@ -6,11 +6,11 @@ Treat all Dreamors with respect. Harassment, bullying or targeted hate speech is
 
 ## 2. Authentic Dreams
 
-Post authentic content. Do not impersonate others, spread misinformation or use automated accounts without disclosure.
+Share authentic Dreams. Do not impersonate others, spread misinformation or use automated accounts without disclosure.
 
 ## 3. Safe Content
 
-Do not post violent, sexually explicit or otherwise harmful content. Content involving minors in any inappropriate context is strictly forbidden.
+Do not publish violent, sexually explicit or otherwise harmful content. Content involving minors in any inappropriate context is strictly forbidden.
 
 ## 4. Groups
 
