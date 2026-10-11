@@ -295,7 +295,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
        { id: "settings", name: "Settings", a: function () { navigate("settings"); } }]
     : [following ? { id: "unfollow", name: "Unfollow", a: follow } : { id: "follow", name: "Follow", a: follow },
        { id: "message", name: "Message", note: "unavailable: direct messages aren't ready yet", disabled: true },
-       cherryOn ? { id: "cherry", name: "Ask Cherry for a summary", a: askCherry } : { id: "cherry", name: "Ask Cherry for a summary", note: "unavailable: Cherry is off", disabled: true },
+       cherryOn ? { id: "cherry", name: "Ask Cherry for a summary", a: askCherry } : { id: "cherry", name: "Ask Cherry for a summary", note: "unavailable: Cherry is off", hint: "Not available while Cherry is off. Turn it on in Settings, Intelligence.", disabled: true },
        { id: "share", name: "Share", a: share },
        { id: "copylink", name: "Copy LooscidID link", a: copyLink },
        hidesRd ? { id: "showrd", name: "Show Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, false); say("Showing Redreams from " + user.name + "."); } }
@@ -439,7 +439,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
         ? lh('div', { className: "lc-prof-acts" },
             lh('button', { type: "button", ref: editBtn, id: "pf-edit-btn", className: "btn bgb lc-big", "aria-expanded": editOpen ? "true" : "false", "aria-controls": "pf-edit", onClick: function () { setEditOpen(!editOpen); } }, "Edit profile"))
         : lh('div', { className: "lc-prof-acts" },
-            lh('button', { type: "button", className: "btn bgb lc-big", disabled: true }, "Direct message", lh('span', { className: "lc-muted" }, " (unavailable)")),
+            lh('button', { type: "button", className: "btn bgb lc-big", disabled: true, "aria-describedby": Looscid.lcHint("Not available yet: direct messages aren't ready yet.") }, "Direct message", lh('span', { className: "lc-muted", "aria-hidden": "true" }, " (unavailable)")),
             lh('button', { type: "button", className: "btn " + (following ? "bgb" : "bp") + " lc-big", "aria-pressed": following ? "true" : "false", onClick: follow }, following ? "Following" : "Follow")),
       isMe && lh('div', { id: "pf-edit", className: "lc-prof-edit", hidden: !editOpen }, editOpen ? ed.list : null),
       lh('h1', { className: "lc-prof-name", tabIndex: -1, ref: headRef }, user.name || "Dreamor"),
@@ -477,8 +477,8 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       // Feditext's bio: rich text, its paragraphs and line breaks kept, links, mentions and hashtags as real links.
       user.bio ? lh('div', { className: "lc-prof-bio" }, lcBioParas(user.bio, navigate)) : (isMe ? lh('p', { className: "lc-prof-bio lc-muted" }, "No bio yet.") : null),
       lh('div', { className: "lc-prof-counts" },
-        lh('button', { type: "button", id: "pf-count-following", className: "btn bgb lc-big", onClick: function () { setPeople("following"); } }, nFollowing.toLocaleString() + " Following"),
-        lh('button', { type: "button", id: "pf-count-followers", className: "btn bgb lc-big", onClick: function () { setPeople("followers"); } }, nFollowers.toLocaleString() + " " + (nFollowers === 1 ? "Follower" : "Followers")))),
+        lh('button', { type: "button", id: "pf-count-following", className: "btn bgb lc-big", "aria-describedby": Looscid.lcHint("Opens the list."), onClick: function () { setPeople("following"); } }, nFollowing.toLocaleString() + " Following"),
+        lh('button', { type: "button", id: "pf-count-followers", className: "btn bgb lc-big", "aria-describedby": Looscid.lcHint("Opens the list."), onClick: function () { setPeople("followers"); } }, nFollowers.toLocaleString() + " " + (nFollowers === 1 ? "Follower" : "Followers")))),
     lh('div', { className: "ftabs lc-prof-tabs", role: "tablist", "aria-label": "Profile sections", onKeyDown: onTabKey },
       // Build 149 (Alhasan: iOS already says "tab, 1 of 4"): no position in the names, ever. Each tab's name is its
       // visible text, with how many it holds in parentheses, like "Dreams (106)".
@@ -2415,6 +2415,7 @@ const LC_VERSION_HISTORY = [
     "Fix (Alhasan: VoiceOver said description after every value): profile About and fields, Built-in shortcuts, the LooscidID data summary and the welcome glossary are plain list rows now, read as \"Label: value\". They looked like definition lists, which VoiceOver on iPhone calls \"description\". They look the same as before.",
     "Fix (Alhasan): Dreamor options is a real pop-up menu now, after the name and @handle. It opens on the first item, closes with Escape or a two-finger scrub, closes after you choose, and never stays open from one profile to the next. Someone else's profile: Follow, Message, Ask Cherry for a summary, Share, Copy LooscidID link, Hide Redreams, Add note, Mute, Block, Report. Yours: Edit profile, Share, Copy LooscidID link, View as others see it, Settings. The header no longer repeats \"Dreams (N)\" and Joined, About says \"About\" and the name, and \"just published\" no longer fires for old Dreams.",
     "Fix (Alhasan): Create Circle reads properly now. Each step's heading says \"Step 1 of 3\" and gets focus when you go to the next or previous step. Icon, Category and Privacy are radio buttons that say when they're checked, and Privacy reads its explanation as part of each choice. No more \"star\", \"slash\" or \"right arrow\", and Escape closes the sheet.",
+    "Real hints, like a Swift app's (Alhasan): only controls whose action isn't obvious get one, and VoiceOver reads it after a short pause, following your Hints setting. A Dream's replies count says \"Opens the thread.\", Redreams \"Opens Redream and Quote.\", More \"Opens actions for this Dream.\", Expand thread and Collapse thread say what they show, and the Following and Followers counts say \"Opens the list.\" Unavailable items say just their name, with the reason as the hint. No hints on menus, dialogs, lists, tabs or obvious buttons like Like.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by Alhasan. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

@@ -36,7 +36,7 @@ function lcRenameOld(store) {
   try { if (ls && ls.getItem("looscid_migrated_v1") === null) ls.setItem("looscid_migrated_v1", new Date().toISOString()); } catch (e) {}
 })();
 Object.assign(Looscid, { LC_OLD_PREFIX, lcNewKey, lcRenameOld });
-Object.assign(Looscid, { lcModalSync, lcModalState, lcReplyObj, lcRedreamsRaw, lcRedreamHas, lcPeopleList, lcPeopleSet, lcPeopleHas, lcIsMuted, lcNoteFor, lcSetNote, useUntagTick, lcLikedRaw, lcLikedHas, lcLikedItems, lcLikedSet, lcLikedPatch, lcDreamSnap, lcWithLiked, lcLikedDreams, useLikedTick, lcIsUntagged, lcSetUntagged, lcTagsMe, lcUntaggedText, lcNewId, lcRepliesRaw, lcRepliesFor, lcAddReply, lcRepliesChanged, useRepliesTick, lcCompose, lcLinkCard, LinkCard, ReplyItem, lcLoadDreams, lcMergeDreams, lcSyncOwnDreams, useSavedDreams, _optionalChain, getDrafts, saveDraftItem, getSavedTheme, saveTheme, applyTheme, getOnboardingSeen, setOnboardingSeen, resetOnboarding, getLinkInfo, useDreams, Av, ChkMark, Cbx, Modal, lcThreadOf, lcHearThread, DreamExtra, lcTranslate, lcShareText, DreamOptionsMenu, BackHeader, DreamText, SiteEmbed, CommentItem, CommentView, DreamCard, lcCatState, useCats, lcAlertCats, lcResetKeyItems, lcLsDel, lcResetModel, lcOpenReset, LcResetHost, lcAiOn, lcSettingIndex, lcFindSettings, lcGoSetting, LcSettingFind, sanitizeInput, makeLocalProfile, saveLocalProfile, getLocalProfile, applyLocalProfileToMe, ensureLocalProfile, renameLocalProfile, resetLocalProfile, getAnalyticsConsent, setAnalyticsConsent, AnalyticsBanner, getWelcomeSeen, setWelcomeSeen, getAIPrefs, setAIPrefs, getActiveAI, getHabits, recordHabit, getPredictions, spellCheck, applySpellFix, detectAutoLinks, getAttribPref, HabitInsightCard, MainMenu, lcVerb, lcHints, announce, useEnterSubmit, updateLocalProfile, LcMenu, lcViewLimits, lcAnnounceCount, MenuPopupButton, getIdentity, setIdentity, getMethods, saveMethods, addMethod, getActivity, logActivity, getSessions, setSession, removeMethod, setStoredNostrSk, signOutIdentity, loadNostrTools, bytesToHex, hexToBytes, shortNpub, identityLabel, SecretField, NostrPanel, b64url, randomToken, pkceChallenge, appRedirectUri, normalizeHost, startMastodonLogin, startFunkwhaleLogin, startHubzillaLogin, lidOAuthIdentity, finishOAuthIfReturning, useOAuthReturn, MastodonPanel, LidOAuthPanel, FunkwhalePanel, HubzillaPanel, resolvePds, BlueskyPanel, AlertDialog, LooscidIDChooser, getTopics, TopicPicker, LooscidOnboarding, lcSectionKeys, lcSectionDefaults, lcSrName, lcSectionTitle, lcSet, lcValueText, lcTimeSpoken, lcWords, lcQuietNow, lcAutoplayAllowed, lcHapticsSupported, lcBuzz, lcEmojiName, lcSpeechText, lcBrailleText, lcTimeParts, lcDreamKind, lcDreamWords, lcFiltered, lcDreamSpeechParts, lcIdb, lcIdbDo, lcCurrentDream, lcLoadCustomPack, lcUpdateAuto, lcFetchVersion, lcCheckUpdate, lcApplyUpdate, LcUpdateBanner, lcVersionLabel, lcReleasedText, loadA11y, saveA11y, a11yAsked, setA11yAsked, systemReducedMotion, motionReduced, a11yEnterSends, lcCloseProps, lcPcOn, lcPackChime, lcPitchCue, lcPcKindOf, areaOfPage, musicFind, lcLev, lcSectionReport, lcFindSection, lcParseTime, lcRegistryIntent, lcTranslateOk, lcA11yReport, lcA11yIntent, lcFeedFind, lcFeedMode, lcFeedLabel, lcSetFeed, lcStepFeed, lcAudCustom, lcHandle, lcAudienceOk, lcBlocked, lcBlockedSet, lcBlockedUser, lcWordHit, LcBlockedHidden, lcAlertPrefs, lcAlerts, lcAlertsSave, lcNotify, lcAlertsMarkAll, useAlerts, lcVersionAlert, lcSetAlertsTab, lcSetShowFriends, lcFeedIntent, lcApplyFeedIntent, lcAppItems, lcNorm, lcClosestPlace, lcHistory, lcPushHistory, lcSpoken, lcExtraIntent, lcRun, lcTrapTab, useCmdHistory, useKeyboardInset, LcCmdLog, CommandBar, lcLogSave, lcLogAdd, lcLogClear, useCmdLog, lcBrowserName, lcStorageKB, lcNexosSettings, lcNexosSend, lcNexosBroadcast, lcBootLines, LcBoot, useInertBehind, DeviceQuestion, useA11yNow, lcResetSection, lcBrList, lcBrSave, lcBrWord, lcBrStyleLabel, lcBrDate, lcBrFind, lcBrCheck, lcBrNotice, lcBrSelect, lcBrCreate, lcBrRename, lcBrDelete, lcBrUndo, lcBrUsePast, lcBrForget, lcBrStamp, lcBrWatch, lcBrIntent, lcKeyName, lcExportSettings, lcDownloadSettings, LcFindMeSwitch, LcUndoBar, A11ySwitch, App });
+Object.assign(Looscid, { lcHint, lcHintReason, lcModalSync, lcModalState, lcReplyObj, lcRedreamsRaw, lcRedreamHas, lcPeopleList, lcPeopleSet, lcPeopleHas, lcIsMuted, lcNoteFor, lcSetNote, useUntagTick, lcLikedRaw, lcLikedHas, lcLikedItems, lcLikedSet, lcLikedPatch, lcDreamSnap, lcWithLiked, lcLikedDreams, useLikedTick, lcIsUntagged, lcSetUntagged, lcTagsMe, lcUntaggedText, lcNewId, lcRepliesRaw, lcRepliesFor, lcAddReply, lcRepliesChanged, useRepliesTick, lcCompose, lcLinkCard, LinkCard, ReplyItem, lcLoadDreams, lcMergeDreams, lcSyncOwnDreams, useSavedDreams, _optionalChain, getDrafts, saveDraftItem, getSavedTheme, saveTheme, applyTheme, getOnboardingSeen, setOnboardingSeen, resetOnboarding, getLinkInfo, useDreams, Av, ChkMark, Cbx, Modal, lcThreadOf, lcHearThread, DreamExtra, lcTranslate, lcShareText, DreamOptionsMenu, BackHeader, DreamText, SiteEmbed, CommentItem, CommentView, DreamCard, lcCatState, useCats, lcAlertCats, lcResetKeyItems, lcLsDel, lcResetModel, lcOpenReset, LcResetHost, lcAiOn, lcSettingIndex, lcFindSettings, lcGoSetting, LcSettingFind, sanitizeInput, makeLocalProfile, saveLocalProfile, getLocalProfile, applyLocalProfileToMe, ensureLocalProfile, renameLocalProfile, resetLocalProfile, getAnalyticsConsent, setAnalyticsConsent, AnalyticsBanner, getWelcomeSeen, setWelcomeSeen, getAIPrefs, setAIPrefs, getActiveAI, getHabits, recordHabit, getPredictions, spellCheck, applySpellFix, detectAutoLinks, getAttribPref, HabitInsightCard, MainMenu, lcVerb, lcHints, announce, useEnterSubmit, updateLocalProfile, LcMenu, lcViewLimits, lcAnnounceCount, MenuPopupButton, getIdentity, setIdentity, getMethods, saveMethods, addMethod, getActivity, logActivity, getSessions, setSession, removeMethod, setStoredNostrSk, signOutIdentity, loadNostrTools, bytesToHex, hexToBytes, shortNpub, identityLabel, SecretField, NostrPanel, b64url, randomToken, pkceChallenge, appRedirectUri, normalizeHost, startMastodonLogin, startFunkwhaleLogin, startHubzillaLogin, lidOAuthIdentity, finishOAuthIfReturning, useOAuthReturn, MastodonPanel, LidOAuthPanel, FunkwhalePanel, HubzillaPanel, resolvePds, BlueskyPanel, AlertDialog, LooscidIDChooser, getTopics, TopicPicker, LooscidOnboarding, lcSectionKeys, lcSectionDefaults, lcSrName, lcSectionTitle, lcSet, lcValueText, lcTimeSpoken, lcWords, lcQuietNow, lcAutoplayAllowed, lcHapticsSupported, lcBuzz, lcEmojiName, lcSpeechText, lcBrailleText, lcTimeParts, lcDreamKind, lcDreamWords, lcFiltered, lcDreamSpeechParts, lcIdb, lcIdbDo, lcCurrentDream, lcLoadCustomPack, lcUpdateAuto, lcFetchVersion, lcCheckUpdate, lcApplyUpdate, LcUpdateBanner, lcVersionLabel, lcReleasedText, loadA11y, saveA11y, a11yAsked, setA11yAsked, systemReducedMotion, motionReduced, a11yEnterSends, lcCloseProps, lcPcOn, lcPackChime, lcPitchCue, lcPcKindOf, areaOfPage, musicFind, lcLev, lcSectionReport, lcFindSection, lcParseTime, lcRegistryIntent, lcTranslateOk, lcA11yReport, lcA11yIntent, lcFeedFind, lcFeedMode, lcFeedLabel, lcSetFeed, lcStepFeed, lcAudCustom, lcHandle, lcAudienceOk, lcBlocked, lcBlockedSet, lcBlockedUser, lcWordHit, LcBlockedHidden, lcAlertPrefs, lcAlerts, lcAlertsSave, lcNotify, lcAlertsMarkAll, useAlerts, lcVersionAlert, lcSetAlertsTab, lcSetShowFriends, lcFeedIntent, lcApplyFeedIntent, lcAppItems, lcNorm, lcClosestPlace, lcHistory, lcPushHistory, lcSpoken, lcExtraIntent, lcRun, lcTrapTab, useCmdHistory, useKeyboardInset, LcCmdLog, CommandBar, lcLogSave, lcLogAdd, lcLogClear, useCmdLog, lcBrowserName, lcStorageKB, lcNexosSettings, lcNexosSend, lcNexosBroadcast, lcBootLines, LcBoot, useInertBehind, DeviceQuestion, useA11yNow, lcResetSection, lcBrList, lcBrSave, lcBrWord, lcBrStyleLabel, lcBrDate, lcBrFind, lcBrCheck, lcBrNotice, lcBrSelect, lcBrCreate, lcBrRename, lcBrDelete, lcBrUndo, lcBrUsePast, lcBrForget, lcBrStamp, lcBrWatch, lcBrIntent, lcKeyName, lcExportSettings, lcDownloadSettings, LcFindMeSwitch, LcUndoBar, A11ySwitch, App });
 
  function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 const {useState, useEffect, useRef, useCallback} = React;
@@ -517,8 +517,8 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
   const handle = (dream.user && dream.user.handle || "").replace("@", "");
   const lang = Looscid.A11Y_NOW.translateTo || "en", langName = (LC_LANGS.find(function (x) { return x[0] === lang; }) || [0, "English"])[1];
   const items = [
-    LcSpeech.ok ? { id: "read", name: "Read this Dream", a: function () { LcSpeech.speak(lcDreamSpeechParts(dream)); } } : null,
-    onExtra && LcSpeech.ok ? { id: "thread", name: "Hear thread", a: function () { onExtra({ kind: "thread" }); lcHearThread(dream); } } : null,
+    LcSpeech.ok ? { id: "read", name: "Read this Dream", hint: "Reads this Dream aloud.", a: function () { LcSpeech.speak(lcDreamSpeechParts(dream)); } } : null,
+    onExtra && LcSpeech.ok ? { id: "thread", name: "Hear thread", hint: "Reads the whole thread aloud.", a: function () { onExtra({ kind: "thread" }); lcHearThread(dream); } } : null,
     onExtra && lcTranslateOk() ? { id: "translate", name: "Translate into " + langName, a: function () {
       onExtra({ kind: "translation", text: "", lang: lang });
       lcTranslate(dream.text || "", lang).then(function (r) { onExtra({ kind: "translation", text: r.same ? "This Dream is already in " + langName + "." : r.text, lang: lang }); announce("Translated."); },
@@ -544,11 +544,11 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
           : { id: "mute", name: "Mute " + who, a: function () { lcPeopleSet("looscid_muted_dreamors", handle, true); announce("Muted " + who + ". Their Dreams are hidden from your feed."); } },
     blocked ? { id: "unblock", name: "Unblock " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").filter(function (h) { return h !== lcHandle(handle); })); announce("Unblocked " + who + "."); } }
             : { id: "block", name: "Block " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").concat([handle])); announce("Blocked " + who + ". Unblock here or in Settings, Privacy."); } },
-    { id: "report", name: "Report, coming soon", disabled: true },
+    { id: "report", name: "Report", note: "coming soon", hint: "Not available yet: Looscid has nowhere to send reports yet.", disabled: true },
   ];
   const likeIt = items.filter(function (it) { return it.id === "like"; });
   const ordered = likeIt.concat(fx, items.filter(function (it) { return it.id !== "like"; }));
-  return lh(LcMenu, { id: id + "-btn", menuId: id, kind: "action", title: "More", btnLabel: "More", btnClass: "ixn-btn", btnRef: btnRef, noCaret: true, align: "right", up: true,
+  return lh(LcMenu, { id: id + "-btn", menuId: id, kind: "action", title: "More", btnLabel: "More", btnHint: "Opens actions for this Dream.", btnClass: "ixn-btn", btnRef: btnRef, noCaret: true, align: "right", up: true,
     className: "lc-dmenu", style: { flex: ".5", display: "flex" }, itemClass: "lc-dopt", btnText: lh(Ic.Dots, { style: { width: 15, height: 15 } }), items: ordered,
     onSelect: function (k, it) { if (it.a) it.a(); } });
 }
@@ -693,7 +693,8 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
   // place, focus stays on it, and nothing is announced.
   const [expanded, setExpanded] = useState(false);
   const above = React.useMemo(function () { return lcThreadAbove(dream); }, [dream.id, tick]);
-  const threadBtn = lh('button', { type: "button", id: "cv-thread-btn", className: "btn bgb lc-btn lc-thread-btn", "aria-controls": "cv-thread", onClick: function () { setExpanded(!expanded); } }, expanded ? "Collapse thread" : "Expand thread");
+  const threadBtn = lh('button', { type: "button", id: "cv-thread-btn", className: "btn bgb lc-btn lc-thread-btn", "aria-controls": "cv-thread",
+    "aria-describedby": lcHint(expanded ? "Shows only this Dream." : "Shows the Dreams above and every reply."), onClick: function () { setExpanded(!expanded); } }, expanded ? "Collapse thread" : "Expand thread");
   return (
     React.createElement('div', { className: "pg", style: {display:"flex",flexDirection:"column",paddingBottom:0},}
       , React.createElement('div', { className: "hdr",}
@@ -729,7 +730,7 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
                 , React.createElement('div', { className: "cbx-box",}, dream.liked && React.createElement(ChkMark, null))
                 , React.createElement('span', null, fmt(dream.likes), " Likes" )
               )
-              , lh(LcMenu, { id: "rd-cv-" + dream.id, kind: "action", title: "Redream or Quote", btnLabel: fmt(rdTotal) + " Redreams", btnClass: "cbx-wrap" + (rdActive?" redd":""), noCaret: true, up: true,
+              , lh(LcMenu, { id: "rd-cv-" + dream.id, kind: "action", title: "Redream or Quote", btnLabel: fmt(rdTotal) + " Redreams", btnHint: "Opens Redream and Quote.", btnClass: "cbx-wrap" + (rdActive?" redd":""), noCaret: true, up: true,
                   btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, fmt(rdTotal), " Redreams")],
                   items: [{ id: "rd", name: dream.redreamed ? "Unredream" : "Redream" }, { id: "q", name: dream.quoted ? "Unquote Dream" : "Quote Dream" }],
                   onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
@@ -856,10 +857,10 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
         )
         /* Interaction row - Save removed, lives in Dream Options menu */
         , React.createElement('div', { className: "ixn-row",}
-          , React.createElement('button', { className: "ixn-btn", onClick: ()=>onComment && onComment(dream), 'aria-label': fmt(nReplies)+(nReplies === 1 ? " reply" : " replies"),}
+          , React.createElement('button', { className: "ixn-btn", onClick: ()=>onComment && onComment(dream), 'aria-label': fmt(nReplies)+(nReplies === 1 ? " reply" : " replies"), "aria-describedby": lcHint("Opens the thread."),}
             , React.createElement(Ic.Cmt, { style: {width:15,height:15},}), React.createElement('span', null, fmt(nReplies), nReplies === 1 ? " Reply" : " Replies" )
           )
-          , lh(LcMenu, { id: "rd-" + dream.id, kind: "action", title: "Redream or Quote", btnLabel: calm ? "Redreams" + (rdActive ? ", Redreamed" : "") : fmt(rdTotal)+" Redreams", btnClass: "cbx-wrap"+(rdActive?" redd":""), noCaret: true, up: true, className: "lc-rdmenu",
+          , lh(LcMenu, { id: "rd-" + dream.id, kind: "action", title: "Redream or Quote", btnLabel: calm ? "Redreams" + (rdActive ? ", Redreamed" : "") : fmt(rdTotal)+" Redreams", btnHint: "Opens Redream and Quote.", btnClass: "cbx-wrap"+(rdActive?" redd":""), noCaret: true, up: true, className: "lc-rdmenu",
               btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, calm ? "" : fmt(rdTotal), calm ? "Redreams" : " Redreams")],
               items: [{ id: "rd", name: dream.redreamed ? "Unredream" : "Redream" }, { id: "q", name: dream.quoted ? "Unquote Dream" : "Quote Dream" }],
               onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
@@ -1725,6 +1726,30 @@ function lcNameJoin() {
   return Array.prototype.slice.call(arguments).map(function (x) { return x == null || x === false ? "" : String(x).replace(/\s+/g, " ").trim().replace(/^[,;:]\s*|\s*[,;:]$/g, "").trim(); }).filter(Boolean).join(", ");
 }
 Looscid.lcNameJoin = lcNameJoin;
+/* Build 150, part 18 (Alhasan, Oct 11 7:05 PM: hints like a Swift app's): a real VoiceOver hint is aria-describedby on the
+   ONE control whose action isn't obvious from its name and role, pointing at a short sentence that ends in a period.
+   On iPhone, VoiceOver reads it after a pause as the control's hint (it follows the Hints setting) and braille shows it.
+   Never on a menu, sheet, dialog, list, tab or other container, and never on obvious controls like Like, Back or Close.
+   All hint sentences live once each in one hidden holder outside the app (#lc-hints), reused by id. */
+const LC_HINT_IDS = {};
+function lcHint(text) {
+  if (!text || typeof document === "undefined") return undefined;
+  const t = String(text).trim(); let id = LC_HINT_IDS[t];
+  if (id && document.getElementById(id)) return id;
+  let box = document.getElementById("lc-hints");
+  if (!box) { box = document.createElement("div"); box.id = "lc-hints"; box.hidden = true; (document.body || document.documentElement).appendChild(box); }
+  id = id || "lc-h-" + (Object.keys(LC_HINT_IDS).length + 1);
+  const sp = document.createElement("span"); sp.id = id; sp.textContent = t; box.appendChild(sp);
+  LC_HINT_IDS[t] = id; return id;
+}
+// A disabled item's reason as a hint sentence: "unavailable: Looscid has nowhere to send reports yet" becomes
+// "Not available yet: Looscid has nowhere to send reports yet."
+function lcHintReason(note) {
+  let s = String(note || "").trim().replace(/^unavailable\s*(:\s*)?/i, function (m, colon) { return colon ? "Not available yet: " : "Not available yet"; });
+  if (!s) s = "Not available yet";
+  s = s.charAt(0).toUpperCase() + s.slice(1); return /[.!?]$/.test(s) ? s : s + ".";
+}
+Looscid.lcHint = lcHint; Looscid.lcHintReason = lcHintReason;
 function announce(msg, kind) {
   const vb = lcVerb(), s = String(msg || "");
   const isErr = kind === "error" || (kind !== "success" && LC_ERR_RE.test(s));
@@ -1869,9 +1894,12 @@ function LcMenu(props) {
     // (Close is not counted), are joined into one name here, never as separate pieces that leave a dangling comma.
     const counted = all.filter(function (x) { return !x.close; });
     const pos = !it.close && lcVerb() === "high" ? (counted.indexOf(it) + 1) + " of " + counted.length : "";
-    const nm = it.close ? "Close " + menuName : (it.note || pos || it.aria ? lcNameJoin(it.aria || it.name, it.note, pos) : undefined);
+    // Part 18: a disabled item with a reason is its short name, and the reason is its hint.
+    const reasonHint = it.disabled && it.note && !it.close ? lcHintReason(it.note) : null;
+    const hint = it.close ? null : (it.hint || reasonHint);
+    const nm = it.close ? "Close " + menuName : (reasonHint ? lcNameJoin(it.aria || it.name, pos) || undefined : (it.note || pos || it.aria ? lcNameJoin(it.aria || it.name, it.note, pos) : undefined));
     return lh('li', { key: it.id, "data-mi": "1", role: radio ? "menuitemradio" : "menuitem", "aria-checked": radio ? (it.id === value ? "true" : "false") : undefined,
-        "aria-disabled": it.disabled ? "true" : undefined, tabIndex: i === active ? 0 : -1,
+        "aria-disabled": it.disabled ? "true" : undefined, tabIndex: i === active ? 0 : -1, "aria-describedby": hint ? lcHint(hint) : undefined,
         "aria-label": nm, "aria-braillelabel": it.close ? "Close" : undefined,
         className: "lmenu-item" + (i === active ? " act" : "") + (it.close ? " lmenu-close" : "") + (it.danger ? " lmenu-danger" : "") + (props.itemClass && !it.close ? " " + props.itemClass : ""),
         onClick: function () { choose(it); }, onMouseMove: function () { if (active !== i) setActive(i); } },
@@ -1900,7 +1928,7 @@ function LcMenu(props) {
     labelled ? lh('span', { id: id + "-label", className: "lmenu-label" }, props.label) : null,
     lh('button', { id: id, ref: btnRef, type: "button", className: props.btnClass || "lmenu-btn", "aria-haspopup": "menu", "aria-expanded": open ? "true" : "false",
         "aria-controls": open ? menuId : undefined, "aria-labelledby": labelled ? id + "-label " + id : undefined, "aria-label": labelled ? undefined : props.btnLabel,
-        "aria-braillelabel": props.btnBraille, disabled: props.disabled,
+        "aria-braillelabel": props.btnBraille, disabled: props.disabled, "aria-describedby": props.btnHint ? lcHint(props.btnHint) : undefined,
         onClick: function () { open ? setOpen(false) : openMenu(); },
         onKeyDown: function (e) { if (e.key === "ArrowDown") { e.preventDefault(); openMenu(props.search ? undefined : 0); } else if (e.key === "ArrowUp") { e.preventDefault(); openMenu(items.length - 1); } } },
       typeof btnText === "string" ? lh('span', null, btnText) : btnText,
@@ -3023,7 +3051,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-11T23:39:24Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-11T23:46:46Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4604,7 +4632,7 @@ function useInertBehind(ref) {
    Tab and Shift+Tab wrap inside a dialog; a pop-up menu keeps its own keys (Tab closes it).
    When it closes, focus goes back where it came from (or wherever the closing code asked for it). */
 const LC_MODAL_SEL = '[role="dialog"],[role="alertdialog"],[aria-modal="true"],.lmenu-list,.msh';
-const LC_MODAL_KEEP = { "looscid-live": 1, "lc-cue": 1, "lc-caption": 1 };
+const LC_MODAL_KEEP = { "looscid-live": 1, "lc-cue": 1, "lc-caption": 1, "lc-hints": 1 };
 const LcModal = { stack: [], applied: [], pending: null, last: null, busy: false };
 function lcModalShown(el) {
   if (!el.isConnected) return false;

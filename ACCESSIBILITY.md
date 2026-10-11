@@ -632,7 +632,7 @@ One composer for New Dream, Reply and Quote, laid out like Feditext's composer, 
 - Order in Reply mode: the heading "Reply to Maya", the heading "Replying to Maya" with the Dream as one plain paragraph, then the text box. Focus starts in the text box, so one swipe left (or VO+Left, or panning back on braille) reads the Dream.
 - After the text box: the Notify checkboxes (a fieldset with the legend "Notify"), the content warning text when it's on, attachments with their alt text fields, the link preview line, the toolbar (Photo, Poll, Audience, Content warning, Insert symbol, characters left, + Dream), Hear Dream, Read back my reply, Ask Cherry, then Reply and Close.
 - The send button's name is its visible word: Dream, or Reply. No aria-label says anything different.
-- Where Feditext uses VoiceOver hints (content warning, characters left, changing accounts), Looscid uses visible words or plain paragraphs instead, because Looscid never uses aria-describedby, aria-description or title on controls.
+- Where Feditext uses VoiceOver hints (content warning, characters left, changing accounts), Looscid uses visible words or plain paragraphs instead: the composer's controls say what they do. Looscid never uses aria-description or title, and aria-describedby only for a real hint on a control whose action isn't obvious (see Hints (Round 7)).
 - Feditext puts its content warning field above the text. Looscid puts it after the text box, so the Dream you answer stays the one thing right before your text.
 - Announcements go only through #looscid-live: what you sent ("Reply dreamed."), the characters-left count once at 20 left and once over, and Nostr results. Focus moves only when you act: opening, sending, closing, adding another Dream, turning on a content warning, and taking an alt text suggestion.
 
@@ -647,7 +647,7 @@ Cherry is a page, not a dialog. It is built screen-reader first: the page is a s
 - Focus moves only when you act: opening the page (to the h1), New Chat (to the message box), opening a chat from Your History (to its heading), and unpinning a chat in Pinned (to the next pinned chat's button, or to the Pinned tab). Cherry's answers never move focus.
 - Your History has a tablist named "Your History" with the tabs All and Pinned, each with its count. Arrow keys, Home and End move between the tabs; only the selected tab is in the Tab order. The tab panel is labelled by the selected tab.
 - Pin and Unpin are buttons named with the chat's title ("Pin What is Looscid?"), so the list makes sense when you move by buttons.
-- No aria-describedby, aria-description or title anywhere on the page. Explanations are plain paragraphs under their headings.
+- No aria-description or title anywhere on the page, and no hints: every control says what it does. Explanations are plain paragraphs under their headings.
 - No animation on the page, so Reduce Motion and flash safety have nothing to stop.
 
 ### Cherry in Commandbar, and the Commands page (Round 6.5.3)
@@ -658,12 +658,12 @@ Cherry is a page, not a dialog. It is built screen-reader first: the page is a s
 - With Cherry off, the commands open Settings, Intelligence, Cherry and say "Cherry is off."
 - The Commands page (commands, or More, Commands, All commands): Back, the heading "Commands" (h1, focus lands here), Close Commands (braille label "Close"), two plain paragraphs, then one h2 per area with a list. Each list item is a real button named by the command itself ("open feed"), followed by a plain paragraph saying what it does and, when there are any, a paragraph with the other ways to type it.
 - Pressing a command runs it exactly as Commandbar would: the result is said once in #looscid-live and focus stays on the button, unless the command opens a page (then that page's heading, or what the command points at, gets focus). A command that needs a word opens Commandbar with the command typed in and focus in the text box; Escape returns focus to the button.
-- No aria-describedby, aria-description or title on the page, and no animation.
+- No aria-description or title on the page, no hints (each command's button is followed by a paragraph saying what it does), and no animation.
 
 ### Menus, sheets and dialogs (Round 7)
 
 - Every menu, sheet and dialog is truly modal: while one is open, everything outside it is hidden from VoiceOver, braille and the keyboard, and when it closes focus goes back to the button that opened it. The live announcer (#looscid-live) always stays reachable.
-- No menu, sheet, dialog, pop-up, More, Create, Commandbar, Circle sheet, Cherry dialog or onboarding screen has aria-describedby or any other hint of its own. VoiceOver on iPhone reads a container's description as "description" and repeats it on every move inside it, so containers never get one. Their name and role say what they are; Escape or a two-finger scrub closes them.
+- No menu, sheet, dialog, pop-up, More, Create, Commandbar, Circle sheet, Cherry dialog or onboarding screen has aria-describedby or any other hint of its own (hints go only on controls; see Hints (Round 7)). VoiceOver on iPhone reads a container's description as "description" and repeats it on every move inside it, so containers never get one. Their name and role say what they are; Escape or a two-finger scrub closes them.
 - No definition lists (dl, dt, dd) anywhere. WebKit names a <dd> "description" and VoiceOver says it after every value, so label-and-value pairs (profile About and fields, the LooscidID data summary, Built-in shortcuts, the welcome glossary) are plain list rows that read "Label: value". The colon is for VoiceOver and braille only, so the look is unchanged.
 
 ### The profile (Round 7)
@@ -681,3 +681,27 @@ Cherry is a page, not a dialog. It is built screen-reader first: the page is a s
 - Icon, Category and Privacy are radio groups: each choice is a radio button with its checked state, Arrow keys move and choose, and only the chosen one is in the Tab order. A Privacy choice's name includes its sub-line ("Public, Anyone can find and join"); nothing is read through a description.
 - No asterisks: the name field is required (VoiceOver says "required") and the visible labels say "(required)". No arrows in the Next buttons, no slashes in the step count, and the rule numbers are hidden (each field is "Rule 1", "Rule 2"...).
 - Escape or a two-finger scrub closes the sheet, like every other sheet.
+
+### Hints (Round 7)
+
+Alhasan (Oct 11, 2026): hints like a Swift app's, only where they help.
+
+- A hint is aria-describedby on the one control that needs it, pointing at a short sentence that ends with a period. On iPhone, VoiceOver reads it after a short pause as that control's hint, it follows VoiceOver's own Hints setting, and a braille display shows it. Desktop screen readers may read it right away.
+- Hints are allowed on controls whose action isn't obvious from their name and role. They are never allowed on containers (menus, sheets, dialogs, More, Create, Commandbar, Circle sheets, Cherry dialogs, onboarding, lists, Dream rows, tab lists or tabs), and never on obvious controls such as Like, Back, Close, Share, Mute, Block, Follow, menu items, text fields or tabs.
+- Every sentence lives once in one hidden holder outside the app (#lc-hints), reused by id (lcHint in core.js). The modal manager leaves the holder alone.
+- A disabled item says only its short name ("Report"); why it's unavailable is its hint ("Not available yet: Looscid has nowhere to send reports yet.").
+
+| Control | Hint |
+|---|---|
+| A Dream's replies count ("3 replies") | Opens the thread. |
+| A Dream's Redreams count | Opens Redream and Quote. |
+| A Dream's More button | Opens actions for this Dream. |
+| More, Read this Dream | Reads this Dream aloud. |
+| More, Hear thread | Reads the whole thread aloud. |
+| More, Report (unavailable) | Not available yet: Looscid has nowhere to send reports yet. |
+| Expand thread / Collapse thread | Shows the Dreams above and every reply. / Shows only this Dream. |
+| Profile, Following and Followers counts | Opens the list. |
+| Profile, Direct message and Dreamor options, Message (unavailable) | Not available yet: direct messages aren't ready yet. |
+| Dreamor options, Report (unavailable) | Not available yet: Looscid has nowhere to send reports yet. |
+| Dreamor options, Ask Cherry for a summary (while Cherry is off) | Not available while Cherry is off. Turn it on in Settings, Intelligence. |
+| Create, an option that isn't in Looscid yet ("Custom Feed") | Not available in Looscid yet. |
