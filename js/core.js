@@ -455,8 +455,22 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
       : { id: "untag", name: "Remove me from this Dream", a: function () { lcSetUntagged(dream, true); announce("Removed you from this Dream. Your mention in it isn't a link to you anymore."); } }) : null,
     cherryCtx ? { id: "cherry", name: "Ask Cherry about this Dream", a: function () { cherryCtx.openCherry("Tell me about this Dream: " + String(dream.text || "").slice(0, 200)); } } : null,
   ].filter(Boolean);
-  return lh(LcMenu, { id: id + "-btn", menuId: id, kind: "action", title: "Dream options", btnLabel: "Dream options", btnClass: "ixn-btn", btnRef: btnRef, noCaret: true, align: "right", up: true,
-    className: "lc-dmenu", style: { flex: ".5", display: "flex" }, itemClass: "lc-dopt", btnText: lh(Ic.Dots, { style: { width: 15, height: 15 } }), items: items,
+  // Build 150 (#46): Feditext's More button. Its own pop-up items come first, in Feditext's order (Bookmark is Like in
+  // Looscid, then Mute, Block, Report for someone else's Dream), then Looscid's own. Feditext layout only, no code.
+  const mine = !!dream.user && (dream.user === ME || (handle && lcHandle(handle) === lcHandle(ME.handle || "")));
+  const muted = !mine && handle && lcPeopleHas("dbm_muted_dreamors", handle), blocked = !mine && handle && lcBlocked("dreamers").indexOf(lcHandle(handle)) >= 0;
+  const who = handle ? "@" + handle : "this Dreamor";
+  const fx = mine || !handle ? [] : [
+    muted ? { id: "unmute", name: "Unmute " + who, a: function () { lcPeopleSet("dbm_muted_dreamors", handle, false); announce("Unmuted " + who + "."); } }
+          : { id: "mute", name: "Mute " + who, a: function () { lcPeopleSet("dbm_muted_dreamors", handle, true); announce("Muted " + who + ". Their Dreams are hidden from your feed."); } },
+    blocked ? { id: "unblock", name: "Unblock " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").filter(function (h) { return h !== lcHandle(handle); })); announce("Unblocked " + who + "."); } }
+            : { id: "block", name: "Block " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").concat([handle])); announce("Blocked " + who + ". Unblock here or in Settings, Privacy."); } },
+    { id: "report", name: "Report, coming soon", disabled: true },
+  ];
+  const likeIt = items.filter(function (it) { return it.id === "like"; });
+  const ordered = likeIt.concat(fx, items.filter(function (it) { return it.id !== "like"; }));
+  return lh(LcMenu, { id: id + "-btn", menuId: id, kind: "action", title: "More", btnLabel: "More", btnClass: "ixn-btn", btnRef: btnRef, noCaret: true, align: "right", up: true,
+    className: "lc-dmenu", style: { flex: ".5", display: "flex" }, itemClass: "lc-dopt", btnText: lh(Ic.Dots, { style: { width: 15, height: 15 } }), items: ordered,
     onSelect: function (k, it) { if (it.a) it.a(); } });
 }
 function BackHeader({title, onBack, right}) {
@@ -572,6 +586,14 @@ function ReplyItem({cm, navigate, onReply}) {
 function CommentItem(props) { return lh(ReplyItem, props); } // the old name, kept for anything that still uses it
 /* The Replies page: the Dream, a Reply button that opens the composer in Reply mode, then the replies.
    Replies you write are saved on this device (dbm_replies) and come back after a reload. */
+// Build 150 (#46): the Dreams above a Dream in its thread, oldest first (its parent, the parent's parent, ...).
+function lcThreadAbove(d) {
+  const pool = (Looscid.LC_APP_DREAMS || []).concat(lcRepliesRaw().map(lcReplyObj));
+  const byId = {}; pool.forEach(function (x) { if (x && x.id != null) byId[String(x.id)] = x; });
+  const out = []; let cur = d, guard = 0;
+  while (cur && cur.replyTo != null && guard++ < 1000) { const up = byId[String(cur.replyTo)]; if (!up || out.indexOf(up) >= 0) break; out.unshift(up); cur = up; }
+  return out;
+}
 function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onCommentPosted, navigate}) {
   const tick = useRepliesTick();
   const comments = React.useMemo(function () { return lcRepliesFor(dream.id).concat(MOCK_COMMENTS[dream.id] || []); }, [dream.id, tick]);
@@ -587,6 +609,12 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
     return lcWhen(b)-lcWhen(a);
   });
   const linkInfo = lcLinkCard(dream.text);
+  // Build 150 (#46, Alhasan 3:49 AM Oct 11): only the Dream you opened is shown. "Expand thread" shows the whole
+  // thread (the Dreams above it and every reply); the same button then reads "Collapse thread". Its words change in
+  // place, focus stays on it, and nothing is announced.
+  const [expanded, setExpanded] = useState(false);
+  const above = React.useMemo(function () { return lcThreadAbove(dream); }, [dream.id, tick]);
+  const threadBtn = lh('button', { type: "button", id: "cv-thread-btn", className: "btn bgb lc-btn lc-thread-btn", "aria-controls": "cv-thread", onClick: function () { setExpanded(!expanded); } }, expanded ? "Collapse thread" : "Expand thread");
   return (
     React.createElement('div', { className: "pg", style: {display:"flex",flexDirection:"column",paddingBottom:0},}
       , React.createElement('div', { className: "hdr",}
@@ -598,6 +626,9 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
       )
       , React.createElement('div', { style: {flex:1,display:"flex",flexDirection:"column",overflow:"hidden"},}
         , React.createElement('div', { style: {overflowY:"auto",flex:1,scrollbarWidth:"none"},}
+          , lh('div', { style: { padding: "10px 16px 0" } }, threadBtn)
+          /* Build 150: the Dreams above this one, when the thread is expanded */
+          , lh('div', { id: "cv-thread" }, expanded && above.length ? lh('div', { id: "cv-above", role: "list", "aria-label": "Earlier in this thread" }, above.map(function (cm) { return lh('div', { role: "listitem", key: "a" + cm.id }, lh(ReplyItem, { cm: cm, navigate: navigate, onReply: function (c, el) { reply(c, el); } })); })) : null)
           /* Original Dream */
           , React.createElement('div', { style: {padding:"14px 16px",borderBottom:"1px solid var(--bd)",background:"var(--sf2)"},}
             , React.createElement('div', { className: "dc-meta", style: {marginBottom:6},}
@@ -631,15 +662,15 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
           , lh('div', { style: {padding:"10px 14px",borderBottom:"1px solid var(--bd)",display:"flex",gap:9,alignItems:"center"} },
               lh(Av, { user: ME, size: 32 }),
               lh('button', { type: "button", id: "cv-reply-btn", className: "btn bp", style: {padding:"8px 16px",fontSize:13}, onClick: function (e) { reply(dream, e.currentTarget); } }, "Reply to " + dream.user.name))
-          /* Sort bar */
-          , React.createElement('div', { className: "sort-bar",}
+          /* Sort bar and replies: shown when the thread is expanded */
+          , expanded && React.createElement('div', { className: "sort-bar",}
             , React.createElement('span', { className: "sort-lbl",}, "Replies " , React.createElement('strong', { style: {color:"var(--tx)"},}, comments.length))
             , lh(LcMenu, { id: "cv-sort", label: "Sort replies", hideLabel: true, title: "Sort replies", btnClass: "sort-btn", prefix: "Sort: ", align: "right", value: sort,
                 items: SORT_OPTIONS.map(function (o) { return { id: o.id, name: o.label }; }), onSelect: function (v) { setSort(v); announce("Sorted by " + (SORT_OPTIONS.find(o=>o.id===v)||{label:v}).label + "."); } })
           )
           /* Replies */
-          , lh('div', { id: "cv-replies", role: "list", "aria-label": "Replies" }, sorted.map(cm => lh('div', { role: "listitem", key: cm.id }, lh(ReplyItem, { cm: cm, navigate: navigate, onReply: function (c, el) { reply(c, el); } }))))
-          , comments.length===0 && React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "No replies yet"), React.createElement('div', { className: "esl",}, "Be the first to reply."))
+          , expanded && lh('div', { id: "cv-replies", role: "list", "aria-label": "Replies" }, sorted.map(cm => lh('div', { role: "listitem", key: cm.id }, lh(ReplyItem, { cm: cm, navigate: navigate, onReply: function (c, el) { reply(c, el); } }))))
+          , expanded && comments.length===0 && React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "No replies yet"), React.createElement('div', { className: "esl",}, "Be the first to reply."))
           , React.createElement('div', { ref: endRef, style: {height:16},})
         )
       )
@@ -3698,8 +3729,8 @@ function lcA11yIntent(raw) {
   return null;
 }
 /* --- Feeds: one tablist; swipe, adjustable control, PageUp/PageDown, commands ---- */
+// Build 150 (#51, Alhasan 4:44 AM Oct 11): no "Home" tab before the feed tabs. A saved "home" falls back to For You below.
 const LC_FEEDS = [
-  { id: "home", label: "Home", alias: ["home"] },
   { id: "for you", label: "For You", alias: ["for you", "foryou", "for u"] },
   { id: "following", label: "Following", alias: ["following", "followed"] },
   { id: "local", label: "Local", alias: ["local", "nearby"] },

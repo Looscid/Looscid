@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 11, 2026 at 4:36 PM (Eastern Time, 2026-10-11T20:36:41Z UTC)
+Released October 11, 2026 at 4:40 PM (Eastern Time, 2026-10-11T20:40:29Z UTC)
 
 Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each.
 
@@ -16,6 +16,9 @@ Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each
 - Profiles: the header count is in parentheses, like Dreams (400), and it updates live. If the Dreamor publishes while you're on their profile (your own too), Looscid says “<their name> just published”. Focus never moves.
 - Profiles: the header shows the exact moment you joined, like Joined Sunday, October 11, 2026 at 3:12 PM (Eastern Time), in your own time zone, the same as About. Older LooscidIDs that only kept the month now show the full date and time too.
 - Profiles: the top button is called Dreamor options instead of More. Same list, same behavior.
+- The Home tab before the feed tabs is gone: the feed tabs start at For You. If you were on Home, you land on For You.
+- Thread view, like Alhasan's Feditext idea: opening a Dream's replies shows just that Dream. Expand thread shows the whole thread, the Dreams above it and every reply; the same button then says Collapse thread. The words change in place and focus stays on the button.
+- Each Dream's options button is Feditext's More button now. Its pop-up starts with Feditext's items in Feditext's order: Like (Feditext's Bookmark), Mute, Block, and Report (coming soon) for someone else's Dream, then Looscid's own (Read, Hear thread, Translate, Share, profile, Ask Cherry). Closing it says Close More.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 
