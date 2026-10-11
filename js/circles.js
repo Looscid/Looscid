@@ -1,7 +1,7 @@
 /* Looscid circles.js: Circles (create a Circle, a Circle's page, its admin settings, the Circles list).
    Still drawn with React, like the tabs not yet rewritten. Plain script (not a module); see FILES.md. */
 (function (Looscid) {
-const { Av, Cbx, CommentView, DreamCard, GROUPS, Ic, ME, Modal, fmt, lcCloseProps, useDreams, useState } = Looscid;
+const { Av, Cbx, CommentView, DreamCard, GROUPS, Ic, ME, Modal, USERS, fmt, lcCloseProps, useDreams, useState } = Looscid;
 Object.assign(Looscid, { CreateGroupFlow, GroupDetailPage, GroupAdminModal, GroupsPage });
 
 function CreateGroupFlow({onClose, navigate}) {
@@ -388,6 +388,8 @@ function GroupsPage({navigate, cherryCtx}) {
               )
               , g.joined&&React.createElement('button', { className: "btn bgb" , style: {fontSize:11,padding:"5px 10px",flexShrink:0}, onClick: e=>{e.stopPropagation();tj(g.id);}, 'aria-label': "Leave "+g.name,}, "Joined ✓" )
               , !g.joined&&React.createElement('button', { className: "btn bp" , style: {fontSize:11,padding:"5px 10px",flexShrink:0}, onClick: e=>{e.stopPropagation();tj(g.id);}, 'aria-label': "Join "+g.name,}, "Join")
+              // Build 148: like a Circle and it's in Liked, Circles.
+              , Looscid.LcLikeBtn && React.createElement('span', { onClick: e=>e.stopPropagation(), onKeyDown: e=>e.stopPropagation(), style: {flexShrink:0} }, React.createElement(Looscid.LcLikeBtn, { k: "circle", id: g.id, name: g.name + " Circle", snap: { name: g.name, emoji: g.emoji } }))
             )
             , React.createElement('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.5,marginTop:5},}, g.description)
             , React.createElement('div', { style: {display:"flex",marginTop:8,gap:-6},}

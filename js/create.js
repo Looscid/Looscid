@@ -2,7 +2,7 @@
    Plain script (not a module). Everything it shares goes on window.Looscid; see FILES.md for the load order. */
 (function (Looscid) {
 const { AlertDialog, Av, BackHeader, CreateGroupFlow, DRAFTS_KEY, Earcon, LC_AUTOSAVE_KEY, LcMenu, ME, Modal, _optionalChain, announce, getDrafts, lcCloseProps, lcSpeechText, lh, recordHabit, useEffect, useEnterSubmit, useInertBehind, useRef, useState } = Looscid;
-Object.assign(Looscid, { LcComposer, lcReplyDrafts, lcAltSuggest, deleteDraftItem, AttachPanel, CreateMenu, DraftsPage, evalInlineCalc, SymbolPicker, lcSendWithUndo, lcPrepImage });
+Object.assign(Looscid, { LC_CREATE_DESC, LC_CREATE_OPTS, CreateOptions, lcCreatePick, LcComposer, lcReplyDrafts, lcAltSuggest, deleteDraftItem, AttachPanel, CreateMenu, DraftsPage, evalInlineCalc, SymbolPicker, lcSendWithUndo, lcPrepImage });
 
 function deleteDraftItem(id) {
   try { localStorage.setItem(DRAFTS_KEY, JSON.stringify(getDrafts().filter(d => d.id !== id))); } catch (e7) {}
@@ -113,28 +113,66 @@ function lcOpenNostrKey(navigate) {
   let n = 0; const go = function () { const h = document.getElementById("nostr-key-h"); if (h) { h.focus(); return; } if (++n < 30) setTimeout(go, 50); }; setTimeout(go, 80);
 }
 Looscid.lcOpenNostrKey = lcOpenNostrKey;
-function CreateMenu({onClose, prefs, navigate, cherryCtx}) {
-  const [screen, setScreen] = useState("menu"); // menu | dream | group
+/* Build 148 (Alhasan's spec sheet): Create has exactly 9 options. ONE implementation, CreateOptions, is used by the Create tab
+   (the dialog below) and by the Create section in More: same description, same options, same names. Options with a real flow
+   in Looscid open it; the rest say Unavailable in plain text and stay reachable, so VoiceOver and the braille display can find them. */
+var LC_CREATE_DESC = "Choose what you want to create.";
+var LC_CREATE_OPTS = [
+  { id: "dream", l: "Dream", go: "dream", done: "" },
+  { id: "circle", l: "Circle", go: "group" },
+  { id: "feed", l: "Custom Feed" },
+  { id: "app", l: "App or Game (for developers)" },
+  { id: "call", l: "New Call" },
+  { id: "chat", l: "New Chat" },
+  { id: "cherry", l: "New Chat with Cherry", cherry: true },
+  { id: "live", l: "Go Live" },
+  { id: "gif", l: "GIF" },
+];
+// ctx: { navigate, close, open(screen) }. open("dream") opens the composer (local save), open("group") the New Circle flow.
+function lcCreatePick(o, ctx) {
+  if (o.cherry) {
+    if (Looscid.lcCherryStartNew) Looscid.lcCherryStartNew();
+    if (ctx.close) ctx.close();
+    ctx.navigate("cherry");
+    announce("New chat with Cherry.");
+    return;
+  }
+  if (!o.go) { announce(o.l + " is unavailable in Looscid for now."); return; }
+  ctx.open(o.go);
+}
+function CreateOptions({ idp, navigate, close, open }) {
+  const ctx = { navigate: navigate, close: close, open: open };
+  return lh('div', { className: "lc-create" },
+    lh('p', { className: "lc-create-desc" }, LC_CREATE_DESC),
+    lh('ul', { className: "mlist lc-create-list", role: "list", "aria-label": "Create options" }, LC_CREATE_OPTS.map(function (o) {
+      const ok = !!(o.go || o.cherry);
+      return lh('li', { key: o.id, className: "mli" },
+        lh('button', { type: "button", id: idp + "-" + o.id, className: "mitem lc-create-opt" + (ok ? "" : " lc-unavail"), "data-create": o.id,
+            "aria-disabled": ok ? undefined : "true", "aria-label": ok ? undefined : Looscid.lcNameJoin(o.l, "Unavailable"), onClick: function () { lcCreatePick(o, ctx); } },
+          lh('span', { className: "mitem-lbl" }, o.l),
+          ok ? null : lh('span', { className: "lc-unavail-tag", "aria-hidden": "true" }, "Unavailable")));
+    })));
+}
+// The Create tab: a dialog with a focusable Create heading, then the shared options.
+function CreateMenu({onClose, prefs, navigate, cherryCtx, start}) {
+  const [screen, setScreen] = useState(start || "menu"); // menu | dream | group
   // Round 6.3: closing the composer without dreaming puts focus back on what opened Create.
   const openerRef = useRef(null);
   if (openerRef.current === null) openerRef.current = document.activeElement || false;
+  const headRef = useRef(null);
+  useEffect(function () { if (screen === "menu" && headRef.current) headRef.current.focus(); }, [screen]);
   if (screen==="group") return React.createElement(CreateGroupFlow, { onClose: onClose, navigate: navigate,});
   // Round 6.5: New Dream is the shared composer (js/create.js, LcComposer), the same one Reply and Quote use.
   if (screen==="dream") return lh(LcComposer, { mode: "new", prefs: prefs, navigate: navigate, cherryCtx: cherryCtx, opener: openerRef.current, onClose: onClose });
-
-  // Main create menu
-  return (
-    React.createElement(Modal, { onClose: onClose, title: "Create", subtitle: "What would you like to share?"     ,}
-      , React.createElement('button', { className: "osb", onClick: ()=>setScreen("dream"), 'aria-label': "New Dream — write and share a Dream"       ,}
-        , React.createElement('span', { style: {fontSize:22,width:32,textAlign:"center"},}, "✏️")
-        , React.createElement('div', { style: {flex:1},}, React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "New Dream" ), React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Write, share and inspire"   ))
-      )
-      , React.createElement('button', { className: "osb", onClick: ()=>setScreen("group"), 'aria-label': "New Circle"     ,}
-        , React.createElement('span', { style: {fontSize:22,width:32,textAlign:"center"},}, "👥")
-        , React.createElement('div', { style: {flex:1},}, React.createElement('div', { style: {fontWeight:600,fontSize:14},}, "New Circle" ), React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginTop:2},}, "Create a community around a shared interest"      ))
-      )
-    )
-  );
+  const close = function () { onClose(); const o = openerRef.current; if (o && o.focus && document.contains(o)) setTimeout(function () { try { o.focus(); } catch (e) {} }, 0); };
+  return lh('div', { className: "ov", onClick: function (e) { if (e.target === e.currentTarget) close(); } },
+    lh('div', { className: "msh", role: "dialog", "aria-labelledby": "create-h", onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(); } } },
+      lh('div', { className: "mhd", "aria-hidden": "true" }),
+      lh('div', { className: "min" },
+        lh('div', { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 } },
+          lh('h2', { id: "create-h", className: "mtt", tabIndex: -1, ref: headRef, style: { margin: 0, flex: 1 } }, "Create"),
+          lh('button', Object.assign({ type: "button", className: "lc-close", onClick: close }, lcCloseProps("Create")), "Close")),
+        lh(CreateOptions, { idp: "create", navigate: navigate, close: onClose, open: setScreen }))));
 }
 // The first-run welcome is LooscidOnboarding (see the LooscidID block below App's helpers).
 

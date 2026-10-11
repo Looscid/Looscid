@@ -14,7 +14,9 @@ function convoView(st, draw, onBack) {
     h('div', { className: "hdr" },
       lcBackHeaderEl(convo.user.name, onBack),
       h('div', { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 5, padding: "4px 0 8px", fontSize: 11, color: "var(--gr)", fontWeight: 600 } },
-        "End-to-end encrypted, Private")),
+        "End-to-end encrypted, Private"),
+      // Build 148: like a chat and it's in Liked, Chats.
+      Looscid.lcLikeBtnEl ? h('div', { style: { display: "flex", justifyContent: "center", paddingBottom: 6 } }, Looscid.lcLikeBtnEl("chat", convo.id, "chat with " + convo.user.name, { name: "Chat with " + convo.user.name }, draw)) : null),
     h('div', { className: "msgs", style: { flex: 1 } },
       st.msgs.map(function (m, i) {
         const k = m.id || i;

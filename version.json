@@ -1,14 +1,14 @@
 {
   "app": "Looscid",
   "branch": "preview",
-  "version": "2026.115.32",
-  "build": 147,
-  "features": 115,
+  "version": "2026.116.32",
+  "build": 148,
+  "features": 116,
   "fixes": 32,
-  "builds_without_fixes": 115,
-  "released": "2026-10-11T02:44:37Z",
-  "title": "Round 6.7",
-  "notes": "Profiles recreated from Feditext's layout (no Feditext code used), with Following and Followers pages, a More button that expands in place, an About tab and a Redreams Show filter. Liking is saving: everything you liked is in Liked (Dreams, Circles, Apps, Marketplace, Chats, Searches, with an Images filter), private by default with per-part switches in Settings, Privacy. Remove me from a Dream that tags you, and View your profile in More. A feature update.",
+  "builds_without_fixes": 116,
+  "released": "2026-10-11T03:45:29Z",
+  "title": "Round 6.8",
+  "notes": "Liked in More: the same Liked as your profile (Dreams, Circles, Apps, Marketplace, Chats, Searches, with an Images filter), and Like on Circles, Apps and Cherry chats. Like Search on Discover and in the Commandbar, each with an Alerts switch that checks it across your networks while Looscid is open and puts new Dreams in Alerts, From Looscid. Create has nine options, the same in the Create tab and in More. A feature update.",
   "branches": {
     "MainV1": {
       "version": "2026.70.103",
@@ -29,9 +29,9 @@
       "fixes": 103
     },
     "preview": {
-      "version": "2026.115.32",
-      "build": 147,
-      "features": 115,
+      "version": "2026.116.32",
+      "build": 148,
+      "features": 116,
       "fixes": 32
     },
     "refactor/discover-extraction": {
@@ -60,10 +60,10 @@
     }
   },
   "all_branches": {
-    "version": "2026.768.518",
-    "build": 1286,
-    "features": 768,
+    "version": "2026.769.518",
+    "build": 1287,
+    "features": 769,
     "fixes": 518,
-    "builds_without_fixes": 768
+    "builds_without_fixes": 769
   }
 }

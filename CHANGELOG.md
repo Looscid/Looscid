@@ -2,6 +2,23 @@
 
 Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.116.32 (148): Round 6.8
+
+Released October 10, 2026 at 11:45 PM (Eastern Time, 2026-10-11T03:45:29Z UTC)
+
+A feature update, from Alhasan's spec sheet: Liked in More, Like Search, and Create.
+
+- More has a Liked button, right under View your profile. It opens the Liked page: the same Liked as the Liked tab on your profile (one component, one store), with the tabs Dreams, Circles, Apps, Marketplace, Chats and Searches, and Images only as a filter, not a tab. The tabs are a real tablist (arrow keys, Home and End); every panel is in the page, shown or hidden, and labelled by its tab. Only you can see it.
+- Like and Unlike, never Save or Bookmark, now also on Circles (in Discover and on the Circles page), on Apps (in More), and on Cherry chats. Cherry chats are in Chats, and they show there only while Cherry is on (Looscid has no Show Cherry setting). A Marketplace like is a listing; Marketplace isn't open yet, and the page says so.
+- Like Search: a Like Search button on Discover search results, and "like search" in the Commandbar (the search you're on, or "like search" and the words; "unlike search" and the words removes one). It goes to Liked, Searches, with its filters.
+- Each Liked Search has an Alerts switch, off to start. With it on, Looscid checks the search when it opens and whenever new Dreams arrive, across the networks you have connected (Nostr, Bluesky, Mastodon and the fediverse, or whichever you have), plus Dreams on this device. The entry says which ("Searching: Nostr, and Dreams on this device."), or, with none connected, that it searches Dreams on this device only. It says plainly: checked when Looscid is open, not while it's closed, because Looscid has no server.
+- New matches go to Alerts, under From Looscid (if you hid that filter, it comes back), naming the network each Dream came from. A Dream never alerts twice. One polite line in the live region says so; focus never moves. Unlike Search removes the search and its Alerts.
+- Create has exactly nine options: Dream, Circle, Custom Feed, App or Game (for developers), New Call, New Chat, New Chat with Cherry, Go Live and GIF. One implementation is used in two places, the Create tab and a Create section in More that expands in place, with the same description, the same options and the same names.
+- The Create tab is a dialog with a Create heading that gets focus, then a real list. Escape closes it and puts focus back on Create.
+- Dream opens New Dream (saved on this device, as before); Circle opens New Circle; New Chat with Cherry opens Cherry on a new chat. Custom Feed, App or Game, New Call, New Chat, Go Live and GIF say Unavailable in plain text: they stay in the list so VoiceOver and a braille display can find them, and pressing one says it's unavailable for now.
+- Fixed: the Circles page could stop with an error when a Circle was listed.
+- Liked Searches live in Liked (dbm_liked), on this device, like the rest of what you liked; the backup format is unchanged.
+
 ## Looscid 2026.115.32 (147): Round 6.7
 
 Released October 10, 2026 at 10:44 PM (Eastern Time, 2026-10-11T02:44:37Z UTC)

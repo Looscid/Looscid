@@ -42,6 +42,16 @@ function discoverView(st, p, draw) {
     { label: "Dreamors", opts: FILTER_OPTS.filter(function (f) { return f.group === "dreamers"; }) },
     { label: "Time",     opts: FILTER_OPTS.filter(function (f) { return f.group === "time"; }) },
   ];
+  // Build 148: the search you're on, for Like Search (here and in the Commandbar).
+  Looscid.LC_DISCOVER_Q = q; Looscid.LC_DISCOVER_FILTERS = activeLabels;
+  const sKey = Looscid.lcSearchKey ? Looscid.lcSearchKey(q, activeLabels) : null;
+  const sLiked = !!(q.trim() && sKey && Looscid.lcLikedHas("search", sKey));
+  const likeSearch = function () {
+    const qq = q.trim(); if (!qq) return;
+    if (sLiked) { Looscid.lcLikedSet("search", sKey, false); Looscid.announce("Unliked Search \u201c" + qq + "\u201d. Its Alerts are off."); }
+    else { Looscid.lcLikeSearch(qq, activeLabels, Looscid.LC_APP_DREAMS || DREAMS_INIT); Looscid.announce("Liked Search \u201c" + qq + "\u201d. It's in Liked, Searches, where you can turn on its Alerts."); }
+    draw();
+  };
   const noResults = q && dreamResults.length === 0 && dreamerResults.length === 0 && circleResults.length === 0;
 
   return h('div', { className: "pg" },
@@ -61,7 +71,8 @@ function discoverView(st, p, draw) {
           h('span', null, filterBtnText),
           h('span', { style: { fontSize: 9, opacity: .6, marginLeft: 2 } }, filtersOpen ? "\u25b2" : "\u25bc")),
         filters.length > 0 && h('button', { style: { background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "var(--tx3)", padding: "4px 6px", fontFamily: "inherit" },
-          onClick: function () { st.filters = []; draw(); }, "aria-label": "Clear all filters" }, "Clear")),
+          onClick: function () { st.filters = []; draw(); }, "aria-label": "Clear all filters" }, "Clear"),
+        q.trim() && Looscid.lcLikeSearch ? h('button', { type: "button", id: "discover-like-search", className: "btn bgb lc-btn", style: { marginLeft: "auto", fontSize: 12 }, onClick: likeSearch }, sLiked ? "Unlike Search" : "Like Search") : null),
       q && filtersOpen && h('div', { style: { margin: "0 16px 10px", background: "var(--sf2)", border: "1px solid var(--bd2)", borderRadius: 12, padding: "12px 14px" }, role: "group", "aria-label": "Search filters" },
         filterGroups.map(function (group) {
           return h('div', { key: group.label, style: { marginBottom: 10 } },
@@ -138,7 +149,8 @@ function discoverView(st, p, draw) {
           h('div', { className: "cif" },
             h('div', { className: "cnm" }, g.name),
             h('div', { className: "cpv" }, fmt(g.members), " Dreamors in this Circle")),
-          h('button', { className: "btn bgb", style: { fontSize: 12 }, "aria-label": "Join the " + g.name + " Circle" }, "Join"));
+          h('button', { className: "btn bgb", style: { fontSize: 12 }, "aria-label": "Join the " + g.name + " Circle" }, "Join"),
+          Looscid.lcLikeBtnEl ? Looscid.lcLikeBtnEl("circle", g.id, g.name + " Circle", { name: g.name, emoji: g.emoji }, draw, { style: { fontSize: 12, marginLeft: 6 } }) : null);
       }),
 
       noResults && h('div', { className: "es" },

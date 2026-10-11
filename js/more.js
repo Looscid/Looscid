@@ -931,7 +931,8 @@ function MoreAppsGroup({ navigate }) {
           lh('button', { id: "more-apps-" + it.id, type: "button", className: "mitem", onClick: function () { it.go(navigate); } },
             lh('span', { className: "mitem-lbl" }, it.l),
             lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })),
-          lcSubLine("more-apps-" + it.id + "-d", it.sub));
+          lcSubLine("more-apps-" + it.id + "-d", it.sub),
+          Looscid.LcLikeBtn ? lh(Looscid.LcLikeBtn, { k: "app", id: it.id, name: it.l, className: "btn bgb lc-btn lc-like-btn lc-mli-like" }) : null);
       }))));
 }
 function FeedbackPage({navigate}) {
@@ -2097,12 +2098,19 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 115; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 116; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 32;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.115.32", build: 147, released: LOOSCID_RELEASED, title: "Round 6.7", notes: [
+  { version: "2026.116.32", build: 148, released: LOOSCID_RELEASED, title: "Round 6.8", notes: [
+    "Round 6.8: a feature update. Liked in More, Like Search, and Create with nine options.",
+    "More has Liked: the same Liked as your profile's Liked tab, with Dreams, Circles, Apps, Marketplace, Chats and Searches, and an Images only filter. Only you can see it.",
+    "Like and Unlike on Circles, Apps and Cherry chats too. Cherry chats are in Chats.",
+    "Like Search: on a search in Discover, or say like search in the Commandbar. Each Liked Search has an Alerts switch, off to start. With it on, Looscid checks the search when it's open, across the networks you have, and new Dreams show in Alerts under From Looscid, naming the network.",
+    "Create has nine options, the same in the Create tab and in More: Dream, Circle, Custom Feed, App or Game (for developers), New Call, New Chat, New Chat with Cherry, Go Live and GIF. The ones Looscid can't do yet say Unavailable.",
+  ] },
+  { version: "2026.115.32", build: 147, released: "2026-10-11T02:44:37Z", title: "Round 6.7", notes: [
     "Round 6.7: a feature update. Your profile, rebuilt, and Liked.",
     "Profiles are recreated from Feditext's profile layout (no Feditext code is used): the buttons, your name, your LooscidID with Follows you, your Dreams count and Joined date, fields, bio, then Following and Followers buttons that open their own pages, then the tabs Dreams, Dreams & Replies, Redreams and Media.",
     "Liking is saving: one store, one name, Liked. Your own profile has a private Liked tab with Dreams, Circles, Apps, Marketplace, Chats and Searches, and an Images only filter. Anything you saved before is in Liked.",

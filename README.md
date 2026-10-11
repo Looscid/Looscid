@@ -11,13 +11,13 @@ Looscid is a social app built for VoiceOver, braille and keyboard from day one. 
 
 ## Fun fact
 
-Fun fact: counting all 8 branches of Looscid together, Looscid would be on version 2026.770.518 (1288): 770 feature updates, 518 fixes, 1288 builds, or 770 without the fix updates.
+Fun fact: counting all 8 branches of Looscid together, Looscid would be on version 2026.771.518 (1289): 771 feature updates, 518 fixes, 1289 builds, or 771 without the fix updates.
 
-The app itself is on Looscid 2026.115.32 (147), counted on the preview branch. Versions are YEAR.FEATURES.FIXES (BUILD): fix updates only fix things, feature updates add something, and builds count every update.
+The app itself is on Looscid 2026.116.32 (148), counted on the preview branch. Versions are YEAR.FEATURES.FIXES (BUILD): fix updates only fix things, feature updates add something, and builds count every update.
 
 <details><summary>Branches</summary>
 
-- preview: 2026.115.32 (147)
+- preview: 2026.116.32 (148)
 - main: 2026.154.120 (274)
 - MainV1: 2026.70.103 (173)
 - main-reset: 2026.70.103 (173)

@@ -1440,10 +1440,8 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"Circles", label:"Circles",  sub:"Your communities",                              action(){onClose();goRoot("circles");} },
     ]},
     { id:"apps", emoji:"Apps", label:"Apps", items: lcAppItems().map(function (it) { return { icon: it.l, label: it.l, sub: it.sub, action(){ onClose(); it.go(navigate); } }; }) },
-    { id:"create", emoji:"Create", label:"Create", items:[
-      { icon:"New Dream", label:"New Dream",   sub:"Write and share a Dream",   action(){onClose();goRoot("create");} },
-      { icon:"New Circle", label:"New Circle",  sub:"Start a Circle",        action(){onClose();goRoot("create");} },
-    ]},
+    // Build 148 (Alhasan): Create is the same list as the Create tab, one shared implementation (js/create.js, CreateOptions).
+    { id:"create", emoji:"Create", label:"Create", items:[], render: function () { return Looscid.CreateOptions ? lh(Looscid.CreateOptions, { idp: "more-create", navigate: navigate, close: onClose, open: function (scr) { onClose(); if (Looscid.LC_OPEN_CREATE) Looscid.LC_OPEN_CREATE(scr); } }) : null; } },
     { id:"alerts", emoji:"Alerts", label:"Alerts", badge:totalAlerts, items:[
       { icon:"Messages", label:"Messages",      sub:"Private Dreams",           badge:unreadMsgs,   action(){onClose();goRoot("alerts");} },
       { icon:"Notifications", label:"Notifications", sub:"Likes, follows, mentions", badge:unreadNotifs, action(){onClose();goRoot("alerts");} },
@@ -1494,6 +1492,8 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       React.createElement('button', Object.assign({type:"button",className:"mclose-btn mclose-top",onClick:onClose}, lcCloseProps("menu")), "Close"),
       // Build 147 (Alhasan): View your profile, near the top of More.
       React.createElement('button', {type:"button", id:"more-view-profile", className:"lc-more-profile", onClick:function(){ onClose(); navigate("profile"); }}, React.createElement('span', null, "View your profile")),
+      // Build 148 (Alhasan): Liked is a place in More, not a bottom tab.
+      React.createElement('button', {type:"button", id:"more-liked", className:"lc-more-profile", onClick:function(){ onClose(); navigate("liked"); }}, React.createElement('span', null, "Liked")),
 
       SECTIONS.map(function(s) {
         var sOpen = isOpen(s.id);
@@ -1531,7 +1531,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
             hidden: !sOpen,
           },
             s.intro ? React.createElement('p', {style:{padding:"8px 16px",margin:0,fontSize:12,color:"var(--tx2)"}}, s.intro) : null,
-            s.top && sOpen ? lh(LcSettingFind, { navigate: navigate, onClose: onClose }) : null,             React.createElement('ul', {className:"mlist", role:"list"}, s.items.map(function(item) {
+            s.top && sOpen ? lh(LcSettingFind, { navigate: navigate, onClose: onClose }) : null,             s.render ? s.render() : React.createElement('ul', {className:"mlist", role:"list"}, s.items.map(function(item) {
               var subId = "msub-" + s.id + "-" + item.label.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
               var hasBadge = item.badge>0;
               var hasCount = item.count!=null;
@@ -1562,7 +1562,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
                 style:itemStyle, onClick:item.soon ? undefined : item.action, "aria-label":ariaLabel,
               }, iconEl, lblEl, count,
                 React.createElement(Ic.Chv,{key:"chv",style:{width:13,height:13,color:"var(--tx3)",flexShrink:0},"aria-hidden":"true"})
-              ), subP);
+              ), subP, item.like && Looscid.LcLikeBtn ? lh(Looscid.LcLikeBtn, { k: item.like.k, id: item.like.id, name: item.label, className: "btn bgb lc-btn lc-like-btn lc-mli-like" }) : null);
             })),
             // Round 6.6 (Alhasan): a plain link after a section's buttons (Projects: Help build Looscid).
             s.outro ? React.createElement('p', {style:{padding:"8px 16px",margin:0,fontSize:13}}, React.createElement('a', {href:s.outro[1], target:"_blank", rel:"noopener noreferrer", className:"lc-help-link"}, s.outro[0])) : null
@@ -2858,11 +2858,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.115.32";
+const LOOSCID_VERSION = "2026.116.32";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 147;
+const LOOSCID_BUILD = 148;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-11T02:44:37Z"; // the Round 6.7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-11T03:45:29Z"; // the Round 6.8 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -3995,6 +3995,7 @@ const LC_COMMANDS = [
   ["sound", "earcons: sound on, sound off, sound test, or sound and a volume from 0 to 100"],
   ["feed and a name", "switch feeds, like feed following; next feed and previous feed too"], ["feed switching", "how you change feeds: feed switching tabs, feed switching swipe or feed switching button"], ["show friends on", "in Following, only show mutuals; show friends off shows everyone"],
   ["history", "your last commands"], ["clear", "clear the output"],
+  ["liked", "Liked, everything you liked (build 148)"], ["like search", "like the search you're on in Discover, or like search and the words; its Alerts switch is in Liked, Searches"],
   ["output collapse", "fold Commandbar output"], ["output expand", "unfold Commandbar output"],
   ["music", "the beat styles; music and a style plays one, like music hyperpop; music pause, music stop. beat works too"],
   ["set", "change an accessibility setting, like set calm on, set sounds off, set volume 50, braille output on, braille short labels off or pitch cues off"],
@@ -4046,6 +4047,7 @@ function lcExtraIntent(raw) {
     return { say: "Opened " + app.name + ".", fn: function () { Looscid.LC_NEXOS_OPEN = app; if (Looscid.LC_NAV) Looscid.LC_NAV("nexos_app", app); } };
   }
   // Round 6.6: projects, open <project> and lyrics <song> (js/projects.js). Last, so older words keep their meaning.
+  if (Looscid.lcLikedIntent) { const lk = Looscid.lcLikedIntent(raw); if (lk) return lk; } // build 148: liked, like search
   if (Looscid.lcProjectIntent) { const pj = Looscid.lcProjectIntent(raw); if (pj) return pj; }
   return null;
 }
@@ -4803,6 +4805,9 @@ useEffect(() => {
   // -- Global app state Cherry can read & mutate ------------------------------
   const [appDreams, setAppDreams] = useState(() => lcMergeDreams(lcLoadDreams(), DREAMS_INIT).map(function (d) { d = lcWithLiked(d, true); return !d.redreamed && lcRedreamHas(d.id) ? Object.assign({}, d, { redreamed: true, redreams: (d.redreams || 0) + 1 }) : d; }));
   useSavedDreams(appDreams);
+  // Build 148: Liked Searches with Alerts on are checked when Looscid opens and whenever new Dreams arrive (no server, so never while closed).
+  Looscid.LC_APP_DREAMS = appDreams;
+  useEffect(() => { const t = setTimeout(function () { if (Looscid.lcLikedSearchCheck) Looscid.lcLikedSearchCheck(appDreams); }, 800); return function () { clearTimeout(t); }; }, [appDreams]);
   // Build 147: Liked is one store; the app's own copy follows it.
   useEffect(() => { const f = function () { setAppDreams(function (ds) { let ch = false; const out = ds.map(function (d) { const n = lcWithLiked(d, false); if (n !== d) ch = true; return n; }); return ch ? out : ds; }); }; window.addEventListener("looscid-liked", f); return function () { window.removeEventListener("looscid-liked", f); }; }, []);
   // Round 6.4: your Dreams read back from Nostr relays (js/nostr.js) join the app quietly: no announcement, no focus move.
@@ -4956,7 +4961,7 @@ useEffect(() => {
     const inp = document.getElementById("lc-cmd-input"); if (inp) { inp.focus(); return; }
     cmdReturn.current = document.activeElement; setCmdOpen(true);
   };
-  openCmdRef.current = openCmd; Looscid.LC_OPEN_CMD = openCmd; Looscid.LC_SET_A11Y = setA11yPatch; Looscid.LC_NAV = navigate; Looscid.LC_SET_PREFS = setPrefs; Looscid.LC_SET_THEME = setTheme;
+  openCmdRef.current = openCmd; Looscid.LC_OPEN_CMD = openCmd; Looscid.LC_SET_A11Y = setA11yPatch; Looscid.LC_NAV = navigate; Looscid.LC_OPEN_CREATE = function (scr) { setShowCreate(scr || true); }; Looscid.LC_SET_PREFS = setPrefs; Looscid.LC_SET_THEME = setTheme;
   // The one door for Dreams arriving from outside this device (the network layer, later); also used by tests.
   window.lcReceiveDreams = function (list) { const arr = (Array.isArray(list) ? list : [list]).map(function (d) { return Object.assign({ likes: 0, comments: 0, redreams: 0, quotes: 0, liked: false, redreamed: false, quoted: false, bookmarked: false, time: "now" }, d, { id: d.id || Date.now() + Math.random(), user: typeof d.user === "number" ? USERS[d.user] : (d.user || { name: "Someone", handle: "" }) }); }); setAppDreams(function (ds) { return arr.map(function (x) { return lcWithLiked(x, true); }).concat(ds); }); };
   // Undo send bar
@@ -5215,6 +5220,7 @@ useEffect(() => {
       case "alerts":        return React.createElement(Looscid.AlertsPage, { cherryCtx: cherryCtx,});
       case "groups":        return React.createElement(Looscid.GroupsPage, { navigate: navigate, cherryCtx: cherryCtx,});
       case "profile":       return React.createElement(Looscid.ProfilePage, { key: "me", navigate: navigate, cherryCtx: cherryCtx, authUser: authUser, onUpdateProfile: handleUpdateProfile,});
+      case "liked":         return React.createElement(Looscid.LikedPage, { navigate: navigate, cherryCtx: cherryCtx,}); // build 148: Liked, in More
       case "dp":            return pdata ? React.createElement(Looscid.DreamorProfilePage, { user: pdata, navigate: navigate, cherryCtx: cherryCtx,}) : React.createElement(Looscid.FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
       case "settings_account":        return React.createElement(Looscid.AccountSettings, { key: "acct-" + ((pdata && pdata.tab) || "home"), navigate: navigate, authUser: authUser, onSignOut: handleSignOut, onRenameProfile: handleRenameProfile, onUpdateProfile: handleUpdateProfile, initialTab: pdata && pdata.tab,});
       case "settings_notifications":  return React.createElement(Looscid.NotificationsSettings, { navigate: navigate, prefs: prefs, setPrefs: setPrefs,});
@@ -5373,7 +5379,7 @@ useEffect(() => {
         )
       ))
       , composeReq && Looscid.LcComposer && React.createElement(Looscid.LcComposer, Object.assign({ key: "cmp-" + composeReq.n }, composeReq, { prefs: prefs, navigate: navigate, cherryCtx: cherryCtx, onClose: function () { setComposeReq(null); } }))
-      , showCreate && React.createElement(Looscid.CreateMenu, { onClose: ()=>setShowCreate(false), prefs: prefs, navigate: navigate, cherryCtx: cherryCtx, drafts: drafts, onDraftSave: ()=>setDrafts(getDrafts()),})
+      , showCreate && React.createElement(Looscid.CreateMenu, { start: typeof showCreate === "string" ? showCreate : undefined, onClose: ()=>setShowCreate(false), prefs: prefs, navigate: navigate, cherryCtx: cherryCtx, drafts: drafts, onDraftSave: ()=>setDrafts(getDrafts()),})
       , showMenu && React.createElement(MainMenu, { key: menuInit ? "m-" + menuInit.n : "m", initOpen: menuInit && menuInit.open, initFocus: menuInit && menuInit.focus, onClose: ()=>{ setShowMenu(false); setMenuInit(null); }, navigate: navigate, goRoot: goRoot, prefs: prefs, unreadNotifs: unreadNotifs, unreadMsgs: unreadMsgs, appDreams: appDreams,})
       , showAnalytics && React.createElement(AnalyticsBanner, { onDone: () => setShowAnalytics(false),})
       , showHabitCard && React.createElement(HabitInsightCard, { onDismiss: ()=>setShowHabitCard(false),})

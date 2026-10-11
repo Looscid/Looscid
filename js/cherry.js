@@ -127,7 +127,9 @@ function cherryView(st, p, act) {
                   h('button', { type: "button", className: "lc-cherry-open", "data-chat": c.id, onClick: function () { act.open(c.id); } },
                     c.title, open ? h('span', { className: "lc-cherry-now" }, ", open now") : null),
                   h('p', { className: "lc-muted" }, lcCherryWhen(c.updated) + ", " + n + (n === 1 ? " message" : " messages") + (c.pinned ? ", pinned" : "")),
-                  h('button', { type: "button", className: "btn bgb lc-btn lc-cherry-pin", "data-chat": c.id, onClick: function () { act.pin(c.id); } }, (c.pinned ? "Unpin " : "Pin ") + c.title));
+                  h('button', { type: "button", className: "btn bgb lc-btn lc-cherry-pin", "data-chat": c.id, onClick: function () { act.pin(c.id); } }, (c.pinned ? "Unpin " : "Pin ") + c.title),
+                  // Build 148: like a Cherry chat and it's in Liked, Chats.
+                  Looscid.lcLikeBtnEl ? Looscid.lcLikeBtnEl("chat", c.id, c.title, { cherry: true }, act.draw) : null);
               }))
           : h('p', { className: "lc-muted" }, tab === "pinned" ? "No pinned chats yet. Pin a chat in All to keep it here." : "No chats yet. Your chats with Cherry will be listed here."))),
 
@@ -276,7 +278,10 @@ const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
   return { update: function (np) { p = np; const f = takeCmd(); if (f) { setTimeout(function () { if (alive) focusId(f); }, 60); return; } if (!takeAsk()) draw(); }, stop: function () { alive = false; saveCur(); } };
 });
 
-Object.assign(Looscid, { CherryPage, LC_CHERRY, LC_CHERRY_CHATS_KEY, lcCherryChats, lcCherrySaveChats, lcLlmPrefs, lcLlmSetPrefs, lcLlmGpu, lcLlmLoad, lcLlmAsk, CherryModelPicker, SourcesPanel, cherryNorm, cherryRespond });
+// Build 148: Create, New Chat with Cherry starts a fresh chat; Liked, Chats opens a liked one.
+function lcCherryStartNew() { LC_CHERRY.cur = lcCherryNewChat(); }
+function lcCherryOpenChat(id) { const c = lcCherryChats().find(function (x) { return x.id === id; }); if (c) LC_CHERRY.cur = c; }
+Object.assign(Looscid, { lcCherryStartNew, lcCherryOpenChat, CherryPage, LC_CHERRY, LC_CHERRY_CHATS_KEY, lcCherryChats, lcCherrySaveChats, lcLlmPrefs, lcLlmSetPrefs, lcLlmGpu, lcLlmLoad, lcLlmAsk, CherryModelPicker, SourcesPanel, cherryNorm, cherryRespond });
 
 /* --- Cherry model picker (round-5 queue item 1) ----------------------------------
    One searchable, grouped pop-up menu (the shared mini pop-up). Cherry built-in needs
