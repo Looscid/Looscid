@@ -1519,7 +1519,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
             },
               React.createElement('span', {style:{display:"flex",alignItems:"center",gap:7}},
                 React.createElement('span', null, s.label),
-                s.badge>0 ? React.createElement('span', {className:"mitem-badge",style:{marginLeft:4}}, React.createElement('span',{className:"sr-only"},", "), s.badge, React.createElement('span',{className:"sr-only"}," unread")) : null
+                s.badge>0 ? React.createElement('span', {className:"mitem-badge",style:{marginLeft:4}}, React.createElement('span',{className:"sr-only"}," "), s.badge, React.createElement('span',{className:"sr-only"}," unread")) : null
               ),
               React.createElement('span', {className:"msec-toggle-ic"+(sOpen?" open":""),"aria-hidden":"true"}, "\u203a")
             )
@@ -2858,11 +2858,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.116.32";
+const LOOSCID_VERSION = "2026.116.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 148;
+const LOOSCID_BUILD = 149;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-11T03:45:29Z"; // the Round 6.8 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-11T08:18:22Z"; // the Round 6.8.1 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4644,7 +4644,9 @@ const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "dbm_braille_styles", "dbm_th
   "dbm_more_projects_open",
   // Build 147: whether a profile's More is open, the Redreams tab's Show choice, and which Liked tabs show on your profile.
   // Added at the end, so older backups still import. What you liked (dbm_liked) is your data, like dbm_dreams, so it isn't here.
-  "dbm_profile_more_open", "dbm_profile_rd_show", "dbm_liked_public"];
+  "dbm_profile_more_open", "dbm_profile_rd_show", "dbm_liked_public",
+  // Build 149: the profile Media tab's Show choice (Images, Videos or Both). Added at the end, so older backups still import.
+  "dbm_profile_media_show"];
 Looscid.LC_EXPORT_KEYS = LC_EXPORT_KEYS;
 function lcExportSettings() {
   const o = { app: "Looscid", kind: "settings", version: LOOSCID_VERSION, exported: new Date().toISOString(), settings: {} };
@@ -5349,7 +5351,7 @@ useEffect(() => {
             onClick: () => { headingFocusNext.current = page!=="alerts"; goRoot("alerts"); },
             role: "tab",
             "aria-selected": page==="alerts",
-            "aria-label": "Alerts" + ((unreadNotifs+unreadMsgs)>0 ? ", " + (unreadNotifs+unreadMsgs) + " unread" : ""),
+            "aria-label": "Alerts" + ((unreadNotifs+unreadMsgs)>0 ? " (" + (unreadNotifs+unreadMsgs) + " unread)" : ""),
             "aria-controls": "main-content",
             tabIndex: navFocus===3 ? 0 : -1,
           },

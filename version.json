@@ -1,14 +1,14 @@
 {
   "app": "Looscid",
   "branch": "preview",
-  "version": "2026.116.32",
-  "build": 148,
+  "version": "2026.116.33",
+  "build": 149,
   "features": 116,
-  "fixes": 32,
+  "fixes": 33,
   "builds_without_fixes": 116,
-  "released": "2026-10-11T03:45:29Z",
-  "title": "Round 6.8",
-  "notes": "Liked in More: the same Liked as your profile (Dreams, Circles, Apps, Marketplace, Chats, Searches, with an Images filter), and Like on Circles, Apps and Cherry chats. Like Search on Discover and in the Commandbar, each with an Alerts switch that checks it across your networks while Looscid is open and puts new Dreams in Alerts, From Looscid. Create has nine options, the same in the Create tab and in More. A feature update.",
+  "released": "2026-10-11T08:18:22Z",
+  "title": "Round 6.8.1",
+  "notes": "The stray comma on profiles is gone (hidden commas stood in for the bullet before Joined and before Follows you). The bio and fields look like Feditext's, with real links. Follows you turns into Mutuals in place. Joined shows the full date and time in your time zone. Tab names have no position numbers, and profile tabs show counts like Dreams (106). The Media tab has Show: Images, Videos or Both. A fix update.",
   "branches": {
     "MainV1": {
       "version": "2026.70.103",
@@ -29,10 +29,10 @@
       "fixes": 103
     },
     "preview": {
-      "version": "2026.116.32",
-      "build": 148,
+      "version": "2026.116.33",
+      "build": 149,
       "features": 116,
-      "fixes": 32
+      "fixes": 33
     },
     "refactor/discover-extraction": {
       "version": "2026.95.10",
@@ -60,10 +60,10 @@
     }
   },
   "all_branches": {
-    "version": "2026.769.518",
-    "build": 1287,
+    "version": "2026.769.519",
+    "build": 1288,
     "features": 769,
-    "fixes": 518,
+    "fixes": 519,
     "builds_without_fixes": 769
   }
 }

@@ -180,7 +180,7 @@ function FeedTabs() {
       return lh('button', tabsMode
           ? { key: f.id, id: tabId(f.id), type: "button", className: "ftab" + (on ? " on" : ""), role: "tab", "aria-selected": on, tabIndex: on ? 0 : -1, "aria-controls": "feed-list", onClick: function () { go(i, false); } }
           : { key: f.id, id: tabId(f.id), type: "button", className: "ftab" + (on ? " on" : ""), tabIndex: -1, onClick: function () { go(i, false); } },
-        f.label, lh('span', { className: "ftab-num", "aria-hidden": "true" }, (i + 1) + "/" + LC_FEEDS.length));
+        f.label); // build 149: no "1/7" position (iOS says "tab, 1 of 7" itself)
     }));
   return lh(React.Fragment, null,
     mode === "swipe" && lh('div', { className: "lc-feed-adj" },

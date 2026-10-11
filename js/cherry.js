@@ -115,8 +115,8 @@ function cherryView(st, p, act) {
         TABS.map(function (t) {
           const on = tab === t[0];
           return h('button', { key: t[0], id: "cherry-tab-" + t[0], type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false",
-              "aria-controls": "cherry-panel", tabIndex: on ? 0 : -1, onClick: function () { act.setTab(t[0]); }, "aria-label": Looscid.lcNameJoin(t[1], String(t[2])) },
-            t[1], h('span', { className: "sr-only" }, ", "), h('span', { className: "lc-cherry-count" }, String(t[2])));
+              "aria-controls": "cherry-panel", tabIndex: on ? 0 : -1, onClick: function () { act.setTab(t[0]); } },
+            t[1], " ", h('span', { className: "lc-cherry-count" }, "(" + t[2] + ")")); // build 149: "All (5)", one name, no comma
         })),
       h('div', { id: "cherry-panel", role: "tabpanel", "aria-labelledby": "cherry-tab-" + tab },
         shown.length

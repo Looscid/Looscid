@@ -139,8 +139,22 @@ body.acc-text-2 .pg{zoom:1.3}
 .lc-prof-note{border:1px solid var(--bd2);border-radius:10px;padding:8px 10px;font-size:14px;color:var(--tx2)}
 .lc-prof-note-l{font-weight:700;color:var(--tx)}
 .lc-prof-noteform{display:flex;flex-direction:column;gap:6px}
-.lc-prof-fields{margin:0;border:1px solid var(--bd2);border-radius:10px;padding:6px 10px}
-.lc-prof-fields dd{margin:0 0 6px;overflow-wrap:anywhere}
+/* Build 149: Feditext's field table (label third | value), verified rows green with a checkmark; Feditext's bio. */
+.lc-prof-fields{margin:0;border:1px solid var(--bd2);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;gap:1px;background:var(--bd2)}
+.lc-prof-field{display:flex;align-items:stretch;background:var(--bg,#0b0a14)}
+.lc-prof-field dt{flex:0 0 33.333%;box-sizing:border-box;margin:0;padding:8px;text-align:center;font-weight:700;color:var(--tx2);background:var(--sf2);border-right:1px solid var(--bd2);overflow-wrap:anywhere;display:flex;align-items:center;justify-content:center}
+.lc-prof-field dd{flex:1 1 auto;margin:0;padding:8px;text-align:center;color:var(--tx);overflow-wrap:anywhere;display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap}
+.lc-prof-field.lc-verified dd{background:rgba(52,199,89,.25);font-weight:700}
+.lc-prof-field.lc-verified dd a,.lc-prof-check{color:#34c759;text-decoration:none}
+.lc-prof-bio{font-size:15px;line-height:1.45;color:var(--tx);overflow-wrap:anywhere}
+.lc-prof-bio p{margin:0 0 10px}
+.lc-prof-bio p:last-child{margin-bottom:0}
+.lc-prof-bio a{color:var(--ac3)}
+.lc-prof-lock svg{vertical-align:-1px;color:var(--tx2)}
+.lc-prof-dot{color:var(--tx3)}
+.lc-person-t{display:flex;flex-direction:column;align-items:flex-start;gap:1px}
+.lc-person-rel{font-size:13px;color:var(--tx2)}
+.lc-media-show legend{margin-bottom:6px}
 .lc-prof-counts{display:flex;gap:8px}
 .lc-prof-counts .btn{flex:1 1 0;min-height:44px}
 .lc-rd-show{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px}

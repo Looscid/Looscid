@@ -93,8 +93,7 @@ function discoverView(st, p, draw) {
       h('div', { className: "ftabs", role: "tablist", "aria-label": "Discover sections", style: { overflowX: "auto", scrollbarWidth: "none" } },
         activeTabs.map(function (t, i) {
           return h('button', { key: t, className: "ftab" + (tab === t ? " on" : ""), onClick: function () { st.tab = t; draw(); }, role: "tab", "aria-label": tabLabel(t), "aria-selected": tab === t, tabIndex: tab === t ? 0 : -1 },
-            tabLabel(t),
-            h('span', { className: "ftab-num", "aria-hidden": "true" }, (i + 1) + "/" + activeTabs.length));
+            tabLabel(t)); // build 149: no "1/4" position (iOS says "tab, 1 of 4" itself)
         }))),
 
     h('div', { "aria-live": "polite", "aria-label": "Search results" },
@@ -162,7 +161,9 @@ function discoverView(st, p, draw) {
 
 /* The Discover tab: search, filters, and Trending / Dreamors / Dreams / Circles. */
 const DiscoverPage = lcPlainScreen("DiscoverPage", function (host, props) {
-  const st = { q: "", tab: "trending", filters: [], filtersOpen: false };
+  // Build 149: a hashtag in a bio opens Discover searching for it (Looscid.LC_DISCOVER_NEXT_Q, read once).
+  const nq = typeof Looscid.LC_DISCOVER_NEXT_Q === "string" ? Looscid.LC_DISCOVER_NEXT_Q : ""; Looscid.LC_DISCOVER_NEXT_Q = null;
+  const st = { q: nq, tab: nq ? "all" : "trending", filters: [], filtersOpen: false };
   let p = props;
   const draw = function () { lcPatch(host, discoverView(st, p, draw)); };
   draw();

@@ -35,6 +35,133 @@ function lcLikedVisibleTo(items, publicTabs, visitorHandle, visitorLikedIds) {
   });
 }
 function lcFmtJoined(t) { try { return new Date(+t).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }); } catch (e) { return ""; } }
+/* Build 149 (Alhasan, Oct 11 3:21 AM): "Joined" shows the full date and the time the LooscidID was made, in the
+   viewer's own time zone, e.g. "Thursday, October 2, 2024 at 5:01 PM (Eastern Time)". A date stored without a time
+   is shown as a date only (no time is made up); any other stored text is shown as it was stored. */
+function lcTzName(d) {
+  const pick = function (style) { try { const p = new Intl.DateTimeFormat(undefined, { timeZoneName: style }).formatToParts(d || new Date()).find(function (x) { return x.type === "timeZoneName"; }); return p && p.value && !/^(GMT|UTC)[+-]?/.test(p.value) ? p.value : ""; } catch (e) { return ""; } };
+  return pick("longGeneric") || pick("long") || "your time zone";
+}
+function lcJoinedText(v) {
+  if (v == null || v === "") return "";
+  let ts = null;
+  if (typeof v === "number" || /^\d{9,}$/.test(String(v))) ts = +v;
+  else if (/^\d{4}-\d{2}-\d{2}$/.test(String(v))) {
+    const m = String(v).split("-"); const d = new Date(+m[0], +m[1] - 1, +m[2]);
+    try { return d.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" }); } catch (e) { return String(v); }
+  } else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(String(v))) ts = Date.parse(String(v));
+  if (ts == null || !isFinite(ts)) return String(v);
+  if (ts < 1e11) ts = ts * 1000; // seconds (Nostr created_at)
+  const d = new Date(ts);
+  try {
+    const day = d.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+    const time = d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+    return day + " at " + time + " (" + lcTzName(d) + ")";
+  } catch (e) { return d.toString(); }
+}
+// Media tab "Show" radios (build 149): does a Dream carry images, videos, or both?
+const LC_IMG_RE = /\.(jpe?g|png|gif|webp|avif|heic)(\?|#|\s|$)/i, LC_VID_RE = /\.(mp4|mov|webm|m4v)(\?|#|\s|$)/i;
+function lcDreamMediaKinds(d) {
+  const r = { img: false, vid: false, any: false };
+  if (!d) return r;
+  (Array.isArray(d.media) ? d.media : []).forEach(function (m) {
+    const t = typeof m === "string" ? m : String((m && (m.type || m.mime || m.kind)) || "") + " " + String((m && (m.url || m.src)) || "");
+    if (/video|^vid/i.test(t) || LC_VID_RE.test(t)) r.vid = true; else if (/image|^img|photo|gif/i.test(t) || LC_IMG_RE.test(t)) r.img = true;
+    r.any = true;
+  });
+  if (Array.isArray(d.images) && d.images.length) r.img = r.any = true;
+  if (Array.isArray(d.videos) && d.videos.length) r.vid = r.any = true;
+  const tx = String(d.text || "");
+  if (LC_IMG_RE.test(tx)) r.img = r.any = true;
+  if (LC_VID_RE.test(tx)) r.vid = r.any = true;
+  return r;
+}
+const LC_PROFILE_MEDIA_KEY = "dbm_profile_media_show";
+function lcMediaShow() { try { const v = localStorage.getItem(LC_PROFILE_MEDIA_KEY); return v === "images" || v === "videos" ? v : "both"; } catch (e) { return "both"; } }
+/* The bio, shown the way Feditext shows an account's bio (its "note"): rich text in paragraphs, line breaks kept,
+   and links, mentions and hashtags as real links. A bio that arrives as HTML (Mastodon) keeps only its paragraphs,
+   line breaks and links; a plain-text bio (Looscid, Nostr) is split into paragraphs on blank lines. A mention of a
+   Dreamor Looscid knows opens their profile; @name@server opens it on that server; a hashtag opens Discover. */
+function lcBioLinkify(text, key, navigate) {
+  const out = [];
+  const re = /(https?:\/\/[^\s<>"']+)|(^|[^\w@])(@[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*(?:@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,})?)|(^|[^\w&#])(#[A-Za-z0-9_\u00C0-\uFFFF]+)/g;
+  let last = 0, m, i = 0;
+  const str = String(text || "");
+  while ((m = re.exec(str))) {
+    let start = m.index, lead = "";
+    if (m[3]) { lead = m[2] || ""; } else if (m[5]) { lead = m[4] || ""; }
+    start += lead.length;
+    if (start > last) out.push(str.slice(last, start));
+    const k = key + "-" + (i++);
+    if (m[1]) {
+      let url = m[1], trail = "";
+      const t = url.match(/[.,!?;:)\]}'"]+$/); if (t) { trail = t[0]; url = url.slice(0, -trail.length); }
+      out.push(lh('a', { key: k, href: url, target: "_blank", rel: "noopener noreferrer me" }, url.replace(/^https?:\/\//, "").replace(/\/$/, "")));
+      if (trail) out.push(trail);
+      last = m.index + m[0].length; continue;
+    }
+    if (m[3]) {
+      const mention = m[3], parts = mention.slice(1).split("@");
+      const known = parts.length === 1 ? (Looscid.lcHandle(ME.handle || "") === Looscid.lcHandle(mention) ? ME : (USERS || []).find(function (u) { return u && Looscid.lcHandle(u.handle || "") === Looscid.lcHandle(mention); })) : null;
+      if (known) out.push(lh('a', { key: k, href: "#dreamor-" + parts[0], onClick: function (e) { e.preventDefault(); if (navigate) navigate(known === ME ? "profile" : "dp", known); } }, mention));
+      else if (parts.length === 2) out.push(lh('a', { key: k, href: "https://" + parts[1] + "/@" + parts[0], target: "_blank", rel: "noopener noreferrer" }, mention));
+      else out.push(mention);
+      last = m.index + m[0].length; continue;
+    }
+    const tag = m[5];
+    out.push(lh('a', { key: k, href: "#discover-" + encodeURIComponent(tag.slice(1)), onClick: function (e) { e.preventDefault(); Looscid.LC_DISCOVER_NEXT_Q = tag; if (navigate) navigate("discover"); } }, tag));
+    last = m.index + m[0].length;
+  }
+  if (last < str.length) out.push(str.slice(last));
+  return out;
+}
+function lcBioLines(text, key, navigate) {
+  const kids = [];
+  String(text).split("\n").forEach(function (line, j) { if (j) kids.push(lh('br', { key: key + "-br" + j })); kids.push.apply(kids, lcBioLinkify(line, key + "-" + j, navigate)); });
+  return kids;
+}
+// A field's value: HTML (Mastodon) is read as its text, then links, mentions and hashtags become real links.
+function lcFieldValue(v, key, navigate) {
+  let t = String(v == null ? "" : v);
+  if (/<[a-z][^>]*>/i.test(t) && typeof DOMParser !== "undefined") { try { t = new DOMParser().parseFromString("<div>" + t + "</div>", "text/html").body.textContent || ""; } catch (e) {} }
+  return lcBioLinkify(t.replace(/\s+/g, " ").trim(), key, navigate);
+}
+function lcBioParas(bio, navigate) {
+  const raw = String(bio || "").trim();
+  if (!raw) return [];
+  if (/<(p|br|a|span)\b[^>]*>/i.test(raw) && typeof DOMParser !== "undefined") {
+    // HTML bio: read it as text with paragraph and line-break structure; links come back through the linkifier,
+    // and an <a> keeps its own address when its text isn't one.
+    let doc; try { doc = new DOMParser().parseFromString("<div>" + raw + "</div>", "text/html"); } catch (e) { doc = null; }
+    if (doc) {
+      const paras = [];
+      const root = doc.body.firstChild;
+      const blocks = root.querySelectorAll("p").length ? Array.from(root.querySelectorAll("p")) : [root];
+      blocks.forEach(function (b, bi) {
+        const kids = [];
+        const walk = function (n, pre) {
+          n.childNodes.forEach(function (c, ci) {
+            const k = pre + "-" + ci;
+            if (c.nodeType === 3) kids.push.apply(kids, lcBioLinkify(c.nodeValue, k, navigate));
+            else if (c.nodeName === "BR") kids.push(lh('br', { key: k }));
+            else if (c.nodeName === "A") {
+              const href = c.getAttribute("href") || "", txt = (c.textContent || "").replace(/\s+/g, " ").trim();
+              if (/^https?:\/\//i.test(href)) {
+                const cls = c.getAttribute("class") || "";
+                if (/hashtag/.test(cls) || /^#/.test(txt)) kids.push.apply(kids, lcBioLinkify(txt, k, navigate));
+                else kids.push(lh('a', { key: k, href: href, target: "_blank", rel: "noopener noreferrer me" }, txt || href.replace(/^https?:\/\//, "")));
+              } else kids.push(txt);
+            } else if (c.nodeName !== "SCRIPT" && c.nodeName !== "STYLE") walk(c, k);
+          });
+        };
+        walk(b, "h" + bi);
+        if (kids.some(function (x) { return typeof x !== "string" || x.trim(); })) paras.push(lh('p', { key: "p" + bi }, kids));
+      });
+      return paras;
+    }
+  }
+  return raw.split(/\n\s*\n/).map(function (para, i) { return para.trim() ? lh('p', { key: "p" + i }, lcBioLines(para.trim(), "b" + i, navigate)) : null; }).filter(Boolean);
+}
 function lcCopy(text, what) {
   const done = function () { announce(what + " copied."); };
   try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text).then(done, function () { announce("Couldn't copy. " + what + ": " + text); }); return; } } catch (e) {}
@@ -42,7 +169,7 @@ function lcCopy(text, what) {
 }
 function lcDreamHasMedia(d) { return !!(d && ((Array.isArray(d.media) && d.media.length) || (Array.isArray(d.images) && d.images.length) || /\.(jpe?g|png|gif|webp|avif|mp4|mov)(\?|#|\s|$)/i.test(String(d.text || "")))); }
 // The Following / Followers page Feditext opens from its count buttons.
-function ProfilePeoplePage({ kind, user, isMe, people, onBack, navigate }) {
+function ProfilePeoplePage({ kind, user, isMe, people, onBack, navigate, followingSet }) {
   const head = useRef(null);
   useEffect(function () { if (head.current) head.current.focus(); }, []);
   const title = kind === "following" ? "Following" : "Followers";
@@ -58,9 +185,16 @@ function ProfilePeoplePage({ kind, user, isMe, people, onBack, navigate }) {
             return lh('li', { key: u.id },
               lh('button', { type: "button", className: "lc-person", onClick: function () { navigate("dp", u); } },
                 lh('span', { "aria-hidden": "true" }, lh(Av, { user: u, size: 36 })),
-                lh('span', { className: "lc-person-n" }, u.name),
-                lh('span', { className: "sr-pause" }, ", "),
-                lh('span', { className: "lc-person-h" }, u.handle || "")));
+                lh('span', { className: "lc-person-t" },
+                  lh('span', { className: "lc-person-n" }, u.name || "Dreamor"), " ",
+                  u.handle ? lh('span', { className: "lc-person-h" }, "@" + String(u.handle).replace(/^@/, "")) : null,
+                  (function () {
+                    // Feditext's account row: "Mutuals" when you both follow, "Following", or "Follows you".
+                    const fo = !!(followingSet && followingSet.has(u.id)), fb = !!u.followsYou;
+                    const rel = fo && fb ? "Mutuals" : fo ? "Following" : fb ? "Follows you" : "";
+                    // One element per row; its words change in place (hidden when there is no relationship).
+                    return lh('span', { className: "lc-person-rel", hidden: !rel }, rel ? " " + rel : "");
+                  })())));
           })));
 }
 function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUser }) {
@@ -71,6 +205,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const [noteEdit, setNoteEdit] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [rdShow, setRdShowS] = useState(lcRdShow);
+  const [mediaShow, setMediaShowS] = useState(lcMediaShow);
   const [, bump] = useState(0);
   const [activeComment, setActiveComment] = useState(null);
   Looscid.useLikedTick();
@@ -108,7 +243,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
     const fol = people === "following";
     const list = isMe ? (fol ? USERS.filter(function (u) { return cherryCtx && cherryCtx.following.has(u.id); }) : USERS.filter(function (u) { return u.followsYou; }))
       : (fol ? (Array.isArray(user.followingList) ? user.followingList : null) : (Array.isArray(user.followersList) ? user.followersList : null));
-    return lh(ProfilePeoplePage, { kind: people, user: user, isMe: isMe, people: list, navigate: navigate,
+    return lh(ProfilePeoplePage, { kind: people, user: user, isMe: isMe, people: list, navigate: navigate, followingSet: cherryCtx && cherryCtx.following,
       onBack: function () { const k = people; setPeople(null); setTimeout(function () { const b = document.getElementById("pf-count-" + k); if (b) b.focus(); }, 0); } });
   }
   if (activeComment) return lh(CommentView, { dream: activeComment, onBack: function () { setActiveComment(null); }, onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onCommentPosted: tc, navigate: navigate });
@@ -140,12 +275,13 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const nDreams = isMe ? ownDreams.length : (user.dreamCount || ownDreams.length);
   const nFollowing = isMe ? USERS.filter(function (u) { return cherryCtx && cherryCtx.following.has(u.id); }).length : (user.following || 0);
   const nFollowers = isMe ? USERS.filter(function (u) { return u.followsYou; }).length : (user.followers || 0);
-  const joined = isMe ? (lp && lp.createdAt ? lcFmtJoined(lp.createdAt) : (lp && lp.joined) || "") : (user.joined || "");
+  const joined = lcJoinedText(isMe ? (lp && (lp.createdAt || lp.joined)) || "" : (user.createdAt || user.joined || ""));
+  const locked = isMe ? !!(lp && lp.private) : !!(user.locked || user.private);
   const fields = [];
   const site = isMe ? lp && lp.website : user.website;
   if (site) fields.push({ name: "Website", value: site });
   ((isMe ? lp && lp.links : user.links) || []).forEach(function (l) { if (l && l.name && l.url) fields.push({ name: l.name, value: l.url }); });
-  (user.fields || []).forEach(function (f) { if (f && f.name && f.value) fields.push({ name: f.name, value: f.value, verified: f.verified }); });
+  (user.fields || []).forEach(function (f) { if (f && f.name && f.value) fields.push({ name: f.name, value: f.value, verified: f.verified, verifiedAt: f.verifiedAt || f.verified_at || null }); });
   const rdList = (function () {
     const r = byId(plainRd), q = byId(quotes);
     return rdShow === "quotes" ? q : rdShow === "redreams" ? r : r.concat(q);
@@ -156,6 +292,25 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
     const r = byId(plainRd).length, q = byId(quotes).length, n = v === "quotes" ? q : v === "redreams" ? r : r + q;
     const what = v === "quotes" ? (n === 1 ? "Quote" : "Quotes") : v === "redreams" ? (n === 1 ? "Redream" : "Redreams") : (n === 1 ? "Redream or Quote" : "Redreams and Quotes");
     announce(n + " " + what + ".");
+  };
+  const mediaAll = byId(ownDreams).filter(function (d) { return lcDreamMediaKinds(d).any; });
+  const mediaList = function (v) { return v === "images" ? mediaAll.filter(function (d) { return lcDreamMediaKinds(d).img; }) : v === "videos" ? mediaAll.filter(function (d) { return lcDreamMediaKinds(d).vid; }) : mediaAll; };
+  const setMediaShow = function (v) {
+    try { if (v === "both") localStorage.removeItem(LC_PROFILE_MEDIA_KEY); else localStorage.setItem(LC_PROFILE_MEDIA_KEY, v); } catch (e) {}
+    setMediaShowS(v);
+    const n = mediaList(v).length;
+    announce(n + " " + (n === 1 ? "Dream" : "Dreams") + (v === "images" ? " with images." : v === "videos" ? " with videos." : " with media."));
+  };
+  const tabCount = function (id) {
+    switch (id) {
+      case "dreams": return byId(ownDreams).length;
+      case "replies": return byId(ownDreams.concat(myReplies)).length;
+      case "redreams": return byId(plainRd).length + byId(quotes).length;
+      case "media": return mediaAll.length;
+      case "liked": return isMe ? Looscid.lcLikedItems().filter(function (x) { return x.k !== "chat" || !x.cherry || Looscid.lcAiOn(); }).length : theirVisible.length;
+      case "mutual": { if (!theirLikes) return 0; const mine = new Set(Looscid.lcLikedItems("dream").map(function (x) { return String(x.id); })); return theirVisible.filter(function (x) { return x.k === "dream" && mine.has(String(x.id)); }).length; }
+    }
+    return null;
   };
   const pubTabs = lcLikedPublic();
   const likedIntro = isMe ? (pubTabs.length
@@ -175,7 +330,19 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
             })),
           rdList.length ? rdList.map(card) : empty(rdShow === "quotes" ? "No Quotes yet" : rdShow === "redreams" ? "No Redreams yet" : "No Redreams or Quotes yet",
             isMe ? "Dreams you redream or quote will show up here." : "Nothing to show yet."));
-      case "media": { const l = byId(ownDreams).filter(lcDreamHasMedia); return l.length ? l.map(card) : empty("No media yet", isMe ? "Dreams with photos or videos will show up here." : "Nothing to show yet."); }
+      case "media": {
+        // Build 149: Show radios, the same pattern as the Redreams ones (filters in place, focus stays on the radio).
+        const l = mediaList(mediaShow);
+        return lh(React.Fragment, null,
+          lh('fieldset', { className: "lc-fs lc-rd-show lc-media-show" },
+            lh('legend', null, "Show"),
+            [["images", "Images"], ["videos", "Videos"], ["both", "Both"]].map(function (o) {
+              return lh('label', { key: o[0], className: "lc-radio", htmlFor: "pf-media-" + o[0] },
+                lh('input', { type: "radio", id: "pf-media-" + o[0], name: "pf-media-show", value: o[0], checked: mediaShow === o[0], onChange: function () { setMediaShow(o[0]); } }), " " + o[1]);
+            })),
+          l.length ? l.map(card) : empty(mediaShow === "images" ? "No images yet" : mediaShow === "videos" ? "No videos yet" : "No media yet",
+            isMe ? (mediaShow === "images" ? "Dreams with images will show up here." : mediaShow === "videos" ? "Dreams with videos will show up here." : "Dreams with images or videos will show up here.") : "Nothing to show yet."));
+      }
       case "liked":
         if (isMe) return lh(Looscid.LikedView, { navigate: navigate, cherryCtx: cherryCtx, idp: "pfl", intro: likedIntro, onComment: function (x) { setActiveComment(x); } });
         return theirVisible.length ? lh(React.Fragment, null,
@@ -232,30 +399,48 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
             lh('button', { type: "button", className: "btn " + (following ? "bgb" : "bp") + " lc-big", "aria-pressed": following ? "true" : "false", onClick: follow }, following ? "Following" : "Follow")),
       isMe && lh('div', { id: "pf-edit", className: "lc-prof-edit", hidden: !editOpen }, editOpen ? ed.list : null),
       lh('h1', { className: "lc-prof-name", tabIndex: -1 }, user.name || "Dreamor"),
-      lh('p', { className: "lc-prof-handle" }, lh('span', { className: "sr-only" }, "LooscidID"), " @" + handle,
-        !isMe && user.followsYou ? lh('span', { className: "lc-cap" }, lh('span', { className: "sr-pause" }, ", "), "Follows you") : null,
-        muted ? lh('span', { className: "lc-cap" }, lh('span', { className: "sr-pause" }, ", "), "Muted") : null,
-        blocked ? lh('span', { className: "lc-cap" }, lh('span', { className: "sr-pause" }, ", "), "Blocked") : null),
+      // Feditext's account line: @handle, the lock for a private (locked) account, then the "Follows you", "Muted" and
+      // "Blocked" capsules. Build 149: each is its own piece with a plain space between, no hidden commas.
+      lh('p', { className: "lc-prof-handle" }, lh('span', { className: "sr-only" }, "LooscidID"), " ", lh('span', { className: "lc-prof-acct" }, "@" + handle),
+        locked ? lh('span', { className: "lc-prof-lock" }, " ", lh(Ic.Lock, { style: { width: 13, height: 13 }, "aria-hidden": "true" }), lh('span', { className: "sr-only" }, "Locked account")) : null,
+        // Alhasan 3:23/3:30 AM: "Follows you" becomes "Mutuals" once you follow back. It is one element whose words change
+        // in place: nothing new appears, nothing is announced, focus stays where it is.
+        !isMe && user.followsYou ? [" ", lh('span', { key: "fy", id: "pf-rel", className: "lc-cap" }, following ? "Mutuals" : "Follows you")] : null,
+        muted ? [" ", lh('span', { key: "mu", className: "lc-cap" }, "Muted")] : null,
+        blocked ? [" ", lh('span', { key: "bl", className: "lc-cap" }, "Blocked")] : null),
       user.isOriginals ? lh('p', { className: "lc-muted" }, "Founding account") : null,
-      lh('p', { className: "lc-prof-stats" }, nDreams.toLocaleString() + " " + (nDreams === 1 ? "Dream" : "Dreams"),
-        joined ? [lh('span', { key: "d", "aria-hidden": "true" }, " \u2022 "), lh('span', { key: "s", className: "sr-pause" }, ", "), "Joined " + joined] : null),
-      note && !noteEdit ? lh('div', { className: "lc-prof-note" }, lh('span', { className: "lc-prof-note-l" }, "Note"), lh('span', { className: "sr-pause" }, ": "), note) : null,
+      // Feditext: "N Dreams • Joined …"; the bullet is hidden from VoiceOver and nothing stands in for it (build 149:
+      // the hidden ", " that stood in for it here was the stray comma).
+      lh('p', { className: "lc-prof-stats" }, lh('span', { className: "lc-prof-count" }, nDreams.toLocaleString() + " " + (nDreams === 1 ? "Dream" : "Dreams")),
+        joined ? [lh('span', { key: "d", className: "lc-prof-dot", "aria-hidden": "true" }, " \u2022 "), lh('span', { key: "j", className: "lc-prof-joined" }, "Joined " + joined)] : null),
+      note && !noteEdit ? lh('div', { className: "lc-prof-note" }, lh('span', { className: "lc-prof-note-l" }, "Note"), " ", lh('span', { className: "lc-prof-note-t" }, note)) : null,
       noteEdit && lh('form', { className: "lc-prof-noteform", onSubmit: function (e) { e.preventDefault(); Looscid.lcSetNote(user.handle, noteText); setNoteEdit(false); announce(noteText.trim() ? "Note saved." : "Note removed."); setTimeout(function () { const b = document.getElementById("pf-more-note"); if (b) b.focus(); }, 30); },
           onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); setNoteEdit(false); setTimeout(function () { const b = document.getElementById("pf-more-note"); if (b) b.focus(); }, 30); } } },
         lh('label', { htmlFor: "pf-note" }, "Note for " + user.name + ", only you can see it"),
         lh('textarea', { id: "pf-note", ref: noteRef, className: "inp", rows: 3, maxLength: 500, value: noteText, onChange: function (e) { setNoteText(e.target.value); } }),
         lh('div', { className: "lc-q-btns" }, lh('button', { type: "submit", className: "btn bp lc-big" }, "Save"),
           lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { setNoteEdit(false); setTimeout(function () { const b = document.getElementById("pf-more-note"); if (b) b.focus(); }, 30); } }, "Cancel"))),
-      fields.length ? lh('dl', { className: "lc-dl lc-prof-fields" }, fields.map(function (f, i) {
-        return lh(React.Fragment, { key: i }, lh('dt', null, f.name), lh('dd', null, /^https?:\/\//.test(f.value) ? lh('a', { href: f.value, target: "_blank", rel: "noopener noreferrer me" }, f.value.replace(/^https?:\/\//, "")) : f.value, f.verified ? lh('span', { className: "lc-muted" }, ", verified") : null));
+      // Feditext's fields: a bordered table of rows, the label on the left third, the value (its links live) on the right;
+      // a verified value gets a green row and a checkmark, read as "Verified" and the date when there is one.
+      fields.length ? lh('dl', { className: "lc-prof-fields" }, fields.map(function (f, i) {
+        const vAt = f.verifiedAt ? lcJoinedText(f.verifiedAt).replace(/ at .*$/, "") : "";
+        return lh('div', { key: i, className: "lc-prof-field" + (f.verified || f.verifiedAt ? " lc-verified" : "") },
+          lh('dt', null, f.name),
+          lh('dd', null,
+            f.verified || f.verifiedAt ? lh('span', { className: "lc-prof-check", "aria-hidden": "true" }, "\u2713 ") : null,
+            lh('span', { className: "lc-prof-fv" }, lcFieldValue(f.value, "f" + i, navigate)),
+            f.verified || f.verifiedAt ? lh('span', { className: "sr-only" }, " Verified" + (vAt ? " " + vAt : "")) : null));
       })) : null,
-      user.bio ? lh('p', { className: "lc-prof-bio" }, user.bio) : (isMe ? lh('p', { className: "lc-prof-bio lc-muted" }, "No bio yet.") : null),
+      // Feditext's bio: rich text, its paragraphs and line breaks kept, links, mentions and hashtags as real links.
+      user.bio ? lh('div', { className: "lc-prof-bio" }, lcBioParas(user.bio, navigate)) : (isMe ? lh('p', { className: "lc-prof-bio lc-muted" }, "No bio yet.") : null),
       lh('div', { className: "lc-prof-counts" },
         lh('button', { type: "button", id: "pf-count-following", className: "btn bgb lc-big", onClick: function () { setPeople("following"); } }, nFollowing.toLocaleString() + " Following"),
         lh('button', { type: "button", id: "pf-count-followers", className: "btn bgb lc-big", onClick: function () { setPeople("followers"); } }, nFollowers.toLocaleString() + " " + (nFollowers === 1 ? "Follower" : "Followers")))),
     lh('div', { className: "ftabs lc-prof-tabs", role: "tablist", "aria-label": "Profile sections", onKeyDown: onTabKey },
-      TABS.map(function (t, i) { const on = cur === t[0]; const name = lcVerb() === "high" ? Looscid.lcNameJoin(t[1], (i + 1) + " of " + TABS.length) : undefined;
-        return lh('button', { key: t[0], id: "pf-tab-" + t[0], type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", "aria-label": name, tabIndex: on ? 0 : -1, "aria-controls": "pf-panel", onClick: function () { setTab(t[0]); } }, t[1]); })),
+      // Build 149 (Alhasan: iOS already says "tab, 1 of 4"): no position in the names, ever. Each tab's name is its
+      // visible text, with how many it holds in parentheses, like "Dreams (106)".
+      TABS.map(function (t) { const on = cur === t[0]; const n = tabCount(t[0]);
+        return lh('button', { key: t[0], id: "pf-tab-" + t[0], type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", tabIndex: on ? 0 : -1, "aria-controls": "pf-panel", onClick: function () { setTab(t[0]); } }, n == null ? t[1] : t[1] + " (" + n.toLocaleString() + ")"); })),
     lh('div', { id: "pf-panel", role: "tabpanel", "aria-labelledby": "pf-tab-" + cur }, panel()));
 }
 function LC_LIKED_TABS_LABELS(ids) { return (Looscid.LC_LIKED_TABS || []).filter(function (t) { return ids.indexOf(t.id) >= 0; }).map(function (t) { return t.label; }).join(", "); }
@@ -1426,8 +1611,7 @@ function ProfileInfoList({ profile, onOpen, saved, onView }) {
         return lh('li', { key: f.key },
           lh('a', { href: "#change-" + f.key, id: "pf-link-" + f.key, className: "lid-field", 'aria-label': Looscid.lcNameJoin(f.label, fieldValueText(f, profile)),
               onClick: function (e) { e.preventDefault(); onOpen(f.key); } },
-            lh('span', { className: "lid-field-l" }, f.label),
-            lh('span', { className: "sr-pause" }, ", "),
+            lh('span', { className: "lid-field-l" }, f.label), " ",
             lh('span', { className: "lid-field-v" }, fieldValueText(f, profile)),
             lh(Ic.Chv, { style: { width: 16, height: 16, color: "var(--tx2)", flexShrink: 0 }, 'aria-hidden': "true" })));
       }))
@@ -1484,7 +1668,7 @@ function ChangeInfoScreen({ field, profile, onSave, onClose }) {
         links.length === 0 ? lh('p', { className: "lid-help" }, "No links yet.") :
           lh('ul', { className: "lid-links", 'aria-label': "Your links" }, links.map(function (l, i) {
             return lh('li', { key: i },
-              lh('span', null, l.name, lh('span', { className: "sr-pause" }, ", "), lh('span', { className: "lid-field-v" }, " " + l.url)),
+              lh('span', null, l.name, " ", lh('span', { className: "lid-field-v" }, l.url)),
               lh('button', { type: "button", className: "btn bgb", 'aria-label': "Remove " + l.name + " link",
                 onClick: function () { setLinks(links.filter(function (_, j) { return j !== i; })); announce(l.name + " link removed. Press Save to keep this change."); } }, "Remove"));
           })),
@@ -2100,10 +2284,21 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 116; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 32;
+const LOOSCID_FIXES = 33;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.116.32", build: 148, released: LOOSCID_RELEASED, title: "Round 6.8", notes: [
+  { version: "2026.116.33", build: 149, released: LOOSCID_RELEASED, title: "Round 6.8.1", notes: [
+    "Round 6.8.1: a fix update, asked for by Alhasan. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
+    "The stray comma: hidden commas stood in for the bullet between N Dreams and Joined, and before Follows you, Muted and Blocked. VoiceOver read each one on its own as comma. They're gone; each part is its own piece with a plain space.",
+    "The bio is shown like Feditext's: paragraphs and line breaks kept, links, mentions and hashtags as real links. A mention opens that Dreamor's profile, a hashtag opens Discover.",
+    "Fields are shown like Feditext's: a table of label and value, a verified value in green with a checkmark, read as Verified and the date.",
+    "Your LooscidID line is like Feditext's: @handle, a lock for a private account (read Locked account), then Follows you, which turns into Mutuals in place when you follow back.",
+    "Joined shows the full date and time, in your own time zone, named, like Joined Wednesday, October 2, 2024 at 5:01 PM (Eastern Time). Same in About.",
+    "Tab names have no position numbers anymore (iPhone already says tab, 1 of 4). Profile tabs show their count in parentheses, like Dreams (106).",
+    "The profile Media tab has Show: Images, Videos or Both, Both to start, remembered on this device.",
+    "Following and Followers lists say Mutuals, Following or Follows you, like Feditext.",
+  ] },
+  { version: "2026.116.32", build: 148, released: "2026-10-11T03:45:29Z", title: "Round 6.8", notes: [
     "Round 6.8: a feature update. Liked in More, Like Search, and Create with nine options.",
     "More has Liked: the same Liked as your profile's Liked tab, with Dreams, Circles, Apps, Marketplace, Chats and Searches, and an Images only filter. Only you can see it.",
     "Like and Unlike on Circles, Apps and Cherry chats too. Cherry chats are in Chats.",

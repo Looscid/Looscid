@@ -165,8 +165,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
       , React.createElement('div', {className:"ftabs",role:"tablist","aria-label":"Circle sections",style:{overflowX:"auto",scrollbarWidth:"none"}},
         ["feed","members","about","rules"].map(function(t,i){
           return React.createElement('button', {key:t,className:"ftab"+(tab===t?" on":""),onClick:function(){setTab(t);},role:"tab","aria-selected":tab===t,"aria-setsize":4,"aria-posinset":i+1,"aria-label":t.charAt(0).toUpperCase()+t.slice(1),style:{whiteSpace:"nowrap"}},
-              t.charAt(0).toUpperCase()+t.slice(1),
-              React.createElement('span',{className:"ftab-num","aria-hidden":"true"}, (i+1)+"/4")
+              t.charAt(0).toUpperCase()+t.slice(1)
             );
         })
       )
@@ -256,8 +255,7 @@ function GroupAdminModal({group, onClose}) {
         , React.createElement('div', {className:"ftabs",role:"tablist","aria-label":"Admin sections",style:{overflowX:"auto",scrollbarWidth:"none"}},
           ["general","members","posts","settings"].map(function(t,i){
             return React.createElement('button', {key:t,className:"ftab"+(tab===t?" on":""),onClick:function(){setTab(t);},role:"tab","aria-selected":tab===t,"aria-setsize":4,"aria-posinset":i+1,"aria-label":t==="posts"?"Dreams":t.charAt(0).toUpperCase()+t.slice(1),style:{whiteSpace:"nowrap"}},
-              t==="posts"?"Dreams":t.charAt(0).toUpperCase()+t.slice(1),
-              React.createElement('span',{className:"ftab-num","aria-hidden":"true"}, (i+1)+"/4")
+              t==="posts"?"Dreams":t.charAt(0).toUpperCase()+t.slice(1)
             );
           })
         )

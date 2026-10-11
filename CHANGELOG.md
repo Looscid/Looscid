@@ -2,6 +2,22 @@
 
 Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.116.33 (149): Round 6.8.1
+
+Released October 11, 2026 at 4:18 AM (Eastern Time, 2026-10-11T08:18:22Z UTC)
+
+A fix update, asked for by Alhasan after trying 148 on his iPhone: a weird comma on profiles, a bio like Feditext's, no position numbers in tab names, and Show radios on Media.
+
+- The stray comma was on the profile header: visually hidden ", " pieces stood in for the bullet between "N Dreams" and "Joined", and sat before the "Follows you", "Muted" and "Blocked" capsules (and ", verified" after a verified field, ": " after Note, ", " in the Following and Followers rows and in Edit profile). VoiceOver on iPhone reads a hidden piece like that as its own stop, so it said "comma". They're all gone: each part is its own piece with a plain space, like Feditext, which hides its bullet and puts nothing in its place. The Cherry history tabs and Alerts tabs lost their hidden commas too.
+- Bio, like Feditext's account bio: rich text in paragraphs, line breaks kept, links, mentions and hashtags as real links. A mention of a Dreamor Looscid knows opens their profile, @name@server opens it on that server, and a hashtag opens Discover searching for it. A bio that comes as HTML keeps only its paragraphs, line breaks and links.
+- Fields, like Feditext's: a bordered table, the label on the left third and the value on the right, links live. A verified value has a green row and a checkmark, and is read "Verified" and the date.
+- The LooscidID line, like Feditext's: @handle, then a lock for a private account (read "Locked account"), then the "Follows you" capsule, "Muted" and "Blocked". "Follows you" changes to "Mutuals" in place once you follow back: the same element, no announcement, focus stays.
+- Following and Followers lists show Feditext's relationship on each row: Mutuals, Following or Follows you.
+- Joined shows the full date and the time your LooscidID was made, in your own time zone, with its name: "Joined Wednesday, October 2, 2024 at 5:01 PM (Eastern Time)". A date stored without a time shows as a date only. The About tab's Date joined says the same.
+- No position numbers in any tab name ("1/4", or "1 of 6" at High verbosity): iPhone already says "tab, 1 of 4". Removed from the profile tabs, the feed tabs, Discover and Circles. Profile tabs carry their count in parentheses: Dreams (106), Dreams & Replies, Redreams, Media, Liked, Mutual likes; About has none. The tab bar's Alerts reads "Alerts (3 unread)", Cherry's history tabs "All (5)".
+- The profile Media tab has a Show radio group: Images, Videos or Both (Both to start, remembered on this device). It filters in place, says how many Dreams it shows, and focus stays on the radio, like the Redreams Show radios.
+- The settings backup adds dbm_profile_media_show at the end. Older backups still import.
+
 ## Looscid 2026.116.32 (148): Round 6.8
 
 Released October 10, 2026 at 11:45 PM (Eastern Time, 2026-10-11T03:45:29Z UTC)

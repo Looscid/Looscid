@@ -99,8 +99,8 @@ function alertsView(st, draw) {
         const on = view === v[0];
         return h('button', { key: v[0], id: "alerts-tab-" + v[0], type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false",
             "aria-controls": "alerts-panel-" + v[0], tabIndex: on ? 0 : -1, onClick: function () { lcSetAlertsTab(v[0]); },
-            "aria-label": v[2] > 0 ? Looscid.lcNameJoin(v[1], v[2] + " unread") : undefined },
-          v[1], v[2] > 0 ? h('span', { className: "lc-alert-badge" }, h('span', { className: "sr-only" }, ", "), v[2], h('span', { className: "sr-only" }, " unread")) : null);
+            "aria-label": v[2] > 0 ? v[1] + " (" + v[2] + " unread)" : undefined },
+          v[1], v[2] > 0 ? [" ", h('span', { key: "b", className: "lc-alert-badge", "aria-hidden": "true" }, String(v[2]))] : null); // build 149: "Notifications (2 unread)"
       })),
 
     view === "messages" && h('div', { id: "alerts-panel-messages", role: "tabpanel", "aria-labelledby": "alerts-tab-messages" },
