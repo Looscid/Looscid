@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 12, 2026 at 7:05 PM (Eastern Time, 2026-10-12T23:05:48Z UTC)
+Released October 12, 2026 at 7:08 PM (Eastern Time, 2026-10-12T23:08:23Z UTC)
 
 Round 7: a feature update, asked for by 2three1y. Built in steps, one commit each.
 
@@ -68,6 +68,7 @@ Round 7: a feature update, asked for by 2three1y. Built in steps, one commit eac
 - Profile Tabs: put the tabs on profiles in your own order (Dreams, Replies, Redreams, Media, Liked, Mutual likes, About) in Settings, Profile Tabs, with plain Move up and Move down buttons like the Tab Bar. Also in a profile's options as Reorder tabs. Saved in your settings backup.
 - Security: React now loads from Looscid itself, not from an outside code site, and the browser checks it wasn't changed.
 - Dream options: Copy link, Open original on Nostr or Mastodon, Liked by and Redreamed by (who, from Nostr, each signature checked), and Dream info (when it was published, its network and the app it came from).
+- Dream options: Pin to profile (up to 5 of your Dreams, shown first on your Dreams tab and read as "Pinned"), Mute this conversation (no more alerts from that thread) and, on For You, Not interested in this Dream (hides it there and moves you to the next Dream).
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 

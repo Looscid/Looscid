@@ -323,7 +323,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
     .concat(isMe ? [["liked", "Liked"]] : theirVisible.length ? [["liked", "Liked"]] : [])
     .concat(self ? [] : [["mutual", "Mutual likes"]])
     .concat([["about", "About"]]);
-  Looscid.useProfileTabsTick();
+  Looscid.useProfileTabsTick(); Looscid.useIdListTick("looscid:pinned");
   const TABS = Looscid.lcProfileTabsSort(TABS0); // build 152 prep (#98): in your order (Settings, Profile Tabs)
   const cur = TABS.some(function (t) { return t[0] === tab; }) ? tab : "dreams";
   useEffect(function () { if (noteEdit && noteRef.current) noteRef.current.focus(); }, [noteEdit]);
@@ -429,7 +429,10 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       : "Only you can see your Liked tab. People can see your likes on their own Dreams.") : "";
   const panel = function () {
     switch (cur) {
-      case "dreams": { const l = byId(ownDreams); return l.length ? l.map(card) : empty("No Dreams yet", isMe ? "Your Dreams will show up here." : "Nothing to show yet."); }
+      case "dreams": { const l = byId(ownDreams);
+        // Build 152 prep (#99): your pinned Dreams come first, marked "Pinned".
+        const pins = self ? Looscid.lcPinnedIds() : [], pinL = pins.map(function (id) { return l.find(function (d) { return String(d.id) === id; }); }).filter(Boolean), rest = l.filter(function (d) { return pinL.indexOf(d) < 0; });
+        return l.length ? pinL.map(function (d) { return lh(DreamCard, { key: "pin-" + d.id, dream: d, pinned: true, onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onComment: function (x) { setActiveComment(x); }, navigate: navigate, cherryCtx: cherryCtx }); }).concat(rest.map(function (d) { return card(d); })) : empty("No Dreams yet", isMe ? "Your Dreams will show up here." : "Nothing to show yet."); }
       case "replies": { const l = byId(myReplies); return l.length ? l.map(function (d) { return card(d, Looscid.lcReplyContext(d, dreams.concat(all))); }) : empty("No Replies yet", isMe ? "Your Replies will show up here." : "Nothing to show yet."); }
       case "redreams":
         return lh(React.Fragment, null,
@@ -2527,6 +2530,7 @@ const LC_VERSION_HISTORY = [
     "Profile Tabs: put the tabs on profiles in your own order (Dreams, Replies, Redreams, Media, Liked, Mutual likes, About) in Settings, Profile Tabs, with plain Move up and Move down buttons like the Tab Bar. Also in a profile's options as Reorder tabs. Saved in your settings backup.",
     "Security: React now loads from Looscid itself, not from an outside code site, and the browser checks it wasn't changed.",
     "Dream options: Copy link, Open original on Nostr or Mastodon, Liked by and Redreamed by (who, from Nostr, each signature checked), and Dream info (when it was published, its network and the app it came from).",
+    "Dream options: Pin to profile (up to 5 of your Dreams, shown first on your Dreams tab and read as \"Pinned\"), Mute this conversation (no more alerts from that thread) and, on For You, Not interested in this Dream (hides it there and moves you to the next Dream).",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

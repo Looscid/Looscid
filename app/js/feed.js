@@ -60,7 +60,9 @@ function FeedPage({navigate, prefs, cherryCtx}) {
       function () { if (live) setPub({ list: [], state: "error", key: pubKey }); });
     return function () { live = false; };
   }, [pubKey]);
-  const visible = lcFeedVisible(tab, rawDreams, { following: FOLLOWING, friends: FRIENDS_IDS, showFriends: showFriends, groups: cherryCtx && cherryCtx.groups, pub: pubKey && pub.key === pubKey ? pub.list : [] });
+  Looscid.useIdListTick("looscid:notinterested"); // build 152 prep: Not interested hides a Dream from For You
+  const notInt = tab === "for you" ? Looscid.lcNotInterested() : [];
+  const visible = lcFeedVisible(tab, rawDreams, { following: FOLLOWING, friends: FRIENDS_IDS, showFriends: showFriends, groups: cherryCtx && cherryCtx.groups, pub: pubKey && pub.key === pubKey ? pub.list : [] }).filter(function (d) { return notInt.indexOf(String(d.id)) < 0; });
 
   // Cherry in-feed cards - contextual AI nudges
   const cherryCards = []; // Cherry nudges appear here once there is real activity to talk about
@@ -112,7 +114,7 @@ function FeedPage({navigate, prefs, cherryCtx}) {
             lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { rmGo(rmI + 1); }, "aria-label": "Next Dream" }, "Next")))
       , lh('div', { id: "feed-list", role: "region", "aria-label": "Dreams", ref: listRef, onFocus: rememberFocus }, (rmOn ? [visible[rmI]] : visible).map((d,idx) => (
         React.createElement(React.Fragment, { key: d.id,}
-          , React.createElement(DreamCard, { dream: d, onLike: tl, onRedream: tr, onUndoRedream: tur,
+          , React.createElement(DreamCard, { dream: d, forYou: tab === "for you", onLike: tl, onRedream: tr, onUndoRedream: tur,
             onQuote: tq, onUndoQuote: tuq, onBookmark: tb,
             onComment: d=>setActiveComment(d), navigate: navigate, cherryCtx: cherryCtx,})
           /* Cherry AI cards injected between dreams on For You tab */
@@ -142,8 +144,8 @@ function lcNotifyDreams(others, mine) {
   const me = lcHandle((typeof ME !== "undefined" && ME && ME.handle) || "");
   others.forEach(function (d) {
     const u = d.user && typeof d.user === "object" ? d.user : null, txt = String(d.text || "");
-    if (me && new RegExp("(^|\\W)@" + me.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b", "i").test(txt)) { if (lcAudienceOk((Looscid.A11Y_NOW || {}).whoMention || "everyone", u, "perm_whoMention")) lcNotify("mention", "mentioned you", u, txt.slice(0, 140)); }
-    else if (d.replyTo && mine && mine.has(d.replyTo)) { if (lcAudienceOk((Looscid.A11Y_NOW || {}).whoReply || "everyone", u, "perm_whoReply")) lcNotify("reply", "replied to your Dream", u, txt.slice(0, 140)); }
+    if (me && new RegExp("(^|\\W)@" + me.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b", "i").test(txt)) { if (lcAudienceOk((Looscid.A11Y_NOW || {}).whoMention || "everyone", u, "perm_whoMention")) lcNotify("mention", "mentioned you", u, txt.slice(0, 140), { thread: String(d._root || d.replyTo || d.id) }); }
+    else if (d.replyTo && mine && mine.has(d.replyTo)) { if (lcAudienceOk((Looscid.A11Y_NOW || {}).whoReply || "everyone", u, "perm_whoReply")) lcNotify("reply", "replied to your Dream", u, txt.slice(0, 140), { thread: String(d.replyTo) }); }
     // Build 151 (#74): a Reply in a thread you follow.
     else if ((d.replyTo || d._root) && Looscid.lcThreadSubbed && Looscid.lcThreadSubbed(lcRootOf(d))) Looscid.lcThreadAlert(lcRootOf(d), u, txt);
     else lcNotify("newDream", "dreamed a new Dream", u, txt.slice(0, 140));

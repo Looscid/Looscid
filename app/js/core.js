@@ -614,7 +614,29 @@ function lcDreamInfoLines(d) {
   if (d.cw) out.push("Content warning: " + d.cw);
   return out;
 }
-function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, cherryCtx, onExtra }) {
+/* Build 152 prep (#99, part 2): Pin to profile (your own Dreams, up to 5, shown first on your Dreams tab with "Pinned"),
+   Mute this conversation (no alerts from that thread) and Not interested (hides a Dream from For You). Saved on this
+   device as looscid_pinned_dreams, looscid_muted_threads and looscid_not_interested, and in the settings backup. */
+function lcIdList(key) { const v = lcJsonLs(key, []); return Array.isArray(v) ? v.map(String) : []; }
+function lcIdListSet(key, list, ev, max) { try { if (list.length) localStorage.setItem(key, JSON.stringify(list.slice(0, max || 500))); else localStorage.removeItem(key); } catch (e) {} try { window.dispatchEvent(new CustomEvent(ev)); } catch (e) {} }
+const LC_PINNED_KEY = "looscid_pinned_dreams", LC_MUTED_THREADS_KEY = "looscid_muted_threads", LC_NOT_INT_KEY = "looscid_not_interested";
+function lcPinnedIds() { return lcIdList(LC_PINNED_KEY); }
+function lcPinnedHas(d) { return !!d && lcPinnedIds().indexOf(String(d.id)) >= 0; }
+function lcPinnedToggle(d) { const id = String(d.id), l = lcPinnedIds(), on = l.indexOf(id) >= 0;
+  if (!on && l.length >= 5) return "You can pin up to 5 Dreams. Unpin one first.";
+  lcIdListSet(LC_PINNED_KEY, on ? l.filter(function (x) { return x !== id; }) : [id].concat(l), "looscid:pinned", 5);
+  return on ? "Unpinned from your profile." : "Pinned to your profile. It shows first on your Dreams tab."; }
+function lcThreadKeys(d) { if (!d) return []; return [d._root, d.replyTo, d.id, d.nid].filter(function (x) { return x != null && x !== ""; }).map(String); }
+function lcThreadMuted(ref) { if (ref == null) return false; const l = lcIdList(LC_MUTED_THREADS_KEY); return (Array.isArray(ref) ? ref : [ref]).some(function (r) { return r != null && l.indexOf(String(r)) >= 0; }); }
+function lcThreadMuteToggle(d) { const keys = lcThreadKeys(d).slice(0, 1).concat(d && d.nid ? [String(d.nid)] : []), l = lcIdList(LC_MUTED_THREADS_KEY), on = lcThreadMuted(lcThreadKeys(d).slice(0, 1));
+  lcIdListSet(LC_MUTED_THREADS_KEY, on ? l.filter(function (x) { return keys.indexOf(x) < 0; }) : keys.concat(l.filter(function (x) { return keys.indexOf(x) < 0; })), "looscid:mutedthreads", 500);
+  return on ? "Unmuted this conversation. Its alerts come back." : "Muted this conversation. You won't get alerts from it."; }
+function lcNotInterested() { return lcIdList(LC_NOT_INT_KEY); }
+function lcNotInterestedAdd(d) { const id = String(d.id), l = lcNotInterested(); if (l.indexOf(id) < 0) lcIdListSet(LC_NOT_INT_KEY, [id].concat(l), "looscid:notinterested", 500); }
+function lcNotInterestedUndo(d) { const id = String(d.id); lcIdListSet(LC_NOT_INT_KEY, lcNotInterested().filter(function (x) { return x !== id; }), "looscid:notinterested", 500); }
+function useIdListTick(ev) { const [, f] = useState(0); useEffect(function () { const h = function () { f(function (x) { return x + 1; }); }; window.addEventListener(ev, h); return function () { window.removeEventListener(ev, h); }; }, [ev]); }
+Object.assign(Looscid, { LC_PINNED_KEY, LC_MUTED_THREADS_KEY, LC_NOT_INT_KEY, lcPinnedIds, lcPinnedHas, lcPinnedToggle, lcThreadMuted, lcThreadMuteToggle, lcThreadKeys, lcNotInterested, lcNotInterestedAdd, lcNotInterestedUndo, useIdListTick });
+function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, cherryCtx, onExtra, forYou }) {
   const handle = (dream.user && dream.user.handle || "").replace("@", "");
   const lang = Looscid.A11Y_NOW.translateTo || "en", langName = (LC_LANGS.find(function (x) { return x[0] === lang; }) || [0, "English"])[1];
   const items = [
@@ -635,6 +657,16 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
     onExtra ? { id: "likedby", name: "Liked by", a: function () { onExtra({ kind: "people", which: "likes" }); } } : null,
     onExtra ? { id: "redreamedby", name: "Redreamed by", a: function () { onExtra({ kind: "people", which: "redreams" }); } } : null,
     onExtra ? { id: "info", name: "Dream info", a: function () { onExtra({ kind: "info" }); } } : null,
+    // Build 152 prep (#99, part 2)
+    dream.user && (dream.user === ME || lcHandle((dream.user && dream.user.handle) || "") === lcHandle(ME.handle || "")) && !dream.replyTo
+      ? { id: "pinprofile", name: lcPinnedHas(dream) ? "Unpin from profile" : "Pin to profile", a: function () { announce(lcPinnedToggle(dream)); } } : null,
+    { id: "mutethread", name: lcThreadMuted(lcThreadKeys(dream).slice(0, 1)) ? "Unmute this conversation" : "Mute this conversation", a: function () { announce(lcThreadMuteToggle(dream)); } },
+    forYou ? { id: "notinterested", name: "Not interested in this Dream", a: function () {
+      const art = document.querySelector('[data-dream-id="' + String(dream.id).replace(/"/g, "") + '"]');
+      let next = null; if (art) { const all = Array.prototype.slice.call(document.querySelectorAll("#feed-list [role=article]")); const i = all.indexOf(art); next = all[i + 1] || all[i - 1] || null; }
+      const nextId = next ? next.getAttribute("data-dream-id") : null;
+      lcNotInterestedAdd(dream); announce("Hidden from For You. You'll see it in Following and on profiles.");
+      setTimeout(function () { const el = nextId ? document.querySelector('[data-dream-id="' + nextId + '"]') : document.getElementById("feed-tab-for-you"); if (el) el.focus(); }, 60); } } : null,
     handle ? { id: "profile", name: "View @" + handle + "'s profile", a: function () { navigate && navigate("dp", dream.user); } } : null,
     // Build 147 (2three1y): when a Dream tags you, you can remove yourself from it (on this device).
     lcTagsMe(dream) ? (lcIsUntagged(dream)
@@ -877,7 +909,7 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
   );
 }
 /* --- DREAM CARD -------------------------- */
-function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onComment, navigate, cherryCtx, replyCtx}) {
+function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onComment, navigate, cherryCtx, replyCtx, forYou, pinned}) {
   const [showRD, setShowRD] = useState(false);
   const [showOpts, setShowOpts] = useState(false);
   const optsBtn = useRef(null);
@@ -905,6 +937,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
   const ctxSpeech = ctxWords ? (/[.!?\u2026]$/.test(ctxWords) ? ctxWords + " " : ctxWords + ". ") : "";
   const artProps = { className: "dc", role: "article", tabIndex: -1, "data-dream-id": dream.id, "aria-label": ctxSpeech + lcDreamWords(dream, "speech"), "aria-braillelabel": A.brailleOutput ? (replyCtx ? "Re " + (replyCtx.who || "a Dream") + ": " : "") + lcDreamWords(dream, "braille") : undefined,
     onFocus: function () { Looscid.LC_LAST_DREAM = dream; } };
+  if (pinned) { artProps["aria-label"] = "Pinned. " + artProps["aria-label"]; if (artProps["aria-braillelabel"]) artProps["aria-braillelabel"] = "Pinned " + artProps["aria-braillelabel"]; } // build 152 prep
   if (flt && flt.bw && !cwOpen) return lh('div', Object.assign({}, artProps, { "aria-label": "Hidden: contains a blocked word", "aria-braillelabel": A.brailleOutput ? "Hidden: blocked word" : undefined }),
     lh('div', { className: "dc-inner lc-cw lc-bw" },
       lh('p', { className: "lc-cw-t" }, "Hidden: contains a blocked word"),
@@ -921,6 +954,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
       )
       , React.createElement('div', artProps
         , React.createElement('div', { className: "dc-inner",}
+          , pinned && lh('p', { className: "lc-pinned-tag", "aria-hidden": "true" }, "Pinned")
           , ctxWords && lh('p', { className: "lc-reply-ctx" }, ctxWords)
           , textFirst && lh('p', { className: "sr-only" }, srText)
           , React.createElement('div', { className: "dc-meta",}
@@ -990,7 +1024,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
             , React.createElement('div', { className: "cbx-box",}, dream.liked && React.createElement(ChkMark, null))
             , React.createElement('span', null, calm ? "" : fmt(dream.likes), calm ? "Likes" : " Likes" )
           )
-          , lh(DreamOptionsMenu, { id: "dopts-" + dream.id, dream: dream, btnRef: optsBtn, onBookmark: onBookmark, onLike: onLike, navigate: navigate, cherryCtx: cherryCtx, onExtra: setExtra })
+          , lh(DreamOptionsMenu, { id: "dopts-" + dream.id, dream: dream, btnRef: optsBtn, onBookmark: onBookmark, onLike: onLike, navigate: navigate, cherryCtx: cherryCtx, onExtra: setExtra, forYou: !!forYou })
         )
         )
 
@@ -3329,7 +3363,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T23:05:48Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T23:08:23Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4380,6 +4414,7 @@ function lcNotify(type, text, user, preview, extra) {
   const P = lcAlertPrefs(), tp = P.types[type];
   if (!tp.on) return null;
   if (T.aud && !lcAudienceOk(tp.who, user, "alert_" + type)) return null;
+  if (extra && typeof lcThreadMuted === "function" && lcThreadMuted([extra.thread, extra.ref, extra.root].filter(function (x) { return x != null; }))) return null; // build 152 prep: Mute this conversation
   if (user && typeof lcBlockedUser === "function" && lcBlockedUser(user)) return null;
   if (preview && typeof lcWordHit === "function" && lcWordHit(preview, "alerts")) return null;
   const list = lcAlerts(), now = Date.now();
@@ -5630,7 +5665,9 @@ const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "looscid_braille_styles", "lo
   // Build 151 (#74): threads you follow (Subscribe to thread). Added at the end, so older backups still import.
   "looscid_thread_subs",
   // Build 152 prep (#98): the order of profile tabs. Added at the end, so older backups still import.
-  "looscid_profile_tabs"];
+  "looscid_profile_tabs",
+  // Build 152 prep (#99): pinned Dreams, muted conversations and Not interested. Added at the end, so older backups still import.
+  "looscid_pinned_dreams", "looscid_muted_threads", "looscid_not_interested"];
 Looscid.LC_EXPORT_KEYS = LC_EXPORT_KEYS;
 function lcExportSettings() {
   const o = { app: "Looscid", kind: "settings", version: LOOSCID_VERSION, exported: new Date().toISOString(), settings: {} };
