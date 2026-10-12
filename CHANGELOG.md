@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 12, 2026 at 7:12 PM (Eastern Time, 2026-10-12T23:12:28Z UTC)
+Released October 12, 2026 at 7:12 PM (Eastern Time, 2026-10-12T23:12:37Z UTC)
 
 Round 7: a feature update, asked for by 2three1y. Built in steps, one commit each.
 
@@ -71,6 +71,7 @@ Round 7: a feature update, asked for by 2three1y. Built in steps, one commit eac
 - Dream options: Pin to profile (up to 5 of your Dreams, shown first on your Dreams tab and read as "Pinned"), Mute this conversation (no more alerts from that thread) and, on For You, Not interested in this Dream (hides it there and moves you to the next Dream).
 - Fixed: on Home, Federated, a Networks checkbox could open Create instead. The page used to scroll underneath the tab bar, so a control VoiceOver moved to could sit behind it, and a double tap landed on the tab bar's middle button, Create. Now every page ends at the top of the tab bar, so nothing is ever behind it.
 - Adding a Nostr key works again. After the private messages update, a page that was already open asked for the old Nostr tools file, which was gone, so Create key, Save key and Use my signer said "Couldn't load the Nostr tools". The old file is back, and if the tools still can't load, the message now says why (offline, an older copy of Looscid that needs a reload, and so on).
+- Edit Dream: change the text of your own Dream or reply from its options. It shows "Edited" everywhere, Edit history keeps every earlier version readable, and a Dream on Nostr gets its edit published there too (kind 1010, so apps that support edits show it). Edited Federated Dreams from Nostr show their author's edit as well.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 

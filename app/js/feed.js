@@ -238,7 +238,7 @@ function lcAgo(ms) { const m = Math.max(0, (Date.now() - ms) / 60000); return m 
 function lcPubDream(r) {
   const short = String(r.npub || r.pk).slice(0, 14);
   return { id: "n:" + r.id, nid: r.nid, user: { id: "npub:" + r.pk, name: short, handle: "@" + short, net: "nostr" }, text: r.text, time: lcAgo(r.created), created: r.created,
-    likes: 0, comments: 0, redreams: 0, quotes: 0, liked: false, redreamed: false, quoted: false, bookmarked: false, cw: r.cw, net: "nostr", g: r.g };
+    likes: 0, comments: 0, redreams: 0, quotes: 0, liked: false, redreamed: false, quoted: false, bookmarked: false, cw: r.cw, net: "nostr", g: r.g, tags: r.tags, edits: r.edits, editedAt: r.editedAt };
 }
 function lcFeedVisible(tab, raw, o) {
   const pins = Looscid.lcPins(), FOL = o.following || new Set();

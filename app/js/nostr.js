@@ -429,6 +429,7 @@ async function fetchPublic(opts) {
     out.push({ id: ev.id, nid: ev.id, pk: ev.pubkey, npub: npub, text: ev.content.slice(0, 20000), created: ev.created_at * 1000, tags: tags, cw: cwT ? (cwT[1] || "Content warning") : undefined,
       g: (ev.tags.find(function (t) { return t && t[0] === "g"; }) || [])[1] });
   }); });
+  try { await applyEdits(NT, out); } catch (e) {} // build 152 prep: Edited Dreams
   out.sort(function (a, b) { return b.created - a.created; });
   PUB_CACHE[key] = { at: Date.now(), list: out };
   return out;
@@ -450,6 +451,39 @@ async function fetchThreadReplies(nids, since) {
     let npub = ""; try { npub = NT.nip19.npubEncode(ev.pubkey); } catch (e) {}
     out.push({ id: ev.id, pk: ev.pubkey, npub: npub, text: ev.content.slice(0, 2000), created: ev.created_at * 1000, roots: roots });
   }); });
+  return out;
+}
+
+/* Build 152 prep (#99): Edit Dream. Nostr notes can't change, so an edit is published as a kind 1010 "text note
+   modification" that points at the original note (e tag) with the new text, the way Amethyst does it. Apps that know
+   it show the new text and "Edited"; others keep showing the original. */
+async function publishEdit(nid, text) {
+  const st = state(); if (st.mode === "locked") return { err: "locked" }; if (!st.canDream) return { err: "nokey" };
+  if (!isHex64(nid) || !String(text || "").trim()) return { err: "nid" };
+  let ev = null; try { ev = await sign({ kind: 1010, created_at: Math.floor(Date.now() / 1000), content: String(text), tags: [["e", nid.toLowerCase()], ["alt", "Edit of a Dream"]].concat(TAGS) }); } catch (e) { ev = null; }
+  if (!ev) return { err: "sign" };
+  if (!fitsRelays(ev)) return { err: "size" };
+  const list = relays(), r = await sendToRelays(ev, list);
+  return { ev: ev, ok: r.ok.length, total: list.length };
+}
+// Edits (kind 1010) by each note's own author, applied to notes just fetched: newest text wins, older ones become history.
+async function applyEdits(NT, out) {
+  if (!out.length) return out;
+  const ids = out.map(function (o) { return o.id; }).slice(0, 100);
+  const all = await Promise.all(relays().map(function (u) { return relayReq(u, { kinds: [1010], "#e": ids, limit: 300 }, 4000); }));
+  const by = {}, seen = new Set();
+  all.forEach(function (evs) { evs.forEach(function (ev) {
+    if (!ev || seen.has(ev.id) || ev.kind !== 1010 || typeof ev.content !== "string" || !Array.isArray(ev.tags)) return;
+    const e = ev.tags.find(function (t) { return t && t[0] === "e" && ids.indexOf(String(t[1]).toLowerCase()) >= 0; }); if (!e) return;
+    const o = out.find(function (x) { return x.id === String(e[1]).toLowerCase(); }); if (!o || o.pk !== ev.pubkey) return;
+    let ok = false; try { ok = NT.verifyEvent(ev); } catch (x) {} if (!ok) return; seen.add(ev.id);
+    (by[o.id] = by[o.id] || []).push(ev);
+  }); });
+  Object.keys(by).forEach(function (id) {
+    const o = out.find(function (x) { return x.id === id; }), l = by[id].sort(function (a, b) { return a.created_at - b.created_at; }), last = l[l.length - 1];
+    o.edits = [{ text: o.text, at: o.created }].concat(l.slice(0, -1).map(function (e) { return { text: e.content.slice(0, 20000), at: e.created_at * 1000 }; }));
+    o.text = last.content.slice(0, 20000); o.editedAt = last.created_at * 1000;
+  });
   return out;
 }
 
@@ -653,5 +687,5 @@ if (document.readyState === "complete") start(); else window.addEventListener("l
 
 Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, VENDOR_URL: VENDOR_URL, load: load, toolsMsg: toolsMsg, toolsReady: toolsReady, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
   importKey: importKey, createKey: createKey, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, nsecNow: nsecNow,
-  publishDream: publishDream, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchReactions: fetchReactions, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
+  publishDream: publishDream, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchReactions: fetchReactions, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
 })(window.Looscid = window.Looscid || {});

@@ -534,6 +534,16 @@ function DreamExtra({ extra, dream, onClose }) {
     lh('h3', { id: "inf-h-" + dream.id, className: "lc-sub-h", tabIndex: -1, ref: ref }, "Dream info"),
     lh('ul', { className: "lc-info-list", role: "list" }, lcDreamInfoLines(dream).map(function (l, i) { return lh('li', { key: i }, l); })), close);
   if (extra.kind === "people") return lh(DreamPeople, { extra: extra, dream: dream, close: close, headRef: ref });
+  if (extra.kind === "edit") return lh(DreamEdit, { dream: dream, onClose: onClose, headRef: ref });
+  if (extra.kind === "history") {
+    const hs = (Array.isArray(dream.edits) ? dream.edits : []).slice().reverse();
+    return lh('section', { className: "lc-extra", "aria-labelledby": "hist-h-" + dream.id },
+      lh('h3', { id: "hist-h-" + dream.id, className: "lc-sub-h", tabIndex: -1, ref: ref }, "Edit history"),
+      lh('ol', { className: "lc-info-list lc-hist", role: "list" },
+        lh('li', { key: "now" }, lh('span', { className: "lc-hist-when" }, "Now, edited " + (lcFullTime(dream.editedAt) || "") + ": "), dream.text),
+        hs.map(function (v, i) { return lh('li', { key: i }, lh('span', { className: "lc-hist-when" }, (i === hs.length - 1 ? "Original, " : "Earlier, ") + (lcFullTime(v.at) || "") + ": "), v.text); })),
+      close);
+  }
   if (extra.kind === "thread") {
     const t = lcThreadOf(dream);
     return lh('section', { className: "lc-extra", "aria-labelledby": "thr-h-" + dream.id },
@@ -546,6 +556,29 @@ function DreamExtra({ extra, dream, onClose }) {
   return lh('section', { className: "lc-extra", "aria-labelledby": "tr-h-" + dream.id },
     lh('h3', { id: "tr-h-" + dream.id, className: "lc-sub-h", tabIndex: -1, ref: ref }, "Translation"),
     lh('p', { lang: extra.lang || undefined }, extra.text || "Translating…"), close);
+}
+// Build 152 prep (#99, part 3): the edit box under the Dream. Save keeps the old text in Edit history.
+function DreamEdit({ dream, onClose, headRef }) {
+  const [text, setText] = useState(String(dream.text || "")), [msg, setMsg] = useState(""), [busy, setBusy] = useState(false);
+  const what = dream.replyTo ? "reply" : "Dream";
+  const save = function () {
+    const t = text.trim(); if (busy) return;
+    if (!t) { setMsg("Type something first."); announce("Type something first."); return; }
+    if (t === String(dream.text || "").trim()) { setMsg("Nothing changed."); announce("Nothing changed."); return; }
+    lcEditSave(dream, t);
+    const N = Looscid.lcNostr, nid = dream.nid;
+    if (nid && N && N.publishEdit) { setBusy(true); N.publishEdit(nid, t).then(function (r) {
+        announce(r && r.ok ? "Saved. It shows as Edited, and the edit went to " + r.ok + " of " + r.total + " relays." : "Saved here. It shows as Edited. " + (r && r.err === "locked" ? "Enter your passcode to send the edit to Nostr." : r && r.err === "nokey" ? "Add a Nostr key to send edits to Nostr." : "Couldn't send the edit to Nostr.")); onClose(); }); return; }
+    announce("Saved. It shows as Edited."); onClose();
+  };
+  return lh('section', { className: "lc-extra", "aria-labelledby": "edit-h-" + dream.id },
+    lh('h3', { id: "edit-h-" + dream.id, className: "lc-sub-h", tabIndex: -1, ref: headRef }, dream.replyTo ? "Edit reply" : "Edit Dream"),
+    lh('label', { htmlFor: "edit-t-" + dream.id, className: "lc-label" }, "Text of your " + what),
+    lh('textarea', { id: "edit-t-" + dream.id, className: "inp lc-text", rows: 4, value: text, onChange: function (e) { setText(e.target.value); } }),
+    lh('div', { className: "lc-inrow" },
+      lh('button', { type: "button", id: "edit-save-" + dream.id, className: "btn bp lc-btn", "aria-disabled": busy ? "true" : undefined, onClick: save }, "Save"),
+      lh('button', { type: "button", id: "edit-cancel-" + dream.id, className: "btn bgb lc-btn", onClick: onClose }, "Cancel")),
+    msg ? lh('p', { className: "lc-muted" }, msg) : null);
 }
 // Build 152 prep (#99): Liked by / Redreamed by. Your own Like or Redream is on this device; others come from Nostr.
 function DreamPeople({ extra, dream, close, headRef }) {
@@ -608,7 +641,7 @@ function lcDreamInfoLines(d) {
   const client = (Array.isArray(d.tags) ? d.tags : []).filter(function (t) { return t && t[0] === "client" && t[1]; }).map(function (t) { return String(t[1]).slice(0, 60); })[0];
   const out = [];
   const when = lcFullTime(d.created); out.push("Published: " + (when || d.time || "time not known"));
-  if (Array.isArray(d.edits) && d.edits.length) { const last = d.edits[d.edits.length - 1]; out.push("Edited: " + (lcFullTime(last.at) || "yes") + (d.edits.length > 1 ? ", " + d.edits.length + " times" : "")); }
+  if (d.editedAt) out.push("Edited: " + (lcFullTime(d.editedAt) || "yes") + (Array.isArray(d.edits) && d.edits.length > 1 ? ", " + d.edits.length + " times" : ""));
   out.push("Network: " + ({ looscid: "Looscid, on this device", "looscid+nostr": "Looscid, also published to Nostr", nostr: "Nostr", mastodon: "Mastodon" })[net]);
   out.push("App: " + (client || (mine || net === "looscid" || net === "looscid+nostr" ? "Looscid" : "not stated")));
   if (d.cw) out.push("Content warning: " + d.cw);
@@ -636,6 +669,24 @@ function lcNotInterestedAdd(d) { const id = String(d.id), l = lcNotInterested();
 function lcNotInterestedUndo(d) { const id = String(d.id); lcIdListSet(LC_NOT_INT_KEY, lcNotInterested().filter(function (x) { return x !== id; }), "looscid:notinterested", 500); }
 function useIdListTick(ev) { const [, f] = useState(0); useEffect(function () { const h = function () { f(function (x) { return x + 1; }); }; window.addEventListener(ev, h); return function () { window.removeEventListener(ev, h); }; }, [ev]); }
 Object.assign(Looscid, { LC_PINNED_KEY, LC_MUTED_THREADS_KEY, LC_NOT_INT_KEY, lcPinnedIds, lcPinnedHas, lcPinnedToggle, lcThreadMuted, lcThreadMuteToggle, lcThreadKeys, lcNotInterested, lcNotInterestedAdd, lcNotInterestedUndo, useIdListTick });
+/* Build 152 prep (#99, part 3): Edit Dream and Edit history. Your edits are kept on this device as looscid_dream_edits
+   { id: { text, at, history: [{ text, at }] } } and shown everywhere the Dream shows, marked "Edited". A Dream on Nostr
+   also gets its edit published (kind 1010, see nostr.js publishEdit). Earlier versions stay readable in Edit history. */
+const LC_EDITS_KEY = "looscid_dream_edits";
+function lcEdits() { const v = lcJsonLs(LC_EDITS_KEY, {}); return v && typeof v === "object" && !Array.isArray(v) ? v : {}; }
+function lcEditOf(d) { if (!d || d.id == null) return null; const e = lcEdits()[String(d.id)]; return e && typeof e.text === "string" ? e : null; }
+function lcEditSave(d, text) {
+  const all = lcEdits(), k = String(d.id), cur = all[k], now = Date.now();
+  const prevText = cur ? cur.text : String(d._origText || d.text || ""), prevAt = cur ? cur.at : (+d.created || now);
+  const history = (cur && Array.isArray(cur.history) ? cur.history : (Array.isArray(d.edits) ? d.edits : [])).concat([{ text: prevText, at: prevAt }]).slice(-20);
+  all[k] = { text: String(text).slice(0, 20000), at: now, history: history };
+  try { localStorage.setItem(LC_EDITS_KEY, JSON.stringify(all)); } catch (e) {}
+  try { window.dispatchEvent(new CustomEvent("looscid:edits")); } catch (e) {}
+  return all[k];
+}
+function lcWithEdit(d) { const e = lcEditOf(d); return e ? Object.assign({}, d, { text: e.text, edits: e.history, editedAt: e.at }) : d; }
+function lcIsMine(d) { return !!d && !!d.user && (d.user === ME || (!!d.user.handle && lcHandle(d.user.handle) === lcHandle(ME.handle || ""))); }
+Object.assign(Looscid, { LC_EDITS_KEY, lcEdits, lcEditOf, lcEditSave, lcWithEdit });
 function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, cherryCtx, onExtra, forYou }) {
   const handle = (dream.user && dream.user.handle || "").replace("@", "");
   const lang = Looscid.A11Y_NOW.translateTo || "en", langName = (LC_LANGS.find(function (x) { return x[0] === lang; }) || [0, "English"])[1];
@@ -657,6 +708,9 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
     onExtra ? { id: "likedby", name: "Liked by", a: function () { onExtra({ kind: "people", which: "likes" }); } } : null,
     onExtra ? { id: "redreamedby", name: "Redreamed by", a: function () { onExtra({ kind: "people", which: "redreams" }); } } : null,
     onExtra ? { id: "info", name: "Dream info", a: function () { onExtra({ kind: "info" }); } } : null,
+    // Build 152 prep (#99, part 3)
+    onExtra && lcIsMine(dream) ? { id: "edit", name: dream.replyTo ? "Edit reply" : "Edit Dream", a: function () { onExtra({ kind: "edit" }); } } : null,
+    onExtra && Array.isArray(dream.edits) && dream.edits.length ? { id: "history", name: "Edit history", a: function () { onExtra({ kind: "history" }); } } : null,
     // Build 152 prep (#99, part 2)
     dream.user && (dream.user === ME || lcHandle((dream.user && dream.user.handle) || "") === lcHandle(ME.handle || "")) && !dream.replyTo
       ? { id: "pinprofile", name: lcPinnedHas(dream) ? "Unpin from profile" : "Pin to profile", a: function () { announce(lcPinnedToggle(dream)); } } : null,
@@ -916,6 +970,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
   const [showInsights, setShowInsights] = useState(false);
   useRepliesTick(); // Round 6.5: the reply count includes your saved replies
   useUntagTick(); // Build 147: Remove me from this Dream
+  useIdListTick("looscid:edits"); dream = lcWithEdit(dream); // build 152 prep (#99): your edits show everywhere
   const untagged = lcTagsMe(dream) && lcIsUntagged(dream);
   if (untagged) dream = Object.assign({}, dream, { text: lcUntaggedText(dream), _origText: dream.text });
   const nReplies = lcReplyCount(dream);
@@ -937,6 +992,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
   const ctxSpeech = ctxWords ? (/[.!?\u2026]$/.test(ctxWords) ? ctxWords + " " : ctxWords + ". ") : "";
   const artProps = { className: "dc", role: "article", tabIndex: -1, "data-dream-id": dream.id, "aria-label": ctxSpeech + lcDreamWords(dream, "speech"), "aria-braillelabel": A.brailleOutput ? (replyCtx ? "Re " + (replyCtx.who || "a Dream") + ": " : "") + lcDreamWords(dream, "braille") : undefined,
     onFocus: function () { Looscid.LC_LAST_DREAM = dream; } };
+  if (dream.editedAt) { artProps["aria-label"] += ". Edited"; if (artProps["aria-braillelabel"]) artProps["aria-braillelabel"] += " (edited)"; } // build 152 prep
   if (pinned) { artProps["aria-label"] = "Pinned. " + artProps["aria-label"]; if (artProps["aria-braillelabel"]) artProps["aria-braillelabel"] = "Pinned " + artProps["aria-braillelabel"]; } // build 152 prep
   if (flt && flt.bw && !cwOpen) return lh('div', Object.assign({}, artProps, { "aria-label": "Hidden: contains a blocked word", "aria-braillelabel": A.brailleOutput ? "Hidden: blocked word" : undefined }),
     lh('div', { className: "dc-inner lc-cw lc-bw" },
@@ -969,6 +1025,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
               ? React.createElement('span', { style: {fontSize:10,background:"rgba(124,58,237,.15)",color:"var(--ac3)",padding:"1px 6px",borderRadius:4,fontWeight:700},}, "Founding Dream")
               : React.createElement('span', { className: "dc-time", "aria-hidden": "true"}, dream.time)
             , linkInfo && React.createElement(React.Fragment, null, React.createElement('span', { className: "dc-dot", "aria-hidden": "true"}, "·"), React.createElement('span', { className: "dc-domain",}, linkInfo.domain))
+            , dream.editedAt && React.createElement(React.Fragment, null, React.createElement('span', { className: "dc-dot", "aria-hidden": "true"}, "·"), lh('span', { className: "dc-edited" }, "Edited"))
           )
           , React.createElement('div', { className: "dc-body", "aria-hidden": rewrite ? "true" : undefined}
             , React.createElement(DreamText, {text: dream.text})
@@ -3387,7 +3444,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T23:12:28Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T23:12:37Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
