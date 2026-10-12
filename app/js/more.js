@@ -2511,6 +2511,7 @@ const LC_VERSION_HISTORY = [
     "Cherry says what she did, once (\"Cherry followed Ava\"), and shows it in the chat as a row like \"Followed 1 Dreamor, Expand\" that opens to the details. When there's nothing to act on, she says so instead of saying Done.",
     "Menus and sheets say only their name when they open, like Spring: More says \"More\", Create says \"Create\", and a pop-up menu says its name. Swipe or press Down to reach the items.",
     "VoiceOver rotor Actions: on a Dream, swipe up or down for Like, Redream, Quote Dream, Reply and More; on a Cherry chat, Pin and Delete. The buttons and Commandbar still do the same everywhere.",
+    "The feed has For You, Following and Federated tabs now. Federated has Popular, Latest and Local, and you choose which networks it reads (Looscid and Nostr today). Local is Dreams from around you, and it stays off until you turn it on. For You has Show following with its own switches, For You and Following have a Sort (Latest or Popular), and you can pin a Circle, a person, a hashtag or a thread as its own tab.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

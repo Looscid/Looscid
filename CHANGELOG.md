@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 12, 2026 at 5:35 PM (Eastern Time, 2026-10-12T21:35:58Z UTC)
+Released October 12, 2026 at 5:48 PM (Eastern Time, 2026-10-12T21:48:40Z UTC)
 
 Round 7: a feature update, asked for by 2three1y. Built in steps, one commit each.
 
@@ -55,6 +55,7 @@ Round 7: a feature update, asked for by 2three1y. Built in steps, one commit eac
 - Cherry says what she did, once ("Cherry followed Ava"), and shows it in the chat as a row like "Followed 1 Dreamor, Expand" that opens to the details. When there's nothing to act on, she says so instead of saying Done.
 - Menus and sheets say only their name when they open, like Spring: More says "More", Create says "Create", and a pop-up menu says its name. Swipe or press Down to reach the items.
 - VoiceOver rotor Actions: on a Dream, swipe up or down for Like, Redream, Quote Dream, Reply and More; on a Cherry chat, Pin and Delete. The buttons and Commandbar still do the same everywhere.
+- The feed has For You, Following and Federated tabs now. Federated has Popular, Latest and Local, and you choose which networks it reads (Looscid and Nostr today). Local is Dreams from around you, and it stays off until you turn it on. For You has Show following with its own switches, For You and Following have a Sort (Latest or Popular), and you can pin a Circle, a person, a hashtag or a thread as its own tab.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 

@@ -532,6 +532,11 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
     lcTagsMe(dream) ? (lcIsUntagged(dream)
       ? { id: "retag", name: "Add me back to this Dream", a: function () { lcSetUntagged(dream, false); announce("You're back in this Dream."); } }
       : { id: "untag", name: "Remove me from this Dream", a: function () { lcSetUntagged(dream, true); announce("Removed you from this Dream. Your mention in it isn't a link to you anymore."); } }) : null,
+    // Build 151 (#54): pin this Dream's thread, or its Dreamor, as a feed tab.
+    (function () { const root = dream._root || dream.replyTo || dream.id; const on = lcPinHas("thread", root);
+      return { id: "pinthread", name: on ? "Unpin thread tab" : "Pin thread as a tab", a: function () { if (on) lcPinRemove(lcPinId({ kind: "thread", ref: root })); else lcPinAdd("thread", root, "Thread: " + String((dream.user && dream.user.name) || "Dream") + ", " + String(dream.text || "").replace(/\s+/g, " ").slice(0, 30).trim()); } }; })(),
+    handle && !(dream.user === ME || lcHandle(handle) === lcHandle(ME.handle || "")) ? (function () { const on = lcPinHas("person", lcHandle(handle));
+      return { id: "pinperson", name: on ? "Unpin @" + handle + " tab" : "Pin @" + handle + " as a tab", a: function () { if (on) lcPinRemove(lcPinId({ kind: "person", ref: lcHandle(handle) })); else lcPinAdd("person", lcHandle(handle), (dream.user && dream.user.name) || "@" + handle); } }; })() : null,
     cherryCtx ? { id: "cherry", name: "Ask Cherry about this Dream", a: function () { cherryCtx.openCherry("Tell me about this Dream: " + String(dream.text || "").slice(0, 200)); } } : null,
   ].filter(Boolean);
   // Build 150 (#46): Feditext's More button. Its own pop-up items come first, in Feditext's order (Bookmark is Like in
@@ -3165,7 +3170,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T21:35:58Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T21:48:40Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -3998,18 +4003,110 @@ function lcA11yIntent(raw) {
 }
 /* --- Feeds: one tablist; swipe, adjustable control, PageUp/PageDown, commands ---- */
 // Build 150 (#51, 2three1y 4:44 AM Oct 11): no "Home" tab before the feed tabs. A saved "home" falls back to For You below.
-const LC_FEEDS = [
+// Build 151 (#54, Oct 11 4:47 AM to 4:15 PM): For You, Following, Federated, then any tabs you pinned (Circles, people,
+// hashtags and threads). Popular, Latest and Local live inside Federated; Popular and Latest are also the Sort on For You
+// and Following. LC_FEEDS keeps its place in memory and is rebuilt in place when pins change.
+const LC_FEEDS_BASE = [
   { id: "for you", label: "For You", alias: ["for you", "foryou", "for u"] },
   { id: "following", label: "Following", alias: ["following", "followed"] },
-  { id: "local", label: "Local", alias: ["local", "nearby"] },
-  { id: "circles", label: "Circles", alias: ["circles", "circle", "groups"] },
+  { id: "federated", label: "Federated", alias: ["federated", "fediverse", "network", "the network", "everyone"] },
+];
+const LC_FED_SUBS = [
   { id: "popular", label: "Popular", alias: ["popular", "top", "trending"] },
   { id: "latest", label: "Latest", alias: ["latest", "newest", "recent", "new"] },
+  { id: "local", label: "Local", alias: ["local", "nearby", "around me", "around you", "dreams from around you"] },
 ];
+Looscid.LC_FED_SUBS = LC_FED_SUBS;
+const LC_PINS_KEY = "looscid_feed_pins", LC_FED_SUB_KEY = "looscid_fed_sub", LC_FED_NETS_KEY = "looscid_fed_networks", LC_FED_LOCAL_KEY = "looscid_fed_local",
+  LC_FEED_SORT_KEY = "looscid_feed_sort", LC_FY_FOLLOW_KEY = "looscid_foryou_following";
+Object.assign(Looscid, { LC_PINS_KEY, LC_FED_SUB_KEY, LC_FED_NETS_KEY, LC_FED_LOCAL_KEY, LC_FEED_SORT_KEY, LC_FY_FOLLOW_KEY });
+const LC_PIN_KINDS = { circle: "Circle", person: "person", tag: "hashtag", thread: "thread" };
+Looscid.LC_PIN_KINDS = LC_PIN_KINDS;
+function lcJsonLs(k, d) { try { const v = JSON.parse(localStorage.getItem(k) || "null"); return v == null ? d : v; } catch (e) { return d; } }
+function lcPins() { const v = lcJsonLs(LC_PINS_KEY, []); return Array.isArray(v) ? v.filter(function (p) { return p && LC_PIN_KINDS[p.kind] && p.ref != null && p.label; }) : []; }
+function lcPinId(p) { return "pin:" + p.kind + ":" + String(p.ref); }
+const LC_FEEDS = [];
+function lcFeedsRebuild() {
+  LC_FEEDS.splice.apply(LC_FEEDS, [0, LC_FEEDS.length].concat(LC_FEEDS_BASE, lcPins().map(function (p) {
+    return { id: lcPinId(p), label: p.label, alias: [p.label, String(p.label).replace(/^#/, "")], pin: p };
+  })));
+}
+lcFeedsRebuild();
+function lcPinHas(kind, ref) { return lcPins().some(function (p) { return p.kind === kind && String(p.ref) === String(ref); }); }
+function lcPinAdd(kind, ref, label, quiet) {
+  if (!LC_PIN_KINDS[kind] || ref == null || ref === "") return "";
+  const list = lcPins();
+  if (list.some(function (p) { return p.kind === kind && String(p.ref) === String(ref); })) { const t = label + " is already a tab."; if (!quiet) announce(t); return t; }
+  list.push({ kind: kind, ref: ref, label: String(label).slice(0, 60) });
+  try { localStorage.setItem(LC_PINS_KEY, JSON.stringify(list.slice(0, 30))); } catch (e) {}
+  lcFeedsRebuild(); window.dispatchEvent(new CustomEvent("looscid:pins"));
+  const t = "Pinned " + label + " as a tab."; if (!quiet) announce(t); return t;
+}
+function lcPinRemove(id, quiet) {
+  const list = lcPins(), p = list.find(function (x) { return lcPinId(x) === id; }); if (!p) return "";
+  const left = list.filter(function (x) { return x !== p; });
+  try { if (left.length) localStorage.setItem(LC_PINS_KEY, JSON.stringify(left)); else localStorage.removeItem(LC_PINS_KEY); } catch (e) {}
+  lcFeedsRebuild(); window.dispatchEvent(new CustomEvent("looscid:pins"));
+  if (Looscid.LC_FEED === id) { Looscid.LC_FEED = "following"; try { sessionStorage.setItem("looscid_feed", "following"); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:feed", { detail: "following" })); }
+  const t = "Unpinned " + p.label + "."; if (!quiet) announce(t); return t;
+}
+function lcPinsMove(id, d) {
+  const list = lcPins(), i = list.findIndex(function (x) { return lcPinId(x) === id; }), j = i + d;
+  if (i < 0 || j < 0 || j >= list.length) return false;
+  const t = list[i]; list[i] = list[j]; list[j] = t;
+  try { localStorage.setItem(LC_PINS_KEY, JSON.stringify(list)); } catch (e) {}
+  lcFeedsRebuild(); window.dispatchEvent(new CustomEvent("looscid:pins")); return true;
+}
+function lcFedSub() { let v = null; try { v = localStorage.getItem(LC_FED_SUB_KEY); } catch (e) {} return LC_FED_SUBS.some(function (x) { return x.id === v; }) ? v : "latest"; }
+function lcSetFedSub(id, quiet) {
+  const s = LC_FED_SUBS.find(function (x) { return x.id === id; }); if (!s) return;
+  try { localStorage.setItem(LC_FED_SUB_KEY, id); } catch (e) {}
+  window.dispatchEvent(new CustomEvent("looscid:fedsub", { detail: id }));
+  if (!quiet) announce("Federated: " + s.label + ".");
+}
+// Networks the Federated feed reads. Only networks Looscid really reads from are on the list; the rest say "Coming soon".
+const LC_FED_NETS = [
+  { id: "looscid", label: "Looscid", note: "Dreams on Looscid" },
+  { id: "nostr", label: "Nostr", note: "Looscid Dreams from your relays" },
+  { id: "activitypub", label: "Mastodon and the fediverse", soon: true },
+  { id: "atproto", label: "Bluesky", soon: true },
+];
+Looscid.LC_FED_NETS = LC_FED_NETS;
+function lcFedNets() { const v = lcJsonLs(LC_FED_NETS_KEY, null); return Array.isArray(v) ? v.filter(function (x) { return LC_FED_NETS.some(function (n) { return n.id === x && !n.soon; }); }) : ["looscid", "nostr"]; }
+function lcSetFedNet(id, on) {
+  const cur = lcFedNets().filter(function (x) { return x !== id; }); if (on) cur.push(id);
+  try { localStorage.setItem(LC_FED_NETS_KEY, JSON.stringify(cur)); } catch (e) {}
+  window.dispatchEvent(new CustomEvent("looscid:fednets"));
+}
+function lcFeedSort(feed) { const v = lcJsonLs(LC_FEED_SORT_KEY, {}); return v && v[feed] === "popular" ? "popular" : "latest"; }
+function lcSetFeedSort(feed, val) {
+  const v = lcJsonLs(LC_FEED_SORT_KEY, {}) || {}; v[feed] = val === "popular" ? "popular" : "latest";
+  try { localStorage.setItem(LC_FEED_SORT_KEY, JSON.stringify(v)); } catch (e) {}
+  window.dispatchEvent(new CustomEvent("looscid:feedsort"));
+}
+// For You's "Show following": on (the default), Dreams from what you follow are mixed in, each kind with its own switch.
+const LC_FY_SOURCES = [["people", "People you follow"], ["circles", "Circles you're in"], ["tags", "Pinned hashtags"], ["threads", "Pinned threads"]];
+Looscid.LC_FY_SOURCES = LC_FY_SOURCES;
+function lcFyFollow() { const v = lcJsonLs(LC_FY_FOLLOW_KEY, {}) || {}; const o = { on: v.on !== false }; LC_FY_SOURCES.forEach(function (s) { o[s[0]] = v[s[0]] !== false; }); return o; }
+function lcSetFyFollow(patch) { const v = Object.assign(lcFyFollow(), patch); try { localStorage.setItem(LC_FY_FOLLOW_KEY, JSON.stringify(v)); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:fyfollow")); }
+// Dreams from around you (Local): opt-in only. Your place is kept on this device as a rough area (a 5-letter geohash,
+// about 5 km), used only to ask relays for Dreams tagged with that area. It is never sent with your Dreams.
+function lcFedLocal() { const v = lcJsonLs(LC_FED_LOCAL_KEY, null); return v && v.on && typeof v.g === "string" ? v : null; }
+function lcGeohash(lat, lon, len) {
+  const B = "0123456789bcdefghjkmnpqrstuvwxyz"; let la = [-90, 90], lo = [-180, 180], h = "", bit = 0, ch = 0, even = true;
+  while (h.length < (len || 5)) { const r = even ? lo : la, v = even ? lon : lat, mid = (r[0] + r[1]) / 2; if (v >= mid) { ch = (ch << 1) | 1; r[0] = mid; } else { ch = ch << 1; r[1] = mid; } even = !even; if (++bit === 5) { h += B[ch]; bit = 0; ch = 0; } }
+  return h;
+}
+function lcSetFedLocal(v) { try { if (v) localStorage.setItem(LC_FED_LOCAL_KEY, JSON.stringify(v)); else localStorage.removeItem(LC_FED_LOCAL_KEY); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:fedlocal")); }
+Object.assign(Looscid, { lcPins, lcPinId, lcPinHas, lcPinAdd, lcPinRemove, lcPinsMove, lcFeedsRebuild, lcFedSub, lcSetFedSub, lcFedNets, lcSetFedNet, lcFeedSort, lcSetFeedSort, lcFyFollow, lcSetFyFollow, lcFedLocal, lcSetFedLocal, lcGeohash });
 Looscid.LC_FEEDS = LC_FEEDS;
 const lcFeedKey = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]/g, ""); };
 Looscid.lcFeedKey = lcFeedKey;
-function lcFeedFind(q) { const k = lcFeedKey(String(q || "").replace(/\b(the|feed|tab)\b/gi, "")); if (!k) return null; return LC_FEEDS.find(function (f) { return f.alias.concat([f.label]).some(function (a) { return lcFeedKey(a) === k; }); }) || null; }
+function lcFeedFind(q) { const k = lcFeedKey(String(q || "").replace(/\b(the|feed|tab)\b/gi, "")); if (!k) return null;
+  // Popular, Latest and Local are inside Federated now (#54): "feed popular" opens Federated, Popular.
+  const sub = LC_FED_SUBS.find(function (f) { return f.alias.concat([f.label]).some(function (a) { return lcFeedKey(a) === k; }); });
+  if (sub) return { id: "federated", sub: sub.id, label: "Federated, " + sub.label };
+  return LC_FEEDS.find(function (f) { return f.alias.concat([f.label]).some(function (a) { return lcFeedKey(a) === k; }); }) || null; }
 // Settings > Accessibility > Navigation > Feed switching. Each mode exposes exactly one feed control to screen readers.
 const LC_FEED_MODES = [
   ["tabs", "Tabs", "Default. A row of feed tabs: arrow keys, Home and End move between them, and PageUp or PageDown work anywhere in the feed."],
@@ -4021,6 +4118,8 @@ function lcFeedMode(v) { return v === "swipe" || v === "menu" ? v : "tabs"; }
 Looscid.LC_FEED = (function () { try { return sessionStorage.getItem("looscid_feed") || "for you"; } catch (e) { return "for you"; } })();
 // Round 5: the separate Friends tab is gone; Following + "Show friends" is the one way to see mutuals.
 if (Looscid.LC_FEED === "friends") { Looscid.LC_FEED = "following"; try { localStorage.setItem("looscid_show_friends", "1"); sessionStorage.setItem("looscid_feed", "following"); } catch (e) {} }
+// Build 151 (#54): the old Local, Popular and Latest tabs open Federated on that tab; the old Circles tab opens For You.
+if (/^(local|popular|latest)$/.test(Looscid.LC_FEED)) { try { localStorage.setItem(LC_FED_SUB_KEY, Looscid.LC_FEED); } catch (e) {} Looscid.LC_FEED = "federated"; }
 if (!LC_FEEDS.some(function (f) { return f.id === Looscid.LC_FEED; })) Looscid.LC_FEED = "for you";
 const LC_FRIENDS_WORDS = ["friends", "friend", "mutuals", "mutual", "friends feed", "mutuals feed"];
 Looscid.LC_FRIENDS_WORDS = LC_FRIENDS_WORDS;
@@ -4169,15 +4268,15 @@ function lcFeedIntent(raw) {
   if ((m = /^show (friends|mutuals)( only)?( (on|off))?$/.exec(n))) return { friends: m[4] !== "off" };
   if (/^(show everyone|show all following|show everyone i follow)$/.test(n)) return { friends: false };
   if ((m = /^(?:feed (friends|mutuals?|friend)|(friends|mutuals?|friend) feed|(?:open|show|go to|switch to)( the| my)? (friends|mutuals?)( feed| tab)?)$/.exec(n))) return { friends: true };
-  if ((m = /^feed (.+)$/.exec(n))) { const f = lcFeedFind(m[1]); return f ? { feed: f.id } : { miss: m[1] }; }
-  if ((m = /^(switch|change)( over)?( to)?( the| my)? (.+?)( feed| tab)?$/.exec(n))) { const f = lcFeedFind(m[5]); if (f) return { feed: f.id }; }
-  if ((m = /^(go|take me|jump)( over)?( to)?( the| my)? (.+?) (feed|tab)$/.exec(n))) { const f = lcFeedFind(m[5]); if (f) return { feed: f.id }; }
-  if ((m = /^(show me|open|show)( the| my)? (.+?) (feed|tab)$/.exec(n))) { const f = lcFeedFind(m[3]); if (f) return { feed: f.id }; }
+  if ((m = /^feed (.+)$/.exec(n))) { const f = lcFeedFind(m[1]); return f ? { feed: f.id, sub: f.sub } : { miss: m[1] }; }
+  if ((m = /^(switch|change)( over)?( to)?( the| my)? (.+?)( feed| tab)?$/.exec(n))) { const f = lcFeedFind(m[5]); if (f) return { feed: f.id, sub: f.sub }; }
+  if ((m = /^(go|take me|jump)( over)?( to)?( the| my)? (.+?) (feed|tab)$/.exec(n))) { const f = lcFeedFind(m[5]); if (f) return { feed: f.id, sub: f.sub }; }
+  if ((m = /^(show me|open|show)( the| my)? (.+?) (feed|tab)$/.exec(n))) { const f = lcFeedFind(m[3]); if (f) return { feed: f.id, sub: f.sub }; }
   return null;
 }
 function lcApplyFeedIntent(it) {
   if (it.step) { const f = lcStepFeed(it.step, true); return "Feed: " + f.label + "."; }
-  if (it.feed) { lcSetFeed(it.feed, true); return "Feed: " + lcFeedLabel(it.feed) + "."; }
+  if (it.feed) { if (it.sub) lcSetFedSub(it.sub, true); lcSetFeed(it.feed, true); return "Feed: " + lcFeedLabel(it.feed) + (it.sub ? ", " + LC_FED_SUBS.find(function (x) { return x.id === it.sub; }).label : "") + "."; }
   if (it.friends !== undefined) { if (Looscid.LC_FEED !== "following") lcSetFeed("following", true); return lcSetShowFriends(it.friends, true); }
   return null;
 }
@@ -5129,7 +5228,10 @@ const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "looscid_braille_styles", "lo
   // Build 149: the profile Media tab's Show choice (Images, Videos or Both). Added at the end, so older backups still import.
   "looscid_profile_media_show",
   // Build 150: the Circles you made (looscid_circles). Added at the end, so older backups still import; a backup without it changes none.
-  "looscid_circles"];
+  "looscid_circles",
+  // Build 151 (#54): pinned feed tabs, Federated's tab and networks, Sort on For You and Following, For You's Show following,
+  // and whether Dreams from around you is on (with its rough area). Added at the end, so older backups still import.
+  "looscid_feed_pins", "looscid_fed_sub", "looscid_fed_networks", "looscid_feed_sort", "looscid_foryou_following", "looscid_fed_local"];
 Looscid.LC_EXPORT_KEYS = LC_EXPORT_KEYS;
 function lcExportSettings() {
   const o = { app: "Looscid", kind: "settings", version: LOOSCID_VERSION, exported: new Date().toISOString(), settings: {} };

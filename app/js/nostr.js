@@ -367,6 +367,35 @@ async function publishDream(d, opts) {
   return { ev: ev, ok: r.ok.length, total: list.length };
 }
 
+/* --- Build 151 (#54): the Federated feed reads public Looscid Dreams from your relays ---------------------------
+   Kind 1 notes tagged "looscid" from anyone, newest first, checked with their signatures. Replies are left out of the
+   feed. With Dreams from around you on, it also asks for notes tagged with your rough area ("g", a 5-letter geohash).
+   Nothing is stored: the list lives in memory for two minutes. */
+const PUB_CACHE = {};
+async function fetchPublic(opts) {
+  opts = opts || {};
+  const key = (opts.g || "") + "|" + relays().join(",");
+  const c = PUB_CACHE[key]; if (c && Date.now() - c.at < 120000 && !opts.fresh) return c.list;
+  let NT; try { NT = await load(); } catch (e) { throw new Error("load"); }
+  const filter = { kinds: [1], "#t": ["looscid"], limit: 100 }; if (opts.g) filter["#g"] = [opts.g];
+  const all = await Promise.all(relays().map(function (u) { return relayReq(u, filter, opts.ms || 7000); }));
+  const seen = new Set(), hid = new Set(hidden()), out = [];
+  all.forEach(function (evs) { evs.forEach(function (ev) {
+    if (!ev || seen.has(ev.id) || hid.has(ev.id) || ev.kind !== 1 || typeof ev.content !== "string") return;
+    if (!Array.isArray(ev.tags) || ev.tags.some(function (t) { return t && t[0] === "e"; })) return;
+    let ok = false; try { ok = NT.verifyEvent(ev); } catch (e) {}
+    if (!ok) return;
+    seen.add(ev.id);
+    const tags = keepTags(ev.tags), cwT = tags.find(function (t) { return t[0] === "content-warning"; });
+    let npub = ""; try { npub = NT.nip19.npubEncode(ev.pubkey); } catch (e) {}
+    out.push({ id: ev.id, nid: ev.id, pk: ev.pubkey, npub: npub, text: ev.content.slice(0, 20000), created: ev.created_at * 1000, tags: tags, cw: cwT ? (cwT[1] || "Content warning") : undefined,
+      g: (ev.tags.find(function (t) { return t && t[0] === "g"; }) || [])[1] });
+  }); });
+  out.sort(function (a, b) { return b.created - a.created; });
+  PUB_CACHE[key] = { at: Date.now(), list: out };
+  return out;
+}
+
 /* --- Reading your own Dreams back (any device) ------------------------------------- */
 function hidden() { const h = lsJson(HIDDEN_KEY, []); return Array.isArray(h) ? h : []; }
 function hide(nid) { if (!isHex64(nid)) return; const h = hidden(); if (h.indexOf(nid) < 0) { h.push(nid); lsSet(HIDDEN_KEY, JSON.stringify(h.slice(-2000))); } }
@@ -437,5 +466,5 @@ if (document.readyState === "complete") start(); else window.addEventListener("l
 
 Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, load: load, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
   importKey: importKey, createKey: createKey, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, nsecNow: nsecNow,
-  publishDream: publishDream, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
+  publishDream: publishDream, fetchPublic: fetchPublic, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
 })(window.Looscid = window.Looscid || {});
