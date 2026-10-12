@@ -36,7 +36,7 @@ function lcRenameOld(store) {
   try { if (ls && ls.getItem("looscid_migrated_v1") === null) ls.setItem("looscid_migrated_v1", new Date().toISOString()); } catch (e) {}
 })();
 Object.assign(Looscid, { LC_OLD_PREFIX, lcNewKey, lcRenameOld });
-Object.assign(Looscid, { lcHint, lcHintReason, lcModalSync, lcModalState, lcReplyObj, lcRedreamsRaw, lcRedreamHas, lcPeopleList, lcPeopleSet, lcPeopleHas, lcIsMuted, lcNoteFor, lcSetNote, useUntagTick, lcLikedRaw, lcLikedHas, lcLikedItems, lcLikedSet, lcLikedPatch, lcDreamSnap, lcWithLiked, lcLikedDreams, useLikedTick, lcIsUntagged, lcSetUntagged, lcTagsMe, lcUntaggedText, lcNewId, lcRepliesRaw, lcRepliesFor, lcAddReply, lcRepliesChanged, useRepliesTick, lcCompose, lcLinkCard, LinkCard, ReplyItem, lcLoadDreams, lcMergeDreams, lcSyncOwnDreams, useSavedDreams, _optionalChain, getDrafts, saveDraftItem, getSavedTheme, saveTheme, applyTheme, getOnboardingSeen, setOnboardingSeen, resetOnboarding, getLinkInfo, useDreams, Av, ChkMark, Cbx, Modal, lcThreadOf, lcHearThread, DreamExtra, lcTranslate, lcShareText, DreamOptionsMenu, BackHeader, DreamText, SiteEmbed, CommentItem, CommentView, DreamCard, lcCatState, useCats, lcAlertCats, lcResetKeyItems, lcLsDel, lcResetModel, lcOpenReset, LcResetHost, lcAiOn, lcSettingIndex, lcFindSettings, lcGoSetting, LcSettingFind, sanitizeInput, makeLocalProfile, saveLocalProfile, getLocalProfile, applyLocalProfileToMe, ensureLocalProfile, renameLocalProfile, resetLocalProfile, getAnalyticsConsent, setAnalyticsConsent, AnalyticsBanner, getWelcomeSeen, setWelcomeSeen, getAIPrefs, setAIPrefs, getActiveAI, getHabits, recordHabit, getPredictions, spellCheck, applySpellFix, detectAutoLinks, getAttribPref, HabitInsightCard, MainMenu, lcVerb, lcHints, announce, useEnterSubmit, updateLocalProfile, LcMenu, lcViewLimits, lcAnnounceCount, MenuPopupButton, getIdentity, setIdentity, getMethods, saveMethods, addMethod, getActivity, logActivity, getSessions, setSession, removeMethod, setStoredNostrSk, signOutIdentity, loadNostrTools, bytesToHex, hexToBytes, shortNpub, identityLabel, SecretField, NostrPanel, b64url, randomToken, pkceChallenge, appRedirectUri, normalizeHost, startMastodonLogin, startFunkwhaleLogin, startHubzillaLogin, lidOAuthIdentity, finishOAuthIfReturning, useOAuthReturn, MastodonPanel, LidOAuthPanel, FunkwhalePanel, HubzillaPanel, resolvePds, BlueskyPanel, AlertDialog, LooscidIDChooser, getTopics, TopicPicker, LooscidOnboarding, lcSectionKeys, lcSectionDefaults, lcSrName, lcSectionTitle, lcSet, lcValueText, lcTimeSpoken, lcWords, lcQuietNow, lcAutoplayAllowed, lcHapticsSupported, lcBuzz, lcEmojiName, lcSpeechText, lcBrailleText, lcTimeParts, lcDreamKind, lcDreamWords, lcFiltered, lcDreamSpeechParts, lcIdb, lcIdbDo, lcCurrentDream, lcLoadCustomPack, lcUpdateAuto, lcFetchVersion, lcCheckUpdate, lcApplyUpdate, LcUpdateBanner, lcVersionLabel, lcReleasedText, loadA11y, saveA11y, a11yAsked, setA11yAsked, systemReducedMotion, motionReduced, a11yEnterSends, lcCloseProps, lcPcOn, lcPackChime, lcPitchCue, lcPcKindOf, areaOfPage, musicFind, lcLev, lcSectionReport, lcFindSection, lcParseTime, lcRegistryIntent, lcTranslateOk, lcA11yReport, lcA11yIntent, lcFeedFind, lcFeedMode, lcFeedLabel, lcSetFeed, lcStepFeed, lcAudCustom, lcHandle, lcAudienceOk, lcBlocked, lcBlockedSet, lcBlockedUser, lcWordHit, LcBlockedHidden, lcAlertPrefs, lcAlerts, lcAlertsSave, lcNotify, lcAlertsMarkAll, useAlerts, lcVersionAlert, lcSetAlertsTab, lcSetShowFriends, lcFeedIntent, lcApplyFeedIntent, lcAppItems, lcNorm, lcClosestPlace, lcHistory, lcPushHistory, lcSpoken, lcExtraIntent, lcRun, lcTrapTab, useCmdHistory, useKeyboardInset, LcCmdLog, CommandBar, lcLogSave, lcLogAdd, lcLogClear, useCmdLog, lcBrowserName, lcStorageKB, lcNexosSettings, lcNexosSend, lcNexosBroadcast, lcBootLines, LcBoot, useInertBehind, DeviceQuestion, useA11yNow, lcResetSection, lcBrList, lcBrSave, lcBrWord, lcBrStyleLabel, lcBrDate, lcBrFind, lcBrCheck, lcBrNotice, lcBrSelect, lcBrCreate, lcBrRename, lcBrDelete, lcBrUndo, lcBrUsePast, lcBrForget, lcBrStamp, lcBrWatch, lcBrIntent, lcKeyName, lcExportSettings, lcDownloadSettings, LcFindMeSwitch, LcUndoBar, A11ySwitch, App });
+Object.assign(Looscid, { lcDreamUrl, lcDreamNet, lcDreamInfoLines, lcHint, lcHintReason, lcModalSync, lcModalState, lcReplyObj, lcRedreamsRaw, lcRedreamHas, lcPeopleList, lcPeopleSet, lcPeopleHas, lcIsMuted, lcNoteFor, lcSetNote, useUntagTick, lcLikedRaw, lcLikedHas, lcLikedItems, lcLikedSet, lcLikedPatch, lcDreamSnap, lcWithLiked, lcLikedDreams, useLikedTick, lcIsUntagged, lcSetUntagged, lcTagsMe, lcUntaggedText, lcNewId, lcRepliesRaw, lcRepliesFor, lcAddReply, lcRepliesChanged, useRepliesTick, lcCompose, lcLinkCard, LinkCard, ReplyItem, lcLoadDreams, lcMergeDreams, lcSyncOwnDreams, useSavedDreams, _optionalChain, getDrafts, saveDraftItem, getSavedTheme, saveTheme, applyTheme, getOnboardingSeen, setOnboardingSeen, resetOnboarding, getLinkInfo, useDreams, Av, ChkMark, Cbx, Modal, lcThreadOf, lcHearThread, DreamExtra, lcTranslate, lcShareText, DreamOptionsMenu, BackHeader, DreamText, SiteEmbed, CommentItem, CommentView, DreamCard, lcCatState, useCats, lcAlertCats, lcResetKeyItems, lcLsDel, lcResetModel, lcOpenReset, LcResetHost, lcAiOn, lcSettingIndex, lcFindSettings, lcGoSetting, LcSettingFind, sanitizeInput, makeLocalProfile, saveLocalProfile, getLocalProfile, applyLocalProfileToMe, ensureLocalProfile, renameLocalProfile, resetLocalProfile, getAnalyticsConsent, setAnalyticsConsent, AnalyticsBanner, getWelcomeSeen, setWelcomeSeen, getAIPrefs, setAIPrefs, getActiveAI, getHabits, recordHabit, getPredictions, spellCheck, applySpellFix, detectAutoLinks, getAttribPref, HabitInsightCard, MainMenu, lcVerb, lcHints, announce, useEnterSubmit, updateLocalProfile, LcMenu, lcViewLimits, lcAnnounceCount, MenuPopupButton, getIdentity, setIdentity, getMethods, saveMethods, addMethod, getActivity, logActivity, getSessions, setSession, removeMethod, setStoredNostrSk, signOutIdentity, loadNostrTools, bytesToHex, hexToBytes, shortNpub, identityLabel, SecretField, NostrPanel, b64url, randomToken, pkceChallenge, appRedirectUri, normalizeHost, startMastodonLogin, startFunkwhaleLogin, startHubzillaLogin, lidOAuthIdentity, finishOAuthIfReturning, useOAuthReturn, MastodonPanel, LidOAuthPanel, FunkwhalePanel, HubzillaPanel, resolvePds, BlueskyPanel, AlertDialog, LooscidIDChooser, getTopics, TopicPicker, LooscidOnboarding, lcSectionKeys, lcSectionDefaults, lcSrName, lcSectionTitle, lcSet, lcValueText, lcTimeSpoken, lcWords, lcQuietNow, lcAutoplayAllowed, lcHapticsSupported, lcBuzz, lcEmojiName, lcSpeechText, lcBrailleText, lcTimeParts, lcDreamKind, lcDreamWords, lcFiltered, lcDreamSpeechParts, lcIdb, lcIdbDo, lcCurrentDream, lcLoadCustomPack, lcUpdateAuto, lcFetchVersion, lcCheckUpdate, lcApplyUpdate, LcUpdateBanner, lcVersionLabel, lcReleasedText, loadA11y, saveA11y, a11yAsked, setA11yAsked, systemReducedMotion, motionReduced, a11yEnterSends, lcCloseProps, lcPcOn, lcPackChime, lcPitchCue, lcPcKindOf, areaOfPage, musicFind, lcLev, lcSectionReport, lcFindSection, lcParseTime, lcRegistryIntent, lcTranslateOk, lcA11yReport, lcA11yIntent, lcFeedFind, lcFeedMode, lcFeedLabel, lcSetFeed, lcStepFeed, lcAudCustom, lcHandle, lcAudienceOk, lcBlocked, lcBlockedSet, lcBlockedUser, lcWordHit, LcBlockedHidden, lcAlertPrefs, lcAlerts, lcAlertsSave, lcNotify, lcAlertsMarkAll, useAlerts, lcVersionAlert, lcSetAlertsTab, lcSetShowFriends, lcFeedIntent, lcApplyFeedIntent, lcAppItems, lcNorm, lcClosestPlace, lcHistory, lcPushHistory, lcSpoken, lcExtraIntent, lcRun, lcTrapTab, useCmdHistory, useKeyboardInset, LcCmdLog, CommandBar, lcLogSave, lcLogAdd, lcLogClear, useCmdLog, lcBrowserName, lcStorageKB, lcNexosSettings, lcNexosSend, lcNexosBroadcast, lcBootLines, LcBoot, useInertBehind, DeviceQuestion, useA11yNow, lcResetSection, lcBrList, lcBrSave, lcBrWord, lcBrStyleLabel, lcBrDate, lcBrFind, lcBrCheck, lcBrNotice, lcBrSelect, lcBrCreate, lcBrRename, lcBrDelete, lcBrUndo, lcBrUsePast, lcBrForget, lcBrStamp, lcBrWatch, lcBrIntent, lcKeyName, lcExportSettings, lcDownloadSettings, LcFindMeSwitch, LcUndoBar, A11ySwitch, App });
 
  function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 const {useState, useEffect, useRef, useCallback} = React;
@@ -529,7 +529,11 @@ function lcHearThread(d) {
 function DreamExtra({ extra, dream, onClose }) {
   const ref = useRef(null);
   useEffect(function () { if (ref.current) ref.current.focus(); }, [extra.kind]);
-  const close = lh('button', Object.assign({ type: "button", className: "lc-close", onClick: onClose }, lcCloseProps(extra.kind === "thread" ? "thread" : "translation")), "Close");
+  const close = lh('button', Object.assign({ type: "button", className: "lc-close", onClick: onClose }, lcCloseProps(extra.kind === "thread" ? "thread" : extra.kind === "info" ? "Dream info" : extra.kind === "people" ? (extra.which === "likes" ? "Liked by" : "Redreamed by") : "translation")), "Close");
+  if (extra.kind === "info") return lh('section', { className: "lc-extra", "aria-labelledby": "inf-h-" + dream.id },
+    lh('h3', { id: "inf-h-" + dream.id, className: "lc-sub-h", tabIndex: -1, ref: ref }, "Dream info"),
+    lh('ul', { className: "lc-info-list", role: "list" }, lcDreamInfoLines(dream).map(function (l, i) { return lh('li', { key: i }, l); })), close);
+  if (extra.kind === "people") return lh(DreamPeople, { extra: extra, dream: dream, close: close, headRef: ref });
   if (extra.kind === "thread") {
     const t = lcThreadOf(dream);
     return lh('section', { className: "lc-extra", "aria-labelledby": "thr-h-" + dream.id },
@@ -542,6 +546,31 @@ function DreamExtra({ extra, dream, onClose }) {
   return lh('section', { className: "lc-extra", "aria-labelledby": "tr-h-" + dream.id },
     lh('h3', { id: "tr-h-" + dream.id, className: "lc-sub-h", tabIndex: -1, ref: ref }, "Translation"),
     lh('p', { lang: extra.lang || undefined }, extra.text || "Translating…"), close);
+}
+// Build 152 prep (#99): Liked by / Redreamed by. Your own Like or Redream is on this device; others come from Nostr.
+function DreamPeople({ extra, dream, close, headRef }) {
+  const likes = extra.which === "likes", title = likes ? "Liked by" : "Redreamed by";
+  const [st, setSt] = useState({ state: "loading", pks: [] });
+  useEffect(function () {
+    let live = true; const N = Looscid.lcNostr;
+    if (!dream.nid || !N || !N.fetchReactions) { setSt({ state: "none", pks: [] }); return; }
+    N.fetchReactions(dream.nid).then(function (r) { if (!live) return; const pks = (likes ? r.likes : r.redreams) || []; setSt({ state: r.err ? "err" : "done", pks: pks });
+      if (pks.length) lcNostrLearnNames(pks); announce(pks.length === 0 ? "No one found on Nostr." : pks.length === 1 ? "1 Dreamor found." : pks.length + " Dreamors found."); });
+    return function () { live = false; };
+  }, [dream.nid, extra.which]);
+  const [, bumpNames] = useState(0); // names learned from Nostr profiles arrive later
+  useEffect(function () { const f = function () { bumpNames(function (x) { return x + 1; }); }; window.addEventListener("looscid:pms", f); return function () { window.removeEventListener("looscid:pms", f); }; }, []);
+  const meIn = likes ? !!dream.liked : !!(dream.redreamed || dream.quoted);
+  const total = likes ? (+dream.likes || 0) : (+dream.redreams || 0);
+  const names = (meIn ? ["You"] : []).concat(st.pks.filter(function (pk) { return !(Looscid.lcNostr && Looscid.lcNostr.state && Looscid.lcNostr.state().pubkey === pk); }).map(function (pk) { return lcNostrName(pk); }));
+  const shown = names.length;
+  const note = st.state === "loading" ? "Looking on Nostr…" : st.state === "err" ? "Couldn't reach Nostr relays." :
+    shown === 0 ? (total > 0 ? (likes ? "Looscid can't see who liked this Dream. " : "Looscid can't see who Redreamed this Dream. ") + total + (likes ? (total === 1 ? " Like" : " Likes") : (total === 1 ? " Redream" : " Redreams")) + " in total." : (likes ? "No Likes yet." : "No Redreams yet.")) :
+    total > shown && !dream.nid ? "Looscid can't see the other " + (total - shown) + "." : "";
+  return lh('section', { className: "lc-extra", "aria-labelledby": "ppl-h-" + dream.id },
+    lh('h3', { id: "ppl-h-" + dream.id, className: "lc-sub-h", tabIndex: -1, ref: headRef }, title),
+    shown ? lh('ul', { className: "lc-info-list", role: "list" }, names.map(function (n, i) { return lh('li', { key: i }, n); })) : null,
+    note ? lh('p', { className: "lc-muted" }, note) : null, close);
 }
 async function lcTranslate(text, to) {
   if (!lcTranslateOk()) throw new Error("not available");
@@ -558,6 +587,33 @@ function lcShareText(text, what) {
   if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () { announce(what + " copied, ready to share."); }, function () { announce("Copy is not available here."); });
   else announce("Sharing is not available in this browser.");
 }
+/* Build 152 prep (#99): Copy link, Open original, Dream info, Liked by and Redreamed by. A Dream's public address is its
+   Nostr note on njump.me (a public Nostr web viewer), or its own address when it came from Mastodon or another network
+   with one. A Dream that is only on this device has no address yet. */
+function lcDreamNet(d) { if (!d) return "looscid"; if (d.net === "activitypub" || d.net === "mastodon") return "mastodon"; if (d.net === "nostr" || (d.user && d.user.net === "nostr")) return "nostr"; return d.nid ? "looscid+nostr" : "looscid"; }
+function lcDreamUrl(d) {
+  if (d && typeof d.url === "string" && /^https:\/\//i.test(d.url)) return d.url;
+  const nid = d && d.nid; if (!nid || !/^[0-9a-f]{64}$/i.test(nid)) return "";
+  try { if (window.NostrTools) return "https://njump.me/" + window.NostrTools.nip19.noteEncode(nid.toLowerCase()); } catch (e) {}
+  return "https://njump.me/" + nid.toLowerCase();
+}
+function lcCopyLine(text, what) {
+  const done = function () { announce(what + " copied."); };
+  try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text).then(done, function () { announce("Couldn't copy. " + what + ": " + text); }); return; } } catch (e) {}
+  announce("Couldn't copy. " + what + ": " + text);
+}
+function lcFullTime(ms) { const t = +ms; if (!t || !isFinite(t)) return ""; try { return new Date(t).toLocaleString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return new Date(t).toString(); } }
+function lcDreamInfoLines(d) {
+  const net = lcDreamNet(d), mine = !!d.user && (d.user === ME || lcHandle(d.user.handle || "") === lcHandle(ME.handle || ""));
+  const client = (Array.isArray(d.tags) ? d.tags : []).filter(function (t) { return t && t[0] === "client" && t[1]; }).map(function (t) { return String(t[1]).slice(0, 60); })[0];
+  const out = [];
+  const when = lcFullTime(d.created); out.push("Published: " + (when || d.time || "time not known"));
+  if (Array.isArray(d.edits) && d.edits.length) { const last = d.edits[d.edits.length - 1]; out.push("Edited: " + (lcFullTime(last.at) || "yes") + (d.edits.length > 1 ? ", " + d.edits.length + " times" : "")); }
+  out.push("Network: " + ({ looscid: "Looscid, on this device", "looscid+nostr": "Looscid, also published to Nostr", nostr: "Nostr", mastodon: "Mastodon" })[net]);
+  out.push("App: " + (client || (mine || net === "looscid" || net === "looscid+nostr" ? "Looscid" : "not stated")));
+  if (d.cw) out.push("Content warning: " + d.cw);
+  return out;
+}
 function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, cherryCtx, onExtra }) {
   const handle = (dream.user && dream.user.handle || "").replace("@", "");
   const lang = Looscid.A11Y_NOW.translateTo || "en", langName = (LC_LANGS.find(function (x) { return x[0] === lang; }) || [0, "English"])[1];
@@ -572,6 +628,13 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
     // Build 147: liking is saving, so the old Save item is Like (the same toggle as the Like button).
     (onLike || onBookmark) ? { id: "like", name: dream.liked ? "Unlike Dream" : "Like Dream", a: function () { if (!dream.liked) Earcon.play("like"); (onLike || onBookmark)(dream.id); announce(dream.liked ? "Unliked. Removed from Liked." : "Liked. It's in Liked on your profile."); } } : null,
     { id: "share", name: "Share Dream", a: function () { lcShareText((dream.user ? dream.user.name + ": " : "") + (dream.text || ""), "Dream"); } },
+    // Build 152 prep (#99)
+    lcDreamUrl(dream) ? { id: "copylink", name: "Copy link", a: function () { lcCopyLine(lcDreamUrl(dream), "Link"); } }
+      : { id: "copylink", name: "Copy link", note: "unavailable: this Dream is only on this device", hint: "Not available yet: this Dream has no public address until it's on Nostr.", disabled: true },
+    lcDreamUrl(dream) && lcDreamNet(dream) !== "looscid" ? { id: "original", name: lcDreamNet(dream) === "mastodon" ? "Open original on Mastodon" : "Open original on Nostr", a: function () { const w = window.open(lcDreamUrl(dream), "_blank", "noopener,noreferrer"); if (w) w.opener = null; } } : null,
+    onExtra ? { id: "likedby", name: "Liked by", a: function () { onExtra({ kind: "people", which: "likes" }); } } : null,
+    onExtra ? { id: "redreamedby", name: "Redreamed by", a: function () { onExtra({ kind: "people", which: "redreams" }); } } : null,
+    onExtra ? { id: "info", name: "Dream info", a: function () { onExtra({ kind: "info" }); } } : null,
     handle ? { id: "profile", name: "View @" + handle + "'s profile", a: function () { navigate && navigate("dp", dream.user); } } : null,
     // Build 147 (2three1y): when a Dream tags you, you can remove yourself from it (on this device).
     lcTagsMe(dream) ? (lcIsUntagged(dream)
@@ -3266,7 +3329,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T23:03:01Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T23:05:48Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never

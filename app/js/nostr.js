@@ -18,7 +18,7 @@
 "use strict";
 const SK_KEY = "looscid_nostr_sk", ENC_KEY = "looscid_nostr_ncryptsec", RELAYS_KEY = "looscid_nostr_relays", QUEUE_KEY = "looscid_nostr_queue", HIDDEN_KEY = "looscid_nostr_hidden";
 const IDENTITY_KEY = "looscid_identity", IDS_KEY = "looscid_linked_ids", DREAMS_KEY = "looscid_dreams", REPLIES_KEY = "looscid_replies";
-const KEEP_TAGS = ["e", "p", "q", "content-warning"];
+const KEEP_TAGS = ["e", "p", "q", "content-warning", "client"]; // build 152 prep: "client" names the app in Dream info
 const DEFAULT_RELAYS = ["wss://relay.damus.io", "wss://nos.lol", "wss://relay.primal.net", "wss://relay.nostr.band"];
 const VENDOR_SRC = "js/vendor/nostr-tools-2.25.2-nip17.min.js";
 const TAGS = [["client", "Looscid"], ["t", "looscid"]];
@@ -415,6 +415,26 @@ async function fetchThreadReplies(nids, since) {
   return out;
 }
 
+/* Build 152 prep (#99): who liked (kind 7, not "-") and who Redreamed (kind 6 and 16) a note, from your relays. Every
+   event is signature-checked and must tag the note. Public data only. */
+async function fetchReactions(nid) {
+  if (!isHex64(nid)) return { likes: [], redreams: [], err: "nid" };
+  nid = nid.toLowerCase();
+  let NT; try { NT = await load(); } catch (e) { return { likes: [], redreams: [], err: "load" }; }
+  const filter = { kinds: [6, 7, 16], "#e": [nid], limit: 500 };
+  const all = await Promise.all(relays().map(function (u) { return relayReq(u, filter, 6000); }));
+  const seen = new Set(), likes = [], rds = [];
+  all.forEach(function (evs) { evs.forEach(function (ev) {
+    if (!ev || seen.has(ev.id) || !Array.isArray(ev.tags) || [6, 7, 16].indexOf(ev.kind) < 0) return;
+    if (!ev.tags.some(function (t) { return t && t[0] === "e" && String(t[1]).toLowerCase() === nid; })) return;
+    let ok = false; try { ok = NT.verifyEvent(ev); } catch (e) {} if (!ok) return; seen.add(ev.id);
+    const pk = String(ev.pubkey).toLowerCase();
+    if (ev.kind === 7) { if (ev.content === "-") return; if (likes.indexOf(pk) < 0) likes.push(pk); }
+    else if (rds.indexOf(pk) < 0) rds.push(pk);
+  }); });
+  return { likes: likes, redreams: rds };
+}
+
 /* Build 151 (#72): private messages, NIP-17 (kind 14 chat messages, sealed with NIP-44 and gift-wrapped with NIP-59).
    No server: messages go to relays, end-to-end encrypted; only you and the person you write to can read them. A copy
    wrapped to yourself lets your other devices read what you sent. Works with your own key (unlocked) or a Nostr signer
@@ -595,5 +615,5 @@ if (document.readyState === "complete") start(); else window.addEventListener("l
 
 Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, load: load, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
   importKey: importKey, createKey: createKey, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, nsecNow: nsecNow,
-  publishDream: publishDream, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
+  publishDream: publishDream, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchReactions: fetchReactions, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
 })(window.Looscid = window.Looscid || {});
