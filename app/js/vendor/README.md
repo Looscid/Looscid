@@ -4,7 +4,7 @@ Looscid has no build step and loads no code from a CDN. The files here are commi
 
 ## nostr-tools-2.25.2-nip17.min.js
 
-The Nostr crypto Looscid needs, and nothing else: keys, event signing and checking (secp256k1 Schnorr), nip19 (npub, nsec), nip49 (ncryptsec: scrypt plus XChaCha20-Poly1305), and since build 151 nip44 (encryption), nip59 (gift wrap) and nip17 (private direct messages). Build 151 renamed the file (it was nostr-tools-2.25.2.min.js) so no browser keeps the old copy without nip17. It is loaded only when you use a Nostr feature (js/nostr.js loads it), so first load stays the same size.
+The Nostr crypto Looscid needs, and nothing else: keys, event signing and checking (secp256k1 Schnorr), nip19 (npub, nsec), nip49 (ncryptsec: scrypt plus XChaCha20-Poly1305), and since build 151 nip44 (encryption), nip59 (gift wrap) and nip17 (private direct messages). Build 151 renamed the file (it was nostr-tools-2.25.2.min.js) so no browser keeps the old copy without nip17. nostr-tools-2.25.2.min.js is back as a byte-for-byte copy of the new file (Oct 12): a page opened before the rename still asks for the old name, and when that file was gone it said "Couldn't load the Nostr tools" when adding a key. Never delete a vendored file a released page may still ask for; add the new name beside it. It is loaded only when you use a Nostr feature (js/nostr.js loads it), so first load stays the same size.
 
 - Packages, pinned: nostr-tools 2.25.2, @noble/curves 2.0.1, @noble/hashes 2.0.1, @noble/ciphers 2.1.1, @scure/base 2.0.0. These are audited libraries by Paul Miller (noble, scure); nostr-tools is the reference Nostr library.
 - Licenses: LICENSE in this folder (Unlicense for nostr-tools, MIT for the rest).

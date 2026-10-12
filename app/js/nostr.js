@@ -35,16 +35,54 @@ function fromHex(h) { const o = new Uint8Array(h.length / 2); for (let i = 0; i 
 const isHex64 = function (s) { return /^[0-9a-f]{64}$/i.test(String(s || "")); };
 
 // The crypto library, from this site only. No CDN.
-function load() {
-  if (window.NostrTools && window.NostrTools.nip49 && window.NostrTools.nip17) return Promise.resolve(window.NostrTools); // build 151: nip17 is new
-  if (toolsP) return toolsP;
-  toolsP = new Promise(function (resolve, reject) {
+// Oct 12 fix: the address is worked out from where this file (js/nostr.js) itself came from, so no page address
+// (/Looscid/Settings/LooscidID and the rest) or <base> can point it at the wrong folder. If the download fails, or
+// the browser hands back an older copy without every part Looscid uses, it tries once more past the cache, then
+// says what actually went wrong (toolsMsg) instead of always blaming the connection.
+const VENDOR_URL = (function () {
+  try { const s = document.currentScript && document.currentScript.src; if (s) return new URL(VENDOR_SRC.replace(/^js\//, ""), s).href; } catch (e) {}
+  try { return new URL(VENDOR_SRC, location.origin + (window.LOOSCID_BASE || "/")).href; } catch (e) {}
+  return VENDOR_SRC;
+})();
+const TOOLS_MSG = {
+  offline: "Couldn't download the Nostr tools because this device seems to be offline. Check your connection and try again.",
+  notfound: "Couldn't load the Nostr tools: the file wasn't found on the Looscid site. This page is probably an older copy of Looscid. Reload Looscid, then try again.",
+  server: "Couldn't load the Nostr tools: the Looscid site didn't answer properly. Try again in a minute.",
+  blocked: "The Nostr tools downloaded, but this browser wouldn't run them. Reload Looscid, then try again.",
+  start: "The Nostr tools couldn't start in this browser. Updating the browser or iOS may help.",
+  old: "This device kept an older copy of the Nostr tools, without private messages. Reload Looscid, then try again."
+};
+function toolsErr(code) { const e = new Error("Nostr tools: " + code); e.code = code; e.lcText = TOOLS_MSG[code] || TOOLS_MSG.server; return e; }
+function toolsMsg(e) { return (e && e.lcText) || "Couldn't load the Nostr tools. Reload Looscid, then try again."; }
+function toolsReady(NT) { return !!(NT && NT.nip19 && NT.nip49 && NT.nip44 && NT.nip59 && NT.nip17 && typeof NT.finalizeEvent === "function" && typeof NT.verifyEvent === "function"); }
+function addScript(url) {
+  return new Promise(function (resolve, reject) {
     const s = document.createElement("script");
-    s.src = VENDOR_SRC; s.async = true;
-    s.onload = function () { window.NostrTools && window.NostrTools.nip49 && window.NostrTools.nip17 ? resolve(window.NostrTools) : (toolsP = null, reject(new Error("missing"))); };
-    s.onerror = function () { toolsP = null; reject(new Error("load")); };
+    s.src = url; s.async = true;
+    s.onload = function () { resolve(); };
+    s.onerror = function () { s.remove(); reject(new Error("load")); };
     document.head.appendChild(s);
   });
+}
+function whyFailed(url) {
+  if (navigator.onLine === false) return Promise.resolve("offline");
+  return fetch(url, { cache: "no-store" }).then(function (r) { return r.ok ? "blocked" : r.status === 404 ? "notfound" : "server"; }, function () { return "offline"; });
+}
+function load() {
+  if (toolsReady(window.NostrTools)) return Promise.resolve(window.NostrTools); // build 151: nip44, nip59 and nip17 are new
+  if (toolsP) return toolsP;
+  toolsP = (async function () {
+    let why = "server";
+    for (let i = 0; i < 2; i++) {
+      const url = i ? VENDOR_URL + (VENDOR_URL.indexOf("?") < 0 ? "?" : "&") + "r=" + Date.now() : VENDOR_URL;
+      let failed = false; try { await addScript(url); } catch (e) { failed = true; }
+      if (!failed && toolsReady(window.NostrTools)) return window.NostrTools;
+      why = failed ? await whyFailed(url) : (window.NostrTools ? "old" : "start");
+      if (why === "offline") break;
+    }
+    throw toolsErr(why);
+  })();
+  toolsP.catch(function () { toolsP = null; });
   return toolsP;
 }
 
@@ -117,7 +155,7 @@ function parseKey(NT, raw, passcode) {
   return { err: "That isn't a valid nsec key. It starts with nsec1 and is 63 characters long. Nothing was saved." };
 }
 async function importKey(raw, passcode) {
-  let NT; try { NT = await load(); } catch (e) { return { err: "Couldn't load the Nostr tools. Check your connection and try again." }; }
+  let NT; try { NT = await load(); } catch (e) { return { err: toolsMsg(e) }; }
   const p = parseKey(NT, raw, passcode);
   if (p.err) return p;
   const pk = NT.getPublicKey(p.sk);
@@ -126,7 +164,7 @@ async function importKey(raw, passcode) {
   emit(); kick(); return { ok: true, npub: idn.npub, pubkey: pk };
 }
 async function createKey(passcode) {
-  let NT; try { NT = await load(); } catch (e) { return { err: "Couldn't load the Nostr tools. Check your connection and try again." }; }
+  let NT; try { NT = await load(); } catch (e) { return { err: toolsMsg(e) }; }
   const sk = NT.generateSecretKey(), pk = NT.getPublicKey(sk);
   storeSk(NT, sk, passcode);
   const idn = setIdentityFor(NT, pk, "local");
@@ -134,7 +172,7 @@ async function createKey(passcode) {
 }
 async function useSigner() {
   if (!window.nostr || typeof window.nostr.getPublicKey !== "function") return { err: "No Nostr signer was found in this browser." };
-  let NT; try { NT = await load(); } catch (e) { return { err: "Couldn't load the Nostr tools. Check your connection and try again." }; }
+  let NT; try { NT = await load(); } catch (e) { return { err: toolsMsg(e) }; }
   let pk; try { pk = await window.nostr.getPublicKey(); } catch (e) { return { err: "Your signer said no, or was closed. Nothing was saved." }; }
   if (!isHex64(pk)) return { err: "Your signer didn't share a valid public key. Nothing was saved." };
   lsSet(SK_KEY, null); lsSet(ENC_KEY, null); memSk = null;
@@ -144,7 +182,7 @@ async function useSigner() {
 async function unlock(passcode) {
   const enc = lsGet(ENC_KEY); if (!enc) return { err: "There's no locked key on this device." };
   if (!passcode) return { err: "Type your passcode first." };
-  let NT; try { NT = await load(); } catch (e) { return { err: "Couldn't load the Nostr tools. Check your connection and try again." }; }
+  let NT; try { NT = await load(); } catch (e) { return { err: toolsMsg(e) }; }
   let sk; try { sk = NT.nip49.decrypt(enc, passcode); } catch (e) { return { err: "That passcode isn't right. Try again." }; }
   const idn = identity();
   if (idn && NT.getPublicKey(sk) !== idn.pubkey) return { err: "That passcode opened a different key. Nothing changed." };
@@ -155,7 +193,7 @@ async function unlock(passcode) {
 async function setPasscode(passcode) {
   const sk = currentSk(); if (!sk) return { err: "Unlock your key first." };
   if (!passcode) return { err: "Type a passcode first." };
-  let NT; try { NT = await load(); } catch (e) { return { err: "Couldn't load the Nostr tools. Check your connection and try again." }; }
+  let NT; try { NT = await load(); } catch (e) { return { err: toolsMsg(e) }; }
   storeSk(NT, sk, passcode); emit(); return { ok: true };
 }
 function removePasscode() {
@@ -613,7 +651,7 @@ function start() {
 window.addEventListener("online", function () { if (queue().length) kick(); });
 if (document.readyState === "complete") start(); else window.addEventListener("load", start);
 
-Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, load: load, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
+Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, VENDOR_URL: VENDOR_URL, load: load, toolsMsg: toolsMsg, toolsReady: toolsReady, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
   importKey: importKey, createKey: createKey, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, nsecNow: nsecNow,
   publishDream: publishDream, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchReactions: fetchReactions, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
 })(window.Looscid = window.Looscid || {});

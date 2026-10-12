@@ -2338,9 +2338,10 @@ function signOutIdentity() { const m = getMethods().find(function (x) { return x
 // Round 6.4: nostr-tools is vendored (js/vendor, see its README) and loaded by js/nostr.js only when
 // a Nostr feature is used. No CDN.
 function loadNostrTools() {
-  if (window.NostrTools && window.NostrTools.nip49) return Promise.resolve(window.NostrTools);
+  // Oct 12 fix: always ask js/nostr.js, which checks every part is there (an older copy without nip17 no longer counts).
   return Looscid.lcNostr ? Looscid.lcNostr.load() : Promise.reject(new Error("load"));
 }
+function lcNostrToolsMsg(e) { return Looscid.lcNostr && Looscid.lcNostr.toolsMsg ? Looscid.lcNostr.toolsMsg(e) : "Couldn't load the Nostr tools. Reload Looscid, then try again."; }
 function bytesToHex(b) { return Array.from(b, function (x) { return x.toString(16).padStart(2, "0"); }).join(""); }
 function hexToBytes(hex) { const out = new Uint8Array(hex.length / 2); for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.substr(i * 2, 2), 16); return out; }
 function shortNpub(npub) { return npub ? npub.slice(0, 12) + "\u2026" + npub.slice(-6) : ""; }
@@ -2385,7 +2386,7 @@ function NostrPanel({ onDone }) {
   };
   const createKey = async function () {
     setBusy(true); setMsg("");
-    let NT; try { NT = await loadNostrTools(); } catch (e) { return fail("Couldn't load the Nostr tools. Check your connection and try again."); }
+    let NT; try { NT = await loadNostrTools(); } catch (e) { return fail(lcNostrToolsMsg(e)); }
     const sk = NT.generateSecretKey(); const pk = NT.getPublicKey(sk);
     setStoredNostrSk(bytesToHex(sk));
     const npub = NT.nip19.npubEncode(pk);
@@ -2397,7 +2398,7 @@ function NostrPanel({ onDone }) {
     const v = (paste || "").trim();
     if (!v) return fail("Paste your nsec key first.");
     setBusy(true);
-    let NT; try { NT = await loadNostrTools(); } catch (e) { return fail("Couldn't load the Nostr tools. Check your connection and try again."); }
+    let NT; try { NT = await loadNostrTools(); } catch (e) { return fail(lcNostrToolsMsg(e)); }
     let sk = null;
     try { const d = NT.nip19.decode(v); if (d.type === "nsec") sk = d.data; } catch (e) {}
     if (!sk && /^[0-9a-f]{64}$/i.test(v)) sk = hexToBytes(v.toLowerCase());
@@ -3386,7 +3387,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T23:10:22Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T23:12:28Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
