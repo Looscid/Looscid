@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 12, 2026 at 4:37 PM (Eastern Time, 2026-10-12T20:37:52Z UTC)
+Released October 12, 2026 at 4:47 PM (Eastern Time, 2026-10-12T20:47:11Z UTC)
 
 Round 7: a feature update, asked for by 2three1y. Built in steps, one commit each.
 
@@ -42,6 +42,7 @@ Round 7: a feature update, asked for by 2three1y. Built in steps, one commit eac
 - Credits looks like a normal credits page now: a centered roll grouped by role (Created by, Design references, Open-source libraries and licenses, Voices and sounds, Special thanks) with plain headings and lists. Every credit and license link is still there, and nothing scrolls by itself.
 - More reads cleaner with VoiceOver: no item in More is a heading anymore. Each section and each item is one plain button or link in a list, so VoiceOver reads just its name and "button".
 - The site footer is back, at the end of every page: Social (GitHub, X and YouTube), Legal (Terms, Privacy, Rules and a new Child Safety page), Values (our accessibility commitment) and Download. It is a real footer landmark with a heading per group, and it never covers anything.
+- Edit profile opens again: when VoiceOver brings a control into view, it now lands below the page header instead of under it, so a double tap on Edit profile can no longer land on the Commandbar button.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 

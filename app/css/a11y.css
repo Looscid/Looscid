@@ -211,3 +211,10 @@ body.acc-text-2 .pg{zoom:1.3}
 .msec-hdr .lmenu{width:100%;display:block}
 .msec-hdr .msec-menu{width:100%}
 .msec-hdr .lmenu-list{text-transform:none;letter-spacing:normal;font-size:16px;font-weight:600}
+
+/* Part 34-fix (2three1y, Oct 12 4:42 PM: Edit profile opened Commandbar): when VoiceOver or the keyboard brings a control
+   into view, it lands below the sticky page header, never under it. A control left under the header could put the
+   floating Commandbar button where VoiceOver taps, so a double tap on Edit profile opened Commandbar instead. */
+.pg { scroll-padding-top: 116px; }
+.pg button, .pg a, .pg input, .pg select, .pg textarea, .pg [tabindex], .pg [role=button], .pg [role=link], .pg [role=tab] { scroll-margin-top: 116px; }
+.pg .hdr button, .pg .hdr a, .pg .hdr [tabindex] { scroll-margin-top: 0; }
