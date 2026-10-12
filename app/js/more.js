@@ -2508,6 +2508,7 @@ const LC_VERSION_HISTORY = [
     "Every page has its own address now, like looscid.github.io/Looscid/Settings/Sense, and letter case doesn't matter (/settings/sense works too, and so does /@avatest for a profile). Every More item opens its own page: Settings is \"Settings - Adjust your life\", and Discover, Apps, Create, Alerts and Projects each have one. Help is still its pop-up menu.",
     "NexOS inside Looscid is Looscid OS now: the desktop, the Looscid terminal with its looscid> prompt, the boot text, the beats and the Looscid OS classic Soundpack (same sounds). Its pages moved to looscid.github.io/Looscid/os/, and old nexos addresses still open the same page there. Your saved settings and backups don't change.",
     "Shared Looscid links show a preview card now, with the Looscid logo and a short line about Looscid, on X, iMessage, Discord and other apps.",
+    "Cherry says what she did, once (\"Cherry followed Ava\"), and shows it in the chat as a row like \"Followed 1 Dreamor, Expand\" that opens to the details. When there's nothing to act on, she says so instead of saying Done.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

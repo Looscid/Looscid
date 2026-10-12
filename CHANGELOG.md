@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 12, 2026 at 5:22 PM (Eastern Time, 2026-10-12T21:22:48Z UTC)
+Released October 12, 2026 at 5:27 PM (Eastern Time, 2026-10-12T21:27:18Z UTC)
 
 Round 7: a feature update, asked for by 2three1y. Built in steps, one commit each.
 
@@ -52,6 +52,7 @@ Round 7: a feature update, asked for by 2three1y. Built in steps, one commit eac
 - Every page has its own address now, like looscid.github.io/Looscid/Settings/Sense, and letter case doesn't matter (/settings/sense works too, and so does /@avatest for a profile). Every More item opens its own page: Settings is "Settings - Adjust your life", and Discover, Apps, Create, Alerts and Projects each have one. Help is still its pop-up menu.
 - NexOS inside Looscid is Looscid OS now: the desktop, the Looscid terminal with its looscid> prompt, the boot text, the beats and the Looscid OS classic Soundpack (same sounds). Its pages moved to looscid.github.io/Looscid/os/, and old nexos addresses still open the same page there. Your saved settings and backups don't change.
 - Shared Looscid links show a preview card now, with the Looscid logo and a short line about Looscid, on X, iMessage, Discord and other apps.
+- Cherry says what she did, once ("Cherry followed Ava"), and shows it in the chat as a row like "Followed 1 Dreamor, Expand" that opens to the details. When there's nothing to act on, she says so instead of saying Done.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 

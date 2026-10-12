@@ -590,3 +590,9 @@ label.lc-cr-tool{color:var(--tx2)}
 .lc-foot-soon-tag { font-size: 12px; }
 .lc-foot-p { margin: 0; line-height: 1.5; }
 .lc-foot-end { margin-top: 16px; }
+
+/* #79: what Cherry did, as outputs in the chat */
+.lc-cherry-outs{list-style:none;margin:6px 0 0;padding:0}
+.lc-cherry-out{margin:4px 0}
+.lc-cherry-out-b{text-align:left}
+.lc-cherry-out-d{margin:4px 0 4px 18px;padding:0}

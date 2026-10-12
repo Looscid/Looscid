@@ -188,6 +188,12 @@ function cherryView(st, p, act) {
             cur.msgs.map(function (m, i) {
               return h('li', { key: "m" + i, className: "lc-cherry-msg" + (m.me ? " me" : "") },
                 h('p', { className: "lc-cherry-msg-t" }, h('strong', null, m.me ? "You: " : "Cherry: "), m.text),
+                m.out && m.out.length ? h('ul', { className: "lc-cherry-outs", "aria-label": "What Cherry did" }, m.out.map(function (o, k) {
+                  const did = "cherry-out-" + i + "-" + k;
+                  return h('li', { key: did, className: "lc-cherry-out" },
+                    h('button', { type: "button", id: did + "-b", className: "btn bgb lc-btn lc-cherry-out-b", onClick: function () { act.outToggle(i, k); } }, o.sum + ", " + (o.open ? "Collapse" : "Expand")),
+                    o.open ? h('ul', { id: did, className: "lc-cherry-out-d" }, o.items.map(function (t, z) { return h('li', { key: z }, t); })) : null);
+                })) : null,
                 m.confirm && !m.done ? h('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { act.confirm(i); } }, m.confirm) : null);
             }))
         : h('p', { key: "empty", className: "lc-muted lc-cherry-empty" }, "No messages yet."),
@@ -205,6 +211,32 @@ function cherryView(st, p, act) {
     cherryDialogEl(act));
 }
 
+/* #79 (build 151, 2three1y Oct 11 5:46 PM): what Cherry did, said once through #looscid-live ("Cherry liked Carter's Dream")
+   and shown in the chat as a collapsed output row ("Liked 1 Dream, Expand") that opens to the details. */
+function cherryRun(fn) {
+  const did = [], prev = Looscid.LC_CHERRY_SINK;
+  Looscid.LC_CHERRY_SINK = function (e) { did.push(e); };
+  try { fn(); } catch (e) {} finally { Looscid.LC_CHERRY_SINK = prev || null; }
+  return did;
+}
+function cherryOut(did) {
+  const groups = [];
+  did.forEach(function (e) {
+    const key = e.verb + "|" + e.noun; let g = groups.find(function (x) { return x.key === key; });
+    if (!g) { g = { key: key, verb: e.verb, noun: e.noun, plural: e.plural, sum: e.sum, items: [] }; groups.push(g); }
+    g.items.push(e.detail || e.what);
+  });
+  return groups.map(function (g) {
+    const n = g.items.length;
+    return { sum: g.sum && n === 1 ? g.sum : g.verb + " " + n + " " + (n === 1 ? g.noun : g.plural), items: g.items, open: false };
+  });
+}
+function cherrySay(did) {
+  if (did.length <= 2) return did.map(function (e) { return "Cherry " + e.verb.toLowerCase() + " " + e.what + "."; }).join(" ");
+  const parts = cherryOut(did).map(function (o) { return o.sum.charAt(0).toLowerCase() + o.sum.slice(1); });
+  return "Cherry " + (parts.length > 1 ? parts.slice(0, -1).join(", ") + " and " + parts[parts.length - 1] : parts[0]) + ".";
+}
+
 /* The Cherry page. props: navigate, cherryCtx, data ({ ask, n } from "Ask Cherry about this", or { cmd, n } from a Commandbar command), onBack. */
 const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
   let p = props, alive = true;
@@ -216,7 +248,7 @@ const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
     // Build 150: Settings, Intelligence, Memory can turn saving off. A chat already in Your History still keeps its changes.
     if (!lcCherryKeepChats() && !lcCherryChats().some(function (x) { return x.id === c.id; })) return;
     const list = lcCherryChats().filter(function (x) { return x.id !== c.id; });
-    list.unshift({ id: c.id, title: c.title, created: c.created, updated: c.updated, pinned: c.pinned, msgs: c.msgs.map(function (m) { return { me: m.me, text: m.text, t: m.t }; }) });
+    list.unshift({ id: c.id, title: c.title, created: c.created, updated: c.updated, pinned: c.pinned, msgs: c.msgs.map(function (m) { return m.out ? { me: m.me, text: m.text, t: m.t, out: m.out } : { me: m.me, text: m.text, t: m.t }; }) });
     lcCherrySaveChats(list);
   };
   const addMsg = function (me, text, extra) {
@@ -251,8 +283,12 @@ const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
       }
       if (resp.autoFn) {
         // Settings, feeds and other actions: the action itself says what changed, once.
-        addMsg(false, resp.result); draw();
-        resp.autoFn();
+        // #79: Cherry's own actions (like, follow, join, publish, mark read) are said here, once, and shown as an output.
+        const did = cherryRun(resp.autoFn);
+        // An action that found nothing to act on says so, instead of a "Done" that didn't happen.
+        const none = !did.length && /^Done/.test(String(resp.result)) && ["like", "follow", "circles", "publish", "alerts"].indexOf(resp.tool) >= 0;
+        addMsg(false, none ? "I couldn't find that here, so nothing changed." : resp.result, did.length ? { out: cherryOut(did) } : null); draw();
+        if (did.length) announce(cherrySay(did)); else if (none) announce("Cherry: I couldn't find that here, so nothing changed.");
         if (Looscid.A11Y_NOW && Looscid.A11Y_NOW.cherryAloud && LcSpeech && LcSpeech.speak) { try { LcSpeech.speak([{ text: resp.result }]); } catch (e) {} }
         return;
       }
@@ -261,8 +297,14 @@ const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
     },
     confirm: function (i) {
       const m = LC_CHERRY.cur.msgs[i]; if (!m || !m.confirmFn || m.done) return;
-      m.done = true; try { m.confirmFn(); } catch (e) {}
-      reply("Done: " + m.confirm + ".");
+      m.done = true;
+      const did = cherryRun(m.confirmFn);
+      if (did.length) { addMsg(false, "Done: " + m.confirm + ".", { out: cherryOut(did) }); draw(); announce(cherrySay(did)); }
+      else reply("Done: " + m.confirm + ".");
+    },
+    outToggle: function (i, k) {
+      const m = LC_CHERRY.cur && LC_CHERRY.cur.msgs[i]; const o = m && m.out && m.out[k]; if (!o) return;
+      o.open = !o.open; saveCur(); draw();
     },
     newChat: function () {
       saveCur();
@@ -598,22 +640,22 @@ function cherryRespond0(text, cherryCtx) {
     if (lo.includes("join consciousness") || (lo.includes("join") && lo.includes("consciousness")))
       return {tool:"circles", action:"Joining Consciousness Lab…", agentLabel:"Joining group",
         result:(groups.find(g=>g.id===1)||{}).joined ? "You're already in Consciousness Lab" : "Done You've joined Consciousness Lab! Check it out in your Groups tab.",
-        autoFn: ()=>joinGroup(1)};
+        autoFn: ()=>{ if (!(groups.find(g=>g.id===1)||{}).joined) joinGroup(1); }};
 
     if (lo.includes("join philosophy") || (lo.includes("join") && lo.includes("philosophy")))
       return {tool:"circles", action:"Joining Philosophy Circle…", agentLabel:"Joining group",
         result:(groups.find(g=>g.id===3)||{}).joined ? "You're already in Philosophy Circle." : "Done You've joined Philosophy Circle!",
-        autoFn: ()=>joinGroup(3)};
+        autoFn: ()=>{ if (!(groups.find(g=>g.id===3)||{}).joined) joinGroup(3); }};
 
     if (lo.includes("join creative") || (lo.includes("join") && lo.includes("creative")))
       return {tool:"circles", action:"Joining Creative Minds…", agentLabel:"Joining group",
         result:(groups.find(g=>g.id===2)||{}).joined ? "Already in Creative Minds." : "Done You've joined Creative Minds!",
-        autoFn: ()=>joinGroup(2)};
+        autoFn: ()=>{ if (!(groups.find(g=>g.id===2)||{}).joined) joinGroup(2); }};
 
     if (lo.includes("join mindful") || (lo.includes("join") && lo.includes("mindful")))
       return {tool:"circles", action:"Joining Mindful Living…", agentLabel:"Joining group",
         result:(groups.find(g=>g.id===4)||{}).joined ? "Already in Mindful Living." : "Done You've joined Mindful Living!",
-        autoFn: ()=>joinGroup(4)};
+        autoFn: ()=>{ if (!(groups.find(g=>g.id===4)||{}).joined) joinGroup(4); }};
 
     if (lo.includes("post") && (lo.includes("dream") || lo.includes("it") || lo.includes("this")) && msgs.some(m=>m.draft)) {
       const draftMsg = [...msgs].reverse().find(m=>m.draft);

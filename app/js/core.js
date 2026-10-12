@@ -3146,7 +3146,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T21:22:48Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T21:27:18Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4669,6 +4669,14 @@ window.addEventListener("message", function (e) {
   if (t === "cue") { if (LC_PC[e.data.kind]) lcPitchCue(e.data.kind, e.data.detail, e.data.force ? { force: true } : null); return; }
 });
 Looscid.LC_BOOT_SET = null; // set by App: shows the NexOS boot text
+/* #79 (build 151): Cherry's own actions. The Cherry page sets Looscid.LC_CHERRY_SINK while it runs one of Cherry's actions;
+   each action reports here what it did, so Cherry can say it once through #looscid-live and show it as an output in the chat.
+   verb ("Liked"), noun/plural ("Dream"/"Dreams"), what (for the spoken line), detail (for the expanded output), sum (an exact summary). */
+function lcCherryDid(verb, noun, plural, what, detail, sum) {
+  const sink = Looscid.LC_CHERRY_SINK; if (typeof sink !== "function") return;
+  try { sink({ verb: verb, noun: noun, plural: plural, what: what, detail: detail, sum: sum || null }); } catch (e) {}
+}
+Looscid.lcCherryDid = lcCherryDid;
 const LC_APP_KEYS = ["insomnia-os:volume", "insomnia-os:muted", "insomnia-os:mix", "looscid:volume", "looscid:muted", "looscid:key_sounds", "looscid:beat_genre", "nexos-real-sound"];
 Looscid.LC_APP_KEYS = LC_APP_KEYS;
 // The NexOS boot text: the real kernel's "[ ok ]" boot lines (kernel/src/main.rs), told about
@@ -5299,13 +5307,13 @@ useEffect(() => {
     cherryOnboarded,
     setCherryOnboarded,
     // Actions Cherry agent can perform - all log their actions
-    likeDream:   id => { recordHabit("likeDream", (appDreams.find(x=>x.id===id)||{}).text?(appDreams.find(x=>x.id===id).text.split(" ").slice(0,3).join(" ")):null); const d=appDreams.find(x=>x.id===id); if(!d) return; const flip = function () { const cur = lcLikedHas("dream", id); lcLikedSet("dream", id, !cur, lcDreamSnap(d)); }; flip(); addLog("❤️",(d.liked?"Unliked ":"Liked ")+d.user.name+"'s Dream", flip); },
+    likeDream:   id => { recordHabit("likeDream", (appDreams.find(x=>x.id===id)||{}).text?(appDreams.find(x=>x.id===id).text.split(" ").slice(0,3).join(" ")):null); const d=appDreams.find(x=>x.id===id); if(!d) return; const flip = function () { const cur = lcLikedHas("dream", id); lcLikedSet("dream", id, !cur, lcDreamSnap(d)); }; const was = lcLikedHas("dream", id); flip(); addLog("❤️",(was?"Unliked ":"Liked ")+d.user.name+"'s Dream", flip); lcCherryDid(was ? "Unliked" : "Liked", "Dream", "Dreams", d.user.name + "'s Dream", d.user.name + ": " + String(d.text || "").slice(0, 140)); },
     // Build 147: liking is saving, so Save is Like.
     saveDream:   id => { cherryCtx.likeDream(id); },
-    postDream:   (text, extra) => { const id=lcNewId(); setAppDreams(ds => [Object.assign({id,user:ME,time:"just now",text,likes:0,comments:0,redreams:0,quotes:0,liked:false,redreamed:false,quoted:false,bookmarked:false}, extra || {}),...ds]); addLog("✏️","Dreamed: "+text.slice(0,40)+"…", ()=>setAppDreams(ds=>ds.filter(d=>d.id!==id))); return id; },
-    followUser:  id => { setAppFollowing(s => { const n=new Set(s); n.has(id)?n.delete(id):n.add(id); return n; }); const u=USERS.find(x=>x.id===id); if(u) addLog("👥","Followed "+u.name, ()=>setAppFollowing(s=>{const n=new Set(s);n.delete(id);return n;})); },
-    joinGroup:   id => { setAppGroups(gs => gs.map(g => g.id===id ? {...g,joined:!g.joined} : g)); const g=GROUPS.find(x=>x.id===id); if(g) addLog("🏘️","Joined "+g.name, ()=>setAppGroups(gs=>gs.map(x=>x.id===id?{...x,joined:false}:x))); },
-    markNotifsRead: () => { lcAlertsMarkAll(); addLog("🔔","Marked all notifications read"); },
+    postDream:   (text, extra) => { const id=lcNewId(); setAppDreams(ds => [Object.assign({id,user:ME,time:"just now",text,likes:0,comments:0,redreams:0,quotes:0,liked:false,redreamed:false,quoted:false,bookmarked:false}, extra || {}),...ds]); addLog("✏️","Dreamed: "+text.slice(0,40)+"…", ()=>setAppDreams(ds=>ds.filter(d=>d.id!==id))); lcCherryDid("Published", "Dream", "Dreams", "your Dream", String(text).slice(0, 140)); return id; },
+    followUser:  id => { const was = appFollowing.has(id); setAppFollowing(s => { const n=new Set(s); n.has(id)?n.delete(id):n.add(id); return n; }); const u=USERS.find(x=>x.id===id); if(u) { addLog("👥",(was?"Unfollowed ":"Followed ")+u.name, ()=>setAppFollowing(s=>{const n=new Set(s);was?n.add(id):n.delete(id);return n;})); lcCherryDid(was ? "Unfollowed" : "Followed", "Dreamor", "Dreamors", u.name, u.name + (u.handle ? " (" + u.handle + ")" : "")); } },
+    joinGroup:   id => { const was = !!(appGroups.find(x=>x.id===id)||{}).joined; setAppGroups(gs => gs.map(g => g.id===id ? {...g,joined:!g.joined} : g)); const g=GROUPS.find(x=>x.id===id); if(g) { addLog("🏘️",(was?"Left ":"Joined ")+g.name, ()=>setAppGroups(gs=>gs.map(x=>x.id===id?{...x,joined:was}:x))); lcCherryDid(was ? "Left" : "Joined", "Circle", "Circles", g.name, g.name); } },
+    markNotifsRead: () => { const n = lcAlerts().filter(x=>x.unread).length; lcAlertsMarkAll(); addLog("🔔","Marked all notifications read"); lcCherryDid("Marked", "notification", "notifications", "all your notifications as read", n + (n === 1 ? " notification" : " notifications") + " marked read", "Marked all notifications read"); },
     fillCompose: null, // set by CreateMenu when compose is open
     // Round 6.5.2: Cherry is its own page. "Ask Cherry about this" opens it and asks in a new chat.
     openCherry:  msg => { if (!lcAiOn()) { navigate("cherry"); return; } navigate("cherry", msg ? { ask: msg, n: Date.now() } : null); },
