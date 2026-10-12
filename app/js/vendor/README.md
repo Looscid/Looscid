@@ -1,6 +1,6 @@
 # Vendored code
 
-Looscid has no build step and loads nothing from a CDN for Nostr. The files here are committed as they are.
+Looscid has no build step and loads no code from a CDN. The files here are committed as they are.
 
 ## nostr-tools-2.25.2-nip17.min.js
 
@@ -21,3 +21,11 @@ window.NostrTools = Object.freeze({ generateSecretKey, getPublicKey, finalizeEve
 ```
 
 - SHA-256 of the esbuild output (the file minus its first comment line): 1acf1760e2f962dc50bfcc734333d44e5af8cc8c11cde8702d1b407a18d9eba6 (the build 150 file without nip44, nip59 and nip17 was 47e80f62aa64c4260659774076bf256bc546c23dd78ab7eb5ef64cb96ad29a5c; the same toolchain still reproduces it byte for byte)
+
+## react-18.2.0.production.min.js and react-dom-18.2.0.production.min.js
+
+React and React DOM 18.2.0, the UMD production builds, copied unchanged from the npm packages (react-18.2.0.tgz and react-dom-18.2.0.tgz, folder umd/). Until the security pass of Oct 12, 2026 they loaded from cdn.jsdelivr.net with no integrity check; now they come from this site only, and index.html loads them with `integrity=` so a changed file is refused. The version is in the file name, so a new version gets a new name and no phone keeps an old copy.
+
+- SHA-256: react 4b4969fa4ef3594324da2c6d78ce8766fbbc2fd121fff395aedf997db0a99a06, react-dom 21758ed084cd0e37e735722ee4f3957ea960628a29dfa6c3ce1a1d47a2d6e4f7 (the same bytes npm and jsDelivr serve).
+- integrity (SHA-384): react sha384-tMH8h3BGESGckSAVGZ82T9n90ztNXxvdwvdM6UoR56cYcf+0iGXBliJ29D+wZ/x8, react-dom sha384-bm7MnzvK++ykSwVJ2tynSE5TRdN+xL418osEVF2DE/L/gfWHj91J2Sphe582B1Bh. If you ever replace a file, update both attributes in index.html (preload and script).
+- License: MIT, in LICENSE in this folder.

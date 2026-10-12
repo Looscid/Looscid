@@ -31,7 +31,7 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 
 ## Load order
 
-1. React and ReactDOM (UMD). They go once the last React tab is rewritten.
+1. React and ReactDOM 18.2.0 (UMD), from `app/js/vendor/` on this site with `integrity=` (no CDN since the security pass). They go once the last React tab is rewritten.
 2. `app/js/core.js`
 3. `app/js/nostr.js` (small; `app/js/vendor/nostr-tools-2.25.2-nip17.min.js` is added later, only when Nostr is used)
 4. The tabs: `app/js/discover.js`, `app/js/circles.js`, `app/js/feed.js`, `app/js/create.js`, `app/js/alerts.js`, `app/js/more.js`

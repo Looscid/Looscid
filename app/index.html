@@ -20,7 +20,7 @@
    loads, even after the address changes to a page's path. GitHub serves the site at /Looscid/ (that part is case-sensitive). */
 (function () { var p = location.pathname, b = /^\/looscid(\/|$)/i.test(p) ? "/Looscid/" : p.replace(/[^\/]*$/, ""); window.LOOSCID_BASE = b; document.write('<base href="' + b.replace(/"/g, "") + '">'); })();
 </script>
-<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https: wss:; frame-src 'self' https://www.youtube-nocookie.com https://player.vimeo.com https://open.spotify.com;"/>
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; default-src 'self' https:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https: wss:; frame-src 'self' https://www.youtube-nocookie.com https://player.vimeo.com https://open.spotify.com;"/>
 <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
@@ -46,9 +46,10 @@
 <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="Looscid">
 <link rel="manifest" href="manifest.webmanifest">
-<!-- Startup: React downloads early (preload) but runs at the end of <body>, so the startup screen paints first -->
-<link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"/>
-<link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"/>
+<!-- Startup: React downloads early (preload) but runs at the end of <body>, so the startup screen paints first.
+     React is served from this site only (js/vendor, pinned 18.2.0), never a CDN; integrity= makes the browser refuse a changed file. -->
+<link rel="preload" as="script" href="js/vendor/react-18.2.0.production.min.js" integrity="sha384-tMH8h3BGESGckSAVGZ82T9n90ztNXxvdwvdM6UoR56cYcf+0iGXBliJ29D+wZ/x8"/>
+<link rel="preload" as="script" href="js/vendor/react-dom-18.2.0.production.min.js" integrity="sha384-bm7MnzvK++ykSwVJ2tynSE5TRdN+xL418osEVF2DE/L/gfWHj91J2Sphe582B1Bh"/>
 <!-- Babel not needed: JSX pre-compiled -->
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'"/>
@@ -61,8 +62,8 @@
 <div id="looscid-live" class="sr-pause" aria-live="polite" aria-atomic="true"></div>
 <div id="root"><div class="lc-boot"><p class="lc-boot-name">Looscid</p><p class="lc-boot-intro" aria-hidden="true">Somewhere between your midnight thoughts and your wildest ideas, there&rsquo;s a place made for you. Welcome to Looscid: a decentralized, open source everything app where your data stays yours.</p><p class="lc-boot-intro" aria-hidden="true">Looscid works the way you do, with a screen reader, a braille display, a keyboard, a switch or just your thumbs.</p><p class="lc-boot-sub">Starting Looscid…</p></div></div>
 <div id="lc-cue" aria-hidden="true"></div><div id="lc-caption" aria-hidden="true"></div>
-<script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script src="js/vendor/react-18.2.0.production.min.js" integrity="sha384-tMH8h3BGESGckSAVGZ82T9n90ztNXxvdwvdM6UoR56cYcf+0iGXBliJ29D+wZ/x8"></script>
+<script src="js/vendor/react-dom-18.2.0.production.min.js" integrity="sha384-bm7MnzvK++ykSwVJ2tynSE5TRdN+xL418osEVF2DE/L/gfWHj91J2Sphe582B1Bh"></script>
 <!-- Load order: React, then core, then nostr (small; its crypto loads only when used), then one file per tab, then Cherry, then the Commands page, then Projects, then the Help Center, then the mount below (see docs/dev/FILES.md) -->
 <script src="js/core.js"></script>
 <script src="js/nostr.js"></script>

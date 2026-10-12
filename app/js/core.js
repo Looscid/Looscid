@@ -1305,7 +1305,7 @@ const PRIVACY_CONTENT = `<p><strong>Last updated: October 10, 2026</strong></p>
 <li>Music and the apps load only when you open them.</li>
 <li>Cherry is off until you turn it on. Its on-device model downloads only after you say yes. After that it runs on your device, offline.</li>
 <li>When you link a Bluesky or fediverse handle in Keys and IDs, Looscid looks it up once on that network to check it exists. A Nostr public key is checked on your device.</li>
-<li>The page itself loads React and a few libraries from a public code CDN (jsDelivr).</li>
+<li>Every piece of code Looscid runs comes from this site, never from a code CDN. Only the fonts load from Google Fonts.</li>
 </ul>
 <h2>Cherry and AI</h2>
 <p>Cherry works on your device. Nothing you write is sent to an outside AI service. Translation uses your browser's own on-device translator, when it has one.</p>
@@ -3266,7 +3266,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T23:00:59Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T23:03:01Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never

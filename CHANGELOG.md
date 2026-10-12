@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 12, 2026 at 7:00 PM (Eastern Time, 2026-10-12T23:00:59Z UTC)
+Released October 12, 2026 at 7:03 PM (Eastern Time, 2026-10-12T23:03:01Z UTC)
 
 Round 7: a feature update, asked for by 2three1y. Built in steps, one commit each.
 
@@ -66,6 +66,7 @@ Round 7: a feature update, asked for by 2three1y. Built in steps, one commit eac
 - Who can message me now really applies to private messages: a message from someone the setting doesn't allow stays hidden and silent on your device (the Messages tab says how many Dreamors are waiting, with a Message settings button), and changing the setting shows them. A conversation you started always shows.
 - Home on small screens: only the feed tabs stay pinned at the top while you scroll. The title, welcome line and feed options scroll away, so they no longer cover the first Dream's buttons.
 - Profile Tabs: put the tabs on profiles in your own order (Dreams, Replies, Redreams, Media, Liked, Mutual likes, About) in Settings, Profile Tabs, with plain Move up and Move down buttons like the Tab Bar. Also in a profile's options as Reorder tabs. Saved in your settings backup.
+- Security: React now loads from Looscid itself, not from an outside code site, and the browser checks it wasn't changed.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 
