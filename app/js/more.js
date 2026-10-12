@@ -1345,7 +1345,7 @@ function AdminUsers({onBack}) {
               , u.name
               , u.status==="banned"&&React.createElement('span', { style: {background:"rgba(248,113,113,.2)",color:"var(--rd)",fontSize:9,fontWeight:700,padding:"1px 5px",borderRadius:4},}, "BANNED")
             )
-            , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)"},}, u.handle, ", "  , u.dreamCount, " dreams, "   , (u.followers/1000).toFixed(1), "K followers" )
+            , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)"},}, u.handle, ", "  , Looscid.fmt(u.dreamCount), " Dreams, "   , Looscid.fmt(u.followers), " followers" )
           )
           , React.createElement('div', { style: {display:"flex",gap:5},}
             , React.createElement('button', { className: "btn bgb" , style: {padding:"5px 9px",fontSize:11}, onClick: ()=>verifyUser(u.id), 'aria-label': u.verified?"Remove verification":"Verify user",}, u.verified?"Unverify":"Verify")
@@ -2430,6 +2430,7 @@ const LC_VERSION_HISTORY = [
     "Edit profile opens again: when VoiceOver brings a control into view, it now lands below the page header instead of under it, so a double tap on Edit profile can no longer land on the Commandbar button.",
     "Commandbar lives in More now: \"Open Commandbar\" is a plain button there, and Control K or Command K still open it anywhere. The floating Commandbar button at the top is gone, so it can't catch taps meant for Edit profile or anything else.",
     "Discover is search and browsing only: Ask Cherry is gone from it (the Trending button, the Ask Cherry row above results, Draft on trending tags and Ask Cherry when nothing is found).",
+    "Numbers are never shortened: Looscid and Cherry always show the whole number, like 19,637, never 19.6K. Cherry only reports trending tags that really exist.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

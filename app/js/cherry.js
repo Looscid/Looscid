@@ -448,7 +448,7 @@ async function lcLlmLoad(id, onPct) {
 async function lcLlmAsk(text) {
   if (!LC_LLM.engine) throw new Error("noengine");
   const r = await LC_LLM.engine.chat.completions.create({ messages: [
-    { role: "system", content: "You are Cherry, the assistant inside Looscid, an accessible social app. Answer briefly and kindly in plain text, no markdown." },
+    { role: "system", content: "You are Cherry, the assistant inside Looscid, an accessible social app. Answer briefly and kindly in plain text, no markdown. Always write numbers in full, like 19,637, never abbreviated like 19.6K or 1.2M." },
     { role: "user", content: String(text).slice(0, 2000) }], max_tokens: 300 });
   return (r.choices && r.choices[0] && r.choices[0].message && r.choices[0].message.content || "").trim() || "I don't have an answer for that.";
 }
@@ -669,8 +669,11 @@ Want me to join any of these?`,
     }
 
     if (lo.includes("trending") || lo.includes("what's hot") || lo.includes("whats hot"))
-      return {action:"Fetching live trending data…", agentLabel:"Fetching trends",
-        result:"Right now on Looscid:\n\n #Consciousness — 48.2K Dreams (+340% this hour)\n #CreativeProcess — 22.1K Dreams\n #PhilosophyOfMind — 15.4K Dreams\n\nWant me to draft a Dream around one of these?"};
+      // Part 37 (2three1y, Oct 12 4:52 PM): numbers are never abbreviated, and Cherry only reports real trending tags.
+      { const tr = (Looscid.TRENDING || []).slice(0, 3);
+        return {action:"Checking what's trending…", agentLabel:"Checking trends",
+          result: tr.length ? "Right now on Looscid:\n\n" + tr.map(function (t) { return " #" + t.tag + (t.count != null && t.count !== "" ? " — " + (typeof t.count === "number" ? Number(t.count).toLocaleString() + " Dreams" : t.count) : ""); }).join("\n") + "\n\nWant me to draft a Dream around one of these?"
+            : "Nothing is trending on Looscid yet. Want me to help you start something?"}; }
 
     if (lo.includes("summarize") || lo.includes("summary") || lo.includes("what's happening") || lo.includes("catch me up")) {
       const ctx2 = appContext();
