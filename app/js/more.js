@@ -2243,13 +2243,9 @@ function lcCopyText(text, ok) {
   try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { announce(ok); }, fail); else fail(); } catch (e) { fail(); }
 }
 function lcFocusId(id) { setTimeout(function () { const el = document.getElementById(id); if (el) el.focus(); }, 40); }
-function NostrPassFields({ pass, setPass, pass2, setPass2 }) {
-  return lh(React.Fragment, null,
-    lh('label', { htmlFor: "nostr-pass", className: "lid-label" }, "Passcode (optional)"),
-    lh('input', { id: "nostr-pass", className: "inp", type: "password", autoComplete: "off", autoCapitalize: "off", spellCheck: false, value: pass, onChange: function (e) { setPass(e.target.value); } }),
-    lh('label', { htmlFor: "nostr-pass2", className: "lid-label" }, "Type the passcode again"),
-    lh('input', { id: "nostr-pass2", className: "inp", type: "password", autoComplete: "off", autoCapitalize: "off", spellCheck: false, value: pass2, onChange: function (e) { setPass2(e.target.value); } }),
-    lh('p', { className: "lid-help" }, "With a passcode, your key is saved locked (encrypted with NIP-49), and Looscid asks for the passcode once each time you open it, before you Dream. Without a passcode, your key is saved unlocked in this browser's storage on this device, so anyone who can open this browser could read it."));
+function NostrPassFields({ pass, setPass, pass2, setPass2, noPass, setNoPass, label, existing }) {
+  // Security pass (Oct 2026): a passcode is the default now (Looscid.LcPassFields in core.js, with its strength check).
+  return lh(Looscid.LcPassFields, { id: "nostr", pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2, noPass: noPass, setNoPass: setNoPass, label: label, existing: existing });
 }
 function NostrKeySection() {
   const N = Looscid.lcNostr;
@@ -2257,8 +2253,10 @@ function NostrKeySection() {
   const hasExt = typeof window !== "undefined" && !!window.nostr && typeof window.nostr.getPublicKey === "function";
   const [how, setHow] = useState(hasExt ? "signer" : "enter");
   const [nsec, setNsec] = useState("");
-  const [pass, setPass] = useState(""); const [pass2, setPass2] = useState("");
+  const [pass, setPass] = useState(""); const [pass2, setPass2] = useState(""); const [noPass, setNoPass] = useState(false);
   const [unl, setUnl] = useState("");
+  const [weak, setWeak] = useState(false); // unlocked with a passcode from before the minimum: offer a change
+  useEffect(function () { if (st.mode === "key" && !st.encrypted && N) N.load().catch(function () {}); }, [st.mode, st.encrypted]); // so Copy key works at once
   const [msg, setMsg] = useState(null); // {t, err}
   const [busy, setBusy] = useState(false);
   const [created, setCreated] = useState(null); // {nsec, npub}
@@ -2267,28 +2265,31 @@ function NostrKeySection() {
   const [relayList, setRelayList] = useState(N ? N.relays() : []);
   useEffect(function () { const f = function () { if (N) setRelayList(N.relays()); }; window.addEventListener("looscid-nostr", f); return function () { window.removeEventListener("looscid-nostr", f); }; }, []);
   const say = function (t, err) { setMsg({ t: t, err: !!err }); announce(t, err ? "error" : undefined); };
-  const passOk = function () {
-    if (pass !== pass2) { say("The two passcodes don't match. Type them again.", true); lcFocusId("nostr-pass"); return false; }
+  const passOk = function (allowNone) {
+    const bad = Looscid.lcPassCheck(pass, pass2, allowNone && noPass);
+    if (bad) { say(bad.t, true); lcFocusId("nostr-" + bad.field); return false; }
     return true;
   };
   const saveKey = async function () {
     if (busy) return;
     if (!nsec.trim()) { say("Type or paste your nsec key first.", true); lcFocusId("nostr-nsec"); return; }
-    if (!passOk()) return;
-    setBusy(true); const r = await N.importKey(nsec, pass); setBusy(false);
-    if (r.err) { say(r.err, true); lcFocusId("nostr-nsec"); return; }
-    setNsec(""); setPass(""); setPass2("");
-    say(pass ? "Key saved on this device, locked with your passcode." : "Key saved on this device.");
+    const enc = /^ncryptsec1/i.test(nsec.trim()); // already locked: the field is its own passcode
+    if (enc ? !pass && (say("That key is locked with a passcode. Type its passcode in the Passcode field.", true), lcFocusId("nostr-pass"), true) : !passOk(true)) return;
+    const none = noPass && !enc;
+    setBusy(true); const r = await N.importKey(nsec, none ? "" : pass, { noPasscode: none }); setBusy(false);
+    if (r.err) { say(r.err, true); lcFocusId(r.field ? "nostr-pass" : "nostr-nsec"); return; }
+    setNsec(""); setPass(""); setPass2(""); setNoPass(false);
+    say(none ? "Key saved on this device, without a passcode." : "Key saved on this device, locked with your passcode.");
     lcFocusId("nostr-key-h");
     // Read your Dreams back from Nostr now; say so only if some came back.
     N.fetchOwn().then(function (f) { if (f && f.added) setTimeout(function () { announce(f.added === 1 ? "Found 1 of your Dreams on Nostr." : "Found " + f.added + " of your Dreams on Nostr."); }, 1600); }, function () {});
   };
   const nsecRef = useEnterSubmit(saveKey);
   const create = async function () {
-    if (busy || !passOk()) return;
-    setBusy(true); const r = await N.createKey(pass); setBusy(false);
-    if (r.err) { say(r.err, true); return; }
-    setPass(""); setPass2(""); setMsg(null);
+    if (busy || !passOk(true)) return;
+    setBusy(true); const r = await N.createKey(noPass ? "" : pass, { noPasscode: noPass }); setBusy(false);
+    if (r.err) { say(r.err, true); if (r.field) lcFocusId("nostr-pass"); return; }
+    setPass(""); setPass2(""); setNoPass(false); setMsg(null);
     setCreated({ nsec: r.nsec, npub: r.npub });
     lcFocusId("nostr-new-h");
   };
@@ -2304,19 +2305,20 @@ function NostrKeySection() {
     if (busy) return;
     setBusy(true); const r = await N.unlock(unl); setBusy(false);
     if (r.err) { say(r.err, true); lcFocusId("nostr-unlock"); return; }
-    setUnl(""); say(r.waiting ? "Unlocked. Sending " + r.waiting + (r.waiting === 1 ? " waiting Dream." : " waiting Dreams.") : "Unlocked until you close Looscid.");
+    setUnl(""); setWeak(!!r.weak);
+    say((r.waiting ? "Unlocked. Sending " + r.waiting + (r.waiting === 1 ? " waiting Dream." : " waiting Dreams.") : "Unlocked until you close Looscid.") + (r.weak ? " Your passcode is short and easy to guess. You can change it below." : ""));
     lcFocusId("nostr-key-h");
   };
   const unlockRef = useEnterSubmit(unlock);
   const lock = async function () {
     if (busy) return;
-    if (!pass) { say("Type a passcode first.", true); lcFocusId("nostr-pass"); return; }
-    if (!passOk()) return;
+    if (!passOk(false)) return;
+    const was = st.encrypted;
     setBusy(true); const r = await N.setPasscode(pass); setBusy(false);
-    if (r.err) { say(r.err, true); return; }
-    setPass(""); setPass2(""); say("Your key is now locked with your passcode."); lcFocusId("nostr-key-h");
+    if (r.err) { say(r.err, true); lcFocusId("nostr-pass"); return; }
+    setPass(""); setPass2(""); setWeak(false); say(was ? "Your passcode is changed." : "Your key is now locked with your passcode."); lcFocusId("nostr-key-h");
   };
-  const unlockPass = function () { const r = N.removePasscode(); if (r.err) { say(r.err, true); return; } say("Passcode removed. Your key is saved unlocked on this device."); lcFocusId("nostr-key-h"); };
+  const unlockPass = function () { const r = N.removePasscode(); if (r.err) { say(r.err, true); return; } say("Passcode removed. Your key is saved unlocked on this device, where anything on this site could copy it. You can lock it again anytime."); lcFocusId("nostr-key-h"); };
   const addRelay = function () {
     const u = N.cleanRelay(relayIn);
     if (!u) { say("That isn't a relay address. It starts with wss://", true); lcFocusId("nostr-relay-in"); return; }
@@ -2351,10 +2353,18 @@ function NostrKeySection() {
       lh('label', { htmlFor: "nostr-unlock", className: "lid-label" }, "Passcode"),
       lh('input', { id: "nostr-unlock", ref: unlockRef, className: "inp", type: "password", autoComplete: "off", autoCapitalize: "off", spellCheck: false, value: unl, onChange: function (e) { setUnl(e.target.value); } }),
       lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", disabled: busy, onClick: unlock }, "Unlock"))),
-    st.mode === "key" && !st.encrypted && lh('details', { className: "lid-details" },
-      lh('summary', null, "Lock your key with a passcode"),
+    // Security pass: a key saved without a passcode (from before) gets a clear, gentle prompt to lock it. Nothing is forced:
+    // the key keeps working, and "Copy key" first means a forgotten passcode never costs the key.
+    st.mode === "key" && !st.encrypted && lh('div', { className: "lid-lockbox", role: "group", "aria-labelledby": "nostr-lock-h" },
+      lh('h4', { id: "nostr-lock-h", className: "lid-label" }, "Lock your key with a passcode"),
+      lh('p', { className: "lid-warn" }, "Your key is saved without a passcode, so anything that runs on this site could copy it. Lock it now. If you haven't saved your key somewhere safe yet, copy it first: if you ever forget the passcode, your key gets you back in."),
+      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bgb", onClick: function () { const k = N.nsecNow && N.nsecNow(); if (k) lcCopyText(k, "Key copied. Save it in your password manager."); else { say("One moment, then press Copy key again.", true); N.load().catch(function () {}); } } }, "Copy key")),
       lh(NostrPassFields, { pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2 }),
       lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", disabled: busy, onClick: lock }, "Lock with passcode"))),
+    st.mode === "key" && st.encrypted && lh('details', { className: "lid-details", open: weak || undefined },
+      lh('summary', null, "Change passcode"),
+      lh(NostrPassFields, { pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2, label: "New passcode" }),
+      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", disabled: busy, onClick: lock }, "Change passcode"))),
     st.mode === "key" && st.encrypted && lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bgb", onClick: unlockPass }, "Remove passcode")),
     st.queued > 0 && lh(React.Fragment, null,
       lh('p', { className: "lid-help" }, st.queued === 1 ? "1 Dream is waiting to reach relays." : st.queued + " Dreams are waiting to reach relays."),
@@ -2373,11 +2383,11 @@ function NostrKeySection() {
     how === "enter" && lh(React.Fragment, null,
       lh(SecretField, { id: "nostr-nsec", label: "Your Nostr secret key (nsec)", value: nsec, onChange: setNsec, inputRef: nsecRef }),
       lh('p', { className: "lid-help" }, "It starts with nsec1. It's saved only on this device and never sent anywhere. Never share it with anyone."),
-      lh(NostrPassFields, { pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2 }),
+      lh(NostrPassFields, { pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2, noPass: noPass, setNoPass: setNoPass, existing: /^\s*ncryptsec1/i.test(nsec) }),
       lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", disabled: busy, onClick: saveKey }, "Save key"))),
     how === "create" && lh(React.Fragment, null,
       lh('p', { className: "lid-help" }, "Looscid makes a new key on this device. Nothing is sent anywhere until you Dream."),
-      lh(NostrPassFields, { pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2 }),
+      lh(NostrPassFields, { pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2, noPass: noPass, setNoPass: setNoPass }),
       lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", disabled: busy, onClick: create }, "Create key"))));
   return lh('section', { className: "lid-panel", 'aria-labelledby': "nostr-key-h" },
     lh('h3', { id: "nostr-key-h", className: "lid-label", tabIndex: -1 }, "Nostr key"),
@@ -2551,6 +2561,7 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   const suggestions = [];
   if (!methods.length) suggestions.push("Add a login method so you can log in on other devices");
   if (idn && idn.method === "local" && sk) suggestions.push("Keep a copy of your Nostr secret key somewhere safe");
+  if (idn && idn.method === "local" && sk) suggestions.push("Lock your Nostr key with a passcode, in Keys and IDs, so nothing else on this site can copy it");
   const checkup = suggestions.length ? suggestions.length + (suggestions.length === 1 ? " suggestion" : " suggestions") + ": " + suggestions[0] : "No issues found";
   const methodsText = methods.length ? methods.map(function (m) { return PROVIDER_NAMES[m.provider]; }).join(", ") : "None yet. Add one any time";
   const summary = localDataSummary();
@@ -2784,6 +2795,7 @@ const LC_VERSION_HISTORY = [
     "Lists: make your own lists of Dreamors in More, Lists, and each one is its own feed of their Dreams. Add someone from their profile's options with Add to list (a checkbox for each list, or make a new one right there). Rename, delete and remove people anytime. Only you see them, and they're in your settings backup.",
     "Lists are custom feeds you can pin: on a list's page, Pin to Home makes it a feed tab on Home, right after your other tabs, showing that list's Dreams. Unpin and reorder it like any pinned tab. You can also pin a list from Following, Pin a tab.",
     "Profiles have a Lists tab: yours shows all your lists and whether each is shown or only yours, and others see only the lists you choose with Show on my profile on each list's page. Move the tab in Settings, Profile Tabs.",
+    "Security: your Nostr key is now locked with a passcode by default, and easy passcodes like 1234 aren't accepted. A key you saved before without one keeps working, and Looscid offers to lock it.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

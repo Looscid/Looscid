@@ -2525,6 +2525,35 @@ function identityLabel(idn) {
   if (idn.provider === "nostr") return "Nostr, " + (idn.method === "nip07" ? "signer extension" : "key on this device") + ", " + shortNpub(idn.npub || idn.pubkey);
   return idn.provider;
 }
+// Security pass (Oct 2026): the passcode fields for a Nostr key, used when creating, entering or locking a key.
+// A passcode is the default; "Save without a passcode" is an explicit choice with a plain warning.
+function LcPassFields({ id, pass, setPass, pass2, setPass2, noPass, setNoPass, label, existing }) {
+  // existing: a pasted key that is already locked (ncryptsec1...): one field, its own passcode.
+  if (existing) return lh(React.Fragment, null,
+    lh('label', { htmlFor: id + "-pass", className: "lid-label" }, "Passcode for this key"),
+    lh('input', { id: id + "-pass", className: "inp", type: "password", autoComplete: "current-password", autoCapitalize: "off", spellCheck: false, value: pass, "aria-describedby": id + "-pass-d", onChange: function (e) { setPass(e.target.value); } }),
+    lh('p', { className: "lid-help", id: id + "-pass-d" }, "This key is already locked. Type the passcode you locked it with. It stays locked with that passcode on this device."));
+  return lh(React.Fragment, null,
+    !noPass && lh(React.Fragment, null,
+      lh('label', { htmlFor: id + "-pass", className: "lid-label" }, label || "Passcode"),
+      lh('input', { id: id + "-pass", className: "inp", type: "password", autoComplete: "new-password", autoCapitalize: "off", spellCheck: false, value: pass, "aria-describedby": id + "-pass-d", onChange: function (e) { setPass(e.target.value); } }),
+      lh('p', { className: "lid-help", id: id + "-pass-d" }, "At least 8 characters. Four short words work well, like: blue lamp river jump. Your key is saved locked with it, and Looscid asks for it once each time you open it, before you Dream."),
+      lh('label', { htmlFor: id + "-pass2", className: "lid-label" }, "Type the passcode again"),
+      lh('input', { id: id + "-pass2", className: "inp", type: "password", autoComplete: "new-password", autoCapitalize: "off", spellCheck: false, value: pass2, onChange: function (e) { setPass2(e.target.value); } })),
+    setNoPass && lh('label', { className: "lc-radio" + (noPass ? " on" : "") },
+      lh('input', { type: "checkbox", id: id + "-nopass", checked: !!noPass, onChange: function () { setNoPass(!noPass); } }),
+      lh('span', null, "Save my key without a passcode (not recommended)")),
+    noPass && lh('p', { className: "lid-warn", id: id + "-nopass-w" }, "Without a passcode, your key sits unlocked in this browser's storage. Anything that runs on this site, or anyone with your unlocked phone, could copy it, and a Nostr key can never be changed. You can add a passcode later in Settings, LooscidID, Keys and IDs."));
+}
+// The check behind those fields: returns what's wrong in plain words, or null. field: which input to focus.
+function lcPassCheck(pass, pass2, noPass) {
+  if (noPass) return null;
+  const N = Looscid.lcNostr, bad = N && N.passcodeProblem ? N.passcodeProblem(pass) : (pass ? null : "Type a passcode first.");
+  if (bad) return { t: bad, field: "pass" };
+  if (pass !== pass2) return { t: "The two passcodes don't match. Type them again.", field: "pass2" };
+  return null;
+}
+Looscid.LcPassFields = LcPassFields; Looscid.lcPassCheck = lcPassCheck;
 // Show-key secure field (password type, Show key toggle). Never logged.
 function SecretField({ id, label, value, onChange, readOnly, describedBy, inputRef }) {
   const [shown, setShown] = useState(false);
@@ -2543,8 +2572,11 @@ function NostrPanel({ onDone }) {
   const [created, setCreated] = useState(null);   // {nsec, npub}
   const [showPaste, setShowPaste] = useState(false);
   const [paste, setPaste] = useState("");
+  // Security pass: creating or entering a key asks for a passcode first (or an explicit "without a passcode").
+  const [step, setStep] = useState(null); // null | "create"
+  const [pass, setPass] = useState(""); const [pass2, setPass2] = useState(""); const [noPass, setNoPass] = useState(false);
   const savedHead = useRef(null);
-  const fail = function (t) { setMsg(t); announce(t); setBusy(false); };
+  const fail = function (t, focusId) { setMsg(t); announce(t, "error"); setBusy(false); if (focusId) setTimeout(function () { const el = document.getElementById(focusId); if (el) el.focus(); }, 30); };
   useEffect(function () { if (created && savedHead.current) savedHead.current.focus(); }, [created]);
 
   const useExtension = async function () {
@@ -2560,30 +2592,28 @@ function NostrPanel({ onDone }) {
     } catch (e) { fail("Your signer extension said no, or was closed. Nothing was saved."); }
   };
   const createKey = async function () {
+    const bad = lcPassCheck(pass, pass2, noPass); if (bad) return fail(bad.t, "lid-new-" + bad.field);
     setBusy(true); setMsg("");
-    let NT; try { NT = await loadNostrTools(); } catch (e) { return fail(lcNostrToolsMsg(e)); }
-    const sk = NT.generateSecretKey(); const pk = NT.getPublicKey(sk);
-    setStoredNostrSk(bytesToHex(sk));
-    const npub = NT.nip19.npubEncode(pk);
-    setIdentity({ provider: "nostr", method: "local", pubkey: pk, npub: npub, at: Date.now() });
-    setCreated({ nsec: NT.nip19.nsecEncode(sk), npub: npub });
+    if (!Looscid.lcNostr) return fail(lcNostrToolsMsg(new Error("load")));
+    const r = await Looscid.lcNostr.createKey(noPass ? "" : pass, { noPasscode: noPass });
+    if (r.err) return fail(r.err, r.field ? "lid-new-pass" : null);
+    setPass(""); setPass2("");
+    setCreated({ nsec: r.nsec, npub: r.npub, locked: !noPass });
     setBusy(false);
   };
   const usePasted = async function () {
     const v = (paste || "").trim();
-    if (!v) return fail("Paste your nsec key first.");
+    if (!v) return fail("Paste your nsec key first.", "lid-nsec-paste");
+    const enc = /^ncryptsec1/i.test(v); // a key that already has its own passcode: the field is that passcode
+    const bad = enc ? (pass ? null : { t: "That key is locked with a passcode. Type its passcode in the Passcode field.", field: "pass" }) : lcPassCheck(pass, pass2, noPass);
+    if (bad) return fail(bad.t, "lid-paste-" + bad.field);
     setBusy(true);
-    let NT; try { NT = await loadNostrTools(); } catch (e) { return fail(lcNostrToolsMsg(e)); }
-    let sk = null;
-    try { const d = NT.nip19.decode(v); if (d.type === "nsec") sk = d.data; } catch (e) {}
-    if (!sk && /^[0-9a-f]{64}$/i.test(v)) sk = hexToBytes(v.toLowerCase());
-    if (!sk) return fail("That isn't a valid nsec key. Check it and try again.");
-    const pk = NT.getPublicKey(sk);
-    setStoredNostrSk(bytesToHex(sk));
-    setIdentity({ provider: "nostr", method: "local", pubkey: pk, npub: NT.nip19.npubEncode(pk), at: Date.now(), imported: true });
-    setPaste(""); setBusy(false);
+    if (!Looscid.lcNostr) return fail(lcNostrToolsMsg(new Error("load")));
+    const r = await Looscid.lcNostr.importKey(v, (noPass && !enc) ? "" : pass, { noPasscode: noPass && !enc });
+    if (r.err) return fail(r.err, r.field ? "lid-paste-pass" : "lid-nsec-paste");
+    setPaste(""); setPass(""); setPass2(""); setBusy(false);
     announce("Logged in with your Nostr key");
-    onDone("Logged in with your Nostr key. It's saved only on this device.");
+    onDone(noPass ? "Logged in with your Nostr key. It's saved only on this device, without a passcode." : "Logged in with your Nostr key. It's saved only on this device, locked with your passcode.");
   };
   const pasteRef = useEnterSubmit(usePasted);
 
@@ -2596,19 +2626,26 @@ function NostrPanel({ onDone }) {
       lh('button', { type: "button", className: "btn bgb", onClick: function () {
         if (navigator.clipboard) navigator.clipboard.writeText(created.nsec).then(function () { announce("Secret key copied"); }, function () { announce("Couldn't copy. Use Show key and copy it yourself."); });
       } }, "Copy key"),
-      lh('button', { type: "button", className: "btn bp", onClick: function () { setCreated(null); announce("Your LooscidID is ready"); onDone("Your LooscidID is ready. Your key is saved only on this device."); } }, "I saved my key")));
+      lh('button', { type: "button", className: "btn bp", onClick: function () { const lk = created.locked; setCreated(null); announce("Your LooscidID is ready"); onDone(lk ? "Your LooscidID is ready. Your key is saved only on this device, locked with your passcode." : "Your LooscidID is ready. Your key is saved only on this device, without a passcode."); } }, "I saved my key")));
 
   return lh('div', { className: "lid-panel" },
     lh('p', { className: "lid-help" }, "Nostr is a powerful way of communication, and your key works everywhere Nostr is supported."),
     hasExt
       ? lh('button', { type: "button", className: "btn bp lid-wide", disabled: busy, onClick: useExtension }, "Login with my Nostr signer extension")
       : lh('p', { className: "lid-help" }, "No Nostr signer extension was found in this browser. A signer extension, like Alby or nos2x, keeps your key safest. You can also create a key on this device."),
-    lh('button', { type: "button", className: "btn " + (hasExt ? "bgb" : "bp") + " lid-wide", disabled: busy, onClick: createKey }, "Create a new key on this device"),
+    step !== "create"
+      ? lh('button', { type: "button", className: "btn " + (hasExt ? "bgb" : "bp") + " lid-wide", disabled: busy, onClick: function () { setStep("create"); setShowPaste(false); setMsg(""); setTimeout(function () { const el = document.getElementById("lid-new-pass"); if (el) el.focus(); }, 30); } }, "Create a new key on this device")
+      : lh('div', { className: "lid-pastebox", role: "group", "aria-label": "Create a new key" },
+          lh(LcPassFields, { id: "lid-new", pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2, noPass: noPass, setNoPass: setNoPass, label: "Choose a passcode for your key" }),
+          lh('div', { className: "lid-actions" },
+            lh('button', { type: "button", className: "btn bp", disabled: busy, onClick: createKey }, "Create key"),
+            lh('button', { type: "button", className: "btn bgb", onClick: function () { setStep(null); setPass(""); setPass2(""); setNoPass(false); setMsg(""); } }, "Cancel"))),
     lh('button', { type: "button", className: "lid-disclose", 'aria-expanded': showPaste ? "true" : "false", 'aria-controls': "lid-paste",
-      onClick: function () { setShowPaste(!showPaste); } }, "I already have a key (last resort)"),
+      onClick: function () { setShowPaste(!showPaste); setStep(null); } }, "I already have a key (last resort)"),
     lh('div', { id: "lid-paste", className: "lid-pastebox", hidden: !showPaste },
       lh('p', { className: "lid-warn", id: "lid-paste-warn" }, "Warning: pasting your secret key into any website is the most common way Nostr accounts get stolen. Use a signer extension if you can. If you continue, your key stays only on this device and is never sent anywhere."),
       lh(SecretField, { id: "lid-nsec-paste", label: "Enter nsec key", value: paste, onChange: setPaste, describedBy: "lid-paste-warn", inputRef: pasteRef }),
+      lh(LcPassFields, { id: "lid-paste", pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2, noPass: noPass, setNoPass: setNoPass, label: "Choose a passcode for your key" , existing: /^\s*ncryptsec1/i.test(paste) }),
       lh('button', { type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: usePasted }, "Continue to setup")),
     msg && lh('p', { className: "lid-err" }, msg));
 }
@@ -3573,7 +3610,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T23:43:08Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T23:44:41Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4823,6 +4860,17 @@ function lcVersionAlert() {
     if (was !== LOOSCID_VERSION) { localStorage.setItem(k, LOOSCID_VERSION); if (was) lcNotify("system", "Looscid updated to " + LOOSCID_VERSION + ". What's new is in About.", null); }
   } catch (e) {}
 }
+// Security pass (Oct 2026): a Nostr key saved without a passcode (from before passcodes were the default) gets one gentle
+// note in the Inbox, From Looscid, pointing to where it can be locked. Once per device; nothing is forced.
+function lcKeyLockAlert() {
+  try {
+    const k = "looscid_nostr_lock_noted", plain = localStorage.getItem(LID_NOSTR_SK_KEY);
+    if (localStorage.getItem(k) || !plain || !/^[0-9a-f]{64}$/i.test(plain) || localStorage.getItem("looscid_nostr_ncryptsec")) return;
+    localStorage.setItem(k, "1");
+    lcNotify("system", "Your Nostr key is saved without a passcode. Lock it with a passcode in Settings, LooscidID, Keys and IDs, so nothing else on this site can copy it.", null);
+  } catch (e) {}
+}
+Looscid.lcKeyLockAlert = lcKeyLockAlert;
 const ALERTS_TAB_KEY = "looscid_alerts_tab";
 Looscid.ALERTS_TAB_KEY = ALERTS_TAB_KEY;
 function lcSetAlertsTab(v, quiet) {
@@ -6096,7 +6144,7 @@ useEffect(() => {
   const addLog = (ic, text, undoFn=null) => setCherryLog(l => [{id:Date.now(),ic,text,undoFn,...(undoFn?{undone:false}:{})}, ...l].slice(0,20));
 
   Looscid.LC_FOLLOWING_NOW = appFollowing; Looscid.LC_GROUPS_NOW = appGroups; // round 6: audiences read these
-  useEffect(function () { lcVersionAlert(); lcThreadWatch(); }, []); // build 151 (#74): threads you follow
+  useEffect(function () { lcVersionAlert(); lcKeyLockAlert(); lcThreadWatch(); }, []); // build 151 (#74): threads you follow
   const cherryCtx = {
     dreams: appDreams,
     following: appFollowing,

@@ -136,6 +136,23 @@ function setIdentityFor(NT, pk, method, extra) {
   if (Looscid.setIdentity) Looscid.setIdentity(v); else lsSet(IDENTITY_KEY, JSON.stringify(v));
   return v;
 }
+/* Security pass (Oct 2026): a passcode is the default. It must be at least 8 characters and not an easy guess, because anyone
+   who gets a copy of the locked key (ncryptsec) can try short passcodes like 1234 in minutes. Said in plain words. */
+const LC_WEAK_PASSCODES = ["password", "passcode", "12345678", "123456789", "1234567890", "87654321", "qwertyui", "qwertyuiop", "asdfghjk", "11111111", "00000000", "iloveyou", "letmein1", "looscid1", "looscid123", "nostrkey", "abcdefgh", "password1", "trustno1", "sunshine", "princess", "football", "baseball", "superman", "whatever"];
+function passcodeProblem(p) {
+  const s = String(p || "");
+  const tip = " Four short words work well, like: blue lamp river jump.";
+  if (!s) return "Type a passcode first.";
+  if (s.length < 8) return "That passcode is too short. Use at least 8 characters, because a short one like 1234 can be guessed in minutes." + tip;
+  const low = s.toLowerCase();
+  if (/^(.)\1+$/.test(s)) return "That passcode is one character repeated, which is easy to guess." + tip;
+  let up = true, down = true;
+  for (let i = 1; i < low.length; i++) { const d = low.charCodeAt(i) - low.charCodeAt(i - 1); if (d !== 1) up = false; if (d !== -1) down = false; }
+  if (up || down) return "That passcode is a simple sequence, like 12345678, which is easy to guess." + tip;
+  if (LC_WEAK_PASSCODES.indexOf(low) >= 0) return "That passcode is on the list of the most common ones, so it's easy to guess." + tip;
+  if (new Set(low).size < 4) return "That passcode uses too few different characters, so it's easy to guess." + tip;
+  return null;
+}
 function storeSk(NT, sk, passcode) {
   if (passcode) { lsSet(ENC_KEY, NT.nip49.encrypt(sk, passcode, 16, 0x02)); lsSet(SK_KEY, null); }
   else { lsSet(SK_KEY, toHex(sk)); lsSet(ENC_KEY, null); }
@@ -154,16 +171,20 @@ function parseKey(NT, raw, passcode) {
   if (isHex64(v)) return { sk: fromHex(v.toLowerCase()) };
   return { err: "That isn't a valid nsec key. It starts with nsec1 and is 63 characters long. Nothing was saved." };
 }
-async function importKey(raw, passcode) {
+// opts.noPasscode: the person chose to save the key without a passcode (an explicit opt-out; the default asks for one).
+async function importKey(raw, passcode, opts) {
   let NT; try { NT = await load(); } catch (e) { return { err: toolsMsg(e) }; }
   const p = parseKey(NT, raw, passcode);
   if (p.err) return p;
+  if (!p.enc) { const bad = passcode ? passcodeProblem(passcode) : (opts && opts.noPasscode ? null : "Choose a passcode to lock your key, or choose to save it without one."); if (bad) return { err: bad, field: "pass" }; }
   const pk = NT.getPublicKey(p.sk);
   if (p.enc) { lsSet(ENC_KEY, p.enc); lsSet(SK_KEY, null); memSk = p.sk; } else storeSk(NT, p.sk, passcode);
   const idn = setIdentityFor(NT, pk, "local", { imported: true });
   emit(); kick(); return { ok: true, npub: idn.npub, pubkey: pk };
 }
-async function createKey(passcode) {
+async function createKey(passcode, opts) {
+  const bad = passcode ? passcodeProblem(passcode) : (opts && opts.noPasscode ? null : "Choose a passcode to lock your key, or choose to save it without one.");
+  if (bad) return { err: bad, field: "pass" };
   let NT; try { NT = await load(); } catch (e) { return { err: toolsMsg(e) }; }
   const sk = NT.generateSecretKey(), pk = NT.getPublicKey(sk);
   storeSk(NT, sk, passcode);
@@ -188,11 +209,11 @@ async function unlock(passcode) {
   if (idn && NT.getPublicKey(sk) !== idn.pubkey) return { err: "That passcode opened a different key. Nothing changed." };
   memSk = sk; emit();
   const n = queue().filter(function (q) { return q.draft; }).length; kick();
-  return { ok: true, waiting: n };
+  return { ok: true, waiting: n, weak: !!passcodeProblem(passcode) }; // weak: a passcode set before the security pass; the page offers a change
 }
 async function setPasscode(passcode) {
   const sk = currentSk(); if (!sk) return { err: "Unlock your key first." };
-  if (!passcode) return { err: "Type a passcode first." };
+  const bad = passcodeProblem(passcode); if (bad) return { err: bad, field: "pass" };
   let NT; try { NT = await load(); } catch (e) { return { err: toolsMsg(e) }; }
   storeSk(NT, sk, passcode); emit(); return { ok: true };
 }
@@ -686,6 +707,6 @@ window.addEventListener("online", function () { if (queue().length) kick(); });
 if (document.readyState === "complete") start(); else window.addEventListener("load", start);
 
 Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, VENDOR_URL: VENDOR_URL, load: load, toolsMsg: toolsMsg, toolsReady: toolsReady, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
-  importKey: importKey, createKey: createKey, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, nsecNow: nsecNow,
+  importKey: importKey, createKey: createKey, passcodeProblem: passcodeProblem, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, nsecNow: nsecNow,
   publishDream: publishDream, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchReactions: fetchReactions, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
 })(window.Looscid = window.Looscid || {});
