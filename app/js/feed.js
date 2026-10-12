@@ -261,11 +261,16 @@ function lcFeedVisible(tab, raw, o) {
     list = lcSortDreams(base, sub === "popular" ? "popular" : "latest");
   } else if (/^pin:/.test(tab)) {
     const f = LC_FEEDS.find(function (x) { return x.id === tab; }), p = f && f.pin;
-    list = !p ? [] : lcSortDreams(raw.filter(function (d) {
+    // Build 152 prep (#99, part 4c): a pinned List reads its Dreamors' Dreams, on Looscid and from Nostr.
+    const pinList = p && p.kind === "list" ? Looscid.lcListGet(String(p.ref)) : null;
+    const haveN = new Set(raw.map(function (d) { return d.nid; }).filter(Boolean));
+    const pool = pinList ? raw.concat((o.pub || []).filter(function (d) { return !haveN.has(d.nid); })) : raw;
+    list = !p || (p.kind === "list" && !pinList) ? [] : lcSortDreams(pool.filter(function (d) {
       if (p.kind === "circle") return d.circleId != null && String(d.circleId) === String(p.ref);
       if (p.kind === "person") return !!d.user && lcHandle(d.user.handle || "") === String(p.ref);
       if (p.kind === "tag") return lcTagsOf(d).indexOf(String(p.ref).toLowerCase()) >= 0;
       if (p.kind === "thread") return lcRootOf(d) === String(p.ref) || String(d.id) === String(p.ref);
+      if (p.kind === "list") return !d.replyTo && Looscid.lcListHas(pinList, d.user);
       return false;
     }), "latest");
   } else {
@@ -304,7 +309,7 @@ function FeedControls({ tab, cherryCtx, dreams, pubState }) {
   if (tab === "federated") return lh(FederatedControls, { pubState: pubState });
   const f = LC_FEEDS.find(function (x) { return x.id === tab; });
   if (f && f.pin) return lh('div', { className: "lc-feed-ctl" },
-    lh('p', { className: "lc-muted" }, "A tab you pinned: " + (f.pin.kind === "tag" ? "the hashtag " : f.pin.kind === "circle" ? "the Circle " : f.pin.kind === "person" ? "Dreams from " : "") + (f.pin.kind === "thread" ? "a thread." : f.label + ".")),
+    lh('p', { className: "lc-muted" }, "A tab you pinned: " + (f.pin.kind === "tag" ? "the hashtag " : f.pin.kind === "circle" ? "the Circle " : f.pin.kind === "person" ? "Dreams from " : f.pin.kind === "list" ? "your list " : "") + (f.pin.kind === "thread" ? "a thread." : f.label + ".")),
     lh('button', { type: "button", id: "feed-unpin", className: "btn bgb lc-btn", onClick: function () { Looscid.lcPinRemove(tab); setTimeout(function () { const b = document.getElementById("feed-tab-following"); if (b) b.focus(); }, 0); } }, "Unpin this tab"));
   return null;
 }
@@ -340,7 +345,7 @@ function FederatedControls({ pubState }) {
     pubState === "loading" ? lh('p', { className: "lc-muted" }, "Getting Dreams from your Nostr relays\u2026") :
     pubState === "error" ? lh('p', { className: "lc-muted" }, "Couldn't reach your Nostr relays just now. Showing what Looscid has.") : null);
 }
-// Following: pin a Circle, a person, a hashtag or a thread as its own feed tab.
+// Following: pin a Circle, a person, a hashtag, a thread or one of your Lists (build 152) as its own feed tab.
 function PinForm({ cherryCtx, dreams }) {
   const [kind, setKind] = useState("circle"), [val, setVal] = useState(""), [tag, setTag] = useState("");
   const groups = ((cherryCtx && cherryCtx.groups) || []).filter(function (g) { return g.joined; });
@@ -349,20 +354,21 @@ function PinForm({ cherryCtx, dreams }) {
   const threads = (dreams || []).filter(function (d) { return !d.replyTo && (d.comments || 0) > 0; }).slice(0, 30);
   const opts = kind === "circle" ? groups.map(function (g) { return { id: String(g.id), name: g.name }; })
     : kind === "person" ? people.map(function (u) { return { id: lcHandle(u.handle), name: u.name }; })
-    : kind === "thread" ? threads.map(function (d) { return { id: String(d.id), name: (d.user ? d.user.name + ": " : "") + String(d.text || "").replace(/\s+/g, " ").slice(0, 40).trim() }; }) : [];
+    : kind === "thread" ? threads.map(function (d) { return { id: String(d.id), name: (d.user ? d.user.name + ": " : "") + String(d.text || "").replace(/\s+/g, " ").slice(0, 40).trim() }; }) 
+    : kind === "list" ? Looscid.lcListsRead().map(function (l) { return { id: l.id, name: l.name }; }) : [];
   const cur = opts.find(function (o) { return o.id === val; }) || opts[0];
   const pin = function () {
     if (kind === "tag") { const t = "#" + tag.trim().replace(/^#+/, "").replace(/\s+/g, ""); if (t.length < 2) { announce("Type a hashtag first."); return; } Looscid.lcPinAdd("tag", t.toLowerCase(), t); setTag(""); return; }
     if (!cur) return;
     Looscid.lcPinAdd(kind, cur.id, kind === "thread" ? "Thread: " + cur.name.slice(0, 30) : cur.name);
   };
-  const none = kind === "circle" ? "Join a Circle first, then you can pin it." : kind === "person" ? "Follow someone first, then you can pin them." : "No threads with Replies yet.";
+  const none = kind === "circle" ? "Join a Circle first, then you can pin it." : kind === "person" ? "Follow someone first, then you can pin them." : kind === "list" ? "Make a list first in More, Lists, then you can pin it." : "No threads with Replies yet.";
   return lh('fieldset', { className: "lc-pinform" }, lh('legend', null, "Pin a tab"),
     lh(LcMenu, { id: "pin-kind-btn", menuId: "pin-kind", label: "What to pin", hideLabel: true, title: "What to pin", inline: true, prefix: "Pin: ", btnClass: "btn bgb lc-btn",
-      value: kind, items: [{ id: "circle", name: "A Circle" }, { id: "person", name: "A person" }, { id: "tag", name: "A hashtag" }, { id: "thread", name: "A thread" }], onSelect: function (id) { setKind(id); setVal(""); } }),
+      value: kind, items: [{ id: "circle", name: "A Circle" }, { id: "person", name: "A person" }, { id: "tag", name: "A hashtag" }, { id: "thread", name: "A thread" }, { id: "list", name: "A list" }], onSelect: function (id) { setKind(id); setVal(""); } }),
     kind === "tag" ? lh('div', { className: "lc-inrow" }, lh('label', { htmlFor: "pin-tag" }, "Hashtag"),
         lh('input', { id: "pin-tag", className: "inp", type: "text", autoComplete: "off", value: tag, onChange: function (e) { setTag(e.target.value); }, onKeyDown: function (e) { if (e.key === "Enter") { e.preventDefault(); pin(); } } }))
-      : opts.length ? lh(LcMenu, { id: "pin-val-btn", menuId: "pin-val", label: "Which one", hideLabel: true, title: kind === "circle" ? "Circles" : kind === "person" ? "People" : "Threads", inline: true, btnClass: "btn bgb lc-btn",
+      : opts.length ? lh(LcMenu, { id: "pin-val-btn", menuId: "pin-val", label: "Which one", hideLabel: true, title: kind === "circle" ? "Circles" : kind === "person" ? "People" : kind === "list" ? "Lists" : "Threads", inline: true, btnClass: "btn bgb lc-btn",
           value: cur && cur.id, items: opts, onSelect: function (id) { setVal(id); } })
       : lh('p', { className: "lc-muted" }, none),
     lh('button', { type: "button", id: "pin-go", className: "btn bgb lc-btn", "aria-disabled": kind !== "tag" && !opts.length ? "true" : undefined, onClick: function () { if (kind !== "tag" && !opts.length) return; pin(); } }, "Pin as a tab"));

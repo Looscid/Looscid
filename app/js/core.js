@@ -716,9 +716,9 @@ function lcListRename(id, name) {
   if (!n) return { error: "Type a name for the list first." };
   if (lcListNameTaken(n, id)) return { error: "You already have a list called " + n + "." };
   const have = lcListsRead(), l = have.find(function (x) { return x.id === id; }); if (!l) return { error: "That list is gone." };
-  l.name = n; lcListsWrite(have); return l;
+  l.name = n; lcListsWrite(have); lcPinRelabel("list", id, n); return l;
 }
-function lcListDelete(id) { const have = lcListsRead(); const l = have.find(function (x) { return x.id === id; }); lcListsWrite(have.filter(function (x) { return x.id !== id; })); return l || null; }
+function lcListDelete(id) { const have = lcListsRead(); const l = have.find(function (x) { return x.id === id; }); lcListsWrite(have.filter(function (x) { return x.id !== id; })); if (lcPinHas("list", id)) lcPinRemove(lcPinId({ kind: "list", ref: id }), true); return l || null; }
 function lcListHas(l, u) { const k = lcListMemberKey(u); return !!l && !!k && l.members.some(function (m) { return lcListMemberKey(m) === k; }); }
 // Adds (on true) or removes a Dreamor. Returns false when a full list can't take one more.
 function lcListSetMember(id, u, on) {
@@ -3571,7 +3571,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T23:34:52Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T23:37:15Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4422,7 +4422,7 @@ Looscid.LC_FED_SUBS = LC_FED_SUBS;
 const LC_PINS_KEY = "looscid_feed_pins", LC_FED_SUB_KEY = "looscid_fed_sub", LC_FED_NETS_KEY = "looscid_fed_networks", LC_FED_LOCAL_KEY = "looscid_fed_local",
   LC_FEED_SORT_KEY = "looscid_feed_sort", LC_FY_FOLLOW_KEY = "looscid_foryou_following";
 Object.assign(Looscid, { LC_PINS_KEY, LC_FED_SUB_KEY, LC_FED_NETS_KEY, LC_FED_LOCAL_KEY, LC_FEED_SORT_KEY, LC_FY_FOLLOW_KEY });
-const LC_PIN_KINDS = { circle: "Circle", person: "person", tag: "hashtag", thread: "thread" };
+const LC_PIN_KINDS = { circle: "Circle", person: "person", tag: "hashtag", thread: "thread", list: "list" }; // list: build 152 prep (#99, part 4c), one of your Lists as a Home feed tab
 Looscid.LC_PIN_KINDS = LC_PIN_KINDS;
 function lcJsonLs(k, d) { try { const v = JSON.parse(localStorage.getItem(k) || "null"); return v == null ? d : v; } catch (e) { return d; } }
 function lcPins() { const v = lcJsonLs(LC_PINS_KEY, []); return Array.isArray(v) ? v.filter(function (p) { return p && LC_PIN_KINDS[p.kind] && p.ref != null && p.label; }) : []; }
@@ -4451,6 +4451,14 @@ function lcPinRemove(id, quiet) {
   lcFeedsRebuild(); window.dispatchEvent(new CustomEvent("looscid:pins"));
   if (Looscid.LC_FEED === id) { Looscid.LC_FEED = "following"; try { sessionStorage.setItem("looscid_feed", "following"); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:feed", { detail: "following" })); }
   const t = "Unpinned " + p.label + "."; if (!quiet) announce(t); return t;
+}
+// Build 152 prep (#99, part 4c): a pinned List's tab follows the List's new name.
+function lcPinRelabel(kind, ref, label) {
+  const list = lcPins(); let hit = false;
+  list.forEach(function (p) { if (p.kind === kind && String(p.ref) === String(ref)) { p.label = String(label).slice(0, 60); hit = true; } });
+  if (!hit) return;
+  try { localStorage.setItem(LC_PINS_KEY, JSON.stringify(list)); } catch (e) {}
+  lcFeedsRebuild(); window.dispatchEvent(new CustomEvent("looscid:pins"));
 }
 function lcPinsMove(id, d) {
   const list = lcPins(), i = list.findIndex(function (x) { return lcPinId(x) === id; }), j = i + d;
@@ -4500,7 +4508,7 @@ function lcGeohash(lat, lon, len) {
   return h;
 }
 function lcSetFedLocal(v) { try { if (v) localStorage.setItem(LC_FED_LOCAL_KEY, JSON.stringify(v)); else localStorage.removeItem(LC_FED_LOCAL_KEY); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:fedlocal")); }
-Object.assign(Looscid, { lcPins, lcPinId, lcPinHas, lcPinAdd, lcPinRemove, lcPinsMove, lcFeedsRebuild, lcFedSub, lcSetFedSub, lcFedNets, lcSetFedNet, lcFeedSort, lcSetFeedSort, lcFyFollow, lcSetFyFollow, lcFedLocal, lcSetFedLocal, lcGeohash });
+Object.assign(Looscid, { lcPins, lcPinId, lcPinHas, lcPinAdd, lcPinRemove, lcPinsMove, lcPinRelabel, lcFeedsRebuild, lcFedSub, lcSetFedSub, lcFedNets, lcSetFedNet, lcFeedSort, lcSetFeedSort, lcFyFollow, lcSetFyFollow, lcFedLocal, lcSetFedLocal, lcGeohash });
 Looscid.LC_FEEDS = LC_FEEDS;
 const lcFeedKey = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]/g, ""); };
 Looscid.lcFeedKey = lcFeedKey;
@@ -6615,7 +6623,7 @@ useEffect(() => {
     const go = t.custom ? function () { headingFocusNext.current = !sel; goRoot("feed"); if (Looscid.LC_FEED !== t.id) lcSetFeed(t.id, true); }
       : function () { headingFocusNext.current = page !== t.id || tbCustomOn; if (t.id === "feed" && tbCustomOn) lcSetFeed("for you", true); goRoot(t.id); };
     return React.createElement('button', { key: t.id, className: "nb" + (sel ? " on" : "") + (t.custom ? " nb-custom" : ""), onClick: go, role: "tab", "aria-selected": sel, "aria-label": t.l, "aria-controls": "main-content", tabIndex: ti },
-      t.custom ? React.createElement('span', {"aria-hidden":"true", className:"nb-cust-ic"}, t.pin && t.pin.kind === "tag" ? "#" : t.pin && t.pin.kind === "person" ? "@" : "\u2605") : React.createElement('div', {"aria-hidden":"true", className:"nb-check"}),
+      t.custom ? React.createElement('span', {"aria-hidden":"true", className:"nb-cust-ic"}, t.pin && t.pin.kind === "tag" ? "#" : t.pin && t.pin.kind === "person" ? "@" : t.pin && t.pin.kind === "list" ? "\u2630" : "\u2605") : React.createElement('div', {"aria-hidden":"true", className:"nb-check"}),
       React.createElement('span', {"aria-hidden":"true", className: t.custom ? "nb-cust-l" : undefined}, t.l));
   };
 

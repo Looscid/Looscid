@@ -369,6 +369,7 @@ function ListsPage({ navigate, cherryCtx, data }) {
   return lh(ListsIndex, { navigate: navigate, gone: !!id });
 }
 function ListsIndex({ navigate, gone }) {
+  Looscid.useIdListTick("looscid:pins");
   const head = useRef(null);
   const [name, setName] = useState(""), [msg, setMsg] = useState("");
   useEffect(function () { if (head.current) head.current.focus(); }, []);
@@ -395,11 +396,12 @@ function ListsIndex({ navigate, gone }) {
       lists.length ? lh('ul', { className: "lc-people lc-lists", role: "list", "aria-labelledby": "lists-yours-h" }, lists.slice().reverse().map(function (l) {
           return lh('li', { key: l.id },
             lh('button', { type: "button", className: "lc-person lc-list-row", id: "lists-open-" + l.id, onClick: function () { navigate("lists", { list: l.id }); } },
-              lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, l.name), lh('span', { className: "lc-person-h" }, ", " + lcListCount(l.members.length)))));
+              lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, l.name), lh('span', { className: "lc-person-h" }, ", " + lcListCount(l.members.length) + (Looscid.lcPinHas("list", l.id) ? ", pinned to Home" : "")))));
         }))
         : lh('p', { className: "lc-muted" }, "No lists yet.")));
 }
 function ListView({ list, navigate, cherryCtx }) {
+  Looscid.useIdListTick("looscid:pins");
   const head = useRef(null), renRef = useRef(null);
   const [mode, setMode] = useState(null); // "rename" | "delete"
   const [name, setName] = useState(list.name), [msg, setMsg] = useState("");
@@ -418,12 +420,20 @@ function ListView({ list, navigate, cherryCtx }) {
   };
   const del = function () { const l = Looscid.lcListDelete(list.id); navigate("lists"); setTimeout(function () { announce("Deleted the list " + (l ? l.name : "") + "."); }, 60); };
   const members = list.members;
+  // Build 152 prep (#99, part 4c): Pin to Home makes this list a feed tab on Home, after the others (unpin and reorder
+  // it there like any pinned tab). The button's words change in place; focus stays on it.
+  const pinned = Looscid.lcPinHas("list", list.id);
+  const togglePin = function () {
+    if (pinned) { Looscid.lcPinRemove(Looscid.lcPinId({ kind: "list", ref: list.id }), true); announce("Unpinned " + list.name + " from Home."); }
+    else { Looscid.lcPinAdd("list", list.id, list.name, true); announce(Looscid.lcPinHas("list", list.id) ? "Pinned " + list.name + " to Home. It's a feed tab there now." : "Couldn't pin " + list.name + ". Home has the most pinned tabs it keeps."); }
+  };
   return lh('div', { className: "pg lc-lists-page lc-list-page" },
     lh('div', { className: "hdr" }, lh('div', { className: "hdr-row" },
       lh('button', { type: "button", className: "bi", onClick: function () { navigate("lists"); }, "aria-label": "Back" }, lh(Ic.Bck, { style: { width: 21, height: 21 }, "aria-hidden": "true" })),
       lh('h1', { className: "hdr-title", tabIndex: -1, ref: head, id: "list-h" }, list.name))),
     lh('div', { className: "lc-pad" },
       lh('div', { className: "lc-inrow" },
+        lh('button', { type: "button", id: "list-pin", className: "btn bgb lc-btn", onClick: togglePin }, pinned ? "Unpin from Home" : "Pin to Home"),
         lh('button', { type: "button", id: "list-rename", className: "btn bgb lc-btn", "aria-expanded": mode === "rename" ? "true" : "false", onClick: function () { setName(list.name); setMsg(""); setMode(mode === "rename" ? null : "rename"); } }, "Rename list"),
         lh('button', { type: "button", id: "list-delete", className: "btn bgb lc-btn", "aria-expanded": mode === "delete" ? "true" : "false", onClick: function () { setMode(mode === "delete" ? null : "delete"); } }, "Delete list")),
       mode === "rename" ? lh('form', { className: "lc-list-new", onSubmit: rename, onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); setMode(null); focusId("list-rename"); } } },
@@ -2746,6 +2756,7 @@ const LC_VERSION_HISTORY = [
     "Security: Looscid OS apps and Projects now run in a locked-down sandbox, so none of them can reach your Nostr key. Their saved settings come along.",
     "Profile options: Share profile now shares the profile's LooscidID link, and there's a QR code (with the link written out and what scanning does, for anyone who can't see it), Copy username, and Open original profile on Nostr, Mastodon or Bluesky when the Dreamor is there.",
     "Lists: make your own lists of Dreamors in More, Lists, and each one is its own feed of their Dreams. Add someone from their profile's options with Add to list (a checkbox for each list, or make a new one right there). Rename, delete and remove people anytime. Only you see them, and they're in your settings backup.",
+    "Lists are custom feeds you can pin: on a list's page, Pin to Home makes it a feed tab on Home, right after your other tabs, showing that list's Dreams. Unpin and reorder it like any pinned tab. You can also pin a list from Following, Pin a tab.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
