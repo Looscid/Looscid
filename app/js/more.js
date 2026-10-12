@@ -436,6 +436,10 @@ function ListView({ list, navigate, cherryCtx }) {
         lh('button', { type: "button", id: "list-pin", className: "btn bgb lc-btn", onClick: togglePin }, pinned ? "Unpin from Home" : "Pin to Home"),
         lh('button', { type: "button", id: "list-rename", className: "btn bgb lc-btn", "aria-expanded": mode === "rename" ? "true" : "false", onClick: function () { setName(list.name); setMsg(""); setMode(mode === "rename" ? null : "rename"); } }, "Rename list"),
         lh('button', { type: "button", id: "list-delete", className: "btn bgb lc-btn", "aria-expanded": mode === "delete" ? "true" : "false", onClick: function () { setMode(mode === "delete" ? null : "delete"); } }, "Delete list")),
+      // Part 4d: shown on your profile's Lists tab, or only yours (the default), like a Circle's privacy.
+      lh('div', { className: "lc-chk-row" },
+        lh('input', { type: "checkbox", id: "list-shown", checked: !!list.shown, onChange: function (e) { const on = e.target.checked; Looscid.lcListSetShown(list.id, on); announce(on ? list.name + " is shown on your profile now." : list.name + " is only yours now."); } }),
+        lh('label', { htmlFor: "list-shown" }, "Show on my profile")),
       mode === "rename" ? lh('form', { className: "lc-list-new", onSubmit: rename, onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); setMode(null); focusId("list-rename"); } } },
           lh('label', { htmlFor: "list-name" }, "List name"),
           lh('input', { id: "list-name", ref: renRef, className: "inp", type: "text", maxLength: 60, autoComplete: "off", value: name, "aria-invalid": msg ? "true" : undefined, onChange: function (e) { setName(e.target.value); if (msg) setMsg(""); } }),
@@ -520,11 +524,19 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const theirLikes = !isMe && Array.isArray(user.likes) ? user.likes : null;
   const myLikedIds = Looscid.lcLikedItems("dream").map(function (x) { return x.id; });
   const theirVisible = theirLikes ? lcLikedVisibleTo(theirLikes, user.likesPublic || [], ME.handle, myLikedIds) : [];
+  // Build 152 prep (#99, part 4d; 2three1y 7:29 PM Oct 12: "lists should be added to profiles as well"): the Lists tab.
+  // Yours shows every list (each says whether it's shown or only yours); View as others and other Dreamors' profiles
+  // show only lists their owner chose to show (user.lists on a profile that carries them).
+  Looscid.useListsTick();
+  const myLists = self ? Looscid.lcListsRead() : [];
+  const visLists = isMe ? myLists : preview ? myLists.filter(function (l) { return l.shown; })
+    : (Array.isArray(user.lists) ? user.lists.filter(function (l) { return l && typeof l.name === "string" && l.name.trim() && l.shown !== false; }) : []);
   // Tabs: Feditext's four, then 2three1y's: Liked (your own, private; on others only what they made visible to you),
   // Mutual likes (others), About.
   const TABS0 = [["dreams", "Dreams"], ["replies", "Replies"], ["redreams", "Redreams"], ["media", "Media"]]
     .concat(isMe ? [["liked", "Liked"]] : theirVisible.length ? [["liked", "Liked"]] : [])
     .concat(self ? [] : [["mutual", "Mutual likes"]])
+    .concat(isMe || visLists.length ? [["lists", "Lists"]] : [])
     .concat([["about", "About"]]);
   Looscid.useProfileTabsTick(); Looscid.useIdListTick("looscid:pinned");
   const TABS = Looscid.lcProfileTabsSort(TABS0); // build 152 prep (#98): in your order (Settings, Profile Tabs)
@@ -635,6 +647,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       case "replies": return byId(myReplies).length;
       case "redreams": return byId(plainRd).length + byId(quotes).length;
       case "media": return mediaAll.length;
+      case "lists": return visLists.length;
       case "liked": return isMe ? Looscid.lcLikedItems().filter(function (x) { return x.k !== "chat" || !x.cherry || Looscid.lcAiOn(); }).length : theirVisible.length;
       case "mutual": { if (!theirLikes) return 0; const mine = new Set(Looscid.lcLikedItems("dream").map(function (x) { return String(x.id); })); return theirVisible.filter(function (x) { return x.k === "dream" && mine.has(String(x.id)); }).length; }
     }
@@ -689,6 +702,19 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
         const both = theirVisible.filter(function (x) { return x.k === "dream" && mine.has(String(x.id)); });
         return both.length ? both.map(function (x) { const live = all.find(function (d) { return String(d.id) === String(x.id); }); return card(live || Object.assign({ likes: 1, comments: 0, redreams: 0, quotes: 0, liked: true, redreamed: false, quoted: false, bookmarked: true, time: "" }, x)); })
           : empty("No mutual likes", "No Dreams you both liked yet.");
+      }
+      case "lists": {
+        if (!visLists.length) return empty(isMe ? "No Lists yet" : "No Lists", isMe ? "Make one in More, Lists, or with Add to list in someone's profile options." : null);
+        const cnt = function (l) { const n = Array.isArray(l.members) ? l.members.length : (+l.count || 0); return n.toLocaleString() + (n === 1 ? " Dreamor" : " Dreamors"); };
+        return lh('section', { className: "lc-prof-lists", "aria-labelledby": "pf-lists-tab-h" },
+          lh('h2', { id: "pf-lists-tab-h", className: "lc-sub-h" }, isMe ? "Your Lists" : (user.name || "Dreamor") + "'s Lists"),
+          lh('ul', { className: "lc-people", role: "list" }, visLists.map(function (l, i) {
+            return lh('li', { key: l.id || i }, isMe
+              ? lh('button', { type: "button", className: "lc-person lc-list-row", id: "pf-list-" + l.id, onClick: function () { navigate("lists", { list: l.id }); } },
+                  lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, l.name), lh('span', { className: "lc-person-h" }, ", " + cnt(l) + (l.shown ? ", shown on your profile" : ", only you"))))
+              : lh('p', { className: "lc-person lc-list-row" }, lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, l.name), lh('span', { className: "lc-person-h" }, ", " + cnt(l)))));
+          })),
+          isMe ? lh('p', { className: "lc-muted" }, "Others see only the lists you show. Choose on each list's page with Show on my profile.") : null);
       }
       case "about": {
         const rows = [];
@@ -2757,6 +2783,7 @@ const LC_VERSION_HISTORY = [
     "Profile options: Share profile now shares the profile's LooscidID link, and there's a QR code (with the link written out and what scanning does, for anyone who can't see it), Copy username, and Open original profile on Nostr, Mastodon or Bluesky when the Dreamor is there.",
     "Lists: make your own lists of Dreamors in More, Lists, and each one is its own feed of their Dreams. Add someone from their profile's options with Add to list (a checkbox for each list, or make a new one right there). Rename, delete and remove people anytime. Only you see them, and they're in your settings backup.",
     "Lists are custom feeds you can pin: on a list's page, Pin to Home makes it a feed tab on Home, right after your other tabs, showing that list's Dreams. Unpin and reorder it like any pinned tab. You can also pin a list from Following, Pin a tab.",
+    "Profiles have a Lists tab: yours shows all your lists and whether each is shown or only yours, and others see only the lists you choose with Show on my profile on each list's page. Move the tab in Settings, Profile Tabs.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

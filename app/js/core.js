@@ -677,13 +677,13 @@ function lcProfileOriginals(user, logins) {
    Lists of Dreamors you make yourself, private to you: make, rename and delete them in More, Lists, and add or remove
    a Dreamor from a profile's options (Add to list). A list's page shows its Dreamors' Dreams. Kept on this device in
    looscid_lists, a JSON array, oldest first: { id: "l<time><random>", name, members: [{ id, handle, name, net }],
-   created }. 100 lists at most, 500 Dreamors each. In Backup and Import (LC_EXPORT_KEYS, added at the end); an import
+   created, shown } (shown, part 4d: on your profile's Lists tab for others; false until you choose). 100 lists at most, 500 Dreamors each. In Backup and Import (LC_EXPORT_KEYS, added at the end); an import
    adds the backup's lists to yours and, for a list you both have, its Dreamors (yours win on names). */
 const LC_LISTS_KEY = "looscid_lists", LC_LISTS_MAX = 100, LC_LIST_MEMBERS_MAX = 500;
 function lcListMemberKey(u) { if (!u) return ""; const h = u.handle ? lcHandle(String(u.handle)) : ""; return h ? "h:" + h.toLowerCase() : (u.id != null ? "i:" + String(u.id) : ""); }
 function lcListMemberOk(m) { return !!m && typeof m === "object" && !!lcListMemberKey(m) && (m.handle == null || typeof m.handle === "string") && (m.name == null || typeof m.name === "string"); }
 function lcListOk(l) { return !!l && typeof l === "object" && typeof l.id === "string" && /^[A-Za-z0-9_\-]{1,40}$/.test(l.id) && typeof l.name === "string" && l.name.trim() !== "" && Array.isArray(l.members); }
-function lcListClean(l) { return { id: l.id, name: String(l.name).trim().slice(0, 60), members: l.members.filter(lcListMemberOk).slice(0, LC_LIST_MEMBERS_MAX).map(lcListMemberSnap), created: typeof l.created === "string" ? l.created : "" }; }
+function lcListClean(l) { return { id: l.id, name: String(l.name).trim().slice(0, 60), members: l.members.filter(lcListMemberOk).slice(0, LC_LIST_MEMBERS_MAX).map(lcListMemberSnap), created: typeof l.created === "string" ? l.created : "", shown: l.shown === true }; }
 function lcListMemberSnap(u) {
   const m = { id: typeof u.id === "number" || typeof u.id === "string" ? u.id : null, handle: u.handle ? String(u.handle).slice(0, 120) : "", name: String(u.name || u.displayName || "").slice(0, 120) };
   if (u.net) m.net = String(u.net).slice(0, 20);
@@ -718,6 +718,8 @@ function lcListRename(id, name) {
   const have = lcListsRead(), l = have.find(function (x) { return x.id === id; }); if (!l) return { error: "That list is gone." };
   l.name = n; lcListsWrite(have); lcPinRelabel("list", id, n); return l;
 }
+// Part 4d: a list is only yours until you choose to show it on your profile (like a Circle's privacy). shown: true.
+function lcListSetShown(id, on) { const have = lcListsRead(), l = have.find(function (x) { return x.id === id; }); if (!l) return false; l.shown = !!on; lcListsWrite(have); return true; }
 function lcListDelete(id) { const have = lcListsRead(); const l = have.find(function (x) { return x.id === id; }); lcListsWrite(have.filter(function (x) { return x.id !== id; })); if (lcPinHas("list", id)) lcPinRemove(lcPinId({ kind: "list", ref: id }), true); return l || null; }
 function lcListHas(l, u) { const k = lcListMemberKey(u); return !!l && !!k && l.members.some(function (m) { return lcListMemberKey(m) === k; }); }
 // Adds (on true) or removes a Dreamor. Returns false when a full list can't take one more.
@@ -747,7 +749,7 @@ function lcListsMerge(text) {
   });
   lcListsWrite(have); return true;
 }
-Object.assign(Looscid, { LC_LISTS_KEY, LC_LISTS_MAX, LC_LIST_MEMBERS_MAX, lcListsRead, lcListGet, lcListCreate, lcListRename, lcListDelete, lcListHas, lcListSetMember, lcListsOf, lcListDreams, lcListsMerge, useListsTick, lcListMemberKey });
+Object.assign(Looscid, { lcListSetShown, LC_LISTS_KEY, LC_LISTS_MAX, LC_LIST_MEMBERS_MAX, lcListsRead, lcListGet, lcListCreate, lcListRename, lcListDelete, lcListHas, lcListSetMember, lcListsOf, lcListDreams, lcListsMerge, useListsTick, lcListMemberKey });
 function lcFullTime(ms) { const t = +ms; if (!t || !isFinite(t)) return ""; try { return new Date(t).toLocaleString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return new Date(t).toString(); } }
 function lcDreamInfoLines(d) {
   const net = lcDreamNet(d), mine = !!d.user && (d.user === ME || lcHandle(d.user.handle || "") === lcHandle(ME.handle || ""));
@@ -3571,7 +3573,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T23:37:15Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T23:43:08Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -5849,7 +5851,8 @@ Object.assign(Looscid, { LC_TABBAR_KEY, lcTabBarAll, lcTabBarVisible, lcTabBarTo
    Liked shows on yours (and on others only when they share Likes with you), Mutual likes only on others'. */
 const LC_PROFILE_TABS_KEY = "looscid_profile_tabs";
 const LC_PROFILE_TABS = [{ id: "dreams", l: "Dreams" }, { id: "replies", l: "Replies" }, { id: "redreams", l: "Redreams" }, { id: "media", l: "Media" },
-  { id: "liked", l: "Liked", sub: "On your profile, and on others' when they share their Likes with you" }, { id: "mutual", l: "Mutual likes", sub: "Only on other Dreamors' profiles" }, { id: "about", l: "About" }];
+  { id: "liked", l: "Liked", sub: "On your profile, and on others' when they share their Likes with you" }, { id: "mutual", l: "Mutual likes", sub: "Only on other Dreamors' profiles" },
+  { id: "lists", l: "Lists", sub: "Your Lists on your profile; on others' only the ones they show" }, { id: "about", l: "About" }];
 function lcProfileTabsAll() {
   const v = lcJsonLs(LC_PROFILE_TABS_KEY, {}) || {}, order = Array.isArray(v.order) ? v.order.map(String) : [], out = [];
   order.forEach(function (id) { const t = LC_PROFILE_TABS.find(function (x) { return x.id === id; }); if (t && out.indexOf(t) < 0) out.push(t); });
