@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 11, 2026 at 7:57 PM (Eastern Time, 2026-10-11T23:57:17Z UTC)
+Released October 11, 2026 at 8:01 PM (Eastern Time, 2026-10-12T00:01:38Z UTC)
 
 Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each.
 
@@ -36,7 +36,7 @@ Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each
 - Fix (Alhasan): Create Circle reads properly now. Each step's heading says "Step 1 of 3" and gets focus when you go to the next or previous step. Icon, Category and Privacy are radio buttons that say when they're checked, and Privacy reads its explanation as part of each choice. No more "star", "slash" or "right arrow", and Escape closes the sheet.
 - Real hints, like a Swift app's (Alhasan): only controls whose action isn't obvious get one, and VoiceOver reads it after a short pause, following your Hints setting. A Dream's replies count says "Opens the thread.", Redreams "Opens Redream and Quote.", More "Opens actions for this Dream.", Expand thread and Collapse thread say what they show, and the Following and Followers counts say "Opens the list." Unavailable items say just their name, with the reason as the hint. No hints on menus, dialogs, lists, tabs or obvious buttons like Like.
 - Words, per Alhasan's rule: the status page now says "Publishing, viewing and interacting with Dreams", and the community rules say "Share authentic Dreams" and "Do not publish". Every word you read in Looscid uses publish or Dream, and so do the new hints.
-- Added a terminology guide.
+- Restored the terminology guide and added the post rule.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 
