@@ -947,7 +947,11 @@ function lcCatState(kind, defs) {
 function useCats() { const [, t] = useState(0); useEffect(function () { const f = function () { t(function (x) { return x + 1; }); }; window.addEventListener("looscid:cats", f); return function () { window.removeEventListener("looscid:cats", f); }; }, []); }
 const LC_MSG_CATS = [{ id: "all", label: "All" }, { id: "requests", label: "Requests" }, { id: "starred", label: "Starred" }, { id: "archived", label: "Archived" }];
 Looscid.LC_MSG_CATS = LC_MSG_CATS;
-function lcAlertCats() { return [{ id: "all", label: "All" }].concat(LC_ALERT_TYPES.map(function (t) { return { id: t.id, label: t.tab }; })); }
+// Build 151 (#73, 2three1y Oct 11 4:53-4:58 PM): the Inbox tabs, Reddit's Inbox layout as an idea only. Settings, Alerts
+// can reorder or hide them (All stays). New Dreams and From Looscid show under All and Unread.
+const LC_INBOX_TABS = [{ id: "all", label: "All" }, { id: "unread", label: "Unread" }, { id: "messages", label: "Messages" }, { id: "reply", label: "Replies" }, { id: "mention", label: "Mentions" },
+  { id: "like", label: "Likes" }, { id: "redream", label: "Redreams" }, { id: "quote", label: "Quotes" }, { id: "follow", label: "New Dreamor" }];
+function lcAlertCats() { return LC_INBOX_TABS.slice(); }
 /* --- Round 6: Reset. The last item in every settings list opens one native <dialog>, scoped to
    where you are: collapsible groups (one open at a time), a checkbox per setting, "Reset all
    [Section] settings" and "Reset selected". On the main Settings list it covers the whole app.
@@ -1179,7 +1183,7 @@ const LC_FIND_STATIC = [
   { l: "Hyper Synth Soundpack", w: "synth hyper synth sounds sound pack soundpack", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Earcons, Soundpacks", pri: true },
   { l: "FastSM-inspired Soundpack", w: "fastsm fast sm fastsmrw fastsm inspired earcons sounds sound pack soundpack mastodon bluesky client", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Earcons, Soundpacks", pri: true },
   { l: "Alerts settings", w: "alerts settings notifications alert types sound who can trigger quiet hours", page: "settings_notifications", where: "Alerts tab, Alerts settings" },
-  { l: "Notification settings", w: "notification settings notifications categories order", page: "settings_notifications", where: "Alerts tab, Notifications" },
+  { l: "Notification settings", w: "notification settings notifications categories order inbox tabs", page: "settings_notifications", where: "Alerts tab" },
   { l: "Message settings", w: "message settings messages who can message me categories order starred", page: "settings_messages", where: "Alerts tab, Messages" },
   { l: "App settings", w: "apps app settings insomnia soundscape desktop beat kernel volume", page: "settings_apps", where: "Settings, Apps" },
 ];
@@ -1731,8 +1735,8 @@ function lcMoreSections(o) {
     // Build 148 (2three1y): Create is the same list as the Create tab, one shared implementation (js/create.js, CreateOptions).
     { id:"create", emoji:"Create", label:"Create", items:[], render: function () { return Looscid.CreateOptions ? lh(Looscid.CreateOptions, { idp: "more-create", navigate: navigate, close: onClose, open: function (scr) { onClose(); if (Looscid.LC_OPEN_CREATE) Looscid.LC_OPEN_CREATE(scr); } }) : null; } },
     { id:"alerts", emoji:"Alerts", label:"Alerts", badge:totalAlerts, items:[
-      { icon:"Messages", label:"Messages",      sub:"Private Dreams",           badge:unreadMsgs,   action(){onClose();goRoot("alerts");} },
-      { icon:"Notifications", label:"Notifications", sub:"Likes, follows, mentions", badge:unreadNotifs, action(){onClose();goRoot("alerts");} },
+      { icon:"Messages", label:"Messages",      sub:"Private Dreams",           badge:unreadMsgs,   action(){onClose();lcSetAlertsTab("messages", true);goRoot("alerts");} },
+      { icon:"Notifications", label:"Notifications", sub:"Likes, follows, mentions", badge:unreadNotifs, action(){onClose();lcSetAlertsTab("all", true);goRoot("alerts");} },
     ]},
 
     { id:"settings", emoji:"Settings", label:"Settings", top: true,
@@ -3260,7 +3264,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T22:41:31Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T22:46:19Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4284,12 +4288,18 @@ const LC_ALERTS_KEY = "looscid_alerts", LC_ALERT_PREFS_KEY = "looscid_alert_pref
 Looscid.LC_ALERTS_KEY = LC_ALERTS_KEY; Looscid.LC_ALERT_PREFS_KEY = LC_ALERT_PREFS_KEY;
 const LC_ALERT_TYPES = [
   { id: "newDream", l: "New Dreams", tab: "New Dreams", one: "new Dream", many: "new Dreams", earcon: "newDream", aud: true },
-  { id: "mention", l: "Mentions", tab: "Mentions", one: "mentioned you", many: "mentions", earcon: "alerts", aud: true },
-  { id: "reply", l: "Replies", tab: "Replies", one: "replied to your Dream", many: "replies", earcon: "alerts", aud: true },
+  { id: "mention", l: "Mentions", tab: "Mentions", one: "mentioned you", many: "mentions", earcon: "alerts", aud: true, by: "Mentioned by" },
+  { id: "reply", l: "Replies", tab: "Replies", one: "replied to your Dream", many: "replies", earcon: "alerts", aud: true, by: "Replies from" },
+  // Build 151 (#73): Likes, Redreams, Quotes and new Dreamors, read from Nostr (no server). Same Alert sound as the rest.
+  { id: "like", l: "Likes", tab: "Likes", one: "liked your Dream", many: "Likes", earcon: "alerts", aud: true, by: "Liked by" },
+  { id: "redream", l: "Redreams", tab: "Redreams", one: "redreamed your Dream", many: "Redreams", earcon: "alerts", aud: true, by: "Redreamed by" },
+  { id: "quote", l: "Quotes", tab: "Quotes", one: "quoted your Dream", many: "Quotes", earcon: "alerts", aud: true, by: "Quoted by" },
+  { id: "follow", l: "New Dreamors", tab: "New Dreamor", one: "followed you", many: "new Dreamors", earcon: "alerts", aud: true, by: "Followed by" },
   { id: "system", l: "From Looscid", tab: "From Looscid", one: "", many: "updates", earcon: "alerts", aud: false },
 ];
 Looscid.LC_ALERT_TYPES = LC_ALERT_TYPES;
-const LC_ALERT_PREF_DEF = { group: true, types: { newDream: { on: true, sound: true, who: "following" }, mention: { on: true, sound: true, who: "everyone" }, reply: { on: true, sound: true, who: "everyone" }, system: { on: true, sound: false, who: "everyone" } } };
+const LC_ALERT_PREF_DEF = { group: true, types: { newDream: { on: true, sound: true, who: "following" }, mention: { on: true, sound: true, who: "everyone" }, reply: { on: true, sound: true, who: "everyone" },
+  like: { on: true, sound: true, who: "everyone" }, redream: { on: true, sound: true, who: "everyone" }, quote: { on: true, sound: true, who: "everyone" }, follow: { on: true, sound: true, who: "everyone" }, system: { on: true, sound: false, who: "everyone" } } };
 Looscid.LC_ALERT_PREF_DEF = LC_ALERT_PREF_DEF;
 function lcAlertPrefs() {
   let s = {}; try { s = JSON.parse(localStorage.getItem(LC_ALERT_PREFS_KEY) || "{}") || {}; } catch (e) {}
@@ -4313,10 +4323,12 @@ function lcNotify(type, text, user, preview, extra) {
     // Build 151 (#74): a Reply in a thread you follow only groups with others like it.
     const sub = !!(extra && extra.sub);
     const g = list.find(function (x) { return x.type === type && x.unread && now - x.time < 30 * 60000 && !!x.sub === sub; });
-    if (g) { g.count = (g.count || 1) + 1; g.time = now; g.user = null; g.text = g.count + " " + (sub ? "new replies in threads you follow" : T.many); g.preview = preview || g.preview; a = g; list.splice(list.indexOf(g), 1); list.unshift(g); }
+    if (g) { const nm = user && user.name ? String(user.name) : ""; g.names = (nm ? [nm] : []).concat((g.names || (g.user && g.user.name ? [g.user.name] : [])).filter(function (x) { return x !== nm; })).slice(0, 10);
+      g.count = (g.count || 1) + 1; g.time = now; g.user = null; g.text = g.count + " " + (sub ? "new replies in threads you follow" : T.many); g.preview = preview || g.preview; a = g; list.splice(list.indexOf(g), 1); list.unshift(g); }
   }
   if (!a) { a = { id: now + "-" + Math.random().toString(36).slice(2, 7), type: type, text: text, user: user ? { id: user.id, name: user.name, handle: user.handle, initials: user.initials, color: user.color } : null, preview: preview || "", time: now, unread: true, count: 1 };
     if (extra && extra.sub) { a.sub = true; a.thread = String(extra.thread || ""); }
+    if (extra && extra.pk) a.pk = String(extra.pk); if (extra && extra.ref) a.ref = String(extra.ref); if (extra && extra.nid) a.nid = String(extra.nid);
     list.unshift(a); }
   lcAlertsSave(list);
   if (tp.sound && !lcQuietNow()) Earcon.play(T.earcon);
@@ -4352,23 +4364,118 @@ async function lcThreadCheck() {
   try {
     const since = Math.min.apply(null, subs.map(function (s) { return s.since || 0; }));
     const got = await N.fetchThreadReplies(subs.map(function (s) { return s.nid; }), since);
-    const mine = (N.state && N.state().pubkey) || null, seenK = "looscid_thread_seen";
+    const mine = (N.state && N.state().pubkey) || null, seenK = "looscid_inbox_seen"; // shared with the Inbox check, so nothing alerts twice
     let seen = []; try { seen = JSON.parse(localStorage.getItem(seenK) || "[]"); } catch (e) {} if (!Array.isArray(seen)) seen = [];
     const fresh = (got || []).filter(function (r) { return r && r.id && seen.indexOf(r.id) < 0 && r.pk !== mine; });
     const now = lcThreadSubs();
     fresh.sort(function (a, b) { return a.created - b.created; }).forEach(function (r) {
       const s = now.find(function (x) { return x.nid && r.roots.indexOf(x.nid) >= 0; }); if (!s || r.created / 1000 < (s.since || 0)) return;
-      seen.push(r.id); if (lcThreadAlert(s.root, { id: r.pk, name: r.name || r.npub || "A Nostr Dreamor", handle: r.npub || "" }, r.text)) n++;
+      seen.push(r.id); if (lcThreadAlert(s.root, { id: r.pk, name: lcNostrName(r.pk, r.npub), handle: r.npub || "" }, r.text)) n++;
     });
     try { localStorage.setItem(seenK, JSON.stringify(seen.slice(-1000))); } catch (e) {}
   } catch (e) {}
   lcThreadBusy = false; return n;
 }
 function lcThreadWatchSoon() { setTimeout(function () { if (!document.hidden) lcThreadCheck(); }, 1500); }
+// Build 151 (#72/#73): one quiet check on start and every 2 minutes while Looscid is on screen: threads you follow,
+// your Inbox on Nostr, and your private messages. Nothing runs without a Nostr key, and nothing moves focus.
 function lcThreadWatch() {
-  if (lcThreadTimer) return; lcThreadWatchSoon();
-  lcThreadTimer = setInterval(function () { if (!document.hidden && lcThreadSubs().length) lcThreadCheck(); }, 5 * 60000);
+  if (lcThreadTimer) return;
+  const run = function () { if (document.hidden) return; lcThreadCheck(); lcInboxCheck(); lcPmCheck(); };
+  setTimeout(run, 1500); lcThreadTimer = setInterval(run, 2 * 60000);
 }
+/* Build 151 (#73): the Inbox on Nostr. Replies, mentions, Likes, Redreams, Quotes and new Dreamors that tag you go
+   through lcNotify, so Settings, Alerts (on/off, sound, who), blocks, muted words and quiet hours all apply. */
+const LC_NOSTR_NAMES_KEY = "looscid_nostr_names";
+function lcNostrNames() { try { const v = JSON.parse(localStorage.getItem(LC_NOSTR_NAMES_KEY) || "{}"); return v && typeof v === "object" ? v : {}; } catch (e) { return {}; } }
+function lcNostrName(pk, npub) {
+  const u = (typeof USERS !== "undefined" ? USERS : []).find(function (x) { return x && (x.pk === pk || (npub && x.npub === npub)); });
+  if (u && u.name) return u.name;
+  const n = lcNostrNames()[pk]; if (n) return n;
+  let np = npub || ""; if (!np) { try { np = window.NostrTools ? window.NostrTools.nip19.npubEncode(pk) : ""; } catch (e) {} }
+  return np ? "Nostr Dreamor " + np.slice(5, 11) : "A Nostr Dreamor";
+}
+async function lcNostrLearnNames(pks) {
+  const N = Looscid.lcNostr; const known = lcNostrNames(); const want = (pks || []).filter(function (p, i, a) { return p && !known[p] && a.indexOf(p) === i; });
+  if (!want.length || !N || !N.fetchNames) return;
+  try { const got = await N.fetchNames(want); if (Object.keys(got).length) { localStorage.setItem(LC_NOSTR_NAMES_KEY, JSON.stringify(Object.assign(known, got))); window.dispatchEvent(new CustomEvent("looscid:pms")); } } catch (e) {}
+}
+let lcInboxBusy = false;
+async function lcInboxCheck() {
+  const N = Looscid.lcNostr; if (!N || !N.fetchInbox || !N.state || !N.state().pubkey || lcInboxBusy) return 0;
+  lcInboxBusy = true; let n = 0;
+  try {
+    const sk = "looscid_inbox_since", seenK = "looscid_inbox_seen", now = Math.floor(Date.now() / 1000);
+    const since = +(localStorage.getItem(sk) || 0) || now - 86400;
+    const got = await N.fetchInbox(since);
+    let seen = []; try { seen = JSON.parse(localStorage.getItem(seenK) || "[]"); } catch (e) {} if (!Array.isArray(seen)) seen = [];
+    (got || []).sort(function (a, b) { return a.created - b.created; }).forEach(function (r) {
+      if (!r || !r.id || seen.indexOf(r.id) >= 0) return; seen.push(r.id);
+      const T = LC_ALERT_TYPES.find(function (x) { return x.id === r.type; }); if (!T) return;
+      if (r.type === "reply" && r.ref && lcThreadSubs().some(function (s) { return s.nid === r.ref; })) { if (lcThreadAlert(lcThreadSubs().find(function (s) { return s.nid === r.ref; }).root, { id: r.pk, name: lcNostrName(r.pk, r.npub), handle: r.npub }, r.text)) n++; return; }
+      if (lcNotify(r.type, T.one, { id: r.pk, name: lcNostrName(r.pk, r.npub), handle: r.npub || "" }, r.text, { pk: r.pk, ref: r.ref, nid: r.id })) n++;
+    });
+    try { localStorage.setItem(seenK, JSON.stringify(seen.slice(-1000))); localStorage.setItem(sk, String(now)); } catch (e) {}
+    lcNostrLearnNames((got || []).map(function (r) { return r.pk; }));
+  } catch (e) {}
+  lcInboxBusy = false; return n;
+}
+/* Build 151 (#72): private messages (NIP-17), kept on this device as looscid_pms: { id, peer, me, text, created, read,
+   state }. They are your data, like your Dreams, so they are not in the settings backup. A new message is said once
+   through #looscid-live ("New message from Ava: ...") with the Alert sound; focus never moves. */
+const LC_PMS_KEY = "looscid_pms";
+function lcPms() { try { const v = JSON.parse(localStorage.getItem(LC_PMS_KEY) || "[]"); return Array.isArray(v) ? v.filter(function (m) { return m && m.peer && typeof m.text === "string"; }) : []; } catch (e) { return []; } }
+function lcPmsSave(l) { l.sort(function (a, b) { return a.created - b.created; }); try { localStorage.setItem(LC_PMS_KEY, JSON.stringify(l.slice(-3000))); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:pms")); }
+function lcPmBlocked(peer) { const np = (function () { try { return window.NostrTools ? window.NostrTools.nip19.npubEncode(peer) : ""; } catch (e) { return ""; } })(); return lcBlockedUser({ handle: np }) || lcBlocked("dreamers").indexOf(lcHandle(peer)) >= 0; }
+function lcPmConvos() {
+  const by = {}; lcPms().forEach(function (m) { if (lcPmBlocked(m.peer)) return; const c = by[m.peer] || (by[m.peer] = { peer: m.peer, msgs: [], unread: 0 }); c.msgs.push(m); if (!m.me && !m.read) c.unread++; });
+  return Object.keys(by).map(function (k) { const c = by[k]; c.last = c.msgs[c.msgs.length - 1]; c.time = c.last.created; c.name = lcNostrName(c.peer); return c; }).sort(function (a, b) { return b.time - a.time; });
+}
+function lcPmUnread() { return lcPmConvos().reduce(function (a, c) { return a + c.unread; }, 0); }
+function lcPmMarkRead(peer) { let ch = false; const l = lcPms().map(function (m) { if ((peer == null || m.peer === peer) && !m.me && !m.read) { ch = true; return Object.assign({}, m, { read: true }); } return m; }); if (ch) lcPmsSave(l); return ch; }
+let lcPmBusy = false;
+async function lcPmCheck() {
+  const N = Looscid.lcNostr; if (!N || !N.fetchPMs || !N.pmMode || lcPmBusy) return 0;
+  const mode = N.pmMode(); if (mode !== "key" && mode !== "signer") return 0;
+  lcPmBusy = true; let n = 0;
+  try {
+    const sk = "looscid_pm_since", now = Math.floor(Date.now() / 1000), since = +(localStorage.getItem(sk) || 0) || 0;
+    const r = await N.fetchPMs(since);
+    const have = lcPms(), ids = new Set(have.map(function (m) { return m.id; })), first = !since;
+    const fresh = (r.list || []).filter(function (m) { return m.id && !ids.has(m.id); });
+    if (fresh.length) {
+      fresh.forEach(function (m) { m.read = m.me || first; });
+      lcPmsSave(have.concat(fresh));
+      const inc = fresh.filter(function (m) { return !m.me && !first && !lcPmBlocked(m.peer); }); n = inc.length;
+      if (inc.length) {
+        const m = inc[inc.length - 1], who = lcNostrName(m.peer);
+        announce(inc.length === 1 ? "New message from " + who + ": " + m.text.slice(0, 140) : inc.length + " new messages. The last from " + who + ": " + m.text.slice(0, 140));
+        if (!lcQuietNow()) Earcon.play("alerts");
+      }
+    }
+    try { localStorage.setItem(sk, String(now)); } catch (e) {}
+    lcNostrLearnNames(fresh.map(function (m) { return m.peer; }));
+  } catch (e) {}
+  lcPmBusy = false; return n;
+}
+async function lcPmSend(peer, text) {
+  const N = Looscid.lcNostr; peer = String(peer || "").toLowerCase(); text = String(text || "").trim();
+  if (!text) return { err: "empty" };
+  if (!N || !N.sendPM) return { err: "load" };
+  const local = { id: "local-" + Date.now(), peer: peer, me: true, text: text, created: Date.now(), read: true, state: "sending" };
+  lcPmsSave(lcPms().concat([local]));
+  const r = await N.sendPM(peer, text);
+  const ok = r && !r.err && r.ok && r.ok.length > 0;
+  lcPmsSave(lcPms().map(function (m) { return m.id === local.id ? Object.assign({}, m, ok ? { id: r.id || m.id, state: "sent" } : { state: "failed" }) : m; }));
+  return ok ? { ok: r.ok.length } : { err: (r && r.err) || "relays" };
+}
+// npub, nprofile or a 64-letter hex key, to a hex public key (or null).
+function lcPmPeerFrom(s) {
+  s = String(s || "").trim().replace(/^nostr:/i, "").replace(/^@/, ""); if (/^[0-9a-f]{64}$/i.test(s)) return s.toLowerCase();
+  try { const d = window.NostrTools && window.NostrTools.nip19.decode(s); if (d && d.type === "npub") return d.data; if (d && d.type === "nprofile") return d.data.pubkey; } catch (e) {}
+  return null;
+}
+Object.assign(Looscid, { LC_PMS_KEY, lcPms, lcPmsSave, lcPmConvos, lcPmUnread, lcPmMarkRead, lcPmCheck, lcPmSend, lcPmPeerFrom, lcPmBlocked, lcInboxCheck, lcNostrName, LC_INBOX_TABS });
 Object.assign(Looscid, { LC_THREAD_SUBS_KEY, lcThreadSubs, lcThreadSubbed, lcThreadSub, lcThreadUnsub, lcThreadAlert, lcThreadCheck, lcThreadWatch });
 function lcAlertsMarkAll() { const l = lcAlerts().map(function (x) { return Object.assign({}, x, { unread: false }); }); lcAlertsSave(l); return l.length; }
 function useAlerts() {
@@ -4386,10 +4493,11 @@ function lcVersionAlert() {
 const ALERTS_TAB_KEY = "looscid_alerts_tab";
 Looscid.ALERTS_TAB_KEY = ALERTS_TAB_KEY;
 function lcSetAlertsTab(v, quiet) {
-  v = v === "messages" ? "messages" : "notifications";
+  // Build 151 (#73): one Inbox tablist. The old "notifications" opens All; "messages" opens Messages.
+  v = v === "notifications" ? "all" : LC_INBOX_TABS.some(function (t) { return t.id === v; }) ? v : "all";
   try { localStorage.setItem(ALERTS_TAB_KEY, v); } catch (e) {}
   window.dispatchEvent(new CustomEvent("looscid:alertstab", { detail: v }));
-  if (!quiet) announce("Alerts: " + (v === "messages" ? "Messages" : "Notifications") + ".");
+  if (!quiet) announce("Alerts: " + LC_INBOX_TABS.find(function (t) { return t.id === v; }).label + ".");
 }
 const SHOW_FRIENDS_KEY = "looscid_show_friends";
 Looscid.SHOW_FRIENDS_KEY = SHOW_FRIENDS_KEY;
@@ -4426,7 +4534,7 @@ function lcApplyFeedIntent(it) {
 const LC_PLACES = {
   feed: { label: "Feed", root: "feed" },
   alerts: { label: "Alerts", root: "alerts" },
-  notifications: { label: "Alerts, Notifications", root: "alerts", alertsTab: "notifications" },
+  notifications: { label: "Alerts, All", root: "alerts", alertsTab: "all" },
   messages: { label: "Alerts, Messages", root: "alerts", alertsTab: "messages" },
   circles: { label: "Circles", root: "circles" },
   discover: { label: "Discover", root: "discover" },
@@ -4540,7 +4648,7 @@ const LC_PLACE_WORDS = [
 ];
 Looscid.LC_PLACE_WORDS = LC_PLACE_WORDS;
 const LC_COMMANDS = [
-  ["open feed", "your Home feed"], ["open alerts", "Alerts"], ["open notifications", "Alerts, Notifications"], ["open messages", "Alerts, Messages"], ["open circles", "your Circles"],
+  ["open feed", "your Home feed"], ["open alerts", "Alerts"], ["open notifications", "Alerts, All"], ["open messages", "Alerts, Messages"], ["open circles", "your Circles"],
   ["open settings", "Settings"], ["open accessibility", "Settings, Accessibility"], ["open terminal", "Commandbar"], ["open music", "Music"],
   ["help", "this list"], ["status", "what is on, and what is saved on this device"],
   ["open braille", "Settings, Accessibility, Sense, Braille"], ["find setting and a word", "jump to a setting, like find setting label or find setting braille"],
@@ -5394,7 +5502,7 @@ function lcTabBarMove(id, d) {
   const t = list[i]; list[i] = list[j]; list[j] = t; lcTabBarSave(list); return j + 1;
 }
 function useTabBarTick() { const [, f] = useState(0); useEffect(function () { const h = function () { f(function (x) { return x + 1; }); };
-  const ev = ["looscid:tabbar", "looscid:pins", "looscid:feed"]; ev.forEach(function (e) { window.addEventListener(e, h); });
+  const ev = ["looscid:tabbar", "looscid:pins", "looscid:feed", "looscid:pms"]; ev.forEach(function (e) { window.addEventListener(e, h); });
   return function () { ev.forEach(function (e) { window.removeEventListener(e, h); }); }; }, []); }
 Object.assign(Looscid, { LC_TABBAR_KEY, lcTabBarAll, lcTabBarVisible, lcTabBarToggle, lcTabBarMove, useTabBarTick });
 const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "looscid_braille_styles", "looscid_theme", "looscid_ai_prefs", "looscid_cherry_attrib", "looscid_music", "looscid_alerts_tab", "looscid_show_friends", "looscid_term_output_open", "looscid_topics",
@@ -6099,7 +6207,7 @@ useEffect(() => {
 
   const activeId = ["feed","discover","alerts","more"].includes(page) ? page : null;
   const unreadNotifs = useAlerts().filter(n=>n.unread).length; // round 6: the real alerts
-  const unreadMsgs = CONVOS.reduce((a,c)=>a+c.unread, 0);
+  const unreadMsgs = CONVOS.reduce((a,c)=>a+c.unread, 0) + lcPmUnread(); // build 151 (#72): + private messages (NIP-17)
 
 
   // Bottom tab bar: roving tabindex (one Tab stop), arrows/Home/End move, Enter/Space activate,

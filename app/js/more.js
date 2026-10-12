@@ -635,11 +635,10 @@ function MessageSettings({ navigate }) {
   useA11yNow();
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
     lh(BackHeader, { title: "Message settings", onBack: function () { const b = Looscid.LC_SETTINGS_BACK; Looscid.LC_SETTINGS_BACK = null; navigate(b || "settings"); } }),
-    lh('p', { className: "lc-desc", style: { padding: "0 16px" } }, "Who can message you, and how the Messages tab is laid out."),
+    lh('p', { className: "lc-desc", style: { padding: "0 16px" } }, "Who can message you. Private messages use Nostr (NIP-17): end-to-end encrypted, and only you and the person you write to can read them."),
     lh('section', { className: "lc-grp", "aria-labelledby": "ms-who-h" },
       lh('h2', { id: "ms-who-h", className: "lc-grp-h" }, "Who can message me"),
       lh(LcSetRow, { def: LC_SET_BY.whoMessage })),
-    lh(LcCatCustomize, { kind: "msg", defs: LC_MSG_CATS }),
     lh(LcResetLast, { scope: "g:cats" }));
 }
 function NotificationsSettings({navigate}) {
@@ -667,7 +666,7 @@ function NotificationsSettings({navigate}) {
           lh(A11ySwitch, { id: "al-group", label: "Group similar alerts", on: !!P.group, onToggle: function () { setP(lcAlertPrefsSet({ group: !P.group })); announce("Group similar alerts " + (!P.group ? "on" : "off") + "."); } }),
           lh('div', { className: "lc-row" }, lh('button', { type: "button", id: "al-markall", className: "btn bgb lc-big", onClick: function () { const n = lcAlertsMarkAll(); announce(n ? "All alerts marked as read." : "No alerts to mark."); setP(lcAlertPrefs()); } }, "Mark all as read" + (unread ? ", " + unread + " unread" : ""))))
       , lh(LcSection, { sec: "quiet", intro: lcQuietNow() ? "Quiet hours are on right now." : null, noReset: true })
-      , lh(LcCatCustomize, { kind: "alert", defs: lcAlertCats(), title: "Customize notification categories" })
+      , lh(LcCatCustomize, { kind: "alert", defs: lcAlertCats(), title: "Customize Inbox tabs" })
       , lh(LcResetLast, { scope: "alerts" })
     )
   );
@@ -2518,6 +2517,7 @@ const LC_VERSION_HISTORY = [
     "Subscribe to thread: a Dream's More menu has Subscribe to thread (and Unsubscribe from thread). New replies in a thread you follow show up in Alerts as \"New reply in a thread you follow\", whether they reach Looscid directly or come from Nostr relays that tag the thread. On the web it's in the app only; the native apps can make it a push notification.",
     "Profiles: the second tab is just \"Replies\" now, and it shows only your replies, no top-level Dreams (those stay in the Dreams tab). When there are none it says \"No Replies yet\" and \"Your Replies will show up here.\"",
     "Replies tab: each reply now says what it answers, first thing inside it, like \"Replying to Tomo: \" and the start of Tomo's Dream (or the reply it answers). When that Dream isn't on your device it says \"Replying to @tomo\". A hidden or blocked Dream shows no text, and one with a content warning shows the warning.",
+    "Alerts is an Inbox now, laid out like Reddit's: one row of tabs (All, Unread, Messages, Replies, Mentions, Likes, Redreams, Quotes, New Dreamor), Send a message and Mark all read at the top, similar alerts grouped (\"Liked by Ava and 3 others\"), and a More button on every row with Reply, Mark read and Block. Replies has an \"Only threads I follow\" checkbox. Messages are real private messages on Nostr (NIP-17), end-to-end encrypted: write to anyone by their npub, and a new message is read out once without moving your focus. Likes, Redreams, Quotes, mentions, replies and new Dreamors come from Nostr too, with no server.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

@@ -14,7 +14,7 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 | `app/css/a11y.css` | Startup screen, Commandbar, earcon cues and Settings > Accessibility styles (`<link id="lc-a11y-css">`). |
 | `app/js/core.js` | Shared state and preferences (`looscid_` storage keys), icons, sounds (earcons, pitch cues), navigation and routing (`App`, the frame), Alerts storage, the update check and version, shared screens and helpers, and the plain DOM helpers (`lcEl`, `lcPatch`, `lcPlainScreen`). |
 | `app/js/nostr.js` | Dreams on Nostr (Round 6.4): your Nostr key (plain, or locked with a passcode as NIP-49), relays, sending Dreams with a retry queue, and reading your own Dreams back. **Plain JavaScript.** It loads the crypto from `app/js/vendor/` only when a Nostr feature is used. |
-| `app/js/vendor/` | Vendored code, committed as is: `nostr-tools-2.25.2.min.js` (keys, signing, nip19, nip49), its `LICENSE`, and a `README.md` with how it was built. |
+| `app/js/vendor/` | Vendored code, committed as is: `nostr-tools-2.25.2-nip17.min.js` (keys, signing, nip19, nip49, and since build 151 nip44, nip59 and nip17 for private messages), its `LICENSE`, and a `README.md` with how it was built. |
 | `app/js/discover.js` | The Discover tab. **Plain JavaScript.** |
 | `app/js/circles.js` | Circles: create a Circle, a Circle's page, its admin settings, the Circles list. Still React. |
 | `app/js/feed.js` | The Feed (Home) tab. Still React. |
@@ -33,7 +33,7 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 
 1. React and ReactDOM (UMD). They go once the last React tab is rewritten.
 2. `app/js/core.js`
-3. `app/js/nostr.js` (small; `app/js/vendor/nostr-tools-2.25.2.min.js` is added later, only when Nostr is used)
+3. `app/js/nostr.js` (small; `app/js/vendor/nostr-tools-2.25.2-nip17.min.js` is added later, only when Nostr is used)
 4. The tabs: `app/js/discover.js`, `app/js/circles.js`, `app/js/feed.js`, `app/js/create.js`, `app/js/alerts.js`, `app/js/more.js`
 5. `app/js/cherry.js` (Round 6.5.2: same place in the order; the frame shows its page with `case "cherry"` in `app/js/core.js`)
 6. `app/js/commands.js` (Round 6.5.3: new, right after `app/js/cherry.js`; the frame shows its page with `case "commands"` in `app/js/core.js`)

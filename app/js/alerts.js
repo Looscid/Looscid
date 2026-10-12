@@ -46,122 +46,204 @@ function subTabKey(list, cur, set) {
   };
 }
 
-function alertsView(st, draw) {
-  const view = st.view;
-  const msgSubTabs = lcCatList("msg", LC_MSG_CATS);
-  const notifs = lcAlerts();
-  const notifSubTabs = lcCatList("alert", lcAlertCats());
-  const goSet = function (pg, focus) { Looscid.LC_SETTINGS_BACK = "alerts"; if (Looscid.LC_NAV) Looscid.LC_NAV(pg); if (focus) setTimeout(function () { const el = document.getElementById(focus); if (el) el.focus(); }, 300); };
-
-  const msgBadge = CONVOS.reduce(function (a, c) { return a + c.unread; }, 0);
-  const notifBadge = notifs.filter(function (n) { return n.unread; }).length;
-
-  const curNotif = notifSubTabs.some(function (t) { return t.id === st.notifTab; }) ? st.notifTab : (notifSubTabs[0] || {}).id;
-  const filteredNotifs = curNotif === "all" ? notifs : notifs.filter(function (n) { return n.type === curNotif; });
-  const curMsg = msgSubTabs.some(function (t) { return t.id === st.msgTab; }) ? st.msgTab : (msgSubTabs[0] || {}).id;
-  const filteredMsgs = curMsg === "all" ? CONVOS
-    : curMsg === "requests" ? CONVOS.filter(function (c) { return c.unread > 0; })
-    : curMsg === "starred" ? []
-    : curMsg === "archived" ? []
-    : CONVOS;
-
-  if (st.convo) return h('div', { className: "pg", style: { display: "flex", flexDirection: "column", paddingBottom: 0 } },
-    convoView(st.convo, draw, function () { st.convo = null; draw(); }));
-
-  const setMsgTab = function (id) { st.msgTab = id; draw(); };
-  const setNotifTab = function (id) { st.notifTab = id; draw(); };
-  const ALERT_VIEWS = [["notifications", "Notifications", notifBadge], ["messages", "Messages", msgBadge]];
-  const onViewKey = function (e) {
-    const i = ALERT_VIEWS.findIndex(function (v) { return v[0] === view; }); let n = -1;
-    if (e.key === "ArrowRight" || e.key === "ArrowDown") n = (i + 1) % 2; else if (e.key === "ArrowLeft" || e.key === "ArrowUp") n = (i + 1) % 2;
-    else if (e.key === "Home") n = 0; else if (e.key === "End") n = 1;
-    if (n < 0) return; e.preventDefault(); lcSetAlertsTab(ALERT_VIEWS[n][0]);
-    setTimeout(function () { const b = document.getElementById("alerts-tab-" + ALERT_VIEWS[n][0]); if (b) b.focus(); }, 0);
-  };
-  const catTabs = function (list, cur, set, idp) {
-    return list.map(function (t) {
-      return h('button', { key: t.id, id: idp + t.id, className: "ftab" + (cur === t.id ? " on" : ""), role: "tab", "aria-selected": cur === t.id, "aria-label": t.label,
-        tabIndex: cur === t.id ? 0 : -1, onClick: function () { set(t.id); } }, t.label);
+/* Build 151 (#72/#73, 2three1y Oct 11 4:47-4:58 PM): the Alerts tab is an Inbox, Reddit's web Inbox as a layout idea
+   only. One tablist: All, Unread, Messages, Replies, Mentions, Likes, Redreams, Quotes, New Dreamor (Settings, Alerts
+   can reorder or hide them). "Send a message" and "Mark all read" sit at the top. Each row says who, what and when;
+   similar ones group ("Liked by Ava and 3 others"); its More button holds Reply, Mark read and Block. Messages are
+   private messages on Nostr (NIP-17); new ones are said through #looscid-live and focus never moves. */
+const ONLY_FOLLOWED_KEY = "looscid_inbox_only_followed";
+function onlyFollowed() { try { return localStorage.getItem(ONLY_FOLLOWED_KEY) === "1"; } catch (e) { return false; } }
+function alertType(id) { return (Looscid.LC_ALERT_TYPES || []).find(function (t) { return t.id === id; }) || {}; }
+function alertWhat(n) {
+  const T = alertType(n.type), c = n.count || 1;
+  if (c > 1 && n.sub && n.names && n.names.length) return c + " new replies in threads you follow, from " + n.names[0] + (c > 1 ? " and " + (c - 1) + (c - 1 === 1 ? " other" : " others") : "");
+  if (c > 1 && T.by && n.names && n.names.length) return T.by + " " + n.names[0] + (c > 1 ? " and " + (c - 1) + (c - 1 === 1 ? " other" : " others") : "");
+  return (n.user ? n.user.name + " " : "") + n.text;
+}
+function alertLabel(n) { return alertWhat(n) + (n.preview ? ". " + n.preview : "") + ". " + lcAlertTime(n.time) + (n.unread ? ". Unread." : ""); }
+function pmStateNote() {
+  const N = Looscid.lcNostr, mode = N && N.pmMode ? N.pmMode() : "none";
+  if (mode === "key" || mode === "signer") return null;
+  return mode === "locked" ? "Unlock your Nostr key in LooscidID to read and send private messages."
+    : mode === "nosigner44" ? "Your Nostr signer doesn't offer encryption (nip44), so private messages can't be read or sent with it here."
+    : "Private messages use Nostr: end-to-end encrypted (NIP-17), and only you and the person you write to can read them. Add a Nostr key in LooscidID to start.";
+}
+function rowMore(st, draw, key, label, acts) {
+  const open = st.more === key;
+  return [
+    h('button', { key: "mb", type: "button", id: "more-" + key, className: "btn bgb lc-btn lc-inbox-more", "aria-expanded": open ? "true" : "false", "aria-controls": "acts-" + key, "aria-label": "More, " + label,
+      onClick: function () { st.more = open ? null : key; draw(); if (!open) setTimeout(function () { const b = document.querySelector("#acts-" + key + " button"); if (b) b.focus(); }, 0); } }, "More"),
+    open ? h('ul', { key: "ma", id: "acts-" + key, className: "lc-inbox-acts", role: "list",
+        onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); st.more = null; draw(); setTimeout(function () { const b = document.getElementById("more-" + key); if (b) b.focus(); }, 0); } } },
+      acts.filter(Boolean).map(function (a) { return h('li', { key: a[0] }, h('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { st.more = null; a[1](); draw(); } }, a[0])); })) : null];
+}
+function blockWho(user) {
+  if (!user || !user.handle) return null;
+  return ["Block " + user.name, function () { const l = Looscid.lcBlocked("dreamers"); Looscid.lcBlockedSet("dreamers", l.concat([user.handle])); announce("Blocked " + user.name + ". You won't see their Dreams, alerts or messages."); }];
+}
+function notifRow(st, draw, n) {
+  const key = "n-" + String(n.id).replace(/[^a-z0-9-]/gi, "");
+  const canReply = n.type === "reply" || n.type === "mention" || n.type === "quote";
+  return h('li', { key: key, className: "ni" + (n.unread ? " unr" : "") },
+    h('button', { type: "button", className: "lc-ni-main", "aria-label": alertLabel(n), onClick: function () { if (n.unread) { lcAlertToggle(n.id); announce("Marked as read."); } } },
+      n.user ? lcAvEl(n.user, 40) : h('div', { className: "lc-ni-ic", "aria-hidden": "true" }, "!"),
+      h('div', { style: { flex: 1 }, "aria-hidden": "true" },
+        h('div', { className: "ntx" }, alertWhat(n)),
+        n.preview && h('div', { className: "npv" }, n.preview),
+        h('div', { className: "ntm" }, lcAlertTime(n.time))),
+      n.unread && h('div', { className: "lc-ni-dot", "aria-hidden": "true" })),
+    rowMore(st, draw, key, alertWhat(n), [
+      canReply ? ["Reply", function () {
+        if (n.nid && n.user) Looscid.lcCompose({ mode: "reply", parent: { id: n.nid, nid: n.nid, user: n.user, text: n.preview || "" }, root: n.ref ? { id: n.ref, nid: n.ref, user: Looscid.ME } : undefined });
+        else Looscid.lcCompose({ mode: "new", text: n.user && n.user.handle ? "@" + String(n.user.handle).replace(/^@/, "") + " " : "" }); }] : null,
+      [n.unread ? "Mark read" : "Mark unread", function () { lcAlertToggle(n.id); announce(n.unread ? "Marked as read." : "Marked as unread."); }],
+      blockWho(n.user)]));
+}
+function convoRow(st, draw, c) {
+  const key = "c-" + String(c.peer || c.id).slice(0, 24);
+  const open = function () { if (c.pm) { Looscid.lcPmMarkRead(c.peer); st.pm = c.peer; } else st.convo = { convo: c.demo, msgs: c.demo.msgs || [], inp: "", shown: new Set(), scroll: true }; draw(); };
+  return h('li', { key: key, className: "ci" },
+    h('button', { type: "button", className: "lc-ci-main", onClick: open,
+        "aria-label": Looscid.lcNameJoin(c.name, c.unread > 0 ? c.unread + " unread" : "") + (c.preview ? ". " + c.preview : "") + (c.when ? ". " + c.when : "") },
+      lcAvEl({ name: c.name, initials: String(c.name || "?").slice(0, 1), color: "#6d28d9" }, 46),
+      h('div', { className: "cif", "aria-hidden": "true" }, h('div', { className: "cnm" }, c.name), h('div', { className: "cpv" }, c.preview)),
+      h('div', { "aria-hidden": "true", style: { display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 } },
+        h('span', { style: { fontSize: 11, color: "var(--tx3)" } }, c.when),
+        c.unread > 0 && h('span', { className: "ucnt" }, String(c.unread)))),
+    rowMore(st, draw, key, c.name, [
+      ["Reply", open],
+      c.unread > 0 ? ["Mark read", function () { if (c.pm) Looscid.lcPmMarkRead(c.peer); else c.demo.unread = 0; announce("Marked as read."); }] : null,
+      c.pm ? ["Block " + c.name, function () { let np = ""; try { np = window.NostrTools.nip19.npubEncode(c.peer); } catch (e) { np = c.peer; } Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").concat([np])); announce("Blocked " + c.name + ". Their messages are hidden."); }]
+        : blockWho(c.demo && c.demo.user)]));
+}
+function allConvos() {
+  const pm = (Looscid.lcPmConvos ? Looscid.lcPmConvos() : []).map(function (c) { return { pm: true, peer: c.peer, name: c.name, unread: c.unread, preview: (c.last.me ? "You: " : "") + c.last.text.slice(0, 80), when: lcAlertTime(c.time), t: c.time }; });
+  const demo = CONVOS.map(function (c) { return { pm: false, id: c.id, demo: c, name: c.user.name, unread: c.unread, preview: c.preview, when: c.time, t: 0 }; });
+  return pm.concat(demo);
+}
+function composeView(st, draw) {
+  const cp = st.compose, note = pmStateNote();
+  const send = function () {
+    const peer = Looscid.lcPmPeerFrom(cp.to);
+    if (!peer) { cp.msg = "Type their npub (it starts with npub1) or their public key."; announce(cp.msg); draw(); setTimeout(function () { const t = document.getElementById("pm-to"); if (t) t.focus(); }, 0); return; }
+    if (!cp.text.trim()) { cp.msg = "Type a message first."; announce(cp.msg); draw(); return; }
+    cp.msg = "Sending…"; draw();
+    Looscid.lcPmSend(peer, cp.text).then(function (r) {
+      if (r.ok) { Looscid.Earcon.play("send"); announce("Sent to " + Looscid.lcNostrName(peer) + "."); st.compose = null; st.pm = peer; draw(); }
+      else { cp.msg = r.err === "relays" ? "Couldn't reach any relay. Your message is kept in the conversation as not sent." : "Couldn't send: " + (pmStateNote() || "try again."); announce(cp.msg); draw(); }
     });
   };
-
-  return h('div', { className: "pg" },
-    h('div', { className: "hdr" },
-      h('div', { style: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "48px 16px 12px" } },
-        h('h1', { className: "htit", tabIndex: -1 }, "Alerts"),
-        h('button', { type: "button", id: "alerts-settings-link", className: "btn bgb", style: { fontSize: 12, padding: "6px 12px", marginLeft: "auto", marginRight: 8 }, onClick: function () { goSet("settings_notifications"); } }, "Alerts settings"),
-        h('button', { className: "btn bgb", style: { fontSize: 12, padding: "6px 12px" },
-          onClick: function () { const n = lcAlertsMarkAll(); announce(n ? "All alerts marked as read." : "No alerts to mark."); }, "aria-label": "Mark all read" }, "Mark all read"))),
-
-    /* Notifications | Messages: one tablist */
-    h('div', { className: "ftabs lc-alert-tabs", role: "tablist", "aria-label": "Alerts", onKeyDown: onViewKey },
-      ALERT_VIEWS.map(function (v) {
-        const on = view === v[0];
-        return h('button', { key: v[0], id: "alerts-tab-" + v[0], type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false",
-            "aria-controls": "alerts-panel-" + v[0], tabIndex: on ? 0 : -1, onClick: function () { lcSetAlertsTab(v[0]); },
-            "aria-label": v[2] > 0 ? v[1] + " (" + v[2] + " unread)" : undefined },
-          v[1], v[2] > 0 ? [" ", h('span', { key: "b", className: "lc-alert-badge", "aria-hidden": "true" }, String(v[2]))] : null); // build 149: "Notifications (2 unread)"
-      })),
-
-    view === "messages" && h('div', { id: "alerts-panel-messages", role: "tabpanel", "aria-labelledby": "alerts-tab-messages" },
-      h('div', { className: "lc-tablinks" }, h('button', { type: "button", id: "msg-settings-link", className: "btn bgb lc-btn", onClick: function () { goSet("settings_messages"); } }, "Message settings")),
-      h('div', { className: "ftabs", role: "tablist", "aria-label": "Message categories", onKeyDown: subTabKey(msgSubTabs, curMsg, setMsgTab),
-          style: { overflowX: "auto", scrollbarWidth: "none", borderBottom: "1px solid var(--bd)" } },
-        catTabs(msgSubTabs, curMsg, setMsgTab, "msgcat-")),
-      h('div', { style: { padding: "9px 14px 6px" } },
-        h('input', { className: "inp", style: { fontSize: 14 }, placeholder: "Search conversations", "aria-label": "Search conversations" })),
-      filteredMsgs.length === 0
-        ? h('div', { className: "es", style: { paddingTop: 24, paddingBottom: 24 } }, h('div', { className: "esl" }, "No messages yet"))
-        : filteredMsgs.map(function (c) {
-            return h('div', { key: c.id, className: "ci", onClick: function () { st.convo = { convo: c, msgs: c.msgs || [], inp: "", shown: new Set(), scroll: true }; draw(); },
-                role: "button", tabIndex: 0, "aria-label": Looscid.lcNameJoin(c.user.name, c.unread > 0 ? c.unread + " unread" : "") + (String(c.preview || "").trim() ? ". " + String(c.preview).trim() : "") },
-              h('div', { style: { position: "relative" } },
-                lcAvEl(c.user, 46),
-                c.unread > 0 && h('div', { style: { position: "absolute", bottom: 0, right: 0, width: 11, height: 11, borderRadius: "50%", background: "var(--gr)", border: "2px solid var(--bg)" }, "aria-hidden": "true" })),
-              h('div', { className: "cif" }, h('div', { className: "cnm" }, c.user.name), h('div', { className: "cpv" }, c.preview)),
-              h('div', { style: { display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 } },
-                h('span', { style: { fontSize: 11, color: "var(--tx3)" } }, c.time),
-                c.unread > 0 && h('span', { className: "ucnt", "aria-hidden": "true" }, c.unread)));
-          })),
-
-    view === "notifications" && h('div', { id: "alerts-panel-notifications", role: "tabpanel", "aria-labelledby": "alerts-tab-notifications" },
-      h('div', { className: "lc-tablinks" }, h('button', { type: "button", id: "notif-settings-link", className: "btn bgb lc-btn", onClick: function () { goSet("settings_notifications", "al-newDream-h"); } }, "Notification settings")),
-      h('div', { className: "ftabs", role: "tablist", "aria-label": "Notification categories", onKeyDown: subTabKey(notifSubTabs, curNotif, setNotifTab),
-          style: { overflowX: "auto", scrollbarWidth: "none", borderBottom: "1px solid var(--bd)" } },
-        catTabs(notifSubTabs, curNotif, setNotifTab, "notifcat-")),
-      filteredNotifs.length === 0
-        ? h('div', { className: "es", style: { paddingTop: 24, paddingBottom: 24 } }, h('div', { className: "esl" }, curNotif === "system" ? "Nothing from Looscid yet" : "No alerts yet"))
-        : filteredNotifs.map(function (n) {
-            return h('div', { key: n.id, className: "ni" + (n.unread ? " unr" : ""), onClick: function () { lcAlertToggle(n.id); }, role: "button", tabIndex: 0,
-                "aria-label": (n.user ? n.user.name + " " : "") + n.text + (n.preview ? ". " + n.preview : "") + ". " + lcAlertTime(n.time) + (n.unread ? ". Unread." : "") },
-              n.user
-                ? lcAvEl(n.user, 40)
-                : h('div', { style: { width: 40, height: 40, borderRadius: "50%", background: "rgba(251,191,36,.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }, "aria-hidden": "true" }, "Notification"),
-              h('div', { style: { flex: 1 } },
-                h('div', { className: "ntx" }, n.user && h('strong', null, n.user.name + " "), n.text),
-                n.preview && h('div', { className: "npv" }, n.preview),
-                h('div', { className: "ntm" }, lcAlertTime(n.time))),
-              n.unread && h('div', { style: { width: 8, height: 8, borderRadius: "50%", background: "var(--ac2)", flexShrink: 0, marginTop: 4 }, "aria-hidden": "true" }));
-          })),
-
+  return h('div', { className: "pg lc-pm-new" },
+    lcBackHeaderEl("Send a message", function () { st.compose = null; draw(); setTimeout(function () { const b = document.getElementById("inbox-send"); if (b) b.focus(); }, 0); }),
+    note ? h('p', { className: "lc-desc", style: { padding: "8px 16px" } }, note) : null,
+    note ? h('div', { style: { padding: "0 16px 12px" } }, h('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { Looscid.LC_SETTINGS_BACK = "alerts"; if (Looscid.LC_NAV) Looscid.LC_NAV("settings_account"); } }, "Open LooscidID")) : null,
+    h('div', { className: "lc-pm-form", style: { padding: "0 16px", display: "flex", flexDirection: "column", gap: 8 } },
+      h('label', { htmlFor: "pm-to" }, "To"),
+      h('input', { id: "pm-to", className: "inp", type: "text", autoComplete: "off", spellCheck: false, value: cp.to, placeholder: "npub1…", onChange: function (e) { cp.to = e.target.value; } }),
+      h('label', { htmlFor: "pm-text" }, "Message"),
+      h('textarea', { id: "pm-text", className: "inp", rows: 4, value: cp.text, onChange: function (e) { cp.text = e.target.value; },
+        onKeyDown: function (e) { if (e.key === "Enter" && !e.shiftKey && a11yEnterSends()) { e.preventDefault(); send(); } } }),
+      h('button', { type: "button", id: "pm-send", className: "btn bp lc-big", "aria-disabled": note ? "true" : undefined, onClick: function () { if (note) { announce(note); return; } send(); } }, "Send"),
+      cp.msg ? h('p', { className: "lc-desc" }, cp.msg) : null));
+}
+function pmView(st, draw) {
+  const peer = st.pm, name = Looscid.lcNostrName(peer), msgs = Looscid.lcPms().filter(function (m) { return m.peer === peer; });
+  const note = pmStateNote();
+  const send = function () {
+    const t = (st.pmInp || "").trim(); if (!t) return;
+    if (note) { announce(note); return; }
+    st.pmInp = ""; draw();
+    Looscid.lcPmSend(peer, t).then(function (r) { if (r.ok) { Looscid.Earcon.play("send"); announce("Sent."); } else announce("Couldn't send. It's kept here as not sent."); draw(); });
+  };
+  return h('div', { className: "pg", style: { display: "flex", flexDirection: "column", paddingBottom: 0 } },
+    h('div', { className: "hdr" }, lcBackHeaderEl(name, function () { st.pm = null; draw(); }),
+      h('p', { className: "lc-desc", style: { textAlign: "center", margin: "0 0 8px" } }, "End-to-end encrypted on Nostr (NIP-17)")),
+    note ? h('p', { className: "lc-desc", style: { padding: "0 16px" } }, note) : null,
+    h('ul', { className: "msgs lc-pm-list", role: "list", style: { flex: 1, listStyle: "none", margin: 0 } }, msgs.map(function (m) {
+      return h('li', { key: m.id, className: "mr" + (m.me ? " me" : "") },
+        h('div', { className: "bub" + (m.me ? " me" : " th") },
+          h('span', { className: "sr-only" }, (m.me ? "You" : name) + ": "), m.text,
+          h('span', { className: "sr-only" }, ", " + lcAlertTime(m.created) + (m.state === "failed" ? ", not sent" : m.state === "sending" ? ", sending" : ""))),
+        m.state === "failed" ? h('span', { className: "lc-desc", "aria-hidden": "true" }, "Not sent") : null);
+    })),
+    h('div', { className: "cir" },
+      h('label', { htmlFor: "pm-inp", className: "sr-only" }, "Message " + name),
+      h('input', { id: "pm-inp", className: "inp", style: { borderRadius: 100, flex: 1, fontSize: 14 }, placeholder: "Message " + name + "…", value: st.pmInp || "",
+        onChange: function (e) { st.pmInp = e.target.value; }, onKeyDown: function (e) { if (e.key === "Enter" && a11yEnterSends()) { e.preventDefault(); send(); } } }),
+      h('button', { type: "button", className: "btn bp", style: { padding: 9, borderRadius: "50%", width: 38, height: 38, flexShrink: 0 }, onClick: send, "aria-label": "Send" },
+        lcIconEl("Snd", { style: { width: 15, height: 15 }, "aria-hidden": "true" }))),
     h('div', { style: { height: 72 } }));
 }
 
-/* The Alerts tab. One tablist: Notifications | Messages. Exactly one is selected; the choice is saved on this device. */
+function alertsView(st, draw) {
+  if (st.compose) return composeView(st, draw);
+  if (st.pm) return pmView(st, draw);
+  if (st.convo) return h('div', { className: "pg", style: { display: "flex", flexDirection: "column", paddingBottom: 0 } },
+    convoView(st.convo, draw, function () { st.convo = null; draw(); }));
+  const tabs = lcCatList("alert", lcAlertCats());
+  const cur = tabs.some(function (t) { return t.id === st.view; }) ? st.view : "all";
+  const notifs = lcAlerts(), convos = allConvos(), only = onlyFollowed();
+  const goSet = function (pg, focus) { Looscid.LC_SETTINGS_BACK = "alerts"; if (Looscid.LC_NAV) Looscid.LC_NAV(pg); if (focus) setTimeout(function () { const el = document.getElementById(focus); if (el) el.focus(); }, 300); };
+  const unreadN = notifs.filter(function (n) { return n.unread; }).length, unreadC = convos.reduce(function (a, c) { return a + (c.unread || 0); }, 0);
+  const count = function (id) { return id === "unread" ? unreadN + unreadC : id === "messages" ? unreadC : id === "all" ? 0 : notifs.filter(function (n) { return n.unread && n.type === id; }).length; };
+  let rows = [];
+  if (cur === "messages") rows = convos.map(function (c) { return { c: c }; });
+  else {
+    let ns = cur === "all" ? notifs : cur === "unread" ? notifs.filter(function (n) { return n.unread; }) : notifs.filter(function (n) { return n.type === cur; });
+    if (cur === "reply" && only) ns = ns.filter(function (n) { return n.sub; });
+    rows = ns.map(function (n) { return { n: n, t: n.time }; });
+    if (cur === "all" || cur === "unread") {
+      const cs = convos.filter(function (c) { return cur === "all" || c.unread > 0; });
+      rows = rows.concat(cs.map(function (c) { return { c: c, t: c.t }; })).sort(function (a, b) { return (b.t || 0) - (a.t || 0); });
+    }
+  }
+  const setTab = function (id) { st.view = id; st.more = null; lcSetAlertsTab(id, true); draw(); };
+  const empty = { all: "Nothing here yet", unread: "You're all caught up", messages: "No messages yet", reply: only ? "No new replies in threads you follow" : "No replies yet", mention: "No mentions yet", like: "No Likes yet", redream: "No Redreams yet", quote: "No Quotes yet", follow: "No new Dreamors yet" }[cur] || "Nothing here yet";
+  return h('div', { className: "pg lc-inbox" },
+    h('div', { className: "hdr" },
+      h('div', { style: { display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8, padding: "48px 16px 12px" } },
+        h('h1', { className: "htit", tabIndex: -1, style: { marginRight: "auto" } }, "Alerts"),
+        h('button', { type: "button", id: "inbox-send", className: "btn bp", style: { fontSize: 12, padding: "6px 12px" }, onClick: function () { st.compose = { to: "", text: "", msg: "" }; draw(); setTimeout(function () { const t = document.getElementById("pm-to"); if (t) t.focus(); }, 0); } }, "Send a message"),
+        h('button', { type: "button", id: "inbox-markall", className: "btn bgb", style: { fontSize: 12, padding: "6px 12px" },
+          onClick: function () { const n = lcAlertsMarkAll(); const m = Looscid.lcPmMarkRead ? Looscid.lcPmMarkRead(null) : false; announce(n || m ? "All marked as read." : "Nothing to mark."); } }, "Mark all read"),
+        h('button', { type: "button", id: "alerts-settings-link", className: "btn bgb", style: { fontSize: 12, padding: "6px 12px" }, onClick: function () { goSet("settings_notifications"); } }, "Alerts settings"))),
+    h('div', { className: "ftabs lc-alert-tabs", role: "tablist", "aria-label": "Inbox", onKeyDown: subTabKey(tabs, cur, setTab), style: { overflowX: "auto", scrollbarWidth: "none", borderBottom: "1px solid var(--bd)" } },
+      tabs.map(function (t) {
+        const on = cur === t.id, k = count(t.id);
+        return h('button', { key: t.id, id: "inbox-tab-" + t.id, type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", "aria-controls": "inbox-panel",
+            tabIndex: on ? 0 : -1, onClick: function () { setTab(t.id); }, "aria-label": k > 0 ? t.label + " (" + k + " unread)" : undefined },
+          t.label, k > 0 ? [" ", h('span', { key: "b", className: "lc-alert-badge", "aria-hidden": "true" }, String(k))] : null);
+      })),
+    h('div', { id: "inbox-panel", role: "tabpanel", "aria-labelledby": "inbox-tab-" + cur },
+      cur === "reply" ? h('fieldset', { className: "lc-inbox-only" }, h('legend', null, "Replies"),
+        h('label', { className: "lc-cbx-row" }, h('input', { type: "checkbox", id: "inbox-only-followed", checked: only,
+          onChange: function (e) { try { localStorage.setItem(ONLY_FOLLOWED_KEY, e.target.checked ? "1" : "0"); } catch (x) {} draw(); } }), " Only threads I follow")) : null,
+      cur === "messages" && pmStateNote() ? h('p', { className: "lc-desc", style: { padding: "8px 16px" } }, pmStateNote()) : null,
+      rows.length === 0
+        ? h('div', { className: "es", style: { paddingTop: 24, paddingBottom: 24 } }, h('p', { className: "esl" }, empty))
+        : h('ul', { className: "lc-inbox-list", role: "list" }, rows.map(function (r) { return r.c ? convoRow(st, draw, r.c) : notifRow(st, draw, r.n); }))),
+    h('div', { style: { height: 72 } }));
+}
+
+/* The Alerts tab (the Inbox). The chosen tab is saved on this device. */
 const AlertsPage = lcPlainScreen("AlertsPage", function (host) {
-  const st = { view: lcAlertsTab(), msgTab: "all", notifTab: "all", convo: null };
+  const saved = lcAlertsTab();
+  const st = { view: saved, convo: null, pm: null, compose: null, more: null };
   const draw = function () {
+    const ae = document.activeElement, aid = ae && host.contains(ae) ? ae.id : null;
     lcPatch(host, alertsView(st, draw));
     const c = st.convo; if (c && c.scroll && c.end) { c.scroll = false; c.end.scrollIntoView({ behavior: "smooth" }); }
+    if (aid && !host.contains(document.activeElement)) { const el = document.getElementById(aid); if (el) el.focus(); }
   };
   const onTab = function (e) { st.view = e.detail; draw(); };
+  const evs = ["looscid:alerts", "looscid:cats", "looscid:pms", "looscid:blocked", "looscid:threadsubs"];
   window.addEventListener("looscid:alertstab", onTab);
-  window.addEventListener("looscid:alerts", draw);   // round 6: the real alerts
-  window.addEventListener("looscid:cats", draw);     // round 6: categories follow the saved order and Show/Hide
+  evs.forEach(function (e) { window.addEventListener(e, draw); });
   draw();
+  if (Looscid.lcPmCheck) setTimeout(function () { Looscid.lcPmCheck(); if (Looscid.lcInboxCheck) Looscid.lcInboxCheck(); }, 400);
   return {
     update: draw,
-    stop: function () { window.removeEventListener("looscid:alertstab", onTab); window.removeEventListener("looscid:alerts", draw); window.removeEventListener("looscid:cats", draw); }
+    stop: function () { window.removeEventListener("looscid:alertstab", onTab); evs.forEach(function (e) { window.removeEventListener(e, draw); }); }
   };
 });
 Looscid.AlertsPage = AlertsPage;
@@ -172,5 +254,5 @@ function lcCatList(kind, defs) {
 }
 function lcAlertTime(t) { const s = Math.round((Date.now() - t) / 1000); return s < 60 ? "just now" : s < 3600 ? Math.floor(s / 60) + " min ago" : s < 86400 ? Math.floor(s / 3600) + " h ago" : new Date(t).toLocaleDateString(); }
 function lcAlertToggle(id) { lcAlertsSave(lcAlerts().map(function (x) { return x.id === id ? Object.assign({}, x, { unread: !x.unread }) : x; })); }
-function lcAlertsTab() { try { return localStorage.getItem(ALERTS_TAB_KEY) === "messages" ? "messages" : "notifications"; } catch (e) { return "notifications"; } }
+function lcAlertsTab() { let v = "all"; try { v = localStorage.getItem(ALERTS_TAB_KEY) || "all"; } catch (e) {} return v === "notifications" ? "all" : v; }
 })(window.Looscid = window.Looscid || {});

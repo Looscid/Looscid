@@ -13,14 +13,14 @@
    as a NIP-36 "content-warning" tag. Reading back keeps each note's author key and these tags, so a reply
    finds its Dream on a new device. Replies are saved in looscid_replies (see js/core.js).
    An unlocked key lives only in this file's memory until the page closes or reloads.
-   The crypto (js/vendor/nostr-tools-2.25.2.min.js) loads only when a Nostr feature is used. */
+   The crypto (js/vendor/nostr-tools-2.25.2-nip17.min.js) loads only when a Nostr feature is used. */
 (function (Looscid) {
 "use strict";
 const SK_KEY = "looscid_nostr_sk", ENC_KEY = "looscid_nostr_ncryptsec", RELAYS_KEY = "looscid_nostr_relays", QUEUE_KEY = "looscid_nostr_queue", HIDDEN_KEY = "looscid_nostr_hidden";
 const IDENTITY_KEY = "looscid_identity", IDS_KEY = "looscid_linked_ids", DREAMS_KEY = "looscid_dreams", REPLIES_KEY = "looscid_replies";
 const KEEP_TAGS = ["e", "p", "q", "content-warning"];
 const DEFAULT_RELAYS = ["wss://relay.damus.io", "wss://nos.lol", "wss://relay.primal.net", "wss://relay.nostr.band"];
-const VENDOR_SRC = "js/vendor/nostr-tools-2.25.2.min.js";
+const VENDOR_SRC = "js/vendor/nostr-tools-2.25.2-nip17.min.js";
 const TAGS = [["client", "Looscid"], ["t", "looscid"]];
 const RETRY_MS = [30000, 120000, 600000, 1800000];
 let memSk = null;          // Uint8Array, the unlocked key for this session only
@@ -36,12 +36,12 @@ const isHex64 = function (s) { return /^[0-9a-f]{64}$/i.test(String(s || "")); }
 
 // The crypto library, from this site only. No CDN.
 function load() {
-  if (window.NostrTools && window.NostrTools.nip49) return Promise.resolve(window.NostrTools);
+  if (window.NostrTools && window.NostrTools.nip49 && window.NostrTools.nip17) return Promise.resolve(window.NostrTools); // build 151: nip17 is new
   if (toolsP) return toolsP;
   toolsP = new Promise(function (resolve, reject) {
     const s = document.createElement("script");
     s.src = VENDOR_SRC; s.async = true;
-    s.onload = function () { window.NostrTools && window.NostrTools.nip49 ? resolve(window.NostrTools) : (toolsP = null, reject(new Error("missing"))); };
+    s.onload = function () { window.NostrTools && window.NostrTools.nip49 && window.NostrTools.nip17 ? resolve(window.NostrTools) : (toolsP = null, reject(new Error("missing"))); };
     s.onerror = function () { toolsP = null; reject(new Error("load")); };
     document.head.appendChild(s);
   });
@@ -415,6 +415,116 @@ async function fetchThreadReplies(nids, since) {
   return out;
 }
 
+/* Build 151 (#72): private messages, NIP-17 (kind 14 chat messages, sealed with NIP-44 and gift-wrapped with NIP-59).
+   No server: messages go to relays, end-to-end encrypted; only you and the person you write to can read them. A copy
+   wrapped to yourself lets your other devices read what you sent. Works with your own key (unlocked) or a Nostr signer
+   that offers nip44. Messages are sent to the person's DM relays (their kind 10050 list) when they have one, and to
+   yours. */
+function pmMode() {
+  const st = state();
+  if (st.mode === "key" && currentSk()) return "key";
+  if (st.mode === "signer" && window.nostr && window.nostr.nip44 && typeof window.nostr.nip44.decrypt === "function") return "signer";
+  return st.mode === "locked" ? "locked" : st.mode === "signer" ? "nosigner44" : "none";
+}
+function rndPast() { return Math.round(Date.now() / 1000 - Math.random() * 172800); }
+async function dmRelaysOf(pk) {
+  const evs = (await Promise.all(relays().map(function (u) { return relayReq(u, { kinds: [10050], authors: [pk], limit: 1 }, 5000); }))).reduce(function (a, b) { return a.concat(b); }, []);
+  evs.sort(function (a, b) { return b.created_at - a.created_at; });
+  const ev = evs[0]; if (!ev || !Array.isArray(ev.tags)) return [];
+  return ev.tags.filter(function (t) { return t && t[0] === "relay"; }).map(function (t) { return cleanRelay(t[1]); }).filter(Boolean).slice(0, 6);
+}
+async function sendPM(toPk, text) {
+  toPk = String(toPk || "").toLowerCase(); text = String(text || "");
+  if (!isHex64(toPk) || !text.trim()) return { err: "bad" };
+  const mode = pmMode(); if (mode !== "key" && mode !== "signer") return { err: mode };
+  let NT; try { NT = await load(); } catch (e) { return { err: "load" }; }
+  const me = state().pubkey; let wraps, rumorId = "";
+  try {
+    // One rumor (kind 14, p = them) sealed and wrapped twice: for them and for you. (nip17.wrapManyEvents in this
+    // nostr-tools version gives your copy a p tag of your own key only, which loses who the message was to.)
+    if (mode === "key") { const sk = currentSk(), rumor = NT.nip59.createRumor({ kind: 14, created_at: Math.floor(Date.now() / 1000), tags: [["p", toPk]], content: text }, sk);
+      rumorId = rumor.id; wraps = [toPk, me].map(function (to) { return NT.nip59.createWrap(NT.nip59.createSeal(rumor, sk, to), to); }); }
+    else {
+      const rumor = { kind: 14, pubkey: me, created_at: Math.floor(Date.now() / 1000), tags: [["p", toPk]], content: text };
+      rumor.id = NT.getEventHash(rumor); rumorId = rumor.id;
+      wraps = [];
+      for (const to of [me, toPk]) {
+        const seal = await window.nostr.signEvent({ kind: 13, created_at: rndPast(), tags: [], content: await window.nostr.nip44.encrypt(to, JSON.stringify(rumor)) });
+        wraps.push(NT.nip59.createWrap(seal, to));
+      }
+    }
+  } catch (e) { return { err: "sign" }; }
+  const theirs = wraps.find(function (w) { return w.tags.some(function (t) { return t[0] === "p" && t[1] === toPk; }); }) || wraps[wraps.length - 1];
+  const mine = wraps.find(function (w) { return w !== theirs; });
+  let to = []; try { to = await dmRelaysOf(toPk); } catch (e) {}
+  const theirList = to.concat(relays()).filter(function (x, i, a) { return a.indexOf(x) === i; });
+  const both = await Promise.all([sendToRelays(theirs, theirList), mine ? sendToRelays(mine, relays()) : null]); const r1 = both[0];
+  return { ok: r1.ok, failed: r1.failed, id: rumorId };
+}
+async function unwrapAny(NT, w, mode) {
+  if (mode === "key") return NT.nip17.unwrapEvent(w, currentSk());
+  const seal = JSON.parse(await window.nostr.nip44.decrypt(w.pubkey, w.content));
+  if (!NT.verifyEvent(seal)) throw new Error("seal");
+  const rumor = JSON.parse(await window.nostr.nip44.decrypt(seal.pubkey, seal.content));
+  if (rumor.pubkey !== seal.pubkey) throw new Error("sender");
+  return rumor;
+}
+// Gift wraps addressed to you since a time (seconds; wraps carry a random time up to 2 days back, so we look further).
+async function fetchPMs(since) {
+  const mode = pmMode(); if (mode !== "key" && mode !== "signer") return { err: mode, list: [] };
+  let NT; try { NT = await load(); } catch (e) { return { err: "load", list: [] }; }
+  const me = state().pubkey, filter = { kinds: [1059], "#p": [me], limit: 500 };
+  if (since) filter.since = Math.max(0, since - 172800 - 3600);
+  const all = await Promise.all(relays().map(function (u) { return relayReq(u, filter); }));
+  const seen = new Set(), out = [];
+  for (const evs of all) for (const w of evs) {
+    if (!w || w.kind !== 1059 || seen.has(w.id)) continue; seen.add(w.id);
+    try {
+      const r = await unwrapAny(NT, w, mode);
+      if (!r || r.kind !== 14 || typeof r.content !== "string") continue;
+      const ps = (r.tags || []).filter(function (t) { return t[0] === "p" && isHex64(t[1]); }).map(function (t) { return t[1].toLowerCase(); });
+      const fromMe = r.pubkey === me, peer = fromMe ? ps.find(function (p) { return p !== me; }) || me : r.pubkey;
+      if (!fromMe && ps.indexOf(me) < 0) continue;
+      out.push({ id: r.id || w.id, peer: peer, me: fromMe, text: r.content.slice(0, 20000), created: (r.created_at || 0) * 1000 });
+    } catch (e) {}
+  }
+  return { list: out };
+}
+/* Build 151 (#73): what happened to you on Nostr, for the Inbox: Replies, mentions, Likes (kind 7), Redreams (kind 6
+   and 16), Quotes (q tags) and new Dreamors (contact lists, kind 3, that list you). Public notes only; each checked. */
+async function fetchInbox(since) {
+  const me = state().pubkey; if (!me) return [];
+  let NT; try { NT = await load(); } catch (e) { return []; }
+  const filter = { kinds: [1, 3, 6, 7, 16], "#p": [me], limit: 300 }; if (since) filter.since = since;
+  const all = await Promise.all(relays().map(function (u) { return relayReq(u, filter); }));
+  const seen = new Set(), out = [];
+  all.forEach(function (evs) { evs.forEach(function (ev) {
+    if (!ev || seen.has(ev.id) || ev.pubkey === me || !Array.isArray(ev.tags)) return;
+    let ok = false; try { ok = NT.verifyEvent(ev); } catch (e) {} if (!ok) return; seen.add(ev.id);
+    const es = ev.tags.filter(function (t) { return t && t[0] === "e" && isHex64(t[1]); });
+    let type = null;
+    if (ev.kind === 7) type = ev.content === "-" ? null : "like";
+    else if (ev.kind === 6 || ev.kind === 16) type = "redream";
+    else if (ev.kind === 3) type = "follow";
+    else if (ev.tags.some(function (t) { return t && t[0] === "q"; })) type = "quote";
+    else if (es.length) type = "reply"; else type = "mention";
+    if (!type) return;
+    let npub = ""; try { npub = NT.nip19.npubEncode(ev.pubkey); } catch (e) {}
+    const root = es.find(function (t) { return t[3] === "root"; }) || es[0];
+    out.push({ id: ev.id, type: type, pk: ev.pubkey, npub: npub, text: ev.kind === 1 ? String(ev.content).slice(0, 280) : "", created: ev.created_at * 1000, ref: root ? root[1] : "" });
+  }); });
+  return out;
+}
+// Display names (kind 0) for a few public keys.
+async function fetchNames(pks) {
+  pks = (pks || []).filter(isHex64).slice(0, 50); if (!pks.length) return {};
+  const all = await Promise.all(relays().map(function (u) { return relayReq(u, { kinds: [0], authors: pks, limit: pks.length * 2 }, 6000); }));
+  const best = {};
+  all.forEach(function (evs) { evs.forEach(function (ev) { if (ev && ev.kind === 0 && (!best[ev.pubkey] || best[ev.pubkey].created_at < ev.created_at)) best[ev.pubkey] = ev; }); });
+  const out = {}; Object.keys(best).forEach(function (pk) { try { const m = JSON.parse(best[pk].content || "{}"); const nm = String(m.display_name || m.name || "").trim().slice(0, 60); if (nm) out[pk] = nm; } catch (e) {} });
+  return out;
+}
+
 /* --- Reading your own Dreams back (any device) ------------------------------------- */
 function hidden() { const h = lsJson(HIDDEN_KEY, []); return Array.isArray(h) ? h : []; }
 function hide(nid) { if (!isHex64(nid)) return; const h = hidden(); if (h.indexOf(nid) < 0) { h.push(nid); lsSet(HIDDEN_KEY, JSON.stringify(h.slice(-2000))); } }
@@ -485,5 +595,5 @@ if (document.readyState === "complete") start(); else window.addEventListener("l
 
 Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, load: load, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
   importKey: importKey, createKey: createKey, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, nsecNow: nsecNow,
-  publishDream: publishDream, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
+  publishDream: publishDream, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
 })(window.Looscid = window.Looscid || {});
