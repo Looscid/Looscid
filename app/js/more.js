@@ -2420,6 +2420,7 @@ const LC_VERSION_HISTORY = [
     "Restored the terminology guide and added the post rule.",
     "Cleaner repository: docs that covered the same subject are merged, docs live in docs/guides and docs/dev, and the app's files are in an app folder. Looscid's address and every page in it stay the same.",
     "Looscid says 2three1y everywhere now: About Looscid (\"I'm 2three1y, a blind developer\"), the project pages, the Commandbar and the docs. License copyright lines are unchanged for now.",
+    "Credits looks like a normal credits page now: a centered roll grouped by role (Created by, Design references, Open-source libraries and licenses, Voices and sounds, Special thanks) with plain headings and lists. Every credit and license link is still there, and nothing scrolls by itself.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
@@ -2709,32 +2710,55 @@ const LC_CREDITS = {
 };
 Looscid.LC_CREDITS = LC_CREDITS;
 function CreditsPage({ navigate }) {
-  // Build 150: no raw URLs. The home link reads "<project> on GitHub"; the license name links to the license itself,
-  // and its name adds whose license it is, so the links rotor never lists a row of bare "MIT" links.
+  // Build 150 part 31 (2three1y, Oct 12: "our Credits page should look like any normal Credits page"): a centered
+  // credits roll grouped by role, like a film's end credits, but it never moves on its own (no auto-scroll at all).
+  // Plain h2 headings per role and plain lists; every credit, license link and home link from part 11 is kept.
+  // No raw URLs: the home link reads "<project> on GitHub"; the license link names whose license it is.
   const ext = function (href, text, label, key) { return lh('a', { key: key, href: href, target: "_blank", rel: "noopener noreferrer", className: "lc-link", "aria-label": label || undefined }, text); };
-  const help = { className: "lid-help", style: { margin: "2px 0 0" } };
-  const item = function (c) { const s = c.s || c.n;
-    return lh('li', { key: c.n, style: { marginBottom: 12 } },
-      lh('p', { className: "lid-help", style: { margin: 0 } }, lh('strong', null, c.n)),
-      lh('p', help, c.lead ? c.lead + " " :
-        ["License: ", c.lu ? ext(c.lu, c.l, c.l + ", " + s + " license", "l") : c.l, ". "], c.w),
-      lh('p', help, ext(c.u, s + " on " + (c.site || "GitHub"), null, "u"))); };
-  const ul = function (kids) { return lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } }, kids); };
-  const sec = function (id, title, intro, kids) { return lh('section', { "aria-labelledby": id, style: { padding: "0 16px 12px" } },
-    lh('h2', { id: id, className: "lid-sub" }, title), intro && lh('p', { className: "lid-help" }, intro), kids); };
+  const entry = function (c) { const s = c.s || c.n;
+    return lh('li', { key: c.n, className: "lc-roll-item" },
+      lh('p', { className: "lc-roll-name" }, c.n),
+      lh('p', { className: "lc-roll-what" }, c.lead ? c.lead + " " : null, c.w),
+      lh('p', { className: "lc-roll-links" }, ext(c.u, s + " on " + (c.site || "GitHub"), null, "u"),
+        c.l ? [lh('span', { key: "sep", "aria-hidden": "true" }, " \u00b7 "), lh('span', { key: "lic" }, " License: ", c.lu ? ext(c.lu, c.l, c.l + ", " + s + " license", "l") : c.l)] : null)); };
+  const plain = function (key, name, what) { return lh('li', { key: key, className: "lc-roll-item" }, lh('p', { className: "lc-roll-name" }, name), what ? lh('p', { className: "lc-roll-what" }, what) : null); };
+  const ul = function (kids) { return lh('ul', { className: "lc-roll-list" }, kids); };
+  const sec = function (id, title, kids) { return lh('section', { "aria-labelledby": id, className: "lc-roll-sec" }, lh('h2', { id: id, className: "lc-roll-role" }, title), kids); };
+  const sub = function (id, title, kids) { return lh('section', { "aria-labelledby": id, className: "lc-roll-subsec" }, lh('h3', { id: id, className: "lc-roll-subrole" }, title), kids); };
   const lic = LC_CREDITS.licenseUrl;
   return lh('div', { className: "pg lc-credits" },
     lh(BackHeader, { title: "Credits and open source", onBack: function () { navigate("settings"); } }),
-    lh('p', { className: "lid-help", style: { padding: "8px 16px 0" } }, LC_CREDITS.intro[0], ext(lic, LC_CREDITS.intro[1], null, "i"), LC_CREDITS.intro[2]),
-    sec("credits-uses", "Code Looscid uses", null, ul(LC_CREDITS.uses.map(item))),
-    sec("credits-mine", "My own projects inside Looscid", "These are mine. They're MIT unless it says otherwise, and each one keeps its own LICENSE file next to its copy in Looscid.", ul(LC_CREDITS.mine.map(item))),
-    sec("credits-ideas", "Design ideas (no code copied)", "These projects inspired how parts of Looscid look and work. I didn't copy any of their code, I just learned from them.", ul(LC_CREDITS.ideas.map(item))),
-    sec("credits-planned", "Coming from my repos", "Planned, not in Looscid yet. They'll move up to \"My own projects inside Looscid\" when they land.",
-      ul(LC_CREDITS.planned.map(function (c) { return lh('li', { key: c.n, style: { marginBottom: 6 } }, c.n + ": " + c.w); }))),
-    sec("credits-src", "Looscid's own source code", null, [
-      lh('p', { key: "p", className: "lid-help" }, "Everything is on GitHub: ", ext("https://github.com/Looscid/Looscid", "Looscid on GitHub", null, "g"), ". The full license is in the ", ext(lic, "LICENSE file", "LICENSE file, Looscid's license", "l"), " there."),
-      lh('p', { key: "t", className: "lid-help", style: { marginTop: 12 } }, "Thanks to everyone who made these. Looscid wouldn't exist without you."),
-      lh('p', { key: "s", className: "lid-help" }, "- 2three1y")]));
+    lh('div', { className: "lc-roll" },
+      lh('p', { className: "lc-roll-lead" }, "This page is where I say thanks."),
+      sec("credits-by", "Created by", [
+        lh('p', { key: "me", className: "lc-roll-star" }, ext("https://github.com/2three1y", "2three1y", "2three1y on GitHub", "me")),
+        lh('p', { key: "t", className: "lc-roll-what" }, "Design, code, sounds and words."),
+        sub("credits-mine", "2three1y's projects inside Looscid", [
+          lh('p', { key: "p", className: "lc-roll-what" }, "These are mine. They're MIT unless it says otherwise, and each one keeps its own LICENSE file next to its copy in Looscid."),
+          ul(LC_CREDITS.mine.map(entry))]),
+        sub("credits-planned", "Coming from my repos", [
+          lh('p', { key: "p", className: "lc-roll-what" }, "Planned, not in Looscid yet. They'll move up to the list above when they land."),
+          ul(LC_CREDITS.planned.map(function (c) { return plain(c.n, c.n, c.w); }))])]),
+      sec("credits-ideas", "Design references", [
+        lh('p', { key: "p", className: "lc-roll-what" }, "These projects inspired how parts of Looscid look and work. I didn't copy any of their code, I just learned from them."),
+        ul(LC_CREDITS.ideas.map(entry))]),
+      sec("credits-uses", "Open-source libraries and licenses", [
+        lh('p', { key: "p", className: "lc-roll-what" }, "Looscid is open source under the ", ext(lic, "Looscid Public License", null, "i"), ". Every project below keeps its own license."),
+        ul(LC_CREDITS.uses.map(entry)),
+        lh('p', { key: "src", className: "lc-roll-what" }, "Looscid's own source code is all on GitHub: ", ext("https://github.com/Looscid/Looscid", "Looscid on GitHub", null, "g"), ". The full license is in the ", ext(lic, "LICENSE file", "LICENSE file, Looscid's license", "l"), " there.")]),
+      sec("credits-sounds", "Voices and sounds", ul([
+        plain("wa", "Every earcon", "Made live with Web Audio. No recorded samples, at all."),
+        plain("sp", "Soundpacks", "The NexOS and Insomnia Soundpacks come from my own projects above. The FastSM-inspired pack is inspired by FastSMRW, with every sound made fresh."),
+        plain("vo", "Spoken feedback", "Uses the voices already on your device, through your browser's speech.")])),
+      sec("credits-thanks", "Special thanks", [
+        ul([
+          plain("my", "MystyDev", "For Yapper, the app behind the Yapper website."),
+          plain("vw", "The Vibework contributors", "For building Vibework with me."),
+          plain("ly", "LRCLIB and lyrics.ovh", "For the lyrics in Lyric Finder, under their own terms."),
+          plain("mg", "MG Storage", "For hosting the Soundpacks Soundvault links to, under their own terms."),
+          plain("fe", "Metabolist", "For Feditext, one of the best accessible apps out there.")]),
+        lh('p', { key: "t", className: "lc-roll-lead" }, "Thanks to everyone who made these. Looscid wouldn't exist without you."),
+        lh('p', { key: "s", className: "lc-roll-what" }, "- 2three1y")])));
 }
 function AboutLooscidMore() {
   const [info, setInfo] = useState(lcAboutInfo());
