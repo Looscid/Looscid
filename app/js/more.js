@@ -1093,7 +1093,7 @@ function AboutSettings({navigate}) {
       lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } },
         link("https://github.com/Looscid/Looscid", "Looscid on GitHub, the source code"),
         link("https://x.com/Looscid", "@Looscid on X"),
-        link("docs/guides/ACCESSIBILITY.md", "Looscid's commitments: accessibility, fairness, humor")),
+        link("https://github.com/Looscid/Looscid/blob/preview/docs/guides/ACCESSIBILITY.md", "Looscid's commitments: accessibility, fairness, humor")),
       lh('p', { className: "lid-help" }, "The welcome intro and terminology guide is the Welcome intro button above.")));
 }
 function MorePage({navigate, cherryCtx, authUser}) {
@@ -2418,6 +2418,7 @@ const LC_VERSION_HISTORY = [
     "Real hints, like a Swift app's (Alhasan): only controls whose action isn't obvious get one, and VoiceOver reads it after a short pause, following your Hints setting. A Dream's replies count says \"Opens the thread.\", Redreams \"Opens Redream and Quote.\", More \"Opens actions for this Dream.\", Expand thread and Collapse thread say what they show, and the Following and Followers counts say \"Opens the list.\" Unavailable items say just their name, with the reason as the hint. No hints on menus, dialogs, lists, tabs or obvious buttons like Like.",
     "Words, per Alhasan's rule: the status page now says \"Publishing, viewing and interacting with Dreams\", and the community rules say \"Share authentic Dreams\" and \"Do not publish\". Every word you read in Looscid uses publish or Dream, and so do the new hints.",
     "Restored the terminology guide and added the post rule.",
+    "Cleaner repository: docs that covered the same subject are merged, docs live in docs/guides and docs/dev, and the app's files are in an app folder. Looscid's address and every page in it stay the same.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by Alhasan. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

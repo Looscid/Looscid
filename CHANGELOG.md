@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 11, 2026 at 8:01 PM (Eastern Time, 2026-10-12T00:01:38Z UTC)
+Released October 11, 2026 at 8:18 PM (Eastern Time, 2026-10-12T00:18:40Z UTC)
 
 Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each.
 
@@ -37,6 +37,7 @@ Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each
 - Real hints, like a Swift app's (Alhasan): only controls whose action isn't obvious get one, and VoiceOver reads it after a short pause, following your Hints setting. A Dream's replies count says "Opens the thread.", Redreams "Opens Redream and Quote.", More "Opens actions for this Dream.", Expand thread and Collapse thread say what they show, and the Following and Followers counts say "Opens the list." Unavailable items say just their name, with the reason as the hint. No hints on menus, dialogs, lists, tabs or obvious buttons like Like.
 - Words, per Alhasan's rule: the status page now says "Publishing, viewing and interacting with Dreams", and the community rules say "Share authentic Dreams" and "Do not publish". Every word you read in Looscid uses publish or Dream, and so do the new hints.
 - Restored the terminology guide and added the post rule.
+- Cleaner repository: docs that covered the same subject are merged, docs live in docs/guides and docs/dev, and the app's files are in an app folder. Looscid's address and every page in it stay the same.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 
