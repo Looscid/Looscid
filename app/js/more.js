@@ -2509,6 +2509,7 @@ const LC_VERSION_HISTORY = [
     "NexOS inside Looscid is Looscid OS now: the desktop, the Looscid terminal with its looscid> prompt, the boot text, the beats and the Looscid OS classic Soundpack (same sounds). Its pages moved to looscid.github.io/Looscid/os/, and old nexos addresses still open the same page there. Your saved settings and backups don't change.",
     "Shared Looscid links show a preview card now, with the Looscid logo and a short line about Looscid, on X, iMessage, Discord and other apps.",
     "Cherry says what she did, once (\"Cherry followed Ava\"), and shows it in the chat as a row like \"Followed 1 Dreamor, Expand\" that opens to the details. When there's nothing to act on, she says so instead of saying Done.",
+    "Menus and sheets say only their name when they open, like Spring: More says \"More\", Create says \"Create\", and a pop-up menu says its name. Swipe or press Down to reach the items.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

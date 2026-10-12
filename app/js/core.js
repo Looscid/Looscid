@@ -1740,7 +1740,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
   return React.createElement('div', {
     className:"menu-ov",
     onClick:e=>{if(e.target===e.currentTarget)onClose();},
-    role:"dialog","aria-modal":"true","aria-label":"Main menu",
+    role:"dialog","aria-modal":"true","aria-label":"More",
     // Build 150 (#62): Escape closes More like every other menu and dialog; focus goes back to the More button.
     onKeyDown:e=>{ if (e.key === "Escape" && !e.defaultPrevented) { e.preventDefault(); e.stopPropagation(); onClose(); } },
   },
@@ -1910,9 +1910,12 @@ function LcMenu(props) {
   const shown = items.filter(function (it) { return !ql || (it.name + " " + (it.group || "") + " " + (it.note || "") + " " + (it.words || "")).toLowerCase().indexOf(ql) >= 0; });
   const all = shown.concat([{ id: "__close", name: "Close", close: true }]);
   const current = action ? null : items.find(function (it) { return it.id === value; });
-  const openMenu = function (at) {
+  // #76: opened by a tap, a click, Enter or Space, focus goes to the menu itself, so VoiceOver says only the menu's name.
+  // Down or Up (or a swipe) then moves to the items. Opened with Down or Up on the button, it lands on an item as before.
+  const [atName, setAtName] = useState(false);
+  const openMenu = function (at, byName) {
     const i = typeof at === "number" ? at : Math.max(0, items.findIndex(function (it) { return it.id === value; }));
-    setQ(""); setActive(Math.min(i, items.length)); setInList(!props.search); setPlace(null); setOpen(true);
+    setQ(""); setActive(Math.min(i, items.length)); setInList(!props.search); setAtName(!!byName && !props.search); setPlace(null); setOpen(true);
   };
   // Keep the whole menu on screen and above the tab bar. A menu that ran under the bar
   // sent VoiceOver's double-tap to the bar's button instead of the option.
@@ -1939,9 +1942,10 @@ function LcMenu(props) {
   useEffect(function () {
     if (!open) return;
     if (props.search && !inList) { if (qRef.current) qRef.current.focus(); return; }
+    if (atName) { if (listRef.current) listRef.current.focus(); return; }
     const el = listRef.current && listRef.current.querySelectorAll("[data-mi]")[active];
     if (el) el.focus();
-  }, [open, active, inList]);
+  }, [open, active, inList, atName]);
   useEffect(function () {
     if (!open) return;
     const onDoc = function (e) { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
@@ -1965,6 +1969,9 @@ function LcMenu(props) {
   };
   const onMenuKey = function (e) {
     const n = all.length, k = e.key;
+    if (atName && (k === "ArrowDown" || k === "ArrowUp")) { e.preventDefault(); e.stopPropagation(); setAtName(false); return; }
+    if (atName && (k === "Enter" || k === " ")) { e.preventDefault(); e.stopPropagation(); return; }
+    if (atName && (k === "Home" || k === "End" || k.length === 1)) setAtName(false);
     if (k === "ArrowDown") { e.preventDefault(); e.stopPropagation(); setActive((active + 1) % n); }
     else if (k === "ArrowUp") { e.preventDefault(); e.stopPropagation(); if (props.search && active === 0) setInList(false); else setActive((active - 1 + n) % n); }
     else if (k === "Home") { e.preventDefault(); e.stopPropagation(); setActive(0); }
@@ -2024,14 +2031,15 @@ function LcMenu(props) {
     lh('button', { id: id, ref: btnRef, type: "button", className: props.btnClass || "lmenu-btn", "aria-haspopup": "menu", "aria-expanded": open ? "true" : "false",
         "aria-controls": open ? menuId : undefined, "aria-labelledby": labelled ? id + "-label " + id : undefined, "aria-label": labelled ? undefined : props.btnLabel,
         "aria-braillelabel": props.btnBraille, disabled: props.disabled, "aria-describedby": props.btnHint ? lcHint(props.btnHint) : undefined,
-        onClick: function () { open ? setOpen(false) : openMenu(); },
+        onClick: function () { open ? setOpen(false) : openMenu(undefined, true); },
         onKeyDown: function (e) { if (e.key === "ArrowDown") { e.preventDefault(); openMenu(props.search ? undefined : 0); } else if (e.key === "ArrowUp") { e.preventDefault(); openMenu(items.length - 1); } } },
       typeof btnText === "string" ? lh('span', null, btnText) : btnText,
       props.noCaret ? null : lh('span', { className: "lmenu-caret", "aria-hidden": "true" }, open ? "\u25B4" : "\u25BE")),
     open && lh('div', { className: "lmenu-list" + ((place ? place.up : props.up) ? " lmenu-up" : ""), style: place && place.max ? { maxHeight: place.max + "px" } : undefined },
       props.search ? lh('input', { ref: qRef, type: "search", className: "lmenu-search", "aria-label": props.search, placeholder: props.search, value: q, enterKeyHint: "go",
         "aria-controls": menuId, onChange: function (e) { const v = e.target.value; setQ(v); setActive(0); lcAnnounceCount(v, items.filter(function (it) { return (it.name + " " + (it.group || "") + " " + (it.note || "") + " " + (it.words || "")).toLowerCase().indexOf(v.trim().toLowerCase()) >= 0; }).length, "match", "matches"); }, onKeyDown: onSearchKey }) : null,
-      lh('ul', { id: menuId, role: "menu", ref: listRef, className: "lmenu-ul", "aria-label": menuName, onKeyDown: onMenuKey }, body)));
+      lh('ul', { id: menuId, role: "menu", ref: listRef, className: "lmenu-ul", "aria-label": menuName, tabIndex: -1, "data-lc-name-focus": "1", onKeyDown: onMenuKey,
+        onFocus: function (e) { if (!atName || e.target === listRef.current) return; const els = Array.prototype.slice.call(listRef.current.querySelectorAll("[data-mi]")), j = els.indexOf(e.target.closest("[data-mi]")); if (j >= 0) setActive(j); setAtName(false); } }, body)));
 }
 // The part of the screen a pop-up can use: below any fixed header, above the bottom tab bar.
 function lcViewLimits() {
@@ -3146,7 +3154,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T21:27:18Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T21:32:38Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4769,7 +4777,18 @@ function lcModalApply(top) {
   }
 }
 function lcModalFirst(top) {
-  const want = top.querySelector("[data-lc-autofocus]") || top.querySelector('[role="menuitem"][tabindex="0"],[role="menuitemradio"][tabindex="0"]');
+  const auto = top.querySelector("[data-lc-autofocus]"); if (auto) return auto;
+  // #76 (build 151, like Spring): a menu, sheet or dialog that opens says only its name. Focus lands on its heading
+  // (VoiceOver: "Settings, heading") or, with no heading, on the dialog itself, which is named by its aria-label.
+  // Nothing inside is read until you move. Pop-up menus (LcMenu) put focus on the menu itself the same way.
+  if (!top.classList.contains("lmenu-list") && top.getAttribute("role") !== "alertdialog") {
+    const lb = top.getAttribute("aria-labelledby"), byId = lb ? document.getElementById(lb.split(" ")[0]) : null;
+    const isH = function (el) { return el && /^H[1-3]$/.test(el.tagName) && el.getClientRects().length > 0 && !el.closest("[inert]"); };
+    const hd = isH(byId) ? byId : Array.prototype.find.call(top.querySelectorAll("h1,h2,h3"), function (el) { return isH(el) && !el.closest(".lmenu-list"); });
+    if (hd) { if (!hd.hasAttribute("tabindex")) hd.setAttribute("tabindex", "-1"); return hd; }
+    if (top.getAttribute("aria-label")) { if (!top.hasAttribute("tabindex")) top.setAttribute("tabindex", "-1"); return top; }
+  }
+  const want = top.querySelector('[role="menu"][tabindex="-1"][data-lc-name-focus],[role="menuitem"][tabindex="0"],[role="menuitemradio"][tabindex="0"]');
   if (want) return want;
   const list = lcModalFocusables(top); return list[0] || null;
 }
@@ -4841,6 +4860,7 @@ function lcModalSync() {
     const list = lcModalFocusables(top); if (!list.length) { e.preventDefault(); return; }
     const first = list[0], lastEl = list[list.length - 1], a = document.activeElement;
     if (!top.contains(a)) { e.preventDefault(); first.focus(); }
+    else if (e.shiftKey && (a === first || a === top || list.indexOf(a) < 0 && a.compareDocumentPosition(first) & Node.DOCUMENT_POSITION_FOLLOWING)) { e.preventDefault(); lastEl.focus(); }
     else if (e.shiftKey && a === first) { e.preventDefault(); lastEl.focus(); }
     else if (!e.shiftKey && a === lastEl) { e.preventDefault(); first.focus(); }
   }, true);

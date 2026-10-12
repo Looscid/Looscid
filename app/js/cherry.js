@@ -78,11 +78,12 @@ function cherryMenuEl(c, where, act) {
   return h('div', { key: "opt-" + key, className: "lmenu lc-cherry-opt" },
     h('button', { id: btnId, type: "button", className: "btn bgb lc-btn lmenu-btn", "aria-haspopup": "menu", "aria-expanded": open ? "true" : "false",
         "aria-controls": open ? menuId : undefined, "aria-label": where === "cur" ? "Chat options" : name, "data-chat": c.id,
-        onClick: function () { open ? act.menuClose(false) : act.menuOpen(key, c.id, btnId, 0); },
+        onClick: function () { open ? act.menuClose(false) : act.menuOpen(key, c.id, btnId, 0, true); },
         onKeyDown: function (e) { if (e.key === "ArrowDown") { e.preventDefault(); act.menuOpen(key, c.id, btnId, 0); } else if (e.key === "ArrowUp") { e.preventDefault(); act.menuOpen(key, c.id, btnId, items.length - 1); } } },
       "Chat options"),
     open ? h('div', { key: "list", className: "lmenu-list" },
-      h('ul', { id: menuId, role: "menu", className: "lmenu-ul", "aria-label": where === "cur" ? "Chat options" : name, onKeyDown: function (e) { act.menuKey(e, items); } },
+      h('ul', { id: menuId, role: "menu", className: "lmenu-ul", tabIndex: -1, "aria-label": where === "cur" ? "Chat options" : name, onKeyDown: function (e) { act.menuKey(e, items); },
+          onFocus: function (e) { const m = LC_CHERRY.menu; if (m && m.atName && e.target !== e.currentTarget) { const j = Array.prototype.indexOf.call(e.currentTarget.querySelectorAll("[data-mi]"), e.target.closest("[data-mi]")); if (j >= 0) m.active = j; m.atName = false; draw(); } } },
         items.map(function (it, i) {
           const label = it.note ? Looscid.lcNameJoin(it.name, it.note) : it.name;
           return h('li', { key: it.id, "data-mi": "1", role: "menuitem", tabIndex: i === m.active ? 0 : -1, "aria-disabled": it.disabled ? "true" : undefined,
@@ -339,7 +340,7 @@ const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
     settings: function () { if (p.navigate) p.navigate("settings_intelligence"); },
     // Chat options menu (build 150, #66). Keys like every Looscid pop-up menu: Up/Down/Home/End move, Enter or Space
     // chooses, Escape and Tab close with focus back on Chat options. Choosing plays the same Soundpack sounds as LcMenu.
-    menuOpen: function (key, id, btnId, at) { LC_CHERRY.menu = { key: key, id: id, btn: btnId, active: at || 0 }; draw(); focusItem(); },
+    menuOpen: function (key, id, btnId, at, byName) { LC_CHERRY.menu = { key: key, id: id, btn: btnId, active: at || 0, atName: !!byName }; draw(); focusItem(); }, // #76: a tap opens it on its name
     menuClose: function (refocus, chime) {
       const m = LC_CHERRY.menu; if (!m) return;
       LC_CHERRY.menu = null;
@@ -351,7 +352,9 @@ const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
     menuKey: function (e, items) {
       const m = LC_CHERRY.menu; if (!m) return;
       const n = items.length, k = e.key;
-      const move = function (i) { e.preventDefault(); e.stopPropagation(); m.active = (i + n) % n; draw(); focusItem(); };
+      const move = function (i) { e.preventDefault(); e.stopPropagation(); m.atName = false; m.active = (i + n) % n; draw(); focusItem(); };
+      if (m.atName && (k === "ArrowDown" || k === "ArrowUp")) { move(m.active); return; }
+      if (m.atName && (k === "Enter" || k === " ")) { e.preventDefault(); e.stopPropagation(); return; }
       if (k === "ArrowDown") move(m.active + 1);
       else if (k === "ArrowUp") move(m.active - 1);
       else if (k === "Home") move(0);
@@ -407,7 +410,7 @@ const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
     },
   };
   const findChat = function (id) { return lcCherryChats().find(function (x) { return x.id === id; }) || (LC_CHERRY.cur && LC_CHERRY.cur.id === id ? LC_CHERRY.cur : null); };
-  const focusItem = function () { setTimeout(function () { const m = LC_CHERRY.menu; if (!m) return; const ul = document.getElementById(m.btn + "-menu"); const el = ul && ul.querySelectorAll("[data-mi]")[m.active]; if (el) el.focus(); }, 0); };
+  const focusItem = function () { setTimeout(function () { const m = LC_CHERRY.menu; if (!m) return; const ul = document.getElementById(m.btn + "-menu"); const el = ul && (m.atName ? ul : ul.querySelectorAll("[data-mi]")[m.active]); if (el) el.focus(); }, 0); };
   const refocus = function (id) { setTimeout(function () { const b = id && document.getElementById(id); if (b) b.focus(); }, 0); };
   // A tap outside an open Chat options menu closes it (like LcMenu); focus is left where the tap put it.
   const onDoc = function (e) {
