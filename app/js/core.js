@@ -1613,23 +1613,25 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       // Build 148 (2three1y): Liked is a place in More, not a bottom tab.
       React.createElement('button', {type:"button", id:"more-liked", className:"lc-more-profile", onClick:function(){ onClose(); navigate("liked"); }}, React.createElement('span', null, "Liked")),
 
-      SECTIONS.map(function(s) {
+      React.createElement('ul', {className:"mlist msec-list", role:"list"}, SECTIONS.map(function(s) {
         var sOpen = isOpen(s.id);
         // Round 6.6: a section that is one page (About Looscid) is one plain button: no submenu, it opens the page.
-        if (s.direct) return React.createElement('h2', {key:s.id, className:"msec-hdr", style:{padding:0}},
+        // Part 32 (2three1y, Oct 12: "Remove the headings on every button in the More tab"): every section of More is a
+        // list item holding a plain button, never a heading, so VoiceOver reads "<Name>, button" and nothing more.
+        if (s.direct) return React.createElement('li', {key:s.id, className:"msec-hdr msec-li", style:{padding:0}},
           React.createElement('button', {type:"button", id:"msec-btn-"+s.id, className:"msec-direct", "data-sec":s.id, onClick:s.direct,
             "aria-braillelabel": Looscid.A11Y_NOW.brailleOutput ? s.label : undefined},
             React.createElement('span', null, s.label)));
         // Build 150 (#71): a section that is a menu (Help) is one pop-up menu button: Up/Down, Enter, Escape back to it.
-        if (s.menu) return React.createElement('h2', {key:s.id, className:"msec-hdr", style:{padding:0}},
+        if (s.menu) return React.createElement('li', {key:s.id, className:"msec-hdr msec-li", style:{padding:0}},
           lh(LcMenu, { id: "msec-btn-" + s.id, menuId: "msec-menu-" + s.id, kind: "action", title: s.label, btnClass: "msec-toggle msec-menu", noCaret: true, inline: true,
             btnBraille: Looscid.A11Y_NOW.brailleOutput ? s.label : undefined,
             btnText: [lh('span', { key: "l" }, s.label), lh('span', { key: "i", className: "msec-toggle-ic", "aria-hidden": "true" }, "\u203a")],
             items: s.items.map(function (it) { return { id: it.label, name: it.label, a: it.action }; }),
             onSelect: function (k, it) { if (it && it.a) it.a(); } }));
-        return React.createElement(React.Fragment, {key:s.id},
+        return React.createElement('li', {key:s.id, className:"msec-li"},
 
-          React.createElement('h2', {className:"msec-hdr",style:{padding:0}},
+          React.createElement('div', {className:"msec-hdr",style:{padding:0}},
             // Disclosure button pattern (round 5): a real button, aria-expanded, and a panel shown or
             // hidden with the hidden attribute. Nothing else hides it, so VoiceOver always agrees.
             React.createElement('button', {
@@ -1693,7 +1695,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
             s.outro ? React.createElement('p', {style:{padding:"8px 16px",margin:0,fontSize:13}}, React.createElement('a', {href:s.outro[1], target:"_blank", rel:"noopener noreferrer", className:"lc-help-link"}, s.outro[0])) : null
           )
         );
-      }),
+      })),
 
       React.createElement('button', Object.assign({type:"button",className:"mclose-btn mclose-bot",onClick:onClose}, lcCloseProps("menu")), "Close")
     )
@@ -3051,7 +3053,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T20:29:40Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T20:32:44Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never

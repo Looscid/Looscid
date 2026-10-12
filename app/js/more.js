@@ -1163,7 +1163,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
         )
       )
       , React.createElement('div', { style: {marginTop:8},}
-        , [
+        , lh('ul', { className: "mlist more-items", role: "list", style: { listStyle: "none", margin: 0, padding: 0 } }, [
           {icon:"Cherry",l:"Cherry",sub:"Cherry - DO IT YOUR WAY",a:()=>navigate("cherry"),color:"#6d28d9"},
           {icon:"Drafts",l:"Drafts",sub:"Your saved Dream drafts",a:()=>navigate("drafts"),color:"#374151"},
           authUser && (authUser.isGuest || authUser.uid==="guest")
@@ -1172,14 +1172,16 @@ function MorePage({navigate, cherryCtx, authUser}) {
           {icon:"Settings",l:"Settings",sub:"LooscidID, privacy, accessibility",a:()=>navigate("settings"),color:"#374151"},
           {icon:"Send Feedback",l:"Send Feedback",sub:"Help us improve Looscid",a:()=>navigate("feedback"),color:"#0e7490"},
         ].map(item => (
-          React.createElement('button', { key: item.l, className: "snav", onClick: item.a, 'aria-label': item.l,}
+          // Part 32: each More item is one plain button in a list item; no heading role anywhere inside it.
+          lh('li', { key: item.l },
+          React.createElement('button', { className: "snav", type: "button", onClick: item.a, 'aria-label': item.l,}
             , React.createElement('div', { className: "snav-l",}
-              , React.createElement('div', { className: "snav-ic", style: {background:item.color+"22",fontSize:17},}, item.icon)
+              , React.createElement('div', { className: "snav-ic", style: {background:item.color+"22",fontSize:17}, "aria-hidden": "true"}, item.icon)
               , React.createElement('div', null, React.createElement('div', { className: "snav-title",}, item.l), React.createElement('div', { className: "snav-sub",}, item.sub))
             )
-            , React.createElement(Ic.Chv, { style: {width:16,height:16,color:"var(--tx3)"},})
-          )
-        ))
+            , React.createElement(Ic.Chv, { style: {width:16,height:16,color:"var(--tx3)"}, "aria-hidden": "true"})
+          ))
+        )))
         , lh(MoreAppsGroup, { navigate: navigate })
         , IS_ADMIN && React.createElement(React.Fragment, null
           , React.createElement('div', { style: {margin:"12px 16px 0",padding:"10px 14px",background:"rgba(245,158,11,.08)",border:"1px solid rgba(245,158,11,.2)",borderRadius:10},}
@@ -1204,7 +1206,9 @@ function MoreAppsGroup({ navigate }) {
   const tRef = useRef(null);
   const onKey = function (e) { if (e.key === "Escape" && open) { e.preventDefault(); e.stopPropagation(); setOpen(false); if (tRef.current) tRef.current.focus(); } };
   return lh('div', { className: "more-apps", onKeyDown: onKey, style: { marginTop: 8 } },
-    lh('h2', { className: "msec-hdr", style: { padding: 0 } },
+    // Part 32 (2three1y, Oct 12: "Remove the headings on every button in the More tab"): the Apps toggle is a plain
+    // button now, not a button inside a heading, so VoiceOver reads just "Apps, button, collapsed".
+    lh('div', { className: "msec-hdr", style: { padding: 0 } },
       lh('button', { id: "more-apps-toggle", ref: tRef, type: "button", className: "msec-toggle", "aria-expanded": open ? "true" : "false", "aria-controls": "more-apps-body",
           onClick: function () { setOpen(!open); } },
         lh('span', { style: { display: "flex", alignItems: "center", gap: 7 } }, lh('span', null, "Apps")),
@@ -2421,6 +2425,7 @@ const LC_VERSION_HISTORY = [
     "Cleaner repository: docs that covered the same subject are merged, docs live in docs/guides and docs/dev, and the app's files are in an app folder. Looscid's address and every page in it stay the same.",
     "Looscid says 2three1y everywhere now: About Looscid (\"I'm 2three1y, a blind developer\"), the project pages, the Commandbar and the docs. License copyright lines are unchanged for now.",
     "Credits looks like a normal credits page now: a centered roll grouped by role (Created by, Design references, Open-source libraries and licenses, Voices and sounds, Special thanks) with plain headings and lists. Every credit and license link is still there, and nothing scrolls by itself.",
+    "More reads cleaner with VoiceOver: no item in More is a heading anymore. Each section and each item is one plain button or link in a list, so VoiceOver reads just its name and \"button\".",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
