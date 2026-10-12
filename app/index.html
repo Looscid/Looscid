@@ -1,26 +1,26 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto">
 <head>
-  <script>
-    window.onerror = function(msg, src, line, col, err) {
-      var d = document.createElement('div');
-      d.style = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#1a0000;color:#ff6b6b;padding:24px;font-family:monospace;font-size:13px;z-index:999999;overflow:auto;word-break:break-word;white-space:pre-wrap;';
-      d.innerHTML = '<b>Error:</b> ' + msg + '\nSource: ' + src + '\nLine: ' + line + ', Col: ' + col + (err ? '\n\n' + err.stack : '');
-      document.body ? document.body.appendChild(d) : document.addEventListener('DOMContentLoaded', function(){ document.body.appendChild(d); });
-      return false;
-    };
-    window.addEventListener('unhandledrejection', function(e) {
-      window.onerror(String(e.reason), 'promise', 0, 0, e.reason instanceof Error ? e.reason : null);
-    });
-  </script>
-
 <meta charset="UTF-8"/>
 <script>
-/* Part 40 (#69): real page addresses like /Looscid/Settings/Sense. The app's own folder stays the base for every file it
-   loads, even after the address changes to a page's path. GitHub serves the site at /Looscid/ (that part is case-sensitive). */
-(function () { var p = location.pathname, b = /^\/looscid(\/|$)/i.test(p) ? "/Looscid/" : p.replace(/[^\/]*$/, ""); window.LOOSCID_BASE = b; document.write('<base href="' + b.replace(/"/g, "") + '">'); })();
+/* Security pass 5/6: this is the only script written inline in this page, so the page's Content-Security-Policy below
+   can allow it by its sha256 hash and refuse every other inline script. It runs first, before anything else.
+   1. Part 40 (#69): real page addresses like /Looscid/Settings/Sense. The app's own folder stays the base for every file
+      it loads, even after the address changes to a page's path. GitHub serves the site at /Looscid/ (case-sensitive).
+   2. Frame guard: GitHub Pages can't send frame-ancestors, so if another website shows Looscid inside a frame (a trick
+      to make you tap something you can't see), Looscid doesn't start there. js/boot.js shows a short message with a link
+      that opens Looscid on its own. Looscid's own pages may still frame it (same origin). */
+(function () {
+  var p = location.pathname, b = /^\/looscid(\/|$)/i.test(p) ? "/Looscid/" : p.replace(/[^\/]*$/, "");
+  window.LOOSCID_BASE = b; document.write('<base href="' + b.replace(/"/g, "") + '">');
+  var framed = false;
+  try { framed = window.top !== window.self && window.top.location.origin !== window.location.origin; } catch (e) { framed = true; }
+  if (framed) { window.LOOSCID_FRAMED = true; document.documentElement.setAttribute("data-lc-framed", ""); }
+})();
 </script>
-<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; default-src 'self' https:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https: wss:; frame-src 'self' https://www.youtube-nocookie.com https://player.vimeo.com https://open.spotify.com;"/>
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; default-src 'self'; script-src 'self' 'sha256-xzAAgal1WvMnk4aW3pLadFw4bjy0GEZmn1D2TFtnEhI='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self' https: wss:; frame-src 'self' blob: https://www.youtube-nocookie.com https://player.vimeo.com https://open.spotify.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<!-- Security pass 5/6: no inline script except the one above (allowed by its hash); the rest are files. -->
+<script src="js/boot.js"></script>
 <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
@@ -52,7 +52,7 @@
 <link rel="preload" as="script" href="js/vendor/react-dom-18.2.0.production.min.js" integrity="sha384-bm7MnzvK++ykSwVJ2tynSE5TRdN+xL418osEVF2DE/L/gfWHj91J2Sphe582B1Bh"/>
 <!-- Babel not needed: JSX pre-compiled -->
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" id="lc-fonts"/>
 <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/></noscript>
 <link rel="stylesheet" href="css/app.css"/>
 <link rel="stylesheet" href="css/a11y.css" id="lc-a11y-css"/>
@@ -80,9 +80,6 @@
 <script src="js/projects.js"></script>
 <script src="js/helpcenter.js"></script>
 <script src="js/liked.js"></script>
-<script>
-/* Mount: core and every tab file are loaded, so start the app. */
-ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(Looscid.ErrorBoundary, null, React.createElement(Looscid.App, null)));
-</script>
+<script src="js/mount.js"></script>
 </body>
 </html>

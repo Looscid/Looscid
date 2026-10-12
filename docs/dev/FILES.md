@@ -9,6 +9,7 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 | File | What it holds |
 |---|---|
 | `app/index.html` | The frame only: meta tags, the startup screen, the live region `#looscid-live`, the script tags in load order, and the mount at the end. |
+| `app/js/boot.js`, `app/js/mount.js` | Security pass 5/6: the page has one inline script (the `<base>` and the frame guard, allowed by its sha256 hash in the Content-Security-Policy; change the script and the hash together). `boot.js` is the first file: the error screen, the web fonts switch, and the message shown when another website frames Looscid. `mount.js` starts the app. |
 | `app/404.html` | Real page addresses (#69): GitHub Pages serves it for any address under /Looscid/ that isn't a file, and it sends that address into the app as `?p=<path>`. `LC_ROUTES` in `app/js/core.js` maps each page to its address (case never matters); `index.html` sets a `<base>` so files always load from the app folder. |
 | `app/css/app.css` | The app's styles. |
 | `app/css/a11y.css` | Startup screen, Commandbar, earcon cues and Settings > Accessibility styles (`<link id="lc-a11y-css">`). |
@@ -41,7 +42,7 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 7. `app/js/projects.js` (Round 6.6: new, right after `app/js/commands.js`; the frame shows a project with `case "project"` in `app/js/core.js`)
 8. `app/js/helpcenter.js` (Round 6.6: new, right after `app/js/projects.js`; the frame shows its page with `case "helpcenter"` in `app/js/core.js`)
 9. `app/js/liked.js` (build 147: new, right after `app/js/helpcenter.js`; the profile's Liked tab renders `Looscid.LikedView`)
-10. The mount: a short inline script at the end of `app/index.html` that starts the app.
+10. The mount: `app/js/mount.js` at the end of `app/index.html` starts the app (not inside another website's frame).
 
 ## One namespace
 
