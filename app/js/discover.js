@@ -57,8 +57,7 @@ function discoverView(st, p, draw) {
   return h('div', { className: "pg" },
     h('div', { className: "hdr" },
       h('div', { style: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "48px 16px 0" } },
-        h('h1', { className: "htit", tabIndex: -1 }, "Discover"),
-        cherryCtx && h('button', { className: "cherry-ctx-btn", onClick: function () { cherryCtx.openCherry("What is trending right now?"); }, "aria-label": "Ask Cherry what is trending right now" }, "Trending")),
+        h('h1', { className: "htit", tabIndex: -1 }, "Discover")),
       h('div', { style: { padding: "10px 16px 6px" } },
         h('input', { className: "inp", style: { fontSize: 14 }, placeholder: "Search Dreamors, Dreams, Circles, topics", value: q,
           onChange: function (e) { st.q = e.target.value; if (e.target.value && st.tab === "trending") st.tab = "all"; draw(); },
@@ -97,15 +96,7 @@ function discoverView(st, p, draw) {
         }))),
 
     h('div', { "aria-live": "polite", "aria-label": "Search results" },
-      q && cherryCtx && h('div', { style: { display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderBottom: "1px solid rgba(168,85,247,.2)", background: "rgba(109,40,217,.06)", cursor: "pointer" },
-          onClick: function () { cherryCtx.openCherry(q); }, role: "button", tabIndex: 0, "aria-label": "Ask Cherry: " + q,
-          onKeyDown: function (e) { if (e.key === "Enter") cherryCtx.openCherry(q); } },
-        h('div', { className: "aiorb", style: { width: 36, height: 36, fontSize: 17, flexShrink: 0 } }, "Cherry"),
-        h('div', { style: { flex: 1 } },
-          h('div', { style: { fontWeight: 700, fontSize: 13, color: "var(--tx)" } }, "Ask Cherry: \u201c", q, "\u201d"),
-          h('div', { style: { fontSize: 11, color: "var(--tx3)", marginTop: 1 } }, "Get an AI answer, not just search results")),
-        lcIconEl("Chv", { style: { width: 14, height: 14, color: "var(--ac3)" } })),
-
+      // Part 36 (2three1y, Oct 12 4:50 PM): no Ask Cherry on Discover. Discover is search and browsing only.
       (tab === "trending" || (tab === "all" && !q)) && TRENDING.map(function (t) {
         return h('div', { key: t.tag, className: "trtg", role: "button", tabIndex: 0, onClick: function () { st.q = "#" + t.tag; st.tab = "dreams"; draw(); }, "aria-label": Looscid.lcNameJoin("#" + t.tag, t.cat, t.count) },
           h('div', null,
@@ -113,7 +104,6 @@ function discoverView(st, p, draw) {
             h('div', { style: { fontSize: 14, fontWeight: 700, margin: "2px 0" } }, "#", t.tag),
             h('div', { style: { fontSize: 11, color: "var(--tx3)" } }, t.count)),
           h('div', { style: { display: "flex", alignItems: "center", gap: 8 } },
-            cherryCtx && h('button', { className: "cherry-ctx-btn", onClick: function (e) { e.stopPropagation(); cherryCtx.openCherry("Draft a Dream about #" + t.tag + " that would perform well"); }, "aria-label": "Ask Cherry to draft a Dream about #" + t.tag }, "Draft"),
             lcIconEl("Chv", { style: { width: 14, height: 14, color: "var(--tx3)" } })));
       }),
 
@@ -155,8 +145,7 @@ function discoverView(st, p, draw) {
       noResults && h('div', { className: "es" },
         h('div', { className: "esi" }, "No results"),
         h('div', { className: "esl" }, "Nothing found"),
-        h('p', { style: { fontSize: 12, color: "var(--tx3)", marginTop: 6, lineHeight: 1.6 } }, "No results for \u201c", q, "\u201d. Try different words, or ask Cherry."),
-        cherryCtx && h('button', { className: "cherry-ctx-btn", style: { margin: "10px auto 0", display: "flex" }, onClick: function () { cherryCtx.openCherry("Help me find: " + q); }, "aria-label": "Ask Cherry to help find " + q }, "Ask Cherry to find this"))));
+        h('p', { style: { fontSize: 12, color: "var(--tx3)", marginTop: 6, lineHeight: 1.6 } }, "No results for \u201c", q, "\u201d. Try different words."))));
 }
 
 /* The Discover tab: search, filters, and Trending / Dreamors / Dreams / Circles. */

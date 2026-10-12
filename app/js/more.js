@@ -2429,6 +2429,7 @@ const LC_VERSION_HISTORY = [
     "The site footer is back, at the end of every page: Social (GitHub, X and YouTube), Legal (Terms, Privacy, Rules and a new Child Safety page), Values (our accessibility commitment) and Download. It is a real footer landmark with a heading per group, and it never covers anything.",
     "Edit profile opens again: when VoiceOver brings a control into view, it now lands below the page header instead of under it, so a double tap on Edit profile can no longer land on the Commandbar button.",
     "Commandbar lives in More now: \"Open Commandbar\" is a plain button there, and Control K or Command K still open it anywhere. The floating Commandbar button at the top is gone, so it can't catch taps meant for Edit profile or anything else.",
+    "Discover is search and browsing only: Ask Cherry is gone from it (the Trending button, the Ask Cherry row above results, Draft on trending tags and Ask Cherry when nothing is found).",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
