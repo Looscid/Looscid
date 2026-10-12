@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 12, 2026 at 6:35 PM (Eastern Time, 2026-10-12T22:35:34Z UTC)
+Released October 12, 2026 at 6:41 PM (Eastern Time, 2026-10-12T22:41:31Z UTC)
 
 Round 7: a feature update, asked for by 2three1y. Built in steps, one commit each.
 
@@ -61,6 +61,7 @@ Round 7: a feature update, asked for by 2three1y. Built in steps, one commit eac
 - Settings looks like Spring now: Sense is pinned alone at the top, every row says its current value after its name (like "Customizability, Dark theme" or "Intelligence, Cherry off"), and the new Settings, Tab Bar page lets you show or hide each tab and move it up or down with plain buttons. Tabs you pinned on the feed can be added as custom tabs. More is always last.
 - Subscribe to thread: a Dream's More menu has Subscribe to thread (and Unsubscribe from thread). New replies in a thread you follow show up in Alerts as "New reply in a thread you follow", whether they reach Looscid directly or come from Nostr relays that tag the thread. On the web it's in the app only; the native apps can make it a push notification.
 - Profiles: the second tab is just "Replies" now, and it shows only your replies, no top-level Dreams (those stay in the Dreams tab). When there are none it says "No Replies yet" and "Your Replies will show up here."
+- Replies tab: each reply now says what it answers, first thing inside it, like "Replying to Tomo: " and the start of Tomo's Dream (or the reply it answers). When that Dream isn't on your device it says "Replying to @tomo". A hidden or blocked Dream shows no text, and one with a content warning shows the warning.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 

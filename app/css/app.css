@@ -531,6 +531,8 @@ label.lc-cr-tool{color:var(--tx2)}
 .lc-link-what{margin:0 0 6px;font-size:13px;color:var(--tx2)}
 .lc-link-frame{display:block;width:100%;aspect-ratio:16/9;height:auto;border:0;border-radius:8px;margin:0 0 8px}
 .lc-quoted{margin:8px 0;padding:8px 10px;border-left:3px solid var(--bd2)}
+/* Build 151: what a reply answers, on a profile's Replies tab ("Replying to Tomo: ..."). */
+.lc-reply-ctx{margin:0 0 8px;padding:2px 0 2px 10px;border-left:3px solid var(--bd2);font-size:13px;line-height:1.45;color:var(--tx2);overflow-wrap:anywhere}
 
 /* Round 6.5.2: the Cherry page */
 .lc-cherry .lc-cherry-top{padding:8px 16px 10px}

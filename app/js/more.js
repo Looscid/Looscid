@@ -376,7 +376,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
     if (e.key === "ArrowRight") n = (i + 1) % TABS.length; else if (e.key === "ArrowLeft") n = (i + TABS.length - 1) % TABS.length; else if (e.key === "Home") n = 0; else if (e.key === "End") n = TABS.length - 1;
     if (n === null) return; e.preventDefault(); setTab(TABS[n][0]); setTimeout(function () { const b = document.getElementById("pf-tab-" + TABS[n][0]); if (b) b.focus(); }, 0);
   };
-  const card = function (d) { return lh(DreamCard, { key: d.id, dream: d, onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onComment: function (x) { setActiveComment(x); }, navigate: navigate, cherryCtx: cherryCtx }); };
+  const card = function (d, ctx) { return lh(DreamCard, { key: d.id, dream: d, replyCtx: ctx || null, onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onComment: function (x) { setActiveComment(x); }, navigate: navigate, cherryCtx: cherryCtx }); };
   const empty = function (title, sub) { return lh('div', { className: "es" }, lh('p', { className: "esl" }, title), sub ? lh('p', { className: "lc-muted", style: { textAlign: "center", marginTop: 6 } }, sub) : null); };
   const nFollowing = self ? USERS.filter(function (u) { return cherryCtx && cherryCtx.following.has(u.id); }).length : (user.following || 0);
   const nFollowers = self ? USERS.filter(function (u) { return u.followsYou; }).length : (user.followers || 0);
@@ -426,7 +426,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const panel = function () {
     switch (cur) {
       case "dreams": { const l = byId(ownDreams); return l.length ? l.map(card) : empty("No Dreams yet", isMe ? "Your Dreams will show up here." : "Nothing to show yet."); }
-      case "replies": { const l = byId(myReplies); return l.length ? l.map(card) : empty("No Replies yet", isMe ? "Your Replies will show up here." : "Nothing to show yet."); }
+      case "replies": { const l = byId(myReplies); return l.length ? l.map(function (d) { return card(d, Looscid.lcReplyContext(d, dreams.concat(all))); }) : empty("No Replies yet", isMe ? "Your Replies will show up here." : "Nothing to show yet."); }
       case "redreams":
         return lh(React.Fragment, null,
           lh('fieldset', { className: "lc-fs lc-rd-show" },
@@ -2517,6 +2517,7 @@ const LC_VERSION_HISTORY = [
     "Settings looks like Spring now: Sense is pinned alone at the top, every row says its current value after its name (like \"Customizability, Dark theme\" or \"Intelligence, Cherry off\"), and the new Settings, Tab Bar page lets you show or hide each tab and move it up or down with plain buttons. Tabs you pinned on the feed can be added as custom tabs. More is always last.",
     "Subscribe to thread: a Dream's More menu has Subscribe to thread (and Unsubscribe from thread). New replies in a thread you follow show up in Alerts as \"New reply in a thread you follow\", whether they reach Looscid directly or come from Nostr relays that tag the thread. On the web it's in the app only; the native apps can make it a push notification.",
     "Profiles: the second tab is just \"Replies\" now, and it shows only your replies, no top-level Dreams (those stay in the Dreams tab). When there are none it says \"No Replies yet\" and \"Your Replies will show up here.\"",
+    "Replies tab: each reply now says what it answers, first thing inside it, like \"Replying to Tomo: \" and the start of Tomo's Dream (or the reply it answers). When that Dream isn't on your device it says \"Replying to @tomo\". A hidden or blocked Dream shows no text, and one with a content warning shows the warning.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

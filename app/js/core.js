@@ -183,6 +183,47 @@ function lcReplyObj(r) {
   o.user = ME; o.time = lcAgo(r.created);
   return o;
 }
+/* Build 151 (2three1y, Oct 12, in the Council of Dreamors): on a profile's Replies tab each reply says what it answers,
+   like Feditext's and Twitter's replies tab: "Replying to Tomo: <the start of Tomo's Dream>". It answers the reply it
+   was written to (replyToReply) when there is one, else the Dream (replyTo). When that isn't on this device, it says
+   "Replying to @handle" from who the reply notified (the author of what it answers comes first) or from its Nostr
+   p tag; with nothing known, "Replying to a Dream". A Dream hidden by a block, mute or blocked word shows no text, and
+   one with a content warning shows the warning instead of its text. */
+function lcReplySnippet(t, max) {
+  const s = String(t || "").replace(/\s+/g, " ").trim(); max = max || 80;
+  if (s.length <= max) return s;
+  const cut = s.slice(0, max), sp = cut.lastIndexOf(" ");
+  return (sp > max * 0.6 ? cut.slice(0, sp) : cut).replace(/[\s.,;:!?-]+$/, "") + "\u2026";
+}
+function lcReplyContext(r, pool) {
+  if (!r || (r.replyTo == null && r.replyToReply == null)) return null;
+  const list = (pool || []).concat(Looscid.LC_APP_DREAMS || [], lcRepliesRaw().map(lcReplyObj));
+  const find = function (id) { if (id == null) return null; const k = String(id); return list.find(function (x) { return x && (String(x.id) === k || (x.nid && String(x.nid) === k)); }) || null; };
+  const p = r.replyToReply != null ? find(r.replyToReply) : find(r.replyTo);
+  if (p && p.user && String(p.id) !== String(r.id)) {
+    const name = p.user.name || p.user.handle || "someone";
+    const f = lcFiltered(p);
+    if (f && f.blockedUser) return { who: "", text: "" };
+    if (f && (f.hide || f.bw)) return { who: name, text: "" };
+    if (f && f.cw) return { who: name, text: "", cw: f.cw };
+    return { who: name, text: lcReplySnippet(p.text) };
+  }
+  let h = Array.isArray(r.notify) && r.notify.length ? String(r.notify[0] || "") : "";
+  if (!h && Array.isArray(r.tags)) {
+    const pt = r.tags.find(function (t) { return Array.isArray(t) && t[0] === "p" && /^[0-9a-f]{64}$/i.test(String(t[1] || "")); });
+    const u = pt && USERS.find(function (x) { return x && x.pk && String(x.pk).toLowerCase() === String(pt[1]).toLowerCase(); });
+    if (u && u.handle) h = u.handle;
+  }
+  h = h.replace(/^@/, "").trim();
+  return { who: h ? "@" + h : "", text: "", missing: true };
+}
+// The words: "Replying to Tomo: <text>", "Replying to Tomo, content warning: <cw>", "Replying to @tomo", "Replying to a Dream".
+function lcReplyContextWords(c) {
+  if (!c) return "";
+  const who = c.who || "a Dream";
+  return "Replying to " + who + (c.cw ? ", content warning: " + c.cw : c.text ? ": " + c.text : "");
+}
+Looscid.lcReplyContext = lcReplyContext; Looscid.lcReplyContextWords = lcReplyContextWords;
 // Your saved replies to one Dream, newest first.
 function lcRepliesFor(parentId) {
   const k = String(parentId);
@@ -773,7 +814,7 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
   );
 }
 /* --- DREAM CARD -------------------------- */
-function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onComment, navigate, cherryCtx}) {
+function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onComment, navigate, cherryCtx, replyCtx}) {
   const [showRD, setShowRD] = useState(false);
   const [showOpts, setShowOpts] = useState(false);
   const optsBtn = useRef(null);
@@ -796,7 +837,10 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
   const srMeta = [verb === "detailed" && kind !== "Dream" ? kind : "", verb === "detailed" ? lcSpeechText(dream.user.handle || "") : "", srTime].filter(Boolean).join(", ");
   const srText = lcSpeechText(dream.text), textFirst = A.readOrder === "text";
   const rewrite = textFirst || A.speakEmoji === "skip" || A.speakEmoji === "word" || A.speakTags === "skip";
-  const artProps = { className: "dc", role: "article", tabIndex: -1, "data-dream-id": dream.id, "aria-label": lcDreamWords(dream, "speech"), "aria-braillelabel": A.brailleOutput ? lcDreamWords(dream, "braille") : undefined,
+  // Build 151: on a profile's Replies tab, what the reply answers comes first ("Replying to Tomo: ...").
+  const ctxWords = replyCtx ? lcReplyContextWords(replyCtx) : "";
+  const ctxSpeech = ctxWords ? (/[.!?\u2026]$/.test(ctxWords) ? ctxWords + " " : ctxWords + ". ") : "";
+  const artProps = { className: "dc", role: "article", tabIndex: -1, "data-dream-id": dream.id, "aria-label": ctxSpeech + lcDreamWords(dream, "speech"), "aria-braillelabel": A.brailleOutput ? (replyCtx ? "Re " + (replyCtx.who || "a Dream") + ": " : "") + lcDreamWords(dream, "braille") : undefined,
     onFocus: function () { Looscid.LC_LAST_DREAM = dream; } };
   if (flt && flt.bw && !cwOpen) return lh('div', Object.assign({}, artProps, { "aria-label": "Hidden: contains a blocked word", "aria-braillelabel": A.brailleOutput ? "Hidden: blocked word" : undefined }),
     lh('div', { className: "dc-inner lc-cw lc-bw" },
@@ -814,6 +858,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
       )
       , React.createElement('div', artProps
         , React.createElement('div', { className: "dc-inner",}
+          , ctxWords && lh('p', { className: "lc-reply-ctx" }, ctxWords)
           , textFirst && lh('p', { className: "sr-only" }, srText)
           , React.createElement('div', { className: "dc-meta",}
             , React.createElement('button', { style: {background:"none",border:"none",cursor:"pointer",padding:0}, onClick: ()=>navigate("dp",dream.user), 'aria-label': "View "+dream.user.name+"'s profile", "aria-braillelabel": A.brailleOutput ? dream.user.name : undefined,}
@@ -3215,7 +3260,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T22:35:34Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T22:41:31Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
