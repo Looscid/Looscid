@@ -80,7 +80,9 @@ function FeedPage({navigate, prefs, cherryCtx}) {
   };
   return (
     React.createElement('div', { className: "pg", onKeyDown: onFeedKey,}
-      , React.createElement('div', { className: "hdr",}
+      /* Build 152 prep: only the feed tabs stay pinned at the top while you scroll. The title, welcome line and feed
+         options scroll away, so on small screens the header no longer covers the first Dream's buttons. */
+      , React.createElement('div', { className: "hdr lc-hdr-static",}
         , React.createElement('div', { style: {display:"flex",alignItems:"center",justifyContent:"space-between",padding:"48px 16px 0"},}
           , React.createElement('h1', { className: "htit", tabIndex:-1,}, "Home")
           , lcAiOn() && React.createElement('button', {
@@ -93,9 +95,9 @@ function FeedPage({navigate, prefs, cherryCtx}) {
           )
         )
         , React.createElement('p', { className: "lid-home-intro",}, "Welcome to Looscid, the decentralized, open source and accessible everything app. Your data stays yours. Dreams from you and the people you follow show up here.")
-        , lh(FeedTabs, null)
-        , lh(FeedControls, { tab: tab, cherryCtx: cherryCtx, dreams: rawDreams, pubState: pubKey && pub.key === pubKey ? pub.state : "idle" })
       )
+      , lh('div', { className: "lc-feed-bar" }, lh(FeedTabs, null))
+      , lh('div', { className: "lc-feed-ctl" }, lh(FeedControls, { tab: tab, cherryCtx: cherryCtx, dreams: rawDreams, pubState: pubKey && pub.key === pubKey ? pub.state : "idle" }))
       , visible.length===0 && lh('div', { className: "es" },
           lh('p', { className: "esl" }, tab==="following" && showFriends ? "No Dreams from friends yet" : "No Dreams yet"),
           lh('p', { style: {fontSize:14,color:"var(--tx2)",marginTop:6,lineHeight:1.6,maxWidth:260,textAlign:"center"} },

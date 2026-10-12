@@ -51,6 +51,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .cherry-feed-pill:active{background:rgba(109,40,217,.22)}
 /* Header */
 .hdr{position:sticky;top:0;background:rgba(7,5,15,.93);backdrop-filter:blur(18px);z-index:10;border-bottom:1px solid var(--bd)}
+/* Build 152 prep: the Home title and options scroll away; only the feed tabs bar stays pinned (it is short). */
+.hdr.lc-hdr-static{position:relative;border-bottom:0;z-index:auto}
+.lc-feed-bar{position:sticky;top:0;z-index:10;background:rgba(7,5,15,.93);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.lc-feed-ctl{position:relative;z-index:9;border-bottom:1px solid var(--bd)}
 .htit{font-family:'DM Serif Display',Georgia,serif;font-size:22px;background:linear-gradient(135deg,var(--ac4),var(--ac3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .hdr-row{display:flex;align-items:center;gap:6px;padding:48px 14px 12px}
 .hdr-title{font-family:'DM Serif Display',Georgia,serif;font-size:20px;color:var(--tx);flex:1}
