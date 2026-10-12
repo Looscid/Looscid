@@ -2531,6 +2531,7 @@ const LC_VERSION_HISTORY = [
     "Security: React now loads from Looscid itself, not from an outside code site, and the browser checks it wasn't changed.",
     "Dream options: Copy link, Open original on Nostr or Mastodon, Liked by and Redreamed by (who, from Nostr, each signature checked), and Dream info (when it was published, its network and the app it came from).",
     "Dream options: Pin to profile (up to 5 of your Dreams, shown first on your Dreams tab and read as \"Pinned\"), Mute this conversation (no more alerts from that thread) and, on For You, Not interested in this Dream (hides it there and moves you to the next Dream).",
+    "Fixed: on Home, Federated, a Networks checkbox could open Create instead. The page used to scroll underneath the tab bar, so a control VoiceOver moved to could sit behind it, and a double tap landed on the tab bar's middle button, Create. Now every page ends at the top of the tab bar, so nothing is ever behind it.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

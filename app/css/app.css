@@ -34,6 +34,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 @media(prefers-contrast:more){:root{--bd:rgba(255,255,255,.4);--bd2:rgba(255,255,255,.6);--tx2:#fff}}
 .pg{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:72px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .pg::-webkit-scrollbar{display:none}
+/* Build 152 fix: the page ends at the top of the tab bar (lcBnavRoom measures it), so no control can sit under it and a
+   VoiceOver double tap on, say, a Networks checkbox never lands on Create. */
+.app.lc-bnav-room{padding-bottom:var(--lc-bnav-h,0px)}
+.app.lc-bnav-room .pg{padding-bottom:16px;scroll-padding-bottom:16px}
 /* Nav */
 /* ── Tab Bar ── */
 .bnav{position:absolute;bottom:0;left:0;right:0;display:flex;align-items:stretch;background:rgba(7,5,15,.97);backdrop-filter:blur(20px);border-top:1px solid var(--bd);z-index:100;padding-bottom:env(safe-area-inset-bottom);gap:0}

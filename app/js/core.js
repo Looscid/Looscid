@@ -2247,6 +2247,29 @@ function LcMenu(props) {
       lh('ul', { id: menuId, role: "menu", ref: listRef, className: "lmenu-ul", "aria-label": menuName, tabIndex: -1, "data-lc-name-focus": "1", onKeyDown: onMenuKey,
         onFocus: function (e) { if (!atName || e.target === listRef.current) return; const els = Array.prototype.slice.call(listRef.current.querySelectorAll("[data-mi]")), j = els.indexOf(e.target.closest("[data-mi]")); if (j >= 0) setActive(j); setAtName(false); } }, body)));
 }
+// Build 152 fix (2three1y, Oct 12 6:52 PM: "Why does the Network picker open the Create tab?"): the page used to scroll
+// on underneath the bottom tab bar. When VoiceOver (or the keyboard) moved to a control, like a Networks checkbox,
+// it was brought only just into view, which could be behind the tab bar, and VoiceOver's double tap landed on the
+// tab bar's middle button, Create. Now the page's scrolling area ends at the top of the tab bar, so nothing can sit
+// under it. The tab bar's height is measured (it changes with the safe area and text size) and kept in --lc-bnav-h.
+function lcBnavRoom() {
+  if (Looscid.LC_BNAV_ROOM) return; Looscid.LC_BNAV_ROOM = true;
+  let raf = 0, last = -1;
+  const measure = function () {
+    raf = 0; const app = document.querySelector(".app"); if (!app) return;
+    const nav = app.querySelector(".bnav"); let h = 0;
+    if (nav && nav.getClientRects().length) { const r = nav.getBoundingClientRect(), a = app.getBoundingClientRect(); h = Math.max(0, Math.round(a.bottom - r.top)); if (h > a.height / 2) h = 0; }
+    if (h === last && app.classList.contains("lc-bnav-room") === h > 0) return; last = h;
+    app.style.setProperty("--lc-bnav-h", h + "px"); app.classList.toggle("lc-bnav-room", h > 0);
+  };
+  const soon = function () { if (!raf) raf = requestAnimationFrame(measure); };
+  measure();
+  if (typeof ResizeObserver !== "undefined") { const ro = new ResizeObserver(soon); const app = document.querySelector(".app"); if (app) ro.observe(app); Looscid.LC_BNAV_RO = ro; }
+  if (typeof MutationObserver !== "undefined") new MutationObserver(soon).observe(document.body, { childList: true, subtree: true });
+  window.addEventListener("resize", soon); if (window.visualViewport) window.visualViewport.addEventListener("resize", soon);
+  window.addEventListener("looscid:a11y", soon);
+}
+Looscid.lcBnavRoom = lcBnavRoom;
 // The part of the screen a pop-up can use: below any fixed header, above the bottom tab bar.
 function lcViewLimits() {
   const vv = window.visualViewport, H = vv ? vv.height : window.innerHeight;
@@ -3363,7 +3386,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T23:08:23Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T23:10:22Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -5760,7 +5783,7 @@ function App() {
   useEffect(() => {
     try { performance.mark("looscid-interactive"); } catch (e) {}
     if (!window.__lcLoadedSaid) { window.__lcLoadedSaid = true; announce("Looscid loaded"); }
-    lcBrWatch();
+    lcBrWatch(); lcBnavRoom();
   }, []);
   useEffect(() => {
     let mq; try { mq = window.matchMedia("(prefers-reduced-motion: reduce)"); } catch (e) { return; }
