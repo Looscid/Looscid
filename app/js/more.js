@@ -2426,6 +2426,7 @@ const LC_VERSION_HISTORY = [
     "Looscid says 2three1y everywhere now: About Looscid (\"I'm 2three1y, a blind developer\"), the project pages, the Commandbar and the docs. License copyright lines are unchanged for now.",
     "Credits looks like a normal credits page now: a centered roll grouped by role (Created by, Design references, Open-source libraries and licenses, Voices and sounds, Special thanks) with plain headings and lists. Every credit and license link is still there, and nothing scrolls by itself.",
     "More reads cleaner with VoiceOver: no item in More is a heading anymore. Each section and each item is one plain button or link in a list, so VoiceOver reads just its name and \"button\".",
+    "The site footer is back, at the end of every page: Social (GitHub, X and YouTube), Legal (Terms, Privacy, Rules and a new Child Safety page), Values (our accessibility commitment) and Download. It is a real footer landmark with a heading per group, and it never covers anything.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

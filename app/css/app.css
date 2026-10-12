@@ -576,3 +576,17 @@ label.lc-cr-tool{color:var(--tx2)}
 .lc-roll-name { font-weight: 700; font-size: 1.05rem; margin: 0; }
 .lc-roll-what, .lc-roll-links { margin: 2px 0 0; line-height: 1.45; }
 @media (prefers-reduced-motion: reduce) { .lc-roll * { transition: none !important; animation: none !important; } }
+
+/* Part 33: the site footer sits at the end of each page's own scroll area; never fixed, never over content. */
+.lc-footer-box { padding: 8px 0 0; }
+.lc-footer { border-top: 1px solid var(--bd); margin: 24px 16px 0; padding: 16px 0 24px; color: var(--tx2); font-size: 14px; }
+.lc-foot-title { font-size: 15px; margin: 0 0 8px; color: var(--tx); }
+.lc-foot-grp { margin: 12px 0 0; }
+.lc-foot-h { font-size: 14px; margin: 0 0 6px; color: var(--tx); }
+.lc-foot-list { list-style: none; margin: 0; padding: 0; }
+.lc-foot-list li { margin: 0 0 6px; }
+.lc-foot-list a { display: inline-block; min-height: 44px; line-height: 44px; }
+.lc-foot-soon { background: none; border: 1px solid var(--bd); border-radius: 8px; color: var(--tx3); padding: 10px 12px; min-height: 44px; font: inherit; }
+.lc-foot-soon-tag { font-size: 12px; }
+.lc-foot-p { margin: 0; line-height: 1.5; }
+.lc-foot-end { margin-top: 16px; }

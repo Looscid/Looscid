@@ -1278,6 +1278,56 @@ const GUIDELINES_CONTENT = `<p><strong>Last updated: October 10, 2026</strong></
 <h2>Humor is welcome</h2>
 <p>Looscid likes a good joke. Keep it kind.</p>`;
 Looscid.GUIDELINES_CONTENT = GUIDELINES_CONTENT;
+const CHILD_SAFETY_CONTENT = `<p><strong>Last updated: October 12, 2026</strong></p>
+<p>Looscid has zero tolerance for child sexual abuse material (CSAM) and for anything that sexualizes, grooms or endangers a child.</p>
+<h2>Where reports go</h2>
+<ul>
+<li>Child Safety reports go straight to Looscid moderators. A report made inside a Circle goes to Looscid too, never only to that Circle's mods.</li>
+<li>Child sexual abuse material is removed and reported to NCMEC's CyberTipline, the US national reporting center.</li>
+<li>Any LooscidID that shares it is banned.</li>
+</ul>
+<h2>How to report</h2>
+<ul>
+<li>Report in Looscid is coming soon. Until it's here, report child sexual abuse material directly to <a href="https://report.cybertip.org/" target="_blank" rel="noopener noreferrer">NCMEC's CyberTipline</a>.</li>
+<li>If a child is in immediate danger, contact your local emergency services first.</li>
+</ul>
+<p>Read the <a href="#" data-policy-link="guidelines">Community rules</a> too.</p>`;
+Looscid.CHILD_SAFETY_CONTENT = CHILD_SAFETY_CONTENT;
+
+/* Part 33 (#68, launch-critical; 2three1y Oct 12: "the footer is gone"): the site footer. A real footer landmark
+   (contentinfo) with a "Footer" heading and one h3 per group: Social, Legal, Values, Download. It is never fixed or
+   floating: LcFooterHost moves it to the end of the page's own scrolling area, so it only shows once you reach the
+   end and never covers content. Pages without a scrolling .pg (full-screen tools) have no footer.
+   The old app never had a site footer on preview; main's one line, "Looscid is open source and local first.", is kept. */
+function LcSiteFooter({ navigate }) {
+  const ext = function (href, text, key) { return lh('li', { key: key }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, text)); };
+  const go = function (page, text, key) { return lh('li', { key: key }, lh('a', { href: (Looscid.lcPathFor ? Looscid.lcPathFor(page) : "#"), className: "lc-link",
+    onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate(page); } }, text)); };
+  const soon = function (text, key) { return lh('li', { key: key }, lh('button', { type: "button", className: "lc-foot-soon", disabled: true, "aria-disabled": "true" }, text, lh('span', { className: "lc-foot-soon-tag" }, " Coming soon"))); };
+  const grp = function (id, title, kids) { return lh('section', { className: "lc-foot-grp", "aria-labelledby": id }, lh('h3', { id: id, className: "lc-foot-h" }, title), lh('ul', { className: "lc-foot-list", role: "list" }, kids)); };
+  return lh('footer', { className: "lc-footer", role: "contentinfo", "aria-labelledby": "lc-foot-title" },
+    lh('h2', { id: "lc-foot-title", className: "lc-foot-title" }, "Footer"),
+    grp("lc-foot-social", "Social", [ext("https://github.com/Looscid/Looscid", "Looscid on GitHub", "gh"), ext("https://x.com/Looscid", "Looscid on X, @Looscid", "x"), ext("https://www.youtube.com/@Looscid", "Looscid on YouTube, @Looscid", "yt")]),
+    grp("lc-foot-legal", "Legal", [go("terms", "Terms", "t"), go("privacy", "Privacy", "p"), go("guidelines", "Rules", "r"), go("child_safety", "Child Safety", "c")]),
+    grp("lc-foot-values", "Values", [ext("https://github.com/Looscid/Looscid/blob/preview/docs/guides/ACCESSIBILITY.md", "Our accessibility commitment", "a")]),
+    grp("lc-foot-dl", "Download", [
+      lh('li', { key: "ios" }, lh('p', { className: "lc-foot-p" }, "iPhone and iPad: open Looscid in Safari, then Share, then Add to Home Screen.")),
+      soon("Android app", "and"), soon("Linux edition", "lin")]),
+    lh('p', { className: "lc-foot-p lc-foot-end" }, "Looscid is open source and local first."));
+}
+function LcFooterHost({ page, navigate }) {
+  const boxRef = useRef(null);
+  if (!boxRef.current && typeof document !== "undefined") { boxRef.current = document.createElement("div"); boxRef.current.className = "lc-footer-box"; }
+  const [host, setHost] = useState(null);
+  React.useLayoutEffect(function () {
+    const box = boxRef.current; const pg = document.querySelector("#main-content > .pg");
+    if (!pg) { if (box.parentNode) box.parentNode.removeChild(box); if (host) setHost(null); return; }
+    if (box.parentNode !== pg || pg.lastChild !== box) pg.appendChild(box);
+    if (!host) setHost(box);
+  });
+  return host ? ReactDOM.createPortal(lh(LcSiteFooter, { navigate: navigate }), host) : null;
+}
+Object.assign(Looscid, { LcSiteFooter, LcFooterHost });
 /* --- APP --------------------------------- */
 const NAV = [
   {id:"feed",    l:"Home",     icon:"Home",  badge:0},
@@ -3053,7 +3103,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T20:32:44Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T20:37:52Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -5553,6 +5603,7 @@ useEffect(() => {
       terms: "Terms",
       privacy: "Privacy",
       guidelines: "Community rules",
+      child_safety: "Child Safety",
       cherry: "Cherry - DO IT YOUR WAY",
       commands: "Commands",
       project: pdata && pdata.name ? pdata.name : "Project",
@@ -5618,6 +5669,7 @@ useEffect(() => {
       case "terms":         return React.createElement(Looscid.PolicyPage, { title: "Terms", content: TERMS_CONTENT, navigate: navigate, back: "settings",});
       case "privacy":       return React.createElement(Looscid.PolicyPage, { title: "Privacy", content: PRIVACY_CONTENT, navigate: navigate, back: "settings",});
       case "guidelines":    return React.createElement(Looscid.PolicyPage, { title: "Community rules", content: GUIDELINES_CONTENT, navigate: navigate, back: "settings",});
+      case "child_safety":  return React.createElement(Looscid.PolicyPage, { title: "Child Safety", content: CHILD_SAFETY_CONTENT, navigate: navigate, back: "settings",});
       default:              return React.createElement(Looscid.FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
     }
   };
@@ -5659,6 +5711,7 @@ useEffect(() => {
           "aria-keyshortcuts": "Control+K Meta+K", "aria-braillelabel": Looscid.A11Y_NOW.brailleOutput ? "cmd" : undefined }, lh('span', { "aria-hidden": "true" }, ">_"))
       , Looscid.A11Y_NOW.skipLinks !== false && lh('a', { href: "#main-content", className: "skip-link", onClick: e => { e.preventDefault(); const h = document.querySelector("#main-content h1"); if (h) { if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); h.focus(); } } }, "Skip to content")
       , React.createElement('main', {id:"main-content", style:{display:"contents"}}, renderPage())
+      , lh(LcFooterHost, { page: page, navigate: navigate })
       , undo && lh(LcUndoBar, { undo: undo })
       , lh(LcResetHost, null)
       /* 5-tab nav: Home | Discover | Create | Alerts | More */
