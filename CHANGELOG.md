@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 12, 2026 at 6:46 PM (Eastern Time, 2026-10-12T22:46:19Z UTC)
+Released October 12, 2026 at 6:53 PM (Eastern Time, 2026-10-12T22:53:46Z UTC)
 
 Round 7: a feature update, asked for by 2three1y. Built in steps, one commit each.
 
@@ -63,6 +63,7 @@ Round 7: a feature update, asked for by 2three1y. Built in steps, one commit eac
 - Profiles: the second tab is just "Replies" now, and it shows only your replies, no top-level Dreams (those stay in the Dreams tab). When there are none it says "No Replies yet" and "Your Replies will show up here."
 - Replies tab: each reply now says what it answers, first thing inside it, like "Replying to Tomo: " and the start of Tomo's Dream (or the reply it answers). When that Dream isn't on your device it says "Replying to @tomo". A hidden or blocked Dream shows no text, and one with a content warning shows the warning.
 - Alerts is an Inbox now, laid out like Reddit's: one row of tabs (All, Unread, Messages, Replies, Mentions, Likes, Redreams, Quotes, New Dreamor), Send a message and Mark all read at the top, similar alerts grouped ("Liked by Ava and 3 others"), and a More button on every row with Reply, Mark read and Block. Replies has an "Only threads I follow" checkbox. Messages are real private messages on Nostr (NIP-17), end-to-end encrypted: write to anyone by their npub, and a new message is read out once without moving your focus. Likes, Redreams, Quotes, mentions, replies and new Dreamors come from Nostr too, with no server.
+- Who can message me now really applies to private messages: a message from someone the setting doesn't allow stays hidden and silent on your device (the Messages tab says how many Dreamors are waiting, with a Message settings button), and changing the setting shows them. A conversation you started always shows.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 

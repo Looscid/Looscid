@@ -3264,7 +3264,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T22:46:19Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T22:53:46Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4427,8 +4427,21 @@ const LC_PMS_KEY = "looscid_pms";
 function lcPms() { try { const v = JSON.parse(localStorage.getItem(LC_PMS_KEY) || "[]"); return Array.isArray(v) ? v.filter(function (m) { return m && m.peer && typeof m.text === "string"; }) : []; } catch (e) { return []; } }
 function lcPmsSave(l) { l.sort(function (a, b) { return a.created - b.created; }); try { localStorage.setItem(LC_PMS_KEY, JSON.stringify(l.slice(-3000))); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:pms")); }
 function lcPmBlocked(peer) { const np = (function () { try { return window.NostrTools ? window.NostrTools.nip19.npubEncode(peer) : ""; } catch (e) { return ""; } })(); return lcBlockedUser({ handle: np }) || lcBlocked("dreamers").indexOf(lcHandle(peer)) >= 0; }
+/* Build 152 prep: "Who can message me" (Settings, Messages) applies to incoming NIP-17 messages. A conversation you
+   started, or once wrote in, always shows. Anyone else must pass the setting (same audiences as Who can reply). Held
+   messages stay on this device, unseen and unannounced, so changing the setting later shows them. */
+function lcPmAllowed(peer, all) {
+  const who = (Looscid.A11Y_NOW || {}).whoMessage || "following";
+  if (who === "everyone") return true;
+  if ((all || lcPms()).some(function (m) { return m.peer === peer && m.me; })) return true;
+  const u = (typeof USERS !== "undefined" ? USERS : []).find(function (x) { return x && x.pk && x.pk === peer; });
+  let np = ""; try { np = window.NostrTools ? window.NostrTools.nip19.npubEncode(peer) : ""; } catch (e) {}
+  const user = u || { id: "nostr:" + peer, handle: np, followsYou: lcAlerts().some(function (a) { return a && a.type === "follow" && a.pk === peer; }) };
+  return lcAudienceOk(who, user, "perm_whoMessage");
+}
+function lcPmHeld() { const all = lcPms(), peers = {}; all.forEach(function (m) { if (!m.me && !lcPmBlocked(m.peer) && !lcPmAllowed(m.peer, all)) peers[m.peer] = 1; }); return Object.keys(peers).length; }
 function lcPmConvos() {
-  const by = {}; lcPms().forEach(function (m) { if (lcPmBlocked(m.peer)) return; const c = by[m.peer] || (by[m.peer] = { peer: m.peer, msgs: [], unread: 0 }); c.msgs.push(m); if (!m.me && !m.read) c.unread++; });
+  const all = lcPms(), by = {}; all.forEach(function (m) { if (lcPmBlocked(m.peer) || !lcPmAllowed(m.peer, all)) return; const c = by[m.peer] || (by[m.peer] = { peer: m.peer, msgs: [], unread: 0 }); c.msgs.push(m); if (!m.me && !m.read) c.unread++; });
   return Object.keys(by).map(function (k) { const c = by[k]; c.last = c.msgs[c.msgs.length - 1]; c.time = c.last.created; c.name = lcNostrName(c.peer); return c; }).sort(function (a, b) { return b.time - a.time; });
 }
 function lcPmUnread() { return lcPmConvos().reduce(function (a, c) { return a + c.unread; }, 0); }
@@ -4446,7 +4459,7 @@ async function lcPmCheck() {
     if (fresh.length) {
       fresh.forEach(function (m) { m.read = m.me || first; });
       lcPmsSave(have.concat(fresh));
-      const inc = fresh.filter(function (m) { return !m.me && !first && !lcPmBlocked(m.peer); }); n = inc.length;
+      const allNow = have.concat(fresh), inc = fresh.filter(function (m) { return !m.me && !first && !lcPmBlocked(m.peer) && lcPmAllowed(m.peer, allNow); }); n = inc.length;
       if (inc.length) {
         const m = inc[inc.length - 1], who = lcNostrName(m.peer);
         announce(inc.length === 1 ? "New message from " + who + ": " + m.text.slice(0, 140) : inc.length + " new messages. The last from " + who + ": " + m.text.slice(0, 140));
@@ -4475,7 +4488,7 @@ function lcPmPeerFrom(s) {
   try { const d = window.NostrTools && window.NostrTools.nip19.decode(s); if (d && d.type === "npub") return d.data; if (d && d.type === "nprofile") return d.data.pubkey; } catch (e) {}
   return null;
 }
-Object.assign(Looscid, { LC_PMS_KEY, lcPms, lcPmsSave, lcPmConvos, lcPmUnread, lcPmMarkRead, lcPmCheck, lcPmSend, lcPmPeerFrom, lcPmBlocked, lcInboxCheck, lcNostrName, LC_INBOX_TABS });
+Object.assign(Looscid, { LC_PMS_KEY, lcPms, lcPmsSave, lcPmConvos, lcPmAllowed, lcPmHeld, lcPmUnread, lcPmMarkRead, lcPmCheck, lcPmSend, lcPmPeerFrom, lcPmBlocked, lcInboxCheck, lcNostrName, LC_INBOX_TABS });
 Object.assign(Looscid, { LC_THREAD_SUBS_KEY, lcThreadSubs, lcThreadSubbed, lcThreadSub, lcThreadUnsub, lcThreadAlert, lcThreadCheck, lcThreadWatch });
 function lcAlertsMarkAll() { const l = lcAlerts().map(function (x) { return Object.assign({}, x, { unread: false }); }); lcAlertsSave(l); return l.length; }
 function useAlerts() {

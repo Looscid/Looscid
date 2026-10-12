@@ -219,6 +219,9 @@ function alertsView(st, draw) {
         h('label', { className: "lc-cbx-row" }, h('input', { type: "checkbox", id: "inbox-only-followed", checked: only,
           onChange: function (e) { try { localStorage.setItem(ONLY_FOLLOWED_KEY, e.target.checked ? "1" : "0"); } catch (x) {} draw(); } }), " Only threads I follow")) : null,
       cur === "messages" && pmStateNote() ? h('p', { className: "lc-desc", style: { padding: "8px 16px" } }, pmStateNote()) : null,
+      cur === "messages" && Looscid.lcPmHeld && Looscid.lcPmHeld() > 0 ? h('div', { className: "lc-pm-held", style: { padding: "8px 16px" } },
+        h('p', { className: "lc-desc", id: "pm-held-note" }, (function (k) { return k === 1 ? "1 Dreamor who isn't allowed by Who can message me has messages waiting. They stay hidden and silent." : k + " Dreamors who aren't allowed by Who can message me have messages waiting. They stay hidden and silent."; })(Looscid.lcPmHeld())),
+        h('button', { type: "button", id: "pm-held-settings", className: "btn bgb lc-btn", onClick: function () { goSet("settings_messages"); } }, "Message settings")) : null,
       rows.length === 0
         ? h('div', { className: "es", style: { paddingTop: 24, paddingBottom: 24 } }, h('p', { className: "esl" }, empty))
         : h('ul', { className: "lc-inbox-list", role: "list" }, rows.map(function (r) { return r.c ? convoRow(st, draw, r.c) : notifRow(st, draw, r.n); }))),
