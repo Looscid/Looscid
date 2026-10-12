@@ -126,7 +126,7 @@ These decisions guide the next navigation, Feed, Discover, and catalog changes; 
 - Under `Filters`, separate `Content` (Apps, Games, Images, Videos) from `People` (Dreamors, Circles), rather than mixing content and people.
 - `Price` uses radios `All`, `Free`, `Paid`, defaulting to `All`; never-selected is not a landing state. `Paid` reveals `Lifetime` and `Subscription` checkboxes; `Free` hides them. These are checkboxes, not radios: an app can sell both a lifetime unlock and a monthly subscription, and both may be on.
 - Visible chip text: `Lifetime`; accessible name: `Lifetime, one-time purchase`. `Media` includes Has media and Verified.
-- A time/recency group (Any time, Today, This week, This month) is optional: Tomo's suggestion, not Alhasan's, and cuttable.
+- A time/recency group (Any time, Today, This week, This month) is optional: Tomo's suggestion, not 2three1y's, and cuttable.
 - Move the results line with the filters: `Showing 14 of 22 apps` (pattern `Showing X of Y apps`). Empty state: `Nothing matches those filters` plus a `Clear filters` link. Apply button: `Show 14 results`.
 - Tile announcement, in one sentence: `Looscid Music, App, free with subscription, press to open`.
 

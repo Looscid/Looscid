@@ -113,7 +113,7 @@ function lcOpenNostrKey(navigate) {
   let n = 0; const go = function () { const h = document.getElementById("nostr-key-h"); if (h) { h.focus(); return; } if (++n < 30) setTimeout(go, 50); }; setTimeout(go, 80);
 }
 Looscid.lcOpenNostrKey = lcOpenNostrKey;
-/* Build 148 (Alhasan's spec sheet): Create has exactly 9 options. ONE implementation, CreateOptions, is used by the Create tab
+/* Build 148 (2three1y's spec sheet): Create has exactly 9 options. ONE implementation, CreateOptions, is used by the Create tab
    (the dialog below) and by the Create section in More: same description, same options, same names. Options with a real flow
    in Looscid open it; the rest say Unavailable in plain text and stay reachable, so VoiceOver and the braille display can find them. */
 var LC_CREATE_DESC = "Choose what you want to create.";

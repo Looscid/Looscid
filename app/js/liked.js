@@ -1,16 +1,16 @@
-/* Looscid liked.js: Liked (build 147, Alhasan Oct 10 2026): liking is saving, so everything you like is in one place.
+/* Looscid liked.js: Liked (build 147, 2three1y Oct 10 2026): liking is saving, so everything you like is in one place.
    One component (LikedView) and one store (looscid_liked, in js/core.js) for both doors: the private Liked tab on your
-   own profile and the Liked page in More (build 148). Tabs, from Alhasan's spec sheet: Dreams, Circles, Apps,
+   own profile and the Liked page in More (build 148). Tabs, from 2three1y's spec sheet: Dreams, Circles, Apps,
    Marketplace, Chats and Searches. Images is a filter across them, not a tab. Wording is Like and Unlike, never
    Save or Bookmark. Still React, like the profile it sits in. Plain script (not a module); see docs/dev/FILES.md. */
 (function (Looscid) {
 const { CommentView, DreamCard, announce, lcAiOn, lcDreamSnap, lcLikedDreams, lcLikedItems, lcLikedSet, lcNameJoin, useLikedTick } = Looscid;
 const { useState, useEffect, useRef } = React;
 const lh = React.createElement;
-// Cherry chats sit in Chats (Alhasan said yes, Oct 10), and a Marketplace like is a listing.
+// Cherry chats sit in Chats (2three1y said yes, Oct 10), and a Marketplace like is a listing.
 const LC_LIKED_TABS = [
   { id: "dreams", label: "Dreams", k: "dream", none: "No liked Dreams yet. Like a Dream and it shows up here." },
-  // Build 150 (#59, Alhasan 10:52 AM Oct 11): the Media tab, with Photos, GIFs and Videos filters (was "Images only").
+  // Build 150 (#59, 2three1y 10:52 AM Oct 11): the Media tab, with Photos, GIFs and Videos filters (was "Images only").
   { id: "media", label: "Media", k: "media", none: "No liked Dreams with photos, GIFs or videos yet." },
   { id: "circles", label: "Circles", k: "circle", none: "No liked Circles yet. Like a Circle and it shows up here." },
   { id: "apps", label: "Apps", k: "app", none: "No liked Apps yet. Like an App and it shows up here." },
@@ -147,8 +147,8 @@ function lcLikeBtnEl(k, id, name, snap, redraw, extra) {
   return h('button', Object.assign({ type: "button", className: "btn bgb lc-btn lc-like-btn", "aria-label": (on ? "Unlike " : "Like ") + String(name || "").trim(),
     onClick: function () { lcLikedSet(k, id, !on, Object.assign({ name: name }, snap || {})); announce(on ? "Unliked " + name + ". Removed from Liked." : "Liked " + name + ". It's in Liked."); if (redraw) redraw(); } }, extra || {}), on ? "Unlike" : "Like");
 }
-/* Like Search (Alhasan, 8:58 PM): a search you like goes to Liked, Searches. Each has an Alerts switch (off). With it on,
-   Looscid checks the search whenever it's open and new Dreams arrive, across the networks you have connected (Alhasan,
+/* Like Search (2three1y, 8:58 PM): a search you like goes to Liked, Searches. Each has an Alerts switch (off). With it on,
+   Looscid checks the search whenever it's open and new Dreams arrive, across the networks you have connected (2three1y,
    8:59 PM: "Powered by the Networks you have"). There's no server, so nothing is checked while Looscid is closed. New matches
    go to the Alerts tab under From Looscid, naming the network, and are announced politely. Focus never moves. */
 const LC_NET_NAMES = { nostr: "Nostr", activitypub: "Mastodon & fediverse", atproto: "Bluesky", pubky: "Pubky", funkwhale: "Funkwhale", hubzilla: "Hubzilla" };

@@ -1,4 +1,4 @@
-/* Looscid helpcenter.js: Help (Round 6.6). Alhasan, 5:11 PM Oct 10: "help" is a short list, "cherry help" reads one
+/* Looscid helpcenter.js: Help (Round 6.6). 2three1y, 5:11 PM Oct 10: "help" is a short list, "cherry help" reads one
    area, and a Help Center page in More. Plain script (not a module), plain JavaScript (Looscid.lcEl and lcPatch).
    Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order (after js/projects.js).
    - lcHelpIntent(n): called first in lcRun (core.js) with the normalized text. help: the top commands. help list: every
@@ -140,7 +140,7 @@ function helpView(p, act) {
         s[2] === "commands" ? h('button', { type: "button", id: "lc-help-commands", className: "btn bgb lc-btn", onClick: act.commands }, "Open the Commands page") : null,
         s[2] === "legal" ? h('button', { type: "button", id: "lc-help-legal", className: "btn bgb lc-btn", onClick: function () { if (Looscid.LC_NAV) Looscid.LC_NAV("legal"); } }, "Open Legal") : null);
     }),
-    // Round 6.6 (Alhasan, 7:13 PM: yes to a Getting help section): the last section. Plain headings, paragraphs and links.
+    // Round 6.6 (2three1y, 7:13 PM: yes to a Getting help section): the last section. Plain headings, paragraphs and links.
     h('section', { className: "lc-grp lc-help-sec", "aria-labelledby": "lc-help-h-gethelp", style: { padding: "0 16px 24px" } },
       h('h2', { id: "lc-help-h-gethelp", className: "lc-sub-h" }, "Getting help"),
       h('h3', { className: "lid-sub" }, "Send Feedback"),
@@ -176,7 +176,7 @@ const LC_MIT_NOTICES = [
   ["Memeprojects, Easyconvert, Lyric Finder, Soundvault, Reactor Toolbar and Code Translator", "Copyright (c) 2026 Alhasan Altameemi."],
   ["Vibework", "Copyright (c) 2026 Vibework contributors."],
 ];
-/* Round 6.6 (Alhasan, 5:25 PM: "where is the legal button?"): the Legal page, from About Looscid's Legal button,
+/* Round 6.6 (2three1y, 5:25 PM: "where is the legal button?"): the Legal page, from About Looscid's Legal button,
    the legal command, the Help Center and the Commands page. Back and Close Legal (braille: "Close"). */
 function legalView(p, act) {
   const go = function (pg, label, id) { return h('li', { key: pg }, h('button', { type: "button", id: id, className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { act.go(pg); } }, label)); };

@@ -1,7 +1,7 @@
 /* Looscid core.js: state, prefs, icons, nav, routing, sounds and shared helpers; App() is the frame.
    Plain script (not a module). Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order. */
 (function (Looscid) {
-/* Build 150 (Alhasan, Oct 11 2026: drop the old Dream Board name everywhere, even under the hood): every key that started
+/* Build 150 (2three1y, Oct 11 2026: drop the old Dream Board name everywhere, even under the hood): every key that started
    with the old prefix (LC_OLD_PREFIX, the only place it is written) starts with looscid_ now. This runs first, before
    anything reads storage, on every start. It goes through every key in storage (so prefixes built at run time, like
    aud_custom_perm_ and cat_from_, move too): each old X is copied byte for byte to looscid_X when looscid_X is empty,
@@ -60,7 +60,7 @@ const NOTIFS_INIT = [];
 Looscid.NOTIFS_INIT = NOTIFS_INIT;
 const GROUPS = [];
 Looscid.GROUPS = GROUPS;
-/* Circles you make (Alhasan, Oct 11 2026): kept on this device in looscid_circles, a JSON array, oldest first,
+/* Circles you make (2three1y, Oct 11 2026): kept on this device in looscid_circles, a JSON array, oldest first,
    200 at most (the oldest go first). Loaded into GROUPS right here, at startup. Each one is
    { id, name, description, category, emoji, privacy, joinApproval, postApproval, minAge, rules, members, memberIds,
    joined, mine, created }. In Backup and Import (LC_EXPORT_KEYS); an import adds the backup's circles to yours. */
@@ -261,7 +261,7 @@ function useSavedDreams(dreams) {
   const prev = useRef(dreams);
   useEffect(function () { lcSyncOwnDreams(prev.current, dreams); prev.current = dreams; }, [dreams]);
 }
-/* Build 147 (Alhasan, Oct 10 2026): liking is saving. One store, one name: Liked.
+/* Build 147 (2three1y, Oct 10 2026): liking is saving. One store, one name: Liked.
    looscid_liked keeps what you liked on this device, newest first (1000 at most): { k: kind, id, at, ...a small copy }.
    k is "dream" in build 147 (more kinds join in build 148). A Dream you liked or saved before build 147 is
    read as a like the first time it's seen, so nothing is lost. "bookmarked" now always equals "liked", so
@@ -528,7 +528,7 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
     (onLike || onBookmark) ? { id: "like", name: dream.liked ? "Unlike Dream" : "Like Dream", a: function () { if (!dream.liked) Earcon.play("like"); (onLike || onBookmark)(dream.id); announce(dream.liked ? "Unliked. Removed from Liked." : "Liked. It's in Liked on your profile."); } } : null,
     { id: "share", name: "Share Dream", a: function () { lcShareText((dream.user ? dream.user.name + ": " : "") + (dream.text || ""), "Dream"); } },
     handle ? { id: "profile", name: "View @" + handle + "'s profile", a: function () { navigate && navigate("dp", dream.user); } } : null,
-    // Build 147 (Alhasan): when a Dream tags you, you can remove yourself from it (on this device).
+    // Build 147 (2three1y): when a Dream tags you, you can remove yourself from it (on this device).
     lcTagsMe(dream) ? (lcIsUntagged(dream)
       ? { id: "retag", name: "Add me back to this Dream", a: function () { lcSetUntagged(dream, false); announce("You're back in this Dream."); } }
       : { id: "untag", name: "Remove me from this Dream", a: function () { lcSetUntagged(dream, true); announce("Removed you from this Dream. Your mention in it isn't a link to you anymore."); } }) : null,
@@ -688,7 +688,7 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
     return lcWhen(b)-lcWhen(a);
   });
   const linkInfo = lcLinkCard(dream.text);
-  // Build 150 (#46, Alhasan 3:49 AM Oct 11): only the Dream you opened is shown. "Expand thread" shows the whole
+  // Build 150 (#46, 2three1y 3:49 AM Oct 11): only the Dream you opened is shown. "Expand thread" shows the whole
   // thread (the Dreams above it and every reply); the same button then reads "Collapse thread". Its words change in
   // place, focus stays on it, and nothing is announced.
   const [expanded, setExpanded] = useState(false);
@@ -1042,7 +1042,7 @@ function LcResetHost() {
    real on-device model (WebLLM, needs WebGPU) after you say yes; nothing leaves the device. */
 function lcAiOn() { return getAIPrefs().enabled === true; }
 // Settings > Accessibility (round 5): a short menu of categories, Sense first.
-// Each category is its own page with a Back button (Hasan: "not all one gigantic list").
+// Each category is its own page with a Back button (2three1y: "not all one gigantic list").
 const LC_A11Y_CATS = [
   { id: "sr", page: "settings_a11y_sr", l: "Sense", sub: "General, Speech and Braille tabs, button style on braille" },
   { id: "vision", page: "settings_a11y_vision", l: "Vision", sub: "Text size, high contrast, bold text, spacing" },
@@ -1195,7 +1195,7 @@ function LcSettingFind({ navigate, onClose }) {
 const TERMS_CONTENT = `<p><strong>Last updated: October 10, 2026</strong></p>
 <p>These are the terms for using Looscid, in plain language. They are not legal advice.</p>
 <h2>Who we are</h2>
-<p>Looscid is my side project. I'm Alhasan, a blind developer. It is not a company, and it has no investors, ads or paid plans.</p>
+<p>Looscid is my side project. I'm 2three1y, a blind developer. It is not a company, and it has no investors, ads or paid plans.</p>
 <h2>Using Looscid</h2>
 <ul>
 <li>You can use Looscid without a phone number or an email address. Your LooscidID is made on your own device.</li>
@@ -1328,7 +1328,7 @@ function applyLocalProfileToMe(p) {
   ME.bio = p.bio || ""; ME.website = p.website || ""; ME.links = p.links || [];
   return p;
 }
-// Your LooscidID is created the moment Looscid first opens (Hasan, Oct 8 2026): no gate,
+// Your LooscidID is created the moment Looscid first opens (2three1y, Oct 8 2026): no gate,
 // no login needed. Login methods attach to it later, and are always optional.
 function ensureLocalProfile() {
   const have = getLocalProfile();
@@ -1558,7 +1558,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"Circles", label:"Circles",  sub:"Your communities",                              action(){onClose();goRoot("circles");} },
     ]},
     { id:"apps", emoji:"Apps", label:"Apps", items: lcAppItems().map(function (it) { return { icon: it.l, label: it.l, sub: it.sub, action(){ onClose(); it.go(navigate); } }; }) },
-    // Build 148 (Alhasan): Create is the same list as the Create tab, one shared implementation (js/create.js, CreateOptions).
+    // Build 148 (2three1y): Create is the same list as the Create tab, one shared implementation (js/create.js, CreateOptions).
     { id:"create", emoji:"Create", label:"Create", items:[], render: function () { return Looscid.CreateOptions ? lh(Looscid.CreateOptions, { idp: "more-create", navigate: navigate, close: onClose, open: function (scr) { onClose(); if (Looscid.LC_OPEN_CREATE) Looscid.LC_OPEN_CREATE(scr); } }) : null; } },
     { id:"alerts", emoji:"Alerts", label:"Alerts", badge:totalAlerts, items:[
       { icon:"Messages", label:"Messages",      sub:"Private Dreams",           badge:unreadMsgs,   action(){onClose();goRoot("alerts");} },
@@ -1579,18 +1579,18 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"Labs", label:"Looscid Labs", sub:"Early access to features we are still building", action(){onClose();navigate("settings_labs");} },
       { icon:"Reset", label:"Reset", sub:"Reset the whole app, or just some settings", action(){ lcOpenReset("all"); } },
     ]},
-    { id:"about", emoji:"About", label:"About Looscid", direct(){onClose();navigate("settings_about");}, items:[] }, // Round 6.6 (Alhasan 5:24 PM): one About page, no submenu
+    { id:"about", emoji:"About", label:"About Looscid", direct(){onClose();navigate("settings_about");}, items:[] }, // Round 6.6 (2three1y 5:24 PM): one About page, no submenu
     { id:"findus", emoji:"Social", label:"Social", intro:"Find us on your favorite platforms", items:[
 
       { icon:"\ud835\udd4f", label:"Twitter",         sub:"@Looscid",                href:"https://x.com/Looscid" },
 
       { icon:"GitHub", label:"GitHub",            sub:"Looscid/Looscid",        href:"https://github.com/Looscid/Looscid" },
     ]},
-    // Round 6.6: Projects, Alhasan's own projects, built in (js/projects.js). Added near the end; Commands stays last.
+    // Round 6.6: Projects, 2three1y's own projects, built in (js/projects.js). Added near the end; Commands stays last.
     { id:"projects", emoji:"Projects", label:"Projects", intro:"My own projects, built into Looscid. Each one opens here, with Back and Close. Nothing loads until you open one.",
-      // Build 147 (Alhasan: one link per place): GitHub is already in Social, so the Projects section no longer repeats it.
+      // Build 147 (2three1y: one link per place): GitHub is already in Social, so the Projects section no longer repeats it.
       items: (Looscid.LC_PROJECTS || []).map(function (p) { return { icon:"Projects", label:p.name, sub:p.sub, action(){ onClose(); Looscid.lcOpenProject(p, navigate); } }; }) },
-    // Build 150 (#71, Alhasan 4:36 PM Oct 11): Help is a real pop-up menu button (aria-haspopup="menu"), last in More.
+    // Build 150 (#71, 2three1y 4:36 PM Oct 11): Help is a real pop-up menu button (aria-haspopup="menu"), last in More.
     // It holds Help Center and Commands; Commands is no longer its own section. Actions, so a menu, not a value picker.
     { id:"help", emoji:"Help", label:"Help", menu:true, items:[
       { icon:"Help", label:"Help Center", sub:"Getting started, commands, Cherry, earcons, accessibility, projects, backup, and how to get help", action(){onClose();navigate("helpcenter");} },
@@ -1608,9 +1608,9 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
     React.createElement('div', {className:"menu-sh "+(pos==="top"?"from-top":"from-bot")},
 
       React.createElement('button', Object.assign({type:"button",className:"mclose-btn mclose-top",onClick:onClose}, lcCloseProps("menu")), "Close"),
-      // Build 147 (Alhasan): View your profile, near the top of More.
+      // Build 147 (2three1y): View your profile, near the top of More.
       React.createElement('button', {type:"button", id:"more-view-profile", className:"lc-more-profile", onClick:function(){ onClose(); navigate("profile"); }}, React.createElement('span', null, "View your profile")),
-      // Build 148 (Alhasan): Liked is a place in More, not a bottom tab.
+      // Build 148 (2three1y): Liked is a place in More, not a bottom tab.
       React.createElement('button', {type:"button", id:"more-liked", className:"lc-more-profile", onClick:function(){ onClose(); navigate("liked"); }}, React.createElement('span', null, "Liked")),
 
       SECTIONS.map(function(s) {
@@ -1689,7 +1689,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
                 React.createElement(Ic.Chv,{key:"chv",style:{width:13,height:13,color:"var(--tx3)",flexShrink:0},"aria-hidden":"true"})
               ), subP, item.like && Looscid.LcLikeBtn ? lh(Looscid.LcLikeBtn, { k: item.like.k, id: item.like.id, name: item.label, className: "btn bgb lc-btn lc-like-btn lc-mli-like" }) : null);
             })),
-            // Round 6.6 (Alhasan): a plain link after a section's buttons (Projects: Help build Looscid).
+            // Round 6.6 (2three1y): a plain link after a section's buttons (Projects: Help build Looscid).
             s.outro ? React.createElement('p', {style:{padding:"8px 16px",margin:0,fontSize:13}}, React.createElement('a', {href:s.outro[1], target:"_blank", rel:"noopener noreferrer", className:"lc-help-link"}, s.outro[0])) : null
           )
         );
@@ -1700,7 +1700,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
   );
 }
 /* === LooscidID, "CHANGE YOUR INFO" AND FIRST-RUN ONBOARDING ===============
-   Built from Hasan's design docs (Looscid Business, Halfview,
+   Built from 2three1y's design docs (Looscid Business, Halfview,
    ID Manager, Overview). Accessibility first: every control
    is a real link/button/field with its value in its name, each change screen
    focuses its heading, Escape/Close return focus, saves are announced in a
@@ -1726,7 +1726,7 @@ function lcNameJoin() {
   return Array.prototype.slice.call(arguments).map(function (x) { return x == null || x === false ? "" : String(x).replace(/\s+/g, " ").trim().replace(/^[,;:]\s*|\s*[,;:]$/g, "").trim(); }).filter(Boolean).join(", ");
 }
 Looscid.lcNameJoin = lcNameJoin;
-/* Build 150, part 18 (Alhasan, Oct 11 7:05 PM: hints like a Swift app's): a real VoiceOver hint is aria-describedby on the
+/* Build 150, part 18 (2three1y, Oct 11 7:05 PM: hints like a Swift app's): a real VoiceOver hint is aria-describedby on the
    ONE control whose action isn't obvious from its name and role, pointing at a short sentence that ends in a period.
    On iPhone, VoiceOver reads it after a pause as the control's hint (it follows the Hints setting) and braille shows it.
    Never on a menu, sheet, dialog, list, tab or other container, and never on obvious controls like Like, Back or Close.
@@ -1795,7 +1795,7 @@ function updateLocalProfile(current, patch) {
   }
   return applyLocalProfileToMe(saveLocalProfile(next));
 }
-/* --- Menu pop-up button (borrowed from Hasan's iOS popover pattern) ------ */
+/* --- Menu pop-up button (borrowed from 2three1y's iOS popover pattern) ------ */
 // One pop-up menu for the whole app (round 5): the mini pop-up the Language menu uses.
 // A real button (aria-haspopup="menu", aria-expanded) opens a small list right under it:
 // menuitemradio with a check for choices, menuitem for actions. Up/Down, Home/End and
@@ -1890,7 +1890,7 @@ function LcMenu(props) {
   const btnText = props.btnText != null ? props.btnText : (current ? (props.prefix || "") + current.name : (props.placeholder || "Choose"));
   const itemEl = function (it, i) {
     const radio = !action && !it.close;
-    // Build 146 (Alhasan: names read "Redream ," on VoiceOver): the note and the High-verbosity position, like "2 of 5"
+    // Build 146 (2three1y: names read "Redream ," on VoiceOver): the note and the High-verbosity position, like "2 of 5"
     // (Close is not counted), are joined into one name here, never as separate pieces that leave a dangling comma.
     const counted = all.filter(function (x) { return !x.close; });
     const pos = !it.close && lcVerb() === "high" ? (counted.indexOf(it) + 1) + " of " + counted.length : "";
@@ -2331,7 +2331,7 @@ function LooscidIDChooser({ onDone, onLocal, headingLevel, from, localLabel }) {
     lh(prov.Panel, { onDone: onDone, from: from }),
     onLocal && lh('button', { type: "button", className: "btn bgb lid-wide", onClick: onLocal }, localLabel || "Skip for now, add one later in LooscidID"));
 }
-/* --- First-run onboarding (Hasan's intro copy) --------------------------- */
+/* --- First-run onboarding (2three1y's intro copy) --------------------------- */
 const LID_TOPICS = [
   { id: "tech", name: "Tech", subs: ["AI", "Apple", "Machine learning", "Anthropic", "OpenAI", "Open source", "Accessibility tech"] },
   { id: "sports", name: "Sports", subs: ["Basketball", "Soccer", "Football", "Baseball", "Esports"] },
@@ -2468,7 +2468,7 @@ Looscid.A11Y_DEFAULTS = A11Y_DEFAULTS;
    the words Commandbar and Cherry accept. The Settings screens, commands,
    Cherry, the "settings" read-out, per-section reset and export/import all read
    this list. Older settings keep their key in looscid_a11y; new ones are saved
-   in looscid_settings (Hasan, Oct 9 2026). */
+   in looscid_settings (2three1y, Oct 9 2026). */
 const LC_SETTINGS_KEY = "looscid_settings";
 Looscid.LC_SETTINGS_KEY = LC_SETTINGS_KEY;
 const LC_AUTOSAVE_KEY = "looscid_compose_autosave";
@@ -2573,7 +2573,7 @@ const LC_SET = [
   { k: "linkPitch", s: "verbosity", l: "Links", t: "bool", d: true, pc: true, al: ["link pitch cue", "link pitch", "link cue", "link sound", "link earcon", "links pitch"] },
   { k: "keyClicks", s: "audio", l: "Keyboard earcons", t: "bool", d: true, al: ["keyboard clicks", "key clicks", "keyboard click", "typing sounds", "typing clicks", "key sounds", "keyboard sounds"],
     desc: "On by default. A short click for each key you type in a text field. Follows the Earcons switch and the master volume, still plays in Calm mode, and never changes pitch." },
-  // Round 6.6 (Alhasan): every Commandbar command has its own short sound. Additive: no earcon or pitch cue changed.
+  // Round 6.6 (2three1y): every Commandbar command has its own short sound. Additive: no earcon or pitch cue changed.
   { k: "cmdSounds", s: "audio", l: "Command earcons", t: "bool", d: true, al: ["command sounds", "command sound", "commandbar sounds", "sounds for commands", "command earcons"],
     desc: "On by default. Each Commandbar command plays its own short sound when it runs; commands in the same area sound related. A command that fails plays the error sound. Follows the Earcons switch and the master volume, and still plays in Calm mode. Off: commands play the one run sound, as before." },
   // Build 146: iPhone mutes web sounds on silent; this asks iOS to play Earcons anyway (off by default: it can stop music in other apps).
@@ -2823,7 +2823,7 @@ const LC_PACKS = {
       alerts:   { label: "Alert", ops: [84, 88, 91].map(function (m, k) { return LcT(N_(m), k * 0.12, 0.1, "square", 0.26); }) }, // one round of the Clock alarm
       feedSwitch: { label: "Feed switch", ops: [LcC(2600, 0, 0.012, 0.25, 1.2), LcT(1200, 0.006, 0.025, "triangle", 0.12)] }, // UI.nav (steady)
       focus:    { label: "Focus move", ops: [LcT(880, 0, 0.045, "square", 0.11)] },                                          // SFX.blip, a short beep
-      // Round 6 (Alhasan): open = Insomnia's Good Morning bloom (Db Ab C F C, its boot chime), 2.5x faster; close and Back =
+      // Round 6 (2three1y): open = Insomnia's Good Morning bloom (Db Ab C F C, its boot chime), 2.5x faster; close and Back =
       // its Good Night chime (G E C G C), 3x faster. Same notes, same octave shimmer; they also play on every page, menu or dialog open/close.
       open:     { label: "Good Morning", ops: [[277.2, 0], [415.3, .072], [523.3, .144], [698.5, .216], [1046.5, .312]].reduce(function (a, n) { return a.concat([LcT(n[0], n[1], 0.3, "sine", 0.26, 0, 0.012, 0.2), LcT(n[0] * 2.001, n[1], 0.18, "sine", 0.05, 0, 0.012)]); }, []) },
       close:    { label: "Good Night", ops: [[784, 0], [659.3, .117], [523.3, .233], [392, .35], [261.6, .5]].reduce(function (a, n) { return a.concat([LcT(n[0], n[1], 0.28, "sine", 0.26, 0, 0.01, 0.2), LcT(n[0] * 2.001, n[1], 0.16, "sine", 0.045, 0, 0.01)]); }, []).concat([LcT(130.8, 0.5, 0.42, "triangle", 0.16, 0, 0.05)]) },
@@ -2925,7 +2925,7 @@ const LC_PACKS = {
       uninstall:{ label: "Falling arp", ops: [79, 76, 72].map(function (m, i) { return LcS(N_(m), i * 0.05, 0.08, "sawtooth", 0.14, 3, 18, 7000, 1200); }) },
     },
   },
-  // Round 6.6 (Alhasan, 5:18 PM): Soundvault as a Soundpack. Soundvault (his project, in More, Projects) lists these
+  // Round 6.6 (2three1y, 5:18 PM): Soundvault as a Soundpack. Soundvault (his project, in More, Projects) lists these
   // sounds; they stream from where Soundvault links them (MG Storage) when one plays, under their own terms. Nothing is
   // copied into Looscid. A sound Soundvault doesn't have plays Looscid's own.
   soundvault: {
@@ -2944,7 +2944,7 @@ const LC_PACKS = {
     },
     sounds: {},
   },
-  // Round 6.6 (Alhasan): FastSM-inspired. ORIGINAL sounds made here with WebAudio, in the spirit of FastSMRW by masonasons
+  // Round 6.6 (2three1y): FastSM-inspired. ORIGINAL sounds made here with WebAudio, in the spirit of FastSMRW by masonasons
   // (an accessible Mastodon and Bluesky client): short, soft, round blips with quick glides and airy swooshes.
   // FastSMRW has no license, so no code or audio from it is copied. Opt-in in Settings, Earcons, Sound pack.
   fastsm: {
@@ -3039,9 +3039,9 @@ Looscid.LC_UNDO_SET = null;
 Looscid.LC_CUSTOM_PACK = null; // { files: [...], map: { event: fileName } } loaded from IndexedDB
 function lcLoadCustomPack() { return lcPackGet().then(function (v) { Looscid.LC_CUSTOM_PACK = v || null; return Looscid.LC_CUSTOM_PACK; }, function () { return null; }); }
 try { if (typeof window !== "undefined") setTimeout(lcLoadCustomPack, 0); } catch (e) {}
-const LOOSCID_SLOGAN = "Accessibility first, always"; // Home page title: "Looscid - " + slogan (a placeholder Hasan may change)
+const LOOSCID_SLOGAN = "Accessibility first, always"; // Home page title: "Looscid - " + slogan (a placeholder 2three1y may change)
 Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
-/* Round 6 versioning (Alhasan, Oct 10 2026): YEAR.FEATURES.FIXES (BUILD), counted on the preview branch.
+/* Round 6 versioning (2three1y, Oct 10 2026): YEAR.FEATURES.FIXES (BUILD), counted on the preview branch.
    A commit is a fix when its subject matches (?i)^\s*(fix|hotfix|bugfix|chore|typo|revert|patch|docs?|style|refactor|cleanup|tweak|ci)\b
    or has fix, fixes or fixed anywhere; anything else is a feature update. Builds = commits.
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
@@ -3051,7 +3051,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T00:18:40Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T20:24:08Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -3172,7 +3172,7 @@ Looscid.DEVICE_PRESETS = DEVICE_PRESETS;
 const Earcon = (function () {
   let ac = null, idle = null, cueAt = 0, capT = null, noise = null, rendering = false;
   const GESTURES = ["pointerdown", "touchend", "keydown", "click"];
-  // Build 146 (Alhasan, 8:07 PM: "sounds break or don't play" on iPhone). One audio context for the whole app, made
+  // Build 146 (2three1y, 8:07 PM: "sounds break or don't play" on iPhone). One audio context for the whole app, made
   // inside the first tap, and kept awake while Looscid is on screen. Before, it slept 1.5 s after every sound; on iPhone
   // waking it again without a tap (a VoiceOver swipe is not a tap to the page) failed or clipped the start of the sound,
   // and after iOS interrupted audio (lock, a call, Siri) it only woke on the very first tap. Now every tap wakes it if it
@@ -3474,7 +3474,7 @@ const Earcon = (function () {
     delete: { label: "Delete key", ops: [["n", 900, 0, 0.016, 0.5, 2.2, 0], ["n", 700, 0.022, 0.012, 0.35, 2.2, 0]] }, // a low double tick
     enter:  { label: "Enter key", ops: [["n", 2600, 0, 0.012, 0.5, 1.4, 0], ["n", 1800, 0.03, 0.03, 0.55, 1.2, 0]] },  // a click and a carriage thunk
   };
-  // Round 6.6 (Alhasan): Command sounds. Each command gets two short notes: the area picks the voice and the register,
+  // Round 6.6 (2three1y): Command sounds. Each command gets two short notes: the area picks the voice and the register,
   // the command picks the notes (from a pentatonic set), so related commands sound related and each one is its own.
   const LC_CMD_AREAS = { "Go to a place": ["sine", 523.25], "Cherry": ["triangle", 659.25], "Commandbar": ["square", 440], "Feeds and Dreams": ["sine", 392],
     "Sense": ["triangle", 587.33], "Earcons and music": ["sawtooth", 349.23], "Settings": ["square", 493.88], "Projects": ["triangle", 698.46] };
@@ -3511,7 +3511,7 @@ const Earcon = (function () {
     if (vol <= 0) return;
     // Round 6: a pack can bring its own key click (Insomnia's click, Hyper Synth's filtered tick).
     const pk = LC_PACKS[a.soundPack] && LC_PACKS[a.soundPack].sounds.key;
-    // Round 6.6 (Alhasan): Space, Delete (and Backspace) and Enter have their own clicks, in every pack. Letters keep their click.
+    // Round 6.6 (2three1y): Space, Delete (and Backspace) and Enter have their own clicks, in every pack. Letters keep their click.
     // Round 6.6: a Soundpack can bring its own Space, Delete and Enter (keySpace, keyDelete, keyEnter); else Looscid's.
     const KP = LC_PACKS[a.soundPack], kind = opts && opts.kind, kk = kind && "key" + kind[0].toUpperCase() + kind.slice(1);
     const packSpecial = kk && KP && KP.sounds[kk], special = kind && (packSpecial || LC_KEY_KINDS[kind]);
@@ -3579,7 +3579,7 @@ Looscid.LC_PC_BACK_AT = 0; // a Back or Close press: the page change then plays 
 function lcPcOn(kind) { const a = Looscid.A11Y_NOW, p = LC_PC[kind]; return !!p && a.earcons && a.pitchCues !== false && a[p[0]] !== false; }
 // Round 6: a pack with chimes (NexOS classic) plays its open chime (Good Morning) whenever anything opens and its
 // close chime (Good Night) on Back or Close, alongside the pitch cue (which is unchanged).
-// Round 6.6 (Alhasan, 5:17 PM: "the soundpacks don't play on certain elements, like on the Home feed only the Tab bar"):
+// Round 6.6 (2three1y, 5:17 PM: "the soundpacks don't play on certain elements, like on the Home feed only the Tab bar"):
 // every Soundpack, not only NexOS classic, now plays its own sound for what you do to an element, wherever it is:
 // opening and closing (menus, Redream or Quote, Replies, pages, Back and Close), switches and checkboxes on and off,
 // and choosing from a menu. This is the one place element sounds go through. The Looscid pack stays exactly as it
@@ -3883,7 +3883,7 @@ function lcA11yIntent(raw) {
   return null;
 }
 /* --- Feeds: one tablist; swipe, adjustable control, PageUp/PageDown, commands ---- */
-// Build 150 (#51, Alhasan 4:44 AM Oct 11): no "Home" tab before the feed tabs. A saved "home" falls back to For You below.
+// Build 150 (#51, 2three1y 4:44 AM Oct 11): no "Home" tab before the feed tabs. A saved "home" falls back to For You below.
 const LC_FEEDS = [
   { id: "for you", label: "For You", alias: ["for you", "foryou", "for u"] },
   { id: "following", label: "Following", alias: ["following", "followed"] },
@@ -4306,7 +4306,7 @@ function lcRun(raw, api) {
     out.go = id; L((prefix || "") + "Opened " + LC_PLACES[id].label + ".", "ok"); out.earcon = null; return out;
   };
 
-  // Round 6.6 (Alhasan): help is the top commands; an area and help (cherry help, cherryhelp) reads that area; help list
+  // Round 6.6 (2three1y): help is the top commands; an area and help (cherry help, cherryhelp) reads that area; help list
   // reads every command; help center opens the Help Center; new dream opens the composer (js/helpcenter.js).
   const hlp = Looscid.lcHelpIntent ? Looscid.lcHelpIntent(n) : null;
   if (hlp) {
@@ -4624,7 +4624,7 @@ function useInertBehind(ref) {
     return function () { sibs.forEach(function (el) { el.inert = false; el.removeAttribute("data-lc-inert"); }); };
   }, []);
 }
-/* Build 150 (#62, Alhasan: "after the last item VoiceOver reads Home and the status page behind it"):
+/* Build 150 (#62, 2three1y: "after the last item VoiceOver reads Home and the status page behind it"):
    ONE modal manager for every menu, sheet, dialog and pop-up in the app. Whatever is open on top
    (a role=dialog or alertdialog, anything aria-modal, or an open pop-up menu list) is the only thing
    VoiceOver, a braille display or the keyboard can reach: everything outside it, at every level up to
@@ -4650,7 +4650,7 @@ function lcModalRelease() {
   });
   LcModal.applied = [];
 }
-// Build 150, part 14 (Alhasan, Oct 11 7:05 PM: "VoiceOver keeps saying description on every single item"): menus,
+// Build 150, part 14 (2three1y, Oct 11 7:05 PM: "VoiceOver keeps saying description on every single item"): menus,
 // sheets and dialogs carry NO aria-describedby. VoiceOver on iPhone reads a container's description as "description"
 // and repeats it on every move inside it (the same thing the Oct 10 note on the device question records), so the
 // container hints from part 6 are gone. A hint, when one is needed, goes on the one control that needs it.
@@ -4791,7 +4791,7 @@ function lcResetSection(sec) { lcSet(lcSectionDefaults(sec)); announce(lcSection
    real iPhone with a braille display: WebKit decides whether it uses the word. */
 const LC_BR_KEY = "looscid_braille_styles";
 Looscid.LC_BR_KEY = LC_BR_KEY;
-// Build 150 (#63, Alhasan 11:01 AM Oct 11): BrailleNote, like KeySoft: buttons edbt, radio buttons w + a full or dash cell + r,
+// Build 150 (#63, 2three1y 11:01 AM Oct 11): BrailleNote, like KeySoft: buttons edbt, radio buttons w + a full or dash cell + r,
 // checkboxes dots 4-5-6 + a full or dash cell + l. The default now. Braille only: speech is unchanged.
 const LC_BR_BUILTIN = [["braillenote", "BrailleNote", "edbt"], ["iphone", "iPhone", "btn"], ["android", "Android", "edbt"]];
 const LC_BR_STATE = { radio: ["\u283a\u283f\u2817", "\u283a\u2824\u2817"], checkbox: ["\u2838\u283f\u2807", "\u2838\u2824\u2807"] }; // [on, off]: ⠺⠿⠗ ⠺⠤⠗, ⠸⠿⠇ ⠸⠤⠇
@@ -4916,7 +4916,7 @@ function lcBrWatch() {
     const d = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "checked");
     if (d && d.set && !d.set.__lcbr) { const set = function (v) { d.set.call(this, v); if (this.type === "radio" || this.type === "checkbox") lcBrSoon(); }; set.__lcbr = true; Object.defineProperty(HTMLInputElement.prototype, "checked", { configurable: true, enumerable: d.enumerable, get: d.get, set: set }); }
   } catch (e) {}
-  // Build 150 (Alhasan: "every button shows edbt"): iPhone (btn) was the old default, so it moves to BrailleNote once.
+  // Build 150 (2three1y: "every button shows edbt"): iPhone (btn) was the old default, so it moves to BrailleNote once.
   try { if (!localStorage.getItem("looscid_br_bn150")) { localStorage.setItem("looscid_br_bn150", "1"); if (Looscid.A11Y_NOW.brailleStyle === "iphone") lcSet({ brailleStyle: "braillenote" }); } } catch (e) {}
   lcBrStamp();
 }
@@ -5032,7 +5032,7 @@ function A11ySwitch({ id, label, desc, on, onToggle, soon, locked }) {
       onClick: function () { if (!off && onToggle) onToggle(); } },
       lh('span', { className: "lc-sw-l" }, label),
       lh('span', { className: "lc-sw-v", "aria-hidden": "true" }, soon ? "Soon" : on ? "On" : "Off", lh('span', { className: "lc-knob" }))),
-    // Round 6 (Alhasan): no line after each switch. Only a switch that can't be used says why, as plain text.
+    // Round 6 (2three1y): no line after each switch. Only a switch that can't be used says why, as plain text.
     desc && off ? lh('p', { id: id + "-d", className: "lc-desc" }, desc) : null);
 }
 // Which More-menu item each Settings screen belongs to (Back returns there, focus on that item).

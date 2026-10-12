@@ -7,13 +7,13 @@ Object.assign(Looscid, { CreditsPage, ProfileView, ProfilePage, DreamorProfilePa
 /* --- PROFILE (OWN) ----------------------- */
 
 /* --- Profile (one view for you and for other Dreamors) ----------------------
-   Build 147 (Alhasan, Oct 10 2026): the profile is recreated from Feditext's profile (Feditext by Metabolist,
+   Build 147 (2three1y, Oct 10 2026): the profile is recreated from Feditext's profile (Feditext by Metabolist,
    GPL-3.0; no Feditext code is used, only its layout, order and controls), written fresh for Looscid.
    Feditext's order: avatar, the relationship buttons (Direct message, Follow / Following), the name, @handle with
    "Follows you" / "Muted" / "Blocked", "N Dreams • Joined", a private note, fields, bio, the Following and
    Followers count buttons (each opens its own list page) and the tab row (Dreams, Dreams & Replies, Redreams,
    Media). Its top menu (Share, Hide/Show Redreams, Add/Edit note, Mute, Block, Report) is a More button that
-   expands inline. Alhasan's own asks sit where Feditext's closest part is: Edit profile (the same LooscidID editor
+   expands inline. 2three1y's own asks sit where Feditext's closest part is: Edit profile (the same LooscidID editor
    as Settings), a private Liked tab on your own profile, an About tab, and Mutual likes on other people's. */
 const LC_PROFILE_MORE_KEY = "looscid_profile_more_open", LC_PROFILE_RD_KEY = "looscid_profile_rd_show", LC_LIKED_PUBLIC_KEY = "looscid_liked_public";
 // Build 150, part 16: Dreamor options is a real pop-up menu that never remembers being open. The old open state is cleared once.
@@ -23,7 +23,7 @@ function lcRdShow() { try { const v = localStorage.getItem(LC_PROFILE_RD_KEY); r
 function lcLikedPublic() { try { const a = JSON.parse(localStorage.getItem(LC_LIKED_PUBLIC_KEY) || "[]"); return Array.isArray(a) ? a.filter(function (x) { return typeof x === "string"; }) : []; } catch (e) { return []; } }
 function lcSetLikedPublic(list) { try { if (list.length) localStorage.setItem(LC_LIKED_PUBLIC_KEY, JSON.stringify(list)); else localStorage.removeItem(LC_LIKED_PUBLIC_KEY); } catch (e) {} }
 const LC_LIKED_KIND_TAB = { dream: "dreams", circle: "circles", app: "apps", listing: "marketplace", chat: "chats", search: "searches" };
-/* What a visitor sees on someone's Liked tab (Alhasan, 9:46 and 9:48 PM): everything in the tabs made public, plus,
+/* What a visitor sees on someone's Liked tab (2three1y, 9:46 and 9:48 PM): everything in the tabs made public, plus,
    even with every switch off, each liked Dream the visitor wrote or liked too. Anyone else sees none of those. */
 function lcLikedVisibleTo(items, publicTabs, visitorHandle, visitorLikedIds) {
   const v = Looscid.lcHandle(visitorHandle || ""), pub = publicTabs || [], vl = new Set((visitorLikedIds || []).map(String));
@@ -36,7 +36,7 @@ function lcLikedVisibleTo(items, publicTabs, visitorHandle, visitorLikedIds) {
   });
 }
 function lcFmtJoined(t) { try { return new Date(+t).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }); } catch (e) { return ""; } }
-/* Build 149 (Alhasan, Oct 11 3:21 AM): "Joined" shows the full date and the time the LooscidID was made, in the
+/* Build 149 (2three1y, Oct 11 3:21 AM): "Joined" shows the full date and the time the LooscidID was made, in the
    viewer's own time zone, e.g. "Thursday, October 2, 2024 at 5:01 PM (Eastern Time)". A date stored without a time
    is shown as a date only (no time is made up); any other stored text is shown as it was stored. */
 function lcTzName(d) {
@@ -227,7 +227,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const handle = (user.handle || "").replace(/^@/, "");
   const mineOf = function (d) { return d.user && (d.user === user || d.user.id === user.id); };
   const ownDreams = all.filter(function (d) { return mineOf(d) && !d.replyTo; });
-  // Build 150 (#48, Alhasan 4:21 AM Oct 11): Dreams this Dreamor publishes while their profile is open (your own too)
+  // Build 150 (#48, 2three1y 4:21 AM Oct 11): Dreams this Dreamor publishes while their profile is open (your own too)
   // make #looscid-live say "<display name> just published". Part 16: the header count is gone (the Dreams tab has it),
   // and only a Dream with a real time from the last 5 minutes counts, so an old Dream that syncs in late is never news.
   const seenRef = useRef(null);
@@ -256,7 +256,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const theirLikes = !isMe && Array.isArray(user.likes) ? user.likes : null;
   const myLikedIds = Looscid.lcLikedItems("dream").map(function (x) { return x.id; });
   const theirVisible = theirLikes ? lcLikedVisibleTo(theirLikes, user.likesPublic || [], ME.handle, myLikedIds) : [];
-  // Tabs: Feditext's four, then Alhasan's: Liked (your own, private; on others only what they made visible to you),
+  // Tabs: Feditext's four, then 2three1y's: Liked (your own, private; on others only what they made visible to you),
   // Mutual likes (others), About.
   const TABS = [["dreams", "Dreams"], ["replies", "Dreams & Replies"], ["redreams", "Redreams"], ["media", "Media"]]
     .concat(isMe ? [["liked", "Liked"]] : theirVisible.length ? [["liked", "Liked"]] : [])
@@ -284,7 +284,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const copyLink = function () { lcCopy(location.origin + location.pathname + "#@" + handle, "LooscidID link"); };
   const cherryOn = !!cherryCtx && lcAiOn();
   const askCherry = function () { cherryCtx.openCherry("Give me a short summary of " + (user.name || "this Dreamor") + " (@" + handle + "): who they are and what they Dream about."); };
-  // Build 150, part 16 (Alhasan, Oct 11): Dreamor options is a real pop-up menu, like the other action menus. It opens
+  // Build 150, part 16 (2three1y, Oct 11): Dreamor options is a real pop-up menu, like the other action menus. It opens
   // with focus on the first item, Escape (or a two-finger scrub) closes it, choosing closes it, focus goes back to the
   // button, and it never remembers being open. Unfinished items stay in the list, unavailable, with the reason.
   const moreItems = isMe
@@ -447,7 +447,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       // "Blocked" capsules. Build 149: each is its own piece with a plain space between, no hidden commas.
       lh('p', { className: "lc-prof-handle" }, lh('span', { className: "sr-only" }, "LooscidID"), " ", lh('span', { className: "lc-prof-acct" }, "@" + handle),
         locked ? lh('span', { className: "lc-prof-lock" }, " ", lh(Ic.Lock, { style: { width: 13, height: 13 }, "aria-hidden": "true" }), lh('span', { className: "sr-only" }, "Locked account")) : null,
-        // Alhasan 3:23/3:30 AM: "Follows you" becomes "Mutuals" once you follow back. It is one element whose words change
+        // 2three1y 3:23/3:30 AM: "Follows you" becomes "Mutuals" once you follow back. It is one element whose words change
         // in place: nothing new appears, nothing is announced, focus stays where it is.
         !self && user.followsYou ? [" ", lh('span', { key: "fy", id: "pf-rel", className: "lc-cap" }, following ? "Mutuals" : "Follows you")] : null,
         muted ? [" ", lh('span', { key: "mu", className: "lc-cap" }, "Muted")] : null,
@@ -480,7 +480,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
         lh('button', { type: "button", id: "pf-count-following", className: "btn bgb lc-big", "aria-describedby": Looscid.lcHint("Opens the list."), onClick: function () { setPeople("following"); } }, nFollowing.toLocaleString() + " Following"),
         lh('button', { type: "button", id: "pf-count-followers", className: "btn bgb lc-big", "aria-describedby": Looscid.lcHint("Opens the list."), onClick: function () { setPeople("followers"); } }, nFollowers.toLocaleString() + " " + (nFollowers === 1 ? "Follower" : "Followers")))),
     lh('div', { className: "ftabs lc-prof-tabs", role: "tablist", "aria-label": "Profile sections", onKeyDown: onTabKey },
-      // Build 149 (Alhasan: iOS already says "tab, 1 of 4"): no position in the names, ever. Each tab's name is its
+      // Build 149 (2three1y: iOS already says "tab, 1 of 4"): no position in the names, ever. Each tab's name is its
       // visible text, with how many it holds in parentheses, like "Dreams (106)".
       TABS.map(function (t) { const on = cur === t[0]; const n = tabCount(t[0]);
         return lh('button', { key: t[0], id: "pf-tab-" + t[0], type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", tabIndex: on ? 0 : -1, "aria-controls": "pf-panel", onClick: function () { setTab(t[0]); } }, n == null ? t[1] : t[1] + " (" + n.toLocaleString() + ")"); })),
@@ -497,7 +497,7 @@ Object.assign(Looscid, { lcLikedPublic, lcSetLikedPublic, lcLikedVisibleTo, LC_L
 /* --- SETTINGS ---------------------------- */
 /* --- ACCOUNT SETTINGS ---------------------------------------------------- */
 function AccountSettings({navigate, authUser, onSignOut, onRenameProfile, onUpdateProfile, initialTab}) {
-  // Settings > Account IS LooscidID management (Hasan, Oct 8 2026), laid out like the
+  // Settings > Account IS LooscidID management (2three1y, Oct 8 2026), laid out like the
   // Google Account page. Alerts live only in Settings > Alerts, never here.
   const securityExtra = React.createElement(React.Fragment, null
     , React.createElement('h3', { className: "lid-label",}, "Local profile")
@@ -611,7 +611,7 @@ function NotificationsSettings({navigate}) {
     )
   );
 }
-// Build 147 (Alhasan, 9:44-9:48 PM): who sees your Liked tab. One "Show on my profile" box per Liked tab, all off.
+// Build 147 (2three1y, 9:44-9:48 PM): who sees your Liked tab. One "Show on my profile" box per Liked tab, all off.
 function LcLikedPrivacy() {
   const [pub, setPub] = useState(lcLikedPublic);
   const tabs = (Looscid.LC_LIKED_TABS || []).filter(function (t) { return t.k !== "media"; }); // build 150: Media is a view of Dreams, not its own kind
@@ -948,13 +948,13 @@ function lcMenuList(id, label, items) {
       const sid = id + "-" + it.id + "-d";
       return lh('li', { key: it.id, className: "mli" },
         lh('button', { type: "button", id: id + "-" + it.id, className: "mitem lc-cat", onClick: it.a },
-          // Round 6 (Alhasan): VoiceOver says just "Privacy, button": the label only. Explanations live as
+          // Round 6 (2three1y): VoiceOver says just "Privacy, button": the label only. Explanations live as
           // plain text under section headings, not on or after each button.
           lh('span', { className: "mitem-lbl" }, it.l),
           lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })));
     }));
 }
-// Round 6 (Alhasan, 7:14 AM): no per-control explanation lines. Kept as a no-op so callers stay simple.
+// Round 6 (2three1y, 7:14 AM): no per-control explanation lines. Kept as a no-op so callers stay simple.
 function lcSubLine() { return null; }
 function AccessibilitySettings({ navigate, onAskDevice }) {
   useEffect(function () {
@@ -1063,7 +1063,7 @@ function AboutSettings({navigate}) {
     lh('section', { "aria-labelledby": "about-lead", style: { padding: "8px 16px 12px" } },
       lh('h2', { id: "about-lead", className: "lid-sub" }, "Looscid in short"),
       lh('p', { className: "lid-help" }, "Looscid is a decentralized, free and open source social app that works the way you do: with a screen reader, a braille display, a keyboard, a switch or just your thumbs. Your data stays on your device, and your LooscidID is yours."),
-      // Round 6.6 (Alhasan 5:24 and 5:25 PM): everything that was in More's About submenu is on this one page.
+      // Round 6.6 (2three1y 5:24 and 5:25 PM): everything that was in More's About submenu is on this one page.
       // Terms, Privacy, Community rules and the license are under Legal.
       lh('ul', { className: "mlist", "aria-label": "Feedback, legal and the welcome intro" },
         [["feedback", "Send Feedback"], ["legal", "Legal"], ["intro", "Welcome intro"]].map(function (x) {
@@ -1071,7 +1071,7 @@ function AboutSettings({navigate}) {
         }))),
     lh('section', { "aria-labelledby": "about-story", style: { padding: "8px 16px 12px" } },
       lh('h2', { id: "about-story", className: "lid-sub" }, "Our story"),
-      lh('p', { className: "lid-help" }, "Looscid is my side project, not a company. I'm Alhasan, a blind developer, and I wanted a social app that works as well with a screen reader and a braille display as it does with eyes."),
+      lh('p', { className: "lid-help" }, "Looscid is my side project, not a company. I'm 2three1y, a blind developer, and I wanted a social app that works as well with a screen reader and a braille display as it does with eyes."),
       lh('p', { className: "lid-help" }, "So I build Looscid accessibility first: VoiceOver, TalkBack and NVDA, braille displays, keyboards and switches are tested from the start, sounds have captions, and nothing flashes."),
       lh('p', { className: "lid-help" }, "I paused development for a while. It's back on now, and I build in public, with Tab, my digital assistant, helping write and test the code.")),
     lh('section', { "aria-labelledby": "about-purpose", style: { padding: "0 16px 12px" } },
@@ -2149,7 +2149,7 @@ function lcIdLabel(x) {
   return k.short + ", " + id;
 }
 /* --- LooscidID Manager (Settings > Account) -------------------------------
-   Modelled on the Google Account page (Hasan, Oct 8 2026: "Make it like How Google
+   Modelled on the Google Account page (2three1y, Oct 8 2026: "Make it like How Google
    Makes it"): a header with your avatar, name and @username, then real tabs:
    Home, Personal info, Data & privacy, Security, People & sharing. No payments.
    Alerts are not here; they have their own section. */
@@ -2388,9 +2388,9 @@ const LOOSCID_FIXES = 33;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
   { version: "2026.117.33", build: 150, released: LOOSCID_RELEASED, title: "Round 7", notes: [
-    "Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each.",
-    "Every menu, sheet, dialog and pop-up is truly modal (Alhasan: after the last item in Create, VoiceOver read Home and the status page behind it). While one is open, everything outside it is hidden from VoiceOver, braille and the keyboard; Tab and Shift+Tab stay inside a dialog; when it closes, focus goes back to the button that opened it. The live announcer still speaks. Covers Create, More, the Commandbar, pop-up menus, Dream options, alerts, Circle sheets and Reset. Escape now closes More too.",
-    "Fix (Alhasan, testing on iPhone): VoiceOver read a whole menu's contents as its hint. Every menu, sheet and dialog now has one short hint of its own: menus say Swipe to choose. Escape or a two-finger scrub closes; sheets and dialogs say Swipe to move through it. Escape or a two-finger scrub closes. Only the menu or dialog itself has a hint, never a button or other control.",
+    "Round 7: a feature update, asked for by 2three1y. Built in steps, one commit each.",
+    "Every menu, sheet, dialog and pop-up is truly modal (2three1y: after the last item in Create, VoiceOver read Home and the status page behind it). While one is open, everything outside it is hidden from VoiceOver, braille and the keyboard; Tab and Shift+Tab stay inside a dialog; when it closes, focus goes back to the button that opened it. The live announcer still speaks. Covers Create, More, the Commandbar, pop-up menus, Dream options, alerts, Circle sheets and Reset. Escape now closes More too.",
+    "Fix (2three1y, testing on iPhone): VoiceOver read a whole menu's contents as its hint. Every menu, sheet and dialog now has one short hint of its own: menus say Swipe to choose. Escape or a two-finger scrub closes; sheets and dialogs say Swipe to move through it. Escape or a two-finger scrub closes. Only the menu or dialog itself has a hint, never a button or other control.",
     "Braille roles like a BrailleNote (KeySoft): every button shows edbt instead of btn, a radio button shows ⠺⠿⠗ when it's on and ⠺⠤⠗ when it's off, and a checkbox shows ⠸⠿⠇ when it's on and ⠸⠤⠇ when it's off. BrailleNote is the new Button style on braille and the default (iPhone btn moves to it once). Braille only: nothing changes on screen, and speech still says button, radio button and checkbox with their state. Still to be checked on a real iPhone with a braille display.",
     "The settings page for screen readers and braille is called Sense now, everywhere: Settings, Accessibility, Find a setting, the Commandbar (open sense works, and the old words still work), Help Center and status. The tabs inside are the same.",
     "Pitch cues moved from the Verbosity tab to the Speech tab: the switch, the Pitch cue for checkboxes and Preview every pitch cue. Moved only: the cues, the settings and what they sound like are exactly the same.",
@@ -2399,29 +2399,30 @@ const LC_VERSION_HISTORY = [
     "Profiles: the header shows the exact moment you joined, like Joined Sunday, October 11, 2026 at 3:12 PM (Eastern Time), in your own time zone, the same as About. Older LooscidIDs that only kept the month now show the full date and time too.",
     "Profiles: the top button is called Dreamor options instead of More. Same list, same behavior.",
     "The Home tab before the feed tabs is gone: the feed tabs start at For You. If you were on Home, you land on For You.",
-    "Thread view, like Alhasan's Feditext idea: opening a Dream's replies shows just that Dream. Expand thread shows the whole thread, the Dreams above it and every reply; the same button then says Collapse thread. The words change in place and focus stays on the button.",
+    "Thread view, like 2three1y's Feditext idea: opening a Dream's replies shows just that Dream. Expand thread shows the whole thread, the Dreams above it and every reply; the same button then says Collapse thread. The words change in place and focus stays on the button.",
     "Each Dream's options button is Feditext's More button now. Its pop-up starts with Feditext's items in Feditext's order: Like (Feditext's Bookmark), Mute, Block, and Report (coming soon) for someone else's Dream, then Looscid's own (Read, Hear thread, Translate, Share, profile, Ask Cherry). Closing it says Close More.",
-    "Help in More is a real pop-up menu button now (Alhasan, 4:36 PM): it opens a menu with Help Center and Commands. Up and Down move, Enter opens, Escape closes it and puts you back on Help. Commands isn't its own section in More anymore. Back from Commands puts you on Help.",
+    "Help in More is a real pop-up menu button now (2three1y, 4:36 PM): it opens a menu with Help Center and Commands. Up and Down move, Enter opens, Escape closes it and puts you back on Help. Commands isn't its own section in More anymore. Back from Commands puts you on Help.",
     "Liked: the Images only checkbox is gone. Liked has a Media tab (after Dreams) that starts with Show: Photos, GIFs and Videos, three checkboxes, all on; turn any off and Looscid says how many liked Dreams are left.",
-    "Back sounds (Alhasan: Liked's Back played no sound): every Back was checked. Liked, your own profile and Apps now go Back the same way Settings screens do: More opens again on the button you came from, with the same Back sound.",
+    "Back sounds (2three1y: Liked's Back played no sound): every Back was checked. Liked, your own profile and Apps now go Back the same way Settings screens do: More opens again on the button you came from, with the same Back sound.",
     "Undo words: Unredream, Unquote Dream, and Unlike / Unliked, everywhere they appear (the old two-word Undo labels are gone).",
-    "Memeprojects is one word everywhere now (Alhasan: it is Memeprojects, not Meme Projects): Apps, Projects, the Commandbar (open memeprojects; the old words still work), Find a setting, Help Center, Credits and NexOS.",
+    "Memeprojects is one word everywhere now (2three1y: it is Memeprojects, not Meme Projects): Apps, Projects, the Commandbar (open memeprojects; the old words still work), Find a setting, Help Center, Credits and NexOS.",
     "Cherry has its own page called Cherry - DO IT YOUR WAY (More just links to it). The Try asking suggestions and the canned answer are gone: when Cherry doesn't understand, it says so and changes nothing. New Chat is at the top, then Your History with All and Pinned, then the chat you're in. Each chat has a Chat options pop-up menu: Pin or Unpin, Edit name, Project and Share access (both coming soon), Delete (asks first), New Chat, History and Close Menu. Capitals never matter to Cherry.",
     "Settings, Intelligence has three new pages for Cherry, kept apart from the feed settings: Memory (save chats in Your History on or off, Delete all chats), Tools (what Cherry may do for you, all on to start; a tool that's off is never run) and What Cherry did (everything Cherry did, with Undo; it used to be on the Cherry page).",
     "Credits and open source is rewritten in my own words: it starts with \"This page is where I say thanks\", my own projects have their own section, every license is a link to that project's real license, and every project has a link like \"NexOS on GitHub\" instead of a raw web address.",
-    "Create Circle makes a real Circle now (Alhasan: it just closed the sheet). It opens your new Circle with focus on its name and says \"Circle created\" once. Circles you make stay after a reload: they're kept on this device as looscid_circles, and Settings backup exports and imports them (older backups still import).",
-    "The old Dream Board name is gone, even under the hood (Alhasan): everything Looscid saves on your device is named looscid_ now. The first time you open this build, it moves your Dreams, Liked, Cherry chats, settings, Nostr key and Soundpacks over by itself and deletes the old copies. Nothing is lost, and older settings backups still import.",
-    "Fix (Alhasan: VoiceOver kept saying description on every item): the short hints on every menu, sheet and dialog are gone. VoiceOver read each one as \"description\" and repeated it on every move inside More, Create, menus, sheets and Circle steps. Menus and dialogs say only their name now; Escape or a two-finger scrub still closes them.",
-    "Fix (Alhasan: VoiceOver said description after every value): profile About and fields, Built-in shortcuts, the LooscidID data summary and the welcome glossary are plain list rows now, read as \"Label: value\". They looked like definition lists, which VoiceOver on iPhone calls \"description\". They look the same as before.",
-    "Fix (Alhasan): Dreamor options is a real pop-up menu now, after the name and @handle. It opens on the first item, closes with Escape or a two-finger scrub, closes after you choose, and never stays open from one profile to the next. Someone else's profile: Follow, Message, Ask Cherry for a summary, Share, Copy LooscidID link, Hide Redreams, Add note, Mute, Block, Report. Yours: Edit profile, Share, Copy LooscidID link, View as others see it, Settings. The header no longer repeats \"Dreams (N)\" and Joined, About says \"About\" and the name, and \"just published\" no longer fires for old Dreams.",
-    "Fix (Alhasan): Create Circle reads properly now. Each step's heading says \"Step 1 of 3\" and gets focus when you go to the next or previous step. Icon, Category and Privacy are radio buttons that say when they're checked, and Privacy reads its explanation as part of each choice. No more \"star\", \"slash\" or \"right arrow\", and Escape closes the sheet.",
-    "Real hints, like a Swift app's (Alhasan): only controls whose action isn't obvious get one, and VoiceOver reads it after a short pause, following your Hints setting. A Dream's replies count says \"Opens the thread.\", Redreams \"Opens Redream and Quote.\", More \"Opens actions for this Dream.\", Expand thread and Collapse thread say what they show, and the Following and Followers counts say \"Opens the list.\" Unavailable items say just their name, with the reason as the hint. No hints on menus, dialogs, lists, tabs or obvious buttons like Like.",
-    "Words, per Alhasan's rule: the status page now says \"Publishing, viewing and interacting with Dreams\", and the community rules say \"Share authentic Dreams\" and \"Do not publish\". Every word you read in Looscid uses publish or Dream, and so do the new hints.",
+    "Create Circle makes a real Circle now (2three1y: it just closed the sheet). It opens your new Circle with focus on its name and says \"Circle created\" once. Circles you make stay after a reload: they're kept on this device as looscid_circles, and Settings backup exports and imports them (older backups still import).",
+    "The old Dream Board name is gone, even under the hood (2three1y): everything Looscid saves on your device is named looscid_ now. The first time you open this build, it moves your Dreams, Liked, Cherry chats, settings, Nostr key and Soundpacks over by itself and deletes the old copies. Nothing is lost, and older settings backups still import.",
+    "Fix (2three1y: VoiceOver kept saying description on every item): the short hints on every menu, sheet and dialog are gone. VoiceOver read each one as \"description\" and repeated it on every move inside More, Create, menus, sheets and Circle steps. Menus and dialogs say only their name now; Escape or a two-finger scrub still closes them.",
+    "Fix (2three1y: VoiceOver said description after every value): profile About and fields, Built-in shortcuts, the LooscidID data summary and the welcome glossary are plain list rows now, read as \"Label: value\". They looked like definition lists, which VoiceOver on iPhone calls \"description\". They look the same as before.",
+    "Fix (2three1y): Dreamor options is a real pop-up menu now, after the name and @handle. It opens on the first item, closes with Escape or a two-finger scrub, closes after you choose, and never stays open from one profile to the next. Someone else's profile: Follow, Message, Ask Cherry for a summary, Share, Copy LooscidID link, Hide Redreams, Add note, Mute, Block, Report. Yours: Edit profile, Share, Copy LooscidID link, View as others see it, Settings. The header no longer repeats \"Dreams (N)\" and Joined, About says \"About\" and the name, and \"just published\" no longer fires for old Dreams.",
+    "Fix (2three1y): Create Circle reads properly now. Each step's heading says \"Step 1 of 3\" and gets focus when you go to the next or previous step. Icon, Category and Privacy are radio buttons that say when they're checked, and Privacy reads its explanation as part of each choice. No more \"star\", \"slash\" or \"right arrow\", and Escape closes the sheet.",
+    "Real hints, like a Swift app's (2three1y): only controls whose action isn't obvious get one, and VoiceOver reads it after a short pause, following your Hints setting. A Dream's replies count says \"Opens the thread.\", Redreams \"Opens Redream and Quote.\", More \"Opens actions for this Dream.\", Expand thread and Collapse thread say what they show, and the Following and Followers counts say \"Opens the list.\" Unavailable items say just their name, with the reason as the hint. No hints on menus, dialogs, lists, tabs or obvious buttons like Like.",
+    "Words, per 2three1y's rule: the status page now says \"Publishing, viewing and interacting with Dreams\", and the community rules say \"Share authentic Dreams\" and \"Do not publish\". Every word you read in Looscid uses publish or Dream, and so do the new hints.",
     "Restored the terminology guide and added the post rule.",
     "Cleaner repository: docs that covered the same subject are merged, docs live in docs/guides and docs/dev, and the app's files are in an app folder. Looscid's address and every page in it stay the same.",
+    "Looscid says 2three1y everywhere now: About Looscid (\"I'm 2three1y, a blind developer\"), the project pages, the Commandbar and the docs. License copyright lines are unchanged for now.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
-    "Round 6.8.1: a fix update, asked for by Alhasan. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
+    "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
     "The stray comma: hidden commas stood in for the bullet between N Dreams and Joined, and before Follows you, Muted and Blocked. VoiceOver read each one on its own as comma. They're gone; each part is its own piece with a plain space.",
     "The bio is shown like Feditext's: paragraphs and line breaks kept, links, mentions and hashtags as real links. A mention opens that Dreamor's profile, a hashtag opens Discover.",
     "Fields are shown like Feditext's: a table of label and value, a verified value in green with a checkmark, read as Verified and the date.",
@@ -2458,7 +2459,7 @@ const LC_VERSION_HISTORY = [
     "Menu items no longer read with a stray comma when Verbosity is High. The position is now part of one name: Redream, 1 of 2. Tab badges and a few labels too.",
   ] },
   { version: "2026.114.31", build: 145, released: "2026-10-10T23:28:24Z", title: "Round 6.6", notes: [
-    "Round 6.6: Projects. Alhasan's own projects are built into Looscid.",
+    "Round 6.6: Projects. 2three1y's own projects are built into Looscid.",
     "More has a new Projects section, near the end: Memeprojects, Lyric Finder, Vibework, Soundvault, Reactor Toolbar, Code Translator, chaoticmodel, Yapper, Alex Classic, Easyconvert, MyWEB and Agentsync. It remembers whether you left it open.",
     "Each project opens right here, with Back and Close. Projects that need a server say Coming soon instead of showing a fake control.",
     "Memeprojects: after a result, Dream Results opens the Dream composer with the result filled in. You still press Dream yourself.",
@@ -2569,7 +2570,7 @@ function MusicPage({ onBack }) {
         lh('div', { className: "lc-vol-row" },
           lh('input', { id: "mu-volume", type: "range", min: 0, max: 100, step: 10, value: vol, className: "lc-range", "aria-valuetext": vol + " percent", onChange: function (e) { Music.setVolume(+e.target.value); } }),
           lh('span', { className: "lc-vol-n", "aria-hidden": "true" }, vol + "%")))),
-    // Round 6.6 (Alhasan): Lyric Finder, one of his projects, right next to the music.
+    // Round 6.6 (2three1y): Lyric Finder, one of his projects, right next to the music.
     Looscid.lcFindProject && Looscid.lcFindProject("lyricfinder") ? lh('section', { className: "lc-grp", "aria-labelledby": "mu-lyr-h" },
       lh('h2', { id: "mu-lyr-h", className: "lc-grp-h" }, "Lyrics"),
       lh('p', { className: "lc-desc" }, "Lyric Finder finds a song's lyrics by title and artist. In Commandbar, type lyrics and a song, like lyrics imagine by john lennon."),
@@ -2659,7 +2660,7 @@ function lcAboutInfo() {
     ],
   };
 }
-/* Round 6.5 (Alhasan): Credits and open source. Build 150 part 11: rewritten in 2three1y's own voice.
+/* Round 6.5 (2three1y): Credits and open source. Build 150 part 11: rewritten in 2three1y's own voice.
    Every project keeps its credit and license. Each license is a real link to that project's own license text,
    and each project's home is a link named "<project> on GitHub" (or on its own site), so no raw URLs on the page.
    Fields: n name, s short name for link names, u home, site link site name (default GitHub), l license,
@@ -2993,7 +2994,7 @@ function LcSetRow({ def, onChange }) {
         const on = String(v) === String(o[0]);
         return lh('label', { key: o[0], className: "lc-radio" + (on ? " on" : "") },
           lh('input', { type: "radio", name: "lcs-" + def.k, value: o[0], checked: on,
-            // Round 6.6 (Alhasan, 5:19 PM): Soundpacks. Moving to a pack plays a short preview of it; choosing it (Space,
+            // Round 6.6 (2three1y, 5:19 PM): Soundpacks. Moving to a pack plays a short preview of it; choosing it (Space,
             // arrows, a tap, VoiceOver double-tap, braille Enter) switches every earcon to it right away and says so once.
             onFocus: def.k === "soundPack" ? function () { if (o[0] === "custom") return; Looscid.LC_PACK_PREV_AT = Date.now(); Earcon.play(o[0] === "soundvault" ? "open" : "send", { test: true, pack: o[0] }); } : undefined,
             onChange: function () { if (def.k === "soundPack") { put(o[0], false); announce("Soundpack: " + o[1] + ".", "essential"); } else put(o[0]); if (def.k === "soundPack") { window.__lcPackSwitch = (window.__lcPackSwitch || 0) + 1; if (Date.now() - (Looscid.LC_PACK_PREV_AT || 0) > 200) setTimeout(function () { Earcon.play(o[0] === "soundvault" ? "open" : "send", { test: true }); }, 40); } } }), lh('span', null, o[1]));
@@ -3138,7 +3139,7 @@ function BrailleStyle() {
           onSelect: function (k) { if (k === "name") setTimeout(function () { if (fieldRef.current) { fieldRef.current.focus(); fieldRef.current.select(); } }, 30); else { setPast(selCustom.id); setTimeout(function () { const hh = document.getElementById("lc-bs-ph"); if (hh) hh.focus(); }, 60); } } }) : null),
       lh('p', { className: "lc-desc", id: "lc-bs-help" }, isNew ? "Up to 8 characters, like edbt2. Save adds it as its own style." : "Edit and Save renames it. Clear the field and Save deletes it."),
       err ? lh('p', { className: "lc-err", id: "lc-bs-err" }, err) : null) : null,
-    // The notice stays until Dismiss or until you leave this page (Hasan, 5:55 PM).
+    // The notice stays until Dismiss or until you leave this page (2three1y, 5:55 PM).
     n ? lh('div', { className: "lc-bs-notice", id: "lc-bs-notice" },
       lh('p', { className: "lc-bs-nt" }, n.text + "."),
       n.undo ? lh('button', { type: "button", className: "btn bp lc-btn", id: "lc-bs-undo", onClick: function () { const r = lcBrUndo(); announce(r.err || r.ok); if (!r.err) focusRadio("c:" + r.entry.id); } }, "Undo") : null,
@@ -3155,7 +3156,7 @@ function LcVerbosityPanel() {
     lh(LcSetRow, { def: LC_SET_BY.verbosity }),
     lh(LcResetBtn, { sec: "verbosity", label: "Verbosity" }));
 }
-// Build 150 (#56, Alhasan 5:15 AM Oct 11): Pitch cues live on the Speech tab now. Moved only: the same switch,
+// Build 150 (#56, 2three1y 5:15 AM Oct 11): Pitch cues live on the Speech tab now. Moved only: the same switch,
 // the same "Pitch cue for" checkboxes and Preview, the same settings and storage (still reset with Verbosity's defaults).
 function LcPitchCuesPanel() {
   return lh(React.Fragment, null,

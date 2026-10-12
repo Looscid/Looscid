@@ -717,7 +717,7 @@ Cherry is a page, not a dialog. It is built screen-reader first: the page is a s
 
 ### Hints (Round 7)
 
-Alhasan (Oct 11, 2026): hints like a Swift app's, only where they help.
+2three1y (Oct 11, 2026): hints like a Swift app's, only where they help.
 
 - A hint is aria-describedby on the one control that needs it, pointing at a short sentence that ends with a period. On iPhone, VoiceOver reads it after a short pause as that control's hint, it follows VoiceOver's own Hints setting, and a braille display shows it. Desktop screen readers may read it right away.
 - Hints are allowed on controls whose action isn't obvious from their name and role. They are never allowed on containers (menus, sheets, dialogs, More, Create, Commandbar, Circle sheets, Cherry dialogs, onboarding, lists, Dream rows, tab lists or tabs), and never on obvious controls such as Like, Back, Close, Share, Mute, Block, Follow, menu items, text fields or tabs.

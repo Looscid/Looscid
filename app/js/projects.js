@@ -1,4 +1,4 @@
-/* Looscid projects.js: Projects (Round 6.6). Alhasan's own projects, built into Looscid.
+/* Looscid projects.js: Projects (Round 6.6). 2three1y's own projects, built into Looscid.
    Plain script (not a module), plain JavaScript (Looscid.lcEl and lcPatch). Everything it shares goes on window.Looscid;
    see docs/dev/FILES.md for the load order.
    - LC_PROJECTS: the list. An "app" opens its ported copy (projects/<id>/, or the Memeprojects copy in nexos/apps/) in a
@@ -38,7 +38,7 @@ const LC_PROJECTS = [
     about: ["I'm building a language model with a real character, fun first: it has opinions, it roasts you back, and it never sounds like a help desk. One model, three voices, Static, Null and Seg, and who answers depends on the vibe of your message, or you ask for one by name."],
     soon: ["Talking to chaoticmodel is coming soon. It needs the trained model running somewhere, and Looscid has no server of its own. When it can run on your device, I'll bring it here, maybe as a voice for Cherry."],
     words: ["chaoticmodel", "chaotic model", "chaotic"] },
-  { id: "yapper", help: true, lic: "Alhasan's own code", name: "Yapper", repo: "yapper-site", kind: "info",
+  { id: "yapper", help: true, lic: "2three1y's own code", name: "Yapper", repo: "yapper-site", kind: "info",
     sub: "Yapper, the social app by MystyDev, and its website. Android download; more coming soon",
     about: ["Yapper is a social app made by MystyDev, a place to express yourself away from AI-generated, political and brainrot content. It's free. Right now it's on Android only, and it's not on the Google Play Store: you download it from its GitHub releases."],
     links: [["Download Yapper for Android (APK, from GitHub)", "https://github.com/MysteryNBS/mysty-social-public/releases/latest/download/Yapper.apk"]],
@@ -53,17 +53,17 @@ const LC_PROJECTS = [
   { id: "easyconvert", name: "Easyconvert", repo: "Easyconvert", kind: "app", url: "projects/easyconvert/",
     sub: "The newest Easyconvert: read your Claude export, and convert files to Word, PDF, HTML, Markdown, TXT, JSON or CSV. Nothing is uploaded",
     words: ["easyconvert latest", "latest easyconvert", "new easyconvert", "easyconvert", "easy convert", "claude export"] },
-  { id: "myweb", help: true, lic: "Alhasan's own code", name: "MyWEB", repo: "MyWEB", kind: "app", url: "projects/myweb/",
+  { id: "myweb", help: true, lic: "2three1y's own code", name: "MyWEB", repo: "MyWEB", kind: "app", url: "projects/myweb/",
     sub: "The privacy console: download a tunnel config and look up a domain over encrypted DNS. Nostr feedback is coming soon",
     words: ["myweb", "my web", "dns", "tunneling console"] },
-  { id: "agentsync", help: true, lic: "Alhasan's own code", name: "Agentsync", repo: "Agentsync", kind: "info",
+  { id: "agentsync", help: true, lic: "2three1y's own code", name: "Agentsync", repo: "Agentsync", kind: "info",
     sub: "A hub for local-first agent orchestration. Coming soon",
     about: ["I'm building Agentsync as a hub for running your own agents on your own machine: a messaging bus between them, a connector controller, memory, and a token vault that keeps keys encrypted on your device. No cloud in the middle."],
     soon: ["The hub runs next to your agents, and its page is a landing page for now, so there is nothing to run inside Looscid yet. Coming soon. Ideas from it may land in Cherry first."],
     words: ["agentsync", "agent sync", "agents"] },
 ];
 LC_PROJECTS.forEach(function (p) { p.gh = GH + p.repo; });
-// Round 6.6 (Alhasan, 5:02 PM): projects that are Coming soon, or partly, ask for help, with a real link to the repo.
+// Round 6.6 (2three1y, 5:02 PM): projects that are Coming soon, or partly, ask for help, with a real link to the repo.
 const LC_LOOSCID_GH = "https://github.com/Looscid/Looscid";
 
 const LC_PROJECTS_OPEN_KEY = "looscid_more_projects_open"; // the More menu's Projects section: "1" open, "0" closed (in the settings backup)
@@ -81,9 +81,9 @@ function lcOpenProject(p, nav) { nav = nav || Looscid.LC_NAV; if (p && nav) nav(
    still open the copies in Apps (Memeprojects there is the same app, with Dream Results too). */
 function lcProjectIntent(raw) {
   const n = lcNorm(raw || ""); let m;
-  if (/^(projects|my projects|open projects|show projects|project list|alhasan'?s projects|open my projects)$/.test(n))
+  if (/^(projects|my projects|open projects|show projects|project list|2three1y'?s projects|open my projects)$/.test(n))
     return { say: "Opened More, Projects: " + LC_PROJECTS.length + " projects.", fn: function () { if (Looscid.LC_OPEN_MENU) Looscid.LC_OPEN_MENU("projects", null); } };
-  // Round 6.6 (Alhasan, 5:18 PM): soundvault switches to the Soundvault Soundpack (open soundvault opens the project).
+  // Round 6.6 (2three1y, 5:18 PM): soundvault switches to the Soundvault Soundpack (open soundvault opens the project).
   if (/^(soundvault|soundvault pack|soundvault soundpack|use soundvault|soundpack soundvault|sound pack soundvault)$/.test(n))
     return { say: "Soundpack: Soundvault. Its sounds load from Soundvault's catalog; anything it doesn't have plays Looscid's own.", fn: function () { Looscid.lcSet({ soundPack: "soundvault" }); } };
   const sq = n.replace(/[^a-z0-9]/g, "");

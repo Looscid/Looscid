@@ -4,12 +4,12 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 11, 2026 at 8:18 PM (Eastern Time, 2026-10-12T00:18:40Z UTC)
+Released October 12, 2026 at 4:24 PM (Eastern Time, 2026-10-12T20:24:08Z UTC)
 
-Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each.
+Round 7: a feature update, asked for by 2three1y. Built in steps, one commit each.
 
-- Every menu, sheet, dialog and pop-up is truly modal (Alhasan: after the last item in Create, VoiceOver read Home and the status page behind it). While one is open, everything outside it is hidden from VoiceOver, braille and the keyboard; Tab and Shift+Tab stay inside a dialog; when it closes, focus goes back to the button that opened it. The live announcer still speaks. Covers Create, More, the Commandbar, pop-up menus, Dream options, alerts, Circle sheets and Reset. Escape now closes More too.
-- Fix (Alhasan, testing on iPhone): VoiceOver read a whole menu's contents as its hint. Every menu, sheet and dialog now has one short hint of its own: menus say Swipe to choose. Escape or a two-finger scrub closes; sheets and dialogs say Swipe to move through it. Escape or a two-finger scrub closes. Only the menu or dialog itself has a hint, never a button or other control.
+- Every menu, sheet, dialog and pop-up is truly modal (2three1y: after the last item in Create, VoiceOver read Home and the status page behind it). While one is open, everything outside it is hidden from VoiceOver, braille and the keyboard; Tab and Shift+Tab stay inside a dialog; when it closes, focus goes back to the button that opened it. The live announcer still speaks. Covers Create, More, the Commandbar, pop-up menus, Dream options, alerts, Circle sheets and Reset. Escape now closes More too.
+- Fix (2three1y, testing on iPhone): VoiceOver read a whole menu's contents as its hint. Every menu, sheet and dialog now has one short hint of its own: menus say Swipe to choose. Escape or a two-finger scrub closes; sheets and dialogs say Swipe to move through it. Escape or a two-finger scrub closes. Only the menu or dialog itself has a hint, never a button or other control.
 - Braille roles like a BrailleNote (KeySoft): every button shows edbt instead of btn, a radio button shows ⠺⠿⠗ when it's on and ⠺⠤⠗ when it's off, and a checkbox shows ⠸⠿⠇ when it's on and ⠸⠤⠇ when it's off. BrailleNote is the new Button style on braille and the default (iPhone btn moves to it once). Braille only: nothing changes on screen, and speech still says button, radio button and checkbox with their state. Still to be checked on a real iPhone with a braille display.
 - The settings page for screen readers and braille is called Sense now, everywhere: Settings, Accessibility, Find a setting, the Commandbar (open sense works, and the old words still work), Help Center and status. The tabs inside are the same.
 - Pitch cues moved from the Verbosity tab to the Speech tab: the switch, the Pitch cue for checkboxes and Preview every pitch cue. Moved only: the cues, the settings and what they sound like are exactly the same.
@@ -18,32 +18,33 @@ Round 7: a feature update, asked for by Alhasan. Built in steps, one commit each
 - Profiles: the header shows the exact moment you joined, like Joined Sunday, October 11, 2026 at 3:12 PM (Eastern Time), in your own time zone, the same as About. Older LooscidIDs that only kept the month now show the full date and time too.
 - Profiles: the top button is called Dreamor options instead of More. Same list, same behavior.
 - The Home tab before the feed tabs is gone: the feed tabs start at For You. If you were on Home, you land on For You.
-- Thread view, like Alhasan's Feditext idea: opening a Dream's replies shows just that Dream. Expand thread shows the whole thread, the Dreams above it and every reply; the same button then says Collapse thread. The words change in place and focus stays on the button.
+- Thread view, like 2three1y's Feditext idea: opening a Dream's replies shows just that Dream. Expand thread shows the whole thread, the Dreams above it and every reply; the same button then says Collapse thread. The words change in place and focus stays on the button.
 - Each Dream's options button is Feditext's More button now. Its pop-up starts with Feditext's items in Feditext's order: Like (Feditext's Bookmark), Mute, Block, and Report (coming soon) for someone else's Dream, then Looscid's own (Read, Hear thread, Translate, Share, profile, Ask Cherry). Closing it says Close More.
-- Help in More is a real pop-up menu button now (Alhasan, 4:36 PM): it opens a menu with Help Center and Commands. Up and Down move, Enter opens, Escape closes it and puts you back on Help. Commands isn't its own section in More anymore. Back from Commands puts you on Help.
+- Help in More is a real pop-up menu button now (2three1y, 4:36 PM): it opens a menu with Help Center and Commands. Up and Down move, Enter opens, Escape closes it and puts you back on Help. Commands isn't its own section in More anymore. Back from Commands puts you on Help.
 - Liked: the Images only checkbox is gone. Liked has a Media tab (after Dreams) that starts with Show: Photos, GIFs and Videos, three checkboxes, all on; turn any off and Looscid says how many liked Dreams are left.
-- Back sounds (Alhasan: Liked's Back played no sound): every Back was checked. Liked, your own profile and Apps now go Back the same way Settings screens do: More opens again on the button you came from, with the same Back sound.
+- Back sounds (2three1y: Liked's Back played no sound): every Back was checked. Liked, your own profile and Apps now go Back the same way Settings screens do: More opens again on the button you came from, with the same Back sound.
 - Undo words: Unredream, Unquote Dream, and Unlike / Unliked, everywhere they appear (the old two-word Undo labels are gone).
-- Memeprojects is one word everywhere now (Alhasan: it is Memeprojects, not Meme Projects): Apps, Projects, the Commandbar (open memeprojects; the old words still work), Find a setting, Help Center, Credits and NexOS.
+- Memeprojects is one word everywhere now (2three1y: it is Memeprojects, not Meme Projects): Apps, Projects, the Commandbar (open memeprojects; the old words still work), Find a setting, Help Center, Credits and NexOS.
 - Cherry has its own page called Cherry - DO IT YOUR WAY (More just links to it). The Try asking suggestions and the canned answer are gone: when Cherry doesn't understand, it says so and changes nothing. New Chat is at the top, then Your History with All and Pinned, then the chat you're in. Each chat has a Chat options pop-up menu: Pin or Unpin, Edit name, Project and Share access (both coming soon), Delete (asks first), New Chat, History and Close Menu. Capitals never matter to Cherry.
 - Settings, Intelligence has three new pages for Cherry, kept apart from the feed settings: Memory (save chats in Your History on or off, Delete all chats), Tools (what Cherry may do for you, all on to start; a tool that's off is never run) and What Cherry did (everything Cherry did, with Undo; it used to be on the Cherry page).
 - Credits and open source is rewritten in my own words: it starts with "This page is where I say thanks", my own projects have their own section, every license is a link to that project's real license, and every project has a link like "NexOS on GitHub" instead of a raw web address.
-- Create Circle makes a real Circle now (Alhasan: it just closed the sheet). It opens your new Circle with focus on its name and says "Circle created" once. Circles you make stay after a reload: they're kept on this device as looscid_circles, and Settings backup exports and imports them (older backups still import).
-- The old Dream Board name is gone, even under the hood (Alhasan): everything Looscid saves on your device is named looscid_ now. The first time you open this build, it moves your Dreams, Liked, Cherry chats, settings, Nostr key and Soundpacks over by itself and deletes the old copies. Nothing is lost, and older settings backups still import.
-- Fix (Alhasan: VoiceOver kept saying description on every item): the short hints on every menu, sheet and dialog are gone. VoiceOver read each one as "description" and repeated it on every move inside More, Create, menus, sheets and Circle steps. Menus and dialogs say only their name now; Escape or a two-finger scrub still closes them.
-- Fix (Alhasan: VoiceOver said description after every value): profile About and fields, Built-in shortcuts, the LooscidID data summary and the welcome glossary are plain list rows now, read as "Label: value". They looked like definition lists, which VoiceOver on iPhone calls "description". They look the same as before.
-- Fix (Alhasan): Dreamor options is a real pop-up menu now, after the name and @handle. It opens on the first item, closes with Escape or a two-finger scrub, closes after you choose, and never stays open from one profile to the next. Someone else's profile: Follow, Message, Ask Cherry for a summary, Share, Copy LooscidID link, Hide Redreams, Add note, Mute, Block, Report. Yours: Edit profile, Share, Copy LooscidID link, View as others see it, Settings. The header no longer repeats "Dreams (N)" and Joined, About says "About" and the name, and "just published" no longer fires for old Dreams.
-- Fix (Alhasan): Create Circle reads properly now. Each step's heading says "Step 1 of 3" and gets focus when you go to the next or previous step. Icon, Category and Privacy are radio buttons that say when they're checked, and Privacy reads its explanation as part of each choice. No more "star", "slash" or "right arrow", and Escape closes the sheet.
-- Real hints, like a Swift app's (Alhasan): only controls whose action isn't obvious get one, and VoiceOver reads it after a short pause, following your Hints setting. A Dream's replies count says "Opens the thread.", Redreams "Opens Redream and Quote.", More "Opens actions for this Dream.", Expand thread and Collapse thread say what they show, and the Following and Followers counts say "Opens the list." Unavailable items say just their name, with the reason as the hint. No hints on menus, dialogs, lists, tabs or obvious buttons like Like.
-- Words, per Alhasan's rule: the status page now says "Publishing, viewing and interacting with Dreams", and the community rules say "Share authentic Dreams" and "Do not publish". Every word you read in Looscid uses publish or Dream, and so do the new hints.
+- Create Circle makes a real Circle now (2three1y: it just closed the sheet). It opens your new Circle with focus on its name and says "Circle created" once. Circles you make stay after a reload: they're kept on this device as looscid_circles, and Settings backup exports and imports them (older backups still import).
+- The old Dream Board name is gone, even under the hood (2three1y): everything Looscid saves on your device is named looscid_ now. The first time you open this build, it moves your Dreams, Liked, Cherry chats, settings, Nostr key and Soundpacks over by itself and deletes the old copies. Nothing is lost, and older settings backups still import.
+- Fix (2three1y: VoiceOver kept saying description on every item): the short hints on every menu, sheet and dialog are gone. VoiceOver read each one as "description" and repeated it on every move inside More, Create, menus, sheets and Circle steps. Menus and dialogs say only their name now; Escape or a two-finger scrub still closes them.
+- Fix (2three1y: VoiceOver said description after every value): profile About and fields, Built-in shortcuts, the LooscidID data summary and the welcome glossary are plain list rows now, read as "Label: value". They looked like definition lists, which VoiceOver on iPhone calls "description". They look the same as before.
+- Fix (2three1y): Dreamor options is a real pop-up menu now, after the name and @handle. It opens on the first item, closes with Escape or a two-finger scrub, closes after you choose, and never stays open from one profile to the next. Someone else's profile: Follow, Message, Ask Cherry for a summary, Share, Copy LooscidID link, Hide Redreams, Add note, Mute, Block, Report. Yours: Edit profile, Share, Copy LooscidID link, View as others see it, Settings. The header no longer repeats "Dreams (N)" and Joined, About says "About" and the name, and "just published" no longer fires for old Dreams.
+- Fix (2three1y): Create Circle reads properly now. Each step's heading says "Step 1 of 3" and gets focus when you go to the next or previous step. Icon, Category and Privacy are radio buttons that say when they're checked, and Privacy reads its explanation as part of each choice. No more "star", "slash" or "right arrow", and Escape closes the sheet.
+- Real hints, like a Swift app's (2three1y): only controls whose action isn't obvious get one, and VoiceOver reads it after a short pause, following your Hints setting. A Dream's replies count says "Opens the thread.", Redreams "Opens Redream and Quote.", More "Opens actions for this Dream.", Expand thread and Collapse thread say what they show, and the Following and Followers counts say "Opens the list." Unavailable items say just their name, with the reason as the hint. No hints on menus, dialogs, lists, tabs or obvious buttons like Like.
+- Words, per 2three1y's rule: the status page now says "Publishing, viewing and interacting with Dreams", and the community rules say "Share authentic Dreams" and "Do not publish". Every word you read in Looscid uses publish or Dream, and so do the new hints.
 - Restored the terminology guide and added the post rule.
 - Cleaner repository: docs that covered the same subject are merged, docs live in docs/guides and docs/dev, and the app's files are in an app folder. Looscid's address and every page in it stay the same.
+- Looscid says 2three1y everywhere now: About Looscid ("I'm 2three1y, a blind developer"), the project pages, the Commandbar and the docs. License copyright lines are unchanged for now.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 
 Released October 11, 2026 at 4:18 AM (Eastern Time, 2026-10-11T08:18:22Z UTC)
 
-A fix update, asked for by Alhasan after trying 148 on his iPhone: a weird comma on profiles, a bio like Feditext's, no position numbers in tab names, and Show radios on Media.
+A fix update, asked for by 2three1y after trying 148 on his iPhone: a weird comma on profiles, a bio like Feditext's, no position numbers in tab names, and Show radios on Media.
 
 - The stray comma was on the profile header: visually hidden ", " pieces stood in for the bullet between "N Dreams" and "Joined", and sat before the "Follows you", "Muted" and "Blocked" capsules (and ", verified" after a verified field, ": " after Note, ", " in the Following and Followers rows and in Edit profile). VoiceOver on iPhone reads a hidden piece like that as its own stop, so it said "comma". They're all gone: each part is its own piece with a plain space, like Feditext, which hides its bullet and puts nothing in its place. The Cherry history tabs and Alerts tabs lost their hidden commas too.
 - Bio, like Feditext's account bio: rich text in paragraphs, line breaks kept, links, mentions and hashtags as real links. A mention of a Dreamor Looscid knows opens their profile, @name@server opens it on that server, and a hashtag opens Discover searching for it. A bio that comes as HTML keeps only its paragraphs, line breaks and links.
@@ -59,7 +60,7 @@ A fix update, asked for by Alhasan after trying 148 on his iPhone: a weird comma
 
 Released October 10, 2026 at 11:45 PM (Eastern Time, 2026-10-11T03:45:29Z UTC)
 
-A feature update, from Alhasan's spec sheet: Liked in More, Like Search, and Create.
+A feature update, from 2three1y's spec sheet: Liked in More, Like Search, and Create.
 
 - More has a Liked button, right under View your profile. It opens the Liked page: the same Liked as the Liked tab on your profile (one component, one store), with the tabs Dreams, Circles, Apps, Marketplace, Chats and Searches, and Images only as a filter, not a tab. The tabs are a real tablist (arrow keys, Home and End); every panel is in the page, shown or hidden, and labelled by its tab. Only you can see it.
 - Like and Unlike, never Save or Bookmark, now also on Circles (in Discover and on the Circles page), on Apps (in More), and on Cherry chats. Cherry chats are in Chats, and they show there only while Cherry is on (Looscid has no Show Cherry setting). A Marketplace like is a listing; Marketplace isn't open yet, and the page says so.
@@ -76,14 +77,14 @@ A feature update, from Alhasan's spec sheet: Liked in More, Like Search, and Cre
 
 Released October 10, 2026 at 10:44 PM (Eastern Time, 2026-10-11T02:44:37Z UTC)
 
-A feature update, asked for by Alhasan: his profile page, rebuilt, and "liking is saving".
+A feature update, asked for by 2three1y: his profile page, rebuilt, and "liking is saving".
 
 - Profiles are recreated from Feditext's profile (Feditext by Metabolist, GPL-3.0). Only its layout, order and controls are used; no Feditext code. In Feditext's order: the avatar, the buttons (Direct message, which says unavailable because Looscid has no direct messages to start yet, and Follow or Following; on your own profile, Edit profile), your name, your LooscidID with Follows you, Muted or Blocked, your Dreams count and Joined date, a private note, fields (website and links), bio, then Following and Followers buttons that open their own pages (Back returns to the button), then the tabs: Dreams, Dreams & Replies, Redreams and Media.
-- Alhasan's own asks sit where Feditext's closest part is: a private Liked tab on your own profile, an About tab, Mutual likes on other people's profiles, and a More button at the top.
+- 2three1y's own asks sit where Feditext's closest part is: a private Liked tab on your own profile, an About tab, Mutual likes on other people's profiles, and a More button at the top.
 - More at the top of a profile is Feditext's profile menu as a button that expands in place (aria-expanded; Escape closes it and puts focus back on More; it remembers whether you left it open). Other people: Share, Hide Redreams or Show Redreams (when you follow them), Add note or Edit note, Mute or Unmute, Block or Unblock, and Report, which says unavailable because Looscid has nowhere to send reports yet. Yours: Share and Edit profile.
 - Edit profile, on the profile and in its More, opens the same LooscidID editor as Settings, LooscidID: same fields, same save, same "Profile saved".
 - Liking is saving: one store and one name, Liked (dbm_liked). The old Save in Dream options and on the Replies page is gone; Like is the one toggle. Every Dream you saved or liked before is in Liked, so nothing is lost. A like shows everywhere at once and stays after a reload. Your plain Redreams are kept on this device too, so the Redreams tab can show them.
-- The Liked tab on your profile follows Alhasan's spec sheet: tabs Dreams, Circles, Apps, Marketplace, Chats and Searches, with Images only as a filter, not a tab. Every panel is in the page, shown or hidden, and labelled by its tab. A Dream you unlike there stays in the list until you leave, so focus doesn't jump. Cherry's chats show in Chats only while Cherry is on (Looscid has no Show Cherry setting). Marketplace isn't open yet, and the Liked page says so.
+- The Liked tab on your profile follows 2three1y's spec sheet: tabs Dreams, Circles, Apps, Marketplace, Chats and Searches, with Images only as a filter, not a tab. Every panel is in the page, shown or hidden, and labelled by its tab. A Dream you unlike there stays in the list until you leave, so focus doesn't jump. Cherry's chats show in Chats only while Cherry is on (Looscid has no Show Cherry setting). Marketplace isn't open yet, and the Liked page says so.
 - Settings, Privacy, Liked tab: a Show on my profile box for each Liked tab, all off. "Even when off, people can see your likes on their own Dreams." With every box off, a visitor sees a Dream you liked only if they wrote it or liked it too; anyone else sees nothing. Each box you turn on shows that part to everyone.
 - Other people's profiles: Mutual likes (Dreams you both liked), and their Liked tab only for what they made public or what the same rule lets you see. When their likes aren't public, it says so.
 - About tab: About this account, like X's: your LooscidID with Copy LooscidID, Date joined (when your LooscidID was made), Account based in only if you set one, your connected Logins, your Nostr public key with a Copy button, and Verified only if true. Nothing is guessed, and an empty field is left out.
@@ -91,7 +92,7 @@ A feature update, asked for by Alhasan: his profile page, rebuilt, and "liking i
 - A Dream that tags you has Remove me from this Dream in its options: the mention stops being a link to you on this device, a line says "You removed yourself from this Dream.", and Add me back to this Dream undoes it (dbm_untagged).
 - More has View your profile near the top.
 - At High verbosity a profile tab says its position in one name, like "Dreams, 1 of 6".
-- Projects, About Looscid and Help now speak in Alhasan's own voice: "My own projects", "I'm Alhasan, a blind developer".
+- Projects, About Looscid and Help now speak in 2three1y's own voice: "My own projects", "I'm 2three1y, a blind developer".
 - One link per place: the Projects section no longer repeats the GitHub link that's in Social, and Credits shows a planned project's repository link only once.
 - Legal and Credits: "Profile design recreated from Feditext by Metabolist (GPL-3.0); no Feditext code is used."
 - The settings backup adds dbm_profile_more_open, dbm_profile_rd_show and dbm_liked_public (the Liked tab switches) at the end. Older backups still import. What you liked stays on this device and isn't in the settings backup, like your Dreams.
@@ -100,7 +101,7 @@ A feature update, asked for by Alhasan: his profile page, rebuilt, and "liking i
 
 Released October 10, 2026 at 9:25 PM (Eastern Time, 2026-10-11T01:25:26Z UTC)
 
-A fix update, asked for by Alhasan: Earcons broke up or didn't play on his iPhone, and names read with a stray comma, like "Block ,".
+A fix update, asked for by 2three1y: Earcons broke up or didn't play on his iPhone, and names read with a stray comma, like "Block ,".
 
 - Earcons on iPhone: the one sound engine now stays awake while Looscid is on screen. Before, it went to sleep 1.5 seconds after every sound, and on iPhone waking it again without a tap (a VoiceOver swipe isn't a tap to the page) failed or cut off the start of the sound.
 - After iPhone pauses audio (screen lock, a call, Siri, another app), every tap, click or key press wakes the engine again, not only the very first tap. It still sleeps while Looscid is in the background, for the battery.
@@ -117,7 +118,7 @@ A fix update, asked for by Alhasan: Earcons broke up or didn't play on his iPhon
 
 Released October 10, 2026 (Eastern Time)
 
-A feature update, asked for by Alhasan: his projects built into Looscid, and Earcons.
+A feature update, asked for by 2three1y: his projects built into Looscid, and Earcons.
 
 - Projects: More has a new Projects section near the end (the other sections keep their order). Press it to open it: a short description, then a button for each project. It remembers whether you left it open (dbm_more_projects_open, added to the settings backup; older backups still import).
 - Twelve projects: Memeprojects, Lyric Finder, Vibework, Soundvault, Reactor Toolbar, Code Translator, Easyconvert and MyWEB run right inside Looscid. chaoticmodel, Yapper, Alex Classic and Agentsync say plainly what they are and what is Coming soon, with no fake controls. MyWEB's Nostr feedback and Code Translator's Python are partly Coming soon too.
@@ -145,7 +146,7 @@ A feature update, asked for by Alhasan: his projects built into Looscid, and Ear
 
 Released October 10, 2026 at 5:10 PM (Eastern Time, 2026-10-10T21:10:00Z UTC)
 
-A feature update, asked for by Alhasan: Cherry in Commandbar, shortcuts without spaces, path style, and a Commands page.
+A feature update, asked for by 2three1y: Cherry in Commandbar, shortcuts without spaces, path style, and a Commands page.
 
 - Four new Commandbar commands: open cherry, new cherry chat, cherry pinned chats and cherry history. Capitals, colons and extra spaces don't matter, so "Cherry: Pinned chats" and "Cherry: History" work as typed. Close words work too, like "go to cherry pinned" or "show cherry chats".
 - open cherry opens the Cherry page, with focus on its heading like every other page.
@@ -165,7 +166,7 @@ A feature update, asked for by Alhasan: Cherry in Commandbar, shortcuts without 
 
 Released October 10, 2026 at 4:15 PM (Eastern Time, 2026-10-10T20:15:00Z UTC)
 
-A feature update: Cherry gets its own page, from Alhasan's blueprint.
+A feature update: Cherry gets its own page, from 2three1y's blueprint.
 
 - Cherry is a page now, not a pop-up over the app. Open Cherry in More, the Cherry button on Home, Ask Cherry on Discover, or Ask Cherry about this Dream all go to the same page. Focus lands on the "Cherry" heading.
 - At the top: Back, then Close Cherry (braille: "Close"). Both take you back to where you opened Cherry; from More, the menu opens again on Open Cherry. Then New Chat.

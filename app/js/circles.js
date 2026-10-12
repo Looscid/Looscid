@@ -11,7 +11,7 @@ function CreateGroupFlow({onClose, onCreate, navigate}) {
   const categories = ["Science","Creative","Philosophy","Wellness","Technology","Art","Music","Sports","Discussion","Other"];
   const emojis = ["🌙","🧠","🎨","🔭","🌿","💡","✨","🔥","💎","🌊","⚡","🎯"];
   const canNext1 = form.name.trim().length>2 && form.category;
-  // Build 150, part 17 (Alhasan, Oct 11): each step's heading says where you are ("Circle Settings, Step 2 of 3") and
+  // Build 150, part 17 (2three1y, Oct 11): each step's heading says where you are ("Circle Settings, Step 2 of 3") and
   // gets focus when the step changes, so VoiceOver starts at the top of the new step instead of a stray button.
   const headRef = React.useRef(null), firstStep = React.useRef(true);
   React.useEffect(() => {
