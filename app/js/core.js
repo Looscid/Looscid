@@ -1106,6 +1106,7 @@ const LC_FIND_STATIC = [
   { l: "Customizability", w: "themes feeds dreaming posting media", page: "settings_customizability", where: "Settings" },
   { l: "Earcons", w: "audio earcons earcon sounds sound pack soundpack soundpacks looscid os classic nexos volume haptics beeps keyboard clicks keyboard earcons command earcons", page: "settings_audio", where: "Settings" },
   { l: "Keyboard shortcuts", w: "keys shortcuts", page: "settings_keyboard", where: "Settings" },
+  { l: "Tab Bar", w: "tab bar tabbar bottom tabs order reorder hide show custom tab pinned tab move up move down", page: "settings_tabbar", where: "Settings" },
   { l: "Settings backup", w: "export import reset", page: "settings_backup", where: "Settings" },
   { l: "Intelligence", w: "ai cherry assistant artificial intelligence", page: "settings_intelligence", where: "Settings" },
   { l: "Cherry on or off", w: "ai cherry turn on off enable disable assistant opt in", page: "settings_ai_cherry", focus: "ai-on", where: "Settings, Intelligence, Cherry" },
@@ -1623,7 +1624,7 @@ const LC_ROUTES = [
   ["settings_a11y_hearing", "Settings/Accessibility/Hearing"], ["settings_a11y_motion", "Settings/Accessibility/Motion"], ["settings_a11y_motor", "Settings/Accessibility/Motor"],
   ["settings_a11y_terminal", "Settings/Accessibility/Commandbar"], ["settings_audio", "Settings/Earcons"], ["settings_audio_volume", "Settings/Earcons/Volume"],
   ["settings_audio_pack", "Settings/Earcons/Soundpacks"], ["settings_audio_events", "Settings/Earcons/Events"], ["settings_audio_haptics", "Settings/Earcons/Haptics"],
-  ["settings_apps", "Settings/Apps"], ["settings_keyboard", "Settings/Keyboard"], ["settings_backup", "Settings/Backup"], ["settings_intelligence", "Settings/Intelligence"],
+  ["settings_apps", "Settings/Apps"], ["settings_keyboard", "Settings/Keyboard"], ["settings_tabbar", "Settings/Tab-Bar"], ["settings_backup", "Settings/Backup"], ["settings_intelligence", "Settings/Intelligence"],
   ["settings_ai_cherry", "Settings/Intelligence/Cherry"], ["settings_ai_model", "Settings/Intelligence/Model"], ["settings_ai_cmd", "Settings/Intelligence/Commandbar"],
   ["settings_ai_memory", "Settings/Intelligence/Memory"], ["settings_ai_tools", "Settings/Intelligence/Tools"], ["settings_ai_audit", "Settings/Intelligence/What-Cherry-did"],
   ["settings_labs", "Settings/Labs"], ["settings_about", "About"], ["terms", "Terms"], ["privacy", "Privacy"], ["guidelines", "Rules"], ["child_safety", "Child-Safety"],
@@ -1684,17 +1685,24 @@ function lcMoreSections(o) {
       { icon:"Notifications", label:"Notifications", sub:"Likes, follows, mentions", badge:unreadNotifs, action(){onClose();goRoot("alerts");} },
     ]},
 
-    { id:"settings", emoji:"Settings", label:"Settings", top: true, items:[
-      { icon:"LooscidID", label:"LooscidID",       sub:"Profile, login methods and security",              action(){onClose();navigate("settings_account");} },
-      { icon:"Alerts", label:"Alerts",          sub:"New Dreams, mentions, replies, quiet hours", action(){onClose();navigate("settings_notifications");} },
+    { id:"settings", emoji:"Settings", label:"Settings", top: true,
+      // Build 151 (#75, 2three1y Oct 11 5:16 PM "Yes", Spring's Settings as a layout idea only): Sense is pinned alone in
+      // its own group at the top, every row says its current value after its name, and Tab Bar has its own page.
+      pinned:[
+        { icon:"Sense", label:"Sense", value: function () { return lcSetVal("verbosity") + " verbosity, braille " + lcSetVal("brailleOutput"); }, action(){onClose();navigate("settings_a11y_sr");} },
+      ],
+      items:[
+      { icon:"LooscidID", label:"LooscidID",       sub:"Profile, login methods and security", value: function () { return ME && ME.handle ? "@" + String(ME.handle).replace(/^@/, "") : ""; },              action(){onClose();navigate("settings_account");} },
+      { icon:"Alerts", label:"Alerts",          sub:"New Dreams, mentions, replies, quiet hours", value: function () { return "Quiet hours " + lcSetVal("quietHours"); }, action(){onClose();navigate("settings_notifications");} },
       { icon:"Privacy", label:"Privacy",         sub:"Visibility, blocked users",   action(){onClose();navigate("settings_privacy");} },
-      { icon:"Customizability", label:"Customizability", sub:"Theme, feeds, menu, Dreaming, media",     action(){onClose();navigate("settings_customizability");} },
+      { icon:"Customizability", label:"Customizability", sub:"Theme, feeds, menu, Dreaming, media", value: function () { return getSavedTheme() === "light" ? "Light theme" : "Dark theme"; },     action(){onClose();navigate("settings_customizability");} },
+      { icon:"Tab Bar", label:"Tab Bar", sub:"Which tabs show at the bottom, and their order", value: function () { return lcTabBarVisible().map(function (t) { return t.l; }).concat(["More"]).join(", "); }, action(){onClose();navigate("settings_tabbar");} },
       { icon:"Accessibility", label:"Accessibility",  sub:"Sense, vision, hearing, motion",  action(){onClose();navigate("settings_accessibility");} },
-      { icon:"Audio", label:"Earcons",  sub:"Soundpacks, volume, keyboard and command earcons, your own sounds, haptics",  action(){onClose();navigate("settings_audio");} },
+      { icon:"Audio", label:"Earcons",  sub:"Soundpacks, volume, keyboard and command earcons, your own sounds, haptics", value: function () { return lcSetVal("earcons") === "off" ? "Off" : lcSetVal("soundPack") + ", volume " + lcSetVal("earconVolume") + " percent"; },  action(){onClose();navigate("settings_audio");} },
       { icon:"Apps", label:"Apps",  sub:"Insomnia, Memeprojects, Easyconvert, Desktop and Kernel",  action(){onClose();navigate("settings_apps");} },
-      { icon:"Keyboard", label:"Keyboard shortcuts",  sub:"Built-in keys and your own shortcuts",  action(){onClose();navigate("settings_keyboard");} },
+      { icon:"Keyboard", label:"Keyboard shortcuts",  sub:"Built-in keys and your own shortcuts", value: function () { const n = (Looscid.A11Y_NOW.shortcuts || []).length; return n === 1 ? "1 of your own" : n + " of your own"; },  action(){onClose();navigate("settings_keyboard");} },
       { icon:"Backup", label:"Settings backup",  sub:"Export, import or reset all settings",  action(){onClose();navigate("settings_backup");} },
-      { icon:"Intelligence", label:"Intelligence", sub:"Cherry, the on-device model, Commandbar answers, memory, tools and What Cherry did",  action(){onClose();navigate("settings_intelligence");} },
+      { icon:"Intelligence", label:"Intelligence", sub:"Cherry, the on-device model, Commandbar answers, memory, tools and What Cherry did", value: function () { return lcAiOn() ? "Cherry on" : "Cherry off"; },  action(){onClose();navigate("settings_intelligence");} },
       { icon:"Labs", label:"Looscid Labs", sub:"Early access to features we are still building", action(){onClose();navigate("settings_labs");} },
       { icon:"Reset", label:"Reset", sub:"Reset the whole app, or just some settings", action(){ lcOpenReset("all"); } },
     ]},
@@ -1719,7 +1727,10 @@ function lcMoreItemLi(s, item) {
               var hasCount = item.count!=null;
               var badge = hasBadge ? React.createElement('span',{key:"b",style:{fontWeight:700,color:"var(--rd)"}},", "+item.badge) : null;
               var count = hasCount ? React.createElement('span',{key:"c",className:"mitem-count"}, item.count) : null;
-              var ariaLabel = item.label+(hasBadge?", "+item.badge+" unread":"")+(hasCount?", "+item.count:"");
+              // Build 151 (#75): a Settings row says its current value after its name, like Spring ("Tab Bar, Home, Discover...").
+              var val = typeof item.value === "function" ? item.value() : item.value;
+              var valEl = val ? React.createElement('span',{key:"val",className:"mitem-val","aria-hidden":"true"}, val) : null;
+              var ariaLabel = item.label+(val?", "+val:"")+(hasBadge?", "+item.badge+" unread":"")+(hasCount?", "+item.count:"");
               var itemStyle = item.special==="cherry"
                 ? {background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",borderBottom:"1px solid rgba(168,85,247,.2)"}
                 : item.discoverLink
@@ -1742,7 +1753,7 @@ function lcMoreItemLi(s, item) {
               return React.createElement('li', {key:item.label, className:"mli"}, React.createElement('button',{
                 className:"mitem" + subCls, disabled: !!item.soon, "aria-disabled": item.soon ? "true" : undefined,
                 style:itemStyle, onClick:item.soon ? undefined : item.action, "aria-label":ariaLabel,
-              }, iconEl, lblEl, count,
+              }, iconEl, lblEl, valEl, count,
                 React.createElement(Ic.Chv,{key:"chv",style:{width:13,height:13,color:"var(--tx3)",flexShrink:0},"aria-hidden":"true"})
               ), subP, item.like && Looscid.LcLikeBtn ? lh(Looscid.LcLikeBtn, { k: item.like.k, id: item.like.id, name: item.label, className: "btn bgb lc-btn lc-like-btn lc-mli-like" }) : null);
 }
@@ -1818,12 +1829,15 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
 /* Part 40 (#67): a More item's own page: the same list as its section in More, under "<Name> - <SLOGAN>". Back
    reopens More on that item. Settings keeps Find a setting at the top. */
 function LcMorePage({ id, navigate, goRoot, unreadNotifs, unreadMsgs, onBack }) {
+  useA11yNow(); useTabBarTick(); // build 151 (#75): the values on Settings rows stay current
   const s = lcMoreSections({ onClose: function () {}, navigate: navigate, goRoot: goRoot, unreadNotifs: unreadNotifs, unreadMsgs: unreadMsgs }).filter(function (x) { return x.id === id; })[0];
   if (!s) return null;
   return lh('div', { className: "pg lc-more-page", id: "more-page-" + id },
     lh(BackHeader, { title: lcMoreTitle(id, s.label), onBack: onBack }),
     s.intro ? lh('p', { className: "lc-desc", style: { padding: "8px 16px", margin: 0 } }, s.intro) : null,
     s.top ? lh(LcSettingFind, { navigate: navigate, onClose: function () {} }) : null,
+    // Build 151 (#75): Sense pinned alone in its own group at the top, as Spring pins Accessibility.
+    s.pinned ? lh('ul', { className: "mlist lc-set-pinned", role: "list" }, s.pinned.map(function (item) { return lcMoreItemLi(s, item); })) : null,
     s.render ? s.render() : lh('ul', { className: "mlist", role: "list" }, s.items.map(function (item) { return lcMoreItemLi(s, item); })),
     s.outro ? lh('p', { style: { padding: "8px 16px", margin: 0, fontSize: 13 } }, lh('a', { href: s.outro[1], target: "_blank", rel: "noopener noreferrer", className: "lc-help-link" }, s.outro[0])) : null);
 }
@@ -2804,6 +2818,9 @@ function lcSrName(id) { const n = (Looscid.A11Y_NOW && Looscid.A11Y_NOW.srNames)
 function lcSectionTitle(sec) { const s = LC_SECTIONS[sec]; return s.sr ? lcSrName(s.sr) : s.t; }
 // Lets screens outside the App props change a setting (App fills it in).
 Looscid.LC_SET_A11Y = null;
+// Build 151 (#75): a setting's current value in words, for the value shown on Settings rows ("on", "Medium", "Looscid").
+function lcSetVal(k) { try { const d = LC_SET.find(function (x) { return x.k === k; }); if (!d) return ""; let v = Looscid.A11Y_NOW ? Looscid.A11Y_NOW[k] : undefined; if (v == null) v = d.d;
+  if (d.t === "bool") return v ? "on" : "off"; if (d.t === "choice") { const o = (d.o || []).find(function (x) { return x[0] === v; }); return o ? o[1] : String(v); } return String(v); } catch (e) { return ""; } }
 function lcSet(patch) { if (Looscid.LC_SET_A11Y) Looscid.LC_SET_A11Y(patch); else { Looscid.A11Y_NOW = Object.assign({}, Looscid.A11Y_NOW, patch); saveA11y(Looscid.A11Y_NOW); } }
 function lcValueText(def, v) {
   if (def.t === "bool") return v ? "on" : "off";
@@ -3193,7 +3210,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T21:56:31Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T22:18:20Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4336,6 +4353,7 @@ const LC_PLACES = {
   verbosity: { label: "Verbosity settings", page: "settings_a11y_sr", srTab: "verbosity" },
   pitchcues: { label: "Pitch cues", page: "settings_a11y_sr", srTab: "speech" }, // build 150 (#56): Pitch cues live on the Speech tab
   keyboard: { label: "Keyboard shortcuts", page: "settings_keyboard" },
+  tabbar: { label: "Tab Bar settings", page: "settings_tabbar" }, // build 151 (#75)
   backup: { label: "Settings backup", page: "settings_backup" },
   alertsettings: { label: "Alerts settings", page: "settings_notifications" },
   intelligence: { label: "Intelligence settings", page: "settings_intelligence" },
@@ -5240,6 +5258,43 @@ function lcKeyName(e) {
   const key = k.length === 1 ? k.toUpperCase() : k; parts.push(key === " " ? "Space" : key); return parts.join("+");
 }
 // Settings > Settings backup: export and import every setting as one JSON file; reset all.
+/* Build 151 (#75, 2three1y Oct 11 5:16 PM "Yes"; Spring's Tab Bar page as a layout idea only): Settings > Tab Bar.
+   Each tab can be shown or hidden and moved up or down; tabs you pinned on the feed (#54) can be added as custom tabs.
+   More is always last, so Settings is always one tap away. Stored as looscid_tabbar: { order, hide, show }. */
+const LC_TABBAR_KEY = "looscid_tabbar";
+const LC_TABBAR_BASE = [{ id: "feed", l: "Home" }, { id: "discover", l: "Discover" }, { id: "create", l: "Create" }, { id: "alerts", l: "Alerts" }];
+function lcTabBarCfg() { const v = lcJsonLs(LC_TABBAR_KEY, {}) || {}; return { order: Array.isArray(v.order) ? v.order.map(String) : [], hide: Array.isArray(v.hide) ? v.hide.map(String) : [], show: Array.isArray(v.show) ? v.show.map(String) : [] }; }
+function lcTabBarAll() {
+  const cfg = lcTabBarCfg();
+  const all = LC_TABBAR_BASE.map(function (t) { return { id: t.id, l: t.l, custom: false }; }).concat(lcPins().map(function (p) { return { id: lcPinId(p), l: p.label, custom: true, pin: p }; }));
+  const byId = {}; all.forEach(function (t) { byId[t.id] = t; });
+  const out = []; cfg.order.forEach(function (id) { if (byId[id] && out.indexOf(byId[id]) < 0) out.push(byId[id]); });
+  all.forEach(function (t) { if (out.indexOf(t) < 0) out.push(t); });
+  out.forEach(function (t) { t.on = t.custom ? cfg.show.indexOf(t.id) >= 0 : cfg.hide.indexOf(t.id) < 0; });
+  return out;
+}
+function lcTabBarVisible() { return lcTabBarAll().filter(function (t) { return t.on; }); }
+function lcTabBarSave(list) {
+  const v = { order: list.map(function (t) { return t.id; }), hide: list.filter(function (t) { return !t.custom && !t.on; }).map(function (t) { return t.id; }), show: list.filter(function (t) { return t.custom && t.on; }).map(function (t) { return t.id; }) };
+  try { localStorage.setItem(LC_TABBAR_KEY, JSON.stringify(v)); } catch (e) {}
+  window.dispatchEvent(new CustomEvent("looscid:tabbar"));
+}
+// Show or hide one tab. At least one tab besides More stays on. Returns what to say.
+function lcTabBarToggle(id) {
+  const list = lcTabBarAll(), t = list.find(function (x) { return x.id === id; }); if (!t) return "";
+  if (t.on && list.filter(function (x) { return x.on; }).length <= 1) return "Keep at least one tab on besides More.";
+  t.on = !t.on; lcTabBarSave(list); return t.l + (t.on ? " shows in the tab bar." : " is hidden from the tab bar.");
+}
+// Move one tab up (-1) or down (+1). Returns the new position (1 is first), or 0 when it can't move.
+function lcTabBarMove(id, d) {
+  const list = lcTabBarAll(), i = list.findIndex(function (x) { return x.id === id; }), j = i + d;
+  if (i < 0 || j < 0 || j >= list.length) return 0;
+  const t = list[i]; list[i] = list[j]; list[j] = t; lcTabBarSave(list); return j + 1;
+}
+function useTabBarTick() { const [, f] = useState(0); useEffect(function () { const h = function () { f(function (x) { return x + 1; }); };
+  const ev = ["looscid:tabbar", "looscid:pins", "looscid:feed"]; ev.forEach(function (e) { window.addEventListener(e, h); });
+  return function () { ev.forEach(function (e) { window.removeEventListener(e, h); }); }; }, []); }
+Object.assign(Looscid, { LC_TABBAR_KEY, lcTabBarAll, lcTabBarVisible, lcTabBarToggle, lcTabBarMove, useTabBarTick });
 const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "looscid_braille_styles", "looscid_theme", "looscid_ai_prefs", "looscid_cherry_attrib", "looscid_music", "looscid_alerts_tab", "looscid_show_friends", "looscid_term_output_open", "looscid_topics",
   // Round 6.5.2: Cherry's Your History (chats and which are pinned). Added at the end, so older backups still import.
   "looscid_cherry_chats",
@@ -5254,7 +5309,9 @@ const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "looscid_braille_styles", "lo
   "looscid_circles",
   // Build 151 (#54): pinned feed tabs, Federated's tab and networks, Sort on For You and Following, For You's Show following,
   // and whether Dreams from around you is on (with its rough area). Added at the end, so older backups still import.
-  "looscid_feed_pins", "looscid_fed_sub", "looscid_fed_networks", "looscid_feed_sort", "looscid_foryou_following", "looscid_fed_local"];
+  "looscid_feed_pins", "looscid_fed_sub", "looscid_fed_networks", "looscid_feed_sort", "looscid_foryou_following", "looscid_fed_local",
+  // Build 151 (#75): Settings > Tab Bar (which tabs show and their order). Added at the end, so older backups still import.
+  "looscid_tabbar"];
 Looscid.LC_EXPORT_KEYS = LC_EXPORT_KEYS;
 function lcExportSettings() {
   const o = { app: "Looscid", kind: "settings", version: LOOSCID_VERSION, exported: new Date().toISOString(), settings: {} };
@@ -5298,7 +5355,7 @@ function A11ySwitch({ id, label, desc, on, onToggle, soon, locked }) {
 const SETTINGS_MENU_ITEM = {
   settings_account: ["settings", "LooscidID"], settings_notifications: ["settings", "Alerts"], settings_privacy: ["settings", "Privacy"],
   settings_customizability: ["settings", "Customizability"], settings_accessibility: ["settings", "Accessibility"], settings_intelligence: ["settings", "Intelligence"], settings_labs: ["settings", "Looscid Labs"], settings_about: ["about", "About Looscid"],
-  settings_audio: ["settings", "Earcons"], settings_keyboard: ["settings", "Keyboard shortcuts"], settings_apps: ["settings", "Apps"], settings_messages: ["settings", "Alerts"], settings_backup: ["settings", "Settings backup"],
+  settings_audio: ["settings", "Earcons"], settings_keyboard: ["settings", "Keyboard shortcuts"], settings_tabbar: ["settings", "Tab Bar"], settings_apps: ["settings", "Apps"], settings_messages: ["settings", "Alerts"], settings_backup: ["settings", "Settings backup"],
   settings_a11y_sr: ["settings", "Accessibility"], settings_a11y_vision: ["settings", "Accessibility"], settings_a11y_hearing: ["settings", "Accessibility"],
   settings_a11y_motion: ["settings", "Accessibility"], settings_a11y_motor: ["settings", "Accessibility"], settings_a11y_terminal: ["settings", "Accessibility"],
   terms: ["about", "Terms"], privacy: ["about", "Privacy"], guidelines: ["about", "Community rules"], feedback: ["about", "Send Feedback"],
@@ -5846,6 +5903,7 @@ useEffect(() => {
       credits: "Credits and open source",
       settings_audio: "Earcons",
       settings_keyboard: "Keyboard shortcuts",
+      settings_tabbar: "Tab Bar",
       settings_apps: "Apps",
       settings_messages: "Message settings",
       settings_backup: "Settings backup",
@@ -5896,6 +5954,7 @@ useEffect(() => {
       case "settings_audio": case "settings_audio_volume": case "settings_audio_pack": case "settings_audio_events": case "settings_audio_haptics":
                                       return React.createElement(Looscid.AudioSettings, { key: page, page: page, navigate: navigate,});
       case "settings_keyboard":       return React.createElement(Looscid.KeyboardSettings, { navigate: navigate,});
+      case "settings_tabbar":         return Looscid.TabBarSettings ? React.createElement(Looscid.TabBarSettings, { navigate: navigate,}) : null;
       case "settings_apps":           return React.createElement(Looscid.AppsSettings, { navigate: navigate,});
       case "settings_messages":       return React.createElement(Looscid.MessageSettings, { navigate: navigate,});
       case "settings_backup":         return React.createElement(Looscid.BackupSettings, { navigate: navigate, onImported: function () { const acc = loadA11y(); Looscid.A11Y_NOW = acc; setPrefs(function (p) { return Object.assign({}, p, { accessibility: acc }); }); try { setTheme(getSavedTheme() || "dark"); } catch (e) {} },});
@@ -5941,8 +6000,11 @@ useEffect(() => {
 
   // Bottom tab bar: roving tabindex (one Tab stop), arrows/Home/End move, Enter/Space activate,
   // and switching tabs moves focus to the new screen's heading.
-  const NAV_PAGES = ["feed","discover",null,"alerts",null];
-  const selIdx = Math.max(0, NAV_PAGES.indexOf(page));
+  useTabBarTick();
+  const tbVis = lcTabBarVisible();
+  const tbCustomOn = page === "feed" && tbVis.some(function (t) { return t.custom && t.id === Looscid.LC_FEED; });
+  const tbSel = function (t) { return t.custom ? (page === "feed" && Looscid.LC_FEED === t.id) : t.id === "feed" ? (page === "feed" && !tbCustomOn) : (t.id !== "create" && page === t.id); };
+  const selIdx = Math.max(0, tbVis.findIndex(tbSel));
   const [navFocus, setNavFocus] = useState(selIdx);
   useEffect(() => { setNavFocus(selIdx); }, [selIdx]);
   const headingFocusNext = useRef(false);
@@ -5961,6 +6023,23 @@ useEffect(() => {
     e.preventDefault(); setNavFocus(n); tabs[n].focus();
   };
 
+  // One tab of the tab bar. Same names, sounds and behavior as before; a custom tab opens the feed on that pinned tab.
+  const tabBtn = function (t, i) {
+    const sel = tbSel(t), ti = navFocus === i ? 0 : -1;
+    if (t.id === "create") return React.createElement('button', { key: t.id, className: "nb nb-create", onClick: () => setShowCreate(true), role: "tab", "aria-selected": false, "aria-label": "Create", "aria-haspopup": "dialog", tabIndex: ti },
+      React.createElement(Ic.Pls, {"aria-hidden":"true", style:{width:22,height:22}}), React.createElement('span', {"aria-hidden":"true"}, "Create"));
+    if (t.id === "alerts") return React.createElement('button', { key: t.id, className: "nb" + (sel ? " on" : ""), onClick: () => { headingFocusNext.current = page!=="alerts"; goRoot("alerts"); }, role: "tab", "aria-selected": sel,
+        "aria-label": "Alerts" + ((unreadNotifs+unreadMsgs)>0 ? " (" + (unreadNotifs+unreadMsgs) + " unread)" : ""), "aria-controls": "main-content", tabIndex: ti },
+      React.createElement('div', {style:{position:"relative"}}, React.createElement(Ic.Bell, {"aria-hidden":"true", style:{width:22,height:22}}),
+        (unreadNotifs+unreadMsgs) > 0 && React.createElement('span', { className: "nbdg", "aria-hidden": "true" }, unreadNotifs+unreadMsgs)),
+      React.createElement('span', {"aria-hidden":"true"}, "Alerts"));
+    const go = t.custom ? function () { headingFocusNext.current = !sel; goRoot("feed"); if (Looscid.LC_FEED !== t.id) lcSetFeed(t.id, true); }
+      : function () { headingFocusNext.current = page !== t.id || tbCustomOn; if (t.id === "feed" && tbCustomOn) lcSetFeed("for you", true); goRoot(t.id); };
+    return React.createElement('button', { key: t.id, className: "nb" + (sel ? " on" : "") + (t.custom ? " nb-custom" : ""), onClick: go, role: "tab", "aria-selected": sel, "aria-label": t.l, "aria-controls": "main-content", tabIndex: ti },
+      t.custom ? React.createElement('span', {"aria-hidden":"true", className:"nb-cust-ic"}, t.pin && t.pin.kind === "tag" ? "#" : t.pin && t.pin.kind === "person" ? "@" : "\u2605") : React.createElement('div', {"aria-hidden":"true", className:"nb-check"}),
+      React.createElement('span', {"aria-hidden":"true", className: t.custom ? "nb-cust-l" : undefined}, t.l));
+  };
+
   // First run: the onboarding is the whole screen, so nothing behind it is reachable.
   if (showWelcome) return React.createElement(LooscidOnboarding, { onDone: ()=>setShowWelcome(false),});
 
@@ -5974,67 +6053,15 @@ useEffect(() => {
       , lh(LcResetHost, null)
       , lh(LcFooterHost, { page: page, navigate: navigate }
       , undo && lh(LcUndoBar, { undo: undo })
-      /* 5-tab nav: Home | Discover | Create | Alerts | More */
+      /* Tab bar: Home | Discover | Create | Alerts | More by default; Settings > Tab Bar changes it (build 151, #75) */
       , React.createElement('div', { role: Looscid.A11Y_NOW.skipLinks !== false ? "navigation" : undefined, 'aria-label': Looscid.A11Y_NOW.skipLinks !== false ? "Main" : undefined, className: "bnav-wrap",}, React.createElement('nav', {
           className: "bnav",
           role: "tablist",
           "aria-label": "Main navigation",
           onKeyDown: onTabBarKey,
         }
-        , React.createElement('button', {
-            className: "nb" + (page==="feed" ? " on" : ""),
-            onClick: () => { headingFocusNext.current = page!=="feed"; goRoot("feed"); },
-            role: "tab",
-            "aria-selected": page==="feed",
-            "aria-label": "Home",
-            "aria-controls": "main-content",
-            tabIndex: navFocus===0 ? 0 : -1,
-          },
-          React.createElement('div', {"aria-hidden":"true", className:"nb-check"}),
-          React.createElement('span', {"aria-hidden":"true"}, "Home")
-        )
-        , React.createElement('button', {
-            className: "nb" + (page==="discover" ? " on" : ""),
-            onClick: () => { headingFocusNext.current = page!=="discover"; goRoot("discover"); },
-            role: "tab",
-            "aria-selected": page==="discover",
-            "aria-label": "Discover",
-            "aria-controls": "main-content",
-            tabIndex: navFocus===1 ? 0 : -1,
-          },
-          React.createElement('div', {"aria-hidden":"true", className:"nb-check"}),
-          React.createElement('span', {"aria-hidden":"true"}, "Discover")
-        )
-        , React.createElement('button', {
-            className: "nb nb-create",
-            onClick: () => setShowCreate(true),
-            role: "tab",
-            "aria-selected": false,
-            "aria-label": "Create",
-            "aria-haspopup": "dialog",
-            tabIndex: navFocus===2 ? 0 : -1,
-          },
-          React.createElement(Ic.Pls, {"aria-hidden":"true", style:{width:22,height:22}}),
-          React.createElement('span', {"aria-hidden":"true"}, "Create")
-        )
-        , React.createElement('button', {
-            className: "nb" + (page==="alerts" ? " on" : ""),
-            onClick: () => { headingFocusNext.current = page!=="alerts"; goRoot("alerts"); },
-            role: "tab",
-            "aria-selected": page==="alerts",
-            "aria-label": "Alerts" + ((unreadNotifs+unreadMsgs)>0 ? " (" + (unreadNotifs+unreadMsgs) + " unread)" : ""),
-            "aria-controls": "main-content",
-            tabIndex: navFocus===3 ? 0 : -1,
-          },
-          React.createElement('div', {style:{position:"relative"}},
-            React.createElement(Ic.Bell, {"aria-hidden":"true", style:{width:22,height:22}}),
-            (unreadNotifs+unreadMsgs) > 0 && React.createElement('span', {
-              className: "nbdg",
-              "aria-hidden": "true",
-            }, unreadNotifs+unreadMsgs)
-          ),
-          React.createElement('span', {"aria-hidden":"true"}, "Alerts")
-        )
+        // Build 151 (#75): the tabs come from Settings > Tab Bar (shown or hidden, in your order, plus custom tabs). More is always last.
+        , tbVis.map(function (t, i) { return tabBtn(t, i); })
         , React.createElement('button', {
             className: "nb-menu",
             onClick: () => setShowMenu(true),
@@ -6042,7 +6069,7 @@ useEffect(() => {
             "aria-selected": false,
             "aria-label": "More",
             "aria-haspopup": "dialog",
-            tabIndex: navFocus===4 ? 0 : -1,
+            tabIndex: navFocus===tbVis.length ? 0 : -1,
           },
           React.createElement('div', {"aria-hidden":"true", className:"nb-menu-ic"},
             React.createElement(Ic.Dots, {style:{width:16,height:16}}),

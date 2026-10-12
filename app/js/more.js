@@ -2,7 +2,7 @@
    Plain script (not a module). Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order. */
 (function (Looscid) {
 const { A11Y_DEFAULTS, A11Y_KEY, A11ySwitch, AlertDialog, Av, BackHeader, Cbx, CommentView, DREAMS_INIT, DreamCard, Earcon, GROUPS, ID_PROVIDERS, Ic, LC_A11Y_CATS, LC_A11Y_PAGE, LC_ALERT_PREFS_KEY, LC_ALERT_TYPES, LC_AUDIO_CATS, LC_BOOT, LC_BR_BUILTIN, LC_BR_MAX, LC_BUILTIN_KEYS, LC_EXPORT_KEYS, LC_FEED_MODES, LC_FIND_KEY, LC_MSG_CATS, LC_NEXOS_APPS, LC_NEXOS_SHELL, LC_SECTIONS, LC_SET, LC_SETTINGS_KEY, LC_SET_BY, LC_SR_NAMES_DEF, LC_UPDATE_AUTO_KEY, LID_NOSTR_SK_KEY, LOOSCID_BUILD, LOOSCID_RELEASED, LOOSCID_SLOGAN, LOOSCID_VERSION, LcCmdLog, LcFindMeSwitch, LcMenu, LcSpeech, ME, MUSIC_GENRES, MenuPopupButton, Music, PROVIDER_NAMES, SecretField, TRENDING, USERS, announce, getAIPrefs, getActivity, getDrafts, getIdentity, getLocalProfile, getMethods, getTopics, hexToBytes, lcAiOn, lcAlertCats, lcAlertPrefs, lcAlerts, lcAlertsMarkAll, lcAppItems, lcAudCustom, lcBlocked, lcBlockedSet, lcBrCreate, lcBrDate, lcBrDelete, lcBrForget, lcBrList, lcBrNotice, lcBrRename, lcBrSelect, lcBrStamp, lcBrUndo, lcBrUsePast, lcBrowserName, lcCatState, lcCheckUpdate, lcCloseProps, lcDownloadSettings, lcFeedMode, lcHandle, lcHapticsSupported, lcHints, lcIdbDo, lcKeyName, lcLoadCustomPack, lcNexosSend, lcOpenReset, lcPitchCue, lcQuietNow, lcReleasedText, lcSectionTitle, lcSet, lcSpoken, lcSrName, lcStorageKB, lcTranslateOk, lcUpdateAuto, lcValueText, lcVerb, lcVersionLabel, lcWords, lh, logActivity, removeMethod, sanitizeInput, setAIPrefs, shortNpub, systemReducedMotion, updateLocalProfile, useA11yNow, useCats, useCmdHistory, useCmdLog, useDreams, useEffect, useEnterSubmit, useKeyboardInset, useOAuthReturn, useRef, useState } = Looscid;
-Object.assign(Looscid, { CreditsPage, ProfileView, ProfilePage, DreamorProfilePage, AccountSettings, LcAudience, lcCatSave, LcCatCustomize, MessageSettings, NotificationsSettings, PrivacySettings, LcResetLast, LcTabs, LcBlockedPanel, LcPrivacyMedia, FeedSwitchSetting, LcCatMenu, LcCatPage, CustomizabilitySettings, lcSetAiPref, IntelligenceSettings, lcMenuList, lcSubLine, AccessibilitySettings, A11yCategory, AboutSettings, MorePage, MoreAppsGroup, FeedbackPage, AdminPanel, AdminUsers, AdminContent, AdminReports, AdminAnalytics, AdminPlatform, AdminAnnouncements, PolicyPage, HourStoryPage, normalizeUrl, fieldValueText, ProfileInfoList, ChangeInfoScreen, useProfileEditor, lcJoin, methodLabel, getStoredNostrSk, ComingSoonPanel, LoginMethods, lcGetIds, lcSaveIds, lcBech32Polymod, lcDecodeBech32Key, lcCheckId, lcVerifyId, LcKeysPanel, lcIdLabel, lidWhen, thisDeviceLabel, localDataSummary, exportLocalData, deleteLocalData, LooscidIDManager, lcUnzip, lcCheckPackFiles, lcAutoMap, lcUpdateAutoSet, lcPitchPreview, MusicPage, lcAudCustomSet, useBlocked, lcAlertPrefsSet, termOutputOpen, setTermOutputOpen, lcOsName, lcAboutInfo, AboutLooscidMore, TerminalPage, LabsSettings, lcAppGet, lcAppPut, LcAppRange, AppsSettings, NexosAppsPage, NexosAppFrame, lcLinkedProviders, LcSetRow, LcWordsRow, LcVoiceRow, LcResetBtn, LcSection, BrailleStyle, LcVerbosityPanel, SrTabs, LcSpeechTest, LcSrRename, AudioSettings, LcPackImport, lcShortcutOk, KeyboardSettings, lcImportSettings, BackupSettings });
+Object.assign(Looscid, { CreditsPage, ProfileView, ProfilePage, DreamorProfilePage, AccountSettings, LcAudience, lcCatSave, LcCatCustomize, MessageSettings, NotificationsSettings, PrivacySettings, LcResetLast, LcTabs, LcBlockedPanel, LcPrivacyMedia, FeedSwitchSetting, LcCatMenu, LcCatPage, CustomizabilitySettings, lcSetAiPref, IntelligenceSettings, lcMenuList, lcSubLine, AccessibilitySettings, A11yCategory, AboutSettings, MorePage, MoreAppsGroup, FeedbackPage, AdminPanel, AdminUsers, AdminContent, AdminReports, AdminAnalytics, AdminPlatform, AdminAnnouncements, PolicyPage, HourStoryPage, normalizeUrl, fieldValueText, ProfileInfoList, ChangeInfoScreen, useProfileEditor, lcJoin, methodLabel, getStoredNostrSk, ComingSoonPanel, LoginMethods, lcGetIds, lcSaveIds, lcBech32Polymod, lcDecodeBech32Key, lcCheckId, lcVerifyId, LcKeysPanel, lcIdLabel, lidWhen, thisDeviceLabel, localDataSummary, exportLocalData, deleteLocalData, LooscidIDManager, lcUnzip, lcCheckPackFiles, lcAutoMap, lcUpdateAutoSet, lcPitchPreview, MusicPage, lcAudCustomSet, useBlocked, lcAlertPrefsSet, termOutputOpen, setTermOutputOpen, lcOsName, lcAboutInfo, AboutLooscidMore, TerminalPage, LabsSettings, lcAppGet, lcAppPut, LcAppRange, AppsSettings, NexosAppsPage, NexosAppFrame, lcLinkedProviders, LcSetRow, LcWordsRow, LcVoiceRow, LcResetBtn, LcSection, BrailleStyle, LcVerbosityPanel, SrTabs, LcSpeechTest, LcSrRename, AudioSettings, LcPackImport, lcShortcutOk, KeyboardSettings, TabBarSettings, lcImportSettings, BackupSettings });
 
 /* --- PROFILE (OWN) ----------------------- */
 
@@ -2514,6 +2514,7 @@ const LC_VERSION_HISTORY = [
     "The tab bar comes before the footer now: swipe from the content to the tab bar, ending with More, and the footer is the very last thing on every page. And no more stray \"Looscid, page\" at the very end: what Looscid says no longer stays behind as text after it's spoken.",
     "Rotor Actions on Dreams and Cherry chats are gone: VoiceOver on iPhone doesn't offer them from web pages, so they only added noise. Like, Redream (with Quote inside), Reply and More stay as the buttons on every Dream, and Chat options still has Pin and Delete.",
     "No more Image Recognition offers from VoiceOver: every icon inside a button or row is hidden from screen readers now, since its button already says what it is. Avatars keep their names.",
+    "Settings looks like Spring now: Sense is pinned alone at the top, every row says its current value after its name (like \"Customizability, Dark theme\" or \"Intelligence, Cherry off\"), and the new Settings, Tab Bar page lets you show or hide each tab and move it up or down with plain buttons. Tabs you pinned on the feed can be added as custom tabs. More is always last.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
@@ -3445,6 +3446,34 @@ function LcPackImport() {
       lh('button', { type: "button", className: "btn bgb lc-big", onClick: remove }, "Remove your Soundpack")) : null);
 }
 function lcShortcutOk(keys) { const p = keys.split("+"); return p.length > 1 && /Control|Alt|Command/.test(keys) && !/^(Control|Command)\+K$/.test(keys) || /^F\d{1,2}$/.test(keys); }
+/* Build 151 (#75, 2three1y Oct 11 5:16 PM "Yes"): Settings > Tab Bar, Spring's Tab Bar page as a layout idea only.
+   One row per tab: a switch to show or hide it, then Move up and Move down buttons (plain buttons, so VoiceOver, a
+   keyboard and a braille display all reach them; no drag needed). Tabs pinned on the feed are listed as custom tabs,
+   off until switched on. More is always last. */
+function TabBarSettings({ navigate }) {
+  Looscid.useTabBarTick();
+  const list = Looscid.lcTabBarAll();
+  const sid = function (id) { return String(id).replace(/[^a-z0-9]+/gi, "-").toLowerCase(); };
+  const keep = function (elId) { setTimeout(function () { const el = document.getElementById(elId); if (el) el.focus(); }, 0); };
+  const move = function (t, d) {
+    const n = Looscid.lcTabBarMove(t.id, d);
+    if (!n) { announce(d < 0 ? t.l + " is already first." : t.l + " is already last before More."); return; }
+    keep("tb-" + (d < 0 ? "up-" : "down-") + sid(t.id)); announce("Moved " + t.l + (d < 0 ? " up" : " down") + ", now position " + n + ".");
+  };
+  return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
+    lh(BackHeader, { title: "Tab Bar", onBack: function () { navigate("settings"); } }),
+    lh('p', { className: "lc-desc", style: { padding: "8px 16px", margin: 0 } }, "Choose which tabs show at the bottom, and their order. More is always last."),
+    lh('ul', { className: "lc-tb-list", role: "list" }, list.map(function (t, i) {
+      return lh('li', { key: t.id, className: "lc-tb-row" },
+        lh(A11ySwitch, { id: "tb-sw-" + sid(t.id), label: t.l, on: t.on, onToggle: function () { announce(Looscid.lcTabBarToggle(t.id)); keep("tb-sw-" + sid(t.id)); } }),
+        t.custom ? lh('p', { className: "lc-tb-sub" }, "Custom Tab") : null,
+        lh('div', { className: "lc-tb-moves" },
+          lh('button', { type: "button", id: "tb-up-" + sid(t.id), className: "btn bgb lc-btn", "aria-label": "Move " + t.l + " up", "aria-disabled": i === 0 ? "true" : undefined, onClick: function () { move(t, -1); } }, "Move up"),
+          lh('button', { type: "button", id: "tb-down-" + sid(t.id), className: "btn bgb lc-btn", "aria-label": "Move " + t.l + " down", "aria-disabled": i === list.length - 1 ? "true" : undefined, onClick: function () { move(t, 1); } }, "Move down")));
+    })),
+    lh('p', { className: "lc-desc", style: { padding: "10px 16px", margin: 0 } }, "More is always last, so Settings is always one tap away."),
+    list.some(function (t) { return t.custom; }) ? null : lh('p', { className: "lc-desc", style: { padding: "0 16px 12px", margin: 0 } }, "To add a custom tab, pin a Circle, a person, a hashtag or a thread on the Following feed. It shows up here."));
+}
 function KeyboardSettings({ navigate }) {
   useA11yNow();
   const list = Looscid.A11Y_NOW.shortcuts || [];
