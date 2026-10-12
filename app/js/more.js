@@ -266,6 +266,57 @@ function ProfilePeoplePage({ kind, user, isMe, people, onBack, navigate, followi
                   })())));
           })));
 }
+/* Build 152 prep (#99, part 4): a profile's QR code, under Dreamor options. The QR code is drawn from the profile's
+   LooscidID link with qrcode-generator 1.4.4 (Kazuhiko Arase, MIT), served from this site (js/vendor) and loaded only
+   when a QR code is shown. Its text alternative is the link itself, written out, and a plain description of what
+   scanning it does. Black on white whatever the theme, with the quiet border scanners need. */
+const LC_QR_SRC = (function () {
+  try { const s = document.currentScript && document.currentScript.src; if (s) return new URL("vendor/qrcode-generator-1.4.4.js", s).href; } catch (e) {}
+  return (Looscid.LOOSCID_BASE || "/") + "js/vendor/qrcode-generator-1.4.4.js";
+})();
+const LC_QR_SRI = "sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k"; // js/vendor/README.md
+let lcQrP = null;
+function lcQrLoad() {
+  if (typeof window.qrcode === "function") return Promise.resolve(window.qrcode);
+  if (lcQrP) return lcQrP;
+  lcQrP = new Promise(function (ok, no) {
+    const s = document.createElement("script"); s.src = LC_QR_SRC; s.integrity = LC_QR_SRI; s.async = true;
+    s.onload = function () { if (typeof window.qrcode === "function") ok(window.qrcode); else { lcQrP = null; no(new Error("qr")); } };
+    s.onerror = function () { lcQrP = null; s.remove(); no(new Error("qr")); };
+    document.head.appendChild(s);
+  });
+  return lcQrP;
+}
+function lcQrModules(qr, text) {
+  if (qr.stringToBytesFuncs && qr.stringToBytesFuncs["UTF-8"]) qr.stringToBytes = qr.stringToBytesFuncs["UTF-8"];
+  const q = qr(0, "M"); q.addData(text); q.make();
+  const n = q.getModuleCount(); let d = "";
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += "M" + (c + 4) + " " + (r + 4) + "h1v1h-1z";
+  return { n: n, d: d };
+}
+function ProfileQr({ name, link, onClose }) {
+  const [qr, setQr] = useState(null), [err, setErr] = useState(false);
+  const hRef = useRef(null);
+  // After the menu hands focus back to its button, focus moves to the heading (like Edit profile from the menu).
+  useEffect(function () { const t = setTimeout(function () { if (hRef.current) hRef.current.focus(); }, 40); return function () { clearTimeout(t); }; }, []);
+  useEffect(function () {
+    let live = true; setQr(null); setErr(false);
+    lcQrLoad().then(function (f) { const v = lcQrModules(f, link); if (live) setQr(v); }, function () { if (live) setErr(true); });
+    return function () { live = false; };
+  }, [link]);
+  const who = name || "this Dreamor";
+  return lh('section', { id: "pf-qr", className: "lc-extra lc-prof-qr", "aria-labelledby": "pf-qr-h",
+      onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); onClose(); } } },
+    lh('h2', { id: "pf-qr-h", className: "lc-sub-h", tabIndex: -1, ref: hRef }, "QR code"),
+    qr ? lh('svg', { className: "lc-qr", role: "img", "aria-label": "QR code for " + who + "'s profile", viewBox: "0 0 " + (qr.n + 8) + " " + (qr.n + 8), width: 220, height: 220, shapeRendering: "crispEdges", xmlns: "http://www.w3.org/2000/svg" },
+        lh('rect', { width: qr.n + 8, height: qr.n + 8, fill: "#fff" }), lh('path', { d: qr.d, fill: "#000" }))
+      : lh('p', { className: "lc-muted" }, err ? "Couldn't make the QR code here. The link below opens the same profile." : "Making the QR code…"),
+    lh('p', null, "Scanning this code with a phone camera opens " + who + "'s profile on Looscid. It holds this link:"),
+    lh('p', { className: "lc-break lc-qr-link" }, link),
+    lh('div', { className: "lc-inrow" },
+      lh('button', { type: "button", id: "pf-qr-copy", className: "btn bgb lc-btn", onClick: function () { lcCopy(link, "LooscidID link"); } }, "Copy link"),
+      lh('button', Object.assign({ type: "button", id: "pf-qr-close", className: "btn bgb lc-btn", onClick: onClose }, lcCloseProps("QR code")), "Close")));
+}
 function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUser, preview, onExitPreview }) {
   const [tab, setTab] = useState("dreams");
   const [viewAs, setViewAs] = useState(false); // your own profile, shown the way others see it
@@ -277,6 +328,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const [mediaShow, setMediaShowS] = useState(lcMediaShow);
   const [, bump] = useState(0);
   const [activeComment, setActiveComment] = useState(null);
+  const [qrOpen, setQrOpen] = useState(false); // build 152 prep (#99, part 4): the QR code under Dreamor options
   Looscid.useLikedTick();
   const moreBtn = useRef(null), editBtn = useRef(null), noteRef = useRef(null), headRef = useRef(null);
   // preview: your own profile as others see it. Your own data, nobody else's controls.
@@ -340,11 +392,24 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   }
   if (activeComment) return lh(CommentView, { dream: activeComment, onBack: function () { setActiveComment(null); }, onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onCommentPosted: tc, navigate: navigate });
   const say = function (m) { announce(m); bump(function (n) { return n + 1; }); };
-  const share = function () { Looscid.lcShareText(user.name + " (@" + handle + ") on Looscid", "Profile"); };
+  // Build 152 prep (#99, part 4): Share profile hands the share sheet the profile's LooscidID link too (it used to
+  // share the name only). Without a share sheet the link is copied.
+  const profLink = Looscid.lcProfileLink(handle);
+  const share = function () {
+    const text = (user.name || "Dreamor") + " (@" + handle + ") on Looscid";
+    if (navigator.share) { navigator.share({ title: text, text: text, url: profLink }).catch(function () {}); return; }
+    lcCopy(profLink, "Profile link");
+  };
+  const backToMore = function () { setTimeout(function () { const b = document.getElementById("pf-more-btn"); if (b) b.focus(); }, 30); };
+  const originals = Looscid.lcProfileOriginals(user, self ? Looscid.getMethods() : user.logins);
+  const openOriginal = function (o) { const w = window.open(o.url, "_blank", "noopener,noreferrer"); if (w) w.opener = null; };
+  const extraItems = [{ id: "qr", name: "QR code", a: function () { setQrOpen(true); } },
+    { id: "copyuser", name: "Copy username", a: function () { lcCopy("@" + handle, "Username"); } }]
+    .concat(originals.map(function (o) { return { id: "orig-" + o.net, name: "Open original profile on " + o.label, a: function () { openOriginal(o); } }; }));
   const openEdit = function (fromMore) { setEditOpen(true); if (fromMore) setTimeout(function () { const a = document.getElementById("pf-link-name") || editBtn.current; if (a) a.focus(); }, 30); };
   const follow = function () { cherryCtx && cherryCtx.followUser(user.id); announce(following ? "Unfollowed " + user.name + "." : "Following " + user.name + "."); };
   // A LooscidID link opens this profile (#@handle, see lcOpenProfileLink in core.js).
-  const copyLink = function () { lcCopy(location.origin + location.pathname + "#@" + handle, "LooscidID link"); };
+  const copyLink = function () { lcCopy(profLink, "LooscidID link"); };
   const cherryOn = !!cherryCtx && lcAiOn();
   const askCherry = function () { cherryCtx.openCherry("Give me a short summary of " + (user.name || "this Dreamor") + " (@" + handle + "): who they are and what they Dream about."); };
   // Build 150, part 16 (2three1y, Oct 11): Dreamor options is a real pop-up menu, like the other action menus. It opens
@@ -352,16 +417,16 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   // button, and it never remembers being open. Unfinished items stay in the list, unavailable, with the reason.
   const moreItems = isMe
     ? [{ id: "edit", name: "Edit profile", a: function () { openEdit(true); } },
-       { id: "share", name: "Share", a: share },
-       { id: "copylink", name: "Copy LooscidID link", a: copyLink },
+       { id: "share", name: "Share profile", a: share },
+       { id: "copylink", name: "Copy LooscidID link", a: copyLink }].concat(extraItems, [
        { id: "viewas", name: "View as others see it", a: function () { setViewAs(true); announce("Viewing your profile as others see it."); } },
        { id: "reorder", name: "Reorder tabs", a: function () { Looscid.LC_SETTINGS_BACK = "profile"; navigate("settings_profiletabs"); } },
-       { id: "settings", name: "Settings", a: function () { navigate("settings"); } }]
+       { id: "settings", name: "Settings", a: function () { navigate("settings"); } }])
     : [following ? { id: "unfollow", name: "Unfollow", a: follow } : { id: "follow", name: "Follow", a: follow },
        { id: "message", name: "Message", note: "unavailable: direct messages aren't ready yet", disabled: true },
        cherryOn ? { id: "cherry", name: "Ask Cherry for a summary", a: askCherry } : { id: "cherry", name: "Ask Cherry for a summary", note: "unavailable: Cherry is off", hint: "Not available while Cherry is off. Turn it on in Settings, Intelligence.", disabled: true },
-       { id: "share", name: "Share", a: share },
-       { id: "copylink", name: "Copy LooscidID link", a: copyLink },
+       { id: "share", name: "Share profile", a: share },
+       { id: "copylink", name: "Copy LooscidID link", a: copyLink }].concat(extraItems, [
        { id: "reorder", name: "Reorder tabs", a: function () { Looscid.LC_SETTINGS_BACK = null; navigate("settings_profiletabs"); } },
        hidesRd ? { id: "showrd", name: "Show Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, false); say("Showing Redreams from " + user.name + "."); } }
                : { id: "hiderd", name: "Hide Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, true); say("Hiding Redreams from " + user.name + "."); } },
@@ -370,7 +435,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
              : { id: "mute", name: "Mute", a: function () { Looscid.lcPeopleSet("looscid_muted_dreamors", user.handle, true); say("Muted " + user.name + ". Their Dreams are hidden from your feed."); } },
        blocked ? { id: "unblock", name: "Unblock", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").filter(function (h) { return h !== Looscid.lcHandle(user.handle); })); say("Unblocked " + user.name + "."); } }
                : { id: "block", name: "Block", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").concat([user.handle])); say("Blocked " + user.name + ". Unblock here or in Settings, Privacy."); } },
-       { id: "report", name: "Report", note: "unavailable: Looscid has nowhere to send reports yet", disabled: true }];
+       { id: "report", name: "Report", note: "unavailable: Looscid has nowhere to send reports yet", disabled: true }]);
   const moreMenu = preview ? null : lh(LcMenu, { id: "pf-more-btn", menuId: "pf-more", kind: "action", title: "Dreamor options", btnLabel: "Dreamor options", btnRef: moreBtn,
     btnClass: "btn bgb lc-big lc-prof-morebtn", className: "lc-prof-more", itemClass: "lc-dopt",
     btnText: lh('span', null, lh(Ic.Dots, { style: { width: 18, height: 18 }, "aria-hidden": "true" }), " Dreamor options"), items: moreItems,
@@ -521,6 +586,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
         muted ? [" ", lh('span', { key: "mu", className: "lc-cap" }, "Muted")] : null,
         blocked ? [" ", lh('span', { key: "bl", className: "lc-cap" }, "Blocked")] : null),
       moreMenu,
+      qrOpen && !preview ? lh(ProfileQr, { name: user.name || user.displayName, link: profLink, onClose: function () { setQrOpen(false); backToMore(); } }) : null,
       user.isOriginals ? lh('p', { className: "lc-muted" }, "Founding account") : null,
       // Build 150, part 16: no "Dreams (N) • Joined" line here any more. The Dreams tab already says how many, and the
       // About tab has Date joined, so VoiceOver no longer reads both twice.
@@ -2535,6 +2601,7 @@ const LC_VERSION_HISTORY = [
     "Edit Dream: change the text of your own Dream or reply from its options. It shows \"Edited\" everywhere, Edit history keeps every earlier version readable, and a Dream on Nostr gets its edit published there too (kind 1010, so apps that support edits show it). Edited Federated Dreams from Nostr show their author's edit as well.",
     "Inbox earcons: Messages, Replies, Mentions, Likes, Redreams, Quotes and New Dreamor each have their own new, gentle earcon instead of the plain Alert earcon. They follow the Alert switch, volume, Calm mode and quiet hours, and you can preview each one in Settings, Earcons, Event earcons, under Inbox earcons. No existing earcon changed.",
     "Security: Looscid OS apps and Projects now run in a locked-down sandbox, so none of them can reach your Nostr key. Their saved settings come along.",
+    "Profile options: Share profile now shares the profile's LooscidID link, and there's a QR code (with the link written out and what scanning does, for anyone who can't see it), Copy username, and Open original profile on Nostr, Mastodon or Bluesky when the Dreamor is there.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
@@ -2786,6 +2853,7 @@ const LC_CREDITS = {
   uses: [
     { n: "React and React DOM 18.2.0", s: "React", u: "https://github.com/react/react", l: "MIT", lu: "https://github.com/react/react/blob/main/LICENSE", w: "This draws every single screen of Looscid. Loaded from jsDelivr." },
     { n: "nostr-tools 2.25.2", s: "nostr-tools", u: "https://github.com/nbd-wtf/nostr-tools", l: "Unlicense", lu: "https://github.com/nbd-wtf/nostr-tools/blob/master/LICENSE", w: "Nostr keys, signing and checking notes, npub and nsec, and passcode-locked keys. It lives in js/vendor with its license right next to it." },
+    { n: "qrcode-generator 1.4.4, by Kazuhiko Arase", s: "qrcode-generator", u: "https://github.com/kazuhikoarase/qrcode-generator", l: "MIT", lu: "https://github.com/kazuhikoarase/qrcode-generator/blob/master/LICENSE", w: "Draws the QR code for a profile's LooscidID link, under Dreamor options. Served from Looscid itself." },
     { n: "noble curves, hashes and ciphers, and scure base, by Paul Miller", s: "noble curves", u: "https://github.com/paulmillr/noble-curves", l: "MIT", lu: "https://github.com/paulmillr/noble-curves/blob/main/LICENSE", w: "The audited cryptography inside nostr-tools. The math that keeps your keys safe." },
     { n: "v86", s: "v86", u: "https://github.com/copy/v86", l: "BSD 2-Clause", lu: "https://github.com/copy/v86/blob/master/LICENSE", w: "This is what runs the real Looscid OS kernel in Apps, right in your browser. Still blows my mind." },
     { n: "SeaBIOS and SeaVGABIOS", s: "SeaBIOS", u: "https://www.seabios.org/", site: "seabios.org", l: "LGPL-3.0", lu: "https://github.com/coreboot/seabios/blob/master/COPYING.LESSER", w: "The start-up firmware v86 uses. I didn't change it." },

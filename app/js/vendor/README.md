@@ -29,3 +29,11 @@ React and React DOM 18.2.0, the UMD production builds, copied unchanged from the
 - SHA-256: react 4b4969fa4ef3594324da2c6d78ce8766fbbc2fd121fff395aedf997db0a99a06, react-dom 21758ed084cd0e37e735722ee4f3957ea960628a29dfa6c3ce1a1d47a2d6e4f7 (the same bytes npm and jsDelivr serve).
 - integrity (SHA-384): react sha384-tMH8h3BGESGckSAVGZ82T9n90ztNXxvdwvdM6UoR56cYcf+0iGXBliJ29D+wZ/x8, react-dom sha384-bm7MnzvK++ykSwVJ2tynSE5TRdN+xL418osEVF2DE/L/gfWHj91J2Sphe582B1Bh. If you ever replace a file, update both attributes in index.html (preload and script).
 - License: MIT, in LICENSE in this folder.
+
+## qrcode-generator-1.4.4.js
+
+QR Code Generator for JavaScript 1.4.4 by Kazuhiko Arase, the file qrcode.js copied unchanged from the npm package (qrcode-generator-1.4.4.tgz). Since build 152 (prep, #99 part 4) it draws the QR code under a profile's Dreamor options; app/js/more.js loads it only when a QR code is shown, from this site, with an integrity check.
+
+- SHA-256: 18ae399f81182bc9de916e9c77b195df20cc58d6f2d55a62b085a299f1bf1780
+- integrity (SHA-384): sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k. If you ever replace the file, update LC_QR_SRI in app/js/more.js.
+- License: MIT, in LICENSE in this folder. "QR Code" is a registered trademark of DENSO WAVE INCORPORATED.

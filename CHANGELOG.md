@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 12, 2026 at 7:21 PM (Eastern Time, 2026-10-12T23:21:28Z UTC)
+Released October 12, 2026 at 7:26 PM (Eastern Time, 2026-10-12T23:26:48Z UTC)
 
 Round 7: a feature update, asked for by 2three1y. Built in steps, one commit each.
 
@@ -74,6 +74,7 @@ Round 7: a feature update, asked for by 2three1y. Built in steps, one commit eac
 - Edit Dream: change the text of your own Dream or reply from its options. It shows "Edited" everywhere, Edit history keeps every earlier version readable, and a Dream on Nostr gets its edit published there too (kind 1010, so apps that support edits show it). Edited Federated Dreams from Nostr show their author's edit as well.
 - Inbox earcons: Messages, Replies, Mentions, Likes, Redreams, Quotes and New Dreamor each have their own new, gentle earcon instead of the plain Alert earcon. They follow the Alert switch, volume, Calm mode and quiet hours, and you can preview each one in Settings, Earcons, Event earcons, under Inbox earcons. No existing earcon changed.
 - Security: Looscid OS apps and Projects now run in a locked-down sandbox, so none of them can reach your Nostr key. Their saved settings come along.
+- Profile options: Share profile now shares the profile's LooscidID link, and there's a QR code (with the link written out and what scanning does, for anyone who can't see it), Copy username, and Open original profile on Nostr, Mastodon or Bluesky when the Dreamor is there.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 
