@@ -539,6 +539,11 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
     // Build 151 (#54): pin this Dream's thread, or its Dreamor, as a feed tab.
     (function () { const root = dream._root || dream.replyTo || dream.id; const on = lcPinHas("thread", root);
       return { id: "pinthread", name: on ? "Unpin thread tab" : "Pin thread as a tab", a: function () { if (on) lcPinRemove(lcPinId({ kind: "thread", ref: root })); else lcPinAdd("thread", root, "Thread: " + String((dream.user && dream.user.name) || "Dream") + ", " + String(dream.text || "").replace(/\s+/g, " ").slice(0, 30).trim()); } }; })(),
+    // Build 151 (#74, 2three1y Oct 11 4:56-4:58 PM): Subscribe to thread. New Replies in it land in Alerts, Replies.
+    (function () { const root = String(dream._root || dream.replyTo || dream.id); const on = lcThreadSubbed(root);
+      return { id: "subthread", name: on ? "Unsubscribe from thread" : "Subscribe to thread", a: function () {
+        if (on) { lcThreadUnsub(root); announce("Unsubscribed from this thread."); }
+        else { lcThreadSub(root, dream); announce("Subscribed to this thread. New Replies show up in Alerts, Replies."); } } }; })(),
     handle && !(dream.user === ME || lcHandle(handle) === lcHandle(ME.handle || "")) ? (function () { const on = lcPinHas("person", lcHandle(handle));
       return { id: "pinperson", name: on ? "Unpin @" + handle + " tab" : "Pin @" + handle + " as a tab", a: function () { if (on) lcPinRemove(lcPinId({ kind: "person", ref: lcHandle(handle) })); else lcPinAdd("person", lcHandle(handle), (dream.user && dream.user.name) || "@" + handle); } }; })() : null,
     cherryCtx ? { id: "cherry", name: "Ask Cherry about this Dream", a: function () { cherryCtx.openCherry("Tell me about this Dream: " + String(dream.text || "").slice(0, 200)); } } : null,
@@ -3210,7 +3215,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T22:18:20Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T22:22:34Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4250,7 +4255,7 @@ function lcAlertPrefs() {
 function lcAlerts() { try { const v = JSON.parse(localStorage.getItem(LC_ALERTS_KEY) || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
 function lcAlertsSave(list) { try { localStorage.setItem(LC_ALERTS_KEY, JSON.stringify(list.slice(0, 100))); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:alerts")); }
 // The one door every alert goes through. Returns the stored alert, or null when settings say no.
-function lcNotify(type, text, user, preview) {
+function lcNotify(type, text, user, preview, extra) {
   const T = LC_ALERT_TYPES.find(function (x) { return x.id === type; }); if (!T) return null;
   const P = lcAlertPrefs(), tp = P.types[type];
   if (!tp.on) return null;
@@ -4260,14 +4265,66 @@ function lcNotify(type, text, user, preview) {
   const list = lcAlerts(), now = Date.now();
   let a = null;
   if (P.group) {
-    const g = list.find(function (x) { return x.type === type && x.unread && now - x.time < 30 * 60000; });
-    if (g) { g.count = (g.count || 1) + 1; g.time = now; g.user = null; g.text = g.count + " " + T.many; g.preview = preview || g.preview; a = g; list.splice(list.indexOf(g), 1); list.unshift(g); }
+    // Build 151 (#74): a Reply in a thread you follow only groups with others like it.
+    const sub = !!(extra && extra.sub);
+    const g = list.find(function (x) { return x.type === type && x.unread && now - x.time < 30 * 60000 && !!x.sub === sub; });
+    if (g) { g.count = (g.count || 1) + 1; g.time = now; g.user = null; g.text = g.count + " " + (sub ? "new replies in threads you follow" : T.many); g.preview = preview || g.preview; a = g; list.splice(list.indexOf(g), 1); list.unshift(g); }
   }
-  if (!a) { a = { id: now + "-" + Math.random().toString(36).slice(2, 7), type: type, text: text, user: user ? { id: user.id, name: user.name, handle: user.handle, initials: user.initials, color: user.color } : null, preview: preview || "", time: now, unread: true, count: 1 }; list.unshift(a); }
+  if (!a) { a = { id: now + "-" + Math.random().toString(36).slice(2, 7), type: type, text: text, user: user ? { id: user.id, name: user.name, handle: user.handle, initials: user.initials, color: user.color } : null, preview: preview || "", time: now, unread: true, count: 1 };
+    if (extra && extra.sub) { a.sub = true; a.thread = String(extra.thread || ""); }
+    list.unshift(a); }
   lcAlertsSave(list);
   if (tp.sound && !lcQuietNow()) Earcon.play(T.earcon);
   return a;
 }
+/* Build 151 (#74): threads you follow. Stored as looscid_thread_subs: [{ root, nid, label, since }] (in the settings
+   backup). New Replies are found two ways, both without a server: Replies that reach the app (lcNotifyDreams), and a
+   check of your relays for Nostr notes that tag the thread's root note (NIP-10 "e" tags), on start and every 5 minutes
+   while Looscid is on screen. On the web this is in-app only; the native apps can turn it into push. */
+const LC_THREAD_SUBS_KEY = "looscid_thread_subs";
+function lcThreadSubs() { try { const v = JSON.parse(localStorage.getItem(LC_THREAD_SUBS_KEY) || "[]"); return Array.isArray(v) ? v.filter(function (s) { return s && s.root; }) : []; } catch (e) { return []; } }
+function lcThreadSubsSave(l) { try { if (l.length) localStorage.setItem(LC_THREAD_SUBS_KEY, JSON.stringify(l.slice(0, 200))); else localStorage.removeItem(LC_THREAD_SUBS_KEY); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:threadsubs")); }
+function lcThreadSubbed(root) { return lcThreadSubs().some(function (s) { return String(s.root) === String(root); }); }
+function lcThreadSub(root, dream) {
+  root = String(root); if (lcThreadSubbed(root)) return;
+  let nid = null; try { nid = Looscid.lcNostr && Looscid.lcNostr.nidOf ? Looscid.lcNostr.nidOf(root) : null; } catch (e) {}
+  if (!nid && /^[0-9a-f]{64}$/i.test(root)) nid = root.toLowerCase();
+  if (!nid && dream && !dream.replyTo && /^[0-9a-f]{64}$/i.test(String(dream.nid || ""))) nid = String(dream.nid).toLowerCase();
+  const who = dream && dream.user ? (dream.user === ME ? "your" : String(dream.user.name || "a Dreamor") + "'s") : "a";
+  lcThreadSubsSave(lcThreadSubs().concat([{ root: root, nid: nid, label: who + " thread", since: Math.floor(Date.now() / 1000) }]));
+  lcThreadWatchSoon();
+}
+function lcThreadUnsub(root) { lcThreadSubsSave(lcThreadSubs().filter(function (s) { return String(s.root) !== String(root); })); }
+function lcThreadAlert(root, user, text) {
+  if (user && typeof lcAudienceOk === "function" && !lcAudienceOk((Looscid.A11Y_NOW || {}).whoReply || "everyone", user, "perm_whoReply")) return null;
+  return lcNotify("reply", "New reply in a thread you follow", user, String(text || "").slice(0, 140), { sub: true, thread: root });
+}
+let lcThreadTimer = null, lcThreadBusy = false;
+async function lcThreadCheck() {
+  const subs = lcThreadSubs().filter(function (s) { return s.nid; });
+  const N = Looscid.lcNostr; if (!subs.length || !N || !N.fetchThreadReplies || lcThreadBusy) return 0;
+  lcThreadBusy = true; let n = 0;
+  try {
+    const since = Math.min.apply(null, subs.map(function (s) { return s.since || 0; }));
+    const got = await N.fetchThreadReplies(subs.map(function (s) { return s.nid; }), since);
+    const mine = (N.state && N.state().pubkey) || null, seenK = "looscid_thread_seen";
+    let seen = []; try { seen = JSON.parse(localStorage.getItem(seenK) || "[]"); } catch (e) {} if (!Array.isArray(seen)) seen = [];
+    const fresh = (got || []).filter(function (r) { return r && r.id && seen.indexOf(r.id) < 0 && r.pk !== mine; });
+    const now = lcThreadSubs();
+    fresh.sort(function (a, b) { return a.created - b.created; }).forEach(function (r) {
+      const s = now.find(function (x) { return x.nid && r.roots.indexOf(x.nid) >= 0; }); if (!s || r.created / 1000 < (s.since || 0)) return;
+      seen.push(r.id); if (lcThreadAlert(s.root, { id: r.pk, name: r.name || r.npub || "A Nostr Dreamor", handle: r.npub || "" }, r.text)) n++;
+    });
+    try { localStorage.setItem(seenK, JSON.stringify(seen.slice(-1000))); } catch (e) {}
+  } catch (e) {}
+  lcThreadBusy = false; return n;
+}
+function lcThreadWatchSoon() { setTimeout(function () { if (!document.hidden) lcThreadCheck(); }, 1500); }
+function lcThreadWatch() {
+  if (lcThreadTimer) return; lcThreadWatchSoon();
+  lcThreadTimer = setInterval(function () { if (!document.hidden && lcThreadSubs().length) lcThreadCheck(); }, 5 * 60000);
+}
+Object.assign(Looscid, { LC_THREAD_SUBS_KEY, lcThreadSubs, lcThreadSubbed, lcThreadSub, lcThreadUnsub, lcThreadAlert, lcThreadCheck, lcThreadWatch });
 function lcAlertsMarkAll() { const l = lcAlerts().map(function (x) { return Object.assign({}, x, { unread: false }); }); lcAlertsSave(l); return l.length; }
 function useAlerts() {
   const [l, setL] = useState(lcAlerts());
@@ -5311,7 +5368,9 @@ const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "looscid_braille_styles", "lo
   // and whether Dreams from around you is on (with its rough area). Added at the end, so older backups still import.
   "looscid_feed_pins", "looscid_fed_sub", "looscid_fed_networks", "looscid_feed_sort", "looscid_foryou_following", "looscid_fed_local",
   // Build 151 (#75): Settings > Tab Bar (which tabs show and their order). Added at the end, so older backups still import.
-  "looscid_tabbar"];
+  "looscid_tabbar",
+  // Build 151 (#74): threads you follow (Subscribe to thread). Added at the end, so older backups still import.
+  "looscid_thread_subs"];
 Looscid.LC_EXPORT_KEYS = LC_EXPORT_KEYS;
 function lcExportSettings() {
   const o = { app: "Looscid", kind: "settings", version: LOOSCID_VERSION, exported: new Date().toISOString(), settings: {} };
@@ -5510,7 +5569,7 @@ useEffect(() => {
   const addLog = (ic, text, undoFn=null) => setCherryLog(l => [{id:Date.now(),ic,text,undoFn,...(undoFn?{undone:false}:{})}, ...l].slice(0,20));
 
   Looscid.LC_FOLLOWING_NOW = appFollowing; Looscid.LC_GROUPS_NOW = appGroups; // round 6: audiences read these
-  useEffect(function () { lcVersionAlert(); }, []);
+  useEffect(function () { lcVersionAlert(); lcThreadWatch(); }, []); // build 151 (#74): threads you follow
   const cherryCtx = {
     dreams: appDreams,
     following: appFollowing,

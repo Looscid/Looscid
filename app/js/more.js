@@ -2515,6 +2515,7 @@ const LC_VERSION_HISTORY = [
     "Rotor Actions on Dreams and Cherry chats are gone: VoiceOver on iPhone doesn't offer them from web pages, so they only added noise. Like, Redream (with Quote inside), Reply and More stay as the buttons on every Dream, and Chat options still has Pin and Delete.",
     "No more Image Recognition offers from VoiceOver: every icon inside a button or row is hidden from screen readers now, since its button already says what it is. Avatars keep their names.",
     "Settings looks like Spring now: Sense is pinned alone at the top, every row says its current value after its name (like \"Customizability, Dark theme\" or \"Intelligence, Cherry off\"), and the new Settings, Tab Bar page lets you show or hide each tab and move it up or down with plain buttons. Tabs you pinned on the feed can be added as custom tabs. More is always last.",
+    "Subscribe to thread: a Dream's More menu has Subscribe to thread (and Unsubscribe from thread). New replies in a thread you follow show up in Alerts as \"New reply in a thread you follow\", whether they reach Looscid directly or come from Nostr relays that tag the thread. On the web it's in the app only; the native apps can make it a push notification.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

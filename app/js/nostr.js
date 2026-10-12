@@ -396,6 +396,25 @@ async function fetchPublic(opts) {
   return out;
 }
 
+/* Build 151 (#74): Replies to threads you follow. Asks your relays for text notes that tag any of the given root notes
+   (NIP-10 "e" tags), newer than since (seconds). Each note is checked (verifyEvent) before it counts. */
+async function fetchThreadReplies(nids, since) {
+  nids = (nids || []).filter(isHex64).map(function (x) { return x.toLowerCase(); }); if (!nids.length) return [];
+  let NT; try { NT = await load(); } catch (e) { return []; }
+  const filter = { kinds: [1], "#e": nids.slice(0, 100), limit: 200 }; if (since) filter.since = since;
+  const all = await Promise.all(relays().map(function (u) { return relayReq(u, filter); }));
+  const seen = new Set(), out = [];
+  all.forEach(function (evs) { evs.forEach(function (ev) {
+    if (!ev || seen.has(ev.id) || ev.kind !== 1 || typeof ev.content !== "string" || !Array.isArray(ev.tags)) return;
+    let ok = false; try { ok = NT.verifyEvent(ev); } catch (e) {} if (!ok) return; seen.add(ev.id);
+    const roots = ev.tags.filter(function (t) { return t && t[0] === "e" && isHex64(t[1]); }).map(function (t) { return t[1].toLowerCase(); }).filter(function (x) { return nids.indexOf(x) >= 0; });
+    if (!roots.length) return;
+    let npub = ""; try { npub = NT.nip19.npubEncode(ev.pubkey); } catch (e) {}
+    out.push({ id: ev.id, pk: ev.pubkey, npub: npub, text: ev.content.slice(0, 2000), created: ev.created_at * 1000, roots: roots });
+  }); });
+  return out;
+}
+
 /* --- Reading your own Dreams back (any device) ------------------------------------- */
 function hidden() { const h = lsJson(HIDDEN_KEY, []); return Array.isArray(h) ? h : []; }
 function hide(nid) { if (!isHex64(nid)) return; const h = hidden(); if (h.indexOf(nid) < 0) { h.push(nid); lsSet(HIDDEN_KEY, JSON.stringify(h.slice(-2000))); } }
@@ -466,5 +485,5 @@ if (document.readyState === "complete") start(); else window.addEventListener("l
 
 Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, load: load, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
   importKey: importKey, createKey: createKey, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, nsecNow: nsecNow,
-  publishDream: publishDream, fetchPublic: fetchPublic, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
+  publishDream: publishDream, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
 })(window.Looscid = window.Looscid || {});

@@ -142,6 +142,8 @@ function lcNotifyDreams(others, mine) {
     const u = d.user && typeof d.user === "object" ? d.user : null, txt = String(d.text || "");
     if (me && new RegExp("(^|\\W)@" + me.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b", "i").test(txt)) { if (lcAudienceOk((Looscid.A11Y_NOW || {}).whoMention || "everyone", u, "perm_whoMention")) lcNotify("mention", "mentioned you", u, txt.slice(0, 140)); }
     else if (d.replyTo && mine && mine.has(d.replyTo)) { if (lcAudienceOk((Looscid.A11Y_NOW || {}).whoReply || "everyone", u, "perm_whoReply")) lcNotify("reply", "replied to your Dream", u, txt.slice(0, 140)); }
+    // Build 151 (#74): a Reply in a thread you follow.
+    else if ((d.replyTo || d._root) && Looscid.lcThreadSubbed && Looscid.lcThreadSubbed(lcRootOf(d))) Looscid.lcThreadAlert(lcRootOf(d), u, txt);
     else lcNotify("newDream", "dreamed a new Dream", u, txt.slice(0, 140));
   });
 }
@@ -273,7 +275,7 @@ function useFeedTick() {
   const [, setN] = useState(0);
   useEffect(function () {
     const f = function () { setN(function (n) { return n + 1; }); };
-    const ev = ["looscid:pins", "looscid:fedsub", "looscid:fednets", "looscid:feedsort", "looscid:fyfollow", "looscid:fedlocal"];
+    const ev = ["looscid:pins", "looscid:fedsub", "looscid:fednets", "looscid:feedsort", "looscid:fyfollow", "looscid:fedlocal", "looscid:threadsubs"]; // + #74
     ev.forEach(function (e) { window.addEventListener(e, f); });
     return function () { ev.forEach(function (e) { window.removeEventListener(e, f); }); };
   }, []);
