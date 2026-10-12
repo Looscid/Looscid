@@ -134,10 +134,70 @@ function lcFieldValue(v, key, navigate) {
   if (/<[a-z][^>]*>/i.test(t) && typeof DOMParser !== "undefined") { try { t = new DOMParser().parseFromString("<div>" + t + "</div>", "text/html").body.textContent || ""; } catch (e) {} }
   return lcBioLinkify(t.replace(/\s+/g, " ").trim(), key, navigate);
 }
+/* Part 35 (2three1y, Oct 12 4:43 PM): bios and Circle descriptions can hold Markdown and code, with no length limit.
+   This turns Markdown into real elements, never HTML: headings, lists, quotes, links, bold, italic, inline code and
+   fenced code blocks. Raw HTML is shown as text, scripts never run, and links only open http, https or mailto.
+   A code block is a <pre> you can reach (Tab or VoiceOver) named "Code" plus its language, so a screen reader and a
+   braille display read it line by line. Plain text keeps working as before: links, @mentions and #hashtags. */
+function lcMdSafeHref(u) { u = String(u || "").trim(); return /^(https?:\/\/|mailto:)/i.test(u) ? u : null; }
+function lcMdInline(text, key, navigate) {
+  const out = []; let last = 0, n = 0, m;
+  const re = /`([^`\n]+)`|\[([^\]\n]+)\]\(([^)\s]+)\)|\*\*([^*\n]+)\*\*|__([^_\n]+)__|\*([^*\n]+)\*|(^|[\s(])_([^_\n]+)_(?=$|[\s).,!?;:])/g;
+  const plain = function (s, k) { return lcBioLinkify(s, k, navigate); };
+  while ((m = re.exec(text))) {
+    const k = key + "-m" + (n++);
+    let start = m.index;
+    if (m[8] !== undefined) start += m[7].length; // the space before _italic_ stays plain text
+    if (start > last) out.push.apply(out, plain(text.slice(last, start), k + "t"));
+    if (m[1] !== undefined) out.push(lh('code', { key: k, className: "lc-md-code" }, m[1]));
+    else if (m[2] !== undefined) { const href = lcMdSafeHref(m[3]);
+      out.push(href ? lh('a', { key: k, href: href, target: "_blank", rel: "noopener noreferrer" }, lcMdInline(m[2], k + "i", navigate)) : m[0]); }
+    else if (m[4] !== undefined || m[5] !== undefined) out.push(lh('strong', { key: k }, lcMdInline(m[4] !== undefined ? m[4] : m[5], k + "i", navigate)));
+    else if (m[6] !== undefined || m[8] !== undefined) out.push(lh('em', { key: k }, lcMdInline(m[6] !== undefined ? m[6] : m[8], k + "i", navigate)));
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) out.push.apply(out, plain(text.slice(last), key + "-end"));
+  return out;
+}
+function lcMarkdown(src, navigate, key, opts) {
+  const hBase = (opts && opts.hBase) || 3; key = key || "md";
+  const lines = String(src || "").replace(/\r\n?/g, "\n").split("\n");
+  const blocks = []; let para = [], list = null, quote = [];
+  const inl = function (t, k) { return lcMdInline(t, k, navigate); };
+  const flushPara = function () { if (!para.length) return; const k = key + "-p" + blocks.length; const kids = [];
+    para.forEach(function (l, j) { if (j) kids.push(lh('br', { key: k + "br" + j })); kids.push.apply(kids, inl(l, k + "l" + j)); });
+    blocks.push(lh('p', { key: k }, kids)); para = []; };
+  const flushList = function () { if (!list) return; const k = key + "-list" + blocks.length;
+    blocks.push(lh(list.type, { key: k, className: "lc-md-list" }, list.items.map(function (t, j) { return lh('li', { key: k + "i" + j }, inl(t, k + "i" + j)); }))); list = null; };
+  const flushQuote = function () { if (!quote.length) return; const k = key + "-q" + blocks.length;
+    blocks.push(lh('blockquote', { key: k, className: "lc-md-quote" }, lcMarkdown(quote.join("\n"), navigate, k, opts))); quote = []; };
+  const flush = function () { flushPara(); flushList(); flushQuote(); };
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]; let mm;
+    if ((mm = /^\s*(```|~~~)\s*([\w+#.\-]*)\s*$/.exec(line))) {
+      flush(); const fence = mm[1], lang = mm[2], code = [];
+      for (i++; i < lines.length && !new RegExp("^\\s*" + fence.replace(/(.)/g, "\\$1") + "\\s*$").test(lines[i]); i++) code.push(lines[i]);
+      const k = key + "-code" + blocks.length;
+      blocks.push(lh('pre', { key: k, className: "lc-md-pre", tabIndex: 0, role: "region", "aria-label": lang ? "Code, " + lang : "Code" }, lh('code', null, code.join("\n"))));
+      continue;
+    }
+    if ((mm = /^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$/.exec(line))) { flush(); const lvl = Math.min(6, hBase + mm[1].length - 1);
+      blocks.push(lh('h' + lvl, { key: key + "-h" + blocks.length, className: "lc-md-h" }, inl(mm[2], key + "-h" + blocks.length))); continue; }
+    if ((mm = /^\s*>\s?(.*)$/.exec(line))) { flushPara(); flushList(); quote.push(mm[1]); continue; } else flushQuote();
+    if ((mm = /^\s*[-*+]\s+(.*)$/.exec(line)) || (mm = /^\s*\d{1,9}[.)]\s+(.*)$/.exec(line))) {
+      const type = /^\s*\d/.test(line) ? "ol" : "ul"; flushPara();
+      if (list && list.type !== type) flushList(); if (!list) list = { type: type, items: [] }; list.items.push(mm[1]); continue; }
+    if (!line.trim()) { flush(); continue; }
+    flushList(); para.push(line.trim());
+  }
+  flush();
+  return blocks;
+}
+Object.assign(Looscid, { lcMarkdown, lcMdInline, lcMdSafeHref });
 function lcBioParas(bio, navigate) {
   const raw = String(bio || "").trim();
   if (!raw) return [];
-  if (/<(p|br|a|span)\b[^>]*>/i.test(raw) && typeof DOMParser !== "undefined") {
+  if (!/```|~~~/.test(raw) && /<(p|br|a|span)\b[^>]*>/i.test(raw) && typeof DOMParser !== "undefined") {
     // HTML bio: read it as text with paragraph and line-break structure; links come back through the linkifier,
     // and an <a> keeps its own address when its text isn't one.
     let doc; try { doc = new DOMParser().parseFromString("<div>" + raw + "</div>", "text/html"); } catch (e) { doc = null; }
@@ -168,7 +228,8 @@ function lcBioParas(bio, navigate) {
       return paras;
     }
   }
-  return raw.split(/\n\s*\n/).map(function (para, i) { return para.trim() ? lh('p', { key: "p" + i }, lcBioLines(para.trim(), "b" + i, navigate)) : null; }).filter(Boolean);
+  // Part 35: a plain or Markdown bio becomes real paragraphs, headings, lists and code blocks (lcMarkdown).
+  return lcMarkdown(raw, navigate, "b", { hBase: 3 });
 }
 function lcCopy(text, what) {
   const done = function () { announce(what + " copied."); };
@@ -1694,9 +1755,11 @@ const PROFILE_FIELDS = [
   { key: "username", label: "Username", heading: "Change username", help: "Change the username connected with your LooscidID. This also changes how Dreamors @mention you.",
     get: function (p) { return (p.handle || "").replace(/^@/, ""); }, show: function (p) { return p.handle || ""; }, max: 30, prefix: "@", autoComplete: "username",
     toPatch: function (v) { v = (v || "").trim().replace(/^@+/, "").toLowerCase(); if (!/^[a-z0-9_]{3,30}$/.test(v)) return { error: "Use 3 to 30 letters, numbers or underscores." }; return { patch: { handle: "@" + v } }; } },
-  { key: "bio", label: "Bio", heading: "Change bio", help: "A short line about you, up to 160 characters.",
-    get: function (p) { return p.bio || ""; }, max: 160,
-    toPatch: function (v) { return { patch: { bio: sanitizeInput(v || "").slice(0, 160) } }; } },
+  // Part 35 (2three1y, Oct 12 4:43 PM): no length limit on the bio, because it can hold Markdown and code. Its text is
+  // kept as you wrote it (only trimmed); it is shown through lcMarkdown, which never treats it as HTML.
+  { key: "bio", label: "Bio", heading: "Change bio", help: "About you, as long as you like. Markdown works: # headings, - lists, [links](https://example.com), **bold**, *italic*, `code` and ``` code blocks.",
+    get: function (p) { return p.bio || ""; }, multiline: true,
+    toPatch: function (v) { return { patch: { bio: String(v || "").trim() } }; } },
   { key: "website", label: "Website", heading: "Change website", help: "Add your website. Leave the box empty to remove it.",
     get: function (p) { return p.website || ""; }, max: 200, type: "url", autoComplete: "url",
     toPatch: function (v) { const u = normalizeUrl(v); if (u === null) return { error: "That doesn't look like a web address. Try something like example.com." }; return { patch: { website: u } }; } },
@@ -1729,7 +1792,12 @@ function ChangeInfoScreen({ field, profile, onSave, onClose }) {
   const [err, setErr] = useState("");
   const headRef = useRef(null);
   useEffect(function () { if (headRef.current) headRef.current.focus(); }, []);
+  // Part 35 (2three1y, Oct 12 4:43 PM): Save stays dimmed (aria-disabled, so VoiceOver still finds it) until something
+  // really changed, and dims again if the change is undone. Enter and Save both check it.
+  const sameLinks = function (a, b) { return JSON.stringify(a || []) === JSON.stringify(b || []); };
+  const changed = isLinks ? (!sameLinks(links, profile.links) || !!linkName.trim() || !!linkUrl.trim()) : String(val) !== String(field.get(profile));
   const save = function () {
+    if (!changed) { announce("Nothing to save yet. Change something first."); return; }
     if (isLinks) {
       let list = links;
       if (linkName.trim() || linkUrl.trim()) { const added = addLink(true); if (!added) return; list = added; }
@@ -1763,7 +1831,10 @@ function ChangeInfoScreen({ field, profile, onSave, onClose }) {
       !isLinks && lh('label', { htmlFor: inputId, className: "lid-label" }, field.label),
       !isLinks && lh('div', { className: "lid-inwrap" },
         field.prefix && lh('span', { className: "lid-prefix", 'aria-hidden': "true" }, field.prefix),
-        lh('input', { id: inputId, ref: enterRef, className: "inp", type: field.type === "url" ? "url" : "text", value: val, maxLength: field.max,
+        field.multiline
+          ? lh('textarea', { id: inputId, className: "inp lid-textarea", rows: 8, value: val, autoComplete: "off", spellCheck: true, 'aria-invalid': err ? "true" : undefined,
+              onChange: function (e) { setVal(e.target.value); if (err) setErr(""); } })
+          : lh('input', { id: inputId, ref: enterRef, className: "inp", type: field.type === "url" ? "url" : "text", value: val, maxLength: field.max,
           autoComplete: field.autoComplete || "off", 'aria-invalid': err ? "true" : undefined,
           enterKeyHint: "done", onChange: function (e) { setVal(e.target.value); if (err) setErr(""); } })),
       isLinks && lh(React.Fragment, null,
@@ -1785,7 +1856,7 @@ function ChangeInfoScreen({ field, profile, onSave, onClose }) {
         lh('button', { type: "button", className: "btn bgb lid-addlink", onClick: function () { addLink(false); } }, "Add link")),
       err && lh('p', { className: "lid-err", id: inputId + "-err" }, err),
       lh('div', { className: "lid-actions" },
-        lh('button', { type: "submit", className: "btn bp" }, "Save"),
+        lh('button', { type: "submit", className: "btn bp" + (changed ? "" : " lc-dim"), "aria-disabled": changed ? undefined : "true" }, "Save"),
         lh('button', Object.assign({ type: "button", className: "btn bgb", onClick: onClose }, lcCloseProps(field.label ? field.label + " editor" : "editor")), "Close")))
   );
 }
@@ -2431,6 +2502,8 @@ const LC_VERSION_HISTORY = [
     "Commandbar lives in More now: \"Open Commandbar\" is a plain button there, and Control K or Command K still open it anywhere. The floating Commandbar button at the top is gone, so it can't catch taps meant for Edit profile or anything else.",
     "Discover is search and browsing only: Ask Cherry is gone from it (the Trending button, the Ask Cherry row above results, Draft on trending tags and Ask Cherry when nothing is found).",
     "Numbers are never shortened: Looscid and Cherry always show the whole number, like 19,637, never 19.6K. Cherry only reports trending tags that really exist.",
+    "Save in Edit profile and in the Circle forms stays dimmed until you actually change something, and dims again if you undo it. VoiceOver still finds it and tells you why it's dimmed.",
+    "Bios and Circle descriptions have no length limit and support Markdown: headings, lists, quotes, links, bold, italic, inline code and code blocks. Code blocks are their own readable block for VoiceOver and braille, and raw HTML never runs.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

@@ -205,6 +205,13 @@ function relayReq(url, filter, ms) {
     ws.onerror = end; ws.onclose = end;
   });
 }
+/* Part 35 (2three1y, Oct 12 4:43 PM): relays cap how big one event can be. strfry's default is 64 KB (maxEventSize 65536),
+   nostr-rs-relay's 128 KB, and many public relays use 64 KB or less (NIP-11 limitation.max_message_length). Looscid
+   checks the size before sending: an event over 64 KB is never sent, the text stays saved on this device, and you hear
+   why in plain words. Bios and Circle descriptions aren't sent to relays yet; when they are, they go through this. */
+const RELAY_MAX_BYTES = 65536;
+function eventBytes(ev) { try { return new TextEncoder().encode(JSON.stringify(["EVENT", ev])).length; } catch (e) { return JSON.stringify(ev).length; } }
+function fitsRelays(ev) { return eventBytes(ev) <= RELAY_MAX_BYTES; }
 async function sendToRelays(ev, list) {
   const res = await Promise.all(list.map(function (u) { return relaySend(u, ev).then(function (ok) { return { u: u, ok: ok }; }); }));
   return { ok: res.filter(function (r) { return r.ok; }).map(function (r) { return r.u; }), failed: res.filter(function (r) { return !r.ok; }).map(function (r) { return r.u; }) };
@@ -350,6 +357,7 @@ async function publishDream(d, opts) {
   try { const r = await signDream(d); ev = r.ev || null; wait = !!r.wait; } catch (e) { ev = null; }
   if (wait) { if (!quiet) sayLater("Saved on this device. The Dream it answers isn't on Nostr, so it stays here."); return { skipped: true, reason: "parent" }; }
   if (!ev) { if (!quiet) sayLater("Saved on this device. Your signer didn't sign it, so it wasn't sent."); return { error: "sign" }; }
+  if (!fitsRelays(ev)) { if (!quiet) sayLater("Saved on this device. It's too big for relays: " + Math.ceil(eventBytes(ev) / 1024) + " KB, and relays take up to 64 KB."); return { skipped: true, reason: "size" }; }
   tagNid(d.id, ev.id, ev);
   const list = relays();
   const r = await sendToRelays(ev, list);
@@ -429,5 +437,5 @@ if (document.readyState === "complete") start(); else window.addEventListener("l
 
 Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, load: load, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
   importKey: importKey, createKey: createKey, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, nsecNow: nsecNow,
-  publishDream: publishDream, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
+  publishDream: publishDream, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
 })(window.Looscid = window.Looscid || {});

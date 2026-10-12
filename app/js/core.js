@@ -92,7 +92,7 @@ function lcCircleCreate(form) {
   const ids = GROUPS.map(function (g) { return typeof g.id === "number" ? g.id : 0; }).concat(lcCirclesRead().map(function (g) { return g.id; }));
   const g = {
     id: Math.max.apply(null, [1000].concat(ids)) + 1,
-    name: String(form.name || "").trim().slice(0, 40), description: String(form.description || "").trim().slice(0, 200),
+    name: String(form.name || "").trim().slice(0, 40), description: String(form.description || "").trim(), // part 35: no length limit (Markdown and code)
     category: form.category || "Other", emoji: form.emoji || "", privacy: form.privacy || "public",
     joinApproval: !!form.joinApproval, postApproval: !!form.postApproval, minAge: !!form.minAge,
     rules: (form.rules || []).map(function (r) { return String(r || "").trim(); }).filter(Boolean),
@@ -3106,7 +3106,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T20:57:50Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T21:01:10Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never

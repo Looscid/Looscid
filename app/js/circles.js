@@ -61,7 +61,7 @@ function CreateGroupFlow({onClose, onCreate, navigate}) {
             )
           ))
           , form.rules.length<8&&React.createElement('button', { className: "btn bgb" , style: {width:"100%",padding:9,fontSize:12,marginBottom:16}, onClick: ()=>set("rules",[...form.rules,""]),}, React.createElement('span', { "aria-hidden": "true" }, "+ "), "Add Rule"  )
-          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:13,fontSize:14}, onClick: create, 'aria-label': "Create Circle" ,}, "Create Circle"  )
+          , React.createElement('button', { type: "button", className: "btn bp" + (canNext1 ? "" : " lc-dim"), style: {width:"100%",padding:13,fontSize:14}, onClick: create, "aria-disabled": canNext1 ? undefined : "true", 'aria-label': "Create Circle",}, "Create Circle"  )
         )
       )
     )
@@ -124,7 +124,9 @@ function CreateGroupFlow({onClose, onCreate, navigate}) {
           )
           , React.createElement('div', { style: {marginBottom:12},}
             , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",marginBottom:6},}, "Description")
-            , React.createElement('textarea', { className: "inp", style: {minHeight:68,fontSize:13}, placeholder: "What is this group about?"    , value: form.description, onChange: e=>set("description",e.target.value), maxLength: 200, 'aria-label': "Circle description" ,})
+            // Part 35 (2three1y, Oct 12 4:43 PM): no length limit; Markdown and code blocks work, like bios.
+            , React.createElement('textarea', { className: "inp", style: {minHeight:100,fontSize:13}, placeholder: "What is this Circle about?"    , value: form.description, onChange: e=>set("description",e.target.value), 'aria-label': "Circle description" ,})
+            , React.createElement('p', { className: "lc-desc", style: {fontSize:12,margin:"4px 0 0"},}, "As long as you like. Markdown works: headings, lists, links, bold, italic, code and code blocks.")
           )
           , React.createElement('div', { style: {marginBottom:16},}
             , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",marginBottom:6}, id: "cc-cat-h",}, "Category (required)" )
@@ -134,7 +136,9 @@ function CreateGroupFlow({onClose, onCreate, navigate}) {
               ))
             )
           )
-          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12,fontSize:14}, disabled: !canNext1, onClick: ()=>setStep(2),}, "Next: Settings"  )
+          // Part 35: dimmed with aria-disabled (still found by VoiceOver) until the name and category are filled in.
+          , React.createElement('button', { type: "button", className: "btn bp" + (canNext1 ? "" : " lc-dim"), style: {width:"100%",padding:12,fontSize:14}, "aria-disabled": canNext1 ? undefined : "true",
+              onClick: ()=>{ if (!canNext1) { if (Looscid.announce) Looscid.announce("Add a name of at least 3 letters and choose a category first."); return; } setStep(2); },}, "Next: Settings"  )
         )
       )
     )
@@ -177,7 +181,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
       , React.createElement('div', { style: {padding:"12px 16px 0",background:"var(--sf2)",borderBottom:"1px solid var(--bd)"},}
         , React.createElement('div', { style: {display:"flex",gap:10,alignItems:"flex-start"},}
           , React.createElement('div', { style: {flex:1},}
-            , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.55,marginBottom:8},}, group.description)
+            , React.createElement('div', { className: "lc-md", style: {fontSize:12,color:"var(--tx2)",lineHeight:1.55,marginBottom:8},}, Looscid.lcMarkdown ? Looscid.lcMarkdown(group.description, navigate, "gd", { hBase: 3 }) : group.description)
             , React.createElement('div', { style: {display:"flex",gap:12,flexWrap:"wrap",marginBottom:10},}
               , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "Members: "), group.members.toLocaleString() )
               , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "Category: "), group.category)
@@ -237,7 +241,8 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
       , tab==="about"&&React.createElement('div', { style: {padding:"16px"},}
         , React.createElement('div', { style: {background:"var(--sf2)",borderRadius:13,padding:16,marginBottom:12},}
           , React.createElement('div', { style: {fontSize:12,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",marginBottom:8},}, "About")
-          , React.createElement('p', { style: {fontSize:13,color:"var(--tx2)",lineHeight:1.7},}, group.description, " This is a space for deep conversations, shared research and creative exploration around "              , group.category.toLowerCase(), " topics." )
+          , React.createElement('div', { className: "lc-md", style: {fontSize:13,color:"var(--tx2)",lineHeight:1.7},}, Looscid.lcMarkdown ? Looscid.lcMarkdown(group.description, navigate, "ga", { hBase: 3 }) : group.description)
+          , group.mine ? null : React.createElement('p', { style: {fontSize:13,color:"var(--tx2)",lineHeight:1.7},}, "This is a space for deep conversations, shared research and creative exploration around "              , group.category.toLowerCase(), " topics." )
         )
         , React.createElement('div', { style: {background:"var(--sf2)",borderRadius:13,padding:16,marginBottom:12},}
           , React.createElement('div', { style: {fontSize:12,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",marginBottom:10},}, "Stats")
@@ -277,6 +282,8 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
 function GroupAdminModal({group, onClose}) {
   const [tab, setTab] = useState("general");
   const [settings, setSettings] = useState({postApproval:false,joinApproval:false,slowMode:false,slowModeDelay:30,pinned:"",welcome:"Welcome to "+group.name+"! Please read the rules before Dreaming.",restricted:false});
+  // Part 35: Save Settings stays dimmed (aria-disabled) until a setting really changed, and dims again if it is undone.
+  const [settings0] = useState(() => JSON.stringify(settings)); const settingsChanged = JSON.stringify(settings) !== settings0;
   const set = (k,v) => setSettings(s=>({...s,[k]:v}));
   const [pendingJoins] = useState([{id:99,name:"Jordan Myer",handle:"@jordanm",initials:"JM",color:"#7c3aed"}]);
   const [pendingPosts] = useState([]);
@@ -320,7 +327,8 @@ function GroupAdminModal({group, onClose}) {
               )
             )
             , React.createElement('div', { style: {padding:"14px 16px 0"},}
-              , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:11,fontSize:13}, onClick: onClose, 'aria-label': "Save group settings"  ,}, "Save Settings" )
+              , React.createElement('button', { type: "button", className: "btn bp" + (settingsChanged ? "" : " lc-dim"), style: {width:"100%",padding:11,fontSize:13}, "aria-disabled": settingsChanged ? undefined : "true",
+                  onClick: () => { if (!settingsChanged) { if (Looscid.announce) Looscid.announce("Nothing to save yet. Change a setting first."); return; } onClose(); }, 'aria-label': "Save Circle settings"  ,}, "Save Settings" )
             )
           )
 
@@ -429,7 +437,7 @@ function GroupsPage({navigate, cherryCtx, data}) {
               // Build 148: like a Circle and it's in Liked, Circles.
               , Looscid.LcLikeBtn && React.createElement('span', { onClick: e=>e.stopPropagation(), onKeyDown: e=>e.stopPropagation(), style: {flexShrink:0} }, React.createElement(Looscid.LcLikeBtn, { k: "circle", id: g.id, name: g.name + " Circle", snap: { name: g.name, emoji: g.emoji } }))
             )
-            , React.createElement('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.5,marginTop:5},}, g.description)
+            , React.createElement('div', { className: "lc-md", style: {fontSize:12,color:"var(--tx2)",lineHeight:1.5,marginTop:5},}, Looscid.lcMarkdown ? Looscid.lcMarkdown(g.description, null, "gl" + g.id, { hBase: 4 }) : g.description)
             , React.createElement('div', { style: {display:"flex",marginTop:8,gap:-6},}
               , USERS.slice(0,4).map((u,i)=>(React.createElement('div', { key: u.id, style: {marginLeft:i?-6:0,border:"2px solid var(--sf)",borderRadius:"50%"},}, React.createElement(Av, { user: u, size: 20,}))))
               , g.members>4&&React.createElement('span', { style: {fontSize:10,color:"var(--tx3)",marginLeft:10,alignSelf:"center"},}, "+", g.members-4, " more" )
