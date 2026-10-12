@@ -180,6 +180,7 @@ async function importKey(raw, passcode, opts) {
   const pk = NT.getPublicKey(p.sk);
   if (p.enc) { lsSet(ENC_KEY, p.enc); lsSet(SK_KEY, null); memSk = p.sk; } else storeSk(NT, p.sk, passcode);
   const idn = setIdentityFor(NT, pk, "local", { imported: true });
+  sealSessions();
   emit(); kick(); return { ok: true, npub: idn.npub, pubkey: pk };
 }
 async function createKey(passcode, opts) {
@@ -189,6 +190,7 @@ async function createKey(passcode, opts) {
   const sk = NT.generateSecretKey(), pk = NT.getPublicKey(sk);
   storeSk(NT, sk, passcode);
   const idn = setIdentityFor(NT, pk, "local");
+  sealSessions();
   emit(); return { ok: true, nsec: NT.nip19.nsecEncode(sk), npub: idn.npub, pubkey: pk };
 }
 async function useSigner() {
@@ -215,11 +217,12 @@ async function setPasscode(passcode) {
   const sk = currentSk(); if (!sk) return { err: "Unlock your key first." };
   const bad = passcodeProblem(passcode); if (bad) return { err: bad, field: "pass" };
   let NT; try { NT = await load(); } catch (e) { return { err: toolsMsg(e) }; }
-  storeSk(NT, sk, passcode); emit(); return { ok: true };
+  storeSk(NT, sk, passcode); sealSessions(); emit(); return { ok: true };
 }
 function removePasscode() {
   if (!lsGet(ENC_KEY)) return { err: "Your key has no passcode." };
   if (!memSk) return { err: "Unlock your key first." };
+  unsealSessions(memSk);
   lsSet(SK_KEY, toHex(memSk)); lsSet(ENC_KEY, null); memSk = null; emit(); return { ok: true };
 }
 // Remove the key (and signer link) from this device. Your Dreams stay on this device.
@@ -234,6 +237,63 @@ function forget() {
   // Dreams still waiting to be signed can't be signed any more.
   saveQueue(queue().filter(function (q) { return q.ev; }));
   emit(); return { ok: true };
+}
+/* Security pass 4/6 (Oct 2026): your Mastodon/fediverse and Bluesky sign-in tokens (looscid_sessions) are sealed to your
+   own Nostr key (NIP-44) whenever that key has a passcode. Sealing needs only your public key, so it works while the key is
+   locked (a Mastodon sign-in comes back on a fresh page); opening needs the unlocked key, so it's the same passcode.
+   Only the secret fields are sealed; host, handle, did and pds stay readable. The shape of looscid_sessions is unchanged
+   (one entry per network), and it is still never in Settings backup. */
+const SESSIONS_KEY = "looscid_sessions", SEAL_FIELDS = ["token", "accessJwt", "refreshJwt"];
+function sessionsRaw() { const s = lsJson(SESSIONS_KEY, {}); return s && typeof s === "object" && !Array.isArray(s) ? s : {}; }
+function sealTo() { const idn = identity(); return idn && idn.method === "local" && lsGet(ENC_KEY) ? idn.pubkey.toLowerCase() : null; }
+function hasSecrets(v) { return !!v && typeof v === "object" && SEAL_FIELDS.some(function (f) { return typeof v[f] === "string" && v[f]; }); }
+function sealOne(NT, v, pk) {
+  const secret = {}, out = {};
+  Object.keys(v).forEach(function (f) { if (SEAL_FIELDS.indexOf(f) >= 0) { if (typeof v[f] === "string") secret[f] = v[f]; } else out[f] = v[f]; });
+  const esk = NT.generateSecretKey();
+  out.sealed = { v: 1, by: "nip44", to: pk, epk: NT.getPublicKey(esk), ct: NT.nip44.encrypt(JSON.stringify(secret), NT.nip44.getConversationKey(esk, pk)) };
+  return out;
+}
+// Synchronous when the tools are already loaded; core.js setSession calls this before it writes anything.
+function sealSessionsNow(obj) {
+  const pk = sealTo(), NT = window.NostrTools;
+  if (!pk || !NT || !NT.nip44) return null;
+  const s = Object.assign({}, obj || sessionsRaw());
+  Object.keys(s).forEach(function (k) { if (hasSecrets(s[k])) s[k] = sealOne(NT, s[k], pk); });
+  return s;
+}
+async function sealSessions() {
+  const pk = sealTo(); if (!pk) return 0;
+  const before = sessionsRaw(); const n = Object.keys(before).filter(function (k) { return hasSecrets(before[k]); }).length;
+  if (!n) return 0;
+  try { await load(); } catch (e) { return 0; }
+  const s = sealSessionsNow(); if (!s) return 0;
+  lsSet(SESSIONS_KEY, JSON.stringify(s)); return n;
+}
+function openOne(NT, v, sk) {
+  if (!v || !v.sealed || v.sealed.by !== "nip44") return v;
+  const sec = JSON.parse(NT.nip44.decrypt(v.sealed.ct, NT.nip44.getConversationKey(sk, v.sealed.epk)));
+  const out = {}; Object.keys(v).forEach(function (f) { if (f !== "sealed") out[f] = v[f]; });
+  SEAL_FIELDS.forEach(function (f) { if (typeof sec[f] === "string") out[f] = sec[f]; });
+  return out;
+}
+// Your linked sessions with their tokens, for code that needs them. Locked key: { locked: true } and nothing secret.
+function openSessions() {
+  const s = sessionsRaw(), NT = window.NostrTools, sk = currentSk(), out = {};
+  let locked = false;
+  Object.keys(s).forEach(function (k) {
+    if (!s[k] || !s[k].sealed) { out[k] = s[k]; return; }
+    if (!sk || !NT || !NT.nip44) { locked = true; return; }
+    try { out[k] = openOne(NT, s[k], sk); } catch (e) { /* sealed to another key: leave it out */ }
+  });
+  return { sessions: out, locked: locked };
+}
+// Removing the passcode puts the tokens back the way they were (plain), since the key itself is plain again.
+function unsealSessions(sk) {
+  const s = sessionsRaw(), NT = window.NostrTools; if (!NT || !NT.nip44 || !sk) return;
+  let changed = false;
+  Object.keys(s).forEach(function (k) { if (s[k] && s[k].sealed) { try { s[k] = openOne(NT, s[k], sk); changed = true; } catch (e) {} } });
+  if (changed) lsSet(SESSIONS_KEY, JSON.stringify(s));
 }
 function nsecNow() { const sk = currentSk(); return sk && window.NostrTools ? window.NostrTools.nip19.nsecEncode(sk) : null; }
 
@@ -707,6 +767,8 @@ window.addEventListener("online", function () { if (queue().length) kick(); });
 if (document.readyState === "complete") start(); else window.addEventListener("load", start);
 
 Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, VENDOR_URL: VENDOR_URL, load: load, toolsMsg: toolsMsg, toolsReady: toolsReady, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
-  importKey: importKey, createKey: createKey, passcodeProblem: passcodeProblem, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, nsecNow: nsecNow,
+  importKey: importKey, createKey: createKey, passcodeProblem: passcodeProblem, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, nsecNow: nsecNow, sealSessions: sealSessions, sealSessionsNow: sealSessionsNow, openSessions: openSessions,
   publishDream: publishDream, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchReactions: fetchReactions, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
+// Tokens saved before this update, when the key already has a passcode, are sealed a few seconds after startup.
+setTimeout(function () { sealSessions(); }, 2500);
 })(window.Looscid = window.Looscid || {});

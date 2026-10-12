@@ -2499,7 +2499,16 @@ Looscid.LID_ACTIVITY_KEY = LID_ACTIVITY_KEY;
 function getActivity() { try { return JSON.parse(localStorage.getItem("looscid_security_activity") || "[]"); } catch (e) { return []; } }
 function logActivity(what) { try { const l = getActivity(); l.unshift({ at: Date.now(), what: what }); localStorage.setItem("looscid_security_activity", JSON.stringify(l.slice(0, 20))); } catch (e) {} }
 function getSessions() { try { return JSON.parse(localStorage.getItem(LID_SESSIONS_KEY) || "{}"); } catch (e) { return {}; } }
-function setSession(provider, data) { const s = getSessions(); if (data) s[provider] = data; else delete s[provider]; try { localStorage.setItem(LID_SESSIONS_KEY, JSON.stringify(s)); } catch (e) {} }
+// Security pass 4/6: with a passcode on your Nostr key, the tokens are sealed to that key before they're written
+// (js/nostr.js sealSessionsNow). If the Nostr tools aren't loaded yet, they're sealed a moment later (sealSessions).
+// getSessions() then has no tokens in it; Looscid.lcNostr.openSessions() gives them back while the key is unlocked.
+function setSession(provider, data) {
+  const s = getSessions(); if (data) s[provider] = data; else delete s[provider];
+  const N = Looscid.lcNostr; let sealed = null;
+  try { sealed = N && N.sealSessionsNow ? N.sealSessionsNow(s) : null; } catch (e) {}
+  try { localStorage.setItem(LID_SESSIONS_KEY, JSON.stringify(sealed || s)); } catch (e) {}
+  if (!sealed && data && N && N.sealSessions) N.sealSessions();
+}
 function removeMethod(id) {
   const m = getMethods().find(function (x) { return x.id === id; });
   if (m && m.provider === "nostr") { setStoredNostrSk(null); try { localStorage.removeItem(LID_IDENTITY_KEY); } catch (e) {} }
@@ -2822,7 +2831,7 @@ function BlueskyPanel({ onDone }) {
   };
   const ref = useEnterSubmit(go);
   return lh('div', { className: "lid-panel" },
-    lh('p', { className: "lid-warn", id: "lid-bsky-warn" }, "Use an app password, never your main password. Make one in Bluesky under Settings, Privacy and security, App passwords. Looscid keeps your session only on this device and never stores the password."),
+    lh('p', { className: "lid-warn", id: "lid-bsky-warn" }, "Use an app password, never your main password. Make one in Bluesky under Settings, Privacy and security, App passwords, and leave \"Allow access to your direct messages\" off. Looscid keeps your session only on this device, locked with your Nostr key's passcode when it has one, and never stores the password."),
     lh('label', { htmlFor: "lid-bsky-handle", className: "lid-label" }, "Bluesky handle"),
     lh('input', { id: "lid-bsky-handle", className: "inp", type: "text", autoCapitalize: "off", spellCheck: false, placeholder: "name.bsky.social", value: handle, onChange: function (e) { setHandle(e.target.value); } }),
     lh(SecretField, { id: "lid-bsky-pw", label: "App password", value: pw, onChange: setPw, describedBy: "lid-bsky-warn", inputRef: ref }),
@@ -3610,7 +3619,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T23:44:41Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T23:48:42Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never

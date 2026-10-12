@@ -2796,6 +2796,7 @@ const LC_VERSION_HISTORY = [
     "Lists are custom feeds you can pin: on a list's page, Pin to Home makes it a feed tab on Home, right after your other tabs, showing that list's Dreams. Unpin and reorder it like any pinned tab. You can also pin a list from Following, Pin a tab.",
     "Profiles have a Lists tab: yours shows all your lists and whether each is shown or only yours, and others see only the lists you choose with Show on my profile on each list's page. Move the tab in Settings, Profile Tabs.",
     "Security: your Nostr key is now locked with a passcode by default, and easy passcodes like 1234 aren't accepted. A key you saved before without one keeps working, and Looscid offers to lock it.",
+    "Security: when your Nostr key has a passcode, your Mastodon and Bluesky sign-ins are locked with it too.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

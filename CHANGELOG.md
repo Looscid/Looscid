@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 12, 2026 at 7:44 PM (Eastern Time, 2026-10-12T23:44:41Z UTC)
+Released October 12, 2026 at 7:48 PM (Eastern Time, 2026-10-12T23:48:42Z UTC)
 
 Round 7: a feature update, asked for by 2three1y. Built in steps, one commit each.
 
@@ -79,6 +79,7 @@ Round 7: a feature update, asked for by 2three1y. Built in steps, one commit eac
 - Lists are custom feeds you can pin: on a list's page, Pin to Home makes it a feed tab on Home, right after your other tabs, showing that list's Dreams. Unpin and reorder it like any pinned tab. You can also pin a list from Following, Pin a tab.
 - Profiles have a Lists tab: yours shows all your lists and whether each is shown or only yours, and others see only the lists you choose with Show on my profile on each list's page. Move the tab in Settings, Profile Tabs.
 - Security: your Nostr key is now locked with a passcode by default, and easy passcodes like 1234 aren't accepted. A key you saved before without one keeps working, and Looscid offers to lock it.
+- Security: when your Nostr key has a passcode, your Mastodon and Bluesky sign-ins are locked with it too.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 
