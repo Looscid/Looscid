@@ -2534,6 +2534,7 @@ const LC_VERSION_HISTORY = [
     "Fixed: on Home, Federated, a Networks checkbox could open Create instead. The page used to scroll underneath the tab bar, so a control VoiceOver moved to could sit behind it, and a double tap landed on the tab bar's middle button, Create. Now every page ends at the top of the tab bar, so nothing is ever behind it.",
     "Edit Dream: change the text of your own Dream or reply from its options. It shows \"Edited\" everywhere, Edit history keeps every earlier version readable, and a Dream on Nostr gets its edit published there too (kind 1010, so apps that support edits show it). Edited Federated Dreams from Nostr show their author's edit as well.",
     "Inbox sounds: Messages, Replies, Mentions, Likes, Redreams, Quotes and New Dreamor each have their own new, gentle earcon instead of the plain Alert sound. They follow the Alert switch, volume, Calm mode and quiet hours, and you can preview each one in Settings, Sounds, Event sounds, under Inbox sounds. No existing sound changed.",
+    "Security: Looscid OS apps and Projects now run in a locked-down sandbox, so none of them can reach your Nostr key. Their saved settings come along.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
@@ -3072,11 +3073,12 @@ function NexosAppsPage({ navigate }) {
 function NexosAppFrame({ app, navigate }) {
   const a = app || Looscid.LC_NEXOS_OPEN || LC_NEXOS_APPS[0];
   const frameRef = useRef(null);
+  const [storeName] = useState(Looscid.lcAppStoreName); // the apps' saved data, once, as the frame's name (js/appguard.js)
   // The real kernel's own Back button (and Escape in the apps) post to Looscid: back to Looscid OS apps.
   // Leaving this page unmounts the frame, which stops the emulator and its sound.
   useEffect(function () {
     function onMsg(e) {
-      if (e.origin !== location.origin || !e.data || !frameRef.current || e.source !== frameRef.current.contentWindow) return;
+      if ((e.origin !== location.origin && e.origin !== "null") || !e.data || !frameRef.current || e.source !== frameRef.current.contentWindow) return;
       if (e.data.nexos === "back" || e.data.nexos === "escape") navigate("nexos_apps");
     }
     window.addEventListener("message", onMsg);
@@ -3086,6 +3088,8 @@ function NexosAppFrame({ app, navigate }) {
     lh(BackHeader, { title: a.name, onBack: function () { navigate("nexos_apps"); } }),
     lh('p', { className: "lc-desc", style: { padding: "0 16px" } }, a.sub + "."),
     lh('iframe', { ref: frameRef, id: "lc-nx-iframe", className: "lc-apps-frame" + (a.id === "real" ? " lc-apps-frame-real" : ""), src: a.url, title: a.name + ", part of Looscid", allow: "autoplay; clipboard-write",
+      // Security pass: sandboxed, with no allow-same-origin, so the app can't reach Looscid's storage or your Nostr key (js/apphost.js).
+      sandbox: Looscid.LC_APP_SANDBOX, name: storeName,
       onLoad: function () { lcNexosSend(frameRef.current); } }));
 }
 function lcLinkedProviders() { const o = { local: true }; try { getMethods().forEach(function (m) { o[m.provider] = true; }); } catch (e) {} return o; }

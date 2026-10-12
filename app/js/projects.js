@@ -126,8 +126,10 @@ function projectView(p, act) {
         h('button', Object.assign({ type: "button", className: "lc-close", onClick: act.back }, lcCloseProps(pr.name)), "Close"))),
     h('p', { className: "lc-desc", style: { padding: "12px 16px 0" } }, pr.sub + "."),
     app
-      ? h('iframe', Object.assign({ id: "lc-project-frame", className: "lc-apps-frame", src: pr.url, title: pr.name + ", part of Looscid", allow: "autoplay; clipboard-write" },
-          pr.sandbox ? { sandbox: "allow-scripts allow-modals" } : {}))
+      // Security pass (Oct 2026): every project is sandboxed now, without allow-same-origin, so none can reach Looscid's storage
+      // or your Nostr key. Code Translator keeps its tighter sandbox. Saved settings come in as the frame's name (js/appguard.js).
+      ? h('iframe', { id: "lc-project-frame", className: "lc-apps-frame", src: pr.url, title: pr.name + ", part of Looscid", allow: "autoplay; clipboard-write",
+          sandbox: pr.sandbox ? "allow-scripts allow-modals" : Looscid.LC_APP_SANDBOX, name: act.storeName || "" })
       : h('div', { style: { padding: "0 16px" } },
           h('h2', { className: "lc-sub-h" }, "About"),
           (pr.about || []).map(function (t, i) { return h('p', { key: "a" + i, className: "lc-desc" }, t); }),
@@ -145,12 +147,12 @@ function projectView(p, act) {
 }
 const ProjectPage = lcPlainScreen("ProjectPage", function (host, props) {
   let p = props, alive = true;
-  const act = { back: function () { if (p.onBack) p.onBack(); } };
+  const act = { back: function () { if (p.onBack) p.onBack(); }, storeName: Looscid.lcAppStoreName ? Looscid.lcAppStoreName() : "" };
   const draw = function () { if (alive) lcPatch(host, projectView(p.data, act)); };
   // Escape inside a project (Looscid's bridge in the frame) goes Back, like the Apps.
   const onMsg = function (e) {
     const f = host.querySelector("#lc-project-frame");
-    if (!f || e.source !== f.contentWindow || !e.data || e.origin !== location.origin) return;
+    if (!f || e.source !== f.contentWindow || !e.data || (e.origin !== location.origin && e.origin !== "null")) return; // "null": sandboxed
     if (e.data.nexos === "back" || e.data.nexos === "escape") act.back();
     if (e.data.nexos === "hello" && Looscid.LC_NX_FRAMES) { try { Looscid.LC_NX_FRAMES.add(f.contentWindow); } catch (x) {} }
   };
@@ -163,8 +165,9 @@ const ProjectPage = lcPlainScreen("ProjectPage", function (host, props) {
 /* Dream Results: a project frame (same site) asks for the composer with its text. The composer opens with the text in it;
    nothing is sent. Said once in #looscid-live. */
 window.addEventListener("message", function (e) {
-  if (e.origin !== location.origin || !e.data || e.data.nexos !== "dream" || e.source === window) return;
-  const fromFrame = Array.prototype.some.call(document.querySelectorAll("iframe"), function (f) { try { return f.contentWindow === e.source; } catch (x) { return false; } });
+  if (!e.data || e.data.nexos !== "dream" || e.source === window) return;
+  if (e.origin !== location.origin && !(window.LooscidAppHost && window.LooscidAppHost.fromApp(e))) return; // sandboxed project frames send "null"
+  const fromFrame = Array.prototype.some.call(document.querySelectorAll("iframe"), function (f) { try { return f.contentWindow === e.source || (e.source && e.source.parent === f.contentWindow); } catch (x) { return false; } });
   if (!fromFrame) return;
   const t = String(e.data.text || "").trim().slice(0, 4000); if (!t) return;
   lcCompose({ mode: "new", text: t });

@@ -21,6 +21,9 @@
       if (w.document.getElementById("looscid-live")) { LW = w; break; }
     }
   } catch (e) { LW = null; }
+  // Security pass (Oct 2026): Looscid now opens these pages in a sandboxed frame, an anonymous origin that can't look into
+  // Looscid's page. There, Looscid is the top window; messages to it still name Looscid's address, so nobody else gets them.
+  try { if (!LW && self.origin === "null" && window.top !== window) LW = window.top; } catch (e) {}
   if (!LW) return;
   var d = document.documentElement, S = null;
   d.classList.add("in-looscid");

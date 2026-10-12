@@ -64,6 +64,8 @@
 <div id="lc-cue" aria-hidden="true"></div><div id="lc-caption" aria-hidden="true"></div>
 <script src="js/vendor/react-18.2.0.production.min.js" integrity="sha384-tMH8h3BGESGckSAVGZ82T9n90ztNXxvdwvdM6UoR56cYcf+0iGXBliJ29D+wZ/x8"></script>
 <script src="js/vendor/react-dom-18.2.0.production.min.js" integrity="sha384-bm7MnzvK++ykSwVJ2tynSE5TRdN+xL418osEVF2DE/L/gfWHj91J2Sphe582B1Bh"></script>
+<!-- Security pass: the host side of the sandboxed Looscid OS apps and Projects (sandbox flags, their saved data) -->
+<script src="js/apphost.js"></script>
 <!-- Load order: React, then core, then nostr (small; its crypto loads only when used), then one file per tab, then Cherry, then the Commands page, then Projects, then the Help Center, then the mount below (see docs/dev/FILES.md) -->
 <script src="js/core.js"></script>
 <script src="js/nostr.js"></script>

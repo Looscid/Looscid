@@ -12,6 +12,10 @@
       if (w.document.getElementById("looscid-live")) { LW = w; break; }
     }
   } catch (e) { LW = null; }
+  // Security pass (Oct 2026): sandboxed inside Looscid, the page can't look at Looscid, so it waits for Looscid's settings
+  // message (looscid-bridge.js turns it into a "looscid:settings" event) before it shows the button. open.html sends none.
+  var waitForLooscid = false;
+  try { if (!LW && self.origin === "null" && window.top !== window) { LW = window.top; waitForLooscid = !window.__looscidSettings; } } catch (e) {}
   if (!LW) return;
   var IDS = ["verdict", "evaluation-result"];
   function text(el) { return String(el.innerText || el.textContent || "").replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim(); }
@@ -39,5 +43,6 @@
       new MutationObserver(function () { sync(el); }).observe(el, { childList: true, subtree: true, characterData: true });
     });
   }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+  function ready() { if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start(); }
+  if (waitForLooscid) document.addEventListener("looscid:settings", function once() { document.removeEventListener("looscid:settings", once); ready(); }); else ready();
 })();

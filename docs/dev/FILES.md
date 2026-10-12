@@ -28,10 +28,11 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 | `app/js/liked.js` | Liked (build 147): `LikedView`, one component for everything you like (Dreams, Circles, Apps, Marketplace, Chats, Searches, with an Images filter), used by your profile's Liked tab. Its store, `looscid_liked`, is in `app/js/core.js`. Still React, like the profile. |
 | `app/projects/` | The ported projects, one folder each with its own `LICENSE`, plus `dream-results.js` (the Dream Results button inside Memeprojects). |
 | `app/os/` | Looscid OS and its apps (it started as NexOS; the old `/Looscid/nexos/` addresses redirect here through `app/404.html`). Memeprojects also loads `app/projects/dream-results.js`. |
+| `app/js/apphost.js`, `app/js/appguard.js`, `app/open.html`, `app/js/open.js` | Security pass (Oct 2026): Looscid OS apps and Projects run in a sandboxed frame without allow-same-origin, so they can't reach Looscid's storage or your Nostr key. `apphost.js` (loaded by `index.html` and `open.html`) has the sandbox flags and keeps the apps' saved data in one key, `looscid_appdata`. `appguard.js` is the first script of every page under `app/os/` and `app/projects/`: opened on its own, the page reopens inside `open.html`; inside the sandbox it gives the page a stand-in localStorage. |
 
 ## Load order
 
-1. React and ReactDOM 18.2.0 (UMD), from `app/js/vendor/` on this site with `integrity=` (no CDN since the security pass). They go once the last React tab is rewritten.
+1. React and ReactDOM 18.2.0 (UMD), from `app/js/vendor/` on this site with `integrity=` (no CDN since the security pass). They go once the last React tab is rewritten. Then `app/js/apphost.js` (the sandboxed apps' host side).
 2. `app/js/core.js`
 3. `app/js/nostr.js` (small; `app/js/vendor/nostr-tools-2.25.2-nip17.min.js` is added later, only when Nostr is used)
 4. The tabs: `app/js/discover.js`, `app/js/circles.js`, `app/js/feed.js`, `app/js/create.js`, `app/js/alerts.js`, `app/js/more.js`

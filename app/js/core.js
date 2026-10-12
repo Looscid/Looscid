@@ -3455,7 +3455,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T23:15:27Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T23:21:28Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -5230,15 +5230,22 @@ function lcNexosSettings() {
     theme: getSavedTheme() || "dark", highContrast: !!a.highContrast, textSize: +a.textSize || 0, keyClicks: a.keyClicks !== false };
 }
 function lcNexosSend(w) {
-  const win = w && w.contentWindow ? w.contentWindow : w; if (!win) return;
+  const win = w instanceof HTMLIFrameElement ? w.contentWindow : w; if (!win) return; // w may be a sandboxed frame's window: reading .contentWindow from it would throw
   LC_NX_FRAMES.add(win);
-  try { win.postMessage({ looscid: "settings", settings: lcNexosSettings() }, location.origin); } catch (e) {}
+  // Security pass: the apps run sandboxed (no origin of their own), so the target is "*"; this goes only to Looscid's own app frames, and it is just display and sound settings.
+  try { win.postMessage({ looscid: "settings", settings: lcNexosSettings() }, "*"); } catch (e) {}
 }
+// Security pass (Oct 2026): Looscid OS apps and Projects open sandboxed, without allow-same-origin (js/apphost.js).
+const LC_APP_SANDBOX = window.LooscidAppHost ? window.LooscidAppHost.SANDBOX : "allow-scripts allow-forms allow-modals";
+function lcAppStoreName() { try { return window.LooscidAppHost ? window.LooscidAppHost.storeName() : ""; } catch (e) { return ""; } }
+Looscid.LC_APP_SANDBOX = LC_APP_SANDBOX; Looscid.lcAppStoreName = lcAppStoreName;
 function lcNexosBroadcast() { LC_NX_FRAMES.forEach(function (w) { if (!w || w.closed) { LC_NX_FRAMES.delete(w); return; } lcNexosSend(w); }); }
 window.addEventListener("looscid:a11y", function () { setTimeout(lcNexosBroadcast, 0); });
 window.addEventListener("looscid:theme", lcNexosBroadcast);
 window.addEventListener("message", function (e) {
-  if (e.origin !== location.origin || !e.data || typeof e.data.nexos !== "string" || e.source === window) return;
+  if (!e.data || typeof e.data.nexos !== "string" || e.source === window) return;
+  // Same site (an older copy), or one of Looscid's own sandboxed app frames, at any depth (js/apphost.js).
+  if (e.origin !== location.origin && !(window.LooscidAppHost && window.LooscidAppHost.fromApp(e))) return;
   const t = e.data.nexos;
   if (t === "hello") { lcNexosSend(e.source); return; }
   if (t === "earcon") { const n = String(e.data.name || ""); if (/^(focus|open|close|send|error|run|like|alerts|link)$/.test(n)) { window.__lcNxEarcons = (window.__lcNxEarcons || []).concat([n]).slice(-40); Earcon.play(n); } return; }

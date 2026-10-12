@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 12, 2026 at 7:15 PM (Eastern Time, 2026-10-12T23:15:27Z UTC)
+Released October 12, 2026 at 7:21 PM (Eastern Time, 2026-10-12T23:21:28Z UTC)
 
 Round 7: a feature update, asked for by 2three1y. Built in steps, one commit each.
 
@@ -73,6 +73,7 @@ Round 7: a feature update, asked for by 2three1y. Built in steps, one commit eac
 - Adding a Nostr key works again. After the private messages update, a page that was already open asked for the old Nostr tools file, which was gone, so Create key, Save key and Use my signer said "Couldn't load the Nostr tools". The old file is back, and if the tools still can't load, the message now says why (offline, an older copy of Looscid that needs a reload, and so on).
 - Edit Dream: change the text of your own Dream or reply from its options. It shows "Edited" everywhere, Edit history keeps every earlier version readable, and a Dream on Nostr gets its edit published there too (kind 1010, so apps that support edits show it). Edited Federated Dreams from Nostr show their author's edit as well.
 - Inbox sounds: Messages, Replies, Mentions, Likes, Redreams, Quotes and New Dreamor each have their own new, gentle earcon instead of the plain Alert sound. They follow the Alert switch, volume, Calm mode and quiet hours, and you can preview each one in Settings, Sounds, Event sounds, under Inbox sounds. No existing sound changed.
+- Security: Looscid OS apps and Projects now run in a locked-down sandbox, so none of them can reach your Nostr key. Their saved settings come along.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 

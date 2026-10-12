@@ -915,8 +915,10 @@ function nexosStorage() {
 }
 const kb = (b) => (b < 1024 ? b + " bytes" : (b / 1024).toFixed(b < 10240 ? 1 : 0) + " KB");
 function offlineCache() {
-  const sw = navigator.serviceWorker, active = !!(sw && sw.controller);
-  const keys = window.caches && caches.keys ? caches.keys().catch(() => []) : Promise.resolve([]);
+  // In Looscid's sandbox the browser blocks the offline cache (reading it throws), so it reads as not active.
+  let sw = null, keys = Promise.resolve([]);
+  try { sw = navigator.serviceWorker; keys = window.caches && caches.keys ? caches.keys().catch(() => []) : keys; } catch (e) { sw = null; }
+  const active = !!(sw && sw.controller);
   return keys.then((ks) => { const v = (ks || []).filter((k) => /^nexos-web-/.test(k)).sort().pop(); return { active, version: v ? v.replace("nexos-web-", "") : null }; });
 }
 let statusRunning = false;
@@ -1254,7 +1256,12 @@ function openView(id, focus = true) {
   else if (WINDOW_APPS[id.slice(4)]) {
     const k = WINDOW_APPS[id.slice(4)];
     leaveAppWindow();
-    if (FRAMES[k] && !FRAMES[k].getAttribute("src")) FRAMES[k].setAttribute("src", FRAMES[k].dataset.src);
+    if (FRAMES[k] && !FRAMES[k].getAttribute("src")) {
+      // Security pass (Oct 2026): in Looscid's sandbox, the app gets the saved data as its frame name (js/appguard.js) and ?in=nexos.
+      // A fresh frame element, so the name is there before it loads (a name set on the old one doesn't survive its first load).
+      if (window.__lcStoreName) { const nf = FRAMES[k].cloneNode(false); nf.name = window.__lcStoreName(); FRAMES[k].replaceWith(nf); FRAMES[k] = nf; }
+      FRAMES[k].setAttribute("src", FRAMES[k].dataset.src + (self.origin === "null" ? "?in=nexos" : ""));
+    }
     if (k === "easyconvert") EC.open();
     show(k);
   }
@@ -1294,7 +1301,7 @@ document.addEventListener("click", (e) => { const b = e.target.closest("[data-cl
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && view !== "home" && !e.defaultPrevented) { e.preventDefault(); gesture(); closeView(); } });
 // Escape pressed inside Insomnia OS or Memeprojects (when nothing inside used it) closes the app, the same as everywhere else.
 window.addEventListener("message", (e) => {
-  if (e.origin !== location.origin || !e.data || e.data.nexos !== "escape") return;
+  if ((e.origin !== location.origin && e.origin !== "null") || !e.data || e.data.nexos !== "escape") return; // "null": a sandboxed app frame; the source check below is what counts
   const k = Object.keys(FRAMES).find((x) => FRAMES[x].contentWindow === e.source);
   if (k && view === k) { gesture(); closeView(); }
 });
@@ -1467,7 +1474,7 @@ function greetLine() {
 }
 renderLauncher();
 if (load("view", "home") === "terminal") openView("terminal", false); else show("home");
-if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+try { if ("serviceWorker" in navigator && location.protocol === "https:" && self.origin !== "null") navigator.serviceWorker.register("sw.js").catch(() => {}); } catch (e) { /* sandboxed: no offline cache */ }
 // Render button/key sounds offline through the same limiter chain (used for the demo WAV and the peak test).
 async function renderOffline(items, opts = {}) {
   const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext, rate = opts.rate || 44100, gap = opts.gap || 0.6;

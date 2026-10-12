@@ -5,6 +5,8 @@
   "use strict";
   var inNexos = false;
   try { inNexos = window.parent !== window && window.parent.location.origin === location.origin && !!window.parent.__looscid; } catch (e) { inNexos = false; }
+  // Security pass (Oct 2026): in Looscid's sandbox NexOS Web can't be looked into, so it marks the frames it opens with ?in=nexos.
+  if (!inNexos && window.parent !== window && /[?&]in=nexos(&|$)/.test(location.search)) inNexos = true;
   if (!inNexos) return;
   var d = document.documentElement;
   d.classList.add("in-nexos");
@@ -14,7 +16,7 @@
     "html.in-nexos code{overflow-wrap:anywhere;word-break:break-word}" +
     "html.in-nexos body{overflow-x:hidden}";
   (document.head || d).appendChild(st);
-  function post(type, extra) { try { var m = { nexos: type }; for (var k in (extra || {})) m[k] = extra[k]; window.parent.postMessage(m, location.origin); } catch (e) {} }
+  function post(type, extra) { try { var m = { nexos: type }; for (var k in (extra || {})) m[k] = extra[k]; window.parent.postMessage(m, self.origin === "null" ? "*" : location.origin); } catch (e) {} } // sandboxed NexOS Web has no origin to name; these say only "escape" and "ready"
   // Calm mode is one setting for the whole site (localStorage "calm-mode"): follow the NexOS switch while open.
   window.addEventListener("storage", function (e) {
     if (e.key !== "calm-mode" && e.key !== null) return;
