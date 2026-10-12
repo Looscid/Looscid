@@ -764,6 +764,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
   const [showOpts, setShowOpts] = useState(false);
   const optsBtn = useRef(null);
   const [showInsights, setShowInsights] = useState(false);
+  const actId = "da" + String(React.useId ? React.useId() : dream.id).replace(/[^a-zA-Z0-9_-]/g, ""); // #77: rotor action ids
   useRepliesTick(); // Round 6.5: the reply count includes your saved replies
   useUntagTick(); // Build 147: Remove me from this Dream
   const untagged = lcTagsMe(dream) && lcIsUntagged(dream);
@@ -798,7 +799,17 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
       , dream.reddreamer && (
         React.createElement('div', { className: "rd-source",}, React.createElement(Ic.Rep, { style: {width:11,height:11},}), React.createElement('strong', { style: {fontWeight:600},}, dream.reddreamer.name), " Redreamed")
       )
-      , React.createElement('div', artProps
+      , React.createElement('div', Object.assign({}, artProps, { "aria-actions": ["like", "rd", "q", "reply", "more"].map(function (k) { return actId + "-" + k; }).join(" ") })
+        /* #77 (build 151): VoiceOver rotor Actions on a Dream (aria-actions): Like or Unlike, Redream or Unredream,
+           Quote Dream or Unquote Dream, Reply and More. They do exactly what the visible buttons do; the buttons and
+           Commandbar stay the way to reach them everywhere aria-actions isn't supported. Hidden, so they are never
+           extra swipe stops. */
+        , lh('div', { hidden: true, className: "lc-rotor-acts" },
+            lh('button', { type: "button", id: actId + "-like", tabIndex: -1, onClick: function () { if (!dream.liked) Earcon.play("like"); onLike(dream.id); } }, dream.liked ? "Unlike" : "Like"),
+            lh('button', { type: "button", id: actId + "-rd", tabIndex: -1, onClick: function () { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); } }, dream.redreamed ? "Unredream" : "Redream"),
+            lh('button', { type: "button", id: actId + "-q", tabIndex: -1, onClick: function () { if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } }, dream.quoted ? "Unquote Dream" : "Quote Dream"),
+            lh('button', { type: "button", id: actId + "-reply", tabIndex: -1, onClick: function () { if (onComment) onComment(dream); } }, "Reply"),
+            lh('button', { type: "button", id: actId + "-more", tabIndex: -1, onClick: function () { if (optsBtn.current) optsBtn.current.click(); } }, "More"))
         , React.createElement('div', { className: "dc-inner",}
           , textFirst && lh('p', { className: "sr-only" }, srText)
           , React.createElement('div', { className: "dc-meta",}
@@ -3154,7 +3165,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T21:32:38Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T21:35:58Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
