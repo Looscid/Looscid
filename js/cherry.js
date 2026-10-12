@@ -1,5 +1,5 @@
 /* Looscid cherry.js: Cherry, the assistant, on its own page (Round 6.5.2).
-   Plain script (not a module). Everything it shares goes on window.Looscid; see FILES.md for the load order.
+   Plain script (not a module). Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order.
    The Cherry page is plain JavaScript: it is built with Looscid.lcEl and redrawn in place with Looscid.lcPatch,
    so the message box keeps focus and its text while Cherry answers. The model picker below is still React. */
 (function (Looscid) {

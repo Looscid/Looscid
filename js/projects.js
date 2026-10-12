@@ -1,6 +1,6 @@
 /* Looscid projects.js: Projects (Round 6.6). Alhasan's own projects, built into Looscid.
    Plain script (not a module), plain JavaScript (Looscid.lcEl and lcPatch). Everything it shares goes on window.Looscid;
-   see FILES.md for the load order.
+   see docs/dev/FILES.md for the load order.
    - LC_PROJECTS: the list. An "app" opens its ported copy (projects/<id>/, or the Memeprojects copy in nexos/apps/) in a
      frame on the project page; an "info" project has nothing that runs in a browser yet, so its page says what it is and
      what is coming soon, in plain paragraphs. Nothing loads until you open a project.

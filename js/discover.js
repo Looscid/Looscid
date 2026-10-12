@@ -1,5 +1,5 @@
 /* Looscid discover.js: the Discover tab, in plain JavaScript (no framework).
-   Plain script (not a module). Everything it shares goes on window.Looscid; see FILES.md for the load order.
+   Plain script (not a module). Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order.
    The screen is built with Looscid.lcEl and redrawn in place with Looscid.lcPatch, so the search field keeps focus while you type. */
 (function (Looscid) {
 const { DREAMS_INIT, GROUPS, TRENDING, USERS, fmt, lcEl: h, lcPatch, lcPlainScreen, lcAvEl, lcIconEl, lcDreamTextEl } = Looscid;

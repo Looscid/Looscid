@@ -2,7 +2,7 @@
    One component (LikedView) and one store (looscid_liked, in js/core.js) for both doors: the private Liked tab on your
    own profile and the Liked page in More (build 148). Tabs, from Alhasan's spec sheet: Dreams, Circles, Apps,
    Marketplace, Chats and Searches. Images is a filter across them, not a tab. Wording is Like and Unlike, never
-   Save or Bookmark. Still React, like the profile it sits in. Plain script (not a module); see FILES.md. */
+   Save or Bookmark. Still React, like the profile it sits in. Plain script (not a module); see docs/dev/FILES.md. */
 (function (Looscid) {
 const { CommentView, DreamCard, announce, lcAiOn, lcDreamSnap, lcLikedDreams, lcLikedItems, lcLikedSet, lcNameJoin, useLikedTick } = Looscid;
 const { useState, useEffect, useRef } = React;

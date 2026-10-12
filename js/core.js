@@ -1,5 +1,5 @@
 /* Looscid core.js: state, prefs, icons, nav, routing, sounds and shared helpers; App() is the frame.
-   Plain script (not a module). Everything it shares goes on window.Looscid; see FILES.md for the load order. */
+   Plain script (not a module). Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order. */
 (function (Looscid) {
 /* Build 150 (Alhasan, Oct 11 2026: drop the old Dream Board name everywhere, even under the hood): every key that started
    with the old prefix (LC_OLD_PREFIX, the only place it is written) starts with looscid_ now. This runs first, before
@@ -1291,7 +1291,7 @@ Looscid.NAV = NAV;
    No accounts and no server: the profile lives only on this device, in
    localStorage. The app opens straight away with a default profile; the
    name can be changed in Settings > LooscidID.
-   Login methods (Nostr, Mastodon, Bluesky) attach to it later (see NOSTR_ARCHITECTURE.md) and would
+   Login methods (Nostr, Mastodon, Bluesky) attach to it later (see docs/dev/NOSTR_ARCHITECTURE.md) and would
    replace this local profile with a key-based identity.
    ------------------------------------------------------------------------- */
 const LOCAL_PROFILE_KEY = "looscid_local_profile";

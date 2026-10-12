@@ -9,7 +9,7 @@ Looscid is a social app built for VoiceOver, braille and keyboard from day one. 
 
 **Try it:** [looscid.github.io/Looscid](https://looscid.github.io/Looscid)
 
-**Our words:** Dreams, Redreams, Dreamors and the rest are explained in [TERMINOLOGY.md](TERMINOLOGY.md).
+**Our words:** Dreams, Redreams, Dreamors and the rest are explained in [TERMINOLOGY.md](docs/guides/TERMINOLOGY.md).
 
 ## Fun fact
 

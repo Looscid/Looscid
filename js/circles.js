@@ -1,5 +1,5 @@
 /* Looscid circles.js: Circles (create a Circle, a Circle's page, its admin settings, the Circles list).
-   Still drawn with React, like the tabs not yet rewritten. Plain script (not a module); see FILES.md. */
+   Still drawn with React, like the tabs not yet rewritten. Plain script (not a module); see docs/dev/FILES.md. */
 (function (Looscid) {
 const { Av, Cbx, CommentView, DREAMS_INIT, DreamCard, GROUPS, Ic, ME, Modal, USERS, fmt, lcCloseProps, useDreams, useState } = Looscid;
 Object.assign(Looscid, { CreateGroupFlow, GroupDetailPage, GroupAdminModal, GroupsPage });

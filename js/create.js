@@ -1,5 +1,5 @@
 /* Looscid create.js: Create (New Dream), attachments, symbols and Drafts.
-   Plain script (not a module). Everything it shares goes on window.Looscid; see FILES.md for the load order. */
+   Plain script (not a module). Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order. */
 (function (Looscid) {
 const { AlertDialog, Av, BackHeader, CreateGroupFlow, DRAFTS_KEY, Earcon, LC_AUTOSAVE_KEY, LcMenu, ME, Modal, _optionalChain, announce, getDrafts, lcCloseProps, lcSpeechText, lh, recordHabit, useEffect, useEnterSubmit, useInertBehind, useRef, useState } = Looscid;
 Object.assign(Looscid, { LC_CREATE_DESC, LC_CREATE_OPTS, CreateOptions, lcCreatePick, LcComposer, lcReplyDrafts, lcAltSuggest, deleteDraftItem, AttachPanel, CreateMenu, DraftsPage, evalInlineCalc, SymbolPicker, lcSendWithUndo, lcPrepImage });

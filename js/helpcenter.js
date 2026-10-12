@@ -1,6 +1,6 @@
 /* Looscid helpcenter.js: Help (Round 6.6). Alhasan, 5:11 PM Oct 10: "help" is a short list, "cherry help" reads one
    area, and a Help Center page in More. Plain script (not a module), plain JavaScript (Looscid.lcEl and lcPatch).
-   Everything it shares goes on window.Looscid; see FILES.md for the load order (after js/projects.js).
+   Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order (after js/projects.js).
    - lcHelpIntent(n): called first in lcRun (core.js) with the normalized text. help: the top commands. help list: every
      command, the old long list. <area> help, help <area> or <area>help (cherry help, cherryhelp, projects help,
      earcons help): that area's commands, the same areas as the Commands page. help center: the Help Center page.

@@ -1,5 +1,5 @@
 /* Looscid alerts.js: the Alerts tab and messages, in plain JavaScript (no framework).
-   Plain script (not a module). Everything it shares goes on window.Looscid; see FILES.md for the load order.
+   Plain script (not a module). Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order.
    The screen is built with Looscid.lcEl and redrawn in place with Looscid.lcPatch, so focus stays where it is. */
 (function (Looscid) {
 const { ALERTS_TAB_KEY, CONVOS, LC_MSG_CATS, a11yEnterSends, announce, lcAlertCats, lcAlerts, lcAlertsMarkAll, lcAlertsSave, lcCatState, lcSetAlertsTab, lcWordHit,

@@ -1,6 +1,6 @@
 /* Looscid commands.js: the Commands page (Round 6.5.3). Every Commandbar command, grouped by area,
    each one a real button that runs it. Plain script (not a module), plain JavaScript (Looscid.lcEl and lcPatch).
-   Everything it shares goes on window.Looscid; see FILES.md for the load order. */
+   Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order. */
 (function (Looscid) {
 const { LC_COMMANDS, LC_EXACT, announce, lcCloseProps, lcNorm } = Looscid;
 const { lcEl: h, lcPatch, lcPlainScreen, lcIconEl } = Looscid;
