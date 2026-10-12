@@ -1145,8 +1145,8 @@ function AboutSettings({navigate}) {
       lh('p', { className: "lid-help" }, "Your LooscidID is made on this device the first time you open Looscid, with no phone number or email. Add login methods any time: Nostr, Mastodon and the fediverse, Bluesky, Funkwhale or Hubzilla. What I plan next is listed in Settings, Looscid Labs.")),
     lh(AboutLooscidMore, null),
     lh('section', { "aria-labelledby": "about-nexos", style: { padding: "0 16px 12px" } },
-      lh('h2', { id: "about-nexos", className: "lid-sub" }, "NexOS"),
-      lh('p', { className: "lid-help" }, "Looscid's apps came from NexOS, my operating system project: Insomnia, Memeprojects, Easyconvert, Desktop, Kernel and the Looscid App Store. I built them into Looscid, and NexOS keeps its own repository."),
+      lh('h2', { id: "about-nexos", className: "lid-sub" }, "Looscid OS"),
+      lh('p', { className: "lid-help" }, "Looscid OS is the operating system side of Looscid: Insomnia, Memeprojects, Easyconvert, Desktop, Kernel, the Looscid terminal and the Looscid App Store. It started as NexOS, my operating system project, which keeps its own repository."),
       lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } }, link("https://github.com/2three1y/nexos", "NexOS on GitHub")),
       lh('button', { type: "button", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { navigate("nexos_apps"); } }, "Apps")),
     lh('section', { "aria-labelledby": "about-links", style: { padding: "0 16px 24px" } },
@@ -2480,7 +2480,7 @@ const LC_VERSION_HISTORY = [
     "Liked: the Images only checkbox is gone. Liked has a Media tab (after Dreams) that starts with Show: Photos, GIFs and Videos, three checkboxes, all on; turn any off and Looscid says how many liked Dreams are left.",
     "Back sounds (2three1y: Liked's Back played no sound): every Back was checked. Liked, your own profile and Apps now go Back the same way Settings screens do: More opens again on the button you came from, with the same Back sound.",
     "Undo words: Unredream, Unquote Dream, and Unlike / Unliked, everywhere they appear (the old two-word Undo labels are gone).",
-    "Memeprojects is one word everywhere now (2three1y: it is Memeprojects, not Meme Projects): Apps, Projects, the Commandbar (open memeprojects; the old words still work), Find a setting, Help Center, Credits and NexOS.",
+    "Memeprojects is one word everywhere now (2three1y: it is Memeprojects, not Meme Projects): Apps, Projects, the Commandbar (open memeprojects; the old words still work), Find a setting, Help Center, Credits and Looscid OS.",
     "Cherry has its own page called Cherry - DO IT YOUR WAY (More just links to it). The Try asking suggestions and the canned answer are gone: when Cherry doesn't understand, it says so and changes nothing. New Chat is at the top, then Your History with All and Pinned, then the chat you're in. Each chat has a Chat options pop-up menu: Pin or Unpin, Edit name, Project and Share access (both coming soon), Delete (asks first), New Chat, History and Close Menu. Capitals never matter to Cherry.",
     "Settings, Intelligence has three new pages for Cherry, kept apart from the feed settings: Memory (save chats in Your History on or off, Delete all chats), Tools (what Cherry may do for you, all on to start; a tool that's off is never run) and What Cherry did (everything Cherry did, with Undo; it used to be on the Cherry page).",
     "Credits and open source is rewritten in my own words: it starts with \"This page is where I say thanks\", my own projects have their own section, every license is a link to that project's real license, and every project has a link like \"NexOS on GitHub\" instead of a raw web address.",
@@ -2506,6 +2506,7 @@ const LC_VERSION_HISTORY = [
     "Bios and Circle descriptions have no length limit and support Markdown: headings, lists, quotes, links, bold, italic, inline code and code blocks. Code blocks are their own readable block for VoiceOver and braille, and raw HTML never runs.",
     "More holds only Looscid features now. About Looscid, Credits, Legal and the social links live in the site footer at the end of every page, and their pages work as before.",
     "Every page has its own address now, like looscid.github.io/Looscid/Settings/Sense, and letter case doesn't matter (/settings/sense works too, and so does /@avatest for a profile). Every More item opens its own page: Settings is \"Settings - Adjust your life\", and Discover, Apps, Create, Alerts and Projects each have one. Help is still its pop-up menu.",
+    "NexOS inside Looscid is Looscid OS now: the desktop, the Looscid terminal with its looscid> prompt, the boot text, the beats and the Looscid OS classic Soundpack (same sounds). Its pages moved to looscid.github.io/Looscid/os/, and old nexos addresses still open the same page there. Your saved settings and backups don't change.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
@@ -2615,7 +2616,7 @@ const LC_VERSION_HISTORY = [
     "Apps are Looscid's own: Settings, Apps, and the Looscid App Store.",
     "Commandbar: the bar and full screen share one history.",
     "Alerts only for things that really happen, with settings for each.",
-    "Louder sounds with a limiter, plus the Insomnia, NexOS and Hyper Synth packs.",
+    "Louder sounds with a limiter, plus the Insomnia, Looscid OS classic and Hyper Synth packs.",
     "Privacy: sections that open one at a time, who can do what, Blocked and muted, Media and content.",
     "Reset: the last item in every settings list.",
     "Looscid checks for updates by itself and tells you when one is ready.",
@@ -2635,7 +2636,7 @@ function MusicPage({ onBack }) {
   const toggle = function () { if (on) { Music.pause(); announce("Paused."); } else { const x = Music.play(); announce("Now playing: " + x.label + "."); } };
   return lh('div', { className: "pg lc-music", "aria-live": "off" },
     lh(BackHeader, { title: "Music", onBack: onBack }),
-    lh('p', { className: "lc-intro" }, "The beats made for NexOS. Nothing loads until you press Play. Try music hyperpop in Commandbar."),
+    lh('p', { className: "lc-intro" }, "The beats made for Looscid OS. Nothing loads until you press Play. Try music hyperpop in Commandbar."),
     lh('section', { className: "lc-grp", "aria-labelledby": "mu-now" },
       lh('h2', { id: "mu-now", className: "lc-grp-h" }, "Now playing"),
       lh('p', { className: "lc-now" }, g.label + ", " + (on ? "playing" : "paused")),
@@ -2680,7 +2681,7 @@ function lcAlertPrefsSet(patch) {
   window.dispatchEvent(new CustomEvent("looscid:alerts"));
   return o;
 }
-/* --- Commandbar, full screen (ported from the NexOS Terminal) --------------- */
+/* --- Commandbar, full screen (ported from the Looscid OS terminal, which started in NexOS) --------------- */
 const LC_TERM_OPEN_KEY = "looscid_term_output_open";
 Looscid.LC_TERM_OPEN_KEY = LC_TERM_OPEN_KEY;
 function termOutputOpen() { try { return localStorage.getItem(LC_TERM_OPEN_KEY) !== "0"; } catch (e) { return true; } }
@@ -2703,7 +2704,7 @@ function lcAboutInfo() {
       "Commandbar: press Ctrl+K or Cmd+K anywhere, or the command button at the top. Exact commands run at once; anything else goes to Cherry, which answers or opens the closest match.",
       "Commandbar: one place for commands. Ctrl+K or Cmd+K opens the bar anywhere; Full screen (or Apps, Commandbar) shows the same output and history, with quick commands and output you can fold away.",
       "Earcons: a short, quiet sound for Feed, Alerts, Circles, Settings and Commandbar, made live with Web Audio.",
-      "Music: the NexOS beats (Morning to Night, Hyperpop, Lo-fi chill, Drum and bass, Chiptune) in the More tab, or type music hyperpop.",
+      "Music: the Looscid OS beats (Morning to Night, Hyperpop, Lo-fi chill, Drum and bass, Chiptune) in the More tab, or type music hyperpop.",
       "Change accessibility settings in plain words, with Cherry, Commandbar: turn on calm mode, make text bigger, volume 50, set sounds off.",
       "Faster start: a startup screen paints at once while Looscid loads, and screen readers hear Looscid loaded.",
       "Settings, Accessibility, grouped by need: Vision, Hearing, Motion & Seizure, Braille, Sounds and Commandbar, with one first-visit question that sets them up.",
@@ -2739,7 +2740,7 @@ function lcAboutInfo() {
     ],
     credits: [
       "Looscid is open source under the Looscid Public License.",
-      "Commandbar's full-screen view is ported from the Terminal in NexOS Web, by the NexOS project.",
+      "Commandbar's full-screen view is ported from the Looscid terminal in Looscid OS, which started as the Terminal in NexOS Web.",
       "The composer's layout is inspired by Feditext's composer (GPL-3.0); no code was used.",
       "Every sound is synthesized live with Web Audio. There are no recorded samples.",
       "Source code: github.com/Looscid/Looscid",
@@ -2758,13 +2759,13 @@ const LC_CREDITS = {
     { n: "React and React DOM 18.2.0", s: "React", u: "https://github.com/react/react", l: "MIT", lu: "https://github.com/react/react/blob/main/LICENSE", w: "This draws every single screen of Looscid. Loaded from jsDelivr." },
     { n: "nostr-tools 2.25.2", s: "nostr-tools", u: "https://github.com/nbd-wtf/nostr-tools", l: "Unlicense", lu: "https://github.com/nbd-wtf/nostr-tools/blob/master/LICENSE", w: "Nostr keys, signing and checking notes, npub and nsec, and passcode-locked keys. It lives in js/vendor with its license right next to it." },
     { n: "noble curves, hashes and ciphers, and scure base, by Paul Miller", s: "noble curves", u: "https://github.com/paulmillr/noble-curves", l: "MIT", lu: "https://github.com/paulmillr/noble-curves/blob/main/LICENSE", w: "The audited cryptography inside nostr-tools. The math that keeps your keys safe." },
-    { n: "v86", s: "v86", u: "https://github.com/copy/v86", l: "BSD 2-Clause", lu: "https://github.com/copy/v86/blob/master/LICENSE", w: "This is what runs the real NexOS kernel in Apps, right in your browser. Still blows my mind." },
+    { n: "v86", s: "v86", u: "https://github.com/copy/v86", l: "BSD 2-Clause", lu: "https://github.com/copy/v86/blob/master/LICENSE", w: "This is what runs the real Looscid OS kernel in Apps, right in your browser. Still blows my mind." },
     { n: "SeaBIOS and SeaVGABIOS", s: "SeaBIOS", u: "https://www.seabios.org/", site: "seabios.org", l: "LGPL-3.0", lu: "https://github.com/coreboot/seabios/blob/master/COPYING.LESSER", w: "The start-up firmware v86 uses. I didn't change it." },
     { n: "DM Sans and DM Serif Display", s: "DM Sans", u: "https://fonts.google.com/specimen/DM+Sans", site: "Google Fonts", l: "SIL Open Font License 1.1", lu: "https://openfontlicense.org/open-font-license-official-text/", w: "Looscid's fonts, from Google Fonts." },
   ],
-  // Round 6.6: Projects in More. Each project's own LICENSE file is kept next to its copy in projects/ or nexos/.
+  // Round 6.6: Projects in More. Each project's own LICENSE file is kept next to its copy in projects/ or os/.
   mine: [
-    { n: "NexOS", u: "https://github.com/2three1y/nexos", l: "MIT", lu: "https://github.com/2three1y/nexos/blob/main/LICENSE", w: "My operating system project. Commandbar's full-screen view is ported from the Terminal in NexOS Web, plus the Apps, the Desktop and the NexOS Soundpack." },
+    { n: "NexOS", u: "https://github.com/2three1y/nexos", l: "MIT", lu: "https://github.com/2three1y/nexos/blob/main/LICENSE", w: "My operating system project. Commandbar's full-screen view is ported from the Terminal in NexOS Web, plus the Apps, the Desktop and the Looscid OS classic Soundpack. Inside Looscid it is Looscid OS now." },
     { n: "Insomnia OS", u: "https://github.com/2three1y/insomnia-os", l: "MIT", lu: "https://github.com/2three1y/insomnia-os/blob/main/LICENSE", w: "The Insomnia app in Apps, and the Insomnia Soundpack." },
     { n: "Memeprojects", u: "https://github.com/2three1y/memeprojects", l: "MIT", lu: "https://github.com/2three1y/memeprojects/blob/main/LICENSE", w: "The Memeprojects app in Apps. Pure chaos, you're welcome." },
     { n: "Easyconvert", u: "https://github.com/2three1y/Easyconvert", l: "MIT", lu: "https://github.com/2three1y/Easyconvert/blob/main/LICENSE", w: "The Easyconvert app in Apps, and the newest Easyconvert (with the Claude export reader) in More, Projects." },
@@ -2833,7 +2834,7 @@ function CreditsPage({ navigate }) {
         lh('p', { key: "src", className: "lc-roll-what" }, "Looscid's own source code is all on GitHub: ", ext("https://github.com/Looscid/Looscid", "Looscid on GitHub", null, "g"), ". The full license is in the ", ext(lic, "LICENSE file", "LICENSE file, Looscid's license", "l"), " there.")]),
       sec("credits-sounds", "Voices and sounds", ul([
         plain("wa", "Every earcon", "Made live with Web Audio. No recorded samples, at all."),
-        plain("sp", "Soundpacks", "The NexOS and Insomnia Soundpacks come from my own projects above. The FastSM-inspired pack is inspired by FastSMRW, with every sound made fresh."),
+        plain("sp", "Soundpacks", "The Looscid OS classic and Insomnia Soundpacks come from my own projects above. The FastSM-inspired pack is inspired by FastSMRW, with every sound made fresh."),
         plain("vo", "Spoken feedback", "Uses the voices already on your device, through your browser's speech.")])),
       sec("credits-thanks", "Special thanks", [
         ul([
@@ -3044,7 +3045,7 @@ function NexosAppsPage({ navigate }) {
 function NexosAppFrame({ app, navigate }) {
   const a = app || Looscid.LC_NEXOS_OPEN || LC_NEXOS_APPS[0];
   const frameRef = useRef(null);
-  // The real kernel's own Back button (and Escape in the apps) post to Looscid: back to NexOS apps.
+  // The real kernel's own Back button (and Escape in the apps) post to Looscid: back to Looscid OS apps.
   // Leaving this page unmounts the frame, which stops the emulator and its sound.
   useEffect(function () {
     function onMsg(e) {
@@ -3356,10 +3357,10 @@ function AudioSettings({ navigate, page }) {
         lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { Earcon.key({ test: true, kind: "enter" }); } }, "Preview the Enter key"),
         lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { Earcon.cmd("help", "Commandbar", { test: true }); } }, "Preview a command earcon")) });
   else if (cat.id === "pack") body = lh(LcSection, { sec: "audio", title: "Soundpacks", only: cat.keys, noReset: true,
-      intro: "Choose a Soundpack and every earcon switches to it right away, all over Looscid, and stays after a restart. Moving to a choice plays a short preview of it. Looscid has its own loud, classic beeps and boops. NexOS classic is the NexOS sound set, with the Good Morning chime when something opens and Good Night on Back. Insomnia is Insomnia's own clicks, chimes and dings. Hyper Synth is bright synth arps and stabs. FastSM-inspired is soft, round blips and airy swooshes, inspired by FastSMRW by masonasons (no code or audio copied). Soundvault plays sounds from the Soundvault catalog, loaded from there when they play, and anything it doesn't have plays Looscid's own.",
+      intro: "Choose a Soundpack and every earcon switches to it right away, all over Looscid, and stays after a restart. Moving to a choice plays a short preview of it. Looscid has its own loud, classic beeps and boops. Looscid OS classic is the original NexOS sound set, with the Good Morning chime when something opens and Good Night on Back. Insomnia is Insomnia's own clicks, chimes and dings. Hyper Synth is bright synth arps and stabs. FastSM-inspired is soft, round blips and airy swooshes, inspired by FastSMRW by masonasons (no code or audio copied). Soundvault plays sounds from the Soundvault catalog, loaded from there when they play, and anything it doesn't have plays Looscid's own.",
       after: lh(React.Fragment, null,
         lh('div', { className: "lc-packprev" }, ["looscid", "nexos", "insomnia", "synth", "fastsm", "soundvault"].map(function (p) {
-          const lab = { looscid: "Looscid", nexos: "NexOS classic", insomnia: "Insomnia", synth: "Hyper Synth", fastsm: "FastSM-inspired", soundvault: "Soundvault" }[p];
+          const lab = { looscid: "Looscid", nexos: "Looscid OS classic", insomnia: "Insomnia", synth: "Hyper Synth", fastsm: "FastSM-inspired", soundvault: "Soundvault" }[p];
           return lh('button', { key: p, type: "button", className: "btn bgb lc-btn", onClick: function () { Earcon.play("send", { test: true, pack: p }); }, "aria-label": "Preview the " + lab + " pack" }, "Preview " + lab);
         })),
         lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { Earcon.play("boot", { test: true }); } }, "Preview boot chime"),

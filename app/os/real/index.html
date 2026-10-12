@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NexOS: the real kernel in your browser</title>
-<meta name="description" content="The real 32-bit NexOS kernel booting in an emulated PC, with an accessible serial console.">
+<title>Looscid OS: the real kernel in your browser</title>
+<meta name="description" content="The real 32-bit Looscid OS kernel booting in an emulated PC, with an accessible serial console.">
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="real.css">
 <style id="ps-style">
@@ -65,10 +65,10 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
       <li>The emulated PC screen shows whatever the kernel draws, so it can't be fully guaranteed. While Calm mode is on, the screen is hidden; the console shows the same text.</li>
       <li>Calm mode turns off all motion. It starts on, and your choice is remembered on this device.</li>
       <li>Your device's Reduce Motion setting is always honoured: when it is on, nothing animates, even with Calm mode off.</li>
-      <li>Sound: the PC speaker only beeps when NexOS asks, after you press something. Turn it off with the Sound on checkbox. The emulator and its sound pause while this tab is in the background.</li>
+      <li>Sound: the PC speaker only beeps when Looscid OS asks, after you press something. Turn it off with the Sound on checkbox. The emulator and its sound pause while this tab is in the background.</li>
       <li>This was tested with automated measurement, not a clinical tool like PEAT, and not on every device.</li>
     </ul>
-    <p>If anything here ever flickers, please <a href="https://github.com/2three1y/nexos/issues">report it on GitHub</a>.</p>
+    <p>If anything here ever flickers, please <a href="https://github.com/Looscid/Looscid/issues">report it on GitHub</a>.</p>
     </div>
   </details>
   </div>
@@ -76,27 +76,27 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
 </section>
 
 <header class="bar">
-  <h1>NexOS <span class="dim">real kernel</span></h1>
-  <p class="tag">The actual 32-bit NexOS kernel, booting in an emulated PC right in this page.</p>
+  <h1>Looscid OS <span class="dim">real kernel</span></h1>
+  <p class="tag">The actual 32-bit Looscid OS kernel, booting in an emulated PC right in this page.</p>
   <nav class="runbar" aria-label="Kernel controls">
     <button type="button" id="back">Back</button>
-    <button type="button" id="stop">Stop NexOS</button>
+    <button type="button" id="stop">Stop Looscid OS</button>
   </nav>
 </header>
 <main id="main">
-  <p id="status" role="status" aria-live="polite" class="status">Starting NexOS. This is a big download, about 3.5 MB, so it can take a minute.</p>
+  <p id="status" role="status" aria-live="polite" class="status">Starting Looscid OS. This is a big download, about 3.5 MB, so it can take a minute.</p>
 
   <section aria-labelledby="console-h">
     <h2 id="console-h">Console</h2>
-    <p class="hint">Everything NexOS prints appears here as text. Type a command, like <code>help</code>, and press Enter or Send.</p>
-    <div id="log" class="log" role="log" aria-live="polite" aria-relevant="additions" aria-label="NexOS output" tabindex="0"></div>
+    <p class="hint">Everything Looscid OS prints appears here as text. Type a command, like <code>help</code>, and press Enter or Send.</p>
+    <div id="log" class="log" role="log" aria-live="polite" aria-relevant="additions" aria-label="Looscid OS output" tabindex="0"></div>
     <form id="send-form" class="cmdrow" autocomplete="off">
-      <label for="cmd">Command for NexOS</label>
+      <label for="cmd">Command for Looscid OS</label>
       <div class="cmdline">
         <input id="cmd" name="cmd" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send">
         <button id="send" type="submit">Send</button>
       </div>
-      <p id="cmd-help" class="hint">Press Enter, including Enter on a braille display, to send. Send types your text into NexOS and presses Enter. With live keys on, each key goes straight in, which suits Piano and menus.</p>
+      <p id="cmd-help" class="hint">Press Enter, including Enter on a braille display, to send. Send types your text into Looscid OS and presses Enter. With live keys on, each key goes straight in, which suits Piano and menus.</p>
       <p class="check"><input id="live" type="checkbox"> <label for="live">Live keys: send each key as I type</label></p>
     </form>
     <div role="group" aria-labelledby="keys-h" class="keys">
@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
 
   <section aria-labelledby="sound-h">
     <h2 id="sound-h">Sound</h2>
-    <p class="hint" id="sound-note">NexOS beeps through the emulated PC speaker. Browsers only allow sound after you click or press a key on the page.</p>
+    <p class="hint" id="sound-note">Looscid OS beeps through the emulated PC speaker. Browsers only allow sound after you click or press a key on the page.</p>
     <p class="check"><input id="sound" type="checkbox" checked> <label for="sound">Sound on</label></p>
     <p><label for="vol">Volume</label> <input id="vol" type="range" min="0" max="150" step="5" value="100"> <output id="vol-out" for="vol">100%</output></p>
   </section>
@@ -138,8 +138,8 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
 
   <section aria-labelledby="about-h">
     <h2 id="about-h">About this page</h2>
-    <p>This is not a simulation. It boots the same <code>nexos-i686.iso</code> you can build from the <a href="https://github.com/2three1y/nexos">NexOS repository</a> with <code>make iso32</code>: GRUB loads the 32-bit kernel, which sets up paging, interrupts and ring-3 apps. The PC is emulated by <a href="https://github.com/copy/v86">v86</a> (BSD-2-Clause), served from this site so it also works offline.</p>
-    <p>The kernel's shell runs on the serial port as well as the screen, which is how the console above reads and types. Prefer the lighter web twin? <a href="../web/">Open NexOS Web</a>. This copy is part of Looscid; it came from the NexOS repository, copied from <a href="https://github.com/2three1y/nexos/tree/0c2fb6b85493f1e9af9cd6a9ffda3d4df65a1ceb">NexOS commit 0c2fb6b</a>.</p>
+    <p>This is not a simulation. It boots the same <code>nexos-i686.iso</code> you can build from the <a href="https://github.com/2three1y/nexos">NexOS repository</a> (Looscid OS started as NexOS) with <code>make iso32</code>: GRUB loads the 32-bit kernel, which sets up paging, interrupts and ring-3 apps. The PC is emulated by <a href="https://github.com/copy/v86">v86</a> (BSD-2-Clause), served from this site so it also works offline.</p>
+    <p>The kernel's shell runs on the serial port as well as the screen, which is how the console above reads and types. Prefer the lighter web twin? <a href="../web/">Open the Looscid OS desktop</a>. This copy is part of Looscid; it came from the NexOS repository, copied from <a href="https://github.com/2three1y/nexos/tree/0c2fb6b85493f1e9af9cd6a9ffda3d4df65a1ceb">NexOS commit 0c2fb6b</a>.</p>
   </section>
 </main>
 <script src="v86/libv86.js"></script>

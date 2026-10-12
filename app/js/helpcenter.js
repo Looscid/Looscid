@@ -103,7 +103,7 @@ const LC_HELP_SECTIONS = [
     "Turn Cherry on or off in Settings, Intelligence. Intelligence also has Memory (saving chats), Tools (what Cherry may do for you) and What Cherry did, with Undo.",
   ]],
   ["Earcons and sounds", [
-    "Earcons are Looscid's short sounds. Settings, Earcons has the master volume, Soundpacks (Looscid, NexOS classic, Insomnia, Hyper Synth, FastSM-inspired, Soundvault, or your own imported pack), and switches for each sound.",
+    "Earcons are Looscid's short sounds. Settings, Earcons has the master volume, Soundpacks (Looscid, Looscid OS classic, Insomnia, Hyper Synth, FastSM-inspired, Soundvault, or your own imported pack), and switches for each sound.",
     "Command earcons give every command its own sound, and a failed command plays the error sound. Keyboard earcons click as you type, with their own sounds for Space, Delete and Enter. Both are on by default, and Calm mode never mutes them.",
   ]],
   ["Accessibility", [

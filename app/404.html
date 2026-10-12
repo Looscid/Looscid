@@ -11,6 +11,9 @@
 (function () {
   var l = window.location, p = l.pathname, m = /^\/looscid(\/|$)/i.exec(p);
   var base = m ? "/Looscid/" : "/", rest = m ? p.slice(m[0].length) : p.replace(/^\//, "");
+  /* A6 (Oct 12): the NexOS copy became Looscid OS and moved from nexos/ to os/. Old links and bookmarks go straight to the same file there. */
+  var nx = /^nexos(\/|$)/i.exec(rest);
+  if (nx) { l.replace(base + "os/" + rest.slice(nx[0].length) + l.search + l.hash); return; }
   l.replace(base + "?p=" + encodeURIComponent("/" + rest) + l.hash);
 })();
 </script>

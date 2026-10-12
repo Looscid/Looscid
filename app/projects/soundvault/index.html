@@ -74,7 +74,7 @@ document.addEventListener("visibilitychange",function(){d.classList.toggle("ps-h
 document.addEventListener("click",function(e){var b=e.target&&e.target.closest&&e.target.closest("#ps-calm");if(!b)return;var on=b.getAttribute("aria-pressed")==="true";try{localStorage.setItem(K,on?"off":"on");}catch(x){}sync(true);});
 document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
 </script>
-<script src="../../nexos/looscid-bridge.js"></script>
+<script src="../../os/looscid-bridge.js"></script>
 </head>
 <body>
 <section id="ps-notice" aria-labelledby="ps-title">

@@ -5,7 +5,9 @@
   const $ = (id) => document.getElementById(id);
   const statusEl = $("status"), log = $("log"), cmd = $("cmd"), live = $("live");
   const soundBox = $("sound"), vol = $("vol"), volOut = $("vol-out");
-  const PROMPT = "nexos> ";
+  const PROMPT = "nexos> "; // what the kernel itself prints (the ISO is unchanged)
+  const SHOWN_PROMPT = "looscid> "; // A6: shown as Looscid OS
+  const shown = (t) => t.replace(/nexos> /g, SHOWN_PROMPT).replace(/NexOS/g, "Looscid OS");
   let emulator = null, ready = false;
 
   function setStatus(text) { if (statusEl.textContent !== text) statusEl.textContent = text; }
@@ -19,10 +21,10 @@
     pre.className = "entry";
     if (withPrompt) {
       const p = document.createElement("span");
-      p.className = "prompt"; p.setAttribute("aria-hidden", "true"); p.textContent = PROMPT;
+      p.className = "prompt"; p.setAttribute("aria-hidden", "true"); p.textContent = SHOWN_PROMPT;
       pre.appendChild(p);
     }
-    pre.appendChild(document.createTextNode(text));
+    pre.appendChild(document.createTextNode(shown(text)));
     log.appendChild(pre);
     while (log.childElementCount > 300) log.firstElementChild.remove();
     log.scrollTop = log.scrollHeight;
@@ -48,7 +50,7 @@
     if (text.trim()) addEntry(text, afterPrompt);
     if (endsWithPrompt) {
       afterPrompt = true;
-      if (!ready) { ready = true; setStatus("Ready. NexOS is waiting for a command."); log.setAttribute("aria-busy", "false"); document.documentElement.setAttribute("data-nexos", "ready"); }
+      if (!ready) { ready = true; setStatus("Ready. Looscid OS is waiting for a command."); log.setAttribute("aria-busy", "false"); document.documentElement.setAttribute("data-nexos", "ready"); }
     } else if (text.trim()) {
       afterPrompt = false;
     }
@@ -205,7 +207,7 @@
     return;
   }
   log.setAttribute("aria-busy", "true");
-  setStatus("Starting NexOS. This is a big download, about 3.5 MB, so it can take a minute.");
+  setStatus("Starting Looscid OS. This is a big download, about 3.5 MB, so it can take a minute.");
   emulator = new V86({
     wasm_path: "v86/v86.wasm",
     memory_size: 64 * 1024 * 1024,
@@ -226,14 +228,14 @@
     const now = performance.now();
     if (downloaded || now - lastProgress < 4000 || !e || !e.lengthComputable || !e.total) return;
     lastProgress = now;
-    setStatus("Downloading NexOS, file " + (e.file_index + 1) + " of " + e.file_count + ", " + Math.round(100 * e.loaded / e.total) + " percent.");
+    setStatus("Downloading Looscid OS, file " + (e.file_index + 1) + " of " + e.file_count + ", " + Math.round(100 * e.loaded / e.total) + " percent.");
   });
   emulator.add_listener("download-error", () => {
     setStatus("The download failed. Check your connection, then use Back and open the kernel again.");
   });
   emulator.add_listener("emulator-ready", () => {
     downloaded = true;
-    if (!ready) setStatus("Downloaded. Booting NexOS, this takes about half a minute. The console below will say when it's ready.");
+    if (!ready) setStatus("Downloaded. Booting Looscid OS, this takes about half a minute. The console below will say when it's ready.");
   });
   emulator.add_listener("pcspeaker-enable", () => { spkOn = true; applySpeaker(); });
   emulator.add_listener("pcspeaker-disable", () => { spkOn = false; applySpeaker(); });
@@ -257,12 +259,12 @@
     try {
       if (!stoppedByUser) {
         emulator.stop(); quiet(); stoppedByUser = true; pausedByHide = false;
-        stopBtn.textContent = "Start NexOS again";
-        setStatus("Stopped. NexOS is paused and silent. Start NexOS again to carry on where you left off.");
+        stopBtn.textContent = "Start Looscid OS again";
+        setStatus("Stopped. Looscid OS is paused and silent. Start Looscid OS again to carry on where you left off.");
       } else {
         emulator.run(); stoppedByUser = false;
-        stopBtn.textContent = "Stop NexOS";
-        setStatus(ready ? "Running again. NexOS is waiting for a command." : "Running again. Still booting NexOS.");
+        stopBtn.textContent = "Stop Looscid OS";
+        setStatus(ready ? "Running again. Looscid OS is waiting for a command." : "Running again. Still booting Looscid OS.");
       }
     } catch (e) {}
   });

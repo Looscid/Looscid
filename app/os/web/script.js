@@ -216,7 +216,7 @@ function soundFor(label, cmd, isFill) {
   if ((m = label.match(/^Guess (\d+)$/))) return ["pick", +m[1]];
   if ((m = label.match(/^Read (\d+)$/))) return ["read", +m[1]];
   if (/^Read \S/.test(label)) return ["page"];
-  if (c === "sysinfo" || c === "about" || c === "open sysinfo" || /^about this nexos$/.test(l) || /^open about this nexos$/.test(l)) return ["aboutapp"];
+  if (c === "sysinfo" || c === "about" || c === "open sysinfo" || /^about (this nexos|looscid os|this looscid os)$/.test(l) || /^open about (this nexos|looscid os|this looscid os)$/.test(l)) return ["aboutapp"];
   if (c === "terminal") return ["terminal"];
   if (/^(uninstall|delete)\b/.test(l) || l === "cancel timer") return ["danger"];
   if ((m = label.match(/^Open (.+)$/))) { const a = catalog.find((x) => x.name === m[1]); return a ? ["app", a.id] : ["confirm"]; }
@@ -297,8 +297,8 @@ function startAmbient(id) { ensureAudio(); stopAmbient(); if (!ac) return false;
 
 /* ---------- file system ---------- */
 const DEFAULT_FS = {
-  "readme.txt": "Welcome to NexOS Web. Type help to see commands, or store to open the App Store.",
-  "about.txt": "NexOS is a hobby operating system. Its kernel is written in Rust for 64-bit x86 PCs.",
+  "readme.txt": "Welcome to Looscid OS. Type help to see commands, or store to open the App Store.",
+  "about.txt": "Looscid OS is a hobby operating system. Its kernel is written in Rust for 64-bit x86 PCs.",
   "keys.txt": "Shortcuts: Up and Down arrows recall commands. In every app, h is help and q quits.",
 };
 let fs = load("fs", null) || Object.assign({}, DEFAULT_FS);
@@ -310,9 +310,9 @@ const DEFAULT_CATALOG = [
   { id: "notes",    name: "Notes",           version: "1.0", size: "12 KB", category: "Productivity", pre: true,  desc: "Write, read and delete short notes. Saved on this device." },
   { id: "calc",     name: "Calculator",      version: "1.0", size: "8 KB",  category: "Utilities",    pre: true,  desc: "Type a sum like 12 * (3 + 4) and hear the answer." },
   { id: "clock",    name: "Clock",           version: "1.0", size: "10 KB", category: "Utilities",    pre: true,  desc: "Time, a countdown timer with an alarm chime, and a stopwatch." },
-  { id: "sysinfo",  name: "About this NexOS", version: "1.1", size: "6 KB", category: "System",      pre: true,  system: true, desc: "What NexOS is, its version, system info (browser, screen, memory, uptime, apps, sound) and credits. Part of the system.", notes: "System Info and About are now one app." },
+  { id: "sysinfo",  name: "About Looscid OS", version: "1.1", size: "6 KB", category: "System",      pre: true,  system: true, desc: "What Looscid OS is, its version, system info (browser, screen, memory, uptime, apps, sound) and credits. Part of the system.", notes: "System Info and About are now one app." },
   { id: "insomnia", name: "Insomnia OS",     version: "1.3", size: "70 KB", category: "Relax",        pre: true,  window: true, desc: "The full Insomnia OS, the same as its own site: a soundscape mixer, Sheep.exe, the 4am notepad, a starfield screensaver and Shut Down.", notes: "Now the full Insomnia OS, with over 60 sheep lines that never repeat until every one has been used." },
-  { id: "hello",    name: "Hello",           version: "1.0", size: "2 KB",  category: "Developer",    pre: true,  desc: "Says hello. In the real NexOS it is the first program that runs in ring 3." },
+  { id: "hello",    name: "Hello",           version: "1.0", size: "2 KB",  category: "Developer",    pre: true,  desc: "Says hello. In the real Looscid OS it is the first program that runs in ring 3." },
   { id: "piano",    name: "Piano",           version: "1.0", size: "7 KB",  category: "Music",        pre: false, desc: "A keyboard piano. Keys 1 to 8 play a scale and each note is said by name. Plus and minus change octave, s plays Ode to Joy, r replays." },
   { id: "guess",    name: "Guess the Number", version: "1.0", size: "5 KB", category: "Games",        pre: false, desc: "I pick a number from 1 to 100. You guess, I say higher or lower." },
   { id: "morse",    name: "Morse Code",      version: "1.0", size: "6 KB",  category: "Learning",     pre: false, desc: "Type a word and hear it beeped in Morse code, with the dits and dahs spelled out." },
@@ -330,7 +330,7 @@ saveInstalled();
 const appMeta = (id) => catalog.find((a) => a.id === id);
 const isInstalled = (id) => Object.prototype.hasOwnProperty.call(installed, id);
 const hasUpdate = (id) => isInstalled(id) && installed[id] !== appMeta(id).version;
-const ALIASES = { calculator: "calc", timer: "clock", stopwatch: "clock", "keyboard": "piano", "keyboard piano": "piano", info: "sysinfo", "system": "sysinfo", "system info": "sysinfo", about: "sysinfo", "about this nexos": "sysinfo", sheep: "insomnia", "insomnia os": "insomnia", "easy convert": "easyconvert", convert: "easyconvert", converter: "easyconvert", meme: "memes", memeprojects: "memes", "meme projects": "memes", game: "guess", number: "guess" };
+const ALIASES = { calculator: "calc", timer: "clock", stopwatch: "clock", "keyboard": "piano", "keyboard piano": "piano", info: "sysinfo", "system": "sysinfo", "system info": "sysinfo", about: "sysinfo", "about this nexos": "sysinfo", "about looscid os": "sysinfo", sheep: "insomnia", "insomnia os": "insomnia", "easy convert": "easyconvert", convert: "easyconvert", converter: "easyconvert", meme: "memes", memeprojects: "memes", "meme projects": "memes", game: "guess", number: "guess" };
 function findApp(word) {
   if (!word) return null;
   const w = word.toLowerCase().trim();
@@ -345,7 +345,7 @@ const named = () => load("asked_name", false);
 
 /* ---------- modes ---------- */
 let mode = null; // null = shell; otherwise an app object
-function promptText() { return mode ? mode.prompt : "nexos>"; }
+function promptText() { return mode ? mode.prompt : "looscid>"; }
 function setMode(m) {
   mode = m;
   if (cur === CTX.app) {
@@ -362,7 +362,7 @@ function quitApp(msg) {
   if (mode && mode.onQuit) mode.onQuit();
   setMode(null);
   if (cur === CTX.app) { closeAfterRun = true; return; } // quitting in the app window goes back to Home
-  line(msg || "Back to the nexos shell.", "dimt");
+  line(msg || "Back to the looscid shell.", "dimt");
 }
 function useCtx(c) {
   if (c === cur) return;
@@ -626,8 +626,8 @@ const Hello = {
   label: "Hello", oneShot: true,
   run() {
     line("Hello" + (userName ? ", " + userName : "") + "! I'm the Hello app.", "hi");
-    line("In the real NexOS, Hello is the first NexOS program that runs in ring 3, as pid 1. Here in the web twin, it runs as JavaScript.");
-    line("Up for " + spoken(Date.now() - bootTime) + "." + (cur === CTX.terminal ? " Back to the nexos shell." : ""), "dimt");
+    line("In the real Looscid OS kernel, Hello is the first program that runs in ring 3, as pid 1. Here in the web twin, it runs as JavaScript.");
+    line("Up for " + spoken(Date.now() - bootTime) + "." + (cur === CTX.terminal ? " Back to the looscid shell." : ""), "dimt");
   },
 };
 
@@ -642,20 +642,20 @@ function browserName() {
     : /Safari\//.test(u) ? "Safari" + v(/Version\/(\d+(?:\.\d+)?)/) : "an unknown browser";
   return b + " on " + plat;
 }
-// One source for About this NexOS: the window from Home, and the about and sysinfo commands.
+// One source for About Looscid OS: the window from Home, and the about and sysinfo commands.
 function aboutInfo() {
   const appsN = catalog.filter((a) => isInstalled(a.id)).length;
   const mem = navigator.deviceMemory ? "about " + navigator.deviceMemory + " GB, as reported by the browser" : "not reported by this browser";
   const dpr = window.devicePixelRatio || 1;
   return {
     what: [
-      "NexOS Web " + VERSION + " is a web twin of NexOS. It is not the real kernel and not an emulator.",
-      "The real NexOS kernel, v0.5.0, is written in Rust and runs on 64-bit and 32-bit x86 PCs, in QEMU or on real hardware, and plays its sounds on the PC speaker. It can also boot for real in your browser, from the Boot the real kernel link on the Home screen (the real/ page).",
-      "This page mirrors the same nexos shell, App Store and apps in plain HTML and JavaScript. Use it with buttons from Home, or open Terminal for the command line.",
+      "Looscid OS " + VERSION + " is a web twin of Looscid OS. It is not the real kernel and not an emulator.",
+      "The real Looscid OS kernel, v0.5.0, is written in Rust and runs on 64-bit and 32-bit x86 PCs, in QEMU or on real hardware, and plays its sounds on the PC speaker. It can also boot for real in your browser, from the Boot the real kernel link on the Home screen (the real/ page).",
+      "This page mirrors the same looscid shell, App Store and apps in plain HTML and JavaScript. Use it with buttons from Home, or open Terminal for the command line.",
       "Every button and key has its own short, classic-style sound. Everything stays on this device: no network requests and no tracking, and it works offline.",
     ],
     facts: [
-      ["Version", "NexOS Web " + VERSION + ", a web twin of NexOS v0.5.0"],
+      ["Version", "Looscid OS " + VERSION + ", a web twin of the Looscid OS kernel v0.5.0 (it started as NexOS)"],
       ["Browser", browserName()],
       ["Screen", screen.width + " by " + screen.height + " pixels, window " + window.innerWidth + " by " + window.innerHeight + (dpr > 1 ? ", " + Math.round(dpr * 10) / 10 + " times density" : "")],
       ["Memory", mem],
@@ -664,10 +664,10 @@ function aboutInfo() {
       ["Apps installed", appsN + " of " + catalog.length],
       ["Files and notes", plural(Object.keys(fs).length, "file") + ", " + plural(notes.length, "note") + ", " + Math.max(1, Math.round(storageBytes() / 1024)) + " KB stored in this browser"],
       ["Sound", (muted ? "muted" : "on") + ", volume " + volume + " percent, typing clicks " + (keySounds ? "on" : "off") + ", ambient " + (ambient ? AMBIENTS[ambient.id].name : "off")],
-      ["Network", (navigator.onLine ? "online" : "offline") + ", but NexOS Web never uses the network"],
+      ["Network", (navigator.onLine ? "online" : "offline") + ", but Looscid OS never uses the network"],
     ],
     credits: [
-      "NexOS and NexOS Web are open source under the MIT license, made by the NexOS project.",
+      "Looscid OS started as NexOS, my operating system project. NexOS and its web twin are open source under the MIT license.",
       "Every sound is synthesized live with Web Audio. There are no recorded samples.",
       "Source code and authors: github.com/2three1y/nexos",
     ],
@@ -675,15 +675,15 @@ function aboutInfo() {
 }
 function printAbout() {
   const a = aboutInfo();
-  line("About this NexOS", "hi");
+  line("About Looscid OS", "hi");
   a.what.forEach((t) => line(t));
   line("System info:", "hi");
   a.facts.forEach(([k, v]) => line(k + ": " + v + "."));
   line("Credits:", "hi");
   a.credits.forEach((t, i) => line(t, i === a.credits.length - 1 ? "info" : ""));
-  if (cur === CTX.terminal) line("Tip: About this NexOS is also an app on the Home screen.", "dimt");
+  if (cur === CTX.terminal) line("Tip: About Looscid OS is also an app on the Home screen.", "dimt");
 }
-const SysInfo = { label: "About this NexOS", oneShot: true, run() { printAbout(); } };
+const SysInfo = { label: "About Looscid OS", oneShot: true, run() { printAbout(); } };
 
 /* ---- Files ---- */
 const Files = {
@@ -923,7 +923,7 @@ let statusRunning = false;
 function statusCmd() {
   if (statusRunning) { line("Already checking. The status is on its way."); return; }
   statusRunning = true;
-  line("Checking NexOS status. This takes a few seconds.", "dimt");
+  line("Checking Looscid OS status. This takes a few seconds.", "dimt");
   const online = navigator.onLine !== false;
   loadGenres().then(() => {
     const checks = statusChecks();
@@ -934,8 +934,8 @@ function statusCmd() {
     const apps = catalog.filter((a) => isInstalled(a.id)).length, st = nexosStorage();
     const reduce = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
     const calm = typeof window.calmMode === "function" ? window.calmMode() : document.documentElement.classList.contains("calm");
-    line("NexOS status:", "hi");
-    line("Version: NexOS Web " + VERSION + ", built " + BUILD_DATE + ".");
+    line("Looscid OS status:", "hi");
+    line("Version: Looscid OS " + VERSION + ", built " + BUILD_DATE + ".");
     line("Connection: " + (online ? "online." : "offline."));
     line("Offline cache: " + (cache.active && cache.version ? "installed, version " + cache.version + "." : cache.active ? "service worker active, cache not found." : cache.version ? "saved (version " + cache.version + "), service worker not active yet." : "not installed."));
     const sameWhy = failed.length > 1 && failed.every((r) => r.why === failed[0].why);
@@ -953,10 +953,10 @@ function statusCmd() {
     line("Beat: " + curGenre().label + ", " + (beatPlaying() ? "playing." : "not playing."));
     line("Uptime: " + spoken(Date.now() - bootTime) + ".");
     line("Storage on this device: " + plural(st.items, "item") + ", about " + kb(st.bytes) + ".");
-    const summary = !online ? "NexOS is running offline" + (cache.version ? " from the offline cache." : ". Some apps may not open.")
-      : !failed.length ? "NexOS is healthy."
-      : failed.length === res.length ? "NexOS can't reach the site right now. Try again in a minute."
-      : "NexOS is running, but " + plural(failed.length, "system") + " failed the check.";
+    const summary = !online ? "Looscid OS is running offline" + (cache.version ? " from the offline cache." : ". Some apps may not open.")
+      : !failed.length ? "Looscid OS is healthy."
+      : failed.length === res.length ? "Looscid OS can't reach the site right now. Try again in a minute."
+      : "Looscid OS is running, but " + plural(failed.length, "system") + " failed the check.";
     line(summary, failed.length || !online ? "err" : "ok");
     if (failed.length) SFX.error(); else SFX.update();
   }).catch((e) => { line("Status check failed: " + (e && e.message ? e.message : "unknown error") + ".", "err"); })
@@ -974,7 +974,7 @@ function flushStatus() {
 const HELP = [
   ["help", "this list"], ["ls", "list files"], ["cat file", "show a file"], ["write file text", "save a file"], ["rm file", "delete a file"],
   ["apps", "your installed apps"], ["store", "the App Store"], ["insomnia", "open Insomnia OS (insomnia lite is the old text version)"], ["easyconvert", "open Easyconvert, the file converter"], ["memes", "open Memeprojects"], ["sound", "on, off, test, list, keys on or off, or a volume like sound 120"],
-  ["name", "set what I call you, or name clear"], ["about or sysinfo", "About this NexOS: what it is, system info and credits"], ["files", "the Files app"], ["beat", "play or stop the NexOS beat"], ["home", "close the terminal and go to the Home screen"], ["status", "how NexOS and the site are doing: version, connection, a live site check, apps, Calm mode, sound and storage"], ["settings or sound", "open Sound settings on Home, with Beat style and volume"], ["uptime", "time since boot"], ["echo text", "repeat text"], ["clear", "clear the screen"],
+  ["name", "set what I call you, or name clear"], ["about or sysinfo", "About Looscid OS: what it is, system info and credits"], ["files", "the Files app"], ["beat", "play or stop the Looscid OS beat"], ["home", "close the terminal and go to the Home screen"], ["status", "how Looscid OS and the site are doing: version, connection, a live site check, apps, Calm mode, sound and storage"], ["settings or sound", "open Sound settings on Home, with Beat style and volume"], ["uptime", "time since boot"], ["echo text", "repeat text"], ["clear", "clear the screen"],
 ];
 function shell(raw) {
   const t = raw.trim(); if (!t) { line("Type help to see commands."); return; }
@@ -1032,7 +1032,7 @@ function shell(raw) {
     case "clear": case "cls": logEl.replaceChildren(); line("Screen cleared."); return;
     case "insomnia": if (/^lite$/i.test(arg)) { if (!isInstalled("insomnia")) return err("Insomnia OS isn't installed. Get it with: store install insomnia"); setMode(Insomnia); Insomnia.start(); return; } return launch("insomnia");
     case "easyconvert": case "memes": case "memeprojects": return launch(WINDOW_APPS[w] || "memes");
-    case "exit": case "q": case "quit": line("You're at the nexos shell already. Close the tab to leave, or type help."); return;
+    case "exit": case "q": case "quit": line("You're at the looscid shell already. Close the tab to leave, or type help."); return;
   }
   const a = findApp(w) && (APPS[findApp(w).id] || WINDOW_APPS[findApp(w).id]) && !/^\d+$/.test(w) ? findApp(w) : null;
   if (a) return launch(a.id);
@@ -1066,13 +1066,13 @@ const SOUND_LIST = [
   "Numbered buttons: a soft note that rises with the number, 1 low to 9 high.",
   "Each app's button: that app's own little tune.",
   "Run: a bright double blip. Enter: a typewriter return and bell.",
-  "Home screen: Terminal powers on like an old screen with a cursor beep. About this NexOS: a square blip into a soft bell. Sound settings: two dial clicks. Close and Escape: a low thunk back to Home.",
+  "Home screen: Terminal powers on like an old screen with a cursor beep. About Looscid OS: a square blip into a soft bell. Sound settings: two dial clicks. Close and Escape: a low thunk back to Home.",
   "Help: a rising question. App Store: a register ding. My apps: three clicks. Files: a paper flick. Clear screen: a whoosh.",
   "Install and Update buttons: a bright blip. Uninstall and Delete: a falling tone. Quit, Back and Skip: a low thunk.",
   "Sound on: up two notes. Sound off: down two notes. Octave up and down: a slide up or down.",
   "Typing: a soft key click, a deeper space bar, a tick for Backspace, and a faint tick for Tab and the arrow keys. In the Calculator, digits are tuned and operators click twice.",
   "Apps: Clock has a tick tock, a timer wind up, and stopwatch start, stop, lap and reset beeps. Notes flicks a page. Guess the Number slides up for higher and down for lower.",
-  "Listen to the beat, in Sound settings on Home or the beat command, plays the NexOS beat made from these sounds. Beat style, next to it, or beat list and beat and a style in Terminal, picks which version plays.",
+  "Listen to the beat, in Sound settings on Home or the beat command, plays the Looscid OS beat made from these sounds. Beat style, next to it, or beat list and beat and a style in Terminal, picks which version plays.",
   "Insomnia OS, Easyconvert and Memeprojects: each one's button plays its own little tune. In Easyconvert, choosing files is a soft tick, Convert a bright double blip, a finished conversion three rising notes, Download a paper flick and Copy a short beep. Insomnia OS keeps its own chimes, baa, soundscapes and volume, the same as on its own site. Memeprojects is silent.",
   "Store and system sounds stay the same: rising chime for install, falling pair for uninstall, low double buzz for errors.",
 ];
@@ -1221,7 +1221,7 @@ function unloadFrame(k) { const f = FRAMES[k]; if (f && f.getAttribute("src")) f
 function launcherItems() {
   const c = [{ id: "terminal", label: "Terminal", desc: "command line" }, { id: "store", label: "App Store", desc: catalog.length + " apps" }];
   catalog.filter((a) => isInstalled(a.id) && a.id !== "sysinfo").forEach((a) => c.push({ id: "app:" + a.id, label: a.name }));
-  c.push({ id: "files", label: "Files" }, { id: "about", label: "About this NexOS", desc: "and system info" });
+  c.push({ id: "files", label: "Files" }, { id: "about", label: "About Looscid OS", desc: "and system info" });
   return c;
 }
 const staticLaunch = [...launcherEl.querySelectorAll("li.static")]; // plain links kept from the page (Boot the real kernel)
@@ -1319,7 +1319,7 @@ function openSoundFromShell() {
 }
 
 /* ---- Listen to the beat: the NexOS beat, played through the same volume, mute and limiter ---- */
-const BEAT_TITLE = "NexOS Morning to Night", beatAudio = $("#beat-audio"), beatBtn = $("#beat");
+const BEAT_TITLE = "Looscid OS Morning to Night", beatAudio = $("#beat-audio"), beatBtn = $("#beat");
 let beatNode = null;
 // Beat styles: beat/genres.json lists [{ id, label, file, seconds }]. Without it, only the original beat is offered.
 const BEAT_ORIGINAL = { id: "original", label: "Original", file: "../beat/nexos-beat.m4a", seconds: 69 };
@@ -1439,12 +1439,12 @@ const EC = (() => {
   return { open() {}, get state() { return { files: files.length, results: results.length, format }; }, outputs: () => results.map((r, i) => ({ name: files[i] && outName(files[i]), type: r.type })) };
 })();
 
-/* ---- About this NexOS window ---- */
+/* ---- About Looscid OS window ---- */
 const aboutBody = $("#about-body"), aboutStatus = $("#about-status");
 function el(tag, text, attrs) { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; for (const k in (attrs || {})) n.setAttribute(k, attrs[k]); return n; }
 function renderAbout() {
   const a = aboutInfo(), frag = document.createDocumentFragment();
-  frag.appendChild(el("h3", "What NexOS is"));
+  frag.appendChild(el("h3", "What Looscid OS is"));
   a.what.forEach((t) => frag.appendChild(el("p", t)));
   frag.appendChild(el("h3", "System info", { id: "sysinfo-h" }));
   const dl = el("dl", undefined, { class: "facts", "aria-labelledby": "sysinfo-h" });
@@ -1453,7 +1453,7 @@ function renderAbout() {
   frag.appendChild(el("h3", "Credits"));
   a.credits.slice(0, -1).forEach((t) => frag.appendChild(el("p", t)));
   const p = el("p", "Source code and authors: "), link = el("a", "github.com/2three1y/nexos", { href: "https://github.com/2three1y/nexos" }); p.appendChild(link); frag.appendChild(p);
-  const r = el("p", "Try the actual kernel: "); r.appendChild(el("a", "the real NexOS kernel in your browser", { href: "../real/" })); frag.appendChild(r);
+  const r = el("p", "Try the actual kernel: "); r.appendChild(el("a", "the real Looscid OS kernel in your browser", { href: "../real/" })); frag.appendChild(r);
   aboutBody.replaceChildren(frag);
 }
 $("#about-refresh").addEventListener("click", () => { gesture(); play("refresh"); renderAbout(); aboutStatus.textContent = ""; setTimeout(() => { aboutStatus.textContent = "System info refreshed. Uptime " + spoken(Date.now() - bootTime) + "."; }, 30); });

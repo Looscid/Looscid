@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NexOS Web: a browser twin of NexOS</title>
-<meta name="description" content="A screen-reader friendly browser twin of the NexOS operating system: the nexos shell, an App Store and native apps, with classic synthesized sounds. Works offline.">
+<title>Looscid OS: the desktop and Looscid terminal</title>
+<meta name="description" content="A screen-reader friendly browser twin of the Looscid OS operating system: the looscid shell, an App Store and native apps, with classic synthesized sounds. Works offline.">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0000aa">
 <link rel="icon" href="data:,">
@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
       <li>Sound plays only after you press something. Mute and volume are under Sound settings, or type <code>mute</code> in Terminal. Sound pauses when this tab is in the background, unless a soundscape or the beat is playing.</li>
       <li>This was tested with automated measurement, not a clinical tool like PEAT, and not on every device.</li>
     </ul>
-    <p>If anything here ever flickers, please <a href="https://github.com/2three1y/nexos/issues">report it on GitHub</a>.</p>
+    <p>If anything here ever flickers, please <a href="https://github.com/Looscid/Looscid/issues">report it on GitHub</a>.</p>
     </div>
   </details>
   </div>
@@ -75,8 +75,8 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
 </section>
 
 <header class="bar">
-  <h1>NexOS <span class="dim">Web</span></h1>
-  <p class="tag">A browser twin of the NexOS operating system</p>
+  <h1>Looscid <span class="dim">OS</span></h1>
+  <p class="tag">A browser twin of the Looscid OS operating system</p>
 </header>
 
 <main id="main">
@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
       <p id="sound-status" class="sr-only" aria-live="polite" aria-atomic="true"></p>
     </div>
     <ul id="launcher" class="launcher" aria-labelledby="home-h">
-      <li class="static"><a class="launch-link" href="../real/">Boot the real kernel</a><span class="hint">: the actual 32-bit NexOS kernel, running in an emulated PC right in your browser.</span></li>
+      <li class="static"><a class="launch-link" href="../real/">Boot the real kernel</a><span class="hint">: the actual 32-bit Looscid OS kernel, running in an emulated PC right in your browser.</span></li>
     </ul>
   </section>
 
@@ -115,12 +115,12 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
     <div class="view-head"><h2 id="term-h" tabindex="-1">Terminal</h2><button type="button" class="close" data-close>Close Terminal</button></div>
     <div id="log" class="log" role="log" aria-live="polite" aria-relevant="additions" aria-label="Terminal output" tabindex="0">
       <div class="entry boot">
-        <p class="hi">Welcome to NexOS. Type <kbd>help</kbd> and press Enter.</p>
+        <p class="hi">Welcome to Looscid OS. Type <kbd>help</kbd> and press Enter.</p>
       </div>
     </div>
 
     <form id="cmd-form" class="cmdline" autocomplete="off">
-      <label for="cmd" id="prompt-label"><span class="prompt" id="prompt" aria-hidden="true">nexos&gt;</span><span class="sr-only" id="cmd-label-text">Command</span></label>
+      <label for="cmd" id="prompt-label"><span class="prompt" id="prompt" aria-hidden="true">looscid&gt;</span><span class="sr-only" id="cmd-label-text">Command</span></label>
       <input id="cmd" name="cmd" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send">
       <button type="submit" class="run">Run</button>
     </form>
@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
   </section>
 
   <section id="about-view" class="view about" aria-labelledby="about-h" hidden>
-    <div class="view-head"><h2 id="about-h" tabindex="-1">About this NexOS</h2><button type="button" class="close" data-close>Close</button></div>
+    <div class="view-head"><h2 id="about-h" tabindex="-1">About Looscid OS</h2><button type="button" class="close" data-close>Close</button></div>
     <div id="about-body"></div>
     <div class="sound-row"><button id="about-refresh" type="button">Refresh system info</button></div>
     <p id="about-status" class="sr-only" aria-live="polite" aria-atomic="true"></p>
@@ -179,7 +179,7 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
 </main>
 
 <footer class="foot">
-  <p>NexOS Web 0.6.1 · a web twin of NexOS, not the real kernel · MIT licensed · <a href="https://github.com/2three1y/nexos">Source on GitHub</a></p>
+  <p>Looscid OS 0.6.1 · a web twin of the Looscid OS kernel, not the real kernel, started as NexOS · MIT licensed · <a href="https://github.com/2three1y/nexos">Source on GitHub</a></p>
 </footer>
 <audio id="beat-audio" preload="none" src="../beat/nexos-beat.m4a"></audio>
 <p id="note-status" class="sr-only" aria-live="assertive" aria-atomic="true"></p>

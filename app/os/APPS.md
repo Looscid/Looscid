@@ -1,7 +1,7 @@
 # Looscid apps
 
 How apps are described, installed and written on Looscid OS. The same format
-is meant for the NexOS edition (this repo) and the Linux edition later.
+is meant for the kernel edition (it started as NexOS) and the Linux edition later.
 
 ## The pieces
 
@@ -18,7 +18,7 @@ is meant for the NexOS edition (this repo) and the Linux edition later.
 There is no network yet, so the store is offline: every package in the
 catalog ships inside the OS image. "Install" checks the package and adds it to
 `system/installed.txt`; "uninstall" takes it off. The list lives in the
-in-memory filesystem, so it lasts until you reboot. Once NexOS has a disk,
+in-memory filesystem, so it lasts until you reboot. Once Looscid OS has a disk,
 the same files will be saved there.
 
 ## Manifest format

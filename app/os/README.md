@@ -154,7 +154,7 @@ MIT. See [LICENSE](LICENSE).
 
 ## Where it came from
 
-This folder is NexOS, copied into Looscid so Looscid no longer links out to another site.
+This folder is Looscid OS. It started as NexOS, copied into Looscid so Looscid no longer links out to another site, and on October 12, 2026 the copy became Looscid OS: inside Looscid it is called Looscid OS (the desktop, the Looscid terminal with its `looscid>` prompt, the boot text and the Looscid OS classic Soundpack). The folder moved from `app/nexos/` to `app/os/`; old `/Looscid/nexos/...` addresses go to the same page under `/Looscid/os/` through `app/404.html`. File names that saved settings or the built ISO depend on (`nexos-real-sound`, the `nexos-web-` cache, `nexos-i686.iso`, `nexos-beat*.m4a`, the `nexos` Soundpack id) keep their names, so nothing saved or backed up changes.
 
 **Where it came from:** [github.com/2three1y/nexos](https://github.com/2three1y/nexos), branch `gh-pages`,
 commit `0c2fb6b85493f1e9af9cd6a9ffda3d4df65a1ceb` (October 8, 2026,
@@ -167,14 +167,14 @@ The original NexOS README is the top of this file, and the app list is kept as `
 
 | Folder | What it is | Served at |
 | --- | --- | --- |
-| `real/` | The real NexOS kernel in the browser: `nexos-i686.iso` booted by the v86 emulator (`real/v86/`, BSD-2-Clause, see `real/v86/LICENSE`) | `/Looscid/nexos/real/` |
-| `web/` | NexOS Web, the desktop (index.html, script.js, styles.css, sw.js) | `/Looscid/nexos/web/` |
-| `apps/insomnia/` | Insomnia OS | `/Looscid/nexos/apps/insomnia/` |
-| `apps/memeprojects/` | Memeprojects (MIT, see its `LICENSE`), with `lib/` | `/Looscid/nexos/apps/memeprojects/` |
-| `apps/easyconvert/` | Easyconvert, now with its own page (`index.html`, `easyconvert.js`, `easyconvert.css`) plus JSZip (MIT, `JSZIP-LICENSE.txt`) | `/Looscid/nexos/apps/easyconvert/` |
-| `apps/nexos-embed.js` | The small bridge the apps load when they run inside the NexOS Web desktop | |
-| `beat/` | The NexOS beats (`.m4a`) and `genres.json` | `/Looscid/nexos/beat/` |
-| `index.html` | A plain list of all of the above | `/Looscid/nexos/` |
+| `real/` | The real Looscid OS kernel in the browser: `nexos-i686.iso` booted by the v86 emulator (`real/v86/`, BSD-2-Clause, see `real/v86/LICENSE`) | `/Looscid/os/real/` |
+| `web/` | The Looscid OS desktop and the Looscid terminal (it was NexOS Web) (index.html, script.js, styles.css, sw.js) | `/Looscid/os/web/` |
+| `apps/insomnia/` | Insomnia OS | `/Looscid/os/apps/insomnia/` |
+| `apps/memeprojects/` | Memeprojects (MIT, see its `LICENSE`), with `lib/` | `/Looscid/os/apps/memeprojects/` |
+| `apps/easyconvert/` | Easyconvert, now with its own page (`index.html`, `easyconvert.js`, `easyconvert.css`) plus JSZip (MIT, `JSZIP-LICENSE.txt`) | `/Looscid/os/apps/easyconvert/` |
+| `apps/nexos-embed.js` | The small bridge the apps load when they run inside the Looscid OS desktop | |
+| `beat/` | The Looscid OS beats (`.m4a`) and `genres.json` | `/Looscid/os/beat/` |
+| `index.html` | A plain list of all of the above | `/Looscid/os/` |
 
 Left out: the kernel's Rust source (`kernel/`, `userland/`, `.cargo/`, `boot/`, `build.sh`, `Makefile`, Cargo files).
 The built ISO is what runs; build it yourself from the NexOS repository with `make iso32`.
@@ -192,6 +192,7 @@ The built ISO is what runs; build it yourself from the NexOS repository with `ma
   the same converter, so Looscid can open it directly.
 - `apps/insomnia/`: the desktop now starts below the photosensitivity notice. On a phone the notice used to cover the
   desktop icons, so a tap on Soundscape hit the notice instead (seen on Pixel 7 and iPhone 15 sizes).
+- Looscid OS (Oct 12, 2026): user-facing "NexOS" and "NexOS Web" became "Looscid OS", the web shell's prompt is `looscid>`, and the real kernel's console shows its `nexos>` prompt as `looscid>` (the ISO itself is unchanged). Credits, licenses and links to the NexOS repository keep the NexOS name.
 - Everything else is byte for byte the same as the commit above.
 
 ---

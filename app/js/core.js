@@ -1089,13 +1089,13 @@ const LC_FIND_STATIC = [
   { l: "Automatically check for updates", w: "auto update updates automatic", page: "settings_about", focus: "about-autoupdate", where: "About Looscid" },
   { l: "Version and version history", w: "version build history changelog release what's new", page: "settings_about", focus: "about-version", where: "About Looscid" },
   { l: "System info", w: "system info device browser storage", page: "settings_about", focus: "about-sys", where: "About Looscid" },
-  { l: "Credits and open source", w: "credits open source licenses license thanks third party react nostr-tools noble nexos insomnia feditext v86 fonts repos", page: "credits", where: "Menu, About" },
+  { l: "Credits and open source", w: "credits open source licenses license thanks third party react nostr-tools noble nexos looscid os insomnia feditext v86 fonts repos", page: "credits", where: "Menu, About" },
   { l: "Blocked Dreamors", w: "block dreamor block user blocked list unblock", page: "settings_privacy", priv: "blocked", privTab: "dreamers", focus: "priv-bl-dreamers-in", where: "Settings, Privacy, Blocked and muted" },
   { l: "Blocked Circles", w: "block circle blocked circles", page: "settings_privacy", priv: "blocked", privTab: "circles", focus: "priv-bl-tab-circles", where: "Settings, Privacy, Blocked and muted" },
   { l: "Blocked words", w: "block word blocked words hide words everywhere", page: "settings_privacy", priv: "blocked", privTab: "words", focus: "priv-bl-words-in", where: "Settings, Privacy, Blocked and muted" },
   { l: "Forget what Cherry knows about my media", w: "cherry forget media", page: "settings_privacy", priv: "pmedia", focus: "priv-cherry-forget", where: "Settings, Privacy, Media and content" },
   { l: "Customizability", w: "themes feeds dreaming posting media", page: "settings_customizability", where: "Settings" },
-  { l: "Earcons", w: "audio earcons earcon sounds sound pack soundpack soundpacks nexos volume haptics beeps keyboard clicks keyboard earcons command earcons", page: "settings_audio", where: "Settings" },
+  { l: "Earcons", w: "audio earcons earcon sounds sound pack soundpack soundpacks looscid os classic nexos volume haptics beeps keyboard clicks keyboard earcons command earcons", page: "settings_audio", where: "Settings" },
   { l: "Keyboard shortcuts", w: "keys shortcuts", page: "settings_keyboard", where: "Settings" },
   { l: "Settings backup", w: "export import reset", page: "settings_backup", where: "Settings" },
   { l: "Intelligence", w: "ai cherry assistant artificial intelligence", page: "settings_intelligence", where: "Settings" },
@@ -2674,9 +2674,9 @@ const LC_SET = [
   // Build 146: iPhone mutes web sounds on silent; this asks iOS to play Earcons anyway (off by default: it can stop music in other apps).
   { k: "earconsOnSilent", s: "audio", l: "Earcons when iPhone is on silent", t: "bool", d: false, al: ["earcons on silent", "silent mode earcons", "play on silent", "ignore silent switch", "sounds on silent"],
     desc: "Off by default. iPhone mutes sounds from web pages when it's on silent, so Earcons go quiet too. On: Earcons play even on silent, like VoiceOver does. Music playing in another app may stop when an earcon plays." },
-  { k: "nexosBoot", s: "audio", l: "NexOS boot text", t: "bool", d: true, al: ["nexos boot text", "boot text", "boot screen", "nexos boot", "startup text"],
-    desc: "With the NexOS classic Soundpack, Looscid starts with the NexOS boot text and its boot chime, once per visit. Text only, nothing flashes, and Skip or Escape ends it." },
-  { k: "soundPack", s: "audio", l: "Soundpack", t: "choice", d: "looscid", al: ["sound pack", "soundpack", "sound theme", "insomnia sounds", "synth", "hyper synth", "fastsm", "fastsm inspired", "soundvault", "soundpack", "soundpacks", "sound packs", "nexos sounds", "good morning", "good night"], o: [["looscid", "Looscid", ["looscid", "default"]], ["nexos", "NexOS classic", ["nexos classic", "nexos"]], ["insomnia", "Insomnia", ["insomnia", "insomnia os", "insomnia sounds"]], ["synth", "Hyper Synth", ["hyper synth", "synth", "hyper", "synth pack"]], ["fastsm", "FastSM-inspired", ["fastsm inspired", "fastsm", "fast sm", "fastsmrw", "fastsm sounds"]], ["soundvault", "Soundvault", ["soundvault", "sound vault", "soundvault pack", "soundvault sounds"]], ["custom", "Your imported pack", ["custom", "imported", "my pack", "mine"]]] },
+  { k: "nexosBoot", s: "audio", l: "Looscid OS boot text", t: "bool", d: true, al: ["looscid os boot text", "looscid os boot", "nexos boot text", "boot text", "boot screen", "nexos boot", "startup text"],
+    desc: "With the Looscid OS classic Soundpack, Looscid starts with the Looscid OS boot text and its boot chime, once per visit. Text only, nothing flashes, and Skip or Escape ends it." },
+  { k: "soundPack", s: "audio", l: "Soundpack", t: "choice", d: "looscid", al: ["sound pack", "soundpack", "sound theme", "insomnia sounds", "synth", "hyper synth", "fastsm", "fastsm inspired", "soundvault", "soundpack", "soundpacks", "sound packs", "looscid os sounds", "nexos sounds", "good morning", "good night"], o: [["looscid", "Looscid", ["looscid", "default"]], ["nexos", "Looscid OS classic", ["looscid os classic", "looscid os", "nexos classic", "nexos"]], ["insomnia", "Insomnia", ["insomnia", "insomnia os", "insomnia sounds"]], ["synth", "Hyper Synth", ["hyper synth", "synth", "hyper", "synth pack"]], ["fastsm", "FastSM-inspired", ["fastsm inspired", "fastsm", "fast sm", "fastsmrw", "fastsm sounds"]], ["soundvault", "Soundvault", ["soundvault", "sound vault", "soundvault pack", "soundvault sounds"]], ["custom", "Your imported pack", ["custom", "imported", "my pack", "mine"]]] },
   { k: "ev_send", s: "audio", l: "Send sound", t: "bool", d: true, ev: "send", al: ["send sound", "sent sound"] },
   { k: "ev_like", s: "audio", l: "Like sound", t: "bool", d: true, ev: "like", al: ["like sound"] },
   { k: "ev_newDream", s: "audio", l: "New Dream sound", t: "bool", d: true, ev: "newDream", al: ["new dream sound"] },
@@ -2908,7 +2908,7 @@ Looscid.N_ = N_;
 const LC_PACKS = {
   // NexOS classic: ported from NexOS Web (github.com/2three1y/nexos, gh-pages, script.js SFX and UI).
   nexos: {
-    label: "NexOS classic", echo: false, gain: 1, chimes: true, cmdVoice: "square",
+    label: "Looscid OS classic", echo: false, gain: 1, chimes: true, cmdVoice: "square",
     sounds: {
       boot:     { label: "Boot chime", ops: [60, 64, 67, 72].map(function (m, i) { return LcT(N_(m), i * 0.09, 0.22, "triangle", 0.4); }).concat([LcT(N_(84), 0.36, 0.5, "sine", 0.25)]) },          // SFX.boot
       send:     { label: "Send", ops: [LcC(1800, 0, 0.11, 0.28, 0.9, 500), LcC(140, 0.1, 0.03, 0.4, 0.8), LcT(2637, 0.14, 0.7, "sine", 0.22, 0, 0.003)] }, // UI.enter: carriage return and bell
@@ -2962,7 +2962,7 @@ const LC_PACKS = {
       uninstall:{ label: "Deleted", ops: [LcT(N_(76), 0, 0.07, "square", 0.14), LcT(N_(67), 0.08, 0.14, "triangle", 0.26)] },
     },
   },
-  // Insomnia OS (nexos/apps/insomnia/script.js A.play): its own click, tick, open, close, ding, boot and goodnight,
+  // Insomnia OS (os/apps/insomnia/script.js A.play): its own click, tick, open, close, ding, boot and goodnight,
   // through a soft echo like its chime bus. Round 6 maps each Looscid event to the closest one (see the round 6 report).
   insomnia: {
     label: "Insomnia", echo: true, gain: 2.2, cmdVoice: "sine",
@@ -3146,7 +3146,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T21:05:52Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T21:21:01Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -3732,12 +3732,12 @@ function areaOfPage(p) {
 }
 /* --- Music: the NexOS beats ------------------------------------------------ */
 // Streamed on demand from NexOS Web (the same files NexOS plays); nothing loads until Play.
-const MUSIC_BASE = "nexos/";
+const MUSIC_BASE = "os/";
 Looscid.MUSIC_BASE = MUSIC_BASE;
 const MUSIC_KEY = "looscid_music";
 Looscid.MUSIC_KEY = MUSIC_KEY;
 const MUSIC_GENRES = [
-  { id: "original", label: "Morning to Night", sub: "the original NexOS beat, 96 BPM", file: "beat/nexos-beat.m4a", alias: ["original", "morning to night", "nexos", "default", "morning"] },
+  { id: "original", label: "Morning to Night", sub: "the original Looscid OS beat, 96 BPM", file: "beat/nexos-beat.m4a", alias: ["original", "morning to night", "looscid os", "nexos", "default", "morning"] },
   { id: "hyperpop", label: "Hyperpop", sub: "160 BPM", file: "beat/nexos-beat-hyperpop.m4a", alias: ["hyperpop", "hyper pop", "hyper"] },
   { id: "lofi", label: "Lo-fi chill", sub: "80 BPM", file: "beat/nexos-beat-lofi.m4a", alias: ["lofi", "lo fi", "lofi chill", "chill"] },
   { id: "dnb", label: "Drum and bass", sub: "172 BPM", file: "beat/nexos-beat-dnb.m4a", alias: ["dnb", "drum and bass", "drum n bass", "drum & bass", "d&b", "d and b", "jungle"] },
@@ -4249,7 +4249,7 @@ const LC_PLACE_WORDS = [
   ["motion", ["motion", "seizure", "calm mode", "reduce motion", "flash safety"]],
   ["motor", ["motor", "switch access", "larger buttons", "focus outline"]],
   ["terminalsettings", ["terminal settings", "terminal output"]],
-  ["nexosapps", ["nexos apps", "nexos", "apps", "looscid app store", "app store", "nexos app store", "insomnia", "insomnia os", "memeprojects", "meme projects", "easyconvert"]],
+  ["nexosapps", ["looscid os apps", "looscid os", "nexos apps", "nexos", "apps", "looscid app store", "app store", "nexos app store", "insomnia", "insomnia os", "memeprojects", "meme projects", "easyconvert"]],
   ["comingsoon", ["coming soon", "planned", "roadmap"]],
   ["accessibility", ["accessibility", "a11y", "voiceover", "screen reader", "braille", "contrast", "captions", "text size", "calm mode", "reduce motion", "speech"]],
   ["audio", ["sounds", "audio", "earcons", "sound pack", "haptics", "keyboard clicks"]],
@@ -4334,8 +4334,8 @@ function lcExtraIntent(raw) {
     if (!r.length) return { err: "No settings match \u201c" + q + "\u201d." };
     return { say: r.length + (r.length === 1 ? " setting" : " settings") + " found. Opened " + r[0].l + ", in " + r[0].where + "." + (r.length > 1 ? " Also: " + r.slice(1, 5).map(function (x) { return x.l; }).join(", ") + "." : ""), fn: function () { if (Looscid.LC_NAV) lcGoSetting(r[0], Looscid.LC_NAV); } };
   }
-  if (/^(boot|nexos boot|show boot text|boot text|reboot)$/.test(n)) return { say: "Showing the NexOS boot text.", fn: function () { if (Looscid.LC_BOOT_SET) Looscid.LC_BOOT_SET(true); } };
-  if ((m = /^(?:open|launch|start|run|boot) (nexos web|nexos desktop|the nexos desktop|desktop|insomnia os|insomnia|meme projects|memes|memeprojects|easyconvert|easy convert|real kernel|the real kernel|nexos kernel|kernel|nexos)$/.exec(n))) {
+  if (/^(boot|looscid os boot|looscid boot|nexos boot|show boot text|boot text|reboot)$/.test(n)) return { say: "Showing the Looscid OS boot text.", fn: function () { if (Looscid.LC_BOOT_SET) Looscid.LC_BOOT_SET(true); } };
+  if ((m = /^(?:open|launch|start|run|boot) (looscid os|looscid os desktop|the looscid os desktop|looscid terminal|the looscid terminal|looscid os kernel|nexos web|nexos desktop|the nexos desktop|desktop|insomnia os|insomnia|meme projects|memes|memeprojects|easyconvert|easy convert|real kernel|the real kernel|nexos kernel|kernel|nexos)$/.exec(n))) {
     const id = /insomnia/.test(m[1]) ? "insomnia" : /meme/.test(m[1]) ? "memes" : /^easy/.test(m[1]) ? "easyconvert" : /kernel/.test(m[1]) || (m[0].indexOf("boot ") === 0 && m[1] === "nexos") ? "real" : "web", app = LC_NEXOS_APPS.find(function (x) { return x.id === id; });
     return { say: "Opened " + app.name + ".", fn: function () { Looscid.LC_NEXOS_OPEN = app; if (Looscid.LC_NAV) Looscid.LC_NAV("nexos_app", app); } };
   }
@@ -4625,10 +4625,10 @@ function lcBrowserName() {
   return b + " on " + plat;
 }
 function lcStorageKB(prefix) { let n = 0; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (prefix && k.indexOf(prefix) !== 0) continue; n += k.length + (localStorage.getItem(k) || "").length; } } catch (e) {} return Math.max(prefix ? 0 : 1, Math.round(n * 2 / 1024)); }
-/* --- NexOS apps (round 5): the ported copies in nexos/ (same site, /Looscid/nexos/). ----
+/* --- Looscid OS apps (round 5): the copies in os/ (same site, /Looscid/os/; the old /Looscid/nexos/ redirects). ----
    Every app opens inside Looscid, in the same tab, with a Back button. The apps that only
    live inside the NexOS Web shell open the desktop here; then you type the app's name. */
-const NEXOS_BASE = "nexos/"; // the ported copy, same site: /Looscid/nexos/
+const NEXOS_BASE = "os/"; // Looscid OS, same site: /Looscid/os/ (was /Looscid/nexos/, which redirects here)
 Looscid.NEXOS_BASE = NEXOS_BASE;
 const LC_NEXOS_APPS = [
   // Round 6: Looscid's own apps (they came from NexOS; About credits it). Ids and files unchanged.
@@ -4642,7 +4642,7 @@ Looscid.LC_NEXOS_APPS = LC_NEXOS_APPS;
 const LC_NEXOS_SHELL = [["store", "Looscid App Store"], ["notes", "Notes"], ["calc", "Calculator"], ["clock", "Clock"], ["sysinfo", "System info"], ["piano", "Piano"], ["guess", "Guess the Number"], ["morse", "Morse Code"], ["hello", "Hello"]];
 Looscid.LC_NEXOS_SHELL = LC_NEXOS_SHELL;
 Looscid.LC_NEXOS_OPEN = null;
-/* Deep integration (round 5): the NexOS pages load nexos/looscid-bridge.js. Looscid sends them its
+/* Deep integration (round 5): the Looscid OS pages load os/looscid-bridge.js. Looscid sends them its
    settings on load and on every change; they send back focus, typing and interface sounds, which
    Looscid plays with its own earcons, pitch cues and keyboard clicks. Same site only. */
 const LC_NX_FRAMES = new Set();
@@ -4676,13 +4676,13 @@ Looscid.LC_APP_KEYS = LC_APP_KEYS;
 function lcBootLines() {
   let mem = null; try { mem = navigator.deviceMemory ? navigator.deviceMemory + " GB" : null; } catch (e) {}
   return [
-    ["cy", "NexOS boot, Looscid OS edition, Looscid " + LOOSCID_VERSION],
+    ["cy", "Looscid OS boot, Looscid " + LOOSCID_VERSION],
     ["ok", "boot loader: Looscid in " + lcBrowserName()],
     ["ok", "console: this screen, mirrored to your screen reader"],
     mem ? ["ok", "memory: about " + mem + " on this device"] : ["ok", "memory: managed by your browser"],
     ["ok", "storage: " + lcStorageKB() + " KB of Looscid data, on this device only"],
     ["ok", "input: keyboard, touch and braille display"],
-    ["ok", "sound: NexOS classic earcons, boot chime ready"],
+    ["ok", "sound: Looscid OS classic earcons, boot chime ready"],
     ["ok", "Looscid App Store: " + (LC_NEXOS_APPS.length + LC_NEXOS_SHELL.length) + " apps built in"],
     ["cy", "Welcome to Looscid OS."],
   ];
@@ -4695,7 +4695,7 @@ function LcBoot({ onDone }) {
   useInertBehind(bootRef);
   useEffect(function () {
     Earcon.play("boot", { pack: "nexos" });
-    announce("NexOS boot. " + lines.map(function (l) { return l[1]; }).join(". "));
+    announce("Looscid OS boot. " + lines.map(function (l) { return l[1]; }).join(". "));
     if (skipRef.current) skipRef.current.focus();
   }, []);
   useEffect(function () {
@@ -4704,7 +4704,7 @@ function LcBoot({ onDone }) {
   }, [n]);
   return lh('div', { className: "lc-boot", ref: bootRef, role: "dialog", "aria-modal": "true", "aria-labelledby": "lc-boot-h",
       onKeyDown: function (e) { if (e.key === "Escape" || e.key === "Enter") { e.preventDefault(); onDone(); } } },
-    lh('h1', { id: "lc-boot-h" }, "NexOS boot"),
+    lh('h1', { id: "lc-boot-h" }, "Looscid OS boot"),
     lh('ol', { "aria-hidden": "true" }, lines.slice(0, n).map(function (l, i) {
       return lh('li', { key: i, className: l[0] }, l[0] === "ok" ? lh(React.Fragment, null, lh('span', { className: "ok" }, "[ ok ] "), lh('span', { style: { color: "#dde" } }, l[1])) : l[1]);
     })),
@@ -5057,7 +5057,7 @@ function lcBrIntent(raw) {
 // Settings > Sounds (was Audio; storage keys and page ids unchanged). Pitch cues live in Verbosity.
 const LC_AUDIO_CATS = [
   { id: "volume", page: "settings_audio_volume", l: "Volume, focus, keyboard and command earcons", sub: "Earcons on or off, master volume, a sound on every swipe, a click per key, a sound per command", keys: ["earcons", "earconVolume", "earconFocus", "keyClicks", "cmdSounds", "earconsOnSilent"] },
-  { id: "pack", page: "settings_audio_pack", l: "Soundpacks", sub: "Looscid, NexOS classic, Insomnia, Hyper Synth, FastSM-inspired, Soundvault or your own", keys: ["soundPack", "nexosBoot"] },
+  { id: "pack", page: "settings_audio_pack", l: "Soundpacks", sub: "Looscid, Looscid OS classic, Insomnia, Hyper Synth, FastSM-inspired, Soundvault or your own", keys: ["soundPack", "nexosBoot"] },
   { id: "events", page: "settings_audio_events", l: "Event sounds", sub: "Send, like, new Dream, error, alert, feed switch, with previews", keys: ["ev_send", "ev_like", "ev_newDream", "ev_error", "ev_alert", "ev_feed"] },
   { id: "haptics", page: "settings_audio_haptics", l: "Music and haptics", sub: "Ducking, haptics", keys: ["ducking", "haptics"] },
 ];
@@ -5176,7 +5176,7 @@ function App() {
   const openCmdRef = useRef(null);
   const termBack = useRef("feed");
   const [askDevice, setAskDevice] = useState(() => !a11yAsked());
-  // NexOS boot text: with the NexOS classic pack, once per visit (Settings, Sounds, NexOS boot text).
+  // Looscid OS boot text: with the Looscid OS classic pack, once per visit (Settings, Sounds, Looscid OS boot text).
   const [showBoot, setShowBoot] = useState(() => { try { return Looscid.A11Y_NOW.soundPack === "nexos" && Looscid.A11Y_NOW.nexosBoot !== false && !sessionStorage.getItem("looscid_booted") && a11yAsked(); } catch (e) { return false; } });
   Looscid.LC_BOOT_SET = setShowBoot;
   const [sysRM, setSysRM] = useState(systemReducedMotion());

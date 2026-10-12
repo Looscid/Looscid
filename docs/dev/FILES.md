@@ -27,7 +27,7 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 | `app/js/helpcenter.js` | Help (Round 6.6): `help` (the top commands), an area and `help` (cherry help), `help list`, `new dream`, and the Help Center page. **Plain JavaScript.** |
 | `app/js/liked.js` | Liked (build 147): `LikedView`, one component for everything you like (Dreams, Circles, Apps, Marketplace, Chats, Searches, with an Images filter), used by your profile's Liked tab. Its store, `looscid_liked`, is in `app/js/core.js`. Still React, like the profile. |
 | `app/projects/` | The ported projects, one folder each with its own `LICENSE`, plus `dream-results.js` (the Dream Results button inside Memeprojects). |
-| `app/nexos/` | NexOS and its apps, unchanged (Memeprojects also loads `app/projects/dream-results.js`). |
+| `app/os/` | Looscid OS and its apps (it started as NexOS; the old `/Looscid/nexos/` addresses redirect here through `app/404.html`). Memeprojects also loads `app/projects/dream-results.js`. |
 
 ## Load order
 
