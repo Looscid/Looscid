@@ -12,9 +12,9 @@ Share authentic Dreams. Do not impersonate others, spread misinformation or use 
 
 Do not publish violent, sexually explicit or otherwise harmful content. Content involving minors in any inappropriate context is strictly forbidden.
 
-## 4. Groups
+## 4. Circles
 
-Groups must have a clear, positive purpose. Group moderators must enforce these guidelines within their communities.
+Circles must have a clear, positive purpose. Circle moderators must enforce these guidelines within their Circles.
 
 ## 5. Reporting
 
