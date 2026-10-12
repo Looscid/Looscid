@@ -1575,29 +1575,64 @@ class ErrorBoundary extends React.Component {
 }
 Looscid.ErrorBoundary = ErrorBoundary;
 /* --- MAIN MENU ------------------------------------------------------------ */
-function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, appDreams, initOpen, initFocus }) {
-  const pos = (prefs.menu || {}).pos || "bottom";
-  const likedCount = lcLikedItems().length; // build 147: one Liked store
-  const totalAlerts = unreadNotifs + unreadMsgs;
-  // Round 6.6: the Projects section remembers whether you left it open (looscid_more_projects_open, in the settings backup).
-  const [open, setOpen] = useState(() => Object.assign(Looscid.lcProjectsOpen && Looscid.lcProjectsOpen() ? {projects: true} : {}, initOpen ? {[initOpen]: true} : {}));
-  // Back from a Settings screen reopens this menu on the item it came from.
-  useEffect(() => {
-    // Build 150 (#60): Back from Liked or your profile reopens More on the button that opened it (focus "#more-liked").
-    if (!initOpen && initFocus && initFocus.charAt(0) === "#") { const t0 = setTimeout(() => { const el = document.getElementById(initFocus.slice(1)); if (el) el.focus(); }, 30); return () => clearTimeout(t0); }
-    if (!initOpen) return;
-    const t = setTimeout(() => {
-      const body = document.getElementById("msec-" + initOpen);
-      const item = body && initFocus ? Array.from(body.querySelectorAll(".mitem")).find(b => b.getAttribute("aria-label") === initFocus) : null;
-      const el = item || document.querySelector('button.msec-toggle[aria-controls="msec-' + initOpen + '"]') || document.getElementById("msec-btn-" + initOpen);
-      if (el) el.focus();
-    }, 30);
-    return () => clearTimeout(t);
-  }, []);
-  const toggle = id => { const v = !open[id]; if (id === "projects" && Looscid.lcProjectsSetOpen) Looscid.lcProjectsSetOpen(v); setOpen(o => ({...o, [id]: v})); };
-  const isOpen = id => !!open[id]; // default closed
-
-  const SECTIONS = [
+/* Part 40 (#69, 2three1y Oct 11 4:02 PM): real page addresses, like looscid.github.io/Looscid/Settings/Sense. Every page has
+   one; matching ignores case (/settings/sense works too), and so do usernames (/@AvaTest). GitHub Pages has no server
+   routing, so app/404.html sends any unknown address under /Looscid/ back to the app as ?p=<path>, and the app opens
+   that page and puts the real address back. The site folder itself (/Looscid/) is case-sensitive on GitHub's side. */
+const LC_ROUTES = [
+  ["feed", ""], ["discover", "Discover"], ["alerts", "Alerts"], ["groups", "Circles"], ["liked", "Liked"], ["profile", "Profile"], ["drafts", "Drafts"],
+  ["cherry", "Cherry"], ["more", "More"], ["settings", "Settings"],
+  ["settings_account", "Settings/LooscidID"], ["settings_notifications", "Settings/Alerts"], ["settings_messages", "Settings/Messages"], ["settings_privacy", "Settings/Privacy"],
+  ["settings_customizability", "Settings/Customizability"], ["settings_cz_theme", "Settings/Customizability/Theme"], ["settings_cz_feeds", "Settings/Customizability/Feeds"],
+  ["settings_cz_menu", "Settings/Customizability/Menu"], ["settings_cz_posting", "Settings/Customizability/Dreaming"], ["settings_cz_media", "Settings/Customizability/Media"],
+  ["settings_accessibility", "Settings/Accessibility"], ["settings_a11y_sr", "Settings/Sense"], ["settings_a11y_vision", "Settings/Accessibility/Vision"],
+  ["settings_a11y_hearing", "Settings/Accessibility/Hearing"], ["settings_a11y_motion", "Settings/Accessibility/Motion"], ["settings_a11y_motor", "Settings/Accessibility/Motor"],
+  ["settings_a11y_terminal", "Settings/Accessibility/Commandbar"], ["settings_audio", "Settings/Earcons"], ["settings_audio_volume", "Settings/Earcons/Volume"],
+  ["settings_audio_pack", "Settings/Earcons/Soundpacks"], ["settings_audio_events", "Settings/Earcons/Events"], ["settings_audio_haptics", "Settings/Earcons/Haptics"],
+  ["settings_apps", "Settings/Apps"], ["settings_keyboard", "Settings/Keyboard"], ["settings_backup", "Settings/Backup"], ["settings_intelligence", "Settings/Intelligence"],
+  ["settings_ai_cherry", "Settings/Intelligence/Cherry"], ["settings_ai_model", "Settings/Intelligence/Model"], ["settings_ai_cmd", "Settings/Intelligence/Commandbar"],
+  ["settings_ai_memory", "Settings/Intelligence/Memory"], ["settings_ai_tools", "Settings/Intelligence/Tools"], ["settings_ai_audit", "Settings/Intelligence/What-Cherry-did"],
+  ["settings_labs", "Settings/Labs"], ["settings_about", "About"], ["terms", "Terms"], ["privacy", "Privacy"], ["guidelines", "Rules"], ["child_safety", "Child-Safety"],
+  ["credits", "Credits"], ["legal", "Legal"], ["feedback", "Feedback"], ["helpcenter", "Help"], ["commands", "Commands"], ["music", "Music"], ["terminal", "Commandbar"],
+  ["nexos_apps", "Apps"], ["hour_story", "Our-Story"], ["admin", "Admin"],
+  ["more_discover", "More/Discover"], ["more_apps", "More/Apps"], ["more_create", "More/Create"], ["more_alerts", "More/Alerts"], ["more_projects", "Projects"],
+];
+const LOOSCID_BASE = (function () { try { if (window.LOOSCID_BASE) return window.LOOSCID_BASE; const p = location.pathname; return /^\/looscid(\/|$)/i.test(p) ? "/Looscid/" : p.replace(/[^\/]*$/, ""); } catch (e) { return "/"; } })();
+function lcSlug(t) { return String(t || "").trim().replace(/[^A-Za-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); }
+// The address of a page (with its data, for profiles and projects), always under the app's own folder.
+function lcPathFor(page, data) {
+  let rel = null;
+  if (page === "dp" && data && data.handle) rel = "@" + lcHandle(data.handle).replace(/^@/, "");
+  else if (page === "project" && data && (data.id || data.name)) rel = "Projects/" + lcSlug(data.id || data.name);
+  else { const r = LC_ROUTES.filter(function (x) { return x[0] === page; })[0]; rel = r ? r[1] : null; }
+  return rel === null ? null : LOOSCID_BASE + rel.split("/").map(function (s) { return encodeURIComponent(s).replace(/%40/g, "@"); }).join("/");
+}
+// The page for an address (the part after the app's folder). Case never matters. Unknown: null.
+function lcRouteFor(rel) {
+  let p = String(rel || "").replace(/^\/+|\/+$/g, ""); try { p = decodeURIComponent(p); } catch (e) {}
+  if (/^index\.html$/i.test(p)) p = "";
+  const lo = p.toLowerCase();
+  const at = /^@([A-Za-z0-9_.\-]{1,64})$/.exec(p);
+  if (at) { const h = lcHandle(at[1]); if (lcHandle(ME.handle) === h) return { page: "profile", data: null };
+    const u = USERS.find(function (x) { return lcHandle(x.handle) === h; }); return u ? { page: "dp", data: u } : { page: "feed", data: null, missing: "@" + at[1] + " isn't on this device yet." }; }
+  const pj = /^projects\/(.+)$/.exec(lo);
+  if (pj) { const pr = (Looscid.LC_PROJECTS || []).filter(function (x) { return lcSlug(x.id || x.name).toLowerCase() === pj[1] || lcSlug(x.name).toLowerCase() === pj[1]; })[0];
+    if (pr) return { page: "project", data: pr, project: pr }; }
+  const r = LC_ROUTES.filter(function (x) { return x[1].toLowerCase() === lo; })[0];
+  return r ? { page: r[0], data: null } : null;
+}
+Object.assign(Looscid, { LC_ROUTES, LOOSCID_BASE, lcSlug, lcPathFor, lcRouteFor });
+/* Part 40 (#67, #69; 2three1y Oct 12: "add the link ideas"): every More item is a link to its own page, titled
+   "<Name> - <SLOGAN>" like "Cherry - DO IT YOUR WAY". Settings is "Settings - Adjust your life". Items without a decided
+   slogan use the name alone. Help stays the pop-up menu 2three1y asked for on Oct 11 (#71). The sections are built
+   here once, so the More menu and each More page list exactly the same items. */
+const LC_MORE_SLOGANS = { cherry: "DO IT YOUR WAY", settings: "Adjust your life" };
+const LC_MORE_PAGE = { cherry: "cherry", discover: "more_discover", apps: "more_apps", create: "more_create", alerts: "more_alerts", settings: "settings", projects: "more_projects" };
+function lcMoreTitle(id, label) { return LC_MORE_SLOGANS[id] ? label + " - " + LC_MORE_SLOGANS[id] : label; }
+function lcMoreSections(o) {
+  const onClose = o.onClose || function () {}, navigate = o.navigate, goRoot = o.goRoot;
+  const unreadNotifs = o.unreadNotifs || 0, unreadMsgs = o.unreadMsgs || 0, totalAlerts = unreadNotifs + unreadMsgs;
+  return [
     { id:"cherry", emoji:"Cherry", label:"Cherry", items:[
       lcAiOn()
         ? { icon:"Cherry", label:"Open Cherry",     sub:"Cherry - DO IT YOUR WAY", special:"cherry", action(){onClose();goRoot("cherry");} }
@@ -1642,71 +1677,9 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"Commands", label:"Commands", sub:"Every Commandbar command and keyboard shortcut, each one a button that runs it", action(){onClose();navigate("commands");} },
     ]},
   ];
-
-  return React.createElement('div', {
-    className:"menu-ov",
-    onClick:e=>{if(e.target===e.currentTarget)onClose();},
-    role:"dialog","aria-modal":"true","aria-label":"Main menu",
-    // Build 150 (#62): Escape closes More like every other menu and dialog; focus goes back to the More button.
-    onKeyDown:e=>{ if (e.key === "Escape" && !e.defaultPrevented) { e.preventDefault(); e.stopPropagation(); onClose(); } },
-  },
-    React.createElement('div', {className:"menu-sh "+(pos==="top"?"from-top":"from-bot")},
-
-      React.createElement('button', Object.assign({type:"button",className:"mclose-btn mclose-top",onClick:onClose}, lcCloseProps("menu")), "Close"),
-      // Build 147 (2three1y): View your profile, near the top of More.
-      React.createElement('button', {type:"button", id:"more-view-profile", className:"lc-more-profile", onClick:function(){ onClose(); navigate("profile"); }}, React.createElement('span', null, "View your profile")),
-      // Build 148 (2three1y): Liked is a place in More, not a bottom tab.
-      React.createElement('button', {type:"button", id:"more-liked", className:"lc-more-profile", onClick:function(){ onClose(); navigate("liked"); }}, React.createElement('span', null, "Liked")),
-      // Part 35 (2three1y, Oct 12 4:46-4:50 PM): Commandbar lives in More only, as one plain button. Control+K (Command+K)
-      // keeps working everywhere.
-      React.createElement('button', {type:"button", id:"more-open-cmd", className:"lc-more-profile", onClick:function(){ onClose(); setTimeout(function () { if (Looscid.LC_OPEN_CMD) Looscid.LC_OPEN_CMD(); }, 60); }}, React.createElement('span', null, "Open Commandbar")),
-
-      React.createElement('ul', {className:"mlist msec-list", role:"list"}, SECTIONS.map(function(s) {
-        var sOpen = isOpen(s.id);
-        // Round 6.6: a section that is one page (About Looscid) is one plain button: no submenu, it opens the page.
-        // Part 32 (2three1y, Oct 12: "Remove the headings on every button in the More tab"): every section of More is a
-        // list item holding a plain button, never a heading, so VoiceOver reads "<Name>, button" and nothing more.
-        if (s.direct) return React.createElement('li', {key:s.id, className:"msec-hdr msec-li", style:{padding:0}},
-          React.createElement('button', {type:"button", id:"msec-btn-"+s.id, className:"msec-direct", "data-sec":s.id, onClick:s.direct,
-            "aria-braillelabel": Looscid.A11Y_NOW.brailleOutput ? s.label : undefined},
-            React.createElement('span', null, s.label)));
-        // Build 150 (#71): a section that is a menu (Help) is one pop-up menu button: Up/Down, Enter, Escape back to it.
-        if (s.menu) return React.createElement('li', {key:s.id, className:"msec-hdr msec-li", style:{padding:0}},
-          lh(LcMenu, { id: "msec-btn-" + s.id, menuId: "msec-menu-" + s.id, kind: "action", title: s.label, btnClass: "msec-toggle msec-menu", noCaret: true, inline: true,
-            btnBraille: Looscid.A11Y_NOW.brailleOutput ? s.label : undefined,
-            btnText: [lh('span', { key: "l" }, s.label), lh('span', { key: "i", className: "msec-toggle-ic", "aria-hidden": "true" }, "\u203a")],
-            items: s.items.map(function (it) { return { id: it.label, name: it.label, a: it.action }; }),
-            onSelect: function (k, it) { if (it && it.a) it.a(); } }));
-        return React.createElement('li', {key:s.id, className:"msec-li"},
-
-          React.createElement('div', {className:"msec-hdr",style:{padding:0}},
-            // Disclosure button pattern (round 5): a real button, aria-expanded, and a panel shown or
-            // hidden with the hidden attribute. Nothing else hides it, so VoiceOver always agrees.
-            React.createElement('button', {
-              type:"button",
-              id:"msec-btn-"+s.id,
-              className:"msec-toggle",
-              onClick:function(){ toggle(s.id); },
-              "aria-expanded":sOpen ? "true" : "false",
-              "aria-controls":"msec-"+s.id,
-              "aria-braillelabel": Looscid.A11Y_NOW.brailleOutput ? s.label : undefined,
-              "aria-label": s.badge>0 ? lcNameJoin(s.label, s.badge + " unread") : undefined,
-            },
-              React.createElement('span', {style:{display:"flex",alignItems:"center",gap:7}},
-                React.createElement('span', null, s.label),
-                s.badge>0 ? React.createElement('span', {className:"mitem-badge",style:{marginLeft:4}}, React.createElement('span',{className:"sr-only"}," "), s.badge, React.createElement('span',{className:"sr-only"}," unread")) : null
-              ),
-              React.createElement('span', {className:"msec-toggle-ic"+(sOpen?" open":""),"aria-hidden":"true"}, "\u203a")
-            )
-          ),
-
-          React.createElement('div', {
-            id:"msec-"+s.id,
-            className:"msec-body",
-            hidden: !sOpen,
-          },
-            s.intro ? React.createElement('p', {style:{padding:"8px 16px",margin:0,fontSize:12,color:"var(--tx2)"}}, s.intro) : null,
-            s.top && sOpen ? lh(LcSettingFind, { navigate: navigate, onClose: onClose }) : null,             s.render ? s.render() : React.createElement('ul', {className:"mlist", role:"list"}, s.items.map(function(item) {
+}
+// One row of a More list (menu or page): a plain button or link in a list item; its sub line is never part of it.
+function lcMoreItemLi(s, item) {
               var subId = "msub-" + s.id + "-" + item.label.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
               var hasBadge = item.badge>0;
               var hasCount = item.count!=null;
@@ -1738,17 +1711,89 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
               }, iconEl, lblEl, count,
                 React.createElement(Ic.Chv,{key:"chv",style:{width:13,height:13,color:"var(--tx3)",flexShrink:0},"aria-hidden":"true"})
               ), subP, item.like && Looscid.LcLikeBtn ? lh(Looscid.LcLikeBtn, { k: item.like.k, id: item.like.id, name: item.label, className: "btn bgb lc-btn lc-like-btn lc-mli-like" }) : null);
-            })),
-            // Round 6.6 (2three1y): a plain link after a section's buttons (Projects: Help build Looscid).
-            s.outro ? React.createElement('p', {style:{padding:"8px 16px",margin:0,fontSize:13}}, React.createElement('a', {href:s.outro[1], target:"_blank", rel:"noopener noreferrer", className:"lc-help-link"}, s.outro[0])) : null
-          )
-        );
+}
+Object.assign(Looscid, { LC_MORE_SLOGANS, LC_MORE_PAGE, lcMoreTitle, lcMoreSections, lcMoreItemLi });
+function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, appDreams, initOpen, initFocus }) {
+  const pos = (prefs.menu || {}).pos || "bottom";
+  const likedCount = lcLikedItems().length; // build 147: one Liked store
+  const totalAlerts = unreadNotifs + unreadMsgs;
+  // Round 6.6: the Projects section remembers whether you left it open (looscid_more_projects_open, in the settings backup).
+  const [open, setOpen] = useState(() => Object.assign(Looscid.lcProjectsOpen && Looscid.lcProjectsOpen() ? {projects: true} : {}, initOpen ? {[initOpen]: true} : {}));
+  // Back from a Settings screen reopens this menu on the item it came from.
+  useEffect(() => {
+    // Build 150 (#60): Back from Liked or your profile reopens More on the button that opened it (focus "#more-liked").
+    if (!initOpen && initFocus && initFocus.charAt(0) === "#") { const t0 = setTimeout(() => { const el = document.getElementById(initFocus.slice(1)); if (el) el.focus(); }, 30); return () => clearTimeout(t0); }
+    if (!initOpen) return;
+    const t = setTimeout(() => {
+      const body = document.getElementById("msec-" + initOpen);
+      const item = body && initFocus ? Array.from(body.querySelectorAll(".mitem")).find(b => b.getAttribute("aria-label") === initFocus) : null;
+      const el = item || document.querySelector('button.msec-toggle[aria-controls="msec-' + initOpen + '"]') || document.getElementById("msec-btn-" + initOpen);
+      if (el) el.focus();
+    }, 30);
+    return () => clearTimeout(t);
+  }, []);
+  const toggle = id => { const v = !open[id]; if (id === "projects" && Looscid.lcProjectsSetOpen) Looscid.lcProjectsSetOpen(v); setOpen(o => ({...o, [id]: v})); };
+  const isOpen = id => !!open[id]; // default closed
+
+  const SECTIONS = lcMoreSections({ onClose: onClose, navigate: navigate, goRoot: goRoot, unreadNotifs: unreadNotifs, unreadMsgs: unreadMsgs });
+
+  return React.createElement('div', {
+    className:"menu-ov",
+    onClick:e=>{if(e.target===e.currentTarget)onClose();},
+    role:"dialog","aria-modal":"true","aria-label":"Main menu",
+    // Build 150 (#62): Escape closes More like every other menu and dialog; focus goes back to the More button.
+    onKeyDown:e=>{ if (e.key === "Escape" && !e.defaultPrevented) { e.preventDefault(); e.stopPropagation(); onClose(); } },
+  },
+    React.createElement('div', {className:"menu-sh "+(pos==="top"?"from-top":"from-bot")},
+
+      React.createElement('button', Object.assign({type:"button",className:"mclose-btn mclose-top",onClick:onClose}, lcCloseProps("menu")), "Close"),
+      // Build 147 (2three1y): View your profile, near the top of More.
+      React.createElement('button', {type:"button", id:"more-view-profile", className:"lc-more-profile", onClick:function(){ onClose(); navigate("profile"); }}, React.createElement('span', null, "View your profile")),
+      // Build 148 (2three1y): Liked is a place in More, not a bottom tab.
+      React.createElement('button', {type:"button", id:"more-liked", className:"lc-more-profile", onClick:function(){ onClose(); navigate("liked"); }}, React.createElement('span', null, "Liked")),
+      // Part 35 (2three1y, Oct 12 4:46-4:50 PM): Commandbar lives in More only, as one plain button. Control+K (Command+K)
+      // keeps working everywhere.
+      React.createElement('button', {type:"button", id:"more-open-cmd", className:"lc-more-profile", onClick:function(){ onClose(); setTimeout(function () { if (Looscid.LC_OPEN_CMD) Looscid.LC_OPEN_CMD(); }, 60); }}, React.createElement('span', null, "Open Commandbar")),
+
+      React.createElement('ul', {className:"mlist msec-list", role:"list"}, SECTIONS.map(function(s) {
+        // Part 32: list items holding plain controls, never headings. Part 40 (#67): each section is a link to its own
+        // page (Help stays a pop-up menu, #71). The link has a real address (#69), and Enter or a tap opens the page here.
+        if (s.menu) return React.createElement('li', {key:s.id, className:"msec-hdr msec-li", style:{padding:0}},
+          lh(LcMenu, { id: "msec-btn-" + s.id, menuId: "msec-menu-" + s.id, kind: "action", title: s.label, btnClass: "msec-toggle msec-menu", noCaret: true, inline: true,
+            btnBraille: Looscid.A11Y_NOW.brailleOutput ? s.label : undefined,
+            btnText: [lh('span', { key: "l" }, s.label), lh('span', { key: "i", className: "msec-toggle-ic", "aria-hidden": "true" }, "\u203a")],
+            items: s.items.map(function (it) { return { id: it.label, name: it.label, a: it.action }; }),
+            onSelect: function (k, it) { if (it && it.a) it.a(); } }));
+        var pg = LC_MORE_PAGE[s.id];
+        var go = function (e) { if (e && (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1)) return; if (e) e.preventDefault(); if (s.direct) { s.direct(); return; } onClose(); if (s.id === "cherry") goRoot("cherry"); else navigate(pg); };
+        return React.createElement('li', {key:s.id, className:"msec-hdr msec-li", style:{padding:0}},
+          React.createElement('a', {id:"msec-btn-"+s.id, className:"msec-direct", "data-sec":s.id, href: lcPathFor(pg), onClick: go,
+            "aria-braillelabel": Looscid.A11Y_NOW.brailleOutput ? s.label : undefined,
+            "aria-label": s.badge>0 ? lcNameJoin(s.label, s.badge + " unread") : undefined},
+            React.createElement('span', {style:{display:"flex",alignItems:"center",gap:7}},
+              React.createElement('span', null, s.label),
+              s.badge>0 ? React.createElement('span', {className:"mitem-badge",style:{marginLeft:4},"aria-hidden":"true"}, s.badge) : null),
+            React.createElement('span', {className:"msec-toggle-ic","aria-hidden":"true"}, "\u203a")));
       })),
 
       React.createElement('button', Object.assign({type:"button",className:"mclose-btn mclose-bot",onClick:onClose}, lcCloseProps("menu")), "Close")
     )
   );
 }
+
+/* Part 40 (#67): a More item's own page: the same list as its section in More, under "<Name> - <SLOGAN>". Back
+   reopens More on that item. Settings keeps Find a setting at the top. */
+function LcMorePage({ id, navigate, goRoot, unreadNotifs, unreadMsgs, onBack }) {
+  const s = lcMoreSections({ onClose: function () {}, navigate: navigate, goRoot: goRoot, unreadNotifs: unreadNotifs, unreadMsgs: unreadMsgs }).filter(function (x) { return x.id === id; })[0];
+  if (!s) return null;
+  return lh('div', { className: "pg lc-more-page", id: "more-page-" + id },
+    lh(BackHeader, { title: lcMoreTitle(id, s.label), onBack: onBack }),
+    s.intro ? lh('p', { className: "lc-desc", style: { padding: "8px 16px", margin: 0 } }, s.intro) : null,
+    s.top ? lh(LcSettingFind, { navigate: navigate, onClose: function () {} }) : null,
+    s.render ? s.render() : lh('ul', { className: "mlist", role: "list" }, s.items.map(function (item) { return lcMoreItemLi(s, item); })),
+    s.outro ? lh('p', { style: { padding: "8px 16px", margin: 0, fontSize: 13 } }, lh('a', { href: s.outro[1], target: "_blank", rel: "noopener noreferrer", className: "lc-help-link" }, s.outro[0])) : null);
+}
+Looscid.LcMorePage = LcMorePage;
 /* === LooscidID, "CHANGE YOUR INFO" AND FIRST-RUN ONBOARDING ===============
    Built from 2three1y's design docs (Looscid Business, Halfview,
    ID Manager, Overview). Accessibility first: every control
@@ -3101,7 +3146,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T21:01:57Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T21:05:52Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -5284,6 +5329,13 @@ useEffect(() => {
       if (Looscid.lcFooterFrom === cur) { Looscid.lcFooterFrom = null; setPage(mainBack.current || "feed"); setPdata(null); Earcon.play("settings");
         setTimeout(() => { const h = document.querySelector("#main-content h1"); if (h) { if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); h.focus(); } }, 60); return; }
       const m = SETTINGS_MENU_ITEM[cur] || ["settings", null];
+      // Part 40 (#67): Settings is its own page now. Back from a Settings screen lands there, on the row it came from.
+      if (m[0] === "settings" && cur !== "settings") {
+        setPage("settings"); setPdata(null); Earcon.play("settings");
+        setTimeout(() => { const pg = document.getElementById("more-page-settings"); const row = pg && m[1] ? Array.from(pg.querySelectorAll(".mitem")).find(b => b.getAttribute("aria-label") === m[1]) : null;
+          const h = document.querySelector("#main-content h1"); const el = row || h; if (el) { if (el === h && !h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); el.focus(); } }, 60);
+        return;
+      }
       setPage(mainBack.current || "feed"); setPdata(null);
       setMenuInit({ open: m[0], focus: m[1], n: Date.now() }); setShowMenu(true); Earcon.play("settings");
       return;
@@ -5361,7 +5413,45 @@ useEffect(() => {
     else focusMainHeading();
   };
   // Round 6.6: Commandbar's projects command opens the More menu on a section (the Projects section).
-  Looscid.LC_OPEN_MENU = (sec, focus) => { if (sec === "projects" && Looscid.lcProjectsSetOpen) Looscid.lcProjectsSetOpen(true); setMenuInit({ open: sec, focus: focus || null, n: Date.now() }); setShowMenu(true); };
+  // Part 40 (#67): a More section is a page now, so opening "the Projects section" opens the Projects page (on that row).
+  Looscid.LC_OPEN_MENU = (sec, focus) => {
+    const pg = LC_MORE_PAGE[sec];
+    if (pg && sec !== "cherry") { setShowMenu(false); navigate(pg); if (focus) setTimeout(() => { const el = Array.from(document.querySelectorAll("#main-content .mitem")).find(b => b.getAttribute("aria-label") === focus); if (el) el.focus(); }, 120); return; }
+    setMenuInit({ open: sec, focus: focus || null, n: Date.now() }); setShowMenu(true);
+  };
+  // Back on a More page: More opens again on the link that opened it.
+  const moreBack = (id) => { setPage(mainBack.current || "feed"); setPdata(null); setMenuInit({ open: null, focus: "#msec-btn-" + id, n: Date.now() }); setShowMenu(true); Earcon.play("settings"); };
+  Looscid.LC_MORE_BACK = moreBack;
+  // Part 40 (#69): the address bar follows the page (pushState), Back and Forward in the browser follow the address
+  // (popstate), and an address that came through 404.html (?p=/Settings/Sense) or straight in opens its page.
+  const routeInit = useRef(undefined), routeSkip = useRef(false);
+  useEffect(() => {
+    let rel = null;
+    try { const sp = new URLSearchParams(location.search); if (sp.has("p")) rel = sp.get("p"); } catch (e) {}
+    if (rel === null) { const lp = location.pathname; if (lp.toLowerCase().indexOf(LOOSCID_BASE.toLowerCase()) === 0) rel = lp.slice(LOOSCID_BASE.length); }
+    const r = rel ? lcRouteFor(rel) : null;
+    if (r && r.missing) setTimeout(() => announce(r.missing), 800);
+    if (rel && !r) setTimeout(() => announce("There's no page at that address, so Looscid opened Home."), 800);
+    const to = r && r.page !== "feed" ? r : null;
+    try { const want = to ? lcPathFor(to.page, to.data) : LOOSCID_BASE; if (to || /[?&]p=/.test(location.search) || (rel && !r)) history.replaceState({ lcPage: to ? to.page : "feed" }, "", want + location.hash); } catch (e) {}
+    if (to) { routeInit.current = to.page; setPage(to.page); setPdata(to.data); } else routeInit.current = null;
+    const onPop = () => {
+      const lp = location.pathname, r2 = (lp.toLowerCase().indexOf(LOOSCID_BASE.toLowerCase()) === 0 ? lcRouteFor(lp.slice(LOOSCID_BASE.length)) : null) || { page: "feed", data: null };
+      routeSkip.current = true; setShowMenu(false); setPage(r2.page); setPdata(r2.data); focusMainHeading();
+    };
+    window.addEventListener("popstate", onPop); return () => window.removeEventListener("popstate", onPop);
+  }, []);
+  useEffect(() => {
+    if (routeInit.current === undefined) return;                 // the first effect has not read the address yet
+    if (routeInit.current) { if (page !== routeInit.current) return; routeInit.current = null; return; }
+    const want = lcPathFor(page, pdata); if (!want) { routeSkip.current = false; return; }
+    const curP = location.pathname;
+    if (page === "feed" && (curP === LOOSCID_BASE || curP === LOOSCID_BASE + "index.html")) { routeSkip.current = false; return; }
+    if (curP === want) { routeSkip.current = false; return; }
+    try { if (routeSkip.current) history.replaceState({ lcPage: page }, "", want); else history.pushState({ lcPage: page }, "", want); } catch (e) {}
+    routeSkip.current = false;
+  }, [page, pdata]);
+
   const setA11yPatch = patch => { Looscid.A11Y_NOW = Object.assign({}, Looscid.A11Y_NOW, patch); setPrefs(p => Object.assign({}, p, { accessibility: Object.assign({}, A11Y_DEFAULTS, p.accessibility || {}, patch) })); };
   const openCmd = (prefill) => {
     if (showWelcome) return;
@@ -5535,7 +5625,7 @@ useEffect(() => {
   }, [prefs.accessibility, sysRM]);
   // Earcon when the area changes (Feed, Alerts, Circles, Settings)
   const lastArea = useRef("feed");
-  useEffect(() => { if (page !== "terminal" && page !== "music") termBack.current = page; if (!/^settings|^terms$|^privacy$|^guidelines$|^hour_story$|^feedback$/.test(page)) mainBack.current = page; const ar = areaOfPage(page); const prev = lastArea.current; lastArea.current = ar; if (ar && ar !== prev) Earcon.play(ar); }, [page]);
+  useEffect(() => { if (page !== "terminal" && page !== "music") termBack.current = page; if (!/^settings|^more_|^terms$|^privacy$|^guidelines$|^child_safety$|^credits$|^hour_story$|^feedback$/.test(page)) mainBack.current = page; const ar = areaOfPage(page); const prev = lastArea.current; lastArea.current = ar; if (ar && ar !== prev) Earcon.play(ar); }, [page]);
 
   const showFab = ["feed","discover","groups","alerts"].includes(page);
 
@@ -5570,7 +5660,8 @@ useEffect(() => {
       alerts:   "Alerts",
       profile:  (authUser && authUser.displayName) ? authUser.displayName : "Profile",
       dp:       pdata ? (pdata.name || "Profile") : "Profile",
-      settings: "Settings",
+      settings: lcMoreTitle("settings", "Settings"),
+      more_discover: "Discover", more_apps: "Apps", more_create: "Create", more_alerts: "Alerts", more_projects: "Projects",
       settings_account: "LooscidID",
       settings_labs: "Looscid Labs",
       settings_notifications: "Alerts Settings",
@@ -5672,6 +5763,9 @@ useEffect(() => {
       case "privacy":       return React.createElement(Looscid.PolicyPage, { title: "Privacy", content: PRIVACY_CONTENT, navigate: navigate, back: "settings",});
       case "guidelines":    return React.createElement(Looscid.PolicyPage, { title: "Community rules", content: GUIDELINES_CONTENT, navigate: navigate, back: "settings",});
       case "child_safety":  return React.createElement(Looscid.PolicyPage, { title: "Child Safety", content: CHILD_SAFETY_CONTENT, navigate: navigate, back: "settings",});
+      // Part 40 (#67): Settings and every More item have their own page.
+      case "settings": case "more_discover": case "more_apps": case "more_create": case "more_alerts": case "more_projects":
+                            return React.createElement(Looscid.LcMorePage, { key: page, id: page === "settings" ? "settings" : page.slice(5), navigate: navigate, goRoot: goRoot, unreadNotifs: unreadNotifs, unreadMsgs: unreadMsgs, onBack: function () { moreBack(page === "settings" ? "settings" : page.slice(5)); } });
       default:              return React.createElement(Looscid.FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
     }
   };

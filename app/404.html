@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Opening Looscid</title>
+<script>
+/* Part 40 (#69, 2three1y Oct 11): GitHub Pages has no server routing, so every address under /Looscid/ that isn't a file
+   lands here. This sends it straight into the app as ?p=<path>; the app opens that page (any letter case) and puts the
+   real address back in the address bar. Nothing is stored and nothing else is loaded. */
+(function () {
+  var l = window.location, p = l.pathname, m = /^\/looscid(\/|$)/i.exec(p);
+  var base = m ? "/Looscid/" : "/", rest = m ? p.slice(m[0].length) : p.replace(/^\//, "");
+  l.replace(base + "?p=" + encodeURIComponent("/" + rest) + l.hash);
+})();
+</script>
+</head>
+<body>
+<main>
+<h1>Opening Looscid</h1>
+<p><a href="/Looscid/">Open Looscid</a></p>
+</main>
+</body>
+</html>

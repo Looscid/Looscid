@@ -9,6 +9,7 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 | File | What it holds |
 |---|---|
 | `app/index.html` | The frame only: meta tags, the startup screen, the live region `#looscid-live`, the script tags in load order, and the mount at the end. |
+| `app/404.html` | Real page addresses (#69): GitHub Pages serves it for any address under /Looscid/ that isn't a file, and it sends that address into the app as `?p=<path>`. `LC_ROUTES` in `app/js/core.js` maps each page to its address (case never matters); `index.html` sets a `<base>` so files always load from the app folder. |
 | `app/css/app.css` | The app's styles. |
 | `app/css/a11y.css` | Startup screen, Commandbar, earcon cues and Settings > Accessibility styles (`<link id="lc-a11y-css">`). |
 | `app/js/core.js` | Shared state and preferences (`looscid_` storage keys), icons, sounds (earcons, pitch cues), navigation and routing (`App`, the frame), Alerts storage, the update check and version, shared screens and helpers, and the plain DOM helpers (`lcEl`, `lcPatch`, `lcPlainScreen`). |
