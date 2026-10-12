@@ -423,6 +423,10 @@ const Ic = {
   Key:   p => React.createElement('svg', { ...p, viewBox: "0 0 24 24"   , fill: "none", stroke: "currentColor", strokeWidth: "1.9",}, React.createElement('path', { d: "M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"                  ,})),
   X:     p => React.createElement('svg', { ...p, viewBox: "0 0 24 24"   , fill: "currentColor",}, React.createElement('path', { d: "M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"          ,})),
 };
+/* 2three1y (Oct 12, 5:44 PM): VoiceOver's rotor offered Image Recognition, because icon svgs inside buttons were exposed
+   as unlabeled images. Every icon is decorative (its button or row carries the name), so each one is aria-hidden and
+   never focusable, unless a caller gives it a real name (aria-label or a role). */
+Object.keys(Ic).forEach(function (k) { const draw = Ic[k]; Ic[k] = function (p) { p = p || {}; return draw(Object.assign(p["aria-label"] || p.role ? {} : { "aria-hidden": "true" }, { focusable: "false" }, p)); }; });
 Looscid.Ic = Ic;
 /* --- SHARED COMPONENTS ------------------- */
 function Av({user, size=40}) {
@@ -439,7 +443,7 @@ function Av({user, size=40}) {
 }
 function ChkMark() {
   return (
-    React.createElement('svg', { viewBox: "0 0 12 10"   , width: "9", height: "9",}
+    React.createElement('svg', { viewBox: "0 0 12 10"   , width: "9", height: "9", "aria-hidden": "true", focusable: "false",}
       , React.createElement('polyline', { points: "1,5 4.5,8.5 11,1"  , stroke: "#fff", strokeWidth: "2.5", fill: "none", strokeLinecap: "round", strokeLinejoin: "round",})
     )
   );
@@ -3189,7 +3193,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T21:53:16Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T21:56:31Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -6189,7 +6193,7 @@ const LC_ICON_PATHS = {
 };
 function lcIconEl(name, props) {
   const parts = LC_ICON_PATHS[name] || [];
-  return lcEl.apply(null, ['svg', Object.assign({}, props || {}, { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.9" })].concat(parts.map(function (p) { return lcEl(p[0], p[1]); })));
+  return lcEl.apply(null, ['svg', Object.assign({ "aria-hidden": "true", focusable: "false" }, props || {}, { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.9" })].concat(parts.map(function (p) { return lcEl(p[0], p[1]); })));
 }
 function lcBackHeaderEl(title, onBack, right) {
   return lcEl('div', { className: "hdr" },
