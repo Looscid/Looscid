@@ -2,7 +2,7 @@
    Plain script (not a module). Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order. */
 (function (Looscid) {
 const { A11Y_DEFAULTS, A11Y_KEY, A11ySwitch, AlertDialog, Av, BackHeader, Cbx, CommentView, DREAMS_INIT, DreamCard, Earcon, GROUPS, ID_PROVIDERS, Ic, LC_A11Y_CATS, LC_A11Y_PAGE, LC_ALERT_PREFS_KEY, LC_ALERT_TYPES, LC_AUDIO_CATS, LC_BOOT, LC_BR_BUILTIN, LC_BR_MAX, LC_BUILTIN_KEYS, LC_EXPORT_KEYS, LC_FEED_MODES, LC_FIND_KEY, LC_MSG_CATS, LC_NEXOS_APPS, LC_NEXOS_SHELL, LC_SECTIONS, LC_SET, LC_SETTINGS_KEY, LC_SET_BY, LC_SR_NAMES_DEF, LC_UPDATE_AUTO_KEY, LID_NOSTR_SK_KEY, LOOSCID_BUILD, LOOSCID_RELEASED, LOOSCID_SLOGAN, LOOSCID_VERSION, LcCmdLog, LcFindMeSwitch, LcMenu, LcSpeech, ME, MUSIC_GENRES, MenuPopupButton, Music, PROVIDER_NAMES, SecretField, TRENDING, USERS, announce, getAIPrefs, getActivity, getDrafts, getIdentity, getLocalProfile, getMethods, getTopics, hexToBytes, lcAiOn, lcAlertCats, lcAlertPrefs, lcAlerts, lcAlertsMarkAll, lcAppItems, lcAudCustom, lcBlocked, lcBlockedSet, lcBrCreate, lcBrDate, lcBrDelete, lcBrForget, lcBrList, lcBrNotice, lcBrRename, lcBrSelect, lcBrStamp, lcBrUndo, lcBrUsePast, lcBrowserName, lcCatState, lcCheckUpdate, lcCloseProps, lcDownloadSettings, lcFeedMode, lcHandle, lcHapticsSupported, lcHints, lcIdbDo, lcKeyName, lcLoadCustomPack, lcNexosSend, lcOpenReset, lcPitchCue, lcQuietNow, lcReleasedText, lcSectionTitle, lcSet, lcSpoken, lcSrName, lcStorageKB, lcTranslateOk, lcUpdateAuto, lcValueText, lcVerb, lcVersionLabel, lcWords, lh, logActivity, removeMethod, sanitizeInput, setAIPrefs, shortNpub, systemReducedMotion, updateLocalProfile, useA11yNow, useCats, useCmdHistory, useCmdLog, useDreams, useEffect, useEnterSubmit, useKeyboardInset, useOAuthReturn, useRef, useState } = Looscid;
-Object.assign(Looscid, { CreditsPage, ProfileView, ProfilePage, DreamorProfilePage, AccountSettings, LcAudience, lcCatSave, LcCatCustomize, MessageSettings, NotificationsSettings, PrivacySettings, LcResetLast, LcTabs, LcBlockedPanel, LcPrivacyMedia, FeedSwitchSetting, LcCatMenu, LcCatPage, CustomizabilitySettings, lcSetAiPref, IntelligenceSettings, lcMenuList, lcSubLine, AccessibilitySettings, A11yCategory, AboutSettings, MorePage, MoreAppsGroup, FeedbackPage, AdminPanel, AdminUsers, AdminContent, AdminReports, AdminAnalytics, AdminPlatform, AdminAnnouncements, PolicyPage, HourStoryPage, normalizeUrl, fieldValueText, ProfileInfoList, ChangeInfoScreen, useProfileEditor, lcJoin, methodLabel, getStoredNostrSk, ComingSoonPanel, LoginMethods, lcGetIds, lcSaveIds, lcBech32Polymod, lcDecodeBech32Key, lcCheckId, lcVerifyId, LcKeysPanel, lcIdLabel, lidWhen, thisDeviceLabel, localDataSummary, exportLocalData, deleteLocalData, LooscidIDManager, lcUnzip, lcCheckPackFiles, lcAutoMap, lcUpdateAutoSet, lcPitchPreview, MusicPage, lcAudCustomSet, useBlocked, lcAlertPrefsSet, termOutputOpen, setTermOutputOpen, lcOsName, lcAboutInfo, AboutLooscidMore, TerminalPage, LabsSettings, lcAppGet, lcAppPut, LcAppRange, AppsSettings, NexosAppsPage, NexosAppFrame, lcLinkedProviders, LcSetRow, LcWordsRow, LcVoiceRow, LcResetBtn, LcSection, BrailleStyle, LcVerbosityPanel, SrTabs, LcSpeechTest, LcSrRename, AudioSettings, LcPackImport, lcShortcutOk, KeyboardSettings, TabBarSettings, lcImportSettings, BackupSettings });
+Object.assign(Looscid, { ProfileTabsSettings, CreditsPage, ProfileView, ProfilePage, DreamorProfilePage, AccountSettings, LcAudience, lcCatSave, LcCatCustomize, MessageSettings, NotificationsSettings, PrivacySettings, LcResetLast, LcTabs, LcBlockedPanel, LcPrivacyMedia, FeedSwitchSetting, LcCatMenu, LcCatPage, CustomizabilitySettings, lcSetAiPref, IntelligenceSettings, lcMenuList, lcSubLine, AccessibilitySettings, A11yCategory, AboutSettings, MorePage, MoreAppsGroup, FeedbackPage, AdminPanel, AdminUsers, AdminContent, AdminReports, AdminAnalytics, AdminPlatform, AdminAnnouncements, PolicyPage, HourStoryPage, normalizeUrl, fieldValueText, ProfileInfoList, ChangeInfoScreen, useProfileEditor, lcJoin, methodLabel, getStoredNostrSk, ComingSoonPanel, LoginMethods, lcGetIds, lcSaveIds, lcBech32Polymod, lcDecodeBech32Key, lcCheckId, lcVerifyId, LcKeysPanel, lcIdLabel, lidWhen, thisDeviceLabel, localDataSummary, exportLocalData, deleteLocalData, LooscidIDManager, lcUnzip, lcCheckPackFiles, lcAutoMap, lcUpdateAutoSet, lcPitchPreview, MusicPage, lcAudCustomSet, useBlocked, lcAlertPrefsSet, termOutputOpen, setTermOutputOpen, lcOsName, lcAboutInfo, AboutLooscidMore, TerminalPage, LabsSettings, lcAppGet, lcAppPut, LcAppRange, AppsSettings, NexosAppsPage, NexosAppFrame, lcLinkedProviders, LcSetRow, LcWordsRow, LcVoiceRow, LcResetBtn, LcSection, BrailleStyle, LcVerbosityPanel, SrTabs, LcSpeechTest, LcSrRename, AudioSettings, LcPackImport, lcShortcutOk, KeyboardSettings, TabBarSettings, lcImportSettings, BackupSettings });
 
 /* --- PROFILE (OWN) ----------------------- */
 
@@ -319,10 +319,12 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const theirVisible = theirLikes ? lcLikedVisibleTo(theirLikes, user.likesPublic || [], ME.handle, myLikedIds) : [];
   // Tabs: Feditext's four, then 2three1y's: Liked (your own, private; on others only what they made visible to you),
   // Mutual likes (others), About.
-  const TABS = [["dreams", "Dreams"], ["replies", "Replies"], ["redreams", "Redreams"], ["media", "Media"]]
+  const TABS0 = [["dreams", "Dreams"], ["replies", "Replies"], ["redreams", "Redreams"], ["media", "Media"]]
     .concat(isMe ? [["liked", "Liked"]] : theirVisible.length ? [["liked", "Liked"]] : [])
     .concat(self ? [] : [["mutual", "Mutual likes"]])
     .concat([["about", "About"]]);
+  Looscid.useProfileTabsTick();
+  const TABS = Looscid.lcProfileTabsSort(TABS0); // build 152 prep (#98): in your order (Settings, Profile Tabs)
   const cur = TABS.some(function (t) { return t[0] === tab; }) ? tab : "dreams";
   useEffect(function () { if (noteEdit && noteRef.current) noteRef.current.focus(); }, [noteEdit]);
   useEffect(function () { if (preview && headRef.current) headRef.current.focus(); }, [preview]);
@@ -353,12 +355,14 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
        { id: "share", name: "Share", a: share },
        { id: "copylink", name: "Copy LooscidID link", a: copyLink },
        { id: "viewas", name: "View as others see it", a: function () { setViewAs(true); announce("Viewing your profile as others see it."); } },
+       { id: "reorder", name: "Reorder tabs", a: function () { Looscid.LC_SETTINGS_BACK = "profile"; navigate("settings_profiletabs"); } },
        { id: "settings", name: "Settings", a: function () { navigate("settings"); } }]
     : [following ? { id: "unfollow", name: "Unfollow", a: follow } : { id: "follow", name: "Follow", a: follow },
        { id: "message", name: "Message", note: "unavailable: direct messages aren't ready yet", disabled: true },
        cherryOn ? { id: "cherry", name: "Ask Cherry for a summary", a: askCherry } : { id: "cherry", name: "Ask Cherry for a summary", note: "unavailable: Cherry is off", hint: "Not available while Cherry is off. Turn it on in Settings, Intelligence.", disabled: true },
        { id: "share", name: "Share", a: share },
        { id: "copylink", name: "Copy LooscidID link", a: copyLink },
+       { id: "reorder", name: "Reorder tabs", a: function () { Looscid.LC_SETTINGS_BACK = null; navigate("settings_profiletabs"); } },
        hidesRd ? { id: "showrd", name: "Show Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, false); say("Showing Redreams from " + user.name + "."); } }
                : { id: "hiderd", name: "Hide Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, true); say("Hiding Redreams from " + user.name + "."); } },
        { id: "note", name: note ? "Edit note" : "Add note", a: function () { setNoteText(note); setNoteEdit(true); } },
@@ -2520,6 +2524,7 @@ const LC_VERSION_HISTORY = [
     "Alerts is an Inbox now, laid out like Reddit's: one row of tabs (All, Unread, Messages, Replies, Mentions, Likes, Redreams, Quotes, New Dreamor), Send a message and Mark all read at the top, similar alerts grouped (\"Liked by Ava and 3 others\"), and a More button on every row with Reply, Mark read and Block. Replies has an \"Only threads I follow\" checkbox. Messages are real private messages on Nostr (NIP-17), end-to-end encrypted: write to anyone by their npub, and a new message is read out once without moving your focus. Likes, Redreams, Quotes, mentions, replies and new Dreamors come from Nostr too, with no server.",
     "Who can message me now really applies to private messages: a message from someone the setting doesn't allow stays hidden and silent on your device (the Messages tab says how many Dreamors are waiting, with a Message settings button), and changing the setting shows them. A conversation you started always shows.",
     "Home on small screens: only the feed tabs stay pinned at the top while you scroll. The title, welcome line and feed options scroll away, so they no longer cover the first Dream's buttons.",
+    "Profile Tabs: put the tabs on profiles in your own order (Dreams, Replies, Redreams, Media, Liked, Mutual likes, About) in Settings, Profile Tabs, with plain Move up and Move down buttons like the Tab Bar. Also in a profile's options as Reorder tabs. Saved in your settings backup.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
@@ -3478,6 +3483,32 @@ function TabBarSettings({ navigate }) {
     })),
     lh('p', { className: "lc-desc", style: { padding: "10px 16px", margin: 0 } }, "More is always last, so Settings is always one tap away."),
     list.some(function (t) { return t.custom; }) ? null : lh('p', { className: "lc-desc", style: { padding: "0 16px 12px", margin: 0 } }, "To add a custom tab, pin a Circle, a person, a hashtag or a thread on the Following feed. It shows up here."));
+}
+/* Build 152 prep (#98): Settings, Profile Tabs. The same plain pattern as the Tab Bar: one row per tab with Move up and
+   Move down buttons (no drag, no rotor actions). Focus stays on the button you pressed; the new position is said once. */
+function ProfileTabsSettings({ navigate }) {
+  Looscid.useProfileTabsTick();
+  const list = Looscid.lcProfileTabsAll();
+  const keep = function (elId) { setTimeout(function () { const el = document.getElementById(elId); if (el) el.focus(); }, 0); };
+  const move = function (t, d) {
+    const n = Looscid.lcProfileTabsMove(t.id, d);
+    if (!n) { announce(d < 0 ? t.l + " is already first." : t.l + " is already last."); return; }
+    keep("ptab-" + (d < 0 ? "up-" : "down-") + t.id); announce("Moved " + t.l + (d < 0 ? " up" : " down") + ", now position " + n + ".");
+  };
+  const back = function () { const b = Looscid.LC_SETTINGS_BACK; Looscid.LC_SETTINGS_BACK = null; navigate(b || "settings"); };
+  return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
+    lh(BackHeader, { title: "Profile Tabs", onBack: back }),
+    lh('p', { className: "lc-desc", style: { padding: "8px 16px", margin: 0 } }, "The order of the tabs on profiles, yours and everyone's. Saved on this device and in your settings backup."),
+    lh('ul', { className: "lc-tb-list", role: "list" }, list.map(function (t, i) {
+      return lh('li', { key: t.id, className: "lc-tb-row" },
+        lh('p', { className: "lc-ptab-name", id: "ptab-name-" + t.id }, t.l),
+        t.sub ? lh('p', { className: "lc-tb-sub" }, t.sub) : null,
+        lh('div', { className: "lc-tb-moves" },
+          lh('button', { type: "button", id: "ptab-up-" + t.id, className: "btn bgb lc-btn", "aria-label": "Move " + t.l + " up", "aria-disabled": i === 0 ? "true" : undefined, onClick: function () { move(t, -1); } }, "Move up"),
+          lh('button', { type: "button", id: "ptab-down-" + t.id, className: "btn bgb lc-btn", "aria-label": "Move " + t.l + " down", "aria-disabled": i === list.length - 1 ? "true" : undefined, onClick: function () { move(t, 1); } }, "Move down")));
+    })),
+    lh('div', { style: { padding: "12px 16px" } },
+      lh('button', { type: "button", id: "ptab-reset", className: "btn bgb lc-btn", onClick: function () { Looscid.lcProfileTabsReset(); announce("Profile tabs are back in the usual order: Dreams, Replies, Redreams, Media, Liked, Mutual likes, About."); keep("ptab-reset"); } }, "Back to the usual order")));
 }
 function KeyboardSettings({ navigate }) {
   useA11yNow();

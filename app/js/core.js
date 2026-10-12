@@ -1161,6 +1161,7 @@ const LC_FIND_STATIC = [
   { l: "Earcons", w: "audio earcons earcon sounds sound pack soundpack soundpacks looscid os classic nexos volume haptics beeps keyboard clicks keyboard earcons command earcons", page: "settings_audio", where: "Settings" },
   { l: "Keyboard shortcuts", w: "keys shortcuts", page: "settings_keyboard", where: "Settings" },
   { l: "Tab Bar", w: "tab bar tabbar bottom tabs order reorder hide show custom tab pinned tab move up move down", page: "settings_tabbar", where: "Settings" },
+  { l: "Profile Tabs", w: "profile tabs order reorder dreams replies redreams media liked mutual likes about move up move down", page: "settings_profiletabs", where: "Settings" },
   { l: "Settings backup", w: "export import reset", page: "settings_backup", where: "Settings" },
   { l: "Intelligence", w: "ai cherry assistant artificial intelligence", page: "settings_intelligence", where: "Settings" },
   { l: "Cherry on or off", w: "ai cherry turn on off enable disable assistant opt in", page: "settings_ai_cherry", focus: "ai-on", where: "Settings, Intelligence, Cherry" },
@@ -1678,7 +1679,7 @@ const LC_ROUTES = [
   ["settings_a11y_hearing", "Settings/Accessibility/Hearing"], ["settings_a11y_motion", "Settings/Accessibility/Motion"], ["settings_a11y_motor", "Settings/Accessibility/Motor"],
   ["settings_a11y_terminal", "Settings/Accessibility/Commandbar"], ["settings_audio", "Settings/Earcons"], ["settings_audio_volume", "Settings/Earcons/Volume"],
   ["settings_audio_pack", "Settings/Earcons/Soundpacks"], ["settings_audio_events", "Settings/Earcons/Events"], ["settings_audio_haptics", "Settings/Earcons/Haptics"],
-  ["settings_apps", "Settings/Apps"], ["settings_keyboard", "Settings/Keyboard"], ["settings_tabbar", "Settings/Tab-Bar"], ["settings_backup", "Settings/Backup"], ["settings_intelligence", "Settings/Intelligence"],
+  ["settings_apps", "Settings/Apps"], ["settings_keyboard", "Settings/Keyboard"], ["settings_tabbar", "Settings/Tab-Bar"], ["settings_profiletabs", "Settings/Profile-Tabs"], ["settings_backup", "Settings/Backup"], ["settings_intelligence", "Settings/Intelligence"],
   ["settings_ai_cherry", "Settings/Intelligence/Cherry"], ["settings_ai_model", "Settings/Intelligence/Model"], ["settings_ai_cmd", "Settings/Intelligence/Commandbar"],
   ["settings_ai_memory", "Settings/Intelligence/Memory"], ["settings_ai_tools", "Settings/Intelligence/Tools"], ["settings_ai_audit", "Settings/Intelligence/What-Cherry-did"],
   ["settings_labs", "Settings/Labs"], ["settings_about", "About"], ["terms", "Terms"], ["privacy", "Privacy"], ["guidelines", "Rules"], ["child_safety", "Child-Safety"],
@@ -1751,6 +1752,7 @@ function lcMoreSections(o) {
       { icon:"Privacy", label:"Privacy",         sub:"Visibility, blocked users",   action(){onClose();navigate("settings_privacy");} },
       { icon:"Customizability", label:"Customizability", sub:"Theme, feeds, menu, Dreaming, media", value: function () { return getSavedTheme() === "light" ? "Light theme" : "Dark theme"; },     action(){onClose();navigate("settings_customizability");} },
       { icon:"Tab Bar", label:"Tab Bar", sub:"Which tabs show at the bottom, and their order", value: function () { return lcTabBarVisible().map(function (t) { return t.l; }).concat(["More"]).join(", "); }, action(){onClose();navigate("settings_tabbar");} },
+      { icon:"Tab Bar", label:"Profile Tabs", sub:"The order of the tabs on profiles", value: function () { return lcProfileTabsAll().slice(0, 4).map(function (t) { return t.l; }).join(", ") + ", and more"; }, action(){onClose();navigate("settings_profiletabs");} },
       { icon:"Accessibility", label:"Accessibility",  sub:"Sense, vision, hearing, motion",  action(){onClose();navigate("settings_accessibility");} },
       { icon:"Audio", label:"Earcons",  sub:"Soundpacks, volume, keyboard and command earcons, your own sounds, haptics", value: function () { return lcSetVal("earcons") === "off" ? "Off" : lcSetVal("soundPack") + ", volume " + lcSetVal("earconVolume") + " percent"; },  action(){onClose();navigate("settings_audio");} },
       { icon:"Apps", label:"Apps",  sub:"Insomnia, Memeprojects, Easyconvert, Desktop and Kernel",  action(){onClose();navigate("settings_apps");} },
@@ -3264,7 +3266,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T22:57:32Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T23:00:59Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4577,6 +4579,7 @@ const LC_PLACES = {
   pitchcues: { label: "Pitch cues", page: "settings_a11y_sr", srTab: "speech" }, // build 150 (#56): Pitch cues live on the Speech tab
   keyboard: { label: "Keyboard shortcuts", page: "settings_keyboard" },
   tabbar: { label: "Tab Bar settings", page: "settings_tabbar" }, // build 151 (#75)
+  profiletabs: { label: "Profile Tabs settings", page: "settings_profiletabs" }, // build 152 prep (#98)
   backup: { label: "Settings backup", page: "settings_backup" },
   alertsettings: { label: "Alerts settings", page: "settings_notifications" },
   intelligence: { label: "Intelligence settings", page: "settings_intelligence" },
@@ -5518,6 +5521,32 @@ function useTabBarTick() { const [, f] = useState(0); useEffect(function () { co
   const ev = ["looscid:tabbar", "looscid:pins", "looscid:feed", "looscid:pms"]; ev.forEach(function (e) { window.addEventListener(e, h); });
   return function () { ev.forEach(function (e) { window.removeEventListener(e, h); }); }; }, []); }
 Object.assign(Looscid, { LC_TABBAR_KEY, lcTabBarAll, lcTabBarVisible, lcTabBarToggle, lcTabBarMove, useTabBarTick });
+/* Build 152 prep (#98): the order of the tabs on profiles (yours and everyone's), set in Settings, Profile Tabs with plain
+   Move up and Move down buttons like the Tab Bar. Stored as looscid_profile_tabs: { order } and in the settings backup.
+   Liked shows on yours (and on others only when they share Likes with you), Mutual likes only on others'. */
+const LC_PROFILE_TABS_KEY = "looscid_profile_tabs";
+const LC_PROFILE_TABS = [{ id: "dreams", l: "Dreams" }, { id: "replies", l: "Replies" }, { id: "redreams", l: "Redreams" }, { id: "media", l: "Media" },
+  { id: "liked", l: "Liked", sub: "On your profile, and on others' when they share their Likes with you" }, { id: "mutual", l: "Mutual likes", sub: "Only on other Dreamors' profiles" }, { id: "about", l: "About" }];
+function lcProfileTabsAll() {
+  const v = lcJsonLs(LC_PROFILE_TABS_KEY, {}) || {}, order = Array.isArray(v.order) ? v.order.map(String) : [], out = [];
+  order.forEach(function (id) { const t = LC_PROFILE_TABS.find(function (x) { return x.id === id; }); if (t && out.indexOf(t) < 0) out.push(t); });
+  LC_PROFILE_TABS.forEach(function (t) { if (out.indexOf(t) < 0) out.push(t); });
+  return out;
+}
+// Sort a profile's [id, label] tabs by your order.
+function lcProfileTabsSort(tabs) { const ids = lcProfileTabsAll().map(function (t) { return t.id; }); return tabs.slice().sort(function (a, b) { return ids.indexOf(a[0]) - ids.indexOf(b[0]); }); }
+// Move one profile tab up (-1) or down (+1). Returns the new position (1 is first), or 0 when it can't move.
+function lcProfileTabsMove(id, d) {
+  const list = lcProfileTabsAll(), i = list.findIndex(function (x) { return x.id === id; }), j = i + d;
+  if (i < 0 || j < 0 || j >= list.length) return 0;
+  const t = list[i]; list[i] = list[j]; list[j] = t;
+  try { localStorage.setItem(LC_PROFILE_TABS_KEY, JSON.stringify({ order: list.map(function (x) { return x.id; }) })); } catch (e) {}
+  window.dispatchEvent(new CustomEvent("looscid:profiletabs")); return j + 1;
+}
+function lcProfileTabsReset() { try { localStorage.removeItem(LC_PROFILE_TABS_KEY); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:profiletabs")); }
+function useProfileTabsTick() { const [, f] = useState(0); useEffect(function () { const h = function () { f(function (x) { return x + 1; }); };
+  window.addEventListener("looscid:profiletabs", h); return function () { window.removeEventListener("looscid:profiletabs", h); }; }, []); }
+Object.assign(Looscid, { LC_PROFILE_TABS_KEY, lcProfileTabsAll, lcProfileTabsSort, lcProfileTabsMove, lcProfileTabsReset, useProfileTabsTick });
 const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "looscid_braille_styles", "looscid_theme", "looscid_ai_prefs", "looscid_cherry_attrib", "looscid_music", "looscid_alerts_tab", "looscid_show_friends", "looscid_term_output_open", "looscid_topics",
   // Round 6.5.2: Cherry's Your History (chats and which are pinned). Added at the end, so older backups still import.
   "looscid_cherry_chats",
@@ -5536,7 +5565,9 @@ const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "looscid_braille_styles", "lo
   // Build 151 (#75): Settings > Tab Bar (which tabs show and their order). Added at the end, so older backups still import.
   "looscid_tabbar",
   // Build 151 (#74): threads you follow (Subscribe to thread). Added at the end, so older backups still import.
-  "looscid_thread_subs"];
+  "looscid_thread_subs",
+  // Build 152 prep (#98): the order of profile tabs. Added at the end, so older backups still import.
+  "looscid_profile_tabs"];
 Looscid.LC_EXPORT_KEYS = LC_EXPORT_KEYS;
 function lcExportSettings() {
   const o = { app: "Looscid", kind: "settings", version: LOOSCID_VERSION, exported: new Date().toISOString(), settings: {} };
@@ -5580,7 +5611,7 @@ function A11ySwitch({ id, label, desc, on, onToggle, soon, locked }) {
 const SETTINGS_MENU_ITEM = {
   settings_account: ["settings", "LooscidID"], settings_notifications: ["settings", "Alerts"], settings_privacy: ["settings", "Privacy"],
   settings_customizability: ["settings", "Customizability"], settings_accessibility: ["settings", "Accessibility"], settings_intelligence: ["settings", "Intelligence"], settings_labs: ["settings", "Looscid Labs"], settings_about: ["about", "About Looscid"],
-  settings_audio: ["settings", "Earcons"], settings_keyboard: ["settings", "Keyboard shortcuts"], settings_tabbar: ["settings", "Tab Bar"], settings_apps: ["settings", "Apps"], settings_messages: ["settings", "Alerts"], settings_backup: ["settings", "Settings backup"],
+  settings_audio: ["settings", "Earcons"], settings_keyboard: ["settings", "Keyboard shortcuts"], settings_tabbar: ["settings", "Tab Bar"], settings_profiletabs: ["settings", "Profile Tabs"], settings_apps: ["settings", "Apps"], settings_messages: ["settings", "Alerts"], settings_backup: ["settings", "Settings backup"],
   settings_a11y_sr: ["settings", "Accessibility"], settings_a11y_vision: ["settings", "Accessibility"], settings_a11y_hearing: ["settings", "Accessibility"],
   settings_a11y_motion: ["settings", "Accessibility"], settings_a11y_motor: ["settings", "Accessibility"], settings_a11y_terminal: ["settings", "Accessibility"],
   terms: ["about", "Terms"], privacy: ["about", "Privacy"], guidelines: ["about", "Community rules"], feedback: ["about", "Send Feedback"],
@@ -6129,6 +6160,7 @@ useEffect(() => {
       settings_audio: "Earcons",
       settings_keyboard: "Keyboard shortcuts",
       settings_tabbar: "Tab Bar",
+      settings_profiletabs: "Profile Tabs",
       settings_apps: "Apps",
       settings_messages: "Message settings",
       settings_backup: "Settings backup",
@@ -6180,6 +6212,7 @@ useEffect(() => {
                                       return React.createElement(Looscid.AudioSettings, { key: page, page: page, navigate: navigate,});
       case "settings_keyboard":       return React.createElement(Looscid.KeyboardSettings, { navigate: navigate,});
       case "settings_tabbar":         return Looscid.TabBarSettings ? React.createElement(Looscid.TabBarSettings, { navigate: navigate,}) : null;
+      case "settings_profiletabs":    return Looscid.ProfileTabsSettings ? React.createElement(Looscid.ProfileTabsSettings, { navigate: navigate,}) : null;
       case "settings_apps":           return React.createElement(Looscid.AppsSettings, { navigate: navigate,});
       case "settings_messages":       return React.createElement(Looscid.MessageSettings, { navigate: navigate,});
       case "settings_backup":         return React.createElement(Looscid.BackupSettings, { navigate: navigate, onImported: function () { const acc = loadA11y(); Looscid.A11Y_NOW = acc; setPrefs(function (p) { return Object.assign({}, p, { accessibility: acc }); }); try { setTheme(getSavedTheme() || "dark"); } catch (e) {} },});
