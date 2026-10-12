@@ -2,7 +2,7 @@
    Plain script (not a module). Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order. */
 (function (Looscid) {
 const { A11Y_DEFAULTS, A11Y_KEY, A11ySwitch, AlertDialog, Av, BackHeader, Cbx, CommentView, DREAMS_INIT, DreamCard, Earcon, GROUPS, ID_PROVIDERS, Ic, LC_A11Y_CATS, LC_A11Y_PAGE, LC_ALERT_PREFS_KEY, LC_ALERT_TYPES, LC_AUDIO_CATS, LC_BOOT, LC_BR_BUILTIN, LC_BR_MAX, LC_BUILTIN_KEYS, LC_EXPORT_KEYS, LC_FEED_MODES, LC_FIND_KEY, LC_MSG_CATS, LC_NEXOS_APPS, LC_NEXOS_SHELL, LC_SECTIONS, LC_SET, LC_SETTINGS_KEY, LC_SET_BY, LC_SR_NAMES_DEF, LC_UPDATE_AUTO_KEY, LID_NOSTR_SK_KEY, LOOSCID_BUILD, LOOSCID_RELEASED, LOOSCID_SLOGAN, LOOSCID_VERSION, LcCmdLog, LcFindMeSwitch, LcMenu, LcSpeech, ME, MUSIC_GENRES, MenuPopupButton, Music, PROVIDER_NAMES, SecretField, TRENDING, USERS, announce, getAIPrefs, getActivity, getDrafts, getIdentity, getLocalProfile, getMethods, getTopics, hexToBytes, lcAiOn, lcAlertCats, lcAlertPrefs, lcAlerts, lcAlertsMarkAll, lcAppItems, lcAudCustom, lcBlocked, lcBlockedSet, lcBrCreate, lcBrDate, lcBrDelete, lcBrForget, lcBrList, lcBrNotice, lcBrRename, lcBrSelect, lcBrStamp, lcBrUndo, lcBrUsePast, lcBrowserName, lcCatState, lcCheckUpdate, lcCloseProps, lcDownloadSettings, lcFeedMode, lcHandle, lcHapticsSupported, lcHints, lcIdbDo, lcKeyName, lcLoadCustomPack, lcNexosSend, lcOpenReset, lcPitchCue, lcQuietNow, lcReleasedText, lcSectionTitle, lcSet, lcSpoken, lcSrName, lcStorageKB, lcTranslateOk, lcUpdateAuto, lcValueText, lcVerb, lcVersionLabel, lcWords, lh, logActivity, removeMethod, sanitizeInput, setAIPrefs, shortNpub, systemReducedMotion, updateLocalProfile, useA11yNow, useCats, useCmdHistory, useCmdLog, useDreams, useEffect, useEnterSubmit, useKeyboardInset, useOAuthReturn, useRef, useState } = Looscid;
-Object.assign(Looscid, { ProfileTabsSettings, CreditsPage, ProfileView, ProfilePage, DreamorProfilePage, AccountSettings, LcAudience, lcCatSave, LcCatCustomize, MessageSettings, NotificationsSettings, PrivacySettings, LcResetLast, LcTabs, LcBlockedPanel, LcPrivacyMedia, FeedSwitchSetting, LcCatMenu, LcCatPage, CustomizabilitySettings, lcSetAiPref, IntelligenceSettings, lcMenuList, lcSubLine, AccessibilitySettings, A11yCategory, AboutSettings, MorePage, MoreAppsGroup, FeedbackPage, AdminPanel, AdminUsers, AdminContent, AdminReports, AdminAnalytics, AdminPlatform, AdminAnnouncements, PolicyPage, HourStoryPage, normalizeUrl, fieldValueText, ProfileInfoList, ChangeInfoScreen, useProfileEditor, lcJoin, methodLabel, getStoredNostrSk, ComingSoonPanel, LoginMethods, lcGetIds, lcSaveIds, lcBech32Polymod, lcDecodeBech32Key, lcCheckId, lcVerifyId, LcKeysPanel, lcIdLabel, lidWhen, thisDeviceLabel, localDataSummary, exportLocalData, deleteLocalData, LooscidIDManager, lcUnzip, lcCheckPackFiles, lcAutoMap, lcUpdateAutoSet, lcPitchPreview, MusicPage, lcAudCustomSet, useBlocked, lcAlertPrefsSet, termOutputOpen, setTermOutputOpen, lcOsName, lcAboutInfo, AboutLooscidMore, TerminalPage, LabsSettings, lcAppGet, lcAppPut, LcAppRange, AppsSettings, NexosAppsPage, NexosAppFrame, lcLinkedProviders, LcSetRow, LcWordsRow, LcVoiceRow, LcResetBtn, LcSection, BrailleStyle, LcVerbosityPanel, SrTabs, LcSpeechTest, LcSrRename, AudioSettings, LcPackImport, lcShortcutOk, KeyboardSettings, TabBarSettings, lcImportSettings, BackupSettings });
+Object.assign(Looscid, { ListsPage, ProfileLists, ProfileTabsSettings, CreditsPage, ProfileView, ProfilePage, DreamorProfilePage, AccountSettings, LcAudience, lcCatSave, LcCatCustomize, MessageSettings, NotificationsSettings, PrivacySettings, LcResetLast, LcTabs, LcBlockedPanel, LcPrivacyMedia, FeedSwitchSetting, LcCatMenu, LcCatPage, CustomizabilitySettings, lcSetAiPref, IntelligenceSettings, lcMenuList, lcSubLine, AccessibilitySettings, A11yCategory, AboutSettings, MorePage, MoreAppsGroup, FeedbackPage, AdminPanel, AdminUsers, AdminContent, AdminReports, AdminAnalytics, AdminPlatform, AdminAnnouncements, PolicyPage, HourStoryPage, normalizeUrl, fieldValueText, ProfileInfoList, ChangeInfoScreen, useProfileEditor, lcJoin, methodLabel, getStoredNostrSk, ComingSoonPanel, LoginMethods, lcGetIds, lcSaveIds, lcBech32Polymod, lcDecodeBech32Key, lcCheckId, lcVerifyId, LcKeysPanel, lcIdLabel, lidWhen, thisDeviceLabel, localDataSummary, exportLocalData, deleteLocalData, LooscidIDManager, lcUnzip, lcCheckPackFiles, lcAutoMap, lcUpdateAutoSet, lcPitchPreview, MusicPage, lcAudCustomSet, useBlocked, lcAlertPrefsSet, termOutputOpen, setTermOutputOpen, lcOsName, lcAboutInfo, AboutLooscidMore, TerminalPage, LabsSettings, lcAppGet, lcAppPut, LcAppRange, AppsSettings, NexosAppsPage, NexosAppFrame, lcLinkedProviders, LcSetRow, LcWordsRow, LcVoiceRow, LcResetBtn, LcSection, BrailleStyle, LcVerbosityPanel, SrTabs, LcSpeechTest, LcSrRename, AudioSettings, LcPackImport, lcShortcutOk, KeyboardSettings, TabBarSettings, lcImportSettings, BackupSettings });
 
 /* --- PROFILE (OWN) ----------------------- */
 
@@ -317,6 +317,146 @@ function ProfileQr({ name, link, onClose }) {
       lh('button', { type: "button", id: "pf-qr-copy", className: "btn bgb lc-btn", onClick: function () { lcCopy(link, "LooscidID link"); } }, "Copy link"),
       lh('button', Object.assign({ type: "button", id: "pf-qr-close", className: "btn bgb lc-btn", onClick: onClose }, lcCloseProps("QR code")), "Close")));
 }
+/* Build 152 prep (#99, part 4b): Lists, laid out like Feditext's (layout only; the store is in core.js, looscid_lists).
+   Add to list: a section under Dreamor options with one checkbox per list (checked when the Dreamor is in it), and a
+   New list box that makes a list with them in it. More, Lists: your lists, New list, and each list's page (its
+   Dreamors' Dreams, its Dreamors with Remove, Rename list and Delete list). Private to you, saved on this device and
+   in your settings backup. */
+function ProfileLists({ user, navigate, onClose }) {
+  Looscid.useListsTick();
+  const [name, setName] = useState(""), [msg, setMsg] = useState("");
+  const hRef = useRef(null);
+  useEffect(function () { const t = setTimeout(function () { if (hRef.current) hRef.current.focus(); }, 40); return function () { clearTimeout(t); }; }, []);
+  const lists = Looscid.lcListsRead(), who = user.name || user.displayName || "this Dreamor";
+  const toggle = function (l, on) {
+    if (!Looscid.lcListSetMember(l.id, user, on)) { announce(l.name + " is full. A list holds " + Looscid.LC_LIST_MEMBERS_MAX + " Dreamors at most."); return; }
+    announce((on ? "Added to " : "Removed from ") + l.name + ".");
+  };
+  const make = function (e) {
+    e.preventDefault();
+    const r = Looscid.lcListCreate(name);
+    if (r.error) { setMsg(r.error); announce(r.error); return; }
+    Looscid.lcListSetMember(r.id, user, true); setName(""); setMsg("");
+    announce("Made the list " + r.name + " and added " + who + ".");
+  };
+  return lh('section', { id: "pf-lists", className: "lc-extra lc-prof-lists", "aria-labelledby": "pf-lists-h",
+      onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); onClose(); } } },
+    lh('h2', { id: "pf-lists-h", className: "lc-sub-h", tabIndex: -1, ref: hRef }, "Add to list"),
+    lists.length ? lh('fieldset', { className: "lc-fs", id: "pf-lists-fs" },
+        lh('legend', { className: "lc-fs-l" }, "Lists with " + who),
+        lh('div', { className: "lc-radios lc-radios-col" }, lists.map(function (l) {
+          const on = Looscid.lcListHas(l, user);
+          return lh('label', { key: l.id, className: "lc-radio" + (on ? " on" : "") },
+            lh('input', { type: "checkbox", checked: on, onChange: function () { toggle(l, !on); } }),
+            lh('span', null, l.name));
+        })))
+      : lh('p', { className: "lc-muted" }, "You don't have any lists yet. Make one here and " + who + " goes in it."),
+    lh('form', { className: "lc-list-new", onSubmit: make },
+      lh('label', { htmlFor: "pf-list-new" }, "New list name"),
+      lh('input', { id: "pf-list-new", className: "inp", type: "text", maxLength: 60, autoComplete: "off", value: name, "aria-invalid": msg ? "true" : undefined, onChange: function (e) { setName(e.target.value); if (msg) setMsg(""); } }),
+      msg ? lh('p', { className: "lc-muted lc-list-err" }, msg) : null,
+      lh('button', { type: "submit", id: "pf-list-make", className: "btn bgb lc-btn" }, "Make list")),
+    lh('div', { className: "lc-inrow" },
+      lh('button', { type: "button", id: "pf-lists-manage", className: "btn bgb lc-btn", onClick: function () { navigate("lists"); } }, "Manage lists"),
+      lh('button', Object.assign({ type: "button", id: "pf-lists-close", className: "btn bgb lc-btn", onClick: onClose }, lcCloseProps("Add to list")), "Close")));
+}
+function lcListCount(n) { return n.toLocaleString() + (n === 1 ? " Dreamor" : " Dreamors"); }
+function ListsPage({ navigate, cherryCtx, data }) {
+  Looscid.useListsTick();
+  const id = data && data.list;
+  const list = id ? Looscid.lcListGet(id) : null;
+  if (id && list) return lh(ListView, { list: list, navigate: navigate, cherryCtx: cherryCtx });
+  return lh(ListsIndex, { navigate: navigate, gone: !!id });
+}
+function ListsIndex({ navigate, gone }) {
+  const head = useRef(null);
+  const [name, setName] = useState(""), [msg, setMsg] = useState("");
+  useEffect(function () { if (head.current) head.current.focus(); }, []);
+  const lists = Looscid.lcListsRead();
+  const make = function (e) {
+    e.preventDefault();
+    const r = Looscid.lcListCreate(name);
+    if (r.error) { setMsg(r.error); announce(r.error); return; }
+    setName(""); setMsg(""); announce("Made the list " + r.name + ".");
+  };
+  return lh('div', { className: "pg lc-lists-page" },
+    lh('div', { className: "hdr" }, lh('div', { className: "hdr-row" },
+      lh('button', { type: "button", className: "bi", onClick: function () { navigate("settings"); }, "aria-label": "Back" }, lh(Ic.Bck, { style: { width: 21, height: 21 }, "aria-hidden": "true" })),
+      lh('h1', { className: "hdr-title", tabIndex: -1, ref: head, id: "lists-h" }, "Lists"))),
+    lh('div', { className: "lc-pad" },
+      gone ? lh('p', { className: "lc-muted" }, "That list isn't on this device any more.") : null,
+      lh('p', { className: "lc-muted" }, "Your own lists of Dreamors, to read their Dreams together. Only you can see them. Add someone from their profile: Dreamor options, Add to list."),
+      lh('form', { className: "lc-list-new", onSubmit: make },
+        lh('label', { htmlFor: "lists-new" }, "New list name"),
+        lh('input', { id: "lists-new", className: "inp", type: "text", maxLength: 60, autoComplete: "off", value: name, "aria-invalid": msg ? "true" : undefined, onChange: function (e) { setName(e.target.value); if (msg) setMsg(""); } }),
+        msg ? lh('p', { className: "lc-muted lc-list-err" }, msg) : null,
+        lh('button', { type: "submit", id: "lists-make", className: "btn bp lc-big" }, "Make list")),
+      lh('h2', { className: "lc-sub-h", id: "lists-yours-h" }, "Your lists (" + lists.length.toLocaleString() + ")"),
+      lists.length ? lh('ul', { className: "lc-people lc-lists", role: "list", "aria-labelledby": "lists-yours-h" }, lists.slice().reverse().map(function (l) {
+          return lh('li', { key: l.id },
+            lh('button', { type: "button", className: "lc-person lc-list-row", id: "lists-open-" + l.id, onClick: function () { navigate("lists", { list: l.id }); } },
+              lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, l.name), lh('span', { className: "lc-person-h" }, ", " + lcListCount(l.members.length)))));
+        }))
+        : lh('p', { className: "lc-muted" }, "No lists yet.")));
+}
+function ListView({ list, navigate, cherryCtx }) {
+  const head = useRef(null), renRef = useRef(null);
+  const [mode, setMode] = useState(null); // "rename" | "delete"
+  const [name, setName] = useState(list.name), [msg, setMsg] = useState("");
+  const [activeComment, setActiveComment] = useState(null);
+  useEffect(function () { if (head.current) head.current.focus(); }, [list.id]);
+  useEffect(function () { if (mode === "rename" && renRef.current) renRef.current.focus(); if (mode === "delete") { const b = document.getElementById("list-del-no"); if (b) b.focus(); } }, [mode]);
+  const all = (cherryCtx && cherryCtx.dreams) || [];
+  const { dreams, tl, tr, tur, tq, tuq, tb, tc } = useDreams(Looscid.lcListDreams(list, all));
+  if (activeComment) return lh(CommentView, { dream: activeComment, onBack: function () { setActiveComment(null); }, onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onCommentPosted: tc, navigate: navigate });
+  const focusId = function (i) { setTimeout(function () { const b = document.getElementById(i); if (b) b.focus(); }, 30); };
+  const rename = function (e) {
+    e.preventDefault();
+    const r = Looscid.lcListRename(list.id, name);
+    if (r.error) { setMsg(r.error); announce(r.error); return; }
+    setMsg(""); setMode(null); announce("Renamed to " + r.name + "."); focusId("list-rename");
+  };
+  const del = function () { const l = Looscid.lcListDelete(list.id); navigate("lists"); setTimeout(function () { announce("Deleted the list " + (l ? l.name : "") + "."); }, 60); };
+  const members = list.members;
+  return lh('div', { className: "pg lc-lists-page lc-list-page" },
+    lh('div', { className: "hdr" }, lh('div', { className: "hdr-row" },
+      lh('button', { type: "button", className: "bi", onClick: function () { navigate("lists"); }, "aria-label": "Back" }, lh(Ic.Bck, { style: { width: 21, height: 21 }, "aria-hidden": "true" })),
+      lh('h1', { className: "hdr-title", tabIndex: -1, ref: head, id: "list-h" }, list.name))),
+    lh('div', { className: "lc-pad" },
+      lh('div', { className: "lc-inrow" },
+        lh('button', { type: "button", id: "list-rename", className: "btn bgb lc-btn", "aria-expanded": mode === "rename" ? "true" : "false", onClick: function () { setName(list.name); setMsg(""); setMode(mode === "rename" ? null : "rename"); } }, "Rename list"),
+        lh('button', { type: "button", id: "list-delete", className: "btn bgb lc-btn", "aria-expanded": mode === "delete" ? "true" : "false", onClick: function () { setMode(mode === "delete" ? null : "delete"); } }, "Delete list")),
+      mode === "rename" ? lh('form', { className: "lc-list-new", onSubmit: rename, onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); setMode(null); focusId("list-rename"); } } },
+          lh('label', { htmlFor: "list-name" }, "List name"),
+          lh('input', { id: "list-name", ref: renRef, className: "inp", type: "text", maxLength: 60, autoComplete: "off", value: name, "aria-invalid": msg ? "true" : undefined, onChange: function (e) { setName(e.target.value); if (msg) setMsg(""); } }),
+          msg ? lh('p', { className: "lc-muted lc-list-err" }, msg) : null,
+          lh('div', { className: "lc-q-btns" },
+            lh('button', { type: "submit", className: "btn bp lc-big" }, "Save"),
+            lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { setMode(null); focusId("list-rename"); } }, "Cancel"))) : null,
+      mode === "delete" ? lh('div', { className: "lc-extra", id: "list-del" },
+          lh('p', null, "Delete " + list.name + "? Its Dreamors aren't told and you keep following them."),
+          lh('div', { className: "lc-q-btns" },
+            lh('button', { type: "button", id: "list-del-yes", className: "btn bp lc-big lc-danger", onClick: del }, "Delete list"),
+            lh('button', { type: "button", id: "list-del-no", className: "btn bgb lc-big", onClick: function () { setMode(null); focusId("list-delete"); } }, "Keep list"))) : null,
+      lh('h2', { className: "lc-sub-h", id: "list-dreams-h" }, "Dreams (" + dreams.length.toLocaleString() + ")"),
+      dreams.length ? lh('div', { className: "lc-list-dreams" }, dreams.map(function (d) {
+          return lh(DreamCard, { key: d.id, dream: d, onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onComment: function (x) { setActiveComment(x); }, navigate: navigate, cherryCtx: cherryCtx });
+        }))
+        : lh('p', { className: "lc-muted" }, members.length ? "No Dreams from this list on your device yet." : "No Dreamors in this list yet. Add someone from their profile: Dreamor options, Add to list."),
+      lh('h2', { className: "lc-sub-h", id: "list-members-h" }, "Dreamors (" + members.length.toLocaleString() + ")"),
+      members.length ? lh('ul', { className: "lc-people lc-list-members", role: "list", "aria-labelledby": "list-members-h" }, members.map(function (m, i) {
+          const nm = m.name || (m.handle ? "@" + String(m.handle).replace(/^@/, "") : "Dreamor");
+          return lh('li', { key: Looscid.lcListMemberKey(m) || i, className: "lc-list-member" },
+            lh('button', { type: "button", className: "lc-person", onClick: function () { navigate("dp", Object.assign({}, m, { name: nm })); } },
+              lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, nm), " ", m.handle ? lh('span', { className: "lc-person-h" }, "@" + String(m.handle).replace(/^@/, "")) : null)),
+            lh('button', { type: "button", className: "btn bgb lc-btn", "aria-label": "Remove " + nm + " from " + list.name, onClick: function () {
+              Looscid.lcListSetMember(list.id, m, false); announce("Removed " + nm + " from " + list.name + ".");
+              const next = members[i + 1] || members[i - 1]; focusId(next ? "" : "list-members-h");
+              setTimeout(function () { const rows = document.querySelectorAll(".lc-list-member .lc-person"); const t = rows[Math.min(i, rows.length - 1)]; if (t) t.focus(); else if (head.current) head.current.focus(); }, 40);
+            } }, "Remove"));
+        }))
+        : lh('p', { className: "lc-muted" }, "None yet.")));
+}
 function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUser, preview, onExitPreview }) {
   const [tab, setTab] = useState("dreams");
   const [viewAs, setViewAs] = useState(false); // your own profile, shown the way others see it
@@ -329,6 +469,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const [, bump] = useState(0);
   const [activeComment, setActiveComment] = useState(null);
   const [qrOpen, setQrOpen] = useState(false); // build 152 prep (#99, part 4): the QR code under Dreamor options
+  const [listsOpen, setListsOpen] = useState(false); // part 4b: Add to list, under Dreamor options
   Looscid.useLikedTick();
   const moreBtn = useRef(null), editBtn = useRef(null), noteRef = useRef(null), headRef = useRef(null);
   // preview: your own profile as others see it. Your own data, nobody else's controls.
@@ -403,7 +544,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const backToMore = function () { setTimeout(function () { const b = document.getElementById("pf-more-btn"); if (b) b.focus(); }, 30); };
   const originals = Looscid.lcProfileOriginals(user, self ? Looscid.getMethods() : user.logins);
   const openOriginal = function (o) { const w = window.open(o.url, "_blank", "noopener,noreferrer"); if (w) w.opener = null; };
-  const extraItems = [{ id: "qr", name: "QR code", a: function () { setQrOpen(true); } },
+  const extraItems = [{ id: "qr", name: "QR code", a: function () { setListsOpen(false); setQrOpen(true); } },
     { id: "copyuser", name: "Copy username", a: function () { lcCopy("@" + handle, "Username"); } }]
     .concat(originals.map(function (o) { return { id: "orig-" + o.net, name: "Open original profile on " + o.label, a: function () { openOriginal(o); } }; }));
   const openEdit = function (fromMore) { setEditOpen(true); if (fromMore) setTimeout(function () { const a = document.getElementById("pf-link-name") || editBtn.current; if (a) a.focus(); }, 30); };
@@ -427,6 +568,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
        cherryOn ? { id: "cherry", name: "Ask Cherry for a summary", a: askCherry } : { id: "cherry", name: "Ask Cherry for a summary", note: "unavailable: Cherry is off", hint: "Not available while Cherry is off. Turn it on in Settings, Intelligence.", disabled: true },
        { id: "share", name: "Share profile", a: share },
        { id: "copylink", name: "Copy LooscidID link", a: copyLink }].concat(extraItems, [
+       { id: "addlist", name: "Add to list", a: function () { setQrOpen(false); setListsOpen(true); } },
        { id: "reorder", name: "Reorder tabs", a: function () { Looscid.LC_SETTINGS_BACK = null; navigate("settings_profiletabs"); } },
        hidesRd ? { id: "showrd", name: "Show Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, false); say("Showing Redreams from " + user.name + "."); } }
                : { id: "hiderd", name: "Hide Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, true); say("Hiding Redreams from " + user.name + "."); } },
@@ -586,6 +728,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
         muted ? [" ", lh('span', { key: "mu", className: "lc-cap" }, "Muted")] : null,
         blocked ? [" ", lh('span', { key: "bl", className: "lc-cap" }, "Blocked")] : null),
       moreMenu,
+      listsOpen && !self ? lh(ProfileLists, { user: user, navigate: navigate, onClose: function () { setListsOpen(false); backToMore(); } }) : null,
       qrOpen && !preview ? lh(ProfileQr, { name: user.name || user.displayName, link: profLink, onClose: function () { setQrOpen(false); backToMore(); } }) : null,
       user.isOriginals ? lh('p', { className: "lc-muted" }, "Founding account") : null,
       // Build 150, part 16: no "Dreams (N) • Joined" line here any more. The Dreams tab already says how many, and the
@@ -2602,6 +2745,7 @@ const LC_VERSION_HISTORY = [
     "Inbox earcons: Messages, Replies, Mentions, Likes, Redreams, Quotes and New Dreamor each have their own new, gentle earcon instead of the plain Alert earcon. They follow the Alert switch, volume, Calm mode and quiet hours, and you can preview each one in Settings, Earcons, Event earcons, under Inbox earcons. No existing earcon changed.",
     "Security: Looscid OS apps and Projects now run in a locked-down sandbox, so none of them can reach your Nostr key. Their saved settings come along.",
     "Profile options: Share profile now shares the profile's LooscidID link, and there's a QR code (with the link written out and what scanning does, for anyone who can't see it), Copy username, and Open original profile on Nostr, Mastodon or Bluesky when the Dreamor is there.",
+    "Lists: make your own lists of Dreamors in More, Lists, and each one is its own feed of their Dreams. Add someone from their profile's options with Add to list (a checkbox for each list, or make a new one right there). Rename, delete and remove people anytime. Only you see them, and they're in your settings backup.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
@@ -3645,6 +3789,8 @@ function lcImportSettings(text) {
   let n = 0; LC_EXPORT_KEYS.forEach(function (k) { if (typeof o.settings[k] === "string") { try {
     // Build 150: Circles you made join the ones on this device (nothing of yours is replaced). A backup without them changes none.
     if (k === Looscid.LC_CIRCLES_KEY) { if (Looscid.lcCirclesMerge(o.settings[k])) n++; return; }
+    // Build 152 prep (#99, part 4b): Lists join yours the same way (a list you both have gets the backup's Dreamors too).
+    if (k === Looscid.LC_LISTS_KEY) { if (Looscid.lcListsMerge(o.settings[k])) n++; return; }
     if (k === A11Y_KEY || k === LC_SETTINGS_KEY) JSON.parse(o.settings[k]); localStorage.setItem(k, o.settings[k]); n++; } catch (e) {} } });
   return { n: n };
 }

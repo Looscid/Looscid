@@ -673,6 +673,81 @@ function lcProfileOriginals(user, logins) {
     .some(function (b) { const v = String(b || "").trim().replace(/^@/, ""); const ok = /^did:[a-z]+:[A-Za-z0-9._:%\-]+$/.test(v) || /^[A-Za-z0-9\-]+(\.[A-Za-z0-9\-]+)+$/.test(v); if (ok) add("bluesky", "Bluesky", "https://bsky.app/profile/" + v); return ok; });
   return out;
 }
+/* Build 152 prep (#99, part 4b): Lists, laid out like Feditext's (Feditext by Metabolist; layout only, no code).
+   Lists of Dreamors you make yourself, private to you: make, rename and delete them in More, Lists, and add or remove
+   a Dreamor from a profile's options (Add to list). A list's page shows its Dreamors' Dreams. Kept on this device in
+   looscid_lists, a JSON array, oldest first: { id: "l<time><random>", name, members: [{ id, handle, name, net }],
+   created }. 100 lists at most, 500 Dreamors each. In Backup and Import (LC_EXPORT_KEYS, added at the end); an import
+   adds the backup's lists to yours and, for a list you both have, its Dreamors (yours win on names). */
+const LC_LISTS_KEY = "looscid_lists", LC_LISTS_MAX = 100, LC_LIST_MEMBERS_MAX = 500;
+function lcListMemberKey(u) { if (!u) return ""; const h = u.handle ? lcHandle(String(u.handle)) : ""; return h ? "h:" + h.toLowerCase() : (u.id != null ? "i:" + String(u.id) : ""); }
+function lcListMemberOk(m) { return !!m && typeof m === "object" && !!lcListMemberKey(m) && (m.handle == null || typeof m.handle === "string") && (m.name == null || typeof m.name === "string"); }
+function lcListOk(l) { return !!l && typeof l === "object" && typeof l.id === "string" && /^[A-Za-z0-9_\-]{1,40}$/.test(l.id) && typeof l.name === "string" && l.name.trim() !== "" && Array.isArray(l.members); }
+function lcListClean(l) { return { id: l.id, name: String(l.name).trim().slice(0, 60), members: l.members.filter(lcListMemberOk).slice(0, LC_LIST_MEMBERS_MAX).map(lcListMemberSnap), created: typeof l.created === "string" ? l.created : "" }; }
+function lcListMemberSnap(u) {
+  const m = { id: typeof u.id === "number" || typeof u.id === "string" ? u.id : null, handle: u.handle ? String(u.handle).slice(0, 120) : "", name: String(u.name || u.displayName || "").slice(0, 120) };
+  if (u.net) m.net = String(u.net).slice(0, 20);
+  return m;
+}
+function lcListsRead() {
+  try { const a = JSON.parse(localStorage.getItem(LC_LISTS_KEY) || "[]"); return Array.isArray(a) ? a.filter(lcListOk).map(lcListClean) : []; } catch (e) { return []; }
+}
+function lcListsWrite(list) {
+  try { localStorage.setItem(LC_LISTS_KEY, JSON.stringify(list.slice(-LC_LISTS_MAX))); } catch (e) { return false; }
+  try { window.dispatchEvent(new Event("looscid:lists")); } catch (e) {}
+  return true;
+}
+function useListsTick() { useIdListTick("looscid:lists"); }
+function lcListGet(id) { return lcListsRead().find(function (l) { return l.id === id; }) || null; }
+function lcListNameTaken(name, exceptId) { const n = String(name || "").trim().toLowerCase(); return lcListsRead().some(function (l) { return l.id !== exceptId && l.name.toLowerCase() === n; }); }
+// Returns the new list, or { error } with words to say.
+function lcListCreate(name) {
+  const n = String(name || "").trim().slice(0, 60);
+  if (!n) return { error: "Type a name for the list first." };
+  if (lcListNameTaken(n)) return { error: "You already have a list called " + n + "." };
+  const have = lcListsRead();
+  if (have.length >= LC_LISTS_MAX) return { error: "You have " + LC_LISTS_MAX + " lists, the most Looscid keeps. Delete one first." };
+  const l = { id: "l" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name: n, members: [], created: new Date().toISOString() };
+  if (!lcListsWrite(have.concat([l]))) return { error: "Couldn't save the list. This device's storage may be full." };
+  return l;
+}
+function lcListRename(id, name) {
+  const n = String(name || "").trim().slice(0, 60);
+  if (!n) return { error: "Type a name for the list first." };
+  if (lcListNameTaken(n, id)) return { error: "You already have a list called " + n + "." };
+  const have = lcListsRead(), l = have.find(function (x) { return x.id === id; }); if (!l) return { error: "That list is gone." };
+  l.name = n; lcListsWrite(have); return l;
+}
+function lcListDelete(id) { const have = lcListsRead(); const l = have.find(function (x) { return x.id === id; }); lcListsWrite(have.filter(function (x) { return x.id !== id; })); return l || null; }
+function lcListHas(l, u) { const k = lcListMemberKey(u); return !!l && !!k && l.members.some(function (m) { return lcListMemberKey(m) === k; }); }
+// Adds (on true) or removes a Dreamor. Returns false when a full list can't take one more.
+function lcListSetMember(id, u, on) {
+  const have = lcListsRead(), l = have.find(function (x) { return x.id === id; }); if (!l) return false;
+  const k = lcListMemberKey(u); if (!k) return false;
+  const rest = l.members.filter(function (m) { return lcListMemberKey(m) !== k; });
+  if (on) { if (rest.length >= LC_LIST_MEMBERS_MAX) return false; rest.push(lcListMemberSnap(u)); }
+  l.members = rest; lcListsWrite(have); return true;
+}
+function lcListsOf(u) { return lcListsRead().filter(function (l) { return lcListHas(l, u); }); }
+// A list's Dreams: top-level Dreams and Redreams by its Dreamors, newest first.
+function lcListDreams(l, dreams) {
+  if (!l) return [];
+  const keys = new Set(l.members.map(lcListMemberKey));
+  return (dreams || []).filter(function (d) { return d && d.user && !d.replyTo && (keys.has(lcListMemberKey(d.user)) || (d.user.id != null && keys.has("i:" + String(d.user.id)))); });
+}
+// Import: the backup's lists join yours. Same id: you keep your name and get any Dreamors only the backup had.
+function lcListsMerge(text) {
+  let a; try { a = JSON.parse(text); } catch (e) { return false; }
+  if (!Array.isArray(a)) return false;
+  const have = lcListsRead();
+  a.filter(lcListOk).map(lcListClean).forEach(function (l) {
+    const mine = have.find(function (x) { return x.id === l.id; });
+    if (!mine) { if (have.length < LC_LISTS_MAX) have.push(l); return; }
+    l.members.forEach(function (m) { if (!lcListHas(mine, m) && mine.members.length < LC_LIST_MEMBERS_MAX) mine.members.push(m); });
+  });
+  lcListsWrite(have); return true;
+}
+Object.assign(Looscid, { LC_LISTS_KEY, LC_LISTS_MAX, LC_LIST_MEMBERS_MAX, lcListsRead, lcListGet, lcListCreate, lcListRename, lcListDelete, lcListHas, lcListSetMember, lcListsOf, lcListDreams, lcListsMerge, useListsTick, lcListMemberKey });
 function lcFullTime(ms) { const t = +ms; if (!t || !isFinite(t)) return ""; try { return new Date(t).toLocaleString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return new Date(t).toString(); } }
 function lcDreamInfoLines(d) {
   const net = lcDreamNet(d), mine = !!d.user && (d.user === ME || lcHandle(d.user.handle || "") === lcHandle(ME.handle || ""));
@@ -1864,7 +1939,7 @@ Looscid.ErrorBoundary = ErrorBoundary;
    routing, so app/404.html sends any unknown address under /Looscid/ back to the app as ?p=<path>, and the app opens
    that page and puts the real address back. The site folder itself (/Looscid/) is case-sensitive on GitHub's side. */
 const LC_ROUTES = [
-  ["feed", ""], ["discover", "Discover"], ["alerts", "Alerts"], ["groups", "Circles"], ["liked", "Liked"], ["profile", "Profile"], ["drafts", "Drafts"],
+  ["feed", ""], ["discover", "Discover"], ["alerts", "Alerts"], ["groups", "Circles"], ["liked", "Liked"], ["lists", "Lists"], ["profile", "Profile"], ["drafts", "Drafts"],
   ["cherry", "Cherry"], ["more", "More"], ["settings", "Settings"],
   ["settings_account", "Settings/LooscidID"], ["settings_notifications", "Settings/Alerts"], ["settings_messages", "Settings/Messages"], ["settings_privacy", "Settings/Privacy"],
   ["settings_customizability", "Settings/Customizability"], ["settings_cz_theme", "Settings/Customizability/Theme"], ["settings_cz_feeds", "Settings/Customizability/Feeds"],
@@ -1925,6 +2000,7 @@ function lcMoreSections(o) {
     { id:"discover", emoji:"Discover", label:"Discover", items:[
       { icon:"Discover", label:"Discover", sub:"Dreamors, topics, trending", discoverLink:true, action(){onClose();goRoot("discover");} },
       { icon:"Circles", label:"Circles",  sub:"Your communities",                              action(){onClose();goRoot("circles");} },
+      { icon:"Lists", label:"Lists",  sub:"Your own lists of Dreamors, each its own feed",      action(){onClose();navigate("lists");} }, // build 152 prep (#99, part 4b)
     ]},
     { id:"apps", emoji:"Apps", label:"Apps", items: lcAppItems().map(function (it) { return { icon: it.l, label: it.l, sub: it.sub, action(){ onClose(); it.go(navigate); } }; }) },
     // Build 148 (2three1y): Create is the same list as the Create tab, one shared implementation (js/create.js, CreateOptions).
@@ -3495,7 +3571,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T23:26:48Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T23:34:52Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -5808,7 +5884,9 @@ const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "looscid_braille_styles", "lo
   // Build 152 prep (#98): the order of profile tabs. Added at the end, so older backups still import.
   "looscid_profile_tabs",
   // Build 152 prep (#99): pinned Dreams, muted conversations and Not interested. Added at the end, so older backups still import.
-  "looscid_pinned_dreams", "looscid_muted_threads", "looscid_not_interested"];
+  "looscid_pinned_dreams", "looscid_muted_threads", "looscid_not_interested",
+  // Build 152 prep (#99, part 4b): your Lists. Added at the end, so older backups still import; an import adds to yours.
+  "looscid_lists"];
 Looscid.LC_EXPORT_KEYS = LC_EXPORT_KEYS;
 function lcExportSettings() {
   const o = { app: "Looscid", kind: "settings", version: LOOSCID_VERSION, exported: new Date().toISOString(), settings: {} };
@@ -6378,6 +6456,7 @@ useEffect(() => {
       alerts:   "Alerts",
       profile:  (authUser && authUser.displayName) ? authUser.displayName : "Profile",
       dp:       pdata ? (pdata.name || "Profile") : "Profile",
+      lists:    pdata && pdata.list ? ((lcListGet(pdata.list) || {}).name || "Lists") : "Lists",
       settings: lcMoreTitle("settings", "Settings"),
       more_discover: "Discover", more_apps: "Apps", more_create: "Create", more_alerts: "Alerts", more_projects: "Projects",
       settings_account: "LooscidID",
@@ -6445,6 +6524,7 @@ useEffect(() => {
       case "groups":        return React.createElement(Looscid.GroupsPage, { key: "groups-" + (pdata && pdata.circle != null ? pdata.circle : ""), data: pdata, navigate: navigate, cherryCtx: cherryCtx,});
       case "profile":       return React.createElement(Looscid.ProfilePage, { key: "me", navigate: navigate, cherryCtx: cherryCtx, authUser: authUser, onUpdateProfile: handleUpdateProfile,});
       case "liked":         return React.createElement(Looscid.LikedPage, { navigate: navigate, cherryCtx: cherryCtx,}); // build 148: Liked, in More
+      case "lists":         return React.createElement(Looscid.ListsPage, { key: "lists-" + ((pdata && pdata.list) || ""), data: pdata, navigate: navigate, cherryCtx: cherryCtx,}); // build 152 prep (#99, part 4b)
       case "dp":            return pdata ? React.createElement(Looscid.DreamorProfilePage, { user: pdata, navigate: navigate, cherryCtx: cherryCtx,}) : React.createElement(Looscid.FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
       case "settings_account":        return React.createElement(Looscid.AccountSettings, { key: "acct-" + ((pdata && pdata.tab) || "home"), navigate: navigate, authUser: authUser, onSignOut: handleSignOut, onRenameProfile: handleRenameProfile, onUpdateProfile: handleUpdateProfile, initialTab: pdata && pdata.tab,});
       case "settings_notifications":  return React.createElement(Looscid.NotificationsSettings, { navigate: navigate, prefs: prefs, setPrefs: setPrefs,});

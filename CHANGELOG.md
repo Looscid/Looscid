@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 12, 2026 at 7:26 PM (Eastern Time, 2026-10-12T23:26:48Z UTC)
+Released October 12, 2026 at 7:34 PM (Eastern Time, 2026-10-12T23:34:52Z UTC)
 
 Round 7: a feature update, asked for by 2three1y. Built in steps, one commit each.
 
@@ -75,6 +75,7 @@ Round 7: a feature update, asked for by 2three1y. Built in steps, one commit eac
 - Inbox earcons: Messages, Replies, Mentions, Likes, Redreams, Quotes and New Dreamor each have their own new, gentle earcon instead of the plain Alert earcon. They follow the Alert switch, volume, Calm mode and quiet hours, and you can preview each one in Settings, Earcons, Event earcons, under Inbox earcons. No existing earcon changed.
 - Security: Looscid OS apps and Projects now run in a locked-down sandbox, so none of them can reach your Nostr key. Their saved settings come along.
 - Profile options: Share profile now shares the profile's LooscidID link, and there's a QR code (with the link written out and what scanning does, for anyone who can't see it), Copy username, and Open original profile on Nostr, Mastodon or Bluesky when the Dreamor is there.
+- Lists: make your own lists of Dreamors in More, Lists, and each one is its own feed of their Dreams. Add someone from their profile's options with Add to list (a checkbox for each list, or make a new one right there). Rename, delete and remove people anytime. Only you see them, and they're in your settings backup.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 
