@@ -2533,7 +2533,7 @@ const LC_VERSION_HISTORY = [
     "Dream options: Pin to profile (up to 5 of your Dreams, shown first on your Dreams tab and read as \"Pinned\"), Mute this conversation (no more alerts from that thread) and, on For You, Not interested in this Dream (hides it there and moves you to the next Dream).",
     "Fixed: on Home, Federated, a Networks checkbox could open Create instead. The page used to scroll underneath the tab bar, so a control VoiceOver moved to could sit behind it, and a double tap landed on the tab bar's middle button, Create. Now every page ends at the top of the tab bar, so nothing is ever behind it.",
     "Edit Dream: change the text of your own Dream or reply from its options. It shows \"Edited\" everywhere, Edit history keeps every earlier version readable, and a Dream on Nostr gets its edit published there too (kind 1010, so apps that support edits show it). Edited Federated Dreams from Nostr show their author's edit as well.",
-    "Inbox sounds: Messages, Replies, Mentions, Likes, Redreams, Quotes and New Dreamor each have their own new, gentle earcon instead of the plain Alert sound. They follow the Alert switch, volume, Calm mode and quiet hours, and you can preview each one in Settings, Sounds, Event sounds, under Inbox sounds. No existing sound changed.",
+    "Inbox earcons: Messages, Replies, Mentions, Likes, Redreams, Quotes and New Dreamor each have their own new, gentle earcon instead of the plain Alert earcon. They follow the Alert switch, volume, Calm mode and quiet hours, and you can preview each one in Settings, Earcons, Event earcons, under Inbox earcons. No existing earcon changed.",
     "Security: Looscid OS apps and Projects now run in a locked-down sandbox, so none of them can reach your Nostr key. Their saved settings come along.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
@@ -3407,10 +3407,10 @@ function AudioSettings({ navigate, page }) {
         return lh('div', { key: d.k, className: "lc-evrow" }, lh(LcSetRow, { def: d }),
           lh('button', { type: "button", className: "btn bgb lc-btn lc-prev", onClick: function () { Earcon.play(d.ev, { test: true }); }, "aria-label": "Preview " + d.l.toLowerCase() }, "Preview"));
       }),
-      // Build 152: each Inbox type's own sound (they follow the Alert switch above).
-      lh('h3', { className: "lc-sub-h", id: "lca-inbox-h" }, "Inbox sounds"),
-      lh('p', { className: "lc-desc" }, "Each kind of Inbox alert has its own sound. They play when Alert is on, and each type can be silenced in Alerts settings."),
-      lh('ul', { className: "lc-plain", role: "list", "aria-labelledby": "lca-inbox-h" }, [["inboxMessage", "message sound"], ["inboxReply", "reply sound"], ["inboxMention", "mention sound"], ["inboxLike", "Like sound"], ["inboxRedream", "Redream sound"], ["inboxQuote", "Quote sound"], ["inboxFollow", "New Dreamor sound"]].map(function (x) {
+      // Build 152: each Inbox type's own earcon (they follow the Alert switch above).
+      lh('h3', { className: "lc-sub-h", id: "lca-inbox-h" }, "Inbox earcons"),
+      lh('p', { className: "lc-desc" }, "Each kind of Inbox alert has its own earcon. They play when Alert is on, and each type can be silenced in Alerts settings."),
+      lh('ul', { className: "lc-plain", role: "list", "aria-labelledby": "lca-inbox-h" }, [["inboxMessage", "message earcon"], ["inboxReply", "reply earcon"], ["inboxMention", "mention earcon"], ["inboxLike", "Like earcon"], ["inboxRedream", "Redream earcon"], ["inboxQuote", "Quote earcon"], ["inboxFollow", "New Dreamor earcon"]].map(function (x) {
         return lh('li', { key: x[0] }, lh('button', { type: "button", id: "lc-prev-" + x[0], className: "btn bgb lc-btn lc-prev", onClick: function () { Earcon.play(x[0], { test: true }); } }, "Preview " + x[1]));
       })),
       lh('h3', { className: "lc-sub-h" }, "Other sounds"),

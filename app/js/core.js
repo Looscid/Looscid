@@ -1135,7 +1135,7 @@ const LC_RESET_G = {
   motor: { l: "Motor and switch", items: function () { return lcResetKeyItems("motor"); } },
   snd_volume: { l: "Volume, focus sounds and keyboard clicks", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[0].keys, LC_AUDIO_CATS[0].keys); } },
   snd_pack: { l: "Soundpacks", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[1].keys, LC_AUDIO_CATS[1].keys); } },
-  snd_events: { l: "Event sounds", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[2].keys, LC_AUDIO_CATS[2].keys); } },
+  snd_events: { l: "Event earcons", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[2].keys, LC_AUDIO_CATS[2].keys); } },
   snd_haptics: { l: "Music and haptics", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[3].keys, LC_AUDIO_CATS[3].keys); } },
   theme: { l: "Theme and colors", items: function () { return [{ id: "theme", l: "Light or dark mode", run: function () { saveTheme("dark"); if (Looscid.LC_SET_THEME) Looscid.LC_SET_THEME("dark"); } }]; } },
   feeds: { l: "Feeds and home", items: function () { return lcResetKeyItems("feeds", null, ["feedSwitch"]); } },
@@ -1313,6 +1313,8 @@ const LC_FIND_STATIC = [
   { l: "Forget what Cherry knows about my media", w: "cherry forget media", page: "settings_privacy", priv: "pmedia", focus: "priv-cherry-forget", where: "Settings, Privacy, Media and content" },
   { l: "Customizability", w: "themes feeds dreaming posting media", page: "settings_customizability", where: "Settings" },
   { l: "Earcons", w: "audio earcons earcon sounds sound pack soundpack soundpacks looscid os classic nexos volume haptics beeps keyboard clicks keyboard earcons command earcons", page: "settings_audio", where: "Settings" },
+  { l: "Inbox earcons", w: "inbox earcons inbox earcon inbox sounds inbox sound alert earcons message reply mention like redream quote new dreamor preview", page: "settings_audio_events", focus: "lca-inbox-h", where: "Settings, Earcons, Event earcons" },
+  { l: "Event earcons", w: "event earcons event earcon event sounds event sound send like new dream error alert feed switch previews", page: "settings_audio_events", where: "Settings, Earcons" },
   { l: "Keyboard shortcuts", w: "keys shortcuts", page: "settings_keyboard", where: "Settings" },
   { l: "Tab Bar", w: "tab bar tabbar bottom tabs order reorder hide show custom tab pinned tab move up move down", page: "settings_tabbar", where: "Settings" },
   { l: "Profile Tabs", w: "profile tabs order reorder dreams replies redreams media liked mutual likes about move up move down", page: "settings_profiletabs", where: "Settings" },
@@ -3382,7 +3384,7 @@ const LC_PACKS = {
 };
 Looscid.LC_PACKS = LC_PACKS;
 const LC_EVENT_SWITCH = { send: "ev_send", like: "ev_like", newDream: "ev_newDream", error: "ev_error", alerts: "ev_alert", feedSwitch: "ev_feed", focus: "earconFocus", link: "linkPitch" };
-// Build 152: the Inbox sounds share the Alert switch (Settings, Sounds, Earcons for each event), as before.
+// Build 152: the Inbox earcons share the Alert switch (Settings, Earcons, Event earcons, under Inbox earcons), as before.
 ["inboxMention", "inboxReply", "inboxLike", "inboxRedream", "inboxQuote", "inboxFollow", "inboxMessage"].forEach(function (k) { LC_EVENT_SWITCH[k] = "ev_alert"; });
 Looscid.LC_EVENT_SWITCH = LC_EVENT_SWITCH;
 /* --- Custom sound packs: a .zip or files, checked, saved in IndexedDB ------- */
@@ -3455,7 +3457,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T23:21:28Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T23:25:42Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -3852,7 +3854,7 @@ const Earcon = (function () {
     if (!test && lcQuietNow()) return;                     // quiet hours: no sounds at all
     window.__lcSounds = (window.__lcSounds || []).concat([name + ":" + ((opts && opts.pack) || a.soundPack || "looscid")]).slice(-60);
     if (!test && (name === "send" || name === "like" || name === "error" || name === "alerts")) lcBuzz(name);
-    else if (!test && /^inbox/.test(name)) lcBuzz("alerts"); // build 152: Inbox sounds buzz like the Alert sound did
+    else if (!test && /^inbox/.test(name)) lcBuzz("alerts"); // build 152: Inbox earcons buzz like the Alert sound did
     if (a.visualCue) { if (name === "focus" || name === "link") return; if (a.flashSafety) caption("[" + e.label + "]"); else { cue(); if (a.captions) caption("[" + e.label + "]"); } return; }
     if (!a.earcons && !test) return;
     if (test) unlock(opts && opts.pack);
@@ -5662,7 +5664,7 @@ function lcBrIntent(raw) {
 const LC_AUDIO_CATS = [
   { id: "volume", page: "settings_audio_volume", l: "Volume, focus, keyboard and command earcons", sub: "Earcons on or off, master volume, a sound on every swipe, a click per key, a sound per command", keys: ["earcons", "earconVolume", "earconFocus", "keyClicks", "cmdSounds", "earconsOnSilent"] },
   { id: "pack", page: "settings_audio_pack", l: "Soundpacks", sub: "Looscid, Looscid OS classic, Insomnia, Hyper Synth, FastSM-inspired, Soundvault or your own", keys: ["soundPack", "nexosBoot"] },
-  { id: "events", page: "settings_audio_events", l: "Event sounds", sub: "Send, like, new Dream, error, alert, feed switch, with previews", keys: ["ev_send", "ev_like", "ev_newDream", "ev_error", "ev_alert", "ev_feed"] },
+  { id: "events", page: "settings_audio_events", l: "Event earcons", sub: "Send, like, new Dream, error, alert, feed switch, with previews", keys: ["ev_send", "ev_like", "ev_newDream", "ev_error", "ev_alert", "ev_feed"] },
   { id: "haptics", page: "settings_audio_haptics", l: "Music and haptics", sub: "Ducking, haptics", keys: ["ducking", "haptics"] },
 ];
 Looscid.LC_AUDIO_CATS = LC_AUDIO_CATS;
@@ -6346,7 +6348,7 @@ useEffect(() => {
       settings_privacy: "Privacy",
       settings_customizability: "Customizability",
       settings_cz_theme: "Theme and colors", settings_cz_feeds: "Feeds and home", settings_cz_menu: "Menu", settings_cz_posting: "Dreaming", settings_cz_media: "Media and translation",
-      settings_audio_volume: "Volume and focus sounds", settings_audio_pack: "Soundpacks", settings_audio_events: "Event sounds", settings_audio_haptics: "Music and haptics",
+      settings_audio_volume: "Volume and focus sounds", settings_audio_pack: "Soundpacks", settings_audio_events: "Event earcons", settings_audio_haptics: "Music and haptics",
       settings_intelligence: "Intelligence", settings_ai_model: "Cherry model", settings_ai_cmd: "Commandbar", settings_ai_memory: "Memory", settings_ai_tools: "Tools", settings_ai_audit: "What Cherry did",
       settings_accessibility: "Accessibility",
       settings_a11y_sr: "Sense",
