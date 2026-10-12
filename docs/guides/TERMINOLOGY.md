@@ -18,4 +18,4 @@ This document defines the official language of Looscid. All contributors, collab
 
 ## About this project (and official founding story)
 
-Looscid was built by Alhasan Altameemi, a blind Dreamor, with Claude (Anthropic's AI) as his development partner. Accessibility is not a feature here, it is the foundation. This project exists to prove that the right tools and the right collaboration can build something meaningful regardless of what others assume about what's possible.
+Looscid was built by 2three1y, a blind Dreamor, with Claude (Anthropic's AI) as his development partner. Accessibility is not a feature here, it is the foundation. This project exists to prove that the right tools and the right collaboration can build something meaningful regardless of what others assume about what's possible.

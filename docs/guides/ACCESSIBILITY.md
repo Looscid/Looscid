@@ -141,7 +141,7 @@ button.accessibilityIdentifier = "moreButton"
 - [Apple VoiceOver Documentation](https://www.apple.com/accessibility/voiceover/)
 - [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/)
 
-See also: `ACCESSIBILITY_MENU_BUTTON.md` for the full menu popup implementation guide.
+See also: [Accessibility Menu](#accessibility-menu) below for the full menu popup implementation guide.
 
 ## Accessibility Menu
 

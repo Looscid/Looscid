@@ -160,7 +160,7 @@ This folder is NexOS, copied into Looscid so Looscid no longer links out to anot
 commit `0c2fb6b85493f1e9af9cd6a9ffda3d4df65a1ceb` (October 8, 2026,
 "Hyperpop beat remake: no voice, FL-style FX hits ..."). The NexOS repository is unchanged; this is a copy.
 
-NexOS and Looscid are both by Alhasan Altameemi (2three1y). NexOS is MIT licensed, see `LICENSE`.
+NexOS and Looscid are both by 2three1y. NexOS is MIT licensed, see `LICENSE`.
 The original NexOS README is the top of this file, and the app list is kept as `APPS.md`.
 
 ### What is here
