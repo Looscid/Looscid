@@ -1662,6 +1662,9 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       React.createElement('button', {type:"button", id:"more-view-profile", className:"lc-more-profile", onClick:function(){ onClose(); navigate("profile"); }}, React.createElement('span', null, "View your profile")),
       // Build 148 (2three1y): Liked is a place in More, not a bottom tab.
       React.createElement('button', {type:"button", id:"more-liked", className:"lc-more-profile", onClick:function(){ onClose(); navigate("liked"); }}, React.createElement('span', null, "Liked")),
+      // Part 35 (2three1y, Oct 12 4:46-4:50 PM): Commandbar lives in More only, as one plain button. Control+K (Command+K)
+      // keeps working everywhere.
+      React.createElement('button', {type:"button", id:"more-open-cmd", className:"lc-more-profile", onClick:function(){ onClose(); setTimeout(function () { if (Looscid.LC_OPEN_CMD) Looscid.LC_OPEN_CMD(); }, 60); }}, React.createElement('span', null, "Open Commandbar")),
 
       React.createElement('ul', {className:"mlist msec-list", role:"list"}, SECTIONS.map(function(s) {
         var sOpen = isOpen(s.id);
@@ -3103,7 +3106,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T20:47:11Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T20:55:24Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -5707,8 +5710,8 @@ useEffect(() => {
   return (
     React.createElement('div', { className: "app",}
       , lh(LcUpdateBanner, null)
-      , lh('button', { type: "button", className: "lc-cmd-btn", onClick: () => openCmd(), "aria-label": "Commandbar", "aria-haspopup": "dialog", "aria-expanded": cmdOpen,
-          "aria-keyshortcuts": "Control+K Meta+K", "aria-braillelabel": Looscid.A11Y_NOW.brailleOutput ? "cmd" : undefined }, lh('span', { "aria-hidden": "true" }, ">_"))
+      /* Part 35 (2three1y, Oct 12 4:50 PM): Commandbar is a More feature only. The floating Commandbar button is gone (it sat
+         over page headers and caught taps meant for Edit profile); More has "Open Commandbar", and Control+K or Command+K still work. */
       , Looscid.A11Y_NOW.skipLinks !== false && lh('a', { href: "#main-content", className: "skip-link", onClick: e => { e.preventDefault(); const h = document.querySelector("#main-content h1"); if (h) { if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); h.focus(); } } }, "Skip to content")
       , React.createElement('main', {id:"main-content", style:{display:"contents"}}, renderPage())
       , lh(LcFooterHost, { page: page, navigate: navigate })

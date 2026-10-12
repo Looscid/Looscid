@@ -93,7 +93,7 @@ const LC_HELP_SECTIONS = [
     "Everything stays on this device unless you choose to share it.",
   ]],
   ["Commands", [
-    "Commandbar opens with Control K or Command K, anywhere. Type a command and press Enter. Anything else goes to Cherry.",
+    "Commandbar opens from More, Open Commandbar, or with Control K or Command K, anywhere. Type a command and press Enter. Anything else goes to Cherry.",
     "Top commands: " + LC_HELP_TOP.slice(0, 9).map(function (c) { return c[0]; }).join(", ") + ".",
     "Type help for that short list, an area and help for one area (cherry help, projects help), and commands for the Commands page, where every command is a button.",
   ], "commands"],
