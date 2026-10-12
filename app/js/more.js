@@ -2504,6 +2504,7 @@ const LC_VERSION_HISTORY = [
     "Numbers are never shortened: Looscid and Cherry always show the whole number, like 19,637, never 19.6K. Cherry only reports trending tags that really exist.",
     "Save in Edit profile and in the Circle forms stays dimmed until you actually change something, and dims again if you undo it. VoiceOver still finds it and tells you why it's dimmed.",
     "Bios and Circle descriptions have no length limit and support Markdown: headings, lists, quotes, links, bold, italic, inline code and code blocks. Code blocks are their own readable block for VoiceOver and braille, and raw HTML never runs.",
+    "More holds only Looscid features now. About Looscid, Credits, Legal and the social links live in the site footer at the end of every page, and their pages work as before.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

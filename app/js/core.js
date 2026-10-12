@@ -1302,14 +1302,14 @@ Looscid.CHILD_SAFETY_CONTENT = CHILD_SAFETY_CONTENT;
 function LcSiteFooter({ navigate }) {
   const ext = function (href, text, key) { return lh('li', { key: key }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, text)); };
   const go = function (page, text, key) { return lh('li', { key: key }, lh('a', { href: (Looscid.lcPathFor ? Looscid.lcPathFor(page) : "#"), className: "lc-link",
-    onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate(page); } }, text)); };
+    onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); Looscid.lcFooterFrom = page; navigate(page); } }, text)); };
   const soon = function (text, key) { return lh('li', { key: key }, lh('button', { type: "button", className: "lc-foot-soon", disabled: true, "aria-disabled": "true" }, text, lh('span', { className: "lc-foot-soon-tag" }, " Coming soon"))); };
   const grp = function (id, title, kids) { return lh('section', { className: "lc-foot-grp", "aria-labelledby": id }, lh('h3', { id: id, className: "lc-foot-h" }, title), lh('ul', { className: "lc-foot-list", role: "list" }, kids)); };
   return lh('footer', { className: "lc-footer", role: "contentinfo", "aria-labelledby": "lc-foot-title" },
     lh('h2', { id: "lc-foot-title", className: "lc-foot-title" }, "Footer"),
     grp("lc-foot-social", "Social", [ext("https://github.com/Looscid/Looscid", "Looscid on GitHub", "gh"), ext("https://x.com/Looscid", "Looscid on X, @Looscid", "x"), ext("https://www.youtube.com/@Looscid", "Looscid on YouTube, @Looscid", "yt")]),
-    grp("lc-foot-legal", "Legal", [go("terms", "Terms", "t"), go("privacy", "Privacy", "p"), go("guidelines", "Rules", "r"), go("child_safety", "Child Safety", "c")]),
-    grp("lc-foot-values", "Values", [ext("https://github.com/Looscid/Looscid/blob/preview/docs/guides/ACCESSIBILITY.md", "Our accessibility commitment", "a")]),
+    grp("lc-foot-legal", "Legal", [go("terms", "Terms", "t"), go("privacy", "Privacy", "p"), go("guidelines", "Rules", "r"), go("child_safety", "Child Safety", "c"), go("legal", "Legal and license", "l"), go("credits", "Credits", "cr")]),
+    grp("lc-foot-values", "Values", [go("settings_about", "About Looscid", "ab"), ext("https://github.com/Looscid/Looscid/blob/preview/docs/guides/ACCESSIBILITY.md", "Our accessibility commitment", "a")]),
     grp("lc-foot-dl", "Download", [
       lh('li', { key: "ios" }, lh('p', { className: "lc-foot-p" }, "iPhone and iPad: open Looscid in Safari, then Share, then Add to Home Screen.")),
       soon("Android app", "and"), soon("Linux edition", "lin")]),
@@ -1629,13 +1629,8 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"Labs", label:"Looscid Labs", sub:"Early access to features we are still building", action(){onClose();navigate("settings_labs");} },
       { icon:"Reset", label:"Reset", sub:"Reset the whole app, or just some settings", action(){ lcOpenReset("all"); } },
     ]},
-    { id:"about", emoji:"About", label:"About Looscid", direct(){onClose();navigate("settings_about");}, items:[] }, // Round 6.6 (2three1y 5:24 PM): one About page, no submenu
-    { id:"findus", emoji:"Social", label:"Social", intro:"Find us on your favorite platforms", items:[
-
-      { icon:"\ud835\udd4f", label:"Twitter",         sub:"@Looscid",                href:"https://x.com/Looscid" },
-
-      { icon:"GitHub", label:"GitHub",            sub:"Looscid/Looscid",        href:"https://github.com/Looscid/Looscid" },
-    ]},
+    // Part 34a (2three1y, Oct 12 4:38 PM: "the More tab holds ONLY Looscid features"): About Looscid and Social moved to
+    // the site footer (Values and Social). Their pages are unchanged; only where they are linked from moved.
     // Round 6.6: Projects, 2three1y's own projects, built in (js/projects.js). Added near the end; Commands stays last.
     { id:"projects", emoji:"Projects", label:"Projects", intro:"My own projects, built into Looscid. Each one opens here, with Back and Close. Nothing loads until you open one.",
       // Build 147 (2three1y: one link per place): GitHub is already in Social, so the Projects section no longer repeats it.
@@ -3106,7 +3101,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T21:01:10Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T21:01:57Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -5284,6 +5279,10 @@ useEffect(() => {
     if (target === "settings") {
       const from = subFrom.current[cur];
       if (from) { delete subFrom.current[cur]; setPage(from); setPdata(null); setTimeout(() => { const h = document.querySelector("#main-content h1"); if (h) { if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); h.focus(); } }, 60); return; }
+      // Part 34a: a page opened from the site footer (About Looscid, Credits, Terms, Child Safety...) goes Back to the page
+      // you were reading, not into More.
+      if (Looscid.lcFooterFrom === cur) { Looscid.lcFooterFrom = null; setPage(mainBack.current || "feed"); setPdata(null); Earcon.play("settings");
+        setTimeout(() => { const h = document.querySelector("#main-content h1"); if (h) { if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); h.focus(); } }, 60); return; }
       const m = SETTINGS_MENU_ITEM[cur] || ["settings", null];
       setPage(mainBack.current || "feed"); setPdata(null);
       setMenuInit({ open: m[0], focus: m[1], n: Date.now() }); setShowMenu(true); Earcon.play("settings");

@@ -144,7 +144,7 @@ function helpView(p, act) {
     h('section', { className: "lc-grp lc-help-sec", "aria-labelledby": "lc-help-h-gethelp", style: { padding: "0 16px 24px" } },
       h('h2', { id: "lc-help-h-gethelp", className: "lc-sub-h" }, "Getting help"),
       h('h3', { className: "lid-sub" }, "Send Feedback"),
-      h('p', { className: "lc-desc" }, "Send Feedback is on the About Looscid page: More, About Looscid, Send Feedback. Choose a category, like Bug report, Feature request or Accessibility, write what happened, and press Open it on GitHub. That opens a new issue on Looscid's public GitHub page with your words filled in, so everyone can follow it. GitHub asks you to log in there."),
+      h('p', { className: "lc-desc" }, "Send Feedback is on the About Looscid page: open About Looscid from the footer at the end of any page, then Send Feedback. Choose a category, like Bug report, Feature request or Accessibility, write what happened, and press Open it on GitHub. That opens a new issue on Looscid's public GitHub page with your words filled in, so everyone can follow it. GitHub asks you to log in there."),
       h('button', { type: "button", id: "lc-help-feedback", className: "btn bgb lc-btn", onClick: act.feedback }, "Open Send Feedback"),
       h('h3', { className: "lid-sub" }, "Report a bug or ask for a feature"),
       h('p', { className: "lc-desc" }, "You can also go straight to GitHub issues. It opens in a new tab."),
