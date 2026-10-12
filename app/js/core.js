@@ -3258,6 +3258,15 @@ const LC_PACKS = {
       link:     { label: "Link", ops: [LcT(1760, 0, 0.045, "sine", 0.22, 2093)] },
       install:  { label: "Saved", ops: [LcT(N_(79), 0, 0.06, "square", 0.14), LcT(N_(84), 0.06, 0.1, "triangle", 0.26)] },
       uninstall:{ label: "Deleted", ops: [LcT(N_(76), 0, 0.07, "square", 0.14), LcT(N_(67), 0.08, 0.14, "triangle", 0.26)] },
+      // Build 152 (2three1y, Oct 12 6:53 PM: "We can earcons per item"): one new sound for each Inbox type that used the plain
+      // Alert sound. Gentle (sine and triangle, low levels), short, and each its own shape. Every existing sound is unchanged.
+      inboxMention: { label: "Mention", ops: [LcT(N_(84), 0, 0.06, "sine", 0.24, N_(91)), LcT(N_(91), 0.08, 0.05, "triangle", 0.18)] },           // a chirp up, then a pip: "@ you"
+      inboxReply:   { label: "Reply", ops: [LcT(N_(81), 0, 0.06, "triangle", 0.22), LcT(N_(76), 0.07, 0.12, "triangle", 0.22)] },                  // a call and its answer, falling
+      inboxLike:    { label: "Liked", ops: [LcT(N_(77), 0, 0.13, "sine", 0.24, N_(84)), LcT(N_(89), 0.07, 0.1, "sine", 0.07)] },                   // a warm swell up, with a soft octave
+      inboxRedream: { label: "Redreamed", ops: [79, 83, 86, 79].map(function (m, i) { return LcT(N_(m), i * 0.05, 0.045, "triangle", 0.17); }) }, // a little loop back to where it started
+      inboxQuote:   { label: "Quoted", ops: [LcC(3000, 0, 0.01, 0.12, 2), LcC(3000, 0.045, 0.01, 0.12, 2), LcT(N_(74), 0.09, 0.11, "triangle", 0.22)] }, // two tiny quote-mark clicks, then a note
+      inboxFollow:  { label: "New Dreamor", ops: [69, 73, 76].map(function (m, i) { return LcT(N_(m), i * 0.06, 0.06, "sine", 0.22); }).concat([LcT(N_(81), 0.18, 0.14, "sine", 0.2)]) }, // a soft welcome, rising
+      inboxMessage: { label: "Message", ops: [LcT(N_(67), 0, 0.05, "triangle", 0.24), LcT(N_(67), 0.09, 0.05, "triangle", 0.24), LcT(N_(74), 0.18, 0.1, "sine", 0.2)] }, // a low knock-knock, then hello
     },
   },
   // Insomnia OS (os/apps/insomnia/script.js A.play): its own click, tick, open, close, ding, boot and goodnight,
@@ -3373,6 +3382,8 @@ const LC_PACKS = {
 };
 Looscid.LC_PACKS = LC_PACKS;
 const LC_EVENT_SWITCH = { send: "ev_send", like: "ev_like", newDream: "ev_newDream", error: "ev_error", alerts: "ev_alert", feedSwitch: "ev_feed", focus: "earconFocus", link: "linkPitch" };
+// Build 152: the Inbox sounds share the Alert switch (Settings, Sounds, Earcons for each event), as before.
+["inboxMention", "inboxReply", "inboxLike", "inboxRedream", "inboxQuote", "inboxFollow", "inboxMessage"].forEach(function (k) { LC_EVENT_SWITCH[k] = "ev_alert"; });
 Looscid.LC_EVENT_SWITCH = LC_EVENT_SWITCH;
 /* --- Custom sound packs: a .zip or files, checked, saved in IndexedDB ------- */
 const LC_PACK_DB = "looscid_soundpacks";
@@ -3444,7 +3455,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T23:12:37Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-12T23:15:27Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -3841,6 +3852,7 @@ const Earcon = (function () {
     if (!test && lcQuietNow()) return;                     // quiet hours: no sounds at all
     window.__lcSounds = (window.__lcSounds || []).concat([name + ":" + ((opts && opts.pack) || a.soundPack || "looscid")]).slice(-60);
     if (!test && (name === "send" || name === "like" || name === "error" || name === "alerts")) lcBuzz(name);
+    else if (!test && /^inbox/.test(name)) lcBuzz("alerts"); // build 152: Inbox sounds buzz like the Alert sound did
     if (a.visualCue) { if (name === "focus" || name === "link") return; if (a.flashSafety) caption("[" + e.label + "]"); else { cue(); if (a.captions) caption("[" + e.label + "]"); } return; }
     if (!a.earcons && !test) return;
     if (test) unlock(opts && opts.pack);
@@ -4468,13 +4480,14 @@ const LC_ALERTS_KEY = "looscid_alerts", LC_ALERT_PREFS_KEY = "looscid_alert_pref
 Looscid.LC_ALERTS_KEY = LC_ALERTS_KEY; Looscid.LC_ALERT_PREFS_KEY = LC_ALERT_PREFS_KEY;
 const LC_ALERT_TYPES = [
   { id: "newDream", l: "New Dreams", tab: "New Dreams", one: "new Dream", many: "new Dreams", earcon: "newDream", aud: true },
-  { id: "mention", l: "Mentions", tab: "Mentions", one: "mentioned you", many: "mentions", earcon: "alerts", aud: true, by: "Mentioned by" },
-  { id: "reply", l: "Replies", tab: "Replies", one: "replied to your Dream", many: "replies", earcon: "alerts", aud: true, by: "Replies from" },
-  // Build 151 (#73): Likes, Redreams, Quotes and new Dreamors, read from Nostr (no server). Same Alert sound as the rest.
-  { id: "like", l: "Likes", tab: "Likes", one: "liked your Dream", many: "Likes", earcon: "alerts", aud: true, by: "Liked by" },
-  { id: "redream", l: "Redreams", tab: "Redreams", one: "redreamed your Dream", many: "Redreams", earcon: "alerts", aud: true, by: "Redreamed by" },
-  { id: "quote", l: "Quotes", tab: "Quotes", one: "quoted your Dream", many: "Quotes", earcon: "alerts", aud: true, by: "Quoted by" },
-  { id: "follow", l: "New Dreamors", tab: "New Dreamor", one: "followed you", many: "new Dreamors", earcon: "alerts", aud: true, by: "Followed by" },
+  { id: "mention", l: "Mentions", tab: "Mentions", one: "mentioned you", many: "mentions", earcon: "inboxMention", aud: true, by: "Mentioned by" },
+  { id: "reply", l: "Replies", tab: "Replies", one: "replied to your Dream", many: "replies", earcon: "inboxReply", aud: true, by: "Replies from" },
+  // Build 151 (#73): Likes, Redreams, Quotes and new Dreamors, read from Nostr (no server).
+  // Build 152: each Inbox type has its own sound now (inboxMention ... inboxFollow); From Looscid keeps the Alert sound.
+  { id: "like", l: "Likes", tab: "Likes", one: "liked your Dream", many: "Likes", earcon: "inboxLike", aud: true, by: "Liked by" },
+  { id: "redream", l: "Redreams", tab: "Redreams", one: "redreamed your Dream", many: "Redreams", earcon: "inboxRedream", aud: true, by: "Redreamed by" },
+  { id: "quote", l: "Quotes", tab: "Quotes", one: "quoted your Dream", many: "Quotes", earcon: "inboxQuote", aud: true, by: "Quoted by" },
+  { id: "follow", l: "New Dreamors", tab: "New Dreamor", one: "followed you", many: "new Dreamors", earcon: "inboxFollow", aud: true, by: "Followed by" },
   { id: "system", l: "From Looscid", tab: "From Looscid", one: "", many: "updates", earcon: "alerts", aud: false },
 ];
 Looscid.LC_ALERT_TYPES = LC_ALERT_TYPES;
@@ -4644,7 +4657,7 @@ async function lcPmCheck() {
       if (inc.length) {
         const m = inc[inc.length - 1], who = lcNostrName(m.peer);
         announce(inc.length === 1 ? "New message from " + who + ": " + m.text.slice(0, 140) : inc.length + " new messages. The last from " + who + ": " + m.text.slice(0, 140));
-        if (!lcQuietNow()) Earcon.play("alerts");
+        if (!lcQuietNow()) Earcon.play("inboxMessage");
       }
     }
     try { localStorage.setItem(sk, String(now)); } catch (e) {}
