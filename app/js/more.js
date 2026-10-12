@@ -11,7 +11,7 @@ Object.assign(Looscid, { CreditsPage, ProfileView, ProfilePage, DreamorProfilePa
    GPL-3.0; no Feditext code is used, only its layout, order and controls), written fresh for Looscid.
    Feditext's order: avatar, the relationship buttons (Direct message, Follow / Following), the name, @handle with
    "Follows you" / "Muted" / "Blocked", "N Dreams • Joined", a private note, fields, bio, the Following and
-   Followers count buttons (each opens its own list page) and the tab row (Dreams, Dreams & Replies, Redreams,
+   Followers count buttons (each opens its own list page) and the tab row (Dreams, Replies, Redreams,
    Media). Its top menu (Share, Hide/Show Redreams, Add/Edit note, Mute, Block, Report) is a More button that
    expands inline. 2three1y's own asks sit where Feditext's closest part is: Edit profile (the same LooscidID editor
    as Settings), a private Liked tab on your own profile, an About tab, and Mutual likes on other people's. */
@@ -319,7 +319,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const theirVisible = theirLikes ? lcLikedVisibleTo(theirLikes, user.likesPublic || [], ME.handle, myLikedIds) : [];
   // Tabs: Feditext's four, then 2three1y's: Liked (your own, private; on others only what they made visible to you),
   // Mutual likes (others), About.
-  const TABS = [["dreams", "Dreams"], ["replies", "Dreams & Replies"], ["redreams", "Redreams"], ["media", "Media"]]
+  const TABS = [["dreams", "Dreams"], ["replies", "Replies"], ["redreams", "Redreams"], ["media", "Media"]]
     .concat(isMe ? [["liked", "Liked"]] : theirVisible.length ? [["liked", "Liked"]] : [])
     .concat(self ? [] : [["mutual", "Mutual likes"]])
     .concat([["about", "About"]]);
@@ -411,7 +411,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const tabCount = function (id) {
     switch (id) {
       case "dreams": return byId(ownDreams).length;
-      case "replies": return byId(ownDreams.concat(myReplies)).length;
+      case "replies": return byId(myReplies).length;
       case "redreams": return byId(plainRd).length + byId(quotes).length;
       case "media": return mediaAll.length;
       case "liked": return isMe ? Looscid.lcLikedItems().filter(function (x) { return x.k !== "chat" || !x.cherry || Looscid.lcAiOn(); }).length : theirVisible.length;
@@ -426,7 +426,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const panel = function () {
     switch (cur) {
       case "dreams": { const l = byId(ownDreams); return l.length ? l.map(card) : empty("No Dreams yet", isMe ? "Your Dreams will show up here." : "Nothing to show yet."); }
-      case "replies": { const l = byId(ownDreams.concat(myReplies)); return l.length ? l.map(card) : empty("No Dreams or Replies yet", isMe ? "Your Dreams and Replies will show up here." : "Nothing to show yet."); }
+      case "replies": { const l = byId(myReplies); return l.length ? l.map(card) : empty("No Replies yet", isMe ? "Your Replies will show up here." : "Nothing to show yet."); }
       case "redreams":
         return lh(React.Fragment, null,
           lh('fieldset', { className: "lc-fs lc-rd-show" },
@@ -2516,6 +2516,7 @@ const LC_VERSION_HISTORY = [
     "No more Image Recognition offers from VoiceOver: every icon inside a button or row is hidden from screen readers now, since its button already says what it is. Avatars keep their names.",
     "Settings looks like Spring now: Sense is pinned alone at the top, every row says its current value after its name (like \"Customizability, Dark theme\" or \"Intelligence, Cherry off\"), and the new Settings, Tab Bar page lets you show or hide each tab and move it up or down with plain buttons. Tabs you pinned on the feed can be added as custom tabs. More is always last.",
     "Subscribe to thread: a Dream's More menu has Subscribe to thread (and Unsubscribe from thread). New replies in a thread you follow show up in Alerts as \"New reply in a thread you follow\", whether they reach Looscid directly or come from Nostr relays that tag the thread. On the web it's in the app only; the native apps can make it a push notification.",
+    "Profiles: the second tab is just \"Replies\" now, and it shows only your replies, no top-level Dreams (those stay in the Dreams tab). When there are none it says \"No Replies yet\" and \"Your Replies will show up here.\"",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
@@ -2537,7 +2538,7 @@ const LC_VERSION_HISTORY = [
   ] },
   { version: "2026.115.32", build: 147, released: "2026-10-11T02:44:37Z", title: "Round 6.7", notes: [
     "Round 6.7: a feature update. Your profile, rebuilt, and Liked.",
-    "Profiles are recreated from Feditext's profile layout (no Feditext code is used): the buttons, your name, your LooscidID with Follows you, your Dreams count and Joined date, fields, bio, then Following and Followers buttons that open their own pages, then the tabs Dreams, Dreams & Replies, Redreams and Media.",
+    "Profiles are recreated from Feditext's profile layout (no Feditext code is used): the buttons, your name, your LooscidID with Follows you, your Dreams count and Joined date, fields, bio, then Following and Followers buttons that open their own pages, then the tabs Dreams, Replies, Redreams and Media.",
     "Liking is saving: one store, one name, Liked. Your own profile has a private Liked tab with Dreams, Circles, Apps, Marketplace, Chats and Searches, and an Images only filter. Anything you saved before is in Liked.",
     "Settings, Privacy, Liked tab: a Show on my profile box for each part, all off. Even when off, people can see your likes on their own Dreams, and Dreams you both liked.",
     "Other people's profiles: Mutual likes, and their Liked tab when they made part of it public or liked your Dreams.",
