@@ -1331,17 +1331,42 @@ function LcSiteFooter({ navigate }) {
       soon("Android app", "and"), soon("Linux edition", "lin")]),
     lh('p', { className: "lc-foot-p lc-foot-end" }, "Looscid is open source and local first."));
 }
-function LcFooterHost({ page, navigate }) {
+/* 2three1y (Oct 12, 5:33 PM): "The footer is on every page at the bottom like GitHub", but in reading and swipe order the
+   tab bar (ending with More) comes BEFORE the footer, and the footer is the very last thing. So the end of every scrolling
+   page is one box: the page's own content, then the tab bar (and the Undo bar while it shows), then the footer. The tab bar
+   still sits at the bottom of the screen (absolute to .app, which .pg is not, so it never scrolls), and the footer still
+   only shows once you reach the end. Pages without a scrolling .pg (full-screen tools) get the box at the end of the app,
+   with the tab bar and no footer. A watcher keeps the box last if a page adds something at its end later. */
+function LcFooterHost({ page, navigate, children }) {
   const boxRef = useRef(null);
-  if (!boxRef.current && typeof document !== "undefined") { boxRef.current = document.createElement("div"); boxRef.current.className = "lc-footer-box"; }
+  if (!boxRef.current && typeof document !== "undefined") { boxRef.current = document.createElement("div"); boxRef.current.className = "lc-footer-box"; boxRef.current.__lcKeep = true; }
   const [host, setHost] = useState(null);
+  const [inPg, setInPg] = useState(false);
+  const moRef = useRef(null);
   React.useLayoutEffect(function () {
-    const box = boxRef.current; const pg = document.querySelector("#main-content > .pg");
-    if (!pg) { if (box.parentNode) box.parentNode.removeChild(box); if (host) setHost(null); return; }
-    if (box.parentNode !== pg || pg.lastChild !== box) pg.appendChild(box);
+    const box = boxRef.current, main = document.getElementById("main-content");
+    const pg = document.querySelector("#main-content > .pg");
+    const target = pg || (main && main.parentNode);
+    if (!target) return;
+    // Keep the box last. While focus is inside it (on a tab), whatever landed after it moves up instead, so focus never drops.
+    const keepLast = function () {
+      if (box.parentNode !== target || target.lastChild === box) return;
+      const a = document.activeElement;
+      if (a && box.contains(a)) { while (box.nextSibling) target.insertBefore(box.nextSibling, box); } else target.appendChild(box);
+    };
+    if (box.parentNode !== target) target.appendChild(box); else keepLast();
+    if (!moRef.current || moRef.current.t !== target) {
+      if (moRef.current) moRef.current.o.disconnect();
+      const o = new MutationObserver(keepLast);
+      o.observe(target, { childList: true }); moRef.current = { o: o, t: target };
+    }
     if (!host) setHost(box);
+    if (inPg !== !!pg) setInPg(!!pg);
   });
-  return host ? ReactDOM.createPortal(lh(LcSiteFooter, { navigate: navigate }), host) : null;
+  React.useEffect(function () { return function () { if (moRef.current) moRef.current.o.disconnect(); }; }, []);
+  return host ? ReactDOM.createPortal(lh(React.Fragment, null,
+    lh('div', { className: "lc-end-chrome" }, children),
+    inPg ? lh(LcSiteFooter, { navigate: navigate }) : null), host) : null;
 }
 Object.assign(Looscid, { LcSiteFooter, LcFooterHost });
 /* --- APP --------------------------------- */
@@ -1872,7 +1897,12 @@ function announce(msg, kind) {
   if (!el) return;
   Looscid.LC_ANN_AT = Date.now();
   el.textContent = "";
-  setTimeout(function () { el.textContent = msg; }, 80);
+  clearTimeout(Looscid.LC_ANN_CLEAR);
+  /* 2three1y (Oct 12, 5:33 PM): "Looscid, Page is at the bottom like the last element". What was said stayed behind as text
+     in #looscid-live, so swiping to the very end read the last announcement (often the page name, "Looscid, page") as a
+     stray element. Once it has had time to be spoken, the region is emptied again; it stays the only announcer. */
+  setTimeout(function () { el.textContent = msg; const said = el.textContent;
+    Looscid.LC_ANN_CLEAR = setTimeout(function () { if (el.textContent === said) el.textContent = ""; }, Math.min(12000, 4000 + said.length * 60)); }, 80);
 }
 // Enter from a keyboard or a braille display (which can arrive as
 // beforeinput insertParagraph/insertLineBreak instead of keydown Enter).
@@ -5948,9 +5978,9 @@ useEffect(() => {
          over page headers and caught taps meant for Edit profile); More has "Open Commandbar", and Control+K or Command+K still work. */
       , Looscid.A11Y_NOW.skipLinks !== false && lh('a', { href: "#main-content", className: "skip-link", onClick: e => { e.preventDefault(); const h = document.querySelector("#main-content h1"); if (h) { if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); h.focus(); } } }, "Skip to content")
       , React.createElement('main', {id:"main-content", style:{display:"contents"}}, renderPage())
-      , lh(LcFooterHost, { page: page, navigate: navigate })
-      , undo && lh(LcUndoBar, { undo: undo })
       , lh(LcResetHost, null)
+      , lh(LcFooterHost, { page: page, navigate: navigate }
+      , undo && lh(LcUndoBar, { undo: undo })
       /* 5-tab nav: Home | Discover | Create | Alerts | More */
       , React.createElement('div', { role: Looscid.A11Y_NOW.skipLinks !== false ? "navigation" : undefined, 'aria-label': Looscid.A11Y_NOW.skipLinks !== false ? "Main" : undefined, className: "bnav-wrap",}, React.createElement('nav', {
           className: "bnav",
@@ -6027,7 +6057,7 @@ useEffect(() => {
           ),
           React.createElement('span', {"aria-hidden":"true"}, "More")
         )
-      ))
+      )))
       , composeReq && Looscid.LcComposer && React.createElement(Looscid.LcComposer, Object.assign({ key: "cmp-" + composeReq.n }, composeReq, { prefs: prefs, navigate: navigate, cherryCtx: cherryCtx, onClose: function () { setComposeReq(null); } }))
       , showCreate && React.createElement(Looscid.CreateMenu, { start: typeof showCreate === "string" ? showCreate : undefined, onClose: ()=>setShowCreate(false), onCircleCreate: c=>setAppGroups(gs=>gs.some(x=>x.id===c.id)?gs:[...gs,c]), prefs: prefs, navigate: navigate, cherryCtx: cherryCtx, drafts: drafts, onDraftSave: ()=>setDrafts(getDrafts()),})
       , showMenu && React.createElement(MainMenu, { key: menuInit ? "m-" + menuInit.n : "m", initOpen: menuInit && menuInit.open, initFocus: menuInit && menuInit.focus, onClose: ()=>{ setShowMenu(false); setMenuInit(null); }, navigate: navigate, goRoot: goRoot, prefs: prefs, unreadNotifs: unreadNotifs, unreadMsgs: unreadMsgs, appDreams: appDreams,})
@@ -6124,7 +6154,8 @@ function lcMorph(a, b) {
   lcMorphKids(a, Array.prototype.slice.call(b.childNodes));
 }
 function lcMorphKids(a, want) {
-  const old = Array.prototype.slice.call(a.childNodes), used = new Set(), keyed = new Map();
+  // A node marked __lcKeep (the page's end box: tab bar, then footer) is not this screen's; it is left where it is.
+  const old = Array.prototype.slice.call(a.childNodes).filter(function (o) { return !o.__lcKeep; }), used = new Set(), keyed = new Map();
   old.forEach(function (o) { if (o.__lcKey != null) keyed.set(o.__lcKey, o); });
   let oi = 0;
   want.forEach(function (w, i) {
@@ -6135,7 +6166,7 @@ function lcMorphKids(a, want) {
     if (m) { used.add(m); lcMorph(m, w); if (m !== at) a.insertBefore(m, at); }
     else { a.insertBefore(w, at); used.add(w); lcWire(w); }
   });
-  Array.prototype.slice.call(a.childNodes).forEach(function (c) { if (!used.has(c)) a.removeChild(c); });
+  Array.prototype.slice.call(a.childNodes).forEach(function (c) { if (!used.has(c) && !c.__lcKeep) a.removeChild(c); });
 }
 /* Draw view() into host: the first time it builds, later it patches. view returns one element;
    its attributes go on host itself, so the screen has no extra wrapper element. */

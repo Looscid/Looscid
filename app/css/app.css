@@ -579,6 +579,12 @@ label.lc-cr-tool{color:var(--tx2)}
 
 /* Part 33: the site footer sits at the end of each page's own scroll area; never fixed, never over content. */
 .lc-footer-box { padding: 8px 0 0; }
+/* The tab bar lives in the page's end box (before the footer) but still sits at the bottom of the screen: absolute to
+   .app, so it never scrolls. Text size zooms .pg; the tab bar and Undo bar keep their own size. */
+.lc-end-chrome { height: 0; }
+.pg .lc-end-chrome button, .pg .lc-end-chrome [role=tab] { scroll-margin-top: 0; }
+body.acc-text-1 .pg .lc-end-chrome { zoom: 0.869565; }
+body.acc-text-2 .pg .lc-end-chrome { zoom: 0.769231; }
 .lc-footer { border-top: 1px solid var(--bd); margin: 24px 16px 0; padding: 16px 0 24px; color: var(--tx2); font-size: 14px; }
 .lc-foot-title { font-size: 15px; margin: 0 0 8px; color: var(--tx); }
 .lc-foot-grp { margin: 12px 0 0; }

@@ -2512,6 +2512,7 @@ const LC_VERSION_HISTORY = [
     "Menus and sheets say only their name when they open, like Spring: More says \"More\", Create says \"Create\", and a pop-up menu says its name. Swipe or press Down to reach the items.",
     "VoiceOver rotor Actions: on a Dream, swipe up or down for Like, Redream, Quote Dream, Reply and More; on a Cherry chat, Pin and Delete. The buttons and Commandbar still do the same everywhere.",
     "The feed has For You, Following and Federated tabs now. Federated has Popular, Latest and Local, and you choose which networks it reads (Looscid and Nostr today). Local is Dreams from around you, and it stays off until you turn it on. For You has Show following with its own switches, For You and Following have a Sort (Latest or Popular), and you can pin a Circle, a person, a hashtag or a thread as its own tab.",
+    "The tab bar comes before the footer now: swipe from the content to the tab bar, ending with More, and the footer is the very last thing on every page. And no more stray \"Looscid, page\" at the very end: what Looscid says no longer stays behind as text after it's spoken.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
