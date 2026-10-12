@@ -1093,7 +1093,7 @@ function AboutSettings({navigate}) {
       lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } },
         link("https://github.com/Looscid/Looscid", "Looscid on GitHub, the source code"),
         link("https://x.com/Looscid", "@Looscid on X"),
-        link("COMMITMENTS.md", "Looscid's commitments: accessibility, fairness, humor")),
+        link("ACCESSIBILITY.md", "Looscid's commitments: accessibility, fairness, humor")),
       lh('p', { className: "lid-help" }, "The welcome intro and terminology guide is the Welcome intro button above.")));
 }
 function MorePage({navigate, cherryCtx, authUser}) {
