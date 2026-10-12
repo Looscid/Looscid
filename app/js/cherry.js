@@ -168,12 +168,8 @@ function cherryView(st, p, act) {
               shown.map(function (c) {
                 const n = c.msgs.length, open = cur && cur.id === c.id;
                 return h('li', { key: c.id, className: "lc-cherry-item" },
-                  h('button', { type: "button", className: "lc-cherry-open", "data-chat": c.id, onClick: function () { act.open(c.id); }, "aria-actions": "cha-" + c.id + "-pin cha-" + c.id + "-del" },
+                  h('button', { type: "button", className: "lc-cherry-open", "data-chat": c.id, onClick: function () { act.open(c.id); } },
                     c.title, open ? h('span', { className: "lc-cherry-now" }, ", open now") : null),
-                  // #77: VoiceOver rotor Actions on a chat: Pin (or Unpin) and Delete, the same as Chat options. Hidden, never a swipe stop.
-                  h('div', { hidden: true, className: "lc-rotor-acts" },
-                    h('button', { type: "button", id: "cha-" + c.id + "-pin", tabIndex: -1, onClick: function () { act.pin(c.id); } }, c.pinned ? "Unpin" : "Pin"),
-                    h('button', { type: "button", id: "cha-" + c.id + "-del", tabIndex: -1, onClick: function () { act.askDelete(c.id); } }, "Delete")),
                   h('p', { className: "lc-muted" }, lcCherryWhen(c.updated) + ", " + n + (n === 1 ? " message" : " messages") + (c.pinned ? ", pinned" : "")),
                   h('div', { className: "lc-cherry-row" },
                     cherryMenuEl(c, "list", act),
@@ -307,7 +303,6 @@ const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
       if (did.length) { addMsg(false, "Done: " + m.confirm + ".", { out: cherryOut(did) }); draw(); announce(cherrySay(did)); }
       else reply("Done: " + m.confirm + ".");
     },
-    askDelete: function (id) { LC_CHERRY.dlg = { kind: "delete", id: id, from: "cherry-opt-list-" + id }; draw(); },
     outToggle: function (i, k) {
       const m = LC_CHERRY.cur && LC_CHERRY.cur.msgs[i]; const o = m && m.out && m.out[k]; if (!o) return;
       o.open = !o.open; saveCur(); draw();
