@@ -2363,7 +2363,9 @@ function announce(msg, kind, key) {
      waiting message remembers the page it was said on (see lcAnnRoute). */
   const prevQ = q.msgs[q.msgs.length - 1];
   // Round 8: a control's state word ("Liked", "Like removed") carries the control it belongs to (key; else its own words).
-  if (!prevQ || prevQ.t !== one) q.msgs.push({ t: one, at: now, route: Looscid.LC_ANN_ROUTE || 0, key: kind === "state" ? String(key || one) : "" });
+  // Round 9 fixes (QA round 8): an error remembers that it is one, so a page change never drops it (see lcAnnRoute). "Could
+  // not" counts here too; which tone plays is unchanged.
+  if (!prevQ || prevQ.t !== one) q.msgs.push({ t: one, at: now, route: Looscid.LC_ANN_ROUTE || 0, key: kind === "state" ? String(key || one) : "", err: isErr || /\bcould not\b/i.test(one) });
   clearTimeout(Looscid.LC_ANN_WRITE);
   Looscid.LC_ANN_WRITE = setTimeout(lcAnnFlush, Math.max(0, Math.min(80, q.first + 250 - now)));
 }
@@ -2372,9 +2374,15 @@ function lcAnnFlush() {
   // The previous words are still being said: this batch waits its turn (and keeps collecting, in order).
   const wait = (Looscid.LC_ANN_FREE || 0) - Date.now();
   if (wait > 0) { clearTimeout(Looscid.LC_ANN_WRITE); Looscid.LC_ANN_WRITE = setTimeout(lcAnnFlush, wait); return; }
-  Looscid.LC_ANN_Q = null;
+  /* Round 9 fixes (QA round 8): words kept from the page you left ("Like removed") were joined to the new page's own words
+     ("Like removed. Commandbar. Type help and press Enter."). They are said as their own message, then the rest. */
+  let n = 1; while (n < q.msgs.length && !!q.msgs[n].kept === !!q.msgs[0].kept) n++;
+  const batch = q.msgs.slice(0, n), rest = q.msgs.slice(n);
+  Looscid.LC_ANN_Q = rest.length ? { first: Date.now(), msgs: rest } : null;
   const el = document.getElementById("looscid-live"); if (!el) return;
-  const msgs = q.msgs.map(function (m) { return m.t; });
+  const heard = Looscid.LC_ANN_SAID || (Looscid.LC_ANN_SAID = {});
+  batch.forEach(function (m) { if (m.key) heard[m.key] = m.t; });
+  const msgs = batch.map(function (m) { return m.t; });
   const text = msgs.length > 1 ? msgs.map(function (m) { return /[.!?\u2026:]$/.test(m) ? m : m + "."; }).join(" ") : msgs[0];
   Looscid.LC_ANN_FREE = Date.now() + Math.min(1500, 400 + text.length * 25);
   clearTimeout(Looscid.LC_ANN_CLEAR);
@@ -2385,6 +2393,7 @@ function lcAnnFlush() {
     Looscid.LC_ANN_CLEAR = setTimeout(function () { if (el.textContent === said) el.textContent = ""; }, Math.min(12000, 4000 + said.length * 60)); };
   // The same words again (pressing an unavailable button twice) are emptied first, so they are said again.
   if (el.textContent === text) { el.textContent = ""; setTimeout(write, 60); } else write();
+  if (rest.length) { clearTimeout(Looscid.LC_ANN_WRITE); Looscid.LC_ANN_WRITE = setTimeout(lcAnnFlush, Math.max(0, Looscid.LC_ANN_FREE - Date.now())); }
 }
 /* Round 7 fixes (QA round 6): words still waiting their turn were said after you had moved to another page ("Like removed"
    0.35 s after landing on Discover). When the page changes, waiting words from the page you left are dropped, unless they
@@ -2400,9 +2409,14 @@ function lcAnnRoute() {
      dropped with the page, so the last word heard was wrong. A control's state word now survives the move, and only the
      last one for each control is kept (Liked, Like removed, Liked: just "Liked"). "Dream published." (and Quote, Reply)
      is never dropped either. Other waiting words from the page you left still are. */
-  q.msgs = q.msgs.filter(function (m) { return m.route !== old || now - m.at < 100 || m.key || LC_ANN_KEEP_RE.test(m.t); });
+  /* Round 9 fixes (QA round 8): an error waiting its turn ("Could not save your Dream.") is never dropped either. A kept
+     state word that is the same as the last word already said for that control (Like tapped 3 times: "Liked" said, then
+     back to Liked) is not said again on the new page. Kept words are said as their own message (see lcAnnFlush). */
+  const heard = Looscid.LC_ANN_SAID || {};
+  q.msgs = q.msgs.filter(function (m) { return m.route !== old || now - m.at < 100 || m.key || m.err || LC_ANN_KEEP_RE.test(m.t); });
   q.msgs = q.msgs.filter(function (m, i) { return !m.key || !q.msgs.slice(i + 1).some(function (n) { return n.key === m.key; }); });
-  q.msgs.forEach(function (m) { m.route = Looscid.LC_ANN_ROUTE; });
+  q.msgs = q.msgs.filter(function (m) { return !(m.route === old && m.key && heard[m.key] === m.t); });
+  q.msgs.forEach(function (m) { if (m.route === old && (m.key || m.err || LC_ANN_KEEP_RE.test(m.t))) m.kept = true; m.route = Looscid.LC_ANN_ROUTE; });
   if (!q.msgs.length) { clearTimeout(Looscid.LC_ANN_WRITE); Looscid.LC_ANN_Q = null; }
 }
 Looscid.lcAnnRoute = lcAnnRoute;

@@ -133,7 +133,8 @@ function composeView(st, draw) {
     if (!peer) { cp.msg = "Type their npub (it starts with npub1) or their public key."; announce(cp.msg); draw(); setTimeout(function () { const t = document.getElementById("pm-to"); if (t) t.focus(); }, 0); return; }
     if (!cp.text.trim()) { cp.msg = "Type a message first."; announce(cp.msg); draw(); return; }
     // Round 5 fixes: a first message can take several seconds; "Sending…" is said once right away instead of silence.
-    cp.msg = "Sending…"; announce("Sending…", "state"); draw();
+    // Round 9 fixes (QA round 8): "Sending…" is plain progress, not a button's state word, so it is not carried to the next page.
+    cp.msg = "Sending…"; announce("Sending…"); draw();
     Looscid.lcPmSend(peer, cp.text).then(function (r) {
       // The chat opens in place of the form, so focus goes to its heading (it fell to <body>).
       if (r.ok) { Looscid.Earcon.play("send"); announce("Sent to " + Looscid.lcNostrName(peer) + "."); st.compose = null; st.pm = peer; st.pmBack = cp.back || null; draw(); setTimeout(Looscid.lcFocusHeading, 30); }
@@ -163,7 +164,7 @@ function pmView(st, draw) {
   const send = function () {
     const w = why(); if (w) { announce(w); return; }
     const t = (st.pmInp || "").trim();
-    st.pmInp = ""; announce("Sending…", "state"); draw(); syncSend();
+    st.pmInp = ""; announce("Sending…"); draw(); syncSend();
     Looscid.lcPmSend(peer, t).then(function (r) { if (r.ok) { Looscid.Earcon.play("send"); announce("Sent."); } else announce("Couldn't send. It's kept here as not sent."); draw(); });
   };
   return h('div', { className: "pg", style: { display: "flex", flexDirection: "column", paddingBottom: 0 } },
