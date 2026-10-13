@@ -276,7 +276,7 @@ const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
       const resp = ctx ? cherryRespond(msg, ctx) : { result: "Cherry isn't ready yet. Try again in a moment." };
       // A chosen on-device model answers the open questions Cherry's own rules don't cover.
       const pm = lcLlmPrefs().model;
-      if (resp.fallback && pm !== "builtin" && lcLlmGpu()) {
+      if (resp.fallback && pm !== "builtin" && !LC_LLM_OFF && lcLlmGpu()) {
         LC_CHERRY.busy = true; draw();
         (LC_LLM.engine && LC_LLM.id === pm ? Promise.resolve() : lcLlmLoad(pm)).then(function () { return lcLlmAsk(msg); })
           .then(function (txt) { LC_CHERRY.busy = false; reply(txt); }, function () { LC_CHERRY.busy = false; reply(resp.result); });
@@ -479,11 +479,20 @@ Looscid.LC_LLM = LC_LLM;
 function lcLlmPrefs() { const p = getAIPrefs(); return { model: p.model || "builtin", downloaded: p.downloaded || {} }; }
 function lcLlmSetPrefs(patch) { const p = getAIPrefs(); setAIPrefs(Object.assign({}, p, patch)); window.dispatchEvent(new CustomEvent("looscid:llm")); }
 function lcLlmGpu() { try { return typeof navigator !== "undefined" && !!navigator.gpu; } catch (e) { return false; } }
+/* Security pass 6/6 (audit finding 8): on-device models are switched off. They needed WebLLM fetched at run time from
+   esm.run, unpinned ("latest"), which would run inside Looscid next to your Nostr key; Looscid's CSP already blocked it,
+   so it never worked. They come back only as a pinned copy served from js/vendor, never by widening the CSP (WebLLM also
+   needs 'wasm-unsafe-eval', a decision for 2three1y). Cherry built-in keeps working. */
+const LC_LLM_OFF = true;
+const LC_LLM_OFF_MSG = "On-device models are switched off for now. They need code from outside Looscid, which isn't safe to run next to your Nostr key. They'll come back once that code ships with Looscid itself. Cherry built-in stays on.";
+Looscid.LC_LLM_OFF = LC_LLM_OFF;
 async function lcLlmLoad(id, onPct) {
+  if (LC_LLM_OFF) throw new Error("off");
   if (!lcLlmGpu()) throw new Error("nogpu");
   LC_LLM.loading = true; LC_LLM.pct = 0; window.dispatchEvent(new CustomEvent("looscid:llm"));
   try {
-    const mod = await import("https://esm.run/@mlc-ai/web-llm");
+    const mod = window.webllm; // a pinned copy from js/vendor, once there is one (see LC_LLM_OFF above)
+    if (!mod || typeof mod.CreateMLCEngine !== "function") throw new Error("off");
     const engine = await mod.CreateMLCEngine(id, { initProgressCallback: function (p) { const pct = Math.round((p.progress || 0) * 100); LC_LLM.pct = pct; if (onPct) onPct(pct, p.text || ""); window.dispatchEvent(new CustomEvent("looscid:llm")); } });
     LC_LLM.engine = engine; LC_LLM.id = id;
     const d = lcLlmPrefs().downloaded; d[id] = true; lcLlmSetPrefs({ model: id, downloaded: d });
@@ -504,23 +513,24 @@ function CherryModelPicker() {
   const [ask, setAsk] = useState(null);
   const [msg, setMsg] = useState("");
   const lastSaid = useRef(-10);
-  const cur = LC_LLM_MODELS.find(function (m) { return m.id === pr.model; }) || LC_LLM_MODELS[0];
+  const cur = (!LC_LLM_OFF && LC_LLM_MODELS.find(function (m) { return m.id === pr.model; })) || LC_LLM_MODELS[0];
   const start = function (m) {
     setMsg("Getting " + m.name + " ready\u2026"); announce("Downloading " + m.name + ". This can take a while.");
     lcLlmLoad(m.id, function (pct) { if (pct - lastSaid.current >= 10) { lastSaid.current = pct; announce(m.name + ": " + pct + " percent."); } setMsg(m.name + ": " + pct + " percent."); })
       .then(function () { const t = m.name + " is ready. Cherry now runs on this device, offline."; setMsg(t); announce(t); },
-        function (e) { const t = e && e.message === "nogpu" ? "This browser can't run on-device models: it has no WebGPU. Safari 26 or a recent Chrome can. Cherry built-in stays on." : "The download didn't finish, so Cherry built-in stays on. Try again on Wi-Fi."; setMsg(t); announce(t); lcLlmSetPrefs({ model: "builtin" }); });
+        function (e) { const t = e && e.message === "off" ? LC_LLM_OFF_MSG : e && e.message === "nogpu" ? "This browser can't run on-device models: it has no WebGPU. Safari 26 or a recent Chrome can. Cherry built-in stays on." : "The download didn't finish, so Cherry built-in stays on. Try again on Wi-Fi."; setMsg(t); announce(t); lcLlmSetPrefs({ model: "builtin" }); });
   };
   return lh('div', { className: "lc-row", id: "cherry-model-row" },
     lh(LcMenu, { id: "cherry-model", label: "Cherry model", title: "Cherry models", value: cur.id, search: "Search models", items: LC_LLM_MODELS.map(function (m) { return Object.assign({}, m, { note: m.note + (pr.downloaded[m.id] ? ", downloaded" : "") }); }),
       onSelect: function (id) {
         const m = LC_LLM_MODELS.find(function (x) { return x.id === id; });
         if (id === "builtin") { lcLlmSetPrefs({ model: "builtin" }); LC_LLM.engine = null; LC_LLM.id = null; setMsg(""); announce("Cherry built-in selected."); return; }
+        if (LC_LLM_OFF) { lcLlmSetPrefs({ model: "builtin" }); setMsg(LC_LLM_OFF_MSG); announce(LC_LLM_OFF_MSG); return; }
         if (!lcLlmGpu()) { const t = "This browser can't run on-device models: it has no WebGPU. Safari 26 or a recent Chrome can."; setMsg(t); announce(t); return; }
         if (pr.downloaded[id]) { start(m); return; } // already in the browser's cache: loads offline, no new download
         setAsk(m);
       } }),
-    lh('p', { className: "lc-desc" }, cur.id === "builtin" ? "Cherry built-in answers instantly with Looscid's own rules. On-device models give fuller answers, run in this browser and work offline after one download." : cur.name + (LC_LLM.engine && LC_LLM.id === cur.id ? " is running on this device." : " is downloaded. It loads from this device when Cherry needs it.")),
+    lh('p', { className: "lc-desc" }, cur.id === "builtin" ? (LC_LLM_OFF ? "Cherry built-in answers instantly with Looscid's own rules. On-device models are switched off for now, until their code ships with Looscid itself." : "Cherry built-in answers instantly with Looscid's own rules. On-device models give fuller answers, run in this browser and work offline after one download.") : cur.name + (LC_LLM.engine && LC_LLM.id === cur.id ? " is running on this device." : " is downloaded. It loads from this device when Cherry needs it.")),
     msg ? lh('p', { className: "lc-desc", id: "cherry-model-msg" }, msg) : null,
     ask && lh(AlertDialog, { title: "Download " + ask.name + "?", message: "About " + (ask.mb >= 1000 ? (ask.mb / 1000).toFixed(1) + " GB" : ask.mb + " MB") + ", downloaded once from Hugging Face through WebLLM, then kept by your browser. After that Cherry runs on this device, offline. License: " + ask.lic + ". Wi-Fi is best.",
       confirmLabel: "Download", onCancel: function () { setAsk(null); announce("Not downloaded. Cherry built-in stays on."); setTimeout(function () { const b = document.getElementById("cherry-model"); if (b) b.focus(); }, 30); },

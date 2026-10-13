@@ -5,20 +5,21 @@
 <script>
 /* Security pass 5/6: this is the only script written inline in this page, so the page's Content-Security-Policy below
    can allow it by its sha256 hash and refuse every other inline script. It runs first, before anything else.
-   1. Part 40 (#69): real page addresses like /Looscid/Settings/Sense. The app's own folder stays the base for every file
+   1. Part 40 (#69) and Security pass 6/6: real page addresses like /Looscid/Settings/Sense. The app's own folder stays the base for every file
       it loads, even after the address changes to a page's path. GitHub serves the site at /Looscid/ (case-sensitive).
    2. Frame guard: GitHub Pages can't send frame-ancestors, so if another website shows Looscid inside a frame (a trick
       to make you tap something you can't see), Looscid doesn't start there. js/boot.js shows a short message with a link
       that opens Looscid on its own. Looscid's own pages may still frame it (same origin). */
 (function () {
   var p = location.pathname, b = /^\/looscid(\/|$)/i.test(p) ? "/Looscid/" : p.replace(/[^\/]*$/, "");
+  b = ("/" + b).replace(/\\/g, "/").replace(/\/{2,}/g, "/"); // one leading slash only: an address like //evil.example/ can never become the base
   window.LOOSCID_BASE = b; document.write('<base href="' + b.replace(/"/g, "") + '">');
   var framed = false;
   try { framed = window.top !== window.self && window.top.location.origin !== window.location.origin; } catch (e) { framed = true; }
   if (framed) { window.LOOSCID_FRAMED = true; document.documentElement.setAttribute("data-lc-framed", ""); }
 })();
 </script>
-<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; default-src 'self'; script-src 'self' 'sha256-xzAAgal1WvMnk4aW3pLadFw4bjy0GEZmn1D2TFtnEhI='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self' https: wss:; frame-src 'self' blob: https://www.youtube-nocookie.com https://player.vimeo.com https://open.spotify.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; default-src 'self'; script-src 'self' 'sha256-cPXplTAx7lqw+U1sDy5Mzw0VCLG2PsaP6P7bfybrX4I='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self' https: wss:; frame-src 'self' blob: https://www.youtube-nocookie.com https://player.vimeo.com https://open.spotify.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
 <!-- Security pass 5/6: no inline script except the one above (allowed by its hash); the rest are files. -->
 <script src="js/boot.js"></script>
 <meta http-equiv="X-Content-Type-Options" content="nosniff"/>

@@ -1958,7 +1958,7 @@ const LC_ROUTES = [
   ["nexos_apps", "Apps"], ["hour_story", "Our-Story"], ["admin", "Admin"],
   ["more_discover", "More/Discover"], ["more_apps", "More/Apps"], ["more_create", "More/Create"], ["more_alerts", "More/Alerts"], ["more_projects", "Projects"],
 ];
-const LOOSCID_BASE = (function () { try { if (window.LOOSCID_BASE) return window.LOOSCID_BASE; const p = location.pathname; return /^\/looscid(\/|$)/i.test(p) ? "/Looscid/" : p.replace(/[^\/]*$/, ""); } catch (e) { return "/"; } })();
+const LOOSCID_BASE = (function () { try { if (window.LOOSCID_BASE) return window.LOOSCID_BASE; const p = location.pathname; return /^\/looscid(\/|$)/i.test(p) ? "/Looscid/" : ("/" + p.replace(/[^\/]*$/, "")).replace(/\\/g, "/").replace(/\/{2,}/g, "/"); } catch (e) { return "/"; } })();
 function lcSlug(t) { return String(t || "").trim().replace(/[^A-Za-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); }
 // The address of a page (with its data, for profiles and projects), always under the app's own folder.
 function lcPathFor(page, data) {
@@ -3619,7 +3619,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-12T23:57:26Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-13T00:04:13Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never

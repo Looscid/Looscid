@@ -2798,6 +2798,7 @@ const LC_VERSION_HISTORY = [
     "Security: your Nostr key is now locked with a passcode by default, and easy passcodes like 1234 aren't accepted. A key you saved before without one keeps working, and Looscid offers to lock it.",
     "Security: when your Nostr key has a passcode, your Mastodon and Bluesky sign-ins are locked with it too.",
     "Security: Looscid now refuses scripts that aren't its own files, and it won't run if another website tries to show it inside a hidden frame. You'll get a link to open it on its own instead.",
+    "Security: smaller fixes. Notes dated in the future can't jump to the top anymore, names and message settings from Nostr must be properly signed, and Cherry's on-device models are off until their code ships with Looscid itself.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

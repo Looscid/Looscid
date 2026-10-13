@@ -7,7 +7,9 @@
 window.onerror = function(msg, src, line, col, err) {
   var d = document.createElement('div');
   d.style = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#1a0000;color:#ff6b6b;padding:24px;font-family:monospace;font-size:13px;z-index:999999;overflow:auto;word-break:break-word;white-space:pre-wrap;';
-  d.innerHTML = '<b>Error:</b> ' + msg + '\nSource: ' + src + '\nLine: ' + line + ', Col: ' + col + (err ? '\n\n' + err.stack : '');
+  // Security pass 6/6 (audit finding 9): the error text is written as text, never as HTML.
+  var lb = document.createElement('b'); lb.textContent = 'Error:'; d.appendChild(lb);
+  d.appendChild(document.createTextNode(' ' + msg + '\nSource: ' + src + '\nLine: ' + line + ', Col: ' + col + (err ? '\n\n' + err.stack : '')));
   document.body ? document.body.appendChild(d) : document.addEventListener('DOMContentLoaded', function(){ document.body.appendChild(d); });
   return false;
 };

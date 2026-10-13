@@ -33,6 +33,10 @@ function emit() { try { window.dispatchEvent(new Event("looscid-nostr")); } catc
 function toHex(b) { return Array.from(b, function (x) { return x.toString(16).padStart(2, "0"); }).join(""); }
 function fromHex(h) { const o = new Uint8Array(h.length / 2); for (let i = 0; i < o.length; i++) o[i] = parseInt(h.substr(i * 2, 2), 16); return o; }
 const isHex64 = function (s) { return /^[0-9a-f]{64}$/i.test(String(s || "")); };
+// Security pass 6/6: a note dated more than 15 minutes ahead of now is dropped, so nobody can pin a note to the top of a
+// list by giving it a date in the future (audit finding 10). Messages are clamped to now instead (fetchPMs).
+const FUTURE_SKEW_S = 15 * 60;
+function tooNew(ev) { return !ev || typeof ev.created_at !== "number" || !isFinite(ev.created_at) || ev.created_at > Math.floor(Date.now() / 1000) + FUTURE_SKEW_S; }
 
 // The crypto library, from this site only. No CDN.
 // Oct 12 fix: the address is worked out from where this file (js/nostr.js) itself came from, so no page address
@@ -500,7 +504,7 @@ async function fetchPublic(opts) {
   const all = await Promise.all(relays().map(function (u) { return relayReq(u, filter, opts.ms || 7000); }));
   const seen = new Set(), hid = new Set(hidden()), out = [];
   all.forEach(function (evs) { evs.forEach(function (ev) {
-    if (!ev || seen.has(ev.id) || hid.has(ev.id) || ev.kind !== 1 || typeof ev.content !== "string") return;
+    if (!ev || seen.has(ev.id) || hid.has(ev.id) || ev.kind !== 1 || tooNew(ev) || typeof ev.content !== "string") return;
     if (!Array.isArray(ev.tags) || ev.tags.some(function (t) { return t && t[0] === "e"; })) return;
     let ok = false; try { ok = NT.verifyEvent(ev); } catch (e) {}
     if (!ok) return;
@@ -525,7 +529,7 @@ async function fetchThreadReplies(nids, since) {
   const all = await Promise.all(relays().map(function (u) { return relayReq(u, filter); }));
   const seen = new Set(), out = [];
   all.forEach(function (evs) { evs.forEach(function (ev) {
-    if (!ev || seen.has(ev.id) || ev.kind !== 1 || typeof ev.content !== "string" || !Array.isArray(ev.tags)) return;
+    if (!ev || seen.has(ev.id) || ev.kind !== 1 || tooNew(ev) || typeof ev.content !== "string" || !Array.isArray(ev.tags)) return;
     let ok = false; try { ok = NT.verifyEvent(ev); } catch (e) {} if (!ok) return; seen.add(ev.id);
     const roots = ev.tags.filter(function (t) { return t && t[0] === "e" && isHex64(t[1]); }).map(function (t) { return t[1].toLowerCase(); }).filter(function (x) { return nids.indexOf(x) >= 0; });
     if (!roots.length) return;
@@ -600,8 +604,11 @@ function pmMode() {
   return st.mode === "locked" ? "locked" : st.mode === "signer" ? "nosigner44" : "none";
 }
 function rndPast() { return Math.round(Date.now() / 1000 - Math.random() * 172800); }
+// Security pass 6/6 (audit finding 11): a DM relay list counts only if it really is that person's, signed by them.
 async function dmRelaysOf(pk) {
-  const evs = (await Promise.all(relays().map(function (u) { return relayReq(u, { kinds: [10050], authors: [pk], limit: 1 }, 5000); }))).reduce(function (a, b) { return a.concat(b); }, []);
+  let NT; try { NT = await load(); } catch (e) { return []; }
+  const evs = (await Promise.all(relays().map(function (u) { return relayReq(u, { kinds: [10050], authors: [pk], limit: 1 }, 5000); }))).reduce(function (a, b) { return a.concat(b); }, [])
+    .filter(function (ev) { let ok = false; try { ok = !!ev && ev.kind === 10050 && ev.pubkey === pk && !tooNew(ev) && NT.verifyEvent(ev); } catch (e) {} return ok; });
   evs.sort(function (a, b) { return b.created_at - a.created_at; });
   const ev = evs[0]; if (!ev || !Array.isArray(ev.tags)) return [];
   return ev.tags.filter(function (t) { return t && t[0] === "relay"; }).map(function (t) { return cleanRelay(t[1]); }).filter(Boolean).slice(0, 6);
@@ -658,7 +665,11 @@ async function fetchPMs(since) {
       const ps = (r.tags || []).filter(function (t) { return t[0] === "p" && isHex64(t[1]); }).map(function (t) { return t[1].toLowerCase(); });
       const fromMe = r.pubkey === me, peer = fromMe ? ps.find(function (p) { return p !== me; }) || me : r.pubkey;
       if (!fromMe && ps.indexOf(me) < 0) continue;
-      out.push({ id: r.id || w.id, peer: peer, me: fromMe, text: r.content.slice(0, 20000), created: (r.created_at || 0) * 1000 });
+      // Security pass 6/6 (audit finding 12): the message id is worked out from the message itself, never taken from what the
+      // sender wrote in it, and a date in the future counts as now.
+      let id = null; try { id = NT.getEventHash({ pubkey: r.pubkey, created_at: r.created_at, kind: r.kind, tags: r.tags || [], content: r.content }); } catch (e) { id = null; }
+      if (!id) continue;
+      out.push({ id: id, peer: peer, me: fromMe, text: r.content.slice(0, 20000), created: Math.min(r.created_at || 0, Math.floor(Date.now() / 1000)) * 1000 });
     } catch (e) {}
   }
   return { list: out };
@@ -672,7 +683,7 @@ async function fetchInbox(since) {
   const all = await Promise.all(relays().map(function (u) { return relayReq(u, filter); }));
   const seen = new Set(), out = [];
   all.forEach(function (evs) { evs.forEach(function (ev) {
-    if (!ev || seen.has(ev.id) || ev.pubkey === me || !Array.isArray(ev.tags)) return;
+    if (!ev || seen.has(ev.id) || ev.pubkey === me || tooNew(ev) || !Array.isArray(ev.tags)) return;
     let ok = false; try { ok = NT.verifyEvent(ev); } catch (e) {} if (!ok) return; seen.add(ev.id);
     const es = ev.tags.filter(function (t) { return t && t[0] === "e" && isHex64(t[1]); });
     let type = null;
@@ -693,7 +704,13 @@ async function fetchNames(pks) {
   pks = (pks || []).filter(isHex64).slice(0, 50); if (!pks.length) return {};
   const all = await Promise.all(relays().map(function (u) { return relayReq(u, { kinds: [0], authors: pks, limit: pks.length * 2 }, 6000); }));
   const best = {};
-  all.forEach(function (evs) { evs.forEach(function (ev) { if (ev && ev.kind === 0 && (!best[ev.pubkey] || best[ev.pubkey].created_at < ev.created_at)) best[ev.pubkey] = ev; }); });
+  // Security pass 6/6: a name counts only from a profile that person signed (a relay can't hand back a made-up name).
+  let NT; try { NT = await load(); } catch (e) { return {}; }
+  const want = new Set(pks.map(function (x) { return x.toLowerCase(); }));
+  all.forEach(function (evs) { evs.forEach(function (ev) {
+    if (!ev || ev.kind !== 0 || !want.has(ev.pubkey) || tooNew(ev) || (best[ev.pubkey] && best[ev.pubkey].created_at >= ev.created_at)) return;
+    let ok = false; try { ok = NT.verifyEvent(ev); } catch (e) {} if (ok) best[ev.pubkey] = ev;
+  }); });
   const out = {}; Object.keys(best).forEach(function (pk) { try { const m = JSON.parse(best[pk].content || "{}"); const nm = String(m.display_name || m.name || "").trim().slice(0, 60); if (nm) out[pk] = nm; } catch (e) {} });
   return out;
 }
@@ -767,7 +784,7 @@ window.addEventListener("online", function () { if (queue().length) kick(); });
 if (document.readyState === "complete") start(); else window.addEventListener("load", start);
 
 Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, VENDOR_URL: VENDOR_URL, load: load, toolsMsg: toolsMsg, toolsReady: toolsReady, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
-  importKey: importKey, createKey: createKey, passcodeProblem: passcodeProblem, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, nsecNow: nsecNow, sealSessions: sealSessions, sealSessionsNow: sealSessionsNow, openSessions: openSessions,
+  importKey: importKey, createKey: createKey, passcodeProblem: passcodeProblem, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, nsecNow: nsecNow, sealSessions: sealSessions, sealSessionsNow: sealSessionsNow, openSessions: openSessions, dmRelaysOf: dmRelaysOf,
   publishDream: publishDream, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchReactions: fetchReactions, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
 // Tokens saved before this update, when the key already has a passcode, are sealed a few seconds after startup.
 setTimeout(function () { sealSessions(); }, 2500);
