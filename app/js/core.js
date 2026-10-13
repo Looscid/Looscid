@@ -510,7 +510,7 @@ function Modal({onClose, title, subtitle, children}) {
           , title && React.createElement('div', {
               style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:subtitle?4:12},
             },
-            React.createElement('div', { className: "mtt", style:{margin:0,flex:1}}, title),
+            React.createElement('h2', { className: "mtt", style:{margin:0,flex:1,fontWeight:400}}, title), // Round 5 fixes: the title is a heading (it was plain text)
             React.createElement('button', Object.assign({
               type: "button", className: "lc-close", onClick: onClose,
             }, lcCloseProps(title)), "Close")
@@ -873,7 +873,7 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
       : { id: "untag", name: "Remove me from this Dream", a: function () { lcSetUntagged(dream, true); announce("Removed you from this Dream. Your mention in it isn't a link to you anymore."); } }) : null,
     // Build 151 (#54): pin this Dream's thread, or its Dreamor, as a feed tab.
     (function () { const root = dream._root || dream.replyTo || dream.id; const on = lcPinHas("thread", root);
-      return { id: "pinthread", name: on ? "Unpin thread tab" : "Pin thread as a tab", a: function () { if (on) lcPinRemove(lcPinId({ kind: "thread", ref: root })); else lcPinAdd("thread", root, "Thread: " + String((dream.user && dream.user.name) || "Dream") + ", " + String(dream.text || "").replace(/\s+/g, " ").slice(0, 30).trim()); } }; })(),
+      return { id: "pinthread", name: on ? "Unpin thread tab" : "Pin thread as a tab", a: function () { if (on) lcPinRemove(lcPinId({ kind: "thread", ref: root })); else lcPinAdd("thread", root, "Thread: " + String((dream.user && dream.user.name) || "Dream") + ", " + lcCutWords(dream.text, 30)); } }; })(),
     // Build 151 (#74, 2three1y Oct 11 4:56-4:58 PM): Subscribe to thread. New Replies in it land in Alerts, Replies.
     (function () { const root = String(dream._root || dream.replyTo || dream.id); const on = lcThreadSubbed(root);
       return { id: "subthread", name: on ? "Unsubscribe from thread" : "Subscribe to thread", a: function () {
@@ -897,7 +897,8 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
   ];
   const likeIt = items.filter(function (it) { return it.id === "like"; });
   const ordered = likeIt.concat(fx, items.filter(function (it) { return it.id !== "like"; }));
-  return lh(LcMenu, { id: id + "-btn", menuId: id, kind: "action", title: "More", btnLabel: "More", btnHint: "Opens actions for this Dream.", btnClass: "ixn-btn", btnRef: btnRef, noCaret: true, align: "right", up: true,
+  // Round 5 fixes: each Dream's More button says whose Dream it is ("More, Dream by Ava"), so the rotor list isn't a row of "More".
+  return lh(LcMenu, { id: id + "-btn", menuId: id, kind: "action", title: "More", btnLabel: "More, " + (dream && dream.user && dream.user.name ? "Dream by " + dream.user.name : "Dream"), btnHint: "Opens actions for this Dream.", btnClass: "ixn-btn", btnRef: btnRef, noCaret: true, align: "right", up: true,
     className: "lc-dmenu", style: { flex: ".5", display: "flex" }, itemClass: "lc-dopt", btnText: lh(Ic.Dots, { style: { width: 15, height: 15 } }), items: ordered,
     onSelect: function (k, it) { if (it.a) it.a(); } });
 }
@@ -1030,6 +1031,9 @@ function lcThreadAbove(d) {
 }
 /* Round 5 fixes: "1 like", "1 Redream" (singular), and the Redream button says whether you Redreamed or Quoted it.
    Like is a toggle button (aria-pressed); Redream opens a menu, so its state is in its name instead. */
+// Round 5 fixes: shortened text ends at a whole word with "…" (a pinned thread tab read "…from the as-Alha").
+function lcCutWords(t, n) { t = String(t || "").replace(/\s+/g, " ").trim(); if (t.length <= n) return t; const c = t.slice(0, n + 1), i = c.lastIndexOf(" "); return (i > n / 2 ? c.slice(0, i) : t.slice(0, n)).replace(/[\s,.;:!?-]+$/, "") + "…"; }
+Looscid.lcCutWords = lcCutWords;
 function lcCountWord(n, one, many) { return fmt(n) + " " + (n === 1 ? one : many); }
 function lcRdState(d) { return d.redreamed ? ", Redreamed" : d.quoted ? ", Quoted" : ""; }
 function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onCommentPosted, navigate}) {
@@ -6513,12 +6517,16 @@ useEffect(() => {
     const t = String(raw || "").trim();
     if (t) lcPushHistory(t);
     const r = lcRun(t, { cherryCtx: cherryCtx, setA11y: setA11yPatch, profile: authUser });
-    const say0 = r.say || r.lines.map(l => l.text).join(" ");
+    const full = r.say || r.lines.map(l => l.text).join(" ");
+    // Round 5 fixes (QA "as 2three1y"): "settings" spoke one announcement of about 3,000 characters. A long output is said
+    // as its count and the first result; all of it stays in the Commandbar output to read line by line.
+    const body = r.lines.filter(l => l.kind !== "hi"), head = r.lines.length && r.lines[0].kind === "hi" ? r.lines[0].text + " " : "";
+    const say0 = !r.say && body.length > 3 && full.length > 400 ? head + body.length + " results. First: " + body[0].text + (/[.!?]$/.test(body[0].text) ? "" : ".") + " The rest are in the Commandbar output." : full;
     // Round 6: blocked words stay hidden in Commandbar too, unless you typed them yourself.
     // Round 6.6: Command sounds. The command's own sound plays where the one run sound played (and where none did);
     // errors keep the error sound, and on, off, help, clear and close keep theirs. Off in Settings: the run sound, as before.
     const cmdSound = () => r.earcon === "error" ? false : Earcon.cmd ? (function () { const s = lcCmdSoundSpec(t, r); return Earcon.cmd(s.id, s.area); })() : false;
-    const bwHit = lcWordHit(say0), say = bwHit && (" " + lcNorm(t) + " ").indexOf(" " + lcNorm(bwHit) + " ") < 0 ? "Hidden: contains a blocked word." : say0;
+    const bwHit = lcWordHit(full), say = bwHit && (" " + lcNorm(t) + " ").indexOf(" " + lcNorm(bwHit) + " ") < 0 ? "Hidden: contains a blocked word." : say0;
     if (r.go) {
       if (LC_PLACES[r.go].alertsTab) lcSetAlertsTab(LC_PLACES[r.go].alertsTab, true);
       if (LC_PLACES[r.go].srTab) { try { sessionStorage.setItem("looscid_sr_tab", LC_PLACES[r.go].srTab); } catch (e) {} }

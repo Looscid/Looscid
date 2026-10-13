@@ -2795,6 +2795,7 @@ const LC_VERSION_HISTORY = [
     "More buttons stay findable for VoiceOver while they can't be used, and say why when pressed: Messages Send, Attach Poll and Attach Link, Direct message on profiles, Delete all chats, Feedback and announcement Send, the read-aloud test, Use this pack, the choices set by Private account and the braille button styles. Cherry's coming-soon chat options say so, tapping a chat option no longer breaks the menu, and a few messages in Settings are no longer read twice.",
     "VoiceOver focus and speech fixes: opening any page (every Settings page, a profile from a Dream, a Dream's Replies, a chat after your first message) puts focus on its heading, Back returns to the row or button you came from, and adding a login keeps your place. Two messages in a row are both spoken instead of the second cutting off the first. Like says Liked or Like removed and tells VoiceOver whether it's on, Redream says Redreamed or Redream removed, and one like reads \"1 like\". The Messages chat Send says why when the box is empty and says Sending right away. Pasting the key you already have says so instead of signing you out of Mastodon and Bluesky, and removing a login says what the screen says. The Replies view has a heading, and the footer no longer covers the Dream when you reply.",
     "Your profile's Dreams and Redreams counts and its Redreams tab update right after a Redream or a Quote, without a reload. Direct message on a Nostr Dreamor's profile opens a private message to them, and Back returns to their profile; for anyone else it says plainly why it can't. Publishing now says \"Dream published.\" And on the status page, the ticking Last checked time isn't read out over and over, Notify me says why when the email box is empty or you're already subscribed, Back to app opens Looscid, and Private Messages and Authentication show as working.",
+    "Discover: a Dreamor result and its Follow button are separate now, and Follow really follows; Join says why it isn't ready; each Dream result is one item that opens the Dream, and Back returns to your search; an empty Trending says so. Create Poll: Remove option 1, 2 and 3, no stray numbers, the chosen duration is marked, the panel titles are headings, closing Attach Link goes back to Link, Add Photo opens the photo picker straight away, and the rest of Add to Dream has its own Attach button. The Commandbar's settings command says how many results and the first one instead of reading everything at once. Each Dream's More button says whose Dream it is, a pinned thread tab's name ends at a whole word, Your imported pack says why when nothing is imported, and Looscid Labs no longer lists Mute and Block.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
@@ -3213,7 +3214,7 @@ const LC_COMING_SOON = [
   { name: "AI image descriptions", where: "Accessibility, Vision", desc: "Cherry describes images in Dreams, on this device." },
   { name: "RTT and TTY", where: "Accessibility, Hearing", desc: "Real-time text for calls." },
   { name: "Native braille drivers", where: "Sense", desc: "Direct USB and Bluetooth braille display support, without a screen reader." },
-  { name: "Mute and Block", where: "Dream and reply options", desc: "Stop seeing a Dreamor's Dreams and replies." },
+  // Round 5 fixes: Mute and Block are no longer listed here; both exist (a Dreamor's options, and Settings, Privacy).
   { name: "Report", where: "Dream and reply options", desc: "Flag a Dream or reply for review." },
   { name: "Custom feeds", where: "Feeds and Create", desc: "Build your own feed, as its own tab." },
   { name: "Pubky login", where: "LooscidID", desc: "Log in with the Pubky Ring app. No email or phone number." },
@@ -3394,6 +3395,10 @@ function LcSetRow({ def, onChange }) {
       
       lh('div', { className: "lc-radios lc-radios-col" }, def.o.map(function (o) {
         const on = String(v) === String(o[0]);
+        // Round 5 fixes: "Your imported pack" with nothing imported is unavailable and says why (it could be chosen and said
+        // "Soundpack: Your imported pack.").
+        if (def.k === "soundPack" && o[0] === "custom" && !on && !Looscid.LC_CUSTOM_PACK) return lh('label', { key: o[0], className: "lc-radio" },
+          lh('input', Object.assign({ type: "radio", name: "lcs-" + def.k, value: o[0], checked: false }, lcOffInput("Not available yet: import your own sounds first, with Import a Soundpack on this page."))), lh('span', null, o[1]));
         return lh('label', { key: o[0], className: "lc-radio" + (on ? " on" : "") },
           lh('input', { type: "radio", name: "lcs-" + def.k, value: o[0], checked: on,
             // Round 6.6 (2three1y, 5:19 PM): Soundpacks. Moving to a pack plays a short preview of it; choosing it (Space,

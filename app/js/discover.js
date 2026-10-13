@@ -109,6 +109,9 @@ function discoverView(st, p, draw) {
     // Build 152 fix: no second live region here; the result count is said once through #looscid-live (lcAnnounceCount).
     h('div', null,
       // Part 36 (2three1y, Oct 12 4:50 PM): no Ask Cherry on Discover. Discover is search and browsing only.
+      // Round 5 fixes: an empty Trending says so instead of showing nothing.
+      (tab === "trending" || (tab === "all" && !q)) && !TRENDING.length && h('div', { className: "es" }, h('div', { className: "esl" }, "Nothing is trending yet"),
+        h('p', { style: { fontSize: 12, color: "var(--tx3)", marginTop: 6, lineHeight: 1.6 } }, "Search above to find Dreamors, Dreams and Circles.")),
       (tab === "trending" || (tab === "all" && !q)) && TRENDING.map(function (t) {
         return h('div', { key: t.tag, className: "trtg", role: "button", tabIndex: 0, onClick: function () { st.q = "#" + t.tag; st.tab = "dreams"; draw(); }, "aria-label": Looscid.lcNameJoin("#" + t.tag, t.cat, t.count) },
           h('div', null,
@@ -119,29 +122,42 @@ function discoverView(st, p, draw) {
             lcIconEl("Chv", { style: { width: 14, height: 14, color: "var(--tx3)" } })));
       }),
 
+      // Round 5 fixes (QA "as 2three1y"): a Dreamor result was a button with the Follow button inside it, which iOS may not
+      // reach. Now the result (opens the profile) and Follow are siblings, and Follow really follows (pressed state, said once).
       (tab === "dreamers" || tab === "all") && dreamerResults.map(function (u) {
-        return h('div', { key: u.id, className: "ci", onClick: function () { navigate("dp", u); }, role: "button", tabIndex: 0,
-            "aria-label": u.name + (u.verified ? " verified" : "") + " · " + u.handle + " · " + fmt(u.followers) + " Dreamors following" },
-          lcAvEl(u, 44),
-          h('div', { className: "cif" },
-            h('div', { className: "cnm" }, u.name, u.verified && h('span', { style: { color: "var(--ac2)", fontSize: 11 } }, " \u2713")),
-            h('div', { className: "cpv" }, u.handle, " \u00b7 ", fmt(u.followers), " Dreamors following")),
-          h('button', { className: "btn bp", style: { padding: "7px 14px", fontSize: 12 }, onClick: function (e) { e.stopPropagation(); }, "aria-label": "Follow " + u.name }, "Follow"));
+        const fol = !!(cherryCtx && cherryCtx.following && cherryCtx.following.has(u.id));
+        return h('div', { key: u.id, className: "ci" },
+          h('button', { type: "button", className: "lc-disc-open", style: { display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0, background: "none", border: "none", padding: 0, color: "inherit", font: "inherit", textAlign: "left", cursor: "pointer" },
+              onClick: function () { navigate("dp", u); }, "aria-label": u.name + (u.verified ? ", verified" : "") + ", " + u.handle + ", " + fmt(u.followers) + " Dreamors following" },
+            lcAvEl(u, 44),
+            h('div', { className: "cif", "aria-hidden": "true" },
+              h('div', { className: "cnm" }, u.name, u.verified && h('span', { style: { color: "var(--ac2)", fontSize: 11 } }, " \u2713")),
+              h('div', { className: "cpv" }, u.handle, " \u00b7 ", fmt(u.followers), " Dreamors following"))),
+          cherryCtx && cherryCtx.followUser
+            ? h('button', { type: "button", className: "btn " + (fol ? "bgb" : "bp"), style: { padding: "7px 14px", fontSize: 12 }, "aria-pressed": fol ? "true" : "false", "aria-label": "Follow " + u.name,
+                onClick: function () { cherryCtx.followUser(u.id); Looscid.announce((fol ? "Unfollowed " : "Following ") + u.name, "state"); } }, fol ? "Following" : "Follow")
+            : h('button', { type: "button", className: "btn bp", style: { padding: "7px 14px", fontSize: 12 }, "aria-disabled": "true", "aria-label": "Follow " + u.name,
+                onClick: function () { Looscid.announce("Not available yet: open " + u.name + "'s profile to follow."); } }, "Follow"));
       }),
 
+      // Round 5 fixes: a Dream result is one button with one name that opens the Dream (it was four separate pieces with an
+      // aria-label on a plain div, and couldn't be opened). Back from the Dream returns here.
       (tab === "dreams" || tab === "all") && dreamResults.map(function (d) {
-        return h('div', { key: d.id, style: { borderBottom: "1px solid var(--bd)", padding: "11px 14px" }, "aria-label": Looscid.lcNameJoin("Dream by " + d.user.name, String(d.text || "").replace(/\n/g, " ").slice(0, 80)) },
-          h('div', { style: { display: "flex", gap: 8, alignItems: "center", marginBottom: 4 } },
+        return h('button', { type: "button", key: d.id, className: "lc-disc-dream", style: { display: "block", width: "100%", textAlign: "left", background: "none", border: "none", color: "inherit", font: "inherit", cursor: "pointer", borderBottom: "1px solid var(--bd)", padding: "11px 14px" },
+            "aria-label": Looscid.lcNameJoin("Dream by " + d.user.name, String(d.text || "").replace(/\n/g, " ").slice(0, 80)) + ", " + fmt(d.likes) + (d.likes === 1 ? " like" : " likes"),
+            onClick: function () { const qq = st.q; Looscid.LC_FEED_OPEN = { dream: d, back: function () { Looscid.LC_DISCOVER_NEXT_Q = qq; navigate("discover"); } }; navigate("feed"); } },
+          h('span', { "aria-hidden": "true", style: { display: "block" } },
+          h('span', { style: { display: "flex", gap: 8, alignItems: "center", marginBottom: 4 } },
             lcAvEl(d.user, 28),
             h('span', { style: { fontWeight: 700, fontSize: 13 } }, d.user.name),
             d.user.verified && h('span', { style: { color: "var(--ac2)", fontSize: 11 } }, "\u2713"),
             h('span', { style: { fontSize: 11, color: "var(--tx3)" } }, d.user.handle)),
-          h('p', { style: { fontSize: 13, color: "var(--tx2)", lineHeight: 1.6, margin: "0 0 5px" } },
+          h('span', { style: { display: "block", fontSize: 13, color: "var(--tx2)", lineHeight: 1.6, margin: "0 0 5px" } },
             lcDreamTextEl(d.text.length > 140 ? d.text.slice(0, 140) + "\u2026" : d.text)),
-          h('div', { style: { display: "flex", gap: 12, fontSize: 11, color: "var(--tx3)" } },
+          h('span', { style: { display: "flex", gap: 12, fontSize: 11, color: "var(--tx3)" } },
             h('span', null, "Likes: ", fmt(d.likes)),
             h('span', null, "Redreams: ", fmt(d.redreams)),
-            h('span', null, "Replies: ", fmt(d.comments))));
+            h('span', null, "Replies: ", fmt(d.comments)))));
       }),
 
       (tab === "circles" || tab === "all") && circleResults.map(function (g) {
@@ -150,7 +166,9 @@ function discoverView(st, p, draw) {
           h('div', { className: "cif" },
             h('div', { className: "cnm" }, g.name),
             h('div', { className: "cpv" }, fmt(g.members), " Dreamors in this Circle")),
-          h('button', { className: "btn bgb", style: { fontSize: 12 }, "aria-label": "Join the " + g.name + " Circle" }, "Join"),
+          // Round 5 fixes: Join did nothing and said nothing. Circles from Discover come in build 152, so it says so.
+          h('button', { type: "button", className: "btn bgb", style: { fontSize: 12 }, "aria-label": "Join the " + g.name + " Circle", "aria-disabled": "true",
+            onClick: function () { Looscid.announce("Not available yet: joining a Circle from Discover comes in a later build. Open Circles in More to join it."); } }, "Join"),
           Looscid.lcLikeBtnEl ? Looscid.lcLikeBtnEl("circle", g.id, g.name + " Circle", { name: g.name, emoji: g.emoji }, draw, { style: { fontSize: 12, marginLeft: 6 } }) : null);
       }),
 

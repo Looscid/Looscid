@@ -17,6 +17,8 @@ function AttachPanel({onClose, onAttach, mode, start}) {
   const [linkUrl, setLinkUrl] = useState("");
   const [locText, setLocText] = useState("");
 
+  // Round 5 fixes: closing Create Poll, Attach Link or Tag Location returns focus to the button that opened it.
+  const backTo = function (id) { setScreen("main"); setTimeout(function () { const b = document.getElementById("lc-att-" + id); if (b) b.focus(); }, 40); };
   const attachItems = [
     {id:"photo",icon:"Photo / Video",label:"Photo / Video",sub:"Share an image or video clip"},
     {id:"gif",icon:"GIF",label:"GIF",sub:"Animated GIF from your library"},
@@ -29,7 +31,7 @@ function AttachPanel({onClose, onAttach, mode, start}) {
   ].filter(i => mode==="reply" || mode==="comment" ? ["photo","gif","poll","link","mood"].includes(i.id) : true);
 
   if (screen==="poll") return (
-    React.createElement(Modal, { onClose: ()=>{ if (start === "poll") onClose(); else setScreen("main"); }, title: "Create Poll" , subtitle: "Ask your followers a question"    ,}
+    React.createElement(Modal, { onClose: ()=>{ if (start === "poll") onClose(); else backTo("poll"); }, title: "Create Poll" , subtitle: "Ask your followers a question"    ,}
       , React.createElement('div', { style: {marginBottom:12},}
         , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",marginBottom:6},}, "Question")
         , React.createElement('input', { className: "inp", placeholder: "What do you want to ask?"     , value: pollQ, onChange: e=>setPollQ(e.target.value), 'aria-label': "Poll question" ,})
@@ -38,18 +40,19 @@ function AttachPanel({onClose, onAttach, mode, start}) {
         , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",marginBottom:6},}, "Options")
         , pollOpts.map((opt,i)=>(
           React.createElement('div', { key: i, style: {display:"flex",gap:6,marginBottom:6,alignItems:"center"},}
-            , React.createElement('div', { style: {width:20,height:20,borderRadius:"50%",border:"2px solid var(--bd2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:"var(--tx3)",flexShrink:0},}, i+1)
+            , React.createElement('div', { "aria-hidden": "true", style: {width:20,height:20,borderRadius:"50%",border:"2px solid var(--bd2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:"var(--tx3)",flexShrink:0},}, i+1)
             , React.createElement('input', { className: "inp", style: {flex:1,fontSize:13}, placeholder: "Option "+(i+1), value: opt, onChange: e=>setPollOpts(os=>os.map((o,j)=>j===i?e.target.value:o)), 'aria-label': "Poll option "+(i+1),})
-            , pollOpts.length>2&&React.createElement('button', { className: "bi", style: {padding:3,flexShrink:0}, onClick: ()=>setPollOpts(os=>os.filter((_,j)=>j!==i)), 'aria-label': "Remove option" ,}, React.createElement('span', { style: {fontSize:14,color:"var(--tx3)"},}, "✕"))
+            , pollOpts.length>2&&React.createElement('button', { className: "bi", style: {padding:3,flexShrink:0}, onClick: ()=>setPollOpts(os=>os.filter((_,j)=>j!==i)), 'aria-label': "Remove option " + (i+1) ,}, React.createElement('span', { "aria-hidden": "true", style: {fontSize:14,color:"var(--tx3)"},}, "✕"))
           )
         ))
         , pollOpts.length<5&&React.createElement('button', { className: "btn bgb" , style: {width:"100%",padding:9,fontSize:12,marginTop:4}, onClick: ()=>setPollOpts(os=>[...os,""]), 'aria-label': "Add option" ,}, "+ Add Option"  )
       )
       , React.createElement('div', { style: {marginBottom:14},}
         , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",marginBottom:6},}, "Poll Duration" )
-        , React.createElement('div', { style: {display:"flex",gap:6,flexWrap:"wrap"},}
+        /* Round 5 fixes: the chosen duration is a pressed button, and each says its length in words ("1 hour", not "1h"). */
+        , React.createElement('div', { role: "group", "aria-label": "Poll duration", style: {display:"flex",gap:6,flexWrap:"wrap"},}
           , ["1h","6h","24h","3d","7d"].map(d=>(
-            React.createElement('button', { key: d, className: "btn"+(pollDur===d?" bp":" bgb"), style: {padding:"6px 13px",fontSize:12}, onClick: ()=>setPollDur(d), 'aria-label': "Duration "+d,}, d)
+            React.createElement('button', { key: d, type: "button", className: "btn"+(pollDur===d?" bp":" bgb"), style: {padding:"6px 13px",fontSize:12}, "aria-pressed": pollDur===d ? "true" : "false", onClick: ()=>setPollDur(d), 'aria-label': ({"1h":"1 hour","6h":"6 hours","24h":"24 hours","3d":"3 days","7d":"7 days"})[d],}, d)
           ))
         )
       )
@@ -58,14 +61,14 @@ function AttachPanel({onClose, onAttach, mode, start}) {
   );
 
   if (screen==="link") return (
-    React.createElement(Modal, { onClose: ()=>setScreen("main"), title: "Attach Link" , subtitle: "Share an article, video or website"     ,}
+    React.createElement(Modal, { onClose: ()=>backTo("link"), title: "Attach Link" , subtitle: "Share an article, video or website"     ,}
       , React.createElement('input', { className: "inp", style: {marginBottom:12}, placeholder: "https://…", value: linkUrl, onChange: e=>setLinkUrl(e.target.value), type: "url", 'aria-label': "Link URL" ,})
       , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12}, 'aria-disabled': linkUrl.trim() ? undefined : "true", onClick: ()=>{ if (!linkUrl.trim()) { announce("Type or paste a link first."); return; } onAttach({type:"link",url:linkUrl});onClose();}, 'aria-label': "Attach link" ,}, "Attach Link" )
     )
   );
 
   if (screen==="location") return (
-    React.createElement(Modal, { onClose: ()=>setScreen("main"), title: "Tag Location" , subtitle: "Add a place to your Dream"     ,}
+    React.createElement(Modal, { onClose: ()=>backTo("location"), title: "Tag Location" , subtitle: "Add a place to your Dream"     ,}
       , React.createElement('input', { className: "inp", style: {marginBottom:12}, placeholder: "Search places…" , value: locText, onChange: e=>setLocText(e.target.value), 'aria-label': "Location search" ,})
       , ["San Francisco, CA","New York, NY","Los Angeles, CA","London, UK","Tokyo, Japan"].map(loc=>(
         React.createElement('button', { key: loc, className: "osb", onClick: ()=>{onAttach({type:"location",place:loc});onClose();}, 'aria-label': "Tag "+loc,}
@@ -89,7 +92,7 @@ function AttachPanel({onClose, onAttach, mode, start}) {
             else if(item.id==="location") setScreen("location");
             else if(item.id==="photo") { const f = document.getElementById("lc-photo-file"); if (f) f.click(); }
             else {onAttach({type:item.id});onClose();}
-          }, 'aria-label': item.label+" — "+item.sub,}
+          }, id: "lc-att-" + item.id, 'aria-label': item.label+" — "+item.sub,}
             , React.createElement('span', { style: {fontSize:26},}, item.icon)
             , React.createElement('span', { style: {fontSize:12,fontWeight:700,color:"var(--tx)"},}, item.label)
             , React.createElement('span', { style: {fontSize:10,color:"var(--tx3)",lineHeight:1.3},}, item.sub)
@@ -623,8 +626,15 @@ function LcComposer(props) {
       lh('button', { type: "button", id: "cr-link-btn", className: "btn bgb lc-btn", onClick: function () { setNopv(!nopv); announce(nopv ? "Link preview shown." : "Link preview removed."); } }, nopv ? "Show preview" : "Remove preview")),
     /* Toolbar, in Feditext's order: attachments, poll, Audience, content warning, symbols, characters left, add another */
     lh('div', { className: "lc-cr-tools lc-cr-aud", style: {display:"flex",flexWrap:"wrap",gap:4,alignItems:"center",padding:"8px 12px 4px",borderTop:"1px solid var(--bd)"} },
-      lh('button', Object.assign({}, tb, { onClick: function () { setAttach("main"); }, "aria-label": "Add Photo" }), "Photo"),
+      // Round 5 fixes: Add Photo opens the photo picker straight away (it opened the whole Add to Dream list).
+      lh('input', { id: "cr-photo-file", type: "file", accept: "image/*", hidden: true, tabIndex: -1, "aria-hidden": "true", onChange: function (e) {
+          const file = e.target.files && e.target.files[0]; e.target.value = ""; if (!file) return;
+          lcPrepImage(file).then(function (att) { setAttachments(function (as) { return as.concat([att]); }); announce(att.stripped ? "Photo added. Location and camera details removed." : "Photo added."); }, function () { announce("That photo couldn't be read."); });
+        } }),
+      lh('button', Object.assign({}, tb, { onClick: function () { const f = document.getElementById("cr-photo-file"); if (f) f.click(); else setAttach("main"); }, "aria-label": "Add Photo" }), "Photo"),
       lh('button', Object.assign({}, tb, { onClick: function () { setAttach("poll"); }, "aria-label": "Add Poll" }), "Poll"),
+      // Add to Dream (link, GIF, location, schedule, mood, music) was reached only through Add Photo; it has its own button now.
+      lh('button', Object.assign({}, tb, { id: "cr-attach-more", onClick: function () { setAttach("main"); }, "aria-label": "Add to Dream: link, GIF, location and more" }), "Attach"),
       lh(LcMenu, { id: "cr-audience", label: "Audience", hideLabel: true, title: "Who can see this?", prefix: "Audience: ", btnClass: "btn bgb lc-aud-btn", align: "left", up: true, value: audience,
         items: [
           { id: "everyone", name: "Everyone", note: "Visible to all Dreamors" },

@@ -8,7 +8,9 @@ Object.assign(Looscid, { FeedPage, lcNotifyDreams, lcShowFriends, useFeedMode, F
 function FeedPage({navigate, prefs, cherryCtx}) {
   const [tab, showFriends] = useFeedState();
   const {dreams: rawDreams, setDreams, tl, tr, tur, tq, tuq, tb, tc} = useDreams(cherryCtx ? cherryCtx.dreams : DREAMS_INIT);
-  const [activeComment, setActiveComment] = useState(null);
+  // Round 5 fixes: a Dream opened from Discover's results shows here; Back returns to Discover (Looscid.LC_FEED_OPEN, read once).
+  const openFrom = useRef(null);
+  const [activeComment, setActiveComment] = useState(function () { const o = Looscid.LC_FEED_OPEN; Looscid.LC_FEED_OPEN = null; if (!o || !o.dream) return null; openFrom.current = o.back || null; return o.dream; });
   const A = Looscid.A11Y_NOW;
   // New Dreams that reach the app (yours, or from the network) join the feed; others are announced.
   const known = useRef(null);
@@ -68,7 +70,7 @@ function FeedPage({navigate, prefs, cherryCtx}) {
   const cherryCards = []; // Cherry nudges appear here once there is real activity to talk about
 
   if (activeComment) return (
-    React.createElement(CommentView, { dream: activeComment, onBack: ()=>setActiveComment(null),
+    React.createElement(CommentView, { dream: (rawDreams.find(function (x) { return x.id === activeComment.id; }) || activeComment), onBack: ()=>{ const b = openFrom.current; openFrom.current = null; if (b) { b(); return; } setActiveComment(null); },
       onLike: tl, onRedream: tr, onUndoRedream: tur,
       onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onCommentPosted: tc, navigate: navigate,})
   );
@@ -362,7 +364,7 @@ function PinForm({ cherryCtx, dreams }) {
   const pin = function () {
     if (kind === "tag") { const t = "#" + tag.trim().replace(/^#+/, "").replace(/\s+/g, ""); if (t.length < 2) { announce("Type a hashtag first."); return; } Looscid.lcPinAdd("tag", t.toLowerCase(), t); setTag(""); return; }
     if (!cur) return;
-    Looscid.lcPinAdd(kind, cur.id, kind === "thread" ? "Thread: " + cur.name.slice(0, 30) : cur.name);
+    Looscid.lcPinAdd(kind, cur.id, kind === "thread" ? "Thread: " + Looscid.lcCutWords(cur.name, 30) : cur.name);
   };
   const none = kind === "circle" ? "Join a Circle first, then you can pin it." : kind === "person" ? "Follow someone first, then you can pin them." : kind === "list" ? "Make a list first in More, Lists, then you can pin it." : "No threads with Replies yet.";
   return lh('fieldset', { className: "lc-pinform" }, lh('legend', null, "Pin a tab"),
