@@ -1043,7 +1043,7 @@ function lcCutWords(t, n) { t = String(t || "").replace(/\s+/g, " ").trim(); if 
 Looscid.lcCutWords = lcCutWords;
 function lcCountWord(n, one, many) { return fmt(n) + " " + (n === 1 ? one : many); }
 function lcRdState(d) { return d.redreamed ? ", Redreamed" : d.quoted ? ", Quoted" : ""; }
-function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onCommentPosted, navigate}) {
+function CommentView({dream, backTo, onBack, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onCommentPosted, navigate}) {
   const tick = useRepliesTick();
   const comments = React.useMemo(function () { return lcRepliesFor(dream.id).concat(MOCK_COMMENTS[dream.id] || []); }, [dream.id, tick]);
   const [sort, setSort] = useState("newest");
@@ -1072,7 +1072,7 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
     const lost = function () { const a = document.activeElement; return !a || a === document.body || !a.isConnected; };
     // Reopened by Back from a footer page: focus goes to that footer link instead (lcFocusFooterLink).
     if (!reopened.current) setTimeout(function () { const h = document.getElementById("cv-h1"); if (h && lost()) h.focus(); }, 30);
-    const me = { dream: dream, opener: openerRef.current }; Looscid.LC_CV_NOW = me;
+    const me = { dream: dream, opener: openerRef.current, back: backTo || null }; Looscid.LC_CV_NOW = me;
     return function () { if (Looscid.LC_CV_NOW === me) Looscid.LC_CV_NOW = null; const o = openerRef.current; setTimeout(function () { if (!lost()) return;
       const c = o.card != null ? Array.from(document.querySelectorAll("#main-content [data-dream-id]")).find(function (x) { return x.getAttribute("data-dream-id") === o.card; }) : null;
       const e = (c && o.cls ? c.querySelector("." + o.cls) : null) || lcFindOpener(o.desc) || c;
@@ -1722,10 +1722,14 @@ Looscid.CHILD_SAFETY_CONTENT = CHILD_SAFETY_CONTENT;
    floating: LcFooterHost moves it to the end of the page's own scrolling area, so it only shows once you reach the
    end and never covers content. Pages without a scrolling .pg (full-screen tools) have no footer.
    The old app never had a site footer on preview; main's one line, "Looscid is open source and local first.", is kept. */
-function LcSiteFooter({ navigate }) {
+function LcSiteFooter({ navigate, cur }) {
   const ext = function (href, text, key) { return lh('li', { key: key }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, text)); };
   const go = function (page, text, key) { return lh('li', { key: key }, lh('a', { href: (Looscid.lcPathFor ? Looscid.lcPathFor(page) : "#"), className: "lc-link",
-    onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); Looscid.lcFooterFrom = page; Looscid.lcFooterLink = text; Looscid.lcFooterCv = Looscid.LC_CV_NOW || null; navigate(page); } }, text)); };
+    onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault();
+      // Round 10 fixes: a footer page opened from another footer page keeps where the first one came from (its Replies too).
+      const hop = !Looscid.LC_CV_NOW && !!cur && Looscid.lcFooterFrom === cur;
+      Looscid.lcFooterCv = Looscid.LC_CV_NOW || (hop ? Looscid.lcFooterCv : null); Looscid.lcFooterHop = hop ? cur : null;
+      Looscid.lcFooterFrom = page; Looscid.lcFooterLink = text; navigate(page); } }, text)); };
   const soon = function (text, key) { return lh('li', { key: key }, lh('button', { type: "button", className: "lc-foot-soon", "aria-disabled": "true", onClick: function () { announce(text + " is coming soon."); } }, text, lh('span', { className: "lc-foot-soon-tag" }, " Coming soon"))); };
   const grp = function (id, title, kids) { return lh('section', { className: "lc-foot-grp", "aria-labelledby": id }, lh('h3', { id: id, className: "lc-foot-h" }, title), lh('ul', { className: "lc-foot-list", role: "list" }, kids)); };
   return lh('footer', { className: "lc-footer", role: "contentinfo", "aria-labelledby": "lc-foot-title" },
@@ -1752,7 +1756,7 @@ function lcCvTake() {
   if (!r || !r.dream || Date.now() - r.at > 2000) return null;
   Looscid.LC_CV_OPENER_NEXT = r.opener || null; return r.dream;
 }
-function lcCvReopenLater(cv) { Looscid.LC_CV_REOPEN = cv && cv.dream ? { dream: cv.dream, opener: cv.opener, at: Date.now() } : null; }
+function lcCvReopenLater(cv) { Looscid.LC_CV_REOPEN = cv && cv.dream ? { dream: cv.dream, opener: cv.opener, back: cv.back || null, at: Date.now() } : null; }
 Looscid.lcCvTake = lcCvTake;
 // Back to a page opened from the footer: focus the footer link that opened it (by its words), else the page's heading.
 function lcFocusFooterLink(fl) {
@@ -1800,7 +1804,7 @@ function LcFooterHost({ page, navigate, children }) {
   }, []);
   return host ? ReactDOM.createPortal(lh(React.Fragment, null,
     lh('div', { className: "lc-end-chrome" }, children),
-    inPg ? lh(LcSiteFooter, { navigate: navigate }) : null), host) : null;
+    inPg ? lh(LcSiteFooter, { navigate: navigate, cur: page }) : null), host) : null;
 }
 Object.assign(Looscid, { LcSiteFooter, LcFooterHost });
 /* --- APP --------------------------------- */
@@ -3822,8 +3826,11 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-13T07:55:59Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-13T20:40:56Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
+// Round 10 fixes: About and Commandbar show version.json's "released" time once the update check has read it (same build).
+function lcReleased() { return Looscid.LC_RELEASED_LIVE || LOOSCID_RELEASED; }
+Looscid.lcReleased = lcReleased;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
    reloads by itself. Later hides that version until a newer one. Drafts autosave on this device. */
@@ -3838,6 +3845,7 @@ function lcCheckUpdate(manual) {
   if (!manual && !lcUpdateAuto()) return Promise.resolve(null);
   return lcFetchVersion().then(function (v) {
     const b = +(v && v.build) || 0;
+    if (b === LOOSCID_BUILD && v.version === LOOSCID_VERSION && v.released && !isNaN(new Date(v.released))) Looscid.LC_RELEASED_LIVE = v.released;
     if (b > LOOSCID_BUILD) {
       let later = 0; try { later = +localStorage.getItem(LC_UPDATE_LATER_KEY) || 0; } catch (e) {}
       if (manual || later < b) { try { window.dispatchEvent(new CustomEvent("looscid:update", { detail: v })); } catch (e) {} }
@@ -4577,7 +4585,7 @@ function lcRegistryIntent(n, isOn, isOff) {
     return { patch: patch, say: def.l + " is now " + lcValueText(def, v) + "." };
   }
   if (def.t === "time") {
-    const v = lcParseTime(rest); if (!v) return { say: def.l + " is " + cur + ". Say " + def.al[0] + " and a time, like " + def.al[0] + " 10 pm." };
+    const v = lcParseTime(rest); if (!v) return { say: def.l + " is " + cur + ". Say " + def.al[0] + " and a time, like " + def.al[0] + (lcHour24() ? " 22:00." : " 10 pm.") };
     const patch = {}; patch[def.k] = v; return { patch: patch, say: def.l + " is now " + lcTimeSpoken(v) + "." };
   }
   if (def.t === "voice") {
@@ -5291,7 +5299,8 @@ const LC_COMMANDS = [
   ["speak timestamps", "off, short or full"], ["speak emoji", "name, skip or word"], ["hashtags", "hashtags read or skip"], ["typing echo", "characters, words, both or off"], ["read aloud rate", "read aloud rate and a number from 50 to 200; read aloud pitch 50 to 150; voice and a name"],
   ["braille emoji", "braille emoji name or strip; braille timestamps on or off; braille prefix on or off"],
   ["soundpack", "soundpack looscid, nexos, insomnia, synth, fastsm, soundvault or custom (sound pack works too)"], ["send sound", "send sound, like sound, new dream sound, error sound, alert sound or feed switch sound, on or off"], ["earcon on swipe", "earcon on swipe on or off"], ["ducking", "ducking on or off; haptics on or off"],
-  ["quiet hours", "quiet hours on or off; quiet from 10 pm; quiet until 7 am"], ["calm feed", "calm feed on or off, hides like and Redream counts"],
+  // Round 10 fixes: the example times follow Settings, Time format (22:00 and 07:00 in 24-hour).
+  Object.defineProperty(["quiet hours"], 1, { enumerable: true, get: function () { return lcHour24() ? "quiet hours on or off; quiet from 22:00; quiet until 07:00" : "quiet hours on or off; quiet from 10 pm; quiet until 7 am"; } }), ["calm feed", "calm feed on or off, hides like and Redream counts"],
   ["mute word", "mute word and a word; unmute word and a word"], ["add content warning", "add content warning and a topic; remove content warning and a topic"],
   ["auto play media", "always, wifi only or never"], ["alt text reminder", "on or off"], ["undo send", "off, 5 or 10 seconds"], ["draft autosave", "on or off"], ["reading mode", "reading mode on or off"],
   ["who can reply", "everyone, people I follow, friends or nobody; also who can mention me, who can message me, who can redream, who can quote, who can tag me, who can follow me, who can see my dreams"],
@@ -5434,7 +5443,7 @@ function lcRun(raw, api) {
     case "about": case "sysinfo": case "open about":
       return goTo("about");
     case "version": case "ver":
-      L(lcVersionLabel() + ". Released " + lcReleasedText(LOOSCID_RELEASED) + ".", "hi"); return out;
+      L(lcVersionLabel() + ". Released " + lcReleasedText(lcReleased()) + ".", "hi"); return out;
     case "history": {
       const h = lcHistory().slice(-10);
       if (!h.length) { L("No commands yet."); return out; }
@@ -6538,6 +6547,8 @@ useEffect(() => {
     const back = openers.current[cur];
     if (back && back.page === target && target !== cur) { delete openers.current[cur]; pageFocus.current = { op: back, from: document.activeElement }; }
     else if (target !== cur || data !== pdataRef.current) { openers.current[target] = Object.assign({ page: cur, data: pdataRef.current }, lcOpenerDesc(lcOpenerEl())); pageFocus.current = { op: null, from: document.activeElement, menu: !!showMenuRef.current }; }
+    // Round 10 fixes: a second footer page (Terms, then Privacy) remembers the page under the first one, so Back returns there.
+    if (Looscid.lcFooterHop) { const h0 = openers.current[Looscid.lcFooterHop]; if (Looscid.lcFooterHop === cur && Looscid.lcFooterFrom === target && h0 && openers.current[target]) { openers.current[target].page = h0.page; openers.current[target].data = h0.data; } Looscid.lcFooterHop = null; }
     setPage(target); setPdata(data);
   }, []);
   // Round 6 fixes: Back on a page that knows only "go back" (a Dreamor's profile) returns to the page it was opened from,
@@ -6838,7 +6849,7 @@ useEffect(() => {
   // Round 7 fixes: a new page drops the old page's waiting announcements (lcAnnRoute).
   const annRouteFirst = useRef(true);
   useEffect(() => { if (annRouteFirst.current) { annRouteFirst.current = false; return; } lcAnnRoute(); }, [page, pdata]);
-  useEffect(() => { if (page !== "terminal" && page !== "music") termBack.current = page; if (!/^settings|^more_|^terms$|^privacy$|^guidelines$|^child_safety$|^credits$|^hour_story$|^feedback$/.test(page)) mainBack.current = page; const ar = areaOfPage(page); const prev = lastArea.current; lastArea.current = ar; if (ar && ar !== prev) Earcon.play(ar); }, [page]);
+  useEffect(() => { if (page !== "terminal" && page !== "music") termBack.current = page; if (!/^settings|^more_|^terms$|^privacy$|^guidelines$|^child_safety$|^credits$|^hour_story$|^feedback$|^legal$/.test(page)) mainBack.current = page; /* round 10: Legal is never "the page you were reading" */ const ar = areaOfPage(page); const prev = lastArea.current; lastArea.current = ar; if (ar && ar !== prev) Earcon.play(ar); }, [page]);
 
   const showFab = ["feed","discover","groups","alerts"].includes(page);
 

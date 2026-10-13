@@ -1331,7 +1331,7 @@ function AboutSettings({navigate}) {
   const [vOpen, setVOpen] = useState(false);
   const [, tick] = useState(0);
   const auto = lcUpdateAuto();
-  const rel = lcReleasedText(LOOSCID_RELEASED);
+  const rel = lcReleasedText(Looscid.lcReleased ? Looscid.lcReleased() : LOOSCID_RELEASED);
   return lh('div', { className: "pg lc-about" },
     lh(BackHeader, { title: "About Looscid", onBack: function () { navigate("settings"); } }),
     // Round 6: one About page. The version is itself the disclosure button.
@@ -2830,6 +2830,7 @@ const LC_VERSION_HISTORY = [
     "Announcements: a word kept from the page you just left isn't said again when it's the same as the last one you heard (Like tapped three times then leaving says Liked once), and it's said on its own instead of joined to the new page's words. Sending… is no longer said on the next page, and an error still waiting to be read, like Could not save your Dream, is no longer lost when you change page.",
     "Looscid OS apps and Projects no longer use buttons that VoiceOver can skip. In Insomnia, Memeprojects, Easyconvert, Lyric Finder and MyWEB, a control that can't be used yet stays findable, is read as dimmed, and says why when you press it (for example, Easyconvert's Convert files says Add files first). Nothing else about how they work changed.",
     "New setting, Time format, in Settings, Customizability, Theme and colors: 12-hour (like 2:46 PM, the default, so nothing changes unless you pick it) or 24-hour (like 14:46). Every clock time Looscid shows or says follows it: About's release time, Dream info and edit history, your LooscidID's dates, Cherry chats, drafts, quiet hours, and the clocks in Looscid OS (Insomnia and NexOS Web). Words like just now and 5m stay the same. It's saved in your settings backup, and older backups still import fine.",
+    "Back from About goes where you were, never to Legal. A Dream opened from Discover still goes Back to Discover after a footer page, and two footer pages in a row, like Terms then Privacy, come back to the Replies you were in. About and the Commandbar give this update's real release time. In 24-hour time, the quiet hours examples say 22:00. Easyconvert's Download all (ZIP) and Download work in iPhone browsers when Easyconvert is opened on its own page.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

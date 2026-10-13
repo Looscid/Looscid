@@ -3,8 +3,10 @@
 <head>
 <meta charset="UTF-8"/>
 <!-- Security pass (Oct 2026): a page under os/ or projects/ opened on its own lands here (js/appguard.js sends it), and runs in
-     a sandboxed frame, so it can't reach Looscid's storage or your Nostr key. No inline script; frame-busting is in js/open.js. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src 'self'; connect-src 'none'; base-uri 'none'; object-src 'none'; form-action 'none'"/>
+     a sandboxed frame, so it can't reach Looscid's storage or your Nostr key. No inline script; frame-busting is in js/open.js.
+     Round 10 fixes: frame-src allows blob: (as index.html does) so a sandboxed app's own file downloads work in iPhone browsers,
+     which check a download from a sandboxed frame against this page's frame-src. The blob has the app's anonymous origin. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src 'self' blob:; connect-src 'none'; base-uri 'none'; object-src 'none'; form-action 'none'"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta name="referrer" content="strict-origin-when-cross-origin"/>
 <title>Looscid</title>

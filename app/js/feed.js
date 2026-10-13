@@ -10,7 +10,7 @@ function FeedPage({navigate, prefs, cherryCtx}) {
   const {dreams: rawDreams, setDreams, tl, tr, tur, tq, tuq, tb, tc} = useDreams(cherryCtx ? cherryCtx.dreams : DREAMS_INIT);
   // Round 5 fixes: a Dream opened from Discover's results shows here; Back returns to Discover (Looscid.LC_FEED_OPEN, read once).
   const openFrom = useRef(null);
-  const [activeComment, setActiveComment] = useState(function () { const o = Looscid.LC_FEED_OPEN; Looscid.LC_FEED_OPEN = null; if (!o || !o.dream) return Looscid.lcCvTake ? Looscid.lcCvTake() : null; openFrom.current = o.back || null; return o.dream; });
+  const [activeComment, setActiveComment] = useState(function () { const o = Looscid.LC_FEED_OPEN; Looscid.LC_FEED_OPEN = null; if (!o || !o.dream) { const rb = Looscid.LC_CV_REOPEN && Looscid.LC_CV_REOPEN.back; const d = Looscid.lcCvTake ? Looscid.lcCvTake() : null; if (d && rb) openFrom.current = rb; return d; } openFrom.current = o.back || null; return o.dream; }); // round 10: reopened after a footer page, it still knows its Back
   const A = Looscid.A11Y_NOW;
   // New Dreams that reach the app (yours, or from the network) join the feed; others are announced.
   const known = useRef(null);
@@ -72,7 +72,7 @@ function FeedPage({navigate, prefs, cherryCtx}) {
   const cherryCards = []; // Cherry nudges appear here once there is real activity to talk about
 
   if (activeComment) return (
-    React.createElement(CommentView, { dream: (rawDreams.find(function (x) { return x.id === activeComment.id; }) || activeComment), onBack: ()=>{ const b = openFrom.current; openFrom.current = null; if (b) { b(); return; } setActiveComment(null); },
+    React.createElement(CommentView, { dream: (rawDreams.find(function (x) { return x.id === activeComment.id; }) || activeComment), backTo: openFrom.current, onBack: ()=>{ const b = openFrom.current; openFrom.current = null; if (b) { b(); return; } setActiveComment(null); },
       onLike: tl, onRedream: tr, onUndoRedream: tur,
       onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onCommentPosted: tc, navigate: navigate,})
   );
