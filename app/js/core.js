@@ -1304,9 +1304,18 @@ const LC_RESET_G = {
   apps: { l: "App settings", items: function () { return [["Insomnia", ["insomnia-os:volume", "insomnia-os:muted", "insomnia-os:mix"]], ["Desktop", ["looscid:volume", "looscid:muted", "looscid:key_sounds", "looscid:beat_genre"]], ["Kernel", ["nexos-real-sound"]]].map(function (x) { return { id: "app_" + x[0].toLowerCase(), l: x[0] + " settings", run: function () { lcLsDel(x[1])(); } }; }); } },
   keyboard: { l: "Keyboard shortcuts", items: function () { return lcResetKeyItems("keyboard"); } },
   drafts: { l: "Drafts and history", items: function () { return [{ id: "drafts", l: "Saved drafts", run: lcLsDel([DRAFTS_KEY]) }, { id: "autosave", l: "Autosaved text in New Dream", run: lcLsDel([LC_AUTOSAVE_KEY]) }, { id: "cmdlog", l: "Commandbar history", run: lcLsDel([LC_CMD_LOG_KEY], "looscid:cmdlog") }]; } },
-  keys: { l: "Keys and IDs", danger: true, items: function () { return [{ id: "nostrKey", l: "Nostr key on this device", danger: true, run: function () { try { setStoredNostrSk(null); } catch (e) {} } }, { id: "identity", l: "LooscidID on this device", danger: true, run: lcLsDel([LID_IDENTITY_KEY]) }]; } },
+  keys: { l: "Keys and IDs", danger: true, items: function () { return [{ id: "nostrKey", l: "Nostr key on this device", danger: true, run: lcResetNostrKey }, { id: "identity", l: "LooscidID on this device", danger: true, run: lcLsDel([LID_IDENTITY_KEY]) }]; } },
 };
 Looscid.LC_RESET_G = LC_RESET_G;
+// Build 152 fix: Reset removes the key the same safe way as "Remove key from this device" (js/nostr.js forget, which goes
+// through dropKey): sign-ins sealed to it go back to plain storage when it's unlocked, or are signed out when it's locked.
+// Returns what it signed out, for the Reset announcement.
+function lcResetNostrKey() {
+  const N = Looscid.lcNostr; let r = null;
+  try { if (N && N.forget) r = N.forget(); } catch (e) {}
+  try { setStoredNostrSk(null); } catch (e) {}
+  return r && r.signedOut ? r.signedOut : "";
+}
 const LC_RESET_SECTIONS = [
   ["accessibility", "Accessibility", ["vision", "sr_general", "sr_speech", "verbosity", "sr_braille", "hearing", "motion", "terminal", "motor"]],
   ["sounds", "Earcons", ["snd_volume", "snd_pack", "snd_events", "snd_haptics"]],
@@ -1364,12 +1373,14 @@ function LcResetHost() {
   const doReset = function (list, keysOk) {
     if (!list.length) { announce("Nothing selected. Check the settings to reset first."); return; }
     if (!keysOk && list.some(function (x) { return x[1].danger; })) { setConfirm(list); return; }
-    const patch = {}, runs = [], names = [];
+    const patch = {}, runs = [], names = [], extra = [];
     list.forEach(function (x) { x[1].parts.forEach(function (pt) { if (pt.patch) Object.assign(patch, pt.patch); if (pt.run) runs.push(pt.run); }); });
-    m.groups.forEach(function (g) { const n = list.filter(function (x) { return x[0] === g; }); if (!n.length) return; if (n.length === g.items.length || m.groups.length > 1 && st.scope !== "all") names.push(g.l); else n.forEach(function (x) { names.push(x[1].l); }); });
+    // Build 152 fix: match groups by id. The keys confirmation hands back a list from an earlier render, whose group objects
+    // aren't the same objects as this render's, so the announcement used to be a blank "Reset: .".
+    m.groups.forEach(function (g) { const n = list.filter(function (x) { return x[0].id === g.id; }); if (!n.length) return; if (n.length === g.items.length || m.groups.length > 1 && st.scope !== "all") names.push(g.l); else n.forEach(function (x) { names.push(x[1].l); }); });
     if (Object.keys(patch).length) lcSet(patch);
-    runs.forEach(function (r) { try { r(); } catch (e) {} });
-    close("Reset: " + (st.scope === "all" && list.length === all.length ? "all Looscid settings" : names.join(", ")) + ".");
+    runs.forEach(function (r) { try { const said = r(); if (typeof said === "string" && said) extra.push(said); } catch (e) {} });
+    close("Reset: " + (st.scope === "all" && list.length === all.length ? "all Looscid settings" : names.join(", ")) + "." + (extra.length ? " " + extra.join(" ") : ""));
   };
   const picked = all.filter(function (x) { return sel[key(x[0], x[1])]; });
   const sectionWord = m.name;
@@ -1382,6 +1393,9 @@ function LcResetHost() {
     confirm ? lh('div', { className: "lc-dlg-body" },
       lh('h3', { id: "lc-reset-confirm-h", tabIndex: -1 }, "Remove your keys too?"),
       lh('p', null, "This removes your Nostr key and your LooscidID from this device. Without a backup they can't be recovered, and you'd start fresh as Dreamor."),
+      (function () { // Build 152 fix: a locked key's sealed Mastodon/Bluesky sign-ins are signed out; say so before it happens.
+        const N = Looscid.lcNostr, w = N && N.forgetWarning && confirm.some(function (x) { return x[1].parts.some(function (pt) { return pt.run === lcResetNostrKey; }); }) ? N.forgetWarning() : "";
+        return w ? lh('p', { id: "lc-reset-keys-warn" }, w) : null; })(),
       lh('button', { type: "button", id: "lc-reset-keys-yes", className: "btn bp lc-big lc-danger", onClick: function () { doReset(confirm, true); } }, "Yes, remove my keys too"),
       lh('button', { type: "button", id: "lc-reset-keys-no", className: "btn bgb lc-big", onClick: function () { const rest = confirm.filter(function (x) { return !x[1].danger; }); if (rest.length) doReset(rest, true); else setConfirm(null); } }, "Keep my keys")) :
     lh('div', { className: "lc-dlg-body" },
@@ -2562,6 +2576,7 @@ function loadNostrTools() {
   // Oct 12 fix: always ask js/nostr.js, which checks every part is there (an older copy without nip17 no longer counts).
   return Looscid.lcNostr ? Looscid.lcNostr.load() : Promise.reject(new Error("load"));
 }
+function lcNostrSignedOut(gone) { const N = Looscid.lcNostr; return N && N.signedOutText ? N.signedOutText(gone) : ""; }
 function lcNostrToolsMsg(e) { return Looscid.lcNostr && Looscid.lcNostr.toolsMsg ? Looscid.lcNostr.toolsMsg(e) : "Couldn't load the Nostr tools. Reload Looscid, then try again."; }
 function bytesToHex(b) { return Array.from(b, function (x) { return x.toString(16).padStart(2, "0"); }).join(""); }
 function hexToBytes(hex) { const out = new Uint8Array(hex.length / 2); for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.substr(i * 2, 2), 16); return out; }
@@ -2631,10 +2646,12 @@ function NostrPanel({ onDone }) {
       const pk = await window.nostr.getPublicKey();
       if (typeof pk !== "string" || !/^[0-9a-f]{64}$/i.test(pk)) return fail("Your signer extension didn't share a valid public key.");
       let npub = null; try { const NT = await loadNostrTools(); npub = NT.nip19.npubEncode(pk.toLowerCase()); } catch (e) {}
+      // Build 152 fix: a key this replaces goes through js/nostr.js dropKey, so no sign-in stays sealed to it.
+      const so = lcNostrSignedOut(Looscid.lcNostr && Looscid.lcNostr.dropKey ? Looscid.lcNostr.dropKey() : []);
       setStoredNostrSk(null);
       setIdentity({ provider: "nostr", method: "nip07", pubkey: pk.toLowerCase(), npub: npub, at: Date.now() });
-      setBusy(false); announce("Logged in with your Nostr signer extension");
-      onDone("Logged in with your Nostr signer extension.");
+      setBusy(false); announce("Logged in with your Nostr signer extension" + (so ? ". " + so : ""));
+      onDone("Logged in with your Nostr signer extension." + (so ? " " + so : ""));
     } catch (e) { fail("Your signer extension said no, or was closed. Nothing was saved."); }
   };
   const createKey = async function () {
@@ -2644,7 +2661,7 @@ function NostrPanel({ onDone }) {
     const r = await Looscid.lcNostr.createKey(noPass ? "" : pass, { noPasscode: noPass });
     if (r.err) return fail(r.err, r.field ? "lid-new-pass" : null);
     setPass(""); setPass2("");
-    setCreated({ nsec: r.nsec, npub: r.npub, locked: !noPass });
+    setCreated({ nsec: r.nsec, npub: r.npub, locked: !noPass, signedOut: r.signedOut || "" });
     setBusy(false);
   };
   const usePasted = async function () {
@@ -2658,8 +2675,9 @@ function NostrPanel({ onDone }) {
     const r = await Looscid.lcNostr.importKey(v, (noPass && !enc) ? "" : pass, { noPasscode: noPass && !enc });
     if (r.err) return fail(r.err, r.field ? "lid-paste-pass" : "lid-nsec-paste");
     setPaste(""); setPass(""); setPass2(""); setBusy(false);
-    announce("Logged in with your Nostr key");
-    onDone(noPass ? "Logged in with your Nostr key. It's saved only on this device, without a passcode." : "Logged in with your Nostr key. It's saved only on this device, locked with your passcode.");
+    const so = r.signedOut ? " " + r.signedOut : "";
+    announce("Logged in with your Nostr key" + (so ? "." + so : ""));
+    onDone((noPass ? "Logged in with your Nostr key. It's saved only on this device, without a passcode." : "Logged in with your Nostr key. It's saved only on this device, locked with your passcode.") + so);
   };
   const pasteRef = useEnterSubmit(usePasted);
 
@@ -2672,9 +2690,12 @@ function NostrPanel({ onDone }) {
       lh('button', { type: "button", className: "btn bgb", onClick: function () {
         if (navigator.clipboard) navigator.clipboard.writeText(created.nsec).then(function () { announce("Secret key copied"); }, function () { announce("Couldn't copy. Use Show key and copy it yourself."); });
       } }, "Copy key"),
-      lh('button', { type: "button", className: "btn bp", onClick: function () { const lk = created.locked; setCreated(null); announce("Your LooscidID is ready"); onDone(lk ? "Your LooscidID is ready. Your key is saved only on this device, locked with your passcode." : "Your LooscidID is ready. Your key is saved only on this device, without a passcode."); } }, "I saved my key")));
+      lh('button', { type: "button", className: "btn bp", onClick: function () { const lk = created.locked, so = created.signedOut ? " " + created.signedOut : ""; setCreated(null); announce("Your LooscidID is ready" + (so ? "." + so : "")); onDone((lk ? "Your LooscidID is ready. Your key is saved only on this device, locked with your passcode." : "Your LooscidID is ready. Your key is saved only on this device, without a passcode.") + so); } }, "I saved my key")));
 
+  // Build 152 fix: replacing a locked key signs out the sign-ins sealed to it; say so before anything is replaced.
+  const replaceWarn = Looscid.lcNostr && Looscid.lcNostr.forgetWarning ? Looscid.lcNostr.forgetWarning(true) : "";
   return lh('div', { className: "lid-panel" },
+    replaceWarn && lh('p', { className: "lid-warn", id: "lid-replace-warn" }, replaceWarn),
     lh('p', { className: "lid-help" }, "Nostr is a powerful way of communication, and your key works everywhere Nostr is supported."),
     hasExt
       ? lh('button', { type: "button", className: "btn bp lid-wide", "aria-disabled": busy ? "true" : undefined, onClick: busy ? undefined : useExtension }, "Login with my Nostr signer extension")

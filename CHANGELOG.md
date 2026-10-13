@@ -87,6 +87,7 @@ Round 7: a feature update, asked for by 2three1y. Built in steps, one commit eac
 - Share reply now opens your phone's share sheet with the reply's link, just like Share Dream. And your older Dreams show their real age on the card again instead of "just now"; a Dream whose time isn't known shows no time.
 - Removing your Nostr key no longer leaves your Mastodon and Bluesky sign-ins locked for good: with the key unlocked they're kept, and with it locked Looscid tells you first that they'll be signed out. And when another website shows Looscid in a frame, you get only the short message and the Open Looscid on its own link, with no error boxes on top.
 - VoiceOver fixes: Discover says how many results once instead of having its own announcer; the footer's Coming soon buttons, Create's Dream button, Cherry's Send, Hear thread, the Inbox tab Move buttons and Dreams from around you stay findable while unavailable and say why when pressed; unavailable menu items say why too; and it's "Preview new Dream sound" now.
+- Every way of removing or replacing your Nostr key now looks after your Mastodon and Bluesky sign-ins: Reset, the Keys and IDs list and creating, entering or signing in with a new key keep them when your key is unlocked, and tell you first that they'll be signed out when it's locked. Removing a login from the Keys and IDs list asks first, and Reset says what it reset.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 

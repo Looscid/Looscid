@@ -2091,6 +2091,12 @@ function lcSignedOutBy(m) {
   const N = Looscid.lcNostr, w = m && m.provider === "nostr" && N && N.sealedSignins ? N.sealedSignins() : null;
   return w && w.locked ? " " + N.signedOutText(w.nets) : "";
 }
+// The Remove confirmation for a login method, shared by Login methods and the Keys and IDs list.
+function lcRemoveMethodMsg(m) {
+  const N = Looscid.lcNostr, w = m.provider === "nostr" && N && N.forgetWarning ? N.forgetWarning() : "";
+  return m.provider === "nostr" && m.nostrMethod === "local" ? "This deletes the Nostr key stored on this device. If you haven't saved it, it's gone for good. Your local profile stays." + (w ? " " + w : "")
+    : "You won't be able to log in with " + PROVIDER_NAMES[m.provider] + " until you add it again. Your local profile stays." + (w ? " " + w : "");
+}
 function LoginMethods() {
   const [methods, setMethods] = useState(getMethods());
   const [adding, setAdding] = useState(null);
@@ -2120,7 +2126,7 @@ function LoginMethods() {
     prov && prov.status === "ready" ? lh(LcFindMeSwitch, { provider: prov.id }) : null,
     prov && prov.status === "ready" ? lh(prov.Panel, { onDone: done, from: "account" }) : null,
     confirmRm && lh(AlertDialog, { title: "Remove " + PROVIDER_NAMES[confirmRm.provider] + " login?",
-      message: confirmRm.provider === "nostr" && confirmRm.nostrMethod === "local" ? "This deletes the Nostr key stored on this device. If you haven't saved it, it's gone for good. Your local profile stays." + (Looscid.lcNostr && Looscid.lcNostr.forgetWarning && Looscid.lcNostr.forgetWarning() ? " " + Looscid.lcNostr.forgetWarning() : "") : "You won't be able to log in with " + PROVIDER_NAMES[confirmRm.provider] + " until you add it again. Your local profile stays.",
+      message: lcRemoveMethodMsg(confirmRm),
       confirmLabel: "Remove", onCancel: function () { setConfirmRm(null); },
       onConfirm: function () { const m = confirmRm, so = lcSignedOutBy(m); setConfirmRm(null); removeMethod(m.id); setMethods(getMethods()); setNote(PROVIDER_NAMES[m.provider] + " login removed." + so); announce("Login method removed" + (so ? "." + so : ""));
         setTimeout(function () { const b = document.getElementById("lid-add-method"); if (b) b.focus(); }, 0); } }));
@@ -2366,6 +2372,7 @@ function LcKeysPanel({ goMethods }) {
   const [busy, setBusy] = useState(false);
   const [ids, setIds] = useState(lcGetIds());
   const [, bump] = useState(0);
+  const [confirmM, setConfirmM] = useState(null); // build 152 fix: removing a login method here asks first, as in Login methods
   const methods = getMethods();
   const k = LC_ID_KINDS.find(function (x) { return x.id === kind; });
   const hasExt = typeof window !== "undefined" && !!window.nostr && typeof window.nostr.getPublicKey === "function";
@@ -2407,7 +2414,7 @@ function LcKeysPanel({ goMethods }) {
       }),
       methods.map(function (m) {
         return lh('li', { key: "m" + m.id }, lh('span', null, lcJoin(methodLabel(m), "login method")),
-          lh('button', { type: "button", className: "btn bgb", "aria-label": "Remove " + lcJoin(PROVIDER_NAMES[m.provider], "login"), onClick: function () { const so = lcSignedOutBy(m); removeMethod(m.id); bump(function (n) { return n + 1; }); say(PROVIDER_NAMES[m.provider] + " login removed." + so); } }, "Remove"));
+          lh('button', { type: "button", id: "lc-keys-rm-" + m.provider, className: "btn bgb", "aria-label": "Remove " + PROVIDER_NAMES[m.provider] + " login", onClick: function () { setConfirmM(m); } }, "Remove"));
       }))
       : lh('p', { className: "lid-help" }, "Nothing linked yet."),
     lh('h3', { className: "lid-label" }, "Link an ID"),
@@ -2425,7 +2432,11 @@ function LcKeysPanel({ goMethods }) {
     kind === "nostr" && hasExt ? lh('button', { type: "button", className: "btn bgb lid-wide", onClick: fromExt }, "Use my Nostr signer extension") : null,
     msg && lh('p', { className: msg.err ? "lid-err" : "lid-saved" }, msg.t),
     lh('p', { className: "lid-help" }, "Linking shows these IDs on your LooscidID. To log in or Dream with a network, add it in Login methods."),
-    lh('button', { type: "button", className: "btn bgb lid-wide", onClick: goMethods }, "Open Login methods"));
+    lh('button', { type: "button", className: "btn bgb lid-wide", onClick: goMethods }, "Open Login methods"),
+    confirmM && lh(AlertDialog, { title: "Remove " + PROVIDER_NAMES[confirmM.provider] + " login?", message: lcRemoveMethodMsg(confirmM),
+      confirmLabel: "Remove", onCancel: function () { const p = confirmM.provider; setConfirmM(null); setTimeout(function () { const b = document.getElementById("lc-keys-rm-" + p); if (b) b.focus(); }, 0); },
+      onConfirm: function () { const m = confirmM, so = lcSignedOutBy(m); setConfirmM(null); removeMethod(m.id); bump(function (n) { return n + 1; }); say(PROVIDER_NAMES[m.provider] + " login removed." + so);
+        setTimeout(function () { const h = document.getElementById("lc-keys-list-h"); if (h) h.focus(); }, 0); } }));
 }
 function lcIdLabel(x) {
   const k = LC_ID_KINDS.find(function (q) { return q.id === x.kind; }) || { short: x.kind };

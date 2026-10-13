@@ -182,29 +182,31 @@ async function importKey(raw, passcode, opts) {
   if (p.err) return p;
   if (!p.enc) { const bad = passcode ? passcodeProblem(passcode) : (opts && opts.noPasscode ? null : "Choose a passcode to lock your key, or choose to save it without one."); if (bad) return { err: bad, field: "pass" }; }
   const pk = NT.getPublicKey(p.sk);
+  const gone = dropKey(); // build 152 fix: release sign-ins sealed to the key being replaced (sealed again below to this one)
   if (p.enc) { lsSet(ENC_KEY, p.enc); lsSet(SK_KEY, null); memSk = p.sk; } else storeSk(NT, p.sk, passcode);
   const idn = setIdentityFor(NT, pk, "local", { imported: true });
   sealSessions();
-  emit(); kick(); return { ok: true, npub: idn.npub, pubkey: pk };
+  emit(); kick(); return { ok: true, npub: idn.npub, pubkey: pk, signedOut: signedOutText(gone) };
 }
 async function createKey(passcode, opts) {
   const bad = passcode ? passcodeProblem(passcode) : (opts && opts.noPasscode ? null : "Choose a passcode to lock your key, or choose to save it without one.");
   if (bad) return { err: bad, field: "pass" };
   let NT; try { NT = await load(); } catch (e) { return { err: toolsMsg(e) }; }
   const sk = NT.generateSecretKey(), pk = NT.getPublicKey(sk);
+  const gone = dropKey(); // build 152 fix: release sign-ins sealed to the key being replaced (sealed again below to this one)
   storeSk(NT, sk, passcode);
   const idn = setIdentityFor(NT, pk, "local");
   sealSessions();
-  emit(); return { ok: true, nsec: NT.nip19.nsecEncode(sk), npub: idn.npub, pubkey: pk };
+  emit(); return { ok: true, nsec: NT.nip19.nsecEncode(sk), npub: idn.npub, pubkey: pk, signedOut: signedOutText(gone) };
 }
 async function useSigner() {
   if (!window.nostr || typeof window.nostr.getPublicKey !== "function") return { err: "No Nostr signer was found in this browser." };
   let NT; try { NT = await load(); } catch (e) { return { err: toolsMsg(e) }; }
   let pk; try { pk = await window.nostr.getPublicKey(); } catch (e) { return { err: "Your signer said no, or was closed. Nothing was saved." }; }
   if (!isHex64(pk)) return { err: "Your signer didn't share a valid public key. Nothing was saved." };
-  lsSet(SK_KEY, null); lsSet(ENC_KEY, null); memSk = null;
+  const gone = dropKey(); // build 152 fix: removes the old key and releases the sign-ins sealed to it
   const idn = setIdentityFor(NT, pk.toLowerCase(), "nip07");
-  emit(); kick(); return { ok: true, npub: idn.npub, pubkey: pk.toLowerCase() };
+  emit(); kick(); return { ok: true, npub: idn.npub, pubkey: pk.toLowerCase(), signedOut: signedOutText(gone) };
 }
 async function unlock(passcode) {
   const enc = lsGet(ENC_KEY); if (!enc) return { err: "There's no locked key on this device." };
@@ -303,7 +305,9 @@ function unsealSessions(sk) {
    the key from this device; sign-ins sealed to it go back to plain storage first when the key is unlocked (as Remove
    passcode does). With the key locked they can never be opened again, so the sealed copies are removed and those
    networks are signed out (their login methods go too); nothing unopenable is left. The key is cleared before anything
-   is written, so nothing is sealed again on the way. sealedSignins tells the Remove confirmation what will happen. */
+   is written, so nothing is sealed again on the way. sealedSignins tells the Remove confirmation what will happen.
+   Every way the key leaves goes through dropKey: forget, removeMethod, Settings Reset, and replacing it (createKey, importKey,
+   useSigner, the signer button in core.js); when the new key has a passcode the released sign-ins are sealed to it. */
 const SESSION_NAMES = { activitypub: "Mastodon", atproto: "Bluesky" };
 function sealedSignins() {
   const s = sessionsRaw(), nets = Object.keys(s).filter(function (k) { return s[k] && s[k].sealed; });
@@ -314,10 +318,12 @@ function netNames(nets) {
   const names = nets.map(function (k) { return SESSION_NAMES[k] || (Looscid.PROVIDER_NAMES && Looscid.PROVIDER_NAMES[k]) || k; });
   return names.length > 1 ? names.slice(0, -1).join(", ") + " and " + names[names.length - 1] : names[0] || "";
 }
-function forgetWarning() {
+// replacing: the words for putting a new key in place of this one (Login methods, Nostr, replace).
+function forgetWarning(replacing) {
   const w = sealedSignins(); if (!w.locked) return "";
-  const many = w.nets.length > 1;
-  return "Your key is locked, so your " + netNames(w.nets) + " sign-in" + (many ? "s" : "") + " on this device will be signed out. To keep " + (many ? "them" : "it") + ", unlock your key first.";
+  const many = w.nets.length > 1, what = netNames(w.nets) + " sign-in" + (many ? "s" : "") + " on this device";
+  if (replacing) return "Your current Nostr key is locked, so if you replace it, your " + what + " will be signed out. To keep " + (many ? "them" : "it") + ", unlock your current key first in Settings, LooscidID, Keys and IDs.";
+  return "Your key is locked, so your " + what + " will be signed out. To keep " + (many ? "them" : "it") + ", unlock your key first.";
 }
 function signedOutText(nets) { return nets && nets.length ? netNames(nets) + (nets.length > 1 ? " were" : " was") + " signed out." : ""; }
 function dropKey() {
