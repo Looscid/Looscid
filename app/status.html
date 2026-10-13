@@ -84,6 +84,7 @@ main{max-width:680px;margin:0 auto;padding:32px 20px 0}
 .no-incidents{text-align:center;padding:32px 20px;color:var(--tx3);font-size:13px}
 .no-incidents-icon{font-size:36px;margin-bottom:8px}
 
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 /* Subscribe */
 .subscribe-card{background:linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05));border:1px solid rgba(168,85,247,.2);border-radius:16px;padding:20px;margin-bottom:32px;text-align:center}
 .subscribe-title{font-family:'DM Serif Display',Georgia,serif;font-size:18px;margin-bottom:6px}
@@ -110,14 +111,17 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
 <header role="banner">
   <div class="header-inner">
     <span class="logo">Looscid</span>
-    <a href="/" class="back-link" aria-label="Back to Looscid app">← Back to app</a>
+    <a href="/Looscid/" class="back-link" aria-label="Back to Looscid app">← Back to app</a>
   </div>
 </header>
 
 <main id="main">
 
   <!-- Overall status -->
-  <div class="overall all-good" role="status" aria-live="polite" aria-label="Overall system status: All systems operational">
+  <!-- Round 5 fixes: not a live region any more. "Last checked" changes every second, so VoiceOver could read it nonstop.
+       The page's one announcer is #status-live below (Subscribe uses it). -->
+  <p id="status-live" class="sr-only" aria-live="polite"></p>
+  <div class="overall all-good">
     <div class="overall-dot" aria-hidden="true"></div>
     <div>
       <h1 class="overall-title" style="margin:0">All Systems Operational</h1>
@@ -169,8 +173,8 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
           <div class="service-name">Authentication</div>
           <div class="service-desc">LooscidID on your device; login with Nostr, Mastodon or Bluesky</div>
         </div>
-        <div class="status-pill maintenance" role="status" aria-label="Authentication: Coming soon">
-          <span class="status-dot" aria-hidden="true"></span>Coming Soon
+        <div class="status-pill operational" role="status" aria-label="Authentication: Operational">
+          <span class="status-dot" aria-hidden="true"></span>Operational
         </div>
       </div>
 
@@ -180,8 +184,8 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
           <div class="service-name">Private Messages</div>
           <div class="service-desc">End-to-end encrypted conversations</div>
         </div>
-        <div class="status-pill maintenance" role="status" aria-label="Private Messages: Coming soon">
-          <span class="status-dot" aria-hidden="true"></span>Coming Soon
+        <div class="status-pill operational" role="status" aria-label="Private Messages: Operational">
+          <span class="status-dot" aria-hidden="true"></span>Operational
         </div>
       </div>
 
@@ -240,7 +244,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
     </div>
   </div>
 
-  <div class="last-updated" role="status" aria-live="polite">
+  <div class="last-updated">
     Page updates automatically every 60 seconds
   </div>
 
@@ -249,7 +253,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
 <footer role="contentinfo">
   <span class="footer-logo">Looscid</span>
   <div class="footer-links">
-    <a href="/">App</a>
+    <a href="/Looscid/">App</a>
     <a href="https://x.com/DreamBMobile" target="_blank" rel="noopener">X</a>
     <a href="https://github.com/Shinygold29/dream-board-mobile" target="_blank" rel="noopener">GitHub</a>
   </div>
@@ -286,14 +290,23 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
   }, 1000);
 })();
 
+// The page's one announcer: cleared, then written, then emptied again once it has been read.
+function say(msg) {
+  var el = document.getElementById('status-live'); if (!el) return;
+  el.textContent = ''; clearTimeout(say.t1); clearTimeout(say.t2);
+  say.t1 = setTimeout(function () { el.textContent = msg; say.t2 = setTimeout(function () { if (el.textContent === msg) el.textContent = ''; }, 5000); }, 80);
+}
 // Subscribe button
 document.querySelector('.subscribe-btn').addEventListener('click', function() {
   var input = document.querySelector('.subscribe-input');
-  if (this.getAttribute('aria-disabled') === 'true') return; // already subscribed; the button's own text says so
+  // Round 5 fixes: every press says what happened, once (it was silent when the box was empty and when pressed again).
+  if (this.getAttribute('aria-disabled') === 'true') { say("You're already subscribed."); return; }
   if (!input.value || !input.value.includes('@')) {
+    say(input.value ? "That doesn't look like an email address. Type your email address first." : "Type your email address first.");
     input.focus();
     return;
   }
+  say("Subscribed.");
   this.textContent = 'Subscribed ✓';
   this.style.background = 'var(--gr)';
   // Build 152 fix: aria-disabled instead of native disabled, so VoiceOver can still find both.

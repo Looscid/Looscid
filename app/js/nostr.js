@@ -504,7 +504,7 @@ async function processQueue() {
 }
 function kick() { const q = queue(); if (!q.length) return; q.forEach(function (x) { x.kick = true; }); saveQueue(q); setTimeout(processQueue, 50); }
 
-// One calm announcement, after "Dream dreamed." has been heard.
+// One calm announcement, after "Dream published." has been heard.
 function sayLater(msg) {
   const wait = Math.max(0, 1600 - (Date.now() - (Looscid.LC_ANN_AT || 0)));
   setTimeout(function () { if (Looscid.announce) Looscid.announce(msg); }, wait);

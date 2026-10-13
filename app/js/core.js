@@ -396,6 +396,7 @@ function lcRedreamSet(d, on) {
   const s = String(d.id), list = lcRedreamsRaw().filter(function (x) { return String(x.id) !== s; });
   if (on) list.unshift(Object.assign(lcDreamSnap(d), { id: s, at: Date.now() }));
   try { if (list.length) localStorage.setItem(LC_REDREAMS_KEY, JSON.stringify(list.slice(0, 1000))); else localStorage.removeItem(LC_REDREAMS_KEY); } catch (e) {}
+  try { window.dispatchEvent(new CustomEvent("looscid-redreams")); } catch (e) {} // Round 5 fixes: an open profile updates its counts
 }
 /* Build 147, from Feditext's profile menu: a private note about a Dreamor, Mute, and Hide Redreams. All on this device,
    by @handle: looscid_dreamor_notes { handle: text }, looscid_muted_dreamors [handles], looscid_hide_redreams [handles]. */
@@ -2255,7 +2256,8 @@ function lcVerb() { const v = (typeof Looscid.A11Y_NOW !== "undefined" && Loosci
 function lcHints() { const v = lcVerb(); return v === "high" || (v === "medium" && !!(Looscid.A11Y_NOW && Looscid.A11Y_NOW.screenReader)); }
 const LC_ERR_RE = /\b(couldn't|can't|cannot|failed|error|isn't allowed|not allowed|went wrong)\b/i;
 Looscid.LC_ERR_RE = LC_ERR_RE;
-const LC_OK_RE = /(^saved\b|\b(saved|posted|dreamed|copied|sent|deleted|added|removed|imported|exported)\.?$)/i;
+// Round 5 fixes: "Dream published." replaces "Dream dreamed." (the publish wording); it keeps the same success cue.
+const LC_OK_RE = /(^saved\b|\b(saved|posted|dreamed|copied|sent|deleted|added|removed|imported|exported)\.?$|\b(dreams?|quote|reply|replies) published\.$)/i;
 Looscid.LC_OK_RE = LC_OK_RE;
 Looscid.LC_ANN_AT = 0;
 // kind: "confirm" (Medium and High), "nav" or "hint" (High only); anything else is essential and always said.
@@ -4955,12 +4957,19 @@ async function lcPmSend(peer, text) {
   return ok ? { ok: r.ok.length } : { err: (r && r.err) || "relays" };
 }
 // npub, nprofile or a 64-letter hex key, to a hex public key (or null).
+// Round 5 fixes: the Nostr public key of a Dreamor, so their profile's Direct message can open a private message (NIP-17).
+function lcDmPeerOf(u) {
+  if (!u || typeof u !== "object") return null;
+  const cands = [u.pubkey, u.pk, u.npub, String(u.id || "").replace(/^(npub|nostr):/, "")];
+  for (let i = 0; i < cands.length; i++) { const p = cands[i] ? lcPmPeerFrom(cands[i]) : null; if (p) return p; }
+  return null;
+}
 function lcPmPeerFrom(s) {
   s = String(s || "").trim().replace(/^nostr:/i, "").replace(/^@/, ""); if (/^[0-9a-f]{64}$/i.test(s)) return s.toLowerCase();
   try { const d = window.NostrTools && window.NostrTools.nip19.decode(s); if (d && d.type === "npub") return d.data; if (d && d.type === "nprofile") return d.data.pubkey; } catch (e) {}
   return null;
 }
-Object.assign(Looscid, { LC_PMS_KEY, lcPms, lcPmsSave, lcPmConvos, lcPmAllowed, lcPmHeld, lcPmUnread, lcPmMarkRead, lcPmCheck, lcPmSend, lcPmPeerFrom, lcPmBlocked, lcInboxCheck, lcNostrName, LC_INBOX_TABS });
+Object.assign(Looscid, { LC_PMS_KEY, lcPms, lcPmsSave, lcPmConvos, lcPmAllowed, lcPmHeld, lcPmUnread, lcPmMarkRead, lcPmCheck, lcPmSend, lcPmPeerFrom, lcDmPeerOf, lcPmBlocked, lcInboxCheck, lcNostrName, LC_INBOX_TABS });
 Object.assign(Looscid, { LC_THREAD_SUBS_KEY, lcThreadSubs, lcThreadSubbed, lcThreadSub, lcThreadUnsub, lcThreadAlert, lcThreadCheck, lcThreadWatch });
 function lcAlertsMarkAll() { const l = lcAlerts().map(function (x) { return Object.assign({}, x, { unread: false }); }); lcAlertsSave(l); return l.length; }
 function useAlerts() {

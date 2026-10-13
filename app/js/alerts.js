@@ -131,12 +131,12 @@ function composeView(st, draw) {
     cp.msg = "Sending…"; announce("Sending…", "state"); draw();
     Looscid.lcPmSend(peer, cp.text).then(function (r) {
       // The chat opens in place of the form, so focus goes to its heading (it fell to <body>).
-      if (r.ok) { Looscid.Earcon.play("send"); announce("Sent to " + Looscid.lcNostrName(peer) + "."); st.compose = null; st.pm = peer; draw(); setTimeout(Looscid.lcFocusHeading, 30); }
+      if (r.ok) { Looscid.Earcon.play("send"); announce("Sent to " + Looscid.lcNostrName(peer) + "."); st.compose = null; st.pm = peer; st.pmBack = cp.back || null; draw(); setTimeout(Looscid.lcFocusHeading, 30); }
       else { cp.msg = r.err === "relays" ? "Couldn't reach any relay. Your message is kept in the conversation as not sent." : "Couldn't send: " + (pmStateNote() || "try again."); announce(cp.msg); draw(); }
     });
   };
   return h('div', { className: "pg lc-pm-new" },
-    lcBackHeaderEl("Send a message", function () { st.compose = null; draw(); setTimeout(function () { const b = document.getElementById("inbox-send"); if (b) b.focus(); }, 0); }),
+    lcBackHeaderEl("Send a message", function () { if (cp.back) { st.compose = null; cp.back(); return; } st.compose = null; draw(); setTimeout(function () { const b = document.getElementById("inbox-send"); if (b) b.focus(); }, 0); }),
     note ? h('p', { className: "lc-desc", style: { padding: "8px 16px" } }, note) : null,
     note ? h('div', { style: { padding: "0 16px 12px" } }, h('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { Looscid.LC_SETTINGS_BACK = "alerts"; if (Looscid.LC_NAV) Looscid.LC_NAV("settings_account"); } }, "Open LooscidID")) : null,
     h('div', { className: "lc-pm-form", style: { padding: "0 16px", display: "flex", flexDirection: "column", gap: 8 } },
@@ -162,7 +162,7 @@ function pmView(st, draw) {
     Looscid.lcPmSend(peer, t).then(function (r) { if (r.ok) { Looscid.Earcon.play("send"); announce("Sent."); } else announce("Couldn't send. It's kept here as not sent."); draw(); });
   };
   return h('div', { className: "pg", style: { display: "flex", flexDirection: "column", paddingBottom: 0 } },
-    h('div', { className: "hdr" }, lcBackHeaderEl(name, function () { st.pm = null; draw(); }),
+    h('div', { className: "hdr" }, lcBackHeaderEl(name, function () { const b = st.pmBack; st.pm = null; st.pmBack = null; if (b) { b(); return; } draw(); }),
       h('p', { className: "lc-desc", style: { textAlign: "center", margin: "0 0 8px" } }, "End-to-end encrypted on Nostr (NIP-17)")),
     note ? h('p', { className: "lc-desc", style: { padding: "0 16px" } }, note) : null,
     h('ul', { className: "msgs lc-pm-list", role: "list", style: { flex: 1, listStyle: "none", margin: 0 } }, msgs.map(function (m) {
@@ -238,6 +238,12 @@ function alertsView(st, draw) {
 const AlertsPage = lcPlainScreen("AlertsPage", function (host) {
   const saved = lcAlertsTab();
   const st = { view: saved, convo: null, pm: null, compose: null, more: null };
+  // Round 5 fixes: Direct message on a Dreamor's profile opens their chat, or a new message to them; Back returns to the profile.
+  const dm = Looscid.LC_PM_OPEN; Looscid.LC_PM_OPEN = null;
+  if (dm && dm.peer) {
+    if (Looscid.lcPms().some(function (m) { return m.peer === dm.peer; })) { st.pm = dm.peer; st.pmBack = dm.back; }
+    else st.compose = { to: (Looscid.lcNpub && Looscid.lcNpub(dm.peer)) || dm.peer, text: "", msg: "", back: dm.back };
+  }
   const draw = function () {
     const ae = document.activeElement, aid = ae && host.contains(ae) ? ae.id : null;
     lcPatch(host, alertsView(st, draw));

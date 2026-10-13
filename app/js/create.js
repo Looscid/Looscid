@@ -343,7 +343,7 @@ function lcFocusAfterPost(id, opener) {
 }
 function lcSendWithUndo(what, fn, text, draftKey) {
   const s = +Looscid.A11Y_NOW.undoSend || 0;
-  const send = function () { fn(); Earcon.play("send"); announce(what + " dreamed."); };
+  const send = function () { fn(); Earcon.play("send"); announce(what + " published."); }; // Round 5 fixes: publish wording (was "Dream dreamed.")
   if (!s || !Looscid.LC_UNDO_SET) { send(); return; }
   const t = setTimeout(function () { if (Looscid.LC_UNDO_SET) Looscid.LC_UNDO_SET(null); send(); }, s * 1000);
   Looscid.LC_UNDO_SET({ id: Date.now(), what: what, secs: s, cancel: function () { clearTimeout(t); if (Looscid.LC_UNDO_SET) Looscid.LC_UNDO_SET(null); if (text) { if (draftKey) lcReplyDraftSet(draftKey, text); else try { localStorage.setItem(LC_AUTOSAVE_KEY, text); } catch (e) {} } announce(what + " not sent." + (text ? (draftKey ? " Open it again to recover it." : " Open New Dream to recover it.") : "")); } });

@@ -460,11 +460,28 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
     announce((user.name || user.displayName || "Dreamor") + " just published"); // never moves focus
   }, [freshDreams.length, user.id, user.handle]);
   const myReplies = self ? Looscid.lcRepliesRaw().map(Looscid.lcReplyObj).map(function (r) { return Object.assign({ redreams: 0, quotes: 0, comments: 0, redreamed: false, quoted: false, bookmarked: false }, r); }) : all.filter(function (d) { return mineOf(d) && d.replyTo; });
-  const plainRd = self ? all.filter(function (d) { return d.redreamed && !mineOf(d); }) : all.filter(function (d) { return d.reddreamer && (d.reddreamer.id === user.id || d.reddreamer.handle === user.handle); });
+  // Round 5 fixes (QA "as 2three1y"): after a Redream or a Quote, the counts and the Redreams tab waited for a reload. A
+  // Redream made anywhere is read from looscid_redreams, and Dreams that arrive while the profile is open join its list.
+  Looscid.useIdListTick("looscid-redreams");
+  const plainRd = self ? all.filter(function (d) { return !mineOf(d) && (d.redreamed || Looscid.lcRedreamHas(d.id)); }) : all.filter(function (d) { return d.reddreamer && (d.reddreamer.id === user.id || d.reddreamer.handle === user.handle); });
   const quotes = ownDreams.filter(function (d) { return d.quoteOf != null; });
   const pool = ownDreams.concat(myReplies, plainRd.filter(function (d) { return ownDreams.indexOf(d) < 0; }));
-  const {dreams, tl, tr, tur, tq, tuq, tb, tc} = useDreams(pool);
+  const {dreams, setDreams, tl, tr, tur, tq, tuq, tb, tc} = useDreams(pool);
+  const poolSig = pool.map(function (d) { return String(d.id) + (Looscid.lcRedreamHas(d.id) ? "r" : ""); }).join(",");
+  useEffect(function () {
+    setDreams(function (ds) {
+      const have = new Set(ds.map(function (d) { return String(d.id); })); let ch = false;
+      const out = ds.map(function (d) { const r = Looscid.lcRedreamHas(d.id); if (!!d.redreamed === r || mineOf(d)) return d; ch = true; return Object.assign({}, d, { redreamed: r, redreams: Math.max(0, (d.redreams || 0) + (r ? 1 : -1)) }); });
+      const add = pool.filter(function (d) { return !have.has(String(d.id)); }).map(function (d) { d = Looscid.lcWithLiked(d, true); return !d.redreamed && Looscid.lcRedreamHas(d.id) ? Object.assign({}, d, { redreamed: true, redreams: (d.redreams || 0) + 1 }) : d; });
+      return add.length ? add.concat(out) : ch ? out : ds;
+    });
+  }, [poolSig]);
   const byId = function (list) { const ids = new Set(list.map(function (d) { return String(d.id); })); return dreams.filter(function (d) { return ids.has(String(d.id)); }); };
+  // Round 5 fixes: Direct message said "direct messages aren't ready yet" though Inbox private messages work. A Dreamor
+  // with a Nostr key gets a private message (NIP-17) from here; anyone else is told why in plain words.
+  const dmPeer = self ? null : Looscid.lcDmPeerOf(user);
+  const dmWhy = "private messages go over Nostr, and " + (user.name || "this Dreamor") + " has no Nostr key here";
+  const openDm = function () { const u = user; Looscid.LC_PM_OPEN = { peer: dmPeer, back: function () { navigate("dp", u); } }; navigate("alerts"); };
   const following = !!(cherryCtx && cherryCtx.following && cherryCtx.following.has(user.id));
   const blocked = !self && Looscid.lcBlockedUser(user), muted = !self && Looscid.lcIsMuted(user);
   const hidesRd = !self && Looscid.lcPeopleHas("looscid_hide_redreams", user.handle);
@@ -530,7 +547,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
        { id: "reorder", name: "Reorder tabs", a: function () { Looscid.LC_SETTINGS_BACK = "profile"; navigate("settings_profiletabs"); } },
        { id: "settings", name: "Settings", a: function () { navigate("settings"); } }])
     : [following ? { id: "unfollow", name: "Unfollow", a: follow } : { id: "follow", name: "Follow", a: follow },
-       { id: "message", name: "Message", note: "unavailable: direct messages aren't ready yet", disabled: true },
+       dmPeer ? { id: "message", name: "Message", a: openDm } : { id: "message", name: "Message", note: "unavailable: " + dmWhy, disabled: true },
        cherryOn ? { id: "cherry", name: "Ask Cherry for a summary", a: askCherry } : { id: "cherry", name: "Ask Cherry for a summary", note: "unavailable: Cherry is off", hint: "Not available while Cherry is off. Turn it on in Settings, Intelligence.", disabled: true },
        { id: "share", name: "Share profile", a: share }].concat(extraItems, [
        { id: "addlist", name: "Add to list", a: function () { setListsOpen(true); } },
@@ -693,7 +710,8 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
         ? lh('div', { className: "lc-prof-acts" },
             lh('button', { type: "button", ref: editBtn, id: "pf-edit-btn", className: "btn bgb lc-big", "aria-expanded": editOpen ? "true" : "false", "aria-controls": "pf-edit", onClick: function () { setEditOpen(!editOpen); } }, "Edit profile"))
         : lh('div', { className: "lc-prof-acts" },
-            lh('button', { type: "button", className: "btn bgb lc-big", "aria-disabled": "true", onClick: function () { announce("Not available yet: direct messages aren't ready yet."); }, "aria-describedby": Looscid.lcHint("Not available yet: direct messages aren't ready yet.") }, "Direct message", lh('span', { className: "lc-muted", "aria-hidden": "true" }, " (unavailable)")),
+            dmPeer ? lh('button', { type: "button", id: "pf-dm-btn", className: "btn bgb lc-big", onClick: openDm }, "Direct message")
+              : lh('button', { type: "button", id: "pf-dm-btn", className: "btn bgb lc-big", "aria-disabled": "true", onClick: function () { announce(Looscid.lcHintReason("unavailable: " + dmWhy)); }, "aria-describedby": Looscid.lcHint(Looscid.lcHintReason("unavailable: " + dmWhy)) }, "Direct message", lh('span', { className: "lc-muted", "aria-hidden": "true" }, " (unavailable)")),
             lh('button', { type: "button", className: "btn " + (following ? "bgb" : "bp") + " lc-big", "aria-pressed": following ? "true" : "false", onClick: follow }, following ? "Following" : "Follow")),
       isMe && lh('div', { id: "pf-edit", className: "lc-prof-edit", hidden: !editOpen }, editOpen ? ed.list : null),
       lh('h1', { className: "lc-prof-name", tabIndex: -1, ref: headRef }, user.name || "Dreamor"),
@@ -2776,6 +2794,7 @@ const LC_VERSION_HISTORY = [
     "Discover says the tab and its count when you switch All, Dreamors, Dreams or Circles during a search, like \"Dreamors, 0 results\", and an empty tab shows No results. And it's \"Preview Redream earcon\" now, with a capital R.",
     "More buttons stay findable for VoiceOver while they can't be used, and say why when pressed: Messages Send, Attach Poll and Attach Link, Direct message on profiles, Delete all chats, Feedback and announcement Send, the read-aloud test, Use this pack, the choices set by Private account and the braille button styles. Cherry's coming-soon chat options say so, tapping a chat option no longer breaks the menu, and a few messages in Settings are no longer read twice.",
     "VoiceOver focus and speech fixes: opening any page (every Settings page, a profile from a Dream, a Dream's Replies, a chat after your first message) puts focus on its heading, Back returns to the row or button you came from, and adding a login keeps your place. Two messages in a row are both spoken instead of the second cutting off the first. Like says Liked or Like removed and tells VoiceOver whether it's on, Redream says Redreamed or Redream removed, and one like reads \"1 like\". The Messages chat Send says why when the box is empty and says Sending right away. Pasting the key you already have says so instead of signing you out of Mastodon and Bluesky, and removing a login says what the screen says. The Replies view has a heading, and the footer no longer covers the Dream when you reply.",
+    "Your profile's Dreams and Redreams counts and its Redreams tab update right after a Redream or a Quote, without a reload. Direct message on a Nostr Dreamor's profile opens a private message to them, and Back returns to their profile; for anyone else it says plainly why it can't. Publishing now says \"Dream published.\" And on the status page, the ticking Last checked time isn't read out over and over, Notify me says why when the email box is empty or you're already subscribed, Back to app opens Looscid, and Private Messages and Authentication show as working.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
