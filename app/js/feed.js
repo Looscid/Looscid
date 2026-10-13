@@ -339,7 +339,9 @@ function FederatedControls({ pubState }) {
     lh('fieldset', { className: "lc-fed-nets" }, lh('legend', null, "Networks"),
       LC_FED_NETS.map(function (n) {
         return lh('div', { key: n.id, className: "lc-chk-row" },
-          lh('input', { type: "checkbox", id: "fed-net-" + n.id, checked: !n.soon && nets.indexOf(n.id) >= 0, disabled: !!n.soon, onChange: function (e) { Looscid.lcSetFedNet(n.id, e.target.checked); } }),
+          lh('input', { type: "checkbox", id: "fed-net-" + n.id, checked: !n.soon && nets.indexOf(n.id) >= 0, "aria-disabled": n.soon ? "true" : undefined,
+            onClick: n.soon ? function (e) { e.preventDefault(); announce(n.label + " is coming soon."); } : undefined,
+            onChange: function (e) { if (n.soon) return; Looscid.lcSetFedNet(n.id, e.target.checked); } }),
           lh('label', { htmlFor: "fed-net-" + n.id }, n.label + (n.soon ? ", coming soon" : "")));
       })),
     pubState === "loading" ? lh('p', { className: "lc-muted" }, "Getting Dreams from your Nostr relays\u2026") :

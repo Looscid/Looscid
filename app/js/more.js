@@ -395,8 +395,8 @@ function ListsIndex({ navigate, gone }) {
       lh('h2', { className: "lc-sub-h", id: "lists-yours-h" }, "Your lists (" + lists.length.toLocaleString() + ")"),
       lists.length ? lh('ul', { className: "lc-people lc-lists", role: "list", "aria-labelledby": "lists-yours-h" }, lists.slice().reverse().map(function (l) {
           return lh('li', { key: l.id },
-            lh('button', { type: "button", className: "lc-person lc-list-row", id: "lists-open-" + l.id, onClick: function () { navigate("lists", { list: l.id }); } },
-              lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, l.name), lh('span', { className: "lc-person-h" }, ", " + lcListCount(l.members.length) + (Looscid.lcPinHas("list", l.id) ? ", pinned to Home" : "")))));
+            lh('button', { type: "button", className: "lc-person lc-list-row", id: "lists-open-" + l.id, "aria-label": l.name + ", " + lcListCount(l.members.length) + (Looscid.lcPinHas("list", l.id) ? ", pinned to Home" : ""), onClick: function () { navigate("lists", { list: l.id }); } },
+              lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, l.name, lh('span', { className: "sr-only" }, ",")), lh('span', { className: "lc-person-h" }, lcListCount(l.members.length) + (Looscid.lcPinHas("list", l.id) ? ", pinned to Home" : "")))));
         }))
         : lh('p', { className: "lc-muted" }, "No lists yet.")));
 }
@@ -710,9 +710,9 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
           lh('h2', { id: "pf-lists-tab-h", className: "lc-sub-h" }, isMe ? "Your Lists" : (user.name || "Dreamor") + "'s Lists"),
           lh('ul', { className: "lc-people", role: "list" }, visLists.map(function (l, i) {
             return lh('li', { key: l.id || i }, isMe
-              ? lh('button', { type: "button", className: "lc-person lc-list-row", id: "pf-list-" + l.id, onClick: function () { navigate("lists", { list: l.id }); } },
-                  lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, l.name), lh('span', { className: "lc-person-h" }, ", " + cnt(l) + (l.shown ? ", shown on your profile" : ", only you"))))
-              : lh('p', { className: "lc-person lc-list-row" }, lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, l.name), lh('span', { className: "lc-person-h" }, ", " + cnt(l)))));
+              ? lh('button', { type: "button", className: "lc-person lc-list-row", id: "pf-list-" + l.id, "aria-label": l.name + ", " + cnt(l) + (l.shown ? ", shown on your profile" : ", only you"), onClick: function () { navigate("lists", { list: l.id }); } },
+                  lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, l.name, lh('span', { className: "sr-only" }, ",")), lh('span', { className: "lc-person-h" }, cnt(l) + (l.shown ? ", shown on your profile" : ", only you"))))
+              : lh('p', { className: "lc-person lc-list-row" }, lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, l.name, lh('span', { className: "sr-only" }, ",")), lh('span', { className: "lc-person-h" }, cnt(l)))));
           })),
           isMe ? lh('p', { className: "lc-muted" }, "Others see only the lists you show. Choose on each list's page with Show on my profile.") : null);
       }
@@ -2352,7 +2352,7 @@ function NostrKeySection() {
     st.mode === "locked" && lh(React.Fragment, null,
       lh('label', { htmlFor: "nostr-unlock", className: "lid-label" }, "Passcode"),
       lh('input', { id: "nostr-unlock", ref: unlockRef, className: "inp", type: "password", autoComplete: "off", autoCapitalize: "off", spellCheck: false, value: unl, onChange: function (e) { setUnl(e.target.value); } }),
-      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", disabled: busy, onClick: unlock }, "Unlock"))),
+      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", "aria-disabled": busy ? "true" : undefined, onClick: busy ? undefined : unlock }, "Unlock"))),
     // Security pass: a key saved without a passcode (from before) gets a clear, gentle prompt to lock it. Nothing is forced:
     // the key keeps working, and "Copy key" first means a forgotten passcode never costs the key.
     st.mode === "key" && !st.encrypted && lh('div', { className: "lid-lockbox", role: "group", "aria-labelledby": "nostr-lock-h" },
@@ -2360,11 +2360,11 @@ function NostrKeySection() {
       lh('p', { className: "lid-warn" }, "Your key is saved without a passcode, so anything that runs on this site could copy it. Lock it now. If you haven't saved your key somewhere safe yet, copy it first: if you ever forget the passcode, your key gets you back in."),
       lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bgb", onClick: function () { const k = N.nsecNow && N.nsecNow(); if (k) lcCopyText(k, "Key copied. Save it in your password manager."); else { say("One moment, then press Copy key again.", true); N.load().catch(function () {}); } } }, "Copy key")),
       lh(NostrPassFields, { pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2 }),
-      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", disabled: busy, onClick: lock }, "Lock with passcode"))),
+      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", "aria-disabled": busy ? "true" : undefined, onClick: busy ? undefined : lock }, "Lock with passcode"))),
     st.mode === "key" && st.encrypted && lh('details', { className: "lid-details", open: weak || undefined },
       lh('summary', null, "Change passcode"),
       lh(NostrPassFields, { pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2, label: "New passcode" }),
-      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", disabled: busy, onClick: lock }, "Change passcode"))),
+      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", "aria-disabled": busy ? "true" : undefined, onClick: busy ? undefined : lock }, "Change passcode"))),
     st.mode === "key" && st.encrypted && lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bgb", onClick: unlockPass }, "Remove passcode")),
     st.queued > 0 && lh(React.Fragment, null,
       lh('p', { className: "lid-help" }, st.queued === 1 ? "1 Dream is waiting to reach relays." : st.queued + " Dreams are waiting to reach relays."),
@@ -2379,16 +2379,16 @@ function NostrKeySection() {
       }))),
     how === "signer" && hasExt && lh(React.Fragment, null,
       lh('p', { className: "lid-help" }, "Your signer keeps your key. Looscid only asks it for your public key and to sign each Dream."),
-      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", disabled: busy, onClick: signer }, "Use my signer"))),
+      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", "aria-disabled": busy ? "true" : undefined, onClick: busy ? undefined : signer }, "Use my signer"))),
     how === "enter" && lh(React.Fragment, null,
       lh(SecretField, { id: "nostr-nsec", label: "Your Nostr secret key (nsec)", value: nsec, onChange: setNsec, inputRef: nsecRef }),
       lh('p', { className: "lid-help" }, "It starts with nsec1. It's saved only on this device and never sent anywhere. Never share it with anyone."),
       lh(NostrPassFields, { pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2, noPass: noPass, setNoPass: setNoPass, existing: /^\s*ncryptsec1/i.test(nsec) }),
-      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", disabled: busy, onClick: saveKey }, "Save key"))),
+      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", "aria-disabled": busy ? "true" : undefined, onClick: busy ? undefined : saveKey }, "Save key"))),
     how === "create" && lh(React.Fragment, null,
       lh('p', { className: "lid-help" }, "Looscid makes a new key on this device. Nothing is sent anywhere until you Dream."),
       lh(NostrPassFields, { pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2, noPass: noPass, setNoPass: setNoPass }),
-      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", disabled: busy, onClick: create }, "Create key"))));
+      lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", "aria-disabled": busy ? "true" : undefined, onClick: busy ? undefined : create }, "Create key"))));
   return lh('section', { className: "lid-panel", 'aria-labelledby': "nostr-key-h" },
     lh('h3', { id: "nostr-key-h", className: "lid-label", tabIndex: -1 }, "Nostr key"),
     lh('p', { className: "lid-help" }, "With a Nostr key, your Dreams with Audience Everyone also go to Nostr relays, so you and anyone can see them anytime, from any device. Looscid has no server."),
@@ -2473,7 +2473,7 @@ function LcKeysPanel({ goMethods }) {
     lh('p', { className: "lid-help", id: "lc-id-help" }, k.help),
     lh('input', { id: "lc-id-input", ref: ref, className: "inp", type: "text", autoCapitalize: "off", autoCorrect: "off", spellCheck: false, placeholder: k.ph, value: val,
       "aria-invalid": msg && msg.err ? "true" : undefined, onChange: function (e) { setVal(e.target.value); } }),
-    lh('button', { type: "button", className: "btn bp lid-wide", disabled: busy, onClick: add }, busy ? "Checking\u2026" : "Link " + k.short + " ID"),
+    lh('button', { type: "button", className: "btn bp lid-wide", "aria-disabled": busy ? "true" : undefined, onClick: busy ? undefined : add }, busy ? "Checking\u2026" : "Link " + k.short + " ID"),
     kind === "nostr" && hasExt ? lh('button', { type: "button", className: "btn bgb lid-wide", onClick: fromExt }, "Use my Nostr signer extension") : null,
     msg && lh('p', { className: msg.err ? "lid-err" : "lid-saved" }, msg.t),
     lh('p', { className: "lid-help" }, "Linking shows these IDs on your LooscidID. To log in or Dream with a network, add it in Login methods."),
@@ -2799,6 +2799,7 @@ const LC_VERSION_HISTORY = [
     "Security: when your Nostr key has a passcode, your Mastodon and Bluesky sign-ins are locked with it too.",
     "Security: Looscid now refuses scripts that aren't its own files, and it won't run if another website tries to show it inside a hidden frame. You'll get a link to open it on its own instead.",
     "Security: smaller fixes. Notes dated in the future can't jump to the top anymore, names and message settings from Nostr must be properly signed, and Cherry's on-device models are off until their code ships with Looscid itself.",
+    "Fixes from a careful check: messages from Nostr people you follow show again, Mute and Pin menu items now say Unmute and Unpin right after you use them, Dream info gives the real date and time for your own Dreams, and Inbox earcons play your Soundpack's Alert sound again when the pack has no Inbox earcons of its own. Also: Liked by and Redreamed by say how many Dreamors when they open, and a few buttons keep your focus while they're busy.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
@@ -3675,7 +3676,7 @@ function AudioSettings({ navigate, page }) {
       // Build 152: each Inbox type's own earcon (they follow the Alert switch above).
       lh('h3', { className: "lc-sub-h", id: "lca-inbox-h" }, "Inbox earcons"),
       lh('p', { className: "lc-desc" }, "Each kind of Inbox alert has its own earcon. They play when Alert is on, and each type can be silenced in Alerts settings."),
-      lh('ul', { className: "lc-plain", role: "list", "aria-labelledby": "lca-inbox-h" }, [["inboxMessage", "message earcon"], ["inboxReply", "reply earcon"], ["inboxMention", "mention earcon"], ["inboxLike", "Like earcon"], ["inboxRedream", "Redream earcon"], ["inboxQuote", "Quote earcon"], ["inboxFollow", "New Dreamor earcon"]].map(function (x) {
+      lh('ul', { className: "lc-plain", role: "list", "aria-labelledby": "lca-inbox-h" }, [["inboxMessage", "message earcon"], ["inboxReply", "reply earcon"], ["inboxMention", "mention earcon"], ["inboxLike", "like earcon"], ["inboxRedream", "redream earcon"], ["inboxQuote", "quote earcon"], ["inboxFollow", "new Dreamor earcon"]].map(function (x) {
         return lh('li', { key: x[0] }, lh('button', { type: "button", id: "lc-prev-" + x[0], className: "btn bgb lc-btn lc-prev", onClick: function () { Earcon.play(x[0], { test: true }); } }, "Preview " + x[1]));
       })),
       lh('h3', { className: "lc-sub-h" }, "Other sounds"),

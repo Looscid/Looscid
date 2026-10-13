@@ -587,8 +587,9 @@ function DreamPeople({ extra, dream, close, headRef }) {
   useEffect(function () {
     let live = true; const N = Looscid.lcNostr;
     if (!dream.nid || !N || !N.fetchReactions) { setSt({ state: "none", pks: [] }); return; }
+    setSt({ state: "loading", pks: [] });
     N.fetchReactions(dream.nid).then(function (r) { if (!live) return; const pks = (likes ? r.likes : r.redreams) || []; setSt({ state: r.err ? "err" : "done", pks: pks });
-      if (pks.length) lcNostrLearnNames(pks); announce(pks.length === 0 ? "No one found on Nostr." : pks.length === 1 ? "1 Dreamor found." : pks.length + " Dreamors found."); });
+      if (pks.length) lcNostrLearnNames(pks); });
     return function () { live = false; };
   }, [dream.nid, extra.which]);
   const [, bumpNames] = useState(0); // names learned from Nostr profiles arrive later
@@ -600,6 +601,12 @@ function DreamPeople({ extra, dream, close, headRef }) {
   const note = st.state === "loading" ? "Looking on Nostr…" : st.state === "err" ? "Couldn't reach Nostr relays." :
     shown === 0 ? (total > 0 ? (likes ? "Looscid can't see who liked this Dream. " : "Looscid can't see who Redreamed this Dream. ") + total + (likes ? (total === 1 ? " Like" : " Likes") : (total === 1 ? " Redream" : " Redreams")) + " in total." : (likes ? "No Likes yet." : "No Redreams yet.")) :
     total > shown && !dream.nid ? "Looscid can't see the other " + (total - shown) + "." : "";
+  // Build 152 fix: said once in #looscid-live when the list is ready, like "Liked by, 3 Dreamors".
+  const said = useRef("");
+  useEffect(function () {
+    if (st.state === "loading" || said.current === extra.which) return; said.current = extra.which;
+    announce(title + ", " + shown.toLocaleString() + (shown === 1 ? " Dreamor" : " Dreamors") + (note ? ". " + note : "."));
+  }, [st.state, extra.which]);
   return lh('section', { className: "lc-extra", "aria-labelledby": "ppl-h-" + dream.id },
     lh('h3', { id: "ppl-h-" + dream.id, className: "lc-sub-h", tabIndex: -1, ref: headRef }, title),
     shown ? lh('ul', { className: "lc-info-list", role: "list" }, names.map(function (n, i) { return lh('li', { key: i }, n); })) : null,
@@ -755,7 +762,9 @@ function lcDreamInfoLines(d) {
   const net = lcDreamNet(d), mine = !!d.user && (d.user === ME || lcHandle(d.user.handle || "") === lcHandle(ME.handle || ""));
   const client = (Array.isArray(d.tags) ? d.tags : []).filter(function (t) { return t && t[0] === "client" && t[1]; }).map(function (t) { return String(t[1]).slice(0, 60); })[0];
   const out = [];
-  const when = lcFullTime(d.created); out.push("Published: " + (when || d.time || "time not known"));
+  // Build 152 fix: your own older Dreams have no saved time, but their id is the moment they were made (lcNewId).
+  const when = lcFullTime(d.created || (mine && typeof d.id === "number" && d.id > 1e12 ? d.id : 0));
+  out.push("Published: " + (when || (d.time && d.time !== "just now" ? d.time : "time not known")));
   if (d.editedAt) out.push("Edited: " + (lcFullTime(d.editedAt) || "yes") + (Array.isArray(d.edits) && d.edits.length > 1 ? ", " + d.edits.length + " times" : ""));
   out.push("Network: " + ({ looscid: "Looscid, on this device", "looscid+nostr": "Looscid, also published to Nostr", nostr: "Nostr", mastodon: "Mastodon" })[net]);
   out.push("App: " + (client || (mine || net === "looscid" || net === "looscid+nostr" ? "Looscid" : "not stated")));
@@ -803,6 +812,7 @@ function lcWithEdit(d) { const e = lcEditOf(d); return e ? Object.assign({}, d, 
 function lcIsMine(d) { return !!d && !!d.user && (d.user === ME || (!!d.user.handle && lcHandle(d.user.handle) === lcHandle(ME.handle || ""))); }
 Object.assign(Looscid, { LC_EDITS_KEY, lcEdits, lcEditOf, lcEditSave, lcWithEdit });
 function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, cherryCtx, onExtra, forYou }) {
+  useIdListTick("looscid:pinned"); useIdListTick("looscid:mutedthreads"); // build 152 fix: Pin and Mute labels follow the change
   const handle = (dream.user && dream.user.handle || "").replace("@", "");
   const lang = Looscid.A11Y_NOW.translateTo || "en", langName = (LC_LANGS.find(function (x) { return x[0] === lang; }) || [0, "English"])[1];
   const items = [
@@ -2640,14 +2650,14 @@ function NostrPanel({ onDone }) {
   return lh('div', { className: "lid-panel" },
     lh('p', { className: "lid-help" }, "Nostr is a powerful way of communication, and your key works everywhere Nostr is supported."),
     hasExt
-      ? lh('button', { type: "button", className: "btn bp lid-wide", disabled: busy, onClick: useExtension }, "Login with my Nostr signer extension")
+      ? lh('button', { type: "button", className: "btn bp lid-wide", "aria-disabled": busy ? "true" : undefined, onClick: busy ? undefined : useExtension }, "Login with my Nostr signer extension")
       : lh('p', { className: "lid-help" }, "No Nostr signer extension was found in this browser. A signer extension, like Alby or nos2x, keeps your key safest. You can also create a key on this device."),
     step !== "create"
-      ? lh('button', { type: "button", className: "btn " + (hasExt ? "bgb" : "bp") + " lid-wide", disabled: busy, onClick: function () { setStep("create"); setShowPaste(false); setMsg(""); setTimeout(function () { const el = document.getElementById("lid-new-pass"); if (el) el.focus(); }, 30); } }, "Create a new key on this device")
+      ? lh('button', { type: "button", className: "btn " + (hasExt ? "bgb" : "bp") + " lid-wide", "aria-disabled": busy ? "true" : undefined, onClick: function () { if (busy) return;  setStep("create"); setShowPaste(false); setMsg(""); setTimeout(function () { const el = document.getElementById("lid-new-pass"); if (el) el.focus(); }, 30); } }, "Create a new key on this device")
       : lh('div', { className: "lid-pastebox", role: "group", "aria-label": "Create a new key" },
           lh(LcPassFields, { id: "lid-new", pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2, noPass: noPass, setNoPass: setNoPass, label: "Choose a passcode for your key" }),
           lh('div', { className: "lid-actions" },
-            lh('button', { type: "button", className: "btn bp", disabled: busy, onClick: createKey }, "Create key"),
+            lh('button', { type: "button", className: "btn bp", "aria-disabled": busy ? "true" : undefined, onClick: busy ? undefined : createKey }, "Create key"),
             lh('button', { type: "button", className: "btn bgb", onClick: function () { setStep(null); setPass(""); setPass2(""); setNoPass(false); setMsg(""); } }, "Cancel"))),
     lh('button', { type: "button", className: "lid-disclose", 'aria-expanded': showPaste ? "true" : "false", 'aria-controls': "lid-paste",
       onClick: function () { setShowPaste(!showPaste); setStep(null); } }, "I already have a key (last resort)"),
@@ -2655,7 +2665,7 @@ function NostrPanel({ onDone }) {
       lh('p', { className: "lid-warn", id: "lid-paste-warn" }, "Warning: pasting your secret key into any website is the most common way Nostr accounts get stolen. Use a signer extension if you can. If you continue, your key stays only on this device and is never sent anywhere."),
       lh(SecretField, { id: "lid-nsec-paste", label: "Enter nsec key", value: paste, onChange: setPaste, describedBy: "lid-paste-warn", inputRef: pasteRef }),
       lh(LcPassFields, { id: "lid-paste", pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2, noPass: noPass, setNoPass: setNoPass, label: "Choose a passcode for your key" , existing: /^\s*ncryptsec1/i.test(paste) }),
-      lh('button', { type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: usePasted }, "Continue to setup")),
+      lh('button', { type: "button", className: "btn bgb lid-wide", "aria-disabled": busy ? "true" : undefined, onClick: busy ? undefined : usePasted }, "Continue to setup")),
     msg && lh('p', { className: "lid-err" }, msg));
 }
 /* --- Mastodon / fediverse: real OAuth 2 with PKCE, all in the browser ------- */
@@ -2768,7 +2778,7 @@ function MastodonPanel({ onDone, from }) {
     lh('p', { className: "lid-help" }, "Log in with Mastodon or another server that speaks the Mastodon API: Friendica, GoToSocial, Akkoma or Pleroma. You'll go to your server to approve Looscid, then come straight back. Looscid only asks to read your public profile. Your server may have your email; Looscid never sees it."),
     lh('label', { htmlFor: "lid-masto-host", className: "lid-label" }, "Your server"),
     lh('input', { id: "lid-masto-host", ref: ref, className: "inp", type: "text", inputMode: "url", autoCapitalize: "off", spellCheck: false, placeholder: "mastodon.social", value: host, onChange: function (e) { setHost(e.target.value); } }),
-    lh('button', { type: "button", className: "btn bp lid-wide", disabled: busy, onClick: go }, busy ? "Opening your server\u2026" : "Continue to your server"),
+    lh('button', { type: "button", className: "btn bp lid-wide", "aria-disabled": busy ? "true" : undefined, onClick: busy ? undefined : go }, busy ? "Opening your server\u2026" : "Continue to your server"),
     msg && lh('p', { className: "lid-err" }, msg));
 }
 function LidOAuthPanel({ kind, from }) {
@@ -2792,7 +2802,7 @@ function LidOAuthPanel({ kind, from }) {
       lh('input', { id: "lid-hz-cid", className: "inp", type: "text", autoCapitalize: "off", spellCheck: false, value: cid, onChange: function (e) { setCid(e.target.value); } }),
       lh('label', { htmlFor: "lid-hz-sec", className: "lid-label" }, "Client secret, if your hub shows one"),
       lh('input', { id: "lid-hz-sec", ref: ref, className: "inp", type: "password", autoCapitalize: "off", spellCheck: false, value: sec, onChange: function (e) { setSec(e.target.value); } })),
-    lh('button', { type: "button", className: "btn bp lid-wide", disabled: busy, onClick: go }, busy ? "Opening your server\u2026" : "Continue to your server"),
+    lh('button', { type: "button", className: "btn bp lid-wide", "aria-disabled": busy ? "true" : undefined, onClick: busy ? undefined : go }, busy ? "Opening your server\u2026" : "Continue to your server"),
     msg && lh('p', { className: "lid-err" }, msg));
 }
 function FunkwhalePanel(p) { return lh(LidOAuthPanel, Object.assign({ kind: "funkwhale" }, p)); }
@@ -2835,7 +2845,7 @@ function BlueskyPanel({ onDone }) {
     lh('label', { htmlFor: "lid-bsky-handle", className: "lid-label" }, "Bluesky handle"),
     lh('input', { id: "lid-bsky-handle", className: "inp", type: "text", autoCapitalize: "off", spellCheck: false, placeholder: "name.bsky.social", value: handle, onChange: function (e) { setHandle(e.target.value); } }),
     lh(SecretField, { id: "lid-bsky-pw", label: "App password", value: pw, onChange: setPw, describedBy: "lid-bsky-warn", inputRef: ref }),
-    lh('button', { type: "button", className: "btn bp lid-wide", disabled: busy, onClick: go }, busy ? "Logging in\u2026" : "Link Bluesky"),
+    lh('button', { type: "button", className: "btn bp lid-wide", "aria-disabled": busy ? "true" : undefined, onClick: busy ? undefined : go }, busy ? "Logging in\u2026" : "Link Bluesky"),
     msg && lh('p', { className: "lid-err" }, msg));
 }
 /* --- Alert dialog (role=alertdialog, focus trap, Escape cancels) ------------ */
@@ -3619,7 +3629,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-13T00:04:13Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-13T00:18:10Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4008,7 +4018,17 @@ const Earcon = (function () {
       setTimeout(function () { if (settled) return; if (started) { settled = true; el.removeEventListener("playing", onP); } else giveUp("slow"); }, 250);
     } catch (x) { streamFallback(url, vol, e, "error"); }
   }
+  // Build 152 fix: the Inbox earcons are only in the Looscid pack. Another pack, or your own imported one, with no sound
+  // for an Inbox type plays its own Alert sound instead, exactly as before build 152.
+  function inboxName(name, pack) {
+    if (!/^inbox/.test(name)) return name;
+    const p = pack || Looscid.A11Y_NOW.soundPack || "looscid";
+    if (p === "looscid") return name;
+    if (p === "custom") { const CP = Looscid.LC_CUSTOM_PACK; return CP && CP.map && CP.map[name] ? name : "alerts"; }
+    const P = LC_PACKS[p]; return P && ((P.stream && P.stream[name]) || (P.sounds && P.sounds[name])) ? name : "alerts";
+  }
   function play(name, opts) {
+    name = inboxName(name, opts && opts.pack);
     const s = soundFor(name, opts && opts.pack); if (!s) return;
     const e = s.e, a = Looscid.A11Y_NOW, test = opts && opts.test;
     const sw = LC_EVENT_SWITCH[name];
@@ -4604,10 +4624,16 @@ function lcOpenProfileLink() {
   const u = USERS.find(function (x) { return lcHandle(x.handle) === h; });
   if (u) Looscid.LC_NAV("dp", u); else announce("@" + m[1] + " isn't on this device yet.");
 }
+// Build 152 fix: following a Nostr person from their profile saves "npub:<hex>", other places use "nostr:<hex>". Both
+// mean the same person, so either form counts as following. Stored follows are left as they are.
+function lcFollowingHas(id) {
+  const F = Looscid.LC_FOLLOWING_NOW; if (F.has(id)) return true;
+  const m = /^(npub|nostr):(.+)$/.exec(String(id == null ? "" : id)); return !!m && F.has((m[1] === "npub" ? "nostr:" : "npub:") + m[2]);
+}
 // Is this person inside the audience? user = a USERS entry (or null for Looscid itself).
 function lcAudienceOk(who, user, key) {
   if (!user) return who !== "nobody";
-  const id = user.id, fol = Looscid.LC_FOLLOWING_NOW.has(id), fby = !!user.followsYou;
+  const id = user.id, fol = lcFollowingHas(id), fby = !!user.followsYou;
   switch (who || "everyone") {
     case "everyone": return true;
     case "following": return fol;
@@ -6166,7 +6192,7 @@ useEffect(() => {
     likeDream:   id => { recordHabit("likeDream", (appDreams.find(x=>x.id===id)||{}).text?(appDreams.find(x=>x.id===id).text.split(" ").slice(0,3).join(" ")):null); const d=appDreams.find(x=>x.id===id); if(!d) return; const flip = function () { const cur = lcLikedHas("dream", id); lcLikedSet("dream", id, !cur, lcDreamSnap(d)); }; const was = lcLikedHas("dream", id); flip(); addLog("❤️",(was?"Unliked ":"Liked ")+d.user.name+"'s Dream", flip); lcCherryDid(was ? "Unliked" : "Liked", "Dream", "Dreams", d.user.name + "'s Dream", d.user.name + ": " + String(d.text || "").slice(0, 140)); },
     // Build 147: liking is saving, so Save is Like.
     saveDream:   id => { cherryCtx.likeDream(id); },
-    postDream:   (text, extra) => { const id=lcNewId(); setAppDreams(ds => [Object.assign({id,user:ME,time:"just now",text,likes:0,comments:0,redreams:0,quotes:0,liked:false,redreamed:false,quoted:false,bookmarked:false}, extra || {}),...ds]); addLog("✏️","Dreamed: "+text.slice(0,40)+"…", ()=>setAppDreams(ds=>ds.filter(d=>d.id!==id))); lcCherryDid("Published", "Dream", "Dreams", "your Dream", String(text).slice(0, 140)); return id; },
+    postDream:   (text, extra) => { const id=lcNewId(); setAppDreams(ds => [Object.assign({id,user:ME,time:"just now",created:id,text,likes:0,comments:0,redreams:0,quotes:0,liked:false,redreamed:false,quoted:false,bookmarked:false}, extra || {}),...ds]); addLog("✏️","Dreamed: "+text.slice(0,40)+"…", ()=>setAppDreams(ds=>ds.filter(d=>d.id!==id))); lcCherryDid("Published", "Dream", "Dreams", "your Dream", String(text).slice(0, 140)); return id; },
     followUser:  id => { const was = appFollowing.has(id); setAppFollowing(s => { const n=new Set(s); n.has(id)?n.delete(id):n.add(id); return n; }); const u=USERS.find(x=>x.id===id); if(u) { addLog("👥",(was?"Unfollowed ":"Followed ")+u.name, ()=>setAppFollowing(s=>{const n=new Set(s);was?n.add(id):n.delete(id);return n;})); lcCherryDid(was ? "Unfollowed" : "Followed", "Dreamor", "Dreamors", u.name, u.name + (u.handle ? " (" + u.handle + ")" : "")); } },
     joinGroup:   id => { const was = !!(appGroups.find(x=>x.id===id)||{}).joined; setAppGroups(gs => gs.map(g => g.id===id ? {...g,joined:!g.joined} : g)); const g=GROUPS.find(x=>x.id===id); if(g) { addLog("🏘️",(was?"Left ":"Joined ")+g.name, ()=>setAppGroups(gs=>gs.map(x=>x.id===id?{...x,joined:was}:x))); lcCherryDid(was ? "Left" : "Joined", "Circle", "Circles", g.name, g.name); } },
     markNotifsRead: () => { const n = lcAlerts().filter(x=>x.unread).length; lcAlertsMarkAll(); addLog("🔔","Marked all notifications read"); lcCherryDid("Marked", "notification", "notifications", "all your notifications as read", n + (n === 1 ? " notification" : " notifications") + " marked read", "Marked all notifications read"); },

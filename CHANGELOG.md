@@ -4,7 +4,7 @@ Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD)
 
 ## Looscid 2026.117.33 (150): Round 7
 
-Released October 12, 2026 at 8:04 PM (Eastern Time, 2026-10-13T00:04:13Z UTC)
+Released October 12, 2026 at 8:18 PM (Eastern Time, 2026-10-13T00:18:10Z UTC)
 
 Round 7: a feature update, asked for by 2three1y. Built in steps, one commit each.
 
@@ -82,6 +82,7 @@ Round 7: a feature update, asked for by 2three1y. Built in steps, one commit eac
 - Security: when your Nostr key has a passcode, your Mastodon and Bluesky sign-ins are locked with it too.
 - Security: Looscid now refuses scripts that aren't its own files, and it won't run if another website tries to show it inside a hidden frame. You'll get a link to open it on its own instead.
 - Security: smaller fixes. Notes dated in the future can't jump to the top anymore, names and message settings from Nostr must be properly signed, and Cherry's on-device models are off until their code ships with Looscid itself.
+- Fixes from a careful check: messages from Nostr people you follow show again, Mute and Pin menu items now say Unmute and Unpin right after you use them, Dream info gives the real date and time for your own Dreams, and Inbox earcons play your Soundpack's Alert sound again when the pack has no Inbox earcons of its own. Also: Liked by and Redreamed by say how many Dreamors when they open, and a few buttons keep your focus while they're busy.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 
