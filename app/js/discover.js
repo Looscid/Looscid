@@ -16,6 +16,14 @@ const FILTER_OPTS = [
 ];
 const tabLabel = function (t) { return ({ all: "All", dreamers: "Dreamors", dreams: "Dreams", circles: "Circles", trending: "Trending" })[t] || t; };
 
+// Build 152 fix: switching All, Dreamors, Dreams or Circles during a search says the tab's count once through #looscid-live
+// ("Dreamors, 0 results"). A count still waiting from typing is dropped, so it isn't said twice.
+function lcTabCount(st) {
+  if (!String(st.q || "").trim()) return;
+  clearTimeout(Looscid.LC_COUNT_T);
+  const n = st.count || 0;
+  Looscid.announce(tabLabel(st.tab) + ", " + n + (n === 1 ? " result" : " results"));
+}
 /* st: { q, tab, filters, filtersOpen }; p: the frame's props (navigate, cherryCtx). */
 function discoverView(st, p, draw) {
   const navigate = p.navigate, cherryCtx = p.cherryCtx, q = st.q, tab = st.tab, filters = st.filters, filtersOpen = st.filtersOpen;
@@ -52,8 +60,10 @@ function discoverView(st, p, draw) {
     else { Looscid.lcLikeSearch(qq, activeLabels, Looscid.LC_APP_DREAMS || DREAMS_INIT); Looscid.announce("Liked Search \u201c" + qq + "\u201d. It's in Liked, Searches, where you can turn on its Alerts."); }
     draw();
   };
-  const noResults = q && dreamResults.length === 0 && dreamerResults.length === 0 && circleResults.length === 0;
+  const noneAtAll = q && dreamResults.length === 0 && dreamerResults.length === 0 && circleResults.length === 0;
   st.count = (tab === "dreamers" || tab === "all" ? dreamerResults.length : 0) + (tab === "dreams" || tab === "all" ? dreamResults.length : 0) + (tab === "circles" || tab === "all" ? circleResults.length : 0);
+  // Build 152 fix: "No results" goes by the tab you're on, so an empty Dreamors, Dreams or Circles tab says so too.
+  const noResults = q && tab !== "trending" && st.count === 0;
 
   return h('div', { className: "pg" },
     h('div', { className: "hdr" },
@@ -92,7 +102,7 @@ function discoverView(st, p, draw) {
         })),
       h('div', { className: "ftabs", role: "tablist", "aria-label": "Discover sections", style: { overflowX: "auto", scrollbarWidth: "none" } },
         activeTabs.map(function (t, i) {
-          return h('button', { key: t, className: "ftab" + (tab === t ? " on" : ""), onClick: function () { st.tab = t; draw(); }, role: "tab", "aria-label": tabLabel(t), "aria-selected": tab === t, tabIndex: tab === t ? 0 : -1 },
+          return h('button', { key: t, className: "ftab" + (tab === t ? " on" : ""), onClick: function () { st.tab = t; draw(); lcTabCount(st); }, role: "tab", "aria-label": tabLabel(t), "aria-selected": tab === t, tabIndex: tab === t ? 0 : -1 },
             tabLabel(t)); // build 149: no "1/4" position (iOS says "tab, 1 of 4" itself)
         }))),
 
@@ -145,9 +155,8 @@ function discoverView(st, p, draw) {
       }),
 
       noResults && h('div', { className: "es" },
-        h('div', { className: "esi" }, "No results"),
-        h('div', { className: "esl" }, "Nothing found"),
-        h('p', { style: { fontSize: 12, color: "var(--tx3)", marginTop: 6, lineHeight: 1.6 } }, "No results for \u201c", q, "\u201d. Try different words."))));
+        h('div', { className: "esl" }, "No results"),
+        h('p', { style: { fontSize: 12, color: "var(--tx3)", marginTop: 6, lineHeight: 1.6 } }, noneAtAll ? "No results for \u201c" : "No " + tabLabel(tab) + " for \u201c", q, noneAtAll ? "\u201d. Try different words." : "\u201d. Other tabs have results."))));
 }
 
 /* The Discover tab: search, filters, and Trending / Dreamors / Dreams / Circles. */

@@ -3640,7 +3640,7 @@ function AudioSettings({ navigate, page }) {
       // Build 152: each Inbox type's own earcon (they follow the Alert switch above).
       lh('h3', { className: "lc-sub-h", id: "lca-inbox-h" }, "Inbox earcons"),
       lh('p', { className: "lc-desc" }, "Each kind of Inbox alert has its own earcon. They play when Alert is on, and each type can be silenced in Alerts settings."),
-      lh('ul', { className: "lc-plain", role: "list", "aria-labelledby": "lca-inbox-h" }, [["inboxMessage", "message earcon"], ["inboxReply", "reply earcon"], ["inboxMention", "mention earcon"], ["inboxLike", "like earcon"], ["inboxRedream", "redream earcon"], ["inboxQuote", "quote earcon"], ["inboxFollow", "new Dreamor earcon"]].map(function (x) {
+      lh('ul', { className: "lc-plain", role: "list", "aria-labelledby": "lca-inbox-h" }, [["inboxMessage", "message earcon"], ["inboxReply", "reply earcon"], ["inboxMention", "mention earcon"], ["inboxLike", "like earcon"], ["inboxRedream", "Redream earcon"], ["inboxQuote", "quote earcon"], ["inboxFollow", "new Dreamor earcon"]].map(function (x) {
         return lh('li', { key: x[0] }, lh('button', { type: "button", id: "lc-prev-" + x[0], className: "btn bgb lc-btn lc-prev", onClick: function () { Earcon.play(x[0], { test: true }); } }, "Preview " + x[1]));
       })),
       lh('h3', { className: "lc-sub-h" }, "Other sounds"),
