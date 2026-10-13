@@ -160,7 +160,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
   const [showAdmin, setShowAdmin] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
   const {dreams, tl, tr, tur, tq, tuq, tb, tc} = useDreams(DREAMS_INIT.slice(0,3).map(d=>({...d,id:d.id+200})));
-  const [activeComment, setActiveComment] = useState(null);
+  const [activeComment, setActiveComment] = useState(function () { return Looscid.lcCvTake ? Looscid.lcCvTake() : null; }); // round 9: Back from a footer page
 
   if (activeComment) return React.createElement(CommentView, { dream: activeComment, onBack: ()=>setActiveComment(null), onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onCommentPosted: tc, navigate: navigate,});
 
@@ -206,7 +206,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
 
       , React.createElement('div', {className:"ftabs",role:"tablist","aria-label":"Circle sections",style:{overflowX:"auto",scrollbarWidth:"none"}},
         ["feed","members","about","rules"].map(function(t,i){
-          return React.createElement('button', {key:t,className:"ftab"+(tab===t?" on":""),onClick:function(){setTab(t);},role:"tab","aria-selected":tab===t,"aria-setsize":4,"aria-posinset":i+1,"aria-label":t.charAt(0).toUpperCase()+t.slice(1),style:{whiteSpace:"nowrap"}},
+          return React.createElement('button', {key:t,className:"ftab"+(tab===t?" on":""),onClick:function(){setTab(t);},role:"tab","aria-selected":tab===t,"aria-label":t.charAt(0).toUpperCase()+t.slice(1),style:{whiteSpace:"nowrap"}},
               t.charAt(0).toUpperCase()+t.slice(1)
             );
         })
@@ -299,7 +299,7 @@ function GroupAdminModal({group, onClose}) {
         )
         , React.createElement('div', {className:"ftabs",role:"tablist","aria-label":"Admin sections",style:{overflowX:"auto",scrollbarWidth:"none"}},
           ["general","members","posts","settings"].map(function(t,i){
-            return React.createElement('button', {key:t,className:"ftab"+(tab===t?" on":""),onClick:function(){setTab(t);},role:"tab","aria-selected":tab===t,"aria-setsize":4,"aria-posinset":i+1,"aria-label":t==="posts"?"Dreams":t.charAt(0).toUpperCase()+t.slice(1),style:{whiteSpace:"nowrap"}},
+            return React.createElement('button', {key:t,className:"ftab"+(tab===t?" on":""),onClick:function(){setTab(t);},role:"tab","aria-selected":tab===t,"aria-label":t==="posts"?"Dreams":t.charAt(0).toUpperCase()+t.slice(1),style:{whiteSpace:"nowrap"}},
               t==="posts"?"Dreams":t.charAt(0).toUpperCase()+t.slice(1)
             );
           })
@@ -418,7 +418,7 @@ function GroupsPage({navigate, cherryCtx, data}) {
         , React.createElement('div', {className:"ftabs",role:"tablist","aria-label":"Circles sections",style:{overflowX:"auto",scrollbarWidth:"none"}},
           ["discover","my circles"].map(function(t,i){
             var lbl = t==="my circles"?"My Circles":"Discover";
-            return React.createElement('button', {key:t,className:"ftab"+(tab===t?" on":""),onClick:function(){setTab(t);},role:"tab","aria-selected":tab===t,"aria-setsize":2,"aria-posinset":i+1,"aria-label":lbl,style:{whiteSpace:"nowrap"}}, lbl);
+            return React.createElement('button', {key:t,className:"ftab"+(tab===t?" on":""),onClick:function(){setTab(t);},role:"tab","aria-selected":tab===t,"aria-label":lbl,style:{whiteSpace:"nowrap"}}, lbl);
           })
         )
       )

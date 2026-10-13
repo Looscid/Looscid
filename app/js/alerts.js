@@ -143,7 +143,7 @@ function composeView(st, draw) {
   return h('div', { className: "pg lc-pm-new" },
     lcBackHeaderEl("Send a message", function () { if (cp.back) { st.compose = null; cp.back(); return; } st.compose = null; draw(); setTimeout(function () { const b = document.getElementById("inbox-send"); if (b) b.focus(); }, 0); }),
     note ? h('p', { className: "lc-desc", style: { padding: "8px 16px" } }, note) : null,
-    note ? h('div', { style: { padding: "0 16px 12px" } }, h('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { Looscid.LC_SETTINGS_BACK = "alerts"; if (Looscid.LC_NAV) Looscid.LC_NAV("settings_account"); } }, "Open LooscidID")) : null,
+    note ? h('div', { style: { padding: "0 16px 12px" } }, h('button', { type: "button", id: "pm-compose-lid", className: "btn bgb lc-btn", onClick: function () { Looscid.LC_LID_RETURN = { compose: cp }; if (Looscid.LC_NAV) Looscid.LC_NAV("settings_account"); } }, "Open LooscidID")) : null,
     h('div', { className: "lc-pm-form", style: { padding: "0 16px", display: "flex", flexDirection: "column", gap: 8 } },
       h('label', { htmlFor: "pm-to" }, "To"),
       h('input', { id: "pm-to", className: "inp", type: "text", autoComplete: "off", spellCheck: false, value: cp.to, placeholder: "npub1…", onChange: function (e) { cp.to = e.target.value; syncSend(); } }),
@@ -172,7 +172,7 @@ function pmView(st, draw) {
     note ? h('p', { className: "lc-desc", style: { padding: "0 16px" } }, note) : null,
     // Round 8 fixes (QA round 7): with no Nostr key, this chat (opened from a profile's Direct message) had lost the
     // "Open LooscidID" button the old compose view had, and still said "Say hello", which you couldn't.
-    note ? h('div', { style: { padding: "8px 16px 12px" } }, h('button', { type: "button", id: "pm-open-lid", className: "btn bgb lc-btn", onClick: function () { Looscid.LC_SETTINGS_BACK = "alerts"; if (Looscid.LC_NAV) Looscid.LC_NAV("settings_account"); } }, "Open LooscidID")) : null,
+    note ? h('div', { style: { padding: "8px 16px 12px" } }, h('button', { type: "button", id: "pm-open-lid", className: "btn bgb lc-btn", onClick: function () { Looscid.LC_LID_RETURN = { peer: peer, name: name, back: st.pmBack }; if (Looscid.LC_NAV) Looscid.LC_NAV("settings_account"); } }, "Open LooscidID")) : null,
     msgs.length || note ? null : h('p', { className: "lc-desc", style: { padding: "8px 16px" } }, "No messages yet. Say hello to " + name + "."),
     h('ul', { className: "msgs lc-pm-list", role: "list", style: { flex: 1, listStyle: "none", margin: 0 } }, msgs.map(function (m) {
       return h('li', { key: m.id, className: "mr" + (m.me ? " me" : "") },
@@ -249,7 +249,11 @@ const AlertsPage = lcPlainScreen("AlertsPage", function (host) {
   const st = { view: saved, convo: null, pm: null, compose: null, more: null };
   // Round 5 fixes: Direct message on a Dreamor's profile opens their chat, or a new message to them; Back returns to the profile.
   const dm = Looscid.LC_PM_OPEN; Looscid.LC_PM_OPEN = null;
-  if (dm && dm.peer) {
+  /* Round 9 fixes (QA round 8): Open LooscidID from this chat (or from Send a message) set a Back target for Settings
+     pages, which LooscidID's Back ignored: Back went to Settings, and the leftover target sent a later Settings > Alerts
+     > Back into the Inbox. LooscidID's Back now hands the chat (or the form, with what you typed) back here instead. */
+  if (dm && dm.compose) st.compose = dm.compose;
+  else if (dm && dm.peer) {
     // Round 7 fixes (QA round 6): always the chat itself, titled with their name, even before the first message (a new chat
     // showed "Send a message" with their raw npub in the To box until something was sent).
     st.pm = dm.peer; st.pmBack = dm.back;

@@ -137,7 +137,7 @@ function discoverView(st, p, draw) {
               h('div', { className: "cpv" }, u.handle, " \u00b7 ", fmt(u.followers || 0), (u.followers || 0) === 1 ? " follower" : " followers"))),
           cherryCtx && cherryCtx.followUser
             ? h('button', { type: "button", className: "btn " + (fol ? "bgb" : "bp"), style: { padding: "7px 14px", fontSize: 12 }, "aria-pressed": fol ? "true" : "false", "aria-label": "Follow " + u.name,
-                onClick: function () { cherryCtx.followUser(u.id); Looscid.announce((fol ? "Unfollowed " : "Following ") + u.name, "state", "follow:" + u.id); } }, fol ? "Following" : "Follow")
+                onClick: function () { cherryCtx.followUser(u.id); Looscid.announce((fol ? "Unfollowed " : "Following ") + u.name + ".", "state", "follow:" + u.id); } }, fol ? "Following" : "Follow")
             : h('button', { type: "button", className: "btn bp", style: { padding: "7px 14px", fontSize: 12 }, "aria-disabled": "true", "aria-label": "Follow " + u.name,
                 onClick: function () { Looscid.announce("Not available yet: open " + u.name + "'s profile to follow."); } }, "Follow"));
       }),

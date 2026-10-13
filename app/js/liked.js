@@ -53,14 +53,16 @@ function LikedRow({ item, label, onOpen, openLabel }) {
       onOpen ? lh('button', { type: "button", className: "btn bgb lc-btn", onClick: onOpen }, openLabel || "Open") : null,
       lh('button', { type: "button", className: "btn bgb lc-btn", "aria-label": lcNameJoin("Unlike", label), onClick: function () { lcLikedSet(item.k, item.id, false); announce("Unliked " + label + ". Removed from Liked."); } }, "Unlike")));
 }
-function LikedView({ navigate, cherryCtx, idp, intro, onComment, extraPanels }) {
+function LikedView({ navigate, cherryCtx, idp, intro, onComment, extraPanels, onReplies }) {
   idp = idp || "lk";
   useLikedTick();
   const [tab, setTabS] = useState(lcLikedTabMem[idp] || "dreams");
   const setTab = function (t) { lcLikedTabMem[idp] = t; setTabS(t); };
   const [mf, setMf] = useState({ photos: true, gifs: true, videos: true }); // build 150 (#59): Media tab filters
-  const [activeComment, setActiveComment] = useState(null);
+  const [activeComment, setActiveComment] = useState(function () { return Looscid.lcCvTake ? Looscid.lcCvTake() : null; });
   const [, bump] = useState(0);
+  // Round 9 fixes (QA round 8): the Liked page hides its own header (and its Back) while a Dream's Replies are open here.
+  useEffect(function () { if (onReplies) onReplies(!!(activeComment && !onComment)); }, [activeComment]);
   // A Dream you unlike here stays in the list (shown as not liked) until you leave, so focus never jumps.
   const keep = useRef(new Map());
   const live = lcLikedDreams((cherryCtx && cherryCtx.dreams) || []);
@@ -230,12 +232,15 @@ Looscid.lcOpenLikedApp = function (x, navigate) { const a = (Looscid.lcAppItems 
 // The Liked page in More (build 148): the same LikedView as your profile's Liked tab.
 function LikedPage({ navigate, cherryCtx }) {
   const head = useRef(null);
-  useEffect(function () { if (head.current) head.current.focus(); }, []);
+  /* Round 9 fixes (QA round 8): with a Dream's Replies open, the Liked page's own Back (to the More menu) came first, above
+     the Replies' Back, so Back reopened More. While Replies are open only their header shows; their Back returns here. */
+  const [inReplies, setInReplies] = useState(false);
+  useEffect(function () { if (head.current && !inReplies) head.current.focus(); }, []);
   return lh('div', { className: "pg lc-liked-page" },
-    lh('div', { className: "hdr" }, lh('div', { className: "hdr-row" },
+    inReplies ? null : lh('div', { className: "hdr" }, lh('div', { className: "hdr-row" },
       lh('button', { type: "button", className: "bi", onClick: function () { navigate("settings"); }, "aria-label": "Back" }, lh(Looscid.Ic.Bck, { style: { width: 21, height: 21 } })),
       lh('h1', { className: "hdr-title", tabIndex: -1, ref: head }, "Liked"))),
-    lh(LikedView, { navigate: navigate, cherryCtx: cherryCtx, idp: "lk", intro: "Everything you liked, in one place. Only you can see this page." }));
+    lh(LikedView, { navigate: navigate, cherryCtx: cherryCtx, idp: "lk", intro: "Everything you liked, in one place. Only you can see this page.", onReplies: setInReplies }));
 }
 // Commandbar: liked, like search [words], unlike search <words>.
 function lcLikedIntent(raw) {

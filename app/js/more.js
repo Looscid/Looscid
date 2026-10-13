@@ -354,7 +354,7 @@ function ListView({ list, navigate, cherryCtx }) {
   const head = useRef(null), renRef = useRef(null);
   const [mode, setMode] = useState(null); // "rename" | "delete"
   const [name, setName] = useState(list.name), [msg, setMsg] = useState("");
-  const [activeComment, setActiveComment] = useState(null);
+  const [activeComment, setActiveComment] = useState(function () { return Looscid.lcCvTake ? Looscid.lcCvTake() : null; }); // round 9: Back from a footer page
   useEffect(function () { if (head.current) head.current.focus(); }, [list.id]);
   useEffect(function () { if (mode === "rename" && renRef.current) renRef.current.focus(); if (mode === "delete") { const b = document.getElementById("list-del-no"); if (b) b.focus(); } }, [mode]);
   const all = (cherryCtx && cherryCtx.dreams) || [];
@@ -430,7 +430,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const [rdShow, setRdShowS] = useState(lcRdShow);
   const [mediaShow, setMediaShowS] = useState(lcMediaShow);
   const [, bump] = useState(0);
-  const [activeComment, setActiveComment] = useState(null);
+  const [activeComment, setActiveComment] = useState(function () { return Looscid.lcCvTake ? Looscid.lcCvTake() : null; }); // round 9: Back from a footer page
   const [listsOpen, setListsOpen] = useState(false); // part 4b: Add to list, under Dreamor options
   Looscid.useLikedTick();
   const moreBtn = useRef(null), editBtn = useRef(null), noteRef = useRef(null), headRef = useRef(null);
@@ -793,7 +793,7 @@ function AccountSettings({navigate, authUser, onSignOut, onRenameProfile, onUpda
     , React.createElement('button', { className: "btn bgb lid-wide", onClick: ()=>{ if (window.confirm("Reset your local profile on this device?")) onSignOut(); },}, "Reset local profile")
   );
   return React.createElement(LooscidIDManager, { navigate: navigate, authUser: authUser, onUpdateProfile: onUpdateProfile || (()=>{}), initialTab: initialTab,
-    title: "LooscidID", onBack: ()=>navigate("settings"), securityExtra: securityExtra,});
+    title: "LooscidID", onBack: ()=>{ const r = Looscid.LC_LID_RETURN; Looscid.LC_LID_RETURN = null; if (r) { Looscid.LC_PM_OPEN = r; navigate("alerts"); return; } navigate("settings"); }, securityExtra: securityExtra,});
 }
 // Round 6: one audience radio set (fieldset + legend, native radios) with the Custom picker.
 function LcAudience({ id, legend, value, onChange, customKey, options, note }) {
@@ -1658,7 +1658,7 @@ function AdminContent({onBack}) {
       , React.createElement('div', {className:"ftabs",role:"tablist","aria-label":"Content sections",style:{overflowX:"auto",scrollbarWidth:"none"}},
         ["flagged","all"].map(function(t,i){
           var lbl = t==="flagged"?"Flagged ("+items.filter(function(x){return !x.reviewed;}).length+")":"All";
-          return React.createElement('button', {key:t,className:"ftab"+(tab===t?" on":""),onClick:function(){setTab(t);},role:"tab","aria-selected":tab===t,"aria-setsize":2,"aria-posinset":i+1,"aria-label":lbl,style:{whiteSpace:"nowrap"}}, lbl);
+          return React.createElement('button', {key:t,className:"ftab"+(tab===t?" on":""),onClick:function(){setTab(t);},role:"tab","aria-selected":tab===t,"aria-label":lbl,style:{whiteSpace:"nowrap"}}, lbl);
         })
       )
       , items.filter(i=>tab==="all"||!i.reviewed).map(item=>(
@@ -2825,6 +2825,7 @@ const LC_VERSION_HISTORY = [
     "More's Settings link always opens Settings now, even after Liked or View your profile, with VoiceOver on its heading, and Escape on a More menu that Back reopened goes to the More tab. Back from a profile goes to where you opened it this time (a Discover search you left earlier no longer comes back), Back from a footer page lands on that footer link, and Back from the second Dream by the same Dreamor lands on that Dream's button. Tapping Like quickly now always ends on the word that matches, Liked or Like removed, and words still waiting to be read are dropped when you move to another page. Discover results say followers, and Like Search has a hint.",
     "A chat opened from a Nostr Dreamor's profile shows their name from the start, instead of Send a message and a long key. Photos, polls, links and places can't be published yet, so when something is attached and you publish, Looscid now says so first and asks: Publish text only, or Cancel. Attaching a poll, a link or a place says it was added, the new-message Send button says it can't be used until both boxes are filled, and Schedule's description says publish in lowercase. On the status page, each service's status is plain text now, not its own announcement.",
     "After a Dream's Replies, Back no longer leaves the page without its tab bar and footer. Like and Unlike (or Redream, or Follow) tapped quickly just before you leave a page now end on the word that matches, and Dream published is never lost when the page changes. Direct message without a Nostr key has its Open LooscidID button again, and no longer says Say hello. A Dream with only a photo says that only text can be published for now. Back from the footer's Legal and license lands on that link. Smaller fixes: the attachments warning reads its message when it opens, an Inbox item no longer has a double period, and Back from Dreamor options, Message lands on Dreamor options.",
+    "Back goes where you were in more places. Open LooscidID from a chat (or from Send a message) comes back to that chat or form, with what you typed kept, and Settings pages no longer go Back to the Inbox afterwards. Back from a Dream's Replies opened in Liked returns to Liked, on that Dream. A footer link opened from inside Replies comes back to the Replies, on that link. Smaller fixes: Back from Legal (opened in About) lands on the Legal row; Back from Music puts VoiceOver on the page you return to; after importing a settings file, VoiceOver is on Export and import; Discover's Following and Unfollowed end with a period like on profiles; the Circles tabs no longer add a position like 1 of 4.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
@@ -3884,8 +3885,10 @@ function BackupSettings({ navigate, onImported }) {
   const say = function (m) { setMsg(m); announce(m); };
   const onFile = function (e) {
     const f = e.target.files && e.target.files[0]; e.target.value = ""; if (!f) return;
-    if (f.size > 512 * 1024) return say("That file is too big to be a settings file.");
-    f.text().then(function (t) { const r = lcImportSettings(t); if (r.err) return say(r.err); if (onImported) onImported(); say("Settings imported: " + r.n + " groups of settings restored."); });
+    if (f.size > 512 * 1024) { setTimeout(function () { const hd = document.getElementById("bk-e-h"); if (hd) { hd.setAttribute("tabindex", "-1"); hd.focus(); } }, 150); return say("That file is too big to be a settings file."); }
+    // Round 9 fixes (QA round 8): after the file picker, focus stayed on the hidden file input. It goes to this section's heading.
+    const land = function () { setTimeout(function () { const hd = document.getElementById("bk-e-h"); if (hd) { if (!hd.hasAttribute("tabindex")) hd.setAttribute("tabindex", "-1"); hd.focus(); } }, 150); };
+    f.text().then(function (t) { const r = lcImportSettings(t); land(); if (r.err) return say(r.err); if (onImported) onImported(); say("Settings imported: " + r.n + " groups of settings restored."); });
   };
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
     lh(BackHeader, { title: "Settings backup", onBack: function () { navigate("settings"); } }),

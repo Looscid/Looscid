@@ -1058,13 +1058,16 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
   const [expanded, setExpanded] = useState(false);
   // Round 5 fixes: focus went to <body> when the Replies view opened and when Back closed it. The control that opened it
   // (read while the Dream card is still on screen) gets focus again on Back; opening puts focus on the Replies heading.
-  const openerRef = useRef(null);
+  const openerRef = useRef(null), reopened = useRef(false);
+  if (openerRef.current === null && Looscid.LC_CV_OPENER_NEXT) { openerRef.current = Looscid.LC_CV_OPENER_NEXT; Looscid.LC_CV_OPENER_NEXT = null; reopened.current = true; }
   if (openerRef.current === null) { const a = lcOpenerEl(); const card = a && a.closest ? a.closest("[data-dream-id]") : null;
     openerRef.current = { card: card ? card.getAttribute("data-dream-id") : null, cls: a && typeof a.className === "string" ? a.className.split(" ")[0] : "", desc: lcOpenerDesc(a) }; }
   useEffect(function () {
     const lost = function () { const a = document.activeElement; return !a || a === document.body || !a.isConnected; };
-    setTimeout(function () { const h = document.getElementById("cv-h1"); if (h && lost()) h.focus(); }, 30);
-    return function () { const o = openerRef.current; setTimeout(function () { if (!lost()) return;
+    // Reopened by Back from a footer page: focus goes to that footer link instead (lcFocusFooterLink).
+    if (!reopened.current) setTimeout(function () { const h = document.getElementById("cv-h1"); if (h && lost()) h.focus(); }, 30);
+    const me = { dream: dream, opener: openerRef.current }; Looscid.LC_CV_NOW = me;
+    return function () { if (Looscid.LC_CV_NOW === me) Looscid.LC_CV_NOW = null; const o = openerRef.current; setTimeout(function () { if (!lost()) return;
       const c = o.card != null ? Array.from(document.querySelectorAll("#main-content [data-dream-id]")).find(function (x) { return x.getAttribute("data-dream-id") === o.card; }) : null;
       const e = (c && o.cls ? c.querySelector("." + o.cls) : null) || lcFindOpener(o.desc) || c;
       if (e) { if (e === c && !e.hasAttribute("tabindex")) e.setAttribute("tabindex", "-1"); e.focus(); } else lcFocusHeading(); }, 60); };
@@ -1716,7 +1719,7 @@ Looscid.CHILD_SAFETY_CONTENT = CHILD_SAFETY_CONTENT;
 function LcSiteFooter({ navigate }) {
   const ext = function (href, text, key) { return lh('li', { key: key }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, text)); };
   const go = function (page, text, key) { return lh('li', { key: key }, lh('a', { href: (Looscid.lcPathFor ? Looscid.lcPathFor(page) : "#"), className: "lc-link",
-    onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); Looscid.lcFooterFrom = page; Looscid.lcFooterLink = text; navigate(page); } }, text)); };
+    onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); Looscid.lcFooterFrom = page; Looscid.lcFooterLink = text; Looscid.lcFooterCv = Looscid.LC_CV_NOW || null; navigate(page); } }, text)); };
   const soon = function (text, key) { return lh('li', { key: key }, lh('button', { type: "button", className: "lc-foot-soon", "aria-disabled": "true", onClick: function () { announce(text + " is coming soon."); } }, text, lh('span', { className: "lc-foot-soon-tag" }, " Coming soon"))); };
   const grp = function (id, title, kids) { return lh('section', { className: "lc-foot-grp", "aria-labelledby": id }, lh('h3', { id: id, className: "lc-foot-h" }, title), lh('ul', { className: "lc-foot-list", role: "list" }, kids)); };
   return lh('footer', { className: "lc-footer", role: "contentinfo", "aria-labelledby": "lc-foot-title" },
@@ -1735,6 +1738,16 @@ function LcSiteFooter({ navigate }) {
    still sits at the bottom of the screen (absolute to .app, which .pg is not, so it never scrolls), and the footer still
    only shows once you reach the end. Pages without a scrolling .pg (full-screen tools) get the box at the end of the app,
    with the tab bar and no footer. A watcher keeps the box last if a page adds something at its end later. */
+/* Round 9 fixes (QA round 8): a footer link opened from inside a Dream's Replies came Back to the page behind them, and
+   the thread was gone. An open Replies view remembers itself (LC_CV_NOW); the footer link keeps that, and its Back asks
+   the page to open the same Replies again (LC_CV_REOPEN, taken once, within 2 s), focus on the footer link. */
+function lcCvTake() {
+  const r = Looscid.LC_CV_REOPEN; Looscid.LC_CV_REOPEN = null;
+  if (!r || !r.dream || Date.now() - r.at > 2000) return null;
+  Looscid.LC_CV_OPENER_NEXT = r.opener || null; return r.dream;
+}
+function lcCvReopenLater(cv) { Looscid.LC_CV_REOPEN = cv && cv.dream ? { dream: cv.dream, opener: cv.opener, at: Date.now() } : null; }
+Looscid.lcCvTake = lcCvTake;
 // Back to a page opened from the footer: focus the footer link that opened it (by its words), else the page's heading.
 function lcFocusFooterLink(fl) {
   let tries = 0; const toLink = () => { const a = fl ? Array.from(document.querySelectorAll("footer.lc-footer a")).find(x => String(x.textContent || "").trim() === fl) : null;
@@ -6439,6 +6452,11 @@ useEffect(() => {
     if (target !== "cherry" && (target !== "settings" || openSettings)) cherryOffMenu.current = false;
     if (target === "cherry" && !lcAiOn()) { cherryOffMenu.current = !!showMenuRef.current; target = "settings_ai_cherry"; setTimeout(function () { announce("Cherry is off. Turn it on here, in Intelligence."); }, 400); }
     const cur = pageRef.current;
+    /* Round 9 fixes (QA round 8): a Back target meant for one page is forgotten as soon as you go anywhere else, so it can
+       never send a later Back somewhere stale (Settings > Alerts > Back landed in the Inbox after Open LooscidID). */
+    if (target !== "settings_account") Looscid.LC_LID_RETURN = null;
+    Looscid.LC_CV_REOPEN = null;
+    if (Looscid.LC_SETTINGS_BACK && !/^settings_(notifications|messages|profiletabs)$/.test(target)) Looscid.LC_SETTINGS_BACK = null;
     if (target === "settings" && !openSettings && cur === "settings_ai_cherry" && cherryOffMenu.current) { cherryOffMenu.current = false; delete openers.current[cur]; moreBack("cherry"); return; }
     // "settings" means Back to the Settings menu: the screen it came from, or the More menu on that item.
     if (target === "settings" && !openSettings) {
@@ -6447,7 +6465,11 @@ useEffect(() => {
       // Part 34a: a page opened from the site footer (About Looscid, Credits, Terms, Child Safety...) goes Back to the page
       // you were reading, not into More.
       // Round 7 fixes (QA round 6): Back lands on the footer link that opened the page (it went to the top of Home).
-      if (Looscid.lcFooterFrom === cur) { Looscid.lcFooterFrom = null; const fl = Looscid.lcFooterLink; Looscid.lcFooterLink = null; setPage(mainBack.current || "feed"); setPdata(null); Earcon.play("settings");
+      if (Looscid.lcFooterFrom === cur) { Looscid.lcFooterFrom = null; const fl = Looscid.lcFooterLink; Looscid.lcFooterLink = null;
+        // Round 9 fixes (QA round 8): opened from inside a Dream's Replies, Back opens them again (on a profile, with its Dreamor).
+        const op = openers.current[cur]; delete openers.current[cur]; const same = !!(op && op.page && op.page === (mainBack.current || "feed"));
+        lcCvReopenLater(Looscid.lcFooterCv); Looscid.lcFooterCv = null;
+        setPage(mainBack.current || "feed"); setPdata(same ? op.data || null : null); Earcon.play("settings");
         lcFocusFooterLink(fl); return; }
       const m = SETTINGS_MENU_ITEM[cur] || ["settings", null];
       // Part 40 (#67): Settings is its own page now. Back from a Settings screen lands there, on the row it came from.
@@ -6485,8 +6507,8 @@ useEffect(() => {
     if (target === "project" && cur !== "project") projectBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
     // Round 6.6: the Help Center works the same way (the More menu reopens on Help).
     if (target === "helpcenter" && cur !== "helpcenter") helpBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
-    if (target === "legal" && cur !== "legal") { legalBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current, footer: Looscid.lcFooterFrom === "legal" ? Looscid.lcFooterLink : null };
-      if (Looscid.lcFooterFrom === "legal") { Looscid.lcFooterFrom = null; Looscid.lcFooterLink = null; } }
+    if (target === "legal" && cur !== "legal") { legalBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current, footer: Looscid.lcFooterFrom === "legal" ? Looscid.lcFooterLink : null, cv: Looscid.lcFooterFrom === "legal" ? Looscid.lcFooterCv : null };
+      if (Looscid.lcFooterFrom === "legal") { Looscid.lcFooterFrom = null; Looscid.lcFooterLink = null; Looscid.lcFooterCv = null; } }
     if (target === "intro") { setShowWelcome(true); return; }
     // A page change that goes back to the page this one was opened from (a Back button that names its page) returns focus
     // to the control that opened it; any other page change remembers its opener and moves focus to the new heading.
@@ -6517,7 +6539,7 @@ useEffect(() => {
   const goRoot = id => {
     if(id==="create"){setShowCreate(true);return;}
     // Round 7 fixes (QA round 6): a tab switch starts a new visit, so a profile's old way Back to Discover is forgotten.
-    Looscid.LC_DP_BACK = null; Looscid.LC_DP_BACK_NEXT = null;
+    Looscid.LC_DP_BACK = null; Looscid.LC_DP_BACK_NEXT = null; Looscid.LC_LID_RETURN = null; Looscid.LC_SETTINGS_BACK = null; Looscid.LC_CV_REOPEN = null;
     if(id==="cherry"){navigate("cherry");return;}
     if(id==="circles"){setPage("groups");setPdata(null);return;}
     setPage(id); setPdata(null);
@@ -6551,12 +6573,14 @@ useEffect(() => {
   const legalGoBack = () => {
     const b = legalBack.current || { page: "settings_about", data: null, menu: false }; legalBack.current = null;
     const to = b.page && b.page !== "legal" ? b.page : "settings_about";
+    if (b.cv) lcCvReopenLater(b.cv);
     setPage(to); setPdata(b.data || null);
     // Round 8 fixes (QA round 7): opened from the footer's "Legal and license", Back lands on that link again, like the
     // footer's other links (it went to the top of Home).
     if (b.footer) { lcFocusFooterLink(b.footer); return; }
     if (b.menu) { setMenuInit({ open: "about", focus: null, n: Date.now() }); setShowMenu(true); }
-    else focusMainHeading();
+    // Round 9 fixes (QA round 8): Legal opened from About Looscid: Back lands on the Legal row (it went to About's heading).
+    else { const op = openers.current.legal; delete openers.current.legal; setTimeout(() => { lcFocusOpenerOrHeading(op && op.page === to ? op : null); }, 60); }
   };
   // Round 6.6: Back (or Close) on a project. Opened from the More menu: the menu reopens on Projects, on that project.
   const projectGoBack = () => {
@@ -6912,7 +6936,9 @@ useEffect(() => {
       case "settings_accessibility":  return React.createElement(Looscid.AccessibilitySettings, { navigate: navigate, onAskDevice: ()=>setAskDevice(true),});
       case "settings_a11y_sr": case "settings_a11y_vision": case "settings_a11y_hearing": case "settings_a11y_motion": case "settings_a11y_motor": case "settings_a11y_terminal":
                                       return React.createElement(Looscid.A11yCategory, { key: page, page: page, navigate: navigate, prefs: prefs, setPrefs: setPrefs,});
-      case "music":         return React.createElement(Looscid.MusicPage, { onBack: ()=>{ setPage(termBack.current && termBack.current !== "music" ? termBack.current : "feed"); setPdata(null); },});
+      case "music":         return React.createElement(Looscid.MusicPage, { onBack: ()=>{ const to = termBack.current && termBack.current !== "music" ? termBack.current : "feed"; const op = openers.current.music; delete openers.current.music; setPage(to); setPdata(null);
+        // Round 9 fixes (QA round 8): focus fell to the page body (Music opened by its address); now the control that opened it, else the heading.
+        setTimeout(() => { lcFocusOpenerOrHeading(op && op.page === to ? op : null); }, 60); },});
       case "terminal":      return React.createElement(Looscid.TerminalPage, { exec: execCommand, onClose: closeTerminal, a11y: prefs.accessibility,});
       case "settings_about":          return React.createElement(Looscid.AboutSettings, { navigate: navigate,});
       case "settings_labs":           return React.createElement(Looscid.LabsSettings, { navigate: navigate,});

@@ -10,7 +10,7 @@ function FeedPage({navigate, prefs, cherryCtx}) {
   const {dreams: rawDreams, setDreams, tl, tr, tur, tq, tuq, tb, tc} = useDreams(cherryCtx ? cherryCtx.dreams : DREAMS_INIT);
   // Round 5 fixes: a Dream opened from Discover's results shows here; Back returns to Discover (Looscid.LC_FEED_OPEN, read once).
   const openFrom = useRef(null);
-  const [activeComment, setActiveComment] = useState(function () { const o = Looscid.LC_FEED_OPEN; Looscid.LC_FEED_OPEN = null; if (!o || !o.dream) return null; openFrom.current = o.back || null; return o.dream; });
+  const [activeComment, setActiveComment] = useState(function () { const o = Looscid.LC_FEED_OPEN; Looscid.LC_FEED_OPEN = null; if (!o || !o.dream) return Looscid.lcCvTake ? Looscid.lcCvTake() : null; openFrom.current = o.back || null; return o.dream; });
   const A = Looscid.A11Y_NOW;
   // New Dreams that reach the app (yours, or from the network) join the feed; others are announced.
   const known = useRef(null);
