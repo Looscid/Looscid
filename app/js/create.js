@@ -7,6 +7,14 @@ Object.assign(Looscid, { LC_CREATE_DESC, LC_CREATE_OPTS, CreateOptions, lcCreate
 function deleteDraftItem(id) {
   try { localStorage.setItem(DRAFTS_KEY, JSON.stringify(getDrafts().filter(d => d.id !== id))); } catch (e7) {}
 }
+// Round 7 fixes: what is attached, in plain words: "photo", "2 photos and a poll", "photo, link and place".
+function lcAttList(atts) {
+  const nm = { photo: "photo", poll: "poll", link: "link", location: "place", gif: "GIF", mood: "mood", music: "music", schedule: "schedule" };
+  const n = {}, order = [];
+  (atts || []).forEach(function (a) { const k = nm[a && a.type] || "attachment"; if (!n[k]) { n[k] = 0; order.push(k); } n[k]++; });
+  const parts = order.map(function (k) { return n[k] > 1 ? n[k] + " " + k + "s" : k; });
+  return parts.length > 1 ? parts.slice(0, -1).join(", ") + " and " + parts[parts.length - 1] : parts[0] || "attachment";
+}
 /* --- CREATE MENU ------------------------- */
 function AttachPanel({onClose, onAttach, mode, start}) {
   // mode: "dream" or "reply"; start: open straight on one screen (Round 6.5: the Poll button opens Create Poll)
@@ -37,7 +45,7 @@ function AttachPanel({onClose, onAttach, mode, start}) {
     {id:"poll",icon:"Poll",label:"Poll",sub:"Let your audience vote"},
     {id:"link",icon:"Link",label:"Link",sub:"Attach a website, article or video"},
     {id:"location",icon:"Location",label:"Location",sub:"Tag a place to your Dream"},
-    {id:"schedule",icon:"Schedule",label:"Schedule",sub:"Set a time to Publish this Dream"},
+    {id:"schedule",icon:"Schedule",label:"Schedule",sub:"Set a time to publish this Dream"},
     {id:"mood",icon:"Mood",label:"Mood",sub:"Express how you're feeling"},
     {id:"music",icon:"Music",label:"Music",sub:"Attach a song you're listening to"},
   ].filter(i => mode==="reply" || mode==="comment" ? ["photo","gif","poll","link","mood"].includes(i.id) : true);
@@ -444,6 +452,7 @@ function LcComposer(props) {
   const [attachments, setAttachments] = useState([]);
   const [attach, setAttach] = useState(null); // null | "main" | "poll"
   const [altAsk, setAltAsk] = useState(false);
+  const [attAsk, setAttAsk] = useState(false);
   const [nopv, setNopv] = useState(false);
   const [showPcw, setShowPcw] = useState(false);
   const [recover, setRecover] = useState(null);
@@ -542,6 +551,9 @@ function LcComposer(props) {
   const tryPost = function () {
     // Build 152 fix: the button is aria-disabled (not native disabled) while it can't be sent, so it says why.
     if (!canPost) { announce(overAny ? "It's over the character limit. Make it shorter first." : isReply ? "Type your reply first." : "Type your Dream first."); return; }
+    /* Round 7 fixes (QA round 6): only the text is published; photos, polls, links and places were dropped without a word.
+       With anything attached, a dialog says so first: Publish text only, or Cancel (back to the Dream button). */
+    if (attachments.length) { setAttAsk(true); return; }
     const noAlt = attachments.filter(function (x) { return x.type === "photo" && !String(x.alt || "").trim(); });
     if (noAlt.length && Looscid.A11Y_NOW.altReminder !== false) { setAltAsk(true); return; }
     doPost();
@@ -584,7 +596,11 @@ function LcComposer(props) {
       i > 0 && lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { removePart(i); } }, "Remove " + Noun + " " + (i + 1)));
   };
   return lh(LcComposerShell, { onClose: close, onKeyDown: onKey, boxRef: boxRef, after: [
-      attach && lh(AttachPanel, { key: "attach", onClose: function () { setAttach(null); }, onAttach: function (att) { setAttachments(function (as) { return as.concat([att]); }); }, mode: isReply ? "reply" : "dream", start: attach === "poll" ? "poll" : undefined }),
+      // Round 7 fixes (QA round 6): attaching a poll, link or place was silent; each now says it was added (a photo already did).
+      attach && lh(AttachPanel, { key: "attach", onClose: function () { setAttach(null); }, onAttach: function (att) { setAttachments(function (as) { return as.concat([att]); });
+        if (att && att.type === "poll") announce("Poll added."); else if (att && att.type === "link") announce("Link added."); else if (att && att.type === "location") announce("Place " + att.place + " added."); }, mode: isReply ? "reply" : "dream", start: attach === "poll" ? "poll" : undefined }),
+      attAsk && lh(AlertDialog, { key: "att", focusTitle: true, title: "Attachments can't be published yet", message: "Your " + lcAttList(attachments) + " can't be published yet and won't be included. Publish the text only?", confirmLabel: "Publish text only",
+        onCancel: function () { setAttAsk(false); setTimeout(function () { const b = document.getElementById("cr-dream-btn"); if (b) b.focus(); }, 40); }, onConfirm: function () { setAttAsk(false); doPost(); } }),
       altAsk && lh(AlertDialog, { key: "alt", title: "Add alt text?", message: "Your photo has no alt text, so people using a screen reader won't know what's in it. Cancel goes back so you can add it.", confirmLabel: isReply ? "Reply anyway" : "Dream anyway",
         onCancel: function () { setAltAsk(false); setTimeout(function () { const f = document.querySelector(".lc-photo-att input"); if (f) f.focus(); }, 40); }, onConfirm: function () { setAltAsk(false); doPost(); } })] },
     /* The dialog's heading names the mode */

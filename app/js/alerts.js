@@ -123,6 +123,10 @@ function allConvos() {
 }
 function composeView(st, draw) {
   const cp = st.compose, note = pmStateNote();
+  // Round 7 fixes (QA round 6): like the chat's Send, this Send is aria-disabled while there's no npub or no message (it
+  // only said "Type a message first." when pressed). Pressing it still says why, once.
+  const blocked = function () { return !!(note || !String(cp.to || "").trim() || !String(cp.text || "").trim()); };
+  const syncSend = function () { const b = document.getElementById("pm-send"); if (b) b.setAttribute("aria-disabled", blocked() ? "true" : "false"); };
   const send = function () {
     const peer = Looscid.lcPmPeerFrom(cp.to);
     if (!peer) { cp.msg = "Type their npub (it starts with npub1) or their public key."; announce(cp.msg); draw(); setTimeout(function () { const t = document.getElementById("pm-to"); if (t) t.focus(); }, 0); return; }
@@ -141,11 +145,11 @@ function composeView(st, draw) {
     note ? h('div', { style: { padding: "0 16px 12px" } }, h('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { Looscid.LC_SETTINGS_BACK = "alerts"; if (Looscid.LC_NAV) Looscid.LC_NAV("settings_account"); } }, "Open LooscidID")) : null,
     h('div', { className: "lc-pm-form", style: { padding: "0 16px", display: "flex", flexDirection: "column", gap: 8 } },
       h('label', { htmlFor: "pm-to" }, "To"),
-      h('input', { id: "pm-to", className: "inp", type: "text", autoComplete: "off", spellCheck: false, value: cp.to, placeholder: "npub1…", onChange: function (e) { cp.to = e.target.value; } }),
+      h('input', { id: "pm-to", className: "inp", type: "text", autoComplete: "off", spellCheck: false, value: cp.to, placeholder: "npub1…", onChange: function (e) { cp.to = e.target.value; syncSend(); } }),
       h('label', { htmlFor: "pm-text" }, "Message"),
-      h('textarea', { id: "pm-text", className: "inp", rows: 4, value: cp.text, onChange: function (e) { cp.text = e.target.value; },
+      h('textarea', { id: "pm-text", className: "inp", rows: 4, value: cp.text, onChange: function (e) { cp.text = e.target.value; syncSend(); },
         onKeyDown: function (e) { if (e.key === "Enter" && !e.shiftKey && a11yEnterSends()) { e.preventDefault(); send(); } } }),
-      h('button', { type: "button", id: "pm-send", className: "btn bp lc-big", "aria-disabled": note ? "true" : undefined, onClick: function () { if (note) { announce(note); return; } send(); } }, "Send"),
+      h('button', { type: "button", id: "pm-send", className: "btn bp lc-big", "aria-disabled": blocked() ? "true" : "false", onClick: function () { if (note) { announce(note); return; } send(); } }, "Send"),
       cp.msg ? h('p', { className: "lc-desc" }, cp.msg) : null));
 }
 function pmView(st, draw) {
@@ -165,6 +169,7 @@ function pmView(st, draw) {
     h('div', { className: "hdr" }, lcBackHeaderEl(name, function () { const b = st.pmBack; st.pm = null; st.pmBack = null; if (b) { b(); return; } draw(); }),
       h('p', { className: "lc-desc", style: { textAlign: "center", margin: "0 0 8px" } }, "End-to-end encrypted on Nostr (NIP-17)")),
     note ? h('p', { className: "lc-desc", style: { padding: "0 16px" } }, note) : null,
+    msgs.length ? null : h('p', { className: "lc-desc", style: { padding: "8px 16px" } }, "No messages yet. Say hello to " + name + "."),
     h('ul', { className: "msgs lc-pm-list", role: "list", style: { flex: 1, listStyle: "none", margin: 0 } }, msgs.map(function (m) {
       return h('li', { key: m.id, className: "mr" + (m.me ? " me" : "") },
         h('div', { className: "bub" + (m.me ? " me" : " th") },
@@ -241,8 +246,9 @@ const AlertsPage = lcPlainScreen("AlertsPage", function (host) {
   // Round 5 fixes: Direct message on a Dreamor's profile opens their chat, or a new message to them; Back returns to the profile.
   const dm = Looscid.LC_PM_OPEN; Looscid.LC_PM_OPEN = null;
   if (dm && dm.peer) {
-    if (Looscid.lcPms().some(function (m) { return m.peer === dm.peer; })) { st.pm = dm.peer; st.pmBack = dm.back; }
-    else st.compose = { to: (Looscid.lcNpub && Looscid.lcNpub(dm.peer)) || dm.peer, text: "", msg: "", back: dm.back };
+    // Round 7 fixes (QA round 6): always the chat itself, titled with their name, even before the first message (a new chat
+    // showed "Send a message" with their raw npub in the To box until something was sent).
+    st.pm = dm.peer; st.pmBack = dm.back;
   }
   const draw = function () {
     const ae = document.activeElement, aid = ae && host.contains(ae) ? ae.id : null;

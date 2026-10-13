@@ -119,8 +119,8 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
 
   <!-- Overall status -->
   <!-- Round 5 fixes: not a live region any more. "Last checked" changes every second, so VoiceOver could read it nonstop.
-       The page's one announcer is #status-live below (Subscribe uses it). -->
-  <p id="status-live" class="sr-only" aria-live="polite"></p>
+       The page's one announcer is #status-live, at the end of main (Subscribe uses it). Round 7 fixes: it sat empty before
+       the heading, and each service's static status was its own role=status; those are plain text now. -->
   <div class="overall all-good">
     <div class="overall-dot" aria-hidden="true"></div>
     <div>
@@ -151,7 +151,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
           <div class="service-name">Feed &amp; Dreams</div>
           <div class="service-desc">Publishing, viewing and interacting with Dreams</div>
         </div>
-        <div class="status-pill operational" role="status" aria-label="Feed and Dreams: Operational">
+        <div class="status-pill operational">
           <span class="status-dot" aria-hidden="true"></span>Operational
         </div>
       </div>
@@ -162,7 +162,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
           <div class="service-name">Cherry AI</div>
           <div class="service-desc">AI companion, agent actions, drafts</div>
         </div>
-        <div class="status-pill operational" role="status" aria-label="Cherry AI: Operational">
+        <div class="status-pill operational">
           <span class="status-dot" aria-hidden="true"></span>Operational
         </div>
       </div>
@@ -173,7 +173,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
           <div class="service-name">Authentication</div>
           <div class="service-desc">LooscidID on your device; login with Nostr, Mastodon or Bluesky</div>
         </div>
-        <div class="status-pill operational" role="status" aria-label="Authentication: Operational">
+        <div class="status-pill operational">
           <span class="status-dot" aria-hidden="true"></span>Operational
         </div>
       </div>
@@ -184,7 +184,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
           <div class="service-name">Private Messages</div>
           <div class="service-desc">End-to-end encrypted conversations</div>
         </div>
-        <div class="status-pill operational" role="status" aria-label="Private Messages: Operational">
+        <div class="status-pill operational">
           <span class="status-dot" aria-hidden="true"></span>Operational
         </div>
       </div>
@@ -195,7 +195,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
           <div class="service-name">Circles</div>
           <div class="service-desc">Communities, group feeds and events</div>
         </div>
-        <div class="status-pill operational" role="status" aria-label="Circles: Operational">
+        <div class="status-pill operational">
           <span class="status-dot" aria-hidden="true"></span>Operational
         </div>
       </div>
@@ -206,7 +206,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
           <div class="service-name">Search &amp; Discover</div>
           <div class="service-desc">Finding Dreamors, Dreams and topics</div>
         </div>
-        <div class="status-pill operational" role="status" aria-label="Search and Discover: Operational">
+        <div class="status-pill operational">
           <span class="status-dot" aria-hidden="true"></span>Operational
         </div>
       </div>
@@ -217,7 +217,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
           <div class="service-name">Notifications</div>
           <div class="service-desc">Alerts, mentions and activity</div>
         </div>
-        <div class="status-pill operational" role="status" aria-label="Notifications: Operational">
+        <div class="status-pill operational">
           <span class="status-dot" aria-hidden="true"></span>Operational
         </div>
       </div>
@@ -228,7 +228,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
   <!-- Incidents -->
   <section aria-labelledby="incidents-heading">
     <div class="section-title" id="incidents-heading">Recent Incidents</div>
-    <div class="no-incidents" role="status" aria-label="No incidents in the last 30 days">
+    <div class="no-incidents">
       <div class="no-incidents-icon" aria-hidden="true">No incidents</div>
       No incidents in the last 30 days
     </div>
@@ -248,6 +248,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
     Page updates automatically every 60 seconds
   </div>
 
+  <p id="status-live" class="sr-only" aria-live="polite"></p>
 </main>
 
 <footer role="contentinfo">
