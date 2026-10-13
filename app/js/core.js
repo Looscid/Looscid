@@ -180,7 +180,7 @@ function lcRepliesRaw() {
 function lcReplyObj(r) {
   const o = { likes: 0, liked: false, isReply: true };
   LC_REPLY_SAVE.forEach(function (k) { if (r[k] !== undefined) o[k] = r[k]; });
-  o.user = ME; o.time = lcAgo(r.created);
+  o.user = ME; o.time = lcSavedAgo(r);
   return o;
 }
 /* Build 151 (2three1y, Oct 12, in the Council of Dreamors): on a profile's Replies tab each reply says what it answers,
@@ -260,6 +260,10 @@ function lcAgo(t) {
   if (s < 604800) return Math.floor(s / 86400) + "d";
   return Math.floor(s / 604800) + "w";
 }
+/* Build 152 fix: the time on the card of a Dream or reply saved on this device comes from the same place as Dream info:
+   its saved created time, else its id when that is the moment it was made (lcNewId). With nothing known the card shows no
+   time at all, never a false "just now". */
+function lcSavedAgo(x) { const t = +(x && x.created) || (x && typeof x.id === "number" && x.id > 1e12 ? x.id : 0); return t ? lcAgo(t) : ""; }
 function lcSavedDreamsRaw() {
   try { const a = JSON.parse(localStorage.getItem(LC_DREAMS_KEY) || "[]"); return Array.isArray(a) ? a.filter(function (d) { return d && d.id != null && typeof d.text === "string"; }) : []; } catch (e) { return []; }
 }
@@ -267,7 +271,7 @@ function lcLoadDreams() {
   return lcSavedDreamsRaw().map(function (d) {
     const o = { likes: 0, comments: 0, redreams: 0, quotes: 0, liked: false, redreamed: false, quoted: false, bookmarked: false };
     LC_DREAM_SAVE.forEach(function (k) { if (d[k] !== undefined) o[k] = d[k]; });
-    o.user = ME; o.time = lcAgo(d.created);
+    o.user = ME; o.time = lcSavedAgo(d);
     return o;
   });
 }
@@ -989,13 +993,19 @@ function ReplyItem({cm, navigate, onReply}) {
       lh(Av, { user: cm.user, size: 30 }),
       lh('div', { style: {flex:1} },
         lh('span', { style: {fontWeight:700,fontSize:13} }, name),
-        lh('span', { style: {fontSize:11,color:"var(--tx3)",marginLeft:6} }, handle, ", ", cm.time)),
+        lh('span', { style: {fontSize:11,color:"var(--tx3)",marginLeft:6} }, handle, cm.time ? ", " + cm.time : "")),
       lh(LcMenu, { id: "cmo-" + cm.id, kind: "action", title: "Reply options", btnLabel: "Reply options", btnClass: "bi", noCaret: true, align: "right",
         btnText: lh(Ic.Dots, { style: {width:14,height:14} }), onSelect: function (k, it) { it.a(); }, items: [
           onReply ? { id: "reply", name: "Reply", a: function () { onReply(cm); } } : null,
           { id: "hear", name: "Hear reply", a: function () { LcSpeech.speak(lcDreamSpeechParts(cm)); } },
           { id: "copy", name: "Copy text", a: function () { if (navigator.clipboard) navigator.clipboard.writeText(cm.text || "").then(function () { announce("Reply copied."); }, function () { announce("Copy is not available here."); }); else announce("Copy is not available here."); } },
-          { id: "share", name: "Share reply", a: function () { lcShareText(name + ": " + (cm.text || ""), "Reply"); } },
+          // Share reply works like Share Dream (lcShareLink): the share sheet with the reply's link; device-only replies have none yet.
+          lcDreamUrl(cm) ? { id: "share", name: "Share reply", a: function () {
+              const url = lcDreamUrl(cm);
+              lcShareLink({ title: cm.user && cm.user.name ? "Reply by " + cm.user.name : "Reply", url: url,
+                copy: function () { lcCopyLine(url, "Link"); }, back: function () { return document.getElementById("cmo-" + cm.id); } });
+            } }
+            : { id: "share", name: "Share reply", note: "unavailable: this reply is only on this device", hint: "Not available yet: this reply has no public address until it's on Nostr.", disabled: true },
           navigate && handle ? { id: "profile", name: "View @" + handle.replace("@","") + "'s profile", a: function () { navigate("dp", cm.user); } } : null,
         ].filter(Boolean) })),
     cm.cw ? lh(React.Fragment, null,
@@ -1061,8 +1071,8 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
               )
               , React.createElement('span', { className: "dc-dot", "aria-hidden": "true"}, "·")
               , React.createElement('span', { className: "dc-handle",}, dream.user.handle)
-              , React.createElement('span', { className: "dc-dot", "aria-hidden": "true"}, "·")
-              , React.createElement('span', { className: "dc-time",}, dream.time)
+              , dream.time && React.createElement('span', { className: "dc-dot", "aria-hidden": "true"}, "·")
+              , dream.time && React.createElement('span', { className: "dc-time",}, dream.time)
             )
             , React.createElement('p', { style: {fontSize:14,lineHeight:1.65,color:"var(--tx)",marginBottom:8},}
               , React.createElement(DreamText, {text: dream.text})
@@ -1160,10 +1170,10 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
             , srMeta && lh('span', { className: "sr-only" }, srMeta)
             , React.createElement('span', { className: "dc-dot", "aria-hidden": "true"}, "·")
             , React.createElement('span', { className: "dc-handle", "aria-hidden": "true"}, dream.user.handle)
-            , React.createElement('span', { className: "dc-dot", "aria-hidden": "true"}, "·")
+            , (dream.user.isOriginals || dream.time) && React.createElement('span', { className: "dc-dot", "aria-hidden": "true"}, "·")
             , dream.user.isOriginals
               ? React.createElement('span', { style: {fontSize:10,background:"rgba(124,58,237,.15)",color:"var(--ac3)",padding:"1px 6px",borderRadius:4,fontWeight:700},}, "Founding Dream")
-              : React.createElement('span', { className: "dc-time", "aria-hidden": "true"}, dream.time)
+              : dream.time && React.createElement('span', { className: "dc-time", "aria-hidden": "true"}, dream.time)
             , linkInfo && React.createElement(React.Fragment, null, React.createElement('span', { className: "dc-dot", "aria-hidden": "true"}, "·"), React.createElement('span', { className: "dc-domain",}, linkInfo.domain))
             , dream.editedAt && React.createElement(React.Fragment, null, React.createElement('span', { className: "dc-dot", "aria-hidden": "true"}, "·"), lh('span', { className: "dc-edited" }, "Edited"))
           )
@@ -3644,7 +3654,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-13T00:18:10Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-13T01:06:09Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
