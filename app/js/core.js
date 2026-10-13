@@ -1106,14 +1106,14 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
             , linkInfo && !dream.nopv && lh(LinkCard, { info: linkInfo })
             /* Dream interaction row on the Replies page */
             , React.createElement('div', { className: "ixn-row", style: {margin:"0 -16px",borderTop:"1px solid var(--bd)"},}
-              , React.createElement('button', { className: "cbx-wrap" + (dream.liked?" liked":""), "aria-pressed": !!dream.liked, onClick: ()=>{ onLike(dream.id); announce(dream.liked ? "Like removed" : "Liked", "state"); }, 'aria-label': lcCountWord(dream.likes, "like", "likes"),}
+              , React.createElement('button', { className: "cbx-wrap" + (dream.liked?" liked":""), "aria-pressed": !!dream.liked, onClick: ()=>{ onLike(dream.id); announce(dream.liked ? "Like removed" : "Liked", "state", "like:" + dream.id); }, 'aria-label': lcCountWord(dream.likes, "like", "likes"),}
                 , React.createElement('div', { className: "cbx-box",}, dream.liked && React.createElement(ChkMark, null))
                 , React.createElement('span', null, fmt(dream.likes), dream.likes === 1 ? " Like" : " Likes" )
               )
               , lh(LcMenu, { id: "rd-cv-" + dream.id, kind: "action", title: "Redream or Quote", btnLabel: lcCountWord(rdTotal, "Redream", "Redreams") + lcRdState(dream), btnHint: "Opens Redream and Quote.", btnClass: "cbx-wrap" + (rdActive?" redd":""), noCaret: true, up: true,
                   btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, fmt(rdTotal), rdTotal === 1 ? " Redream" : " Redreams")],
                   items: [{ id: "rd", name: dream.redreamed ? "Unredream" : "Redream" }, { id: "q", name: dream.quoted ? "Unquote Dream" : "Quote Dream" }],
-                  onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); announce(dream.redreamed ? "Redream removed" : "Redreamed", "state"); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
+                  onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); announce(dream.redreamed ? "Redream removed" : "Redreamed", "state", "rd:" + dream.id); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
               /* Build 147: liking is saving, so the separate Save box is gone (Like above is the one toggle). */
               , lh(DreamOptionsMenu, { id: "dopts-cv-" + dream.id, dream: dream, btnRef: dreamOptsBtn, onBookmark: onBookmark, onLike: onLike, navigate: navigate })
             )
@@ -1255,8 +1255,8 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
           , lh(LcMenu, { id: "rd-" + dream.id, kind: "action", title: "Redream or Quote", btnLabel: calm ? "Redreams" + lcRdState(dream) : lcCountWord(rdTotal, "Redream", "Redreams") + lcRdState(dream), btnHint: "Opens Redream and Quote.", btnClass: "cbx-wrap"+(rdActive?" redd":""), noCaret: true, up: true, className: "lc-rdmenu",
               btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, calm ? "" : fmt(rdTotal), calm ? "Redreams" : rdTotal === 1 ? " Redream" : " Redreams")],
               items: [{ id: "rd", name: dream.redreamed ? "Unredream" : "Redream" }, { id: "q", name: dream.quoted ? "Unquote Dream" : "Quote Dream" }],
-              onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); announce(dream.redreamed ? "Redream removed" : "Redreamed", "state"); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
-          , React.createElement('button', { className: "cbx-wrap"+(dream.liked?" liked":""), "aria-pressed": !!dream.liked, onClick: ()=>{ if (!dream.liked) Earcon.play("like"); onLike(dream.id); announce(dream.liked ? "Like removed" : "Liked", "state"); }, 'aria-label': lcVerb() === "low" ? "Like" : (calm ? "Likes" : lcCountWord(dream.likes, "like", "likes")) + (lcVerb() === "high" ? ", double tap to " + (dream.liked ? "unlike" : "like") : ""),}
+              onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); announce(dream.redreamed ? "Redream removed" : "Redreamed", "state", "rd:" + dream.id); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
+          , React.createElement('button', { className: "cbx-wrap"+(dream.liked?" liked":""), "aria-pressed": !!dream.liked, onClick: ()=>{ if (!dream.liked) Earcon.play("like"); onLike(dream.id); announce(dream.liked ? "Like removed" : "Liked", "state", "like:" + dream.id); }, 'aria-label': lcVerb() === "low" ? "Like" : (calm ? "Likes" : lcCountWord(dream.likes, "like", "likes")) + (lcVerb() === "high" ? ", double tap to " + (dream.liked ? "unlike" : "like") : ""),}
             , React.createElement('div', { className: "cbx-box",}, dream.liked && React.createElement(ChkMark, null))
             , React.createElement('span', null, calm ? "" : fmt(dream.likes), calm ? "Likes" : dream.likes === 1 ? " Like" : " Likes" )
           )
@@ -1735,13 +1735,21 @@ function LcSiteFooter({ navigate }) {
    still sits at the bottom of the screen (absolute to .app, which .pg is not, so it never scrolls), and the footer still
    only shows once you reach the end. Pages without a scrolling .pg (full-screen tools) get the box at the end of the app,
    with the tab bar and no footer. A watcher keeps the box last if a page adds something at its end later. */
+// Back to a page opened from the footer: focus the footer link that opened it (by its words), else the page's heading.
+function lcFocusFooterLink(fl) {
+  let tries = 0; const toLink = () => { const a = fl ? Array.from(document.querySelectorAll("footer.lc-footer a")).find(x => String(x.textContent || "").trim() === fl) : null;
+    if (a) { a.focus(); setTimeout(() => { const ae = document.activeElement; if ((!ae || ae === document.body) && a.isConnected) a.focus(); }, 200); return; } if (fl && ++tries < 6) { setTimeout(toLink, 60); return; }
+    const h = document.querySelector("#main-content h1"); if (h) { if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); h.focus(); } };
+  setTimeout(toLink, 60);
+}
 function LcFooterHost({ page, navigate, children }) {
   const boxRef = useRef(null);
   if (!boxRef.current && typeof document !== "undefined") { boxRef.current = document.createElement("div"); boxRef.current.className = "lc-footer-box"; boxRef.current.__lcKeep = true; }
   const [host, setHost] = useState(null);
   const [inPg, setInPg] = useState(false);
   const moRef = useRef(null);
-  React.useLayoutEffect(function () {
+  const placeRef = useRef(null);
+  placeRef.current = function () {
     const box = boxRef.current, main = document.getElementById("main-content");
     const pg = document.querySelector("#main-content > .pg");
     const target = pg || (main && main.parentNode);
@@ -1760,8 +1768,17 @@ function LcFooterHost({ page, navigate, children }) {
     }
     if (!host) setHost(box);
     if (inPg !== !!pg) setInPg(!!pg);
-  });
-  React.useEffect(function () { return function () { if (moRef.current) moRef.current.o.disconnect(); }; }, []);
+  };
+  React.useLayoutEffect(function () { placeRef.current(); });
+  /* Round 8 fixes (QA round 7): a Dream's Replies (opened from Home or a profile) replaces the page's scrolling area
+     without the page itself changing, so the box went away with the old area, and Back left the page with no tab bar and
+     no footer until another page opened. Whenever the page's own area is swapped, the box moves to the new one at once. */
+  React.useEffect(function () {
+    const main = document.getElementById("main-content");
+    const o = main ? new MutationObserver(function () { if (placeRef.current) placeRef.current(); }) : null;
+    if (o) o.observe(main, { childList: true });
+    return function () { if (o) o.disconnect(); if (moRef.current) moRef.current.o.disconnect(); };
+  }, []);
   return host ? ReactDOM.createPortal(lh(React.Fragment, null,
     lh('div', { className: "lc-end-chrome" }, children),
     inPg ? lh(LcSiteFooter, { navigate: navigate }) : null), host) : null;
@@ -2300,7 +2317,7 @@ function lcHintReason(note) {
   s = s.charAt(0).toUpperCase() + s.slice(1); return /[.!?]$/.test(s) ? s : s + ".";
 }
 Looscid.lcHint = lcHint; Looscid.lcHintReason = lcHintReason;
-function announce(msg, kind) {
+function announce(msg, kind, key) {
   const vb = lcVerb(), s = String(msg || "");
   const isErr = kind === "error" || (kind !== "success" && LC_ERR_RE.test(s));
   // kind "state" (Round 5 fixes): a button saying its new state ("Liked", "Like removed"), never a success cue.
@@ -2332,7 +2349,8 @@ function announce(msg, kind) {
      else (Liked, Like removed, Liked, Like removed) is said again, so the last thing said is always the final state. Each
      waiting message remembers the page it was said on (see lcAnnRoute). */
   const prevQ = q.msgs[q.msgs.length - 1];
-  if (!prevQ || prevQ.t !== one) q.msgs.push({ t: one, at: now, route: Looscid.LC_ANN_ROUTE || 0 });
+  // Round 8: a control's state word ("Liked", "Like removed") carries the control it belongs to (key; else its own words).
+  if (!prevQ || prevQ.t !== one) q.msgs.push({ t: one, at: now, route: Looscid.LC_ANN_ROUTE || 0, key: kind === "state" ? String(key || one) : "" });
   clearTimeout(Looscid.LC_ANN_WRITE);
   Looscid.LC_ANN_WRITE = setTimeout(lcAnnFlush, Math.max(0, Math.min(80, q.first + 250 - now)));
 }
@@ -2359,12 +2377,18 @@ function lcAnnFlush() {
    0.35 s after landing on Discover). When the page changes, waiting words from the page you left are dropped, unless they
    were said in the same moment as the move (within 100 ms: a confirmation that comes with the move itself, like "Login
    method added" just before the page changes). Words already written to #looscid-live are never cut, and the new page's own words stay. */
+const LC_ANN_KEEP_RE = /\b(dreams?|quote|reply) published\.$/i;
 function lcAnnRoute() {
   const now = Date.now();
   const q = Looscid.LC_ANN_Q, old = Looscid.LC_ANN_ROUTE || 0;
   Looscid.LC_ANN_ROUTE = old + 1;
   if (!q || !q.msgs.length) return;
-  q.msgs = q.msgs.filter(function (m) { return m.route !== old || now - m.at < 100; });
+  /* Round 8 fixes (QA round 7): Like then Unlike quickly, then Back, said only "Liked": the waiting "Like removed" was
+     dropped with the page, so the last word heard was wrong. A control's state word now survives the move, and only the
+     last one for each control is kept (Liked, Like removed, Liked: just "Liked"). "Dream published." (and Quote, Reply)
+     is never dropped either. Other waiting words from the page you left still are. */
+  q.msgs = q.msgs.filter(function (m) { return m.route !== old || now - m.at < 100 || m.key || LC_ANN_KEEP_RE.test(m.t); });
+  q.msgs = q.msgs.filter(function (m, i) { return !m.key || !q.msgs.slice(i + 1).some(function (n) { return n.key === m.key; }); });
   q.msgs.forEach(function (m) { m.route = Looscid.LC_ANN_ROUTE; });
   if (!q.msgs.length) { clearTimeout(Looscid.LC_ANN_WRITE); Looscid.LC_ANN_Q = null; }
 }
@@ -2992,7 +3016,8 @@ function AlertDialog({ title, message, confirmLabel, onConfirm, onCancel, focusT
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   };
   return lh('div', { className: "lid-alert-bg" },
-    lh('div', { ref: boxRef, className: "lid-alert", role: "alertdialog", 'aria-modal': "true", 'aria-labelledby': "lid-alert-t", onKeyDown: onKey },
+    // Round 8 fixes (QA round 7): the dialog also names its message (aria-describedby), so it's read when the dialog opens.
+    lh('div', { ref: boxRef, className: "lid-alert", role: "alertdialog", 'aria-modal': "true", 'aria-labelledby': "lid-alert-t", 'aria-describedby': message ? "lid-alert-m" : undefined, onKeyDown: onKey },
       lh('h2', { id: "lid-alert-t", className: "lid-sub", ref: titleRef, tabIndex: focusTitle ? -1 : undefined }, title),
       lh('p', { id: "lid-alert-m", className: "lid-help" }, message),
       lh('div', { className: "lid-actions" },
@@ -3761,7 +3786,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-13T06:35:49Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-13T07:55:59Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -6423,10 +6448,7 @@ useEffect(() => {
       // you were reading, not into More.
       // Round 7 fixes (QA round 6): Back lands on the footer link that opened the page (it went to the top of Home).
       if (Looscid.lcFooterFrom === cur) { Looscid.lcFooterFrom = null; const fl = Looscid.lcFooterLink; Looscid.lcFooterLink = null; setPage(mainBack.current || "feed"); setPdata(null); Earcon.play("settings");
-        let tries = 0; const toLink = () => { const a = fl ? Array.from(document.querySelectorAll("footer.lc-footer a")).find(x => String(x.textContent || "").trim() === fl) : null;
-          if (a) { a.focus(); setTimeout(() => { const ae = document.activeElement; if ((!ae || ae === document.body) && a.isConnected) a.focus(); }, 200); return; } if (fl && ++tries < 6) { setTimeout(toLink, 60); return; }
-          const h = document.querySelector("#main-content h1"); if (h) { if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); h.focus(); } };
-        setTimeout(toLink, 60); return; }
+        lcFocusFooterLink(fl); return; }
       const m = SETTINGS_MENU_ITEM[cur] || ["settings", null];
       // Part 40 (#67): Settings is its own page now. Back from a Settings screen lands there, on the row it came from.
       if (m[0] === "settings" && cur !== "settings") {
@@ -6463,7 +6485,8 @@ useEffect(() => {
     if (target === "project" && cur !== "project") projectBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
     // Round 6.6: the Help Center works the same way (the More menu reopens on Help).
     if (target === "helpcenter" && cur !== "helpcenter") helpBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
-    if (target === "legal" && cur !== "legal") legalBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
+    if (target === "legal" && cur !== "legal") { legalBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current, footer: Looscid.lcFooterFrom === "legal" ? Looscid.lcFooterLink : null };
+      if (Looscid.lcFooterFrom === "legal") { Looscid.lcFooterFrom = null; Looscid.lcFooterLink = null; } }
     if (target === "intro") { setShowWelcome(true); return; }
     // A page change that goes back to the page this one was opened from (a Back button that names its page) returns focus
     // to the control that opened it; any other page change remembers its opener and moves focus to the new heading.
@@ -6529,6 +6552,9 @@ useEffect(() => {
     const b = legalBack.current || { page: "settings_about", data: null, menu: false }; legalBack.current = null;
     const to = b.page && b.page !== "legal" ? b.page : "settings_about";
     setPage(to); setPdata(b.data || null);
+    // Round 8 fixes (QA round 7): opened from the footer's "Legal and license", Back lands on that link again, like the
+    // footer's other links (it went to the top of Home).
+    if (b.footer) { lcFocusFooterLink(b.footer); return; }
     if (b.menu) { setMenuInit({ open: "about", focus: null, n: Date.now() }); setShowMenu(true); }
     else focusMainHeading();
   };

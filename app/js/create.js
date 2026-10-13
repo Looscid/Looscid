@@ -550,7 +550,11 @@ function LcComposer(props) {
   const close = function () { const o = openerRef.current; try { if (Looscid.LcSpeech) Looscid.LcSpeech.stop(); } catch (e) {} props.onClose(); setTimeout(function () { lcRefocus(o); }, 0); };
   const tryPost = function () {
     // Build 152 fix: the button is aria-disabled (not native disabled) while it can't be sent, so it says why.
-    if (!canPost) { announce(overAny ? "It's over the character limit. Make it shorter first." : isReply ? "Type your reply first." : "Type your Dream first."); return; }
+    /* Round 8 fixes (QA round 7): with only a photo (or other attachment) and no text, this said "Type your Dream first."
+       as if nothing was there. It now says plainly that only text can be published for now (same cue as before: no error tone). */
+    if (!canPost) { announce(overAny ? "It's over the character limit. Make it shorter first."
+      : attachments.length ? "Only text can be published for now, not your " + lcAttList(attachments) + ". " + (isReply ? "Type your reply first." : "Type your Dream first.")
+      : isReply ? "Type your reply first." : "Type your Dream first."); return; }
     /* Round 7 fixes (QA round 6): only the text is published; photos, polls, links and places were dropped without a word.
        With anything attached, a dialog says so first: Publish text only, or Cancel (back to the Dream button). */
     if (attachments.length) { setAttAsk(true); return; }

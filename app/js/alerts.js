@@ -60,7 +60,8 @@ function alertWhat(n) {
   if (c > 1 && T.by && n.names && n.names.length) return T.by + " " + n.names[0] + (c > 1 ? " and " + (c - 1) + (c - 1 === 1 ? " other" : " others") : "");
   return (n.user ? n.user.name + " " : "") + n.text;
 }
-function alertLabel(n) { return alertWhat(n) + (n.preview ? ". " + n.preview : "") + ". " + lcAlertTime(n.time) + (n.unread ? ". Unread." : ""); }
+// Round 8 fixes (QA round 7): a preview that already ends in a period read ".." before the time.
+function alertLabel(n) { const s = alertWhat(n) + (n.preview ? ". " + n.preview : ""); return s + (/[.!?\u2026]$/.test(s) ? " " : ". ") + lcAlertTime(n.time) + (n.unread ? ". Unread." : ""); }
 function pmStateNote() {
   const N = Looscid.lcNostr, mode = N && N.pmMode ? N.pmMode() : "none";
   if (mode === "key" || mode === "signer") return null;
@@ -169,7 +170,10 @@ function pmView(st, draw) {
     h('div', { className: "hdr" }, lcBackHeaderEl(name, function () { const b = st.pmBack; st.pm = null; st.pmBack = null; if (b) { b(); return; } draw(); }),
       h('p', { className: "lc-desc", style: { textAlign: "center", margin: "0 0 8px" } }, "End-to-end encrypted on Nostr (NIP-17)")),
     note ? h('p', { className: "lc-desc", style: { padding: "0 16px" } }, note) : null,
-    msgs.length ? null : h('p', { className: "lc-desc", style: { padding: "8px 16px" } }, "No messages yet. Say hello to " + name + "."),
+    // Round 8 fixes (QA round 7): with no Nostr key, this chat (opened from a profile's Direct message) had lost the
+    // "Open LooscidID" button the old compose view had, and still said "Say hello", which you couldn't.
+    note ? h('div', { style: { padding: "8px 16px 12px" } }, h('button', { type: "button", id: "pm-open-lid", className: "btn bgb lc-btn", onClick: function () { Looscid.LC_SETTINGS_BACK = "alerts"; if (Looscid.LC_NAV) Looscid.LC_NAV("settings_account"); } }, "Open LooscidID")) : null,
+    msgs.length || note ? null : h('p', { className: "lc-desc", style: { padding: "8px 16px" } }, "No messages yet. Say hello to " + name + "."),
     h('ul', { className: "msgs lc-pm-list", role: "list", style: { flex: 1, listStyle: "none", margin: 0 } }, msgs.map(function (m) {
       return h('li', { key: m.id, className: "mr" + (m.me ? " me" : "") },
         h('div', { className: "bub" + (m.me ? " me" : " th") },
