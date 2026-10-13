@@ -279,10 +279,10 @@
             font-weight: 800;
         }
 
-        .menu-item:disabled {
+        /* Looscid round 9: no native disabled; a dimmed item stays findable and says why when pressed. */
+        .menu-item[aria-disabled="true"] {
             opacity: 0.5;
             cursor: not-allowed;
-            pointer-events: none;
         }
 
         .menu-divider {
@@ -398,7 +398,7 @@
                         <button class="menu-item" role="menuitemradio" aria-checked="false" onclick="switchView('resolver-view', this)">DNS Resolver</button>
                         <div class="menu-divider"></div>
                         <button class="menu-item" role="menuitem" onclick="openOverlay('features-overlay')">Features</button>
-                        <button id="settings-menu-item" class="menu-item" role="menuitem" onclick="openOverlay('settings-overlay')">Settings</button>
+                        <button id="settings-menu-item" class="menu-item" role="menuitem" onclick="if (this.getAttribute('aria-disabled') === 'true') { updateAnnouncer('Settings is not available in the DNS Resolver view. Switch to Tunneling Console first.'); return; } openOverlay('settings-overlay')">Settings</button>
                     </div>
                 </div>
             </nav>
@@ -647,7 +647,7 @@
             if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
                 e.preventDefault();
                 const menu = document.getElementById('more-menu');
-                const items = Array.from(menu.querySelectorAll('.menu-item')).filter(i => !i.disabled);
+                const items = Array.from(menu.querySelectorAll('.menu-item'));
                 let index = items.indexOf(document.activeElement);
                 if (e.key === 'ArrowDown') index = (index + 1) % items.length;
                 else index = (index - 1 + items.length) % items.length;
@@ -737,11 +737,9 @@
             const settingsItem = document.getElementById('settings-menu-item');
             if (viewId === 'resolver-view') {
                 settingsItem.innerText = 'Settings (Disabled)';
-                settingsItem.disabled = true;
                 settingsItem.setAttribute('aria-disabled', 'true');
             } else {
                 settingsItem.innerText = 'Settings';
-                settingsItem.disabled = false;
                 settingsItem.setAttribute('aria-disabled', 'false');
             }
 

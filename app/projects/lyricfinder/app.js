@@ -11,8 +11,9 @@ const lyricsBox = document.querySelector('#lyrics');
 const copyButton = document.querySelector('#copy-button');
 const copyStatus = document.querySelector('#copy-status');
 
-function setBusy(message) { status.textContent = message; error.textContent = ''; searchButton.disabled = true; }
-function setIdle() { searchButton.disabled = false; }
+// Looscid round 9: no native disabled. While a search runs, Search stays findable (aria-disabled) and pressing it says why.
+function setBusy(message) { status.textContent = message; error.textContent = ''; searchButton.setAttribute('aria-disabled', 'true'); }
+function setIdle() { searchButton.removeAttribute('aria-disabled'); }
 function cleanLyrics(value) { return String(value || '').replace(/\\r\\n/g, '\\n').trim(); }
 function normalized(value) { return value.toLowerCase().replace(/[’‘]/g, "'").replace(/[^a-z0-9]+/g, ' ').trim(); }
 
@@ -68,6 +69,7 @@ async function searchLyrics(title, artist) {
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
+  if (searchButton.getAttribute('aria-disabled') === 'true') { status.textContent = status.textContent === 'Still searching. Please wait.' ? 'Still searching, please wait.' : 'Still searching. Please wait.'; return; }
   const title = titleInput.value.trim();
   const artist = artistInput.value.trim();
   if (!title) { error.textContent = 'Enter a song title to search.'; titleInput.focus(); return; }

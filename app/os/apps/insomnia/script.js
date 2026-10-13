@@ -239,10 +239,12 @@ const A = {
 /* ================= Boot ================= */
 const bootBtn = $("#boot-btn"), bootLog = $("#boot-log");
 const lines = ["Insomnia BIOS v4.00 AM", "Checking melatonin........ NOT FOUND", "Counting sheep drivers..... OK", "Mounting /dev/rain......... OK", "Loading cozy.sys........... OK", "Starting desktop…"];
+// Looscid round 9: no native disabled. While booting, the button stays findable (aria-disabled) and says why, once per press.
 bootBtn.addEventListener("click", async () => {
+  if (bootBtn.getAttribute("aria-disabled") === "true") { announce("Already booting. Insomnia OS is almost ready."); return; }
   if (!nameBoot.hidden) { const typed = cleanName($("#name-boot-in").value); if (typed) setName(typed); else store.set("name-asked", true); nameBoot.hidden = true; renderName(); }
   A.init(); A.play("boot");
-  bootBtn.disabled = true; bootBtn.textContent = "Booting…";
+  bootBtn.setAttribute("aria-disabled", "true"); bootBtn.textContent = "Booting…";
   announce("Booting Insomnia OS.");
   if (!reduceMotion()) {
     const log = lines.slice(); log.splice(4, 0, userName ? "Loading profile............ " + userName.toUpperCase() : "Loading profile............ GUEST");

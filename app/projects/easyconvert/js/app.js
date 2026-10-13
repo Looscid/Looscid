@@ -22,6 +22,21 @@
     toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, opts.long ? 6000 : 3500);
     logEvent('announce', msg);
   }
+  /* Looscid round 9: no native disabled. A control that can't be used yet is aria-disabled (VoiceOver still finds it and
+     says "dimmed") and pressing it says why, once per press. Forms stay blocked: the click never reaches its handler. */
+  function setOff(el, off, why) {
+    if (!el) return;
+    if (off) { el.setAttribute('aria-disabled', 'true'); el.setAttribute('data-why', why); }
+    else { el.removeAttribute('aria-disabled'); el.removeAttribute('data-why'); }
+  }
+  function sayWhy(el) {
+    var now = Date.now(); if (el.__whyAt && now - el.__whyAt < 1200) return; el.__whyAt = now;
+    announce(el.getAttribute('data-why') || 'Not available right now.');
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target && e.target.closest ? e.target.closest('[aria-disabled="true"]') : null; if (!b) return;
+    e.preventDefault(); e.stopImmediatePropagation(); sayWhy(b);
+  }, true);
   // Progress chatter is throttled so a screen reader isn't flooded.
   function announceProgress(msg, force) {
     var now = Date.now();
@@ -68,7 +83,7 @@
     var on = !EC.sound.isMuted();
     soundBtn.setAttribute('aria-pressed', String(on));
     soundBtn.textContent = on ? 'Sounds on' : 'Sounds off';
-    vol.disabled = !on;
+    setOff(vol, !on, 'Volume works when Sounds are on. Turn Sounds on first.');
     vol.value = Math.round(EC.sound.getVolume() * 100);
     vol.setAttribute('aria-valuetext', vol.value + ' percent');
   }
@@ -77,7 +92,9 @@
     announce(EC.sound.isMuted() ? 'Sounds off' : 'Sounds on');
     EC.sound.play('tick');
   });
-  vol.addEventListener('input', function () { EC.sound.setVolume(vol.value / 100); vol.setAttribute('aria-valuetext', vol.value + ' percent'); });
+  vol.addEventListener('input', function () {
+    if (vol.getAttribute('aria-disabled') === 'true') { vol.value = Math.round(EC.sound.getVolume() * 100); vol.setAttribute('aria-valuetext', vol.value + ' percent'); sayWhy(vol); return; }
+    EC.sound.setVolume(vol.value / 100); vol.setAttribute('aria-valuetext', vol.value + ' percent'); });
   vol.addEventListener('change', function () { EC.sound.play('file'); });
   syncSound();
 
@@ -117,6 +134,8 @@
       case 'error': return it.error;
     }
   }
+  function notReady(it) { return it.state === 'error' ? 'This file could not be converted.' : it.state === 'working' ? 'Still converting this file.' : 'Press Convert files first.'; }
+  function offAttr(why) { return why ? ' aria-disabled="true" data-why="' + esc(why) + '"' : ''; }
   function renderResults() {
     resultsEl.replaceChildren();
     items.forEach(function (it) {
@@ -130,9 +149,9 @@
         '<p class="state ' + (it.state === 'done' ? 'ok' : it.state === 'error' ? 'bad' : '') + '" id="state-' + it.id + '">' + esc(stateText(it)) + '</p>' +
         '<h4 id="actions-' + it.id + '">File actions<span class="visually-hidden"> for ' + esc(it.file.name) + '</span></h4>' +
         '<div class="actions" role="group" aria-labelledby="actions-' + it.id + '">' +
-          '<button type="button" class="secondary" data-act="preview" aria-expanded="false" aria-controls="prev-' + it.id + '"' + (it.state !== 'done' ? ' disabled' : '') + '>Preview</button>' +
-          '<button type="button" class="secondary" data-act="copy"' + (it.state !== 'done' || !it.text ? ' disabled' : '') + '>Copy text</button>' +
-          '<button type="button" data-act="download"' + (it.state !== 'done' ? ' disabled' : '') + '>Download</button>' +
+          '<button type="button" class="secondary" data-act="preview" aria-expanded="false" aria-controls="prev-' + it.id + '"' + offAttr(it.state !== 'done' ? notReady(it) : '') + '>Preview</button>' +
+          '<button type="button" class="secondary" data-act="copy"' + offAttr(it.state !== 'done' ? notReady(it) : !it.text ? 'This file has no text to copy.' : '') + '>Copy text</button>' +
+          '<button type="button" data-act="download"' + offAttr(it.state !== 'done' ? notReady(it) : '') + '>Download</button>' +
           (it.state === 'done' && canShareFile(it.result.blob, it.result.filename) ? '<button type="button" class="secondary" data-act="share">Share or save to Files</button>' : '') +
           '<button type="button" class="secondary" data-act="remove">Remove</button>' +
         '</div>' +
@@ -140,8 +159,8 @@
       /* Looscid port: no aria-describedby on controls; the group is labelled "File actions for" the file's name. */
       resultsEl.appendChild(li);
     });
-    $('download-all').disabled = !items.some(function (x) { return x.state === 'done'; });
-    $('convert').disabled = !items.length;
+    setOff($('download-all'), !items.some(function (x) { return x.state === 'done'; }), 'Nothing is converted yet. Press Convert files first.');
+    setOff($('convert'), converting || !items.length, converting ? 'Already converting. Please wait.' : 'Add files first.');
     if (!items.length) resultsEl.innerHTML = '<li class="empty">No files yet.</li>';
   }
   function updateRow(it) {
@@ -187,7 +206,7 @@
   var converting = false;
   $('convert').addEventListener('click', async function () {
     if (converting || !items.length) return;
-    converting = true; this.disabled = true;
+    converting = true; setOff(this, true, 'Already converting. Please wait.');
     var fmt = $('format').value, todo = items.slice(), total = todo.length, done = 0, failed = 0;
     overallTicks = {};
     todo.forEach(function (it) { it.state = 'ready'; it.progress = 0; });
@@ -223,7 +242,7 @@
       await tick();
     }
     renderResults();
-    converting = false; this.disabled = false;
+    converting = false; setOff(this, !items.length, 'Add files first.');
     var msg = failed ? nf(done) + ' of ' + plural(total, 'file') + ' converted, ' + nf(failed) + ' failed' : (total === 1 ? 'Your file is converted' : 'All ' + nf(total) + ' files converted');
     setOverall(100, (done + failed) + ' of ' + total);
     if (done) { EC.sound.play('all'); logEvent('all-done', { done: done, failed: failed }); }
@@ -332,7 +351,7 @@
     var msg = filtered.length === exp.conversations.length && !terms.length ? plural(filtered.length, 'conversation') : plural(filtered.length, 'conversation') + ' match' + (filtered.length === 1 ? 'es' : '') + (q ? ' “' + $('conv-search').value.trim() + '”' : ' the filters');
     $('result-count').textContent = msg + (filtered.length > shown ? ', showing ' + nf(shown) : '') + '.';
     if (!initial) announce(msg);
-    $('bulk-download').disabled = !filtered.length;
+    setOff($('bulk-download'), !filtered.length, 'No conversations match. Change the search or the filters.');
   }
 
   function snippet(c, q) {
@@ -509,7 +528,7 @@
   $('bulk-download').addEventListener('click', async function () {
     if (!filtered.length) return;
     var fmt = $('bulk-format').value, files = [], used = {}, btn = this;
-    btn.disabled = true;
+    setOff(btn, true, 'Already preparing the ZIP. Please wait.');
     announce('Preparing ' + plural(filtered.length, 'conversation') + '…');
     for (var i = 0; i < filtered.length; i++) {
       var c = filtered[i], d = c.created ? new Date(c.created).toISOString().slice(0, 10) + ' ' : '';
@@ -519,7 +538,7 @@
       if (i % 50 === 49) { announceProgress('Prepared ' + nf(i + 1) + ' of ' + nf(filtered.length)); await tick(); }
     }
     save(EC.zip.makeZip(files), 'Claude conversations (' + EC.convert.FORMATS[fmt].label.replace(/[()]/g, '') + ').zip');
-    btn.disabled = false;
+    setOff(btn, !filtered.length, 'No conversations match. Change the search or the filters.');
     EC.sound.play('all');
     announce('Downloading ' + plural(files.length, 'conversation') + ' as a ZIP', { long: true });
   });

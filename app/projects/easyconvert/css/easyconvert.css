@@ -43,9 +43,9 @@ button, .button { background: var(--blue); color: #fff; font-weight: 800; cursor
 button.secondary { background: var(--panel); color: var(--blue); }
 button.small { min-height: 36px; padding: .35rem .65rem; font-size: .92rem; }
 button.wide { width: 100%; margin-top: .5rem; }
-button:hover:not(:disabled), .button:hover { filter: brightness(1.08); }
-button.secondary:hover:not(:disabled) { background: var(--blue-soft); filter: none; }
-button:disabled { opacity: .5; cursor: not-allowed; }
+button:hover:not(:disabled):not([aria-disabled="true"]), .button:hover { filter: brightness(1.08); }
+button.secondary:hover:not(:disabled):not([aria-disabled="true"]) { background: var(--blue-soft); filter: none; }
+button:disabled, button[aria-disabled="true"], input[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
 .on-dark.secondary { background: transparent; color: #fff; border-color: #e4edf3; }
 .on-dark[aria-pressed="false"] { opacity: .85; }
 :focus-visible, .drop:focus-within { outline: 4px solid var(--focus); outline-offset: 2px; }
