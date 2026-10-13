@@ -1283,7 +1283,7 @@ function A11yCategory({ page, navigate, prefs, setPrefs }) {
     if (from) setTimeout(function () { const b = document.getElementById("lc-sr-more-" + from); if (b) b.focus(); }, 90);
   }, []);
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
-    lh(BackHeader, { title: cat.l, onBack: function () { if (cat.parent) { try { sessionStorage.setItem("looscid_cat_from_lc-sr-more", cat.id); } catch (e) {} } navigate(cat.parent || "settings_accessibility"); } }),
+    lh(BackHeader, { title: cat.l, onBack: function () { if (cat.parent) { try { sessionStorage.setItem("looscid_cat_from_lc-sr-more", cat.id); } catch (e) {} } navigate(cat.parent || "settings"); } }), // Round 5 fixes: Back goes where you came from (Sense opens from Settings too)
     // Round 6: one line of plain text under the page heading (Sense has one per tab instead).
     cat.id !== "sr" && LC_SECTIONS[cat.id] && LC_SECTIONS[cat.id].d ? lh('p', { className: "lc-desc lc-sec-d", style: { padding: "0 16px" } }, LC_SECTIONS[cat.id].d) : null,
     lh('div', { className: "lc-grp lc-catpage" }, body),
@@ -2110,7 +2110,9 @@ function LoginMethods() {
     return Object.assign({}, p, { note: linked[p.id] ? "linked, replace" : null });
   });
   const prov = adding && ID_PROVIDERS.find(function (p) { return p.id === adding; });
-  const done = function (m) { setAdding(null); setMethods(getMethods()); setNote(m); announce("Login method added"); };
+  // Round 5 fixes: the panel closes when a login is added or replaced, so focus goes to this section's heading (it fell to <body>).
+  const done = function (m) { setAdding(null); setMethods(getMethods()); setNote(m); announce("Login method added");
+    setTimeout(function () { const hd = document.getElementById("lid-methods-h"); if (hd && (!document.activeElement || document.activeElement === document.body || !document.activeElement.isConnected)) hd.focus(); }, 60); };
   return lh('section', { 'aria-labelledby': "lid-methods-h", className: "lid-panel" },
     lh('h3', { id: "lid-methods-h", className: "lid-label", tabIndex: -1 }, "Linked to your LooscidID"),
     lh('p', { className: "lid-help" }, "Your LooscidID already exists on this device. Login methods are optional: add any network to log in with it, and add as many as you like."),
@@ -2128,7 +2130,7 @@ function LoginMethods() {
     confirmRm && lh(AlertDialog, { title: "Remove " + PROVIDER_NAMES[confirmRm.provider] + " login?",
       message: lcRemoveMethodMsg(confirmRm),
       confirmLabel: "Remove", onCancel: function () { setConfirmRm(null); },
-      onConfirm: function () { const m = confirmRm, so = lcSignedOutBy(m); setConfirmRm(null); removeMethod(m.id); setMethods(getMethods()); setNote(PROVIDER_NAMES[m.provider] + " login removed." + so); announce("Login method removed" + (so ? "." + so : ""));
+      onConfirm: function () { const m = confirmRm, so = lcSignedOutBy(m); setConfirmRm(null); removeMethod(m.id); setMethods(getMethods()); setNote(PROVIDER_NAMES[m.provider] + " login removed." + so); announce(PROVIDER_NAMES[m.provider] + " login removed." + so); // says what the screen says
         setTimeout(function () { const b = document.getElementById("lid-add-method"); if (b) b.focus(); }, 0); } }));
 }
 /* --- Keys and IDs (round 5): link the public side of your decentralized IDs ----
@@ -2770,6 +2772,10 @@ const LC_VERSION_HISTORY = [
     "VoiceOver fixes: Discover says how many results once instead of having its own announcer; the footer's Coming soon buttons, Create's Dream button, Cherry's Send, Hear thread, the Inbox tab Move buttons and Dreams from around you stay findable while unavailable and say why when pressed; unavailable menu items say why too; and it's \"Preview new Dream sound\" now.",
     "Removing your Nostr key no longer leaves your Mastodon and Bluesky sign-ins locked for good: with the key unlocked they're kept, and with it locked Looscid tells you first that they'll be signed out. And when another website shows Looscid in a frame, you get only the short message and the Open Looscid on its own link, with no error boxes on top.",
     "Share reply now opens your phone's share sheet with the reply's link, just like Share Dream. And your older Dreams show their real age on the card again instead of \"just now\"; a Dream whose time isn't known shows no time.",
+    "Every way of removing or replacing your Nostr key now looks after your Mastodon and Bluesky sign-ins: Reset, the Keys and IDs list and creating, entering or signing in with a new key keep them when your key is unlocked, and tell you first that they'll be signed out when it's locked. Removing a login from the Keys and IDs list asks first, and Reset says what it reset.",
+    "Discover says the tab and its count when you switch All, Dreamors, Dreams or Circles during a search, like \"Dreamors, 0 results\", and an empty tab shows No results. And it's \"Preview Redream earcon\" now, with a capital R.",
+    "More buttons stay findable for VoiceOver while they can't be used, and say why when pressed: Messages Send, Attach Poll and Attach Link, Direct message on profiles, Delete all chats, Feedback and announcement Send, the read-aloud test, Use this pack, the choices set by Private account and the braille button styles. Cherry's coming-soon chat options say so, tapping a chat option no longer breaks the menu, and a few messages in Settings are no longer read twice.",
+    "VoiceOver focus and speech fixes: opening any page (every Settings page, a profile from a Dream, a Dream's Replies, a chat after your first message) puts focus on its heading, Back returns to the row or button you came from, and adding a login keeps your place. Two messages in a row are both spoken instead of the second cutting off the first. Like says Liked or Like removed and tells VoiceOver whether it's on, Redream says Redreamed or Redream removed, and one like reads \"1 like\". The Messages chat Send says why when the box is empty and says Sending right away. Pasting the key you already have says so instead of signing you out of Mastodon and Bluesky, and removing a login says what the screen says. The Replies view has a heading, and the footer no longer covers the Dream when you reply.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

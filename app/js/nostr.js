@@ -182,6 +182,10 @@ async function importKey(raw, passcode, opts) {
   if (p.err) return p;
   if (!p.enc) { const bad = passcode ? passcodeProblem(passcode) : (opts && opts.noPasscode ? null : "Choose a passcode to lock your key, or choose to save it without one."); if (bad) return { err: bad, field: "pass" }; }
   const pk = NT.getPublicKey(p.sk);
+  // Round 5 fixes: pasting the key that is already stored here changes nothing. It used to replace it with itself, which
+  // signed Mastodon and Bluesky out when the key was locked, though this same key opens them.
+  const st0 = state();
+  if ((st0.mode === "key" || st0.mode === "locked") && st0.pubkey && st0.pubkey === String(pk).toLowerCase()) return { err: "That's already your key.", same: true };
   const gone = dropKey(); // build 152 fix: release sign-ins sealed to the key being replaced (sealed again below to this one)
   if (p.enc) { lsSet(ENC_KEY, p.enc); lsSet(SK_KEY, null); memSk = p.sk; } else storeSk(NT, p.sk, passcode);
   const idn = setIdentityFor(NT, pk, "local", { imported: true });
@@ -204,6 +208,7 @@ async function useSigner() {
   let NT; try { NT = await load(); } catch (e) { return { err: toolsMsg(e) }; }
   let pk; try { pk = await window.nostr.getPublicKey(); } catch (e) { return { err: "Your signer said no, or was closed. Nothing was saved." }; }
   if (!isHex64(pk)) return { err: "Your signer didn't share a valid public key. Nothing was saved." };
+  const st0 = state(); if (st0.mode === "signer" && st0.pubkey === pk.toLowerCase()) return { err: "That's already your key.", same: true }; // Round 5 fixes
   const gone = dropKey(); // build 152 fix: removes the old key and releases the sign-ins sealed to it
   const idn = setIdentityFor(NT, pk.toLowerCase(), "nip07");
   emit(); kick(); return { ok: true, npub: idn.npub, pubkey: pk.toLowerCase(), signedOut: signedOutText(gone) };

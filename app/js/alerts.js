@@ -127,9 +127,11 @@ function composeView(st, draw) {
     const peer = Looscid.lcPmPeerFrom(cp.to);
     if (!peer) { cp.msg = "Type their npub (it starts with npub1) or their public key."; announce(cp.msg); draw(); setTimeout(function () { const t = document.getElementById("pm-to"); if (t) t.focus(); }, 0); return; }
     if (!cp.text.trim()) { cp.msg = "Type a message first."; announce(cp.msg); draw(); return; }
-    cp.msg = "Sending…"; draw();
+    // Round 5 fixes: a first message can take several seconds; "Sending…" is said once right away instead of silence.
+    cp.msg = "Sending…"; announce("Sending…", "state"); draw();
     Looscid.lcPmSend(peer, cp.text).then(function (r) {
-      if (r.ok) { Looscid.Earcon.play("send"); announce("Sent to " + Looscid.lcNostrName(peer) + "."); st.compose = null; st.pm = peer; draw(); }
+      // The chat opens in place of the form, so focus goes to its heading (it fell to <body>).
+      if (r.ok) { Looscid.Earcon.play("send"); announce("Sent to " + Looscid.lcNostrName(peer) + "."); st.compose = null; st.pm = peer; draw(); setTimeout(Looscid.lcFocusHeading, 30); }
       else { cp.msg = r.err === "relays" ? "Couldn't reach any relay. Your message is kept in the conversation as not sent." : "Couldn't send: " + (pmStateNote() || "try again."); announce(cp.msg); draw(); }
     });
   };
@@ -149,10 +151,14 @@ function composeView(st, draw) {
 function pmView(st, draw) {
   const peer = st.pm, name = Looscid.lcNostrName(peer), msgs = Looscid.lcPms().filter(function (m) { return m.peer === peer; });
   const note = pmStateNote();
+  // Round 5 fixes: Send is aria-disabled while there's nothing to send (or no key), stays findable, and pressing it says
+  // why once. It was silent. "Sending…" is said once as soon as a message goes.
+  const why = function () { return note || ((st.pmInp || "").trim() ? "" : "Type a message first."); };
+  const syncSend = function () { const b = document.getElementById("pm-chat-send"); if (b) b.setAttribute("aria-disabled", why() ? "true" : "false"); };
   const send = function () {
-    const t = (st.pmInp || "").trim(); if (!t) return;
-    if (note) { announce(note); return; }
-    st.pmInp = ""; draw();
+    const w = why(); if (w) { announce(w); return; }
+    const t = (st.pmInp || "").trim();
+    st.pmInp = ""; announce("Sending…", "state"); draw(); syncSend();
     Looscid.lcPmSend(peer, t).then(function (r) { if (r.ok) { Looscid.Earcon.play("send"); announce("Sent."); } else announce("Couldn't send. It's kept here as not sent."); draw(); });
   };
   return h('div', { className: "pg", style: { display: "flex", flexDirection: "column", paddingBottom: 0 } },
@@ -169,8 +175,8 @@ function pmView(st, draw) {
     h('div', { className: "cir" },
       h('label', { htmlFor: "pm-inp", className: "sr-only" }, "Message " + name),
       h('input', { id: "pm-inp", className: "inp", style: { borderRadius: 100, flex: 1, fontSize: 14 }, placeholder: "Message " + name + "…", value: st.pmInp || "",
-        onChange: function (e) { st.pmInp = e.target.value; }, onKeyDown: function (e) { if (e.key === "Enter" && a11yEnterSends()) { e.preventDefault(); send(); } } }),
-      h('button', { type: "button", className: "btn bp", style: { padding: 9, borderRadius: "50%", width: 38, height: 38, flexShrink: 0 }, onClick: send, "aria-label": "Send" },
+        onChange: function (e) { st.pmInp = e.target.value; syncSend(); }, onKeyDown: function (e) { if (e.key === "Enter" && a11yEnterSends()) { e.preventDefault(); send(); } } }),
+      h('button', { type: "button", id: "pm-chat-send", className: "btn bp", style: { padding: 9, borderRadius: "50%", width: 38, height: 38, flexShrink: 0 }, onClick: send, "aria-label": "Send", "aria-disabled": why() ? "true" : "false" },
         lcIconEl("Snd", { style: { width: 15, height: 15 }, "aria-hidden": "true" }))),
     h('div', { style: { height: 72 } }));
 }

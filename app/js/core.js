@@ -1027,6 +1027,10 @@ function lcThreadAbove(d) {
   while (cur && cur.replyTo != null && guard++ < 1000) { const up = byId[String(cur.replyTo)]; if (!up || out.indexOf(up) >= 0) break; out.unshift(up); cur = up; }
   return out;
 }
+/* Round 5 fixes: "1 like", "1 Redream" (singular), and the Redream button says whether you Redreamed or Quoted it.
+   Like is a toggle button (aria-pressed); Redream opens a menu, so its state is in its name instead. */
+function lcCountWord(n, one, many) { return fmt(n) + " " + (n === 1 ? one : many); }
+function lcRdState(d) { return d.redreamed ? ", Redreamed" : d.quoted ? ", Quoted" : ""; }
 function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onCommentPosted, navigate}) {
   const tick = useRepliesTick();
   const comments = React.useMemo(function () { return lcRepliesFor(dream.id).concat(MOCK_COMMENTS[dream.id] || []); }, [dream.id, tick]);
@@ -1046,20 +1050,36 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
   // thread (the Dreams above it and every reply); the same button then reads "Collapse thread". Its words change in
   // place, focus stays on it, and nothing is announced.
   const [expanded, setExpanded] = useState(false);
+  // Round 5 fixes: focus went to <body> when the Replies view opened and when Back closed it. The control that opened it
+  // (read while the Dream card is still on screen) gets focus again on Back; opening puts focus on the Replies heading.
+  const openerRef = useRef(null);
+  if (openerRef.current === null) { const a = lcOpenerEl(); const card = a && a.closest ? a.closest("[data-dream-id]") : null;
+    openerRef.current = { card: card ? card.getAttribute("data-dream-id") : null, cls: a && typeof a.className === "string" ? a.className.split(" ")[0] : "", desc: lcOpenerDesc(a) }; }
+  useEffect(function () {
+    const lost = function () { const a = document.activeElement; return !a || a === document.body || !a.isConnected; };
+    setTimeout(function () { const h = document.getElementById("cv-h1"); if (h && lost()) h.focus(); }, 30);
+    return function () { const o = openerRef.current; setTimeout(function () { if (!lost()) return;
+      const c = o.card != null ? Array.from(document.querySelectorAll("#main-content [data-dream-id]")).find(function (x) { return x.getAttribute("data-dream-id") === o.card; }) : null;
+      const e = (c && o.cls ? c.querySelector("." + o.cls) : null) || lcFindOpener(o.desc) || c;
+      if (e) { if (e === c && !e.hasAttribute("tabindex")) e.setAttribute("tabindex", "-1"); e.focus(); } else lcFocusHeading(); }, 60); };
+  }, []);
   const above = React.useMemo(function () { return lcThreadAbove(dream); }, [dream.id, tick]);
   const threadBtn = lh('button', { type: "button", id: "cv-thread-btn", className: "btn bgb lc-btn lc-thread-btn", "aria-controls": "cv-thread",
     "aria-describedby": lcHint(expanded ? "Shows only this Dream." : "Shows the Dreams above and every reply."), onClick: function () { setExpanded(!expanded); } }, expanded ? "Collapse thread" : "Expand thread");
   return (
-    React.createElement('div', { className: "pg", style: {display:"flex",flexDirection:"column",paddingBottom:0},}
+    /* Round 5 fixes: the Replies view scrolls like every other page. It was a column with its own inner scroll box, so the
+       site footer (kept last on the page) took the space at the bottom and was drawn over the Dream once Reply opened. */
+    React.createElement('div', { className: "pg", style: {paddingBottom:0},}
       , React.createElement('div', { className: "hdr",}
         , React.createElement('div', { className: "hdr-row",}
           , React.createElement('button', { className: "bi", onClick: onBack, 'aria-label': "Back",}, React.createElement(Ic.Bck, { style: {width:21,height:21},}))
-          , React.createElement('span', { className: "hdr-title",}, "Replies")
-          , React.createElement('span', { style: {fontSize:13,color:"var(--tx3)",fontWeight:600},}, comments.length)
+          /* Round 5 fixes: the Replies view has a heading (it was plain text), and opening it puts focus there. */
+          , React.createElement('h1', { className: "hdr-title", tabIndex: -1, id: "cv-h1",}, "Replies", lh('span', { className: "sr-only" }, ", "),
+              React.createElement('span', { style: {fontSize:13,color:"var(--tx3)",fontWeight:600,fontFamily:"inherit",marginLeft:8},}, fmt(comments.length)))
         )
       )
-      , React.createElement('div', { style: {flex:1,display:"flex",flexDirection:"column",overflow:"hidden"},}
-        , React.createElement('div', { style: {overflowY:"auto",flex:1,scrollbarWidth:"none"},}
+      , React.createElement('div', null
+        , React.createElement('div', null
           , lh('div', { style: { padding: "10px 16px 0" } }, threadBtn)
           /* Build 150: the Dreams above this one, when the thread is expanded */
           , lh('div', { id: "cv-thread" }, expanded && above.length ? lh('div', { id: "cv-above", role: "list", "aria-label": "Earlier in this thread" }, above.map(function (cm) { return lh('div', { role: "listitem", key: "a" + cm.id }, lh(ReplyItem, { cm: cm, navigate: navigate, onReply: function (c, el) { reply(c, el); } })); })) : null)
@@ -1080,14 +1100,14 @@ function CommentView({dream, onBack, onLike, onRedream, onUndoRedream, onQuote, 
             , linkInfo && !dream.nopv && lh(LinkCard, { info: linkInfo })
             /* Dream interaction row on the Replies page */
             , React.createElement('div', { className: "ixn-row", style: {margin:"0 -16px",borderTop:"1px solid var(--bd)"},}
-              , React.createElement('button', { className: "cbx-wrap" + (dream.liked?" liked":""), onClick: ()=>onLike(dream.id), 'aria-label': fmt(dream.likes) + " likes",}
+              , React.createElement('button', { className: "cbx-wrap" + (dream.liked?" liked":""), "aria-pressed": !!dream.liked, onClick: ()=>{ onLike(dream.id); announce(dream.liked ? "Like removed" : "Liked", "state"); }, 'aria-label': lcCountWord(dream.likes, "like", "likes"),}
                 , React.createElement('div', { className: "cbx-box",}, dream.liked && React.createElement(ChkMark, null))
-                , React.createElement('span', null, fmt(dream.likes), " Likes" )
+                , React.createElement('span', null, fmt(dream.likes), dream.likes === 1 ? " Like" : " Likes" )
               )
-              , lh(LcMenu, { id: "rd-cv-" + dream.id, kind: "action", title: "Redream or Quote", btnLabel: fmt(rdTotal) + " Redreams", btnHint: "Opens Redream and Quote.", btnClass: "cbx-wrap" + (rdActive?" redd":""), noCaret: true, up: true,
-                  btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, fmt(rdTotal), " Redreams")],
+              , lh(LcMenu, { id: "rd-cv-" + dream.id, kind: "action", title: "Redream or Quote", btnLabel: lcCountWord(rdTotal, "Redream", "Redreams") + lcRdState(dream), btnHint: "Opens Redream and Quote.", btnClass: "cbx-wrap" + (rdActive?" redd":""), noCaret: true, up: true,
+                  btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, fmt(rdTotal), rdTotal === 1 ? " Redream" : " Redreams")],
                   items: [{ id: "rd", name: dream.redreamed ? "Unredream" : "Redream" }, { id: "q", name: dream.quoted ? "Unquote Dream" : "Quote Dream" }],
-                  onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
+                  onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); announce(dream.redreamed ? "Redream removed" : "Redreamed", "state"); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
               /* Build 147: liking is saving, so the separate Save box is gone (Like above is the one toggle). */
               , lh(DreamOptionsMenu, { id: "dopts-cv-" + dream.id, dream: dream, btnRef: dreamOptsBtn, onBookmark: onBookmark, onLike: onLike, navigate: navigate })
             )
@@ -1223,13 +1243,13 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
           , React.createElement('button', { className: "ixn-btn", onClick: ()=>onComment && onComment(dream), 'aria-label': fmt(nReplies)+(nReplies === 1 ? " reply" : " replies"), "aria-describedby": lcHint("Opens the thread."),}
             , React.createElement(Ic.Cmt, { style: {width:15,height:15},}), React.createElement('span', null, fmt(nReplies), nReplies === 1 ? " Reply" : " Replies" )
           )
-          , lh(LcMenu, { id: "rd-" + dream.id, kind: "action", title: "Redream or Quote", btnLabel: calm ? "Redreams" + (rdActive ? ", Redreamed" : "") : fmt(rdTotal)+" Redreams", btnHint: "Opens Redream and Quote.", btnClass: "cbx-wrap"+(rdActive?" redd":""), noCaret: true, up: true, className: "lc-rdmenu",
-              btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, calm ? "" : fmt(rdTotal), calm ? "Redreams" : " Redreams")],
+          , lh(LcMenu, { id: "rd-" + dream.id, kind: "action", title: "Redream or Quote", btnLabel: calm ? "Redreams" + (rdActive ? ", Redreamed" : "") : lcCountWord(rdTotal, "Redream", "Redreams") + lcRdState(dream), btnHint: "Opens Redream and Quote.", btnClass: "cbx-wrap"+(rdActive?" redd":""), noCaret: true, up: true, className: "lc-rdmenu",
+              btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, calm ? "" : fmt(rdTotal), calm ? "Redreams" : rdTotal === 1 ? " Redream" : " Redreams")],
               items: [{ id: "rd", name: dream.redreamed ? "Unredream" : "Redream" }, { id: "q", name: dream.quoted ? "Unquote Dream" : "Quote Dream" }],
-              onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
-          , React.createElement('button', { className: "cbx-wrap"+(dream.liked?" liked":""), onClick: ()=>{ if (!dream.liked) Earcon.play("like"); onLike(dream.id); }, 'aria-label': lcVerb() === "low" ? "Like" + (dream.liked ? ", liked" : "") : (calm ? "Likes" + (dream.liked ? ", liked" : "") : fmt(dream.likes)+" likes") + (lcVerb() === "high" ? ", double tap to " + (dream.liked ? "unlike" : "like") : ""),}
+              onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); announce(dream.redreamed ? "Redream removed" : "Redreamed", "state"); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
+          , React.createElement('button', { className: "cbx-wrap"+(dream.liked?" liked":""), "aria-pressed": !!dream.liked, onClick: ()=>{ if (!dream.liked) Earcon.play("like"); onLike(dream.id); announce(dream.liked ? "Like removed" : "Liked", "state"); }, 'aria-label': lcVerb() === "low" ? "Like" + (dream.liked ? ", liked" : "") : (calm ? "Likes" + (dream.liked ? ", liked" : "") : lcCountWord(dream.likes, "like", "likes")) + (lcVerb() === "high" ? ", double tap to " + (dream.liked ? "unlike" : "like") : ""),}
             , React.createElement('div', { className: "cbx-box",}, dream.liked && React.createElement(ChkMark, null))
-            , React.createElement('span', null, calm ? "" : fmt(dream.likes), calm ? "Likes" : " Likes" )
+            , React.createElement('span', null, calm ? "" : fmt(dream.likes), calm ? "Likes" : dream.likes === 1 ? " Like" : " Likes" )
           )
           , lh(DreamOptionsMenu, { id: "dopts-" + dream.id, dream: dream, btnRef: optsBtn, onBookmark: onBookmark, onLike: onLike, navigate: navigate, cherryCtx: cherryCtx, onExtra: setExtra, forYou: !!forYou })
         )
@@ -2273,19 +2293,30 @@ Looscid.lcHint = lcHint; Looscid.lcHintReason = lcHintReason;
 function announce(msg, kind) {
   const vb = lcVerb(), s = String(msg || "");
   const isErr = kind === "error" || (kind !== "success" && LC_ERR_RE.test(s));
-  const isOk = !isErr && (kind === "success" || kind === "confirm" || LC_OK_RE.test(s.trim()));
+  // kind "state" (Round 5 fixes): a button saying its new state ("Liked", "Like removed"), never a success cue.
+  const isOk = !isErr && kind !== "state" && (kind === "success" || kind === "confirm" || LC_OK_RE.test(s.trim()));
   if (!isErr && (kind === "confirm" || (!kind && isOk)) && vb === "low") return;
   if ((kind === "nav" || kind === "hint") && vb !== "high") return;
   if (isErr) lcPitchCue("error"); else if (isOk && LC_OK_RE.test(s.trim())) lcPitchCue("success");
   const el = document.getElementById("looscid-live");
   if (!el) return;
-  Looscid.LC_ANN_AT = Date.now();
+  const now = Date.now();
+  Looscid.LC_ANN_AT = now;
+  /* Round 5 fixes (QA "as 2three1y", Oct 13): a second announcement within a few milliseconds replaced the first before it
+     was spoken ("Mastodon and Bluesky were signed out." lost to "Login method added", "Quote dreamed." lost to "Dreamor just
+     published"). Messages that arrive within 150 ms of each other are now joined and said as one, in order; the same message
+     twice in that window is said once. Still the one announcer, and it still empties itself afterwards. */
+  let q = Looscid.LC_ANN_Q;
+  if (!q || now - q.first > 150) q = Looscid.LC_ANN_Q = { first: now, msgs: [] };
+  const one = String(msg == null ? "" : msg).trim();
+  if (one && q.msgs.indexOf(one) < 0) q.msgs.push(one);
+  const text = q.msgs.length > 1 ? q.msgs.map(function (m) { return /[.!?…:]$/.test(m) ? m : m + "."; }).join(" ") : (q.msgs[0] || "");
   el.textContent = "";
-  clearTimeout(Looscid.LC_ANN_CLEAR);
+  clearTimeout(Looscid.LC_ANN_CLEAR); clearTimeout(Looscid.LC_ANN_WRITE);
   /* 2three1y (Oct 12, 5:33 PM): "Looscid, Page is at the bottom like the last element". What was said stayed behind as text
      in #looscid-live, so swiping to the very end read the last announcement (often the page name, "Looscid, page") as a
      stray element. Once it has had time to be spoken, the region is emptied again; it stays the only announcer. */
-  setTimeout(function () { el.textContent = msg; const said = el.textContent;
+  Looscid.LC_ANN_WRITE = setTimeout(function () { el.textContent = text; const said = el.textContent;
     Looscid.LC_ANN_CLEAR = setTimeout(function () { if (el.textContent === said) el.textContent = ""; }, Math.min(12000, 4000 + said.length * 60)); }, 80);
 }
 // Enter from a keyboard or a braille display (which can arrive as
@@ -6082,6 +6113,36 @@ const SETTINGS_MENU_ITEM = {
   liked: [null, "#more-liked"], profile: [null, "#more-view-profile"], nexos_apps: ["settings", "Apps"],
 };
 Looscid.SETTINGS_MENU_ITEM = SETTINGS_MENU_ITEM;
+/* Round 5 fixes (QA "as 2three1y", Oct 13): after opening a page, focus fell to <body> (only the tab bar moved it to the
+   heading), and Back found the row it came from only when the row's whole name matched. The control that opened a page is
+   remembered by its id or name; Back puts focus on it again, and a newly opened page puts focus on its heading. */
+// iPhone Safari does not focus a button when it is tapped (VoiceOver's double tap included), so the control that opened a
+// page is the last one activated, when that was a moment ago; otherwise whatever has focus.
+if (typeof document !== "undefined") document.addEventListener("click", function (e) {
+  const t = e.target && e.target.closest ? e.target.closest("button, a[href], [role=button], [role=menuitem], [role=tab], [role=link], input, select") : null;
+  if (t) Looscid.LC_LAST_ACT = { el: t, at: Date.now() };
+}, true);
+function lcOpenerEl() { const l = Looscid.LC_LAST_ACT; return l && l.el && l.el.isConnected && Date.now() - l.at < 1500 ? l.el : document.activeElement; }
+function lcOpenerDesc(el) {
+  if (!el || el === document.body || el === document.documentElement || !el.getAttribute) return null;
+  return { id: el.id || "", label: el.getAttribute("aria-label") || "", text: String(el.textContent || "").trim().slice(0, 120) };
+}
+function lcFindOpener(o) {
+  if (!o) return null;
+  const root = document.getElementById("main-content") || document.body;
+  if (o.id) { const e = document.getElementById(o.id); if (e && root.contains(e)) return e; }
+  const all = Array.from(root.querySelectorAll("button, a[href], [role=button], [role=tab], [role=link], [role=menuitem], input, select, [tabindex]"));
+  const head = function (t) { return String(t || "").split(",")[0].trim(); };
+  return (o.label && all.find(function (b) { return b.getAttribute("aria-label") === o.label; }))
+    || (o.label && all.find(function (b) { return head(b.getAttribute("aria-label")) === head(o.label); }))
+    || (o.text && all.find(function (b) { return String(b.textContent || "").trim().slice(0, 120) === o.text; })) || null;
+}
+function lcFocusHeading() {
+  const h = document.querySelector("#main-content h1"); if (!h) return false;
+  if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); h.focus(); return true;
+}
+function lcFocusOpenerOrHeading(o) { const e = lcFindOpener(o); if (e) { e.focus(); return true; } return lcFocusHeading(); }
+Looscid.lcOpenerDesc = lcOpenerDesc; Looscid.lcOpenerEl = lcOpenerEl; Looscid.lcFindOpener = lcFindOpener; Looscid.lcFocusHeading = lcFocusHeading; Looscid.lcFocusOpenerOrHeading = lcFocusOpenerOrHeading;
 function App() {
   // Local profile — no login gate. The profile is stored on this device only.
   // Login methods attach to it later and are optional; see the LOCAL PROFILE block.
@@ -6111,6 +6172,8 @@ function App() {
   const pdataRef = useRef(null); pdataRef.current = pdata;
   const mainBack = useRef("feed");   // last page that is not a Settings screen
   const subFrom = useRef({});        // Settings screen -> the Settings screen it was opened from
+  const openers = useRef({});        // page -> { page it was opened from, the control that opened it }
+  const pageFocus = useRef(null);    // focus to place once the new page has drawn
   const cmdReturn = useRef(null);
   const openCmdRef = useRef(null);
   const termBack = useRef("feed");
@@ -6262,7 +6325,7 @@ useEffect(() => {
     // "settings" means Back to the Settings menu: the screen it came from, or the More menu on that item.
     if (target === "settings") {
       const from = subFrom.current[cur];
-      if (from) { delete subFrom.current[cur]; setPage(from); setPdata(null); setTimeout(() => { const h = document.querySelector("#main-content h1"); if (h) { if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); h.focus(); } }, 60); return; }
+      if (from) { delete subFrom.current[cur]; const op = openers.current[cur]; delete openers.current[cur]; setPage(from); setPdata(null); setTimeout(() => { lcFocusOpenerOrHeading(op && op.page === from ? op : null); }, 60); return; }
       // Part 34a: a page opened from the site footer (About Looscid, Credits, Terms, Child Safety...) goes Back to the page
       // you were reading, not into More.
       if (Looscid.lcFooterFrom === cur) { Looscid.lcFooterFrom = null; setPage(mainBack.current || "feed"); setPdata(null); Earcon.play("settings");
@@ -6271,8 +6334,12 @@ useEffect(() => {
       // Part 40 (#67): Settings is its own page now. Back from a Settings screen lands there, on the row it came from.
       if (m[0] === "settings" && cur !== "settings") {
         setPage("settings"); setPdata(null); Earcon.play("settings");
-        setTimeout(() => { const pg = document.getElementById("more-page-settings"); const row = pg && m[1] ? Array.from(pg.querySelectorAll(".mitem")).find(b => b.getAttribute("aria-label") === m[1]) : null;
-          const h = document.querySelector("#main-content h1"); const el = row || h; if (el) { if (el === h && !h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); el.focus(); } }, 60);
+        const op = openers.current[cur]; delete openers.current[cur];
+        // Rows say their value after the name ("Alerts, Quiet hours off"), so the row is found by the control that opened
+        // this page, else by the name before the first comma.
+        setTimeout(() => { const pg = document.getElementById("more-page-settings"); const rows = pg ? Array.from(pg.querySelectorAll(".mitem")) : [];
+          const row = (op && op.page === "settings" ? lcFindOpener(op) : null) || (m[1] ? rows.find(b => String(b.getAttribute("aria-label") || "").split(",")[0].trim() === m[1]) : null);
+          if (row) row.focus(); else lcFocusHeading(); }, 60);
         return;
       }
       setPage(mainBack.current || "feed"); setPdata(null);
@@ -6301,8 +6368,19 @@ useEffect(() => {
     if (target === "helpcenter" && cur !== "helpcenter") helpBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
     if (target === "legal" && cur !== "legal") legalBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
     if (target === "intro") { setShowWelcome(true); return; }
+    // A page change that goes back to the page this one was opened from (a Back button that names its page) returns focus
+    // to the control that opened it; any other page change remembers its opener and moves focus to the new heading.
+    const back = openers.current[cur];
+    if (back && back.page === target && target !== cur) { delete openers.current[cur]; pageFocus.current = { op: back, from: document.activeElement }; }
+    else if (target !== cur || data !== pdataRef.current) { openers.current[target] = Object.assign({ page: cur }, lcOpenerDesc(lcOpenerEl())); pageFocus.current = { op: null, from: document.activeElement }; }
     setPage(target); setPdata(data);
   }, []);
+  useEffect(() => {
+    const nf = pageFocus.current; if (!nf) return; pageFocus.current = null;
+    setTimeout(() => { const a = document.activeElement;
+      // Only when focus was lost: a page that put focus somewhere itself (a search box, the row it came from) keeps it.
+      if (!a || a === document.body || a === document.documentElement || !a.isConnected || a === nf.from) lcFocusOpenerOrHeading(nf.op); }, 60);
+  }, [page, pdata]);
   const goRoot = id => {
     if(id==="create"){setShowCreate(true);return;}
     if(id==="cherry"){navigate("cherry");return;}
