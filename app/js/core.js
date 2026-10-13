@@ -1716,7 +1716,7 @@ Looscid.CHILD_SAFETY_CONTENT = CHILD_SAFETY_CONTENT;
 function LcSiteFooter({ navigate }) {
   const ext = function (href, text, key) { return lh('li', { key: key }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, text)); };
   const go = function (page, text, key) { return lh('li', { key: key }, lh('a', { href: (Looscid.lcPathFor ? Looscid.lcPathFor(page) : "#"), className: "lc-link",
-    onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); Looscid.lcFooterFrom = page; navigate(page); } }, text)); };
+    onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); Looscid.lcFooterFrom = page; Looscid.lcFooterLink = text; navigate(page); } }, text)); };
   const soon = function (text, key) { return lh('li', { key: key }, lh('button', { type: "button", className: "lc-foot-soon", "aria-disabled": "true", onClick: function () { announce(text + " is coming soon."); } }, text, lh('span', { className: "lc-foot-soon-tag" }, " Coming soon"))); };
   const grp = function (id, title, kids) { return lh('section', { className: "lc-foot-grp", "aria-labelledby": id }, lh('h3', { id: id, className: "lc-foot-h" }, title), lh('ul', { className: "lc-foot-list", role: "list" }, kids)); };
   return lh('footer', { className: "lc-footer", role: "contentinfo", "aria-labelledby": "lc-foot-title" },
@@ -2216,7 +2216,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
             items: s.items.map(function (it) { return { id: it.label, name: it.label, a: it.action }; }),
             onSelect: function (k, it) { if (it && it.a) it.a(); } }));
         var pg = LC_MORE_PAGE[s.id];
-        var go = function (e) { if (e && (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1)) return; if (e) e.preventDefault(); if (s.direct) { s.direct(); return; } onClose(); if (s.id === "cherry") goRoot("cherry"); else navigate(pg); };
+        var go = function (e) { if (e && (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1)) return; if (e) e.preventDefault(); if (s.direct) { s.direct(); return; } onClose(); if (s.id === "cherry") goRoot("cherry"); else navigate(pg === "settings" ? "settings_open" : pg); };
         return React.createElement('li', {key:s.id, className:"msec-hdr msec-li", style:{padding:0}},
           React.createElement('a', {id:"msec-btn-"+s.id, className:"msec-direct", "data-sec":s.id, href: lcPathFor(pg), onClick: go,
             "aria-braillelabel": Looscid.A11Y_NOW.brailleOutput ? s.label : undefined,
@@ -2327,7 +2327,12 @@ function announce(msg, kind) {
   Looscid.LC_ANN_LAST = one; Looscid.LC_ANN_LAST_AT = now;
   let q = Looscid.LC_ANN_Q;
   if (!q) q = Looscid.LC_ANN_Q = { first: now, msgs: [] };
-  if (q.msgs.indexOf(one) < 0) q.msgs.push(one);
+  /* Round 7 fixes (QA round 6): a word already waiting was dropped when it came again, so Like tapped 4 times quickly ended
+     on "Liked" while the Dream was not liked. Only the same words back to back are one message; a repeat after something
+     else (Liked, Like removed, Liked, Like removed) is said again, so the last thing said is always the final state. Each
+     waiting message remembers the page it was said on (see lcAnnRoute). */
+  const prevQ = q.msgs[q.msgs.length - 1];
+  if (!prevQ || prevQ.t !== one) q.msgs.push({ t: one, at: now, route: Looscid.LC_ANN_ROUTE || 0 });
   clearTimeout(Looscid.LC_ANN_WRITE);
   Looscid.LC_ANN_WRITE = setTimeout(lcAnnFlush, Math.max(0, Math.min(80, q.first + 250 - now)));
 }
@@ -2338,7 +2343,8 @@ function lcAnnFlush() {
   if (wait > 0) { clearTimeout(Looscid.LC_ANN_WRITE); Looscid.LC_ANN_WRITE = setTimeout(lcAnnFlush, wait); return; }
   Looscid.LC_ANN_Q = null;
   const el = document.getElementById("looscid-live"); if (!el) return;
-  const text = q.msgs.length > 1 ? q.msgs.map(function (m) { return /[.!?\u2026:]$/.test(m) ? m : m + "."; }).join(" ") : q.msgs[0];
+  const msgs = q.msgs.map(function (m) { return m.t; });
+  const text = msgs.length > 1 ? msgs.map(function (m) { return /[.!?\u2026:]$/.test(m) ? m : m + "."; }).join(" ") : msgs[0];
   Looscid.LC_ANN_FREE = Date.now() + Math.min(1500, 400 + text.length * 25);
   clearTimeout(Looscid.LC_ANN_CLEAR);
   /* 2three1y (Oct 12, 5:33 PM): "Looscid, Page is at the bottom like the last element". What was said stayed behind as text
@@ -2349,6 +2355,20 @@ function lcAnnFlush() {
   // The same words again (pressing an unavailable button twice) are emptied first, so they are said again.
   if (el.textContent === text) { el.textContent = ""; setTimeout(write, 60); } else write();
 }
+/* Round 7 fixes (QA round 6): words still waiting their turn were said after you had moved to another page ("Like removed"
+   0.35 s after landing on Discover). When the page changes, waiting words from the page you left are dropped, unless they
+   were said in the same moment as the move (within 100 ms: a confirmation that comes with the move itself, like "Login
+   method added" just before the page changes). Words already written to #looscid-live are never cut, and the new page's own words stay. */
+function lcAnnRoute() {
+  const now = Date.now();
+  const q = Looscid.LC_ANN_Q, old = Looscid.LC_ANN_ROUTE || 0;
+  Looscid.LC_ANN_ROUTE = old + 1;
+  if (!q || !q.msgs.length) return;
+  q.msgs = q.msgs.filter(function (m) { return m.route !== old || now - m.at < 100; });
+  q.msgs.forEach(function (m) { m.route = Looscid.LC_ANN_ROUTE; });
+  if (!q.msgs.length) { clearTimeout(Looscid.LC_ANN_WRITE); Looscid.LC_ANN_Q = null; }
+}
+Looscid.lcAnnRoute = lcAnnRoute;
 // Enter from a keyboard or a braille display (which can arrive as
 // beforeinput insertParagraph/insertLineBreak instead of keydown Enter).
 function useEnterSubmit(onEnter) {
@@ -2960,9 +2980,10 @@ function BlueskyPanel({ onDone }) {
     msg && lh('p', { className: "lid-err" }, msg));
 }
 /* --- Alert dialog (role=alertdialog, focus trap, Escape cancels) ------------ */
-function AlertDialog({ title, message, confirmLabel, onConfirm, onCancel }) {
-  const boxRef = useRef(null); const cancelRef = useRef(null);
-  useEffect(function () { const prev = document.activeElement; if (cancelRef.current) cancelRef.current.focus(); return function () { if (prev && prev.focus && document.contains(prev)) prev.focus(); }; }, []);
+// Round 7 fixes: focusTitle puts focus on the dialog's heading (so its title is read first) instead of on Cancel.
+function AlertDialog({ title, message, confirmLabel, onConfirm, onCancel, focusTitle }) {
+  const boxRef = useRef(null); const cancelRef = useRef(null); const titleRef = useRef(null);
+  useEffect(function () { const prev = document.activeElement; if (focusTitle && titleRef.current) titleRef.current.focus(); else if (cancelRef.current) cancelRef.current.focus(); return function () { if (prev && prev.focus && document.contains(prev)) prev.focus(); }; }, []);
   const onKey = function (e) {
     if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); onCancel(); return; }
     if (e.key !== "Tab") return;
@@ -2972,7 +2993,7 @@ function AlertDialog({ title, message, confirmLabel, onConfirm, onCancel }) {
   };
   return lh('div', { className: "lid-alert-bg" },
     lh('div', { ref: boxRef, className: "lid-alert", role: "alertdialog", 'aria-modal': "true", 'aria-labelledby': "lid-alert-t", onKeyDown: onKey },
-      lh('h2', { id: "lid-alert-t", className: "lid-sub" }, title),
+      lh('h2', { id: "lid-alert-t", className: "lid-sub", ref: titleRef, tabIndex: focusTitle ? -1 : undefined }, title),
       lh('p', { id: "lid-alert-m", className: "lid-help" }, message),
       lh('div', { className: "lid-actions" },
         lh('button', { type: "button", ref: cancelRef, className: "btn bgb", onClick: onCancel }, "Cancel"),
@@ -3740,7 +3761,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-13T05:07:19Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-13T06:32:28Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -5747,7 +5768,11 @@ function lcModalSync() {
       const ask = LcModal.pending; LcModal.pending = null;
       const a = document.activeElement;
       const lost = !a || a === document.body || !a.isConnected || !!a.closest("[inert]");
-      const go = [ask, before.from].find(function (x) { return x && x.isConnected && !x.closest("[inert]"); });
+      /* Round 7 fixes (QA round 6): More reopened by a page's Back remembered that Back button, which is gone (or belongs to
+         the page under More), so Escape dropped focus to the page body (or onto a Dream card the page under More had asked
+         for). Closing More goes back to the More tab; a page opened from More then moves focus to its heading as before. */
+      const moreTab = before.el.classList && before.el.classList.contains("menu-ov") ? document.querySelector(".bnav .nb-menu") : null;
+      const go = (moreTab ? [moreTab, ask, before.from] : [ask, before.from]).find(function (x) { return x && x.isConnected && !x.closest("[inert]"); });
       if (go && (lost || (ask && a !== ask))) { try { go.focus(); } catch (e) {} }
     }
   } finally { LcModal.busy = false; }
@@ -6168,16 +6193,26 @@ if (typeof document !== "undefined") document.addEventListener("click", function
   if (t) Looscid.LC_LAST_ACT = { el: t, at: Date.now() };
 }, true);
 function lcOpenerEl() { const l = Looscid.LC_LAST_ACT; return l && l.el && l.el.isConnected && Date.now() - l.at < 1500 ? l.el : document.activeElement; }
+// Round 7 fixes (QA round 6): two controls with the same name (two Dreams by the same Dreamor, each with "View Ava's
+// profile") are told apart by their place among the controls with that name (nth), so Back lands on the right one.
+const LC_OPENER_SEL = "button, a[href], [role=button], [role=tab], [role=link], [role=menuitem], input, select, [tabindex]";
 function lcOpenerDesc(el) {
   if (!el || el === document.body || el === document.documentElement || !el.getAttribute) return null;
-  return { id: el.id || "", label: el.getAttribute("aria-label") || "", text: String(el.textContent || "").trim().slice(0, 120) };
+  const d = { id: el.id || "", label: el.getAttribute("aria-label") || "", text: String(el.textContent || "").trim().slice(0, 120) };
+  const root = document.getElementById("main-content");
+  if (root && root.contains(el) && !d.id) {
+    const same = Array.from(root.querySelectorAll(LC_OPENER_SEL)).filter(function (b) { return d.label ? b.getAttribute("aria-label") === d.label : String(b.textContent || "").trim().slice(0, 120) === d.text; });
+    const i = same.indexOf(el); if (i > 0) d.nth = i;
+  }
+  return d;
 }
 function lcFindOpener(o) {
   if (!o) return null;
   const root = document.getElementById("main-content") || document.body;
   if (o.id) { const e = document.getElementById(o.id); if (e && root.contains(e)) return e; }
-  const all = Array.from(root.querySelectorAll("button, a[href], [role=button], [role=tab], [role=link], [role=menuitem], input, select, [tabindex]"));
+  const all = Array.from(root.querySelectorAll(LC_OPENER_SEL));
   const head = function (t) { return String(t || "").split(",")[0].trim(); };
+  if (o.nth) { const same = all.filter(function (b) { return o.label ? b.getAttribute("aria-label") === o.label : String(b.textContent || "").trim().slice(0, 120) === o.text; }); if (same[o.nth]) return same[o.nth]; }
   return (o.label && all.find(function (b) { return b.getAttribute("aria-label") === o.label; }))
     || (o.label && all.find(function (b) { return head(b.getAttribute("aria-label")) === head(o.label); }))
     || (o.text && all.find(function (b) { return String(b.textContent || "").trim().slice(0, 120) === o.text; })) || null;
@@ -6362,23 +6397,36 @@ useEffect(() => {
   Looscid.LC_CHERRY_CTX = cherryCtx; // build 150: the same actions, reachable from Cherry's own page and tests
 
   const navigate = useCallback((target, data=null) => {
-    if (target === "about") target = "settings_about"; // the old separate About page is gone: one About Looscid
+    /* Round 7 fixes (QA round 6): "settings" also means "Back" (to the Settings page or to More). After More > Liked > Back
+       (or View your profile > Back), Liked stayed under More, so More's Settings link was read as Back and only reopened
+       More. More's Settings link asks for "settings_open": always the Settings page itself, focus on its heading. */
+    let openSettings = false;
+    if (target === "settings_open") { target = "settings"; openSettings = true; }
+    if (target === "about") target = "settings_about";
+    /* Round 7 fixes (QA round 6): Back on a profile goes to where THIS visit came from. Discover hands its way back in
+       LC_DP_BACK_NEXT just before it opens the profile; any other way of opening a profile (a Home card's "View <name>'s
+       profile", a Dream's menu, the Commandbar) leaves none, so an older one from Discover is never used. */
+    if (target === "dp") { Looscid.LC_DP_BACK = Looscid.LC_DP_BACK_NEXT || null; Looscid.LC_DP_BACK_NEXT = null; } // the old separate About page is gone: one About Looscid
     if (target === "settings_a11y_verbosity") { try { sessionStorage.setItem("looscid_sr_tab", "verbosity"); } catch (e) {} target = "settings_a11y_sr"; } // round 6: Verbosity is a tab
     if (target === "settings_cherry") target = "settings_ai_cherry"; // round 5: Cherry lives in Settings, Intelligence
     if (target === "settings_cherry_algo") target = "settings_labs";
     // Round 6 fixes: More > Cherry while Cherry is off opens Intelligence; Back from there returns to the More menu on Cherry.
-    if (target !== "cherry" && target !== "settings") cherryOffMenu.current = false;
+    if (target !== "cherry" && (target !== "settings" || openSettings)) cherryOffMenu.current = false;
     if (target === "cherry" && !lcAiOn()) { cherryOffMenu.current = !!showMenuRef.current; target = "settings_ai_cherry"; setTimeout(function () { announce("Cherry is off. Turn it on here, in Intelligence."); }, 400); }
     const cur = pageRef.current;
-    if (target === "settings" && cur === "settings_ai_cherry" && cherryOffMenu.current) { cherryOffMenu.current = false; delete openers.current[cur]; moreBack("cherry"); return; }
+    if (target === "settings" && !openSettings && cur === "settings_ai_cherry" && cherryOffMenu.current) { cherryOffMenu.current = false; delete openers.current[cur]; moreBack("cherry"); return; }
     // "settings" means Back to the Settings menu: the screen it came from, or the More menu on that item.
-    if (target === "settings") {
+    if (target === "settings" && !openSettings) {
       const from = subFrom.current[cur];
       if (from) { delete subFrom.current[cur]; const op = openers.current[cur]; delete openers.current[cur]; setPage(from); setPdata(null); setTimeout(() => { lcFocusOpenerOrHeading(op && op.page === from ? op : null); }, 60); return; }
       // Part 34a: a page opened from the site footer (About Looscid, Credits, Terms, Child Safety...) goes Back to the page
       // you were reading, not into More.
-      if (Looscid.lcFooterFrom === cur) { Looscid.lcFooterFrom = null; setPage(mainBack.current || "feed"); setPdata(null); Earcon.play("settings");
-        setTimeout(() => { const h = document.querySelector("#main-content h1"); if (h) { if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); h.focus(); } }, 60); return; }
+      // Round 7 fixes (QA round 6): Back lands on the footer link that opened the page (it went to the top of Home).
+      if (Looscid.lcFooterFrom === cur) { Looscid.lcFooterFrom = null; const fl = Looscid.lcFooterLink; Looscid.lcFooterLink = null; setPage(mainBack.current || "feed"); setPdata(null); Earcon.play("settings");
+        let tries = 0; const toLink = () => { const a = fl ? Array.from(document.querySelectorAll("footer.lc-footer a")).find(x => String(x.textContent || "").trim() === fl) : null;
+          if (a) { a.focus(); setTimeout(() => { const ae = document.activeElement; if ((!ae || ae === document.body) && a.isConnected) a.focus(); }, 200); return; } if (fl && ++tries < 6) { setTimeout(toLink, 60); return; }
+          const h = document.querySelector("#main-content h1"); if (h) { if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); h.focus(); } };
+        setTimeout(toLink, 60); return; }
       const m = SETTINGS_MENU_ITEM[cur] || ["settings", null];
       // Part 40 (#67): Settings is its own page now. Back from a Settings screen lands there, on the row it came from.
       if (m[0] === "settings" && cur !== "settings") {
@@ -6438,10 +6486,15 @@ useEffect(() => {
       // Round 6 fixes: a page opened from the More menu. Closing the menu put focus back on the More tab, so the page's
       // heading was never reached (Discover, Apps, Create, Alerts, Projects, View your profile).
       const fromMenu = nf.menu && !!(a && a.closest && a.closest(".bnav-wrap"));
-      if (!a || a === document.body || a === document.documentElement || !a.isConnected || a === nf.from || fromMenu) lcFocusOpenerOrHeading(nf.op); }, 60);
+      // Round 7 fixes (QA round 6): coming Back, the page may have put focus on the whole Dream card that holds the control
+      // you opened from (the second Dream by the same Dreamor); the control itself is where you were.
+      const opEl = nf.op ? lcFindOpener(nf.op) : null, inCard = !!(opEl && a && a !== opEl && a.contains && a.contains(opEl));
+      if (!a || a === document.body || a === document.documentElement || !a.isConnected || a === nf.from || fromMenu || inCard) lcFocusOpenerOrHeading(nf.op); }, 60);
   }, [page, pdata]);
   const goRoot = id => {
     if(id==="create"){setShowCreate(true);return;}
+    // Round 7 fixes (QA round 6): a tab switch starts a new visit, so a profile's old way Back to Discover is forgotten.
+    Looscid.LC_DP_BACK = null; Looscid.LC_DP_BACK_NEXT = null;
     if(id==="cherry"){navigate("cherry");return;}
     if(id==="circles"){setPage("groups");setPdata(null);return;}
     setPage(id); setPdata(null);
@@ -6709,6 +6762,9 @@ useEffect(() => {
   }, [prefs.accessibility, sysRM]);
   // Earcon when the area changes (Feed, Alerts, Circles, Settings)
   const lastArea = useRef("feed");
+  // Round 7 fixes: a new page drops the old page's waiting announcements (lcAnnRoute).
+  const annRouteFirst = useRef(true);
+  useEffect(() => { if (annRouteFirst.current) { annRouteFirst.current = false; return; } lcAnnRoute(); }, [page, pdata]);
   useEffect(() => { if (page !== "terminal" && page !== "music") termBack.current = page; if (!/^settings|^more_|^terms$|^privacy$|^guidelines$|^child_safety$|^credits$|^hour_story$|^feedback$/.test(page)) mainBack.current = page; const ar = areaOfPage(page); const prev = lastArea.current; lastArea.current = ar; if (ar && ar !== prev) Earcon.play(ar); }, [page]);
 
   const showFab = ["feed","discover","groups","alerts"].includes(page);

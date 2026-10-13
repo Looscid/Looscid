@@ -40,7 +40,9 @@ function FeedPage({navigate, prefs, cherryCtx}) {
     if (!Looscid.A11Y_NOW.focusMemory) return;
     let mem = {}; try { mem = JSON.parse(localStorage.getItem(LC_FOCUSMEM_KEY) || "{}") || {}; } catch (e) {}
     const id = mem[tab]; if (id == null) return;
-    const t = setTimeout(function () { const el = document.querySelector('#feed-list [data-dream-id="' + String(id).replace(/"/g, "") + '"]'); if (el && !(el !== document.activeElement && el.contains(document.activeElement))) { el.focus(); } }, 260); // Round 5 fixes: already on that Dream's Replies button (Back from Replies): stay there
+    // Round 7 fixes (QA round 6): Back from a footer page puts focus on the footer link it came from; focus memory leaves it there.
+    const t = setTimeout(function () { const ae = document.activeElement; if (ae && ae.closest && ae.closest("footer.lc-footer")) return;
+      const el = document.querySelector('#feed-list [data-dream-id="' + String(id).replace(/"/g, "") + '"]'); if (el && !(el !== document.activeElement && el.contains(document.activeElement))) { el.focus(); } }, 260); // Round 5 fixes: already on that Dream's Replies button (Back from Replies): stay there
     return function () { clearTimeout(t); };
   }, [activeComment]);
   const rememberFocus = function (e) {

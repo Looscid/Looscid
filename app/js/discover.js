@@ -82,7 +82,9 @@ function discoverView(st, p, draw) {
           h('span', { style: { fontSize: 9, opacity: .6, marginLeft: 2 } }, filtersOpen ? "\u25b2" : "\u25bc")),
         filters.length > 0 && h('button', { style: { background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "var(--tx3)", padding: "4px 6px", fontFamily: "inherit" },
           onClick: function () { st.filters = []; draw(); }, "aria-label": "Clear all filters" }, "Clear"),
-        q.trim() && Looscid.lcLikeSearch ? h('button', { type: "button", id: "discover-like-search", className: "btn bgb lc-btn", style: { marginLeft: "auto", fontSize: 12 }, onClick: likeSearch }, sLiked ? "Unlike Search" : "Like Search") : null),
+        q.trim() && Looscid.lcLikeSearch ? h('button', { type: "button", id: "discover-like-search", className: "btn bgb lc-btn", style: { marginLeft: "auto", fontSize: 12 }, onClick: likeSearch,
+          // Round 7 fixes (QA round 6): "Like Search" alone was unclear; its hint says what it does.
+          "aria-describedby": Looscid.lcHint ? Looscid.lcHint(sLiked ? "Takes this search out of Liked." : "Saves this search in Liked, under Searches.") : undefined }, sLiked ? "Unlike Search" : "Like Search") : null),
       q && filtersOpen && h('div', { style: { margin: "0 16px 10px", background: "var(--sf2)", border: "1px solid var(--bd2)", borderRadius: 12, padding: "12px 14px" }, role: "group", "aria-label": "Search filters" },
         filterGroups.map(function (group) {
           return h('div', { key: group.label, style: { marginBottom: 10 } },
@@ -128,11 +130,11 @@ function discoverView(st, p, draw) {
         const fol = !!(cherryCtx && cherryCtx.following && cherryCtx.following.has(u.id));
         return h('div', { key: u.id, className: "ci" },
           h('button', { type: "button", className: "lc-disc-open", style: { display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0, background: "none", border: "none", padding: 0, color: "inherit", font: "inherit", textAlign: "left", cursor: "pointer" },
-              onClick: function () { const keep = { q: st.q, tab: st.tab, filters: st.filters.slice() }; Looscid.LC_DP_BACK = { user: u, back: function () { Looscid.LC_DISCOVER_NEXT_ST = keep; navigate("discover"); } }; navigate("dp", u); }, "aria-label": u.name + (u.verified ? ", verified" : "") + ", " + u.handle + ", " + fmt(u.followers) + " Dreamors following" },
+              onClick: function () { const keep = { q: st.q, tab: st.tab, filters: st.filters.slice() }; Looscid.LC_DP_BACK_NEXT = { user: u, back: function () { Looscid.LC_DISCOVER_NEXT_ST = keep; navigate("discover"); } }; navigate("dp", u); }, "aria-label": u.name + (u.verified ? ", verified" : "") + ", " + u.handle + ", " + fmt(u.followers || 0) + ((u.followers || 0) === 1 ? " follower" : " followers") },
             lcAvEl(u, 44),
             h('div', { className: "cif", "aria-hidden": "true" },
               h('div', { className: "cnm" }, u.name, u.verified && h('span', { style: { color: "var(--ac2)", fontSize: 11 } }, " \u2713")),
-              h('div', { className: "cpv" }, u.handle, " \u00b7 ", fmt(u.followers), " Dreamors following"))),
+              h('div', { className: "cpv" }, u.handle, " \u00b7 ", fmt(u.followers || 0), (u.followers || 0) === 1 ? " follower" : " followers"))),
           cherryCtx && cherryCtx.followUser
             ? h('button', { type: "button", className: "btn " + (fol ? "bgb" : "bp"), style: { padding: "7px 14px", fontSize: 12 }, "aria-pressed": fol ? "true" : "false", "aria-label": "Follow " + u.name,
                 onClick: function () { cherryCtx.followUser(u.id); Looscid.announce((fol ? "Unfollowed " : "Following ") + u.name, "state"); } }, fol ? "Following" : "Follow")
