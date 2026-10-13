@@ -83,6 +83,7 @@ Round 7: a feature update, asked for by 2three1y. Built in steps, one commit eac
 - Security: Looscid now refuses scripts that aren't its own files, and it won't run if another website tries to show it inside a hidden frame. You'll get a link to open it on its own instead.
 - Security: smaller fixes. Notes dated in the future can't jump to the top anymore, names and message settings from Nostr must be properly signed, and Cherry's on-device models are off until their code ships with Looscid itself.
 - Fixes from a careful check: messages from Nostr people you follow show again, Mute and Pin menu items now say Unmute and Unpin right after you use them, Dream info gives the real date and time for your own Dreams, and Inbox earcons play your Soundpack's Alert sound again when the pack has no Inbox earcons of its own. Also: Liked by and Redreamed by say how many Dreamors when they open, and a few buttons keep your focus while they're busy.
+- Share now uses your phone's share sheet, for profiles and Dreams. It has Copy and, in Chrome, a QR code, so the separate Copy LooscidID link, QR code and Copy link items are gone. Cancelling the share sheet does nothing. Copy username and Open original profile stay.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 

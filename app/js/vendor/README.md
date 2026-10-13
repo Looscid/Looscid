@@ -32,8 +32,8 @@ React and React DOM 18.2.0, the UMD production builds, copied unchanged from the
 
 ## qrcode-generator-1.4.4.js
 
-QR Code Generator for JavaScript 1.4.4 by Kazuhiko Arase, the file qrcode.js copied unchanged from the npm package (qrcode-generator-1.4.4.tgz). Since build 152 (prep, #99 part 4) it draws the QR code under a profile's Dreamor options; app/js/more.js loads it only when a QR code is shown, from this site, with an integrity check.
+QR Code Generator for JavaScript 1.4.4 by Kazuhiko Arase, the file qrcode.js copied unchanged from the npm package (qrcode-generator-1.4.4.tgz). From build 152 (prep, #99 part 4) it drew the QR code under a profile's Dreamor options. Since Oct 12, 2026 Looscid no longer loads it: Share uses the phone's share sheet, which has its own QR code. The file stays here so a page that's still open from before can fetch it.
 
 - SHA-256: 18ae399f81182bc9de916e9c77b195df20cc58d6f2d55a62b085a299f1bf1780
-- integrity (SHA-384): sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k. If you ever replace the file, update LC_QR_SRI in app/js/more.js.
+- integrity (SHA-384): sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k. (It was checked against this value by LC_QR_SRI in app/js/more.js, now removed.)
 - License: MIT, in LICENSE in this folder. "QR Code" is a registered trademark of DENSO WAVE INCORPORATED.

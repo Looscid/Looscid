@@ -703,7 +703,7 @@ Cherry is a page, not a dialog. It is built screen-reader first: the page is a s
 
 - Order: Back, the avatar (hidden), Direct message and Follow (someone else's profile) or Edit profile (yours), the name (h1), the @handle line, then the Dreamor options pop-up button, the note, fields, bio, the Following and Followers buttons and the tabs. There is no "Dreams (N) • Joined" line: the Dreams tab says how many, and About has Date joined.
 - Dreamor options is a real pop-up menu button, like every other action menu: it opens with focus on the first item, Escape or a two-finger scrub closes it, choosing an item closes it, and focus goes back to the button. It never remembers being open.
-- Someone else's profile: Follow or Unfollow, Message, Ask Cherry for a summary, Share, Copy LooscidID link, Hide or Show Redreams, Add note, Mute, Block, Report. Your own: Edit profile, Share, Copy LooscidID link, View as others see it, Settings. An item that isn't ready yet stays in the list, unavailable, with the reason.
+- Someone else's profile: Follow or Unfollow, Message, Ask Cherry for a summary, Share (the phone's share sheet, which has Copy), Copy username, Hide or Show Redreams, Add note, Mute, Block, Report. Your own: Edit profile, Share, Copy username, View as others see it, Settings. An item that isn't ready yet stays in the list, unavailable, with the reason.
 - View as others see it shows your profile without your own controls, with focus on your name and a "Done viewing as others" button (Back works too) that returns focus to Dreamor options.
 - The About tab's heading is "About" and the display name, or "About this LooscidID" when there isn't one.
 - "<name> just published" is said once, only for a Dream with a real time from the last few minutes.
