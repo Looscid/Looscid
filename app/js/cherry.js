@@ -205,7 +205,7 @@ function cherryView(st, p, act) {
           onChange: function (e) { st.inp = e.target.value; act.draw(); },
           onKeyDown: function (e) { if (e.key === "Enter" && !e.isComposing && a11yEnterSends()) { e.preventDefault(); act.send(); } },
           onBeforeinput: function (e) { if ((e.inputType === "insertParagraph" || e.inputType === "insertLineBreak") && a11yEnterSends()) { e.preventDefault(); act.send(); } } }),
-        h('button', { type: "button", id: "cherry-send", className: "btn bp lc-btn", onClick: function () { act.send(); }, disabled: !String(st.inp || "").trim() }, "Send"))),
+        h('button', { type: "button", id: "cherry-send", className: "btn bp lc-btn", onClick: function () { if (!String(st.inp || "").trim()) { announce("Type a message for Cherry first."); return; } act.send(); }, "aria-disabled": String(st.inp || "").trim() ? undefined : "true" }, "Send"))),
 
     h('div', { className: "lc-cherry-foot" },
       h('button', { type: "button", id: "cherry-settings", className: "btn bgb lc-btn", onClick: act.settings }, "Cherry settings: memory, tools and What Cherry did")),

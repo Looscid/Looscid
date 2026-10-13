@@ -335,7 +335,7 @@ function FederatedControls({ pubState }) {
     sub === "local" ? lh('div', { className: "lc-fed-local" },
       lh('p', null, "Dreams from around you shows Dreams tagged with a place near you. It stays off until you turn it on. Looscid asks your device for your location once, keeps only a rough area of about 5 km on this device, and uses it only to ask relays for Dreams tagged with that area. Your own Dreams never carry your location."),
       loc ? lh('button', { type: "button", id: "fed-local-off", className: "btn bgb lc-btn", onClick: function () { Looscid.lcSetFedLocal(null); announce("Dreams from around you is off. Your area was removed from this device."); } }, "Turn off Dreams from around you")
-          : lh('button', { type: "button", id: "fed-local-on", className: "btn bgb lc-btn", disabled: asking, onClick: turnOn }, asking ? "Asking for your location\u2026" : "Turn on Dreams from around you")) : null,
+          : lh('button', { type: "button", id: "fed-local-on", className: "btn bgb lc-btn", "aria-disabled": asking ? "true" : undefined, onClick: asking ? undefined : turnOn }, asking ? "Asking for your location\u2026" : "Turn on Dreams from around you")) : null,
     lh('fieldset', { className: "lc-fed-nets" }, lh('legend', null, "Networks"),
       LC_FED_NETS.map(function (n) {
         return lh('div', { key: n.id, className: "lc-chk-row" },

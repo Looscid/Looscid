@@ -554,7 +554,7 @@ function DreamExtra({ extra, dream, onClose }) {
       lh('h3', { id: "thr-h-" + dream.id, className: "lc-sub-h", tabIndex: -1, ref: ref }, "Thread, " + t.length + (t.length === 1 ? " Dream" : " Dreams")),
       lh('ol', { className: "lc-thread" }, t.map(function (x, i) { return lh('li', { key: x.id || i }, lh('span', { className: "lc-thread-who" }, (i ? "Reply from " : "") + ((x.user && x.user.name) || "Someone") + ": "), lcSpeechText(x.text)); })),
       lh('div', { className: "lc-inrow" },
-        lh('button', { type: "button", className: "btn bgb lc-btn", disabled: !LcSpeech.ok, onClick: function () { lcHearThread(dream); } }, "Hear thread"),
+        lh('button', { type: "button", className: "btn bgb lc-btn", "aria-disabled": LcSpeech.ok ? undefined : "true", onClick: function () { if (!LcSpeech.ok) { announce("Hear thread isn't available: this browser can't read aloud."); return; } lcHearThread(dream); } }, "Hear thread"),
         lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { LcSpeech.stop(); } }, "Stop"), close));
   }
   return lh('section', { className: "lc-extra", "aria-labelledby": "tr-h-" + dream.id },
@@ -1674,7 +1674,7 @@ function LcSiteFooter({ navigate }) {
   const ext = function (href, text, key) { return lh('li', { key: key }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, text)); };
   const go = function (page, text, key) { return lh('li', { key: key }, lh('a', { href: (Looscid.lcPathFor ? Looscid.lcPathFor(page) : "#"), className: "lc-link",
     onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); Looscid.lcFooterFrom = page; navigate(page); } }, text)); };
-  const soon = function (text, key) { return lh('li', { key: key }, lh('button', { type: "button", className: "lc-foot-soon", disabled: true, "aria-disabled": "true" }, text, lh('span', { className: "lc-foot-soon-tag" }, " Coming soon"))); };
+  const soon = function (text, key) { return lh('li', { key: key }, lh('button', { type: "button", className: "lc-foot-soon", "aria-disabled": "true", onClick: function () { announce(text + " is coming soon."); } }, text, lh('span', { className: "lc-foot-soon-tag" }, " Coming soon"))); };
   const grp = function (id, title, kids) { return lh('section', { className: "lc-foot-grp", "aria-labelledby": id }, lh('h3', { id: id, className: "lc-foot-h" }, title), lh('ul', { className: "lc-foot-list", role: "list" }, kids)); };
   return lh('footer', { className: "lc-footer", role: "contentinfo", "aria-labelledby": "lc-foot-title" },
     lh('h2', { id: "lc-foot-title", className: "lc-foot-title" }, "Footer"),
@@ -2373,7 +2373,8 @@ function LcMenu(props) {
   const choose = function (it) {
     if (!it) return;
     if (it.close) { close(); return; }
-    if (it.disabled) return;
+    // Build 152 fix: an unavailable item stays put, and says its reason once (its hint, else its note).
+    if (it.disabled) { const why = it.hint || (it.note ? lcHintReason(it.note) : ""); if (why) announce(why); return; }
     if (btnRef.current) btnRef.current.focus();
     setOpen(false); lcPackChime("run");
     if (props.onSelect) props.onSelect(it.id, it);
@@ -3655,7 +3656,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-13T01:07:36Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-13T01:12:05Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never

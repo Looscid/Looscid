@@ -804,7 +804,7 @@ function LcCatCustomize({ kind, defs, title }) {
     const o = st.order.filter(function (x) { return x !== id; }); o.splice(Math.max(0, Math.min(o.length, to)), 0, id);
     lcCatSave(kind, { order: o, hidden: st.hidden });
     announce(name(id) + " moved to position " + (o.indexOf(id) + 1) + ".");
-    setTimeout(function () { const b = document.getElementById("cat-" + kind + "-" + id + "-" + (o.indexOf(id) === 0 ? "down" : "up")); if (b && !b.disabled) b.focus(); else { const c = document.getElementById("cat-" + kind + "-" + id + "-show"); if (c) c.focus(); } }, 30);
+    setTimeout(function () { const b = document.getElementById("cat-" + kind + "-" + id + "-" + (o.indexOf(id) === 0 ? "down" : "up")); if (b && b.getAttribute("aria-disabled") !== "true") b.focus(); else { const c = document.getElementById("cat-" + kind + "-" + id + "-show"); if (c) c.focus(); } }, 30);
   };
   const toggle = function (id) {
     const h = st.hidden.indexOf(id) >= 0 ? st.hidden.filter(function (x) { return x !== id; }) : st.hidden.concat([id]);
@@ -818,9 +818,10 @@ function LcCatCustomize({ kind, defs, title }) {
       return lh('li', { key: id, className: "lc-cat-li" },
         lh('h3', { className: "lc-cat-n" }, n),
         lh('div', { className: "lc-cat-acts" },
-          lh('button', { type: "button", id: "cat-" + kind + "-" + id + "-top", className: "btn bgb lc-btn", disabled: i === 0, onClick: function () { move(id, 0); } }, "Move " + n + " to top"),
-          lh('button', { type: "button", id: "cat-" + kind + "-" + id + "-up", className: "btn bgb lc-btn", disabled: i === 0, onClick: function () { move(id, i - 1); } }, "Move " + n + " up"),
-          lh('button', { type: "button", id: "cat-" + kind + "-" + id + "-down", className: "btn bgb lc-btn", disabled: last, onClick: function () { move(id, i + 1); } }, "Move " + n + " down"),
+          // Build 152 fix: aria-disabled at the ends (focus stays, the reason is said), not native disabled.
+          lh('button', { type: "button", id: "cat-" + kind + "-" + id + "-top", className: "btn bgb lc-btn", "aria-disabled": i === 0 ? "true" : undefined, onClick: function () { if (i === 0) { announce(n + " is already first."); return; } move(id, 0); } }, "Move " + n + " to top"),
+          lh('button', { type: "button", id: "cat-" + kind + "-" + id + "-up", className: "btn bgb lc-btn", "aria-disabled": i === 0 ? "true" : undefined, onClick: function () { if (i === 0) { announce(n + " is already first."); return; } move(id, i - 1); } }, "Move " + n + " up"),
+          lh('button', { type: "button", id: "cat-" + kind + "-" + id + "-down", className: "btn bgb lc-btn", "aria-disabled": last ? "true" : undefined, onClick: function () { if (last) { announce(n + " is already last."); return; } move(id, i + 1); } }, "Move " + n + " down"),
           id === "all" ? null : lh('label', { className: "lc-radio" + (st.hidden.indexOf(id) < 0 ? " on" : "") },
             lh('input', { type: "checkbox", id: "cat-" + kind + "-" + id + "-show", checked: st.hidden.indexOf(id) < 0, onChange: function () { toggle(id); } }), lh('span', null, "Show " + n))));
     })));
@@ -2608,6 +2609,8 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
 }
 Looscid.LC_FORCED = {}; // Private account forces two Permissions
 // What each event is called, for previews, mapping and captions.
+// Preview button names in sentence case without losing proper terms: "Preview new Dream sound", never "new dream".
+function lcLowerFirst(s) { s = String(s || ""); return /^(Dream|Redream|Looscid|Cherry|Nostr)/.test(s) ? s : s.charAt(0).toLowerCase() + s.slice(1); }
 const LC_EVENTS = [["send", "Send"], ["like", "Like"], ["newDream", "New Dream"], ["error", "Error"], ["alerts", "Alert"], ["feedSwitch", "Feed switch"], ["focus", "Focus move"], ["open", "Open"], ["close", "Close"], ["run", "Done"], ["link", "Link"], ["boot", "Boot chime"]];
 Looscid.LC_EVENTS = LC_EVENTS;
 const LC_AUDIO_EXT = { wav: "audio/wav", mp3: "audio/mpeg", ogg: "audio/ogg", oga: "audio/ogg", opus: "audio/ogg", m4a: "audio/mp4", aac: "audio/aac", webm: "audio/webm", flac: "audio/flac" };
@@ -2748,6 +2751,7 @@ const LC_VERSION_HISTORY = [
     "Security: smaller fixes. Notes dated in the future can't jump to the top anymore, names and message settings from Nostr must be properly signed, and Cherry's on-device models are off until their code ships with Looscid itself.",
     "Fixes from a careful check: messages from Nostr people you follow show again, Mute and Pin menu items now say Unmute and Unpin right after you use them, Dream info gives the real date and time for your own Dreams, and Inbox earcons play your Soundpack's Alert sound again when the pack has no Inbox earcons of its own. Also: Liked by and Redreamed by say how many Dreamors when they open, and a few buttons keep your focus while they're busy.",
     "Share now uses your phone's share sheet, for profiles and Dreams. It has Copy and, in Chrome, a QR code, so the separate Copy LooscidID link, QR code and Copy link items are gone. Cancelling the share sheet does nothing. Copy username and Open original profile stay.",
+    "VoiceOver fixes: Discover says how many results once instead of having its own announcer; the footer's Coming soon buttons, Create's Dream button, Cherry's Send, Hear thread, the Inbox tab Move buttons and Dreams from around you stay findable while unavailable and say why when pressed; unavailable menu items say why too; and it's \"Preview new Dream sound\" now.",
     "Removing your Nostr key no longer leaves your Mastodon and Bluesky sign-ins locked for good: with the key unlocked they're kept, and with it locked Looscid tells you first that they'll be signed out. And when another website shows Looscid in a frame, you get only the short message and the Open Looscid on its own link, with no error boxes on top.",
     "Share reply now opens your phone's share sheet with the reply's link, just like Share Dream. And your older Dreams show their real age on the card again instead of \"just now\"; a Dream whose time isn't known shows no time.",
   ] },
@@ -3620,7 +3624,7 @@ function AudioSettings({ navigate, page }) {
       lh('p', { className: "lc-desc" }, "Turn each sound on or off, and preview it in the Soundpack you're using."),
       evDefs.map(function (d) {
         return lh('div', { key: d.k, className: "lc-evrow" }, lh(LcSetRow, { def: d }),
-          lh('button', { type: "button", className: "btn bgb lc-btn lc-prev", onClick: function () { Earcon.play(d.ev, { test: true }); }, "aria-label": "Preview " + d.l.toLowerCase() }, "Preview"));
+          lh('button', { type: "button", className: "btn bgb lc-btn lc-prev", onClick: function () { Earcon.play(d.ev, { test: true }); }, "aria-label": "Preview " + lcLowerFirst(d.l) }, "Preview"));
       }),
       // Build 152: each Inbox type's own earcon (they follow the Alert switch above).
       lh('h3', { className: "lc-sub-h", id: "lca-inbox-h" }, "Inbox earcons"),
@@ -3630,7 +3634,7 @@ function AudioSettings({ navigate, page }) {
       })),
       lh('h3', { className: "lc-sub-h" }, "Other sounds"),
       lh('ul', { className: "lc-plain", role: "list" }, [["focus", "Focus move sound"], ["open", "Open sound"], ["close", "Close sound"]].map(function (x) {
-        return lh('li', { key: x[0] }, lh('button', { type: "button", className: "btn bgb lc-btn lc-prev", onClick: function () { Earcon.play(x[0], { test: true }); } }, "Preview " + x[1].toLowerCase()));
+        return lh('li', { key: x[0] }, lh('button', { type: "button", className: "btn bgb lc-btn lc-prev", onClick: function () { Earcon.play(x[0], { test: true }); } }, "Preview " + lcLowerFirst(x[1])));
       })));
   else body = lh(LcSection, { sec: "audio", title: "Music and haptics", only: cat.keys, noReset: true });
   return lh(LcCatPage, { title: cat.l, navigate: navigate, reset: "g:snd_" + cat.id }, body);
@@ -3684,7 +3688,7 @@ function LcPackImport() {
         const sid = "lc-map-" + ev[0], cur = (pack.map || {})[ev[0]] || "";
         return lh('li', { key: ev[0], className: "lc-maprow" },
           lh(LcMenu, { id: sid, label: ev[1], value: cur, items: [{ id: "", name: "Looscid's sound" }].concat(pack.files.map(function (f) { return { id: f.name, name: f.name }; })), onSelect: function (val) { setMap(ev[0], val); } }),
-          lh('button', { type: "button", className: "btn bgb lc-btn", "aria-label": "Preview " + ev[1].toLowerCase() + " from your pack", onClick: function () { Earcon.play(ev[0], { test: true, pack: "custom" }); } }, "Preview"));
+          lh('button', { type: "button", className: "btn bgb lc-btn", "aria-label": "Preview " + lcLowerFirst(ev[1]) + " from your pack", onClick: function () { Earcon.play(ev[0], { test: true, pack: "custom" }); } }, "Preview"));
       })),
       lh('button', { type: "button", className: "btn bp lc-big", disabled: Looscid.A11Y_NOW.soundPack === "custom", onClick: function () { lcSet({ soundPack: "custom" }); announce("Soundpack: your imported pack."); } }, Looscid.A11Y_NOW.soundPack === "custom" ? "Using your pack" : "Use this pack"),
       lh('button', { type: "button", className: "btn bgb lc-big", onClick: remove }, "Remove your Soundpack")) : null);

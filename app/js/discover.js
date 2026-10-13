@@ -28,7 +28,7 @@ function discoverView(st, p, draw) {
     } else {
       st.filters = filters.includes(id) ? filters.filter(function (f) { return f !== id; }) : filters.concat([id]);
     }
-    draw();
+    draw(); Looscid.lcAnnounceCount(st.q, st.count, "result", "results");
   };
   const activeLabels = filters.map(function (id) { return (FILTER_OPTS.find(function (f) { return f.id === id; }) || {}).label; }).filter(Boolean);
   const filterBtnText = filters.length === 0 ? "Filters" : "Filters \u00b7 " + activeLabels.join(", ");
@@ -53,6 +53,7 @@ function discoverView(st, p, draw) {
     draw();
   };
   const noResults = q && dreamResults.length === 0 && dreamerResults.length === 0 && circleResults.length === 0;
+  st.count = (tab === "dreamers" || tab === "all" ? dreamerResults.length : 0) + (tab === "dreams" || tab === "all" ? dreamResults.length : 0) + (tab === "circles" || tab === "all" ? circleResults.length : 0);
 
   return h('div', { className: "pg" },
     h('div', { className: "hdr" },
@@ -60,7 +61,7 @@ function discoverView(st, p, draw) {
         h('h1', { className: "htit", tabIndex: -1 }, "Discover")),
       h('div', { style: { padding: "10px 16px 6px" } },
         h('input', { className: "inp", style: { fontSize: 14 }, placeholder: "Search Dreamors, Dreams, Circles, topics", value: q,
-          onChange: function (e) { st.q = e.target.value; if (e.target.value && st.tab === "trending") st.tab = "all"; draw(); },
+          onChange: function (e) { st.q = e.target.value; if (e.target.value && st.tab === "trending") st.tab = "all"; draw(); Looscid.lcAnnounceCount(st.q, st.count, "result", "results"); },
           "aria-label": "Search", role: "searchbox" })),
       q && h('div', { style: { padding: "0 16px 8px", display: "flex", gap: 8, alignItems: "center" } },
         h('button', { className: "sort-btn",
@@ -95,7 +96,8 @@ function discoverView(st, p, draw) {
             tabLabel(t)); // build 149: no "1/4" position (iOS says "tab, 1 of 4" itself)
         }))),
 
-    h('div', { "aria-live": "polite", "aria-label": "Search results" },
+    // Build 152 fix: no second live region here; the result count is said once through #looscid-live (lcAnnounceCount).
+    h('div', null,
       // Part 36 (2three1y, Oct 12 4:50 PM): no Ask Cherry on Discover. Discover is search and browsing only.
       (tab === "trending" || (tab === "all" && !q)) && TRENDING.map(function (t) {
         return h('div', { key: t.tag, className: "trtg", role: "button", tabIndex: 0, onClick: function () { st.q = "#" + t.tag; st.tab = "dreams"; draw(); }, "aria-label": Looscid.lcNameJoin("#" + t.tag, t.cat, t.count) },

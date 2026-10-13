@@ -524,7 +524,8 @@ function LcComposer(props) {
   };
   const close = function () { const o = openerRef.current; try { if (Looscid.LcSpeech) Looscid.LcSpeech.stop(); } catch (e) {} props.onClose(); setTimeout(function () { lcRefocus(o); }, 0); };
   const tryPost = function () {
-    if (!canPost) return;
+    // Build 152 fix: the button is aria-disabled (not native disabled) while it can't be sent, so it says why.
+    if (!canPost) { announce(overAny ? "It's over the character limit. Make it shorter first." : isReply ? "Type your reply first." : "Type your Dream first."); return; }
     const noAlt = attachments.filter(function (x) { return x.type === "photo" && !String(x.alt || "").trim(); });
     if (noAlt.length && Looscid.A11Y_NOW.altReminder !== false) { setAltAsk(true); return; }
     doPost();
@@ -654,7 +655,7 @@ function LcComposer(props) {
       cherryCtx && lh('button', { type: "button", className: "cherry-compose-btn", onClick: function () { sentRef.current = true; props.onClose(); cherryCtx.openCherry(isReply ? "Draft a reply to " + who + "'s Dream: \u201c" + String(parent.text || "").slice(0, 200) + "\u201d" : "Draft a Dream for me to share"); } }, isReply ? "Ask Cherry to write this reply" : "Ask Cherry to write this Dream")),
     /* Dream (Reply in Reply mode), then Close: right after the content, as in 6.3 */
     lh('div', { style: {display:"flex",justifyContent:"flex-end",gap:8,padding:"10px 16px 6px",borderTop:"1px solid var(--bd)"} },
-      lh('button', { type: "button", id: "cr-dream-btn", className: "btn bp", style: {padding:"8px 18px",fontSize:14}, onClick: tryPost, disabled: !canPost }, isReply ? "Reply" : "Dream"),
+      lh('button', { type: "button", id: "cr-dream-btn", className: "btn bp", style: {padding:"8px 18px",fontSize:14}, onClick: tryPost, "aria-disabled": canPost ? undefined : "true" }, isReply ? "Reply" : "Dream"),
       lh('button', Object.assign({ type: "button", className: "lc-close", onClick: close }, lcCloseProps(isReply ? "reply" : isQuote ? "Quote" : "new Dream")), "Close")),
     lh('div', { style: {height:"env(safe-area-inset-bottom,8px)"} }));
 }
