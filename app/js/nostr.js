@@ -180,17 +180,27 @@ async function importKey(raw, passcode, opts) {
   let NT; try { NT = await load(); } catch (e) { return { err: toolsMsg(e) }; }
   const p = parseKey(NT, raw, passcode);
   if (p.err) return p;
-  if (!p.enc) { const bad = passcode ? passcodeProblem(passcode) : (opts && opts.noPasscode ? null : "Choose a passcode to lock your key, or choose to save it without one."); if (bad) return { err: bad, field: "pass" }; }
   const pk = NT.getPublicKey(p.sk);
   // Round 5 fixes: pasting the key that is already stored here changes nothing. It used to replace it with itself, which
   // signed Mastodon and Bluesky out when the key was locked, though this same key opens them.
+  // Round 6 fixes: this is checked before the passcode, which a key you already have here doesn't need.
   const st0 = state();
   if ((st0.mode === "key" || st0.mode === "locked") && st0.pubkey && st0.pubkey === String(pk).toLowerCase()) return { err: "That's already your key.", same: true };
+  if (!p.enc) { const bad = passcode ? passcodeProblem(passcode) : (opts && opts.noPasscode ? null : "Choose a passcode to lock your key, or choose to save it without one."); if (bad) return { err: bad, field: "pass" }; }
   const gone = dropKey(); // build 152 fix: release sign-ins sealed to the key being replaced (sealed again below to this one)
   if (p.enc) { lsSet(ENC_KEY, p.enc); lsSet(SK_KEY, null); memSk = p.sk; } else storeSk(NT, p.sk, passcode);
   const idn = setIdentityFor(NT, pk, "local", { imported: true });
   sealSessions();
   emit(); kick(); return { ok: true, npub: idn.npub, pubkey: pk, signedOut: signedOutText(gone) };
+}
+// Round 6 fixes: true when a pasted nsec (or hex) key is the one already stored here, so the page can say
+// "That's already your key." before asking for a passcode. Never stores or logs anything.
+async function isCurrentKey(raw) {
+  const st0 = state(); if (!((st0.mode === "key" || st0.mode === "locked") && st0.pubkey)) return false;
+  const v = String(raw || "").trim(); if (!v || /^ncryptsec1/i.test(v)) return false;
+  let NT; try { NT = await load(); } catch (e) { return false; }
+  const p = parseKey(NT, v, ""); if (!p.sk) return false;
+  return String(NT.getPublicKey(p.sk)).toLowerCase() === st0.pubkey;
 }
 async function createKey(passcode, opts) {
   const bad = passcode ? passcodeProblem(passcode) : (opts && opts.noPasscode ? null : "Choose a passcode to lock your key, or choose to save it without one.");
@@ -829,7 +839,7 @@ window.addEventListener("online", function () { if (queue().length) kick(); });
 if (document.readyState === "complete") start(); else window.addEventListener("load", start);
 
 Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, VENDOR_URL: VENDOR_URL, load: load, toolsMsg: toolsMsg, toolsReady: toolsReady, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
-  importKey: importKey, createKey: createKey, passcodeProblem: passcodeProblem, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, dropKey: dropKey, sealedSignins: sealedSignins, forgetWarning: forgetWarning, signedOutText: signedOutText, nsecNow: nsecNow, sealSessions: sealSessions, sealSessionsNow: sealSessionsNow, openSessions: openSessions, dmRelaysOf: dmRelaysOf,
+  importKey: importKey, isCurrentKey: isCurrentKey, createKey: createKey, passcodeProblem: passcodeProblem, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, dropKey: dropKey, sealedSignins: sealedSignins, forgetWarning: forgetWarning, signedOutText: signedOutText, nsecNow: nsecNow, sealSessions: sealSessions, sealSessionsNow: sealSessionsNow, openSessions: openSessions, dmRelaysOf: dmRelaysOf,
   publishDream: publishDream, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchReactions: fetchReactions, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
 // Tokens saved before this update, when the key already has a passcode, are sealed a few seconds after startup.
 setTimeout(function () { sealSessions(); }, 2500);

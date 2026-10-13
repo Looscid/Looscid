@@ -144,7 +144,7 @@ function discoverView(st, p, draw) {
       // aria-label on a plain div, and couldn't be opened). Back from the Dream returns here.
       (tab === "dreams" || tab === "all") && dreamResults.map(function (d) {
         return h('button', { type: "button", key: d.id, className: "lc-disc-dream", style: { display: "block", width: "100%", textAlign: "left", background: "none", border: "none", color: "inherit", font: "inherit", cursor: "pointer", borderBottom: "1px solid var(--bd)", padding: "11px 14px" },
-            "aria-label": Looscid.lcNameJoin("Dream by " + d.user.name, String(d.text || "").replace(/\n/g, " ").slice(0, 80)) + ", " + fmt(d.likes) + (d.likes === 1 ? " like" : " likes"),
+            "aria-label": Looscid.lcNameJoin("Dream by " + d.user.name, Looscid.lcCutWords(String(d.text || ""), 80)) + ", " + fmt(d.likes) + (d.likes === 1 ? " like" : " likes"),
             onClick: function () { const keep = { q: st.q, tab: st.tab, filters: st.filters.slice() }; Looscid.LC_FEED_OPEN = { dream: d, back: function () { Looscid.LC_DISCOVER_NEXT_ST = keep; navigate("discover"); } }; navigate("feed"); } },
           h('span', { "aria-hidden": "true", style: { display: "block" } },
           h('span', { style: { display: "flex", gap: 8, alignItems: "center", marginBottom: 4 } },

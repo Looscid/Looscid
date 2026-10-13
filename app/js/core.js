@@ -1032,7 +1032,8 @@ function lcThreadAbove(d) {
 /* Round 5 fixes: "1 like", "1 Redream" (singular), and the Redream button says whether you Redreamed or Quoted it.
    Like is a toggle button (aria-pressed); Redream opens a menu, so its state is in its name instead. */
 // Round 5 fixes: shortened text ends at a whole word with "…" (a pinned thread tab read "…from the as-Alha").
-function lcCutWords(t, n) { t = String(t || "").replace(/\s+/g, " ").trim(); if (t.length <= n) return t; const c = t.slice(0, n + 1), i = c.lastIndexOf(" "); return (i > n / 2 ? c.slice(0, i) : t.slice(0, n)).replace(/[\s,.;:!?-]+$/, "") + "…"; }
+// Round 6 fixes: a hyphen is a place to cut too, so "as-Alhasan-test-oct13-with-a-v…" ends at a whole part.
+function lcCutWords(t, n) { t = String(t || "").replace(/\s+/g, " ").trim(); if (t.length <= n) return t; const c = t.slice(0, n + 1), i = Math.max(c.lastIndexOf(" "), c.lastIndexOf("-")); return (i > n / 2 ? c.slice(0, i) : t.slice(0, n)).replace(/[\s,.;:!?-]+$/, "") + "…"; }
 Looscid.lcCutWords = lcCutWords;
 function lcCountWord(n, one, many) { return fmt(n) + " " + (n === 1 ? one : many); }
 function lcRdState(d) { return d.redreamed ? ", Redreamed" : d.quoted ? ", Quoted" : ""; }
@@ -1207,7 +1208,10 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
           )
           , rewrite && !textFirst && lh('p', { className: "sr-only" }, srText)
           , untagged && lh('p', { className: "lc-muted lc-untagged" }, "You removed yourself from this Dream.")
-          , extra && lh(DreamExtra, { extra: extra, dream: dream, onClose: function () { setExtra(null); setTimeout(function () { if (optsBtn.current) optsBtn.current.focus(); }, 0); } })
+          /* Round 6 fixes: Escape closes Dream info, Liked by, Redreamed by, the thread and the rest of these inline panels, the
+             same as their Close button (focus goes back to the Dream's More button). Edit Dream keeps its text: not there. */
+          , extra && lh('div', { style: { display: "contents" }, onKeyDown: function (e) { if (e.key !== "Escape" || e.defaultPrevented || extra.kind === "edit") return; e.preventDefault(); e.stopPropagation(); setExtra(null); setTimeout(function () { if (optsBtn.current) optsBtn.current.focus(); }, 0); } },
+              lh(DreamExtra, { extra: extra, dream: dream, onClose: function () { setExtra(null); setTimeout(function () { if (optsBtn.current) optsBtn.current.focus(); }, 0); } }))
           , dream.quoteOf != null && dream.qText != null && lh('div', { className: "qbub lc-quoted" }, lh('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.5,margin:0} }, "Quoting " + (dream.qWho || "a Dream") + ": " + dream.qText))
           , linkInfo && !dream.nopv && lh(LinkCard, { info: linkInfo })
           /* Cherry Insights panel */
@@ -1248,11 +1252,11 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
           , React.createElement('button', { className: "ixn-btn", onClick: ()=>onComment && onComment(dream), 'aria-label': fmt(nReplies)+(nReplies === 1 ? " reply" : " replies"), "aria-describedby": lcHint("Opens the thread."),}
             , React.createElement(Ic.Cmt, { style: {width:15,height:15},}), React.createElement('span', null, fmt(nReplies), nReplies === 1 ? " Reply" : " Replies" )
           )
-          , lh(LcMenu, { id: "rd-" + dream.id, kind: "action", title: "Redream or Quote", btnLabel: calm ? "Redreams" + (rdActive ? ", Redreamed" : "") : lcCountWord(rdTotal, "Redream", "Redreams") + lcRdState(dream), btnHint: "Opens Redream and Quote.", btnClass: "cbx-wrap"+(rdActive?" redd":""), noCaret: true, up: true, className: "lc-rdmenu",
+          , lh(LcMenu, { id: "rd-" + dream.id, kind: "action", title: "Redream or Quote", btnLabel: calm ? "Redreams" + lcRdState(dream) : lcCountWord(rdTotal, "Redream", "Redreams") + lcRdState(dream), btnHint: "Opens Redream and Quote.", btnClass: "cbx-wrap"+(rdActive?" redd":""), noCaret: true, up: true, className: "lc-rdmenu",
               btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, calm ? "" : fmt(rdTotal), calm ? "Redreams" : rdTotal === 1 ? " Redream" : " Redreams")],
               items: [{ id: "rd", name: dream.redreamed ? "Unredream" : "Redream" }, { id: "q", name: dream.quoted ? "Unquote Dream" : "Quote Dream" }],
               onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); announce(dream.redreamed ? "Redream removed" : "Redreamed", "state"); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
-          , React.createElement('button', { className: "cbx-wrap"+(dream.liked?" liked":""), "aria-pressed": !!dream.liked, onClick: ()=>{ if (!dream.liked) Earcon.play("like"); onLike(dream.id); announce(dream.liked ? "Like removed" : "Liked", "state"); }, 'aria-label': lcVerb() === "low" ? "Like" + (dream.liked ? ", liked" : "") : (calm ? "Likes" + (dream.liked ? ", liked" : "") : lcCountWord(dream.likes, "like", "likes")) + (lcVerb() === "high" ? ", double tap to " + (dream.liked ? "unlike" : "like") : ""),}
+          , React.createElement('button', { className: "cbx-wrap"+(dream.liked?" liked":""), "aria-pressed": !!dream.liked, onClick: ()=>{ if (!dream.liked) Earcon.play("like"); onLike(dream.id); announce(dream.liked ? "Like removed" : "Liked", "state"); }, 'aria-label': lcVerb() === "low" ? "Like" : (calm ? "Likes" : lcCountWord(dream.likes, "like", "likes")) + (lcVerb() === "high" ? ", double tap to " + (dream.liked ? "unlike" : "like") : ""),}
             , React.createElement('div', { className: "cbx-box",}, dream.liked && React.createElement(ChkMark, null))
             , React.createElement('span', null, calm ? "" : fmt(dream.likes), calm ? "Likes" : dream.likes === 1 ? " Like" : " Likes" )
           )
@@ -2726,6 +2730,7 @@ function NostrPanel({ onDone }) {
     const v = (paste || "").trim();
     if (!v) return fail("Paste your nsec key first.", "lid-nsec-paste");
     const enc = /^ncryptsec1/i.test(v); // a key that already has its own passcode: the field is that passcode
+    if (!enc && Looscid.lcNostr && Looscid.lcNostr.isCurrentKey && await Looscid.lcNostr.isCurrentKey(v)) return fail("That's already your key.", "lid-nsec-paste"); // Round 6 fixes: before the passcode
     const bad = enc ? (pass ? null : { t: "That key is locked with a passcode. Type its passcode in the Passcode field.", field: "pass" }) : lcPassCheck(pass, pass2, noPass);
     if (bad) return fail(bad.t, "lid-paste-" + bad.field);
     setBusy(true);
@@ -3735,7 +3740,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-13T04:48:54Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-13T05:07:19Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -4893,6 +4898,13 @@ function lcNostrName(pk, npub) {
   let np = npub || ""; if (!np) { try { np = window.NostrTools ? window.NostrTools.nip19.npubEncode(pk) : ""; } catch (e) {} }
   return np ? "Nostr Dreamor " + np.slice(5, 11) : "A Nostr Dreamor";
 }
+// Round 6 fixes: a chat opened from a Dreamor's profile is titled with the name on that profile ("Nia Nostr"), not
+// "Nostr Dreamor 0xlxvl", when no name for that key is known yet. Only the display name is kept (looscid_nostr_names).
+function lcNostrNameRemember(pk, name) {
+  const nm = String(name || "").trim(); if (!pk || !nm || nm === "Dreamor") return;
+  const known = lcNostrNames(); if (known[pk]) return;
+  known[pk] = nm.slice(0, 80); try { localStorage.setItem(LC_NOSTR_NAMES_KEY, JSON.stringify(known)); } catch (e) {}
+}
 async function lcNostrLearnNames(pks) {
   const N = Looscid.lcNostr; const known = lcNostrNames(); const want = (pks || []).filter(function (p, i, a) { return p && !known[p] && a.indexOf(p) === i; });
   if (!want.length || !N || !N.fetchNames) return;
@@ -4993,7 +5005,7 @@ function lcPmPeerFrom(s) {
   try { const d = window.NostrTools && window.NostrTools.nip19.decode(s); if (d && d.type === "npub") return d.data; if (d && d.type === "nprofile") return d.data.pubkey; } catch (e) {}
   return null;
 }
-Object.assign(Looscid, { LC_PMS_KEY, lcPms, lcPmsSave, lcPmConvos, lcPmAllowed, lcPmHeld, lcPmUnread, lcPmMarkRead, lcPmCheck, lcPmSend, lcPmPeerFrom, lcDmPeerOf, lcPmBlocked, lcInboxCheck, lcNostrName, LC_INBOX_TABS });
+Object.assign(Looscid, { LC_PMS_KEY, lcPms, lcPmsSave, lcPmConvos, lcPmAllowed, lcPmHeld, lcPmUnread, lcPmMarkRead, lcPmCheck, lcPmSend, lcPmPeerFrom, lcDmPeerOf, lcPmBlocked, lcInboxCheck, lcNostrName, lcNostrNameRemember, LC_INBOX_TABS });
 Object.assign(Looscid, { LC_THREAD_SUBS_KEY, lcThreadSubs, lcThreadSubbed, lcThreadSub, lcThreadUnsub, lcThreadAlert, lcThreadCheck, lcThreadWatch });
 function lcAlertsMarkAll() { const l = lcAlerts().map(function (x) { return Object.assign({}, x, { unread: false }); }); lcAlertsSave(l); return l.length; }
 function useAlerts() {
@@ -6313,6 +6325,7 @@ useEffect(() => {
   const projectBack = useRef(null);                             // Round 6.6: where Back on a project goes
   const helpBack = useRef(null);                                // Round 6.6: where Back on the Help Center goes
   const legalBack = useRef(null);                               // Round 6.6: where Back on Legal goes
+  const cherryOffMenu = useRef(false);                          // Round 6 fixes: Intelligence opened from More > Cherry (Cherry off)
   // Round 6.5: the composer in Reply or Quote mode, opened from anywhere with lcCompose().
   const [composeReq, setComposeReq] = useState(null);
   useEffect(function () { const f = function (e) { setComposeReq(Object.assign({ n: Date.now() }, (e && e.detail) || {})); }; window.addEventListener("looscid-compose", f); return function () { window.removeEventListener("looscid-compose", f); }; }, []);
@@ -6337,7 +6350,7 @@ useEffect(() => {
     likeDream:   id => { recordHabit("likeDream", (appDreams.find(x=>x.id===id)||{}).text?(appDreams.find(x=>x.id===id).text.split(" ").slice(0,3).join(" ")):null); const d=appDreams.find(x=>x.id===id); if(!d) return; const flip = function () { const cur = lcLikedHas("dream", id); lcLikedSet("dream", id, !cur, lcDreamSnap(d)); }; const was = lcLikedHas("dream", id); flip(); addLog("❤️",(was?"Unliked ":"Liked ")+d.user.name+"'s Dream", flip); lcCherryDid(was ? "Unliked" : "Liked", "Dream", "Dreams", d.user.name + "'s Dream", d.user.name + ": " + String(d.text || "").slice(0, 140)); },
     // Build 147: liking is saving, so Save is Like.
     saveDream:   id => { cherryCtx.likeDream(id); },
-    postDream:   (text, extra) => { const id=lcNewId(); setAppDreams(ds => [Object.assign({id,user:ME,time:"just now",created:id,text,likes:0,comments:0,redreams:0,quotes:0,liked:false,redreamed:false,quoted:false,bookmarked:false}, extra || {}),...ds]); addLog("✏️","Dreamed: "+text.slice(0,40)+"…", ()=>setAppDreams(ds=>ds.filter(d=>d.id!==id))); lcCherryDid("Published", "Dream", "Dreams", "your Dream", String(text).slice(0, 140)); return id; },
+    postDream:   (text, extra) => { const id=lcNewId(); (Looscid.LC_LOCAL_PUB = Looscid.LC_LOCAL_PUB || new Set()).add(String(id)); /* Round 6 fixes: published here */ setAppDreams(ds => [Object.assign({id,user:ME,time:"just now",created:id,text,likes:0,comments:0,redreams:0,quotes:0,liked:false,redreamed:false,quoted:false,bookmarked:false}, extra || {}),...ds]); addLog("✏️","Dreamed: "+text.slice(0,40)+"…", ()=>setAppDreams(ds=>ds.filter(d=>d.id!==id))); lcCherryDid("Published", "Dream", "Dreams", "your Dream", String(text).slice(0, 140)); return id; },
     followUser:  id => { const was = appFollowing.has(id); setAppFollowing(s => { const n=new Set(s); n.has(id)?n.delete(id):n.add(id); return n; }); const u=USERS.find(x=>x.id===id); if(u) { addLog("👥",(was?"Unfollowed ":"Followed ")+u.name, ()=>setAppFollowing(s=>{const n=new Set(s);was?n.add(id):n.delete(id);return n;})); lcCherryDid(was ? "Unfollowed" : "Followed", "Dreamor", "Dreamors", u.name, u.name + (u.handle ? " (" + u.handle + ")" : "")); } },
     joinGroup:   id => { const was = !!(appGroups.find(x=>x.id===id)||{}).joined; setAppGroups(gs => gs.map(g => g.id===id ? {...g,joined:!g.joined} : g)); const g=GROUPS.find(x=>x.id===id); if(g) { addLog("🏘️",(was?"Left ":"Joined ")+g.name, ()=>setAppGroups(gs=>gs.map(x=>x.id===id?{...x,joined:was}:x))); lcCherryDid(was ? "Left" : "Joined", "Circle", "Circles", g.name, g.name); } },
     markNotifsRead: () => { const n = lcAlerts().filter(x=>x.unread).length; lcAlertsMarkAll(); addLog("🔔","Marked all notifications read"); lcCherryDid("Marked", "notification", "notifications", "all your notifications as read", n + (n === 1 ? " notification" : " notifications") + " marked read", "Marked all notifications read"); },
@@ -6353,8 +6366,11 @@ useEffect(() => {
     if (target === "settings_a11y_verbosity") { try { sessionStorage.setItem("looscid_sr_tab", "verbosity"); } catch (e) {} target = "settings_a11y_sr"; } // round 6: Verbosity is a tab
     if (target === "settings_cherry") target = "settings_ai_cherry"; // round 5: Cherry lives in Settings, Intelligence
     if (target === "settings_cherry_algo") target = "settings_labs";
-    if (target === "cherry" && !lcAiOn()) { target = "settings_ai_cherry"; setTimeout(function () { announce("Cherry is off. Turn it on here, in Intelligence."); }, 400); }
+    // Round 6 fixes: More > Cherry while Cherry is off opens Intelligence; Back from there returns to the More menu on Cherry.
+    if (target !== "cherry" && target !== "settings") cherryOffMenu.current = false;
+    if (target === "cherry" && !lcAiOn()) { cherryOffMenu.current = !!showMenuRef.current; target = "settings_ai_cherry"; setTimeout(function () { announce("Cherry is off. Turn it on here, in Intelligence."); }, 400); }
     const cur = pageRef.current;
+    if (target === "settings" && cur === "settings_ai_cherry" && cherryOffMenu.current) { cherryOffMenu.current = false; delete openers.current[cur]; moreBack("cherry"); return; }
     // "settings" means Back to the Settings menu: the screen it came from, or the More menu on that item.
     if (target === "settings") {
       const from = subFrom.current[cur];
@@ -6551,7 +6567,11 @@ useEffect(() => {
     // Round 5 fixes (QA "as 2three1y"): "settings" spoke one announcement of about 3,000 characters. A long output is said
     // as its count and the first result; all of it stays in the Commandbar output to read line by line.
     const body = r.lines.filter(l => l.kind !== "hi"), head = r.lines.length && r.lines[0].kind === "hi" ? r.lines[0].text + " " : "";
-    const say0 = !r.say && body.length > 3 && full.length > 400 ? head + body.length + " results. First: " + body[0].text + (/[.!?]$/.test(body[0].text) ? "" : ".") + " The rest are in the Commandbar output." : full;
+    // Round 6 fixes: a line holding several "Name: value." settings counts as that many results, and First is one of them
+    // (it read "Text size: Default. High contrast: off. Bold text: off. Dyslexia-friendly spacing: off." as one result).
+    const parts = function (t) { const ps = String(t).split(/\.\s+/).map(function (x, i, a) { return i < a.length - 1 ? x + "." : x; }); return ps.length > 1 && ps.every(function (x) { return /^[^:.]{1,48}: \S/.test(x); }) ? ps : [t]; };
+    const items = [].concat.apply([], body.map(function (l) { return parts(l.text); }));
+    const say0 = !r.say && body.length > 3 && full.length > 400 ? head + items.length + " results. First: " + items[0] + (/[.!?]$/.test(items[0]) ? "" : ".") + " The rest are in the Commandbar output." : full;
     // Round 6: blocked words stay hidden in Commandbar too, unless you typed them yourself.
     // Round 6.6: Command sounds. The command's own sound plays where the one run sound played (and where none did);
     // errors keep the error sound, and on, off, help, clear and close keep theirs. Off in Settings: the run sound, as before.

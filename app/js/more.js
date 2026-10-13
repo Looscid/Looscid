@@ -457,6 +457,9 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
     const news = freshDreams.filter(function (d) { return !saidRef.current.said.has(String(d.id)) && (+d.created > 0 && now - +d.created >= -60 * 1000 && now - +d.created < 5 * 60 * 1000); });
     if (!news.length) return;
     news.forEach(function (d) { saidRef.current.said.add(String(d.id)); });
+    // Round 6 fixes: a Dream or Quote you just published on this device already said "Quote published.", so your own name
+    // isn't announced as news on top of it. One that arrives from elsewhere (another device) still is.
+    const lp0 = Looscid.LC_LOCAL_PUB; if (self && lp0 && news.every(function (d) { return lp0.has(String(d.id)); })) return;
     announce((user.name || user.displayName || "Dreamor") + " just published"); // never moves focus
   }, [freshDreams.length, user.id, user.handle]);
   const myReplies = self ? Looscid.lcRepliesRaw().map(Looscid.lcReplyObj).map(function (r) { return Object.assign({ redreams: 0, quotes: 0, comments: 0, redreamed: false, quoted: false, bookmarked: false }, r); }) : all.filter(function (d) { return mineOf(d) && d.replyTo; });
@@ -481,7 +484,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   // with a Nostr key gets a private message (NIP-17) from here; anyone else is told why in plain words.
   const dmPeer = self ? null : Looscid.lcDmPeerOf(user);
   const dmWhy = "private messages go over Nostr, and " + (user.name || "this Dreamor") + " has no Nostr key here";
-  const openDm = function () { const u = user; Looscid.LC_PM_OPEN = { peer: dmPeer, back: function () { navigate("dp", u); } }; navigate("alerts"); };
+  const openDm = function () { const u = user; if (Looscid.lcNostrNameRemember) Looscid.lcNostrNameRemember(dmPeer, u.name || u.displayName); Looscid.LC_PM_OPEN = { peer: dmPeer, back: function () { navigate("dp", u); } }; navigate("alerts"); };
   const following = !!(cherryCtx && cherryCtx.following && cherryCtx.following.has(user.id));
   const blocked = !self && Looscid.lcBlockedUser(user), muted = !self && Looscid.lcIsMuted(user);
   const hidesRd = !self && Looscid.lcPeopleHas("looscid_hide_redreams", user.handle);
@@ -709,14 +712,6 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       lh('button', { type: "button", id: "pf-preview-done", className: "btn bp lc-big", onClick: function () { if (onExitPreview) onExitPreview(); } }, "Done viewing as others")) : null,
     lh('div', { className: "lc-prof-head" },
       lh('div', { "aria-hidden": "true" }, lh(Av, { user: user, size: 72 })),
-      preview ? null : isMe
-        ? lh('div', { className: "lc-prof-acts" },
-            lh('button', { type: "button", ref: editBtn, id: "pf-edit-btn", className: "btn bgb lc-big", "aria-expanded": editOpen ? "true" : "false", "aria-controls": "pf-edit", onClick: function () { setEditOpen(!editOpen); } }, "Edit profile"))
-        : lh('div', { className: "lc-prof-acts" },
-            dmPeer ? lh('button', { type: "button", id: "pf-dm-btn", className: "btn bgb lc-big", onClick: openDm }, "Direct message")
-              : lh('button', { type: "button", id: "pf-dm-btn", className: "btn bgb lc-big", "aria-disabled": "true", onClick: function () { announce(Looscid.lcHintReason("unavailable: " + dmWhy)); }, "aria-describedby": Looscid.lcHint(Looscid.lcHintReason("unavailable: " + dmWhy)) }, "Direct message", lh('span', { className: "lc-muted", "aria-hidden": "true" }, " (unavailable)")),
-            lh('button', { type: "button", className: "btn " + (following ? "bgb" : "bp") + " lc-big", "aria-pressed": following ? "true" : "false", onClick: follow }, following ? "Following" : "Follow")),
-      isMe && lh('div', { id: "pf-edit", className: "lc-prof-edit", hidden: !editOpen }, editOpen ? ed.list : null),
       lh('h1', { className: "lc-prof-name", tabIndex: -1, ref: headRef }, user.name || "Dreamor"),
       // Feditext's account line: @handle, the lock for a private (locked) account, then the "Follows you", "Muted" and
       // "Blocked" capsules. Build 149: each is its own piece with a plain space between, no hidden commas.
@@ -727,6 +722,16 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
         !self && user.followsYou ? [" ", lh('span', { key: "fy", id: "pf-rel", className: "lc-cap" }, following ? "Mutuals" : "Follows you")] : null,
         muted ? [" ", lh('span', { key: "mu", className: "lc-cap" }, "Muted")] : null,
         blocked ? [" ", lh('span', { key: "bl", className: "lc-cap" }, "Blocked")] : null),
+      // Round 6 fixes (QA round 5): Direct message and Follow (or Edit profile) came before the name heading, where focus lands, so
+      // swiping forward from the heading never reached them. They follow the name and @handle now.
+      preview ? null : isMe
+        ? lh('div', { className: "lc-prof-acts" },
+            lh('button', { type: "button", ref: editBtn, id: "pf-edit-btn", className: "btn bgb lc-big", "aria-expanded": editOpen ? "true" : "false", "aria-controls": "pf-edit", onClick: function () { setEditOpen(!editOpen); } }, "Edit profile"))
+        : lh('div', { className: "lc-prof-acts" },
+            dmPeer ? lh('button', { type: "button", id: "pf-dm-btn", className: "btn bgb lc-big", onClick: openDm }, "Direct message")
+              : lh('button', { type: "button", id: "pf-dm-btn", className: "btn bgb lc-big", "aria-disabled": "true", onClick: function () { announce(Looscid.lcHintReason("unavailable: " + dmWhy)); }, "aria-describedby": Looscid.lcHint(Looscid.lcHintReason("unavailable: " + dmWhy)) }, "Direct message", lh('span', { className: "lc-muted", "aria-hidden": "true" }, " (unavailable)")),
+            lh('button', { type: "button", className: "btn " + (following ? "bgb" : "bp") + " lc-big", "aria-pressed": following ? "true" : "false", onClick: follow }, following ? "Following" : "Follow")),
+      isMe && lh('div', { id: "pf-edit", className: "lc-prof-edit", hidden: !editOpen }, editOpen ? ed.list : null),
       moreMenu,
       listsOpen && !self ? lh(ProfileLists, { user: user, navigate: navigate, onClose: function () { setListsOpen(false); backToMore(); } }) : null,
       user.isOriginals ? lh('p', { className: "lc-muted" }, "Founding account") : null,
@@ -821,11 +826,14 @@ function LcCatCustomize({ kind, defs, title }) {
   useCats();
   const st = lcCatState(kind, defs);
   const name = function (id) { return defs.find(function (d) { return d.id === id; }).label; };
-  const move = function (id, to) {
+  // Round 6 fixes: focus stays on the button you pressed (Move down stays on Move down) unless that end is reached; it went to
+  // Move up every time.
+  const move = function (id, to, dir) {
     const o = st.order.filter(function (x) { return x !== id; }); o.splice(Math.max(0, Math.min(o.length, to)), 0, id);
     lcCatSave(kind, { order: o, hidden: st.hidden });
     announce(name(id) + " moved to position " + (o.indexOf(id) + 1) + ".");
-    setTimeout(function () { const b = document.getElementById("cat-" + kind + "-" + id + "-" + (o.indexOf(id) === 0 ? "down" : "up")); if (b && b.getAttribute("aria-disabled") !== "true") b.focus(); else { const c = document.getElementById("cat-" + kind + "-" + id + "-show"); if (c) c.focus(); } }, 30);
+    const at = o.indexOf(id), want = dir === "down" ? (at === o.length - 1 ? "up" : "down") : (at === 0 ? "down" : "up");
+    setTimeout(function () { const b = document.getElementById("cat-" + kind + "-" + id + "-" + want); if (b && b.getAttribute("aria-disabled") !== "true") b.focus(); else { const c = document.getElementById("cat-" + kind + "-" + id + "-show"); if (c) c.focus(); } }, 30);
   };
   const toggle = function (id) {
     const h = st.hidden.indexOf(id) >= 0 ? st.hidden.filter(function (x) { return x !== id; }) : st.hidden.concat([id]);
@@ -842,7 +850,7 @@ function LcCatCustomize({ kind, defs, title }) {
           // Build 152 fix: aria-disabled at the ends (focus stays, the reason is said), not native disabled.
           lh('button', { type: "button", id: "cat-" + kind + "-" + id + "-top", className: "btn bgb lc-btn", "aria-disabled": i === 0 ? "true" : undefined, onClick: function () { if (i === 0) { announce(n + " is already first."); return; } move(id, 0); } }, "Move " + n + " to top"),
           lh('button', { type: "button", id: "cat-" + kind + "-" + id + "-up", className: "btn bgb lc-btn", "aria-disabled": i === 0 ? "true" : undefined, onClick: function () { if (i === 0) { announce(n + " is already first."); return; } move(id, i - 1); } }, "Move " + n + " up"),
-          lh('button', { type: "button", id: "cat-" + kind + "-" + id + "-down", className: "btn bgb lc-btn", "aria-disabled": last ? "true" : undefined, onClick: function () { if (last) { announce(n + " is already last."); return; } move(id, i + 1); } }, "Move " + n + " down"),
+          lh('button', { type: "button", id: "cat-" + kind + "-" + id + "-down", className: "btn bgb lc-btn", "aria-disabled": last ? "true" : undefined, onClick: function () { if (last) { announce(n + " is already last."); return; } move(id, i + 1, "down"); } }, "Move " + n + " down"),
           id === "all" ? null : lh('label', { className: "lc-radio" + (st.hidden.indexOf(id) < 0 ? " on" : "") },
             lh('input', { type: "checkbox", id: "cat-" + kind + "-" + id + "-show", checked: st.hidden.indexOf(id) < 0, onChange: function () { toggle(id); } }), lh('span', null, "Show " + n))));
     })));
@@ -2251,6 +2259,7 @@ function NostrKeySection() {
     if (busy) return;
     if (!nsec.trim()) { say("Type or paste your nsec key first.", true); lcFocusId("nostr-nsec"); return; }
     const enc = /^ncryptsec1/i.test(nsec.trim()); // already locked: the field is its own passcode
+    if (!enc && N.isCurrentKey && await N.isCurrentKey(nsec)) { say("That's already your key.", true); lcFocusId("nostr-nsec"); return; } // Round 6 fixes: before the passcode
     if (enc ? !pass && (say("That key is locked with a passcode. Type its passcode in the Passcode field.", true), lcFocusId("nostr-pass"), true) : !passOk(true)) return;
     const none = noPass && !enc;
     setBusy(true); const r = await N.importKey(nsec, none ? "" : pass, { noPasscode: none }); setBusy(false);
@@ -2520,6 +2529,8 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   const [confirmDel, setConfirmDel] = useState(false);
   const ed = useProfileEditor(authUser, onUpdateProfile, navigate);
   const wrapRef = useRef(null);
+  // Round 6 fixes: Back from a section opened with a Home card goes back to Home, on that card (it left LooscidID).
+  const fromCard = useRef(null);
   useEffect(function () { const h1 = wrapRef.current && wrapRef.current.querySelector("h1"); if (h1) h1.focus(); }, []);
   if (ed.editing) return ed.screen;
   const u = authUser || {};
@@ -2530,12 +2541,12 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   const onTabKey = function (e) {
     let n = null;
     if (e.key === "ArrowRight") n = (idx + 1) % N; else if (e.key === "ArrowLeft") n = (idx + N - 1) % N; else if (e.key === "Home") n = 0; else if (e.key === "End") n = N - 1;
-    if (n === null) return; e.preventDefault(); setTab(LID_TABS[n][0]);
+    if (n === null) return; e.preventDefault(); fromCard.current = null; setTab(LID_TABS[n][0]);
     setTimeout(function () { const b = document.getElementById("lid-tab-" + LID_TABS[n][0]); if (b) { b.focus(); b.scrollIntoView({ block: "nearest", inline: "nearest" }); } }, 0);
   };
   // Cards on Home jump to a section and land on its heading.
   const go = function (t, focusId) {
-    setNote(""); setTab(t);
+    fromCard.current = null; setNote(""); setTab(t);
     setTimeout(function () { const el = document.getElementById(focusId || "lid-panel-h"); if (el) { el.focus(); } }, 0);
   };
   const methods = getMethods();
@@ -2551,7 +2562,7 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
     lh('h2', { id: "lid-panel-h", className: "lid-sub", tabIndex: -1 }, text),
     help ? lh('p', { className: "lid-help" }, help) : null); };
   const Card = function (k, t, sub, onClick) {
-    return lh('li', { key: k }, lh('button', { type: "button", className: "lid-gcard", id: "lid-card-" + k, onClick: onClick, "aria-label": lcJoin(t, sub) },
+    return lh('li', { key: k }, lh('button', { type: "button", className: "lid-gcard", id: "lid-card-" + k, onClick: function () { onClick(); fromCard.current = "lid-card-" + k; }, "aria-label": lcJoin(t, sub) },
       lh('span', { className: "lid-gcard-t", "aria-hidden": "true" }, t), lh('span', { className: "lid-gcard-s", "aria-hidden": "true" }, sub)));
   };
   let panel;
@@ -2627,7 +2638,10 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
     lh('h3', { className: "lid-label" }, "Apps using your LooscidID"),
     lh('p', { className: "lid-help" }, "No apps use your LooscidID yet."));
   return lh('div', { className: "pg", ref: wrapRef },
-    lh(BackHeader, { title: title || "LooscidID", onBack: onBack || function () { navigate("settings"); } }),
+    lh(BackHeader, { title: title || "LooscidID", onBack: function () {
+      const c = fromCard.current; fromCard.current = null;
+      if (c && tab !== "home") { setNote(""); setTab("home"); setTimeout(function () { const b = document.getElementById(c); if (b) b.focus(); }, 0); return; }
+      if (onBack) onBack(); else navigate("settings"); } }),
     lh('div', { className: "lid-ghead" },
       lh('div', { className: "lid-gavatar", 'aria-hidden': "true" }, u.initials || "D"),
       lh('p', { className: "lid-gname" }, name),
@@ -2637,7 +2651,7 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
       LID_TABS.map(function (t, i) {
         const on = t[0] === tab;
         return lh('button', { key: t[0], id: "lid-tab-" + t[0], role: "tab", className: "ftab" + (on ? " on" : ""), 'aria-selected': on ? "true" : "false",
-          'aria-controls': "lid-panel", tabIndex: on ? 0 : -1, onClick: function () { setNote(""); setTab(t[0]); } }, t[1]);
+          'aria-controls': "lid-panel", tabIndex: on ? 0 : -1, onClick: function () { fromCard.current = null; setNote(""); setTab(t[0]); } }, t[1]);
       })),
     lh('div', { id: "lid-panel", role: "tabpanel", 'aria-labelledby': "lid-tab-" + tab, className: "lid-body" }, panel));
 }
@@ -2800,6 +2814,7 @@ const LC_VERSION_HISTORY = [
     "Your profile's Dreams and Redreams counts and its Redreams tab update right after a Redream or a Quote, without a reload. Direct message on a Nostr Dreamor's profile opens a private message to them, and Back returns to their profile; for anyone else it says plainly why it can't. Publishing now says \"Dream published.\" And on the status page, the ticking Last checked time isn't read out over and over, Notify me says why when the email box is empty or you're already subscribed, Back to app opens Looscid, and Private Messages and Authentication show as working.",
     "Discover: a Dreamor result and its Follow button are separate now, and Follow really follows; Join says why it isn't ready; each Dream result is one item that opens the Dream, and Back returns to your search; an empty Trending says so. Create Poll: Remove option 1, 2 and 3, no stray numbers, the chosen duration is marked, the panel titles are headings, closing Attach Link goes back to Link, Add Photo opens the photo picker straight away, and the rest of Add to Dream has its own Attach button. The Commandbar's settings command says how many results and the first one instead of reading everything at once. Each Dream's More button says whose Dream it is, a pinned thread tab's name ends at a whole word, Your imported pack says why when nothing is imported, and Looscid Labs no longer lists Mute and Block.",
     "Pages opened from the More menu (Discover, Apps, Create, Alerts, Projects, View your profile) now put VoiceOver on the page's heading. Back from a Dreamor's profile goes to where you opened it, and Discover keeps your search, tab and results, with focus on the Dreamor you opened. In Attach, Link, Poll and Location open on their heading and Escape goes back to that item; GIF, Schedule, Mood and Music say they aren't ready yet instead of adding an empty chip, and the Attach button's name starts with Attach. Announcements that come close together are each said once, in order: Like then Unlike no longer says Liked twice, and none is lost.",
+    "Pasting the key you already have while it's locked says That's already your key straight away, instead of asking for a passcode first. On someone else's profile, Direct message and Follow (and Edit profile on yours) come right after the name, so swiping on from the name reaches them. A chat opened from a Nostr Dreamor's profile is titled with their name. Smaller fixes: Escape closes Dream info and Liked by; Back from a LooscidID card goes back to its Home; Back from Intelligence after More, Cherry (while Cherry is off) returns to More; Move down keeps focus on Move down; your own Quote no longer announces your name as news; Calm mode's Redream can say Quoted; Like at short verbosity no longer says liked twice; the Commandbar's settings command reads one setting first; Discover Dream names and pinned names end at a whole word; About and the Commandbar show the real release time.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
