@@ -2312,18 +2312,38 @@ function announce(msg, kind) {
      was spoken ("Mastodon and Bluesky were signed out." lost to "Login method added", "Quote dreamed." lost to "Dreamor just
      published"). Messages that arrive within 150 ms of each other are now joined and said as one, in order; the same message
      twice in that window is said once. Still the one announcer, and it still empties itself afterwards. */
-  let q = Looscid.LC_ANN_Q;
-  if (!q || now - q.first > 150) q = Looscid.LC_ANN_Q = { first: now, msgs: [] };
+  /* Round 6 fixes (QA round 5, Oct 13): two messages 80 to 150 ms apart had the first one said twice ("Liked", then
+     "Liked. Like removed."), and three in a row could lose the middle one. Now every message is said exactly once, in
+     order: messages wait together until none has arrived for 80 ms (at most 250 ms after the first) and are said as one;
+     whatever arrives after that is said next, on its own, once the previous words have had a moment to be heard. */
   const one = String(msg == null ? "" : msg).trim();
-  if (one && q.msgs.indexOf(one) < 0) q.msgs.push(one);
-  const text = q.msgs.length > 1 ? q.msgs.map(function (m) { return /[.!?…:]$/.test(m) ? m : m + "."; }).join(" ") : (q.msgs[0] || "");
-  el.textContent = "";
-  clearTimeout(Looscid.LC_ANN_CLEAR); clearTimeout(Looscid.LC_ANN_WRITE);
+  if (!one) return;
+  // The same message twice within 150 ms (two parts of the app saying one thing) is said once.
+  if (one === Looscid.LC_ANN_LAST && now - Looscid.LC_ANN_LAST_AT <= 150) return;
+  Looscid.LC_ANN_LAST = one; Looscid.LC_ANN_LAST_AT = now;
+  let q = Looscid.LC_ANN_Q;
+  if (!q) q = Looscid.LC_ANN_Q = { first: now, msgs: [] };
+  if (q.msgs.indexOf(one) < 0) q.msgs.push(one);
+  clearTimeout(Looscid.LC_ANN_WRITE);
+  Looscid.LC_ANN_WRITE = setTimeout(lcAnnFlush, Math.max(0, Math.min(80, q.first + 250 - now)));
+}
+function lcAnnFlush() {
+  const q = Looscid.LC_ANN_Q; if (!q || !q.msgs.length) { Looscid.LC_ANN_Q = null; return; }
+  // The previous words are still being said: this batch waits its turn (and keeps collecting, in order).
+  const wait = (Looscid.LC_ANN_FREE || 0) - Date.now();
+  if (wait > 0) { clearTimeout(Looscid.LC_ANN_WRITE); Looscid.LC_ANN_WRITE = setTimeout(lcAnnFlush, wait); return; }
+  Looscid.LC_ANN_Q = null;
+  const el = document.getElementById("looscid-live"); if (!el) return;
+  const text = q.msgs.length > 1 ? q.msgs.map(function (m) { return /[.!?\u2026:]$/.test(m) ? m : m + "."; }).join(" ") : q.msgs[0];
+  Looscid.LC_ANN_FREE = Date.now() + Math.min(1500, 400 + text.length * 25);
+  clearTimeout(Looscid.LC_ANN_CLEAR);
   /* 2three1y (Oct 12, 5:33 PM): "Looscid, Page is at the bottom like the last element". What was said stayed behind as text
      in #looscid-live, so swiping to the very end read the last announcement (often the page name, "Looscid, page") as a
      stray element. Once it has had time to be spoken, the region is emptied again; it stays the only announcer. */
-  Looscid.LC_ANN_WRITE = setTimeout(function () { el.textContent = text; const said = el.textContent;
-    Looscid.LC_ANN_CLEAR = setTimeout(function () { if (el.textContent === said) el.textContent = ""; }, Math.min(12000, 4000 + said.length * 60)); }, 80);
+  const write = function () { el.textContent = text; const said = el.textContent;
+    Looscid.LC_ANN_CLEAR = setTimeout(function () { if (el.textContent === said) el.textContent = ""; }, Math.min(12000, 4000 + said.length * 60)); };
+  // The same words again (pressing an unavailable button twice) are emptied first, so they are said again.
+  if (el.textContent === text) { el.textContent = ""; setTimeout(write, 60); } else write();
 }
 // Enter from a keyboard or a braille display (which can arrive as
 // beforeinput insertParagraph/insertLineBreak instead of keydown Enter).
@@ -3715,7 +3735,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-13T01:12:05Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-13T04:48:54Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -6385,14 +6405,24 @@ useEffect(() => {
     // to the control that opened it; any other page change remembers its opener and moves focus to the new heading.
     const back = openers.current[cur];
     if (back && back.page === target && target !== cur) { delete openers.current[cur]; pageFocus.current = { op: back, from: document.activeElement }; }
-    else if (target !== cur || data !== pdataRef.current) { openers.current[target] = Object.assign({ page: cur }, lcOpenerDesc(lcOpenerEl())); pageFocus.current = { op: null, from: document.activeElement }; }
+    else if (target !== cur || data !== pdataRef.current) { openers.current[target] = Object.assign({ page: cur, data: pdataRef.current }, lcOpenerDesc(lcOpenerEl())); pageFocus.current = { op: null, from: document.activeElement, menu: !!showMenuRef.current }; }
     setPage(target); setPdata(data);
   }, []);
+  // Round 6 fixes: Back on a page that knows only "go back" (a Dreamor's profile) returns to the page it was opened from,
+  // with that page's data, and focus goes back to the control that opened it. False when there is nowhere to go back to.
+  Looscid.LC_GO_BACK = function (from) {
+    const cur = pageRef.current; if (from && cur !== from) return false;
+    const o = openers.current[cur]; if (!o || !o.page || o.page === cur) return false;
+    navigate(o.page, o.data || null); return true;
+  };
   useEffect(() => {
     const nf = pageFocus.current; if (!nf) return; pageFocus.current = null;
     setTimeout(() => { const a = document.activeElement;
       // Only when focus was lost: a page that put focus somewhere itself (a search box, the row it came from) keeps it.
-      if (!a || a === document.body || a === document.documentElement || !a.isConnected || a === nf.from) lcFocusOpenerOrHeading(nf.op); }, 60);
+      // Round 6 fixes: a page opened from the More menu. Closing the menu put focus back on the More tab, so the page's
+      // heading was never reached (Discover, Apps, Create, Alerts, Projects, View your profile).
+      const fromMenu = nf.menu && !!(a && a.closest && a.closest(".bnav-wrap"));
+      if (!a || a === document.body || a === document.documentElement || !a.isConnected || a === nf.from || fromMenu) lcFocusOpenerOrHeading(nf.op); }, 60);
   }, [page, pdata]);
   const goRoot = id => {
     if(id==="create"){setShowCreate(true);return;}

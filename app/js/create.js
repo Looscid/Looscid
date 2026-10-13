@@ -19,6 +19,18 @@ function AttachPanel({onClose, onAttach, mode, start}) {
 
   // Round 5 fixes: closing Create Poll, Attach Link or Tag Location returns focus to the button that opened it.
   const backTo = function (id) { setScreen("main"); setTimeout(function () { const b = document.getElementById("lc-att-" + id); if (b) b.focus(); }, 40); };
+  /* Round 6 fixes (QA round 5): Link, Poll and Location chosen here swapped the screen without moving focus, so it fell to the
+     page body. The new screen's heading now gets focus, the same as a pop-up that has just opened. */
+  const firstScreen = useRef(true);
+  useEffect(function () {
+    if (firstScreen.current) { firstScreen.current = false; return; }
+    if (screen === "main") return;
+    const t = setTimeout(function () { const h = document.querySelector('.msh[aria-label="' + ({ poll: "Create Poll", link: "Attach Link", location: "Tag Location" })[screen] + '"] h2'); if (h) { if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); h.focus(); } }, 40);
+    return function () { clearTimeout(t); };
+  }, [screen]);
+  // GIF, Schedule, Mood and Music had no picker: they added an empty chip and said nothing. Until they are real they stay
+  // findable, aria-disabled, and say why once.
+  const SOON = { gif: "Not available yet: a GIF picker comes in a later build.", schedule: "Not available yet: scheduling a Dream comes in a later build.", mood: "Not available yet: adding a mood comes in a later build.", music: "Not available yet: attaching a song comes in a later build." };
   const attachItems = [
     {id:"photo",icon:"Photo / Video",label:"Photo / Video",sub:"Share an image or video clip"},
     {id:"gif",icon:"GIF",label:"GIF",sub:"Animated GIF from your library"},
@@ -86,13 +98,14 @@ function AttachPanel({onClose, onAttach, mode, start}) {
         } })
       , React.createElement('div', { style: {display:"grid",gridTemplateColumns:"1fr 1fr",gap:8},}
         , attachItems.map(item=>(
-          React.createElement('button', { key: item.id, style: {background:"var(--sf2)",border:"1px solid var(--bd)",borderRadius:12,padding:"13px 10px",cursor:"pointer",textAlign:"center",transition:"all .15s",display:"flex",flexDirection:"column",alignItems:"center",gap:5}, onClick: ()=>{
+          React.createElement('button', { key: item.id, style: {background:"var(--sf2)",border:"1px solid var(--bd)",borderRadius:12,padding:"13px 10px",cursor:"pointer",textAlign:"center",transition:"all .15s",opacity:SOON[item.id]?.6:1,display:"flex",flexDirection:"column",alignItems:"center",gap:5}, onClick: ()=>{
             if(item.id==="poll") setScreen("poll");
             else if(item.id==="link") setScreen("link");
             else if(item.id==="location") setScreen("location");
             else if(item.id==="photo") { const f = document.getElementById("lc-photo-file"); if (f) f.click(); }
+            else if (SOON[item.id]) announce(SOON[item.id]);
             else {onAttach({type:item.id});onClose();}
-          }, id: "lc-att-" + item.id, 'aria-label': item.label+" — "+item.sub,}
+          }, id: "lc-att-" + item.id, 'aria-label': item.label+" — "+item.sub, "aria-disabled": SOON[item.id] ? "true" : undefined, "aria-describedby": SOON[item.id] && Looscid.lcHint ? Looscid.lcHint(SOON[item.id]) : undefined,}
             , React.createElement('span', { style: {fontSize:26},}, item.icon)
             , React.createElement('span', { style: {fontSize:12,fontWeight:700,color:"var(--tx)"},}, item.label)
             , React.createElement('span', { style: {fontSize:10,color:"var(--tx3)",lineHeight:1.3},}, item.sub)
@@ -634,7 +647,7 @@ function LcComposer(props) {
       lh('button', Object.assign({}, tb, { onClick: function () { const f = document.getElementById("cr-photo-file"); if (f) f.click(); else setAttach("main"); }, "aria-label": "Add Photo" }), "Photo"),
       lh('button', Object.assign({}, tb, { onClick: function () { setAttach("poll"); }, "aria-label": "Add Poll" }), "Poll"),
       // Add to Dream (link, GIF, location, schedule, mood, music) was reached only through Add Photo; it has its own button now.
-      lh('button', Object.assign({}, tb, { id: "cr-attach-more", onClick: function () { setAttach("main"); }, "aria-label": "Add to Dream: link, GIF, location and more" }), "Attach"),
+      lh('button', Object.assign({}, tb, { id: "cr-attach-more", onClick: function () { setAttach("main"); }, "aria-label": "Attach: link, location and more" }), "Attach"),
       lh(LcMenu, { id: "cr-audience", label: "Audience", hideLabel: true, title: "Who can see this?", prefix: "Audience: ", btnClass: "btn bgb lc-aud-btn", align: "left", up: true, value: audience,
         items: [
           { id: "everyone", name: "Everyone", note: "Visible to all Dreamors" },

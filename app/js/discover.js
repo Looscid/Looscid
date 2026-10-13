@@ -128,7 +128,7 @@ function discoverView(st, p, draw) {
         const fol = !!(cherryCtx && cherryCtx.following && cherryCtx.following.has(u.id));
         return h('div', { key: u.id, className: "ci" },
           h('button', { type: "button", className: "lc-disc-open", style: { display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0, background: "none", border: "none", padding: 0, color: "inherit", font: "inherit", textAlign: "left", cursor: "pointer" },
-              onClick: function () { navigate("dp", u); }, "aria-label": u.name + (u.verified ? ", verified" : "") + ", " + u.handle + ", " + fmt(u.followers) + " Dreamors following" },
+              onClick: function () { const keep = { q: st.q, tab: st.tab, filters: st.filters.slice() }; Looscid.LC_DP_BACK = { user: u, back: function () { Looscid.LC_DISCOVER_NEXT_ST = keep; navigate("discover"); } }; navigate("dp", u); }, "aria-label": u.name + (u.verified ? ", verified" : "") + ", " + u.handle + ", " + fmt(u.followers) + " Dreamors following" },
             lcAvEl(u, 44),
             h('div', { className: "cif", "aria-hidden": "true" },
               h('div', { className: "cnm" }, u.name, u.verified && h('span', { style: { color: "var(--ac2)", fontSize: 11 } }, " \u2713")),
@@ -145,7 +145,7 @@ function discoverView(st, p, draw) {
       (tab === "dreams" || tab === "all") && dreamResults.map(function (d) {
         return h('button', { type: "button", key: d.id, className: "lc-disc-dream", style: { display: "block", width: "100%", textAlign: "left", background: "none", border: "none", color: "inherit", font: "inherit", cursor: "pointer", borderBottom: "1px solid var(--bd)", padding: "11px 14px" },
             "aria-label": Looscid.lcNameJoin("Dream by " + d.user.name, String(d.text || "").replace(/\n/g, " ").slice(0, 80)) + ", " + fmt(d.likes) + (d.likes === 1 ? " like" : " likes"),
-            onClick: function () { const qq = st.q; Looscid.LC_FEED_OPEN = { dream: d, back: function () { Looscid.LC_DISCOVER_NEXT_Q = qq; navigate("discover"); } }; navigate("feed"); } },
+            onClick: function () { const keep = { q: st.q, tab: st.tab, filters: st.filters.slice() }; Looscid.LC_FEED_OPEN = { dream: d, back: function () { Looscid.LC_DISCOVER_NEXT_ST = keep; navigate("discover"); } }; navigate("feed"); } },
           h('span', { "aria-hidden": "true", style: { display: "block" } },
           h('span', { style: { display: "flex", gap: 8, alignItems: "center", marginBottom: 4 } },
             lcAvEl(d.user, 28),
@@ -182,6 +182,9 @@ const DiscoverPage = lcPlainScreen("DiscoverPage", function (host, props) {
   // Build 149: a hashtag in a bio opens Discover searching for it (Looscid.LC_DISCOVER_NEXT_Q, read once).
   const nq = typeof Looscid.LC_DISCOVER_NEXT_Q === "string" ? Looscid.LC_DISCOVER_NEXT_Q : ""; Looscid.LC_DISCOVER_NEXT_Q = null;
   const st = { q: nq, tab: nq ? "all" : "trending", filters: [], filtersOpen: false };
+  // Round 6 fixes: Back from a profile or Dream opened from the results brings back the same search, tab and filters.
+  const keep = Looscid.LC_DISCOVER_NEXT_ST; Looscid.LC_DISCOVER_NEXT_ST = null;
+  if (keep && typeof keep.q === "string") { st.q = keep.q; st.tab = keep.tab || (keep.q ? "all" : "trending"); st.filters = Array.isArray(keep.filters) ? keep.filters : []; }
   let p = props;
   const draw = function () { lcPatch(host, discoverView(st, p, draw)); };
   draw();
