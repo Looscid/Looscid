@@ -83,7 +83,7 @@ function cherryMenuEl(c, where, act) {
       "Chat options"),
     open ? h('div', { key: "list", className: "lmenu-list" },
       h('ul', { id: menuId, role: "menu", className: "lmenu-ul", tabIndex: -1, "aria-label": where === "cur" ? "Chat options" : name, onKeyDown: function (e) { act.menuKey(e, items); },
-          onFocus: function (e) { const m = LC_CHERRY.menu; if (m && m.atName && e.target !== e.currentTarget) { const j = Array.prototype.indexOf.call(e.currentTarget.querySelectorAll("[data-mi]"), e.target.closest("[data-mi]")); if (j >= 0) m.active = j; m.atName = false; draw(); } } },
+          onFocus: function (e) { const m = LC_CHERRY.menu; if (m && m.atName && e.target !== e.currentTarget) { const j = Array.prototype.indexOf.call(e.currentTarget.querySelectorAll("[data-mi]"), e.target.closest("[data-mi]")); if (j >= 0) m.active = j; m.atName = false; act.draw(); } } }, // build 152 fix: was draw(), not defined here
         items.map(function (it, i) {
           const label = it.note ? Looscid.lcNameJoin(it.name, it.note) : it.name;
           return h('li', { key: it.id, "data-mi": "1", role: "menuitem", tabIndex: i === m.active ? 0 : -1, "aria-disabled": it.disabled ? "true" : undefined,
@@ -371,7 +371,7 @@ const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
     menuChoose: function (it) {
       const m = LC_CHERRY.menu; if (!m || !it) return;
       if (it.close) { act.menuClose(true, "close"); return; }
-      if (it.disabled) return; // "coming soon": stays open, nothing happens
+      if (it.disabled) { announce(it.name + " is coming soon."); return; } // build 152 fix: stays open, says why once
       const id = m.id, btn = m.btn;
       act.menuClose(true, "run");
       if (it.id === "pin") act.pin(id);

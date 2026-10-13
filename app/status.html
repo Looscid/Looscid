@@ -289,14 +289,16 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
 // Subscribe button
 document.querySelector('.subscribe-btn').addEventListener('click', function() {
   var input = document.querySelector('.subscribe-input');
+  if (this.getAttribute('aria-disabled') === 'true') return; // already subscribed; the button's own text says so
   if (!input.value || !input.value.includes('@')) {
     input.focus();
     return;
   }
   this.textContent = 'Subscribed ✓';
   this.style.background = 'var(--gr)';
-  this.disabled = true;
-  input.disabled = true;
+  // Build 152 fix: aria-disabled instead of native disabled, so VoiceOver can still find both.
+  this.setAttribute('aria-disabled', 'true');
+  input.readOnly = true; input.setAttribute('aria-disabled', 'true');
 });
 </script>
 

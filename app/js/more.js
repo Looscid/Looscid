@@ -693,7 +693,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
         ? lh('div', { className: "lc-prof-acts" },
             lh('button', { type: "button", ref: editBtn, id: "pf-edit-btn", className: "btn bgb lc-big", "aria-expanded": editOpen ? "true" : "false", "aria-controls": "pf-edit", onClick: function () { setEditOpen(!editOpen); } }, "Edit profile"))
         : lh('div', { className: "lc-prof-acts" },
-            lh('button', { type: "button", className: "btn bgb lc-big", disabled: true, "aria-describedby": Looscid.lcHint("Not available yet: direct messages aren't ready yet.") }, "Direct message", lh('span', { className: "lc-muted", "aria-hidden": "true" }, " (unavailable)")),
+            lh('button', { type: "button", className: "btn bgb lc-big", "aria-disabled": "true", onClick: function () { announce("Not available yet: direct messages aren't ready yet."); }, "aria-describedby": Looscid.lcHint("Not available yet: direct messages aren't ready yet.") }, "Direct message", lh('span', { className: "lc-muted", "aria-hidden": "true" }, " (unavailable)")),
             lh('button', { type: "button", className: "btn " + (following ? "bgb" : "bp") + " lc-big", "aria-pressed": following ? "true" : "false", onClick: follow }, following ? "Following" : "Follow")),
       isMe && lh('div', { id: "pf-edit", className: "lc-prof-edit", hidden: !editOpen }, editOpen ? ed.list : null),
       lh('h1', { className: "lc-prof-name", tabIndex: -1, ref: headRef }, user.name || "Dreamor"),
@@ -1143,7 +1143,7 @@ function IntelligenceSettings({ navigate, page, prefs, setPrefs, cherryCtx }) {
       lh(A11ySwitch, { id: "ai-keep", label: "Save chats in Your History", desc: "On: your chats with Cherry are kept on this device, in Your History and in Settings backup. Off: new chats are not kept after you leave them.", on: keep,
         onToggle: function () { const v = !(getAIPrefs().keepChats !== false); lcSetAiPref({ keepChats: v }); announce("Save chats in Your History: " + (v ? "on" : "off") + "."); } }),
       lh('p', { className: "lc-desc", id: "ai-mem-count" }, chats.length ? chats.length + (chats.length === 1 ? " chat" : " chats") + " saved on this device" + (pins ? ", " + pins + " pinned." : ".") : "No chats saved on this device."),
-      lh('button', { type: "button", id: "ai-mem-del", className: "btn bgb lc-big", disabled: !chats.length, onClick: function () { setAskDel(true); } }, "Delete all chats"),
+      lh('button', { type: "button", id: "ai-mem-del", className: "btn bgb lc-big", "aria-disabled": chats.length ? undefined : "true", onClick: function () { if (!chats.length) { announce("There are no chats to delete."); return; } setAskDel(true); } }, "Delete all chats"),
       lh('p', { className: "lc-desc" }, "Cherry keeps nothing else about you. Learned habits are in Intelligence, Cherry, and media memory is in Privacy, Media and content."),
       askDel ? lh(AlertDialog, { title: "Delete all chats?", message: "This deletes all " + chats.length + (chats.length === 1 ? " chat" : " chats") + " with Cherry from this device, pinned ones too. It can't be undone.", confirmLabel: "Delete all",
         onCancel: function () { setAskDel(false); },
@@ -1496,8 +1496,8 @@ function FeedbackPage({navigate}) {
       lh(LcMenu, { id: "fb-cat", label: "Category", value: category, items: cats, onSelect: setCategory }),
       lh('label', { htmlFor: "fb-txt", className: "lmenu-label" }, "Your feedback"),
       lh('textarea', { id: "fb-txt", className: "inp", style: { minHeight: 140, lineHeight: 1.6, fontSize: 16 }, value: txt, onChange: function (e) { setTxt(e.target.value); } }),
-      lh('button', { type: "button", className: "btn bp", style: { width: "100%", padding: 13, fontSize: 16 }, disabled: txt.trim().length < 5,
-        onClick: function () { window.open(url(), "_blank", "noopener"); announce("Opened GitHub in a new tab with your feedback filled in."); } }, "Open it on GitHub")));
+      lh('button', { type: "button", className: "btn bp", style: { width: "100%", padding: 13, fontSize: 16 }, "aria-disabled": txt.trim().length < 5 ? "true" : undefined,
+        onClick: function () { if (txt.trim().length < 5) { announce("Write your feedback first, at least 5 characters."); return; } window.open(url(), "_blank", "noopener"); announce("Opened GitHub in a new tab with your feedback filled in."); } }, "Open it on GitHub")));
 }
 function AdminPanel({navigate}) {
   const [subpage, setSubpage] = useState(null);
@@ -1807,7 +1807,7 @@ function AdminAnnouncements({onBack}) {
             ))
           )
           , sent&&React.createElement('div', { style: {padding:"8px 12px",background:"rgba(52,211,153,.12)",border:"1px solid rgba(52,211,153,.3)",borderRadius:8,fontSize:12,color:"var(--gr)",marginBottom:10},}, "✓ Announcement sent successfully"   )
-          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12}, disabled: txt.trim().length<5, onClick: ()=>{setSent(true);setTxt("");}, 'aria-label': "Send announcement" ,}, "Send Announcement" )
+          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12}, 'aria-disabled': txt.trim().length<5 ? "true" : undefined, onClick: ()=>{ if (txt.trim().length<5) { announce("Write the announcement first, at least 5 characters."); return; } setSent(true);setTxt("");}, 'aria-label': "Send announcement" ,}, "Send Announcement" )
         )
         , React.createElement('div', { style: {fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",marginBottom:10},}, "Previous Announcements" )
         , history.map(h=>(
@@ -2621,6 +2621,11 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
 Looscid.LC_FORCED = {}; // Private account forces two Permissions
 // What each event is called, for previews, mapping and captions.
 // Preview button names in sentence case without losing proper terms: "Preview new Dream sound", never "new dream".
+// Build 152 fix: an unavailable radio or checkbox, instead of native disabled: VoiceOver still finds it (aria-disabled),
+// choosing it changes nothing, and it says why once through #looscid-live.
+// The same pass: the messages under Words, Section names, Soundpack import, Keyboard and Backup were role="status" live
+// regions as well as being said through announce(), so they were spoken twice; they're plain text now.
+function lcOffInput(why) { return { "aria-disabled": "true", onChange: function () {}, onClick: function (e) { e.preventDefault(); announce(why); } }; }
 function lcLowerFirst(s) { s = String(s || ""); return /^(Dream|Redream|Looscid|Cherry|Nostr)/.test(s) ? s : s.charAt(0).toLowerCase() + s.slice(1); }
 const LC_EVENTS = [["send", "Send"], ["like", "Like"], ["newDream", "New Dream"], ["error", "Error"], ["alerts", "Alert"], ["feedSwitch", "Feed switch"], ["focus", "Focus move"], ["open", "Open"], ["close", "Close"], ["run", "Done"], ["link", "Link"], ["boot", "Boot chime"]];
 Looscid.LC_EVENTS = LC_EVENTS;
@@ -3352,11 +3357,12 @@ function LcSetRow({ def, onChange }) {
   }
   if (def.t === "choice") {
     const forced = Looscid.LC_FORCED[def.k];
-    if (forced) return lh('fieldset', { className: "lc-fs", id: id, disabled: true },
+    // Build 152 fix: no native disabled fieldset (VoiceOver skips it); each choice is aria-disabled and says why.
+    if (forced) return lh('fieldset', { className: "lc-fs", id: id },
       lh('legend', { className: "lc-fs-l" }, def.l + ", set by Private account"),
       lh('div', { className: "lc-radios lc-radios-col" }, def.o.map(function (o) {
         const on = forced === o[0];
-        return lh('label', { key: o[0], className: "lc-radio" + (on ? " on" : "") }, lh('input', { type: "radio", name: "lcs-" + def.k, value: o[0], checked: on, readOnly: true }), lh('span', null, o[1]));
+        return lh('label', { key: o[0], className: "lc-radio" + (on ? " on" : "") }, lh('input', Object.assign({ type: "radio", name: "lcs-" + def.k, value: o[0], checked: on, readOnly: true }, lcOffInput(def.l + " is set by Private account. Turn off Private account to change it."))), lh('span', null, o[1]));
       })));
     return lh('fieldset', { className: "lc-fs", id: id },
       lh('legend', { className: "lc-fs-l" }, def.l),
@@ -3400,7 +3406,7 @@ function LcWordsRow({ def }) {
     lh('div', { className: "lc-inrow" },
       lh('input', { id: id, type: "text", className: "lc-text", value: txt, autoComplete: "off", onChange: function (e) { setTxt(e.target.value); }, onKeyDown: function (e) { if (e.key === "Enter") { e.preventDefault(); save(); } } }),
       lh('button', { type: "button", className: "btn bgb lc-btn", onClick: save, "aria-label": "Save " + def.l.toLowerCase() }, "Save")),
-    msg ? lh('p', { className: "lc-desc", role: "status" }, msg) : null);
+    msg ? lh('p', { className: "lc-desc" }, msg) : null);
 }
 function LcVoiceRow({ def }) {
   const [voices, setVoices] = useState(LcSpeech.voices());
@@ -3482,19 +3488,21 @@ function BrailleStyle() {
             lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { const r = lcBrForget(pastE.id, i); announce(r.err || r.ok); setTimeout(function () { const hh = document.getElementById("lc-bs-ph"); if (hh) hh.focus(); }, 30); } }, "Permanently remove " + p.name + " from history")));
       })) : lh('p', { className: "lc-desc" }, pastE.name + " has no past names yet. Renaming it keeps the old name here."));
   }
+  // Build 152 fix: with Short roles off the styles are aria-disabled (not a native disabled fieldset) and say why.
+  const bsOff = a.brailleRoles === false ? lcOffInput("Turn on Short roles on braille first.") : null;
   return lh('section', { className: "lc-bs", "aria-labelledby": "lc-bs-h", id: "lc-bs" },
     lh('h3', { id: "lc-bs-h", className: "lc-sub-h", tabIndex: -1 }, "Button style on braille"),
     lh(A11ySwitch, { id: "set-brailleRoles", label: "Short roles on braille", on: a.brailleRoles !== false, onToggle: function () { const v = !(a.brailleRoles !== false); lcSet({ brailleRoles: v }); announce("Short roles on braille: " + (v ? "on" : "off") + "."); setTimeout(lcBrStamp, 0); },
       desc: "Buttons show a short role on your braille display, like edbt, while speech still says button. With BrailleNote, radio buttons and checkboxes show their state the BrailleNote way too." }),
-    lh('fieldset', { className: "lc-fs", id: "set-brailleStyle", disabled: a.brailleRoles === false },
+    lh('fieldset', { className: "lc-fs", id: "set-brailleStyle" },
       lh('legend', { className: "lc-fs-l" }, "Button style on braille"),
       lh('div', { className: "lc-radios lc-radios-col" },
         LC_BR_BUILTIN.map(function (b) { return lh('label', { key: b[0], className: "lc-radio" + (style === b[0] && !isNew ? " on" : "") },
-          lh('input', { type: "radio", name: "lc-bstyle", id: radioId(b[0]), checked: style === b[0] && !isNew, onChange: function () { setIsNew(false); lcBrSelect(b[0]); } }), lh('span', null, b[1] + " (" + b[2] + ")")); }),
+          lh('input', Object.assign({ type: "radio", name: "lc-bstyle", id: radioId(b[0]), checked: style === b[0] && !isNew, onChange: function () { setIsNew(false); lcBrSelect(b[0]); } }, bsOff)), lh('span', null, b[1] + " (" + b[2] + ")")); }),
         list.map(function (x) { const s = "c:" + x.id; return lh('label', { key: x.id, className: "lc-radio" + (style === s && !isNew ? " on" : "") },
-          lh('input', { type: "radio", name: "lc-bstyle", id: radioId(s), checked: style === s && !isNew, onChange: function () { setIsNew(false); lcBrSelect(s); } }), lh('span', null, "Custom (" + x.name + ")")); }),
+          lh('input', Object.assign({ type: "radio", name: "lc-bstyle", id: radioId(s), checked: style === s && !isNew, onChange: function () { setIsNew(false); lcBrSelect(s); } }, bsOff)), lh('span', null, "Custom (" + x.name + ")")); }),
         list.length < LC_BR_MAX ? lh('label', { key: "new", className: "lc-radio" + (isNew ? " on" : "") },
-          lh('input', { type: "radio", name: "lc-bstyle", id: "lc-bs-r-new", checked: isNew, onChange: function () { setIsNew(true); setTxt(""); setErr(""); } }), lh('span', null, "New custom")) : null)),
+          lh('input', Object.assign({ type: "radio", name: "lc-bstyle", id: "lc-bs-r-new", checked: isNew, onChange: function () { setIsNew(true); setTxt(""); setErr(""); } }, bsOff)), lh('span', null, "New custom")) : null)),
     // One Custom field. On iPhone it opens full screen, so Save and Cancel sit right with it,
     // and Enter or braille Enter saves. Changes apply on Save, never on each keystroke.
     editing && a.brailleRoles !== false ? lh('div', { className: "lc-bs-edit" },
@@ -3570,7 +3578,7 @@ function SrTabs() {
 }
 function LcSpeechTest() {
   return lh('div', { className: "lc-row" },
-    lh('button', { type: "button", className: "btn bgb lc-big", disabled: !LcSpeech.ok, onClick: function () { LcSpeech.speak([{ text: "This is how Looscid reads Dreams aloud." }, { text: "And this is a reply, read at a lower pitch.", secondary: true }]); } }, LcSpeech.ok ? "Test the read-aloud voice" : "Test the read-aloud voice, not available in this browser"),
+    lh('button', { type: "button", className: "btn bgb lc-big", "aria-disabled": LcSpeech.ok ? undefined : "true", onClick: function () { if (!LcSpeech.ok) { announce("Read aloud isn't available in this browser."); return; } LcSpeech.speak([{ text: "This is how Looscid reads Dreams aloud." }, { text: "And this is a reply, read at a lower pitch.", secondary: true }]); } }, LcSpeech.ok ? "Test the read-aloud voice" : "Test the read-aloud voice, not available in this browser"),
     lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { LcSpeech.stop(); } }, "Stop reading aloud"));
 }
 // Rename the three sections (text field + Save, Reset to default), saved on this device.
@@ -3591,7 +3599,7 @@ function LcSrRename() {
           lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { save(t[0]); }, "aria-label": "Save name for " + LC_SR_NAMES_DEF[t[0]] }, "Save")));
     }),
     lh('button', { type: "button", className: "btn bgb lc-big", onClick: reset }, "Reset names to default"),
-    msg ? lh('p', { className: "lc-desc", role: "status" }, msg) : null);
+    msg ? lh('p', { className: "lc-desc" }, msg) : null);
 }
 function AudioSettings({ navigate, page }) {
   useA11yNow();
@@ -3691,7 +3699,7 @@ function LcPackImport() {
     lh('p', { id: "lc-imp-d", className: "lc-desc" }, "Choose a .zip of sounds, or audio files. WAV, MP3, OGG, M4A, AAC, WebM or FLAC, up to 1 MB and 3 seconds each, 24 files and 8 MB in all. Files named like send, like, error or alert are matched to events for you. Saved only on this device."),
     lh('label', { htmlFor: "lc-imp-file", className: "btn bgb lc-big lc-filebtn" }, busy ? "Checking sounds\u2026" : "Choose a .zip or audio files"),
     lh('input', { id: "lc-imp-file", type: "file", className: "lc-file", multiple: true, accept: ".zip,application/zip,audio/*,.wav,.mp3,.ogg,.oga,.opus,.m4a,.aac,.webm,.flac", onChange: onFiles }),
-    msg ? lh('p', { className: "lc-desc", role: "status" }, msg) : null,
+    msg ? lh('p', { className: "lc-desc" }, msg) : null,
     bad.length ? lh('ul', { className: "lc-badlist", "aria-label": "Files left out" }, bad.map(function (b, i) { return lh('li', { key: i }, b); })) : null,
     n ? lh('div', { className: "lc-pack" },
       lh('h4', { className: "lc-sub-h" }, "Your pack: " + n + " sound" + (n === 1 ? "" : "s")),
@@ -3701,7 +3709,7 @@ function LcPackImport() {
           lh(LcMenu, { id: sid, label: ev[1], value: cur, items: [{ id: "", name: "Looscid's sound" }].concat(pack.files.map(function (f) { return { id: f.name, name: f.name }; })), onSelect: function (val) { setMap(ev[0], val); } }),
           lh('button', { type: "button", className: "btn bgb lc-btn", "aria-label": "Preview " + lcLowerFirst(ev[1]) + " from your pack", onClick: function () { Earcon.play(ev[0], { test: true, pack: "custom" }); } }, "Preview"));
       })),
-      lh('button', { type: "button", className: "btn bp lc-big", disabled: Looscid.A11Y_NOW.soundPack === "custom", onClick: function () { lcSet({ soundPack: "custom" }); announce("Soundpack: your imported pack."); } }, Looscid.A11Y_NOW.soundPack === "custom" ? "Using your pack" : "Use this pack"),
+      lh('button', { type: "button", className: "btn bp lc-big", "aria-disabled": Looscid.A11Y_NOW.soundPack === "custom" ? "true" : undefined, onClick: function () { if (Looscid.A11Y_NOW.soundPack === "custom") { announce("You're already using your pack."); return; } lcSet({ soundPack: "custom" }); announce("Soundpack: your imported pack."); } }, Looscid.A11Y_NOW.soundPack === "custom" ? "Using your pack" : "Use this pack"),
       lh('button', { type: "button", className: "btn bgb lc-big", onClick: remove }, "Remove your Soundpack")) : null);
 }
 function lcShortcutOk(keys) { const p = keys.split("+"); return p.length > 1 && /Control|Alt|Command/.test(keys) && !/^(Control|Command)\+K$/.test(keys) || /^F\d{1,2}$/.test(keys); }
@@ -3794,7 +3802,7 @@ function KeyboardSettings({ navigate }) {
         lh('label', { htmlFor: "kb-cmd", className: "lc-fs-l", style: { display: "block" } }, "Command it runs"),
         lh('input', { id: "kb-cmd", type: "text", className: "lc-text", value: cmd, placeholder: "open music", autoComplete: "off", onChange: function (e) { setCmd(e.target.value); }, onKeyDown: function (e) { if (e.key === "Enter") { e.preventDefault(); add(); } } })),
       lh('button', { type: "button", className: "btn bp lc-big", onClick: add }, "Add shortcut"),
-      msg ? lh('p', { className: "lc-desc", role: "status" }, msg) : null,
+      msg ? lh('p', { className: "lc-desc" }, msg) : null,
       lh(LcResetBtn, { sec: "keyboard", label: "Your shortcuts" })),
     lh(LcResetLast, { scope: "keyboard" }));
 }
@@ -3832,6 +3840,6 @@ function BackupSettings({ navigate, onImported }) {
       lh('h2', { id: "bk-r-h", className: "lc-grp-h" }, "Reset"),
       lh('p', { className: "lc-desc" }, "Reset is the last item in every Settings list. This one opens the whole-app Reset, where you can also pick just some settings."),
       lh('button', { type: "button", id: "lc-reset-btn", className: "btn bgb lc-big lc-reset", onClick: function () { lcOpenReset("all"); } }, "Reset")),
-    msg ? lh('p', { className: "lc-desc lc-grp", role: "status" }, msg) : null);
+    msg ? lh('p', { className: "lc-desc lc-grp" }, msg) : null);
 }
 })(window.Looscid = window.Looscid || {});

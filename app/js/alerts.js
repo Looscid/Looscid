@@ -30,7 +30,7 @@ function convoView(st, draw, onBack) {
     h('div', { className: "cir" },
       h('input', { className: "inp", style: { borderRadius: 100, flex: 1, fontSize: 14 }, placeholder: "Message " + convo.user.name + "…",
         value: st.inp, onChange: function (e) { st.inp = e.target.value; draw(); }, onKeyDown: function (e) { if (e.key === "Enter" && a11yEnterSends()) send(); }, "aria-label": "Message " + convo.user.name }),
-      h('button', { className: "btn bp", style: { padding: 9, borderRadius: "50%", width: 38, height: 38, flexShrink: 0 }, onClick: send, disabled: !st.inp.trim(), "aria-label": "Send" },
+      h('button', { className: "btn bp", style: { padding: 9, borderRadius: "50%", width: 38, height: 38, flexShrink: 0 }, onClick: function () { if (!st.inp.trim()) { announce("Type a message first."); return; } send(); }, "aria-disabled": st.inp.trim() ? undefined : "true", "aria-label": "Send" },
         lcIconEl("Snd", { style: { width: 15, height: 15 } }))),
     h('div', { style: { height: 72 } }));
 }

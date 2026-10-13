@@ -53,14 +53,14 @@ function AttachPanel({onClose, onAttach, mode, start}) {
           ))
         )
       )
-      , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12}, disabled: !pollQ.trim()||pollOpts.filter(o=>o.trim()).length<2, onClick: ()=>{onAttach({type:"poll",question:pollQ,options:pollOpts.filter(o=>o.trim()),duration:pollDur});onClose();}, 'aria-label': "Add poll to Dream"   ,}, "Attach Poll" )
+      , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12}, 'aria-disabled': !pollQ.trim()||pollOpts.filter(o=>o.trim()).length<2 ? "true" : undefined, onClick: ()=>{ if (!pollQ.trim()) { announce("Type a question first."); return; } if (pollOpts.filter(o=>o.trim()).length<2) { announce("Add at least 2 options first."); return; } onAttach({type:"poll",question:pollQ,options:pollOpts.filter(o=>o.trim()),duration:pollDur});onClose();}, 'aria-label': "Add poll to Dream"   ,}, "Attach Poll" )
     )
   );
 
   if (screen==="link") return (
     React.createElement(Modal, { onClose: ()=>setScreen("main"), title: "Attach Link" , subtitle: "Share an article, video or website"     ,}
       , React.createElement('input', { className: "inp", style: {marginBottom:12}, placeholder: "https://…", value: linkUrl, onChange: e=>setLinkUrl(e.target.value), type: "url", 'aria-label': "Link URL" ,})
-      , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12}, disabled: !linkUrl.trim(), onClick: ()=>{onAttach({type:"link",url:linkUrl});onClose();}, 'aria-label': "Attach link" ,}, "Attach Link" )
+      , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12}, 'aria-disabled': linkUrl.trim() ? undefined : "true", onClick: ()=>{ if (!linkUrl.trim()) { announce("Type or paste a link first."); return; } onAttach({type:"link",url:linkUrl});onClose();}, 'aria-label': "Attach link" ,}, "Attach Link" )
     )
   );
 

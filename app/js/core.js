@@ -2461,9 +2461,10 @@ function LcMenu(props) {
     labelled ? lh('span', { id: id + "-label", className: "lmenu-label" }, props.label) : null,
     lh('button', { id: id, ref: btnRef, type: "button", className: props.btnClass || "lmenu-btn", "aria-haspopup": "menu", "aria-expanded": open ? "true" : "false",
         "aria-controls": open ? menuId : undefined, "aria-labelledby": labelled ? id + "-label " + id : undefined, "aria-label": labelled ? undefined : props.btnLabel,
-        "aria-braillelabel": props.btnBraille, disabled: props.disabled, "aria-describedby": props.btnHint ? lcHint(props.btnHint) : undefined,
-        onClick: function () { open ? setOpen(false) : openMenu(undefined, true); },
-        onKeyDown: function (e) { if (e.key === "ArrowDown") { e.preventDefault(); openMenu(props.search ? undefined : 0); } else if (e.key === "ArrowUp") { e.preventDefault(); openMenu(items.length - 1); } } },
+        "aria-braillelabel": props.btnBraille, "aria-disabled": props.disabled ? "true" : undefined, "aria-describedby": props.btnHint ? lcHint(props.btnHint) : undefined,
+        // Build 152 fix: an unavailable menu button stays findable (aria-disabled, not native disabled), opens nothing and says why once.
+        onClick: function () { if (props.disabled) { const why = props.disabledWhy || props.btnHint; if (why) announce(why); return; } open ? setOpen(false) : openMenu(undefined, true); },
+        onKeyDown: function (e) { if (props.disabled && (e.key === "ArrowDown" || e.key === "ArrowUp")) { e.preventDefault(); return; } if (e.key === "ArrowDown") { e.preventDefault(); openMenu(props.search ? undefined : 0); } else if (e.key === "ArrowUp") { e.preventDefault(); openMenu(items.length - 1); } } },
       typeof btnText === "string" ? lh('span', null, btnText) : btnText,
       props.noCaret ? null : lh('span', { className: "lmenu-caret", "aria-hidden": "true" }, open ? "\u25B4" : "\u25BE")),
     open && lh('div', { className: "lmenu-list" + ((place ? place.up : props.up) ? " lmenu-up" : ""), style: place && place.max ? { maxHeight: place.max + "px" } : undefined },

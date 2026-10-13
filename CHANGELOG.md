@@ -89,6 +89,7 @@ Round 7: a feature update, asked for by 2three1y. Built in steps, one commit eac
 - VoiceOver fixes: Discover says how many results once instead of having its own announcer; the footer's Coming soon buttons, Create's Dream button, Cherry's Send, Hear thread, the Inbox tab Move buttons and Dreams from around you stay findable while unavailable and say why when pressed; unavailable menu items say why too; and it's "Preview new Dream sound" now.
 - Every way of removing or replacing your Nostr key now looks after your Mastodon and Bluesky sign-ins: Reset, the Keys and IDs list and creating, entering or signing in with a new key keep them when your key is unlocked, and tell you first that they'll be signed out when it's locked. Removing a login from the Keys and IDs list asks first, and Reset says what it reset.
 - Discover says the tab and its count when you switch All, Dreamors, Dreams or Circles during a search, like "Dreamors, 0 results", and an empty tab shows No results. And it's "Preview Redream earcon" now, with a capital R.
+- More buttons stay findable for VoiceOver while they can't be used, and say why when pressed: Messages Send, Attach Poll and Attach Link, Direct message on profiles, Delete all chats, Feedback and announcement Send, the read-aloud test, Use this pack, the choices set by Private account and the braille button styles. Cherry's coming-soon chat options say so, tapping a chat option no longer breaks the menu, and a few messages in Settings are no longer read twice.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 
