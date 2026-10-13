@@ -2546,7 +2546,8 @@ function setSession(provider, data) {
 }
 function removeMethod(id) {
   const m = getMethods().find(function (x) { return x.id === id; });
-  if (m && m.provider === "nostr") { setStoredNostrSk(null); try { localStorage.removeItem(LID_IDENTITY_KEY); } catch (e) {} }
+  // Build 152 fix: js/nostr.js dropKey removes the key and releases the Mastodon/Bluesky sign-ins sealed to it.
+  if (m && m.provider === "nostr") { if (Looscid.lcNostr && Looscid.lcNostr.dropKey) Looscid.lcNostr.dropKey(); setStoredNostrSk(null); try { localStorage.removeItem(LID_IDENTITY_KEY); } catch (e) {} }
   if (m) { setSession(m.provider, null); logActivity((PROVIDER_NAMES[m.provider] || m.provider) + " login removed"); }
   return saveMethods(getMethods().filter(function (x) { return x.id !== id; }));
 }
@@ -3654,7 +3655,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-13T01:06:09Z"; // the Round 7 commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-13T01:07:36Z"; // the Round 7 commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never

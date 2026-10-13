@@ -5,6 +5,9 @@
    - Frame guard: when another website shows Looscid in a frame, the app doesn't start (js/mount.js checks
      LOOSCID_FRAMED) and this shows one plain message with a link that opens Looscid on its own. */
 window.onerror = function(msg, src, line, col, err) {
+  // Build 152 fix: inside another website's frame Looscid doesn't start, and a sandboxed frame makes its files throw
+  // ("Script error"). The error screen stays out of the way so only the plain frame-guard message and its link show.
+  if (window.LOOSCID_FRAMED) return false;
   var d = document.createElement('div');
   d.style = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#1a0000;color:#ff6b6b;padding:24px;font-family:monospace;font-size:13px;z-index:999999;overflow:auto;word-break:break-word;white-space:pre-wrap;';
   // Security pass 6/6 (audit finding 9): the error text is written as text, never as HTML.

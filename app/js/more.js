@@ -2085,6 +2085,11 @@ function ComingSoonPanel({ provider }) {
     lh('p', { className: "lid-help" }, "For now, choose Nostr or continue with your local profile."));
 }
 /* --- Login methods (Settings > Account > Security) ----------------------- */
+// Build 152 fix: removing your Nostr key while it's locked signs out the Mastodon/Bluesky sign-ins sealed to it (js/nostr.js dropKey); say so.
+function lcSignedOutBy(m) {
+  const N = Looscid.lcNostr, w = m && m.provider === "nostr" && N && N.sealedSignins ? N.sealedSignins() : null;
+  return w && w.locked ? " " + N.signedOutText(w.nets) : "";
+}
 function LoginMethods() {
   const [methods, setMethods] = useState(getMethods());
   const [adding, setAdding] = useState(null);
@@ -2114,9 +2119,9 @@ function LoginMethods() {
     prov && prov.status === "ready" ? lh(LcFindMeSwitch, { provider: prov.id }) : null,
     prov && prov.status === "ready" ? lh(prov.Panel, { onDone: done, from: "account" }) : null,
     confirmRm && lh(AlertDialog, { title: "Remove " + PROVIDER_NAMES[confirmRm.provider] + " login?",
-      message: confirmRm.provider === "nostr" && confirmRm.nostrMethod === "local" ? "This deletes the Nostr key stored on this device. If you haven't saved it, it's gone for good. Your local profile stays." : "You won't be able to log in with " + PROVIDER_NAMES[confirmRm.provider] + " until you add it again. Your local profile stays.",
+      message: confirmRm.provider === "nostr" && confirmRm.nostrMethod === "local" ? "This deletes the Nostr key stored on this device. If you haven't saved it, it's gone for good. Your local profile stays." + (Looscid.lcNostr && Looscid.lcNostr.forgetWarning && Looscid.lcNostr.forgetWarning() ? " " + Looscid.lcNostr.forgetWarning() : "") : "You won't be able to log in with " + PROVIDER_NAMES[confirmRm.provider] + " until you add it again. Your local profile stays.",
       confirmLabel: "Remove", onCancel: function () { setConfirmRm(null); },
-      onConfirm: function () { const m = confirmRm; setConfirmRm(null); removeMethod(m.id); setMethods(getMethods()); setNote(PROVIDER_NAMES[m.provider] + " login removed."); announce("Login method removed");
+      onConfirm: function () { const m = confirmRm, so = lcSignedOutBy(m); setConfirmRm(null); removeMethod(m.id); setMethods(getMethods()); setNote(PROVIDER_NAMES[m.provider] + " login removed." + so); announce("Login method removed" + (so ? "." + so : ""));
         setTimeout(function () { const b = document.getElementById("lid-add-method"); if (b) b.focus(); }, 0); } }));
 }
 /* --- Keys and IDs (round 5): link the public side of your decentralized IDs ----
@@ -2349,9 +2354,9 @@ function NostrKeySection() {
       lh('button', { type: "button", className: "btn bgb", onClick: addRelay }, "Add relay"),
       !N.usingDefaultRelays() && lh('button', { type: "button", className: "btn bgb", onClick: function () { setRelayList(N.resetRelays()); say("Using the default relays."); } }, "Use default relays")),
     confirmRm && lh(AlertDialog, { title: "Remove your Nostr key from this device?",
-      message: "Your Dreams stay on this device and on Nostr. This device can't Dream to Nostr until you add your key again. Make sure you saved your key first: Looscid can't recover it.",
+      message: "Your Dreams stay on this device and on Nostr. This device can't Dream to Nostr until you add your key again. Make sure you saved your key first: Looscid can't recover it." + (N.forgetWarning && N.forgetWarning() ? " " + N.forgetWarning() : ""),
       confirmLabel: "Remove", onCancel: function () { setConfirmRm(false); lcFocusId("nostr-remove"); },
-      onConfirm: function () { setConfirmRm(false); N.forget(); say("Your Nostr key was removed from this device."); lcFocusId("nostr-key-h"); } }));
+      onConfirm: function () { setConfirmRm(false); const r = N.forget(); say("Your Nostr key was removed from this device." + (r && r.signedOut ? " " + r.signedOut : "")); lcFocusId("nostr-key-h"); } }));
 }
 function LcKeysPanel({ goMethods }) {
   const [kind, setKind] = useState("nostr");
@@ -2401,7 +2406,7 @@ function LcKeysPanel({ goMethods }) {
       }),
       methods.map(function (m) {
         return lh('li', { key: "m" + m.id }, lh('span', null, lcJoin(methodLabel(m), "login method")),
-          lh('button', { type: "button", className: "btn bgb", "aria-label": "Remove " + lcJoin(PROVIDER_NAMES[m.provider], "login"), onClick: function () { removeMethod(m.id); bump(function (n) { return n + 1; }); say(PROVIDER_NAMES[m.provider] + " login removed."); } }, "Remove"));
+          lh('button', { type: "button", className: "btn bgb", "aria-label": "Remove " + lcJoin(PROVIDER_NAMES[m.provider], "login"), onClick: function () { const so = lcSignedOutBy(m); removeMethod(m.id); bump(function (n) { return n + 1; }); say(PROVIDER_NAMES[m.provider] + " login removed." + so); } }, "Remove"));
       }))
       : lh('p', { className: "lid-help" }, "Nothing linked yet."),
     lh('h3', { className: "lid-label" }, "Link an ID"),
@@ -2743,6 +2748,7 @@ const LC_VERSION_HISTORY = [
     "Security: smaller fixes. Notes dated in the future can't jump to the top anymore, names and message settings from Nostr must be properly signed, and Cherry's on-device models are off until their code ships with Looscid itself.",
     "Fixes from a careful check: messages from Nostr people you follow show again, Mute and Pin menu items now say Unmute and Unpin right after you use them, Dream info gives the real date and time for your own Dreams, and Inbox earcons play your Soundpack's Alert sound again when the pack has no Inbox earcons of its own. Also: Liked by and Redreamed by say how many Dreamors when they open, and a few buttons keep your focus while they're busy.",
     "Share now uses your phone's share sheet, for profiles and Dreams. It has Copy and, in Chrome, a QR code, so the separate Copy LooscidID link, QR code and Copy link items are gone. Cancelling the share sheet does nothing. Copy username and Open original profile stay.",
+    "Removing your Nostr key no longer leaves your Mastodon and Bluesky sign-ins locked for good: with the key unlocked they're kept, and with it locked Looscid tells you first that they'll be signed out. And when another website shows Looscid in a frame, you get only the short message and the Open Looscid on its own link, with no error boxes on top.",
     "Share reply now opens your phone's share sheet with the reply's link, just like Share Dream. And your older Dreams show their real age on the card again instead of \"just now\"; a Dream whose time isn't known shows no time.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [

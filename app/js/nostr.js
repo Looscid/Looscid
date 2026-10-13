@@ -231,7 +231,7 @@ function removePasscode() {
 }
 // Remove the key (and signer link) from this device. Your Dreams stay on this device.
 function forget() {
-  lsSet(SK_KEY, null); lsSet(ENC_KEY, null); memSk = null;
+  const gone = dropKey();
   const idn = identity();
   if (idn) {
     const m = (Looscid.getMethods ? Looscid.getMethods() : []).find(function (x) { return x.provider === "nostr"; });
@@ -240,7 +240,7 @@ function forget() {
   }
   // Dreams still waiting to be signed can't be signed any more.
   saveQueue(queue().filter(function (q) { return q.ev; }));
-  emit(); return { ok: true };
+  emit(); return { ok: true, signedOut: signedOutText(gone) };
 }
 /* Security pass 4/6 (Oct 2026): your Mastodon/fediverse and Bluesky sign-in tokens (looscid_sessions) are sealed to your
    own Nostr key (NIP-44) whenever that key has a passcode. Sealing needs only your public key, so it works while the key is
@@ -298,6 +298,40 @@ function unsealSessions(sk) {
   let changed = false;
   Object.keys(s).forEach(function (k) { if (s[k] && s[k].sealed) { try { s[k] = openOne(NT, s[k], sk); changed = true; } catch (e) {} } });
   if (changed) lsSet(SESSIONS_KEY, JSON.stringify(s));
+}
+/* Build 152 fix: forgetting the key no longer leaves Mastodon/Bluesky sign-ins sealed to a key that's gone. dropKey removes
+   the key from this device; sign-ins sealed to it go back to plain storage first when the key is unlocked (as Remove
+   passcode does). With the key locked they can never be opened again, so the sealed copies are removed and those
+   networks are signed out (their login methods go too); nothing unopenable is left. The key is cleared before anything
+   is written, so nothing is sealed again on the way. sealedSignins tells the Remove confirmation what will happen. */
+const SESSION_NAMES = { activitypub: "Mastodon", atproto: "Bluesky" };
+function sealedSignins() {
+  const s = sessionsRaw(), nets = Object.keys(s).filter(function (k) { return s[k] && s[k].sealed; });
+  const NT = window.NostrTools, open = !!currentSk() && !!NT && !!NT.nip44;
+  return { nets: nets, locked: nets.length > 0 && !open };
+}
+function netNames(nets) {
+  const names = nets.map(function (k) { return SESSION_NAMES[k] || (Looscid.PROVIDER_NAMES && Looscid.PROVIDER_NAMES[k]) || k; });
+  return names.length > 1 ? names.slice(0, -1).join(", ") + " and " + names[names.length - 1] : names[0] || "";
+}
+function forgetWarning() {
+  const w = sealedSignins(); if (!w.locked) return "";
+  const many = w.nets.length > 1;
+  return "Your key is locked, so your " + netNames(w.nets) + " sign-in" + (many ? "s" : "") + " on this device will be signed out. To keep " + (many ? "them" : "it") + ", unlock your key first.";
+}
+function signedOutText(nets) { return nets && nets.length ? netNames(nets) + (nets.length > 1 ? " were" : " was") + " signed out." : ""; }
+function dropKey() {
+  const sk = currentSk();
+  lsSet(SK_KEY, null); lsSet(ENC_KEY, null); memSk = null;
+  const s0 = sessionsRaw(); if (!Object.keys(s0).some(function (k) { return s0[k] && s0[k].sealed; })) return [];
+  if (sk) unsealSessions(sk);
+  const s = sessionsRaw(), gone = Object.keys(s).filter(function (k) { return s[k] && s[k].sealed; });
+  if (!gone.length) return [];
+  gone.forEach(function (k) { delete s[k]; });
+  lsSet(SESSIONS_KEY, JSON.stringify(s));
+  const ms = Looscid.getMethods ? Looscid.getMethods() : [];
+  gone.forEach(function (k) { ms.filter(function (m) { return m.provider === k; }).forEach(function (m) { if (Looscid.removeMethod) Looscid.removeMethod(m.id); }); });
+  return gone;
 }
 function nsecNow() { const sk = currentSk(); return sk && window.NostrTools ? window.NostrTools.nip19.nsecEncode(sk) : null; }
 
@@ -784,7 +818,7 @@ window.addEventListener("online", function () { if (queue().length) kick(); });
 if (document.readyState === "complete") start(); else window.addEventListener("load", start);
 
 Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, VENDOR_URL: VENDOR_URL, load: load, toolsMsg: toolsMsg, toolsReady: toolsReady, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
-  importKey: importKey, createKey: createKey, passcodeProblem: passcodeProblem, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, nsecNow: nsecNow, sealSessions: sealSessions, sealSessionsNow: sealSessionsNow, openSessions: openSessions, dmRelaysOf: dmRelaysOf,
+  importKey: importKey, createKey: createKey, passcodeProblem: passcodeProblem, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, dropKey: dropKey, sealedSignins: sealedSignins, forgetWarning: forgetWarning, signedOutText: signedOutText, nsecNow: nsecNow, sealSessions: sealSessions, sealSessionsNow: sealSessionsNow, openSessions: openSessions, dmRelaysOf: dmRelaysOf,
   publishDream: publishDream, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchReactions: fetchReactions, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
 // Tokens saved before this update, when the key already has a passcode, are sealed a few seconds after startup.
 setTimeout(function () { sealSessions(); }, 2500);
