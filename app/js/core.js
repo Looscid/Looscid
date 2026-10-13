@@ -1722,6 +1722,10 @@ Looscid.CHILD_SAFETY_CONTENT = CHILD_SAFETY_CONTENT;
    floating: LcFooterHost moves it to the end of the page's own scrolling area, so it only shows once you reach the
    end and never covers content. Pages without a scrolling .pg (full-screen tools) have no footer.
    The old app never had a site footer on preview; main's one line, "Looscid is open source and local first.", is kept. */
+/* Round 11 fixes (QA round 10): forget which footer page was opened, and from where (its link, its Replies, a second hop),
+   once you leave that page some other way than its own Back or another footer link (the tab bar, More, Commandbar...). */
+function lcFooterForget() { Looscid.lcFooterFrom = null; Looscid.lcFooterLink = null; Looscid.lcFooterCv = null; Looscid.lcFooterHop = null; }
+Looscid.lcFooterForget = lcFooterForget;
 function LcSiteFooter({ navigate, cur }) {
   const ext = function (href, text, key) { return lh('li', { key: key }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, text)); };
   const go = function (page, text, key) { return lh('li', { key: key }, lh('a', { href: (Looscid.lcPathFor ? Looscid.lcPathFor(page) : "#"), className: "lc-link",
@@ -3826,10 +3830,11 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-13T20:40:56Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-13T21:56:23Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
-// Round 10 fixes: About and Commandbar show version.json's "released" time once the update check has read it (same build).
-function lcReleased() { return Looscid.LC_RELEASED_LIVE || LOOSCID_RELEASED; }
+// Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
+// (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
+function lcReleased() { return LOOSCID_RELEASED; }
 Looscid.lcReleased = lcReleased;
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
@@ -3845,7 +3850,6 @@ function lcCheckUpdate(manual) {
   if (!manual && !lcUpdateAuto()) return Promise.resolve(null);
   return lcFetchVersion().then(function (v) {
     const b = +(v && v.build) || 0;
-    if (b === LOOSCID_BUILD && v.version === LOOSCID_VERSION && v.released && !isNaN(new Date(v.released))) Looscid.LC_RELEASED_LIVE = v.released;
     if (b > LOOSCID_BUILD) {
       let later = 0; try { later = +localStorage.getItem(LC_UPDATE_LATER_KEY) || 0; } catch (e) {}
       if (manual || later < b) { try { window.dispatchEvent(new CustomEvent("looscid:update", { detail: v })); } catch (e) {} }
@@ -4585,7 +4589,7 @@ function lcRegistryIntent(n, isOn, isOff) {
     return { patch: patch, say: def.l + " is now " + lcValueText(def, v) + "." };
   }
   if (def.t === "time") {
-    const v = lcParseTime(rest); if (!v) return { say: def.l + " is " + cur + ". Say " + def.al[0] + " and a time, like " + def.al[0] + (lcHour24() ? " 22:00." : " 10 pm.") };
+    const v = lcParseTime(rest); if (!v) return { say: def.l + " is " + cur + ". Say " + def.al[0] + " and a time, like " + def.al[0] + (def.k === "quietTo" ? (lcHour24() ? " 07:00." : " 7 am.") : (lcHour24() ? " 22:00." : " 10 pm.")) }; // Round 11: "quiet until" gives the until-time example
     const patch = {}; patch[def.k] = v; return { patch: patch, say: def.l + " is now " + lcTimeSpoken(v) + "." };
   }
   if (def.t === "voice") {
@@ -6519,6 +6523,10 @@ useEffect(() => {
       setMenuInit({ open: m[0], focus: m[1], n: Date.now() }); setShowMenu(true); Earcon.play("settings");
       return;
     }
+    // Round 11 fixes (QA round 10): going anywhere from a footer page except its own Back, another footer link, or About's and
+    // Legal's own buttons (whose Back comes back to it) forgets it, so a later Back can't reopen an old Replies thread.
+    if (Looscid.lcFooterFrom && target !== cur && target !== "intro" && (showMenuRef.current || (target !== Looscid.lcFooterFrom
+      && !((cur === "settings_about" || cur === "legal") && /^(terms|privacy|guidelines|feedback|credits|nexos_apps|legal)$/.test(target))))) lcFooterForget();
     if (showMenuRef.current) delete subFrom.current[target]; // opened from the Settings menu: Back returns to the menu
     else if (/^settings_/.test(target) && /^settings_/.test(cur) && target !== cur) {
       if (subFrom.current[cur] === target) delete subFrom.current[cur]; else subFrom.current[target] = cur;
@@ -6573,7 +6581,7 @@ useEffect(() => {
   const goRoot = id => {
     if(id==="create"){setShowCreate(true);return;}
     // Round 7 fixes (QA round 6): a tab switch starts a new visit, so a profile's old way Back to Discover is forgotten.
-    Looscid.LC_DP_BACK = null; Looscid.LC_DP_BACK_NEXT = null; Looscid.LC_LID_RETURN = null; Looscid.LC_SETTINGS_BACK = null; Looscid.LC_CV_REOPEN = null;
+    Looscid.LC_DP_BACK = null; Looscid.LC_DP_BACK_NEXT = null; Looscid.LC_LID_RETURN = null; Looscid.LC_SETTINGS_BACK = null; Looscid.LC_CV_REOPEN = null; lcFooterForget(); // Round 11: and the footer page you left
     if(id==="cherry"){navigate("cherry");return;}
     if(id==="circles"){setPage("groups");setPdata(null);return;}
     setPage(id); setPdata(null);
@@ -6650,6 +6658,7 @@ useEffect(() => {
     if (to) { routeInit.current = to.page; setPage(to.page); setPdata(to.data); } else routeInit.current = null;
     const onPop = () => {
       const lp = location.pathname, r2 = (lp.toLowerCase().indexOf(LOOSCID_BASE.toLowerCase()) === 0 ? lcRouteFor(lp.slice(LOOSCID_BASE.length)) : null) || { page: "feed", data: null };
+      if (r2.page !== Looscid.lcFooterFrom) lcFooterForget(); // Round 11: browser Back/Forward leaves the footer page too
       routeSkip.current = true; setShowMenu(false); setPage(r2.page); setPdata(r2.data); focusMainHeading();
     };
     window.addEventListener("popstate", onPop); return () => window.removeEventListener("popstate", onPop);
