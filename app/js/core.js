@@ -1072,8 +1072,8 @@ function CommentView({dream, backTo, onBack, onLike, onRedream, onUndoRedream, o
     const lost = function () { const a = document.activeElement; return !a || a === document.body || !a.isConnected; };
     // Reopened by Back from a footer page: focus goes to that footer link instead (lcFocusFooterLink).
     if (!reopened.current) setTimeout(function () { const h = document.getElementById("cv-h1"); if (h && lost()) h.focus(); }, 30);
-    const me = { dream: dream, opener: openerRef.current, back: backTo || null }; Looscid.LC_CV_NOW = me;
-    return function () { if (Looscid.LC_CV_NOW === me) Looscid.LC_CV_NOW = null; const o = openerRef.current; setTimeout(function () { if (!lost()) return;
+    const me = { dream: dream, opener: openerRef.current, back: backTo || null }; Looscid.LC_CV_NOW = me; lcCvSignal();
+    return function () { if (Looscid.LC_CV_NOW === me) { Looscid.LC_CV_NOW = null; lcCvSignal(); } const o = openerRef.current; setTimeout(function () { if (!lost()) return;
       const c = o.card != null ? Array.from(document.querySelectorAll("#main-content [data-dream-id]")).find(function (x) { return x.getAttribute("data-dream-id") === o.card; }) : null;
       const e = (c && o.cls ? c.querySelector("." + o.cls) : null) || lcFindOpener(o.desc) || c;
       if (e) { if (e === c && !e.hasAttribute("tabindex")) e.setAttribute("tabindex", "-1"); e.focus(); } else lcFocusHeading(); }, 60); };
@@ -1760,6 +1760,8 @@ function lcCvTake() {
   if (!r || !r.dream || Date.now() - r.at > 2000) return null;
   Looscid.LC_CV_OPENER_NEXT = r.opener || null; return r.dream;
 }
+// Round 12: tells the browser history that a Replies view opened or closed (it has its own entry, so Back closes it).
+function lcCvSignal() { try { window.dispatchEvent(new Event("looscid-cv")); } catch (e) {} }
 function lcCvReopenLater(cv) { Looscid.LC_CV_REOPEN = cv && cv.dream ? { dream: cv.dream, opener: cv.opener, back: cv.back || null, at: Date.now() } : null; }
 Looscid.lcCvTake = lcCvTake;
 // Back to a page opened from the footer: focus the footer link that opened it (by its words), else the page's heading.
@@ -3830,7 +3832,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-13T21:56:23Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-13T23:54:41Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -6306,6 +6308,7 @@ function App() {
 
   // App state
   const [page, setPage]   = useState("feed");
+  const [pageNonce, setPageNonce] = useState(0); // Round 12: a new number opens the same page fresh (Forward to a Replies view, Home tab closing Replies)
   const [pdata, setPdata] = useState(null);
   const [prefs, setPrefs] = useState({charLimitEnabled:false,charLimit:280,accessibility:loadA11y(),menu:{pos:"bottom",hideTopClose:false,hideBotClose:false}});
   const [showCreate, setShowCreate] = useState(false);
@@ -6645,7 +6648,103 @@ useEffect(() => {
   Looscid.LC_MORE_BACK = moreBack;
   // Part 40 (#69): the address bar follows the page (pushState), Back and Forward in the browser follow the address
   // (popstate), and an address that came through 404.html (?p=/Settings/Sense) or straight in opens its page.
-  const routeInit = useRef(undefined), routeSkip = useRef(false);
+  /* Round 12 (2three1y Oct 13: "browser back and forth should simulate the Back button and a Forward button on the page
+     itself", the Android back arrow too): the browser's history now mirrors the app's own Back.
+     - Every history entry carries its place in the list (lcN) and a key (lcK). The key points at what that page knew when
+       it opened (lcHistSnap: where its Back goes, the footer link and Replies it came from, an open Replies view...),
+       kept here in memory because it holds Dreams and functions that history.state can't carry.
+     - Browser or Android Back presses the page's own Back button, so it lands exactly where that button lands, with the
+       same focus and the same one announcement. With a sheet, the Commandbar or a dialog open, it closes that first, like
+       Escape, and stays on the page.
+     - Forward reopens the page you backed out of with what it knew, focus on its heading, so its own Back still works.
+     - The page's own Back steps the history back too (no extra entry that reopens the page you left), and a Replies view
+       has its own entry, so Back from Replies closes Replies instead of leaving Looscid. Back leaves Looscid only from
+       the first page, as before. */
+  const routeInit = useRef(undefined);
+  const hist = useRef(null);
+  if (!hist.current) hist.current = { idx: 0, urls: [], keys: [], snaps: new Map(), paths: [], pages: [], pend: 0, after: null, goT: null, mode: null, modeUntil: 0, from: null, backAt: 0, syncT: null, n: 0 };
+  const histLoc = () => {
+    const H = hist.current, pg = pageRef.current, pd = pdataRef.current;
+    let path = lcPathFor(pg, pd);
+    if (path === LOOSCID_BASE + "index.html") path = LOOSCID_BASE;
+    let L = path;
+    if (!L) { const k = pd && typeof pd === "object" ? (pd.id != null ? pd.id : pd.circle != null ? pd.circle : pd.list != null ? pd.list : pd.handle || pd.name || pd.tab || "") : ""; L = LOOSCID_BASE + "#pg:" + pg + (k !== "" ? ":" + k : ""); }
+    const cv = Looscid.LC_CV_NOW; if (cv && cv.dream) L += "#cv:" + cv.dream.id;
+    return { L: L, path: path || location.pathname };
+  };
+  const histSnap = () => {
+    const o = {}; Object.keys(openers.current).forEach(k => { o[k] = Object.assign({}, openers.current[k]); });
+    const cv = Looscid.LC_CV_NOW;
+    return { page: pageRef.current, pdata: pdataRef.current, cv: cv && cv.dream ? { dream: cv.dream, opener: cv.opener, back: cv.back || null } : null,
+      openers: o, subFrom: Object.assign({}, subFrom.current), mainBack: mainBack.current, termBack: termBack.current,
+      cherryBack: cherryBack.current, commandsBack: commandsBack.current, projectBack: projectBack.current, helpBack: helpBack.current, legalBack: legalBack.current, cherryOffMenu: cherryOffMenu.current,
+      g: { lcFooterFrom: Looscid.lcFooterFrom || null, lcFooterLink: Looscid.lcFooterLink || null, lcFooterCv: Looscid.lcFooterCv || null, lcFooterHop: Looscid.lcFooterHop || null,
+        LC_DP_BACK: Looscid.LC_DP_BACK || null, LC_LID_RETURN: Looscid.LC_LID_RETURN || null, LC_SETTINGS_BACK: Looscid.LC_SETTINGS_BACK || null } };
+  };
+  const histState = (L, key) => ({ lcPage: pageRef.current, lcN: hist.current.idx, lcK: key, lcL: L });
+  const histMark = (loc, key) => { const H = hist.current; H.urls[H.idx] = loc.L; H.keys[H.idx] = key; H.paths[H.idx] = loc.path; H.pages[H.idx] = pageRef.current; };
+  const histNewKey = () => "k" + Date.now().toString(36) + "-" + (++hist.current.n);
+  const histPush = (loc) => { const H = hist.current, key = histNewKey();
+    H.idx += 1; histTrim(); histMark(loc, key); H.snaps.set(key, histSnap());
+    try { history.pushState(histState(loc.L, key), "", loc.path); } catch (e) {} };
+  function histTrim() { const H = hist.current; H.urls.length = H.idx; H.keys.length = H.idx; H.paths.length = H.idx; H.pages.length = H.idx; }
+  const histReplace = (loc) => { const H = hist.current, key = histNewKey();
+    histMark(loc, key); H.snaps.set(key, histSnap());
+    try { history.replaceState(histState(loc.L, key), "", loc.path); } catch (e) {} };
+  // Moves through the history without opening anything: the app is already showing the page that entry stands for.
+  const histGo = (delta, then) => { const H = hist.current; if (!delta) { if (then) then(); return; }
+    H.pend += 1; H.after = then || null; clearTimeout(H.goT); H.goT = setTimeout(() => { H.pend = 0; H.after = null; }, 1500);
+    try { history.go(delta); } catch (e) { H.pend = 0; H.after = null; } };
+  // The page you were on (entry B) went Back to loc: step the history to loc's entry and keep B as the Forward page.
+  const histSettleBack = (loc, B) => {
+    const H = hist.current; let j = -1;
+    for (let i = B.idx - 1; i >= 0; i--) if (H.urls[i] === loc.L) { j = i; break; }
+    const keepB = () => { if (H.urls[H.idx + 1] === B.L && H.keys[H.idx + 1] === B.key) return;
+      H.idx += 1; histTrim(); H.urls[H.idx] = B.L; H.keys[H.idx] = B.key; H.paths[H.idx] = B.path; H.pages[H.idx] = B.page;
+      try { history.pushState({ lcPage: B.page, lcN: H.idx, lcK: B.key, lcL: B.L }, "", B.path); } catch (e) {} histGo(-1); };
+    if (j >= 0) { histGo(j - H.idx, keepB); return; }
+    if (B.idx === 0) { if (H.idx !== 0) { histGo(-H.idx, () => { histReplace(loc); keepB(); }); return; } histReplace(loc); keepB(); return; }
+    histGo(B.idx - 1 - H.idx, () => { histReplace(loc); });
+  };
+  // The entry of the page on screen (read before its Back runs).
+  const histEntry = () => { const H = hist.current, loc = histLoc(); let key = H.keys[H.idx];
+    if (!key || !H.snaps.has(key) || H.urls[H.idx] !== loc.L) { key = key || histNewKey(); H.snaps.set(key, histSnap()); }
+    return { idx: H.idx, L: H.urls[H.idx] || loc.L, key: key, path: H.paths[H.idx] || loc.path, page: H.pages[H.idx] || pageRef.current }; };
+  const histSync = () => {
+    const H = hist.current; clearTimeout(H.syncT); H.syncT = null;
+    if (H.pend > 0) { H.syncT = setTimeout(histSync, 80); return; }
+    const loc = histLoc(), now = Date.now(), cur = H.urls[H.idx];
+    if (H.mode === "restore") {
+      if (cur !== loc.L && now < H.modeUntil) { H.syncT = setTimeout(histSync, 120); return; }
+      H.mode = null; if (cur !== loc.L) histReplace(loc); return; }
+    if (H.mode === "replace") { H.mode = null; if (cur !== loc.L) histReplace(loc); return; }
+    if (H.mode === "pop") { const B = H.from; H.mode = null; H.from = null;
+      if (!B) { if (cur !== loc.L) histReplace(loc); return; }
+      if (B.L === loc.L) { histGo(B.idx - H.idx); return; }        // the page's Back did a step inside the page: stay on its entry
+      if (cur === loc.L) return;
+      histSettleBack(loc, B); return; }
+    if (cur === loc.L) return;
+    if (cur === undefined) { histReplace(loc); return; }
+    const B = H.lastB; H.lastB = null;
+    if (now - H.backAt < 1500 && B && B.idx === H.idx && B.L !== loc.L) { H.backAt = 0; histSettleBack(loc, B); return; }
+    histPush(loc);
+  };
+  const histSyncSoon = (ms) => { const H = hist.current; clearTimeout(H.syncT); H.syncT = setTimeout(histSync, ms || 90); };
+  Looscid.lcBackNow = () => { const H = hist.current; return Date.now() - H.backAt < 1500 || (H.mode === "pop" && Date.now() < H.modeUntil); };
+  // Puts back what a page knew when it opened, then opens it (Forward, or Back across more than one page).
+  const histRestore = (S) => {
+    const o = {}; Object.keys(S.openers || {}).forEach(k => { o[k] = Object.assign({}, S.openers[k]); }); openers.current = o;
+    subFrom.current = Object.assign({}, S.subFrom || {}); mainBack.current = S.mainBack || "feed"; termBack.current = S.termBack || "feed";
+    cherryBack.current = S.cherryBack; commandsBack.current = S.commandsBack; projectBack.current = S.projectBack; helpBack.current = S.helpBack; legalBack.current = S.legalBack; cherryOffMenu.current = !!S.cherryOffMenu;
+    Object.keys(S.g || {}).forEach(k => { Looscid[k] = S.g[k]; });
+    Looscid.LC_CV_REOPEN = null; Looscid.LC_DP_BACK_NEXT = null;
+    if (S.cv) lcCvReopenLater(S.cv);
+    const H = hist.current; H.mode = "restore"; H.modeUntil = Date.now() + 1200;
+    setShowMenu(false);
+    if (S.page === pageRef.current && (!!S.cv || !!Looscid.LC_CV_NOW)) setPageNonce(n => n + 1);
+    setPage(S.page); setPdata(S.pdata || null);
+    focusMainHeading(); histSyncSoon();
+  };
   useEffect(() => {
     let rel = null;
     try { const sp = new URLSearchParams(location.search); if (sp.has("p")) rel = sp.get("p"); } catch (e) {}
@@ -6656,22 +6755,50 @@ useEffect(() => {
     const to = r && r.page !== "feed" ? r : null;
     try { const want = to ? lcPathFor(to.page, to.data) : LOOSCID_BASE; if (to || /[?&]p=/.test(location.search) || (rel && !r)) history.replaceState({ lcPage: to ? to.page : "feed" }, "", want + location.hash); } catch (e) {}
     if (to) { routeInit.current = to.page; setPage(to.page); setPdata(to.data); } else routeInit.current = null;
-    const onPop = () => {
+    // A reload keeps its place in the list; the pages before it are known again once you pass them.
+    try { const s0 = history.state; if (s0 && typeof s0.lcN === "number") hist.current.idx = s0.lcN; } catch (e) {}
+    // A press on a page's own Back button (not one pressed for the browser's Back, below).
+    const onBackClick = (e) => { const t = e.target && e.target.closest ? e.target.closest('button[aria-label="Back"]') : null;
+      if (!t || !t.closest("#main-content")) return; const H = hist.current; if (H.mode === "pop" && Date.now() < H.modeUntil) return;
+      H.lastB = histEntry(); H.backAt = Date.now(); };
+    document.addEventListener("click", onBackClick, true);
+    const onCv = () => { if (routeInit.current === null) histSyncSoon(); };
+    window.addEventListener("looscid-cv", onCv);
+    const urlRoute = () => {
       const lp = location.pathname, r2 = (lp.toLowerCase().indexOf(LOOSCID_BASE.toLowerCase()) === 0 ? lcRouteFor(lp.slice(LOOSCID_BASE.length)) : null) || { page: "feed", data: null };
       if (r2.page !== Looscid.lcFooterFrom) lcFooterForget(); // Round 11: browser Back/Forward leaves the footer page too
-      routeSkip.current = true; setShowMenu(false); setPage(r2.page); setPdata(r2.data); focusMainHeading();
+      const H = hist.current; H.mode = "replace"; H.modeUntil = Date.now() + 1200;
+      setShowMenu(false); setPage(r2.page); setPdata(r2.data); focusMainHeading(); histSyncSoon();
     };
-    window.addEventListener("popstate", onPop); return () => window.removeEventListener("popstate", onPop);
+    const onPop = () => {
+      const H = hist.current; let st = null; try { st = history.state; } catch (e) {}
+      const n = st && typeof st.lcN === "number" ? st.lcN : null;
+      if (H.pend > 0) { H.pend -= 1; if (n !== null) H.idx = n; if (!H.pend) clearTimeout(H.goT); const f = H.after; H.after = null; if (f) f(); return; }
+      if (n === null || n === H.idx) { urlRoute(); return; }
+      if (n < H.idx) {
+        const B = histEntry(), steps = H.idx - n; H.idx = n;
+        // A sheet, the Commandbar or a dialog is open: Back closes it (like Escape) and you stay on the page.
+        const dlg = Array.from(document.querySelectorAll('[role="dialog"], [role="alertdialog"]')).find(d => d.getClientRects().length > 0);
+        if (steps === 1 && (showMenuRef.current || dlg)) {
+          if (showMenuRef.current && !dlg) setShowMenu(false);
+          else { const a = document.activeElement, tgt = a && dlg.contains(a) ? a : dlg; tgt.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", code: "Escape", keyCode: 27, bubbles: true, cancelable: true })); }
+          histGo(B.idx - n); return; }
+        const bb = steps === 1 ? Array.from(document.querySelectorAll('#main-content button[aria-label="Back"]')).find(x => x.offsetParent !== null || x.getClientRects().length) : null;
+        if (bb) { H.mode = "pop"; H.modeUntil = Date.now() + 1500; H.from = B; bb.click(); histSyncSoon(260); return; }
+        const S = st.lcK && H.snaps.get(st.lcK); if (S) { histRestore(S); return; }
+        urlRoute(); return;
+      }
+      H.idx = n; const S = st.lcK && H.snaps.get(st.lcK);
+      if (S) { histRestore(S); return; }
+      urlRoute();
+    };
+    window.addEventListener("popstate", onPop);
+    return () => { window.removeEventListener("popstate", onPop); document.removeEventListener("click", onBackClick, true); window.removeEventListener("looscid-cv", onCv); };
   }, []);
   useEffect(() => {
     if (routeInit.current === undefined) return;                 // the first effect has not read the address yet
-    if (routeInit.current) { if (page !== routeInit.current) return; routeInit.current = null; return; }
-    const want = lcPathFor(page, pdata); if (!want) { routeSkip.current = false; return; }
-    const curP = location.pathname;
-    if (page === "feed" && (curP === LOOSCID_BASE || curP === LOOSCID_BASE + "index.html")) { routeSkip.current = false; return; }
-    if (curP === want) { routeSkip.current = false; return; }
-    try { if (routeSkip.current) history.replaceState({ lcPage: page }, "", want); else history.pushState({ lcPage: page }, "", want); } catch (e) {}
-    routeSkip.current = false;
+    if (routeInit.current) { if (page !== routeInit.current) return; routeInit.current = null; }
+    histSyncSoon();
   }, [page, pdata]);
 
   const setA11yPatch = patch => { Looscid.A11Y_NOW = Object.assign({}, Looscid.A11Y_NOW, patch); setPrefs(p => Object.assign({}, p, { accessibility: Object.assign({}, A11Y_DEFAULTS, p.accessibility || {}, patch) })); };
@@ -6955,14 +7082,14 @@ useEffect(() => {
 
   const renderPage = () => {
     switch(page) {
-      case "feed":          return React.createElement(Looscid.FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
+      case "feed":          return React.createElement(Looscid.FeedPage, { key: "feed" + pageNonce, navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
       case "discover":      return React.createElement(Looscid.DiscoverPage, { navigate: navigate, cherryCtx: cherryCtx,});
       case "alerts":        return React.createElement(Looscid.AlertsPage, { cherryCtx: cherryCtx,});
       case "groups":        return React.createElement(Looscid.GroupsPage, { key: "groups-" + (pdata && pdata.circle != null ? pdata.circle : ""), data: pdata, navigate: navigate, cherryCtx: cherryCtx,});
-      case "profile":       return React.createElement(Looscid.ProfilePage, { key: "me", navigate: navigate, cherryCtx: cherryCtx, authUser: authUser, onUpdateProfile: handleUpdateProfile,});
-      case "liked":         return React.createElement(Looscid.LikedPage, { navigate: navigate, cherryCtx: cherryCtx,}); // build 148: Liked, in More
+      case "profile":       return React.createElement(Looscid.ProfilePage, { key: "me" + (pageNonce || ""), navigate: navigate, cherryCtx: cherryCtx, authUser: authUser, onUpdateProfile: handleUpdateProfile,});
+      case "liked":         return React.createElement(Looscid.LikedPage, { key: "liked" + pageNonce, navigate: navigate, cherryCtx: cherryCtx,}); // build 148: Liked, in More
       case "lists":         return React.createElement(Looscid.ListsPage, { key: "lists-" + ((pdata && pdata.list) || ""), data: pdata, navigate: navigate, cherryCtx: cherryCtx,}); // build 152 prep (#99, part 4b)
-      case "dp":            return pdata ? React.createElement(Looscid.DreamorProfilePage, { user: pdata, navigate: navigate, cherryCtx: cherryCtx,}) : React.createElement(Looscid.FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
+      case "dp":            return pdata ? React.createElement(Looscid.DreamorProfilePage, { key: "dp" + pageNonce, user: pdata, navigate: navigate, cherryCtx: cherryCtx,}) : React.createElement(Looscid.FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
       case "settings_account":        return React.createElement(Looscid.AccountSettings, { key: "acct-" + ((pdata && pdata.tab) || "home"), navigate: navigate, authUser: authUser, onSignOut: handleSignOut, onRenameProfile: handleRenameProfile, onUpdateProfile: handleUpdateProfile, initialTab: pdata && pdata.tab,});
       case "settings_notifications":  return React.createElement(Looscid.NotificationsSettings, { navigate: navigate, prefs: prefs, setPrefs: setPrefs,});
       case "settings_privacy":        return React.createElement(Looscid.PrivacySettings, { navigate: navigate, authUser: authUser, onUpdateProfile: handleUpdateProfile,});
