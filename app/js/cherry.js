@@ -39,7 +39,7 @@ function lcCherryTitle(text) {
 function lcCherryWhen(ms) {
   if (!ms) return "";
   const d = new Date(ms), now = new Date();
-  const time = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const time = d.toLocaleTimeString([], Looscid.lcTimeOpts()); // round 9: follows Time format
   if (d.toDateString() === now.toDateString()) return "Today, " + time;
   const y = new Date(now); y.setDate(now.getDate() - 1);
   if (d.toDateString() === y.toDateString()) return "Yesterday, " + time;

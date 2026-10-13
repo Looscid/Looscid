@@ -216,7 +216,7 @@ function DraftsPage({ navigate, onLoadDraft }) {
       : React.createElement('div', { style: {padding:"0 16px 24px"}},
           items.map(draft => React.createElement('div', { key: draft.id, style: {background:"var(--sf2)",border:"1px solid var(--bd2)",borderRadius:14,padding:"14px 16px",marginBottom:10}},
             React.createElement('div', { style: {fontSize:14,color:"var(--tx)",lineHeight:1.55,marginBottom:8}}, draft.text.slice(0, 120) + (draft.text.length > 120 ? "…" : "")),
-            React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginBottom:10}}, new Date(draft.savedAt).toLocaleDateString(undefined, {weekday:"short",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})),
+            React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginBottom:10}}, new Date(draft.savedAt).toLocaleDateString(undefined, Looscid.lcTimeOpts({weekday:"short",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}))),
             React.createElement('div', { style: {display:"flex",gap:8}},
               React.createElement('button', { className: "btn bp", style: {flex:1,padding:"8px 0",fontSize:12}, onClick: ()=>{ onLoadDraft(draft); navigate("feed"); }}, "Continue editing"),
               React.createElement('button', { className: "btn bgb", style: {flex:1,padding:"8px 0",fontSize:12,color:"var(--rd)",borderColor:"rgba(239,68,68,.3)"}, onClick: ()=>remove(draft.id)}, "Delete")

@@ -28,7 +28,10 @@
     }
     return data;
   }
-  function storeName() { return "lcstore:" + JSON.stringify(load()); }
+  /* Round 9 (2three1y, Oct 13): Looscid's Time format (12- or 24-hour) is handed to each app as a read-only entry,
+     "looscid:time-format", so Looscid OS clocks follow it. It is never written to looscid_appdata. */
+  function timeFormat() { var tf = "12"; ["looscid_a11y", "looscid_settings"].forEach(function (k) { try { var o = JSON.parse(localStorage.getItem(k) || "null"); if (o && (o.timeFormat === "24" || o.timeFormat === "12")) tf = o.timeFormat; } catch (e) {} }); return tf; }
+  function storeName() { var d = Object.assign({}, load()); d["looscid:time-format"] = timeFormat(); return "lcstore:" + JSON.stringify(d); }
   // A message from a Looscid app framed (at any depth) inside this window: sandboxed ("null") or, for an older copy, same site.
   function fromApp(e) {
     try { return !!e.source && e.source !== window && e.source.top === window && (e.origin === "null" || e.origin === location.origin); } catch (x) { return false; }

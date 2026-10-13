@@ -2,6 +2,8 @@
 (() => {
 "use strict";
 const VERSION = "0.6.1", BUILD_DATE = "October 8, 2026";
+// Looscid round 9: the time follows Looscid's Time format (handed in by Looscid as "looscid:time-format"; 12-hour otherwise).
+const lcClockOpts = () => { let h24 = false; try { h24 = localStorage.getItem("looscid:time-format") === "24"; } catch (e) {} return h24 ? { hour: "2-digit", minute: "2-digit", hourCycle: "h23" } : { hour: "numeric", minute: "2-digit" }; };
 const $ = (s) => document.querySelector(s);
 const form = $("#cmd-form"), appForm = $("#app-form");
 let logEl = $("#log"), input = $("#cmd"), choicesEl = $("#choices");
@@ -565,7 +567,7 @@ const Clock = {
   help() { line("Clock help:", "hi"); line("1 or t: say the time and date."); line("2 or timer 5m: a timer. Use s, m or h, like timer 90s."); line("c: cancel the timer. left: time remaining."); line("3: start or stop the stopwatch. 4: lap. 5: reset."); line("q: back to the shell."); },
   input(raw) {
     const t = raw.trim().toLowerCase(), m = t.match(/^(\S+)\s*(.*)$/) || ["", "", ""], w = m[1], arg = m[2];
-    if (w === "1" || w === "t" || w === "time") { const d = new Date(); play("ticktock"); line("It's " + d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + ", " + d.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" }) + ".", "hi"); return; }
+    if (w === "1" || w === "t" || w === "time") { const d = new Date(); play("ticktock"); line("It's " + d.toLocaleTimeString([], lcClockOpts()) + ", " + d.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" }) + ".", "hi"); return; }
     if (w === "2" || w === "timer") { if (!arg) { line("How long? For example: timer 5m, timer 30s, timer 1h."); return; } const ms = parseDuration(arg); if (!ms || ms > 86400000) return err("I couldn't read " + arg + ". Try timer 5m."); return startTimer(ms); }
     if (w === "c" || w === "cancel") { if (!timer) { line("No timer is running."); return; } clearTimeout(timer.id); timer = null; SFX.uninstall(); line("Timer cancelled."); return; }
     if (w === "left") { line(timer ? spoken(timer.end - Date.now()) + " left." : "No timer is running."); return; }

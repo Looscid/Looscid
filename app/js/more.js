@@ -63,7 +63,7 @@ function lcJoinedText(v) {
   const d = new Date(ts);
   try {
     const day = d.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-    const time = d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+    const time = d.toLocaleTimeString(undefined, Looscid.lcTimeOpts()); // round 9: follows Time format
     return day + " at " + time + " (" + lcTzName(d) + ")";
   } catch (e) { return d.toString(); }
 }
@@ -1093,7 +1093,7 @@ function LcCatPage({ title, intro, navigate, children, reset }) {
     reset ? lh(LcResetLast, { scope: reset }) : null);
 }
 const LC_CZ_CATS = [
-  { id: "theme", page: "settings_cz_theme", l: "Theme and colors", sub: "Light or dark mode" },
+  { id: "theme", page: "settings_cz_theme", l: "Theme and colors", sub: "Light or dark mode, 12-hour or 24-hour time" },
   { id: "feeds", page: "settings_cz_feeds", l: "Feeds and home", sub: "How you switch feeds, calm feed" },
   { id: "menu", page: "settings_cz_menu", l: "Menu", sub: "Where the menu button sits, its Close buttons" },
   { id: "posting", page: "settings_cz_posting", l: "Dreaming", sub: "Character limit, undo send, alt text reminder, drafts" },
@@ -1118,7 +1118,8 @@ function CustomizabilitySettings({navigate, prefs, setPrefs, theme, setTheme, pa
       })));
   };
   let body;
-  if (cat.id === "theme") body = lh(A11ySwitch, { id: "cz-theme", label: "Light mode", desc: "Off: dark mode. Saved on this device.", on: theme === "light", onToggle: () => setTheme && setTheme(theme === "light" ? "dark" : "light") });
+  if (cat.id === "theme") body = lh(React.Fragment, null, lh(A11ySwitch, { id: "cz-theme", label: "Light mode", desc: "Off: dark mode. Saved on this device.", on: theme === "light", onToggle: () => setTheme && setTheme(theme === "light" ? "dark" : "light") }),
+    lh(LcSetRow, { def: LC_SET_BY.timeFormat })); // round 9 (2three1y, Oct 13): Time format, a real radio group
   else if (cat.id === "feeds") body = lh(React.Fragment, null, lh(FeedSwitchSetting, { prefs: prefs, setPrefs: setPrefs }), lh(LcSetRow, { def: LC_SET_BY.calmFeed }), lh(LcResetBtn, { sec: "feeds" }));
   else if (cat.id === "menu") body = lh(React.Fragment, null,
     radios("cz-menupos", "Menu button position", [["bottom", "Bottom (default)"], ["top", "Top, for one-handed use"]], menuPos, function (v) { setMenu("pos", v); }, "cz-menupos"),
@@ -1215,7 +1216,7 @@ function IntelligenceSettings({ navigate, page, prefs, setPrefs, cherryCtx }) {
             log.map(function (entry) {
               const was = entry.undone || undone[entry.id];
               return lh('li', { key: "a" + entry.id, className: "lc-cherry-item" },
-                lh('p', { className: "lc-cherry-msg-t" }, Looscid.lcNameJoin(entry.text, new Date(entry.id).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }), was ? "undone" : "")),
+                lh('p', { className: "lc-cherry-msg-t" }, Looscid.lcNameJoin(entry.text, new Date(entry.id).toLocaleTimeString([], Looscid.lcTimeOpts()), was ? "undone" : "")),
                 entry.undoFn && !was ? lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () {
                   try { entry.undoFn(); } catch (e) {}
                   undone[entry.id] = true; tick(function (x) { return x + 1; });
@@ -2489,7 +2490,7 @@ function lcIdLabel(x) {
    Alerts are not here; they have their own section. */
 const LID_TABS = [["home", "Home"], ["info", "Profile"], ["methods", "Login methods"], ["keys", "Keys and IDs"], ["security", "Security"], ["devices", "Devices"], ["data", "Data"], ["apps", "Connected apps"]];
 Looscid.LID_TABS = LID_TABS;
-function lidWhen(t) { try { return new Date(t).toLocaleString(undefined, { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return ""; } }
+function lidWhen(t) { try { return new Date(t).toLocaleString(undefined, Looscid.lcTimeOpts({ month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })); } catch (e) { return ""; } }
 function thisDeviceLabel() {
   const ua = navigator.userAgent || "";
   const br = /Edg\//.test(ua) ? "Edge" : /Firefox\//.test(ua) ? "Firefox" : /Chrome\//.test(ua) ? "Chrome" : /Safari\//.test(ua) ? "Safari" : "Web browser";
@@ -2828,6 +2829,7 @@ const LC_VERSION_HISTORY = [
     "Back goes where you were in more places. Open LooscidID from a chat (or from Send a message) comes back to that chat or form, with what you typed kept, and Settings pages no longer go Back to the Inbox afterwards. Back from a Dream's Replies opened in Liked returns to Liked, on that Dream. A footer link opened from inside Replies comes back to the Replies, on that link. Smaller fixes: Back from Legal (opened in About) lands on the Legal row; Back from Music puts VoiceOver on the page you return to; after importing a settings file, VoiceOver is on Export and import; Discover's Following and Unfollowed end with a period like on profiles; the Circles tabs no longer add a position like 1 of 4.",
     "Announcements: a word kept from the page you just left isn't said again when it's the same as the last one you heard (Like tapped three times then leaving says Liked once), and it's said on its own instead of joined to the new page's words. Sending… is no longer said on the next page, and an error still waiting to be read, like Could not save your Dream, is no longer lost when you change page.",
     "Looscid OS apps and Projects no longer use buttons that VoiceOver can skip. In Insomnia, Memeprojects, Easyconvert, Lyric Finder and MyWEB, a control that can't be used yet stays findable, is read as dimmed, and says why when you press it (for example, Easyconvert's Convert files says Add files first). Nothing else about how they work changed.",
+    "New setting, Time format, in Settings, Customizability, Theme and colors: 12-hour (like 2:46 PM, the default, so nothing changes unless you pick it) or 24-hour (like 14:46). Every clock time Looscid shows or says follows it: About's release time, Dream info and edit history, your LooscidID's dates, Cherry chats, drafts, quiet hours, and the clocks in Looscid OS (Insomnia and NexOS Web). Words like just now and 5m stay the same. It's saved in your settings backup, and older backups still import fine.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

@@ -774,7 +774,13 @@ function lcListsMerge(text) {
   lcListsWrite(have); return true;
 }
 Object.assign(Looscid, { lcListSetShown, LC_LISTS_KEY, LC_LISTS_MAX, LC_LIST_MEMBERS_MAX, lcListsRead, lcListGet, lcListCreate, lcListRename, lcListDelete, lcListHas, lcListSetMember, lcListsOf, lcListDreams, lcListsMerge, useListsTick, lcListMemberKey });
-function lcFullTime(ms) { const t = +ms; if (!t || !isFinite(t)) return ""; try { return new Date(t).toLocaleString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return new Date(t).toString(); } }
+/* Round 9 (2three1y, Oct 13): Time format. Every clock time Looscid shows or says takes its hour and minute options from
+   here: 12-hour as before (the default), or 24-hour, "14:46" (two-digit hour, hourCycle h23). Relative words ("just now",
+   "5m") are not clock times and don't change. */
+function lcHour24() { const a = Looscid.A11Y_NOW; return !!(a && a.timeFormat === "24"); }
+function lcTimeOpts(o) { o = Object.assign({ hour: "numeric", minute: "2-digit" }, o || {}); if (lcHour24()) { o.hour = "2-digit"; o.hourCycle = "h23"; delete o.hour12; } return o; }
+Looscid.lcHour24 = lcHour24; Looscid.lcTimeOpts = lcTimeOpts;
+function lcFullTime(ms) { const t = +ms; if (!t || !isFinite(t)) return ""; try { return new Date(t).toLocaleString(undefined, lcTimeOpts({ weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "2-digit" })); } catch (e) { return new Date(t).toString(); } }
 function lcDreamInfoLines(d) {
   const net = lcDreamNet(d), mine = !!d.user && (d.user === ME || lcHandle(d.user.handle || "") === lcHandle(ME.handle || ""));
   const client = (Array.isArray(d.tags) ? d.tags : []).filter(function (t) { return t && t[0] === "client" && t[1]; }).map(function (t) { return String(t[1]).slice(0, 60); })[0];
@@ -3252,6 +3258,7 @@ const LC_SECTIONS = {
   pmedia: { t: "Media and content", d: "Who can save and reshare your media, screenshots, blur, photo details and Cherry.", where: "Settings, Privacy", al: ["media and content", "media privacy", "exif", "screenshots"] },
   keyboard: { t: "Keyboard shortcuts", d: "Built-in keys and your own shortcuts.", where: "Settings, Keyboard shortcuts", al: ["keyboard", "shortcuts", "keyboard shortcuts"] },
   ai: { t: "Cherry", d: "Cherry, Looscid's on-device assistant.", where: "Settings, Intelligence, Cherry", al: ["cherry", "ai", "intelligence"] },
+  clock: { t: "Time format", d: "Clock times as 12-hour or 24-hour.", where: "Settings, Customizability, Theme and colors", al: ["time format", "clock", "clock format"] },
 };
 Looscid.LC_SECTIONS = LC_SECTIONS;
 // [key, section, label, kind, default, options|range, aliases, description, extra]
@@ -3259,9 +3266,11 @@ Looscid.LC_SECTIONS = LC_SECTIONS;
 const LC_SECTION_PAGE = { vision: ["settings_a11y_vision"], sr_general: ["settings_a11y_sr", "general"], sr_speech: ["settings_a11y_sr", "speech"], sr_braille: ["settings_a11y_sr", "braille"],
   hearing: ["settings_a11y_hearing"], motion: ["settings_a11y_motion"], terminal: ["settings_a11y_terminal"], motor: ["settings_a11y_motor"], audio: ["settings_audio"], verbosity: ["settings_a11y_sr", "verbosity"],
   quiet: ["settings_notifications"], feeds: ["settings_cz_feeds"], posting: ["settings_cz_posting"], media: ["settings_cz_media"],
-  filters: ["settings_privacy"], perm: ["settings_privacy"], pmedia: ["settings_privacy"], keyboard: ["settings_keyboard"], ai: ["settings_ai_cherry"] };
+  filters: ["settings_privacy"], perm: ["settings_privacy"], pmedia: ["settings_privacy"], keyboard: ["settings_keyboard"], ai: ["settings_ai_cherry"], clock: ["settings_cz_theme"] };
 Looscid.LC_SECTION_PAGE = LC_SECTION_PAGE;
 const LC_SET = [
+  // Round 9 (2three1y, Oct 13): Time format, in Customizability, Theme and colors. 12-hour stays the default.
+  { k: "timeFormat", s: "clock", l: "Time format", t: "choice", d: "12", al: ["time format", "clock", "clock format", "24-hour time", "12-hour time", "24 hour clock", "12 hour clock"], o: [["12", "12-hour, like 2:46 PM", ["12", "12-hour", "12 hour", "am pm"]], ["24", "24-hour, like 14:46", ["24", "24-hour", "24 hour", "military"]]] },
   // Sense > General
   { k: "verbosity", s: "verbosity", l: "Verbosity", t: "choice", d: "normal", al: ["verbosity", "verbose", "verbosity level"], o: [["short", "Low", ["low", "short", "less"]], ["normal", "Medium", ["medium", "normal", "default"]], ["detailed", "High", ["high", "detailed", "more", "full"]]],
     desc: "How much Looscid says. Low: short labels, no hints or counts, only essential announcements. Medium: labels with state and counts, and confirmations like Saved. High: Medium plus short hints, position like 2 of 5, and the page name when you move." },
@@ -3424,7 +3433,7 @@ function lcValueText(def, v) {
   if (def.t === "bstyle") return lcBrStyleLabel(v);
   return String(v);
 }
-function lcTimeSpoken(v) { const m = /^(\d{1,2}):(\d{2})$/.exec(String(v || "")); if (!m) return String(v || ""); let h = +m[1]; const ap = h >= 12 ? "PM" : "AM"; h = h % 12 || 12; return h + ":" + m[2] + " " + ap; }
+function lcTimeSpoken(v) { const m = /^(\d{1,2}):(\d{2})$/.exec(String(v || "")); if (!m) return String(v || ""); if (lcHour24()) return (m[1].length < 2 ? "0" : "") + m[1] + ":" + m[2]; let h = +m[1]; const ap = h >= 12 ? "PM" : "AM"; h = h % 12 || 12; return h + ":" + m[2] + " " + ap; }
 function lcWords(v) { return String(v || "").split(/[,\n]/).map(function (w) { return w.trim().toLowerCase(); }).filter(Boolean).slice(0, 200); }
 /* --- Quiet hours, haptics ------------------------------------------------ */
 function lcQuietNow(d) {
@@ -3875,7 +3884,7 @@ function lcVersionLabel() { return "Looscid " + LOOSCID_VERSION + " (" + LOOSCID
 // "October 10, 2026 at 1:09 PM" in this device's time zone.
 function lcReleasedText(iso) {
   const d = new Date(iso); if (isNaN(d)) return "";
-  try { return new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric" }).format(d) + " at " + new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(d); }
+  try { return new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric" }).format(d) + " at " + new Intl.DateTimeFormat("en-US", lcTimeOpts()).format(d); }
   catch (e) { return d.toLocaleString(); }
 }
 function loadA11y() {

@@ -518,7 +518,7 @@ notes.addEventListener("input", () => {
   clearTimeout(saveT);
   saveT = setTimeout(() => {
     store.set("notes", notes.value);
-    const t = new Date().toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+    const t = lcClock(new Date());
     notesStatus.textContent = `Saved locally at ${t} · ${notes.value.length} characters · nothing leaves this device`;
   }, 400);
 });
@@ -609,7 +609,9 @@ $("#reboot").addEventListener("click", () => {
 
 /* ================= Clock ================= */
 const clock = $("#clock");
-const tickClock = () => { clock.textContent = new Date().toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}); };
+// Looscid round 9: clock times follow Looscid's Time format (handed in by Looscid as "looscid:time-format"; 12-hour otherwise).
+function lcClock(d) { let h24 = false; try { h24 = localStorage.getItem("looscid:time-format") === "24"; } catch (e) {} return d.toLocaleTimeString([], h24 ? { hour: "2-digit", minute: "2-digit", hourCycle: "h23" } : { hour: "numeric", minute: "2-digit" }); }
+const tickClock = () => { clock.textContent = lcClock(new Date()); };
 tickClock(); setInterval(tickClock, 10000);
 window.__sheepPhrases = phrases.length;
 window.__psAudio = { state: () => A.ctx && A.ctx.state, scheduler: () => !!A.scheduler, idleNow: () => { A.lastUse = 0; A.sleepIfIdle(); } };
