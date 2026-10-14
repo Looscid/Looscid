@@ -451,7 +451,12 @@ function GroupsPage({navigate, cherryCtx, data}) {
       )
       , list.length===0 && React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "No Circles yet"), React.createElement('div', { className: "esl",}, "No Circles yet"  ), React.createElement('p', { style: {fontSize:12,color:"var(--tx3)",marginTop:6},}, "Tap Create to start one"        ))
       , list.map((g,i) => (
-        React.createElement('div', { key: g.id, className: "card fu" , style: {margin:"11px 13px 0",animationDelay:i*.05+"s",cursor:"pointer"}, onClick: ()=>{ setActiveGroup(g); /* round 14: focus the Circle's heading, as when it is opened from anywhere else */ setTimeout(()=>{ if (Looscid.lcFocusHeading) Looscid.lcFocusHeading(); }, 60); }, role: "button", tabIndex: 0, 'aria-label': "Open "+g.name,}
+        React.createElement('div', { key: g.id, className: "card fu" , style: {margin:"11px 13px 0",animationDelay:i*.05+"s",cursor:"pointer"}, onClick: ()=>{ setActiveGroup(g); /* round 14: focus the Circle's heading, as when it is opened from anywhere else */ setTimeout(()=>{ if (Looscid.lcFocusHeading) Looscid.lcFocusHeading(); }, 60); },
+          // Round 15 (QA round 14): a hardware keyboard's Enter or Space on the row opens it, as a tap does. The row stays a
+          // div role=button (it holds the Join and Like buttons, which a real <button> can't), and keys pressed on those
+          // inner buttons stay theirs.
+          onKeyDown: e=>{ if (e.target !== e.currentTarget || e.altKey || e.ctrlKey || e.metaKey) return; if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") { e.preventDefault(); if (!e.repeat) e.currentTarget.click(); } },
+          role: "button", tabIndex: 0, 'aria-label': "Open "+g.name,}
           , React.createElement('div', { className: "gbr", style: {background:`linear-gradient(135deg,hsl(${260+i*25},55%,18%),hsl(${280+i*20},65%,10%))`,height:72,fontSize:36},}, g.emoji)
           , React.createElement('div', { className: "gin",}
             , React.createElement('div', { style: {display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8},}
