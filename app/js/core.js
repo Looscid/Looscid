@@ -3930,7 +3930,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-14T06:33:55Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-14T06:38:46Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -6890,6 +6890,12 @@ useEffect(() => {
     if (to) { routeInit.current = to.page; setPage(to.page); setPdata(to.data); } else routeInit.current = null;
     // A reload keeps its place in the list; the pages before it are known again once you pass them.
     try { const s0 = history.state; if (s0 && typeof s0.lcN === "number") hist.current.idx = s0.lcN; } catch (e) {}
+    /* Round 15 (QA round 14): after a reload, Back (or Forward) to a Looscid page from before the reload loads that page fresh,
+       which left focus on the page body. It lands on the page's heading instead, as Back does everywhere else, unless
+       something (a dialog, the page itself) already has focus. */
+    try { const nv = performance.getEntriesByType ? performance.getEntriesByType("navigation")[0] : null, s1 = history.state;
+      if (nv && nv.type === "back_forward" && s1 && typeof s1.lcN === "number") setTimeout(() => { const a = document.activeElement;
+        if ((!a || a === document.body || a === document.documentElement) && !document.querySelector('[role="dialog"], [role="alertdialog"]')) focusMainHeading(); }, 400); } catch (e) {}
     // A press on a page's own Back button (not one pressed for the browser's Back, below).
     const onBackClick = (e) => { const t = e.target && e.target.closest ? e.target.closest('button[aria-label="Back"]') : null;
       if (!t || !t.closest("#main-content")) return; const H = hist.current; if (H.mode === "pop" && Date.now() < H.modeUntil) return;

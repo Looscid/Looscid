@@ -2928,6 +2928,7 @@ const LC_VERSION_HISTORY = [
     "Back from your own Following or Followers list returns to your profile again, on the count you opened it from, instead of skipping straight to Home.",
     "Tapping your own name on one of your Dreams opens your profile, and Back now returns to that Dream on your name instead of opening Settings.",
     "On a hardware keyboard, Enter or Space on a Circle in the Circles list now opens it, the same as tapping it.",
+    "After a reload, Back to a page from before the reload now puts focus on that page's heading, like every other Back, instead of the top of the page.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

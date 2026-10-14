@@ -116,6 +116,7 @@ Round 7: a feature update, asked for by 2three1y. Built in steps, one commit eac
 - Own profile, Following and Followers: the browser's or Android's Back from your own Following or Followers list returns to your profile with focus on the count that opened it ("2 Following"), as the list's own Back does, instead of skipping your profile and landing on Home. Back from your profile then goes Home and leaves Looscid as before.
 - Your own name on your own Dream: Back from the profile it opens (/@dreamor), the page's Back or the browser's / Android's, now returns to where you opened it (Home) with focus on your name, like any Dreamor's profile, instead of opening Settings, a page you never opened. More > View your profile keeps its Back to the More menu.
 - Circles list: Enter or Space on a focused Circle row (a Bluetooth or other hardware keyboard) now opens that Circle, exactly like a tap, with focus on its name. The row still reads the same ("Open Braille Club, button"); Enter or Space on its Join, Joined or Like button still only presses that button, and double-tap keeps working.
+- After a reload (for example on your own profile), the browser's or Android's Back to a page from before the reload, which the browser loads fresh, now puts focus on that page's heading ("Home") as Back does everywhere else, instead of leaving it on the page body. A dialog or a page that already placed focus keeps it; a fresh start is unchanged.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 
