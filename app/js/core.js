@@ -3930,7 +3930,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-14T02:19:27Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-14T02:19:40Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -6272,7 +6272,11 @@ const LC_PROFILE_TABS = [{ id: "dreams", l: "Dreams" }, { id: "replies", l: "Rep
 function lcProfileTabsAll() {
   const v = lcJsonLs(LC_PROFILE_TABS_KEY, {}) || {}, order = Array.isArray(v.order) ? v.order.map(String) : [], out = [];
   order.forEach(function (id) { const t = LC_PROFILE_TABS.find(function (x) { return x.id === id; }); if (t && out.indexOf(t) < 0) out.push(t); });
-  LC_PROFILE_TABS.forEach(function (t) { if (out.indexOf(t) < 0) out.push(t); });
+  // Round 13 (QA round 12): a tab newer than your saved order (Circles, build 152) goes in its usual place, right after the
+  // tab it follows in the usual order (Circles after Replies), not at the end; your other tabs keep your order.
+  LC_PROFILE_TABS.forEach(function (t, i) { if (out.indexOf(t) >= 0) return; let at = 0;
+    for (let k = i - 1; k >= 0; k--) { const j = out.indexOf(LC_PROFILE_TABS[k]); if (j >= 0) { at = j + 1; break; } }
+    out.splice(at, 0, t); });
   return out;
 }
 // Sort a profile's [id, label] tabs by your order.
