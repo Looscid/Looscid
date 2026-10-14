@@ -419,7 +419,22 @@ function GroupsPage({navigate, cherryCtx, data}) {
   const tj = id => setGroups(gs=>gs.map(g=>g.id===id?{...g,joined:!g.joined}:g));
   const list = groups.filter(g=>tab==="discover"?!g.joined:g.joined);
 
-  if (activeGroup) return React.createElement(GroupDetailPage, { group: activeGroup, navigate: navigate, onBack: ()=>setActiveGroup(null),});
+  // Round 13 (QA round 12): a Circle opened from somewhere else (a profile's Circles tab, a Circle card in a Dream, a #c/name
+  // link) goes Back there, focus on the row, card button or heading that opened it. Opened here (or just made with Create
+  // Circle), Back stays on this list as before, focus on that Circle's row.
+  const [fromElsewhere] = useState(() => openId != null && Looscid.LC_CIRCLE_JUST_MADE !== openId);
+  const goBack = () => {
+    const g = activeGroup;
+    if (fromElsewhere && g && g.id === openId && Looscid.LC_GO_BACK) {
+      Looscid.LC_PROF_RESTORE = data && data.back ? Object.assign({ at: Date.now() }, data.back) : null;
+      if (Looscid.LC_GO_BACK("groups")) return;
+      Looscid.LC_PROF_RESTORE = null;
+    }
+    setActiveGroup(null);
+    setTimeout(() => { const row = g && Array.from(document.querySelectorAll('#main-content [role=button]')).find(b => b.getAttribute('aria-label') === "Open " + g.name);
+      if (row) row.focus(); else if (Looscid.lcFocusHeading) Looscid.lcFocusHeading(); }, 60);
+  };
+  if (activeGroup) return React.createElement(GroupDetailPage, { group: activeGroup, navigate: navigate, onBack: goBack,});
 
   return (
     React.createElement('div', { className: "pg",}

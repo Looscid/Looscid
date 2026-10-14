@@ -421,7 +421,10 @@ function ListView({ list, navigate, cherryCtx }) {
         : lh('p', { className: "lc-muted" }, "None yet.")));
 }
 function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUser, preview, onExitPreview }) {
-  const [tab, setTab] = useState("dreams");
+  // Round 13: Back from a Circle opened in this profile's Circles tab reopens that tab and filter, so focus returns to its row.
+  const restore = useRef(null);
+  const [tab, setTab] = useState(function () { const r = Looscid.LC_PROF_RESTORE;
+    if (r && r.uid === user.id && Date.now() - (r.at || 0) < 3000) { Looscid.LC_PROF_RESTORE = null; restore.current = r; return r.tab || "dreams"; } return "dreams"; });
   const [viewAs, setViewAs] = useState(false); // your own profile, shown the way others see it
   const [editOpen, setEditOpen] = useState(false);
   const [people, setPeople] = useState(null); // "following" | "followers"
@@ -678,7 +681,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
         return both.length ? both.map(function (x) { const live = all.find(function (d) { return String(d.id) === String(x.id); }); return card(live || Object.assign({ likes: 1, comments: 0, redreams: 0, quotes: 0, liked: true, redreamed: false, quoted: false, bookmarked: true, time: "" }, x)); })
           : empty("No mutual likes", "No Dreams you both liked yet.");
       }
-      case "circles": return lh(LcProfileCircles, { circ: circ, isMe: isMe, name: user.name || "Dreamor", navigate: navigate });
+      case "circles": return lh(LcProfileCircles, { circ: circ, isMe: isMe, name: user.name || "Dreamor", navigate: navigate, uid: user.id, f0: restore.current && restore.current.f });
       case "lists": {
         if (!visLists.length) return empty(isMe ? "No Lists yet" : "No Lists", isMe ? "Make one in More, Lists, or with Add to list in someone's profile options." : null);
         const cnt = function (l) { const n = Array.isArray(l.members) ? l.members.length : (+l.count || 0); return n.toLocaleString() + (n === 1 ? " Dreamor" : " Dreamors"); };
@@ -784,8 +787,8 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
    real tabs with a selected state; each says its count in words ("Owner, 9 circles") while the visible "(9)" is hidden
    from screen readers. Switching filters only changes the list: nothing is announced and focus stays on the filter.
    Opening the Circles tab puts focus on its heading. No decorative emoji. */
-function LcProfileCircles({ circ, isMe, name, navigate }) {
-  const [f, setF] = useState(circ.member.length || !circ.owner.length ? "member" : "owner");
+function LcProfileCircles({ circ, isMe, name, navigate, uid, f0 }) {
+  const [f, setF] = useState(f0 === "member" || f0 === "owner" ? f0 : circ.member.length || !circ.owner.length ? "member" : "owner");
   const headRef = React.useRef(null);
   useEffect(function () { if (!Looscid.LC_CIRCLES_FOCUS) return; Looscid.LC_CIRCLES_FOCUS = false;
     const t = setTimeout(function () { if (headRef.current) headRef.current.focus(); }, 40); return function () { clearTimeout(t); }; }, []);
@@ -801,7 +804,7 @@ function LcProfileCircles({ circ, isMe, name, navigate }) {
     const inner = [lh('span', { key: "t", className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, g.name, lh('span', { className: "sr-only" }, ",")),
       lh('span', { className: "lc-person-h" }, Looscid.lcCircleHandle(g) + (g.highlight ? ", highlighted" : "") + (isMe ? (g.shown ? ", shown on your profile" : ", only you") : "")))];
     return lh('li', { key: (g.id != null ? g.id : "c") + "-" + i }, known
-      ? lh('button', { type: "button", className: "lc-person lc-circ-row", id: "pf-circ-" + g.id, onClick: function () { navigate("groups", { circle: g.id }); } }, inner)
+      ? lh('button', { type: "button", className: "lc-person lc-circ-row", id: "pf-circ-" + g.id, onClick: function () { navigate("groups", { circle: g.id, back: { uid: uid, tab: "circles", f: f } }); } }, inner)
       : lh('p', { className: "lc-person lc-circ-row" }, inner));
   };
   const emptyText = f === "owner" ? (isMe ? "You don't own any Circles yet. Make one in Circles with Create Circle." : name + " doesn't own any Circles they show.")
@@ -2916,6 +2919,7 @@ const LC_VERSION_HISTORY = [
     "Looscid on GitHub in the footer's Social links is now the Looscid organization, and the X, YouTube and GitHub links say they open a new tab. About lists the source code and our commitments, and points to the footer for X, YouTube and GitHub.",
     "Circles on profiles: a Circles tab right after Replies, with Member and Owner filters that say how many Circles each has. In Settings, Privacy, Circles on my profile, choose which Circles others see (all off until you turn one on) and highlight the ones you run, or ones whose mods allow it. Circle settings has Members can highlight this Circle. Share Circle gives a link that shows a Looscid card in Dreams and other apps.",
     "Opening a shared profile or Circle link in a new tab, then pressing your browser's Back or the Android back arrow, goes to Home with focus on the Home heading again, instead of closing Looscid. The page's own Back still goes Home, and Back on Home leaves Looscid as before.",
+    "Back from a Circle goes back to where you opened it: the profile's Circles tab (with focus on that Circle's row), the Dream whose Circle card you opened (focus on Open Circle), or Home after a shared Circle link. A Circle opened from the Circles list still goes Back to the list, now with focus on that Circle instead of the top of the page.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
