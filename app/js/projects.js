@@ -15,7 +15,7 @@ const { lcEl: h, lcPatch, lcPlainScreen, lcIconEl } = Looscid;
 
 const GH = "https://github.com/2three1y/";
 const LC_PROJECTS = [
-  { id: "memeprojects", name: "Memeprojects", repo: "memeprojects", kind: "app", url: Looscid.NEXOS_BASE + "apps/memeprojects/",
+  { id: "memeprojects", name: "Memeprojects", repo: "memeprojects", kind: "app", url: Looscid.NEXOS_BASE + "apps/memeprojects/?in=nexos",
     sub: "RU a Cheater and the Persona Evaluator, the unscientific chaos tools. After a result, Dream Results fills the Dream composer",
     words: ["meme projects", "memeprojects", "memes", "meme", "ru a cheater", "persona evaluator"] },
   { id: "lyricfinder", name: "Lyric Finder", repo: "lyricfinder", kind: "app", url: "projects/lyricfinder/",

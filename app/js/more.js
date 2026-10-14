@@ -2502,10 +2502,13 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 117; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 35;
+const LOOSCID_FIXES = 36;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.117.35", build: 152, released: LOOSCID_RELEASED, title: "Round 7.2", notes: [
+  { version: "2026.117.36", build: 153, released: LOOSCID_RELEASED, title: "Round 7.3", notes: [
+    "Fix: Insomnia opened from Apps works on phones. Looscid now tells it it's inside Looscid, so its own flash notice no longer covers the desktop and Escape goes back. On a phone the page scrolls normally instead of nesting scroll boxes, so tapping an icon or a control opens it instead of only scrolling to it. Back and Escape return to the Apps page you came from, on the Insomnia row. Memeprojects is opened the same way, and in Desktop a soundscape you leave playing keeps playing after you close Insomnia OS.",
+  ] },
+  { version: "2026.117.35", build: 152, released: "2026-10-14T19:55:33Z", title: "Round 7.2", notes: [
     "Fix: Liked and Mutual likes are one tab now, Liked. On your own profile it shows everything you liked. On someone else's it shows only the Dreams of yours that they liked, read from their likes on Nostr, or says they haven't liked any yet; when you're not logged in it says so. Saved Dreams there show their real time and likes, not 1 minute ago and 0 Likes. A saved tab order or backup with Mutual likes still loads.",
   ] },
   { version: "2026.117.34", build: 151, released: "2026-10-14T19:46:17Z", title: "Round 7.1", notes: [
@@ -3160,18 +3163,21 @@ function NexosAppFrame({ app, navigate }) {
   const a = app || Looscid.LC_NEXOS_OPEN || LC_NEXOS_APPS[0];
   const frameRef = useRef(null);
   const [storeName] = useState(Looscid.lcAppStoreName); // the apps' saved data, once, as the frame's name (js/appguard.js)
+  // Round 7.3: Back and Escape return to the page the app was opened from (More, Apps or Settings, Apps, Find a setting...),
+  // with focus on the row that opened it; Settings, Apps when there is none.
+  const goBack = function () { if (!(Looscid.LC_GO_BACK && Looscid.LC_GO_BACK("nexos_app"))) navigate("nexos_apps"); };
   // The real kernel's own Back button (and Escape in the apps) post to Looscid: back to Looscid OS apps.
   // Leaving this page unmounts the frame, which stops the emulator and its sound.
   useEffect(function () {
     function onMsg(e) {
       if ((e.origin !== location.origin && e.origin !== "null") || !e.data || !frameRef.current || e.source !== frameRef.current.contentWindow) return;
-      if (e.data.nexos === "back" || e.data.nexos === "escape") navigate("nexos_apps");
+      if (e.data.nexos === "back" || e.data.nexos === "escape") goBack();
     }
     window.addEventListener("message", onMsg);
     return function () { window.removeEventListener("message", onMsg); };
   }, []);
   return lh('div', { className: "pg lc-nx-frame" },
-    lh(BackHeader, { title: a.name, onBack: function () { navigate("nexos_apps"); } }),
+    lh(BackHeader, { title: a.name, onBack: goBack }),
     lh('p', { className: "lc-desc", style: { padding: "0 16px" } }, a.sub + "."),
     lh('iframe', { ref: frameRef, id: "lc-nx-iframe", className: "lc-apps-frame" + (a.id === "real" ? " lc-apps-frame-real" : ""), src: a.url, title: a.name + ", part of Looscid", allow: "autoplay; clipboard-write",
       // Security pass: sandboxed, with no allow-same-origin, so the app can't reach Looscid's storage or your Nostr key (js/apphost.js).

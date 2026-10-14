@@ -41,5 +41,10 @@
       return !!(live && ch);
     }
   };
+  /* Looscid round 7.3 (bug audit Oct 14, 3c): a sandboxed frame can't be looked into, so Desktop never saw a soundscape
+     playing and unloaded Insomnia on close. After every tap, key or slider change the answer is sent, when it changed. */
+  var lastSound = null;
+  function tellSound() { setTimeout(function () { var on = window.__nexosEmbed.soundscape(); if (on !== lastSound) { lastSound = on; post("soundscape", { on: on }); } }, 120); }
+  ["input", "change", "click", "keyup"].forEach(function (t) { document.addEventListener(t, tellSound, true); });
   document.addEventListener("DOMContentLoaded", function () { if (window.__psSync) window.__psSync(false); post("ready", { title: document.title }); });
 })();

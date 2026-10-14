@@ -1219,9 +1219,13 @@ const HEADS = { home: $("#home-h"), terminal: $("#term-h"), app: appH, about: $(
 const FRAMES = { insomnia: $("#ins-frame"), memes: $("#memes-frame") }; // Insomnia OS and Memeprojects: their own sites' files, in a frame
 let view = "home", opener = null, returnTo = null;
 function leaveAppWindow() { if (view === "app") { if (mode && mode.onQuit) mode.onQuit(); mode = null; CTX.app.mode = null; useCtx(CTX.terminal); } }
-function frameSoundscape(k) { try { const w = FRAMES[k] && FRAMES[k].contentWindow; return !!(w && w.__nexosEmbed && w.__nexosEmbed.soundscape()); } catch (e) { return false; } }
+// Looscid round 7.3: a sandboxed frame can't be read, so it says itself whether a soundscape plays (nexos-embed.js).
+const FRAME_SOUND = {};
+window.addEventListener("message", (e) => { const d = e.data; if (!d || d.nexos !== "soundscape") return;
+  for (const k in FRAMES) if (FRAMES[k] && e.source === FRAMES[k].contentWindow) FRAME_SOUND[k] = !!d.on; });
+function frameSoundscape(k) { try { const w = FRAMES[k] && FRAMES[k].contentWindow; if (w && w.__nexosEmbed) return !!w.__nexosEmbed.soundscape(); } catch (e) {} return !!(FRAMES[k] && FRAMES[k].getAttribute("src") && FRAME_SOUND[k]); }
 // Battery: a closed app's frame is unloaded (its timers, sounds and animation stop), except an Insomnia soundscape you left playing.
-function unloadFrame(k) { const f = FRAMES[k]; if (f && f.getAttribute("src")) f.removeAttribute("src"); }
+function unloadFrame(k) { const f = FRAMES[k]; FRAME_SOUND[k] = false; if (f && f.getAttribute("src")) f.removeAttribute("src"); }
 function launcherItems() {
   const c = [{ id: "terminal", label: "Terminal", desc: "command line" }, { id: "store", label: "App Store", desc: catalog.length + " apps" }];
   catalog.filter((a) => isInstalled(a.id) && a.id !== "sysinfo").forEach((a) => c.push({ id: "app:" + a.id, label: a.name }));

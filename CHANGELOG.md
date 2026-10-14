@@ -2,6 +2,12 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.117.36 (153): Round 7.3
+
+Released October 14, 2026 at 4:07 PM (Eastern Time, 2026-10-14T20:07:06Z UTC)
+
+- Fix (2three1y, on Android: tapping an option in Insomnia only scrolled to it and didn't open it): Looscid now opens Insomnia and Memeprojects as embedded apps (?in=nexos), so Insomnia's own photosensitivity notice no longer sits on top of the desktop inside Looscid and Escape goes back to Looscid. On a phone, Insomnia's page itself scrolls: the desktop, its windows and the taskbar are in the page instead of a fixed screen with scroll boxes inside windows, so a tap after a screen reader scrolls a control into view opens it, and opening the notice's More details (where it still shows) never shrinks the desktop away. Back and Escape from an app return to the Apps page it was opened from, with focus on its row. In Desktop, a soundscape you leave playing now really keeps playing after you close Insomnia OS, as its hint says.
+
 ## Looscid 2026.117.35 (152): Round 7.2
 
 Released October 14, 2026 at 3:55 PM (Eastern Time, 2026-10-14T19:55:33Z UTC)

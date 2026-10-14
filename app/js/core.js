@@ -3927,11 +3927,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.117.35";
+const LOOSCID_VERSION = "2026.117.36";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 152;
+const LOOSCID_BUILD = 153;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-14T19:55:33Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-14T20:07:06Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -5748,8 +5748,8 @@ const NEXOS_BASE = "os/"; // Looscid OS, same site: /Looscid/os/ (was /Looscid/n
 Looscid.NEXOS_BASE = NEXOS_BASE;
 const LC_NEXOS_APPS = [
   // Round 6: Looscid's own apps (they came from NexOS; About credits it). Ids and files unchanged.
-  { id: "insomnia", name: "Insomnia", sub: "Soundscape mixer, Sheep.exe, the 4am notepad and more", url: NEXOS_BASE + "apps/insomnia/", embed: true },
-  { id: "memes", name: "Memeprojects", sub: "The Memeprojects chaos tool suite", url: NEXOS_BASE + "apps/memeprojects/", embed: true },
+  { id: "insomnia", name: "Insomnia", sub: "Soundscape mixer, Sheep.exe, the 4am notepad and more", url: NEXOS_BASE + "apps/insomnia/?in=nexos", embed: true },
+  { id: "memes", name: "Memeprojects", sub: "The Memeprojects chaos tool suite", url: NEXOS_BASE + "apps/memeprojects/?in=nexos", embed: true },
   { id: "easyconvert", name: "Easyconvert", sub: "Convert text files to TXT, DOCX, JSON and more. Nothing is uploaded", url: NEXOS_BASE + "apps/easyconvert/", embed: true },
   { id: "web", name: "Desktop", sub: "The full desktop: Looscid App Store, Files, Notes, Piano and more", url: NEXOS_BASE + "web/", embed: true },
   { id: "real", name: "Kernel", sub: "The real kernel in an emulated PC, right here. A big download, about 3.5 MB", url: NEXOS_BASE + "real/", embed: true },

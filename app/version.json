@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "preview",
-  "version": "2026.117.35",
-  "build": 152,
+  "version": "2026.117.36",
+  "build": 153,
   "features": 117,
-  "fixes": 35,
+  "fixes": 36,
   "builds_without_fixes": 117,
-  "released": "2026-10-14T19:55:33Z",
-  "title": "Round 7.2",
-  "notes": "Round 7.2 (build 152), a fix update. Liked and Mutual likes are one tab now, Liked. On your own profile it shows everything you liked. On someone else's it shows only the Dreams of yours that they liked, read from their likes on Nostr, or says they haven't liked any yet; when you're not logged in it says so. Saved Dreams there show their real time and likes, not 1 minute ago and 0 Likes. A saved tab order or backup with Mutual likes still loads."
+  "released": "2026-10-14T20:07:06Z",
+  "title": "Round 7.3",
+  "notes": "Round 7.3 (build 153), a fix update. Insomnia opened from Apps works on phones. Looscid now tells it it's inside Looscid, so its own flash notice no longer covers the desktop and Escape goes back. On a phone the page scrolls normally instead of nesting scroll boxes, so tapping an icon or a control opens it instead of only scrolling to it. Back and Escape return to the Apps page you came from, on the Insomnia row. Memeprojects is opened the same way, and in Desktop a soundscape you leave playing keeps playing after you close Insomnia OS."
 }
