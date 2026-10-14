@@ -3930,7 +3930,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-14T01:01:25Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-14T02:14:09Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -4926,7 +4926,7 @@ function lcOpenCircleLink() {
   const m = /^#c\/([A-Za-z0-9_.\-]{1,64})$/i.exec(location.hash || ""); if (!m || !Looscid.LC_NAV) return false;
   try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
   const g = lcCircleByHandle(m[1]);
-  if (g) Looscid.LC_NAV("groups", { circle: g.id }); else announce("c/" + m[1] + " isn't on this device yet.");
+  if (g) { Looscid.lcLinkBoot = true; Looscid.LC_NAV("groups", { circle: g.id }); } else announce("c/" + m[1] + " isn't on this device yet.");
   return true;
 }
 function lcOpenProfileLink() {
@@ -4934,9 +4934,9 @@ function lcOpenProfileLink() {
   const m = /^#@([A-Za-z0-9_.\-]{1,64})$/.exec(location.hash || ""); if (!m || !Looscid.LC_NAV) return;
   const h = lcHandle(m[1]);
   try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
-  if (lcHandle(ME.handle) === h) { Looscid.LC_NAV("profile"); return; }
+  if (lcHandle(ME.handle) === h) { Looscid.lcLinkBoot = true; Looscid.LC_NAV("profile"); return; }
   const u = USERS.find(function (x) { return lcHandle(x.handle) === h; });
-  if (u) Looscid.LC_NAV("dp", u); else announce("@" + m[1] + " isn't on this device yet.");
+  if (u) { Looscid.lcLinkBoot = true; Looscid.LC_NAV("dp", u); } else announce("@" + m[1] + " isn't on this device yet.");
 }
 // Build 152 fix: following a Nostr person from their profile saves "npub:<hex>", other places use "nostr:<hex>". Both
 // mean the same person, so either form counts as following. Stored follows are left as they are.
@@ -6805,6 +6805,11 @@ useEffect(() => {
   const histReplace = (loc) => { const H = hist.current, key = histNewKey();
     histMark(loc, key); H.snaps.set(key, histSnap());
     try { history.replaceState(histState(loc.L, key), "", loc.path); } catch (e) {} };
+  // The entry under a page opened from a link at start: Home, as if you had opened the link from Home.
+  const histBootHome = () => { const H = hist.current, key = histNewKey(), home = LOOSCID_BASE;
+    H.urls[H.idx] = home; H.keys[H.idx] = key; H.paths[H.idx] = home; H.pages[H.idx] = "feed";
+    H.snaps.set(key, Object.assign(histSnap(), { page: "feed", pdata: null, cv: null, openers: {} }));
+    try { history.replaceState({ lcPage: "feed", lcN: H.idx, lcK: key, lcL: home }, "", home); } catch (e) {} };
   // Moves through the history without opening anything: the app is already showing the page that entry stands for.
   const histGo = (delta, then) => { const H = hist.current; if (!delta) { if (then) then(); return; }
     H.pend += 1; H.after = then || null; clearTimeout(H.goT); H.goT = setTimeout(() => { H.pend = 0; H.after = null; }, 1500);
@@ -6828,6 +6833,7 @@ useEffect(() => {
     const H = hist.current; clearTimeout(H.syncT); H.syncT = null;
     if (H.pend > 0) { H.syncT = setTimeout(histSync, 80); return; }
     const loc = histLoc(), now = Date.now(), cur = H.urls[H.idx];
+    const linkBoot = !!Looscid.lcLinkBoot; Looscid.lcLinkBoot = false;
     if (H.mode === "restore") {
       if (cur !== loc.L && now < H.modeUntil) { H.syncT = setTimeout(histSync, 120); return; }
       H.mode = null; if (cur !== loc.L) histReplace(loc); return; }
@@ -6838,7 +6844,9 @@ useEffect(() => {
       if (cur === loc.L) return;
       histSettleBack(loc, B); return; }
     if (cur === loc.L) return;
-    if (cur === undefined) { histReplace(loc); return; }
+    // Round 13 (QA round 12): Looscid opened in a new tab on a shared #@handle or #c/name link. Home goes under the page
+    // it opened, so Back goes Home (as before round 12) and not out of Looscid; Back on Home still leaves as it always has.
+    if (cur === undefined) { if (linkBoot && loc.L !== LOOSCID_BASE) { histBootHome(); histPush(loc); return; } histReplace(loc); return; }
     const B = H.lastB; H.lastB = null;
     if (now - H.backAt < 1500 && B && B.idx === H.idx && B.L !== loc.L) { H.backAt = 0; histSettleBack(loc, B); return; }
     histPush(loc);

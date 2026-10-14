@@ -2915,6 +2915,7 @@ const LC_VERSION_HISTORY = [
     "Back from Apps, opened from About, goes back to About and then to where you were, not to Apps again. Discover keeps the search you typed when you visit a footer page and come Back. The Home tab closes an open Replies view and puts you on the Home heading.",
     "Looscid on GitHub in the footer's Social links is now the Looscid organization, and the X, YouTube and GitHub links say they open a new tab. About lists the source code and our commitments, and points to the footer for X, YouTube and GitHub.",
     "Circles on profiles: a Circles tab right after Replies, with Member and Owner filters that say how many Circles each has. In Settings, Privacy, Circles on my profile, choose which Circles others see (all off until you turn one on) and highlight the ones you run, or ones whose mods allow it. Circle settings has Members can highlight this Circle. Share Circle gives a link that shows a Looscid card in Dreams and other apps.",
+    "Opening a shared profile or Circle link in a new tab, then pressing your browser's Back or the Android back arrow, goes to Home with focus on the Home heading again, instead of closing Looscid. The page's own Back still goes Home, and Back on Home leaves Looscid as before.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
