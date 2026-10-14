@@ -130,9 +130,20 @@ textarea{width:100%;font:15px/1.5 ui-monospace,"Courier New",monospace;color:#00
 @media (max-width:640px){
   .icons{flex-direction:row;flex-wrap:wrap;width:auto;height:auto;justify-content:flex-start}
   .icon{width:calc(33.33% - 6px)}
-  /* Looscid round 7.3 (bug audit Oct 14, 3a): on a phone the page itself scrolls. The desktop, its windows and the taskbar
-     are in the page's flow (no fixed page that can't scroll, no scroll box inside a window), so a screen reader that
-     scrolls a control into view taps the control itself, and opening the notice's More details only makes the page longer. */
+  .win{left:8px!important;right:8px;width:auto!important;top:8px!important;max-height:calc(100% - 16px);overflow:auto}
+  .titlebar{cursor:default}
+  .wmove{display:none}
+  .chan{grid-template-columns:1fr 52px;}
+  .chan label{grid-column:1 / -1}
+  .start{display:none}
+  .credit{bottom:52px;left:12px;right:12px;text-align:center}
+}
+/* Looscid round 7.3 (bug audit Oct 14, 3a): on a phone the page itself scrolls. The desktop, its windows and the taskbar
+   are in the page's flow (no fixed page that can't scroll, no scroll box inside a window), so a screen reader that
+   scrolls a control into view taps the control itself, and opening the notice's More details only makes the page longer.
+   Round 7.8 (QA16, N1): touch screens only. Insomnia always runs in a frame, and on a computer that frame is narrow too
+   (Looscid's Apps page, Looscid OS Desktop), so a computer keeps the fixed desktop: taskbar at the bottom, windows over it. */
+@media (max-width:640px) and (pointer:coarse), (max-width:640px) and (hover:none){
   html,body{height:auto;min-height:100%}
   body{overflow-x:hidden;overflow-y:auto}
   .os{position:relative;inset:auto;top:auto;min-height:100vh;display:flex;flex-direction:column}
@@ -140,11 +151,6 @@ textarea{width:100%;font:15px/1.5 ui-monospace,"Courier New",monospace;color:#00
   .icons{height:auto}
   .win{position:relative;left:auto!important;right:auto;top:auto!important;width:auto!important;max-height:none;overflow:visible;margin:8px}
   .taskbar{position:relative;left:auto;right:auto;bottom:auto;flex:0 0 auto}
-  .titlebar{cursor:default}
-  .wmove{display:none}
-  .chan{grid-template-columns:1fr 52px;}
-  .chan label{grid-column:1 / -1}
-  .start{display:none}
   .credit{position:static;margin:4px 12px 8px;text-align:center}
 }
 @media (prefers-reduced-motion:reduce){

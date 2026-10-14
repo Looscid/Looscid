@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.117.40",
-  "build": 157,
+  "version": "2026.117.41",
+  "build": 158,
   "features": 117,
-  "fixes": 40,
+  "fixes": 41,
   "builds_without_fixes": 117,
-  "released": "2026-10-14T21:37:26Z",
-  "title": "Round 7.7",
-  "notes": "Round 7.7 (build 157), a fix update. On someone else's Liked tab, your own Dreams saved on this device still said 0 Likes. They now count at least that Dreamor's like, with their real age; the saved Dreams themselves are not changed."
+  "released": "2026-10-14T21:37:53Z",
+  "title": "Round 7.8",
+  "notes": "Round 7.8 (build 158), a fix update. Insomnia's scrolling phone layout (Round 7.3) also showed on computers, where its frame is narrow too: the taskbar sat below the frame and Soundscape.exe opened under the icons. That layout is for touch screens only now; computers get the fixed desktop again."
 }

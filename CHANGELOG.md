@@ -2,6 +2,12 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.117.41 (158): Round 7.8
+
+Released October 14, 2026 at 5:37 PM (Eastern Time, 2026-10-14T21:37:53Z UTC)
+
+- Fix: Insomnia's scrolling phone layout (Round 7.3) also showed on computers, where its frame is narrow too: the taskbar sat below the frame and Soundscape.exe opened under the icons. That layout is for touch screens only now; computers get the fixed desktop again.
+
 ## Looscid 2026.117.40 (157): Round 7.7
 
 Released October 14, 2026 at 5:37 PM (Eastern Time, 2026-10-14T21:37:26Z UTC)

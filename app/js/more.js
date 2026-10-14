@@ -2463,10 +2463,13 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 117; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 40;
+const LOOSCID_FIXES = 41;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.117.40", build: 157, released: LOOSCID_RELEASED, title: "Round 7.7", notes: [
+  { version: "2026.117.41", build: 158, released: LOOSCID_RELEASED, title: "Round 7.8", notes: [
+    "Fix: on a computer, Insomnia inside Looscid looks the way it did before Round 7.3 again: the taskbar sits at the bottom of its frame and windows like Soundscape.exe open over the desktop. The scrolling phone layout is for touch screens only.",
+  ] },
+  { version: "2026.117.40", build: 157, released: "2026-10-14T21:37:26Z", title: "Round 7.7", notes: [
     "Fix: on someone else's Liked tab, your Dreams that are saved on this device no longer say 0 Likes. They count at least that Dreamor's like and show their real age.",
   ] },
   { version: "2026.117.39", build: 156, released: "2026-10-14T21:37:09Z", title: "Round 7.6", notes: [
