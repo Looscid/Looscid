@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.117.41",
-  "build": 158,
+  "version": "2026.117.42",
+  "build": 159,
   "features": 117,
-  "fixes": 41,
+  "fixes": 42,
   "builds_without_fixes": 117,
-  "released": "2026-10-14T21:37:53Z",
-  "title": "Round 7.8",
-  "notes": "Round 7.8 (build 158), a fix update. Insomnia's scrolling phone layout (Round 7.3) also showed on computers, where its frame is narrow too: the taskbar sat below the frame and Soundscape.exe opened under the icons. That layout is for touch screens only now; computers get the fixed desktop again."
+  "released": "2026-10-14T21:38:44Z",
+  "title": "Round 7.9",
+  "notes": "Round 7.9 (build 159), a fix update. After closing Insomnia's Starfield screensaver, every tap for 0.45 seconds was thrown away, which could eat a quick VoiceOver or TalkBack double tap. Now only what is left of the touch or key that closed it is held back, so the next activation works at once and the screensaver still doesn't reopen."
 }

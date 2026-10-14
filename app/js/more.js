@@ -2463,10 +2463,13 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 117; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 41;
+const LOOSCID_FIXES = 42;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.117.41", build: 158, released: LOOSCID_RELEASED, title: "Round 7.8", notes: [
+  { version: "2026.117.42", build: 159, released: LOOSCID_RELEASED, title: "Round 7.9", notes: [
+    "Fix: in Insomnia, the first tap or double tap after closing the Starfield screensaver works right away. Only the touch or key that closed it is held back, so it still can't press what's underneath or reopen the screensaver.",
+  ] },
+  { version: "2026.117.41", build: 158, released: "2026-10-14T21:37:53Z", title: "Round 7.8", notes: [
     "Fix: on a computer, Insomnia inside Looscid looks the way it did before Round 7.3 again: the taskbar sits at the bottom of its frame and windows like Soundscape.exe open over the desktop. The scrolling phone layout is for touch screens only.",
   ] },
   { version: "2026.117.40", build: 157, released: "2026-10-14T21:37:26Z", title: "Round 7.7", notes: [

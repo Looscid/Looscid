@@ -382,7 +382,7 @@ function renderMute() { muteBtn.setAttribute("aria-pressed", String(A.muted)); m
 renderMute();
 muteBtn.addEventListener("click", () => { A.setMuted(!A.muted); renderMute(); if (!A.muted) A.play("click"); announce(A.muted ? "All sound muted." : "Sound on."); });
 document.addEventListener("mousedown", e => {
-  if (performance.now() < swallowClicksUntil && !e.target.closest("#stars")) e.preventDefault();
+  if (starGhost(e)) e.preventDefault();
 }, true);
 document.addEventListener("click", e => {
   const b = e.target.closest("button");
@@ -565,18 +565,39 @@ function startStars(opener) {
 }
 /* The whole overlay is one native <button>: a sighted tap, a VoiceOver/TalkBack double tap (a click on the
    focused button), a mouse click, pointerup or any key all close it. */
-let starsArmed = false, swallowClicksUntil = 0;
+let starsArmed = false, starGhostRec = null;
 function stopStars(e) {
   if (stars.hidden || !starsArmed) return;
   if (e) e.preventDefault();
   starsArmed = false;
-  // the touch/key that closed it must not also press whatever is underneath (ghost click / Space keyup)
-  swallowClicksUntil = performance.now() + 450;
+  /* The touch/key that closed it must not also press whatever is underneath (the ghost click after pointerup, or the click
+     a Space keyup sends to the focused Starfield icon, which reopened the screensaver). Looscid round 7.9 (audit M1): only
+     what is left of that same press is held back, not every tap for 0.45 s, so a quick VoiceOver or TalkBack double tap on
+     the next item works at once. A close by click (a screen reader's double tap) leaves nothing behind. */
+  const now = performance.now();
+  starGhostRec = !e ? null : e.type === "pointerup" ? { x: e.clientX, y: e.clientY, at: now } : e.type === "keydown" ? { key: e.key, at: now } : null;
   cancelAnimationFrame(starRAF); window.removeEventListener("resize", stars._size);
   stars.hidden = true; A.play("close"); announce("Screensaver closed.");
   const back = starReturn || $('[data-action="stars"]') || icons[0];
   back.focus(); setTimeout(() => { if (document.activeElement !== back && stars.hidden) back.focus(); }, 60);
 }
+// Is this event what's left of the press that closed the Starfield? (A new press ends it: see the listeners below.)
+function starGhost(e) {
+  const g = starGhostRec; if (!g) return false;
+  if (performance.now() - g.at > 1000) { starGhostRec = null; return false; }
+  if (e.target && e.target.closest && e.target.closest("#stars")) return false;
+  if (g.key) return e.type === "click" && e.detail === 0; // the closing key's own click (Space keyup) on the focused icon
+  if (e.type === "click" && e.detail === 0 && !e.clientX && !e.clientY) return false; // no spot: a keyboard or screen reader activation
+  return Math.abs(e.clientX - g.x) <= 32 && Math.abs(e.clientY - g.y) <= 32; // the finger's own mousedown/click, same spot
+}
+// A new touch or click starts with its own pointerdown, and a new key with its own keydown: from then on nothing is held back.
+document.addEventListener("pointerdown", () => { if (starGhostRec && !starGhostRec.key) starGhostRec = null; }, true);
+document.addEventListener("keydown", e => {
+  const g = starGhostRec; if (!g || !g.key) return;
+  if (e.key === g.key && e.repeat) { e.preventDefault(); g.at = performance.now(); return; } // the closing key still held down
+  starGhostRec = null;
+}, true);
+document.addEventListener("keyup", e => { const g = starGhostRec; if (g && g.key && e.key === g.key) setTimeout(() => { if (starGhostRec === g) starGhostRec = null; }, 0); }, true);
 // Stop the touch's compatibility mousedown from landing on whatever is under the finger once the overlay hides
 // (that would steal focus from the Starfield icon on iOS/Android). The click itself still fires for VoiceOver.
 stars.addEventListener("pointerdown", e => { if (e.pointerType !== "mouse") e.preventDefault(); });
@@ -584,7 +605,7 @@ stars.addEventListener("click", stopStars);
 stars.addEventListener("pointerup", stopStars);
 stars.addEventListener("keydown", stopStars);
 document.addEventListener("click", e => {
-  if (performance.now() < swallowClicksUntil && !e.target.closest("#stars")) { e.preventDefault(); e.stopPropagation(); }
+  if (starGhost(e)) { e.preventDefault(); e.stopPropagation(); starGhostRec = null; }
 }, true);
 
 /* ================= Shut down ================= */

@@ -2,6 +2,12 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.117.42 (159): Round 7.9
+
+Released October 14, 2026 at 5:38 PM (Eastern Time, 2026-10-14T21:38:44Z UTC)
+
+- Fix: After closing Insomnia's Starfield screensaver, every tap for 0.45 seconds was thrown away, which could eat a quick VoiceOver or TalkBack double tap. Now only what is left of the touch or key that closed it is held back, so the next activation works at once and the screensaver still doesn't reopen.
+
 ## Looscid 2026.117.41 (158): Round 7.8
 
 Released October 14, 2026 at 5:37 PM (Eastern Time, 2026-10-14T21:37:53Z UTC)
