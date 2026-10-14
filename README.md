@@ -11,21 +11,17 @@ Looscid is a social app built for VoiceOver, braille and keyboard from day one. 
 
 **Our words:** Dreams, Redreams, Dreamors and the rest are explained in [TERMINOLOGY.md](docs/guides/TERMINOLOGY.md).
 
-## Fun fact
+## Official version
 
-Fun fact: counting all 8 branches of Looscid together, Looscid would be on version 2026.772.519 (1291): 772 feature updates, 519 fixes, 1291 builds, or 772 without the fix updates.
+`preview` is the shipped Looscid line. Its [version.json](app/version.json) is authoritative: **Looscid 2026.117.33 (150)**. Versions are YEAR.FEATURES.FIXES (BUILD): feature updates add something, fix updates only fix things, and builds count every update.
 
-The app itself is on Looscid 2026.117.33 (150), counted on the preview branch. Versions are YEAR.FEATURES.FIXES (BUILD): fix updates only fix things, feature updates add something, and builds count every update.
+The older `main` line and combined branch counters are deprecated, not inherited into the product version. Documentation-only consolidation does not renumber the shipped version.
 
-<details><summary>Branches</summary>
+<details><summary>Branch inventory and consolidation</summary>
 
-- preview: 2026.117.33 (150)
-- main: 2026.154.120 (274)
-- MainV1: 2026.70.103 (173)
-- main-reset: 2026.70.103 (173)
-- rewrite/vanilla-phase-1: 2026.122.115 (237)
-- refactor/terminology-rename: 2026.102.11 (113)
-- refactor/discover-extraction: 2026.95.10 (105)
-- refactor/vite-build: 2026.42.24 (66)
+- `preview`: the shipped product and consolidation trunk.
+- Historical branches still present: `main`, `MainV1`, `main-reset`, `rewrite/vanilla-phase-1`, `refactor/terminology-rename`, `refactor/discover-extraction`, `refactor/vite-build`.
+
+Useful unmerged material is reviewed and merged into `preview` before retirement. This inventory does not claim any branch has been deleted. Update it only after separately authorized deletions are verified.
 
 </details>
