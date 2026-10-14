@@ -420,7 +420,7 @@ function ListView({ list, navigate, cherryCtx }) {
         }))
         : lh('p', { className: "lc-muted" }, "None yet.")));
 }
-function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUser, preview, onExitPreview }) {
+function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUser, preview, onExitPreview, dpRoute }) {
   // Round 13: Back from a Circle opened in this profile's Circles tab reopens that tab and filter, so focus returns to its row.
   const restore = useRef(null);
   const [tab, setTab] = useState(function () { const r = Looscid.LC_PROF_RESTORE;
@@ -717,7 +717,9 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   return lh('div', { className: "pg lc-prof" },
     lh('div', { className: "hdr" }, lh('div', { className: "hdr-row" },
       // Build 150 (#60): your own profile lives in More (View your profile), so Back returns there with the Back sound.
-      lh('button', { type: "button", className: "bi", onClick: function () { if (preview) { if (onExitPreview) onExitPreview(); return; } if (isMe) { navigate("settings"); return; }
+      // Round 15 (QA round 14): your profile opened from your own name on a Dream (the "dp" page) is not More's, so its Back
+      // goes where you opened it, like any Dreamor's profile, not to Settings (a page you never opened).
+      lh('button', { type: "button", className: "bi", onClick: function () { if (preview) { if (onExitPreview) onExitPreview(); return; } if (isMe && !dpRoute) { navigate("settings"); return; }
         // Round 6 fixes: Back goes to where you opened the profile (Discover keeps its search and results), not always Home.
         const b = Looscid.LC_DP_BACK; Looscid.LC_DP_BACK = null; if (b && b.user === user) { b.back(); return; }
         if (!(Looscid.LC_GO_BACK && Looscid.LC_GO_BACK("dp"))) navigate("feed"); }, 'aria-label': "Back" }, lh(Ic.Bck, { style: { width: 21, height: 21 } })),
@@ -823,7 +825,7 @@ function ProfilePage({navigate, authUser, cherryCtx, onUpdateProfile}) {
   return lh(ProfileView, { user: ME, isMe: true, navigate: navigate, cherryCtx: cherryCtx, onUpdateProfile: onUpdateProfile, authUser: authUser });
 }
 function DreamorProfilePage({user, navigate, cherryCtx}) {
-  return lh(ProfileView, { key: user.id, user: user, isMe: user.id === ME.id, navigate: navigate, cherryCtx: cherryCtx });
+  return lh(ProfileView, { key: user.id, user: user, isMe: user.id === ME.id, navigate: navigate, cherryCtx: cherryCtx, dpRoute: true });
 }
 Object.assign(Looscid, { lcLikedPublic, lcSetLikedPublic, lcLikedVisibleTo, LC_LIKED_PUBLIC_KEY });
 /* --- SETTINGS ---------------------------- */
@@ -2924,6 +2926,7 @@ const LC_VERSION_HISTORY = [
     "Your browser's Back and the Android back arrow no longer get stuck on your own profile or on Liked. From either one, Back goes to the page you were on before (Home after More or your own shared link), and Back on Home leaves Looscid as before. The page's own Back button still opens the More menu on the button you came from.",
     "Opening a Circle from the Circles list now puts focus on the Circle's name at the top, the same as opening it from anywhere else, instead of leaving it at the top of the page.",
     "Back from your own Following or Followers list returns to your profile again, on the count you opened it from, instead of skipping straight to Home.",
+    "Tapping your own name on one of your Dreams opens your profile, and Back now returns to that Dream on your name instead of opening Settings.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
