@@ -37,6 +37,7 @@ function FeedPage({navigate, prefs, cherryCtx}) {
   const listRef = useRef(null);
   useEffect(function () {
     if (!Looscid.LC_FEED_SEEN) { Looscid.LC_FEED_SEEN = true; return; }
+    if (Looscid.LC_FEED_HEADING) { Looscid.LC_FEED_HEADING = false; return; } // round 12: the Home tab closed Replies; focus stays on the heading
     if (!Looscid.A11Y_NOW.focusMemory) return;
     let mem = {}; try { mem = JSON.parse(localStorage.getItem(LC_FOCUSMEM_KEY) || "{}") || {}; } catch (e) {}
     const id = mem[tab]; if (id == null) return;

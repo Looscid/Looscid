@@ -51,7 +51,7 @@ function discoverView(st, p, draw) {
     { label: "Time",     opts: FILTER_OPTS.filter(function (f) { return f.group === "time"; }) },
   ];
   // Build 148: the search you're on, for Like Search (here and in the Commandbar).
-  Looscid.LC_DISCOVER_Q = q; Looscid.LC_DISCOVER_FILTERS = activeLabels;
+  Looscid.LC_DISCOVER_Q = q; Looscid.LC_DISCOVER_FILTERS = activeLabels; Looscid.LC_DISCOVER_ST = st; // round 12: what Back to Discover brings back
   const sKey = Looscid.lcSearchKey ? Looscid.lcSearchKey(q, activeLabels) : null;
   const sLiked = !!(q.trim() && sKey && Looscid.lcLikedHas("search", sKey));
   const likeSearch = function () {
@@ -185,7 +185,11 @@ const DiscoverPage = lcPlainScreen("DiscoverPage", function (host, props) {
   const nq = typeof Looscid.LC_DISCOVER_NEXT_Q === "string" ? Looscid.LC_DISCOVER_NEXT_Q : ""; Looscid.LC_DISCOVER_NEXT_Q = null;
   const st = { q: nq, tab: nq ? "all" : "trending", filters: [], filtersOpen: false };
   // Round 6 fixes: Back from a profile or Dream opened from the results brings back the same search, tab and filters.
-  const keep = Looscid.LC_DISCOVER_NEXT_ST; Looscid.LC_DISCOVER_NEXT_ST = null;
+  // Round 12 (QA round 11): coming Back to Discover (its page Back, or the browser's) brings back the search you typed,
+  // even when you opened no result (Discover > a footer page > Back).
+  let keep = Looscid.LC_DISCOVER_NEXT_ST; Looscid.LC_DISCOVER_NEXT_ST = null;
+  const left = Looscid.lcDiscLeft; Looscid.lcDiscLeft = null;
+  if (!keep && !nq && left && Looscid.lcBackNow && Looscid.lcBackNow()) keep = left;
   if (keep && typeof keep.q === "string") { st.q = keep.q; st.tab = keep.tab || (keep.q ? "all" : "trending"); st.filters = Array.isArray(keep.filters) ? keep.filters : []; }
   let p = props;
   const draw = function () { lcPatch(host, discoverView(st, p, draw)); };

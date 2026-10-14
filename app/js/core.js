@@ -3832,7 +3832,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-13T23:54:41Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-14T00:08:22Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -6491,6 +6491,8 @@ useEffect(() => {
     if (target !== "cherry" && (target !== "settings" || openSettings)) cherryOffMenu.current = false;
     if (target === "cherry" && !lcAiOn()) { cherryOffMenu.current = !!showMenuRef.current; target = "settings_ai_cherry"; setTimeout(function () { announce("Cherry is off. Turn it on here, in Intelligence."); }, 400); }
     const cur = pageRef.current;
+    // Round 12 (QA round 11): leaving Discover keeps what you typed there, so Back to Discover brings it back.
+    if (cur === "discover" && target !== "discover") { const ds = Looscid.LC_DISCOVER_ST; Looscid.lcDiscLeft = ds ? { q: ds.q || "", tab: ds.tab, filters: (ds.filters || []).slice() } : null; }
     /* Round 9 fixes (QA round 8): a Back target meant for one page is forgotten as soon as you go anywhere else, so it can
        never send a later Back somewhere stale (Settings > Alerts > Back landed in the Inbox after Open LooscidID). */
     if (target !== "settings_account") Looscid.LC_LID_RETURN = null;
@@ -6529,7 +6531,8 @@ useEffect(() => {
     // Round 11 fixes (QA round 10): going anywhere from a footer page except its own Back, another footer link, or About's and
     // Legal's own buttons (whose Back comes back to it) forgets it, so a later Back can't reopen an old Replies thread.
     if (Looscid.lcFooterFrom && target !== cur && target !== "intro" && (showMenuRef.current || (target !== Looscid.lcFooterFrom
-      && !((cur === "settings_about" || cur === "legal") && /^(terms|privacy|guidelines|feedback|credits|nexos_apps|legal)$/.test(target))))) lcFooterForget();
+      && !((cur === "settings_about" || cur === "legal") && /^(terms|privacy|guidelines|feedback|credits|nexos_apps|legal)$/.test(target))
+      && !((cur === "nexos_apps" && target === "nexos_app") || (cur === "nexos_app" && target === "nexos_apps"))))) lcFooterForget(); // round 12: an app opened from About's Apps comes back to it
     if (showMenuRef.current) delete subFrom.current[target]; // opened from the Settings menu: Back returns to the menu
     else if (/^settings_/.test(target) && /^settings_/.test(cur) && target !== cur) {
       if (subFrom.current[cur] === target) delete subFrom.current[cur]; else subFrom.current[target] = cur;
@@ -6585,6 +6588,10 @@ useEffect(() => {
     if(id==="create"){setShowCreate(true);return;}
     // Round 7 fixes (QA round 6): a tab switch starts a new visit, so a profile's old way Back to Discover is forgotten.
     Looscid.LC_DP_BACK = null; Looscid.LC_DP_BACK_NEXT = null; Looscid.LC_LID_RETURN = null; Looscid.LC_SETTINGS_BACK = null; Looscid.LC_CV_REOPEN = null; lcFooterForget(); // Round 11: and the footer page you left
+    Looscid.lcDiscLeft = null; // Round 12: a tab switch opens Discover fresh
+    // Round 12 (QA round 11): the tab you are on, with a Dream's Replies open on it (Home), closes the Replies: that page
+    // opens fresh, focus on its heading. For the browser's history it counts as Back, so Forward reopens the Replies.
+    if (id === pageRef.current && Looscid.LC_CV_NOW) { if (Looscid.lcHistAsBack) Looscid.lcHistAsBack(); Looscid.LC_FEED_HEADING = id === "feed"; setPageNonce(n => n + 1); focusMainHeading(); }
     if(id==="cherry"){navigate("cherry");return;}
     if(id==="circles"){setPage("groups");setPdata(null);return;}
     setPage(id); setPdata(null);
@@ -6730,6 +6737,7 @@ useEffect(() => {
     histPush(loc);
   };
   const histSyncSoon = (ms) => { const H = hist.current; clearTimeout(H.syncT); H.syncT = setTimeout(histSync, ms || 90); };
+  Looscid.lcHistAsBack = () => { const H = hist.current; H.lastB = histEntry(); H.backAt = Date.now(); };
   Looscid.lcBackNow = () => { const H = hist.current; return Date.now() - H.backAt < 1500 || (H.mode === "pop" && Date.now() < H.modeUntil); };
   // Puts back what a page knew when it opened, then opens it (Forward, or Back across more than one page).
   const histRestore = (S) => {
@@ -6985,7 +6993,7 @@ useEffect(() => {
   // Round 7 fixes: a new page drops the old page's waiting announcements (lcAnnRoute).
   const annRouteFirst = useRef(true);
   useEffect(() => { if (annRouteFirst.current) { annRouteFirst.current = false; return; } lcAnnRoute(); }, [page, pdata]);
-  useEffect(() => { if (page !== "terminal" && page !== "music") termBack.current = page; if (!/^settings|^more_|^terms$|^privacy$|^guidelines$|^child_safety$|^credits$|^hour_story$|^feedback$|^legal$/.test(page)) mainBack.current = page; /* round 10: Legal is never "the page you were reading" */ const ar = areaOfPage(page); const prev = lastArea.current; lastArea.current = ar; if (ar && ar !== prev) Earcon.play(ar); }, [page]);
+  useEffect(() => { if (page !== "terminal" && page !== "music") termBack.current = page; if (!/^settings|^more_|^terms$|^privacy$|^guidelines$|^child_safety$|^credits$|^hour_story$|^feedback$|^legal$|^nexos_apps$|^nexos_app$/.test(page)) mainBack.current = page; /* round 10: Legal is never "the page you were reading"; round 12: nor Apps or an app */ const ar = areaOfPage(page); const prev = lastArea.current; lastArea.current = ar; if (ar && ar !== prev) Earcon.play(ar); }, [page]);
 
   const showFab = ["feed","discover","groups","alerts"].includes(page);
 
