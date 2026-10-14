@@ -3930,7 +3930,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-14T04:51:47Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-14T06:25:04Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -6860,9 +6860,10 @@ useEffect(() => {
   Looscid.lcBackNow = () => { const H = hist.current; return Date.now() - H.backAt < 1500 || (H.mode === "pop" && Date.now() < H.modeUntil); };
   // True when this page's own Back (navigate("settings")) would only open the More menu over this same page: Liked and your
   // own profile opened from More, while nothing else (a Settings screen, a footer link, open Replies, View as others) decides their Back.
+  // Round 15 (QA round 14): nor while your Following or Followers list is open, whose own Back returns to your profile.
   const histBackOpensMenuHere = () => { const cur = pageRef.current, m = SETTINGS_MENU_ITEM[cur];
     return !!m && m[0] === null && (mainBack.current || "feed") === cur && !subFrom.current[cur] && Looscid.lcFooterFrom !== cur
-      && !Looscid.LC_CV_NOW && !document.querySelector("#main-content .lc-prof-preview"); };
+      && !Looscid.LC_CV_NOW && !document.querySelector("#main-content .lc-prof-preview, #main-content .lc-prof-people"); };
   // Puts back what a page knew when it opened, then opens it (Forward, or Back across more than one page).
   const histRestore = (S) => {
     const o = {}; Object.keys(S.openers || {}).forEach(k => { o[k] = Object.assign({}, S.openers[k]); }); openers.current = o;
