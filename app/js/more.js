@@ -2921,6 +2921,7 @@ const LC_VERSION_HISTORY = [
     "Opening a shared profile or Circle link in a new tab, then pressing your browser's Back or the Android back arrow, goes to Home with focus on the Home heading again, instead of closing Looscid. The page's own Back still goes Home, and Back on Home leaves Looscid as before.",
     "Back from a Circle goes back to where you opened it: the profile's Circles tab (with focus on that Circle's row), the Dream whose Circle card you opened (focus on Open Circle), or Home after a shared Circle link. A Circle opened from the Circles list still goes Back to the list, now with focus on that Circle instead of the top of the page.",
     "Circles is right after Replies on profiles again for everyone who had moved their Profile Tabs. A new tab now goes in its usual place instead of at the end, and your own order for the other tabs stays the same.",
+    "Your browser's Back and the Android back arrow no longer get stuck on your own profile or on Liked. From either one, Back goes to the page you were on before (Home after More or your own shared link), and Back on Home leaves Looscid as before. The page's own Back button still opens the More menu on the button you came from.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

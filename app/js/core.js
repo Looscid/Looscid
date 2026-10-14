@@ -3930,7 +3930,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-14T02:19:40Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-14T03:49:07Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -6858,6 +6858,11 @@ useEffect(() => {
   const histSyncSoon = (ms) => { const H = hist.current; clearTimeout(H.syncT); H.syncT = setTimeout(histSync, ms || 90); };
   Looscid.lcHistAsBack = () => { const H = hist.current; H.lastB = histEntry(); H.backAt = Date.now(); };
   Looscid.lcBackNow = () => { const H = hist.current; return Date.now() - H.backAt < 1500 || (H.mode === "pop" && Date.now() < H.modeUntil); };
+  // True when this page's own Back (navigate("settings")) would only open the More menu over this same page: Liked and your
+  // own profile opened from More, while nothing else (a Settings screen, a footer link, open Replies, View as others) decides their Back.
+  const histBackOpensMenuHere = () => { const cur = pageRef.current, m = SETTINGS_MENU_ITEM[cur];
+    return !!m && m[0] === null && (mainBack.current || "feed") === cur && !subFrom.current[cur] && Looscid.lcFooterFrom !== cur
+      && !Looscid.LC_CV_NOW && !document.querySelector("#main-content .lc-prof-preview"); };
   // Puts back what a page knew when it opened, then opens it (Forward, or Back across more than one page).
   const histRestore = (S) => {
     const o = {}; Object.keys(S.openers || {}).forEach(k => { o[k] = Object.assign({}, S.openers[k]); }); openers.current = o;
@@ -6911,6 +6916,11 @@ useEffect(() => {
           else { const a = document.activeElement, tgt = a && dlg.contains(a) ? a : dlg; tgt.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", code: "Escape", keyCode: 27, bubbles: true, cancelable: true })); }
           histGo(B.idx - n); return; }
         const bb = steps === 1 ? Array.from(document.querySelectorAll('#main-content button[aria-label="Back"]')).find(x => x.offsetParent !== null || x.getClientRects().length) : null;
+        // Round 14 (QA round 13): the Back of your own profile and of Liked only reopens the More menu over the same page, so
+        // pressing it for the browser's Back left you on that page and stepped forward again: Back opened and closed the More
+        // menu forever. The browser's Back from there goes to the page below instead (Home after More > View your profile or
+        // your own shared link), with focus on that page's heading.
+        if (bb && histBackOpensMenuHere()) { const S = st.lcK && H.snaps.get(st.lcK); if (S) { histRestore(S); return; } urlRoute(); return; }
         if (bb) { H.mode = "pop"; H.modeUntil = Date.now() + 1500; H.from = B; bb.click(); histSyncSoon(260); return; }
         const S = st.lcK && H.snaps.get(st.lcK); if (S) { histRestore(S); return; }
         urlRoute(); return;
