@@ -2,6 +2,12 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.117.34 (151): Round 7.1
+
+Released October 14, 2026 at 3:46 PM (Eastern Time, 2026-10-14T19:46:17Z UTC)
+
+- Fix: the made-up Admin Panel is gone. Looscid is a decentralized Nostr app with no central admin, so nobody is shown as an administrator: no Admin Access on More, no ADMIN badge or star by your name and picture, and the Admin page with its invented numbers and moderation buttons is deleted. The /Admin address now opens Home, like any address with no page.
+
 ## Looscid 2026.117.33 (150): Round 7
 
 Released October 12, 2026 at 8:18 PM (Eastern Time, 2026-10-13T00:18:10Z UTC)

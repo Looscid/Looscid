@@ -21,7 +21,7 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 | `app/js/feed.js` | The Feed (Home) tab. Still React. |
 | `app/js/create.js` | Create, and the composer for New Dream, Reply and Quote (`LcComposer`, Round 6.5), attachments with the alt text helper, symbols and Drafts. Still React. Saved replies (`looscid_replies`), the Replies page and link previews are in `app/js/core.js`. |
 | `app/js/alerts.js` | The Alerts tab and messages. **Plain JavaScript.** |
-| `app/js/more.js` | The More tab and everything it opens: Settings, LooscidID pages, About, Apps, Admin, policies. Still React. |
+| `app/js/more.js` | The More tab and everything it opens: Settings, LooscidID pages, About, Apps, policies. Still React. |
 | `app/js/cherry.js` | Cherry, the assistant, on its own page (Round 6.5.2): the chat, New Chat, Your History (All and Pinned, saved in `looscid_cherry_chats`) and What Cherry did. The page is **plain JavaScript**; the model picker in Settings, Intelligence is still React. Cherry's answers (`cherryRespond`) live here too. |
 | `app/js/commands.js` | The Commands page (Round 6.5.3): every Commandbar command grouped by area, each a button that runs it through Commandbar's own runner. **Plain JavaScript.** The commands themselves (`LC_COMMANDS`, `LC_EXACT`, `lcRun`) stay in `app/js/core.js`. |
 | `app/js/projects.js` | Projects (Round 6.6): 2three1y's own projects (`LC_PROJECTS`), the project page with Back and Close, the Commandbar words (projects, open and a project, lyrics and a song) and Dream Results from Memeprojects. **Plain JavaScript.** |

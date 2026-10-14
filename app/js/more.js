@@ -1,8 +1,8 @@
-/* Looscid more.js: the More tab: Settings, LooscidID pages, About, Apps, Admin and the other pages it opens.
+/* Looscid more.js: the More tab: Settings, LooscidID pages, About, Apps and the other pages it opens.
    Plain script (not a module). Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order. */
 (function (Looscid) {
 const { A11Y_DEFAULTS, A11Y_KEY, A11ySwitch, AlertDialog, Av, BackHeader, Cbx, CommentView, DREAMS_INIT, DreamCard, Earcon, GROUPS, ID_PROVIDERS, Ic, LC_A11Y_CATS, LC_A11Y_PAGE, LC_ALERT_PREFS_KEY, LC_ALERT_TYPES, LC_AUDIO_CATS, LC_BOOT, LC_BR_BUILTIN, LC_BR_MAX, LC_BUILTIN_KEYS, LC_EXPORT_KEYS, LC_FEED_MODES, LC_FIND_KEY, LC_MSG_CATS, LC_NEXOS_APPS, LC_NEXOS_SHELL, LC_SECTIONS, LC_SET, LC_SETTINGS_KEY, LC_SET_BY, LC_SR_NAMES_DEF, LC_UPDATE_AUTO_KEY, LID_NOSTR_SK_KEY, LOOSCID_BUILD, LOOSCID_RELEASED, LOOSCID_SLOGAN, LOOSCID_VERSION, LcCmdLog, LcFindMeSwitch, LcMenu, LcSpeech, ME, MUSIC_GENRES, MenuPopupButton, Music, PROVIDER_NAMES, SecretField, TRENDING, USERS, announce, getAIPrefs, getActivity, getDrafts, getIdentity, getLocalProfile, getMethods, getTopics, hexToBytes, lcAiOn, lcAlertCats, lcAlertPrefs, lcAlerts, lcAlertsMarkAll, lcAppItems, lcAudCustom, lcBlocked, lcBlockedSet, lcBrCreate, lcBrDate, lcBrDelete, lcBrForget, lcBrList, lcBrNotice, lcBrRename, lcBrSelect, lcBrStamp, lcBrUndo, lcBrUsePast, lcBrowserName, lcCatState, lcCheckUpdate, lcCloseProps, lcDownloadSettings, lcFeedMode, lcHandle, lcHapticsSupported, lcHints, lcIdbDo, lcKeyName, lcLoadCustomPack, lcNexosSend, lcOpenReset, lcPitchCue, lcQuietNow, lcReleasedText, lcSectionTitle, lcSet, lcSpoken, lcSrName, lcStorageKB, lcTranslateOk, lcUpdateAuto, lcValueText, lcVerb, lcVersionLabel, lcWords, lh, logActivity, removeMethod, sanitizeInput, setAIPrefs, shortNpub, systemReducedMotion, updateLocalProfile, useA11yNow, useCats, useCmdHistory, useCmdLog, useDreams, useEffect, useEnterSubmit, useKeyboardInset, useOAuthReturn, useRef, useState } = Looscid;
-Object.assign(Looscid, { ListsPage, ProfileLists, ProfileTabsSettings, CreditsPage, ProfileView, ProfilePage, DreamorProfilePage, AccountSettings, LcAudience, lcCatSave, LcCatCustomize, MessageSettings, NotificationsSettings, PrivacySettings, LcResetLast, LcTabs, LcBlockedPanel, LcPrivacyMedia, FeedSwitchSetting, LcCatMenu, LcCatPage, CustomizabilitySettings, lcSetAiPref, IntelligenceSettings, lcMenuList, lcSubLine, AccessibilitySettings, A11yCategory, AboutSettings, MorePage, MoreAppsGroup, FeedbackPage, AdminPanel, AdminUsers, AdminContent, AdminReports, AdminAnalytics, AdminPlatform, AdminAnnouncements, PolicyPage, HourStoryPage, normalizeUrl, fieldValueText, ProfileInfoList, ChangeInfoScreen, useProfileEditor, lcJoin, methodLabel, getStoredNostrSk, ComingSoonPanel, LoginMethods, lcGetIds, lcSaveIds, lcBech32Polymod, lcDecodeBech32Key, lcCheckId, lcVerifyId, LcKeysPanel, lcIdLabel, lidWhen, thisDeviceLabel, localDataSummary, exportLocalData, deleteLocalData, LooscidIDManager, lcUnzip, lcCheckPackFiles, lcAutoMap, lcUpdateAutoSet, lcPitchPreview, MusicPage, lcAudCustomSet, useBlocked, lcAlertPrefsSet, termOutputOpen, setTermOutputOpen, lcOsName, lcAboutInfo, AboutLooscidMore, TerminalPage, LabsSettings, lcAppGet, lcAppPut, LcAppRange, AppsSettings, NexosAppsPage, NexosAppFrame, lcLinkedProviders, LcSetRow, LcWordsRow, LcVoiceRow, LcResetBtn, LcSection, BrailleStyle, LcVerbosityPanel, SrTabs, LcSpeechTest, LcSrRename, AudioSettings, LcPackImport, lcShortcutOk, KeyboardSettings, TabBarSettings, lcImportSettings, BackupSettings });
+Object.assign(Looscid, { ListsPage, ProfileLists, ProfileTabsSettings, CreditsPage, ProfileView, ProfilePage, DreamorProfilePage, AccountSettings, LcAudience, lcCatSave, LcCatCustomize, MessageSettings, NotificationsSettings, PrivacySettings, LcResetLast, LcTabs, LcBlockedPanel, LcPrivacyMedia, FeedSwitchSetting, LcCatMenu, LcCatPage, CustomizabilitySettings, lcSetAiPref, IntelligenceSettings, lcMenuList, lcSubLine, AccessibilitySettings, A11yCategory, AboutSettings, MorePage, MoreAppsGroup, FeedbackPage, PolicyPage, HourStoryPage, normalizeUrl, fieldValueText, ProfileInfoList, ChangeInfoScreen, useProfileEditor, lcJoin, methodLabel, getStoredNostrSk, ComingSoonPanel, LoginMethods, lcGetIds, lcSaveIds, lcBech32Polymod, lcDecodeBech32Key, lcCheckId, lcVerifyId, LcKeysPanel, lcIdLabel, lidWhen, thisDeviceLabel, localDataSummary, exportLocalData, deleteLocalData, LooscidIDManager, lcUnzip, lcCheckPackFiles, lcAutoMap, lcUpdateAutoSet, lcPitchPreview, MusicPage, lcAudCustomSet, useBlocked, lcAlertPrefsSet, termOutputOpen, setTermOutputOpen, lcOsName, lcAboutInfo, AboutLooscidMore, TerminalPage, LabsSettings, lcAppGet, lcAppPut, LcAppRange, AppsSettings, NexosAppsPage, NexosAppFrame, lcLinkedProviders, LcSetRow, LcWordsRow, LcVoiceRow, LcResetBtn, LcSection, BrailleStyle, LcVerbosityPanel, SrTabs, LcSpeechTest, LcSrRename, AudioSettings, LcPackImport, lcShortcutOk, KeyboardSettings, TabBarSettings, lcImportSettings, BackupSettings });
 
 /* --- PROFILE (OWN) ----------------------- */
 
@@ -1473,7 +1473,6 @@ function AboutSettings({navigate}) {
       lh('p', { className: "lid-help" }, "The welcome intro and terminology guide is the Welcome intro button above.")));
 }
 function MorePage({navigate, cherryCtx, authUser}) {
-  const IS_ADMIN = true;
   const isGuest = !authUser || authUser.isGuest || authUser.uid==="guest";
 
   if (isGuest) return (
@@ -1524,10 +1523,9 @@ function MorePage({navigate, cherryCtx, authUser}) {
         , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:12,padding:"14px 0",borderBottom:"1px solid var(--bd)",cursor:"pointer"}, role: "button", tabIndex: 0, onClick: ()=>navigate("profile"), 'aria-label': "View your profile"  ,}
           , React.createElement('div', { style: {position:"relative"},}
             , React.createElement(Av, { user: ME, size: 48,})
-            , IS_ADMIN && React.createElement('div', { style: {position:"absolute",bottom:-2,right:-2,background:"linear-gradient(135deg,#f59e0b,#d97706)",borderRadius:"50%",width:16,height:16,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,border:"2px solid var(--bg)"},}, "★")
           )
           , React.createElement('div', { style: {flex:1},}
-            , React.createElement('div', { style: {fontWeight:700,fontSize:15,display:"flex",alignItems:"center",gap:6},}, ME.name, IS_ADMIN&&React.createElement('span', { style: {background:"linear-gradient(135deg,#f59e0b,#d97706)",color:"#000",fontSize:9,fontWeight:800,padding:"1px 6px",borderRadius:100},}, "ADMIN"))
+            , React.createElement('div', { style: {fontWeight:700,fontSize:15,display:"flex",alignItems:"center",gap:6},}, ME.name)
             , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)"},}, ME.handle)
             , (!authUser || authUser.uid === "guest" || authUser.isGuest) && (
               React.createElement('div', { style: {fontSize:10,fontWeight:700,color:"var(--ac3)",background:"rgba(109,40,217,.15)",borderRadius:20,padding:"2px 8px",marginTop:3,display:"inline-block"},}, "GUEST MODE"
@@ -1559,19 +1557,6 @@ function MorePage({navigate, cherryCtx, authUser}) {
           ))
         )))
         , lh(MoreAppsGroup, { navigate: navigate })
-        , IS_ADMIN && React.createElement(React.Fragment, null
-          , React.createElement('div', { style: {margin:"12px 16px 0",padding:"10px 14px",background:"rgba(245,158,11,.08)",border:"1px solid rgba(245,158,11,.2)",borderRadius:10},}
-            , React.createElement('div', { style: {fontSize:10,fontWeight:800,color:"#f59e0b",textTransform:"uppercase",letterSpacing:".1em",marginBottom:2},}, "Admin Access" )
-            , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)"},}, "You have platform administrator privileges"    )
-          )
-          , React.createElement('button', { className: "snav", onClick: ()=>navigate("admin"), 'aria-label': "Admin Panel" , style: {borderTop:"1px solid rgba(245,158,11,.2)"},}
-            , React.createElement('div', { className: "snav-l",}
-              , React.createElement('div', { className: "snav-ic", style: {background:"rgba(245,158,11,.15)",fontSize:17},}, "Admin Panel")
-              , React.createElement('div', null, React.createElement('div', { className: "snav-title", style: {color:"#f59e0b"},}, "Admin Panel" ), React.createElement('div', { className: "snav-sub",}, "Platform management & controls"   ))
-            )
-            , React.createElement(Ic.Chv, { style: {width:16,height:16,color:"#f59e0b"},})
-          )
-        )
       )
     )
   );
@@ -1619,331 +1604,6 @@ function FeedbackPage({navigate}) {
       lh('textarea', { id: "fb-txt", className: "inp", style: { minHeight: 140, lineHeight: 1.6, fontSize: 16 }, value: txt, onChange: function (e) { setTxt(e.target.value); } }),
       lh('button', { type: "button", className: "btn bp", style: { width: "100%", padding: 13, fontSize: 16 }, "aria-disabled": txt.trim().length < 5 ? "true" : undefined,
         onClick: function () { if (txt.trim().length < 5) { announce("Write your feedback first, at least 5 characters."); return; } window.open(url(), "_blank", "noopener"); announce("Opened GitHub in a new tab with your feedback filled in."); } }, "Open it on GitHub")));
-}
-function AdminPanel({navigate}) {
-  const [subpage, setSubpage] = useState(null);
-  const [stats] = useState({users:24817,dreams:193442,groups:1204,reports:37,flagged:12,dau:8341,mau:19200,uptime:"99.97%"});
-
-  if (subpage==="users") return React.createElement(AdminUsers, { onBack: ()=>setSubpage(null),});
-  if (subpage==="content") return React.createElement(AdminContent, { onBack: ()=>setSubpage(null),});
-  if (subpage==="reports") return React.createElement(AdminReports, { onBack: ()=>setSubpage(null),});
-  if (subpage==="platform") return React.createElement(AdminPlatform, { onBack: ()=>setSubpage(null),});
-  if (subpage==="analytics") return React.createElement(AdminAnalytics, { onBack: ()=>setSubpage(null), stats: stats,});
-  if (subpage==="announcements") return React.createElement(AdminAnnouncements, { onBack: ()=>setSubpage(null),});
-
-  return (
-    React.createElement('div', { className: "pg",}
-      , React.createElement('div', { className: "hdr",}
-        , React.createElement('div', { className: "hdr-row",}
-          , React.createElement('button', { className: "bi", onClick: ()=>navigate("more"), 'aria-label': "Back",}, React.createElement(Ic.Bck, { style: {width:21,height:21},}))
-          , React.createElement('span', { className: "hdr-title", style: {color:"#f59e0b"},}, "Admin Panel"  )
-          , React.createElement('div', { style: {fontSize:10,fontWeight:800,background:"rgba(245,158,11,.2)",color:"#f59e0b",padding:"3px 8px",borderRadius:100},}, "ADMIN")
-        )
-      )
-
-      /* Platform health bar */
-      , React.createElement('div', { style: {margin:"12px 14px",background:"var(--sf2)",border:"1px solid rgba(245,158,11,.2)",borderRadius:12,padding:14},}
-        , React.createElement('div', { style: {fontSize:11,fontWeight:700,color:"#f59e0b",textTransform:"uppercase",letterSpacing:".08em",marginBottom:10},}, "Platform Health" )
-        , React.createElement('div', { style: {display:"grid",gridTemplateColumns:"1fr 1fr",gap:10},}
-          , [
-            {l:"Total Dreamors",v:stats.users.toLocaleString()},
-            {l:"Total Dreams",v:stats.dreams.toLocaleString()},
-            {l:"Daily Active",v:stats.dau.toLocaleString()},
-            {l:"Monthly Active",v:stats.mau.toLocaleString()},
-            {l:"Groups",v:stats.groups.toLocaleString()},
-            {l:"Uptime",v:stats.uptime,good:true},
-          ].map(s => (
-            React.createElement('div', { key: s.l, style: {background:"var(--sf3)",borderRadius:9,padding:"9px 11px"},}
-              , React.createElement('div', { style: {fontSize:10,color:"var(--tx3)",marginBottom:3},}, s.l)
-              , React.createElement('div', { style: {fontSize:16,fontWeight:800,color:s.good?"var(--gr)":"var(--tx)"},}, s.v)
-            )
-          ))
-        )
-        , (stats.reports>0||stats.flagged>0) && (
-          React.createElement('div', { style: {marginTop:10,padding:"8px 10px",background:"rgba(248,113,113,.1)",borderRadius:8,display:"flex",gap:12,alignItems:"center"},}
-            , React.createElement('span', { style: {fontSize:15},}, "⚠️")
-            , React.createElement('div', { style: {fontSize:12,color:"var(--rd)"},}, React.createElement('strong', null, stats.reports), " pending reports, "    , React.createElement('strong', null, stats.flagged), " flagged items need review"    )
-          )
-        )
-      )
-
-      /* Admin nav sections */
-      , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Management")
-      , [
-        {id:"users",icon:"Dreamor Management",title:"Dreamor Management",sub:"Search, ban, verify, manage accounts",color:"#6d28d9",badge:0},
-        {id:"content",icon:"Content Moderation",title:"Content Moderation",sub:"Review Dreams, replies, Groups",color:"#be185d",badge:stats.flagged},
-        {id:"reports",icon:"Reports Queue",title:"Reports Queue",sub:"Handle reported content and users",color:"#dc2626",badge:stats.reports},
-        {id:"announcements",icon:"Announcements",title:"Announcements",sub:"Share platform-wide announcements",color:"#0e7490",badge:0},
-        {id:"analytics",icon:"Analytics",title:"Analytics",sub:"Deep platform metrics and trends",color:"#15803d",badge:0},
-        {id:"platform",icon:"Platform Settings",title:"Platform Settings",sub:"Feature flags, limits, maintenance",color:"#374151",badge:0},
-      ].map(item => (
-        React.createElement('button', { key: item.id, className: "snav", onClick: ()=>setSubpage(item.id), 'aria-label': item.title,}
-          , React.createElement('div', { className: "snav-l",}
-            , React.createElement('div', { className: "snav-ic", style: {background:item.color+"22",fontSize:17,position:"relative"},}
-              , item.icon
-              , item.badge>0 && React.createElement('div', { style: {position:"absolute",top:-4,right:-4,background:"var(--rd)",color:"#fff",fontSize:8,fontWeight:800,borderRadius:"50%",width:14,height:14,display:"flex",alignItems:"center",justifyContent:"center",border:"2px solid var(--bg)"},}, item.badge)
-            )
-            , React.createElement('div', null, React.createElement('div', { className: "snav-title",}, item.title), React.createElement('div', { className: "snav-sub",}, item.sub))
-          )
-          , React.createElement(Ic.Chv, { style: {width:16,height:16,color:"var(--tx3)"},})
-        )
-      ))
-    )
-  );
-}
-function AdminUsers({onBack}) {
-  const [q, setQ] = useState("");
-  const [filter, setFilter] = useState("all");
-  const [showBanModal, setShowBanModal] = useState(null);
-  const [users, setUsers] = useState(USERS.map(u=>({...u,status:"active",verified:u.verified||false})));
-  const filtered = users.filter(u=>(!q||(u.name+u.handle).toLowerCase().includes(q.toLowerCase()))&&(filter==="all"||filter===u.status));
-  const banUser = id => setUsers(us=>us.map(u=>u.id===id?{...u,status:u.status==="banned"?"active":"banned"}:u));
-  const verifyUser = id => setUsers(us=>us.map(u=>u.id===id?{...u,verified:!u.verified}:u));
-  return (
-    React.createElement('div', { className: "pg",}
-      , React.createElement(BackHeader, { title: "Dreamor Management" , onBack: onBack,})
-      , React.createElement('div', { style: {padding:"10px 14px 6px"},}
-        , React.createElement('input', { className: "inp", style: {fontSize:14,marginBottom:8}, placeholder: "Search by name or LooscidID…"    , value: q, onChange: e=>setQ(e.target.value), 'aria-label': "Search users" ,})
-        , React.createElement('div', { style: {display:"flex",gap:6,flexWrap:"wrap"},}
-          , ["all","active","banned"].map(f=>(
-            React.createElement('button', { key: f, className: "btn"+(filter===f?" bp":" bgb"), style: {padding:"5px 12px",fontSize:11,textTransform:"capitalize"}, onClick: ()=>setFilter(f), 'aria-label': "Filter "+f,}, f)
-          ))
-        )
-      )
-      , filtered.map(u=>(
-        React.createElement('div', { key: u.id, style: {padding:"11px 14px",borderBottom:"1px solid var(--bd)",display:"flex",gap:10,alignItems:"center"},}
-          , React.createElement('div', { style: {position:"relative",flexShrink:0},}
-            , React.createElement(Av, { user: u, size: 40,})
-            , u.verified&&React.createElement('div', { style: {position:"absolute",bottom:-2,right:-2,background:"var(--ac2)",borderRadius:"50%",width:14,height:14,display:"flex",alignItems:"center",justifyContent:"center",fontSize:8,border:"2px solid var(--bg)"},}, "✓")
-          )
-          , React.createElement('div', { style: {flex:1,minWidth:0},}
-            , React.createElement('div', { style: {fontWeight:700,fontSize:13,display:"flex",alignItems:"center",gap:6},}
-              , u.name
-              , u.status==="banned"&&React.createElement('span', { style: {background:"rgba(248,113,113,.2)",color:"var(--rd)",fontSize:9,fontWeight:700,padding:"1px 5px",borderRadius:4},}, "BANNED")
-            )
-            , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)"},}, u.handle, ", "  , Looscid.fmt(u.dreamCount), " Dreams, "   , Looscid.fmt(u.followers), " followers" )
-          )
-          , React.createElement('div', { style: {display:"flex",gap:5},}
-            , React.createElement('button', { className: "btn bgb" , style: {padding:"5px 9px",fontSize:11}, onClick: ()=>verifyUser(u.id), 'aria-label': u.verified?"Remove verification":"Verify user",}, u.verified?"Unverify":"Verify")
-            , React.createElement('button', { className: "btn"+(u.status==="banned"?" bp":" bgb"), style: {padding:"5px 9px",fontSize:11,background:u.status==="banned"?"var(--gr)":""}, onClick: ()=>banUser(u.id), 'aria-label': u.status==="banned"?"Unban user":"Ban user",}, u.status==="banned"?"Unban":"Ban")
-          )
-        )
-      ))
-      , filtered.length===0&&React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "No users found"), React.createElement('div', { className: "esl",}, "No users found"  ))
-    )
-  );
-}
-function AdminContent({onBack}) {
-  const [tab, setTab] = useState("flagged");
-  const [items, setItems] = useState(DREAMS_INIT.map(d=>({...d,flagReason:"Reported by 3 users",reviewed:false})));
-  const dismiss = id => setItems(is=>is.filter(i=>i.id!==id));
-  return (
-    React.createElement('div', { className: "pg",}
-      , React.createElement(BackHeader, { title: "Content Moderation" , onBack: onBack,})
-      , React.createElement('div', {className:"ftabs",role:"tablist","aria-label":"Content sections",style:{overflowX:"auto",scrollbarWidth:"none"}},
-        ["flagged","all"].map(function(t,i){
-          var lbl = t==="flagged"?"Flagged ("+items.filter(function(x){return !x.reviewed;}).length+")":"All";
-          return React.createElement('button', {key:t,className:"ftab"+(tab===t?" on":""),onClick:function(){setTab(t);},role:"tab","aria-selected":tab===t,"aria-label":lbl,style:{whiteSpace:"nowrap"}}, lbl);
-        })
-      )
-      , items.filter(i=>tab==="all"||!i.reviewed).map(item=>(
-        React.createElement('div', { key: item.id, style: {padding:"12px 14px",borderBottom:"1px solid var(--bd)"},}
-          , React.createElement('div', { style: {display:"flex",gap:9,alignItems:"center",marginBottom:7},}
-            , React.createElement(Av, { user: item.user, size: 32,})
-            , React.createElement('div', { style: {flex:1},}
-              , React.createElement('div', { style: {fontWeight:700,fontSize:13},}, item.user.name)
-              , React.createElement('div', { style: {fontSize:11,color:"var(--rd)"},}, item.flagReason)
-            )
-            , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)"},}, item.time)
-          )
-          , React.createElement('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.55,marginBottom:9,paddingLeft:41},}, item.text.slice(0,120), "…")
-          , React.createElement('div', { style: {display:"flex",gap:6,paddingLeft:41},}
-            , React.createElement('button', { className: "btn bp" , style: {padding:"5px 12px",fontSize:11}, onClick: ()=>dismiss(item.id), 'aria-label': "Dismiss report" ,}, "Dismiss")
-            , React.createElement('button', { className: "btn bgb" , style: {padding:"5px 12px",fontSize:11,color:"var(--rd)",borderColor:"rgba(248,113,113,.3)"}, onClick: ()=>dismiss(item.id), 'aria-label': "Remove dream" ,}, "Remove Dream" )
-            , React.createElement('button', { className: "btn bgb" , style: {padding:"5px 12px",fontSize:11}, onClick: ()=>dismiss(item.id), 'aria-label': "Warn user" ,}, "Warn Dreamor" )
-          )
-        )
-      ))
-      , items.filter(i=>tab==="all"||!i.reviewed).length===0&&React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "All clear!"), React.createElement('div', { className: "esl",}, "All clear!" ), React.createElement('p', { style: {fontSize:12,color:"var(--tx3)",marginTop:4},}, "No flagged content right now"    ))
-    )
-  );
-}
-function AdminReports({onBack}) {
-  const [reports] = useState([
-    /* reports appear here when Dreamors file them */
-  ]);
-  const [filter, setFilter] = useState("pending");
-  const visible = reports.filter(r=>filter==="all"||r.status===filter);
-  return (
-    React.createElement('div', { className: "pg",}
-      , React.createElement(BackHeader, { title: "Reports Queue" , onBack: onBack,})
-      , React.createElement('div', { style: {padding:"8px 14px"},}
-        , React.createElement('div', { style: {display:"flex",gap:6},}
-          , ["pending","reviewed","all"].map(f=>(
-            React.createElement('button', { key: f, className: "btn"+(filter===f?" bp":" bgb"), style: {padding:"5px 12px",fontSize:11,textTransform:"capitalize"}, onClick: ()=>setFilter(f), 'aria-label': "Filter "+f,}, f, " (" , reports.filter(r=>f==="all"||r.status===f).length, ")")
-          ))
-        )
-      )
-      , visible.map(r=>(
-        React.createElement('div', { key: r.id, style: {padding:"12px 14px",borderBottom:"1px solid var(--bd)"},}
-          , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:8,marginBottom:6},}
-            , React.createElement('span', { style: {background:r.status==="pending"?"rgba(248,113,113,.15)":"rgba(52,211,153,.15)",color:r.status==="pending"?"var(--rd)":"var(--gr)",fontSize:10,fontWeight:700,padding:"2px 7px",borderRadius:4,textTransform:"uppercase"},}, r.status)
-            , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)"},}, r.type, ", "  , r.time)
-          )
-          , React.createElement('div', { style: {fontSize:13,fontWeight:600,marginBottom:3},}, "Reason: " , r.reason)
-          , React.createElement('div', { style: {fontSize:12,color:"var(--tx3)",marginBottom:4},}, "Reported by "  , r.reporter.name, ", Target: "   , r.target.name)
-          , React.createElement('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.5,marginBottom:8},}, r.preview)
-          , r.status==="pending"&&(
-            React.createElement('div', { style: {display:"flex",gap:6},}
-              , React.createElement('button', { className: "btn bp" , style: {padding:"5px 12px",fontSize:11},}, "Dismiss")
-              , React.createElement('button', { className: "btn bgb" , style: {padding:"5px 12px",fontSize:11,color:"var(--rd)"},}, "Take Action" )
-            )
-          )
-        )
-      ))
-      , visible.length===0&&React.createElement('div', { className: "es",}, React.createElement('div', { className: "esi",}, "No reports here"), React.createElement('div', { className: "esl",}, "No reports here"  ))
-    )
-  );
-}
-function AdminAnalytics({onBack, stats}) {
-  const metrics = [
-    {label:"Daily Active Dreamors",value:stats.dau.toLocaleString(),change:"+4.2%",up:true},
-    {label:"Monthly Active Dreamors",value:stats.mau.toLocaleString(),change:"+12.1%",up:true},
-    {label:"Dreams Today",value:"4,218",change:"+7.8%",up:true},
-    {label:"New Signups Today",value:"312",change:"-2.1%",up:false},
-    {label:"Avg. Session Length",value:"8m 42s",change:"+0.9%",up:true},
-    {label:"Platform Uptime",value:stats.uptime,change:"30 days",up:true},
-    {label:"Total Groups",value:stats.groups.toLocaleString(),change:"+18 this week",up:true},
-    {label:"API Response Avg",value:"142ms",change:"-8ms",up:true},
-  ];
-  return (
-    React.createElement('div', { className: "pg",}
-      , React.createElement(BackHeader, { title: "Analytics", onBack: onBack,})
-      , React.createElement('div', { style: {padding:"12px 14px 24px"},}
-        , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginBottom:12},}, "Last updated: just now, All metrics are real-time"        )
-        , React.createElement('div', { style: {display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20},}
-          , metrics.map(m=>(
-            React.createElement('div', { key: m.label, style: {background:"var(--sf2)",borderRadius:11,padding:"11px 13px",border:"1px solid var(--bd)"},}
-              , React.createElement('div', { style: {fontSize:10,color:"var(--tx3)",marginBottom:5,lineHeight:1.3},}, m.label)
-              , React.createElement('div', { style: {fontSize:18,fontWeight:800,marginBottom:3},}, m.value)
-              , React.createElement('div', { style: {fontSize:10,color:m.up?"var(--gr)":"var(--rd)",fontWeight:600},}, m.up?"↑":"↓", " " , m.change)
-            )
-          ))
-        )
-        , React.createElement('div', { style: {background:"var(--sf2)",borderRadius:11,padding:14,border:"1px solid var(--bd)"},}
-          , React.createElement('div', { style: {fontSize:12,fontWeight:700,marginBottom:10},}, "Top Trending Tags Today"   )
-          , TRENDING.map((t,i)=>(
-            React.createElement('div', { key: t.tag, style: {display:"flex",alignItems:"center",gap:10,padding:"7px 0",borderBottom:i<TRENDING.length-1?"1px solid var(--bd)":"none"},}
-              , React.createElement('span', { style: {fontSize:14,fontWeight:800,color:"var(--tx3)",minWidth:18},}, "#", i+1)
-              , React.createElement('div', { style: {flex:1},}
-                , React.createElement('div', { style: {fontWeight:600,fontSize:13},}, "#", t.tag)
-                , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)"},}, t.count)
-              )
-              , React.createElement('span', { style: {fontSize:11,color:"var(--ac3)",background:"var(--sf3)",padding:"2px 8px",borderRadius:100},}, t.cat)
-            )
-          ))
-        )
-      )
-    )
-  );
-}
-function AdminPlatform({onBack}) {
-  const [flags, setFlags] = useState({maintenance:false,newSignups:true,publicFeed:true,groups:true,cherry:true,polls:true,dm:true,apiAccess:true,betaFeatures:false});
-  const [limits, setLimits] = useState({maxDreams:500,maxGroups:50,reportThreshold:5,maxDreamLen:1000});
-  const toggle = k => setFlags(f=>({...f,[k]:!f[k]}));
-  return (
-    React.createElement('div', { className: "pg",}
-      , React.createElement(BackHeader, { title: "Platform Settings" , onBack: onBack,})
-      , React.createElement('div', { style: {padding:"0 0 24px"},}
-
-        , flags.maintenance && (
-          React.createElement('div', { style: {margin:"10px 14px",padding:"10px 14px",background:"rgba(248,113,113,.12)",border:"1px solid rgba(248,113,113,.3)",borderRadius:10,display:"flex",gap:8,alignItems:"center"},}
-            , React.createElement('span', { style: {fontSize:18},}, "🚧")
-            , React.createElement('div', { style: {fontSize:12,color:"var(--rd)",fontWeight:600},}, "Maintenance mode is ACTIVE — users cannot access the platform"         )
-          )
-        )
-
-        , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Feature Flags" )
-        , [
-          {k:"maintenance",l:"Maintenance Mode",d:"Locks the platform for all non-admin users",danger:true},
-          {k:"newSignups",l:"New Signups",d:"Allow new users to register accounts"},
-          {k:"publicFeed",l:"Public Feed",d:"Show Dreams to logged-out visitors"},
-          {k:"groups",l:"Groups",d:"Enable Groups feature platform-wide"},
-          {k:"cherry",l:"Cherry AI",d:"Enable Cherry AI assistant for all users"},
-          {k:"polls",l:"Polls",d:"Allow users to create poll Dreams"},
-          {k:"dm",l:"Direct Messages",d:"Enable private messaging between Dreamors"},
-          {k:"apiAccess",l:"API Access",d:"Allow third-party API integrations"},
-          {k:"betaFeatures",l:"Beta Features",d:"Enable unreleased beta features for all users"},
-        ].map(r=>(
-          React.createElement('div', { key: r.k, className: "sr", style: {background:r.danger&&flags[r.k]?"rgba(248,113,113,.06)":""},}
-            , React.createElement('div', null, React.createElement('div', { className: "sr-title", style: {color:r.danger&&flags[r.k]?"var(--rd)":""},}, r.l), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3,maxWidth:230},}, r.d))
-            , React.createElement(Cbx, { on: flags[r.k], onToggle: ()=>toggle(r.k), label: r.l,})
-          )
-        ))
-
-        , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Platform Limits" )
-        , [
-          {k:"maxDreams",l:"Max Dreams / Dreamor",d:"Maximum Dreams a single user can share"},
-          {k:"maxGroups",l:"Max Groups / User",d:"Maximum Groups a user can create"},
-          {k:"reportThreshold",l:"Auto-flag Threshold",d:"Number of reports before content is auto-flagged"},
-          {k:"maxDreamLen",l:"Global Max Dream Length",d:"Maximum characters allowed in any Dream"},
-        ].map(r=>(
-          React.createElement('div', { key: r.k, className: "sr",}
-            , React.createElement('div', { style: {flex:1},}, React.createElement('div', { className: "sr-title",}, r.l), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3},}, r.d))
-            , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:6},}
-              , React.createElement('button', { className: "bi", style: {width:26,height:26,background:"var(--sf2)",borderRadius:6,fontSize:14}, onClick: ()=>setLimits(l=>({...l,[r.k]:Math.max(1,l[r.k]-1)})), 'aria-label': "Decrease "+r.l,}, "−")
-              , React.createElement('span', { style: {fontSize:13,fontWeight:700,minWidth:36,textAlign:"center"},}, limits[r.k])
-              , React.createElement('button', { className: "bi", style: {width:26,height:26,background:"var(--sf2)",borderRadius:6,fontSize:14}, onClick: ()=>setLimits(l=>({...l,[r.k]:l[r.k]+1})), 'aria-label': "Increase "+r.l,}, "+")
-            )
-          )
-        ))
-
-        , React.createElement('div', { style: {padding:"16px 16px 0"},}
-          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12,fontSize:13,marginBottom:8}, 'aria-label': "Save platform settings"  ,}, "Save Platform Settings"  )
-          , React.createElement('button', { className: "btn bgb" , style: {width:"100%",padding:11,fontSize:13,color:"var(--rd)"}, 'aria-label': "Emergency shutdown" ,}, "Emergency Shutdown"  )
-        )
-      )
-    )
-  );
-}
-function AdminAnnouncements({onBack}) {
-  const [txt, setTxt] = useState("");
-  const [target, setTarget] = useState("all");
-  const [sent, setSent] = useState(false);
-  const [history] = useState([
-    {id:1,text:"Welcome to Looscid Beta! We are so excited to have you here. Share your first Dream today",target:"all",time:"3 days ago",reach:"24,817"},
-    {id:2,text:"New feature: Groups are now live! Create or join a Group to connect with Dreamors who share your interests.",target:"all",time:"1 week ago",reach:"21,400"},
-  ]);
-  return (
-    React.createElement('div', { className: "pg",}
-      , React.createElement(BackHeader, { title: "Announcements", onBack: onBack,})
-      , React.createElement('div', { style: {padding:"14px 16px 24px"},}
-        , React.createElement('div', { style: {marginBottom:20},}
-          , React.createElement('div', { style: {fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",marginBottom:8},}, "New Announcement" )
-          , React.createElement('textarea', { className: "inp", style: {minHeight:100,lineHeight:1.6,fontSize:14,marginBottom:10}, placeholder: "Write your announcement to all Dreamors…", value: txt, onChange: e=>setTxt(e.target.value), 'aria-label': "Announcement text" ,})
-          , React.createElement('div', { style: {fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",marginBottom:6},}, "Send To" )
-          , React.createElement('div', { style: {display:"flex",gap:6,marginBottom:12,flexWrap:"wrap"},}
-            , [{id:"all",l:"All Dreamors"},{id:"verified",l:"Verified Only"},{id:"admins",l:"Admins Only"},{id:"beta",l:"Beta Testers"}].map(t=>(
-              React.createElement('button', { key: t.id, className: "btn"+(target===t.id?" bp":" bgb"), style: {padding:"5px 12px",fontSize:11}, onClick: ()=>setTarget(t.id), 'aria-label': "Send to "+t.l,}, t.l)
-            ))
-          )
-          , sent&&React.createElement('div', { style: {padding:"8px 12px",background:"rgba(52,211,153,.12)",border:"1px solid rgba(52,211,153,.3)",borderRadius:8,fontSize:12,color:"var(--gr)",marginBottom:10},}, "✓ Announcement sent successfully"   )
-          , React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:12}, 'aria-disabled': txt.trim().length<5 ? "true" : undefined, onClick: ()=>{ if (txt.trim().length<5) { announce("Write the announcement first, at least 5 characters."); return; } setSent(true);setTxt("");}, 'aria-label': "Send announcement" ,}, "Send Announcement" )
-        )
-        , React.createElement('div', { style: {fontSize:11,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",marginBottom:10},}, "Previous Announcements" )
-        , history.map(h=>(
-          React.createElement('div', { key: h.id, style: {background:"var(--sf2)",borderRadius:11,padding:13,marginBottom:10,border:"1px solid var(--bd)"},}
-            , React.createElement('p', { style: {fontSize:13,color:"var(--tx)",lineHeight:1.55,marginBottom:7},}, h.text)
-            , React.createElement('div', { style: {display:"flex",gap:10,fontSize:11,color:"var(--tx3)"},}
-              , React.createElement('span', null, "To: " , h.target==="all"?"All Dreamors":h.target)
-              , React.createElement('span', null, "Audience: " , h.reach, " reached" )
-              , React.createElement('span', null, "Sent: " , h.time)
-            )
-          )
-        ))
-      )
-    )
-  );
 }
 function PolicyPage({title, content, navigate, back}) {
   return (
@@ -2816,10 +2476,13 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 117; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 33;
+const LOOSCID_FIXES = 34;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.117.33", build: 150, released: LOOSCID_RELEASED, title: "Round 7", notes: [
+  { version: "2026.117.34", build: 151, released: LOOSCID_RELEASED, title: "Round 7.1", notes: [
+    "Fix: the made-up Admin Panel is gone. Looscid is a Nostr app with no central admin, so nobody is shown as an administrator any more: no Admin Access on More, no ADMIN badge or star by your name, and the /Admin address now opens Home like any address that has no page.",
+  ] },
+  { version: "2026.117.33", build: 150, released: "2026-10-14T06:38:46Z", title: "Round 7", notes: [
     "Round 7: a feature update, asked for by 2three1y. Built in steps, one commit each.",
     "Every menu, sheet, dialog and pop-up is truly modal (2three1y: after the last item in Create, VoiceOver read Home and the status page behind it). While one is open, everything outside it is hidden from VoiceOver, braille and the keyboard; Tab and Shift+Tab stay inside a dialog; when it closes, focus goes back to the button that opened it. The live announcer still speaks. Covers Create, More, the Commandbar, pop-up menus, Dream options, alerts, Circle sheets and Reset. Escape now closes More too.",
     "Fix (2three1y, testing on iPhone): VoiceOver read a whole menu's contents as its hint. Every menu, sheet and dialog now has one short hint of its own: menus say Swipe to choose. Escape or a two-finger scrub closes; sheets and dialogs say Swipe to move through it. Escape or a two-finger scrub closes. Only the menu or dialog itself has a hint, never a button or other control.",

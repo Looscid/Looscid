@@ -2177,7 +2177,7 @@ const LC_ROUTES = [
   ["settings_ai_memory", "Settings/Intelligence/Memory"], ["settings_ai_tools", "Settings/Intelligence/Tools"], ["settings_ai_audit", "Settings/Intelligence/What-Cherry-did"],
   ["settings_labs", "Settings/Labs"], ["settings_about", "About"], ["terms", "Terms"], ["privacy", "Privacy"], ["guidelines", "Rules"], ["child_safety", "Child-Safety"],
   ["credits", "Credits"], ["legal", "Legal"], ["feedback", "Feedback"], ["helpcenter", "Help"], ["commands", "Commands"], ["music", "Music"], ["terminal", "Commandbar"],
-  ["nexos_apps", "Apps"], ["hour_story", "Our-Story"], ["admin", "Admin"],
+  ["nexos_apps", "Apps"], ["hour_story", "Our-Story"],
   ["more_discover", "More/Discover"], ["more_apps", "More/Apps"], ["more_create", "More/Create"], ["more_alerts", "More/Alerts"], ["more_projects", "Projects"],
 ];
 const LOOSCID_BASE = (function () { try { if (window.LOOSCID_BASE) return window.LOOSCID_BASE; const p = location.pathname; return /^\/looscid(\/|$)/i.test(p) ? "/Looscid/" : ("/" + p.replace(/[^\/]*$/, "")).replace(/\\/g, "/").replace(/\/{2,}/g, "/"); } catch (e) { return "/"; } })();
@@ -3926,11 +3926,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.117.33";
+const LOOSCID_VERSION = "2026.117.34";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 150;
+const LOOSCID_BUILD = 151;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-14T06:38:46Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-14T19:46:17Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -7195,7 +7195,6 @@ useEffect(() => {
       settings_cherry: "Intelligence",
       settings_about: "About",
       settings_social: "Social",
-      admin: "Admin Panel",
       feedback: "Send Feedback",
       drafts: "Drafts",
       more: "More",
@@ -7261,7 +7260,6 @@ useEffect(() => {
       case "nexos_app":               return React.createElement(Looscid.NexosAppFrame, { key: (pdata && pdata.id) || "app", app: pdata, navigate: navigate,});
       case "settings_intelligence": case "settings_ai_cherry": case "settings_ai_model": case "settings_ai_cmd": case "settings_ai_memory": case "settings_ai_tools": case "settings_ai_audit":
                                       return React.createElement(Looscid.IntelligenceSettings, { key: page, page: page, navigate: navigate, prefs: prefs, setPrefs: setPrefs, cherryCtx: cherryCtx,});
-      case "admin":                   return React.createElement(Looscid.AdminPanel, { navigate: navigate,});
       case "feedback":                return React.createElement(Looscid.FeedbackPage, { navigate: navigate,});
       case "drafts":        return React.createElement(Looscid.DraftsPage, { navigate: navigate, onLoadDraft: d=>{ setShowCreate(true); },});
       case "cherry":        return React.createElement(Looscid.CherryPage, { navigate: navigate, cherryCtx: cherryCtx, data: pdata, onBack: cherryGoBack,});
