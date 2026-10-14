@@ -1328,6 +1328,7 @@ function A11yCategory({ page, navigate, prefs, setPrefs }) {
 }
 function AboutSettings({navigate}) {
   const link = function (href, text) { return lh('li', { key: href }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer" }, text)); };
+  const newTab = function (href, text) { return lh('li', { key: href }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer" }, text, lh('span', { className: "sr-only" }, ", opens in a new tab"))); };
   const [vOpen, setVOpen] = useState(false);
   const [, tick] = useState(0);
   const auto = lcUpdateAuto();
@@ -1382,10 +1383,13 @@ function AboutSettings({navigate}) {
       lh('button', { type: "button", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { navigate("nexos_apps"); } }, "Apps")),
     lh('section', { "aria-labelledby": "about-links", style: { padding: "0 16px 24px" } },
       lh('h2', { id: "about-links", className: "lid-sub" }, "Find Looscid"),
+      /* Round 12 (2three1y, Oct 13 7:45 PM: the app, X, YouTube and GitHub all link to each other): Looscid on GitHub (the
+         Looscid organization), X and YouTube are the footer's Social links, which end this page too, so they are not
+         listed twice here; this list keeps the source code and the commitments. Each link says it opens a new tab. */
       lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } },
-        link("https://github.com/Looscid/Looscid", "Looscid on GitHub, the source code"),
-        link("https://x.com/Looscid", "@Looscid on X"),
-        link("https://github.com/Looscid/Looscid/blob/preview/docs/guides/ACCESSIBILITY.md", "Looscid's commitments: accessibility, fairness, humor")),
+        newTab("https://github.com/Looscid/Looscid", "Looscid's source code on GitHub"),
+        newTab("https://github.com/Looscid/Looscid/blob/preview/docs/guides/ACCESSIBILITY.md", "Looscid's commitments: accessibility, fairness, humor")),
+      lh('p', { className: "lid-help" }, "Looscid on GitHub, X and YouTube are in the footer at the end of this page, under Social."),
       lh('p', { className: "lid-help" }, "The welcome intro and terminology guide is the Welcome intro button above.")));
 }
 function MorePage({navigate, cherryCtx, authUser}) {
@@ -2834,6 +2838,7 @@ const LC_VERSION_HISTORY = [
     "Back from a footer page no longer reopens an old Replies thread after you left that page by the tab bar or More. About and the Commandbar show the release time of the Looscid you are running, never a newer one. Quiet until with no time gives 7 am as its example (07:00 in 24-hour).",
     "Your browser's Back and Forward, and the Android back arrow or swipe, now work like Looscid's own Back button. Back goes exactly where the page's Back goes, with focus in the same place. Forward opens the page you just left again, and its Back still works. Back from a Replies view closes it instead of leaving Looscid.",
     "Back from Apps, opened from About, goes back to About and then to where you were, not to Apps again. Discover keeps the search you typed when you visit a footer page and come Back. The Home tab closes an open Replies view and puts you on the Home heading.",
+    "Looscid on GitHub in the footer's Social links is now the Looscid organization, and the X, YouTube and GitHub links say they open a new tab. About lists the source code and our commitments, and points to the footer for X, YouTube and GitHub.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

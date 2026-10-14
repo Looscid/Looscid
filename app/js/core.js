@@ -1727,7 +1727,7 @@ Looscid.CHILD_SAFETY_CONTENT = CHILD_SAFETY_CONTENT;
 function lcFooterForget() { Looscid.lcFooterFrom = null; Looscid.lcFooterLink = null; Looscid.lcFooterCv = null; Looscid.lcFooterHop = null; }
 Looscid.lcFooterForget = lcFooterForget;
 function LcSiteFooter({ navigate, cur }) {
-  const ext = function (href, text, key) { return lh('li', { key: key }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, text)); };
+  const ext = function (href, text, key) { return lh('li', { key: key }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, text, lh('span', { className: "sr-only" }, ", opens in a new tab"))); }; // round 12: says it opens a new tab
   const go = function (page, text, key) { return lh('li', { key: key }, lh('a', { href: (Looscid.lcPathFor ? Looscid.lcPathFor(page) : "#"), className: "lc-link",
     onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault();
       // Round 10 fixes: a footer page opened from another footer page keeps where the first one came from (its Replies too).
@@ -1738,7 +1738,7 @@ function LcSiteFooter({ navigate, cur }) {
   const grp = function (id, title, kids) { return lh('section', { className: "lc-foot-grp", "aria-labelledby": id }, lh('h3', { id: id, className: "lc-foot-h" }, title), lh('ul', { className: "lc-foot-list", role: "list" }, kids)); };
   return lh('footer', { className: "lc-footer", role: "contentinfo", "aria-labelledby": "lc-foot-title" },
     lh('h2', { id: "lc-foot-title", className: "lc-foot-title" }, "Footer"),
-    grp("lc-foot-social", "Social", [ext("https://github.com/Looscid/Looscid", "Looscid on GitHub", "gh"), ext("https://x.com/Looscid", "Looscid on X, @Looscid", "x"), ext("https://www.youtube.com/@Looscid", "Looscid on YouTube, @Looscid", "yt")]),
+    grp("lc-foot-social", "Social", [ext("https://github.com/Looscid", "Looscid on GitHub", "gh"), ext("https://x.com/Looscid", "Looscid on X, @Looscid", "x"), ext("https://www.youtube.com/@Looscid", "Looscid on YouTube, @Looscid", "yt")]),
     grp("lc-foot-legal", "Legal", [go("terms", "Terms", "t"), go("privacy", "Privacy", "p"), go("guidelines", "Rules", "r"), go("child_safety", "Child Safety", "c"), go("legal", "Legal and license", "l"), go("credits", "Credits", "cr")]),
     grp("lc-foot-values", "Values", [go("settings_about", "About Looscid", "ab"), ext("https://github.com/Looscid/Looscid/blob/preview/docs/guides/ACCESSIBILITY.md", "Our accessibility commitment", "a")]),
     grp("lc-foot-dl", "Download", [
@@ -3832,7 +3832,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-14T00:08:22Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-14T00:41:51Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
