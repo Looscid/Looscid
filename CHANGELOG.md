@@ -2,6 +2,12 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.117.35 (152): Round 7.2
+
+Released October 14, 2026 at 3:55 PM (Eastern Time, 2026-10-14T19:55:33Z UTC)
+
+- Fix: Liked and Mutual likes are one tab now, Liked (2three1y: they were the same thing). On your own profile it shows everything you liked. On someone else's profile it shows only the Dreams of yours that they liked, read from their Nostr likes (kind 7 reactions, each one checked) that point at your Dreams, including Dreams of yours this device doesn't have yet; otherwise it says “<name> hasn't liked any of your Dreams yet”, and when you're not logged in it says how to see them. Mutual likes is gone from profiles and Settings, Profile Tabs; a saved tab order or a settings backup that still lists it loads, and that tab is skipped. Saved Dreams on that tab show their real time and likes instead of 1 minute ago and 0 Likes, and the Profile Tabs reset now reads out the real order.
+
 ## Looscid 2026.117.34 (151): Round 7.1
 
 Released October 14, 2026 at 3:46 PM (Eastern Time, 2026-10-14T19:46:17Z UTC)

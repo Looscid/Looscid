@@ -14,7 +14,7 @@ Object.assign(Looscid, { ListsPage, ProfileLists, ProfileTabsSettings, CreditsPa
    Followers count buttons (each opens its own list page) and the tab row (Dreams, Replies, Redreams,
    Media). Its top menu (Share, Hide/Show Redreams, Add/Edit note, Mute, Block, Report) is a More button that
    expands inline. 2three1y's own asks sit where Feditext's closest part is: Edit profile (the same LooscidID editor
-   as Settings), a private Liked tab on your own profile, an About tab, and Mutual likes on other people's. */
+   as Settings), a Liked tab (yours: everything you liked; others': the Dreams of yours they liked) and an About tab. */
 const LC_PROFILE_MORE_KEY = "looscid_profile_more_open", LC_PROFILE_RD_KEY = "looscid_profile_rd_show", LC_LIKED_PUBLIC_KEY = "looscid_liked_public";
 // Build 150, part 16: Dreamor options is a real pop-up menu that never remembers being open. The old open state is cleared once.
 try { localStorage.removeItem(LC_PROFILE_MORE_KEY); } catch (e) {}
@@ -498,9 +498,43 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const blocked = !self && Looscid.lcBlockedUser(user), muted = !self && Looscid.lcIsMuted(user);
   const hidesRd = !self && Looscid.lcPeopleHas("looscid_hide_redreams", user.handle);
   const note = self ? "" : Looscid.lcNoteFor(user.handle);
-  const theirLikes = !isMe && Array.isArray(user.likes) ? user.likes : null;
-  const myLikedIds = Looscid.lcLikedItems("dream").map(function (x) { return x.id; });
-  const theirVisible = theirLikes ? lcLikedVisibleTo(theirLikes, user.likesPublic || [], ME.handle, myLikedIds) : [];
+  /* Round 7.2 (2three1y, Oct 14): one Liked tab. Your own profile: everything you liked. Someone else's: only the Dreams
+     of YOURS that they liked, read from their Nostr likes (Looscid.lcNostr.fetchLikesOf), plus any likes of your Dreams a
+     profile already carries (user.likes). Mutual likes is gone; a saved Profile Tabs order that still has it just skips it. */
+  const theirLikes = !self && Array.isArray(user.likes) ? user.likes : null;
+  const meH = Looscid.lcHandle(ME.handle || "");
+  const theirVisible = theirLikes ? theirLikes.filter(function (x) { return x && x.k === "dream" && x.user && Looscid.lcHandle(x.user.handle || "") === meH; }) : [];
+  const nstPk = !self && Looscid.lcNostr ? (Looscid.lcNostr.state().pubkey || null) : null;
+  const [nLikes, setNLikes] = useState(null);
+  useEffect(function () {
+    if (self || !dmPeer || !nstPk || !Looscid.lcNostr || !Looscid.lcNostr.fetchLikesOf) { setNLikes(null); return; }
+    let live = true; setNLikes({ pk: dmPeer, loading: true, likes: [] });
+    Looscid.lcNostr.fetchLikesOf(dmPeer).then(function (r) { if (live) setNLikes({ pk: dmPeer, loading: false, likes: (r && r.likes) || [] }); })
+      .catch(function () { if (live) setNLikes({ pk: dmPeer, loading: false, likes: [] }); });
+    return function () { live = false; };
+  }, [self, dmPeer, nstPk]);
+  const likedLoading = !!(nLikes && nLikes.loading && nLikes.pk === dmPeer);
+  const theirLiked = (function () {
+    if (self) return [];
+    const out = [], have = new Set();
+    const key = function (d) { return String(d.nid || d.id); };
+    const push = function (d) { if (!d) return; const k = key(d); if (have.has(k)) return; have.add(k); if (d.id != null) have.add(String(d.id)); out.push(d); };
+    const findLive = function (id) { const s = String(id); return all.find(function (d) { return String(d.id) === s || (d.nid && String(d.nid) === s); }) || null; };
+    const base = { likes: 1, comments: 0, redreams: 0, quotes: 0, liked: false, redreamed: false, quoted: false, bookmarked: false };
+    if (nLikes && nLikes.pk === dmPeer) nLikes.likes.forEach(function (l) {
+      const live = findLive(l.nid) || (l.note && l.note.id != null ? findLive(l.note.id) : null);
+      if (live) { push(live); return; }
+      const n = l.note; if (!n || typeof n.text !== "string") return;
+      push(Object.assign({}, base, n, { likes: Math.max(+n.likes || 0, 1), user: ME, time: Looscid.lcSavedAgo ? Looscid.lcSavedAgo(n) : "" }));
+    });
+    // M10 (bug audit Oct 14): a saved copy has no live Dream here, so it showed "1 minute ago" and "0 Likes". It now
+    // keeps its real time (when it carries one, else none at all) and counts at least this Dreamor's like.
+    theirVisible.forEach(function (x) {
+      const live = findLive(x.id); if (live) { push(live); return; }
+      push(Object.assign({}, base, x, { likes: Math.max(+x.likes || 0, 1), user: ME, time: Looscid.lcSavedAgo ? Looscid.lcSavedAgo(x) : "" }));
+    });
+    return out;
+  })();
   // Build 152 prep (#99, part 4d; 2three1y 7:29 PM Oct 12: "lists should be added to profiles as well"): the Lists tab.
   // Yours shows every list (each says whether it's shown or only yours); View as others and other Dreamors' profiles
   // show only lists their owner chose to show (user.lists on a profile that carries them).
@@ -508,15 +542,14 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const myLists = self ? Looscid.lcListsRead() : [];
   const visLists = isMe ? myLists : preview ? myLists.filter(function (l) { return l.shown; })
     : (Array.isArray(user.lists) ? user.lists.filter(function (l) { return l && typeof l.name === "string" && l.name.trim() && l.shown !== false; }) : []);
-  // Tabs: Feditext's four, then 2three1y's: Liked (your own, private; on others only what they made visible to you),
-  // Mutual likes (others), About.
+  // Tabs: Feditext's four, then 2three1y's: Liked (yours: everything you liked; on others: the Dreams of yours they
+  // liked), About.
   // Build 152 (2three1y via Tomo, Oct 13): Circles, right after Replies. Yours always shows; on someone else's profile
   // (and View as others) only when there are Circles they chose to show, the way Liked works.
   Looscid.useCirclesTick();
   const circ = preview ? Looscid.lcMyCirclesPublic() : Looscid.lcProfileCircles(user, isMe), nCirc = circ.owner.length + circ.member.length;
   const TABS0 = [["dreams", "Dreams"], ["replies", "Replies"]].concat(isMe || nCirc ? [["circles", "Circles"]] : []).concat([["redreams", "Redreams"], ["media", "Media"]])
-    .concat(isMe ? [["liked", "Liked"]] : theirVisible.length ? [["liked", "Liked"]] : [])
-    .concat(self ? [] : [["mutual", "Mutual likes"]])
+    .concat(isMe || !self ? [["liked", "Liked"]] : [])
     .concat(isMe || visLists.length ? [["lists", "Lists"]] : [])
     .concat([["about", "About"]]);
   Looscid.useProfileTabsTick(); Looscid.useIdListTick("looscid:pinned");
@@ -626,8 +659,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       case "media": return mediaAll.length;
       case "lists": return visLists.length;
       case "circles": return nCirc;
-      case "liked": return isMe ? Looscid.lcLikedItems().filter(function (x) { return x.k !== "chat" || !x.cherry || Looscid.lcAiOn(); }).length : theirVisible.length;
-      case "mutual": { if (!theirLikes) return 0; const mine = new Set(Looscid.lcLikedItems("dream").map(function (x) { return String(x.id); })); return theirVisible.filter(function (x) { return x.k === "dream" && mine.has(String(x.id)); }).length; }
+      case "liked": return isMe ? Looscid.lcLikedItems().filter(function (x) { return x.k !== "chat" || !x.cherry || Looscid.lcAiOn(); }).length : (likedLoading ? null : theirLiked.length);
     }
     return null;
   };
@@ -665,21 +697,15 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
           l.length ? l.map(card) : empty(mediaShow === "images" ? "No images yet" : mediaShow === "videos" ? "No videos yet" : "No media yet",
             isMe ? (mediaShow === "images" ? "Dreams with images will show up here." : mediaShow === "videos" ? "Dreams with videos will show up here." : "Dreams with images or videos will show up here.") : "Nothing to show yet."));
       }
-      case "liked":
+      case "liked": {
         if (isMe) return lh(Looscid.LikedView, { navigate: navigate, cherryCtx: cherryCtx, idp: "pfl", intro: likedIntro, onComment: function (x) { setActiveComment(x); } });
-        return theirVisible.length ? lh(React.Fragment, null,
-          theirVisible.filter(function (x) { return x.k === "dream"; }).map(function (x) {
-            const live = all.find(function (d) { return String(d.id) === String(x.id); });
-            return card(live || Object.assign({ likes: x.likes || 0, comments: 0, redreams: 0, quotes: 0, liked: false, redreamed: false, quoted: false, bookmarked: false, time: "" }, x, { user: x.user && Looscid.lcHandle(x.user.handle) === Looscid.lcHandle(ME.handle) ? ME : x.user }));
-          }),
-          lh('ul', { className: "lc-liked-list", role: "list" }, theirVisible.filter(function (x) { return x.k !== "dream"; }).map(function (x) { return lh('li', { key: x.k + x.id, className: "lc-liked-row" }, x.name || x.q || "Untitled"); })))
-          : empty("Nothing liked to show", null);
-      case "mutual": {
-        if (!theirLikes) return empty("No mutual likes", user.name + "'s likes aren't public, so there are no mutual likes to show.");
-        const mine = new Set(Looscid.lcLikedItems("dream").map(function (x) { return String(x.id); }));
-        const both = theirVisible.filter(function (x) { return x.k === "dream" && mine.has(String(x.id)); });
-        return both.length ? both.map(function (x) { const live = all.find(function (d) { return String(d.id) === String(x.id); }); return card(live || Object.assign({ likes: 1, comments: 0, redreams: 0, quotes: 0, liked: true, redreamed: false, quoted: false, bookmarked: true, time: "" }, x)); })
-          : empty("No mutual likes", "No Dreams you both liked yet.");
+        const who = user.name || user.displayName || "This Dreamor";
+        if (theirLiked.length) return lh(React.Fragment, null,
+          lh('p', { className: "lc-muted", style: { padding: "8px 16px 0", margin: 0 } }, "Dreams of yours that " + who + " liked."),
+          theirLiked.map(function (d) { return card(d); }));
+        if (likedLoading) return empty("Looking for likes", "Checking which of your Dreams " + who + " liked.");
+        if (!nstPk) return empty("Log in to see this", "Liked shows the Dreams of yours that " + who + " liked. Log in, or create a LooscidID with a Nostr key, to see them.");
+        return empty("Nothing liked yet", who + " hasn't liked any of your Dreams yet.");
       }
       case "circles": return lh(LcProfileCircles, { circ: circ, isMe: isMe, name: user.name || "Dreamor", navigate: navigate, uid: user.id, f0: restore.current && restore.current.f });
       case "lists": {
@@ -2476,10 +2502,13 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 117; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 34;
+const LOOSCID_FIXES = 35;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.117.34", build: 151, released: LOOSCID_RELEASED, title: "Round 7.1", notes: [
+  { version: "2026.117.35", build: 152, released: LOOSCID_RELEASED, title: "Round 7.2", notes: [
+    "Fix: Liked and Mutual likes are one tab now, Liked. On your own profile it shows everything you liked. On someone else's it shows only the Dreams of yours that they liked, read from their likes on Nostr, or says they haven't liked any yet; when you're not logged in it says so. Saved Dreams there show their real time and likes, not 1 minute ago and 0 Likes. A saved tab order or backup with Mutual likes still loads.",
+  ] },
+  { version: "2026.117.34", build: 151, released: "2026-10-14T19:46:17Z", title: "Round 7.1", notes: [
     "Fix: the made-up Admin Panel is gone. Looscid is a Nostr app with no central admin, so nobody is shown as an administrator any more: no Admin Access on More, no ADMIN badge or star by your name, and the /Admin address now opens Home like any address that has no page.",
   ] },
   { version: "2026.117.33", build: 150, released: "2026-10-14T06:38:46Z", title: "Round 7", notes: [
@@ -3591,7 +3620,7 @@ function ProfileTabsSettings({ navigate }) {
           lh('button', { type: "button", id: "ptab-down-" + t.id, className: "btn bgb lc-btn", "aria-label": "Move " + t.l + " down", "aria-disabled": i === list.length - 1 ? "true" : undefined, onClick: function () { move(t, 1); } }, "Move down")));
     })),
     lh('div', { style: { padding: "12px 16px" } },
-      lh('button', { type: "button", id: "ptab-reset", className: "btn bgb lc-btn", onClick: function () { Looscid.lcProfileTabsReset(); announce("Profile tabs are back in the usual order: Dreams, Replies, Redreams, Media, Liked, Mutual likes, About."); keep("ptab-reset"); } }, "Back to the usual order")));
+      lh('button', { type: "button", id: "ptab-reset", className: "btn bgb lc-btn", onClick: function () { Looscid.lcProfileTabsReset(); announce("Profile tabs are back in the usual order: " + Looscid.lcProfileTabsAll().map(function (t) { return t.l; }).join(", ") + "."); keep("ptab-reset"); } }, "Back to the usual order")));
 }
 function KeyboardSettings({ navigate }) {
   useA11yNow();

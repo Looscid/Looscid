@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "preview",
-  "version": "2026.117.34",
-  "build": 151,
+  "version": "2026.117.35",
+  "build": 152,
   "features": 117,
-  "fixes": 34,
+  "fixes": 35,
   "builds_without_fixes": 117,
-  "released": "2026-10-14T19:46:17Z",
-  "title": "Round 7.1",
-  "notes": "Round 7.1 (build 151), a fix update. the made-up Admin Panel is gone. Looscid is a Nostr app with no central admin, so nobody is shown as an administrator any more: no Admin Access on More, no ADMIN badge or star by your name, and the /Admin address now opens Home like any address that has no page."
+  "released": "2026-10-14T19:55:33Z",
+  "title": "Round 7.2",
+  "notes": "Round 7.2 (build 152), a fix update. Liked and Mutual likes are one tab now, Liked. On your own profile it shows everything you liked. On someone else's it shows only the Dreams of yours that they liked, read from their likes on Nostr, or says they haven't liked any yet; when you're not logged in it says so. Saved Dreams there show their real time and likes, not 1 minute ago and 0 Likes. A saved tab order or backup with Mutual likes still loads."
 }

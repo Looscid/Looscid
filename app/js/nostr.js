@@ -826,6 +826,58 @@ async function fetchOwn() {
   return { added: fresh.length, replies: freshR.length };
 }
 
+/* Round 7.2 (2three1y, Oct 14: one Liked tab, not Liked and Mutual likes): on someone else's profile, Liked shows the
+   Dreams of yours that they liked. Asks your relays for their likes (kind 7 reactions, NIP-25, authors = them) that point
+   at your own notes: by note id ("#e", your Dreams saved on this device), and by your key ("#p") for Dreams of yours this
+   device doesn't have yet, which are then read by id (kind 1, authors = you). Every event is checked (verifyEvent), a "-"
+   (a dislike) never counts, and only the note a like is for (its last "e" tag) counts. Nothing is saved or sent. */
+function myDreamNids() {
+  const pk = (state().pubkey || "").toLowerCase(); if (!pk) return [];
+  const a = lsJson(DREAMS_KEY, []), out = [];
+  (Array.isArray(a) ? a : []).forEach(function (x) { if (x && isHex64(x.nid) && (!x.pk || String(x.pk).toLowerCase() === pk)) { const n = x.nid.toLowerCase(); if (out.indexOf(n) < 0) out.push(n); } });
+  return out;
+}
+async function fetchLikesOf(theirPk, opts) {
+  opts = opts || {};
+  const me = (state().pubkey || "").toLowerCase();
+  if (!me) return { likes: [], err: "signedout" };
+  if (!isHex64(theirPk)) return { likes: [], err: "pk" };
+  theirPk = theirPk.toLowerCase();
+  let NT; try { NT = await load(); } catch (e) { return { likes: [], err: "load" }; }
+  const mine = myDreamNids(), ms = opts.ms || 6000, list = relays();
+  const filters = [{ kinds: [7], authors: [theirPk], "#p": [me], limit: 500 }];
+  for (let i = 0; i < mine.length; i += 200) filters.push({ kinds: [7], authors: [theirPk], "#e": mine.slice(i, i + 200), limit: 500 });
+  const res = await Promise.all(list.map(function (u) { return Promise.all(filters.map(function (f) { return relayReq(u, f, ms); })); }));
+  const seen = new Set(), by = {}; let answered = 0;
+  res.forEach(function (perRelay) { let any = false; perRelay.forEach(function (evs) { if (evs.length) any = true; evs.forEach(function (ev) {
+    if (!ev || seen.has(ev.id) || ev.kind !== 7 || String(ev.pubkey).toLowerCase() !== theirPk || tooNew(ev) || !Array.isArray(ev.tags)) return;
+    if (ev.content === "-") return;
+    const es = ev.tags.filter(function (t) { return t && t[0] === "e" && isHex64(t[1]); });
+    if (!es.length) return;
+    const target = String(es[es.length - 1][1]).toLowerCase();
+    const pTo = ev.tags.some(function (t) { return t && t[0] === "p" && String(t[1]).toLowerCase() === me; });
+    if (mine.indexOf(target) < 0 && !pTo) return;
+    let ok = false; try { ok = NT.verifyEvent(ev); } catch (e) {} if (!ok) return; seen.add(ev.id);
+    const at = ev.created_at * 1000; if (!by[target] || by[target] < at) by[target] = at;
+  }); }); if (any) answered++; });
+  // Dreams of yours that this device doesn't have: read them by id, and keep only notes you really wrote.
+  const missing = Object.keys(by).filter(function (n) { return mine.indexOf(n) < 0; }), notes = {};
+  if (missing.length) {
+    const got = await Promise.all(list.map(function (u) { return relayReq(u, { ids: missing.slice(0, 200), kinds: [1], authors: [me] }, ms); }));
+    got.forEach(function (evs) { evs.forEach(function (ev) {
+      if (!ev || notes[ev.id] || ev.kind !== 1 || String(ev.pubkey).toLowerCase() !== me || typeof ev.content !== "string" || missing.indexOf(ev.id) < 0) return;
+      if (!Array.isArray(ev.tags) || ev.tags.some(function (t) { return t && t[0] === "e"; })) return; // a reply, not a Dream
+      let ok = false; try { ok = NT.verifyEvent(ev); } catch (e) {} if (!ok) return;
+      notes[ev.id] = { id: ev.id, nid: ev.id, pk: ev.pubkey, text: ev.content.slice(0, 20000), created: ev.created_at * 1000, tags: keepTags(ev.tags) };
+    }); });
+  }
+  const hid = new Set(hidden());
+  const likes = Object.keys(by).filter(function (n) { return !hid.has(n) && (mine.indexOf(n) >= 0 || notes[n]); })
+    .map(function (n) { return { nid: n, at: by[n], note: notes[n] || findByNid(n) || null }; })
+    .sort(function (a, b) { return b.at - a.at; });
+  return { likes: likes, relaysAnswered: answered };
+}
+
 // On start: read your Dreams back and send anything waiting. Quiet: no announcement, no focus moves.
 function start() {
   const st = state();
@@ -840,7 +892,7 @@ if (document.readyState === "complete") start(); else window.addEventListener("l
 
 Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, VENDOR_URL: VENDOR_URL, load: load, toolsMsg: toolsMsg, toolsReady: toolsReady, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
   importKey: importKey, isCurrentKey: isCurrentKey, createKey: createKey, passcodeProblem: passcodeProblem, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, dropKey: dropKey, sealedSignins: sealedSignins, forgetWarning: forgetWarning, signedOutText: signedOutText, nsecNow: nsecNow, sealSessions: sealSessions, sealSessionsNow: sealSessionsNow, openSessions: openSessions, dmRelaysOf: dmRelaysOf,
-  publishDream: publishDream, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchReactions: fetchReactions, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
+  publishDream: publishDream, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchReactions: fetchReactions, fetchLikesOf: fetchLikesOf, myDreamNids: myDreamNids, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
 // Tokens saved before this update, when the key already has a passcode, are sealed a few seconds after startup.
 setTimeout(function () { sealSessions(); }, 2500);
 })(window.Looscid = window.Looscid || {});

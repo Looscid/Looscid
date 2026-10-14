@@ -348,6 +348,7 @@ function lcSavedAgo(x) { const t = +(x && x.created) || (x && typeof x.id === "n
 function lcSavedDreamsRaw() {
   try { const a = JSON.parse(localStorage.getItem(LC_DREAMS_KEY) || "[]"); return Array.isArray(a) ? a.filter(function (d) { return d && d.id != null && typeof d.text === "string"; }) : []; } catch (e) { return []; }
 }
+Looscid.lcSavedAgo = lcSavedAgo; // Round 7.2: the profile Liked tab dates saved copies the same way
 function lcLoadDreams() {
   return lcSavedDreamsRaw().map(function (d) {
     const o = { likes: 0, comments: 0, redreams: 0, quotes: 0, liked: false, redreamed: false, quoted: false, bookmarked: false };
@@ -1617,7 +1618,7 @@ const LC_FIND_STATIC = [
   { l: "Event earcons", w: "event earcons event earcon event sounds event sound send like new dream error alert feed switch previews", page: "settings_audio_events", where: "Settings, Earcons" },
   { l: "Keyboard shortcuts", w: "keys shortcuts", page: "settings_keyboard", where: "Settings" },
   { l: "Tab Bar", w: "tab bar tabbar bottom tabs order reorder hide show custom tab pinned tab move up move down", page: "settings_tabbar", where: "Settings" },
-  { l: "Profile Tabs", w: "profile tabs order reorder dreams replies redreams media liked mutual likes about move up move down", page: "settings_profiletabs", where: "Settings" },
+  { l: "Profile Tabs", w: "profile tabs order reorder dreams replies circles redreams media liked lists about move up move down", page: "settings_profiletabs", where: "Settings" },
   { l: "Settings backup", w: "export import reset", page: "settings_backup", where: "Settings" },
   { l: "Intelligence", w: "ai cherry assistant artificial intelligence", page: "settings_intelligence", where: "Settings" },
   { l: "Cherry on or off", w: "ai cherry turn on off enable disable assistant opt in", page: "settings_ai_cherry", focus: "ai-on", where: "Settings, Intelligence, Cherry" },
@@ -3926,11 +3927,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.117.34";
+const LOOSCID_VERSION = "2026.117.35";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 151;
+const LOOSCID_BUILD = 152;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-14T19:46:17Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-14T19:55:33Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -6264,10 +6265,11 @@ function useTabBarTick() { const [, f] = useState(0); useEffect(function () { co
 Object.assign(Looscid, { LC_TABBAR_KEY, lcTabBarAll, lcTabBarVisible, lcTabBarToggle, lcTabBarMove, useTabBarTick });
 /* Build 152 prep (#98): the order of the tabs on profiles (yours and everyone's), set in Settings, Profile Tabs with plain
    Move up and Move down buttons like the Tab Bar. Stored as looscid_profile_tabs: { order } and in the settings backup.
-   Liked shows on yours (and on others only when they share Likes with you), Mutual likes only on others'. */
+   Liked: on yours everything you liked, on others' only the Dreams of yours they liked. Round 7.2: Mutual likes is gone
+   (it was a smaller copy of Liked); a saved order or a backup that still lists "mutual" loads, and that id is skipped. */
 const LC_PROFILE_TABS_KEY = "looscid_profile_tabs";
 const LC_PROFILE_TABS = [{ id: "dreams", l: "Dreams" }, { id: "replies", l: "Replies" }, { id: "circles", l: "Circles", sub: "The Circles you own and are a member of; on others' only the ones they show" }, { id: "redreams", l: "Redreams" }, { id: "media", l: "Media" },
-  { id: "liked", l: "Liked", sub: "On your profile, and on others' when they share their Likes with you" }, { id: "mutual", l: "Mutual likes", sub: "Only on other Dreamors' profiles" },
+  { id: "liked", l: "Liked", sub: "On your profile everything you liked; on others' only the Dreams of yours they liked" },
   { id: "lists", l: "Lists", sub: "Your Lists on your profile; on others' only the ones they show" }, { id: "about", l: "About" }];
 function lcProfileTabsAll() {
   const v = lcJsonLs(LC_PROFILE_TABS_KEY, {}) || {}, order = Array.isArray(v.order) ? v.order.map(String) : [], out = [];
