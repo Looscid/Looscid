@@ -30,6 +30,7 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 | `app/projects/` | The ported projects, one folder each with its own `LICENSE`, plus `dream-results.js` (the Dream Results button inside Memeprojects). |
 | `app/os/` | Looscid OS and its apps (it started as NexOS; the old `/Looscid/nexos/` addresses redirect here through `app/404.html`). Memeprojects also loads `app/projects/dream-results.js`. |
 | `app/js/apphost.js`, `app/js/appguard.js`, `app/open.html`, `app/js/open.js` | Security pass (Oct 2026): Looscid OS apps and Projects run in a sandboxed frame without allow-same-origin, so they can't reach Looscid's storage or your Nostr key. `apphost.js` (loaded by `index.html` and `open.html`) has the sandbox flags and keeps the apps' saved data in one key, `looscid_appdata`. `appguard.js` is the first script of every page under `app/os/` and `app/projects/`: opened on its own, the page reopens inside `open.html`; inside the sandbox it gives the page a stand-in localStorage. |
+| `docs/dev/REFERENCES.md` | Historical development references, combined from `REPOS.md` and `STARRED.md`; research links, not shipped dependencies or current star counts. |
 
 ## Load order
 
