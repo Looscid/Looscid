@@ -2502,10 +2502,13 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 117; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 37;
+const LOOSCID_FIXES = 38;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.117.37", build: 154, released: LOOSCID_RELEASED, title: "Round 7.4", notes: [
+  { version: "2026.117.38", build: 155, released: LOOSCID_RELEASED, title: "Round 7.5", notes: [
+    "Fix: Sense is no longer pinned at the top of Settings. It lives in one place, Settings, Accessibility, Sense, and open sense, Find a setting and Help still go straight there.",
+  ] },
+  { version: "2026.117.37", build: 154, released: "2026-10-14T20:07:53Z", title: "Round 7.4", notes: [
     "Fix: the accessibility commitment, About and license links point at the main branch, now that preview is main.",
   ] },
   { version: "2026.117.36", build: 153, released: "2026-10-14T20:07:06Z", title: "Round 7.3", notes: [

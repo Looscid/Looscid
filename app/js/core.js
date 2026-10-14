@@ -2236,11 +2236,9 @@ function lcMoreSections(o) {
     ]},
 
     { id:"settings", emoji:"Settings", label:"Settings", top: true,
-      // Build 151 (#75, 2three1y Oct 11 5:16 PM "Yes", Spring's Settings as a layout idea only): Sense is pinned alone in
-      // its own group at the top, every row says its current value after its name, and Tab Bar has its own page.
-      pinned:[
-        { icon:"Sense", label:"Sense", value: function () { return lcSetVal("verbosity") + " verbosity, braille " + lcSetVal("brailleOutput"); }, action(){onClose();navigate("settings_a11y_sr");} },
-      ],
+      // Build 151 (#75, 2three1y Oct 11 5:16 PM "Yes", Spring's Settings as a layout idea only): every row says its current
+      // value after its name, and Tab Bar has its own page. Round 7.5 (2three1y, Oct 14 5:24 PM: "Sense goes in Accessibility.
+      // It's not meant to be pinned"): Sense is no longer pinned at the top; it lives only in Settings, Accessibility.
       items:[
       { icon:"LooscidID", label:"LooscidID",       sub:"Profile, login methods and security", value: function () { return ME && ME.handle ? "@" + String(ME.handle).replace(/^@/, "") : ""; },              action(){onClose();navigate("settings_account");} },
       { icon:"Alerts", label:"Alerts",          sub:"New Dreams, mentions, replies, quiet hours", value: function () { return "Quiet hours " + lcSetVal("quietHours"); }, action(){onClose();navigate("settings_notifications");} },
@@ -2387,8 +2385,6 @@ function LcMorePage({ id, navigate, goRoot, unreadNotifs, unreadMsgs, onBack }) 
     lh(BackHeader, { title: lcMoreTitle(id, s.label), onBack: onBack }),
     s.intro ? lh('p', { className: "lc-desc", style: { padding: "8px 16px", margin: 0 } }, s.intro) : null,
     s.top ? lh(LcSettingFind, { navigate: navigate, onClose: function () {} }) : null,
-    // Build 151 (#75): Sense pinned alone in its own group at the top, as Spring pins Accessibility.
-    s.pinned ? lh('ul', { className: "mlist lc-set-pinned", role: "list" }, s.pinned.map(function (item) { return lcMoreItemLi(s, item); })) : null,
     s.render ? s.render() : lh('ul', { className: "mlist", role: "list" }, s.items.map(function (item) { return lcMoreItemLi(s, item); })),
     s.outro ? lh('p', { style: { padding: "8px 16px", margin: 0, fontSize: 13 } }, lh('a', { href: s.outro[1], target: "_blank", rel: "noopener noreferrer", className: "lc-help-link" }, s.outro[0])) : null);
 }
@@ -3927,11 +3923,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.117.37";
+const LOOSCID_VERSION = "2026.117.38";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 154;
+const LOOSCID_BUILD = 155;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-14T20:07:53Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-14T21:36:22Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).

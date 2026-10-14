@@ -2,6 +2,12 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.117.38 (155): Round 7.5
+
+Released October 14, 2026 at 5:36 PM (Eastern Time, 2026-10-14T21:36:22Z UTC)
+
+- Fix: Sense was pinned alone at the top of Settings. It now lives only in Settings, Accessibility; the Commandbar's open sense, Find a setting and Help still open it there.
+
 ## Looscid 2026.117.37 (154): Round 7.4
 
 Released October 14, 2026 at 4:07 PM (Eastern Time, 2026-10-14T20:07:53Z UTC)

@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.117.37",
-  "build": 154,
+  "version": "2026.117.38",
+  "build": 155,
   "features": 117,
-  "fixes": 37,
+  "fixes": 38,
   "builds_without_fixes": 117,
-  "released": "2026-10-14T20:07:53Z",
-  "title": "Round 7.4",
-  "notes": "Round 7.4 (build 154), a fix update. The accessibility commitment, About and license links point at the main branch, now that preview is main."
+  "released": "2026-10-14T21:36:22Z",
+  "title": "Round 7.5",
+  "notes": "Round 7.5 (build 155), a fix update. Sense was pinned alone at the top of Settings. It now lives only in Settings, Accessibility; the Commandbar's open sense, Find a setting and Help still open it there."
 }
