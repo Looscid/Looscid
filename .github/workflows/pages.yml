@@ -5,7 +5,7 @@ name: Deploy Looscid to GitHub Pages
 
 on:
   push:
-    branches: [preview]
+    branches: [main]
   workflow_dispatch:
 
 permissions:

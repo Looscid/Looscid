@@ -1,6 +1,6 @@
 # Changelog
 
-Looscid counts every update on the preview branch as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
+Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
 ## Looscid 2026.117.33 (150): Round 7
 
@@ -118,6 +118,7 @@ Round 7: a feature update, asked for by 2three1y. Built in steps, one commit eac
 - Circles list: Enter or Space on a focused Circle row (a Bluetooth or other hardware keyboard) now opens that Circle, exactly like a tap, with focus on its name. The row still reads the same ("Open Braille Club, button"); Enter or Space on its Join, Joined or Like button still only presses that button, and double-tap keeps working.
 - After a reload (for example on your own profile), the browser's or Android's Back to a page from before the reload, which the browser loads fresh, now puts focus on that page's heading ("Home") as Back does everywhere else, instead of leaving it on the page body. A dialog or a page that already placed focus keeps it; a fresh start is unchanged.
 - Docs: a security page (docs/SECURITY.md) with how to report a problem privately and what protects your keys and sign-ins, carried over from the old main line and rewritten for today's Looscid. Nothing in the app changed.
+- Repository: preview is now main, the only branch, and the site is built from it. The old branches are gone; their useful docs were already in docs/. Nothing in the app changed.
 
 ## Looscid 2026.116.33 (149): Round 6.8.1
 

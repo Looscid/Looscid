@@ -13,15 +13,13 @@ Looscid is a social app built for VoiceOver, braille and keyboard from day one. 
 
 ## Official version
 
-`preview` is the shipped Looscid line. Its [version.json](app/version.json) is authoritative: **Looscid 2026.117.33 (150)**. Versions are YEAR.FEATURES.FIXES (BUILD): feature updates add something, fix updates only fix things, and builds count every update.
+`main` is the shipped Looscid line, and the site is built from it. Its [version.json](app/version.json) is authoritative: **Looscid 2026.117.33 (150)**. Versions are YEAR.FEATURES.FIXES (BUILD): feature updates add something, fix updates only fix things, and builds count every update.
 
-The older `main` line and combined branch counters are deprecated, not inherited into the product version. Documentation-only consolidation does not renumber the shipped version.
+The old `main` line (retired October 14, 2026) and combined branch counters are deprecated, not inherited into the product version. Documentation-only consolidation does not renumber the shipped version.
 
-<details><summary>Branch inventory and consolidation</summary>
+<details><summary>Branches</summary>
 
-- `preview`: the shipped product and consolidation trunk.
-- Historical branches still present: `main`, `MainV1`, `main-reset`, `rewrite/vanilla-phase-1`, `refactor/terminology-rename`, `refactor/discover-extraction`, `refactor/vite-build`.
-
-Useful unmerged material is reviewed and merged into `preview` before retirement. This inventory does not claim any branch has been deleted. Update it only after separately authorized deletions are verified.
+- `main`: the only branch. It is the shipped product, and GitHub Pages publishes its `app/` folder.
+- October 14, 2026: the old `main` line was retired and `preview` was renamed to `main`. `MainV1`, `main-reset`, `rewrite/vanilla-phase-1`, `refactor/terminology-rename`, `refactor/discover-extraction` and `refactor/vite-build` were deleted after their useful docs were merged into `docs/`.
 
 </details>
