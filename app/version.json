@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.117.39",
-  "build": 156,
+  "version": "2026.117.40",
+  "build": 157,
   "features": 117,
-  "fixes": 39,
+  "fixes": 40,
   "builds_without_fixes": 117,
-  "released": "2026-10-14T21:37:09Z",
-  "title": "Round 7.6",
-  "notes": "Round 7.6 (build 156), a fix update. Settings, Privacy no longer has the Liked tab switches (Show on my profile), and your own Liked tab's intro no longer mentions them. They did nothing: others only see the Dreams of theirs you liked. Old settings backups that carry them still import."
+  "released": "2026-10-14T21:37:26Z",
+  "title": "Round 7.7",
+  "notes": "Round 7.7 (build 157), a fix update. On someone else's Liked tab, your own Dreams saved on this device still said 0 Likes. They now count at least that Dreamor's like, with their real age; the saved Dreams themselves are not changed."
 }

@@ -508,16 +508,19 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
     const push = function (d) { if (!d) return; const k = key(d); if (have.has(k)) return; have.add(k); if (d.id != null) have.add(String(d.id)); out.push(d); };
     const findLive = function (id) { const s = String(id); return all.find(function (d) { return String(d.id) === s || (d.nid && String(d.nid) === s); }) || null; };
     const base = { likes: 1, comments: 0, redreams: 0, quotes: 0, liked: false, redreamed: false, quoted: false, bookmarked: false };
+    // Round 7.7 (QA16, M10 rest): a Dream of yours saved on this device showed its stored count ("0 Likes") here. This
+    // Dreamor liked it, so the card counts at least 1 Like and shows its real age; it's a copy, the saved Dream isn't changed.
+    const liveCopy = function (d) { const t = Looscid.lcSavedAgo ? Looscid.lcSavedAgo(d) : ""; return Object.assign({}, d, { likes: Math.max(+d.likes || 0, 1), time: t || d.time || "" }); };
     if (nLikes && nLikes.pk === dmPeer) nLikes.likes.forEach(function (l) {
       const live = findLive(l.nid) || (l.note && l.note.id != null ? findLive(l.note.id) : null);
-      if (live) { push(live); return; }
+      if (live) { push(liveCopy(live)); return; }
       const n = l.note; if (!n || typeof n.text !== "string") return;
       push(Object.assign({}, base, n, { likes: Math.max(+n.likes || 0, 1), user: ME, time: Looscid.lcSavedAgo ? Looscid.lcSavedAgo(n) : "" }));
     });
     // M10 (bug audit Oct 14): a saved copy has no live Dream here, so it showed "1 minute ago" and "0 Likes". It now
     // keeps its real time (when it carries one, else none at all) and counts at least this Dreamor's like.
     theirVisible.forEach(function (x) {
-      const live = findLive(x.id); if (live) { push(live); return; }
+      const live = findLive(x.id); if (live) { push(liveCopy(live)); return; }
       push(Object.assign({}, base, x, { likes: Math.max(+x.likes || 0, 1), user: ME, time: Looscid.lcSavedAgo ? Looscid.lcSavedAgo(x) : "" }));
     });
     return out;
@@ -2460,10 +2463,13 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 117; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 39;
+const LOOSCID_FIXES = 40;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.117.39", build: 156, released: LOOSCID_RELEASED, title: "Round 7.6", notes: [
+  { version: "2026.117.40", build: 157, released: LOOSCID_RELEASED, title: "Round 7.7", notes: [
+    "Fix: on someone else's Liked tab, your Dreams that are saved on this device no longer say 0 Likes. They count at least that Dreamor's like and show their real age.",
+  ] },
+  { version: "2026.117.39", build: 156, released: "2026-10-14T21:37:09Z", title: "Round 7.6", notes: [
     "Fix: the Liked tab switches are gone from Settings, Privacy, and your own Liked tab no longer mentions them. They did nothing any more: on your profile, other people only ever see the Dreams of theirs that you liked.",
   ] },
   { version: "2026.117.38", build: 155, released: "2026-10-14T21:36:22Z", title: "Round 7.5", notes: [

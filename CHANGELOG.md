@@ -2,6 +2,12 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.117.40 (157): Round 7.7
+
+Released October 14, 2026 at 5:37 PM (Eastern Time, 2026-10-14T21:37:26Z UTC)
+
+- Fix: On someone else's Liked tab, your own Dreams saved on this device still said 0 Likes. They now count at least that Dreamor's like, with their real age; the saved Dreams themselves are not changed.
+
 ## Looscid 2026.117.39 (156): Round 7.6
 
 Released October 14, 2026 at 5:37 PM (Eastern Time, 2026-10-14T21:37:09Z UTC)
