@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.117.38",
-  "build": 155,
+  "version": "2026.117.39",
+  "build": 156,
   "features": 117,
-  "fixes": 38,
+  "fixes": 39,
   "builds_without_fixes": 117,
-  "released": "2026-10-14T21:36:22Z",
-  "title": "Round 7.5",
-  "notes": "Round 7.5 (build 155), a fix update. Sense was pinned alone at the top of Settings. It now lives only in Settings, Accessibility; the Commandbar's open sense, Find a setting and Help still open it there."
+  "released": "2026-10-14T21:37:09Z",
+  "title": "Round 7.6",
+  "notes": "Round 7.6 (build 156), a fix update. Settings, Privacy no longer has the Liked tab switches (Show on my profile), and your own Liked tab's intro no longer mentions them. They did nothing: others only see the Dreams of theirs you liked. Old settings backups that carry them still import."
 }

@@ -15,26 +15,13 @@ Object.assign(Looscid, { ListsPage, ProfileLists, ProfileTabsSettings, CreditsPa
    Media). Its top menu (Share, Hide/Show Redreams, Add/Edit note, Mute, Block, Report) is a More button that
    expands inline. 2three1y's own asks sit where Feditext's closest part is: Edit profile (the same LooscidID editor
    as Settings), a Liked tab (yours: everything you liked; others': the Dreams of yours they liked) and an About tab. */
-const LC_PROFILE_MORE_KEY = "looscid_profile_more_open", LC_PROFILE_RD_KEY = "looscid_profile_rd_show", LC_LIKED_PUBLIC_KEY = "looscid_liked_public";
+const LC_PROFILE_MORE_KEY = "looscid_profile_more_open", LC_PROFILE_RD_KEY = "looscid_profile_rd_show";
 // Build 150, part 16: Dreamor options is a real pop-up menu that never remembers being open. The old open state is cleared once.
-try { localStorage.removeItem(LC_PROFILE_MORE_KEY); } catch (e) {}
+// Round 7.6 (2three1y, Oct 14 4:57 PM): the "Liked tab" switches in Settings, Privacy are gone (others only ever see the Dreams
+// of theirs you liked), so their old saved choice (looscid_liked_public) is cleared the same way. Old backups that carry it
+// still import; the key is simply not read any more.
+try { localStorage.removeItem(LC_PROFILE_MORE_KEY); localStorage.removeItem("looscid_liked_public"); } catch (e) {}
 function lcRdShow() { try { const v = localStorage.getItem(LC_PROFILE_RD_KEY); return v === "quotes" || v === "redreams" ? v : "both"; } catch (e) { return "both"; } }
-// Settings > Privacy: which Liked tabs are public on your profile. All off (private) by default.
-function lcLikedPublic() { try { const a = JSON.parse(localStorage.getItem(LC_LIKED_PUBLIC_KEY) || "[]"); return Array.isArray(a) ? a.filter(function (x) { return typeof x === "string"; }) : []; } catch (e) { return []; } }
-function lcSetLikedPublic(list) { try { if (list.length) localStorage.setItem(LC_LIKED_PUBLIC_KEY, JSON.stringify(list)); else localStorage.removeItem(LC_LIKED_PUBLIC_KEY); } catch (e) {} }
-const LC_LIKED_KIND_TAB = { dream: "dreams", circle: "circles", app: "apps", listing: "marketplace", chat: "chats", search: "searches" };
-/* What a visitor sees on someone's Liked tab (2three1y, 9:46 and 9:48 PM): everything in the tabs made public, plus,
-   even with every switch off, each liked Dream the visitor wrote or liked too. Anyone else sees none of those. */
-function lcLikedVisibleTo(items, publicTabs, visitorHandle, visitorLikedIds) {
-  const v = Looscid.lcHandle(visitorHandle || ""), pub = publicTabs || [], vl = new Set((visitorLikedIds || []).map(String));
-  return (items || []).filter(function (x) {
-    if (!x) return false;
-    if (pub.indexOf(LC_LIKED_KIND_TAB[x.k] || "") >= 0) return true;
-    if (x.k !== "dream") return false;
-    // With the switches off: the visitor wrote it, or the visitor liked it too.
-    return (!!v && !!x.user && Looscid.lcHandle(x.user.handle || "") === v) || vl.has(String(x.id));
-  });
-}
 function lcFmtJoined(t) { try { return new Date(+t).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }); } catch (e) { return ""; } }
 /* Build 149 (2three1y, Oct 11 3:21 AM): "Joined" shows the full date and the time the LooscidID was made, in the
    viewer's own time zone, e.g. "Thursday, October 2, 2024 at 5:01 PM (Eastern Time)". A date stored without a time
@@ -663,10 +650,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
     }
     return null;
   };
-  const pubTabs = lcLikedPublic();
-  const likedIntro = isMe ? (pubTabs.length
-      ? "Public on your profile: " + LC_LIKED_TABS_LABELS(pubTabs) + ". The rest only you can see, and people can see your likes on their own Dreams."
-      : "Only you can see your Liked tab. People can see your likes on their own Dreams.") : "";
+  const likedIntro = isMe ? "Only you can see your Liked tab. People can see your likes on their own Dreams." : "";
   const panel = function () {
     switch (cur) {
       case "dreams": { const l = byId(ownDreams);
@@ -846,14 +830,12 @@ function LcProfileCircles({ circ, isMe, name, navigate, uid, f0 }) {
     lh('div', { id: "pf-circ-list", role: "tabpanel", "aria-labelledby": "pf-circ-f-" + f },
       list.length ? lh('ul', { className: "lc-people", role: "list" }, list.map(row)) : lh('p', { className: "lc-muted", style: { padding: "12px 16px" } }, emptyText)));
 }
-function LC_LIKED_TABS_LABELS(ids) { return (Looscid.LC_LIKED_TABS || []).filter(function (t) { return ids.indexOf(t.id) >= 0; }).map(function (t) { return t.label; }).join(", "); }
 function ProfilePage({navigate, authUser, cherryCtx, onUpdateProfile}) {
   return lh(ProfileView, { user: ME, isMe: true, navigate: navigate, cherryCtx: cherryCtx, onUpdateProfile: onUpdateProfile, authUser: authUser });
 }
 function DreamorProfilePage({user, navigate, cherryCtx}) {
   return lh(ProfileView, { key: user.id, user: user, isMe: user.id === ME.id, navigate: navigate, cherryCtx: cherryCtx, dpRoute: true });
 }
-Object.assign(Looscid, { lcLikedPublic, lcSetLikedPublic, lcLikedVisibleTo, LC_LIKED_PUBLIC_KEY });
 /* --- SETTINGS ---------------------------- */
 /* --- ACCOUNT SETTINGS ---------------------------------------------------- */
 function AccountSettings({navigate, authUser, onSignOut, onRenameProfile, onUpdateProfile, initialTab}) {
@@ -974,29 +956,6 @@ function NotificationsSettings({navigate}) {
     )
   );
 }
-// Build 147 (2three1y, 9:44-9:48 PM): who sees your Liked tab. One "Show on my profile" box per Liked tab, all off.
-function LcLikedPrivacy() {
-  const [pub, setPub] = useState(lcLikedPublic);
-  const tabs = (Looscid.LC_LIKED_TABS || []).filter(function (t) { return t.k !== "media"; }); // build 150: Media is a view of Dreams, not its own kind
-  const flip = function (id, on) {
-    const next = tabs.map(function (t) { return t.id; }).filter(function (x) { return x === id ? on : pub.indexOf(x) >= 0; });
-    lcSetLikedPublic(next); setPub(next);
-    const t = tabs.find(function (x) { return x.id === id; });
-    announce("Liked " + (t ? t.label : id) + (on ? ": shown on your profile." : ": only you."));
-  };
-  return lh('div', { className: "lc-liked-priv" },
-    lh('p', { className: "lc-intro" }, "Choose which parts of your Liked tab show on your profile. All of them are off, so only you can see them, until you turn one on."),
-    lh('p', { className: "lc-intro" }, "Even when off, people can see your likes on their own Dreams."),
-    lh('fieldset', { className: "lc-fs" },
-      lh('legend', null, "Liked tab"),
-      tabs.map(function (t) {
-        return lh('div', { key: t.id, className: "lc-liked-priv-row" },
-          lh('h3', { className: "lc-sub-h", id: "priv-liked-h-" + t.id }, t.label),
-          lh('label', { className: "lc-radio", htmlFor: "priv-liked-" + t.id },
-            lh('input', { type: "checkbox", id: "priv-liked-" + t.id, checked: pub.indexOf(t.id) >= 0, "aria-labelledby": "priv-liked-l-" + t.id + " priv-liked-h-" + t.id, onChange: function (e) { flip(t.id, e.target.checked); } }),
-            lh('span', { id: "priv-liked-l-" + t.id }, " Show on my profile")));
-      })));
-}
 /* Build 152, B2 and B3: Settings, Privacy, Circles on my profile. Each of your Circles has Show on my profile (all off,
    so only you see them, until you turn one on) and Highlight on my profile, which puts a shown Circle first. Highlight
    is unavailable (aria-disabled, and pressing it says why) until the Circle is shown, and for a Circle you are a member
@@ -1050,7 +1009,6 @@ function PrivacySettings({navigate, authUser, onUpdateProfile}) {
       intro: priv ? "Private account is on, so Who can see my Dreams counts as Followers and Who can follow me as Approve requests." : "Who can see, reply to and message you. Saved on this device and sent with your Dreams as your preferences. Looscid is decentralized, so other apps on the same networks decide whether they follow them." }); }],
     ["blocked", "Blocked and muted", function () { return lh(LcBlockedPanel, null); }],
     ["pmedia", "Media and content", function () { return lh(LcPrivacyMedia, { navigate: navigate }); }],
-    ["pliked", "Liked tab", function () { return lh(LcLikedPrivacy, null); }],
     ["pcircles", "Circles on my profile", function () { return lh(LcCirclesPrivacy, null); }],
   ];
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
@@ -2502,10 +2460,13 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 117; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 38;
+const LOOSCID_FIXES = 39;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.117.38", build: 155, released: LOOSCID_RELEASED, title: "Round 7.5", notes: [
+  { version: "2026.117.39", build: 156, released: LOOSCID_RELEASED, title: "Round 7.6", notes: [
+    "Fix: the Liked tab switches are gone from Settings, Privacy, and your own Liked tab no longer mentions them. They did nothing any more: on your profile, other people only ever see the Dreams of theirs that you liked.",
+  ] },
+  { version: "2026.117.38", build: 155, released: "2026-10-14T21:36:22Z", title: "Round 7.5", notes: [
     "Fix: Sense is no longer pinned at the top of Settings. It lives in one place, Settings, Accessibility, Sense, and open sense, Find a setting and Help still go straight there.",
   ] },
   { version: "2026.117.37", build: 154, released: "2026-10-14T20:07:53Z", title: "Round 7.4", notes: [

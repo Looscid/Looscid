@@ -2,6 +2,12 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.117.39 (156): Round 7.6
+
+Released October 14, 2026 at 5:37 PM (Eastern Time, 2026-10-14T21:37:09Z UTC)
+
+- Fix: Settings, Privacy no longer has the Liked tab switches (Show on my profile), and your own Liked tab's intro no longer mentions them. They did nothing: others only see the Dreams of theirs you liked. Old settings backups that carry them still import.
+
 ## Looscid 2026.117.38 (155): Round 7.5
 
 Released October 14, 2026 at 5:36 PM (Eastern Time, 2026-10-14T21:36:22Z UTC)

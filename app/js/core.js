@@ -3923,11 +3923,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.117.38";
+const LOOSCID_VERSION = "2026.117.39";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 155;
+const LOOSCID_BUILD = 156;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-14T21:36:22Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-14T21:37:09Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -6296,9 +6296,10 @@ const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "looscid_braille_styles", "lo
   "looscid_cherry_chats",
   // Round 6.6: whether the More menu's Projects section is open. Added at the end, so older backups still import.
   "looscid_more_projects_open",
-  // Build 147: whether a profile's More is open, the Redreams tab's Show choice, and which Liked tabs show on your profile.
-  // Added at the end, so older backups still import. What you liked (looscid_liked) is your data, like looscid_dreams, so it isn't here.
-  "looscid_profile_more_open", "looscid_profile_rd_show", "looscid_liked_public", "looscid_circles_shown", "looscid_circles_highlight",
+  // Build 147: whether a profile's More is open and the Redreams tab's Show choice. Added at the end, so older backups still import.
+  // What you liked (looscid_liked) is your data, like looscid_dreams, so it isn't here. Round 7.6: "looscid_liked_public" (the
+  // removed Privacy "Liked tab" switches) is no longer exported or imported; an old backup that has it imports without it.
+  "looscid_profile_more_open", "looscid_profile_rd_show", "looscid_circles_shown", "looscid_circles_highlight",
   // Build 149: the profile Media tab's Show choice (Images, Videos or Both). Added at the end, so older backups still import.
   "looscid_profile_media_show",
   // Build 150: the Circles you made (looscid_circles). Added at the end, so older backups still import; a backup without it changes none.
