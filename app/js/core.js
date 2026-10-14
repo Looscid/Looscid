@@ -103,7 +103,88 @@ function lcCircleCreate(form) {
   return g;
 }
 lcCirclesLoad();
-Object.assign(Looscid, { LC_CIRCLES_KEY, lcCirclesRead, lcCirclesLoad, lcCirclesMerge, lcCircleCreate });
+/* Build 152, Circles on profiles (2three1y via Tomo, Oct 13 4:02 and 4:04 PM PT): a profile's Circles tab lists the
+   Circles that Dreamor owns (made, or runs as admin or mod) and the ones they are a member of. Your own come from GROUPS
+   (looscid_circles and the Circles you joined); another Dreamor's come only from what their profile carries (circles:
+   [{ id, name, handle, role }]), so nothing about your membership leaves this device unless you choose to show it.
+   A Circle's name on Looscid is c/<name> (docs/guides/TERMINOLOGY.md). */
+function lcCircleHandle(g) { const h = g && (g.handle || g.slug || g.name) || ""; return "c/" + String(h).replace(/^c\//i, "").trim().toLowerCase().replace(/[^a-z0-9_.-]+/g, "-").replace(/^-+|-+$/g, ""); }
+function lcCircleRole(g, uid) {
+  if (!g) return null;
+  const has = function (k) { return Array.isArray(g[k]) && g[k].indexOf(uid) >= 0; };
+  if ((uid === ME.id && g.mine) || g.owner === uid || has("admins") || has("mods")) return "owner";
+  if ((uid === ME.id && g.joined) || has("memberIds") || has("members")) return "member";
+  return null;
+}
+function lcMyCircles() {
+  const src = (Looscid.LC_GROUPS_NOW && Looscid.LC_GROUPS_NOW.length ? Looscid.LC_GROUPS_NOW : GROUPS).slice();
+  GROUPS.forEach(function (g) { if (!src.some(function (x) { return x.id === g.id; })) src.push(g); });
+  const out = { owner: [], member: [] };
+  src.forEach(function (g) { const r = lcCircleRole(g, ME.id); if (r) out[r].push(g); });
+  return out;
+}
+// The Circles a profile shows: yours, all of them, on your own profile; another Dreamor's only from their profile.
+function lcProfileCircles(user, isMe) {
+  if (isMe) return lcCirclesMarked(lcMyCircles());
+  const out = { owner: [], member: [] };
+  (Array.isArray(user && user.circles) ? user.circles : []).forEach(function (x) {
+    if (!x || typeof x.name !== "string" || !x.name.trim()) return;
+    out[x.role === "owner" || x.role === "admin" || x.role === "mod" ? "owner" : "member"].push(x);
+  });
+  const hlFirst = function (l) { return l.filter(function (x) { return !!x.highlight; }).concat(l.filter(function (x) { return !x.highlight; })); };
+  return { owner: hlFirst(out.owner), member: hlFirst(out.member) };
+}
+/* Build 152, B2 and B3: which of your Circles show on your profile. Settings, Privacy, Circles on my profile has a Show on
+   my profile box for each of your Circles, all off until you turn one on (View as others and your profile's public side
+   show only those). Highlight on my profile puts a shown Circle first, marked highlighted: always allowed for a Circle
+   you run (owner, admin or mod), and for a Circle you are a member of when its mods allow it in Circle settings
+   (allowHighlight on the Circle). Kept as looscid_circles_shown and looscid_circles_highlight (lists of Circle ids) in the
+   settings backup; nothing secret. */
+const LC_CIRCLES_SHOWN_KEY = "looscid_circles_shown", LC_CIRCLES_HL_KEY = "looscid_circles_highlight";
+function lcCirclesShown() { return lcIdList(LC_CIRCLES_SHOWN_KEY); }
+function lcCirclesHl() { return lcIdList(LC_CIRCLES_HL_KEY); }
+function lcCircleCanHighlight(g) { return !!g && (lcCircleRole(g, ME.id) === "owner" || g.allowHighlight === true); }
+function lcCircleSetHl(g, on) { const id = String(g.id), a = lcCirclesHl().filter(function (x) { return x !== id; }); if (on) a.push(id); lcIdListSet(LC_CIRCLES_HL_KEY, a, "looscid:circles"); }
+function lcCircleSetShown(g, on) {
+  const id = String(g.id), a = lcCirclesShown().filter(function (x) { return x !== id; }); if (on) a.push(id);
+  if (!on && lcCirclesHl().indexOf(id) >= 0) lcCircleSetHl(g, false);
+  lcIdListSet(LC_CIRCLES_SHOWN_KEY, a, "looscid:circles");
+}
+// Each Circle with shown and highlight marked; highlighted ones first, otherwise in their own order.
+function lcCirclesMarked(circ) {
+  const sh = lcCirclesShown(), hl = lcCirclesHl();
+  const ord = function (list) {
+    const m = list.map(function (g) { const on = sh.indexOf(String(g.id)) >= 0; return Object.assign({}, g, { shown: on, highlight: on && hl.indexOf(String(g.id)) >= 0 && lcCircleCanHighlight(g) }); });
+    return m.filter(function (g) { return g.highlight; }).concat(m.filter(function (g) { return !g.highlight; }));
+  };
+  return { owner: ord(circ.owner || []), member: ord(circ.member || []) };
+}
+// What others see of yours (View as others): only the Circles you show.
+function lcMyCirclesPublic() {
+  const m = lcCirclesMarked(lcMyCircles()), f = function (l) { return l.filter(function (g) { return g.shown; }); };
+  return { owner: f(m.owner), member: f(m.member) };
+}
+// Circle settings (mods): whether members may highlight this Circle. Saved with your Circles when it is one of yours.
+function lcCircleSetAllowHighlight(id, on) {
+  GROUPS.forEach(function (g) { if (g.id === id) g.allowHighlight = !!on; });
+  const saved = lcCirclesRead(); let hit = false;
+  saved.forEach(function (g) { if (g.id === id) { g.allowHighlight = !!on; hit = true; } });
+  if (hit) lcCirclesWrite(saved);
+  try { window.dispatchEvent(new CustomEvent("looscid:circles")); } catch (e) {}
+}
+function useCirclesTick() {
+  const [, t] = useState(0);
+  useEffect(function () { const h = function () { t(function (n) { return n + 1; }); };
+    window.addEventListener("looscid:circles", h); window.addEventListener("storage", h);
+    return function () { window.removeEventListener("looscid:circles", h); window.removeEventListener("storage", h); }; }, []);
+}
+/* B4: a Circle's link is this site with #c/name, like a profile's #@handle, so it opens Looscid on that Circle and,
+   pasted into X, iMessage or Discord, shows the same Looscid logo card as any Looscid link (index.html's preview tags). */
+function lcCircleLink(g) { return location.origin + LOOSCID_BASE + "#" + lcCircleHandle(g); }
+function lcCircleByHandle(h) { const want = "c/" + String(h || "").replace(/^c\//i, "").toLowerCase(); return GROUPS.find(function (g) { return lcCircleHandle(g) === want; }) || null; }
+Object.assign(Looscid, { LC_CIRCLES_KEY, lcCirclesRead, lcCirclesLoad, lcCirclesMerge, lcCircleCreate, lcCircleHandle, lcCircleRole, lcMyCircles, lcProfileCircles,
+  LC_CIRCLES_SHOWN_KEY, LC_CIRCLES_HL_KEY, lcCirclesShown, lcCirclesHl, lcCircleCanHighlight, lcCircleSetHl, lcCircleSetShown, lcCirclesMarked, lcMyCirclesPublic,
+  lcCircleSetAllowHighlight, useCirclesTick, lcCircleLink, lcCircleByHandle });
 const TRENDING = [];
 Looscid.TRENDING = TRENDING;
 const SORT_OPTIONS = [
@@ -963,6 +1044,10 @@ function lcLinkCard(text) {
   let u; try { u = new URL(m[0].replace(/[.,!?;:)\]}]+$/, "")); } catch (e) { return null; }
   if (!/^https?:$/.test(u.protocol)) return null;
   const host = u.hostname.toLowerCase().replace(/^(www|m)\./, "");
+  // B4: a Looscid Circle link (looscid.github.io/Looscid/#c/name, or this copy of Looscid) gets a Looscid card.
+  const cm = /^#c\/([A-Za-z0-9_.\-]{1,64})$/i.exec(u.hash || "");
+  if (cm && (host === "looscid.github.io" || u.origin === location.origin) && /^\/looscid\/?$/i.test(u.pathname))
+    return { url: u.href, kind: "circle", handle: "c/" + cm[1].toLowerCase(), domain: "Looscid", label: "Circle c/" + cm[1].toLowerCase(), site: "Looscid" };
   let kind = "site", id = null, sub = null;
   if (host === "youtube.com" || host === "music.youtube.com") { id = u.searchParams.get("v") || (u.pathname.match(/^\/(?:shorts|embed|live)\/([\w-]{6,})/) || [])[1]; }
   else if (host === "youtu.be") { id = (u.pathname.match(/^\/([\w-]{6,})/) || [])[1]; }
@@ -977,6 +1062,19 @@ function lcLinkCard(text) {
 function LinkCard({ info }) {
   const [play, setPlay] = useState(false);
   if (!info) return null;
+  // B4: a Circle link's card, like the Looscid link previews elsewhere: the Looscid logo (from Looscid itself, hidden from
+  // screen readers), the Circle's name and c/name, and Open Circle when it is on this device (else the link opens it).
+  if (info.kind === "circle") {
+    const g = lcCircleByHandle(info.handle), d = g && g.description ? String(g.description).replace(/\s+/g, " ").trim() : "";
+    return lh('div', { className: "lc-link-card lc-circ-card" },
+      lh('img', { src: LOOSCID_BASE + "assets/looscid-logo.png", alt: "", "aria-hidden": "true", className: "lc-circ-card-logo", width: 48, height: 48 }),
+      lh('div', { className: "lc-circ-card-t" },
+        lh('p', { className: "lc-link-what" }, (g ? g.name + ", " : "") + "Circle " + info.handle + " on Looscid"),
+        d ? lh('p', { className: "lc-muted" }, d.length > 140 ? d.slice(0, 139) + "\u2026" : d) : null,
+        lh('div', { className: "lc-inrow" }, g
+          ? lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { if (Looscid.LC_NAV) Looscid.LC_NAV("groups", { circle: g.id }); } }, "Open Circle")
+          : lh('a', { href: info.url, target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, "Open " + info.handle, lh('span', { className: "sr-only" }, ", opens in a new tab")))));
+  }
   const tall = info.kind === "spotify" ? (info.sub === "track" || info.sub === "episode" ? 152 : 352) : null;
   return lh('div', { className: "lc-link-card embed" },
     lh('p', { className: "lc-link-what" }, info.label + ", " + info.domain),
@@ -3832,7 +3930,7 @@ const LOOSCID_VERSION = "2026.117.33";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
 const LOOSCID_BUILD = 150;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-14T00:41:51Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-14T01:01:25Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -4823,7 +4921,16 @@ Looscid.LC_SETTINGS_BACK = null; // round 6: a settings page opened from a tab g
 Looscid.LC_FOLLOWING_NOW = new Set(); Looscid.LC_GROUPS_NOW = []; // mirrored by App each render
 function lcAudCustom(key) { try { const v = JSON.parse(localStorage.getItem("looscid_aud_custom_" + key) || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
 function lcHandle(h) { return String(h || "").trim().replace(/^@/, "").toLowerCase(); }
+// B4: a Circle link (#c/name) opens that Circle when it is on this device; the hash is then cleared, like #@handle.
+function lcOpenCircleLink() {
+  const m = /^#c\/([A-Za-z0-9_.\-]{1,64})$/i.exec(location.hash || ""); if (!m || !Looscid.LC_NAV) return false;
+  try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+  const g = lcCircleByHandle(m[1]);
+  if (g) Looscid.LC_NAV("groups", { circle: g.id }); else announce("c/" + m[1] + " isn't on this device yet.");
+  return true;
+}
 function lcOpenProfileLink() {
+  if (lcOpenCircleLink()) return;
   const m = /^#@([A-Za-z0-9_.\-]{1,64})$/.exec(location.hash || ""); if (!m || !Looscid.LC_NAV) return;
   const h = lcHandle(m[1]);
   try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
@@ -6159,7 +6266,7 @@ Object.assign(Looscid, { LC_TABBAR_KEY, lcTabBarAll, lcTabBarVisible, lcTabBarTo
    Move up and Move down buttons like the Tab Bar. Stored as looscid_profile_tabs: { order } and in the settings backup.
    Liked shows on yours (and on others only when they share Likes with you), Mutual likes only on others'. */
 const LC_PROFILE_TABS_KEY = "looscid_profile_tabs";
-const LC_PROFILE_TABS = [{ id: "dreams", l: "Dreams" }, { id: "replies", l: "Replies" }, { id: "redreams", l: "Redreams" }, { id: "media", l: "Media" },
+const LC_PROFILE_TABS = [{ id: "dreams", l: "Dreams" }, { id: "replies", l: "Replies" }, { id: "circles", l: "Circles", sub: "The Circles you own and are a member of; on others' only the ones they show" }, { id: "redreams", l: "Redreams" }, { id: "media", l: "Media" },
   { id: "liked", l: "Liked", sub: "On your profile, and on others' when they share their Likes with you" }, { id: "mutual", l: "Mutual likes", sub: "Only on other Dreamors' profiles" },
   { id: "lists", l: "Lists", sub: "Your Lists on your profile; on others' only the ones they show" }, { id: "about", l: "About" }];
 function lcProfileTabsAll() {
@@ -6189,7 +6296,7 @@ const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "looscid_braille_styles", "lo
   "looscid_more_projects_open",
   // Build 147: whether a profile's More is open, the Redreams tab's Show choice, and which Liked tabs show on your profile.
   // Added at the end, so older backups still import. What you liked (looscid_liked) is your data, like looscid_dreams, so it isn't here.
-  "looscid_profile_more_open", "looscid_profile_rd_show", "looscid_liked_public",
+  "looscid_profile_more_open", "looscid_profile_rd_show", "looscid_liked_public", "looscid_circles_shown", "looscid_circles_highlight",
   // Build 149: the profile Media tab's Show choice (Images, Videos or Both). Added at the end, so older backups still import.
   "looscid_profile_media_show",
   // Build 150: the Circles you made (looscid_circles). Added at the end, so older backups still import; a backup without it changes none.

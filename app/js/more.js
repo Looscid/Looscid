@@ -507,7 +507,11 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
     : (Array.isArray(user.lists) ? user.lists.filter(function (l) { return l && typeof l.name === "string" && l.name.trim() && l.shown !== false; }) : []);
   // Tabs: Feditext's four, then 2three1y's: Liked (your own, private; on others only what they made visible to you),
   // Mutual likes (others), About.
-  const TABS0 = [["dreams", "Dreams"], ["replies", "Replies"], ["redreams", "Redreams"], ["media", "Media"]]
+  // Build 152 (2three1y via Tomo, Oct 13): Circles, right after Replies. Yours always shows; on someone else's profile
+  // (and View as others) only when there are Circles they chose to show, the way Liked works.
+  Looscid.useCirclesTick();
+  const circ = preview ? Looscid.lcMyCirclesPublic() : Looscid.lcProfileCircles(user, isMe), nCirc = circ.owner.length + circ.member.length;
+  const TABS0 = [["dreams", "Dreams"], ["replies", "Replies"]].concat(isMe || nCirc ? [["circles", "Circles"]] : []).concat([["redreams", "Redreams"], ["media", "Media"]])
     .concat(isMe ? [["liked", "Liked"]] : theirVisible.length ? [["liked", "Liked"]] : [])
     .concat(self ? [] : [["mutual", "Mutual likes"]])
     .concat(isMe || visLists.length ? [["lists", "Lists"]] : [])
@@ -618,6 +622,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       case "redreams": return byId(plainRd).length + byId(quotes).length;
       case "media": return mediaAll.length;
       case "lists": return visLists.length;
+      case "circles": return nCirc;
       case "liked": return isMe ? Looscid.lcLikedItems().filter(function (x) { return x.k !== "chat" || !x.cherry || Looscid.lcAiOn(); }).length : theirVisible.length;
       case "mutual": { if (!theirLikes) return 0; const mine = new Set(Looscid.lcLikedItems("dream").map(function (x) { return String(x.id); })); return theirVisible.filter(function (x) { return x.k === "dream" && mine.has(String(x.id)); }).length; }
     }
@@ -673,6 +678,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
         return both.length ? both.map(function (x) { const live = all.find(function (d) { return String(d.id) === String(x.id); }); return card(live || Object.assign({ likes: 1, comments: 0, redreams: 0, quotes: 0, liked: true, redreamed: false, quoted: false, bookmarked: true, time: "" }, x)); })
           : empty("No mutual likes", "No Dreams you both liked yet.");
       }
+      case "circles": return lh(LcProfileCircles, { circ: circ, isMe: isMe, name: user.name || "Dreamor", navigate: navigate });
       case "lists": {
         if (!visLists.length) return empty(isMe ? "No Lists yet" : "No Lists", isMe ? "Make one in More, Lists, or with Add to list in someone's profile options." : null);
         const cnt = function (l) { const n = Array.isArray(l.members) ? l.members.length : (+l.count || 0); return n.toLocaleString() + (n === 1 ? " Dreamor" : " Dreamors"); };
@@ -771,8 +777,43 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       // Build 149 (2three1y: iOS already says "tab, 1 of 4"): no position in the names, ever. Each tab's name is its
       // visible text, with how many it holds in parentheses, like "Dreams (106)".
       TABS.map(function (t) { const on = cur === t[0]; const n = tabCount(t[0]);
-        return lh('button', { key: t[0], id: "pf-tab-" + t[0], type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", tabIndex: on ? 0 : -1, "aria-controls": "pf-panel", onClick: function () { setTab(t[0]); } }, n == null ? t[1] : t[1] + " (" + n.toLocaleString() + ")"); })),
+        return lh('button', { key: t[0], id: "pf-tab-" + t[0], type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", tabIndex: on ? 0 : -1, "aria-controls": "pf-panel", onClick: function () { if (t[0] === "circles" && cur !== "circles") Looscid.LC_CIRCLES_FOCUS = true; setTab(t[0]); } }, n == null ? t[1] : t[1] + " (" + n.toLocaleString() + ")"); })),
     lh('div', { id: "pf-panel", role: "tabpanel", "aria-labelledby": "pf-tab-" + cur }, panel()));
+}
+/* Build 152 (2three1y via Tomo, Oct 13 4:02 and 4:04 PM PT): a profile's Circles tab. Two filters, Member and Owner, are
+   real tabs with a selected state; each says its count in words ("Owner, 9 circles") while the visible "(9)" is hidden
+   from screen readers. Switching filters only changes the list: nothing is announced and focus stays on the filter.
+   Opening the Circles tab puts focus on its heading. No decorative emoji. */
+function LcProfileCircles({ circ, isMe, name, navigate }) {
+  const [f, setF] = useState(circ.member.length || !circ.owner.length ? "member" : "owner");
+  const headRef = React.useRef(null);
+  useEffect(function () { if (!Looscid.LC_CIRCLES_FOCUS) return; Looscid.LC_CIRCLES_FOCUS = false;
+    const t = setTimeout(function () { if (headRef.current) headRef.current.focus(); }, 40); return function () { clearTimeout(t); }; }, []);
+  const words = function (n) { return n.toLocaleString() + (n === 1 ? " circle" : " circles"); };
+  const ids = ["member", "owner"], label = { member: "Member", owner: "Owner" };
+  const onKey = function (e) { let n = null; const i = ids.indexOf(f);
+    if (e.key === "ArrowRight") n = (i + 1) % 2; else if (e.key === "ArrowLeft") n = (i + 1) % 2; else if (e.key === "Home") n = 0; else if (e.key === "End") n = 1;
+    if (n === null) return; e.preventDefault(); setF(ids[n]); setTimeout(function () { const b = document.getElementById("pf-circ-f-" + ids[n]); if (b) b.focus(); }, 0); };
+  const list = circ[f] || [];
+  const row = function (g, i) {
+    const known = g.id != null && GROUPS.some(function (x) { return x.id === g.id; });
+    const role = f === "owner" ? "Owner" : "Member";
+    const inner = [lh('span', { key: "t", className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, g.name, lh('span', { className: "sr-only" }, ",")),
+      lh('span', { className: "lc-person-h" }, Looscid.lcCircleHandle(g) + (g.highlight ? ", highlighted" : "") + (isMe ? (g.shown ? ", shown on your profile" : ", only you") : "")))];
+    return lh('li', { key: (g.id != null ? g.id : "c") + "-" + i }, known
+      ? lh('button', { type: "button", className: "lc-person lc-circ-row", id: "pf-circ-" + g.id, onClick: function () { navigate("groups", { circle: g.id }); } }, inner)
+      : lh('p', { className: "lc-person lc-circ-row" }, inner));
+  };
+  const emptyText = f === "owner" ? (isMe ? "You don't own any Circles yet. Make one in Circles with Create Circle." : name + " doesn't own any Circles they show.")
+    : (isMe ? "You're not a member of any Circles yet. Find one in Discover, Circles." : name + " isn't a member of any Circles they show.");
+  return lh('section', { className: "lc-prof-circles", "aria-labelledby": "pf-circ-h" },
+    lh('h2', { id: "pf-circ-h", className: "lc-sub-h", tabIndex: -1, ref: headRef }, isMe ? "Your Circles" : name + "'s Circles"),
+    lh('div', { className: "ftabs lc-circ-filters", role: "tablist", "aria-label": "Circle filters", onKeyDown: onKey },
+      ids.map(function (id) { const on = f === id, n = (circ[id] || []).length;
+        return lh('button', { key: id, id: "pf-circ-f-" + id, type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", tabIndex: on ? 0 : -1,
+          "aria-controls": "pf-circ-list", "aria-label": label[id] + ", " + words(n), onClick: function () { setF(id); } }, label[id], lh('span', { "aria-hidden": "true" }, " (" + n.toLocaleString() + ")")); })),
+    lh('div', { id: "pf-circ-list", role: "tabpanel", "aria-labelledby": "pf-circ-f-" + f },
+      list.length ? lh('ul', { className: "lc-people", role: "list" }, list.map(row)) : lh('p', { className: "lc-muted", style: { padding: "12px 16px" } }, emptyText)));
 }
 function LC_LIKED_TABS_LABELS(ids) { return (Looscid.LC_LIKED_TABS || []).filter(function (t) { return ids.indexOf(t.id) >= 0; }).map(function (t) { return t.label; }).join(", "); }
 function ProfilePage({navigate, authUser, cherryCtx, onUpdateProfile}) {
@@ -925,6 +966,39 @@ function LcLikedPrivacy() {
             lh('span', { id: "priv-liked-l-" + t.id }, " Show on my profile")));
       })));
 }
+/* Build 152, B2 and B3: Settings, Privacy, Circles on my profile. Each of your Circles has Show on my profile (all off,
+   so only you see them, until you turn one on) and Highlight on my profile, which puts a shown Circle first. Highlight
+   is unavailable (aria-disabled, and pressing it says why) until the Circle is shown, and for a Circle you are a member
+   of until its mods allow highlighting. Each change is said once. */
+function LcCirclesPrivacy() {
+  Looscid.useCirclesTick();
+  const mine = Looscid.lcCirclesMarked(Looscid.lcMyCircles());
+  const all = mine.owner.map(function (g) { return [g, "Owner"]; }).concat(mine.member.map(function (g) { return [g, "Member"]; }));
+  const show = function (g, on) { Looscid.lcCircleSetShown(g, on); announce(Looscid.lcCircleHandle(g) + (on ? ": shown on your profile." : ": only you."), "state"); };
+  const hl = function (g, on) {
+    const h = Looscid.lcCircleHandle(g);
+    if (!g.shown) { announce("Turn on Show on my profile for " + h + " first.", "state"); return; }
+    if (!Looscid.lcCircleCanHighlight(g)) { announce("The mods of " + h + " haven't allowed members to highlight it.", "state"); return; }
+    Looscid.lcCircleSetHl(g, on); announce(h + (on ? ": highlighted on your profile." : ": not highlighted."), "state");
+  };
+  return lh('div', { className: "lc-liked-priv" },
+    lh('p', { className: "lc-intro" }, "Choose which of your Circles show on your profile's Circles tab. All of them are off, so only you can see them, until you turn one on."),
+    lh('p', { className: "lc-intro" }, "Highlight puts a shown Circle first. You can always highlight Circles you run; a Circle you're a member of can be highlighted when its mods allow it."),
+    all.length ? lh('fieldset', { className: "lc-fs" },
+      lh('legend', null, "Circles on my profile"),
+      all.map(function (x, i) {
+        const g = x[0], k = String(g.id).replace(/[^A-Za-z0-9_-]/g, "") + "-" + i, can = g.shown && Looscid.lcCircleCanHighlight(g);
+        return lh('div', { key: k, className: "lc-liked-priv-row" },
+          lh('h3', { className: "lc-sub-h", id: "priv-circ-h-" + k }, g.name + ", " + Looscid.lcCircleHandle(g) + ", " + x[1]),
+          lh('label', { className: "lc-radio", htmlFor: "priv-circ-show-" + k },
+            lh('input', { type: "checkbox", id: "priv-circ-show-" + k, checked: !!g.shown, "aria-labelledby": "priv-circ-sl-" + k + " priv-circ-h-" + k, onChange: function (e) { show(g, e.target.checked); } }),
+            lh('span', { id: "priv-circ-sl-" + k }, " Show on my profile")),
+          lh('label', { className: "lc-radio" + (can ? "" : " lc-dim"), htmlFor: "priv-circ-hl-" + k },
+            lh('input', { type: "checkbox", id: "priv-circ-hl-" + k, checked: !!g.highlight, "aria-disabled": can ? undefined : "true", "aria-labelledby": "priv-circ-hl-l-" + k + " priv-circ-h-" + k,
+              onChange: function (e) { hl(g, e.target.checked); } }),
+            lh('span', { id: "priv-circ-hl-l-" + k }, " Highlight on my profile")));
+      })) : lh('p', { className: "lc-intro" }, "You're not in any Circles yet, so there is nothing to show."));
+}
 function PrivacySettings({navigate, authUser, onUpdateProfile}) {
   useA11yNow(); useBlocked();
   const priv = !!(authUser && authUser.private);
@@ -946,6 +1020,7 @@ function PrivacySettings({navigate, authUser, onUpdateProfile}) {
     ["blocked", "Blocked and muted", function () { return lh(LcBlockedPanel, null); }],
     ["pmedia", "Media and content", function () { return lh(LcPrivacyMedia, { navigate: navigate }); }],
     ["pliked", "Liked tab", function () { return lh(LcLikedPrivacy, null); }],
+    ["pcircles", "Circles on my profile", function () { return lh(LcCirclesPrivacy, null); }],
   ];
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
     lh(BackHeader, { title: "Privacy", onBack: function () { navigate("settings"); } }),
@@ -2839,6 +2914,7 @@ const LC_VERSION_HISTORY = [
     "Your browser's Back and Forward, and the Android back arrow or swipe, now work like Looscid's own Back button. Back goes exactly where the page's Back goes, with focus in the same place. Forward opens the page you just left again, and its Back still works. Back from a Replies view closes it instead of leaving Looscid.",
     "Back from Apps, opened from About, goes back to About and then to where you were, not to Apps again. Discover keeps the search you typed when you visit a footer page and come Back. The Home tab closes an open Replies view and puts you on the Home heading.",
     "Looscid on GitHub in the footer's Social links is now the Looscid organization, and the X, YouTube and GitHub links say they open a new tab. About lists the source code and our commitments, and points to the footer for X, YouTube and GitHub.",
+    "Circles on profiles: a Circles tab right after Replies, with Member and Owner filters that say how many Circles each has. In Settings, Privacy, Circles on my profile, choose which Circles others see (all off until you turn one on) and highlight the ones you run, or ones whose mods allow it. Circle settings has Members can highlight this Circle. Share Circle gives a link that shows a Looscid card in Dreams and other apps.",
   ] },
   { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",

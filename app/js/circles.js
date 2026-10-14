@@ -253,6 +253,11 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
           )
         )
         , isAdmin&&React.createElement('button', { className: "btn bp" , style: {width:"100%",padding:11,fontSize:13}, onClick: ()=>setShowAdmin(true), 'aria-label': "Circle settings" ,}, "Group Settings"  )
+        /* Build 152, B4: Share Circle opens the share sheet with the Circle's link (#c/name), which shows the Looscid logo
+           card in other apps and a Circle card in a Dream. Without a share sheet the link is copied. */
+        , Looscid.lcCircleLink&&React.createElement('button', { type: "button", id: "circ-share-btn", className: "btn bgb", style: {width:"100%",padding:11,fontSize:13,marginTop:8}, onClick: ()=>{ const url = Looscid.lcCircleLink(group);
+            Looscid.lcShareLink({ title: group.name, url: url, back: function () { return document.getElementById("circ-share-btn"); },
+              copy: function () { const say = Looscid.announce || function () {}; if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { say("Circle link copied."); }, function () { say("Copy is not available here."); }); else say("Copy is not available here."); } }); },}, "Share Circle")
       )
 
       , tab==="rules"&&React.createElement('div', { style: {padding:16},}
@@ -281,7 +286,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
 }
 function GroupAdminModal({group, onClose}) {
   const [tab, setTab] = useState("general");
-  const [settings, setSettings] = useState({postApproval:false,joinApproval:false,slowMode:false,slowModeDelay:30,pinned:"",welcome:"Welcome to "+group.name+"! Please read the rules before Dreaming.",restricted:false});
+  const [settings, setSettings] = useState({postApproval:false,joinApproval:false,slowMode:false,slowModeDelay:30,pinned:"",welcome:"Welcome to "+group.name+"! Please read the rules before Dreaming.",restricted:false,allowHighlight:group.allowHighlight===true});
   // Part 35: Save Settings stays dimmed (aria-disabled) until a setting really changed, and dims again if it is undone.
   const [settings0] = useState(() => JSON.stringify(settings)); const settingsChanged = JSON.stringify(settings) !== settings0;
   const set = (k,v) => setSettings(s=>({...s,[k]:v}));
@@ -326,9 +331,16 @@ function GroupAdminModal({group, onClose}) {
                 , [15,30,60,300].map(s=>React.createElement('button', { key: s, className: "btn"+(settings.slowModeDelay===s?" bp":" bgb"), style: {flex:1,padding:"6px 0",fontSize:11}, onClick: ()=>set("slowModeDelay",s), 'aria-label': s+"s",}, s<60?s+"s":s/60+"min"))
               )
             )
+            /* Build 152, B3 (2three1y via Tomo, Oct 13): mods choose whether members may highlight this Circle on their
+               profiles. Mods can always highlight Circles they run. Saved with the Circle (allowHighlight). */
+            , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Profiles")
+            , React.createElement('div', { className: "sr",}
+              , React.createElement('div', null, React.createElement('div', { className: "sr-title",}, "Members can highlight this Circle"), React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginTop:3},}, "Members can put it first on their profile's Circles tab"))
+              , React.createElement(Cbx, { on: settings.allowHighlight, onToggle: ()=>set("allowHighlight",!settings.allowHighlight), label: "Members can highlight this Circle" ,})
+            )
             , React.createElement('div', { style: {padding:"14px 16px 0"},}
               , React.createElement('button', { type: "button", className: "btn bp" + (settingsChanged ? "" : " lc-dim"), style: {width:"100%",padding:11,fontSize:13}, "aria-disabled": settingsChanged ? undefined : "true",
-                  onClick: () => { if (!settingsChanged) { if (Looscid.announce) Looscid.announce("Nothing to save yet. Change a setting first."); return; } onClose(); }, 'aria-label': "Save Circle settings"  ,}, "Save Settings" )
+                  onClick: () => { if (!settingsChanged) { if (Looscid.announce) Looscid.announce("Nothing to save yet. Change a setting first."); return; } if (settings.allowHighlight !== (group.allowHighlight===true) && Looscid.lcCircleSetAllowHighlight) Looscid.lcCircleSetAllowHighlight(group.id, settings.allowHighlight); onClose(); }, 'aria-label': "Save Circle settings"  ,}, "Save Settings" )
             )
           )
 
