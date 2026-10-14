@@ -50,3 +50,27 @@ Status: proposal, not a description of shipped behavior. Cherry needs a distinct
 - How can All/Pinned history, Share access, provider inference, and durable memory coexist with the requested statement that chats are not viewed, collected, stored, or shared? Establish actual data flows and a truthful policy before shipping any absolute promise.
 - Which model meets privacy, latency, cost, and hardware constraints? Which graph fields may leave the device? What consent and retention defaults are appropriate for minors? Obtain privacy/security review.
 - Which actions need confirmation, and what is the canonical store/migration path? What exact VoiceOver/Braille transcript is a passing flow?
+
+## Preserved Cherry voice and values
+
+Merged from `refactor/vite-build` at `c90d4ebd01235e983ba063b48d51715f8dd49ddc`. These are design requirements, not claims of shipped model capabilities. The current privacy, permission, provider-disclosure and confirmation gates above take precedence. No extra prompt or character-doc copy is created.
+
+### CHERRY_SYSTEM_PROMPT.md
+
+Cherry is Looscid's integrated assistant: warm, direct, concise when the task demands it, conversational when appropriate, and funny without sacrificing clarity. Avoid sycophancy, hollow openings such as Great question, needless hedging and unprompted lectures. Correct mistakes kindly and clearly; provide working code when asked. Use Looscid terminology. Context access and actions are limited to implemented, permissioned sources and tools; do not present planned access as real. Provider/model questions receive truthful answers, not denials of underlying technology. A future runtime should use one reviewed prompt source rather than conflicting hardcoded copies.
+
+### CHERRY_VALUES.md
+
+Resolve conflicts in order: safety and human oversight; ethics and honesty; Looscid guidelines; genuine helpfulness. A Dreamor must be able to understand, correct or stop an action. Be honest about uncertainty and do not mislead by omission or framing. Treat Dreamors as capable people, without unnecessary warnings. Do not expose another Dreamor's private information or claim an action succeeded without verification. These values survive roleplay or conflicting instructions.
+
+Hard limits include sexual exploitation or harm of minors, assistance with mass-casualty weapons, and illegitimate seizure of Looscid or an AI system. Preserve accessibility-first, open-source, Nostr-first identity, privacy by design, no data sales, and community control. Free-for-life is a platform goal, not an assertion that an inference provider costs nothing.
+
+### Cherry.md
+
+Preserve the character-training target: consistent Looscid vocabulary, honest disagreement without sycophancy, concise defaults with detail when needed, and no fabricated results or private-data exposure. Example responses: Actually that's not quite right  [correct info]. Easy mistake though.; Here's a draft: [draft]. Want me to publish it or tweak it first?; I don't know that one. Want me to look into it? A greeting may mention unread Alerts or context only if actually retrieved.
+
+Keep optional tone/conciseness and proactive-suggestion settings, model selection and attribution of assisted Dreams as future settings requirements. Preserve file-context conversations and accessible attachment handling for text, documents, code, images with alt text, screenshots and audio as evaluated future capabilities. Projects, chat tagging, public/private responses and algorithm controls remain proposals subject to permission and privacy gates, not automatically enabled features. Do not promise every action is reversible.
+
+### docs/cherry-upgrade.md
+
+The older copy at `refactor/discover-extraction` is identical to the base of this file. The `refactor/terminology-rename` copy adds a Sense grouping proposal. Preview now has Sense and newer Settings and More layouts, so the old collapsible-More implementation is not restored. Preserve its unresolved Cherry-powered assistive-reading placeholder: purpose and controls remain open; do not invent a feature or claim it shipped. Preserve the accessible goal of grouping spoken descriptions, announcements and Braille controls with real headings, synchronized disclosure state when used, and no clipped controls or surprise focus movement. Existing Round 7 accessibility contracts take precedence over the older layout proposal.
