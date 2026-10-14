@@ -193,7 +193,7 @@ function legalView(p, act) {
       h('ul', { key: "u", className: "mlist", "aria-label": "Terms, privacy and rules" }, go("terms", "Terms", "legal-terms"), go("privacy", "Privacy", "legal-privacy"), go("guidelines", "Community rules", "legal-rules"))]),
     sec("lc-legal-h-license", "Looscid's license", [
       h('p', { key: "p1", className: "lc-desc" }, "Looscid is open source under the Looscid Public License (LPL) v1.0. You can read, share and change the code. Two rules: no ads, and no commercial use."),
-      h('p', { key: "p2", className: "lc-desc" }, h('a', { href: "https://github.com/Looscid/Looscid/blob/preview/LICENSE", target: "_blank", rel: "noopener noreferrer" }, "The Looscid Public License, in full, on GitHub"))]),
+      h('p', { key: "p2", className: "lc-desc" }, h('a', { href: "https://github.com/Looscid/Looscid/blob/main/LICENSE", target: "_blank", rel: "noopener noreferrer" }, "The Looscid Public License, in full, on GitHub"))]),
     sec("lc-legal-h-oss", "Open source credits and licenses", [
       h('p', { key: "p1", className: "lc-desc" }, "Looscid uses and learns from other open source projects. Each one keeps its own license: most are MIT, and their notices stay with their code. My own projects in More, Projects keep their LICENSE files next to them."),
       h('p', { key: "p2", className: "lc-desc" }, "The FastSM-inspired Soundpack is inspired by FastSMRW by masonasons (no code or audio copied). The composer's layout is inspired by Feditext (GPL-3.0); no code was used. Profile design recreated from Feditext by Metabolist (GPL-3.0); no Feditext code is used. The Soundvault Soundpack plays sounds from where Soundvault links them, loaded when they play, under their own terms; nothing is copied into Looscid."),

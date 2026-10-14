@@ -1494,7 +1494,7 @@ function AboutSettings({navigate}) {
          listed twice here; this list keeps the source code and the commitments. Each link says it opens a new tab. */
       lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } },
         newTab("https://github.com/Looscid/Looscid", "Looscid's source code on GitHub"),
-        newTab("https://github.com/Looscid/Looscid/blob/preview/docs/guides/ACCESSIBILITY.md", "Looscid's commitments: accessibility, fairness, humor")),
+        newTab("https://github.com/Looscid/Looscid/blob/main/docs/guides/ACCESSIBILITY.md", "Looscid's commitments: accessibility, fairness, humor")),
       lh('p', { className: "lid-help" }, "Looscid on GitHub, X and YouTube are in the footer at the end of this page, under Social."),
       lh('p', { className: "lid-help" }, "The welcome intro and terminology guide is the Welcome intro button above.")));
 }
@@ -2502,10 +2502,13 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 117; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 36;
+const LOOSCID_FIXES = 37;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.117.36", build: 153, released: LOOSCID_RELEASED, title: "Round 7.3", notes: [
+  { version: "2026.117.37", build: 154, released: LOOSCID_RELEASED, title: "Round 7.4", notes: [
+    "Fix: the accessibility commitment, About and license links point at the main branch, now that preview is main.",
+  ] },
+  { version: "2026.117.36", build: 153, released: "2026-10-14T20:07:06Z", title: "Round 7.3", notes: [
     "Fix: Insomnia opened from Apps works on phones. Looscid now tells it it's inside Looscid, so its own flash notice no longer covers the desktop and Escape goes back. On a phone the page scrolls normally instead of nesting scroll boxes, so tapping an icon or a control opens it instead of only scrolling to it. Back and Escape return to the Apps page you came from, on the Insomnia row. Memeprojects is opened the same way, and in Desktop a soundscape you leave playing keeps playing after you close Insomnia OS.",
   ] },
   { version: "2026.117.35", build: 152, released: "2026-10-14T19:55:33Z", title: "Round 7.2", notes: [
@@ -2871,7 +2874,7 @@ function lcAboutInfo() {
    lu license link (none = plain text), w what it is. Planned items are plain text (each repo is linked above). */
 const LC_CREDITS = {
   intro: ["This page is where I say thanks. Looscid is open source under the ", "Looscid Public License", ". Below is every project Looscid uses and every one I learned from, and each of them keeps its own license. Oh, and every sound you hear is made live with Web Audio. No recorded samples, at all."],
-  licenseUrl: "https://github.com/Looscid/Looscid/blob/preview/LICENSE",
+  licenseUrl: "https://github.com/Looscid/Looscid/blob/main/LICENSE",
   uses: [
     { n: "React and React DOM 18.2.0", s: "React", u: "https://github.com/react/react", l: "MIT", lu: "https://github.com/react/react/blob/main/LICENSE", w: "This draws every single screen of Looscid. Loaded from jsDelivr." },
     { n: "nostr-tools 2.25.2", s: "nostr-tools", u: "https://github.com/nbd-wtf/nostr-tools", l: "Unlicense", lu: "https://github.com/nbd-wtf/nostr-tools/blob/master/LICENSE", w: "Nostr keys, signing and checking notes, npub and nsec, and passcode-locked keys. It lives in js/vendor with its license right next to it." },

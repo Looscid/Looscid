@@ -2,6 +2,12 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.117.37 (154): Round 7.4
+
+Released October 14, 2026 at 4:07 PM (Eastern Time, 2026-10-14T20:07:53Z UTC)
+
+- Fix: four links still pointed at the old preview branch (the footer's Our accessibility commitment, About, Credits' license and the Help Center license). They point at main now, and version.json says main too.
+
 ## Looscid 2026.117.36 (153): Round 7.3
 
 Released October 14, 2026 at 4:07 PM (Eastern Time, 2026-10-14T20:07:06Z UTC)

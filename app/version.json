@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
-  "branch": "preview",
-  "version": "2026.117.36",
-  "build": 153,
+  "branch": "main",
+  "version": "2026.117.37",
+  "build": 154,
   "features": 117,
-  "fixes": 36,
+  "fixes": 37,
   "builds_without_fixes": 117,
-  "released": "2026-10-14T20:07:06Z",
-  "title": "Round 7.3",
-  "notes": "Round 7.3 (build 153), a fix update. Insomnia opened from Apps works on phones. Looscid now tells it it's inside Looscid, so its own flash notice no longer covers the desktop and Escape goes back. On a phone the page scrolls normally instead of nesting scroll boxes, so tapping an icon or a control opens it instead of only scrolling to it. Back and Escape return to the Apps page you came from, on the Insomnia row. Memeprojects is opened the same way, and in Desktop a soundscape you leave playing keeps playing after you close Insomnia OS."
+  "released": "2026-10-14T20:07:53Z",
+  "title": "Round 7.4",
+  "notes": "Round 7.4 (build 154), a fix update. The accessibility commitment, About and license links point at the main branch, now that preview is main."
 }
