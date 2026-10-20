@@ -2463,10 +2463,13 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 117; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 43;
+const LOOSCID_FIXES = 44;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.117.43", build: 160, released: LOOSCID_RELEASED, title: "Round 7.10", notes: [
+  { version: "2026.117.44", build: 161, released: LOOSCID_RELEASED, title: "Round 7.11", notes: [
+    "Fix: the NexOS download now uses the name Carter.",
+  ] },
+  { version: "2026.117.43", build: 160, released: "2026-10-20T18:39:41Z", title: "Round 7.10", notes: [
     "Fix: credits on the Legal page now use the name Carter.",
   ] },
   { version: "2026.117.42", build: 159, released: "2026-10-14T21:38:44Z", title: "Round 7.9", notes: [

@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.117.43",
-  "build": 160,
+  "version": "2026.117.44",
+  "build": 161,
   "features": 117,
-  "fixes": 43,
+  "fixes": 44,
   "builds_without_fixes": 117,
-  "released": "2026-10-20T18:39:41Z",
-  "title": "Round 7.10",
-  "notes": "Round 7.10 (build 160), a fix update. Credits now use the name Carter."
+  "released": "2026-10-20T19:17:55Z",
+  "title": "Round 7.11",
+  "notes": "Round 7.11 (build 161), a fix update. The NexOS download now uses the name Carter."
 }

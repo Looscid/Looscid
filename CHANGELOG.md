@@ -2,6 +2,12 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.117.44 (161): Round 7.11
+
+Released October 20, 2026 at 3:17 PM (Eastern Time, 2026-10-20T19:17:55Z UTC)
+
+- Fix: The NexOS download now uses the name Carter.
+
 ## Looscid 2026.117.43 (160): Round 7.10
 
 Released October 20, 2026 at 2:39 PM (Eastern Time, 2026-10-20T18:39:41Z UTC)
