@@ -7335,6 +7335,7 @@ useEffect(() => {
       /* Part 35 (2three1y, Oct 12 4:50 PM): Commandbar is a More feature only. The floating Commandbar button is gone (it sat
          over page headers and caught taps meant for Edit profile); More has "Open Commandbar", and Control+K or Command+K still work. */
       , Looscid.A11Y_NOW.skipLinks !== false && lh('a', { href: "#main-content", className: "skip-link", onClick: e => { e.preventDefault(); const h = document.querySelector("#main-content h1"); if (h) { if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); h.focus(); } } }, "Skip to content")
+      , React.createElement('button', { type: "button", className: "btn", onClick: () => setShowCreate(true), "aria-label": "Create", "aria-haspopup": "dialog" }, "Create")
       , React.createElement('main', {id:"main-content", style:{display:"contents"}}, renderPage())
       , lh(LcResetHost, null)
       , lh(LcFooterHost, { page: page, navigate: navigate }
