@@ -2,6 +2,12 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.117.43 (160): Round 7.10
+
+Released October 20, 2026 at 2:39 PM (Eastern Time, 2026-10-20T18:39:41Z UTC)
+
+- Fix: Credits now use the name Carter.
+
 ## Looscid 2026.117.42 (159): Round 7.9
 
 Released October 14, 2026 at 5:38 PM (Eastern Time, 2026-10-14T21:38:44Z UTC)

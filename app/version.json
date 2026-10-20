@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.117.42",
-  "build": 159,
+  "version": "2026.117.43",
+  "build": 160,
   "features": 117,
-  "fixes": 42,
+  "fixes": 43,
   "builds_without_fixes": 117,
-  "released": "2026-10-14T21:38:44Z",
-  "title": "Round 7.9",
-  "notes": "Round 7.9 (build 159), a fix update. After closing Insomnia's Starfield screensaver, every tap for 0.45 seconds was thrown away, which could eat a quick VoiceOver or TalkBack double tap. Now only what is left of the touch or key that closed it is held back, so the next activation works at once and the screensaver still doesn't reopen."
+  "released": "2026-10-20T18:39:41Z",
+  "title": "Round 7.10",
+  "notes": "Round 7.10 (build 160), a fix update. Credits now use the name Carter."
 }

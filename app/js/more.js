@@ -2463,10 +2463,13 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 117; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 42;
+const LOOSCID_FIXES = 43;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.117.42", build: 159, released: LOOSCID_RELEASED, title: "Round 7.9", notes: [
+  { version: "2026.117.43", build: 160, released: LOOSCID_RELEASED, title: "Round 7.10", notes: [
+    "Fix: credits on the Legal page now use the name Carter.",
+  ] },
+  { version: "2026.117.42", build: 159, released: "2026-10-14T21:38:44Z", title: "Round 7.9", notes: [
     "Fix: in Insomnia, the first tap or double tap after closing the Starfield screensaver works right away. Only the touch or key that closed it is held back, so it still can't press what's underneath or reopen the screensaver.",
   ] },
   { version: "2026.117.41", build: 158, released: "2026-10-14T21:37:53Z", title: "Round 7.8", notes: [

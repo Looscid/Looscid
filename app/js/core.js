@@ -1137,7 +1137,7 @@ function lcThreadAbove(d) {
 /* Round 5 fixes: "1 like", "1 Redream" (singular), and the Redream button says whether you Redreamed or Quoted it.
    Like is a toggle button (aria-pressed); Redream opens a menu, so its state is in its name instead. */
 // Round 5 fixes: shortened text ends at a whole word with "…" (a pinned thread tab read "…from the as-Alha").
-// Round 6 fixes: a hyphen is a place to cut too, so "as-Alhasan-test-oct13-with-a-v…" ends at a whole part.
+// Round 6 fixes: a hyphen is a place to cut too, so "as-Carter-test-oct13-with-a-v…" ends at a whole part.
 function lcCutWords(t, n) { t = String(t || "").replace(/\s+/g, " ").trim(); if (t.length <= n) return t; const c = t.slice(0, n + 1), i = Math.max(c.lastIndexOf(" "), c.lastIndexOf("-")); return (i > n / 2 ? c.slice(0, i) : t.slice(0, n)).replace(/[\s,.;:!?-]+$/, "") + "…"; }
 Looscid.lcCutWords = lcCutWords;
 function lcCountWord(n, one, many) { return fmt(n) + " " + (n === 1 ? one : many); }
@@ -3923,11 +3923,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.117.42";
+const LOOSCID_VERSION = "2026.117.43";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 159;
+const LOOSCID_BUILD = 160;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-14T21:38:44Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-20T18:39:41Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
