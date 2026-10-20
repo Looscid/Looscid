@@ -6,11 +6,11 @@ Looscid is a privacy-respecting, local-first operating system experience for Dre
 
 ## Architecture
 
-The rewrite is pure semantic vanilla HTML, CSS, and modern JavaScript with zero build step and zero dependencies. `index.html` provides semantic landmarks and native controls; `styles.css` provides responsive presentation; `app.js` provides DOM behavior, local state, validation, navigation, and rendering. Focus management, live regions, roving tabindex, mandatory image Alt text, and accessible validation are required.
+The current shell uses semantic HTML and CSS with locally vendored React and ReactDOM 18.2.0 and pre-compiled JSX, with no build step or bundler. `index.html` provides semantic landmarks and native controls; `styles.css` provides responsive presentation; `app.js` provides DOM behavior, local state, validation, navigation, and rendering. Focus management, live regions, roving tabindex, mandatory image Alt text, and accessible validation are required.
 
 ## Phase 1 — completed
 
-- [x] Dependency-free vanilla shell, onboarding, local accessibility preferences, localStorage profile/settings/drafts/Dreams.
+- [x] Semantic HTML/CSS shell with locally vendored React and ReactDOM 18.2.0 and pre-compiled JSX (no build step or bundler), onboarding, local accessibility preferences, localStorage profile/settings/drafts/Dreams.
 - [x] Feed and Discover views with accessible navigation and feed tabs.
 - [x] Composer enforcement: adding images requires Alt text.
 - [x] Focus management, live announcements, and keyboard/VoiceOver/Braille navigation patterns.
