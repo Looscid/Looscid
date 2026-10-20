@@ -172,8 +172,8 @@ const HelpCenterPage = lcPlainScreen("HelpCenterPage", function (host, props) {
 const LC_MIT_NOTICES = [
   ["React and React DOM 18.2.0", "Copyright (c) Meta Platforms, Inc. and affiliates."],
   ["noble curves, noble hashes, noble ciphers and scure base (inside nostr-tools)", "Copyright (c) Paul Miller (https://paulmillr.com)."],
-  ["NexOS, with its Insomnia app", "Copyright (c) 2026 Carter (2three1y)."],
-  ["Memeprojects, Easyconvert, Lyric Finder, Soundvault, Reactor Toolbar and Code Translator", "Copyright (c) 2026 Carter (2three1y)."],
+  ["NexOS, with its Insomnia app", "Copyright (c) 2026 Carter."],
+  ["Memeprojects, Easyconvert, Lyric Finder, Soundvault, Reactor Toolbar and Code Translator", "Copyright (c) 2026 Carter."],
   ["Vibework", "Copyright (c) 2026 Vibework contributors."],
 ];
 /* Round 6.6 (2three1y, 5:25 PM: "where is the legal button?"): the Legal page, from About Looscid's Legal button,
