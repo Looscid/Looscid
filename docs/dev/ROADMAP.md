@@ -104,7 +104,7 @@ These decisions guide the next navigation, Feed, Discover, and catalog changes; 
   Completed on September 28, 2026 at 1:39 AM.
 - [x] Main decorative emoji sweep in user-facing strings (`62d1619`). Guest Terms and Admin Panel icon strings were also replaced; the Accessibility icon child kept its existing `aria-label`.
   Completed on September 25, 2026 at 9:56 AM.
-- [x] The screen-reader accessibility category is named Sense (`settings_a11y_sr`) in the runtime.
+- [ ] Five-tab navigation, Local-to-Nearby rename, and Discover Refine structure are not shipped; Sense rename is shipped.
 
 ### Navigation
 
