@@ -6,13 +6,13 @@ Looscid is a privacy-respecting, local-first operating system experience for Dre
 
 ## Architecture
 
-The current shell uses semantic HTML and CSS with locally vendored React and ReactDOM 18.2.0 and pre-compiled JSX, with no build step or bundler. `index.html` provides semantic landmarks and native controls; `styles.css` provides responsive presentation; `app.js` provides DOM behavior, local state, validation, navigation, and rendering. Focus management, live regions, roving tabindex, mandatory image Alt text, and accessible validation are required.
+The current shell uses semantic HTML and CSS with locally vendored React and ReactDOM 18.2.0 and pre-compiled JSX, with no build step or bundler. `app/index.html` provides the React mount point and polite live region and loads the vendored libraries and `app/js/` modules; those modules render the semantic landmarks and native controls and provide DOM behavior, local state, validation, navigation, and rendering. `app/styles.css` provides responsive presentation. Focus management, live regions, roving tabindex, mandatory image Alt text, and accessible validation are required.
 
 ## Phase 1 — completed
 
 - [x] Semantic HTML/CSS shell with locally vendored React and ReactDOM 18.2.0 and pre-compiled JSX (no build step or bundler), onboarding, local accessibility preferences, localStorage profile/settings/drafts/Dreams.
-- [x] Feed and Discover views with accessible navigation and feed tabs.
-- [x] Composer enforcement: adding images requires Alt text.
+- [x] Feed and Discover views with accessible main navigation and Feed tabs; Discover trending tiles still lack Enter/Space keyboard activation.
+- [x] Composer with photo attachments and Alt-text fields; publishing is text-only and requires confirmation to omit attachments.
 - [x] Focus management, live announcements, and keyboard/VoiceOver/Braille navigation patterns.
 
 ## Phase 2 — immediate next milestones
@@ -90,7 +90,7 @@ Every interaction uses a semantic native control. Images require meaningful Alt 
 
 ## Hosting
 
-Primary hosting is GitHub Pages at `https://looscid.github.io/Looscid/`. Deployment remains a reviewed dependency-free static application with no required build service or runtime dependency.
+Primary hosting is GitHub Pages at `https://looscid.github.io/Looscid/`. Deployment remains a reviewed static application with locally vendored React and ReactDOM runtime dependencies and no required build service.
 
 ## Social
 
