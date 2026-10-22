@@ -104,7 +104,7 @@ function discoverView(st, p, draw) {
         })),
       h('div', { className: "ftabs", role: "tablist", "aria-label": "Discover sections", style: { overflowX: "auto", scrollbarWidth: "none" } },
         activeTabs.map(function (t, i) {
-          return h('button', { key: t, className: "ftab" + (tab === t ? " on" : ""), onClick: function () { st.tab = t; draw(); lcTabCount(st); }, role: "tab", "aria-label": tabLabel(t), "aria-selected": tab === t, tabIndex: tab === t ? 0 : -1 },
+          return h('button', { key: t, className: "ftab" + (tab === t ? " on" : ""), onClick: function () { st.tab = t; draw(); lcTabCount(st); }, role: "tab", "aria-label": tabLabel(t), "aria-selected": tab === t, tabIndex: tab === t ? 0 : -1, onKeyDown: function (e) { const tabs = e.currentTarget.parentElement.querySelectorAll('[role="tab"]'); const i = Array.prototype.indexOf.call(tabs, e.currentTarget); let next; if (e.key === "ArrowRight") next = (i + 1) % tabs.length; else if (e.key === "ArrowLeft") next = (i + tabs.length - 1) % tabs.length; else if (e.key === "Home") next = 0; else if (e.key === "End") next = tabs.length - 1; else return; e.preventDefault(); tabs[next].click(); tabs[next].focus(); } },
             tabLabel(t)); // build 149: no "1/4" position (iOS says "tab, 1 of 4" itself)
         }))),
 
@@ -115,7 +115,7 @@ function discoverView(st, p, draw) {
       (tab === "trending" || (tab === "all" && !q)) && !TRENDING.length && h('div', { className: "es" }, h('div', { className: "esl" }, "Nothing is trending yet"),
         h('p', { style: { fontSize: 12, color: "var(--tx3)", marginTop: 6, lineHeight: 1.6 } }, "Search above to find Dreamors, Dreams and Circles.")),
       (tab === "trending" || (tab === "all" && !q)) && TRENDING.map(function (t) {
-        return h('div', { key: t.tag, className: "trtg", role: "button", tabIndex: 0, onClick: function () { st.q = "#" + t.tag; st.tab = "dreams"; draw(); }, "aria-label": Looscid.lcNameJoin("#" + t.tag, t.cat, t.count) },
+        return h('div', { key: t.tag, className: "trtg", role: "button", tabIndex: 0, onClick: function () { st.q = "#" + t.tag; st.tab = "dreams"; draw(); }, "aria-label": Looscid.lcNameJoin("#" + t.tag, t.cat, t.count), onKeyDown: function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (!e.repeat) e.currentTarget.click(); } } },
           h('div', null,
             h('div', { style: { fontSize: 11, color: "var(--tx3)" } }, t.cat, " \u00b7 Trending"),
             h('div', { style: { fontSize: 14, fontWeight: 700, margin: "2px 0" } }, "#", t.tag),
