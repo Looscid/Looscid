@@ -11,7 +11,7 @@ The current shell uses semantic HTML and CSS with locally vendored React and Rea
 ## Phase 1 — completed
 
 - [x] Semantic HTML/CSS shell with locally vendored React and ReactDOM 18.2.0 and pre-compiled JSX (no build step or bundler), onboarding, local accessibility preferences, localStorage profile/settings/drafts/Dreams.
-- [x] Feed and Discover views with accessible main navigation and Feed tabs; Discover trending tiles still lack Enter/Space keyboard activation.
+- [x] Feed and Discover views with accessible main navigation and Feed tabs; Discover trending tiles support Enter/Space activation and section tabs support Left/Right with wrap plus Home/End.
 - [x] Composer with photo attachments and Alt-text fields; publishing is text-only and requires confirmation to omit attachments.
 - [x] Focus management, live announcements, and keyboard/VoiceOver/Braille navigation patterns.
 
