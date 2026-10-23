@@ -224,10 +224,10 @@ function alertsView(st, draw) {
           onClick: function () { const n = lcAlertsMarkAll(); const m = Looscid.lcPmMarkRead ? Looscid.lcPmMarkRead(null) : false; announce(n || m ? "All marked as read." : "Nothing to mark."); } }, "Mark all read"),
         h('button', { type: "button", id: "alerts-settings-link", className: "btn bgb", style: { fontSize: 12, padding: "6px 12px" }, onClick: function () { goSet("settings_notifications"); } }, "Alerts settings"))),
     h('div', { className: "ftabs lc-alert-tabs", role: "tablist", "aria-label": "Inbox", onKeyDown: subTabKey(tabs, cur, setTab), style: { overflowX: "auto", scrollbarWidth: "none", borderBottom: "1px solid var(--bd)" } },
-      tabs.map(function (t) {
+      tabs.map(function (t, i) {
         const on = cur === t.id, k = count(t.id);
         return h('button', { key: t.id, id: "inbox-tab-" + t.id, type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", "aria-controls": "inbox-panel",
-            tabIndex: on ? 0 : -1, onClick: function () { setTab(t.id); }, "aria-label": k > 0 ? t.label + " (" + k + " unread)" : undefined },
+            "aria-setsize": tabs.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1, onClick: function () { setTab(t.id); }, "aria-label": k > 0 ? t.label + " (" + k + " unread)" : undefined },
           t.label, k > 0 ? [" ", h('span', { key: "b", className: "lc-alert-badge", "aria-hidden": "true" }, String(k))] : null);
       })),
     h('div', { id: "inbox-panel", role: "tabpanel", "aria-labelledby": "inbox-tab-" + cur },

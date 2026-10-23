@@ -3923,11 +3923,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.117.44";
+const LOOSCID_VERSION = "2026.117.45";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 161;
+const LOOSCID_BUILD = 162;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-20T19:17:55Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-23T23:30:02Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -7310,18 +7310,20 @@ useEffect(() => {
   };
 
   // One tab of the tab bar. Same names, sounds and behavior as before; a custom tab opens the feed on that pinned tab.
+  // Round 7.12: every tab carries aria-setsize and aria-posinset, counted from the tabs shown now (hidden tabs don't count;
+  // More is the last one), so screen readers can say "Home, tab, 1 of 5" even where they don't count tabs themselves.
   const tabBtn = function (t, i) {
     const sel = tbSel(t), ti = navFocus === i ? 0 : -1;
-    if (t.id === "create") return React.createElement('button', { key: t.id, className: "nb nb-create", onClick: () => setShowCreate(true), role: "tab", "aria-selected": false, "aria-label": "Create", "aria-haspopup": "dialog", tabIndex: ti },
+    if (t.id === "create") return React.createElement('button', { key: t.id, className: "nb nb-create", onClick: () => setShowCreate(true), role: "tab", "aria-selected": false, "aria-label": "Create", "aria-haspopup": "dialog", "aria-setsize": tbVis.length + 1, "aria-posinset": i + 1, tabIndex: ti },
       React.createElement(Ic.Pls, {"aria-hidden":"true", style:{width:22,height:22}}), React.createElement('span', {"aria-hidden":"true"}, "Create"));
     if (t.id === "alerts") return React.createElement('button', { key: t.id, className: "nb" + (sel ? " on" : ""), onClick: () => { headingFocusNext.current = page!=="alerts"; goRoot("alerts"); }, role: "tab", "aria-selected": sel,
-        "aria-label": "Alerts" + ((unreadNotifs+unreadMsgs)>0 ? " (" + (unreadNotifs+unreadMsgs) + " unread)" : ""), "aria-controls": "main-content", tabIndex: ti },
+        "aria-label": "Alerts" + ((unreadNotifs+unreadMsgs)>0 ? " (" + (unreadNotifs+unreadMsgs) + " unread)" : ""), "aria-controls": "main-content", "aria-setsize": tbVis.length + 1, "aria-posinset": i + 1, tabIndex: ti },
       React.createElement('div', {style:{position:"relative"}}, React.createElement(Ic.Bell, {"aria-hidden":"true", style:{width:22,height:22}}),
         (unreadNotifs+unreadMsgs) > 0 && React.createElement('span', { className: "nbdg", "aria-hidden": "true" }, unreadNotifs+unreadMsgs)),
       React.createElement('span', {"aria-hidden":"true"}, "Alerts"));
     const go = t.custom ? function () { headingFocusNext.current = !sel; goRoot("feed"); if (Looscid.LC_FEED !== t.id) lcSetFeed(t.id, true); }
       : function () { headingFocusNext.current = page !== t.id || tbCustomOn; if (t.id === "feed" && tbCustomOn) lcSetFeed("for you", true); goRoot(t.id); };
-    return React.createElement('button', { key: t.id, className: "nb" + (sel ? " on" : "") + (t.custom ? " nb-custom" : ""), onClick: go, role: "tab", "aria-selected": sel, "aria-label": t.l, "aria-controls": "main-content", tabIndex: ti },
+    return React.createElement('button', { key: t.id, className: "nb" + (sel ? " on" : "") + (t.custom ? " nb-custom" : ""), onClick: go, role: "tab", "aria-selected": sel, "aria-label": t.l, "aria-controls": "main-content", "aria-setsize": tbVis.length + 1, "aria-posinset": i + 1, tabIndex: ti },
       t.custom ? React.createElement('span', {"aria-hidden":"true", className:"nb-cust-ic"}, t.pin && t.pin.kind === "tag" ? "#" : t.pin && t.pin.kind === "person" ? "@" : t.pin && t.pin.kind === "list" ? "\u2630" : "\u2605") : React.createElement('div', {"aria-hidden":"true", className:"nb-check"}),
       React.createElement('span', {"aria-hidden":"true", className: t.custom ? "nb-cust-l" : undefined}, t.l));
   };
@@ -7356,6 +7358,9 @@ useEffect(() => {
             "aria-selected": false,
             "aria-label": "More",
             "aria-haspopup": "dialog",
+            // Round 7.12: position for screen readers ("More, tab, 5 of 5"); More is always last and always shown.
+            "aria-setsize": tbVis.length + 1,
+            "aria-posinset": tbVis.length + 1,
             tabIndex: navFocus===tbVis.length ? 0 : -1,
           },
           React.createElement('div', {"aria-hidden":"true", className:"nb-menu-ic"},

@@ -793,9 +793,10 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
         lh('button', { type: "button", id: "pf-count-followers", className: "btn bgb lc-big", "aria-describedby": Looscid.lcHint("Opens the list."), onClick: function () { setPeople("followers"); } }, nFollowers.toLocaleString() + " " + (nFollowers === 1 ? "Follower" : "Followers")))),
     lh('div', { className: "ftabs lc-prof-tabs", role: "tablist", "aria-label": "Profile sections", onKeyDown: onTabKey },
       // Build 149 (2three1y: iOS already says "tab, 1 of 4"): no position in the names, ever. Each tab's name is its
-      // visible text, with how many it holds in parentheses, like "Dreams (106)".
-      TABS.map(function (t) { const on = cur === t[0]; const n = tabCount(t[0]);
-        return lh('button', { key: t[0], id: "pf-tab-" + t[0], type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", tabIndex: on ? 0 : -1, "aria-controls": "pf-panel", onClick: function () { if (t[0] === "circles" && cur !== "circles") Looscid.LC_CIRCLES_FOCUS = true; setTab(t[0]); } }, n == null ? t[1] : t[1] + " (" + n.toLocaleString() + ")"); })),
+      // visible text, with how many it holds in parentheses, like "Dreams (106)". Round 7.12: the position is
+      // aria-setsize/aria-posinset, counted from the tabs this profile shows.
+      TABS.map(function (t, i) { const on = cur === t[0]; const n = tabCount(t[0]);
+        return lh('button', { key: t[0], id: "pf-tab-" + t[0], type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", "aria-setsize": TABS.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1, "aria-controls": "pf-panel", onClick: function () { if (t[0] === "circles" && cur !== "circles") Looscid.LC_CIRCLES_FOCUS = true; setTab(t[0]); } }, n == null ? t[1] : t[1] + " (" + n.toLocaleString() + ")"); })),
     lh('div', { id: "pf-panel", role: "tabpanel", "aria-labelledby": "pf-tab-" + cur }, panel()));
 }
 /* Build 152 (2three1y via Tomo, Oct 13 4:02 and 4:04 PM PT): a profile's Circles tab. Two filters, Member and Owner, are
@@ -827,8 +828,8 @@ function LcProfileCircles({ circ, isMe, name, navigate, uid, f0 }) {
   return lh('section', { className: "lc-prof-circles", "aria-labelledby": "pf-circ-h" },
     lh('h2', { id: "pf-circ-h", className: "lc-sub-h", tabIndex: -1, ref: headRef }, isMe ? "Your Circles" : name + "'s Circles"),
     lh('div', { className: "ftabs lc-circ-filters", role: "tablist", "aria-label": "Circle filters", onKeyDown: onKey },
-      ids.map(function (id) { const on = f === id, n = (circ[id] || []).length;
-        return lh('button', { key: id, id: "pf-circ-f-" + id, type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", tabIndex: on ? 0 : -1,
+      ids.map(function (id, i) { const on = f === id, n = (circ[id] || []).length;
+        return lh('button', { key: id, id: "pf-circ-f-" + id, type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", "aria-setsize": ids.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1,
           "aria-controls": "pf-circ-list", "aria-label": label[id] + ", " + words(n), onClick: function () { setF(id); } }, label[id], lh('span', { "aria-hidden": "true" }, " (" + n.toLocaleString() + ")")); })),
     lh('div', { id: "pf-circ-list", role: "tabpanel", "aria-labelledby": "pf-circ-f-" + f },
       list.length ? lh('ul', { className: "lc-people", role: "list" }, list.map(row)) : lh('p', { className: "lc-muted", style: { padding: "12px 16px" } }, emptyText)));
@@ -1040,7 +1041,7 @@ function LcTabs({ id, label, tabs, cur, onPick }) {
   return lh(React.Fragment, null,
     lh('div', { role: "tablist", "aria-label": label, className: "lc-stabs" }, tabs.map(function (t, i) {
       const on = cur === t[0];
-      return lh('button', { key: t[0], type: "button", role: "tab", id: id + "-tab-" + t[0], className: "lc-stab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", "aria-controls": id + "-panel-" + t[0], tabIndex: on ? 0 : -1,
+      return lh('button', { key: t[0], type: "button", role: "tab", id: id + "-tab-" + t[0], className: "lc-stab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", "aria-controls": on ? id + "-panel-" + t[0] : undefined, "aria-setsize": tabs.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1,
         onClick: function () { onPick(t[0]); }, onKeyDown: function (e) { keys(e, i); } }, t[1]);
     })),
     tabs.map(function (t) { return cur === t[0] ? lh('div', { key: t[0], role: "tabpanel", id: id + "-panel-" + t[0], "aria-labelledby": id + "-tab-" + t[0], className: "lc-tabpanel" }, t[2]()) : null; }));
@@ -2389,8 +2390,8 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
     lh('div', { role: "tablist", 'aria-label': "LooscidID",  className: "ftabs lid-tabs", onKeyDown: onTabKey },
       LID_TABS.map(function (t, i) {
         const on = t[0] === tab;
-        return lh('button', { key: t[0], id: "lid-tab-" + t[0], role: "tab", className: "ftab" + (on ? " on" : ""), 'aria-selected': on ? "true" : "false",
-          'aria-controls': "lid-panel", tabIndex: on ? 0 : -1, onClick: function () { fromCard.current = null; setNote(""); setTab(t[0]); } }, t[1]);
+        return lh('button', { key: t[0], id: "lid-tab-" + t[0], type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), 'aria-selected': on ? "true" : "false",
+          'aria-controls': "lid-panel", "aria-setsize": LID_TABS.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1, onClick: function () { fromCard.current = null; setNote(""); setTab(t[0]); } }, t[1]);
       })),
     lh('div', { id: "lid-panel", role: "tabpanel", 'aria-labelledby': "lid-tab-" + tab, className: "lid-body" }, panel));
 }
@@ -2463,10 +2464,15 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 117; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 44;
+const LOOSCID_FIXES = 45;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.117.44", build: 161, released: LOOSCID_RELEASED, title: "Round 7.11", notes: [
+  { version: "2026.117.45", build: 162, released: LOOSCID_RELEASED, title: "Round 7.12", notes: [
+    "Fix: every set of tabs tells screen readers each tab's place, like \u201cHome, tab, 1 of 5\u201d, so VoiceOver on iPhone can say it. Tab names don't change.",
+    "Fix: Circles tabs work with the arrow keys, Home and End, like the other tabs.",
+    "Fix: clearing the Discover search on All or Dreams goes back to Trending.",
+  ] },
+  { version: "2026.117.44", build: 161, released: "2026-10-20T19:17:55Z", title: "Round 7.11", notes: [
     "Fix: the NexOS download now uses the name Carter.",
   ] },
   { version: "2026.117.43", build: 160, released: "2026-10-20T18:39:41Z", title: "Round 7.10", notes: [
@@ -3408,7 +3414,7 @@ function SrTabs() {
     lh('div', { role: "tablist", "aria-label": "Sense sections", className: "lc-stabs", onKeyDown: onKey },
       LC_SR_TABS.map(function (t, i) {
         const on = t[0] === cur;
-        return lh('button', { key: t[0], id: "srtab-" + t[0], type: "button", role: "tab", "aria-selected": on, "aria-controls": "srpanel-" + t[0], tabIndex: on ? 0 : -1, className: "lc-stab" + (on ? " on" : ""), onClick: function () { pick(t[0], false); } }, lcSrName(t[0]));
+        return lh('button', { key: t[0], id: "srtab-" + t[0], type: "button", role: "tab", "aria-selected": on, "aria-controls": "srpanel-" + t[0], "aria-setsize": LC_SR_TABS.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1, className: "lc-stab" + (on ? " on" : ""), onClick: function () { pick(t[0], false); } }, lcSrName(t[0]));
       })),
     // All three panels stay in the page; only the selected one is shown (hidden ones are out of the a11y tree).
     LC_SR_TABS.map(function (t) {

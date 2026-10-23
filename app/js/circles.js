@@ -4,6 +4,18 @@
 const { Av, Cbx, CommentView, DREAMS_INIT, DreamCard, GROUPS, Ic, ME, Modal, USERS, fmt, lcCloseProps, useDreams, useState } = Looscid;
 Object.assign(Looscid, { CreateGroupFlow, GroupDetailPage, GroupAdminModal, GroupsPage });
 
+/* Round 7.12: the three Circles tablists get the same keys as the other tablists (Left and Right wrap, Home, End)
+   and a roving tabindex, so Tab lands on the selected tab only. Each tab carries aria-setsize and aria-posinset. */
+function lcCircTabKey(e) {
+  const tabs = Array.prototype.slice.call(e.currentTarget.querySelectorAll('[role="tab"]'));
+  const i = tabs.indexOf(document.activeElement); if (i < 0) return;
+  let n = null;
+  if (e.key === "ArrowRight") n = (i + 1) % tabs.length; else if (e.key === "ArrowLeft") n = (i - 1 + tabs.length) % tabs.length;
+  else if (e.key === "Home") n = 0; else if (e.key === "End") n = tabs.length - 1;
+  if (n === null) return;
+  e.preventDefault(); tabs[n].click(); tabs[n].focus();
+}
+
 function CreateGroupFlow({onClose, onCreate, navigate}) {
   const [step, setStep] = useState(1); // 1=basics, 2=settings, 3=rules
   const [form, setForm] = useState({name:"",description:"",category:"",emoji:"🌙",privacy:"public",joinApproval:false,postApproval:false,minAge:false,rules:["Be kind and respectful","Stay on topic","No spam or self-promotion"]});
@@ -204,9 +216,9 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
         )
       )
 
-      , React.createElement('div', {className:"ftabs",role:"tablist","aria-label":"Circle sections",style:{overflowX:"auto",scrollbarWidth:"none"}},
-        ["feed","members","about","rules"].map(function(t,i){
-          return React.createElement('button', {key:t,className:"ftab"+(tab===t?" on":""),onClick:function(){setTab(t);},role:"tab","aria-selected":tab===t,"aria-label":t.charAt(0).toUpperCase()+t.slice(1),style:{whiteSpace:"nowrap"}},
+      , React.createElement('div', {className:"ftabs",role:"tablist","aria-label":"Circle sections",onKeyDown:lcCircTabKey,style:{overflowX:"auto",scrollbarWidth:"none"}},
+        ["feed","members","about","rules"].map(function(t,i,all){
+          return React.createElement('button', {key:t,id:"circ-tab-"+t,type:"button",className:"ftab"+(tab===t?" on":""),onClick:function(){setTab(t);},role:"tab","aria-selected":tab===t,"aria-setsize":all.length,"aria-posinset":i+1,tabIndex:tab===t?0:-1,"aria-label":t.charAt(0).toUpperCase()+t.slice(1),style:{whiteSpace:"nowrap"}},
               t.charAt(0).toUpperCase()+t.slice(1)
             );
         })
@@ -302,14 +314,14 @@ function GroupAdminModal({group, onClose}) {
           , React.createElement('div', { className: "mtt", style: {margin:0,fontSize:17},}, group.name, ", Circle Admin" )
           , React.createElement('button', Object.assign({ type: "button", className: "lc-close", style: {marginLeft:"auto"}, onClick: onClose }, lcCloseProps("Circle settings")), "Close")
         )
-        , React.createElement('div', {className:"ftabs",role:"tablist","aria-label":"Admin sections",style:{overflowX:"auto",scrollbarWidth:"none"}},
-          ["general","members","posts","settings"].map(function(t,i){
-            return React.createElement('button', {key:t,className:"ftab"+(tab===t?" on":""),onClick:function(){setTab(t);},role:"tab","aria-selected":tab===t,"aria-label":t==="posts"?"Dreams":t.charAt(0).toUpperCase()+t.slice(1),style:{whiteSpace:"nowrap"}},
+        , React.createElement('div', {className:"ftabs",role:"tablist","aria-label":"Admin sections",onKeyDown:lcCircTabKey,style:{overflowX:"auto",scrollbarWidth:"none"}},
+          ["general","members","posts","settings"].map(function(t,i,all){
+            return React.createElement('button', {key:t,id:"circadm-tab-"+t,type:"button",className:"ftab"+(tab===t?" on":""),onClick:function(){setTab(t);},role:"tab","aria-selected":tab===t,"aria-controls":"circadm-panel","aria-setsize":all.length,"aria-posinset":i+1,tabIndex:tab===t?0:-1,"aria-label":t==="posts"?"Dreams":t.charAt(0).toUpperCase()+t.slice(1),style:{whiteSpace:"nowrap"}},
               t==="posts"?"Dreams":t.charAt(0).toUpperCase()+t.slice(1)
             );
           })
         )
-        , React.createElement('div', { style: {overflowY:"auto",maxHeight:"70vh",scrollbarWidth:"none"},}
+        , React.createElement('div', { id: "circadm-panel", role: "tabpanel", "aria-labelledby": "circadm-tab-" + tab, style: {overflowY:"auto",maxHeight:"70vh",scrollbarWidth:"none"},}
 
           , tab==="general"&&React.createElement('div', { style: {padding:"8px 0 24px"},}
             , React.createElement('h2', { className: "slbl", role: "heading", 'aria-level': "2",}, "Pinned Dream" )
@@ -442,10 +454,10 @@ function GroupsPage({navigate, cherryCtx, data}) {
         , React.createElement('div', { style: {display:"flex",alignItems:"center",justifyContent:"space-between",padding:"48px 16px 0"},}
           , React.createElement('h1', { className: "htit", tabIndex:-1,}, "Circles")
         )
-        , React.createElement('div', {className:"ftabs",role:"tablist","aria-label":"Circles sections",style:{overflowX:"auto",scrollbarWidth:"none"}},
-          ["discover","my circles"].map(function(t,i){
+        , React.createElement('div', {className:"ftabs",role:"tablist","aria-label":"Circles sections",onKeyDown:lcCircTabKey,style:{overflowX:"auto",scrollbarWidth:"none"}},
+          ["discover","my circles"].map(function(t,i,all){
             var lbl = t==="my circles"?"My Circles":"Discover";
-            return React.createElement('button', {key:t,className:"ftab"+(tab===t?" on":""),onClick:function(){setTab(t);},role:"tab","aria-selected":tab===t,"aria-label":lbl,style:{whiteSpace:"nowrap"}}, lbl);
+            return React.createElement('button', {key:t,id:"circs-tab-"+t.replace(" ","-"),type:"button",className:"ftab"+(tab===t?" on":""),onClick:function(){setTab(t);},role:"tab","aria-selected":tab===t,"aria-setsize":all.length,"aria-posinset":i+1,tabIndex:tab===t?0:-1,"aria-label":lbl,style:{whiteSpace:"nowrap"}}, lbl);
           })
         )
       )

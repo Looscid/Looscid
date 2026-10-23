@@ -127,9 +127,9 @@ function LikedView({ navigate, cherryCtx, idp, intro, onComment, extraPanels, on
   return lh('div', { className: "lc-liked" },
     intro ? lh('p', { className: "lc-liked-intro" }, intro) : null,
     lh('div', { className: "ftabs lc-liked-tabs", role: "tablist", "aria-label": "Liked", onKeyDown: onKey },
-      LC_LIKED_TABS.map(function (t) {
+      LC_LIKED_TABS.map(function (t, i) {
         const on = tab === t.id;
-        return lh('button', { key: t.id, id: idp + "-tab-" + t.id, type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", "aria-controls": idp + "-panel-" + t.id, tabIndex: on ? 0 : -1, onClick: function () { setTab(t.id); } }, t.label);
+        return lh('button', { key: t.id, id: idp + "-tab-" + t.id, type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", "aria-controls": idp + "-panel-" + t.id, "aria-setsize": LC_LIKED_TABS.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1, onClick: function () { setTab(t.id); } }, t.label);
       })),
     LC_LIKED_TABS.map(panel));
 }

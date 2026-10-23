@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.117.44",
-  "build": 161,
+  "version": "2026.117.45",
+  "build": 162,
   "features": 117,
-  "fixes": 44,
+  "fixes": 45,
   "builds_without_fixes": 117,
-  "released": "2026-10-20T19:17:55Z",
-  "title": "Round 7.11",
-  "notes": "Round 7.11 (build 161), a fix update. The NexOS download now uses the name Carter."
+  "released": "2026-10-23T23:30:02Z",
+  "title": "Round 7.12",
+  "notes": "Round 7.12 (build 162), a fix update. Every set of tabs tells screen readers each tab's place, like Home, tab, 1 of 5."
 }

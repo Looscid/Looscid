@@ -195,9 +195,9 @@ function FeedTabs() {
     LC_FEEDS.map(function (f, i) {
       const on = i === idx;
       return lh('button', tabsMode
-          ? { key: f.id, id: tabId(f.id), type: "button", className: "ftab" + (on ? " on" : ""), role: "tab", "aria-selected": on, tabIndex: on ? 0 : -1, "aria-controls": "feed-list", onClick: function () { go(i, false); } }
+          ? { key: f.id, id: tabId(f.id), type: "button", className: "ftab" + (on ? " on" : ""), role: "tab", "aria-selected": on, "aria-setsize": LC_FEEDS.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1, "aria-controls": "feed-list", onClick: function () { go(i, false); } }
           : { key: f.id, id: tabId(f.id), type: "button", className: "ftab" + (on ? " on" : ""), tabIndex: -1, onClick: function () { go(i, false); } },
-        f.label); // build 149: no "1/7" position (iOS says "tab, 1 of 7" itself)
+        f.label); // build 149: no "1/7" position in the name. Round 7.12: aria-setsize/aria-posinset carry it instead.
     }));
   return lh(React.Fragment, null,
     mode === "swipe" && lh('div', { className: "lc-feed-adj" },
@@ -336,7 +336,7 @@ function FederatedControls({ pubState }) {
   return lh('div', { className: "lc-feed-ctl lc-fed" },
     lh('div', { className: "ftabs lc-fedtabs", role: "tablist", "aria-label": "Federated", onKeyDown: onKey },
       LC_FED_SUBS.map(function (s, i) { const on = i === idx;
-        return lh('button', { key: s.id, id: "fed-tab-" + s.id, type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on, tabIndex: on ? 0 : -1, "aria-controls": "feed-list", onClick: function () { Looscid.lcSetFedSub(s.id); } }, s.label); })),
+        return lh('button', { key: s.id, id: "fed-tab-" + s.id, type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on, "aria-setsize": LC_FED_SUBS.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1, "aria-controls": "feed-list", onClick: function () { Looscid.lcSetFedSub(s.id); } }, s.label); })),
     sub === "local" ? lh('div', { className: "lc-fed-local" },
       lh('p', null, "Dreams from around you shows Dreams tagged with a place near you. It stays off until you turn it on. Looscid asks your device for your location once, keeps only a rough area of about 5 km on this device, and uses it only to ask relays for Dreams tagged with that area. Your own Dreams never carry your location."),
       loc ? lh('button', { type: "button", id: "fed-local-off", className: "btn bgb lc-btn", onClick: function () { Looscid.lcSetFedLocal(null); announce("Dreams from around you is off. Your area was removed from this device."); } }, "Turn off Dreams from around you")

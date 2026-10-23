@@ -156,10 +156,10 @@ function cherryView(st, p, act) {
       h('h2', { id: "cherry-hist-h", className: "lc-sub-h", tabIndex: -1 }, "Your History"),
       h('p', { className: "lc-desc" }, keep ? "Your chats with Cherry, newest first. Chat options has Pin, Edit name and Delete." : "Saving chats is off, so new chats aren't kept. Turn it on in Settings, Intelligence, Memory."),
       h('div', { className: "ftabs lc-cherry-tabs", role: "tablist", "aria-label": "Your History", onKeyDown: onTabKey },
-        TABS.map(function (t) {
+        TABS.map(function (t, i) {
           const on = tab === t[0];
           return h('button', { key: t[0], id: "cherry-tab-" + t[0], type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false",
-              "aria-controls": "cherry-panel", tabIndex: on ? 0 : -1, onClick: function () { act.setTab(t[0]); } },
+              "aria-controls": "cherry-panel", "aria-setsize": TABS.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1, onClick: function () { act.setTab(t[0]); } },
             t[1], " ", h('span', { className: "lc-cherry-count" }, "(" + t[2] + ")")); // build 149: "All (5)", one name, no comma
         })),
       h('div', { id: "cherry-panel", role: "tabpanel", "aria-labelledby": "cherry-tab-" + tab },

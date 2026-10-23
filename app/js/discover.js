@@ -71,7 +71,7 @@ function discoverView(st, p, draw) {
         h('h1', { className: "htit", tabIndex: -1 }, "Discover")),
       h('div', { style: { padding: "10px 16px 6px" } },
         h('input', { className: "inp", style: { fontSize: 14 }, placeholder: "Search Dreamors, Dreams, Circles, topics", value: q,
-          onChange: function (e) { st.q = e.target.value; if (e.target.value && st.tab === "trending") st.tab = "all"; draw(); Looscid.lcAnnounceCount(st.q, st.count, "result", "results"); },
+          onChange: function (e) { st.q = e.target.value; if (e.target.value && st.tab === "trending") st.tab = "all"; else if (!e.target.value && (st.tab === "all" || st.tab === "dreams")) st.tab = "trending"; draw(); Looscid.lcAnnounceCount(st.q, st.count, "result", "results"); },
           "aria-label": "Search", role: "searchbox" })),
       q && h('div', { style: { padding: "0 16px 8px", display: "flex", gap: 8, alignItems: "center" } },
         h('button', { className: "sort-btn",
@@ -104,12 +104,12 @@ function discoverView(st, p, draw) {
         })),
       h('div', { className: "ftabs", role: "tablist", "aria-label": "Discover sections", style: { overflowX: "auto", scrollbarWidth: "none" } },
         activeTabs.map(function (t, i) {
-          return h('button', { key: t, className: "ftab" + (tab === t ? " on" : ""), onClick: function () { st.tab = t; draw(); lcTabCount(st); }, role: "tab", "aria-label": tabLabel(t), "aria-selected": tab === t, tabIndex: tab === t ? 0 : -1, onKeyDown: function (e) { const tabs = e.currentTarget.parentElement.querySelectorAll('[role="tab"]'); const i = Array.prototype.indexOf.call(tabs, e.currentTarget); let next; if (e.key === "ArrowRight") next = (i + 1) % tabs.length; else if (e.key === "ArrowLeft") next = (i + tabs.length - 1) % tabs.length; else if (e.key === "Home") next = 0; else if (e.key === "End") next = tabs.length - 1; else return; e.preventDefault(); tabs[next].click(); tabs[next].focus(); } },
-            tabLabel(t)); // build 149: no "1/4" position (iOS says "tab, 1 of 4" itself)
+          return h('button', { key: t, className: "ftab" + (tab === t ? " on" : ""), onClick: function () { st.tab = t; draw(); lcTabCount(st); }, role: "tab", id: "disc-tab-" + t, "aria-label": tabLabel(t), "aria-selected": tab === t, "aria-controls": "disc-panel", "aria-setsize": activeTabs.length, "aria-posinset": i + 1, tabIndex: tab === t ? 0 : -1, onKeyDown: function (e) { const tabs = e.currentTarget.parentElement.querySelectorAll('[role="tab"]'); const i = Array.prototype.indexOf.call(tabs, e.currentTarget); let next; if (e.key === "ArrowRight") next = (i + 1) % tabs.length; else if (e.key === "ArrowLeft") next = (i + tabs.length - 1) % tabs.length; else if (e.key === "Home") next = 0; else if (e.key === "End") next = tabs.length - 1; else return; e.preventDefault(); tabs[next].click(); tabs[next].focus(); } },
+            tabLabel(t)); // build 149: no "1/4" position in the name. Round 7.12: aria-setsize/aria-posinset carry it instead.
         }))),
 
     // Build 152 fix: no second live region here; the result count is said once through #looscid-live (lcAnnounceCount).
-    h('div', null,
+    h('div', { id: "disc-panel", role: "tabpanel", "aria-labelledby": activeTabs.indexOf(tab) >= 0 ? "disc-tab-" + tab : undefined },
       // Part 36 (2three1y, Oct 12 4:50 PM): no Ask Cherry on Discover. Discover is search and browsing only.
       // Round 5 fixes: an empty Trending says so instead of showing nothing.
       (tab === "trending" || (tab === "all" && !q)) && !TRENDING.length && h('div', { className: "es" }, h('div', { className: "esl" }, "Nothing is trending yet"),
