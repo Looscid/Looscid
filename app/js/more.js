@@ -322,7 +322,7 @@ function ListsIndex({ navigate, gone }) {
       lh('h1', { className: "hdr-title", tabIndex: -1, ref: head, id: "lists-h" }, "Lists"))),
     lh('div', { className: "lc-pad" },
       gone ? lh('p', { className: "lc-muted" }, "That list isn't on this device any more.") : null,
-      lh('p', { className: "lc-muted" }, "Your own lists of Dreamors, to read their Dreams together. Only you can see them. Add someone from their profile: Dreamor options, Add to list."),
+      lh('p', { className: "lc-muted" }, "Your own lists of Dreamors, to read their Dreams together. Only you can see them. Add someone from their profile: More, Add to list."),
       lh('form', { className: "lc-list-new", onSubmit: make },
         lh('label', { htmlFor: "lists-new" }, "New list name"),
         lh('input', { id: "lists-new", className: "inp", type: "text", maxLength: 60, autoComplete: "off", value: name, "aria-invalid": msg ? "true" : undefined, onChange: function (e) { setName(e.target.value); if (msg) setMsg(""); } }),
@@ -392,7 +392,7 @@ function ListView({ list, navigate, cherryCtx }) {
       dreams.length ? lh('div', { className: "lc-list-dreams" }, dreams.map(function (d) {
           return lh(DreamCard, { key: d.id, dream: d, onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onComment: function (x) { setActiveComment(x); }, navigate: navigate, cherryCtx: cherryCtx });
         }))
-        : lh('p', { className: "lc-muted" }, members.length ? "No Dreams from this list on your device yet." : "No Dreamors in this list yet. Add someone from their profile: Dreamor options, Add to list."),
+        : lh('p', { className: "lc-muted" }, members.length ? "No Dreams from this list on your device yet." : "No Dreamors in this list yet. Add someone from their profile: More, Add to list."),
       lh('h2', { className: "lc-sub-h", id: "list-members-h" }, "Dreamors (" + members.length.toLocaleString() + ")"),
       members.length ? lh('ul', { className: "lc-people lc-list-members", role: "list", "aria-labelledby": "list-members-h" }, members.map(function (m, i) {
           const nm = m.name || (m.handle ? "@" + String(m.handle).replace(/^@/, "") : "Dreamor");
@@ -421,7 +421,8 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const [mediaShow, setMediaShowS] = useState(lcMediaShow);
   const [, bump] = useState(0);
   const [activeComment, setActiveComment] = useState(function () { return Looscid.lcCvTake ? Looscid.lcCvTake() : null; }); // round 9: Back from a footer page
-  const [listsOpen, setListsOpen] = useState(false); // part 4b: Add to list, under Dreamor options
+  const [listsOpen, setListsOpen] = useState(false); // part 4b: Add to list, under More
+  const [logoutAsk, setLogoutAsk] = useState(false); // Round 7.14: Log out asks first
   Looscid.useLikedTick();
   const moreBtn = useRef(null), editBtn = useRef(null), noteRef = useRef(null), headRef = useRef(null);
   // preview: your own profile as others see it. Your own data, nobody else's controls.
@@ -579,31 +580,60 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   // Build 150, part 16 (2three1y, Oct 11): Dreamor options is a real pop-up menu, like the other action menus. It opens
   // with focus on the first item, Escape (or a two-finger scrub) closes it, choosing closes it, focus goes back to the
   // button, and it never remembers being open. Unfinished items stay in the list, unavailable, with the reason.
+  /* Round 7.14 (Carter, Oct 24 2026): the profile's menu button is More. On your own profile it holds everything the old
+     More tab held (Cherry, Discover, Create, Alerts, Settings, Commandbar, Help, Commands) plus your profile's own
+     options, in three groups, with Log out last (it asks first). On someone else's profile it holds the usual profile
+     options. Each item runs the app's existing code for it; nothing new is sent anywhere. */
+  const copyLink = { id: "copylink", name: "Copy link", a: function () { lcCopy(profLink, "Profile link"); } };
+  const G1 = "Profile", G2 = "Looscid", G3 = "About and account";
+  const g = function (grp, list) { return list.map(function (it) { return Object.assign({ group: grp }, it); }); };
   const moreItems = isMe
-    ? [{ id: "edit", name: "Edit profile", a: function () { openEdit(true); } },
-       { id: "share", name: "Share profile", a: share }].concat(extraItems, [
+    ? g(G1, [{ id: "edit", name: "Edit profile", a: function () { openEdit(true); } },
+       { id: "share", name: "Share profile", a: share }, copyLink].concat(extraItems, [
        { id: "viewas", name: "View as others see it", a: function () { setViewAs(true); announce("Viewing your profile as others see it."); } },
        { id: "reorder", name: "Reorder tabs", a: function () { Looscid.LC_SETTINGS_BACK = "profile"; navigate("settings_profiletabs"); } },
-       { id: "settings", name: "Settings", a: function () { navigate("settings"); } }])
-    : [following ? { id: "unfollow", name: "Unfollow", a: follow } : { id: "follow", name: "Follow", a: follow },
-       // Round 8 fixes (QA round 7): Back from that chat lands on "Dreamor options", the button the menu was opened from.
-       dmPeer ? { id: "message", name: "Message", a: function () { if (moreBtn.current) Looscid.LC_LAST_ACT = { el: moreBtn.current, at: Date.now() }; openDm(); } } : { id: "message", name: "Message", note: "unavailable: " + dmWhy, disabled: true },
-       cherryOn ? { id: "cherry", name: "Ask Cherry for a summary", a: askCherry } : { id: "cherry", name: "Ask Cherry for a summary", note: "unavailable: Cherry is off", hint: "Not available while Cherry is off. Turn it on in Settings, Intelligence.", disabled: true },
-       { id: "share", name: "Share profile", a: share }].concat(extraItems, [
+       { id: "lists", name: "Lists", a: function () { navigate("lists"); } },
+       { id: "drafts", name: "Drafts", a: function () { navigate("drafts"); } }]))
+      .concat(g(G2, [
+       { id: "cherry", name: "Cherry", a: function () { navigate("cherry"); } }, // Cherry off: opens Settings, Intelligence, and says so
+       { id: "discover", name: "Discover", a: function () { navigate("more_discover"); } },
+       { id: "create", name: "Create", a: function () { navigate("more_create"); } },
+       { id: "alerts", name: "Alerts", a: function () { navigate("more_alerts"); } },
+       { id: "settings", name: "Settings", a: function () { navigate("settings_open"); } },
+       { id: "cmdbar", name: "Commandbar", a: function () { setTimeout(function () { if (Looscid.LC_OPEN_CMD) Looscid.LC_OPEN_CMD(); }, 60); } },
+       { id: "help", name: "Help", a: function () { navigate("helpcenter"); } },
+       { id: "commands", name: "Commands", a: function () { navigate("commands"); } }]))
+      .concat(g(G3, [
+       { id: "credits", name: "Credits", a: function () { navigate("credits"); } },
+       { id: "feedback", name: "Feedback", a: function () { navigate("feedback"); } },
+       { id: "logout", name: "Log out", danger: true, a: function () { setLogoutAsk(true); } }]))
+    : [{ id: "share", name: "Share profile", a: share }, copyLink,
        { id: "addlist", name: "Add to list", a: function () { setListsOpen(true); } },
-       { id: "reorder", name: "Reorder tabs", a: function () { Looscid.LC_SETTINGS_BACK = null; navigate("settings_profiletabs"); } },
-       hidesRd ? { id: "showrd", name: "Show Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, false); say("Showing Redreams from " + user.name + "."); } }
-               : { id: "hiderd", name: "Hide Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, true); say("Hiding Redreams from " + user.name + "."); } },
-       { id: "note", name: note ? "Edit note" : "Add note", a: function () { setNoteText(note); setNoteEdit(true); } },
        muted ? { id: "unmute", name: "Unmute", a: function () { Looscid.lcPeopleSet("looscid_muted_dreamors", user.handle, false); say("Unmuted " + user.name + "."); } }
              : { id: "mute", name: "Mute", a: function () { Looscid.lcPeopleSet("looscid_muted_dreamors", user.handle, true); say("Muted " + user.name + ". Their Dreams are hidden from your feed."); } },
        blocked ? { id: "unblock", name: "Unblock", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").filter(function (h) { return h !== Looscid.lcHandle(user.handle); })); say("Unblocked " + user.name + "."); } }
                : { id: "block", name: "Block", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").concat([user.handle])); say("Blocked " + user.name + ". Unblock here or in Settings, Privacy."); } },
-       { id: "report", name: "Report", note: "unavailable: Looscid has nowhere to send reports yet", disabled: true }]);
-  const moreMenu = preview ? null : lh(LcMenu, { id: "pf-more-btn", menuId: "pf-more", kind: "action", title: "Dreamor options", btnLabel: "Dreamor options", btnRef: moreBtn,
+       { id: "report", name: "Report", note: "unavailable: Looscid has nowhere to send reports yet", disabled: true },
+       // The options this menu already had stay, after the six above.
+       following ? { id: "unfollow", name: "Unfollow", a: follow } : { id: "follow", name: "Follow", a: follow },
+       // Round 8 fixes (QA round 7): Back from that chat lands on More, the button the menu was opened from.
+       dmPeer ? { id: "message", name: "Message", a: function () { if (moreBtn.current) Looscid.LC_LAST_ACT = { el: moreBtn.current, at: Date.now() }; openDm(); } } : { id: "message", name: "Message", note: "unavailable: " + dmWhy, disabled: true },
+       cherryOn ? { id: "cherry", name: "Ask Cherry for a summary", a: askCherry } : { id: "cherry", name: "Ask Cherry for a summary", note: "unavailable: Cherry is off", hint: "Not available while Cherry is off. Turn it on in Settings, Intelligence.", disabled: true }]
+      .concat(extraItems, [
+       hidesRd ? { id: "showrd", name: "Show Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, false); say("Showing Redreams from " + user.name + "."); } }
+               : { id: "hiderd", name: "Hide Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, true); say("Hiding Redreams from " + user.name + "."); } },
+       { id: "note", name: note ? "Edit note" : "Add note", a: function () { setNoteText(note); setNoteEdit(true); } },
+       { id: "reorder", name: "Reorder tabs", a: function () { Looscid.LC_SETTINGS_BACK = null; navigate("settings_profiletabs"); } }]);
+  // Log out asks first, in the app's own confirm dialog. Cancel (or Escape) puts focus back on More.
+  const logoutWarn = (function () { const N = Looscid.lcNostr, w = N && N.forgetWarning ? N.forgetWarning() : ""; return w ? " " + w : ""; })();
+  const logoutDlg = logoutAsk ? lh(AlertDialog, { title: "Log out of Looscid?",
+    message: "Logging out removes your login methods from this device and deletes any Nostr key saved here. If you haven't saved your key somewhere else, it's gone for good. Your LooscidID starts fresh with the name Dreamor. Your Dreams and settings stay." + logoutWarn,
+    confirmLabel: "Log out", onCancel: function () { setLogoutAsk(false); backToMore(); },
+    onConfirm: function () { setLogoutAsk(false); if (Looscid.LC_LOG_OUT) Looscid.LC_LOG_OUT(); setTimeout(function () { announce("Logged out on this device."); }, 120); } }) : null;
+  const moreMenu = preview ? null : lh(React.Fragment, null, lh(LcMenu, { id: "pf-more-btn", menuId: "pf-more", kind: "action", title: "More", btnLabel: "More", btnRef: moreBtn,
     btnClass: "btn bgb lc-big lc-prof-morebtn", className: "lc-prof-more", itemClass: "lc-dopt",
-    btnText: lh('span', null, lh(Ic.Dots, { style: { width: 18, height: 18 }, "aria-hidden": "true" }), " Dreamor options"), items: moreItems,
-    onSelect: function (k, it) { if (it.a) it.a(); } });
+    btnText: lh('span', null, lh(Ic.Dots, { style: { width: 18, height: 18 }, "aria-hidden": "true" }), " More"), items: moreItems,
+    onSelect: function (k, it) { if (it.a) it.a(); } }), logoutDlg);
   const onTabKey = function (e) {
     const i = TABS.findIndex(function (t) { return t[0] === cur; }); let n = null;
     if (e.key === "ArrowRight") n = (i + 1) % TABS.length; else if (e.key === "ArrowLeft") n = (i + TABS.length - 1) % TABS.length; else if (e.key === "Home") n = 0; else if (e.key === "End") n = TABS.length - 1;
@@ -696,7 +726,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       }
       case "circles": return lh(LcProfileCircles, { circ: circ, isMe: isMe, name: user.name || "Dreamor", navigate: navigate, uid: user.id, f0: restore.current && restore.current.f });
       case "lists": {
-        if (!visLists.length) return empty(isMe ? "No Lists yet" : "No Lists", isMe ? "Make one in More, Lists, or with Add to list in someone's profile options." : null);
+        if (!visLists.length) return empty(isMe ? "No Lists yet" : "No Lists", isMe ? "Make one with More, Lists, or with More, Add to list on someone's profile." : null);
         const cnt = function (l) { const n = Array.isArray(l.members) ? l.members.length : (+l.count || 0); return n.toLocaleString() + (n === 1 ? " Dreamor" : " Dreamors"); };
         return lh('section', { className: "lc-prof-lists", "aria-labelledby": "pf-lists-tab-h" },
           lh('h2', { id: "pf-lists-tab-h", className: "lc-sub-h" }, isMe ? "Your Lists" : (user.name || "Dreamor") + "'s Lists"),
@@ -732,12 +762,13 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       // Build 150 (#60): your own profile lives in More (View your profile), so Back returns there with the Back sound.
       // Round 15 (QA round 14): your profile opened from your own name on a Dream (the "dp" page) is not More's, so its Back
       // goes where you opened it, like any Dreamor's profile, not to Settings (a page you never opened).
-      lh('button', { type: "button", className: "bi", onClick: function () { if (preview) { if (onExitPreview) onExitPreview(); return; } if (isMe && !dpRoute) { navigate("settings"); return; }
+      // Round 7.14 (Carter, Oct 24 2026): your own profile is the Profile tab, so like every tab it has no Back button.
+      isMe && !dpRoute && !preview ? null : lh('button', { type: "button", className: "bi", onClick: function () { if (preview) { if (onExitPreview) onExitPreview(); return; } if (isMe && !dpRoute) { navigate("settings"); return; }
         // Round 6 fixes: Back goes to where you opened the profile (Discover keeps its search and results), not always Home.
         const b = Looscid.LC_DP_BACK; Looscid.LC_DP_BACK = null; if (b && b.user === user) { b.back(); return; }
         if (!(Looscid.LC_GO_BACK && Looscid.LC_GO_BACK("dp"))) navigate("feed"); }, 'aria-label': "Back" }, lh(Ic.Bck, { style: { width: 21, height: 21 } })),
       lh('span', { className: "hdr-title", "aria-hidden": "true" }, "Profile"))),
-      // build 150 (#49): "Dreamor options", not "More". Part 16: it is a pop-up menu button after the name and @handle.
+      // Round 7.14 (Carter, Oct 24 2026): the pop-up menu button after the name and @handle is More again (it was "Dreamor options").
     preview ? lh('div', { className: "lc-prof-preview" },
       lh('p', { className: "lc-muted" }, "This is how other Dreamors see your profile."),
       lh('button', { type: "button", id: "pf-preview-done", className: "btn bp lc-big", onClick: function () { if (onExitPreview) onExitPreview(); } }, "Done viewing as others")) : null,
@@ -2462,12 +2493,21 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 117; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 118; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 46;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.117.46", build: 163, released: LOOSCID_RELEASED, title: "Round 7.13", notes: [
+  { version: "2026.118.46", build: 164, released: LOOSCID_RELEASED, title: "Round 7.14", notes: [
+    "Feature: the More tab is now Profile, and it opens your own profile. It is still the last tab, always shown.",
+    "Feature: profiles have a More button after the name. On your profile it holds Edit profile, Share profile, Copy link, Copy username, View as others see it, Reorder tabs, Lists and Drafts; then Cherry, Discover, Create, Alerts, Settings, Commandbar, Help and Commands; then Credits, Feedback and Log out, last. Log out asks first.",
+    "Feature: on someone else's profile, More starts with Share profile, Copy link, Add to list, Mute, Block and Report (Report stays unavailable until Looscid has somewhere to send reports), then Follow, Message and the other options it already had.",
+    "Liked is a tab on your profile. The Liked address and the liked command open that tab.",
+    "Back from a page opened from More (like Settings or Discover) goes to your profile, on its More button.",
+    "Loostore is no longer linked anywhere in Looscid: not in More, Help Center or Commandbar.",
+    "Fix: a pop-up menu with groups names each group the right way for screen readers.",
+  ] },
+  { version: "2026.117.46", build: 163, released: "2026-10-24T15:38:57Z", title: "Round 7.13", notes: [
     "Fix: More has one Loostore link instead of Apps and Projects. Loostore lists every app and project in one place, each on its own site, and opens in a new tab.",
   ] },
   { version: "2026.117.45", build: 162, released: "2026-10-23T23:30:02Z", title: "Round 7.12", notes: [
@@ -3584,7 +3624,7 @@ function TabBarSettings({ navigate }) {
   };
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
     lh(BackHeader, { title: "Tab Bar", onBack: function () { navigate("settings"); } }),
-    lh('p', { className: "lc-desc", style: { padding: "8px 16px", margin: 0 } }, "Choose which tabs show at the bottom, and their order. More is always last."),
+    lh('p', { className: "lc-desc", style: { padding: "8px 16px", margin: 0 } }, "Choose which tabs show at the bottom, and their order. Profile is always last."),
     lh('ul', { className: "lc-tb-list", role: "list" }, list.map(function (t, i) {
       return lh('li', { key: t.id, className: "lc-tb-row" },
         lh(A11ySwitch, { id: "tb-sw-" + sid(t.id), label: t.l, on: t.on, onToggle: function () { announce(Looscid.lcTabBarToggle(t.id)); keep("tb-sw-" + sid(t.id)); } }),
@@ -3593,7 +3633,7 @@ function TabBarSettings({ navigate }) {
           lh('button', { type: "button", id: "tb-up-" + sid(t.id), className: "btn bgb lc-btn", "aria-label": "Move " + t.l + " up", "aria-disabled": i === 0 ? "true" : undefined, onClick: function () { move(t, -1); } }, "Move up"),
           lh('button', { type: "button", id: "tb-down-" + sid(t.id), className: "btn bgb lc-btn", "aria-label": "Move " + t.l + " down", "aria-disabled": i === list.length - 1 ? "true" : undefined, onClick: function () { move(t, 1); } }, "Move down")));
     })),
-    lh('p', { className: "lc-desc", style: { padding: "10px 16px", margin: 0 } }, "More is always last, so Settings is always one tap away."),
+    lh('p', { className: "lc-desc", style: { padding: "10px 16px", margin: 0 } }, "Profile is always last, and its More button has Settings."),
     list.some(function (t) { return t.custom; }) ? null : lh('p', { className: "lc-desc", style: { padding: "0 16px 12px", margin: 0 } }, "To add a custom tab, pin a Circle, a person, a hashtag or a thread on the Following feed. It shows up here."));
 }
 /* Build 152 prep (#98): Settings, Profile Tabs. The same plain pattern as the Tab Bar: one row per tab with Move up and

@@ -245,7 +245,7 @@ function LikedPage({ navigate, cherryCtx }) {
 // Commandbar: liked, like search [words], unlike search <words>.
 function lcLikedIntent(raw) {
   const n = String(raw || "").trim().toLowerCase().replace(/\s+/g, " "); let m;
-  if (/^(liked|open liked|show liked|my likes|open my likes)$/.test(n)) return { say: "Opened Liked.", fn: function () { Looscid.LC_NAV && Looscid.LC_NAV("liked"); } };
+  if (/^(liked|open liked|show liked|my likes|open my likes)$/.test(n)) return { say: "Opened your profile, Liked.", fn: function () { Looscid.LC_NAV && Looscid.LC_NAV("liked"); } };
   if ((m = /^like (?:this )?search(?: (?:for )?(.+))?$/.exec(n))) {
     const q = (m[1] || Looscid.LC_DISCOVER_Q || "").trim();
     if (!q) return { err: "Search for something in Discover first, or say like search and the words." };

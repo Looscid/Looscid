@@ -170,7 +170,7 @@ function discoverView(st, p, draw) {
             h('div', { className: "cpv" }, fmt(g.members), " Dreamors in this Circle")),
           // Round 5 fixes: Join did nothing and said nothing. Circles from Discover come in build 152, so it says so.
           h('button', { type: "button", className: "btn bgb", style: { fontSize: 12 }, "aria-label": "Join the " + g.name + " Circle", "aria-disabled": "true",
-            onClick: function () { Looscid.announce("Not available yet: joining a Circle from Discover comes in a later build. Open Circles in More to join it."); } }, "Join"),
+            onClick: function () { Looscid.announce("Not available yet: joining a Circle from Discover comes in a later build. Open Circles from Profile, More, Discover to join it."); } }, "Join"),
           Looscid.lcLikeBtnEl ? Looscid.lcLikeBtnEl("circle", g.id, g.name + " Circle", { name: g.name, emoji: g.emoji }, draw, { style: { fontSize: 12, marginLeft: 6 } }) : null);
       }),
 

@@ -73,7 +73,7 @@ function lcHelpIntent(n) {
   if (hl) hl[1] = "the top commands. An area and help reads that area, like cherry help or cherryhelp; help list reads every command";
   C.push(["help list", "read every command, the long list"]);
   C.push(["cherry help", "just the Cherry commands; any area works: projects help, earcons help, braille help, settings help"]);
-  C.push(["help center", "the Help Center: getting started, commands, Cherry, earcons, accessibility, projects, backup, and how to get help"]);
+  C.push(["help center", "the Help Center: getting started, commands, Cherry, earcons, accessibility, backup, and how to get help"]);
   C.push(["new dream", "the Dream composer, empty; you press Dream yourself"]);
   C.push(["legal", "the Legal page: Terms, Privacy, Community rules, Looscid's license and open source credits"]);
   const G = Looscid.LC_CMD_GROUPS; if (!G) return;
@@ -88,17 +88,18 @@ function lcHelpIntent(n) {
 /* The Help Center page. */
 const LC_HELP_SECTIONS = [
   ["Getting started", [
-    "Looscid is a social app made for VoiceOver, braille and the keyboard. Home has your feed of Dreams. Below it are the tabs: Home, Discover, Create, Alerts and More.",
+    "Looscid is a social app made for VoiceOver, braille and the keyboard. Home has your feed of Dreams. Below it are the tabs: Home, Discover, Create, Alerts and Profile.",
+    "Profile is your own profile. Its tabs include Dreams, Replies and Liked. Its More button holds Cherry, Discover, Create, Alerts, Settings, Commandbar, Help, Lists, Drafts, Credits, Feedback and Log out. On someone else's profile, More has Share profile, Copy link, Add to list, Mute, Block and Report.",
     "To write a Dream, open Create, or type new dream in Commandbar. You always press Dream yourself.",
     "Everything stays on this device unless you choose to share it.",
   ]],
   ["Commands", [
-    "Commandbar opens from More, Open Commandbar, or with Control K or Command K, anywhere. Type a command and press Enter. Anything else goes to Cherry.",
+    "Commandbar opens from Profile, More, Commandbar, or with Control K or Command K, anywhere. Type a command and press Enter. Anything else goes to Cherry.",
     "Top commands: " + LC_HELP_TOP.slice(0, 9).map(function (c) { return c[0]; }).join(", ") + ".",
     "Type help for that short list, an area and help for one area (cherry help, projects help), and commands for the Commands page, where every command is a button.",
   ], "commands"],
   ["Cherry", [
-    "Cherry is the Looscid assistant. Open it from More, or type open cherry. new cherry chat starts fresh; cherry history and cherry pinned chats open Your History.",
+    "Cherry is the Looscid assistant. Open it from Profile, More, Cherry, or type open cherry. new cherry chat starts fresh; cherry history and cherry pinned chats open Your History.",
     "The Cherry page is called Cherry - DO IT YOUR WAY. New Chat is at the top, then Your History (All and Pinned), then the chat you're in. Each chat has Chat options: Pin, Edit name, Delete, New Chat and History.",
     "Turn Cherry on or off in Settings, Intelligence. Intelligence also has Memory (saving chats), Tools (what Cherry may do for you) and What Cherry did, with Undo.",
   ]],
@@ -111,10 +112,6 @@ const LC_HELP_SECTIONS = [
     "Braille: Settings, Accessibility, Sense has braille output, short labels, and Enter to send. Close buttons show Close on a braille display.",
     "Keyboard: Tab and Shift Tab move, Enter and Space press, Escape closes. Settings, Keyboard shortcuts lists them all.",
     "Calm mode, Flash safety and Reduce Motion are in Settings, Accessibility, Motion and seizure.",
-  ]],
-  ["Projects", [
-    "More, Loostore lists all my apps and projects in one place, each on its own site: Insomnia OS, Memeprojects, Lyric Finder, Vibework, Soundvault and more. It opens in a new tab.",
-    "Some say Coming soon, with a link to help me build them.",
   ]],
   ["Legal", [
     "About Looscid has a Legal button, and the legal command opens it too: Terms, Privacy, Community rules, Looscid's license (no ads, no commercial use) and the open source credits.",
@@ -150,7 +147,7 @@ function helpView(p, act) {
       h('p', { className: "lc-desc" }, "You can also go straight to GitHub issues. It opens in a new tab."),
       h('p', { className: "lc-desc" }, h('a', { id: "lc-help-issues", className: "lc-link", href: "https://github.com/Looscid/Looscid/issues", target: "_blank", rel: "noopener noreferrer" }, "Looscid's GitHub issues: https://github.com/Looscid/Looscid/issues")),
       h('h3', { className: "lid-sub" }, "Help build Looscid"),
-      h('p', { className: "lc-desc" }, "Looscid is open source, and help is welcome. The Coming soon projects in More, Projects each have a link to help build them on GitHub too."),
+      h('p', { className: "lc-desc" }, "Looscid is open source, and help is welcome."),
       h('p', { className: "lc-desc" }, h('a', { id: "lc-help-build", className: "lc-link", href: "https://github.com/Looscid/Looscid", target: "_blank", rel: "noopener noreferrer" }, "Help build Looscid on GitHub")),
       h('h3', { className: "lid-sub" }, "Quick reminders"),
       h('p', { className: "lc-desc" }, "Type help for the top commands, an area and help for one area, like cherry help or projects help, and commands for every command.")));
@@ -195,7 +192,7 @@ function legalView(p, act) {
       h('p', { key: "p1", className: "lc-desc" }, "Looscid is open source under the Looscid Public License (LPL) v1.0. You can read, share and change the code. Two rules: no ads, and no commercial use."),
       h('p', { key: "p2", className: "lc-desc" }, h('a', { href: "https://github.com/Looscid/Looscid/blob/main/LICENSE", target: "_blank", rel: "noopener noreferrer" }, "The Looscid Public License, in full, on GitHub"))]),
     sec("lc-legal-h-oss", "Open source credits and licenses", [
-      h('p', { key: "p1", className: "lc-desc" }, "Looscid uses and learns from other open source projects. Each one keeps its own license: most are MIT, and their notices stay with their code. My own projects in More, Projects keep their LICENSE files next to them."),
+      h('p', { key: "p1", className: "lc-desc" }, "Looscid uses and learns from other open source projects. Each one keeps its own license: most are MIT, and their notices stay with their code. My own projects keep their LICENSE files next to them."),
       h('p', { key: "p2", className: "lc-desc" }, "The FastSM-inspired Soundpack is inspired by FastSMRW by masonasons (no code or audio copied). The composer's layout is inspired by Feditext (GPL-3.0); no code was used. Profile design recreated from Feditext by Metabolist (GPL-3.0); no Feditext code is used. The Soundvault Soundpack plays sounds from where Soundvault links them, loaded when they play, under their own terms; nothing is copied into Looscid."),
       h('ul', { key: "u", className: "mlist", "aria-label": "Credits" }, go("credits", "Credits and open source", "legal-credits"))]),
     // Round 6.6: the MIT notices of the MIT code Looscid carries or loads. Each LICENSE file also stays next to its code.

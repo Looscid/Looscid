@@ -2,6 +2,21 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.118.46 (164): Round 7.14
+
+Released October 24, 2026 at 12:04 PM (Eastern Time, 2026-10-24T16:04:37Z UTC)
+
+A feature update, asked for by 2three1y.
+
+- Feature: The More tab is now Profile, and it opens your own profile. It is still the last tab and always shown. Like every tab, your profile has no Back button.
+- Feature: Profiles have a More button after the name (it was called Dreamor options). On your own profile it has three groups: Profile (Edit profile, Share profile, Copy link, Copy username, View as others see it, Reorder tabs, Lists, Drafts), Looscid (Cherry, Discover, Create, Alerts, Settings, Commandbar, Help, Commands) and About and account (Credits, Feedback, Log out). Log out is last and asks first: it removes your login methods from this device (a Nostr key saved here is deleted), then your LooscidID starts fresh. Your Dreams and settings stay.
+- Feature: On someone else's profile, More starts with Share profile, Copy link, Add to list, Mute, Block and Report, then Follow, Message and the options it already had. Report stays unavailable until Looscid has somewhere to send reports.
+- Liked is a tab on your profile. The Liked address and the liked command open that tab.
+- Back from a page opened from More, like Settings, Discover, Create or Alerts, goes to your profile with focus on its More button.
+- Loostore is no longer linked anywhere in Looscid: not in More, the Help Center or the Commandbar.
+- Help Center and other help text say Profile where they said the More tab.
+- Fix: a pop-up menu with groups names each group the right way for screen readers (a group inside a list item, not the list item itself).
+
 ## Looscid 2026.117.46 (163): Round 7.13
 
 Released October 24, 2026 at 11:38 AM (Eastern Time, 2026-10-24T15:38:57Z UTC)

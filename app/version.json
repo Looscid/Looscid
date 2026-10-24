@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.117.46",
-  "build": 163,
-  "features": 117,
+  "version": "2026.118.46",
+  "build": 164,
+  "features": 118,
   "fixes": 46,
-  "builds_without_fixes": 117,
-  "released": "2026-10-24T15:38:57Z",
-  "title": "Round 7.13",
-  "notes": "Round 7.13 (build 163), a fix update. More has one Loostore link instead of Apps and Projects; Loostore lists every app and project, each on its own site."
+  "builds_without_fixes": 118,
+  "released": "2026-10-24T16:04:37Z",
+  "title": "Round 7.14",
+  "notes": "Round 7.14 (build 164), a feature update. The More tab is Profile, profiles have a More button (yours holds what More held, ending with Log out), Liked is a profile tab, and Loostore is no longer linked in Looscid."
 }

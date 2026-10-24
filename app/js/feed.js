@@ -369,7 +369,7 @@ function PinForm({ cherryCtx, dreams }) {
     if (!cur) return;
     Looscid.lcPinAdd(kind, cur.id, kind === "thread" ? "Thread: " + Looscid.lcCutWords(cur.name, 30) : cur.name);
   };
-  const none = kind === "circle" ? "Join a Circle first, then you can pin it." : kind === "person" ? "Follow someone first, then you can pin them." : kind === "list" ? "Make a list first in More, Lists, then you can pin it." : "No threads with Replies yet.";
+  const none = kind === "circle" ? "Join a Circle first, then you can pin it." : kind === "person" ? "Follow someone first, then you can pin them." : kind === "list" ? "Make a list first: Profile, More, Lists. Then you can pin it." : "No threads with Replies yet.";
   return lh('fieldset', { className: "lc-pinform" }, lh('legend', null, "Pin a tab"),
     lh(LcMenu, { id: "pin-kind-btn", menuId: "pin-kind", label: "What to pin", hideLabel: true, title: "What to pin", inline: true, prefix: "Pin: ", btnClass: "btn bgb lc-btn",
       value: kind, items: [{ id: "circle", name: "A Circle" }, { id: "person", name: "A person" }, { id: "tag", name: "A hashtag" }, { id: "thread", name: "A thread" }, { id: "list", name: "A list" }], onSelect: function (id) { setKind(id); setVal(""); } }),

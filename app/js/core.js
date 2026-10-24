@@ -1918,7 +1918,7 @@ const NAV = [
   {id:"discover",l:"Discover", icon:"Srch",  badge:0},
   {id:"create",  l:"Create",   icon:"Pls",   isCreate:true},
   {id:"alerts",  l:"Alerts",   icon:"Bell",  badge:6},
-  {id:"more",    l:"More",     icon:"Dots",  badge:0},
+  {id:"more",    l:"Profile",  icon:"Usr",   badge:0}, // Round 7.14 (Carter, Oct 24 2026): the More tab is Profile; its id stays "more"
 ];
 Looscid.NAV = NAV;
 /* --- LOCAL PROFILE --------------------------------------------------------
@@ -2203,6 +2203,8 @@ function lcRouteFor(rel) {
   if (pj) { const pr = (Looscid.LC_PROJECTS || []).filter(function (x) { return lcSlug(x.id || x.name).toLowerCase() === pj[1] || lcSlug(x.name).toLowerCase() === pj[1]; })[0];
     if (pr) return { page: "project", data: pr, project: pr }; }
   const r = LC_ROUTES.filter(function (x) { return x[1].toLowerCase() === lo; })[0];
+  // Round 7.14: the Liked address (/Liked) opens your profile on its Liked tab.
+  if (r && r[0] === "liked") { Looscid.LC_PROF_RESTORE = { uid: ME.id, tab: "liked", at: Date.now() }; return { page: "profile", data: null }; }
   return r ? { page: r[0], data: null } : null;
 }
 Object.assign(Looscid, { LC_ROUTES, LOOSCID_BASE, lcSlug, lcPathFor, lcRouteFor });
@@ -2211,10 +2213,9 @@ Object.assign(Looscid, { LC_ROUTES, LOOSCID_BASE, lcSlug, lcPathFor, lcRouteFor 
    slogan use the name alone. Help stays the pop-up menu 2three1y asked for on Oct 11 (#71). The sections are built
    here once, so the More menu and each More page list exactly the same items. */
 const LC_MORE_SLOGANS = { cherry: "DO IT YOUR WAY", settings: "Adjust your life" };
-// Looscid split step 1 (Oct 24 2026): Loostore, every app and project in one place, on its own site.
-const LC_LOOSTORE_URL = "https://2three1y.github.io/Loostore/";
-// More items that moved into Loostore: Back from their pages lands on the Loostore link in More.
-const LC_MORE_MOVED = { apps: "loostore", projects: "loostore" };
+// Round 7.14 (Carter, Oct 24 2026): Loostore is not part of Looscid, so there is no Loostore link anywhere in Looscid.
+// More's old sections (Apps, Projects) have no link of their own; Back from their pages goes to your profile's More button.
+const LC_MORE_MOVED = {};
 const LC_MORE_PAGE = { cherry: "cherry", discover: "more_discover", apps: "more_apps", create: "more_create", alerts: "more_alerts", settings: "settings", projects: "more_projects" };
 function lcMoreTitle(id, label) { return LC_MORE_SLOGANS[id] ? label + " - " + LC_MORE_SLOGANS[id] : label; }
 function lcMoreSections(o) {
@@ -2231,9 +2232,8 @@ function lcMoreSections(o) {
       { icon:"Circles", label:"Circles",  sub:"Your communities",                              action(){onClose();goRoot("circles");} },
       { icon:"Lists", label:"Lists",  sub:"Your own lists of Dreamors, each its own feed",      action(){onClose();navigate("lists");} }, // build 152 prep (#99, part 4b)
     ]},
-    // Looscid split step 1 (Carter, Oct 24 2026): More shows one Loostore link instead of Apps and Projects. Loostore is its
-    // own site. The Apps and Projects pages and their addresses stay for now (hideInMenu), so nothing that opens them breaks.
-    { id:"loostore", emoji:"Loostore", label:"Loostore", href: LC_LOOSTORE_URL, items: [] },
+    // Looscid split step 1 (Carter, Oct 24 2026): the Apps and Projects pages and their addresses stay for now (hideInMenu),
+    // so nothing that opens them breaks. Round 7.14: the Loostore link is gone too; Loostore is not part of Looscid.
     { id:"apps", emoji:"Apps", label:"Apps", hideInMenu: true, items: lcAppItems().map(function (it) { return { icon: it.l, label: it.l, sub: it.sub, action(){ onClose(); it.go(navigate); } }; }) },
     // Build 148 (2three1y): Create is the same list as the Create tab, one shared implementation (js/create.js, CreateOptions).
     { id:"create", emoji:"Create", label:"Create", items:[], render: function () { return Looscid.CreateOptions ? lh(Looscid.CreateOptions, { idp: "more-create", navigate: navigate, close: onClose, open: function (scr) { onClose(); if (Looscid.LC_OPEN_CREATE) Looscid.LC_OPEN_CREATE(scr); } }) : null; } },
@@ -2251,7 +2251,7 @@ function lcMoreSections(o) {
       { icon:"Alerts", label:"Alerts",          sub:"New Dreams, mentions, replies, quiet hours", value: function () { return "Quiet hours " + lcSetVal("quietHours"); }, action(){onClose();navigate("settings_notifications");} },
       { icon:"Privacy", label:"Privacy",         sub:"Visibility, blocked users",   action(){onClose();navigate("settings_privacy");} },
       { icon:"Customizability", label:"Customizability", sub:"Theme, feeds, menu, Dreaming, media", value: function () { return getSavedTheme() === "light" ? "Light theme" : "Dark theme"; },     action(){onClose();navigate("settings_customizability");} },
-      { icon:"Tab Bar", label:"Tab Bar", sub:"Which tabs show at the bottom, and their order", value: function () { return lcTabBarVisible().map(function (t) { return t.l; }).concat(["More"]).join(", "); }, action(){onClose();navigate("settings_tabbar");} },
+      { icon:"Tab Bar", label:"Tab Bar", sub:"Which tabs show at the bottom, and their order", value: function () { return lcTabBarVisible().map(function (t) { return t.l; }).concat(["Profile"]).join(", "); }, action(){onClose();navigate("settings_tabbar");} },
       { icon:"Tab Bar", label:"Profile Tabs", sub:"The order of the tabs on profiles", value: function () { return lcProfileTabsAll().slice(0, 4).map(function (t) { return t.l; }).join(", ") + ", and more"; }, action(){onClose();navigate("settings_profiletabs");} },
       { icon:"Accessibility", label:"Accessibility",  sub:"Sense, vision, hearing, motion",  action(){onClose();navigate("settings_accessibility");} },
       { icon:"Audio", label:"Earcons",  sub:"Soundpacks, volume, keyboard and command earcons, your own sounds, haptics", value: function () { return lcSetVal("earcons") === "off" ? "Off" : lcSetVal("soundPack") + ", volume " + lcSetVal("earconVolume") + " percent"; },  action(){onClose();navigate("settings_audio");} },
@@ -2271,7 +2271,7 @@ function lcMoreSections(o) {
     // Build 150 (#71, 2three1y 4:36 PM Oct 11): Help is a real pop-up menu button (aria-haspopup="menu"), last in More.
     // It holds Help Center and Commands; Commands is no longer its own section. Actions, so a menu, not a value picker.
     { id:"help", emoji:"Help", label:"Help", menu:true, items:[
-      { icon:"Help", label:"Help Center", sub:"Getting started, commands, Cherry, earcons, accessibility, projects, backup, and how to get help", action(){onClose();navigate("helpcenter");} },
+      { icon:"Help", label:"Help Center", sub:"Getting started, commands, Cherry, earcons, accessibility, backup, and how to get help", action(){onClose();navigate("helpcenter");} },
       { icon:"Commands", label:"Commands", sub:"Every Commandbar command and keyboard shortcut, each one a button that runs it", action(){onClose();navigate("commands");} },
     ]},
   ];
@@ -2313,7 +2313,7 @@ function lcMoreItemLi(s, item) {
                 React.createElement(Ic.Chv,{key:"chv",style:{width:13,height:13,color:"var(--tx3)",flexShrink:0},"aria-hidden":"true"})
               ), subP, item.like && Looscid.LcLikeBtn ? lh(Looscid.LcLikeBtn, { k: item.like.k, id: item.like.id, name: item.label, className: "btn bgb lc-btn lc-like-btn lc-mli-like" }) : null);
 }
-Object.assign(Looscid, { LC_MORE_SLOGANS, LC_MORE_PAGE, LC_LOOSTORE_URL, LC_MORE_MOVED, lcMoreTitle, lcMoreSections, lcMoreItemLi });
+Object.assign(Looscid, { LC_MORE_SLOGANS, LC_MORE_PAGE, LC_MORE_MOVED, lcMoreTitle, lcMoreSections, lcMoreItemLi });
 function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, appDreams, initOpen, initFocus }) {
   const pos = (prefs.menu || {}).pos || "bottom";
   const likedCount = lcLikedItems().length; // build 147: one Liked store
@@ -2365,7 +2365,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
             btnText: [lh('span', { key: "l" }, s.label), lh('span', { key: "i", className: "msec-toggle-ic", "aria-hidden": "true" }, "\u203a")],
             items: s.items.map(function (it) { return { id: it.label, name: it.label, a: it.action }; }),
             onSelect: function (k, it) { if (it && it.a) it.a(); } }));
-        // Looscid split step 1: Loostore is a plain link to its own site, opened in a new tab like More's other outside links.
+        // A section with an outside address is a plain link to it, opened in a new tab (none today).
         if (s.href) return React.createElement('li', {key:s.id, className:"msec-hdr msec-li", style:{padding:0}},
           React.createElement('a', {id:"msec-btn-"+s.id, className:"msec-direct", "data-sec":s.id, href: s.href, target:"_blank", rel:"noopener noreferrer",
             "aria-braillelabel": Looscid.A11Y_NOW.brailleOutput ? s.label : undefined},
@@ -2704,9 +2704,10 @@ function LcMenu(props) {
     let idx = 0;
     order.forEach(function (g) {
       const gid = menuId + "-g" + (gi++);
-      body.push(lh('li', { key: gid, role: "group", "aria-labelledby": gid + "-h", className: "lmenu-grp" },
+      // Round 7.14: the group is a div inside a role=none list item (a list item can't be a group), same names and order.
+      body.push(lh('li', { key: gid, role: "none", className: "lmenu-grp" }, lh('div', { role: "group", "aria-labelledby": gid + "-h" },
         lh('div', { id: gid + "-h", className: "lmenu-grp-h", role: "presentation" }, g),
-        lh('ul', { role: "none", className: "lmenu-ul" }, byG[g].map(function (it) { return itemEl(it, idx++); }))));
+        lh('ul', { role: "none", className: "lmenu-ul" }, byG[g].map(function (it) { return itemEl(it, idx++); })))));
     });
     // flat order must match `all`: rebuild it group by group
     all.splice(0, all.length - 1);
@@ -3936,11 +3937,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.117.46";
+const LOOSCID_VERSION = "2026.118.46";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 163;
+const LOOSCID_BUILD = 164;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-24T15:38:57Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-24T16:04:37Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -5412,7 +5413,7 @@ const LC_COMMANDS = [
   ["sound", "earcons: sound on, sound off, sound test, or sound and a volume from 0 to 100"],
   ["feed and a name", "switch feeds, like feed following; next feed and previous feed too"], ["feed switching", "how you change feeds: feed switching tabs, feed switching swipe or feed switching button"], ["show friends on", "in Following, only show mutuals; show friends off shows everyone"],
   ["history", "your last commands"], ["clear", "clear the output"],
-  ["liked", "Liked, everything you liked (build 148)"], ["like search", "like the search you're on in Discover, or like search and the words; its Alerts switch is in Liked, Searches"],
+  ["liked", "Liked, everything you liked, a tab on your profile"], ["like search", "like the search you're on in Discover, or like search and the words; its Alerts switch is in Liked, Searches"],
   ["output collapse", "fold Commandbar output"], ["output expand", "unfold Commandbar output"],
   ["music", "the beat styles; music and a style plays one, like music hyperpop; music pause, music stop. beat works too"],
   ["set", "change an accessibility setting, like set calm on, set sounds off, set volume 50, braille output on, braille short labels off or pitch cues off"],
@@ -6259,7 +6260,7 @@ function lcTabBarSave(list) {
 // Show or hide one tab. At least one tab besides More stays on. Returns what to say.
 function lcTabBarToggle(id) {
   const list = lcTabBarAll(), t = list.find(function (x) { return x.id === id; }); if (!t) return "";
-  if (t.on && list.filter(function (x) { return x.on; }).length <= 1) return "Keep at least one tab on besides More.";
+  if (t.on && list.filter(function (x) { return x.on; }).length <= 1) return "Keep at least one tab on besides Profile.";
   t.on = !t.on; lcTabBarSave(list); return t.l + (t.on ? " shows in the tab bar." : " is hidden from the tab bar.");
 }
 // Move one tab up (-1) or down (+1). Returns the new position (1 is first), or 0 when it can't move.
@@ -6377,9 +6378,8 @@ const SETTINGS_MENU_ITEM = {
   settings_a11y_sr: ["settings", "Accessibility"], settings_a11y_vision: ["settings", "Accessibility"], settings_a11y_hearing: ["settings", "Accessibility"],
   settings_a11y_motion: ["settings", "Accessibility"], settings_a11y_motor: ["settings", "Accessibility"], settings_a11y_terminal: ["settings", "Accessibility"],
   terms: ["about", "Terms"], privacy: ["about", "Privacy"], guidelines: ["about", "Community rules"], feedback: ["about", "Send Feedback"],
-  // Build 150 (#60): Liked and your own profile are opened from More's top buttons, so Back returns there with the same
-  // sound as every Settings screen (it used to drop you on Home with no Back sound).
-  liked: [null, "#more-liked"], profile: [null, "#more-view-profile"], nexos_apps: ["settings", "Apps"],
+  // Round 7.14: your profile is a tab and Liked is a tab on it, so neither goes Back into a menu anymore.
+  nexos_apps: ["settings", "Apps"],
 };
 Looscid.SETTINGS_MENU_ITEM = SETTINGS_MENU_ITEM;
 /* Round 5 fixes (QA "as 2three1y", Oct 13): after opening a page, focus fell to <body> (only the tab bar moved it to the
@@ -6522,6 +6522,10 @@ useEffect(() => {
   const handleSignOut = useCallback(() => {
     setAuthUser(resetLocalProfile()); setAuthStage("app"); setPage("feed"); setPdata(null);
   }, []);
+  /* Round 7.14 (Carter, Oct 24 2026): Log out, from your profile's More button (it asks first). It is the existing pieces in
+     order: every login method is removed the way Remove does it (a Nostr key saved on this device is deleted, and the sign-ins
+     sealed to it are released), then the local profile resets like Reset local profile. Dreams and settings stay. */
+  Looscid.LC_LOG_OUT = () => { getMethods().slice().forEach(function (m) { removeMethod(m.id); }); logActivity("Logged out on this device"); handleSignOut(); };
   const handleRenameProfile = useCallback(name => {
     setAuthUser(cur => updateLocalProfile(cur, { displayName: (sanitizeInput(name) || "Dreamor").slice(0, 40) }));
   }, []);
@@ -6603,6 +6607,8 @@ useEffect(() => {
     let openSettings = false;
     if (target === "settings_open") { target = "settings"; openSettings = true; }
     if (target === "about") target = "settings_about";
+    // Round 7.14 (Carter, Oct 24 2026): Liked is a tab on your profile. The Liked page's name and address open that tab.
+    if (target === "liked") { Looscid.LC_PROF_RESTORE = { uid: ME.id, tab: "liked", at: Date.now() }; target = "profile"; data = null; }
     /* Round 7 fixes (QA round 6): Back on a profile goes to where THIS visit came from. Discover hands its way back in
        LC_DP_BACK_NEXT just before it opens the profile; any other way of opening a profile (a Home card's "View <name>'s
        profile", a Dream's menu, the Commandbar) leaves none, so an older one from Discover is never used. */
@@ -6647,8 +6653,7 @@ useEffect(() => {
           if (row) row.focus(); else lcFocusHeading(); }, 60);
         return;
       }
-      setPage(mainBack.current || "feed"); setPdata(null);
-      setMenuInit({ open: m[0], focus: m[1], n: Date.now() }); setShowMenu(true); Earcon.play("settings");
+      backToProfileMore(); // Round 7.14: Back to More is Back to your profile's More button
       return;
     }
     // Round 11 fixes (QA round 10): going anywhere from a footer page except its own Back, another footer link, or About's and
@@ -6774,7 +6779,11 @@ useEffect(() => {
     setMenuInit({ open: sec, focus: focus || null, n: Date.now() }); setShowMenu(true);
   };
   // Back on a More page: More opens again on the link that opened it.
-  const moreBack = (id) => { setPage(mainBack.current || "feed"); setPdata(null); setMenuInit({ open: null, focus: "#msec-btn-" + (LC_MORE_MOVED[id] || id), n: Date.now() }); setShowMenu(true); Earcon.play("settings"); };
+  /* Round 7.14 (Carter, Oct 24 2026): what More held lives in your profile's More button now, so Back from a page it opens
+     (Settings, Discover, Create, Alerts...) goes to your profile with focus on that More button, never to the old More menu. */
+  const backToProfileMore = () => { setShowMenu(false); setMenuInit(null); setPage("profile"); setPdata(null); Earcon.play("settings");
+    setTimeout(() => { const b = document.getElementById("pf-more-btn"); if (b) b.focus(); else focusMainHeading(); }, 160); };
+  const moreBack = (id) => { backToProfileMore(); };
   Looscid.LC_MORE_BACK = moreBack;
   // Part 40 (#69): the address bar follows the page (pushState), Back and Forward in the browser follow the address
   // (popstate), and an address that came through 404.html (?p=/Settings/Sense) or straight in opens its page.
@@ -7292,7 +7301,7 @@ useEffect(() => {
     }
   };
 
-  const activeId = ["feed","discover","alerts","more"].includes(page) ? page : null;
+  const activeId = ["feed","discover","alerts","more","profile"].includes(page) ? page : null;
   const unreadNotifs = useAlerts().filter(n=>n.unread).length; // round 6: the real alerts
   const unreadMsgs = CONVOS.reduce((a,c)=>a+c.unread, 0) + lcPmUnread(); // build 151 (#72): + private messages (NIP-17)
 
@@ -7303,7 +7312,7 @@ useEffect(() => {
   const tbVis = lcTabBarVisible();
   const tbCustomOn = page === "feed" && tbVis.some(function (t) { return t.custom && t.id === Looscid.LC_FEED; });
   const tbSel = function (t) { return t.custom ? (page === "feed" && Looscid.LC_FEED === t.id) : t.id === "feed" ? (page === "feed" && !tbCustomOn) : (t.id !== "create" && page === t.id); };
-  const selIdx = Math.max(0, tbVis.findIndex(tbSel));
+  const selIdx = page === "profile" ? tbVis.length : Math.max(0, tbVis.findIndex(tbSel)); // Round 7.14: Profile is the last tab
   const [navFocus, setNavFocus] = useState(selIdx);
   useEffect(() => { setNavFocus(selIdx); }, [selIdx]);
   const headingFocusNext = useRef(false);
@@ -7364,23 +7373,24 @@ useEffect(() => {
         }
         // Build 151 (#75): the tabs come from Settings > Tab Bar (shown or hidden, in your order, plus custom tabs). More is always last.
         , tbVis.map(function (t, i) { return tabBtn(t, i); })
+        /* Round 7.14 (Carter, Oct 24 2026): the last tab is Profile, your own profile, and its More button holds what the More
+           menu held. The tab keeps its class and its place (always last, always shown); only its name and what it opens changed. */
         , React.createElement('button', {
-            className: "nb-menu",
-            onClick: () => setShowMenu(true),
+            className: "nb-menu" + (page === "profile" ? " on" : ""),
+            onClick: () => { setShowMenu(false); headingFocusNext.current = page !== "profile"; goRoot("profile"); },
             role: "tab",
-            "aria-selected": false,
-            "aria-label": "More",
-            "aria-haspopup": "dialog",
-            // Round 7.12: position for screen readers ("More, tab, 5 of 5"); More is always last and always shown.
+            "aria-selected": page === "profile",
+            "aria-label": "Profile",
+            "aria-controls": "main-content",
+            // Round 7.12: position for screen readers ("Profile, tab, 5 of 5"); Profile is always last and always shown.
             "aria-setsize": tbVis.length + 1,
             "aria-posinset": tbVis.length + 1,
             tabIndex: navFocus===tbVis.length ? 0 : -1,
           },
           React.createElement('div', {"aria-hidden":"true", className:"nb-menu-ic"},
-            React.createElement(Ic.Dots, {style:{width:16,height:16}}),
-            React.createElement('span', {style:{fontSize:8,opacity:.7,marginLeft:1}}, "▾")
+            React.createElement(Ic.Usr, {style:{width:18,height:18}})
           ),
-          React.createElement('span', {"aria-hidden":"true"}, "More")
+          React.createElement('span', {"aria-hidden":"true"}, "Profile")
         )
       )))
       , composeReq && Looscid.LcComposer && React.createElement(Looscid.LcComposer, Object.assign({ key: "cmp-" + composeReq.n }, composeReq, { prefs: prefs, navigate: navigate, cherryCtx: cherryCtx, onClose: function () { setComposeReq(null); } }))
