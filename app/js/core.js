@@ -2211,6 +2211,10 @@ Object.assign(Looscid, { LC_ROUTES, LOOSCID_BASE, lcSlug, lcPathFor, lcRouteFor 
    slogan use the name alone. Help stays the pop-up menu 2three1y asked for on Oct 11 (#71). The sections are built
    here once, so the More menu and each More page list exactly the same items. */
 const LC_MORE_SLOGANS = { cherry: "DO IT YOUR WAY", settings: "Adjust your life" };
+// Looscid split step 1 (Oct 24 2026): Loostore, every app and project in one place, on its own site.
+const LC_LOOSTORE_URL = "https://2three1y.github.io/Loostore/";
+// More items that moved into Loostore: Back from their pages lands on the Loostore link in More.
+const LC_MORE_MOVED = { apps: "loostore", projects: "loostore" };
 const LC_MORE_PAGE = { cherry: "cherry", discover: "more_discover", apps: "more_apps", create: "more_create", alerts: "more_alerts", settings: "settings", projects: "more_projects" };
 function lcMoreTitle(id, label) { return LC_MORE_SLOGANS[id] ? label + " - " + LC_MORE_SLOGANS[id] : label; }
 function lcMoreSections(o) {
@@ -2227,7 +2231,10 @@ function lcMoreSections(o) {
       { icon:"Circles", label:"Circles",  sub:"Your communities",                              action(){onClose();goRoot("circles");} },
       { icon:"Lists", label:"Lists",  sub:"Your own lists of Dreamors, each its own feed",      action(){onClose();navigate("lists");} }, // build 152 prep (#99, part 4b)
     ]},
-    { id:"apps", emoji:"Apps", label:"Apps", items: lcAppItems().map(function (it) { return { icon: it.l, label: it.l, sub: it.sub, action(){ onClose(); it.go(navigate); } }; }) },
+    // Looscid split step 1 (Carter, Oct 24 2026): More shows one Loostore link instead of Apps and Projects. Loostore is its
+    // own site. The Apps and Projects pages and their addresses stay for now (hideInMenu), so nothing that opens them breaks.
+    { id:"loostore", emoji:"Loostore", label:"Loostore", href: LC_LOOSTORE_URL, items: [] },
+    { id:"apps", emoji:"Apps", label:"Apps", hideInMenu: true, items: lcAppItems().map(function (it) { return { icon: it.l, label: it.l, sub: it.sub, action(){ onClose(); it.go(navigate); } }; }) },
     // Build 148 (2three1y): Create is the same list as the Create tab, one shared implementation (js/create.js, CreateOptions).
     { id:"create", emoji:"Create", label:"Create", items:[], render: function () { return Looscid.CreateOptions ? lh(Looscid.CreateOptions, { idp: "more-create", navigate: navigate, close: onClose, open: function (scr) { onClose(); if (Looscid.LC_OPEN_CREATE) Looscid.LC_OPEN_CREATE(scr); } }) : null; } },
     { id:"alerts", emoji:"Alerts", label:"Alerts", badge:totalAlerts, items:[
@@ -2258,7 +2265,7 @@ function lcMoreSections(o) {
     // Part 34a (2three1y, Oct 12 4:38 PM: "the More tab holds ONLY Looscid features"): About Looscid and Social moved to
     // the site footer (Values and Social). Their pages are unchanged; only where they are linked from moved.
     // Round 6.6: Projects, 2three1y's own projects, built in (js/projects.js). Added near the end; Commands stays last.
-    { id:"projects", emoji:"Projects", label:"Projects", intro:"My own projects, built into Looscid. Each one opens here, with Back and Close. Nothing loads until you open one.",
+    { id:"projects", emoji:"Projects", label:"Projects", hideInMenu: true, intro:"My own projects, built into Looscid. Each one opens here, with Back and Close. Nothing loads until you open one.",
       // Build 147 (2three1y: one link per place): GitHub is already in Social, so the Projects section no longer repeats it.
       items: (Looscid.LC_PROJECTS || []).map(function (p) { return { icon:"Projects", label:p.name, sub:p.sub, action(){ onClose(); Looscid.lcOpenProject(p, navigate); } }; }) },
     // Build 150 (#71, 2three1y 4:36 PM Oct 11): Help is a real pop-up menu button (aria-haspopup="menu"), last in More.
@@ -2306,7 +2313,7 @@ function lcMoreItemLi(s, item) {
                 React.createElement(Ic.Chv,{key:"chv",style:{width:13,height:13,color:"var(--tx3)",flexShrink:0},"aria-hidden":"true"})
               ), subP, item.like && Looscid.LcLikeBtn ? lh(Looscid.LcLikeBtn, { k: item.like.k, id: item.like.id, name: item.label, className: "btn bgb lc-btn lc-like-btn lc-mli-like" }) : null);
 }
-Object.assign(Looscid, { LC_MORE_SLOGANS, LC_MORE_PAGE, lcMoreTitle, lcMoreSections, lcMoreItemLi });
+Object.assign(Looscid, { LC_MORE_SLOGANS, LC_MORE_PAGE, LC_LOOSTORE_URL, LC_MORE_MOVED, lcMoreTitle, lcMoreSections, lcMoreItemLi });
 function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, appDreams, initOpen, initFocus }) {
   const pos = (prefs.menu || {}).pos || "bottom";
   const likedCount = lcLikedItems().length; // build 147: one Liked store
@@ -2321,7 +2328,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
     const t = setTimeout(() => {
       const body = document.getElementById("msec-" + initOpen);
       const item = body && initFocus ? Array.from(body.querySelectorAll(".mitem")).find(b => b.getAttribute("aria-label") === initFocus) : null;
-      const el = item || document.querySelector('button.msec-toggle[aria-controls="msec-' + initOpen + '"]') || document.getElementById("msec-btn-" + initOpen);
+      const el = item || document.querySelector('button.msec-toggle[aria-controls="msec-' + initOpen + '"]') || document.getElementById("msec-btn-" + initOpen) || (LC_MORE_MOVED[initOpen] ? document.getElementById("msec-btn-" + LC_MORE_MOVED[initOpen]) : null);
       if (el) el.focus();
     }, 30);
     return () => clearTimeout(t);
@@ -2349,7 +2356,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       // keeps working everywhere.
       React.createElement('button', {type:"button", id:"more-open-cmd", className:"lc-more-profile", onClick:function(){ onClose(); setTimeout(function () { if (Looscid.LC_OPEN_CMD) Looscid.LC_OPEN_CMD(); }, 60); }}, React.createElement('span', null, "Open Commandbar")),
 
-      React.createElement('ul', {className:"mlist msec-list", role:"list"}, SECTIONS.map(function(s) {
+      React.createElement('ul', {className:"mlist msec-list", role:"list"}, SECTIONS.filter(function (s) { return !s.hideInMenu; }).map(function(s) {
         // Part 32: list items holding plain controls, never headings. Part 40 (#67): each section is a link to its own
         // page (Help stays a pop-up menu, #71). The link has a real address (#69), and Enter or a tap opens the page here.
         if (s.menu) return React.createElement('li', {key:s.id, className:"msec-hdr msec-li", style:{padding:0}},
@@ -2358,6 +2365,12 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
             btnText: [lh('span', { key: "l" }, s.label), lh('span', { key: "i", className: "msec-toggle-ic", "aria-hidden": "true" }, "\u203a")],
             items: s.items.map(function (it) { return { id: it.label, name: it.label, a: it.action }; }),
             onSelect: function (k, it) { if (it && it.a) it.a(); } }));
+        // Looscid split step 1: Loostore is a plain link to its own site, opened in a new tab like More's other outside links.
+        if (s.href) return React.createElement('li', {key:s.id, className:"msec-hdr msec-li", style:{padding:0}},
+          React.createElement('a', {id:"msec-btn-"+s.id, className:"msec-direct", "data-sec":s.id, href: s.href, target:"_blank", rel:"noopener noreferrer",
+            "aria-braillelabel": Looscid.A11Y_NOW.brailleOutput ? s.label : undefined},
+            React.createElement('span', {style:{display:"flex",alignItems:"center",gap:7}}, React.createElement('span', null, s.label)),
+            React.createElement('span', {className:"msec-toggle-ic","aria-hidden":"true"}, "\u2197")));
         var pg = LC_MORE_PAGE[s.id];
         var go = function (e) { if (e && (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1)) return; if (e) e.preventDefault(); if (s.direct) { s.direct(); return; } onClose(); if (s.id === "cherry") goRoot("cherry"); else navigate(pg === "settings" ? "settings_open" : pg); };
         return React.createElement('li', {key:s.id, className:"msec-hdr msec-li", style:{padding:0}},
@@ -3923,11 +3936,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.117.45";
+const LOOSCID_VERSION = "2026.117.46";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 162;
+const LOOSCID_BUILD = 163;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-23T23:30:02Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-24T15:38:57Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -6761,7 +6774,7 @@ useEffect(() => {
     setMenuInit({ open: sec, focus: focus || null, n: Date.now() }); setShowMenu(true);
   };
   // Back on a More page: More opens again on the link that opened it.
-  const moreBack = (id) => { setPage(mainBack.current || "feed"); setPdata(null); setMenuInit({ open: null, focus: "#msec-btn-" + id, n: Date.now() }); setShowMenu(true); Earcon.play("settings"); };
+  const moreBack = (id) => { setPage(mainBack.current || "feed"); setPdata(null); setMenuInit({ open: null, focus: "#msec-btn-" + (LC_MORE_MOVED[id] || id), n: Date.now() }); setShowMenu(true); Earcon.play("settings"); };
   Looscid.LC_MORE_BACK = moreBack;
   // Part 40 (#69): the address bar follows the page (pushState), Back and Forward in the browser follow the address
   // (popstate), and an address that came through 404.html (?p=/Settings/Sense) or straight in opens its page.

@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.117.45",
-  "build": 162,
+  "version": "2026.117.46",
+  "build": 163,
   "features": 117,
-  "fixes": 45,
+  "fixes": 46,
   "builds_without_fixes": 117,
-  "released": "2026-10-23T23:30:02Z",
-  "title": "Round 7.12",
-  "notes": "Round 7.12 (build 162), a fix update. Every set of tabs tells screen readers each tab's place, like Home, tab, 1 of 5."
+  "released": "2026-10-24T15:38:57Z",
+  "title": "Round 7.13",
+  "notes": "Round 7.13 (build 163), a fix update. More has one Loostore link instead of Apps and Projects; Loostore lists every app and project, each on its own site."
 }

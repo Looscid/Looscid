@@ -113,7 +113,7 @@ const LC_HELP_SECTIONS = [
     "Calm mode, Flash safety and Reduce Motion are in Settings, Accessibility, Motion and seizure.",
   ]],
   ["Projects", [
-    "More, Projects has my own projects, built into Looscid: Memeprojects, Lyric Finder, Vibework, Soundvault and more. Each opens with Back and Close.",
+    "More, Loostore lists all my apps and projects in one place, each on its own site: Insomnia OS, Memeprojects, Lyric Finder, Vibework, Soundvault and more. It opens in a new tab.",
     "Some say Coming soon, with a link to help me build them.",
   ]],
   ["Legal", [

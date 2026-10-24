@@ -2,6 +2,12 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.117.46 (163): Round 7.13
+
+Released October 24, 2026 at 11:38 AM (Eastern Time, 2026-10-24T15:38:57Z UTC)
+
+- Fix: More has one Loostore link instead of the separate Apps and Projects items. Loostore (https://2three1y.github.io/Loostore/) lists every app and project in one place, each on its own site, and opens in a new tab. The Apps and Projects pages and their addresses still work for now, and Back from them lands on the Loostore link.
+
 ## Looscid 2026.117.45 (162): Round 7.12
 
 Released October 23, 2026 at 7:30 PM (Eastern Time, 2026-10-23T23:30:02Z UTC)

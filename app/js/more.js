@@ -2464,10 +2464,13 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 117; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 45;
+const LOOSCID_FIXES = 46;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.117.45", build: 162, released: LOOSCID_RELEASED, title: "Round 7.12", notes: [
+  { version: "2026.117.46", build: 163, released: LOOSCID_RELEASED, title: "Round 7.13", notes: [
+    "Fix: More has one Loostore link instead of Apps and Projects. Loostore lists every app and project in one place, each on its own site, and opens in a new tab.",
+  ] },
+  { version: "2026.117.45", build: 162, released: "2026-10-23T23:30:02Z", title: "Round 7.12", notes: [
     "Fix: every set of tabs tells screen readers each tab's place, like \u201cHome, tab, 1 of 5\u201d, so VoiceOver on iPhone can say it. Tab names don't change.",
     "Fix: Circles tabs work with the arrow keys, Home and End, like the other tabs.",
     "Fix: clearing the Discover search on All or Dreams goes back to Trending.",
