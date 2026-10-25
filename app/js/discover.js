@@ -4,16 +4,12 @@
 (function (Looscid) {
 const { DREAMS_INIT, GROUPS, TRENDING, USERS, fmt, lcEl: h, lcPatch, lcPlainScreen, lcAvEl, lcIconEl, lcDreamTextEl } = Looscid;
 
+// Round 7.16 (#216, Carter said yes Oct 25 2026): only filters that really filter. Content (Dreams, Replies, Redreams,
+// Has Media) and Time (Today, This Week, All Time) did nothing, so they are gone; Verified is the one left.
 const FILTER_OPTS = [
-  { id: "dreams",   label: "Dreams",    icon: "Dreams",    group: "content" },
-  { id: "replies",  label: "Replies",   icon: "Replies",   group: "content" },
-  { id: "redreams", label: "Redreams",  icon: "Redreams",  group: "content" },
-  { id: "media",    label: "Has Media", icon: "Has Media", group: "content" },
   { id: "verified", label: "Verified",  icon: "\u2713",    group: "dreamers" },
-  { id: "today",    label: "Today",     icon: "Today",     group: "time", radio: "time" },
-  { id: "week",     label: "This Week", icon: "This Week", group: "time", radio: "time" },
-  { id: "alltime",  label: "All Time",  icon: "All Time",  group: "time", radio: "time" },
 ];
+const lcKnownFilters = function (list) { return (Array.isArray(list) ? list : []).filter(function (id) { return FILTER_OPTS.some(function (f) { return f.id === id; }); }); };
 const tabLabel = function (t) { return ({ all: "All", dreamers: "Dreamors", dreams: "Dreams", circles: "Circles", trending: "Trending" })[t] || t; };
 
 // Build 152 fix: switching All, Dreamors, Dreams or Circles during a search says the tab's count once through #looscid-live
@@ -46,9 +42,7 @@ function discoverView(st, p, draw) {
     .filter(function (u) { return !filters.includes("verified") || u.verified; });
   const circleResults = GROUPS.filter(function (g) { return !q || g.name.toLowerCase().includes(ql); });
   const filterGroups = [
-    { label: "Content",  opts: FILTER_OPTS.filter(function (f) { return f.group === "content"; }) },
     { label: "Dreamors", opts: FILTER_OPTS.filter(function (f) { return f.group === "dreamers"; }) },
-    { label: "Time",     opts: FILTER_OPTS.filter(function (f) { return f.group === "time"; }) },
   ];
   // Build 148: the search you're on, for Like Search (here and in the Commandbar).
   Looscid.LC_DISCOVER_Q = q; Looscid.LC_DISCOVER_FILTERS = activeLabels; Looscid.LC_DISCOVER_ST = st; // round 12: what Back to Discover brings back
@@ -135,11 +129,11 @@ function discoverView(st, p, draw) {
             h('div', { className: "cif", "aria-hidden": "true" },
               h('div', { className: "cnm" }, u.name, u.verified && h('span', { style: { color: "var(--ac2)", fontSize: 11 } }, " \u2713")),
               h('div', { className: "cpv" }, u.handle, " \u00b7 ", fmt(u.followers || 0), (u.followers || 0) === 1 ? " follower" : " followers"))),
+          // Round 7.16 (#216): no more dimmed "open their profile to follow" button. Follow always works here.
           cherryCtx && cherryCtx.followUser
             ? h('button', { type: "button", className: "btn " + (fol ? "bgb" : "bp"), style: { padding: "7px 14px", fontSize: 12 }, "aria-pressed": fol ? "true" : "false", "aria-label": "Follow " + u.name,
                 onClick: function () { cherryCtx.followUser(u.id); Looscid.announce((fol ? "Unfollowed " : "Following ") + u.name + ".", "state", "follow:" + u.id); } }, fol ? "Following" : "Follow")
-            : h('button', { type: "button", className: "btn bp", style: { padding: "7px 14px", fontSize: 12 }, "aria-disabled": "true", "aria-label": "Follow " + u.name,
-                onClick: function () { Looscid.announce("Not available yet: open " + u.name + "'s profile to follow."); } }, "Follow"));
+            : null);
       }),
 
       // Round 5 fixes: a Dream result is one button with one name that opens the Dream (it was four separate pieces with an
@@ -163,14 +157,16 @@ function discoverView(st, p, draw) {
       }),
 
       (tab === "circles" || tab === "all") && circleResults.map(function (g) {
+        const joined = !!(cherryCtx && cherryCtx.groups && (cherryCtx.groups.find(function (x) { return x.id === g.id; }) || {}).joined);
         return h('div', { key: g.id, className: "ci", "aria-label": g.name + " Circle, " + fmt(g.members) + " Dreamors" },
           h('div', { style: { width: 44, height: 44, borderRadius: 11, background: "var(--sf2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 } }, g.emoji),
           h('div', { className: "cif" },
             h('div', { className: "cnm" }, g.name),
             h('div', { className: "cpv" }, fmt(g.members), " Dreamors in this Circle")),
-          // Round 5 fixes: Join did nothing and said nothing. Circles from Discover come in build 152, so it says so.
-          h('button', { type: "button", className: "btn bgb", style: { fontSize: 12 }, "aria-label": "Join the " + g.name + " Circle", "aria-disabled": "true",
-            onClick: function () { Looscid.announce("Not available yet: joining a Circle from Discover comes in a later build. Open Circles from Profile, More, Discover to join it."); } }, "Join"),
+          // Round 7.16 (#216): Join works. It joins (or leaves) the Circle the same way Circles does, is a pressed button
+          // while you're in it, and says so once. The Circle shows under My Circles.
+          cherryCtx && cherryCtx.joinGroup ? h('button', { type: "button", className: "btn " + (joined ? "bgb" : "bp"), style: { fontSize: 12 }, "aria-label": "Join the " + g.name + " Circle", "aria-pressed": joined ? "true" : "false",
+            onClick: function () { cherryCtx.joinGroup(g.id); Looscid.announce((joined ? "Left " : "Joined ") + g.name + ".", "state", "join:" + g.id); } }, joined ? "Joined" : "Join") : null,
           Looscid.lcLikeBtnEl ? Looscid.lcLikeBtnEl("circle", g.id, g.name + " Circle", { name: g.name, emoji: g.emoji }, draw, { style: { fontSize: 12, marginLeft: 6 } }) : null);
       }),
 
@@ -190,7 +186,7 @@ const DiscoverPage = lcPlainScreen("DiscoverPage", function (host, props) {
   let keep = Looscid.LC_DISCOVER_NEXT_ST; Looscid.LC_DISCOVER_NEXT_ST = null;
   const left = Looscid.lcDiscLeft; Looscid.lcDiscLeft = null;
   if (!keep && !nq && left && Looscid.lcBackNow && Looscid.lcBackNow()) keep = left;
-  if (keep && typeof keep.q === "string") { st.q = keep.q; st.tab = keep.tab || (keep.q ? "all" : "trending"); st.filters = Array.isArray(keep.filters) ? keep.filters : []; }
+  if (keep && typeof keep.q === "string") { st.q = keep.q; st.tab = keep.tab || (keep.q ? "all" : "trending"); st.filters = lcKnownFilters(keep.filters); }
   let p = props;
   const draw = function () { lcPatch(host, discoverView(st, p, draw)); };
   draw();

@@ -921,15 +921,16 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
   const handle = (dream.user && dream.user.handle || "").replace("@", "");
   const lang = Looscid.A11Y_NOW.translateTo || "en", langName = (LC_LANGS.find(function (x) { return x[0] === lang; }) || [0, "English"])[1];
   const items = [
-    LcSpeech.ok ? { id: "read", name: "Read this Dream", hint: "Reads this Dream aloud.", a: function () { LcSpeech.speak(lcDreamSpeechParts(dream)); } } : null,
-    onExtra && LcSpeech.ok ? { id: "thread", name: "Hear thread", hint: "Reads the whole thread aloud.", a: function () { onExtra({ kind: "thread" }); lcHearThread(dream); } } : null,
+    // Round 7.16 (#216): Read this Dream and Hear thread show only with Settings, Accessibility, Speech, "Read aloud in Dream
+    // menus" on (off by default: VoiceOver already reads Dreams). The Commandbar's read this Dream still works.
+    LcSpeech.ok && Looscid.A11Y_NOW.readAloudMenu ? { id: "read", name: "Read this Dream", hint: "Reads this Dream aloud.", a: function () { LcSpeech.speak(lcDreamSpeechParts(dream)); } } : null,
+    onExtra && LcSpeech.ok && Looscid.A11Y_NOW.readAloudMenu ? { id: "thread", name: "Hear thread", hint: "Reads the whole thread aloud.", a: function () { onExtra({ kind: "thread" }); lcHearThread(dream); } } : null,
     onExtra && lcTranslateOk() ? { id: "translate", name: "Translate into " + langName, a: function () {
       onExtra({ kind: "translation", text: "", lang: lang });
       lcTranslate(dream.text || "", lang).then(function (r) { onExtra({ kind: "translation", text: r.same ? "This Dream is already in " + langName + "." : r.text, lang: lang }); announce("Translated."); },
         function () { onExtra({ kind: "translation", text: "This browser couldn't translate it on this device." }); });
     } } : null,
-    // Build 147: liking is saving, so the old Save item is Like (the same toggle as the Like button).
-    (onLike || onBookmark) ? { id: "like", name: dream.liked ? "Unlike Dream" : "Like Dream", a: function () { if (!dream.liked) Earcon.play("like"); (onLike || onBookmark)(dream.id); announce(dream.liked ? "Unliked. Removed from Liked." : "Liked. It's in Liked on your profile."); } } : null,
+    // Round 7.16 (#216): no Like or Unlike item here; the Like button is right next to More.
     // Share opens the phone's share sheet with the Dream's link (its Copy replaced our Copy link item); see lcShareLink.
     lcDreamUrl(dream) ? { id: "share", name: "Share Dream", a: function () {
         const url = lcDreamUrl(dream);
@@ -954,14 +955,16 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
       const nextId = next ? next.getAttribute("data-dream-id") : null;
       lcNotInterestedAdd(dream); announce("Hidden from For You. You'll see it in Following and on profiles.");
       setTimeout(function () { const el = nextId ? document.querySelector('[data-dream-id="' + nextId + '"]') : document.getElementById("feed-tab-for-you"); if (el) el.focus(); }, 60); } } : null,
-    handle ? { id: "profile", name: "View @" + handle + "'s profile", a: function () { navigate && navigate("dp", dream.user); } } : null,
+    // Round 7.16 (#216): no View profile item; the Dreamor's name on the Dream opens their profile.
     // Build 147 (2three1y): when a Dream tags you, you can remove yourself from it (on this device).
     lcTagsMe(dream) ? (lcIsUntagged(dream)
       ? { id: "retag", name: "Add me back to this Dream", a: function () { lcSetUntagged(dream, false); announce("You're back in this Dream."); } }
       : { id: "untag", name: "Remove me from this Dream", a: function () { lcSetUntagged(dream, true); announce("Removed you from this Dream. Your mention in it isn't a link to you anymore."); } }) : null,
-    // Build 151 (#54): pin this Dream's thread, or its Dreamor, as a feed tab.
-    (function () { const root = dream._root || dream.replyTo || dream.id; const on = lcPinHas("thread", root);
-      return { id: "pinthread", name: on ? "Unpin thread tab" : "Pin thread as a tab", a: function () { if (on) lcPinRemove(lcPinId({ kind: "thread", ref: root })); else lcPinAdd("thread", root, "Thread: " + String((dream.user && dream.user.name) || "Dream") + ", " + lcCutWords(dream.text, 30)); } }; })(),
+    // Round 7.16 (#216): one way to follow a thread here, Subscribe (Alerts). Pin thread as a tab is gone from this menu; a
+    // thread can still be pinned in Settings, Customizability, Feeds and home, Feed tabs. A thread tab already pinned can
+    // still be unpinned here.
+    (function () { const root = dream._root || dream.replyTo || dream.id; if (!lcPinHas("thread", root)) return null;
+      return { id: "pinthread", name: "Unpin thread tab", a: function () { lcPinRemove(lcPinId({ kind: "thread", ref: root })); } }; })(),
     // Build 151 (#74, 2three1y Oct 11 4:56-4:58 PM): Subscribe to thread. New Replies in it land in Alerts, Replies.
     (function () { const root = String(dream._root || dream.replyTo || dream.id); const on = lcThreadSubbed(root);
       return { id: "subthread", name: on ? "Unsubscribe from thread" : "Subscribe to thread", a: function () {
@@ -969,7 +972,7 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
         else { lcThreadSub(root, dream); announce("Subscribed to this thread. New Replies show up in Alerts, Replies."); } } }; })(),
     handle && !(dream.user === ME || lcHandle(handle) === lcHandle(ME.handle || "")) ? (function () { const on = lcPinHas("person", lcHandle(handle));
       return { id: "pinperson", name: on ? "Unpin @" + handle + " tab" : "Pin @" + handle + " as a tab", a: function () { if (on) lcPinRemove(lcPinId({ kind: "person", ref: lcHandle(handle) })); else lcPinAdd("person", lcHandle(handle), (dream.user && dream.user.name) || "@" + handle); } }; })() : null,
-    cherryCtx ? { id: "cherry", name: "Ask Cherry about this Dream", a: function () { cherryCtx.openCherry("Tell me about this Dream: " + String(dream.text || "").slice(0, 200)); } } : null,
+    // Round 7.16 (#216): no Ask Cherry about this Dream (not social).
   ].filter(Boolean);
   // Build 150 (#46): Feditext's More button. Its own pop-up items come first, in Feditext's order (Bookmark is Like in
   // Looscid, then Mute, Block, Report for someone else's Dream), then Looscid's own. Feditext layout only, no code.
@@ -981,10 +984,9 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
           : { id: "mute", name: "Mute " + who, a: function () { lcPeopleSet("looscid_muted_dreamors", handle, true); announce("Muted " + who + ". Their Dreams are hidden from your feed."); } },
     blocked ? { id: "unblock", name: "Unblock " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").filter(function (h) { return h !== lcHandle(handle); })); announce("Unblocked " + who + "."); } }
             : { id: "block", name: "Block " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").concat([handle])); announce("Blocked " + who + ". Unblock here or in Settings, Privacy."); } },
-    { id: "report", name: "Report", note: "coming soon", hint: "Not available yet: Looscid has nowhere to send reports yet.", disabled: true },
+    // Round 7.16 (#216): Report is hidden until Looscid has somewhere to send reports (it was a dimmed Coming soon item).
   ];
-  const likeIt = items.filter(function (it) { return it.id === "like"; });
-  const ordered = likeIt.concat(fx, items.filter(function (it) { return it.id !== "like"; }));
+  const ordered = fx.concat(items);
   // Round 5 fixes: each Dream's More button says whose Dream it is ("More, Dream by Ava"), so the rotor list isn't a row of "More".
   return lh(LcMenu, { id: id + "-btn", menuId: id, kind: "action", title: "More", btnLabel: "More, " + (dream && dream.user && dream.user.name ? "Dream by " + dream.user.name : "Dream"), btnHint: "Opens actions for this Dream.", btnClass: "ixn-btn", btnRef: btnRef, noCaret: true, align: "right", up: true,
     className: "lc-dmenu", style: { flex: ".5", display: "flex" }, itemClass: "lc-dopt", btnText: lh(Ic.Dots, { style: { width: 15, height: 15 } }), items: ordered,
@@ -1251,7 +1253,6 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
   const [showRD, setShowRD] = useState(false);
   const [showOpts, setShowOpts] = useState(false);
   const optsBtn = useRef(null);
-  const [showInsights, setShowInsights] = useState(false);
   useRepliesTick(); // Round 6.5: the reply count includes your saved replies
   useUntagTick(); // Build 147: Remove me from this Dream
   useIdListTick("looscid:edits"); dream = lcWithEdit(dream); // build 152 prep (#99): your edits show everywhere
@@ -1322,38 +1323,7 @@ function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuot
               lh(DreamExtra, { extra: extra, dream: dream, onClose: function () { setExtra(null); setTimeout(function () { if (optsBtn.current) optsBtn.current.focus(); }, 0); } }))
           , dream.quoteOf != null && dream.qText != null && lh('div', { className: "qbub lc-quoted" }, lh('p', { style: {fontSize:12,color:"var(--tx2)",lineHeight:1.5,margin:0} }, "Quoting " + (dream.qWho || "a Dream") + ": " + dream.qText))
           , linkInfo && !dream.nopv && lh(LinkCard, { info: linkInfo })
-          /* Cherry Insights panel */
-          , cherryCtx && showInsights && (()=>{
-            const tags = dream.text.match(/#\w+/g)||[];
-            const sentiment = dream.likes > 200 ? "High engagement" : dream.likes > 100 ? "Growing" : "Active discussion";
-            const relTags = ["#Consciousness","#Philosophy","#CreativeProcess","#Mindfulness"].filter(t=>!tags.includes(t)).slice(0,2);
-            return (
-              React.createElement('div', { className: "cherry-insight-panel",}
-                , React.createElement('div', { className: "cherry-insight-row",}
-                  , React.createElement('div', { className: "aiorb", style: {width:22,height:22,fontSize:11,flexShrink:0},}, "Cherry")
-                  , React.createElement('span', { style: {fontSize:11,fontWeight:700,color:"var(--ac3)"},}, "CHERRY INSIGHTS" )
-                )
-                , React.createElement('div', { style: {fontSize:12,color:"var(--tx2)",marginBottom:8,lineHeight:1.5},}
-                  , sentiment, ", Dreamed by "    , dream.user.name, ", "  , dream.comments, " replies, "   , (dream.likes/10).toFixed(0), "% engagement rate"
-                )
-                , tags.length > 0 && React.createElement('div', { style: {marginBottom:6},}
-                  , React.createElement('span', { style: {fontSize:10,color:"var(--tx3)",fontWeight:700,display:"block",marginBottom:4},}, "HASHTAGS")
-                  , React.createElement('div', { style: {display:"flex",gap:5,flexWrap:"wrap"},}
-                    , tags.map(t=>React.createElement('button', { key: t, className: "cherry-insight-tag", onClick: ()=>cherryCtx.openCherry("What dreams use "+t+" and should I Dream about it?"), 'aria-label': "Ask Cherry about "+t,}, t))
-                  )
-                )
-                , relTags.length > 0 && React.createElement('div', { style: {marginBottom:8},}
-                  , React.createElement('span', { style: {fontSize:10,color:"var(--tx3)",fontWeight:700,display:"block",marginBottom:4},}, "CHERRY SUGGESTS ADDING"  )
-                  , React.createElement('div', { style: {display:"flex",gap:5,flexWrap:"wrap"},}
-                    , relTags.map(t=>React.createElement('span', { key: t, style: {background:"rgba(52,211,153,.1)",color:"var(--gr)",borderRadius:100,padding:"2px 8px",fontSize:11,fontWeight:600},}, t))
-                  )
-                )
-                , React.createElement('button', { className: "agent-action-pill", style: {width:"100%",justifyContent:"center"}, onClick: ()=>cherryCtx.openCherry("Tell me more about this Dream by "+dream.user.name+": "+dream.text.slice(0,80)), 'aria-label': "Deep dive with Cherry"   ,}, "Deep dive with Cherry"
-
-                )
-              )
-            );
-          })()
+          /* Round 7.16 (#216): no Cherry insights panel (its related tags were made up). */
         )
         /* Interaction row - Save removed, lives in Dream Options menu */
         , React.createElement('div', { className: "ixn-row",}
@@ -1613,6 +1583,8 @@ const LC_FIND_STATIC = [
   { l: "Blocked words", w: "block word blocked words hide words everywhere", page: "settings_privacy", priv: "blocked", privTab: "words", focus: "priv-bl-words-in", where: "Settings, Privacy, Blocked and muted" },
   { l: "Forget what Cherry knows about my media", w: "cherry forget media", page: "settings_privacy", priv: "pmedia", focus: "priv-cherry-forget", where: "Settings, Privacy, Media and content" },
   { l: "Customizability", w: "themes feeds dreaming posting media", page: "settings_customizability", where: "Settings" },
+  // Round 7.16 (#216): what moved here from above the feeds
+  { l: "Show following, Networks and Feed tabs", w: "show following for you networks federated nostr pin a tab feed tabs pinned tabs", page: "settings_cz_feeds", focus: "fy-show-following", where: "Settings, Customizability, Feeds and home" },
   { l: "Earcons", w: "audio earcons earcon sounds sound pack soundpack soundpacks looscid os classic nexos volume haptics beeps keyboard clicks keyboard earcons command earcons", page: "settings_audio", where: "Settings" },
   { l: "Inbox earcons", w: "inbox earcons inbox earcon inbox sounds inbox sound alert earcons message reply mention like redream quote new dreamor preview", page: "settings_audio_events", focus: "lca-inbox-h", where: "Settings, Earcons, Event earcons" },
   { l: "Event earcons", w: "event earcons event earcon event sounds event sound send like new dream error alert feed switch previews", page: "settings_audio_events", where: "Settings, Earcons" },
@@ -1643,7 +1615,6 @@ const LC_FIND_STATIC = [
   { l: "Alerts settings", w: "alerts settings notifications alert types sound who can trigger quiet hours", page: "settings_notifications", where: "Alerts tab, Alerts settings" },
   { l: "Notification settings", w: "notification settings notifications categories order inbox tabs", page: "settings_notifications", where: "Alerts tab" },
   { l: "Message settings", w: "message settings messages who can message me categories order starred", page: "settings_messages", where: "Alerts tab, Messages" },
-  { l: "App settings", w: "apps app settings insomnia soundscape desktop beat kernel volume", page: "settings_apps", where: "Settings, Apps" },
 ];
 Looscid.LC_FIND_STATIC = LC_FIND_STATIC;
 function lcSettingIndex() {
@@ -2221,7 +2192,7 @@ const LC_MORE_SLOGANS = { cherry: "DO IT YOUR WAY", settings: "Adjust your life"
 // Round 7.14 (Carter, Oct 24 2026): Loostore is not part of Looscid, so there is no Loostore link anywhere in Looscid.
 // More's old sections (Apps, Projects) have no link of their own; Back from their pages goes to your profile's More button.
 const LC_MORE_MOVED = {};
-const LC_MORE_PAGE = { cherry: "cherry", discover: "more_discover", apps: "more_apps", create: "more_create", alerts: "more_alerts", settings: "settings", projects: "more_projects" };
+const LC_MORE_PAGE = { cherry: "cherry", circles: "groups", discover: "more_discover", apps: "more_apps", create: "more_create", alerts: "more_alerts", settings: "settings", projects: "more_projects" };
 function lcMoreTitle(id, label) { return LC_MORE_SLOGANS[id] ? label + " - " + LC_MORE_SLOGANS[id] : label; }
 function lcMoreSections(o) {
   const onClose = o.onClose || function () {}, navigate = o.navigate, goRoot = o.goRoot;
@@ -2232,10 +2203,10 @@ function lcMoreSections(o) {
         ? { icon:"Cherry", label:"Open Cherry",     sub:"Cherry - DO IT YOUR WAY", special:"cherry", action(){onClose();goRoot("cherry");} }
         : { icon:"Cherry", label:"Turn on Cherry",  sub:"Cherry is off. Opens Settings, Intelligence", action(){onClose();navigate("settings_ai_cherry");} },
     ]},
-    { id:"discover", emoji:"Discover", label:"Discover", items:[
-      { icon:"Discover", label:"Discover", sub:"Dreamors, topics, trending", discoverLink:true, action(){onClose();goRoot("discover");} },
+    // Round 7.16 (#216, Carter said yes Oct 25 2026): the Discover page (Discover, Circles, Lists) is gone. Discover is its tab,
+    // Lists is in your profile's More, and Circles is its own item, opening Circles directly.
+    { id:"circles", emoji:"Circles", label:"Circles", direct(){onClose();goRoot("circles");}, items:[
       { icon:"Circles", label:"Circles",  sub:"Your communities",                              action(){onClose();goRoot("circles");} },
-      { icon:"Lists", label:"Lists",  sub:"Your own lists of Dreamors, each its own feed",      action(){onClose();navigate("lists");} }, // build 152 prep (#99, part 4b)
     ]},
     // Looscid split step 1 (Carter, Oct 24 2026): the Apps and Projects pages and their addresses stay for now (hideInMenu),
     // so nothing that opens them breaks. Round 7.14: the Loostore link is gone too; Loostore is not part of Looscid.
@@ -2260,7 +2231,7 @@ function lcMoreSections(o) {
       { icon:"Tab Bar", label:"Profile Tabs", sub:"The order of the tabs on profiles", value: function () { return lcProfileTabsAll().slice(0, 4).map(function (t) { return t.l; }).join(", ") + ", and more"; }, action(){onClose();navigate("settings_profiletabs");} },
       { icon:"Accessibility", label:"Accessibility",  sub:"Sense, vision, hearing, motion",  action(){onClose();navigate("settings_accessibility");} },
       { icon:"Audio", label:"Earcons",  sub:"Soundpacks, volume, keyboard and command earcons, your own sounds, haptics", value: function () { return lcSetVal("earcons") === "off" ? "Off" : lcSetVal("soundPack") + ", volume " + lcSetVal("earconVolume") + " percent"; },  action(){onClose();navigate("settings_audio");} },
-      { icon:"Apps", label:"Apps",  sub:"Insomnia, Memeprojects, Easyconvert, Desktop and Kernel",  action(){onClose();navigate("settings_apps");} },
+      // Round 7.16 (#216): no Apps row (Insomnia, Memeprojects, Easyconvert, Desktop and Kernel are not part of social Looscid).
       { icon:"Keyboard", label:"Keyboard shortcuts",  sub:"Built-in keys and your own shortcuts", value: function () { const n = (Looscid.A11Y_NOW.shortcuts || []).length; return n === 1 ? "1 of your own" : n + " of your own"; },  action(){onClose();navigate("settings_keyboard");} },
       { icon:"Backup", label:"Settings backup",  sub:"Export, import or reset all settings",  action(){onClose();navigate("settings_backup");} },
       { icon:"Intelligence", label:"Intelligence", sub:"Cherry, the on-device model, Commandbar answers, memory, tools and What Cherry did", value: function () { return lcAiOn() ? "Cherry on" : "Cherry off"; },  action(){onClose();navigate("settings_intelligence");} },
@@ -3423,6 +3394,9 @@ const LC_SET = [
   { k: "speakTime", s: "sr_speech", l: "Speak timestamps", t: "choice", d: "full", al: ["speak timestamps", "timestamps", "speak time"], o: [["off", "Off", ["off", "none"]], ["short", "Short, like 5m", ["short"]], ["full", "Full, like 5 minutes ago", ["full", "long"]]] },
   { k: "speakEmoji", s: "sr_speech", l: "Speak emoji", t: "choice", d: "name", al: ["speak emoji", "emoji speech", "emoji"], o: [["name", "Say its name", ["name", "names", "say name"]], ["skip", "Skip", ["skip", "off", "none"]], ["word", "Just say \u201cemoji\u201d", ["word", "just emoji", "say emoji"]]] },
   { k: "speakTags", s: "sr_speech", l: "Hashtags and mentions", t: "choice", d: "read", al: ["hashtags and mentions", "hashtags", "mentions", "speak hashtags"], o: [["read", "Read as is", ["read as is", "read", "as is"]], ["skip", "Skip the # and @", ["skip", "skip symbols", "no symbols"]]] },
+  // Round 7.16 (#216): Read this Dream and Hear thread in each Dream's More menu only when this is on.
+  { k: "readAloudMenu", s: "sr_speech", l: "Read aloud in Dream menus", t: "bool", d: false, al: ["read aloud in dream menus", "read this dream in menus", "hear thread in menus", "read aloud menu"],
+    desc: "Adds Read this Dream and Hear thread to each Dream's More menu, read with Looscid's own voice. Off by default, since your screen reader already reads Dreams." },
   { k: "ttsVoice", s: "sr_speech", l: "Read-aloud voice", t: "voice", d: "", al: ["read aloud voice", "voice"] },
   { k: "ttsRate", s: "sr_speech", l: "Read-aloud rate", t: "range", d: 100, min: 50, max: 200, step: 10, unit: "percent", al: ["read aloud rate", "speech rate", "rate"] },
   { k: "ttsPitch", s: "sr_speech", l: "Read-aloud pitch", t: "range", d: 100, min: 50, max: 150, step: 10, unit: "percent", al: ["read aloud pitch", "voice pitch"] },
@@ -3942,11 +3916,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.118.47";
+const LOOSCID_VERSION = "2026.119.47";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 165;
+const LOOSCID_BUILD = 166;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-25T04:45:12Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-25T05:00:10Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -4744,9 +4718,9 @@ function lcA11yIntent(raw) {
   if (/\b(three|3) flash|flash limit|flash rule|wcag\b/.test(n)) return { say: "The three-flash limit is a hard rule, not a setting, so it can't be turned off: nothing in Looscid flashes more than three times a second. Flash safety is a separate setting: say turn off flash safety to change it." };
   let m;
   if (/\bfeed (switching|switcher|switch mode|mode|control)\b/.test(n)) {
-    const v = /\b(menu|pop ?up|popup|button)\b/.test(n) ? "menu" : /\bswipe\b/.test(n) ? "swipe" : /\btabs?\b/.test(n) ? "tabs" : null;
+    const v = /\b(menu|pop ?up|popup|button)\b/.test(n) ? "menu" : /\btabs?\b/.test(n) ? "tabs" : null;
     const nm = function (k) { return LC_FEED_MODES.find(function (x) { return x[0] === k; })[1]; };
-    if (!v) return { say: "Feed switching is " + nm(lcFeedMode(a.feedSwitch)) + ". Say feed switching tabs, feed switching swipe or feed switching button." };
+    if (!v) return { say: "Feed switching is " + nm(lcFeedMode(a.feedSwitch)) + ". Say feed switching tabs or feed switching button." };
     return { patch: { feedSwitch: v }, say: "Feed switching is now " + nm(v) + ". It lives in Settings, Customizability." };
   }
   if ((m = /\b(earcon |sound |sounds )?volume( to)? (\d{1,3})( percent)?$/.exec(n))) {
@@ -4805,7 +4779,6 @@ const LC_FEEDS_BASE = [
 const LC_FED_SUBS = [
   { id: "popular", label: "Popular", alias: ["popular", "top", "trending"] },
   { id: "latest", label: "Latest", alias: ["latest", "newest", "recent", "new"] },
-  { id: "local", label: "Local", alias: ["local", "nearby", "around me", "around you", "dreams from around you"] },
 ];
 Looscid.LC_FED_SUBS = LC_FED_SUBS;
 const LC_PINS_KEY = "looscid_feed_pins", LC_FED_SUB_KEY = "looscid_fed_sub", LC_FED_NETS_KEY = "looscid_fed_networks", LC_FED_LOCAL_KEY = "looscid_fed_local",
@@ -4897,6 +4870,8 @@ function lcGeohash(lat, lon, len) {
   return h;
 }
 function lcSetFedLocal(v) { try { if (v) localStorage.setItem(LC_FED_LOCAL_KEY, JSON.stringify(v)); else localStorage.removeItem(LC_FED_LOCAL_KEY); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:fedlocal")); }
+// Round 7.16 (#216): Local (Dreams from around you) is gone from Federated, so a rough area saved for it is removed.
+try { localStorage.removeItem(LC_FED_LOCAL_KEY); } catch (e) {}
 Object.assign(Looscid, { lcPins, lcPinId, lcPinHas, lcPinAdd, lcPinRemove, lcPinsMove, lcPinRelabel, lcFeedsRebuild, lcFedSub, lcSetFedSub, lcFedNets, lcSetFedNet, lcFeedSort, lcSetFeedSort, lcFyFollow, lcSetFyFollow, lcFedLocal, lcSetFedLocal, lcGeohash });
 Looscid.LC_FEEDS = LC_FEEDS;
 const lcFeedKey = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]/g, ""); };
@@ -4909,11 +4884,11 @@ function lcFeedFind(q) { const k = lcFeedKey(String(q || "").replace(/\b(the|fee
 // Settings > Accessibility > Navigation > Feed switching. Each mode exposes exactly one feed control to screen readers.
 const LC_FEED_MODES = [
   ["tabs", "Tabs", "Default. A row of feed tabs: arrow keys, Home and End move between them, and PageUp or PageDown work anywhere in the feed."],
-  ["swipe", "Swipe", "One Feed switcher control: with VoiceOver, swipe up or down on it to change feed. Without a screen reader, swipe up or down on the feed strip."],
   ["menu", "Pop-up button", "One Feed button that opens a menu of all feeds. Arrow keys or the first letter move through it, Enter picks one."],
 ];
 Looscid.LC_FEED_MODES = LC_FEED_MODES;
-function lcFeedMode(v) { return v === "swipe" || v === "menu" ? v : "tabs"; }
+// Round 7.16 (#216): Swipe mode is gone (three ways to do one thing); a saved Swipe reads as Tabs.
+function lcFeedMode(v) { return v === "menu" ? v : "tabs"; }
 Looscid.LC_FEED = (function () { try { return sessionStorage.getItem("looscid_feed") || "for you"; } catch (e) { return "for you"; } })();
 // Round 5: the separate Friends tab is gone; Following + "Show friends" is the one way to see mutuals.
 if (Looscid.LC_FEED === "friends") { Looscid.LC_FEED = "following"; try { localStorage.setItem("looscid_show_friends", "1"); sessionStorage.setItem("looscid_feed", "following"); } catch (e) {} }
@@ -5416,7 +5391,7 @@ const LC_COMMANDS = [
   ["braille style", "the button style on braille: braille style iphone, braille style android, braille style and a custom name; new braille style, rename braille style old to new, delete braille style, edit braille style, past names, use past name, remove past name, undo"],
   ["apps", "Looscid's apps, like open insomnia; boot shows the boot text"], ["coming soon", "what is planned, in Looscid Labs"],
   ["sound", "earcons: sound on, sound off, sound test, or sound and a volume from 0 to 100"],
-  ["feed and a name", "switch feeds, like feed following; next feed and previous feed too"], ["feed switching", "how you change feeds: feed switching tabs, feed switching swipe or feed switching button"], ["show friends on", "in Following, only show mutuals; show friends off shows everyone"],
+  ["feed and a name", "switch feeds, like feed following; next feed and previous feed too"], ["feed switching", "how you change feeds: feed switching tabs or feed switching button"], ["show friends on", "in Following, only show mutuals; show friends off shows everyone"],
   ["history", "your last commands"], ["clear", "clear the output"],
   ["liked", "Liked, everything you liked, a tab on your profile"], ["like search", "like the search you're on in Discover, or like search and the words; its Alerts switch is in Liked, Searches"],
   ["output collapse", "fold Commandbar output"], ["output expand", "unfold Commandbar output"],
@@ -6612,6 +6587,7 @@ useEffect(() => {
     let openSettings = false;
     if (target === "settings_open") { target = "settings"; openSettings = true; }
     if (target === "about") target = "settings_about";
+    if (target === "more_discover") target = "discover"; // Round 7.16 (#216): the old More, Discover page is the Discover tab
     // Round 7.14 (Carter, Oct 24 2026): Liked is a tab on your profile. The Liked page's name and address open that tab.
     if (target === "liked") { Looscid.LC_PROF_RESTORE = { uid: ME.id, tab: "liked", at: Date.now() }; target = "profile"; data = null; }
     /* Round 7 fixes (QA round 6): Back on a profile goes to where THIS visit came from. Discover hands its way back in
@@ -7252,6 +7228,7 @@ useEffect(() => {
   const renderPage = () => {
     switch(page) {
       case "feed":          return React.createElement(Looscid.FeedPage, { key: "feed" + pageNonce, navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
+      case "more_discover": // Round 7.16 (#216): an old More/Discover address opens the Discover tab
       case "discover":      return React.createElement(Looscid.DiscoverPage, { navigate: navigate, cherryCtx: cherryCtx,});
       case "alerts":        return React.createElement(Looscid.AlertsPage, { cherryCtx: cherryCtx,});
       case "groups":        return React.createElement(Looscid.GroupsPage, { key: "groups-" + (pdata && pdata.circle != null ? pdata.circle : ""), data: pdata, navigate: navigate, cherryCtx: cherryCtx,});
@@ -7300,7 +7277,7 @@ useEffect(() => {
       case "guidelines":    return React.createElement(Looscid.PolicyPage, { title: "Community rules", content: GUIDELINES_CONTENT, navigate: navigate, back: "settings",});
       case "child_safety":  return React.createElement(Looscid.PolicyPage, { title: "Child Safety", content: CHILD_SAFETY_CONTENT, navigate: navigate, back: "settings",});
       // Part 40 (#67): Settings and every More item have their own page.
-      case "settings": case "more_discover": case "more_apps": case "more_create": case "more_alerts": case "more_projects":
+      case "settings": case "more_apps": case "more_create": case "more_alerts": case "more_projects":
                             return React.createElement(Looscid.LcMorePage, { key: page, id: page === "settings" ? "settings" : page.slice(5), navigate: navigate, goRoot: goRoot, unreadNotifs: unreadNotifs, unreadMsgs: unreadMsgs, onBack: function () { moreBack(page === "settings" ? "settings" : page.slice(5)); } });
       default:              return React.createElement(Looscid.FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
     }

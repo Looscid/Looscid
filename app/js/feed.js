@@ -2,7 +2,7 @@
    Plain script (not a module). Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order. */
 (function (Looscid) {
 const { CommentView, DREAMS_INIT, DreamCard, LC_FEEDS, LC_FED_SUBS, LC_FED_NETS, LC_FY_SOURCES, LcMenu, ME, SHOW_FRIENDS_KEY, USERS, announce, lcAiOn, lcAudienceOk, lcDreamWords, lcFeedMode, lcFiltered, lcHandle, lcNotify, lcQuietNow, lcSetFeed, lcSetShowFriends, lcStepFeed, lh, useDreams, useEffect, useRef, useState } = Looscid;
-Object.assign(Looscid, { FeedPage, lcNotifyDreams, lcShowFriends, useFeedMode, FeedTabs, FeedMenuButton, ShowFriendsBox, useFeedState, FeedControls, lcFeedVisible });
+Object.assign(Looscid, { FeedPage, lcNotifyDreams, lcShowFriends, useFeedMode, FeedTabs, FeedMenuButton, ShowFriendsBox, useFeedState, FeedControls, lcFeedVisible, PinForm, FyFollowSettings, FedNetsSettings });
 
 /* --- FEED PAGE --------------------------- */
 function FeedPage({navigate, prefs, cherryCtx}) {
@@ -52,12 +52,13 @@ function FeedPage({navigate, prefs, cherryCtx}) {
   };
   const FOLLOWING = (cherryCtx && cherryCtx.following) || new Set();
   const FRIENDS_IDS = new Set(USERS.filter(u=>u.followsYou && FOLLOWING.has(u.id)).map(u=>u.id)); // mutuals
-  // Build 151 (#54): For You, Following, Federated (Popular, Latest, Local) and pinned tabs. See lcFeedVisible below.
+  // Build 151 (#54): For You, Following, Federated (Latest or Popular; Local removed in Round 7.16) and pinned tabs. See lcFeedVisible below.
   useFeedTick();
   const [pub, setPub] = useState({ list: [], state: "idle" });
-  const fedSub = Looscid.lcFedSub(), nets = Looscid.lcFedNets(), loc = Looscid.lcFedLocal();
-  const wantPub = tab === "federated" && nets.indexOf("nostr") >= 0 && !!Looscid.lcNostr && (fedSub !== "local" || !!loc);
-  const pubKey = wantPub ? (fedSub === "local" && loc ? "g:" + loc.g : "all") : "";
+  // Round 7.16 (#216): Federated has no Local any more (it asked for your location and was empty most of the time).
+  const nets = Looscid.lcFedNets();
+  const wantPub = tab === "federated" && nets.indexOf("nostr") >= 0 && !!Looscid.lcNostr;
+  const pubKey = wantPub ? "all" : "";
   useEffect(function () {
     if (!pubKey) return; let live = true;
     setPub(function (p) { return { list: p.key === pubKey ? p.list : [], state: "loading", key: pubKey }; });
@@ -69,8 +70,6 @@ function FeedPage({navigate, prefs, cherryCtx}) {
   const notInt = tab === "for you" ? Looscid.lcNotInterested() : [];
   const visible = lcFeedVisible(tab, rawDreams, { following: FOLLOWING, friends: FRIENDS_IDS, showFriends: showFriends, groups: cherryCtx && cherryCtx.groups, pub: pubKey && pub.key === pubKey ? pub.list : [] }).filter(function (d) { return notInt.indexOf(String(d.id)) < 0; });
 
-  // Cherry in-feed cards - contextual AI nudges
-  const cherryCards = []; // Cherry nudges appear here once there is real activity to talk about
 
   if (activeComment) return (
     React.createElement(CommentView, { dream: (rawDreams.find(function (x) { return x.id === activeComment.id; }) || activeComment), backTo: openFrom.current, onBack: ()=>{ const b = openFrom.current; openFrom.current = null; if (b) { b(); return; } setActiveComment(null); },
@@ -92,24 +91,18 @@ function FeedPage({navigate, prefs, cherryCtx}) {
       , React.createElement('div', { className: "hdr lc-hdr-static",}
         , React.createElement('div', { style: {display:"flex",alignItems:"center",justifyContent:"space-between",padding:"48px 16px 0"},}
           , React.createElement('h1', { className: "htit", tabIndex:-1,}, "Home")
-          , lcAiOn() && React.createElement('button', {
-              className: "cherry-feed-pill",
-              onClick: () => cherryCtx && cherryCtx.openCherry(),
-              'aria-label': "Open Cherry AI",
-            },
-            "Cherry",
-            React.createElement('span', null, "Cherry")
-          )
+          /* Round 7.16 (#216, Carter said yes Oct 25 2026): no Cherry button and no "everything app" welcome line here, so the
+             feed tabs come right after the heading. Cherry stays in Profile, More. */
         )
-        , React.createElement('p', { className: "lid-home-intro",}, "Welcome to Looscid, the decentralized, open source and accessible everything app. Your data stays yours. Dreams from you and the people you follow show up here.")
       )
       , lh('div', { className: "lc-feed-bar" }, lh(FeedTabs, null))
       , lh('div', { className: "lc-feed-ctl" }, lh(FeedControls, { tab: tab, cherryCtx: cherryCtx, dreams: rawDreams, pubState: pubKey && pub.key === pubKey ? pub.state : "idle" }))
       , visible.length===0 && lh('div', { className: "es" },
           lh('p', { className: "esl" }, tab==="following" && showFriends ? "No Dreams from friends yet" : "No Dreams yet"),
           lh('p', { style: {fontSize:14,color:"var(--tx2)",marginTop:6,lineHeight:1.6,maxWidth:260,textAlign:"center"} },
-            (tab==="following" && showFriends) ? "Friends are Dreamors who follow each other." : tab==="following" ? "Follow people to fill this feed." : tab==="federated" && fedSub==="local" && !loc ? "Turn on Dreams from around you above to see Dreams near you." : tab==="federated" && !nets.length ? "Choose at least one network above." : /^pin:/.test(tab) ? "Dreams for this tab will show up here." : "New Dreams will show up here."),
-          tab==="following" && cherryCtx && lh('button', { className: "cherry-ctx-btn", style: {margin:"10px auto 0",display:"flex"}, onClick: ()=>cherryCtx.openCherry("Who should I follow?") }, "Ask Cherry to find Dreamors"))
+            (tab==="following" && showFriends) ? "Friends are Dreamors who follow each other." : tab==="following" ? "Follow people to fill this feed." : tab==="federated" && !nets.length ? "Choose at least one network above." : /^pin:/.test(tab) ? "Dreams for this tab will show up here." : "New Dreams will show up here."),
+          // Round 7.16 (#216): Discover, not Cherry, is where you find people.
+          tab==="following" && lh('button', { type: "button", id: "feed-find-people", className: "btn bgb lc-btn", style: {margin:"10px auto 0",display:"flex"}, onClick: ()=>navigate("discover") }, "Find people in Discover"))
       , rmOn && lh('div', { className: "lc-rm", onKeyDown: function (e) { if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return; if (e.key === "ArrowRight") { e.preventDefault(); rmGo(rmI + 1); } else if (e.key === "ArrowLeft") { e.preventDefault(); rmGo(rmI - 1); } },
           onTouchStart: function (e) { const t = e.touches[0]; rmTouch.current = { x: t.clientX, y: t.clientY }; },
           onTouchEnd: function (e) { const s0 = rmTouch.current; rmTouch.current = null; if (!s0) return; const t = e.changedTouches[0], dx = t.clientX - s0.x; if (Math.abs(dx) > 60 && Math.abs(t.clientY - s0.y) < 40) rmGo(rmI + (dx < 0 ? 1 : -1)); } },
@@ -122,20 +115,7 @@ function FeedPage({navigate, prefs, cherryCtx}) {
           , React.createElement(DreamCard, { dream: d, forYou: tab === "for you", onLike: tl, onRedream: tr, onUndoRedream: tur,
             onQuote: tq, onUndoQuote: tuq, onBookmark: tb,
             onComment: d=>setActiveComment(d), navigate: navigate, cherryCtx: cherryCtx,})
-          /* Cherry AI cards injected between dreams on For You tab */
-          , tab==="for you" && cherryCtx && cherryCards.find(cc=>cc.after===idx+1) && (()=>{
-            const cc = cherryCards.find(c=>c.after===idx+1);
-            return (
-              React.createElement('div', { className: "cherry-card",}
-                , React.createElement('div', { className: "aiorb", style: {width:32,height:32,fontSize:15,flexShrink:0},}, "Cherry")
-                , React.createElement('div', { style: {flex:1},}
-                  , React.createElement('span', { className: "cherry-card-chip",}, cc.ic, " " , cc.chip)
-                  , React.createElement('div', { className: "cherry-card-txt",}, cc.msg)
-                  , React.createElement('button', { className: "cherry-card-act", onClick: ()=>cherryCtx.openCherry(cc.prompt), 'aria-label': cc.action,}, cc.action)
-                )
-              )
-            );
-          })()
+          /* Round 7.16 (#216): no Cherry cards between Dreams (the list was always empty). */
         )
       )))
     )
@@ -178,33 +158,16 @@ function FeedTabs() {
     else if (e.key === "Home") { e.preventDefault(); go(0, true); }
     else if (e.key === "End") { e.preventDefault(); go(LC_FEEDS.length - 1, true); }
   };
-  // Swipe mode only: a clear vertical swipe on the tab strip changes feed (touch, no screen reader).
-  const t0 = useRef(null);
-  const onTS = function (e) { const t = e.touches[0]; t0.current = { x: t.clientX, y: t.clientY, at: Date.now() }; };
-  const onTE = function (e) {
-    const s0 = t0.current; t0.current = null; if (!s0) return; const t = e.changedTouches[0];
-    const dy = t.clientY - s0.y, dx = t.clientX - s0.x;
-    if (Math.abs(dy) >= 48 && Math.abs(dx) < 36 && Date.now() - s0.at < 700) go(idx + (dy < 0 ? 1 : -1), false);
-  };
   if (mode === "menu") return lh(React.Fragment, null, lh(FeedMenuButton, { feed: feed }), feed === "following" ? lh(ShowFriendsBox, null) : null);
-  // Tabs mode: the tablist is the one feed control. Swipe mode: the strip stays visible for sighted
-  // people but leaves the accessibility tree; the adjustable "Feed switcher" is the one control.
-  const strip = lh('div', tabsMode
-      ? { className: "ftabs lc-feedtabs", role: "tablist", "aria-label": "Feeds", id: "feed-tablist", onKeyDown: onKey }
-      : { className: "ftabs lc-feedtabs lc-feedtabs-swipe", id: "feed-tablist", "aria-hidden": "true", onTouchStart: onTS, onTouchEnd: onTE },
+  // Tabs mode: the tablist is the one feed control. Round 7.16 (#216): Swipe mode is gone (Tabs and Pop-up button cover
+  // it); a saved Swipe choice reads as Tabs (lcFeedMode).
+  const strip = lh('div', { className: "ftabs lc-feedtabs", role: "tablist", "aria-label": "Feeds", id: "feed-tablist", onKeyDown: onKey },
     LC_FEEDS.map(function (f, i) {
       const on = i === idx;
-      return lh('button', tabsMode
-          ? { key: f.id, id: tabId(f.id), type: "button", className: "ftab" + (on ? " on" : ""), role: "tab", "aria-selected": on, "aria-setsize": LC_FEEDS.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1, "aria-controls": "feed-list", onClick: function () { go(i, false); } }
-          : { key: f.id, id: tabId(f.id), type: "button", className: "ftab" + (on ? " on" : ""), tabIndex: -1, onClick: function () { go(i, false); } },
+      return lh('button', { key: f.id, id: tabId(f.id), type: "button", className: "ftab" + (on ? " on" : ""), role: "tab", "aria-selected": on, "aria-setsize": LC_FEEDS.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1, "aria-controls": "feed-list", onClick: function () { go(i, false); } },
         f.label); // build 149: no "1/7" position in the name. Round 7.12: aria-setsize/aria-posinset carry it instead.
     }));
   return lh(React.Fragment, null,
-    mode === "swipe" && lh('div', { className: "lc-feed-adj" },
-      lh('label', { htmlFor: "feed-adjust" }, "Feed switcher"),
-      lh('input', { id: "feed-adjust", type: "range", min: 0, max: LC_FEEDS.length - 1, step: 1, value: idx,
-        "aria-valuetext": LC_FEEDS[idx].label,
-        onChange: function (e) { go(+e.target.value, false); } })),
     strip,
     feed === "following" ? lh(ShowFriendsBox, null) : null);
 }
@@ -228,8 +191,8 @@ function ShowFriendsBox() {
 /* --- Build 151 (#54): what each feed shows ------------------------------------------------------------
    For You: everything, with Dreams from what you follow mixed in while Show following is on (each kind has its own
    switch). Following: people you follow (Show friends: mutuals only). Federated: Dreams from the networks you choose
-   (Looscid, and public Looscid Dreams from your Nostr relays), as Popular, Latest or Local (Dreams from around you,
-   opt-in). Pinned tabs: one Circle, person, hashtag or thread. Sort on For You and Following: Latest or Popular. */
+   (Looscid, and public Looscid Dreams from your Nostr relays), as Latest or Popular (Round 7.16: Local, Dreams from
+   around you, is gone). Pinned tabs: one Circle, person, hashtag or thread. Sort on For You and Following: Latest or Popular. */
 function lcAgeMin(d) {
   if (d && +d.created > 0) return Math.max(0, (Date.now() - d.created) / 60000);
   const t = String((d && d.time) || ""); if (/now/i.test(t)) return 0;
@@ -259,10 +222,9 @@ function lcFeedVisible(tab, raw, o) {
   let list;
   if (tab === "following") list = lcSortDreams(raw.filter(function (d) { return src.people(d) && (!o.showFriends || (o.friends && o.friends.has(d.user.id))); }), Looscid.lcFeedSort("following"));
   else if (tab === "federated") {
-    const nets = Looscid.lcFedNets(), sub = Looscid.lcFedSub(), loc = Looscid.lcFedLocal();
+    const nets = Looscid.lcFedNets(), sub = Looscid.lcFedSub();
     const have = new Set(raw.map(function (d) { return d.nid; }).filter(Boolean));
-    let base = (nets.indexOf("looscid") >= 0 ? raw : []).concat(nets.indexOf("nostr") >= 0 ? (o.pub || []).filter(function (d) { return !have.has(d.nid); }) : []);
-    if (sub === "local") base = loc ? base.filter(function (d) { return d.local || (d.g && String(d.g).indexOf(loc.g.slice(0, 4)) === 0); }) : [];
+    const base = (nets.indexOf("looscid") >= 0 ? raw : []).concat(nets.indexOf("nostr") >= 0 ? (o.pub || []).filter(function (d) { return !have.has(d.nid); }) : []);
     list = lcSortDreams(base, sub === "popular" ? "popular" : "latest");
   } else if (/^pin:/.test(tab)) {
     const f = LC_FEEDS.find(function (x) { return x.id === tab; }), p = f && f.pin;
@@ -299,60 +261,57 @@ function lcSwitch(id, label, on, onChange) { return lh(Looscid.A11ySwitch, { key
 // The controls under the feed tabs, for the feed that's open.
 function FeedControls({ tab, cherryCtx, dreams, pubState }) {
   useFeedTick();
+  // Round 7.16 (#216, Carter said yes Oct 25 2026): Sort is the only control above each feed. Show following and its four
+  // switches, Federated's Networks and the Pin a tab form moved to Settings, Customizability, Feeds and home.
   const sortPick = function (feed) {
+    const fed = feed === "federated";
     return lh('div', { key: "sort", className: "lc-feed-sort" }, lh(LcMenu, { id: "feed-sort-btn", menuId: "feed-sort", label: "Sort", hideLabel: true, title: "Sort", inline: true, prefix: "Sort: ", btnClass: "btn bgb lc-btn",
-      value: Looscid.lcFeedSort(feed), items: [{ id: "latest", name: "Latest" }, { id: "popular", name: "Popular" }], onSelect: function (id) { Looscid.lcSetFeedSort(feed, id); } }));
+      value: fed ? Looscid.lcFedSub() : Looscid.lcFeedSort(feed), items: [{ id: "latest", name: "Latest" }, { id: "popular", name: "Popular" }],
+      onSelect: function (id) { if (fed) Looscid.lcSetFedSub(id, true); else Looscid.lcSetFeedSort(feed, id); } }));
   };
-  if (tab === "for you") {
-    const fy = Looscid.lcFyFollow();
-    return lh('div', { className: "lc-feed-ctl" }, sortPick("for you"),
-      lcSwitch("fy-show-following", "Show following", fy.on, function (v) { Looscid.lcSetFyFollow({ on: v }); }),
-      fy.on ? lh('fieldset', { className: "lc-fy-src" }, lh('legend', null, "Following in For You"),
-        LC_FY_SOURCES.map(function (s) { return lcSwitch("fy-src-" + s[0], s[1], fy[s[0]], function (v) { const pt = {}; pt[s[0]] = v; Looscid.lcSetFyFollow(pt); }); })) : null);
-  }
-  if (tab === "following") return lh('div', { className: "lc-feed-ctl" }, sortPick("following"), lh(PinForm, { cherryCtx: cherryCtx, dreams: dreams }));
-  if (tab === "federated") return lh(FederatedControls, { pubState: pubState });
+  if (tab === "for you") return lh('div', { className: "lc-feed-ctl" }, sortPick("for you"));
+  if (tab === "following") return lh('div', { className: "lc-feed-ctl" }, sortPick("following"));
+  if (tab === "federated") return lh(FederatedControls, { pubState: pubState, sortPick: sortPick });
   const f = LC_FEEDS.find(function (x) { return x.id === tab; });
   if (f && f.pin) return lh('div', { className: "lc-feed-ctl" },
     lh('p', { className: "lc-muted" }, "A tab you pinned: " + (f.pin.kind === "tag" ? "the hashtag " : f.pin.kind === "circle" ? "the Circle " : f.pin.kind === "person" ? "Dreams from " : f.pin.kind === "list" ? "your list " : "") + (f.pin.kind === "thread" ? "a thread." : f.label + ".")),
     lh('button', { type: "button", id: "feed-unpin", className: "btn bgb lc-btn", onClick: function () { Looscid.lcPinRemove(tab); setTimeout(function () { const b = document.getElementById("feed-tab-following"); if (b) b.focus(); }, 0); } }, "Unpin this tab"));
   return null;
 }
-function FederatedControls({ pubState }) {
-  const sub = Looscid.lcFedSub(), nets = Looscid.lcFedNets(), loc = Looscid.lcFedLocal();
-  const [asking, setAsking] = useState(false);
-  const idx = Math.max(0, LC_FED_SUBS.findIndex(function (s) { return s.id === sub; }));
-  const go = function (i) { const s = LC_FED_SUBS[(i + LC_FED_SUBS.length) % LC_FED_SUBS.length]; Looscid.lcSetFedSub(s.id); setTimeout(function () { const b = document.getElementById("fed-tab-" + s.id); if (b) b.focus(); }, 0); };
-  const onKey = function (e) {
-    if (e.key === "ArrowRight") { e.preventDefault(); go(idx + 1); } else if (e.key === "ArrowLeft") { e.preventDefault(); go(idx - 1); }
-    else if (e.key === "Home") { e.preventDefault(); go(0); } else if (e.key === "End") { e.preventDefault(); go(LC_FED_SUBS.length - 1); }
-  };
-  const turnOn = function () {
-    if (!navigator.geolocation) { announce("This browser can't share a location, so Dreams from around you stays off."); return; }
-    setAsking(true);
-    navigator.geolocation.getCurrentPosition(function (p) { setAsking(false); Looscid.lcSetFedLocal({ on: true, g: Looscid.lcGeohash(p.coords.latitude, p.coords.longitude, 5) }); announce("Dreams from around you is on."); },
-      function () { setAsking(false); announce("Location wasn't shared, so Dreams from around you stays off."); }, { enableHighAccuracy: false, timeout: 15000, maximumAge: 600000 });
-  };
+// Federated: the same Sort button as the other feeds (Latest or Popular; it was Popular, Latest and Local tabs), then the
+// relay status lines. Round 7.16 (#216): Local is gone, and Networks is in Settings, Customizability, Feeds and home.
+function FederatedControls({ pubState, sortPick }) {
   return lh('div', { className: "lc-feed-ctl lc-fed" },
-    lh('div', { className: "ftabs lc-fedtabs", role: "tablist", "aria-label": "Federated", onKeyDown: onKey },
-      LC_FED_SUBS.map(function (s, i) { const on = i === idx;
-        return lh('button', { key: s.id, id: "fed-tab-" + s.id, type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on, "aria-setsize": LC_FED_SUBS.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1, "aria-controls": "feed-list", onClick: function () { Looscid.lcSetFedSub(s.id); } }, s.label); })),
-    sub === "local" ? lh('div', { className: "lc-fed-local" },
-      lh('p', null, "Dreams from around you shows Dreams tagged with a place near you. It stays off until you turn it on. Looscid asks your device for your location once, keeps only a rough area of about 5 km on this device, and uses it only to ask relays for Dreams tagged with that area. Your own Dreams never carry your location."),
-      loc ? lh('button', { type: "button", id: "fed-local-off", className: "btn bgb lc-btn", onClick: function () { Looscid.lcSetFedLocal(null); announce("Dreams from around you is off. Your area was removed from this device."); } }, "Turn off Dreams from around you")
-          : lh('button', { type: "button", id: "fed-local-on", className: "btn bgb lc-btn", "aria-disabled": asking ? "true" : undefined, onClick: asking ? undefined : turnOn }, asking ? "Asking for your location\u2026" : "Turn on Dreams from around you")) : null,
-    lh('fieldset', { className: "lc-fed-nets" }, lh('legend', null, "Networks"),
-      LC_FED_NETS.map(function (n) {
-        return lh('div', { key: n.id, className: "lc-chk-row" },
-          lh('input', { type: "checkbox", id: "fed-net-" + n.id, checked: !n.soon && nets.indexOf(n.id) >= 0, "aria-disabled": n.soon ? "true" : undefined,
-            onClick: n.soon ? function (e) { e.preventDefault(); announce(n.label + " is coming soon."); } : undefined,
-            onChange: function (e) { if (n.soon) return; Looscid.lcSetFedNet(n.id, e.target.checked); } }),
-          lh('label', { htmlFor: "fed-net-" + n.id }, n.label + (n.soon ? ", coming soon" : "")));
-      })),
+    sortPick("federated"),
     pubState === "loading" ? lh('p', { className: "lc-muted" }, "Getting Dreams from your Nostr relays\u2026") :
     pubState === "error" ? lh('p', { className: "lc-muted" }, "Couldn't reach your Nostr relays just now. Showing what Looscid has.") : null);
 }
-// Following: pin a Circle, a person, a hashtag, a thread or one of your Lists (build 152) as its own feed tab.
+/* Round 7.16 (#216): set once in Settings, Customizability, Feeds and home, not above the feed every visit. */
+// For You: Show following, and which kinds of what you follow are mixed in.
+function FyFollowSettings() {
+  useFeedTick();
+  const fy = Looscid.lcFyFollow();
+  return lh('section', { className: "lc-grp", "aria-labelledby": "set-fy-h" },
+    lh('h3', { id: "set-fy-h", className: "lc-sub-h" }, "For You"),
+    lcSwitch("fy-show-following", "Show following", fy.on, function (v) { Looscid.lcSetFyFollow({ on: v }); }),
+    fy.on ? lh('fieldset', { className: "lc-fy-src" }, lh('legend', null, "Following in For You"),
+      LC_FY_SOURCES.map(function (s) { return lcSwitch("fy-src-" + s[0], s[1], fy[s[0]], function (v) { const pt = {}; pt[s[0]] = v; Looscid.lcSetFyFollow(pt); }); })) : null);
+}
+// Federated: which networks it reads. Only networks Looscid really reads are shown (no Coming soon items).
+function FedNetsSettings() {
+  useFeedTick();
+  const nets = Looscid.lcFedNets();
+  return lh('section', { className: "lc-grp", "aria-labelledby": "set-fed-h" },
+    lh('h3', { id: "set-fed-h", className: "lc-sub-h" }, "Federated"),
+    lh('fieldset', { className: "lc-fed-nets" }, lh('legend', null, "Networks"),
+      LC_FED_NETS.filter(function (n) { return !n.soon; }).map(function (n) {
+        return lh('div', { key: n.id, className: "lc-chk-row" },
+          lh('input', { type: "checkbox", id: "fed-net-" + n.id, checked: nets.indexOf(n.id) >= 0, onChange: function (e) { Looscid.lcSetFedNet(n.id, e.target.checked); } }),
+          lh('label', { htmlFor: "fed-net-" + n.id }, n.label));
+      })));
+}
+// Pin a Circle, a person, a hashtag, a thread or one of your Lists (build 152) as its own feed tab. Round 7.16 (#216): in
+// Settings, Customizability, Feeds and home, under Feed tabs (it sat on top of the Following feed).
 function PinForm({ cherryCtx, dreams }) {
   const [kind, setKind] = useState("circle"), [val, setVal] = useState(""), [tag, setTag] = useState("");
   const groups = ((cherryCtx && cherryCtx.groups) || []).filter(function (g) { return g.joined; });

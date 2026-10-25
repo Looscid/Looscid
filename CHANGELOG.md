@@ -2,6 +2,21 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.119.47 (166): Round 7.16
+
+Released October 25, 2026 at 1:00 AM (Eastern Time, 2026-10-25T05:00:10Z UTC)
+
+A feature update, asked for by 2three1y (the Discover and Home feed cleanup, #216).
+
+- Feature: a leaner Home. The feed tabs come right after the Home heading: the Cherry button and the "everything app" welcome line are gone. Each feed has only its Sort button (Latest or Popular) above it.
+- For You's Show following switch and its four kinds (People you follow, Circles you're in, Pinned hashtags, Pinned threads), Federated's Networks, and the Pin a tab form moved to Settings, Customizability, Feeds and home (For You, Federated and Feed tabs). A pinned tab can still be unpinned from the tab itself.
+- Federated uses the same Sort button as the other feeds instead of Popular, Latest and Local tabs. Local (Dreams from around you) is gone, and the rough area it kept on the device is removed. Mastodon and Bluesky are no longer listed as Coming soon.
+- Feed switching is Tabs or Pop-up button; Swipe is gone. A saved Swipe choice reads as Tabs.
+- Each Dream's More menu is shorter: no Like or Unlike (the Like button is next to it), no View profile (the name opens it), no Ask Cherry, no Pin thread as a tab (Subscribe to thread stays; threads can still be pinned in Feed tabs, and a pinned one unpinned here), and no dimmed Report. Read this Dream and Hear thread show only with the new Read aloud in Dream menus setting on (Settings, Accessibility, Speech; off by default).
+- No more Cherry cards between Dreams or Cherry insights on a Dream. An empty Following feed offers Find people in Discover instead of Ask Cherry.
+- Discover: Filters has only Verified, the one filter that worked (Content and Time did nothing). Join on a Circle result joins or leaves it, and the Circle shows under My Circles. Follow on a Dreamor result always works.
+- Your profile's More has Circles instead of a Discover page (Discover is its tab, Lists is already in More); an old More, Discover address opens the Discover tab. Settings no longer has an Apps row.
+
 ## Looscid 2026.118.47 (165): Round 7.15
 
 Released October 25, 2026 at 12:45 AM (Eastern Time, 2026-10-25T04:45:12Z UTC)

@@ -596,7 +596,9 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
        { id: "drafts", name: "Drafts", a: function () { navigate("drafts"); } }]))
       .concat(g(G2, [
        { id: "cherry", name: "Cherry", a: function () { navigate("cherry"); } }, // Cherry off: opens Settings, Intelligence, and says so
-       { id: "discover", name: "Discover", a: function () { navigate("more_discover"); } },
+       // Round 7.16 (#216): Circles is its own item. The Discover page that held Discover, Circles and Lists is gone (Discover
+       // is a tab, Lists is above).
+       { id: "circles", name: "Circles", a: function () { navigate("groups"); } },
        { id: "create", name: "Create", a: function () { navigate("more_create"); } },
        { id: "alerts", name: "Alerts", a: function () { navigate("more_alerts"); } },
        { id: "settings", name: "Settings", a: function () { navigate("settings_open"); } },
@@ -1153,7 +1155,7 @@ function LcPrivacyMedia({ navigate }) {
       lcSet({ cherryMediaLook: false, cherryMediaAlt: false, cherryMediaRemember: false });
       announce("Cherry forgot your media, and its media permissions are off."); } }, "Forget what Cherry knows about my media"));
 }
-// Settings > Customizability > Feeds > Feed switching (Tabs / Swipe / Pop-up button). Stored with the accessibility prefs.
+// Settings > Customizability > Feeds > Feed switching (Tabs / Pop-up button; Swipe was removed in Round 7.16). Stored with the accessibility prefs.
 function FeedSwitchSetting({ prefs, setPrefs }) {
   const cur = lcFeedMode(((prefs && prefs.accessibility) || {}).feedSwitch);
   const set = function (v) { setPrefs(function (p) { const acc = Object.assign({}, A11Y_DEFAULTS, p.accessibility || {}, { feedSwitch: v }); Looscid.A11Y_NOW = acc; return Object.assign({}, p, { accessibility: acc }); }); announce("Feed switching: " + LC_FEED_MODES.find(function (x) { return x[0] === v; })[1] + "."); };
@@ -1193,7 +1195,7 @@ function LcCatPage({ title, intro, navigate, children, reset }) {
 }
 const LC_CZ_CATS = [
   { id: "theme", page: "settings_cz_theme", l: "Theme and colors", sub: "Light or dark mode, 12-hour or 24-hour time" },
-  { id: "feeds", page: "settings_cz_feeds", l: "Feeds and home", sub: "How you switch feeds, calm feed" },
+  { id: "feeds", page: "settings_cz_feeds", l: "Feeds and home", sub: "How you switch feeds, For You, networks, feed tabs, calm feed" },
   { id: "menu", page: "settings_cz_menu", l: "Menu", sub: "Where the menu button sits, its Close buttons" },
   { id: "posting", page: "settings_cz_posting", l: "Dreaming", sub: "Character limit, undo send, alt text reminder, drafts" },
   { id: "media", page: "settings_cz_media", l: "Media and translation", sub: "Auto-play, translate Dreams" },
@@ -1219,7 +1221,16 @@ function CustomizabilitySettings({navigate, prefs, setPrefs, theme, setTheme, pa
   let body;
   if (cat.id === "theme") body = lh(React.Fragment, null, lh(A11ySwitch, { id: "cz-theme", label: "Light mode", desc: "Off: dark mode. Saved on this device.", on: theme === "light", onToggle: () => setTheme && setTheme(theme === "light" ? "dark" : "light") }),
     lh(LcSetRow, { def: LC_SET_BY.timeFormat })); // round 9 (2three1y, Oct 13): Time format, a real radio group
-  else if (cat.id === "feeds") body = lh(React.Fragment, null, lh(FeedSwitchSetting, { prefs: prefs, setPrefs: setPrefs }), lh(LcSetRow, { def: LC_SET_BY.calmFeed }), lh(LcResetBtn, { sec: "feeds" }));
+  // Round 7.16 (#216, Carter said yes Oct 25 2026): For You's Show following switches, Federated's Networks and Pin a tab
+  // moved here from above the feeds, so they're set once instead of read before the feed on every visit.
+  else if (cat.id === "feeds") body = lh(React.Fragment, null, lh(FeedSwitchSetting, { prefs: prefs, setPrefs: setPrefs }), lh(LcSetRow, { def: LC_SET_BY.calmFeed }),
+    Looscid.FyFollowSettings ? lh(Looscid.FyFollowSettings, null) : null,
+    Looscid.FedNetsSettings ? lh(Looscid.FedNetsSettings, null) : null,
+    Looscid.PinForm ? lh('section', { className: "lc-grp", "aria-labelledby": "set-feedtabs-h" },
+      lh('h3', { id: "set-feedtabs-h", className: "lc-sub-h" }, "Feed tabs"),
+      lh('p', { className: "lc-desc" }, "Pin a Circle, a person, a hashtag, a thread or one of your lists as its own tab on Home. Unpin it from that tab."),
+      lh(Looscid.PinForm, { cherryCtx: Looscid.LC_CHERRY_CTX, dreams: Looscid.LC_CHERRY_CTX ? Looscid.LC_CHERRY_CTX.dreams : [] })) : null,
+    lh(LcResetBtn, { sec: "feeds" }));
   else if (cat.id === "menu") body = lh(React.Fragment, null,
     radios("cz-menupos", "Menu button position", [["bottom", "Bottom (default)"], ["top", "Top, for one-handed use"]], menuPos, function (v) { setMenu("pos", v); }, "cz-menupos"),
     lh(A11ySwitch, { id: "cz-topclose", label: "Close button at the top of the menu", desc: hideBotClose ? "Stays on: the bottom Close button is off, and one must stay." : "Shown at the top of the menu sheet.", on: !hideTopClose, locked: hideBotClose && !hideTopClose,
@@ -2493,12 +2504,21 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 118; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 119; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 47;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.118.47", build: 165, released: LOOSCID_RELEASED, title: "Round 7.15", notes: [
+  { version: "2026.119.47", build: 166, released: LOOSCID_RELEASED, title: "Round 7.16", notes: [
+    "Feature: a leaner Home. The feed tabs come right after the Home heading: no Cherry button and no welcome line. Each feed has only its Sort button (Latest or Popular) above it, Federated too.",
+    "For You's Show following switches, Federated's Networks and Pin a tab moved to Settings, Customizability, Feeds and home, so you set them once. Feed tabs can still be unpinned from the tab itself.",
+    "Federated is Latest or Popular. Local (Dreams from around you) is gone, and a rough area it saved on this device is removed. Mastodon and Bluesky are no longer listed as Coming soon.",
+    "Swipe is gone from Feed switching; Tabs and Pop-up button stay. If you picked Swipe, you get Tabs.",
+    "Each Dream's More menu is shorter: no Like (the Like button is right there), no View profile (the name opens it), no Ask Cherry, no Pin thread as a tab (Subscribe to thread stays), and no dimmed Report. Read this Dream and Hear thread show only with Read aloud in Dream menus on, in Settings, Accessibility, Speech.",
+    "No more Cherry cards or Cherry insights in the feed. An empty Following feed offers Find people in Discover.",
+    "Discover: Filters has only Verified, the one that works. Join on a Circle result works, and Follow always works. Your profile's More has Circles instead of a Discover page, and Settings no longer has an Apps row.",
+  ] },
+  { version: "2026.118.47", build: 165, released: "2026-10-25T04:45:12Z", title: "Round 7.15", notes: [
     "Fix: a cleaner footer. Four short groups: Social (GitHub, X, YouTube), Legal (Terms, Privacy, Rules, Child Safety, License), About (About Looscid, Accessibility, Credits) and Download. They sit side by side when there is room.",
     "The Linux edition is no longer offered, so it's gone from the footer.",
   ] },

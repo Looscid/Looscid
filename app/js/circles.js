@@ -426,9 +426,10 @@ function GroupsPage({navigate, cherryCtx, data}) {
   // Opened with { circle: id } (Create Circle just made it): that Circle opens, and Back lands on My Circles.
   const openId = data && data.circle != null ? data.circle : null;
   const [tab, setTab] = useState(openId != null ? "my circles" : "discover");
-  const [groups, setGroups] = useState(GROUPS);
+  // Round 7.16 (#216): starts from the app's joined state, so a Circle joined from Discover shows under My Circles.
+  const [groups, setGroups] = useState(() => Looscid.LC_GROUPS_NOW || GROUPS);
   const [activeGroup, setActiveGroup] = useState(() => openId != null ? (GROUPS.find(g=>g.id===openId) || null) : null);
-  const tj = id => setGroups(gs=>gs.map(g=>g.id===id?{...g,joined:!g.joined}:g));
+  const tj = id => { setGroups(gs=>gs.map(g=>g.id===id?{...g,joined:!g.joined}:g)); if (cherryCtx && cherryCtx.joinGroup) cherryCtx.joinGroup(id); }; // Round 7.16: Discover sees it too
   const list = groups.filter(g=>tab==="discover"?!g.joined:g.joined);
 
   // Round 13 (QA round 12): a Circle opened from somewhere else (a profile's Circles tab, a Circle card in a Dream, a #c/name

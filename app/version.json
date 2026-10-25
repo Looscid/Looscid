@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.118.47",
-  "build": 165,
-  "features": 118,
+  "version": "2026.119.47",
+  "build": 166,
+  "features": 119,
   "fixes": 47,
-  "builds_without_fixes": 118,
-  "released": "2026-10-25T04:45:12Z",
-  "title": "Round 7.15",
-  "notes": "Round 7.15 (build 165), a fix update. A cleaner footer in four short groups (Social, Legal, About, Download), and the Linux edition is no longer offered."
+  "builds_without_fixes": 119,
+  "released": "2026-10-25T05:00:10Z",
+  "title": "Round 7.16",
+  "notes": "Round 7.16 (build 166), a feature update. A leaner Discover and Home: Sort is the only control above each feed, feed options moved to Settings, Cherry is gone from the feed, Dream menus are shorter, Discover's filters and Join work, and Circles is its own item in your profile's More."
 }
