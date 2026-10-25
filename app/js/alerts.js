@@ -55,6 +55,7 @@ const ONLY_FOLLOWED_KEY = "looscid_inbox_only_followed";
 function onlyFollowed() { try { return localStorage.getItem(ONLY_FOLLOWED_KEY) === "1"; } catch (e) { return false; } }
 function alertType(id) { return (Looscid.LC_ALERT_TYPES || []).find(function (t) { return t.id === id; }) || {}; }
 function alertWhat(n) {
+  if (n.type === "deletedDream") return n.text;
   const T = alertType(n.type), c = n.count || 1;
   if (c > 1 && n.sub && n.names && n.names.length) return c + " new replies in threads you follow, from " + n.names[0] + (c > 1 ? " and " + (c - 1) + (c - 1 === 1 ? " other" : " others") : "");
   if (c > 1 && T.by && n.names && n.names.length) return T.by + " " + n.names[0] + (c > 1 ? " and " + (c - 1) + (c - 1 === 1 ? " other" : " others") : "");

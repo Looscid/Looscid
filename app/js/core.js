@@ -1466,7 +1466,7 @@ const LC_MSG_CATS = [{ id: "all", label: "All" }, { id: "requests", label: "Requ
 Looscid.LC_MSG_CATS = LC_MSG_CATS;
 // Build 151 (#73, 2three1y Oct 11 4:53-4:58 PM): the Inbox tabs, Reddit's Inbox layout as an idea only. Settings, Alerts
 // can reorder or hide them (All stays). New Dreams and From Looscid show under All and Unread.
-const LC_INBOX_TABS = [{ id: "all", label: "All" }, { id: "unread", label: "Unread" }, { id: "messages", label: "Messages" }, { id: "reply", label: "Replies" }, { id: "mention", label: "Mentions" },
+const LC_INBOX_TABS = [{ id: "deletedDream", label: "Deleted Dreams" },{ id: "all", label: "All" }, { id: "unread", label: "Unread" }, { id: "messages", label: "Messages" }, { id: "reply", label: "Replies" }, { id: "mention", label: "Mentions" },
   { id: "like", label: "Likes" }, { id: "redream", label: "Redreams" }, { id: "quote", label: "Quotes" }, { id: "follow", label: "New Dreamor" }];
 function lcAlertCats() { return LC_INBOX_TABS.slice(); }
 /* --- Round 6: Reset. The last item in every settings list opens one native <dialog>, scoped to
@@ -5101,9 +5101,10 @@ const LC_ALERT_TYPES = [
   { id: "quote", l: "Quotes", tab: "Quotes", one: "quoted your Dream", many: "Quotes", earcon: "inboxQuote", aud: true, by: "Quoted by" },
   { id: "follow", l: "New Dreamors", tab: "New Dreamor", one: "followed you", many: "new Dreamors", earcon: "inboxFollow", aud: true, by: "Followed by" },
   { id: "system", l: "From Looscid", tab: "From Looscid", one: "", many: "updates", earcon: "alerts", aud: false },
+  { id: "deletedDream", l: "Deleted Dreams", tab: "Deleted Dreams", one: "deleted Dream", many: "deleted Dreams", earcon: "" },
 ];
 Looscid.LC_ALERT_TYPES = LC_ALERT_TYPES;
-const LC_ALERT_PREF_DEF = { group: true, types: { newDream: { on: true, sound: true, who: "following" }, mention: { on: true, sound: true, who: "everyone" }, reply: { on: true, sound: true, who: "everyone" },
+const LC_ALERT_PREF_DEF = { group: true, types: { deletedDream: { on: true, sound: false, who: "everyone" }, newDream: { on: true, sound: true, who: "following" }, mention: { on: true, sound: true, who: "everyone" }, reply: { on: true, sound: true, who: "everyone" },
   like: { on: true, sound: true, who: "everyone" }, redream: { on: true, sound: true, who: "everyone" }, quote: { on: true, sound: true, who: "everyone" }, follow: { on: true, sound: true, who: "everyone" }, system: { on: true, sound: false, who: "everyone" } } };
 Looscid.LC_ALERT_PREF_DEF = LC_ALERT_PREF_DEF;
 function lcAlertPrefs() {
@@ -5182,12 +5183,76 @@ async function lcThreadCheck() {
   } catch (e) {}
   lcThreadBusy = false; return n;
 }
+// Root deletions in explicitly followed threads only. Person-follow state is never a trigger.
+const LC_DELETED_SEEN_KEY = "looscid_deleted_dream_seen";
+let lcDeletedBusy = false, lcDeletedPause = null, lcDeletedSpoke = false;
+function lcDeletedText(user) { return ((user && typeof user.name === "string" && user.name.trim()) || "Someone") + " deleted a Dream in a thread you follow"; }
+function lcDeletedRecipient() { const N = Looscid.lcNostr; return N && N.state ? N.state().pubkey : null; }
+function lcDeletedSub(nid) { return lcThreadSubs().find(function (s) { return s.nid && String(s.nid).toLowerCase() === nid; }); }
+function lcDeletedEligible(e, user) {
+  const recipient = lcDeletedRecipient(), sub = e && lcDeletedSub(e.nid);
+  return !!(recipient && sub && recipient === e.recipient && e.pk !== recipient && /^[0-9a-f]{64}$/.test(e.nid) && /^[0-9a-f]{64}$/.test(e.pk) && Number.isFinite(e.created) && e.created / 1000 >= (sub.since || 0) && lcAlertPrefs().types.deletedDream.on && lcAudienceOk(lcAlertPrefs().types.deletedDream.who, user, "alert_deletedDream") && !lcThreadMuted([sub.root, e.nid]) && !lcBlockedUser(user) && !lcWordHit(lcDeletedText(user), "alerts"));
+}
+function lcDeletedNotice(e, user) {
+  if (!lcDeletedEligible(e, user)) return null;
+  const key = e.recipient + ":" + e.nid, list = lcAlerts();
+  let seen; try { seen = JSON.parse(localStorage.getItem(LC_DELETED_SEEN_KEY) || "[]"); } catch (err) { return null; }
+  if (!Array.isArray(seen) || seen.indexOf(key) >= 0) return null;
+  if (list.some(function (a) { return a.deletedDreamKey === key; })) {
+    try { localStorage.setItem(LC_DELETED_SEEN_KEY, JSON.stringify(seen.concat(key))); } catch (err) {} return null;
+  }
+  const sub = lcDeletedSub(e.nid), now = Date.now();
+  const a = { id: now + "-" + Math.random().toString(36).slice(2, 7), type: "deletedDream", text: lcDeletedText(user), preview: "", user: user, time: now, unread: true, count: 1, deletedDreamKey: key, recipient: e.recipient, pk: e.pk, npub: e.npub, created: e.created, quietAnnounced: false, thread: sub.root, nid: e.nid };
+  // Dedicated, ungrouped notices keep the exact neutral copy; no deleted content is saved.
+  list.unshift(a);
+  try {
+    localStorage.setItem(LC_ALERTS_KEY, JSON.stringify(list));
+    if (!lcAlerts().some(function (x) { return x.deletedDreamKey === key; })) return null;
+    localStorage.setItem(LC_DELETED_SEEN_KEY, JSON.stringify(seen.concat(key)));
+  } catch (err) { return null; }
+  window.dispatchEvent(new CustomEvent("looscid:alerts")); return a;
+}
+async function lcDeletedDreamCheck() {
+  const N = Looscid.lcNostr, recipient = lcDeletedRecipient();
+  if (!recipient || !N.fetchRootDeletions || lcDeletedBusy || document.hidden || navigator.onLine === false) return 0;
+  const subs = lcThreadSubs().filter(function (s) { return s.nid; }); if (!subs.length) return 0;
+  lcDeletedBusy = true; let n = 0;
+  try {
+    for (let i = 0; i < subs.length; i += 100) {
+      const got = await N.fetchRootDeletions(subs.slice(i, i + 100).map(function (s) { return s.nid; }));
+      if (lcDeletedRecipient() !== recipient) break;
+      const names = N.fetchNames ? await N.fetchNames((got || []).map(function (e) { return e.pk; })) : {};
+      if (lcDeletedRecipient() !== recipient) break;
+      for (const e of got || []) {
+        const user = { id: e.pk, pk: e.pk, handle: e.npub, name: names[e.pk] || null };
+        if (lcDeletedNotice(Object.assign({}, e, { recipient: recipient }), user)) n++;
+      }
+    }
+  } catch (err) {} finally { lcDeletedBusy = false; }
+  return n;
+}
+function lcDeletedSchedule() {
+  clearTimeout(lcDeletedPause);
+  lcDeletedPause = setTimeout(function () {
+    const active = document.activeElement, live = document.getElementById("looscid-live");
+    if (lcDeletedSpoke || document.hidden || !document.hasFocus() || navigator.onLine === false || Looscid.LC_CV_NOW || Looscid.LC_CV_REOPEN || document.querySelector('[role="dialog"]') || (active && active !== document.body) || !live || live.textContent.trim() || Looscid.LC_ANN_Q) return;
+    const list = lcAlerts(), a = list.find(function (x) { return x.type === "deletedDream" && x.unread && !x.quietAnnounced && lcDeletedEligible(x, x.user || { id: x.pk, handle: x.npub }); });
+    if (!a) return;
+    a.quietAnnounced = true;
+    try { localStorage.setItem(LC_ALERTS_KEY, JSON.stringify(list)); } catch (err) { return; }
+    lcDeletedSpoke = true; announce(a.text);
+  }, 8000);
+}
+// Only an observed interaction starts a pause, never an incoming alert.
+["keydown", "pointerdown", "scroll", "wheel", "touchstart", "focusin"].forEach(function (type) { window.addEventListener(type, function () { lcDeletedSpoke = false; lcDeletedSchedule(); }, { passive: true }); });
+window.addEventListener("online", function () { lcDeletedDreamCheck(); });
+
 function lcThreadWatchSoon() { setTimeout(function () { if (!document.hidden) lcThreadCheck(); }, 1500); }
 // Build 151 (#72/#73): one quiet check on start and every 2 minutes while Looscid is on screen: threads you follow,
 // your Inbox on Nostr, and your private messages. Nothing runs without a Nostr key, and nothing moves focus.
 function lcThreadWatch() {
   if (lcThreadTimer) return;
-  const run = function () { if (document.hidden) return; lcThreadCheck(); lcInboxCheck(); lcPmCheck(); };
+  const run = function () { if (document.hidden) return; lcThreadCheck(); lcDeletedDreamCheck(); lcInboxCheck(); lcPmCheck(); };
   setTimeout(run, 1500); lcThreadTimer = setInterval(run, 2 * 60000);
 }
 /* Build 151 (#73): the Inbox on Nostr. Replies, mentions, Likes, Redreams, Quotes and new Dreamors that tag you go

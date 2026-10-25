@@ -731,6 +731,35 @@ async function fetchPMs(since) {
 }
 /* Build 151 (#73): what happened to you on Nostr, for the Inbox: Replies, mentions, Likes (kind 7), Redreams (kind 6
    and 16), Quotes (q tags) and new Dreamors (contact lists, kind 3, that list you). Public notes only; each checked. */
+async function fetchRootDeletions(nids) {
+  nids = Array.from(new Set((nids || []).filter(isHex64).map(function (x) { return x.toLowerCase(); })));
+  const me = state().pubkey; if (!me || !nids.length) return [];
+  let NT; try { NT = await load(); } catch (e) { return []; }
+  const out = [], valid = function (ev) { try { return ev && !tooNew(ev) && NT.verifyEvent(ev); } catch (e) { return false; } };
+  for (let offset = 0; offset < nids.length; offset += 100) {
+    const ids = nids.slice(offset, offset + 100), roots = {};
+    const originals = await Promise.all(relays().map(function (u) { return relayReq(u, { kinds: [1], ids: ids, limit: 100 }); }));
+    originals.flat().forEach(function (ev) { if (valid(ev) && ev.kind === 1 && ids.includes(ev.id) && ev.pubkey !== me && !ev.tags.some(function (t) { return t && t[0] === "e"; })) roots[ev.id] = ev; });
+    const links = {}; Object.keys(roots).forEach(function (id) { links[id] = id; });
+    if (!Object.keys(roots).length) continue;
+    const edits = await Promise.all(relays().map(function (u) { return relayReq(u, { kinds: [1010], "#e": Object.keys(roots), limit: 1000 }); }));
+    edits.flat().forEach(function (ev) { if (!valid(ev) || ev.kind !== 1010) return; ev.tags.forEach(function (t) { if (t && t[0] === "e" && roots[t[1]] && roots[t[1]].pubkey === ev.pubkey) links[ev.id] = t[1]; }); });
+    for (let i = 0, keys = Object.keys(links); i < keys.length; i += 100) {
+      const batch = keys.slice(i, i + 100);
+      const signals = await Promise.all(relays().map(function (u) { return relayReq(u, { kinds: [5], "#e": batch, limit: 1000 }); }));
+      signals.flat().forEach(function (ev) {
+        if (!valid(ev) || ev.kind !== 5 || !Number.isFinite(ev.created_at)) return;
+        ev.tags.forEach(function (tag) {
+          const root = tag && tag[0] === "e" && links[tag[1]];
+          if (!root || ev.created_at < roots[root].created_at || roots[root].pubkey !== ev.pubkey || out.some(function (x) { return x.nid === root; })) return;
+          out.push({ nid: root, pk: ev.pubkey, npub: NT.nip19.npubEncode(ev.pubkey), delivery: ev.id, created: ev.created_at * 1000 });
+        });
+      });
+    }
+  }
+  return state().pubkey === me ? out : [];
+}
+
 async function fetchInbox(since) {
   const me = state().pubkey; if (!me) return [];
   let NT; try { NT = await load(); } catch (e) { return []; }
@@ -935,7 +964,7 @@ if (document.readyState === "complete") start(); else window.addEventListener("l
 
 Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, VENDOR_URL: VENDOR_URL, load: load, toolsMsg: toolsMsg, toolsReady: toolsReady, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
   importKey: importKey, isCurrentKey: isCurrentKey, createKey: createKey, passcodeProblem: passcodeProblem, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, dropKey: dropKey, sealedSignins: sealedSignins, forgetWarning: forgetWarning, signedOutText: signedOutText, nsecNow: nsecNow, sealSessions: sealSessions, sealSessionsNow: sealSessionsNow, openSessions: openSessions, dmRelaysOf: dmRelaysOf,
-  publishDream: publishDream, publishDeletion: publishDeletion, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchReactions: fetchReactions, fetchLikesOf: fetchLikesOf, myDreamNids: myDreamNids, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
+  publishDream: publishDream, publishDeletion: publishDeletion, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchRootDeletions: fetchRootDeletions, fetchReactions: fetchReactions, fetchLikesOf: fetchLikesOf, myDreamNids: myDreamNids, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
 // Tokens saved before this update, when the key already has a passcode, are sealed a few seconds after startup.
 setTimeout(function () { sealSessions(); }, 2500);
 })(window.Looscid = window.Looscid || {});
