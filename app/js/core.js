@@ -384,9 +384,40 @@ function lcSyncOwnDreams(prev, next) {
   });
   try { localStorage.setItem(LC_DREAMS_KEY, JSON.stringify(saved.slice(0, 1000))); } catch (e) {}
 }
-function useSavedDreams(dreams) {
+// Slice 1: local own-root removal, with session suppression for cached cards.
+const LC_DELETED_DREAMS = new Set();
+function lcDeleteOwnDream(d) {
+  if (!d || d.user !== ME || d.isReply || d.replyTo != null || d.circleId != null) return false;
+  try {
+    const saved = lcSavedDreamsRaw().find(function (s) { return s.id === d.id; });
+    const ids = Array.from(new Set([d.nid, saved && saved.nid, String(d.id)].filter(function (nid) { return /^[0-9a-f]{64}$/i.test(String(nid || "")); })));
+    const N = Looscid.lcNostr;
+    if (ids.length) {
+      if (!N || !N.hide) return false;
+      ids.forEach(function (nid) { N.hide(nid); });
+      const hidden = JSON.parse(localStorage.getItem("looscid_nostr_hidden") || "[]");
+      if (!Array.isArray(hidden) || ids.some(function (nid) { return hidden.indexOf(nid) < 0; })) return false;
+    }
+    lcSyncOwnDreams([d], []);
+    const remaining = JSON.parse(localStorage.getItem(LC_DREAMS_KEY) || "[]");
+    if (!Array.isArray(remaining) || remaining.some(function (s) { return s && s.id === d.id; })) return false;
+    LC_DELETED_DREAMS.add(String(d.id));
+    window.dispatchEvent(new CustomEvent("looscid-dream-deleted", { detail: { id: d.id } }));
+    return true;
+  } catch (e) { return false; }
+}
+function useSavedDreams(dreams, setDreams) {
   const prev = useRef(dreams);
   useEffect(function () { lcSyncOwnDreams(prev.current, dreams); prev.current = dreams; }, [dreams]);
+  useEffect(function () {
+    if (!setDreams) return;
+    const remove = function (e) {
+      if (!e.detail) return;
+      setDreams(function (ds) { return ds.filter(function (d) { return !(d.user === ME && !d.isReply && d.replyTo == null && d.id === e.detail.id); }); });
+    };
+    window.addEventListener("looscid-dream-deleted", remove);
+    return function () { window.removeEventListener("looscid-dream-deleted", remove); };
+  }, [setDreams]);
 }
 /* Build 147 (2three1y, Oct 10 2026): liking is saving. One store, one name: Liked.
    looscid_liked keeps what you liked on this device, newest first (1000 at most): { k: kind, id, at, ...a small copy }.
@@ -500,7 +531,7 @@ function lcSetNote(handle, text) {
 }
 function useDreams(init) {
   const [dreams, setDreams] = useState(function () { return (init || []).map(function (d) { d = lcWithLiked(d, true); return !d.redreamed && d.id != null && lcRedreamHas(d.id) ? Object.assign({}, d, { redreamed: true, redreams: (d.redreams || 0) + 1 }) : d; }); });
-  useSavedDreams(dreams);
+  useSavedDreams(dreams, setDreams);
   // Build 147: a like anywhere shows everywhere (the feed, a profile, Liked), with no reload.
   useEffect(function () { const f = function () { setDreams(function (ds) { let ch = false; const out = ds.map(function (d) { const n = lcWithLiked(d, false); if (n !== d) ch = true; return n; }); return ch ? out : ds; }); }; window.addEventListener("looscid-liked", f); return function () { window.removeEventListener("looscid-liked", f); }; }, []);
   // Liking is saving (build 147): one toggle, kept in Liked. tb (the old Save) is the same toggle.
@@ -916,7 +947,38 @@ function lcEditSave(d, text) {
 function lcWithEdit(d) { const e = lcEditOf(d); return e ? Object.assign({}, d, { text: e.text, edits: e.history, editedAt: e.at }) : d; }
 function lcIsMine(d) { return !!d && !!d.user && (d.user === ME || (!!d.user.handle && lcHandle(d.user.handle) === lcHandle(ME.handle || ""))); }
 Object.assign(Looscid, { LC_EDITS_KEY, lcEdits, lcEditOf, lcEditSave, lcWithEdit });
-function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, cherryCtx, onExtra, forYou }) {
+function DreamDeleteDialog({ id, onConfirm, onCancel }) {
+  const boxRef = useRef(null), cancelRef = useRef(null);
+  useEffect(function () { if (cancelRef.current) cancelRef.current.focus(); }, []);
+  const onKey = function (e) {
+    if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); onCancel(); return; }
+    if (e.key !== "Tab") return;
+    const f = boxRef.current.querySelectorAll("button"), first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  };
+  return lh('div', { className: "lid-alert-bg" },
+    lh('div', { ref: boxRef, className: "lid-alert", role: "alertdialog", "aria-modal": "true", "aria-labelledby": id + "-title", "aria-describedby": id + "-message", onKeyDown: onKey },
+      lh('h2', { id: id + "-title", className: "lid-sub" }, "Delete this Dream?"),
+      lh('p', { id: id + "-message", className: "lid-help" }, "Confirming removes this Dream from this device. Replies stay readable. This cannot be undone. Copies on relays may remain. Cancel makes no changes."),
+      lh('div', { className: "lid-actions" },
+        lh('button', { type: "button", ref: cancelRef, className: "btn bgb", "aria-label": "Cancel", "data-lc-autofocus": "", onClick: onCancel }, "Cancel"),
+        lh('button', { type: "button", className: "btn bp", "aria-label": "Delete", onClick: onConfirm }, "Delete"))));
+}
+function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, cherryCtx, onExtra, forYou, allowDelete, onDeleted }) {
+  const [deleting, setDeleting] = useState(false);
+  const canDelete = allowDelete && dream.user === ME && !dream.isReply && dream.replyTo == null && dream.circleId == null;
+  const cancelDelete = function () {
+    setDeleting(false);
+    setTimeout(function () { const b = (btnRef && btnRef.current) || document.getElementById(id + "-btn"); if (b) b.focus(); }, 0);
+  };
+  const confirmDelete = function () {
+    if (!canDelete || dream.user !== ME) { cancelDelete(); return; }
+    if (!lcDeleteOwnDream(dream)) { announce("Dream could not be deleted from this device. Try again."); return; }
+    setDeleting(false);
+    announce("Dream deleted from this device. Replies remain readable.");
+    if (onDeleted) onDeleted();
+  };
   useIdListTick("looscid:pinned"); useIdListTick("looscid:mutedthreads"); // build 152 fix: Pin and Mute labels follow the change
   const handle = (dream.user && dream.user.handle || "").replace("@", "");
   const lang = Looscid.A11Y_NOW.translateTo || "en", langName = (LC_LANGS.find(function (x) { return x[0] === lang; }) || [0, "English"])[1];
@@ -942,6 +1004,7 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
     onExtra ? { id: "likedby", name: "Liked by", a: function () { onExtra({ kind: "people", which: "likes" }); } } : null,
     onExtra ? { id: "redreamedby", name: "Redreamed by", a: function () { onExtra({ kind: "people", which: "redreams" }); } } : null,
     onExtra ? { id: "info", name: "Dream info", a: function () { onExtra({ kind: "info" }); } } : null,
+    canDelete ? { id: "delete", name: "Delete", aria: "Delete Dream", exactAria: true, danger: true, a: function () { setDeleting(true); } } : null,
     // Build 152 prep (#99, part 3)
     onExtra && lcIsMine(dream) ? { id: "edit", name: dream.replyTo ? "Edit reply" : "Edit Dream", a: function () { onExtra({ kind: "edit" }); } } : null,
     onExtra && Array.isArray(dream.edits) && dream.edits.length ? { id: "history", name: "Edit history", a: function () { onExtra({ kind: "history" }); } } : null,
@@ -988,9 +1051,11 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
   ];
   const ordered = fx.concat(items);
   // Round 5 fixes: each Dream's More button says whose Dream it is ("More, Dream by Ava"), so the rotor list isn't a row of "More".
-  return lh(LcMenu, { id: id + "-btn", menuId: id, kind: "action", title: "More", btnLabel: "More, " + (dream && dream.user && dream.user.name ? "Dream by " + dream.user.name : "Dream"), btnHint: "Opens actions for this Dream.", btnClass: "ixn-btn", btnRef: btnRef, noCaret: true, align: "right", up: true,
+  return lh(React.Fragment, null,
+    deleting && lh(DreamDeleteDialog, { id: id + "-delete", onConfirm: confirmDelete, onCancel: cancelDelete }),
+    lh(LcMenu, { id: id + "-btn", menuId: id, kind: "action", title: "More", btnLabel: "More, " + (dream && dream.user && dream.user.name ? "Dream by " + dream.user.name : "Dream"), btnHint: "Opens actions for this Dream.", btnClass: "ixn-btn", btnRef: btnRef, noCaret: true, align: "right", up: true,
     className: "lc-dmenu", style: { flex: ".5", display: "flex" }, itemClass: "lc-dopt", btnText: lh(Ic.Dots, { style: { width: 15, height: 15 } }), items: ordered,
-    onSelect: function (k, it) { if (it.a) it.a(); } });
+    onSelect: function (k, it) { if (it.a) it.a(); } }));
 }
 function BackHeader({title, onBack, right}) {
   return (
@@ -1225,7 +1290,7 @@ function CommentView({dream, backTo, onBack, onLike, onRedream, onUndoRedream, o
                   items: [{ id: "rd", name: dream.redreamed ? "Unredream" : "Redream" }, { id: "q", name: dream.quoted ? "Unquote Dream" : "Quote Dream" }],
                   onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); announce(dream.redreamed ? "Redream removed" : "Redreamed", "state", "rd:" + dream.id); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
               /* Build 147: liking is saving, so the separate Save box is gone (Like above is the one toggle). */
-              , lh(DreamOptionsMenu, { id: "dopts-cv-" + dream.id, dream: dream, btnRef: dreamOptsBtn, onBookmark: onBookmark, onLike: onLike, navigate: navigate })
+              , lh(DreamOptionsMenu, { id: "dopts-cv-" + dream.id, dream: dream, btnRef: dreamOptsBtn, onBookmark: onBookmark, onLike: onLike, navigate: navigate, allowDelete: true, onDeleted: onBack })
             )
           )
           /* Reply: opens the composer in Reply mode (Round 6.5) */
@@ -2662,7 +2727,7 @@ function LcMenu(props) {
     // Part 18: a disabled item with a reason is its short name, and the reason is its hint.
     const reasonHint = it.disabled && it.note && !it.close ? lcHintReason(it.note) : null;
     const hint = it.close ? null : (it.hint || reasonHint);
-    const nm = it.close ? "Close " + menuName : (reasonHint ? lcNameJoin(it.aria || it.name, pos) || undefined : (it.note || pos || it.aria ? lcNameJoin(it.aria || it.name, it.note, pos) : undefined));
+    const nm = it.exactAria ? it.aria : it.close ? "Close " + menuName : (reasonHint ? lcNameJoin(it.aria || it.name, pos) || undefined : (it.note || pos || it.aria ? lcNameJoin(it.aria || it.name, it.note, pos) : undefined));
     return lh('li', { key: it.id, "data-mi": "1", role: radio ? "menuitemradio" : "menuitem", "aria-checked": radio ? (it.id === value ? "true" : "false") : undefined,
         "aria-disabled": it.disabled ? "true" : undefined, tabIndex: i === active ? 0 : -1, "aria-describedby": hint ? lcHint(hint) : undefined,
         "aria-label": nm, "aria-braillelabel": it.close ? "Close" : undefined,
@@ -3597,6 +3662,7 @@ function lcDreamWords(d, mode, a) {
   return parts.filter(Boolean).join(". ").replace(/\.\./g, ".");
 }
 function lcFiltered(d, a) {
+  if (d.user === ME && LC_DELETED_DREAMS.has(String(d.id))) return { hide: true };
   a = a || Looscid.A11Y_NOW; const t = " " + lcNorm(d.text) + " ", hit = function (w) { const n = lcNorm(w); return n && t.indexOf(" " + n + " ") >= 0 || (n && n.indexOf(" ") > 0 && t.indexOf(n) >= 0); };
   if (d.user && typeof d.user === "object" && lcBlockedUser(d.user)) return { hide: true, blockedUser: true };
   // Build 147 (Feditext's profile menu): Mute hides a Dreamor's Dreams; Hide Redreams hides the Redreams they make.
@@ -6519,7 +6585,7 @@ useEffect(() => {
 
   // -- Global app state Cherry can read & mutate ------------------------------
   const [appDreams, setAppDreams] = useState(() => lcMergeDreams(lcLoadDreams(), DREAMS_INIT).map(function (d) { d = lcWithLiked(d, true); return !d.redreamed && lcRedreamHas(d.id) ? Object.assign({}, d, { redreamed: true, redreams: (d.redreams || 0) + 1 }) : d; }));
-  useSavedDreams(appDreams);
+  useSavedDreams(appDreams, setAppDreams);
   // Build 148: Liked Searches with Alerts on are checked when Looscid opens and whenever new Dreams arrive (no server, so never while closed).
   Looscid.LC_APP_DREAMS = appDreams;
   useEffect(() => { const t = setTimeout(function () { if (Looscid.lcLikedSearchCheck) Looscid.lcLikedSearchCheck(appDreams); }, 800); return function () { clearTimeout(t); }; }, [appDreams]);
