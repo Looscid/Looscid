@@ -244,7 +244,7 @@ Looscid.LC_DREAMS_KEY = LC_DREAMS_KEY;
 // Round 6.4: "nid" is the Nostr note id of a Dream that went to Nostr, so it is never fetched twice.
 const LC_DREAM_SAVE = ["id", "text", "likes", "redreams", "quotes", "liked", "redreamed", "quoted", "bookmarked", "created", "nid",
   // Round 6.5: Audience, content warning, a Quote's source, link preview off, and for Nostr notes the author key and threading tags.
-  "aud", "cw", "quoteOf", "qWho", "qText", "nopv", "pk", "tags"];
+  "deleted", "aud", "cw", "quoteOf", "qWho", "qText", "nopv", "pk", "tags"];
 /* Round 6.5: Replies are saved on this device too (localStorage looscid_replies), so they're still there after a
    reload. Each one keeps the Dream it answers (replyTo), the reply it answers when it's a reply to a reply
    (replyToReply), its Audience and content warning, who was notified, and for Nostr its note id and tags.
@@ -346,7 +346,7 @@ function lcAgo(t) {
    time at all, never a false "just now". */
 function lcSavedAgo(x) { const t = +(x && x.created) || (x && typeof x.id === "number" && x.id > 1e12 ? x.id : 0); return t ? lcAgo(t) : ""; }
 function lcSavedDreamsRaw() {
-  try { const a = JSON.parse(localStorage.getItem(LC_DREAMS_KEY) || "[]"); return Array.isArray(a) ? a.filter(function (d) { return d && d.id != null && typeof d.text === "string"; }) : []; } catch (e) { return []; }
+  try { const a = JSON.parse(localStorage.getItem(LC_DREAMS_KEY) || "[]"); return Array.isArray(a) ? a.filter(function (d) { return d && d.id != null && (typeof d.text === "string" || d.deleted === true); }) : []; } catch (e) { return []; }
 }
 Looscid.lcSavedAgo = lcSavedAgo; // Round 7.2: the profile Liked tab dates saved copies the same way
 function lcLoadDreams() {
@@ -372,8 +372,9 @@ function lcSyncOwnDreams(prev, next) {
   const all = lcSavedDreamsRaw();
   // A Dream from Nostr that you remove here stays removed: it isn't fetched again (Round 6.4).
   all.forEach(function (s) { if (gone.has(s.id) && s.nid && Looscid.lcNostr) Looscid.lcNostr.hide(s.nid); });
-  let saved = all.filter(function (s) { return !gone.has(s.id); });
+  let saved = all.filter(function (s) { return s.deleted === true || !gone.has(s.id); });
   changed.slice().reverse().forEach(function (d) {
+    if (all.some(function (s) { return s.id === d.id && s.deleted === true; })) return;
     const o = {}; LC_DREAM_SAVE.forEach(function (k) { if (d[k] !== undefined) o[k] = d[k]; });
     const old = saved.find(function (s) { return s.id === d.id; });
     if (!o.created) o.created = (old && old.created) || (typeof d.id === "number" && d.id > 1e12 ? d.id : Date.now());
@@ -383,6 +384,28 @@ function lcSyncOwnDreams(prev, next) {
     if (old) saved[saved.indexOf(old)] = o; else saved.unshift(o);
   });
   try { localStorage.setItem(LC_DREAMS_KEY, JSON.stringify(saved.slice(0, 1000))); } catch (e) {}
+}
+// Minimal root identity survives deletion; no original content is retained here.
+function lcTombstoneOf(d) {
+  if (!d) return null;
+  const t = d.deleted === true ? d : lcSavedDreamsRaw().find(function (s) { return s.deleted === true && s.id === d.id; });
+  return t ? Object.assign({}, t, { user: d.user || ME }) : null;
+}
+function lcSaveTombstone(d, index) {
+  const t = { id: d.id, deleted: true };
+  ["nid", "pk"].forEach(function (k) { if (d[k]) t[k] = d[k]; });
+  const before = lcSavedDreamsRaw(), found = before.findIndex(function (s) { return s.id === d.id; });
+  const all = before.filter(function (s) { return s.id !== d.id; });
+  all.splice(Math.max(0, Math.min(index == null ? found : index, all.length)), 0, t);
+  try {
+    localStorage.setItem(LC_DREAMS_KEY, JSON.stringify(all));
+    if (JSON.stringify(lcSavedDreamsRaw().find(function (s) { return s.id === d.id; })) !== JSON.stringify(t)) return false;
+    window.dispatchEvent(new CustomEvent("looscid:tombstones", { detail: t })); return true;
+  } catch (e) { return false; }
+}
+function DeletedDream({ dream, inThread }) {
+  const name = inThread && dream.user && (dream.user.name || dream.user.handle);
+  return lh('p', { id: "deleted-dream-" + dream.id }, name ? name + "'s Dream was deleted" : "This Dream was deleted");
 }
 // Slice 1: local own-root removal, with session suppression for cached cards.
 const LC_DELETED_DREAMS = new Set();
@@ -415,8 +438,13 @@ function useSavedDreams(dreams, setDreams) {
       if (!e.detail) return;
       setDreams(function (ds) { return ds.filter(function (d) { return !(d.user === ME && !d.isReply && d.replyTo == null && d.id === e.detail.id); }); });
     };
+    const restore = function (e) { if (!e.detail) return; setDreams(function (ds) {
+      const t = Object.assign({}, e.detail, { user: ME }), index = prev.current.findIndex(function (d) { return d.id === t.id; });
+      const out = ds.filter(function (d) { return d.id !== t.id; }); out.splice(index < 0 ? 0 : Math.min(index, out.length), 0, t); return out;
+    }); };
+    window.addEventListener("looscid:tombstones", restore);
     window.addEventListener("looscid-dream-deleted", remove);
-    return function () { window.removeEventListener("looscid-dream-deleted", remove); };
+    return function () { window.removeEventListener("looscid:tombstones", restore); window.removeEventListener("looscid-dream-deleted", remove); };
   }, [setDreams]);
 }
 /* Build 147 (2three1y, Oct 10 2026): liking is saving. One store, one name: Liked.
@@ -944,7 +972,7 @@ function lcEditSave(d, text) {
   try { window.dispatchEvent(new CustomEvent("looscid:edits")); } catch (e) {}
   return all[k];
 }
-function lcWithEdit(d) { const e = lcEditOf(d); return e ? Object.assign({}, d, { text: e.text, edits: e.history, editedAt: e.at }) : d; }
+function lcWithEdit(d) { const t = lcTombstoneOf(d); if (t) return t; const e = lcEditOf(d); return e ? Object.assign({}, d, { text: e.text, edits: e.history, editedAt: e.at }) : d; }
 function lcIsMine(d) { return !!d && !!d.user && (d.user === ME || (!!d.user.handle && lcHandle(d.user.handle) === lcHandle(ME.handle || ""))); }
 Object.assign(Looscid, { LC_EDITS_KEY, lcEdits, lcEditOf, lcEditSave, lcWithEdit });
 function DreamDeleteDialog({ id, onConfirm, onCancel }) {
@@ -977,12 +1005,15 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
     // Capture relay identity before the unchanged local removal discards the saved record.
     const saved = lcSavedDreamsRaw().find(function (s) { return s.id === dream.id; });
     const nids = [dream.nid, saved && saved.nid, String(dream.id)];
+    const position = lcSavedDreamsRaw().findIndex(function (s) { return s.id === dream.id; });
     if (!lcDeleteOwnDream(dream)) { announce("Dream could not be deleted from this device. Try again."); return; }
+    const tombstoned = lcSaveTombstone({ id: dream.id, nid: dream.nid || (saved && saved.nid), pk: dream.pk || (saved && saved.pk) }, position);
     setDeleting(false);
-    announce("Dream deleted from this device. Replies remain readable.");
+    if (tombstoned) announce("This Dream was deleted");
+    else announce("Dream deleted from this device. Replies remain readable.");
     const N = Looscid.lcNostr;
     if (N && N.publishDeletion) N.publishDeletion(nids).catch(function () { announce("Relay deletion could not be requested. Copies may remain."); });
-    if (onDeleted) onDeleted();
+    if (!tombstoned && onDeleted) onDeleted();
   };
   useIdListTick("looscid:pinned"); useIdListTick("looscid:mutedthreads"); // build 152 fix: Pin and Mute labels follow the change
   const handle = (dream.user && dream.user.handle || "").replace("@", "");
@@ -1215,6 +1246,7 @@ Looscid.lcCutWords = lcCutWords;
 function lcCountWord(n, one, many) { return fmt(n) + " " + (n === 1 ? one : many); }
 function lcRdState(d) { return d.redreamed ? ", Redreamed" : d.quoted ? ", Quoted" : ""; }
 function CommentView({dream, backTo, onBack, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onCommentPosted, navigate}) {
+  useIdListTick("looscid:tombstones"); dream = lcTombstoneOf(dream) || dream;
   const tick = useRepliesTick();
   const comments = React.useMemo(function () { return lcRepliesFor(dream.id).concat(MOCK_COMMENTS[dream.id] || []); }, [dream.id, tick]);
   const [sort, setSort] = useState("newest");
@@ -1270,7 +1302,7 @@ function CommentView({dream, backTo, onBack, onLike, onRedream, onUndoRedream, o
           /* Build 150: the Dreams above this one, when the thread is expanded */
           , lh('div', { id: "cv-thread" }, expanded && above.length ? lh('div', { id: "cv-above", role: "list", "aria-label": "Earlier in this thread" }, above.map(function (cm) { return lh('div', { role: "listitem", key: "a" + cm.id }, lh(ReplyItem, { cm: cm, navigate: navigate, onReply: function (c, el) { reply(c, el); } })); })) : null)
           /* Original Dream */
-          , React.createElement('div', { style: {padding:"14px 16px",borderBottom:"1px solid var(--bd)",background:"var(--sf2)"},}
+          , dream.deleted ? lh(DeletedDream, { dream: dream, inThread: true }) : React.createElement('div', { style: {padding:"14px 16px",borderBottom:"1px solid var(--bd)",background:"var(--sf2)"},}
             , React.createElement('div', { className: "dc-meta", style: {marginBottom:6},}
               , React.createElement('button', { style: {background:"none",border:"none",cursor:"pointer",padding:0}, onClick: ()=>navigate("dp",dream.user), 'aria-label': "View " + dream.user.name + "'s profile",}
                 , React.createElement('span', { className: "dc-name",}, dream.user.name)
@@ -1299,7 +1331,7 @@ function CommentView({dream, backTo, onBack, onLike, onRedream, onUndoRedream, o
             )
           )
           /* Reply: opens the composer in Reply mode (Round 6.5) */
-          , lh('div', { style: {padding:"10px 14px",borderBottom:"1px solid var(--bd)",display:"flex",gap:9,alignItems:"center"} },
+          , !dream.deleted && lh('div', { style: {padding:"10px 14px",borderBottom:"1px solid var(--bd)",display:"flex",gap:9,alignItems:"center"} },
               lh(Av, { user: ME, size: 32 }),
               lh('button', { type: "button", id: "cv-reply-btn", className: "btn bp", style: {padding:"8px 16px",fontSize:13}, onClick: function (e) { reply(dream, e.currentTarget); } }, "Reply to " + dream.user.name))
           /* Sort bar and replies: shown when the thread is expanded */
@@ -1319,7 +1351,11 @@ function CommentView({dream, backTo, onBack, onLike, onRedream, onUndoRedream, o
   );
 }
 /* --- DREAM CARD -------------------------- */
-function DreamCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onComment, navigate, cherryCtx, replyCtx, forYou, pinned}) {
+function DreamCard(props) {
+  useIdListTick("looscid:tombstones"); const t = lcTombstoneOf(props.dream);
+  return t ? lh('div', { className: "dc" }, lh(DeletedDream, { dream: t }), props.onComment ? lh('button', { type: "button", className: "btn bgb", onClick: function () { props.onComment(t); } }, "Open deleted Dream") : null) : lh(DreamBodyCard, props);
+}
+function DreamBodyCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onComment, navigate, cherryCtx, replyCtx, forYou, pinned}) {
   const [showRD, setShowRD] = useState(false);
   const [showOpts, setShowOpts] = useState(false);
   const optsBtn = useRef(null);
@@ -3651,6 +3687,7 @@ function lcTimeParts(time) {
 function lcDreamKind(d) { return d.redreamOf || d.isRedream ? "Redream" : d.replyTo || d.isReply ? "Reply" : "Dream"; }
 // The words a Dream is announced with (speech) or shown with (braille), from the settings.
 function lcDreamWords(d, mode, a) {
+  if (lcTombstoneOf(d)) return "This Dream was deleted";
   a = a || Looscid.A11Y_NOW; const u = d.user || {}, kind = lcDreamKind(d), tp = lcTimeParts(d.time);
   if (mode === "braille") {
     const pre = a.braillePrefix !== false ? ({ Dream: "D:", Reply: "R:", Redream: "RD:" }[kind]) + " " : "";
@@ -3667,6 +3704,7 @@ function lcDreamWords(d, mode, a) {
   return parts.filter(Boolean).join(". ").replace(/\.\./g, ".");
 }
 function lcFiltered(d, a) {
+  if (lcTombstoneOf(d)) return null;
   if (d.user === ME && LC_DELETED_DREAMS.has(String(d.id))) return { hide: true };
   a = a || Looscid.A11Y_NOW; const t = " " + lcNorm(d.text) + " ", hit = function (w) { const n = lcNorm(w); return n && t.indexOf(" " + n + " ") >= 0 || (n && n.indexOf(" ") > 0 && t.indexOf(n) >= 0); };
   if (d.user && typeof d.user === "object" && lcBlockedUser(d.user)) return { hide: true, blockedUser: true };
