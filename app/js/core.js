@@ -948,21 +948,21 @@ function lcWithEdit(d) { const e = lcEditOf(d); return e ? Object.assign({}, d, 
 function lcIsMine(d) { return !!d && !!d.user && (d.user === ME || (!!d.user.handle && lcHandle(d.user.handle) === lcHandle(ME.handle || ""))); }
 Object.assign(Looscid, { LC_EDITS_KEY, lcEdits, lcEditOf, lcEditSave, lcWithEdit });
 function DreamDeleteDialog({ id, onConfirm, onCancel }) {
-  const boxRef = useRef(null), cancelRef = useRef(null);
-  useEffect(function () { if (cancelRef.current) cancelRef.current.focus(); }, []);
+  const boxRef = useRef(null), headingRef = useRef(null);
+  useEffect(function () { if (headingRef.current) headingRef.current.focus(); }, []);
   const onKey = function (e) {
     if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); onCancel(); return; }
-    if (e.key !== "Tab") return;
-    const f = boxRef.current.querySelectorAll("button"), first = f[0], last = f[f.length - 1];
-    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   };
+  useEffect(function () {
+    document.addEventListener("keydown", onKey);
+    return function () { document.removeEventListener("keydown", onKey); };
+  }, [onCancel]);
   return lh('div', { className: "lid-alert-bg" },
-    lh('div', { ref: boxRef, className: "lid-alert", role: "alertdialog", "aria-modal": "true", "aria-labelledby": id + "-title", "aria-describedby": id + "-message", onKeyDown: onKey },
-      lh('h2', { id: id + "-title", className: "lid-sub" }, "Delete this Dream?"),
+    lh('div', { ref: boxRef, className: "lid-alert", role: "alertdialog", "aria-modal": "true", "aria-labelledby": id + "-title", "aria-describedby": id + "-message", "data-lc-no-focus-trap": "", onKeyDown: onKey },
+      lh('h2', { ref: headingRef, tabIndex: -1, "data-lc-autofocus": "", id: id + "-title", className: "lid-sub" }, "Delete this Dream?"),
       lh('p', { id: id + "-message", className: "lid-help" }, "Confirming removes this Dream from this device. Replies stay readable. This cannot be undone. Copies on relays may remain. Cancel makes no changes."),
       lh('div', { className: "lid-actions" },
-        lh('button', { type: "button", ref: cancelRef, className: "btn bgb", "aria-label": "Cancel", "data-lc-autofocus": "", onClick: onCancel }, "Cancel"),
+        lh('button', { type: "button", className: "btn bgb", "aria-label": "Cancel", onClick: onCancel }, "Cancel"),
         lh('button', { type: "button", className: "btn bp", "aria-label": "Delete", onClick: onConfirm }, "Delete"))));
 }
 function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, cherryCtx, onExtra, forYou, allowDelete, onDeleted }) {
@@ -5991,7 +5991,7 @@ function lcModalSync() {
     if ((top && top.el) === (before && before.el)) return;
     lcModalRelease();
     if (top) {
-      lcModalApply(top.el);
+      if (!top.el.hasAttribute("data-lc-no-focus-trap")) lcModalApply(top.el);
       const a = document.activeElement;
       if (!a || a === document.body || !top.el.contains(a)) {
         setTimeout(function () {
@@ -6031,7 +6031,7 @@ function lcModalSync() {
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Tab" || !LcModal.stack.length) return;
     const top = LcModal.stack[LcModal.stack.length - 1].el;
-    if (top.classList.contains("lmenu-list")) return; // pop-up menus: Tab closes them (their own key handler)
+    if (top.hasAttribute("data-lc-no-focus-trap") || top.classList.contains("lmenu-list")) return; // pop-up menus: Tab closes them (their own key handler)
     const list = lcModalFocusables(top); if (!list.length) { e.preventDefault(); return; }
     const first = list[0], lastEl = list[list.length - 1], a = document.activeElement;
     if (!top.contains(a)) { e.preventDefault(); first.focus(); }
