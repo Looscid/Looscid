@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.118.46",
-  "build": 164,
+  "version": "2026.118.47",
+  "build": 165,
   "features": 118,
-  "fixes": 46,
+  "fixes": 47,
   "builds_without_fixes": 118,
-  "released": "2026-10-24T16:04:37Z",
-  "title": "Round 7.14",
-  "notes": "Round 7.14 (build 164), a feature update. The More tab is Profile, profiles have a More button (yours holds what More held, ending with Log out), Liked is a profile tab, and Loostore is no longer linked in Looscid."
+  "released": "2026-10-25T04:45:12Z",
+  "title": "Round 7.15",
+  "notes": "Round 7.15 (build 165), a fix update. A cleaner footer in four short groups (Social, Legal, About, Download), and the Linux edition is no longer offered."
 }

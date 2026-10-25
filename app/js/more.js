@@ -2495,10 +2495,14 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 118; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 46;
+const LOOSCID_FIXES = 47;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.118.46", build: 164, released: LOOSCID_RELEASED, title: "Round 7.14", notes: [
+  { version: "2026.118.47", build: 165, released: LOOSCID_RELEASED, title: "Round 7.15", notes: [
+    "Fix: a cleaner footer. Four short groups: Social (GitHub, X, YouTube), Legal (Terms, Privacy, Rules, Child Safety, License), About (About Looscid, Accessibility, Credits) and Download. They sit side by side when there is room.",
+    "The Linux edition is no longer offered, so it's gone from the footer.",
+  ] },
+  { version: "2026.118.46", build: 164, released: "2026-10-24T16:04:37Z", title: "Round 7.14", notes: [
     "Feature: the More tab is now Profile, and it opens your own profile. It is still the last tab, always shown.",
     "Feature: profiles have a More button after the name. On your profile it holds Edit profile, Share profile, Copy link, Copy username, View as others see it, Reorder tabs, Lists and Drafts; then Cherry, Discover, Create, Alerts, Settings, Commandbar, Help and Commands; then Credits, Feedback and Log out, last. Log out asks first.",
     "Feature: on someone else's profile, More starts with Share profile, Copy link, Add to list, Mute, Block and Report (Report stays unavailable until Looscid has somewhere to send reports), then Follow, Message and the other options it already had.",

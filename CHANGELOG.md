@@ -2,6 +2,16 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.118.47 (165): Round 7.15
+
+Released October 25, 2026 at 12:45 AM (Eastern Time, 2026-10-25T04:45:12Z UTC)
+
+A fix update, asked for by 2three1y.
+
+- Fix: The footer is cleaner. It has four short groups: Social (GitHub, X, YouTube), Legal (Terms, Privacy, Rules, Child Safety, License), About (About Looscid, Accessibility, Credits) and Download. The groups sit side by side when there is room and stack into one column on a narrow screen or when zoomed in.
+- Credits moved from Legal to About, "Legal and license" is now just License, and "Our accessibility commitment" is now Accessibility. Every link goes to the same place as before.
+- The Linux edition is no longer offered, so its Coming soon item is gone from the footer. The iPhone and iPad line and the Android app item are unchanged.
+
 ## Looscid 2026.118.46 (164): Round 7.14
 
 Released October 24, 2026 at 12:04 PM (Eastern Time, 2026-10-24T16:04:37Z UTC)

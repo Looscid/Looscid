@@ -598,6 +598,9 @@ body.acc-text-2 .pg .lc-end-chrome { zoom: 0.769231; }
 .lc-footer { border-top: 1px solid var(--bd); margin: 24px 16px 0; padding: 16px 0 24px; color: var(--tx2); font-size: 14px; }
 .lc-foot-title { font-size: 15px; margin: 0 0 8px; color: var(--tx); }
 .lc-foot-grp { margin: 12px 0 0; }
+/* Round 7.15: the groups sit side by side when there is room, one column when narrow or zoomed (400% included). */
+.lc-foot-grps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); column-gap: 24px; }
+.lc-foot-grps .lc-foot-grp { min-width: 0; overflow-wrap: anywhere; }
 .lc-foot-h { font-size: 14px; margin: 0 0 6px; color: var(--tx); }
 .lc-foot-list { list-style: none; margin: 0; padding: 0; }
 .lc-foot-list li { margin: 0 0 6px; }

@@ -1817,7 +1817,7 @@ const CHILD_SAFETY_CONTENT = `<p><strong>Last updated: October 12, 2026</strong>
 Looscid.CHILD_SAFETY_CONTENT = CHILD_SAFETY_CONTENT;
 
 /* Part 33 (#68, launch-critical; 2three1y Oct 12: "the footer is gone"): the site footer. A real footer landmark
-   (contentinfo) with a "Footer" heading and one h3 per group: Social, Legal, Values, Download. It is never fixed or
+   (contentinfo) with a "Footer" heading and one h3 per group: Social, Legal, About (was Values), Download. It is never fixed or
    floating: LcFooterHost moves it to the end of the page's own scrolling area, so it only shows once you reach the
    end and never covers content. Pages without a scrolling .pg (full-screen tools) have no footer.
    The old app never had a site footer on preview; main's one line, "Looscid is open source and local first.", is kept. */
@@ -1835,14 +1835,19 @@ function LcSiteFooter({ navigate, cur }) {
       Looscid.lcFooterFrom = page; Looscid.lcFooterLink = text; navigate(page); } }, text)); };
   const soon = function (text, key) { return lh('li', { key: key }, lh('button', { type: "button", className: "lc-foot-soon", "aria-disabled": "true", onClick: function () { announce(text + " is coming soon."); } }, text, lh('span', { className: "lc-foot-soon-tag" }, " Coming soon"))); };
   const grp = function (id, title, kids) { return lh('section', { className: "lc-foot-grp", "aria-labelledby": id }, lh('h3', { id: id, className: "lc-foot-h" }, title), lh('ul', { className: "lc-foot-list", role: "list" }, kids)); };
+  /* Round 7.15 (2three1y, Oct 25: "look cleaner and remove items that no longer work"; no Linux edition): four short
+     groups in a grid that falls to one column when narrow or zoomed. Credits moved from Legal to About; Legal and license
+     is just License; Social links are just the site's name. The Linux edition item is gone. The iPhone line and the
+     Android app item stay as they were. */
   return lh('footer', { className: "lc-footer", role: "contentinfo", "aria-labelledby": "lc-foot-title" },
     lh('h2', { id: "lc-foot-title", className: "lc-foot-title" }, "Footer"),
-    grp("lc-foot-social", "Social", [ext("https://github.com/Looscid", "Looscid on GitHub", "gh"), ext("https://x.com/Looscid", "Looscid on X, @Looscid", "x"), ext("https://www.youtube.com/@Looscid", "Looscid on YouTube, @Looscid", "yt")]),
-    grp("lc-foot-legal", "Legal", [go("terms", "Terms", "t"), go("privacy", "Privacy", "p"), go("guidelines", "Rules", "r"), go("child_safety", "Child Safety", "c"), go("legal", "Legal and license", "l"), go("credits", "Credits", "cr")]),
-    grp("lc-foot-values", "Values", [go("settings_about", "About Looscid", "ab"), ext("https://github.com/Looscid/Looscid/blob/main/docs/guides/ACCESSIBILITY.md", "Our accessibility commitment", "a")]),
+    lh('div', { className: "lc-foot-grps" },
+    grp("lc-foot-social", "Social", [ext("https://github.com/Looscid", "GitHub", "gh"), ext("https://x.com/Looscid", "X", "x"), ext("https://www.youtube.com/@Looscid", "YouTube", "yt")]),
+    grp("lc-foot-legal", "Legal", [go("terms", "Terms", "t"), go("privacy", "Privacy", "p"), go("guidelines", "Rules", "r"), go("child_safety", "Child Safety", "c"), go("legal", "License", "l")]),
+    grp("lc-foot-values", "About", [go("settings_about", "About Looscid", "ab"), ext("https://github.com/Looscid/Looscid/blob/main/docs/guides/ACCESSIBILITY.md", "Accessibility", "a"), go("credits", "Credits", "cr")]),
     grp("lc-foot-dl", "Download", [
       lh('li', { key: "ios" }, lh('p', { className: "lc-foot-p" }, "iPhone and iPad: open Looscid in Safari, then Share, then Add to Home Screen.")),
-      soon("Android app", "and"), soon("Linux edition", "lin")]),
+      soon("Android app", "and")])),
     lh('p', { className: "lc-foot-p lc-foot-end" }, "Looscid is open source and local first."));
 }
 /* 2three1y (Oct 12, 5:33 PM): "The footer is on every page at the bottom like GitHub", but in reading and swipe order the
@@ -3937,11 +3942,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.118.46";
+const LOOSCID_VERSION = "2026.118.47";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 164;
+const LOOSCID_BUILD = 165;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-24T16:04:37Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-25T04:45:12Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -6755,7 +6760,7 @@ useEffect(() => {
     const to = b.page && b.page !== "legal" ? b.page : "settings_about";
     if (b.cv) lcCvReopenLater(b.cv);
     setPage(to); setPdata(b.data || null);
-    // Round 8 fixes (QA round 7): opened from the footer's "Legal and license", Back lands on that link again, like the
+    // Round 8 fixes (QA round 7): opened from the footer's "License" (was "Legal and license"), Back lands on that link again, like the
     // footer's other links (it went to the top of Home).
     if (b.footer) { lcFocusFooterLink(b.footer); return; }
     if (b.menu) { setMenuInit({ open: "about", focus: null, n: Date.now() }); setShowMenu(true); }
