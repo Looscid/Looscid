@@ -974,9 +974,14 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
   };
   const confirmDelete = function () {
     if (!canDelete || dream.user !== ME) { cancelDelete(); return; }
+    // Capture relay identity before the unchanged local removal discards the saved record.
+    const saved = lcSavedDreamsRaw().find(function (s) { return s.id === dream.id; });
+    const nids = [dream.nid, saved && saved.nid, String(dream.id)];
     if (!lcDeleteOwnDream(dream)) { announce("Dream could not be deleted from this device. Try again."); return; }
     setDeleting(false);
     announce("Dream deleted from this device. Replies remain readable.");
+    const N = Looscid.lcNostr;
+    if (N && N.publishDeletion) N.publishDeletion(nids).catch(function () { announce("Relay deletion could not be requested. Copies may remain."); });
     if (onDeleted) onDeleted();
   };
   useIdListTick("looscid:pinned"); useIdListTick("looscid:mutedthreads"); // build 152 fix: Pin and Mute labels follow the change

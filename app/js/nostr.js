@@ -770,6 +770,49 @@ async function fetchNames(pks) {
   return out;
 }
 
+// NIP-09 is a signed request, not guaranteed erasure. Only verified own root events qualify.
+async function publishDeletion(nids) {
+  const ids = Array.from(new Set((nids || []).filter(isHex64).map(function (n) { return n.toLowerCase(); })));
+  if (!ids.length) return { skipped: true }; // Numeric, unpublished local Dreams have no relay target.
+  const fail = function (err) { sayLater("Relay deletion could not be requested. Copies may remain."); return { err: err }; };
+  const st = state(), pk = st.pubkey;
+  if (!st.canDream || st.mode === "locked") return fail(st.mode === "locked" ? "locked" : "nokey");
+  let NT; try { NT = await load(); } catch (e) { return fail("load"); }
+  const list = relays(), pending = queue().filter(function (it) { return it.ev; }).map(function (it) { return it.ev; });
+  const valid = function (ev) {
+    if (!ev || ev.pubkey !== pk || !isHex64(ev.id) || !Array.isArray(ev.tags)) return false;
+    try { return NT.verifyEvent(ev); } catch (e) { return false; }
+  };
+  const originals = {}, versions = {};
+  const roots = await Promise.all(list.map(function (u) { return relayReq(u, { ids: ids, kinds: [1], authors: [pk] }); }));
+  pending.concat.apply(pending, roots).forEach(function (ev) {
+    if (valid(ev) && ev.kind === 1 && ids.indexOf(ev.id) >= 0 && !ev.tags.some(function (t) { return t && t[0] === "e"; })) originals[ev.id] = ev;
+  });
+  const rootIds = Object.keys(originals);
+  if (!rootIds.length) return fail("ownership"); // A local author label alone is not signing authority.
+  const edits = await Promise.all(list.map(function (u) { return relayReq(u, { kinds: [1010], authors: [pk], "#e": rootIds, limit: 500 }); }));
+  pending.concat.apply(pending, edits).forEach(function (ev) {
+    if (valid(ev) && ev.kind === 1010 && ev.tags.some(function (t) { return t && t[0] === "e" && rootIds.indexOf(t[1]) >= 0; })) versions[ev.id] = ev;
+  });
+  const targets = Object.assign({}, originals, versions), targetIds = Object.keys(targets);
+  const tags = targetIds.map(function (id) { return ["e", id]; });
+  Array.from(new Set(targetIds.map(function (id) { return targets[id].kind; }))).forEach(function (kind) { tags.push(["k", String(kind)]); });
+  if (state().pubkey !== pk) return fail("identity");
+  const tpl = { kind: 5, created_at: Math.floor(Date.now() / 1000), content: "", tags: tags };
+  let ev; try { ev = await sign(tpl); } catch (e) { return fail("sign"); }
+  if (!valid(ev) || ev.kind !== 5 || ev.created_at !== tpl.created_at || ev.content !== "" || JSON.stringify(ev.tags) !== JSON.stringify(tags)) return fail("sign");
+  if (!fitsRelays(ev)) return fail("size");
+  // Use the existing signed-event retry queue, without a creation draft or Dream reference.
+  const q = queue(); q.push({ ev: ev, todo: list, tries: 0, next: Date.now() + RETRY_MS[0] }); saveQueue(q); schedule();
+  const r = await sendToRelays(ev, list);
+  const cur = queue().filter(function (it) { return !it.ev || it.ev.id !== ev.id; });
+  if (r.failed.length) cur.push({ ev: ev, todo: r.failed, tries: 1, next: Date.now() + RETRY_MS[0] });
+  saveQueue(cur); schedule(); emit();
+  sayLater("Relay deletion requested. Relays may keep copies.");
+  return { ev: ev, ok: r.ok.length, total: list.length, queued: !!r.failed.length };
+}
+
+
 /* --- Reading your own Dreams back (any device) ------------------------------------- */
 function hidden() { const h = lsJson(HIDDEN_KEY, []); return Array.isArray(h) ? h : []; }
 function hide(nid) { if (!isHex64(nid)) return; const h = hidden(); if (h.indexOf(nid) < 0) { h.push(nid); lsSet(HIDDEN_KEY, JSON.stringify(h.slice(-2000))); } }
@@ -892,7 +935,7 @@ if (document.readyState === "complete") start(); else window.addEventListener("l
 
 Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, VENDOR_URL: VENDOR_URL, load: load, toolsMsg: toolsMsg, toolsReady: toolsReady, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
   importKey: importKey, isCurrentKey: isCurrentKey, createKey: createKey, passcodeProblem: passcodeProblem, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, dropKey: dropKey, sealedSignins: sealedSignins, forgetWarning: forgetWarning, signedOutText: signedOutText, nsecNow: nsecNow, sealSessions: sealSessions, sealSessionsNow: sealSessionsNow, openSessions: openSessions, dmRelaysOf: dmRelaysOf,
-  publishDream: publishDream, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchReactions: fetchReactions, fetchLikesOf: fetchLikesOf, myDreamNids: myDreamNids, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
+  publishDream: publishDream, publishDeletion: publishDeletion, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchReactions: fetchReactions, fetchLikesOf: fetchLikesOf, myDreamNids: myDreamNids, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
 // Tokens saved before this update, when the key already has a passcode, are sealed a few seconds after startup.
 setTimeout(function () { sealSessions(); }, 2500);
 })(window.Looscid = window.Looscid || {});
