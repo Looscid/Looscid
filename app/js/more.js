@@ -779,7 +779,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       lh('h1', { className: "lc-prof-name", tabIndex: -1, ref: headRef }, user.name || "Dreamor"),
       // Feditext's account line: @handle, the lock for a private (locked) account, then the "Follows you", "Muted" and
       // "Blocked" capsules. Build 149: each is its own piece with a plain space between, no hidden commas.
-      lh('p', { className: "lc-prof-handle" }, lh('span', { className: "sr-only" }, "LooscidID"), " ", lh('span', { className: "lc-prof-acct" }, "@" + handle),
+      lh('p', { className: "lc-prof-handle" }, lh('span', { className: "sr-only" }, ""), " ", lh('span', { className: "lc-prof-acct" }, "@" + handle),
         locked ? lh('span', { className: "lc-prof-lock" }, " ", lh(Ic.Lock, { style: { width: 13, height: 13 }, "aria-hidden": "true" }), lh('span', { className: "sr-only" }, "Locked account")) : null,
         // 2three1y 3:23/3:30 AM: "Follows you" becomes "Mutuals" once you follow back. It is one element whose words change
         // in place: nothing new appears, nothing is announced, focus stays where it is.
