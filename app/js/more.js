@@ -1,7 +1,7 @@
 /* Looscid more.js: the More tab: Settings, LooscidID pages, About, Apps and the other pages it opens.
    Plain script (not a module). Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order. */
 (function (Looscid) {
-const { A11Y_DEFAULTS, A11Y_KEY, A11ySwitch, AlertDialog, Av, BackHeader, Cbx, CommentView, DREAMS_INIT, DreamCard, Earcon, GROUPS, ID_PROVIDERS, Ic, LC_A11Y_CATS, LC_A11Y_PAGE, LC_ALERT_PREFS_KEY, LC_ALERT_TYPES, LC_AUDIO_CATS, LC_BOOT, LC_BR_BUILTIN, LC_BR_MAX, LC_BUILTIN_KEYS, LC_EXPORT_KEYS, LC_FEED_MODES, LC_FIND_KEY, LC_MSG_CATS, LC_NEXOS_APPS, LC_NEXOS_SHELL, LC_SECTIONS, LC_SET, LC_SETTINGS_KEY, LC_SET_BY, LC_SR_NAMES_DEF, LC_UPDATE_AUTO_KEY, LID_NOSTR_SK_KEY, LOOSCID_BUILD, LOOSCID_RELEASED, LOOSCID_SLOGAN, LOOSCID_VERSION, LcCmdLog, LcFindMeSwitch, LcMenu, LcSpeech, ME, MUSIC_GENRES, MenuPopupButton, Music, PROVIDER_NAMES, SecretField, TRENDING, USERS, announce, getAIPrefs, getActivity, getDrafts, getIdentity, getLocalProfile, getMethods, getTopics, hexToBytes, lcAiOn, lcAlertCats, lcAlertPrefs, lcAlerts, lcAlertsMarkAll, lcAppItems, lcAudCustom, lcBlocked, lcBlockedSet, lcBrCreate, lcBrDate, lcBrDelete, lcBrForget, lcBrList, lcBrNotice, lcBrRename, lcBrSelect, lcBrStamp, lcBrUndo, lcBrUsePast, lcBrowserName, lcCatState, lcCheckUpdate, lcCloseProps, lcDownloadSettings, lcFeedMode, lcHandle, lcHapticsSupported, lcHints, lcIdbDo, lcKeyName, lcLoadCustomPack, lcNexosSend, lcOpenReset, lcPitchCue, lcQuietNow, lcReleasedText, lcSectionTitle, lcSet, lcSpoken, lcSrName, lcStorageKB, lcTranslateOk, lcUpdateAuto, lcValueText, lcVerb, lcVersionLabel, lcBuildName, lcWords, lh, logActivity, removeMethod, sanitizeInput, setAIPrefs, shortNpub, systemReducedMotion, updateLocalProfile, useA11yNow, useCats, useCmdHistory, useCmdLog, useDreams, useEffect, useEnterSubmit, useKeyboardInset, useOAuthReturn, useRef, useState } = Looscid;
+const { A11Y_DEFAULTS, A11Y_KEY, A11ySwitch, AlertDialog, Av, BackHeader, Cbx, CommentView, DREAMS_INIT, DreamCard, Earcon, GROUPS, ID_PROVIDERS, Ic, LC_A11Y_CATS, LC_A11Y_PAGE, LC_ALERT_PREFS_KEY, LC_ALERT_TYPES, LC_AUDIO_CATS, LC_BOOT, LC_BR_BUILTIN, LC_BR_MAX, LC_BUILTIN_KEYS, LC_EXPORT_KEYS, LC_FEED_MODES, LC_FIND_KEY, LC_MSG_CATS, LC_NEXOS_APPS, LC_NEXOS_SHELL, LC_SECTIONS, LC_SET, LC_SETTINGS_KEY, LC_SET_BY, LC_SR_NAMES_DEF, LC_UPDATE_AUTO_KEY, LID_NOSTR_SK_KEY, LOOSCID_BUILD, LOOSCID_RELEASED, LOOSCID_SLOGAN, LOOSCID_VERSION, LcCmdLog, LcFindMeSwitch, LcMenu, LcSpeech, ME, MUSIC_GENRES, MenuPopupButton, Music, PROVIDER_NAMES, SecretField, TRENDING, USERS, announce, getAIPrefs, getActivity, getDrafts, getIdentity, getLocalProfile, getMethods, getTopics, hexToBytes, lcAiOn, lcAlertCats, lcAlertPrefs, lcAlerts, lcAlertsMarkAll, lcAppItems, lcAudCustom, lcBlocked, lcBlockedSet, lcBrCreate, lcBrDate, lcBrDelete, lcBrForget, lcBrList, lcBrNotice, lcBrRename, lcBrSelect, lcBrStamp, lcBrUndo, lcBrUsePast, lcBrowserName, lcCatState, lcCheckUpdate, lcCloseProps, lcDownloadSettings, lcFeedMode, lcHandle, lcHapticsSupported, lcHints, lcIdbDo, lcKeyName, lcLoadCustomPack, lcNexosSend, lcOpenReset, lcPitchCue, lcQuietNow, lcReleasedText, lcSectionTitle, lcSet, lcSpoken, lcSrName, lcStorageKB, lcTranslateOk, lcUpdateAuto, lcValueText, lcVerb, lcVersionLabel, lcBuildName, lcOldVersion, lcCodenamed, lcCodenameLabel, lcWords, lh, logActivity, removeMethod, sanitizeInput, setAIPrefs, shortNpub, systemReducedMotion, updateLocalProfile, useA11yNow, useCats, useCmdHistory, useCmdLog, useDreams, useEffect, useEnterSubmit, useKeyboardInset, useOAuthReturn, useRef, useState } = Looscid;
 Object.assign(Looscid, { ListsPage, ProfileLists, ProfileTabsSettings, CreditsPage, ProfileView, ProfilePage, DreamorProfilePage, AccountSettings, LcAudience, lcCatSave, LcCatCustomize, MessageSettings, NotificationsSettings, PrivacySettings, LcResetLast, LcTabs, LcBlockedPanel, LcPrivacyMedia, FeedSwitchSetting, LcCatMenu, LcCatPage, CustomizabilitySettings, lcSetAiPref, IntelligenceSettings, lcMenuList, lcSubLine, AccessibilitySettings, A11yCategory, AboutSettings, MorePage, MoreAppsGroup, FeedbackPage, PolicyPage, HourStoryPage, normalizeUrl, fieldValueText, ProfileInfoList, ChangeInfoScreen, useProfileEditor, lcJoin, methodLabel, getStoredNostrSk, ComingSoonPanel, LoginMethods, lcGetIds, lcSaveIds, lcBech32Polymod, lcDecodeBech32Key, lcCheckId, lcVerifyId, LcKeysPanel, lcIdLabel, lidWhen, thisDeviceLabel, localDataSummary, exportLocalData, deleteLocalData, LooscidIDManager, lcUnzip, lcCheckPackFiles, lcAutoMap, lcUpdateAutoSet, lcPitchPreview, MusicPage, lcAudCustomSet, useBlocked, lcAlertPrefsSet, termOutputOpen, setTermOutputOpen, lcOsName, lcAboutInfo, AboutLooscidMore, TerminalPage, LabsSettings, lcAppGet, lcAppPut, LcAppRange, AppsSettings, NexosAppsPage, NexosAppFrame, lcLinkedProviders, LcSetRow, LcWordsRow, LcVoiceRow, LcResetBtn, LcSection, BrailleStyle, LcVerbosityPanel, SrTabs, LcSpeechTest, LcSrRename, AudioSettings, LcPackImport, lcShortcutOk, KeyboardSettings, TabBarSettings, lcImportSettings, BackupSettings });
 
 /* --- PROFILE (OWN) ----------------------- */
@@ -1575,7 +1575,7 @@ function lcBugReportUrl() {
     "**How can I make it happen again?**", "1. ", "",
     "**Screen reader or braille display (if any):**", "", "",
     "---",
-    "Looscid " + lcVersionLabel() + ", version " + LOOSCID_VERSION,
+    lcCodenamed(Looscid.LOOSCID_CODENAME, "Looscid " + LOOSCID_VERSION + " (build " + LOOSCID_BUILD + ")"),
     "Device: " + dev,
     "User agent: " + ua
   ].join("\n");
@@ -1607,7 +1607,7 @@ function DevMenuPage({ navigate }) {
     lh('p', { className: "lc-desc", style: { padding: "12px 16px" } }, "Nice try. The Dev menu is locked. Tap the build number in About 7 times to unlock it."));
   const outl = lcDevOutlines();
   const facts = [
-    ["This build", lcVersionLabel()], ["Codename", Looscid.LOOSCID_CODENAME], ["Build", String(LOOSCID_BUILD)], ["Round", Looscid.LOOSCID_ROUND], ["Version", LOOSCID_VERSION],
+    ["Codename", Looscid.LOOSCID_CODENAME], ["Version", LOOSCID_VERSION], ["Build", String(LOOSCID_BUILD)], ["Round", Looscid.LOOSCID_ROUND],
     ["Released", LOOSCID_RELEASED + (lcReleasedText(LOOSCID_RELEASED) ? " (" + lcReleasedText(LOOSCID_RELEASED) + ")" : "")],
     ["Branch", "main"], ["Device", lcOsName() + ", " + lcBrowserName()], ["Screen", window.innerWidth + " by " + window.innerHeight + ", pixel ratio " + (window.devicePixelRatio || 1)],
     ["User agent", navigator.userAgent || "unknown"]
@@ -1680,17 +1680,17 @@ function AboutSettings({navigate}) {
     // Round 6: one About page. The version is itself the disclosure button.
     lh('div', { className: "lc-about-top", style: { padding: "12px 16px 4px" } },
       lh('button', { type: "button", id: "about-version", className: "lc-acc-btn", "aria-expanded": vOpen ? "true" : "false", "aria-controls": "about-version-p", onClick: onVersion },
-        lh('span', null, lcVersionLabel()), lh('span', { className: "msec-toggle-ic" + (vOpen ? " open" : ""), "aria-hidden": "true" }, "\u203a")),
+        lh('span', null, lcCodenameLabel()), lh('span', { className: "msec-toggle-ic" + (vOpen ? " open" : ""), "aria-hidden": "true" }, "\u203a")),
       lh('div', { id: "about-version-p", hidden: !vOpen, className: "lc-acc-p" }, vOpen ? lh(React.Fragment, null,
-        lh('p', { className: "lid-help", id: "about-codename" }, "Codename " + Looscid.LOOSCID_CODENAME + ", version " + LOOSCID_VERSION),
+        lh('p', { className: "lid-help", id: "about-codename" }, "Codename " + Looscid.LOOSCID_CODENAME),
         lh('p', { className: "lid-help" }, LOOSCID_FEATURE_BUILDS + " feature updates"),
         lh('p', { className: "lid-help" }, LOOSCID_FIXES + " fixes"),
         lh('p', { className: "lid-help" }, LOOSCID_BUILD + " builds, " + LOOSCID_FEATURE_BUILDS + " without fix updates"),
         rel ? lh('p', { className: "lid-help" }, "Released " + rel) : null,
         lh('h3', { id: "about-history-h", className: "lid-sub" }, "Version history"),
         lh('ul', { className: "lid-help lc-history", "aria-labelledby": "about-history-h", style: { paddingLeft: 22, margin: "6px 0" } }, LC_VERSION_HISTORY.map(function (v) {
-          return lh('li', { key: v.build }, lh('p', { style: { margin: "4px 0", fontWeight: 700 } }, lcBuildName(v.codename, v.build, v.title)),
-            lh('p', { style: { margin: "2px 0" } }, "Version " + v.version + ", released " + lcReleasedText(v.released)),
+          return lh('li', { key: v.build }, lh('p', { style: { margin: "4px 0", fontWeight: 700 } }, lcCodenamed(v.codename, lcOldVersion(v.version, v.build))),
+            lh('p', { style: { margin: "2px 0" } }, "Released " + lcReleasedText(v.released)),
             lh('ul', { style: { paddingLeft: 18 } }, v.notes.map(function (n, i) { return lh('li', { key: i }, n); })));
         }))) : null),
       lh('p', { className: "lid-help lc-slogan" }, LOOSCID_SLOGAN), // Round 7.39: "Just Dream", no period
@@ -1867,7 +1867,7 @@ function FeedbackPage({navigate}) {
     {id:"access",name:"Accessibility"},
   ];
   // Real, not a fake "received" screen: it opens a new GitHub issue on Looscid/Looscid with your words filled in.
-  const url = function () { const c = cats.find(function (x) { return x.id === category; }).name; return "https://github.com/Looscid/Looscid/issues/new?title=" + encodeURIComponent(c + ": " + txt.trim().split("\n")[0].slice(0, 70)) + "&body=" + encodeURIComponent(txt.trim() + "\n\nLooscid " + lcVersionLabel() + ", version " + LOOSCID_VERSION + ", " + lcBrowserName()); };
+  const url = function () { const c = cats.find(function (x) { return x.id === category; }).name; return "https://github.com/Looscid/Looscid/issues/new?title=" + encodeURIComponent(c + ": " + txt.trim().split("\n")[0].slice(0, 70)) + "&body=" + encodeURIComponent(txt.trim() + "\n\n" + lcCodenamed(Looscid.LOOSCID_CODENAME, "Looscid " + LOOSCID_VERSION) + ", " + lcBrowserName()); };
   return lh('div', { className: "pg" },
     lh(BackHeader, { title: "Send Feedback", onBack: function () { navigate("settings"); } }),
     lh('div', { style: { padding: "16px 16px 32px", display: "flex", flexDirection: "column", gap: 14 } },
@@ -2755,15 +2755,21 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 136; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 56;
+const LOOSCID_FIXES = 57;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 /* Round 7.41 (Carter, Oct 26 2026): What's new is written in my voice ("I fixed...", "I added..."), short.
    Round 7.42 (Carter, Oct 26 2026 7:11 and 7:15 PM: "code names for all builds no matter what past also", "The code names comes
    before the build info"): EVERY build has a codename (the codename field), and this list is the one place they live. Shown
-   everywhere as codename first, then the build: "Midnight Snack (Build 191, Round 7.41)" (lcBuildName in core.js). A new build
-   needs a new codename here, in LOOSCID_CODENAME (core.js), version.json and the CHANGELOG.md heading. No repeats. */
+   everywhere. Round 7.43 (Carter: "Never abandon the old version text"): shown as the codename, a colon, then build 191's
+   exact version text: "Midnight Snack: Looscid 2026.135.56 (191)", no Round (lcCodenamed in core.js). A new build needs a
+   new codename here, in LOOSCID_CODENAME (core.js), version.json and the CHANGELOG.md heading. No repeats. */
 const LC_VERSION_HISTORY = [
-  { version: "2026.136.56", build: 192, released: LOOSCID_RELEASED, title: "Round 7.42", codename: "Name Tag", notes: [
+  { version: "2026.136.57", build: 193, released: LOOSCID_RELEASED, title: "Round 7.43", codename: "Old Pajamas", notes: [
+    "Codenames now sit up top, and the old version style is back. Like Midnight Snack: Looscid 2026.135.56 (191). No more Round text in the name.",
+    "The version text is exactly how it was before build 192. The codename just goes in front of it, with a colon. Same in About, the version history, What's new, Updates, System info, the changelog page, the Dev menu, Report a bug, Send Feedback and the update banner.",
+    "This one's codename is Old Pajamas, because the old style is the comfy one.",
+  ] },
+  { version: "2026.136.56", build: 192, released: "2026-10-26T23:24:42Z", title: "Round 7.42", codename: "Name Tag", notes: [
     "I gave every build a codename, all the way back to Round 6. Build 136 is Fresh Pillow, 186 is Robot Lullaby, 188 is Lights Out, and this one is Name Tag.",
     "The codename comes first now, then the build: like Midnight Snack (Build 191, Round 7.41). Same everywhere: About, the version history, What's new, the changelog page, the Dev menu, Report a bug and the update banner.",
     "The Dev menu countdown says 3 more taps, 2 more taps and 1 more tap now. The 2 and the 1 were getting swallowed.",
@@ -3247,8 +3253,7 @@ function lcAboutInfo() {
       "Built for VoiceOver, TalkBack, keyboards, switches and braille displays.",
     ],
     facts: [
-      ["Looscid", lcVersionLabel()],
-      ["Version number", LOOSCID_VERSION],
+      ["Version", lcCodenameLabel()],
       ["Browser", lcBrowserName()],
       ["Operating system", lcOsName()],
       ["Language", (navigator.languages && navigator.languages.length ? navigator.languages.slice(0, 3).join(", ") : navigator.language) || "not reported by this browser"],
@@ -3389,7 +3394,7 @@ function AboutLooscidMore() {
   const list = function (items) { return lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } }, items.map(function (t, i) { return lh('li', { key: i }, t); })); };
   const sec = function (id, title, kids) { return lh('section', { "aria-labelledby": id, style: { padding: "0 16px 12px" } }, lh('h2', { id: id, className: "lid-sub" }, title), kids); };
   return lh(React.Fragment, null,
-    sec("about-new", "What's new", [lh('p', { key: "r", className: "lid-help" }, lcBuildName(LC_VERSION_HISTORY[0].codename, LC_VERSION_HISTORY[0].build, LC_VERSION_HISTORY[0].title) + ":"), lh(React.Fragment, { key: "l" }, list(info.whatsNew))]),
+    sec("about-new", "What's new", [lh('p', { key: "r", className: "lid-help" }, lcCodenamed(LC_VERSION_HISTORY[0].codename, lcOldVersion(LC_VERSION_HISTORY[0].version, LC_VERSION_HISTORY[0].build)) + ":"), lh(React.Fragment, { key: "l" }, list(info.whatsNew))]),
     sec("about-features", "Features", list(info.features)),
     sec("about-sys", "System info", [
       lh('div', { key: "dl", className: "lc-sysinfo" }, info.facts.map(function (f) { return lh('p', { key: f[0], className: "lid-help" }, f[0] + ": " + f[1]); })),
@@ -4105,7 +4110,7 @@ function UpdatesSettings({ navigate }) {
   return lh('div', { className: "pg lc-a11y lc-ios-page", "aria-live": "off" },
     lh(BackHeader, { title: "Updates", onBack: function () { navigate("settings"); } }),
     lh('div', { className: "lc-ios-card", id: "upd-card" },
-      lh('p', { className: "lc-ios-big", id: "upd-version" }, lcVersionLabel()),
+      lh('p', { className: "lc-ios-big", id: "upd-version" }, lcCodenameLabel()),
       rel ? lh('p', { className: "lid-help" }, "Released " + rel) : null,
       lh('button', { type: "button", id: "upd-check", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { lcCheckUpdate(true); } }, "Check for updates")),
     lh('div', { className: "lc-ios-card" },

@@ -32,13 +32,13 @@
   function parse(md) {
     var vs = [], cur = null;
     md.split(/\r?\n/).forEach(function (line) {
-      /* Round 7.42 (Carter: "The code names comes before the build info"): headings are "## Midnight Snack (Build 191, Round 7.41)"
-         and the version number is on the next line ("Version 2026.135.56, released ..."). The old heading shape
-         ("## Looscid 2026.135.56 (191): Round 7.41") still reads, in case an old copy of CHANGELOG.md is served. */
-      var h = /^## (.+?) \(Build (\d+)(?:, ([^)]+))?\)\s*$/.exec(line), o = /^## Looscid (\S+) \((\d+)\)(?::\s*(.*))?$/.exec(line);
+      /* Round 7.43 (Carter: "Never abandon the old version text"): headings are build 191's heading with the codename in front
+         and no Round ("Forget the round text"): "## Midnight Snack: Looscid 2026.135.56 (191)". Build 191's own shape ('## Looscid 2026.135.56 (191): Round 7.41
+         "Midnight Snack"') and build 192's ("## Midnight Snack (Build 191, Round 7.41)") still read, in case an old copy is served. */
+      var o = /^## (?:(.+?): )?Looscid (\S+) \((\d+)\)(?::\s*(.*))?$/.exec(line), h = !o && /^## (.+?) \(Build (\d+)(?:, ([^)]+))?\)\s*$/.exec(line);
       if (h) { cur = { codename: h[1], version: "", build: +h[2], round: h[3] || "", blocks: [] }; vs.push(cur); return; }
-      if (o) { var rr = o[3] || "", cn = "", q = /\s*"([^"]*)"\s*$/.exec(rr); if (q) { cn = q[1]; rr = rr.slice(0, q.index); }
-        cur = { codename: cn, version: o[1], build: +o[2], round: rr, blocks: [] }; vs.push(cur); return; }
+      if (o) { var rr = o[4] || "", cn = o[1] || "", q = /\s*"([^"]*)"\s*$/.exec(rr); if (q) { cn = cn || q[1]; rr = rr.slice(0, q.index); }
+        cur = { codename: cn, version: o[2], build: +o[3], round: rr, blocks: [] }; vs.push(cur); return; }
       if (!cur) return;
       if (/^#{1,2} /.test(line)) { cur = null; return; }
       if (/^\s*[-*] /.test(line)) { var b = cur.blocks[cur.blocks.length - 1]; if (!b || b.kind !== "ul") { b = { kind: "ul", items: [] }; cur.blocks.push(b); } b.items.push(line.replace(/^\s*[-*] /, "")); return; }
@@ -49,8 +49,8 @@
     });
     return vs.sort(function (a, b) { return a.build - b.build; }); // first to newest
   }
-  // The same shape as the app (lcBuildName): codename first, then the build info in parens.
-  function name(v) { var info = ["Build " + v.build, v.round].filter(Boolean).join(", "); return v.codename ? v.codename + " (" + info + ")" : info; }
+  // The same shape as the app (lcCodenamed): the codename, a colon, then build 191's exact text, "Looscid 2026.135.56 (191)". No Round.
+  function name(v) { var old = v.version ? "Looscid " + v.version + " (" + v.build + ")" : "Build " + v.build; return v.codename ? v.codename + ": " + old : old; }
   function show(vs, i) {
     var v = vs[i]; notes.textContent = "";
     notes.appendChild(el("h2", { id: "ver-h" }, [name(v) + (i === vs.length - 1 ? ", the newest" : "")]));

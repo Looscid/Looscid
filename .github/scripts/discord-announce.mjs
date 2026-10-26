@@ -104,10 +104,9 @@ async function release(state) {
   }
   if (!(build > state.last_build)) { console.log(`Build ${build} was already announced.`); return false; }
   const summary = clip(changelogSummary() || v.notes || '', 1200);
-  // Round 7.42 (Carter: "The code names comes before the build info"): codename first, then the build, like the app.
-  const info = [`Build ${build}`, v.title].filter(Boolean).join(', ');
-  const name = v.codename ? `${v.codename} (${info})` : `Looscid ${v.version} (${info})`;
-  await announce(`${name} is live on Looscid: ${summary} ${CHANGELOG_PAGE}`);
+  // Round 7.43 (Carter: "Never abandon the old version text"): build 191's exact text, with the codename in front and a colon.
+  const old = `Looscid ${v.version} (build ${build})`;
+  await announce(`${v.codename ? `${v.codename}: ${old}` : old} is live: ${summary} ${CHANGELOG_PAGE}`);
   state.last_build = build;
   return true;
 }

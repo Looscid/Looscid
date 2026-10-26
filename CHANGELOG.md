@@ -1,10 +1,21 @@
 # Changelog
 
-Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and each one is listed codename first, then the build: Codename (Build NUMBER, Round).
+Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
-## Name Tag (Build 192, Round 7.42)
+## Old Pajamas: Looscid 2026.136.57 (193)
 
-Version 2026.136.56, released October 26, 2026 at 7:24 PM (Eastern Time, 2026-10-26T23:24:42Z UTC)
+Released October 26, 2026 at 7:41 PM (Eastern Time, 2026-10-26T23:41:44Z UTC)
+
+A fix update, asked for by Carter (“I'd rather have the old version style with Code names on top”, “Like how we had versions before”, “Never abandon the old version text”, and “Forget the round text”).
+
+- Codenames now sit up top, and the old version style is back. It looks like this: Midnight Snack: Looscid 2026.135.56 (191). No Round text in the name anymore.
+- The version text is exactly how it was before build 192. The codename just goes in front of it, with a colon. Build 192's “Midnight Snack (Build 191, Round 7.41)” is gone.
+- Same everywhere a build shows up: the version button and version history in About, What's new, Updates, System info, this changelog page and its headings, the Dev menu, Report a bug, Send Feedback, the update banner, “Looscid is up to date” and the Discord announcement.
+- This one's codename is Old Pajamas, because the old style is the comfy one.
+
+## Name Tag: Looscid 2026.136.56 (192)
+
+Released October 26, 2026 at 7:24 PM (Eastern Time, 2026-10-26T23:24:42Z UTC)
 
 A feature update, asked for by Carter (“code names for all builds no matter what past also”, and “the code names comes before the build info”).
 
@@ -14,9 +25,9 @@ A feature update, asked for by Carter (“code names for all builds no matter wh
 - Fix: Reset on the Appearance page now includes the Heading character. It goes back to the Robot, surrounding the label, on everything, and it turns the characters back on even if you picked None.
 - Name Tag (Build 192, Round 7.42), version 2026.136.56.
 
-## Midnight Snack (Build 191, Round 7.41)
+## Midnight Snack: Looscid 2026.135.56 (191)
 
-Version 2026.135.56, released October 26, 2026 at 7:08 PM (Eastern Time, 2026-10-26T23:08:43Z UTC)
+Released October 26, 2026 at 7:08 PM (Eastern Time, 2026-10-26T23:08:43Z UTC)
 
 A feature update, asked for by Carter (“not corpo shit”: Looscid should feel like a side project built by one kid, with the Apple-style layout kept). From now on What's new is written in my voice, and every Round gets a codename.
 
@@ -32,9 +43,9 @@ A feature update, asked for by Carter (“not corpo shit”: Looscid should feel
 - Two small easter eggs. I'm not saying where. (Hint: one of them is very old and involves arrow keys.)
 - Version 2026.135.56 (191), Round 7.41, codename Midnight Snack.
 
-## Tucked In (Build 190, Round 7.40)
+## Tucked In: Looscid 2026.134.56 (190)
 
-Version 2026.134.56, released October 26, 2026 at 6:29 PM (Eastern Time, 2026-10-26T22:29:20Z UTC)
+Released October 26, 2026 at 6:29 PM (Eastern Time, 2026-10-26T22:29:20Z UTC)
 
 A fix update, asked for by Carter (“the characters should surround it, not be on separate heading”, and one space by the label, not two).
 
@@ -42,17 +53,17 @@ A fix update, asked for by Carter (“the characters should surround it, not be 
 - Fix: one space between each robot and its label, not two. For You, Following, Federated and every other tab, plus buttons and links that are laid out in a row (like the Settings rows) or end in hidden screen reader text (like the footer links), read as robot, space, label, space, robot.
 - What's new for Round 7.39 and Round 7.38 shows their own release times again.
 
-## Daydream (Build 189, Round 7.39)
+## Daydream: Looscid 2026.134.55 (189)
 
-Version 2026.134.55, released October 26, 2026 at 6:08 PM (Eastern Time, 2026-10-26T22:08:59Z UTC)
+Released October 26, 2026 at 6:08 PM (Eastern Time, 2026-10-26T22:08:59Z UTC)
 
 A feature update, asked for by Carter (“Just Dream is perfect”).
 
 - New slogan: Just Dream. Home is now called “Looscid - Just Dream” (it was “Looscid - Accessibility first, always”), and the slogan is on the startup screen, the Welcome screen, About, the changelog page, the README, the app's install description and the link previews when you share Looscid. Accessibility first is still how Looscid is made.
 
-## Lights Out (Build 188, Round 7.38)
+## Lights Out: Looscid 2026.133.55 (188)
 
-Version 2026.133.55, released October 26, 2026 at 5:31 PM (Eastern Time, 2026-10-26T21:31:08Z UTC)
+Released October 26, 2026 at 5:31 PM (Eastern Time, 2026-10-26T21:31:08Z UTC)
 
 A feature update, asked for by Carter (“Logout should also be in the Settings menu”).
 
@@ -61,9 +72,9 @@ A feature update, asked for by Carter (“Logout should also be in the Settings 
 - Your LooscidID card in Settings reads like the account row on iPhone: your name, your @handle, then “LooscidID, keys, logins and devices”. It's still the only row that shows values.
 - Settings looks more polished: a bigger title, a rounder search field, rounder cards, a little more space and no gradients, in Looscid's own colors (visual polish inspired by VoltAgent's awesome-design-md).
 
-## Apple Pie (Build 187, Round 7.37)
+## Apple Pie: Looscid 2026.132.55 (187)
 
-Version 2026.132.55, released October 26, 2026 at 5:09 PM (Eastern Time, 2026-10-26T21:09:03Z UTC)
+Released October 26, 2026 at 5:09 PM (Eastern Time, 2026-10-26T21:09:03Z UTC)
 
 A feature update, asked for by Carter (“We going full Apple Mode”).
 
@@ -74,34 +85,34 @@ A feature update, asked for by Carter (“We going full Apple Mode”).
 - Fix: Settings search results read their name and their path apart, like “Text size, Accessibility, Vision” (they ran together). Search also lists every page, understands words like notifications, DMs and dark mode, still finds things by their old names, and keeps what you typed when you come Back.
 - Tab Bar and Profile Tabs now say where a tab moved, like “Home, moved to (2 of 5)”.
 
-## Robot Lullaby (Build 186, Round 7.36)
+## Robot Lullaby: Looscid 2026.131.55 (186)
 
-Version 2026.131.55, released October 26, 2026 at 4:00 PM (Eastern Time, 2026-10-26T20:00:54Z UTC)
+Released October 26, 2026 at 4:00 PM (Eastern Time, 2026-10-26T20:00:54Z UTC)
 
 A feature update, asked for by Carter.
 
 - New: Unspeakable characters around headings and buttons, with a switch in Settings. A small robot character (the Font Awesome robot, U+F544) now sits before and after the text of headings, buttons (collapsibles too), tabs, links, menu buttons and menu items. VoiceOver reads it as “unspeakable” and braille shows a dot pattern; on screen it's a small robot. It's on by default. Turn it off in Settings, Accessibility, Sense, General: “Unspeakable characters”, and it's gone everywhere. Radio buttons, switches and checkboxes never get it.
 - New: The Feed picker in Pop-up button mode (Settings, Customizability, Feeds, Feed switching) shows the feeds as real radio buttons, built just like the ones in Privacy settings: a Feeds group with one radio per feed. Opening it puts you on the current feed, the arrow keys switch feeds, and Enter or Escape closes it and goes back to the Feed button.
 
-## Sleepover (Build 185, Round 7.35)
+## Sleepover: Looscid 2026.130.55 (185)
 
-Version 2026.130.55, released October 26, 2026 at 7:24 AM (Eastern Time, 2026-10-26T11:24:49Z UTC)
+Released October 26, 2026 at 7:24 AM (Eastern Time, 2026-10-26T11:24:49Z UTC)
 
 A feature update, asked for by Carter (the Looscid Discord).
 
 - New: the footer's Social links include Discord, after YouTube. It opens the Looscid Discord in a new tab, where you can hang out, share feedback and talk accessibility: [Join the Looscid Discord](https://discord.gg/M6xrD8EBXU).
 
-## Cherry on Top (Build 184, Round 7.34)
+## Cherry on Top: Looscid 2026.129.55 (184)
 
-Version 2026.129.55, released October 26, 2026 at 6:52 AM (Eastern Time, 2026-10-26T10:52:33Z UTC)
+Released October 26, 2026 at 6:52 AM (Eastern Time, 2026-10-26T10:52:33Z UTC)
 
 A fix update, found while checking every settings link by hand.
 
 - Fix: Cherry's "Cherry settings" button opens Settings, Intelligence as before, and Back now comes right back to Cherry, on that button (it went to the top of Settings). Cherry's own Back still goes where you opened Cherry from. It also works after visiting Intelligence's own pages.
 
-## Yarn Ball (Build 183, Round 7.33)
+## Yarn Ball: Looscid 2026.129.54 (183)
 
-Version 2026.129.54, released October 26, 2026 at 6:46 AM (Eastern Time, 2026-10-26T10:46:12Z UTC)
+Released October 26, 2026 at 6:46 AM (Eastern Time, 2026-10-26T10:46:12Z UTC)
 
 A feature update, asked for by Carter (Followed Threads on profiles, opt-in).
 
@@ -109,115 +120,115 @@ A feature update, asked for by Carter (Followed Threads on profiles, opt-in).
 - New: Settings, Privacy, Followed Threads has "Show followed threads on my profile". It's off until you turn it on. You always see your own tab; with it on, others see it too (try View as others).
 - Profile Tabs can move Followed Threads like any other tab, Settings search finds the new switch, and Settings backup includes it.
 
-## Quiet Hours (Build 182, Round 7.32)
+## Quiet Hours: Looscid 2026.128.54 (182)
 
-Version 2026.128.54, released October 26, 2026 at 6:41 AM (Eastern Time, 2026-10-26T10:41:58Z UTC)
+Released October 26, 2026 at 6:41 AM (Eastern Time, 2026-10-26T10:41:58Z UTC)
 
 A fix update, asked for by Carter (the new message button belongs to Chats only).
 
 - Fix: Inbox shows the Send a message button only when Chats is selected. On Alerts it's gone, so Alerts has just Mark all read and Alerts settings.
 
-## Grocery List (Build 181, Round 7.31)
+## Grocery List: Looscid 2026.128.53 (181)
 
-Version 2026.128.53, released October 26, 2026 at 6:40 AM (Eastern Time, 2026-10-26T10:40:51Z UTC)
+Released October 26, 2026 at 6:40 AM (Eastern Time, 2026-10-26T10:40:51Z UTC)
 
 A fix update, asked for by Carter ("a custom feed is now a list").
 
 - Fix: Create's Custom Feed is now List, and it works. It opens Lists with focus in New list name (a list is a custom feed you can pin to Home). Back goes to where you opened Create. It no longer says Unavailable.
 
-## Late Night Call (Build 180, Round 7.30)
+## Late Night Call: Looscid 2026.128.52 (180)
 
-Version 2026.128.52, released October 26, 2026 at 6:39 AM (Eastern Time, 2026-10-26T10:39:39Z UTC)
+Released October 26, 2026 at 6:39 AM (Eastern Time, 2026-10-26T10:39:39Z UTC)
 
 A fix update, asked for by Carter (New Chat in Create said it was unavailable).
 
 - Fix: Create, New Chat works now. It opens the same Send a message form as Inbox, Chats, with focus in To. Back goes to Inbox, Chats. It no longer says Unavailable.
 
-## Locked Diary (Build 179, Round 7.29)
+## Locked Diary: Looscid 2026.128.51 (179)
 
-Version 2026.128.51, released October 26, 2026 at 1:55 AM (Eastern Time, 2026-10-26T05:55:52Z UTC)
+Released October 26, 2026 at 1:55 AM (Eastern Time, 2026-10-26T05:55:52Z UTC)
 
 A fix update, asked for by Carter (Privacy Policy link and the "we care" paragraph in Privacy).
 
 - Fix: Settings, Privacy says why it matters and links to the policy. Under the intro: "We care about your privacy. Your Dreams, settings and chats stay on this device until you choose to send or share them. We don't sell your data, track you or show ads." Then a Privacy Policy link that opens the policy page, and Back comes right back to Privacy.
 
-## Comfy Blanket (Build 178, Round 7.28)
+## Comfy Blanket: Looscid 2026.128.50 (178)
 
-Version 2026.128.50, released October 26, 2026 at 1:53 AM (Eastern Time, 2026-10-26T05:53:26Z UTC)
+Released October 26, 2026 at 1:53 AM (Eastern Time, 2026-10-26T05:53:26Z UTC)
 
 A fix update, asked for by Carter (collapsible buttons read as headings on iOS).
 
 - Fix: collapsible buttons are plain buttons now, not headings. VoiceOver on iPhone reads just the name and collapsed or expanded, like "Permissions, button, collapsed". This covers the Privacy sections, the Reset groups and Commandbar's output toggle.
 
-## Fridge Magnet (Build 177, Round 7.27)
+## Fridge Magnet: Looscid 2026.128.49 (177)
 
-Version 2026.128.49, released October 26, 2026 at 1:01 AM (Eastern Time, 2026-10-26T05:01:30Z UTC)
+Released October 26, 2026 at 1:01 AM (Eastern Time, 2026-10-26T05:01:30Z UTC)
 
 A feature update, asked for by Carter (custom tabs, #152).
 
 - Feature: pin someone's profile as a tab. Their profile's More has Pin as a feed tab (a tab on Home with just their Dreams) and Add to tab bar (their own tab at the bottom, before Profile), with Unpin feed tab and Remove from tab bar to undo. Settings, Tab Bar orders it like any other tab.
 
-## Do Not Disturb (Build 176, Round 7.26)
+## Do Not Disturb: Looscid 2026.127.49 (176)
 
-Version 2026.127.49, released October 26, 2026 at 1:00 AM (Eastern Time, 2026-10-26T05:00:03Z UTC)
+Released October 26, 2026 at 1:00 AM (Eastern Time, 2026-10-26T05:00:03Z UTC)
 
 A feature update, asked for by Carter (chat row actions, #155).
 
 - Feature: chats can be muted. A chat's More has Mute (and Unmute): its new messages still come in and count as unread, but they're never said aloud or sounded. Each chat's More is now Reply, Pin, Mute, Mark read or Mark unread, Delete and Block, and a muted chat says "muted" after its name.
 
-## Sharing Plate (Build 175, Round 7.25)
+## Sharing Plate: Looscid 2026.126.49 (175)
 
-Version 2026.126.49, released October 26, 2026 at 12:59 AM (Eastern Time, 2026-10-26T04:59:17Z UTC)
+Released October 26, 2026 at 12:59 AM (Eastern Time, 2026-10-26T04:59:17Z UTC)
 
 A feature update, asked for by Carter (share privacy, #164).
 
 - Feature: Settings, Privacy, Permissions has Let others share my Dreams (on by default). Turn it off and Share is hidden for everyone but you on the Dreams you send from then on. Dreams you already sent keep sharing on, and other Nostr apps may not follow it.
 
-## Dream Journal (Build 174, Round 7.24)
+## Dream Journal: Looscid 2026.125.49 (174)
 
-Version 2026.125.49, released October 26, 2026 at 12:56 AM (Eastern Time, 2026-10-26T04:56:58Z UTC)
+Released October 26, 2026 at 12:56 AM (Eastern Time, 2026-10-26T04:56:58Z UTC)
 
 A feature update, asked for by Carter (changelog page, #161).
 
 - Feature: the changelog has its own page at looscid.github.io/Looscid/changelog, with its own link preview. One Version button lists every version from the first to the newest; pick one to read what changed in it. The footer's About group links to it.
 
-## Musical Chairs (Build 173, Round 7.23)
+## Musical Chairs: Looscid 2026.124.49 (173)
 
-Version 2026.124.49, released October 26, 2026 at 12:54 AM (Eastern Time, 2026-10-26T04:54:36Z UTC)
+Released October 26, 2026 at 12:54 AM (Eastern Time, 2026-10-26T04:54:36Z UTC)
 
 A feature update, asked for by Carter (tab reorder from More, #151).
 
 - Feature: you can reorder the tab bar from your profile's More: Reorder tab bar opens Settings, Tab Bar, and Back brings you back to your profile. The old Reorder tabs item is now called Reorder profile tabs, so the two are easy to tell apart.
 
-## Alarm Clock (Build 172, Round 7.22)
+## Alarm Clock: Looscid 2026.123.49 (172)
 
-Version 2026.123.49, released October 26, 2026 at 12:53 AM (Eastern Time, 2026-10-26T04:53:31Z UTC)
+Released October 26, 2026 at 12:53 AM (Eastern Time, 2026-10-26T04:53:31Z UTC)
 
 A feature update, asked for by Carter (Home Screen update prompt, #165).
 
 - Feature: Looscid on your Home Screen tells you when there's an update. When a new version ships, a banner at the top says "Update available" with the version, and an Update button and Later. It's said once, politely, and focus stays where it is.
 - It checks when Looscid opens, every 10 minutes, and whenever you come back to it, including a Home Screen app waking up. Update gets the new files past the cache before reloading, so you really land on the new version. Anything you're writing is kept.
 
-## Sneak Peek (Build 171, Round 7.21)
+## Sneak Peek: Looscid 2026.122.49 (171)
 
-Version 2026.122.49, released October 26, 2026 at 12:52 AM (Eastern Time, 2026-10-26T04:52:23Z UTC)
+Released October 26, 2026 at 12:52 AM (Eastern Time, 2026-10-26T04:52:23Z UTC)
 
 A fix update, asked for by Carter (link preview, #162).
 
 - Fix: links to Looscid show a preview again, in iMessage and everywhere else. The title, description, share card and icons now come first on the page, before anything else loads, and the share card is a full-size 1200 by 630 image with the Looscid logo and name.
 
-## Pizza Slices (Build 170, Round 7.20)
+## Pizza Slices: Looscid 2026.122.48 (170)
 
-Version 2026.122.48, released October 26, 2026 at 12:51 AM (Eastern Time, 2026-10-26T04:51:06Z UTC)
+Released October 26, 2026 at 12:51 AM (Eastern Time, 2026-10-26T04:51:06Z UTC)
 
 A fix update, asked for by Carter (count labels, #150).
 
 - Fix: counts read the same way everywhere, in parens and said once. A filter says "Unread (8)", never "Unread (8 Unread". The Inbox tab says "Inbox (5)", and your profile's More says "Inbox (5)", "Alerts (2)" and "Chats (3)" instead of "Inbox, 5 unread".
 - Profile Circle filters say "Member (3)" instead of "Member, 3 circles". A chat says "Ava (2 unread)". Mark all as read says "Mark all as read (4)". A thread's heading says "Thread (5 Dreams)", and Reading mode says "Reading mode (Dream 2 of 9)".
 
-## Pillow Talk (Build 169, Round 7.19)
+## Pillow Talk: Looscid 2026.122.47 (169)
 
-Version 2026.122.47, released October 26, 2026 at 12:49 AM (Eastern Time, 2026-10-26T04:49:40Z UTC)
+Released October 26, 2026 at 12:49 AM (Eastern Time, 2026-10-26T04:49:40Z UTC)
 
 A feature update, asked for by Carter (Chats filters, #149).
 
@@ -226,9 +237,9 @@ A feature update, asked for by Carter (Chats filters, #149).
 - Requests holds messages from people Who can message me doesn't allow. They stay silent there until you Accept, which moves them to DMs. Each request also has Open, Delete and Block.
 - Each chat's More button has Pin or Unpin, Mark read or Mark unread, Delete and Block. Pinned chats are also first in DMs. A deleted chat waits in Deleted with Restore, and comes back by itself when a new message arrives.
 
-## Noodle Trail (Build 168, Round 7.18)
+## Noodle Trail: Looscid 2026.121.47 (168)
 
-Version 2026.121.47, released October 26, 2026 at 12:47 AM (Eastern Time, 2026-10-26T04:47:46Z UTC)
+Released October 26, 2026 at 12:47 AM (Eastern Time, 2026-10-26T04:47:46Z UTC)
 
 A feature update, asked for by Carter (Follow Thread, #148).
 
@@ -236,9 +247,9 @@ A feature update, asked for by Carter (Follow Thread, #148).
 - Followed Threads is its own filter in Inbox, Alerts. New replies in threads you follow land there, not in Replies. Manage Followed Threads at the top lists every thread you follow, each with Unfollow Thread. An alert from a followed thread has Unfollow Thread in its More menu too.
 - A Like never follows a thread. If you like a couple of Dreams in the same thread in a row, Looscid offers once: "You liked a few dreams in this thread. Follow it to see new ones?" with Follow Thread and No thanks. It's said politely, and focus stays where it is.
 
-## Breakfast in Bed (Build 167, Round 7.17)
+## Breakfast in Bed: Looscid 2026.120.47 (167)
 
-Version 2026.120.47, released October 26, 2026 at 12:44 AM (Eastern Time, 2026-10-26T04:44:49Z UTC)
+Released October 26, 2026 at 12:44 AM (Eastern Time, 2026-10-26T04:44:49Z UTC)
 
 A feature update, asked for by Carter (Inbox with Alerts and Chats, #149).
 
@@ -247,9 +258,9 @@ A feature update, asked for by Carter (Inbox with Alerts and Chats, #149).
 - Alerts has one filter row: All, Unread, Circles (new), Replies, Mentions, Likes, Redreams, Quotes, New Dreamor and Deleted Dreams. A filter with something new says how many in parens, like "Replies (3)".
 - The Inbox tab's badge counts Alerts and Chats together, and reads "Inbox (5)". Your profile's More and Commandbar say Inbox too ("open inbox", "open alerts", "open chats"); old Alerts addresses still open it, and a saved Messages tab opens Chats.
 
-## Light Breakfast (Build 166, Round 7.16)
+## Light Breakfast: Looscid 2026.119.47 (166)
 
-Version 2026.119.47, released October 25, 2026 at 1:00 AM (Eastern Time, 2026-10-25T05:00:10Z UTC)
+Released October 25, 2026 at 1:00 AM (Eastern Time, 2026-10-25T05:00:10Z UTC)
 
 A feature update, asked for by 2three1y (the Discover and Home feed cleanup, #216).
 
@@ -262,9 +273,9 @@ A feature update, asked for by 2three1y (the Discover and Home feed cleanup, #21
 - Discover: Filters has only Verified, the one filter that worked (Content and Time did nothing). Join on a Circle result joins or leaves it, and the Circle shows under My Circles. Follow on a Dreamor result always works.
 - Your profile's More has Circles instead of a Discover page (Discover is its tab, Lists is already in More); an old More, Discover address opens the Discover tab. Settings no longer has an Apps row.
 
-## Fuzzy Slippers (Build 165, Round 7.15)
+## Fuzzy Slippers: Looscid 2026.118.47 (165)
 
-Version 2026.118.47, released October 25, 2026 at 12:45 AM (Eastern Time, 2026-10-25T04:45:12Z UTC)
+Released October 25, 2026 at 12:45 AM (Eastern Time, 2026-10-25T04:45:12Z UTC)
 
 A fix update, asked for by 2three1y.
 
@@ -272,9 +283,9 @@ A fix update, asked for by 2three1y.
 - Credits moved from Legal to About, "Legal and license" is now just License, and "Our accessibility commitment" is now Accessibility. Every link goes to the same place as before.
 - The Linux edition is no longer offered, so its Coming soon item is gone from the footer. The iPhone and iPad line and the Android app item are unchanged.
 
-## Selfie Toast (Build 164, Round 7.14)
+## Selfie Toast: Looscid 2026.118.46 (164)
 
-Version 2026.118.46, released October 24, 2026 at 12:04 PM (Eastern Time, 2026-10-24T16:04:37Z UTC)
+Released October 24, 2026 at 12:04 PM (Eastern Time, 2026-10-24T16:04:37Z UTC)
 
 A feature update, asked for by 2three1y.
 
@@ -287,89 +298,89 @@ A feature update, asked for by 2three1y.
 - Help Center and other help text say Profile where they said the More tab.
 - Fix: a pop-up menu with groups names each group the right way for screen readers (a group inside a list item, not the list item itself).
 
-## Candy Shop (Build 163, Round 7.13)
+## Candy Shop: Looscid 2026.117.46 (163)
 
-Version 2026.117.46, released October 24, 2026 at 11:38 AM (Eastern Time, 2026-10-24T15:38:57Z UTC)
+Released October 24, 2026 at 11:38 AM (Eastern Time, 2026-10-24T15:38:57Z UTC)
 
 - Fix: More has one Loostore link instead of the separate Apps and Projects items. Loostore (https://2three1y.github.io/Loostore/) lists every app and project in one place, each on its own site, and opens in a new tab. The Apps and Projects pages and their addresses still work for now, and Back from them lands on the Loostore link.
 
-## Taco Tuesday (Build 162, Round 7.12)
+## Taco Tuesday: Looscid 2026.117.45 (162)
 
-Version 2026.117.45, released October 23, 2026 at 7:30 PM (Eastern Time, 2026-10-23T23:30:02Z UTC)
+Released October 23, 2026 at 7:30 PM (Eastern Time, 2026-10-23T23:30:02Z UTC)
 
 - Fix: Every set of tabs now tells screen readers where each tab sits and how many there are (for example "Home, tab, 1 of 5"), counted from the tabs shown, so VoiceOver on iPhone can say the position. Tab names stay the same, with no numbers added.
 - Fix: Circles tabs move with the arrow keys, Home and End, and only the selected tab is in the Tab order, like every other set of tabs.
 - Fix: Clearing the Discover search while on All or Dreams goes back to Trending, so a tab is always selected.
 
-## Cereal Box (Build 161, Round 7.11)
+## Cereal Box: Looscid 2026.117.44 (161)
 
-Version 2026.117.44, released October 20, 2026 at 3:17 PM (Eastern Time, 2026-10-20T19:17:55Z UTC)
+Released October 20, 2026 at 3:17 PM (Eastern Time, 2026-10-20T19:17:55Z UTC)
 
 - Fix: The NexOS download now uses the name Carter.
 
-## Warm Milk (Build 160, Round 7.10)
+## Warm Milk: Looscid 2026.117.43 (160)
 
-Version 2026.117.43, released October 20, 2026 at 2:39 PM (Eastern Time, 2026-10-20T18:39:41Z UTC)
+Released October 20, 2026 at 2:39 PM (Eastern Time, 2026-10-20T18:39:41Z UTC)
 
 - Fix: Credits now use the name Carter.
 
-## Shooting Star (Build 159, Round 7.9)
+## Shooting Star: Looscid 2026.117.42 (159)
 
-Version 2026.117.42, released October 14, 2026 at 5:38 PM (Eastern Time, 2026-10-14T21:38:44Z UTC)
+Released October 14, 2026 at 5:38 PM (Eastern Time, 2026-10-14T21:38:44Z UTC)
 
 - Fix: After closing Insomnia's Starfield screensaver, every tap for 0.45 seconds was thrown away, which could eat a quick VoiceOver or TalkBack double tap. Now only what is left of the touch or key that closed it is held back, so the next activation works at once and the screensaver still doesn't reopen.
 
-## Desk Nap (Build 158, Round 7.8)
+## Desk Nap: Looscid 2026.117.41 (158)
 
-Version 2026.117.41, released October 14, 2026 at 5:37 PM (Eastern Time, 2026-10-14T21:37:53Z UTC)
+Released October 14, 2026 at 5:37 PM (Eastern Time, 2026-10-14T21:37:53Z UTC)
 
 - Fix: Insomnia's scrolling phone layout (Round 7.3) also showed on computers, where its frame is narrow too: the taskbar sat below the frame and Soundscape.exe opened under the icons. That layout is for touch screens only now; computers get the fixed desktop again.
 
-## Counting Sheep (Build 157, Round 7.7)
+## Counting Sheep: Looscid 2026.117.40 (157)
 
-Version 2026.117.40, released October 14, 2026 at 5:37 PM (Eastern Time, 2026-10-14T21:37:26Z UTC)
+Released October 14, 2026 at 5:37 PM (Eastern Time, 2026-10-14T21:37:26Z UTC)
 
 - Fix: On someone else's Liked tab, your own Dreams saved on this device still said 0 Likes. They now count at least that Dreamor's like, with their real age; the saved Dreams themselves are not changed.
 
-## Leftovers (Build 156, Round 7.6)
+## Leftovers: Looscid 2026.117.39 (156)
 
-Version 2026.117.39, released October 14, 2026 at 5:37 PM (Eastern Time, 2026-10-14T21:37:09Z UTC)
+Released October 14, 2026 at 5:37 PM (Eastern Time, 2026-10-14T21:37:09Z UTC)
 
 - Fix: Settings, Privacy no longer has the Liked tab switches (Show on my profile), and your own Liked tab's intro no longer mentions them. They did nothing: others only see the Dreams of theirs you liked. Old settings backups that carry them still import.
 
-## Snooze Button (Build 155, Round 7.5)
+## Snooze Button: Looscid 2026.117.38 (155)
 
-Version 2026.117.38, released October 14, 2026 at 5:36 PM (Eastern Time, 2026-10-14T21:36:22Z UTC)
+Released October 14, 2026 at 5:36 PM (Eastern Time, 2026-10-14T21:36:22Z UTC)
 
 - Fix: Sense was pinned alone at the top of Settings. It now lives only in Settings, Accessibility; the Commandbar's open sense, Find a setting and Help still open it there.
 
-## Main Course (Build 154, Round 7.4)
+## Main Course: Looscid 2026.117.37 (154)
 
-Version 2026.117.37, released October 14, 2026 at 4:07 PM (Eastern Time, 2026-10-14T20:07:53Z UTC)
+Released October 14, 2026 at 4:07 PM (Eastern Time, 2026-10-14T20:07:53Z UTC)
 
 - Fix: four links still pointed at the old preview branch (the footer's Our accessibility commitment, About, Credits' license and the Help Center license). They point at main now, and version.json says main too.
 
-## Insomnia Cookies (Build 153, Round 7.3)
+## Insomnia Cookies: Looscid 2026.117.36 (153)
 
-Version 2026.117.36, released October 14, 2026 at 4:07 PM (Eastern Time, 2026-10-14T20:07:06Z UTC)
+Released October 14, 2026 at 4:07 PM (Eastern Time, 2026-10-14T20:07:06Z UTC)
 
 - Fix (2three1y, on Android: tapping an option in Insomnia only scrolled to it and didn't open it): Looscid now opens Insomnia and Memeprojects as embedded apps (?in=nexos), so Insomnia's own photosensitivity notice no longer sits on top of the desktop inside Looscid and Escape goes back to Looscid. On a phone, Insomnia's page itself scrolls: the desktop, its windows and the taskbar are in the page instead of a fixed screen with scroll boxes inside windows, so a tap after a screen reader scrolls a control into view opens it, and opening the notice's More details (where it still shows) never shrinks the desktop away. Back and Escape from an app return to the Apps page it was opened from, with focus on its row. In Desktop, a soundscape you leave playing now really keeps playing after you close Insomnia OS, as its hint says.
 
-## Two Scoops (Build 152, Round 7.2)
+## Two Scoops: Looscid 2026.117.35 (152)
 
-Version 2026.117.35, released October 14, 2026 at 3:55 PM (Eastern Time, 2026-10-14T19:55:33Z UTC)
+Released October 14, 2026 at 3:55 PM (Eastern Time, 2026-10-14T19:55:33Z UTC)
 
 - Fix: Liked and Mutual likes are one tab now, Liked (2three1y: they were the same thing). On your own profile it shows everything you liked. On someone else's profile it shows only the Dreams of yours that they liked, read from their Nostr likes (kind 7 reactions, each one checked) that point at your Dreams, including Dreams of yours this device doesn't have yet; otherwise it says “<name> hasn't liked any of your Dreams yet”, and when you're not logged in it says how to see them. Mutual likes is gone from profiles and Settings, Profile Tabs; a saved tab order or a settings backup that still lists it loads, and that tab is skipped. Saved Dreams on that tab show their real time and likes instead of 1 minute ago and 0 Likes, and the Profile Tabs reset now reads out the real order.
 
-## Pajama Party (Build 151, Round 7.1)
+## Pajama Party: Looscid 2026.117.34 (151)
 
-Version 2026.117.34, released October 14, 2026 at 3:46 PM (Eastern Time, 2026-10-14T19:46:17Z UTC)
+Released October 14, 2026 at 3:46 PM (Eastern Time, 2026-10-14T19:46:17Z UTC)
 
 - Fix: the made-up Admin Panel is gone. Looscid is a decentralized Nostr app with no central admin, so nobody is shown as an administrator: no Admin Access on More, no ADMIN badge or star by your name and picture, and the Admin page with its invented numbers and moderation buttons is deleted. The /Admin address now opens Home, like any address with no page.
 
-## Moonrise (Build 150, Round 7)
+## Moonrise: Looscid 2026.117.33 (150)
 
-Version 2026.117.33, released October 12, 2026 at 8:18 PM (Eastern Time, 2026-10-13T00:18:10Z UTC)
+Released October 12, 2026 at 8:18 PM (Eastern Time, 2026-10-13T00:18:10Z UTC)
 
 Round 7: a feature update, asked for by 2three1y. Built in steps, one commit each.
 
@@ -485,9 +496,9 @@ Round 7: a feature update, asked for by 2three1y. Built in steps, one commit eac
 - Docs: a security page (docs/SECURITY.md) with how to report a problem privately and what protects your keys and sign-ins, carried over from the old main line and rewritten for today's Looscid. Nothing in the app changed.
 - Repository: preview is now main, the only branch, and the site is built from it. The old branches are gone; their useful docs were already in docs/. Nothing in the app changed.
 
-## Lost Sock (Build 149, Round 6.8.1)
+## Lost Sock: Looscid 2026.116.33 (149)
 
-Version 2026.116.33, released October 11, 2026 at 4:18 AM (Eastern Time, 2026-10-11T08:18:22Z UTC)
+Released October 11, 2026 at 4:18 AM (Eastern Time, 2026-10-11T08:18:22Z UTC)
 
 A fix update, asked for by 2three1y after trying 148 on his iPhone: a weird comma on profiles, a bio like Feditext's, no position numbers in tab names, and Show radios on Media.
 
@@ -501,9 +512,9 @@ A fix update, asked for by 2three1y after trying 148 on his iPhone: a weird comm
 - The profile Media tab has a Show radio group: Images, Videos or Both (Both to start, remembered on this device). It filters in place, says how many Dreams it shows, and focus stays on the radio, like the Redreams Show radios.
 - The settings backup adds dbm_profile_media_show at the end. Older backups still import.
 
-## Pancake Stack (Build 148, Round 6.8)
+## Pancake Stack: Looscid 2026.116.32 (148)
 
-Version 2026.116.32, released October 10, 2026 at 11:45 PM (Eastern Time, 2026-10-11T03:45:29Z UTC)
+Released October 10, 2026 at 11:45 PM (Eastern Time, 2026-10-11T03:45:29Z UTC)
 
 A feature update, from 2three1y's spec sheet: Liked in More, Like Search, and Create.
 
@@ -518,9 +529,9 @@ A feature update, from 2three1y's spec sheet: Liked in More, Like Search, and Cr
 - Fixed: the Circles page could stop with an error when a Circle was listed.
 - Liked Searches live in Liked (dbm_liked), on this device, like the rest of what you liked; the backup format is unchanged.
 
-## Second Pancake (Build 147, Round 6.7)
+## Second Pancake: Looscid 2026.115.32 (147)
 
-Version 2026.115.32, released October 10, 2026 at 10:44 PM (Eastern Time, 2026-10-11T02:44:37Z UTC)
+Released October 10, 2026 at 10:44 PM (Eastern Time, 2026-10-11T02:44:37Z UTC)
 
 A feature update, asked for by 2three1y: his profile page, rebuilt, and "liking is saving".
 
@@ -542,9 +553,9 @@ A feature update, asked for by 2three1y: his profile page, rebuilt, and "liking 
 - Legal and Credits: "Profile design recreated from Feditext by Metabolist (GPL-3.0); no Feditext code is used."
 - The settings backup adds dbm_profile_more_open, dbm_profile_rd_show and dbm_liked_public (the Liked tab switches) at the end. Older backups still import. What you liked stays on this device and isn't in the settings backup, like your Dreams.
 
-## Wind Chime (Build 146, Round 6.6.1)
+## Wind Chime: Looscid 2026.114.32 (146)
 
-Version 2026.114.32, released October 10, 2026 at 9:25 PM (Eastern Time, 2026-10-11T01:25:26Z UTC)
+Released October 10, 2026 at 9:25 PM (Eastern Time, 2026-10-11T01:25:26Z UTC)
 
 A fix update, asked for by 2three1y: Earcons broke up or didn't play on his iPhone, and names read with a stray comma, like "Block ,".
 
@@ -559,9 +570,9 @@ A fix update, asked for by 2three1y: Earcons broke up or didn't play on his iPho
 - Names with a stray comma: at High verbosity, menu items (Dream options, Redream or Quote, Send Feedback) read like "Redream , 1 of 2", because the position was a separate hidden piece. Now it's one name: "Redream, 1 of 2". The same fix for the unread count on the Alerts tabs and More sections, the counts on Cherry's history tabs, LooscidID on profiles, your profile info links, Messages, and Discover's trends.
 - A shared helper, lcNameJoin, builds names from parts: empty parts are dropped and no part leaves a dangling comma or double space.
 
-## Waffle Workshop (Build 145, Round 6.6)
+## Waffle Workshop: Looscid 2026.114.31 (145)
 
-Version 2026.114.31, released October 10, 2026 (Eastern Time)
+Released October 10, 2026 (Eastern Time)
 
 A feature update, asked for by 2three1y: his projects built into Looscid, and Earcons.
 
@@ -587,9 +598,9 @@ A feature update, asked for by 2three1y: his projects built into Looscid, and Ea
 - Back and Close are noted before the page changes, so the page they land on never plays the opening sound.
 - Unchanged: existing earcons and pitch cues, Insomnia and NexOS, the backup format, Calm mode, flash safety and Reduce Motion.
 
-## Cherry Soda (Build 144, Round 6.5.3)
+## Cherry Soda: Looscid 2026.113.31 (144)
 
-Version 2026.113.31, released October 10, 2026 at 5:10 PM (Eastern Time, 2026-10-10T21:10:00Z UTC)
+Released October 10, 2026 at 5:10 PM (Eastern Time, 2026-10-10T21:10:00Z UTC)
 
 A feature update, asked for by 2three1y: Cherry in Commandbar, shortcuts without spaces, path style, and a Commands page.
 
@@ -607,9 +618,9 @@ A feature update, asked for by 2three1y: Cherry in Commandbar, shortcuts without
 - New file js/commands.js, loaded after js/cherry.js (FILES.md has the order).
 - Unchanged: the Cherry page, the rest of More, the backup format, sounds, pitch cues, earcons, Calm mode, flash safety and Reduce Motion.
 
-## Cherry Pie (Build 143, Round 6.5.2)
+## Cherry Pie: Looscid 2026.112.31 (143)
 
-Version 2026.112.31, released October 10, 2026 at 4:15 PM (Eastern Time, 2026-10-10T20:15:00Z UTC)
+Released October 10, 2026 at 4:15 PM (Eastern Time, 2026-10-10T20:15:00Z UTC)
 
 A feature update: Cherry gets its own page, from 2three1y's blueprint.
 
@@ -625,9 +636,9 @@ A feature update: Cherry gets its own page, from 2three1y's blueprint.
 - The old pop-up, its made-up history list and its "Clear All" button that did nothing are gone.
 - Unchanged: the More menu layout, sounds, pitch cues, earcons, Calm mode, flash safety and Reduce Motion.
 
-## Sleepwalker (Build 142, Round 6.5.1)
+## Sleepwalker: Looscid 2026.111.31 (142)
 
-Version 2026.111.31, released October 10, 2026 at 2:42 PM (Eastern Time, 2026-10-10T18:42:07Z UTC)
+Released October 10, 2026 at 2:42 PM (Eastern Time, 2026-10-10T18:42:07Z UTC)
 
 A fix update: Dreamor everywhere. A Dreamor is you, and Dreamors is the plural; Redream keeps its one spelling.
 
@@ -637,9 +648,9 @@ A fix update: Dreamor everywhere. A Dreamor is you, and Dreamors is the plural; 
 - Search: "dreamors i follow" and "block dreamor" find the right settings.
 - Unchanged: storage keys, the Settings backup format, sounds, pitch cues, earcons, Calm mode, flash safety and Reduce Motion.
 
-## Bedtime Story (Build 141, Round 6.5)
+## Bedtime Story: Looscid 2026.111.30 (141)
 
-Version 2026.111.30, released October 10, 2026 at 1:50 PM (Eastern Time, 2026-10-10T17:50:27Z UTC)
+Released October 10, 2026 at 1:50 PM (Eastern Time, 2026-10-10T17:50:27Z UTC)
 
 A feature update: the new composer, Replies that stay, and Nostr threads. The composer's layout follows Feditext's composer (design inspiration only; no Feditext code or text is used).
 
@@ -658,9 +669,9 @@ A feature update: the new composer, Replies that stay, and Nostr threads. The co
 - Words: Replies is the one word, everywhere: the Replies page, "No replies yet", "Sort replies", "Reply options" and braille labels. The Audience note says "Visible to all Dreamors", and Redream is spelled one way.
 - Same sounds, pitch cues, earcons, Calm mode, flash safety and Reduce Motion.
 
-## Secret Cookie Jar (Build 140, Round 6.4)
+## Secret Cookie Jar: Looscid 2026.110.30 (140)
 
-Version 2026.110.30, released October 10, 2026 at 12:52 PM (Eastern Time, 2026-10-10T16:52:30Z UTC)
+Released October 10, 2026 at 12:52 PM (Eastern Time, 2026-10-10T16:52:30Z UTC)
 
 A feature update: Dreams on Nostr, your key in a secure field with an optional passcode. Your Dreams can be seen anytime, from any device, by anyone. There's still no Looscid server.
 
@@ -674,9 +685,9 @@ A feature update: Dreams on Nostr, your key in a secure field with an optional p
 - Your key is never in Settings backup. The backup format is unchanged and old backups import as before.
 - Same sounds, pitch cues, earcons, Calm mode, flash safety and Reduce Motion.
 
-## Pillow Fort (Build 139, Round 6.3)
+## Pillow Fort: Looscid 2026.109.30 (139)
 
-Version 2026.109.30, released October 10, 2026 at 11:40 AM (Eastern Time, 2026-10-10T15:40:22Z UTC)
+Released October 10, 2026 at 11:40 AM (Eastern Time, 2026-10-10T15:40:22Z UTC)
 
 A fix update: Dreams are saved on your device, and the composer is easier with a keyboard and VoiceOver.
 
@@ -688,9 +699,9 @@ A fix update: Dreams are saved on your device, and the composer is easier with a
 - Docs: NOSTR_ARCHITECTURE.md terminology fixes.
 - Same sounds, pitch cues, earcons, Calm mode, flash safety and Reduce Motion.
 
-## Night Light (Build 138, Round 6.2)
+## Night Light: Looscid 2026.109.29 (138)
 
-Version 2026.109.29, released October 10, 2026 at 10:33 AM (Eastern Time, 2026-10-10T14:33:35Z UTC)
+Released October 10, 2026 at 10:33 AM (Eastern Time, 2026-10-10T14:33:35Z UTC)
 
 A fix update: Looscid has its icon.
 
@@ -699,9 +710,9 @@ A fix update: Looscid has its icon.
 - Docs: NOSTR_ARCHITECTURE.md says Looscid instead of the old name DreamOS.
 - Same words, sounds, pitch cues, settings, storage keys and accessibility.
 
-## Folded Laundry (Build 137, Round 6.1)
+## Folded Laundry: Looscid 2026.109.28 (137)
 
-Version 2026.109.28, released October 10, 2026 at 10:08 AM (Eastern Time, 2026-10-10T14:08:08Z UTC)
+Released October 10, 2026 at 10:08 AM (Eastern Time, 2026-10-10T14:08:08Z UTC)
 
 A fix update: nothing you see or hear changes.
 
@@ -709,9 +720,9 @@ A fix update: nothing you see or hear changes.
 - Alerts and Discover are plain JavaScript with native HTML elements, no framework. The other tabs still use React and move over one at a time.
 - Same words, sounds, pitch cues, settings, storage keys and accessibility. Settings backups from Round 6 import unchanged, and backups made now import into Round 6.
 
-## Fresh Pillow (Build 136, Round 6)
+## Fresh Pillow: Looscid 2026.109.27 (136)
 
-Version 2026.109.27, released October 10, 2026 at 8:41 AM (Eastern Time, 2026-10-10T12:41:40Z UTC)
+Released October 10, 2026 at 8:41 AM (Eastern Time, 2026-10-10T12:41:40Z UTC)
 
 - No extra descriptions: VoiceOver reads each control's name, role and state, and explanations are plain text under headings.
 - Verbosity is a tab on Screen reader and braille.

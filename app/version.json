@@ -1,14 +1,14 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.136.56",
-  "build": 192,
+  "version": "2026.136.57",
+  "build": 193,
   "features": 136,
-  "fixes": 56,
+  "fixes": 57,
   "builds_without_fixes": 136,
-  "released": "2026-10-26T23:24:42Z",
-  "title": "Round 7.42",
-  "codename": "Name Tag",
-  "notes": "Name Tag (Build 192, Round 7.42), a feature update. I gave every build a codename, all the way back to build 136, and the codename comes first now, then the build, everywhere a build shows up. Plus two small fixes: the Dev menu countdown says 2 more taps and 1 more tap again, and Reset on the Appearance page brings the Robot heading character back, even after None.",
-  "label": "Name Tag (Build 192, Round 7.42)"
+  "released": "2026-10-26T23:41:44Z",
+  "title": "Round 7.43",
+  "codename": "Old Pajamas",
+  "notes": "Old Pajamas: Looscid 2026.136.57 (193), a fix update. Codenames now sit up top, and the old version style is back: the version text is exactly how it was before build 192, with the codename in front, like Midnight Snack: Looscid 2026.135.56 (191).",
+  "label": "Old Pajamas: Looscid 2026.136.57 (193)"
 }

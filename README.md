@@ -17,7 +17,7 @@ Looscid is a social app built for VoiceOver, braille and keyboard from day one. 
 
 ## Official version
 
-`main` is the shipped Looscid line, and the site is built from it. Its [version.json](app/version.json) is authoritative: **Name Tag (Build 192, Round 7.42)**, version 2026.136.56. Every build has a codename, shown first, then the build. Versions are YEAR.FEATURES.FIXES (BUILD): feature updates add something, fix updates only fix things, and builds count every update.
+`main` is the shipped Looscid line, and the site is built from it. Its [version.json](app/version.json) is authoritative: **Old Pajamas: Looscid 2026.136.57 (193)**. Every build has a codename, added in front of the version with a colon. Versions are YEAR.FEATURES.FIXES (BUILD): feature updates add something, fix updates only fix things, and builds count every update.
 
 The old `main` line (retired October 14, 2026) and combined branch counters are deprecated, not inherited into the product version. Documentation-only consolidation does not renumber the shipped version.
 
