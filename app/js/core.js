@@ -1559,6 +1559,28 @@ function lcResetModel(scope) {
   return { name: sec ? sec[1] : (ids.length === 1 ? G[ids[0]].l : ids.map(function (g) { return G[g].l; }).join(" and ")), groups: ids.map(function (g) {
     return { id: g, l: G[g].l, items: G[g].items().map(function (it) { return { id: it.id, l: it.l, parts: [it], danger: !!it.danger }; }) }; }) };
 }
+/* Round 7.38 (Carter, Oct 26 2026: Logout is one word, like Login): Logout, one word everywhere. The same words and
+   the same steps from Settings, Search, Commandbar and your profile's More: it asks first in the app's own dialog, then
+   removes every login method (a Nostr key saved here is deleted) and resets the local profile (Looscid.LC_LOG_OUT).
+   Cancel or Escape puts focus back where you were. */
+const LC_LOGOUT_TXT = { title: "Logout of Looscid?", ok: "Logout", done: "Logout complete on this device.",
+  msg: "Logout removes your login methods from this device and deletes any Nostr key saved here. If you haven't saved your key somewhere else, it's gone for good. Your LooscidID starts fresh with the name Dreamor. Your Dreams and settings stay." };
+function lcLogoutMessage() { const N = Looscid.lcNostr, w = N && N.forgetWarning ? N.forgetWarning() : ""; return LC_LOGOUT_TXT.msg + (w ? " " + w : ""); }
+function lcDoLogout() { if (Looscid.LC_LOG_OUT) Looscid.LC_LOG_OUT(); setTimeout(function () { announce(LC_LOGOUT_TXT.done); }, 120); }
+function lcOpenLogout() { const from = document.activeElement; try { window.dispatchEvent(new CustomEvent("looscid:logout", { detail: { from: from } })); } catch (e) {} }
+function LcLogoutHost() {
+  const [st, setSt] = useState(null);
+  useEffect(function () {
+    const f = function (e) { setSt({ from: e.detail && e.detail.from, n: Date.now() }); };
+    window.addEventListener("looscid:logout", f); return function () { window.removeEventListener("looscid:logout", f); };
+  }, []);
+  if (!st) return null;
+  const back = function () { const el = st.from; setSt(null);
+    setTimeout(function () { const t = el && el.focus && document.contains(el) && el.offsetParent !== null ? el : document.getElementById("set-row-logout"); if (t && t.focus) t.focus(); }, 0); };
+  return lh(AlertDialog, { key: st.n, title: LC_LOGOUT_TXT.title, message: lcLogoutMessage(), confirmLabel: LC_LOGOUT_TXT.ok, onCancel: back,
+    onConfirm: function () { setSt(null); lcDoLogout(); } });
+}
+Object.assign(Looscid, { LC_LOGOUT_TXT, lcLogoutMessage, lcDoLogout, lcOpenLogout, LcLogoutHost });
 function lcOpenReset(scope) { const from = document.activeElement; try { window.dispatchEvent(new CustomEvent("looscid:reset", { detail: { scope: scope, from: from } })); } catch (e) {} }
 function LcResetHost() {
   const [st, setSt] = useState(null); // { scope, from }
@@ -1742,6 +1764,8 @@ const LC_FIND_STATIC = [
   { l: "Settings Order", w: "settings order reorder sort alphabetical custom default move up move down", page: "settings_cz_order", where: "Settings, Customization" },
   { l: "Order of Settings", w: "settings order alphabetical a to z custom default", page: "settings_cz_order", focus: "cz-order-mode", where: "Settings, Customization, Settings Order" },
   { l: "Help Center", w: "help center guides getting started", page: "helpcenter", where: "Settings" },
+  // Round 7.38: Logout, the last row of Settings. Choosing it asks first, like the row does.
+  { l: "Logout", w: "logout log out logoff log off sign out signout leave remove login methods", run: "logout", where: "Settings" },
 ];
 Looscid.LC_FIND_STATIC = LC_FIND_STATIC;
 function lcSettingIndex() {
@@ -1819,6 +1843,7 @@ function lcFindSettings(q) {
   return scored.map(function (x) { return x[1]; }).filter(function (e) { const k = e.l + "|" + e.where + "|" + (e.focus || ""); if (seen[k]) return false; seen[k] = true; return true; });
 }
 function lcGoSetting(e, navigate) {
+  if (e.run === "logout") { setTimeout(function () { lcOpenLogout(); }, 120); return; } // Round 7.38: asks first
   if (e.reset) { setTimeout(function () { lcOpenReset(e.reset); }, 120); return; }
   if (e.tab) { try { sessionStorage.setItem("looscid_sr_tab", e.tab); } catch (x) {} try { window.dispatchEvent(new CustomEvent("looscid:srtab", { detail: e.tab })); } catch (x) {} }
   // Round 7.37 (#176): Privacy and Sense open on their own list of rows unless a result points inside one of their pages.
@@ -2413,7 +2438,7 @@ function lcMoreSections(o) {
       // into General; Tab Bar and Profile Tabs into Customization (was Customizability); Intelligence is now Cherry.
       // The order can be changed in Customization, Settings Order (Default, Alphabetical or Custom).
       items:[
-      { id:"looscidid", grp:"id", icon:"LooscidID", label:"LooscidID", sub:"Profile, login methods and security", action(){onClose();navigate("settings_account");} },
+      { id:"looscidid", grp:"id", icon:"LooscidID", label:"LooscidID", sub:"Keys, logins and devices", action(){onClose();navigate("settings_account");} },
       { id:"alerts", grp:"talk", icon:"Alerts", label:"Alerts", action(){onClose();navigate("settings_notifications");} },
       { id:"chats", grp:"talk", icon:"Messages", label:"Chats", action(){onClose();Looscid.LC_SETTINGS_BACK = null;navigate("settings_messages");} },
       { id:"earcons", grp:"talk", icon:"Audio", label:"Earcons", action(){onClose();navigate("settings_audio");} },
@@ -2423,6 +2448,9 @@ function lcMoreSections(o) {
       { id:"cherry", grp:"you", icon:"Intelligence", label:"Cherry", action(){onClose();navigate("settings_intelligence");} },
       { id:"general", grp:"gen", icon:"Settings", label:"General", action(){onClose();navigate("settings_general");} },
       { id:"helpcenter", grp:"help", icon:"Help", label:"Help Center", action(){onClose();navigate("helpcenter");} },
+      // Round 7.38 (Carter, Oct 26 2026 5:21 PM: "Logout should also be in the Settings menu", one word, like Login): the
+      // last row, in its own group, like iOS's Sign Out. It runs the same Logout as your profile's More button and asks first.
+      { id:"logout", grp:"logout", icon:"Logout", label:"Logout", danger:true, action(){onClose();lcOpenLogout();} },
     ]},
     // Part 34a (2three1y, Oct 12 4:38 PM: "the More tab holds ONLY Looscid features"): About Looscid and Social moved to
     // the site footer (Values and Social). Their pages are unchanged; only where they are linked from moved.
@@ -2570,7 +2598,7 @@ Looscid.LcMorePage = LcMorePage;
    title), the Search field, the LooscidID card, then short grouped lists of rows. Each row is a button that opens its own
    page (Back comes back to that row), and each group ends with a short plain footer. While you search, the results take
    the place of the lists, like iOS. The order of the rows is Default (grouped), Alphabetical or Custom: Customization,
-   Settings Order. LooscidID always stays first and Help Center always stays last. */
+   Settings Order. LooscidID always stays first, and Help Center and Logout always stay last (Round 7.38). */
 const LC_SET_GRP_FOOT = {
   talk: "How Looscid tells you about new Dreams, replies and chats, and the earcons it plays.",
   you: "How Looscid works with your screen reader, how it looks, who can reach you, and Cherry, your assistant on this device.",
@@ -2582,8 +2610,8 @@ const LC_SET_ICON = {"alerts": "Bell", "chats": "Cmt", "earcons": "Vol", "access
 const LC_SET_ORDER_KEY = "looscid_settings_order", LC_SET_ORDER_MODE_KEY = "looscid_settings_order_mode";
 function lcSetOrderMode() { try { const v = localStorage.getItem(LC_SET_ORDER_MODE_KEY); return v === "alpha" || v === "custom" ? v : "default"; } catch (e) { return "default"; } }
 function lcSetOrderSaved() { try { const o = JSON.parse(localStorage.getItem(LC_SET_ORDER_KEY) || "[]"); return Array.isArray(o) ? o.map(String) : []; } catch (e) { return []; } }
-// The rows that can move: everything except LooscidID (first) and Help Center (last), in their default order.
-function lcSetMovable(items) { return items.filter(function (it) { return it.grp !== "id" && it.grp !== "help"; }); }
+// The rows that can move: everything except LooscidID (first), Help Center and Logout (last), in their default order.
+function lcSetMovable(items) { return items.filter(function (it) { return it.grp !== "id" && it.grp !== "help" && it.grp !== "logout"; }); }
 function lcSetOrdered(items, mode) {
   const mv = lcSetMovable(items);
   if (mode === "alpha") return mv.slice().sort(function (a, b) { return a.label.localeCompare(b.label); });
@@ -2606,6 +2634,9 @@ function lcSetGroup(key, rows, foot) {
     lh('ul', { className: "mlist lc-ios-list", role: "list", id: "set-grp-" + key }, rows.map(lcSetRow)),
     foot ? lh('p', { className: "lc-ios-foot", id: "set-grp-" + key + "-f" }, foot) : null);
 }
+/* Round 7.38 (Carter, Oct 26 2026 5:24 PM): the LooscidID card reads like iOS's Apple Account row: your name, your @handle,
+   then a short line, "LooscidID, keys, logins and devices". It is the only row with values; every other row is its name. */
+const LC_SET_ID_SUB = "LooscidID, keys, logins and devices";
 function LcSettingsHome({ s, navigate, onBack }) {
   useSetOrderTick();
   const [q, setQ0] = useState(function () { return Looscid.LC_SETFIND_Q || ""; });
@@ -2613,12 +2644,13 @@ function LcSettingsHome({ s, navigate, onBack }) {
   const items = s.items, mode = lcSetOrderMode();
   const me = (typeof ME !== "undefined" && ME) || {};
   const idItem = items.find(function (it) { return it.grp === "id"; }), help = items.filter(function (it) { return it.grp === "help"; });
+  const logout = items.filter(function (it) { return it.grp === "logout"; });
   const handle = me.handle ? "@" + String(me.handle).replace(/^@/, "") : "";
   const name = me.name || me.displayName || "Dreamor";
   let lists;
   if (mode === "default") {
     const grps = [];
-    items.forEach(function (it) { if (it.grp === "id" || it.grp === "help") return; let g = grps.find(function (x) { return x.k === it.grp; }); if (!g) { g = { k: it.grp, rows: [] }; grps.push(g); } g.rows.push(it); });
+    items.forEach(function (it) { if (it.grp === "id" || it.grp === "help" || it.grp === "logout") return; let g = grps.find(function (x) { return x.k === it.grp; }); if (!g) { g = { k: it.grp, rows: [] }; grps.push(g); } g.rows.push(it); });
     lists = grps.map(function (g) { return lcSetGroup(g.k, g.rows, LC_SET_GRP_FOOT[g.k]); });
   } else {
     lists = [lcSetGroup("main", lcSetOrdered(items, mode), mode === "alpha" ? "Sorted A to Z. Change the order in Customization, Settings Order." : "Your own order. Change it in Customization, Settings Order.")];
@@ -2628,12 +2660,19 @@ function LcSettingsHome({ s, navigate, onBack }) {
     lh(LcSettingFind, { navigate: navigate, onClose: function () {}, q: q, setQ: setQ }),
     q.trim() ? null : lh(React.Fragment, null,
       idItem ? lh('ul', { className: "mlist lc-ios-list lc-ios-idcard", role: "list", id: "set-grp-id" },
-        lh('li', { className: "mli" }, lh('button', { type: "button", id: lcSetRowId(idItem.label), className: "mitem lc-ios-row lc-ios-id", onClick: idItem.action, "aria-label": lcNameJoin(name, handle, "LooscidID") },
+        lh('li', { className: "mli" }, lh('button', { type: "button", id: lcSetRowId(idItem.label), className: "mitem lc-ios-row lc-ios-id", onClick: idItem.action, "aria-label": lcNameJoin(name, handle, LC_SET_ID_SUB) },
           lh('span', { className: "lc-ios-av", "aria-hidden": "true" }, String(me.initials || name.charAt(0) || "D").slice(0, 2)),
-          lh('span', { className: "mitem-lbl", "aria-hidden": "true" }, lh('span', { className: "lc-ios-idname" }, name), lh('small', null, (handle ? handle + ", " : "") + "LooscidID, profile, login methods and security")),
+          lh('span', { className: "mitem-lbl", "aria-hidden": "true" }, lh('span', { className: "lc-ios-idname" }, name), handle ? lh('small', { className: "lc-ios-idhandle" }, handle) : null, lh('small', null, LC_SET_ID_SUB)),
           lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })))) : null,
       lists,
-      help.length ? lcSetGroup("help", help, LC_SET_GRP_FOOT.help) : null));
+      help.length ? lcSetGroup("help", help, LC_SET_GRP_FOOT.help) : null,
+      logout.length ? lh('ul', { className: "mlist lc-ios-list lc-ios-danger", role: "list", id: "set-grp-logout" }, logout.map(lcSetDangerRow)) : null));
+}
+// Round 7.38: Logout, the last row in its own group, like iOS's Sign Out: red text, no icon and no arrow (it doesn't open a
+// page; it asks first). It is a plain button named "Logout".
+function lcSetDangerRow(it) {
+  return lh('li', { key: it.id, className: "mli" }, lh('button', { type: "button", id: lcSetRowId(it.label), className: "mitem lc-ios-row lc-ios-danger-row", onClick: it.action },
+    lh('span', { className: "mitem-lbl" }, it.label)));
 }
 Looscid.LcSettingsHome = LcSettingsHome;
 Object.assign(Looscid, { lcSetOrderMode, lcSetOrderSaved, lcSetMovable, lcSetOrdered, lcSetOrderTick, useSetOrderTick, LC_SET_ORDER_KEY, LC_SET_ORDER_MODE_KEY, lcSetRowId });
@@ -4183,11 +4222,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.132.55";
+const LOOSCID_VERSION = "2026.133.55";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 187;
+const LOOSCID_BUILD = 188;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-26T21:09:03Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-26T21:31:08Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -5954,6 +5993,8 @@ function lcExtraIntent(raw) {
     if (!r.length) return { err: "No settings match \u201c" + q + "\u201d." };
     return { say: r.length + (r.length === 1 ? " setting" : " settings") + " found. Opened " + r[0].l + ", in " + r[0].where + "." + (r.length > 1 ? " Also: " + r.slice(1, 5).map(function (x) { return x.l; }).join(", ") + "." : ""), fn: function () { if (Looscid.LC_NAV) lcGoSetting(r[0], Looscid.LC_NAV); } };
   }
+  // Round 7.38: logout (and the two-word, sign-out and log-off forms) asks first, then runs the same Logout as Settings and your profile's More.
+  if (/^(?:logout|log out|logoff|log off|sign out|signout|logout of looscid|log out of looscid|sign out of looscid)$/.test(n)) return { say: "Logout asks first.", fn: function () { setTimeout(function () { lcOpenLogout(); }, 150); } };
   if (/^(boot|looscid os boot|looscid boot|nexos boot|show boot text|boot text|reboot)$/.test(n)) return { say: "Showing the Looscid OS boot text.", fn: function () { if (Looscid.LC_BOOT_SET) Looscid.LC_BOOT_SET(true); } };
   if ((m = /^(?:open|launch|start|run|boot) (looscid os|looscid os desktop|the looscid os desktop|looscid terminal|the looscid terminal|looscid os kernel|nexos web|nexos desktop|the nexos desktop|desktop|insomnia os|insomnia|meme projects|memes|memeprojects|easyconvert|easy convert|real kernel|the real kernel|nexos kernel|kernel|nexos)$/.exec(n))) {
     const id = /insomnia/.test(m[1]) ? "insomnia" : /meme/.test(m[1]) ? "memes" : /^easy/.test(m[1]) ? "easyconvert" : /kernel/.test(m[1]) || (m[0].indexOf("boot ") === 0 && m[1] === "nexos") ? "real" : "web", app = LC_NEXOS_APPS.find(function (x) { return x.id === id; });
@@ -7037,10 +7078,10 @@ useEffect(() => {
   const handleSignOut = useCallback(() => {
     setAuthUser(resetLocalProfile()); setAuthStage("app"); setPage("feed"); setPdata(null);
   }, []);
-  /* Round 7.14 (Carter, Oct 24 2026): Log out, from your profile's More button (it asks first). It is the existing pieces in
+  /* Round 7.14 (Carter, Oct 24 2026): Logout (Round 7.38: one word), from your profile's More button and Settings (it asks first). It is the existing pieces in
      order: every login method is removed the way Remove does it (a Nostr key saved on this device is deleted, and the sign-ins
      sealed to it are released), then the local profile resets like Reset local profile. Dreams and settings stay. */
-  Looscid.LC_LOG_OUT = () => { getMethods().slice().forEach(function (m) { removeMethod(m.id); }); logActivity("Logged out on this device"); handleSignOut(); };
+  Looscid.LC_LOG_OUT = () => { getMethods().slice().forEach(function (m) { removeMethod(m.id); }); logActivity("Logout on this device"); handleSignOut(); };
   const handleRenameProfile = useCallback(name => {
     setAuthUser(cur => updateLocalProfile(cur, { displayName: (sanitizeInput(name) || "Dreamor").slice(0, 40) }));
   }, []);
@@ -7905,6 +7946,7 @@ useEffect(() => {
       , React.createElement('button', { type: "button", className: "btn", onClick: () => setShowCreate(true), "aria-label": "Create", "aria-haspopup": "dialog" }, "Create")
       , React.createElement('main', {id:"main-content", style:{display:"contents"}}, renderPage())
       , lh(LcResetHost, null)
+      , lh(LcLogoutHost, null)
       , lh(LcThreadNudge, null)
       , lh(LcFooterHost, { page: page, navigate: navigate }
       , undo && lh(LcUndoBar, { undo: undo })

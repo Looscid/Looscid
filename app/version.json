@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.132.55",
-  "build": 187,
-  "features": 132,
+  "version": "2026.133.55",
+  "build": 188,
+  "features": 133,
   "fixes": 55,
-  "builds_without_fixes": 132,
-  "released": "2026-10-26T21:09:03Z",
-  "title": "Round 7.37",
-  "notes": "Round 7.37 (build 187), a feature update. Settings looks and works like iOS Settings: Search, your LooscidID card and short grouped lists, every row opening its own page, short footers, a new General page, Customization (was Customizability), Cherry (was Intelligence), Settings Order, and search results that read their name and path apart."
+  "builds_without_fixes": 133,
+  "released": "2026-10-26T21:31:08Z",
+  "title": "Round 7.38",
+  "notes": "Round 7.38 (build 188), a feature update. Logout is the last row of Settings, like Sign Out on iPhone, and it's one word everywhere. The LooscidID card shows your name, @handle and “LooscidID, keys, logins and devices”, and Settings got a visual polish."
 }

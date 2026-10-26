@@ -423,7 +423,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const [, bump] = useState(0);
   const [activeComment, setActiveComment] = useState(function () { return Looscid.lcCvTake ? Looscid.lcCvTake() : null; }); // round 9: Back from a footer page
   const [listsOpen, setListsOpen] = useState(false); // part 4b: Add to list, under More
-  const [logoutAsk, setLogoutAsk] = useState(false); // Round 7.14: Log out asks first
+  const [logoutAsk, setLogoutAsk] = useState(false); // Round 7.14: Logout asks first
   Looscid.useLikedTick();
   const moreBtn = useRef(null), editBtn = useRef(null), noteRef = useRef(null), headRef = useRef(null);
   // preview: your own profile as others see it. Your own data, nobody else's controls.
@@ -592,7 +592,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   // button, and it never remembers being open. Unfinished items stay in the list, unavailable, with the reason.
   /* Round 7.14 (Carter, Oct 24 2026): the profile's menu button is More. On your own profile it holds everything the old
      More tab held (Cherry, Discover, Create, Alerts, Settings, Commandbar, Help, Commands) plus your profile's own
-     options, in three groups, with Log out last (it asks first). On someone else's profile it holds the usual profile
+     options, in three groups, with Logout last (it asks first). On someone else's profile it holds the usual profile
      options. Each item runs the app's existing code for it; nothing new is sent anywhere. */
   const copyLink = { id: "copylink", name: "Copy link", a: function () { lcCopy(profLink, "Profile link"); } };
   const G1 = "Profile", G2 = "Looscid", G3 = "About and account";
@@ -620,7 +620,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       .concat(g(G3, [
        { id: "credits", name: "Credits", a: function () { navigate("credits"); } },
        { id: "feedback", name: "Feedback", a: function () { navigate("feedback"); } },
-       { id: "logout", name: "Log out", danger: true, a: function () { setLogoutAsk(true); } }]))
+       { id: "logout", name: "Logout", danger: true, a: function () { setLogoutAsk(true); } }]))
     : [{ id: "share", name: "Share profile", a: share }, copyLink,
        { id: "addlist", name: "Add to list", a: function () { setListsOpen(true); } },
        // Round 7.27 (#152, Carter approved Oct 25 2026, "like Spring"): pin this profile as a Home feed tab, or as its own tab in the tab bar.
@@ -647,12 +647,13 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
                : { id: "hiderd", name: "Hide Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, true); say("Hiding Redreams from " + user.name + "."); } },
        { id: "note", name: note ? "Edit note" : "Add note", a: function () { setNoteText(note); setNoteEdit(true); } },
        { id: "reorder", name: "Reorder profile tabs", a: function () { Looscid.LC_SETTINGS_BACK = null; navigate("settings_profiletabs"); } }]);
-  // Log out asks first, in the app's own confirm dialog. Cancel (or Escape) puts focus back on More.
-  const logoutWarn = (function () { const N = Looscid.lcNostr, w = N && N.forgetWarning ? N.forgetWarning() : ""; return w ? " " + w : ""; })();
-  const logoutDlg = logoutAsk ? lh(AlertDialog, { title: "Log out of Looscid?",
-    message: "Logging out removes your login methods from this device and deletes any Nostr key saved here. If you haven't saved your key somewhere else, it's gone for good. Your LooscidID starts fresh with the name Dreamor. Your Dreams and settings stay." + logoutWarn,
-    confirmLabel: "Log out", onCancel: function () { setLogoutAsk(false); backToMore(); },
-    onConfirm: function () { setLogoutAsk(false); if (Looscid.LC_LOG_OUT) Looscid.LC_LOG_OUT(); setTimeout(function () { announce("Logged out on this device."); }, 120); } }) : null;
+  // Logout asks first, in the app's own confirm dialog. Cancel (or Escape) puts focus back on More. Round 7.38: the same
+  // words and steps as Settings' Logout row (Looscid.LC_LOGOUT_TXT, lcDoLogout in core.js).
+  const LT = Looscid.LC_LOGOUT_TXT;
+  const logoutDlg = logoutAsk ? lh(AlertDialog, { title: LT.title,
+    message: Looscid.lcLogoutMessage(),
+    confirmLabel: LT.ok, onCancel: function () { setLogoutAsk(false); backToMore(); },
+    onConfirm: function () { setLogoutAsk(false); Looscid.lcDoLogout(); } }) : null;
   const moreMenu = preview ? null : lh(React.Fragment, null, lh(LcMenu, { id: "pf-more-btn", menuId: "pf-more", kind: "action", title: "More", btnLabel: "More", btnRef: moreBtn,
     btnClass: "btn bgb lc-big lc-prof-morebtn", className: "lc-prof-more", itemClass: "lc-dopt",
     btnText: lh('span', null, lh(Ic.Dots, { style: { width: 18, height: 18 }, "aria-hidden": "true" }), " More"), items: moreItems,
@@ -2610,12 +2611,18 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 132; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 133; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 55;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.132.55", build: 187, released: LOOSCID_RELEASED, title: "Round 7.37", notes: [
+  { version: "2026.133.55", build: 188, released: LOOSCID_RELEASED, title: "Round 7.38", notes: [
+    "New: Logout is the last row of Settings, in its own group, like Sign Out on iPhone. It asks first, then does the same thing as Logout in your profile's More: it removes your login methods from this device (a Nostr key saved here is deleted) and your LooscidID starts fresh. Your Dreams and settings stay. Settings Order keeps it last, and Search and the Commandbar find it (logout, log out or sign out).",
+    "Logout is one word everywhere now, like Login (Carter: it's Logout, not two words): your profile's More, the confirmation, Help Center, What's new and what Looscid says when it's done.",
+    "Your LooscidID card in Settings reads like the account row on iPhone: your name, your @handle, then \u201cLooscidID, keys, logins and devices\u201d. It's still the only row that shows values.",
+    "Settings looks more polished: a bigger title, a rounder search field, rounder cards, a little more space and no gradients, in Looscid's own colors (visual polish inspired by VoltAgent's awesome-design-md)."
+  ] },
+  { version: "2026.132.55", build: 187, released: "2026-10-26T21:09:03Z", title: "Round 7.37", notes: [
     "New: Settings looks and works like iOS Settings (full Apple Mode). Search is at the top, then your LooscidID card, then short grouped lists: Alerts, Chats and Earcons; Accessibility, Customization, Privacy and Cherry; General; and Help Center. Every row opens its own page, Back comes right back to that row, and each group has a short footer saying what it's for.",
     "Moved and renamed, with every setting and every saved value kept: Customizability is now Customization, and Tab Bar and Profile Tabs live in it. Intelligence is now Cherry. The new General page holds About, a new Updates page, Keyboard (was Keyboard shortcuts), Commandbar (was in Accessibility), Backup (was Settings backup), Labs (was Looscid Labs) and Reset. In Customization: Appearance (was Theme and colors), Feeds (was Feeds and home) and Media (was Media and translation). In Accessibility: Motion (was Motion and seizure) and Motor (was Motor and switch). Earcons is at the top of Settings only.",
     "New: Privacy's sections, Sense's General, Speech, Verbosity and Braille, and LooscidID's sections are now rows that each open their own page, instead of an accordion or tabs. Private account and Let others share my Dreams sit at the top of Privacy.",
@@ -2710,7 +2717,7 @@ const LC_VERSION_HISTORY = [
   ] },
   { version: "2026.118.46", build: 164, released: "2026-10-24T16:04:37Z", title: "Round 7.14", notes: [
     "Feature: the More tab is now Profile, and it opens your own profile. It is still the last tab, always shown.",
-    "Feature: profiles have a More button after the name. On your profile it holds Edit profile, Share profile, Copy link, Copy username, View as others see it, Reorder tabs, Lists and Drafts; then Cherry, Discover, Create, Alerts, Settings, Commandbar, Help and Commands; then Credits, Feedback and Log out, last. Log out asks first.",
+    "Feature: profiles have a More button after the name. On your profile it holds Edit profile, Share profile, Copy link, Copy username, View as others see it, Reorder tabs, Lists and Drafts; then Cherry, Discover, Create, Alerts, Settings, Commandbar, Help and Commands; then Credits, Feedback and Logout, last. Logout asks first.",
     "Feature: on someone else's profile, More starts with Share profile, Copy link, Add to list, Mute, Block and Report (Report stays unavailable until Looscid has somewhere to send reports), then Follow, Message and the other options it already had.",
     "Liked is a tab on your profile. The Liked address and the liked command open that tab.",
     "Back from a page opened from More (like Settings or Discover) goes to your profile, on its More button.",
@@ -3930,7 +3937,7 @@ function UpdatesSettings({ navigate }) {
 }
 /* Round 7.37 (#176, Carter Oct 26 1:38 AM): Customization, Settings Order. Default keeps the iOS groups; Alphabetical sorts
    the rows A to Z; Custom is your own order, starting from the current one, with Move up and Move down on each row (no
-   dragging). LooscidID always stays first and Help Center always stays last. Saved on this device and in Settings backup
+   dragging). LooscidID always stays first, and Help Center and Logout (Round 7.38) always stay last. Saved on this device and in Settings backup
    (looscid_settings_order_mode, looscid_settings_order). */
 function SettingsOrderSettings({ navigate }) {
   Looscid.useSetOrderTick();
@@ -3961,7 +3968,7 @@ function SettingsOrderSettings({ navigate }) {
           lh('input', { type: "radio", name: "cz-order-mode", value: o[0], checked: mode === o[0], onChange: function () { setMode(o[0]); } }),
           lh('span', { className: "lc-q-txt" }, lh('span', { className: "lc-q-l" }, o[1]), lh('span', { className: "lc-q-s" }, o[2])));
       }))),
-    lh('p', { className: "lc-ios-foot" }, "LooscidID always stays first and Help Center always stays last."),
+    lh('p', { className: "lc-ios-foot" }, "LooscidID always stays first, and Help Center and Logout always stay last."),
     mode === "custom" ? lh(React.Fragment, null,
       lh('ul', { className: "lc-tb-list lc-ios-list", role: "list", id: "ord-list", "aria-label": "Your order" }, list.map(function (it, i) {
         return lh('li', { key: it.id, className: "lc-tb-row" },

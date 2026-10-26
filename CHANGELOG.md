@@ -2,6 +2,17 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.133.55 (188): Round 7.38
+
+Released October 26, 2026 at 5:31 PM (Eastern Time, 2026-10-26T21:31:08Z UTC)
+
+A feature update, asked for by Carter (“Logout should also be in the Settings menu”).
+
+- New: Logout is the last row of Settings, in its own group, like Sign Out on iPhone. It asks first, then does the same thing as Logout in your profile's More: it removes your login methods from this device (a Nostr key saved here is deleted) and your LooscidID starts fresh. Your Dreams and settings stay. Settings Order keeps it last, and Search and the Commandbar find it (logout, log out or sign out).
+- Logout is one word everywhere now, like Login (Carter: it's Logout, not two words): your profile's More, the confirmation, Help Center, What's new and what Looscid says when it's done.
+- Your LooscidID card in Settings reads like the account row on iPhone: your name, your @handle, then “LooscidID, keys, logins and devices”. It's still the only row that shows values.
+- Settings looks more polished: a bigger title, a rounder search field, rounder cards, a little more space and no gradients, in Looscid's own colors (visual polish inspired by VoltAgent's awesome-design-md).
+
 ## Looscid 2026.132.55 (187): Round 7.37
 
 Released October 26, 2026 at 5:09 PM (Eastern Time, 2026-10-26T21:09:03Z UTC)
@@ -220,7 +231,7 @@ Released October 24, 2026 at 12:04 PM (Eastern Time, 2026-10-24T16:04:37Z UTC)
 A feature update, asked for by 2three1y.
 
 - Feature: The More tab is now Profile, and it opens your own profile. It is still the last tab and always shown. Like every tab, your profile has no Back button.
-- Feature: Profiles have a More button after the name (it was called Dreamor options). On your own profile it has three groups: Profile (Edit profile, Share profile, Copy link, Copy username, View as others see it, Reorder tabs, Lists, Drafts), Looscid (Cherry, Discover, Create, Alerts, Settings, Commandbar, Help, Commands) and About and account (Credits, Feedback, Log out). Log out is last and asks first: it removes your login methods from this device (a Nostr key saved here is deleted), then your LooscidID starts fresh. Your Dreams and settings stay.
+- Feature: Profiles have a More button after the name (it was called Dreamor options). On your own profile it has three groups: Profile (Edit profile, Share profile, Copy link, Copy username, View as others see it, Reorder tabs, Lists, Drafts), Looscid (Cherry, Discover, Create, Alerts, Settings, Commandbar, Help, Commands) and About and account (Credits, Feedback, Logout). Logout is last and asks first: it removes your login methods from this device (a Nostr key saved here is deleted), then your LooscidID starts fresh. Your Dreams and settings stay.
 - Feature: On someone else's profile, More starts with Share profile, Copy link, Add to list, Mute, Block and Report, then Follow, Message and the options it already had. Report stays unavailable until Looscid has somewhere to send reports.
 - Liked is a tab on your profile. The Liked address and the liked command open that tab.
 - Back from a page opened from More, like Settings, Discover, Create or Alerts, goes to your profile with focus on its More button.

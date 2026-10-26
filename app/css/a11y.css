@@ -309,3 +309,33 @@ html.lc-unspeakable .lc-stab:not(#lc-us-x):not(#lc-us-y)::before,html.lc-unspeak
 .lc-ios-page .lc-tb-list.lc-ios-list{margin:8px 16px 0}
 .lc-ios-page .lc-tb-list.lc-ios-list>li{padding:10px 14px}
 @media (prefers-reduced-motion:reduce){.lc-ios-list .mitem{transition:none}}
+/* Round 7.38 (Carter, Oct 26 2026 5:22 PM: like Apple "but with our flavor"): visual polish inspired by VoltAgent's
+   awesome-design-md (its Apple DESIGN.md). Taken from it: the system font stack only (no Apple fonts or assets), an 8px
+   spacing rhythm (8/12/16/24/32), 18px rounded cards, 8px icon tiles, a pill-shaped search field, 17px row labels with a
+   slight tightening, hairline borders, no shadows and no decorative gradients, one accent (Looscid's own) for focus and the
+   field, and a small press state. Looscid's colors, dark and high-contrast themes and focus outlines stay. Visual only. */
+.lc-ios,.lc-ios-page{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:32px}
+.lc-ios .hdr-title{font-size:clamp(26px,7vw,34px);line-height:1.1;font-weight:700;letter-spacing:-.011em}
+.lc-ios-page .hdr-title{font-size:21px;line-height:1.2;font-weight:600;letter-spacing:-.011em}
+.lc-ios .lc-setfind{padding:4px 16px 12px}
+.lc-ios-search{border-radius:9999px;min-height:44px;padding:10px 16px;font-size:17px}
+.lc-ios-search:focus-visible{outline:2px solid var(--ac);outline-offset:2px;border-color:var(--ac)}
+.lc-ios-list,.lc-ios-card{border-radius:18px;box-shadow:none}
+.lc-ios-list{margin:8px 16px 0}
+.lc-ios-list .mitem,.lc-ios-list .lc-ios-row{min-height:48px;padding:12px 16px;gap:12px}
+.lc-ios-list .mitem-lbl{font-size:17px;font-weight:400;letter-spacing:-.022em}
+.lc-ios-list .mitem:focus-visible,.lc-ios-list .lc-ios-row:focus-visible,.lc-ios-res:focus-visible{outline:2px solid var(--ac);outline-offset:-2px}
+.lc-ios-ic{border-radius:8px}
+.lc-ios-foot{margin:8px 32px 24px;font-size:13px;line-height:1.43;letter-spacing:-.006em}
+.lc-ios-card{padding:12px 16px}
+.lc-ios-av{background:var(--ac)}
+.lc-ios-idname{font-size:21px;font-weight:600;letter-spacing:-.011em}
+.lc-ios-id small{display:block}
+.lc-ios-idhandle{color:var(--tx)!important;opacity:.85}
+.lc-ios-list .lc-ios-row:active{transform:scale(.98)}
+@media (prefers-reduced-motion:reduce){.lc-ios-list .lc-ios-row:active{transform:none}}
+/* Logout: its own group at the very bottom, like iOS's Sign Out: the name centered in red, no icon, no arrow. */
+.lc-ios-danger{margin-top:24px}
+.lc-ios-list .lc-ios-danger-row{justify-content:center;width:100%}
+.lc-ios-list .lc-ios-danger-row .mitem-lbl{color:var(--rd,#d92d20);font-weight:400;text-align:center;flex:0 1 auto}
+

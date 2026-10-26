@@ -89,7 +89,7 @@ function lcHelpIntent(n) {
 const LC_HELP_SECTIONS = [
   ["Getting started", [
     "Looscid is a social app made for VoiceOver, braille and the keyboard. Home has your feed of Dreams. Below it are the tabs: Home, Discover, Create, Alerts and Profile.",
-    "Profile is your own profile. Its tabs include Dreams, Replies and Liked. Its More button holds Cherry, Circles, Create, Alerts, Settings, Commandbar, Help, Lists, Drafts, Credits, Feedback and Log out. On someone else's profile, More has Share profile, Copy link, Add to list, Mute, Block and Report.",
+    "Profile is your own profile. Its tabs include Dreams, Replies and Liked. Its More button holds Cherry, Circles, Create, Alerts, Settings, Commandbar, Help, Lists, Drafts, Credits, Feedback and Logout. On someone else's profile, More has Share profile, Copy link, Add to list, Mute, Block and Report.",
     "To write a Dream, open Create, or type new dream in Commandbar. You always press Dream yourself.",
     "Everything stays on this device unless you choose to share it.",
   ]],
