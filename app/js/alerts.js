@@ -198,7 +198,7 @@ function composeView(st, draw) {
     });
   };
   return h('div', { className: "pg lc-pm-new" },
-    lcBackHeaderEl("Send a message", function () { if (cp.back) { st.compose = null; cp.back(); return; } st.compose = null; draw(); setTimeout(function () { const b = document.getElementById("inbox-send"); if (b) b.focus(); }, 0); }),
+    lcBackHeaderEl("Send a message", function () { if (cp.back) { st.compose = null; cp.back(); return; } st.compose = null; draw(); setTimeout(function () { const b = document.getElementById("inbox-send"); if (b) b.focus(); else if (Looscid.lcFocusHeading) Looscid.lcFocusHeading(); }, 0); }),
     note ? h('p', { className: "lc-desc", style: { padding: "8px 16px" } }, note) : null,
     note ? h('div', { style: { padding: "0 16px 12px" } }, h('button', { type: "button", id: "pm-compose-lid", className: "btn bgb lc-btn", onClick: function () { Looscid.LC_LID_RETURN = { compose: cp }; if (Looscid.LC_NAV) Looscid.LC_NAV("settings_account"); } }, "Open LooscidID")) : null,
     h('div', { className: "lc-pm-form", style: { padding: "0 16px", display: "flex", flexDirection: "column", gap: 8 } },
@@ -360,7 +360,8 @@ function alertsView(st, draw) {
     h('div', { className: "hdr" },
       h('div', { style: { display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8, padding: "48px 16px 12px" } },
         h('h1', { className: "htit", tabIndex: -1, style: { marginRight: "auto" } }, "Inbox"),
-        h('button', { type: "button", id: "inbox-send", className: "btn bp", style: { fontSize: 12, padding: "6px 12px" }, onClick: function () { st.compose = { to: "", text: "", msg: "" }; draw(); setTimeout(function () { const t = document.getElementById("pm-to"); if (t) t.focus(); }, 0); } }, "Send a message"),
+        // Round 7.32 (Carter, Oct 26 2026): Send a message shows only when Chats is selected, not on Alerts.
+        chats ? h('button', { type: "button", id: "inbox-send", className: "btn bp", style: { fontSize: 12, padding: "6px 12px" }, onClick: function () { st.compose = { to: "", text: "", msg: "" }; draw(); setTimeout(function () { const t = document.getElementById("pm-to"); if (t) t.focus(); }, 0); } }, "Send a message") : null,
         h('button', { type: "button", id: "inbox-markall", className: "btn bgb", style: { fontSize: 12, padding: "6px 12px" },
           onClick: function () { const n = lcAlertsMarkAll(); const m = Looscid.lcPmMarkRead ? Looscid.lcPmMarkRead(null) : false; announce(n || m ? "All marked as read." : "Nothing to mark."); } }, "Mark all read"),
         h('button', { type: "button", id: "alerts-settings-link", className: "btn bgb", style: { fontSize: 12, padding: "6px 12px" }, onClick: function () { goSet(chats ? "settings_messages" : "settings_notifications"); } }, chats ? "Chats settings" : "Alerts settings"))),

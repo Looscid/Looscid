@@ -2535,10 +2535,13 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 128; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 53;
+const LOOSCID_FIXES = 54;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.128.53", build: 181, released: LOOSCID_RELEASED, title: "Round 7.31", notes: [
+  { version: "2026.128.54", build: 182, released: LOOSCID_RELEASED, title: "Round 7.32", notes: [
+    "Fix: Inbox shows the Send a message button only when Chats is selected. On Alerts it's gone, so Alerts has just Mark all read and Alerts settings.",
+  ] },
+  { version: "2026.128.53", build: 181, released: "2026-10-26T10:40:51Z", title: "Round 7.31", notes: [
     "Fix: Create's Custom Feed is now List, and it works. It opens Lists with focus in New list name (a list is a custom feed you can pin to Home). Back goes to where you opened Create.",
   ] },
   { version: "2026.128.52", build: 180, released: "2026-10-26T10:39:39Z", title: "Round 7.30", notes: [

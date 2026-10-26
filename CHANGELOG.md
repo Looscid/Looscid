@@ -2,6 +2,14 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.128.54 (182): Round 7.32
+
+Released October 26, 2026 at 6:41 AM (Eastern Time, 2026-10-26T10:41:58Z UTC)
+
+A fix update, asked for by Carter (the new message button belongs to Chats only).
+
+- Fix: Inbox shows the Send a message button only when Chats is selected. On Alerts it's gone, so Alerts has just Mark all read and Alerts settings.
+
 ## Looscid 2026.128.53 (181): Round 7.31
 
 Released October 26, 2026 at 6:40 AM (Eastern Time, 2026-10-26T10:40:51Z UTC)
