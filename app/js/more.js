@@ -2576,12 +2576,16 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 130; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 131; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 55;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.130.55", build: 185, released: LOOSCID_RELEASED, title: "Round 7.35", notes: [
+  { version: "2026.131.55", build: 186, released: LOOSCID_RELEASED, title: "Round 7.36", notes: [
+    "New: Unspeakable characters around headings and buttons, with a switch in Settings. A small robot character (the Font Awesome robot, U+F544) now sits before and after the text of headings, buttons (collapsibles too), tabs, links, menu buttons and menu items. VoiceOver reads it as \u201cunspeakable\u201d and braille shows a dot pattern; on screen it's a small robot. It's on by default. Turn it off in Settings, Accessibility, Sense, General: \u201cUnspeakable characters\u201d, and it's gone everywhere. Radio buttons, switches and checkboxes never get it.",
+    "New: The Feed picker in Pop-up button mode (Settings, Customizability, Feeds, Feed switching) shows the feeds as real radio buttons, built just like the ones in Privacy settings: a Feeds group with one radio per feed. Opening it puts you on the current feed, the arrow keys switch feeds, and Enter or Escape closes it and goes back to the Feed button.",
+  ] },
+  { version: "2026.130.55", build: 185, released: "2026-10-26T11:24:49Z", title: "Round 7.35", notes: [
     "New: the footer's Social links include Discord, after YouTube. It opens the Looscid Discord in a new tab, where you can hang out, share feedback and talk accessibility.",
   ] },
   { version: "2026.129.55", build: 184, released: "2026-10-26T10:52:33Z", title: "Round 7.34", notes: [
@@ -3076,6 +3080,7 @@ const LC_CREDITS = {
     { n: "noble curves, hashes and ciphers, and scure base, by Paul Miller", s: "noble curves", u: "https://github.com/paulmillr/noble-curves", l: "MIT", lu: "https://github.com/paulmillr/noble-curves/blob/main/LICENSE", w: "The audited cryptography inside nostr-tools. The math that keeps your keys safe." },
     { n: "v86", s: "v86", u: "https://github.com/copy/v86", l: "BSD 2-Clause", lu: "https://github.com/copy/v86/blob/master/LICENSE", w: "This is what runs the real Looscid OS kernel in Apps, right in your browser. Still blows my mind." },
     { n: "SeaBIOS and SeaVGABIOS", s: "SeaBIOS", u: "https://www.seabios.org/", site: "seabios.org", l: "LGPL-3.0", lu: "https://github.com/coreboot/seabios/blob/master/COPYING.LESSER", w: "The start-up firmware v86 uses. I didn't change it." },
+    { n: "Font Awesome Free 6.7.2 (the robot icon)", s: "Font Awesome", u: "https://fontawesome.com", site: "fontawesome.com", l: "SIL Open Font License 1.1 (font), CC BY 4.0 (icon)", lu: "https://fontawesome.com/license/free", w: "The robot in Unspeakable characters (U+F544). Looscid keeps just that one character, as a tiny font called Looscid Unspeakable in assets/fonts/unspeakable, with its license right next to it." },
     { n: "DM Sans and DM Serif Display", s: "DM Sans", u: "https://fonts.google.com/specimen/DM+Sans", site: "Google Fonts", l: "SIL Open Font License 1.1", lu: "https://openfontlicense.org/open-font-license-official-text/", w: "Looscid's fonts, from Google Fonts." },
   ],
   // Round 6.6: Projects in More. Each project's own LICENSE file is kept next to its copy in projects/ or os/.

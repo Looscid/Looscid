@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.130.55",
-  "build": 185,
-  "features": 130,
+  "version": "2026.131.55",
+  "build": 186,
+  "features": 131,
   "fixes": 55,
-  "builds_without_fixes": 130,
-  "released": "2026-10-26T11:24:49Z",
-  "title": "Round 7.35",
-  "notes": "Round 7.35 (build 185), a feature update. The footer's Social links include Discord."
+  "builds_without_fixes": 131,
+  "released": "2026-10-26T20:00:54Z",
+  "title": "Round 7.36",
+  "notes": "Round 7.36 (build 186), a feature update. Unspeakable characters around headings and buttons, with a switch in Settings, and the Feed picker's Pop-up button mode uses radio buttons like Privacy."
 }

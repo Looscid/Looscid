@@ -52,6 +52,7 @@ body.acc-high-contrast .lc-l-err{color:#fecaca}
 .lc-feedmenu-i{display:flex;align-items:center;min-height:44px;padding:8px 16px;font-size:16px;color:var(--tx);cursor:pointer}
 .lc-feedmenu-i.on{font-weight:700;color:var(--ac3)} .lc-feedmenu-i.on::before{content:"\2713";margin-right:8px} .lc-feedmenu-i:not(.on)::before{content:"";display:inline-block;width:1em;margin-right:8px}
 .lc-feedmenu-i:focus{outline:3px solid var(--ac3);outline-offset:-3px}
+.lc-feedmenu-panel{position:absolute;left:16px;top:100%;z-index:60;min-width:240px;max-width:calc(100vw - 32px);padding:8px 10px;background:var(--sf);border:1px solid var(--bd2);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.4)} /* Round 7.36: Dropdown Mode radios, like Privacy */
 .lc-showfr-row{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;padding:4px 16px 8px}
 .lc-showfr{display:flex;align-items:center;gap:10px;min-height:44px;font-size:16px;font-weight:600;color:var(--tx);cursor:pointer}
 .lc-showfr input{width:24px;height:24px;margin:0;accent-color:var(--ac2)}
@@ -252,3 +253,20 @@ body.acc-text-2 .pg{zoom:1.3}
 .dc-edited{font-size:12px;color:var(--tx3)} .lc-hist-when{font-weight:600}
 .lc-list-new{display:flex;flex-direction:column;gap:6px;margin:8px 0} .lc-list-err{color:var(--tx2)} .lc-list-member{display:flex;align-items:center;gap:8px} .lc-list-member .lc-person{flex:1 1 auto}
 .lc-circ-card{display:flex;gap:12px;align-items:flex-start} .lc-circ-card-logo{width:48px;height:48px;border-radius:10px;flex:none} .lc-circ-card-t{flex:1;min-width:0}
+
+/* Round 7.36 (#179, Carter): Unspeakable characters. The Font Awesome robot (U+F544, private use, no name; VoiceOver says
+   "unspeakable") before and after the text of headings, buttons, tabs, links, menu buttons and menu items, while
+   html.lc-unspeakable is set (Settings, Accessibility, Sense, General). Not aria-hidden on purpose: it is in the name.
+   The font is a one-character subset of Font Awesome 6 Free Solid (SIL OFL 1.1, icon CC BY 4.0), assets/fonts/unspeakable.
+   Never on radios, switches, checkboxes or the Feed picker's menu items (js/core.js LC_US_NOT). */
+@font-face{font-family:"Looscid Unspeakable";src:url("../assets/fonts/unspeakable/looscid-unspeakable.woff2") format("woff2");font-weight:400;font-style:normal;font-display:block;unicode-range:U+F544}
+html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *)::before,
+html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *):not(.nb-menu.has-notif)::after{font-family:"Looscid Unspeakable";font-weight:400;font-style:normal;font-synthesis:none;font-size:.85em;line-height:1;letter-spacing:0;text-transform:none;speak:normal;display:inline;position:static;width:auto;height:auto;background:none;border:0;opacity:1}
+html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *)::before{content:"\f544\a0"}
+html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *):not(.nb-menu.has-notif)::after{content:"\a0\f544"}
+/* The tab bar stacks icon over label, so there the robots sit at the sides instead of above and below. */
+html.lc-unspeakable .bnav :is(.nb,.nb-menu):not(#lc-us-x):not(#lc-us-y)::before{position:absolute;left:3px;top:50%;transform:translateY(-50%)}
+html.lc-unspeakable .bnav :is(.nb,.nb-menu):not(.has-notif):not(#lc-us-x):not(#lc-us-y)::after{position:absolute;right:3px;top:50%;transform:translateY(-50%)}
+/* Settings' segmented tabs (Sense sections and the like) are narrow: there the robots sit above and below the word. */
+html.lc-unspeakable .lc-stab:not(#lc-us-x):not(#lc-us-y){overflow-wrap:normal;padding-top:4px;padding-bottom:4px}
+html.lc-unspeakable .lc-stab:not(#lc-us-x):not(#lc-us-y)::before,html.lc-unspeakable .lc-stab:not(#lc-us-x):not(#lc-us-y)::after{display:block;font-size:.75em}

@@ -2425,7 +2425,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
     if (!initOpen) return;
     const t = setTimeout(() => {
       const body = document.getElementById("msec-" + initOpen);
-      const item = body && initFocus ? Array.from(body.querySelectorAll(".mitem")).find(b => b.getAttribute("aria-label") === initFocus) : null;
+      const item = body && initFocus ? Array.from(body.querySelectorAll(".mitem")).find(b => Looscid.lcAL(b) === initFocus) : null;
       const el = item || document.querySelector('button.msec-toggle[aria-controls="msec-' + initOpen + '"]') || document.getElementById("msec-btn-" + initOpen) || (LC_MORE_MOVED[initOpen] ? document.getElementById("msec-btn-" + LC_MORE_MOVED[initOpen]) : null);
       if (el) el.focus();
     }, 30);
@@ -3503,6 +3503,9 @@ const LC_SET = [
     desc: "Adds short how-to hints to what Looscid reads out, like which keys work in Commandbar. Works with VoiceOver, TalkBack, NVDA and JAWS." },
   { k: "readingMode", s: "sr_general", l: "Reading mode", t: "bool", d: false, al: ["reading mode", "one dream at a time"],
     desc: "Shows one Dream at a time, read top to bottom. Next and Previous buttons, the left and right arrow keys, a swipe or braille Enter move between Dreams." },
+  // Round 7.36 (#179, Carter): the robot character VoiceOver reads as "unspeakable", around headings, buttons, tabs, links and menus.
+  { k: "unspeakable", s: "sr_general", l: "Unspeakable characters", t: "bool", d: true, al: ["unspeakable characters", "unspeakable character", "unspeakable", "robot character", "robot icon", "robot"],
+    desc: "On by default. A robot character before and after the text of headings, buttons, tabs, links, menu buttons and menu items. VoiceOver reads it as \u201cunspeakable\u201d, braille shows a dot pattern, and on screen it's a small robot. Turn it off to remove it everywhere." },
   // Speech
   { k: "pitchCues", s: "verbosity", l: "Pitch cues", t: "bool", d: true, old: true, al: ["pitch cues", "pitch cue", "pitch changes", "pitch"],
     desc: "On by default. A short tone at its own pitch when focus lands on a link, button, heading, text field or switch, when something opens or closes, on list position, and on success or error. Replies are read aloud a little lower. Never when you switch feeds, never while you type." },
@@ -4041,11 +4044,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.130.55";
+const LOOSCID_VERSION = "2026.131.55";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 185;
+const LOOSCID_BUILD = 186;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-26T11:24:49Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-26T20:00:54Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -4160,6 +4163,77 @@ function saveA11y(a) {
 function a11yAsked() { try { return localStorage.getItem(A11Y_ASKED_KEY) === "1"; } catch (e) { return true; } }
 function setA11yAsked() { try { localStorage.setItem(A11Y_ASKED_KEY, "1"); } catch (e) {} }
 Looscid.A11Y_NOW = loadA11y(); // read outside React by earcons and Enter = Send
+
+/* --- Round 7.36 (#179, Carter, Oct 26 2026): Unspeakable characters. Carter loves the Font Awesome robot (U+F544, a
+   private-use character with no name) that VoiceOver reads as "unspeakable". With the switch on (Settings, Accessibility,
+   Sense, General: "Unspeakable characters", on by default) it sits before and after the text of headings, buttons
+   (collapsibles too), tabs, links, menu buttons and menu items. Never radios, switches or checkboxes, and never the
+   Feed picker's own menu items. It is never aria-hidden: being in the name is the point.
+   CSS ::before/::after (a11y.css, html.lc-unspeakable) draws it and puts it in names that come from the text. An aria-label
+   beats CSS text, so those labels get the character added here; the label as written is kept in data-lc-al, and code that
+   matches labels reads lcAL(el), which gives the label without the characters. Sighted people see a small robot
+   (assets/fonts/unspeakable, a one-character subset of Font Awesome Free). */
+const LC_US_G = "\uF544";
+Looscid.LC_US_G = LC_US_G;
+const LC_US_SEL = 'h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]';
+const LC_US_NOT = '[role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *';
+Looscid.LC_US_SEL = LC_US_SEL;
+function lcUsStrip(s) { return String(s == null ? "" : s).split(LC_US_G).join("").replace(/^\s+|\s+$/g, ""); }
+// The aria-label as the code wrote it (no Unspeakable characters), or null.
+function lcAL(el) {
+  if (!el || !el.getAttribute) return null;
+  const k = el.getAttribute("data-lc-al"); if (k != null) return k;
+  const v = el.getAttribute("aria-label"); return v == null ? null : (v.indexOf(LC_US_G) >= 0 ? lcUsStrip(v) : v);
+}
+Looscid.lcAL = lcAL;
+function lcUsWants(el) { try { return el.nodeType === 1 && el.matches(LC_US_SEL) && !el.matches(LC_US_NOT); } catch (e) { return false; } }
+function lcUsWrap(el) {
+  if (!lcUsWants(el) || !el.hasAttribute("aria-label")) return;
+  const v = el.getAttribute("aria-label");
+  if (v.charAt(0) === LC_US_G && v.charAt(v.length - 1) === LC_US_G) return; // already done
+  const base = lcUsStrip(v); if (!base) return;
+  el.setAttribute("data-lc-al", base);
+  el.setAttribute("aria-label", LC_US_G + " " + base + " " + LC_US_G);
+}
+function lcUsUnwrapAll() {
+  document.querySelectorAll("[data-lc-al]").forEach(function (el) {
+    const v = el.getAttribute("aria-label"); if (v != null && v.indexOf(LC_US_G) >= 0) el.setAttribute("aria-label", el.getAttribute("data-lc-al"));
+    el.removeAttribute("data-lc-al");
+  });
+}
+function lcUsScan(root) {
+  if (!root || root.nodeType !== 1) return;
+  lcUsWrap(root);
+  root.querySelectorAll("[aria-label]").forEach(lcUsWrap);
+}
+Looscid.LC_US_OBS = null;
+function lcUnspeakableOn() { const a = Looscid.A11Y_NOW || {}; return a.unspeakable !== false; }
+Looscid.lcUnspeakableOn = lcUnspeakableOn;
+function lcUnspeakableApply(on) {
+  try {
+    document.documentElement.classList.toggle("lc-unspeakable", !!on);
+    if (on) {
+      if (!Looscid.LC_US_OBS && typeof MutationObserver !== "undefined") {
+        Looscid.LC_US_OBS = new MutationObserver(function (recs) {
+          recs.forEach(function (r) {
+            if (r.type === "attributes") {
+              const el = r.target, v = el.getAttribute("aria-label");
+              if (v == null) { el.removeAttribute("data-lc-al"); return; }
+              if (v.indexOf(LC_US_G) < 0) { el.removeAttribute("data-lc-al"); lcUsWrap(el); } // React (or anyone) set a new label
+            } else r.addedNodes.forEach(lcUsScan);
+          });
+        });
+        Looscid.LC_US_OBS.observe(document.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ["aria-label"] });
+      }
+      lcUsScan(document.documentElement);
+    } else {
+      if (Looscid.LC_US_OBS) { Looscid.LC_US_OBS.disconnect(); Looscid.LC_US_OBS = null; }
+      lcUsUnwrapAll();
+    }
+  } catch (e) {}
+}
+Looscid.lcUnspeakableApply = lcUnspeakableApply;
+try { if (typeof document !== "undefined") lcUnspeakableApply(lcUnspeakableOn()); } catch (e) {}
 function systemReducedMotion() { try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } }
 function motionReduced() { return !!Looscid.A11Y_NOW.reduceMotion || systemReducedMotion(); }
 function a11yEnterSends() { return Looscid.A11Y_NOW.enterSend !== false; }
@@ -5026,7 +5100,7 @@ function lcFeedFind(q) { const k = lcFeedKey(String(q || "").replace(/\b(the|fee
 // Settings > Accessibility > Navigation > Feed switching. Each mode exposes exactly one feed control to screen readers.
 const LC_FEED_MODES = [
   ["tabs", "Tabs", "Default. A row of feed tabs: arrow keys, Home and End move between them, and PageUp or PageDown work anywhere in the feed."],
-  ["menu", "Pop-up button", "One Feed button that opens a menu of all feeds. Arrow keys or the first letter move through it, Enter picks one."],
+  ["menu", "Pop-up button", "One Feed button that opens the feeds as radio buttons. The arrow keys pick a feed, Enter or Escape closes them."],
 ];
 Looscid.LC_FEED_MODES = LC_FEED_MODES;
 // Round 7.16 (#216): Swipe mode is gone (three ways to do one thing); a saved Swipe reads as Tabs.
@@ -6182,7 +6256,7 @@ function lcModalFirst(top) {
     const isH = function (el) { return el && /^H[1-3]$/.test(el.tagName) && el.getClientRects().length > 0 && !el.closest("[inert]"); };
     const hd = isH(byId) ? byId : Array.prototype.find.call(top.querySelectorAll("h1,h2,h3"), function (el) { return isH(el) && !el.closest(".lmenu-list"); });
     if (hd) { if (!hd.hasAttribute("tabindex")) hd.setAttribute("tabindex", "-1"); return hd; }
-    if (top.getAttribute("aria-label")) { if (!top.hasAttribute("tabindex")) top.setAttribute("tabindex", "-1"); return top; }
+    if (Looscid.lcAL(top)) { if (!top.hasAttribute("tabindex")) top.setAttribute("tabindex", "-1"); return top; }
   }
   const want = top.querySelector('[role="menu"][tabindex="-1"][data-lc-name-focus],[role="menuitem"][tabindex="0"],[role="menuitemradio"][tabindex="0"]');
   if (want) return want;
@@ -6672,10 +6746,10 @@ function lcOpenerEl() { const l = Looscid.LC_LAST_ACT; return l && l.el && l.el.
 const LC_OPENER_SEL = "button, a[href], [role=button], [role=tab], [role=link], [role=menuitem], input, select, [tabindex]";
 function lcOpenerDesc(el) {
   if (!el || el === document.body || el === document.documentElement || !el.getAttribute) return null;
-  const d = { id: el.id || "", label: el.getAttribute("aria-label") || "", text: String(el.textContent || "").trim().slice(0, 120) };
+  const d = { id: el.id || "", label: Looscid.lcAL(el) || "", text: String(el.textContent || "").trim().slice(0, 120) };
   const root = document.getElementById("main-content");
   if (root && root.contains(el) && !d.id) {
-    const same = Array.from(root.querySelectorAll(LC_OPENER_SEL)).filter(function (b) { return d.label ? b.getAttribute("aria-label") === d.label : String(b.textContent || "").trim().slice(0, 120) === d.text; });
+    const same = Array.from(root.querySelectorAll(LC_OPENER_SEL)).filter(function (b) { return d.label ? Looscid.lcAL(b) === d.label : String(b.textContent || "").trim().slice(0, 120) === d.text; });
     const i = same.indexOf(el); if (i > 0) d.nth = i;
   }
   return d;
@@ -6686,9 +6760,9 @@ function lcFindOpener(o) {
   if (o.id) { const e = document.getElementById(o.id); if (e && root.contains(e)) return e; }
   const all = Array.from(root.querySelectorAll(LC_OPENER_SEL));
   const head = function (t) { return String(t || "").split(",")[0].trim(); };
-  if (o.nth) { const same = all.filter(function (b) { return o.label ? b.getAttribute("aria-label") === o.label : String(b.textContent || "").trim().slice(0, 120) === o.text; }); if (same[o.nth]) return same[o.nth]; }
-  return (o.label && all.find(function (b) { return b.getAttribute("aria-label") === o.label; }))
-    || (o.label && all.find(function (b) { return head(b.getAttribute("aria-label")) === head(o.label); }))
+  if (o.nth) { const same = all.filter(function (b) { return o.label ? Looscid.lcAL(b) === o.label : String(b.textContent || "").trim().slice(0, 120) === o.text; }); if (same[o.nth]) return same[o.nth]; }
+  return (o.label && all.find(function (b) { return Looscid.lcAL(b) === o.label; }))
+    || (o.label && all.find(function (b) { return head(Looscid.lcAL(b)) === head(o.label); }))
     || (o.text && all.find(function (b) { return String(b.textContent || "").trim().slice(0, 120) === o.text; })) || null;
 }
 function lcFocusHeading() {
@@ -6933,7 +7007,7 @@ useEffect(() => {
         // Rows say their value after the name ("Alerts, Quiet hours off"), so the row is found by the control that opened
         // this page, else by the name before the first comma.
         setTimeout(() => { const pg = document.getElementById("more-page-settings"); const rows = pg ? Array.from(pg.querySelectorAll(".mitem")) : [];
-          const row = (op && op.page === "settings" ? lcFindOpener(op) : null) || (m[1] ? rows.find(b => String(b.getAttribute("aria-label") || "").split(",")[0].trim() === m[1]) : null);
+          const row = (op && op.page === "settings" ? lcFindOpener(op) : null) || (m[1] ? rows.find(b => String(Looscid.lcAL(b) || "").split(",")[0].trim() === m[1]) : null);
           if (row) row.focus(); else lcFocusHeading(); }, 60);
         return;
       }
@@ -7063,7 +7137,7 @@ useEffect(() => {
   // Part 40 (#67): a More section is a page now, so opening "the Projects section" opens the Projects page (on that row).
   Looscid.LC_OPEN_MENU = (sec, focus) => {
     const pg = LC_MORE_PAGE[sec];
-    if (pg && sec !== "cherry") { setShowMenu(false); navigate(pg); if (focus) setTimeout(() => { const el = Array.from(document.querySelectorAll("#main-content .mitem")).find(b => b.getAttribute("aria-label") === focus); if (el) el.focus(); }, 120); return; }
+    if (pg && sec !== "cherry") { setShowMenu(false); navigate(pg); if (focus) setTimeout(() => { const el = Array.from(document.querySelectorAll("#main-content .mitem")).find(b => Looscid.lcAL(b) === focus); if (el) el.focus(); }, 120); return; }
     setMenuInit({ open: sec, focus: focus || null, n: Date.now() }); setShowMenu(true);
   };
   // Back on a More page: More opens again on the link that opened it.
@@ -7206,7 +7280,7 @@ useEffect(() => {
       if (nv && nv.type === "back_forward" && s1 && typeof s1.lcN === "number") setTimeout(() => { const a = document.activeElement;
         if ((!a || a === document.body || a === document.documentElement) && !document.querySelector('[role="dialog"], [role="alertdialog"]')) focusMainHeading(); }, 400); } catch (e) {}
     // A press on a page's own Back button (not one pressed for the browser's Back, below).
-    const onBackClick = (e) => { const t = e.target && e.target.closest ? e.target.closest('button[aria-label="Back"]') : null;
+    const onBackClick = (e) => { const t = e.target && e.target.closest ? e.target.closest('button[aria-label="Back"], button[data-lc-al="Back"]') : null;
       if (!t || !t.closest("#main-content")) return; const H = hist.current; if (H.mode === "pop" && Date.now() < H.modeUntil) return;
       H.lastB = histEntry(); H.backAt = Date.now(); };
     document.addEventListener("click", onBackClick, true);
@@ -7231,7 +7305,7 @@ useEffect(() => {
           if (showMenuRef.current && !dlg) setShowMenu(false);
           else { const a = document.activeElement, tgt = a && dlg.contains(a) ? a : dlg; tgt.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", code: "Escape", keyCode: 27, bubbles: true, cancelable: true })); }
           histGo(B.idx - n); return; }
-        const bb = steps === 1 ? Array.from(document.querySelectorAll('#main-content button[aria-label="Back"]')).find(x => x.offsetParent !== null || x.getClientRects().length) : null;
+        const bb = steps === 1 ? Array.from(document.querySelectorAll('#main-content button[aria-label="Back"], #main-content button[data-lc-al="Back"]')).find(x => x.offsetParent !== null || x.getClientRects().length) : null;
         // Round 14 (QA round 13): the Back of your own profile and of Liked only reopens the More menu over the same page, so
         // pressing it for the browser's Back left you on that page and stepped forward again: Back opened and closed the More
         // menu forever. The browser's Back from there goes to the page below instead (Home after More > View your profile or
@@ -7395,7 +7469,7 @@ useEffect(() => {
       const t = e.target && e.target.closest && e.target.closest('button, [role="button"], [role="switch"], [role="menuitem"], input[type="checkbox"], input[type="radio"]');
       if (!t || t.closest("#feed-tablist, #feed-menu, #feed-menu-btn")) return;
       const before = t.getAttribute("aria-expanded"), sw = t.getAttribute("role") === "switch" || t.type === "checkbox";
-      const lab = (t.getAttribute("aria-label") || t.textContent || "").trim();
+      const lab = (Looscid.lcAL(t) || t.textContent || "").trim();
       if (t.classList.contains("bi") || /^(Back|Close)\b/.test(lab)) { Looscid.LC_PC_BACK_AT = Date.now(); Looscid.LC_CHIME_AT = 0; lcPackChime("close"); }
       setTimeout(() => {
         if (Date.now() < Looscid.LC_PC_QUIET_UNTIL) return;
@@ -7408,7 +7482,7 @@ useEffect(() => {
       }, 30);
     };
     // Round 6.6: Back and Close are noted before the page changes (capture), so the page they land on never plays the opening sound.
-    const onTapEarly = e => { const t = e.target && e.target.closest && e.target.closest('button, [role="button"]'); if (!t) return; const lab = (t.getAttribute("aria-label") || t.textContent || "").trim(); if (t.classList.contains("bi") || /^(Back|Close)\b/.test(lab)) Looscid.LC_PC_BACK_AT = Date.now(); };
+    const onTapEarly = e => { const t = e.target && e.target.closest && e.target.closest('button, [role="button"]'); if (!t) return; const lab = (Looscid.lcAL(t) || t.textContent || "").trim(); if (t.classList.contains("bi") || /^(Back|Close)\b/.test(lab)) Looscid.LC_PC_BACK_AT = Date.now(); };
     window.addEventListener("keydown", onKey); document.addEventListener("focusin", onFocus);
     document.addEventListener("click", onTapEarly, true);
     document.addEventListener("keydown", onType, true); document.addEventListener("click", onTap);
@@ -7432,6 +7506,7 @@ useEffect(() => {
     b.toggle("acc-switch", !!acc.switchAccess);
     b.add("lc-has-cmd");
     if (acc.brailleOutput) document.documentElement.setAttribute("data-braille-output", "1"); else document.documentElement.removeAttribute("data-braille-output");
+    lcUnspeakableApply(acc.unspeakable !== false); // Round 7.36 (#179)
   }, [prefs.accessibility, sysRM]);
   // Earcon when the area changes (Feed, Alerts, Circles, Settings)
   const lastArea = useRef("feed");

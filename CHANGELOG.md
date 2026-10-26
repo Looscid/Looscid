@@ -2,6 +2,15 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.131.55 (186): Round 7.36
+
+Released October 26, 2026 at 4:00 PM (Eastern Time, 2026-10-26T20:00:54Z UTC)
+
+A feature update, asked for by Carter.
+
+- New: Unspeakable characters around headings and buttons, with a switch in Settings. A small robot character (the Font Awesome robot, U+F544) now sits before and after the text of headings, buttons (collapsibles too), tabs, links, menu buttons and menu items. VoiceOver reads it as “unspeakable” and braille shows a dot pattern; on screen it's a small robot. It's on by default. Turn it off in Settings, Accessibility, Sense, General: “Unspeakable characters”, and it's gone everywhere. Radio buttons, switches and checkboxes never get it.
+- New: The Feed picker in Pop-up button mode (Settings, Customizability, Feeds, Feed switching) shows the feeds as real radio buttons, built just like the ones in Privacy settings: a Feeds group with one radio per feed. Opening it puts you on the current feed, the arrow keys switch feeds, and Enter or Escape closes it and goes back to the Feed button.
+
 ## Looscid 2026.130.55 (185): Round 7.35
 
 Released October 26, 2026 at 7:24 AM (Eastern Time, 2026-10-26T11:24:49Z UTC)

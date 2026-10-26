@@ -44,7 +44,7 @@
   if (framed) { window.LOOSCID_FRAMED = true; document.documentElement.setAttribute("data-lc-framed", ""); }
 })();
 </script>
-<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; default-src 'self'; script-src 'self' 'sha256-cPXplTAx7lqw+U1sDy5Mzw0VCLG2PsaP6P7bfybrX4I='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self' https: wss:; frame-src 'self' blob: https://www.youtube-nocookie.com https://player.vimeo.com https://open.spotify.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; default-src 'self'; script-src 'self' 'sha256-cPXplTAx7lqw+U1sDy5Mzw0VCLG2PsaP6P7bfybrX4I='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self' https: wss:; frame-src 'self' blob: https://www.youtube-nocookie.com https://player.vimeo.com https://open.spotify.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
 <!-- Security pass 5/6: no inline script except the one above (allowed by its hash); the rest are files. -->
 <script src="js/boot.js"></script>
 <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
@@ -62,6 +62,7 @@
 <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/></noscript>
 <link rel="stylesheet" href="css/app.css"/>
 <link rel="stylesheet" href="css/a11y.css" id="lc-a11y-css"/>
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/unspeakable/looscid-unspeakable.woff2" crossorigin/>
 </head>
 <body>
 <!-- The one announcer sits before the app, so nothing comes after the footer in swipe order -->

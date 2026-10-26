@@ -444,7 +444,7 @@ function GroupsPage({navigate, cherryCtx, data}) {
       Looscid.LC_PROF_RESTORE = null;
     }
     setActiveGroup(null);
-    setTimeout(() => { const row = g && Array.from(document.querySelectorAll('#main-content [role=button]')).find(b => b.getAttribute('aria-label') === "Open " + g.name);
+    setTimeout(() => { const row = g && Array.from(document.querySelectorAll('#main-content [role=button]')).find(b => Looscid.lcAL(b) === "Open " + g.name);
       if (row) row.focus(); else if (Looscid.lcFocusHeading) Looscid.lcFocusHeading(); }, 60);
   };
   if (activeGroup) return React.createElement(GroupDetailPage, { group: activeGroup, navigate: navigate, onBack: goBack,});

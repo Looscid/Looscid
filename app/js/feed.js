@@ -171,12 +171,38 @@ function FeedTabs() {
     strip,
     feed === "following" ? lh(ShowFriendsBox, null) : null);
 }
-// Pop-up button mode: one "Feed: Home" button opens the shared mini pop-up menu of every feed
-// (menuitemradio). Picking a feed puts focus back on the button, whose name is the announcement.
+// Pop-up button mode ("Dropdown Mode"): one "Feed: Home" button. Round 7.36 (Carter, Oct 26 2026): it is a collapsible now
+// (aria-expanded, never inside a heading) that shows the feeds as real radio buttons, built exactly like Privacy's audience
+// radios (fieldset, legend, label.lc-radio around a native radio, one column). Same ids: #feed-menu-btn opens #feed-menu.
+// Opening puts focus on the checked feed; the arrow keys pick a feed (it switches right away, as before); Enter or Escape
+// closes and goes back to the button; tapping outside or tabbing away closes it.
 function FeedMenuButton({ feed }) {
-  return lh('div', { className: "lc-feedmenu" },
-    lh(LcMenu, { id: "feed-menu-btn", menuId: "feed-menu", label: "Feeds", hideLabel: true, title: "Feeds", inline: true, prefix: "Feed: ", btnClass: "btn bgb lc-feedmenu-btn",
-      value: feed, items: LC_FEEDS.map(function (f) { return { id: f.id, name: f.label }; }), onSelect: function (id) { lcSetFeed(id, true); } }));
+  const [open, setOpen] = useState(false);
+  const btnRef = useRef(null), boxRef = useRef(null), wrapRef = useRef(null);
+  const cur = LC_FEEDS.find(function (f) { return f.id === feed; }) || LC_FEEDS[0];
+  useEffect(function () { if (!open) return; const r = boxRef.current && (boxRef.current.querySelector('input[type="radio"]:checked') || boxRef.current.querySelector('input[type="radio"]')); if (r) r.focus(); }, [open]);
+  useEffect(function () {
+    if (!open) return;
+    const onDoc = function (e) { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("pointerdown", onDoc, true);
+    return function () { document.removeEventListener("pointerdown", onDoc, true); };
+  }, [open]);
+  const close = function () { setOpen(false); if (btnRef.current) btnRef.current.focus(); };
+  const onKey = function (e) { if (e.key === "Escape" || e.key === "Enter") { e.preventDefault(); e.stopPropagation(); close(); } };
+  const onBlur = function (e) { const to = e.relatedTarget; if (to && wrapRef.current && !wrapRef.current.contains(to)) setOpen(false); };
+  return lh('div', { className: "lc-feedmenu", ref: wrapRef, onBlur: onBlur },
+    lh('button', { id: "feed-menu-btn", ref: btnRef, type: "button", className: "btn bgb lc-feedmenu-btn", "aria-expanded": open ? "true" : "false",
+        "aria-controls": open ? "feed-menu" : undefined, onClick: function () { setOpen(!open); } },
+      lh('span', null, "Feed: " + cur.label),
+      lh('span', { className: "lmenu-caret", "aria-hidden": "true" }, open ? "\u25B4" : "\u25BE")),
+    open ? lh('div', { id: "feed-menu", ref: boxRef, className: "lc-feedmenu-panel", onKeyDown: onKey },
+      lh('fieldset', { className: "lc-fs lc-aud" },
+        lh('legend', { className: "lc-fs-l" }, "Feeds"),
+        lh('div', { className: "lc-radios lc-radios-col" }, LC_FEEDS.map(function (f) {
+          const on = f.id === feed;
+          return lh('label', { key: f.id, className: "lc-radio" + (on ? " on" : "") },
+            lh('input', { type: "radio", name: "feed-menu-r", value: f.id, checked: on, onChange: function () { lcSetFeed(f.id); } }), lh('span', null, f.label));
+        })))) : null);
 }
 function ShowFriendsBox() {
   const [on, setOn] = useState(lcShowFriends());
