@@ -2517,12 +2517,15 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 126; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 127; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 49;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.126.49", build: 175, released: LOOSCID_RELEASED, title: "Round 7.25", notes: [
+  { version: "2026.127.49", build: 176, released: LOOSCID_RELEASED, title: "Round 7.26", notes: [
+    "Feature: chats can be muted. A chat's More has Mute (and Unmute): its new messages still come in and count as unread, but they're never said aloud or sounded. Each chat's More is now Reply, Pin, Mute, Mark read or Mark unread, Delete and Block, and a muted chat says \"muted\" after its name.",
+  ] },
+  { version: "2026.126.49", build: 175, released: "2026-10-26T04:59:17Z", title: "Round 7.25", notes: [
     "Feature: Settings, Privacy, Permissions has Let others share my Dreams (on by default). Turn it off and Share is hidden for everyone but you on the Dreams you send from then on. Dreams you already sent keep sharing on, and other Nostr apps may not follow it.",
   ] },
   { version: "2026.125.49", build: 174, released: "2026-10-26T04:56:58Z", title: "Round 7.24", notes: [

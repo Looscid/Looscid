@@ -2,6 +2,14 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.127.49 (176): Round 7.26
+
+Released October 26, 2026 at 1:00 AM (Eastern Time, 2026-10-26T05:00:03Z UTC)
+
+A feature update, asked for by Carter (chat row actions, #155).
+
+- Feature: chats can be muted. A chat's More has Mute (and Unmute): its new messages still come in and count as unread, but they're never said aloud or sounded. Each chat's More is now Reply, Pin, Mute, Mark read or Mark unread, Delete and Block, and a muted chat says "muted" after its name.
+
 ## Looscid 2026.126.49 (175): Round 7.25
 
 Released October 26, 2026 at 12:59 AM (Eastern Time, 2026-10-26T04:59:17Z UTC)

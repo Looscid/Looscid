@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.126.49",
-  "build": 175,
-  "features": 126,
+  "version": "2026.127.49",
+  "build": 176,
+  "features": 127,
   "fixes": 49,
-  "builds_without_fixes": 126,
-  "released": "2026-10-26T04:59:17Z",
-  "title": "Round 7.25",
-  "notes": "Round 7.25 (build 175), a feature update. Let others share my Dreams, in Settings, Privacy: off hides Share for others on the Dreams you send from then on."
+  "builds_without_fixes": 127,
+  "released": "2026-10-26T05:00:03Z",
+  "title": "Round 7.26",
+  "notes": "Round 7.26 (build 176), a feature update. Mute a chat from its More button: new messages arrive quietly, never said or sounded."
 }

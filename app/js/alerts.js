@@ -147,13 +147,15 @@ function convoRow(st, draw, c) {
     : [
       ["Reply", open],
       [pinned ? "Unpin" : "Pin", function () { chatSave(CHAT_PINNED_KEY, pinned ? chatPinned().filter(function (x) { return x !== ck; }) : chatPinned().concat([ck])); announce(pinned ? "Unpinned the chat with " + c.name + "." : "Pinned the chat with " + c.name + ". It's in Pinned."); }],
+      // Round 7.26 (#155): Mute or Unmute: a muted chat's new messages are never said or sounded (still counted unread).
+      [Looscid.lcChatMuted && Looscid.lcChatMuted(ck) ? "Unmute" : "Mute", function () { const on = Looscid.lcChatMuteToggle(ck); announce(on ? "Muted the chat with " + c.name + ". New messages won't be said or make a sound." : "Unmuted the chat with " + c.name + "."); }],
       c.unread > 0 ? ["Mark read", function () { if (c.pm) Looscid.lcPmMarkRead(c.peer); else c.demo.unread = 0; announce("Marked as read."); }]
         : ["Mark unread", function () { chatMarkUnread(c); announce("Marked as unread."); }],
       ["Delete", function () { const d = chatDeleted(); d[ck] = Date.now(); chatSave(CHAT_DELETED_KEY, d); if (c.pm) Looscid.lcPmMarkRead(c.peer); else c.demo.unread = 0; announce("Deleted the chat with " + c.name + ". It's in Deleted until a new message comes."); }],
       block];
   return h('li', { key: key, className: "ci" },
     h('button', { type: "button", className: "lc-ci-main", onClick: open,
-        "aria-label": Looscid.lcNameJoin(c.name + (c.unread > 0 ? " (" + c.unread + " unread)" : ""), pinned && !deleted ? "pinned" : "") /* #150 */ + (c.preview ? ". " + c.preview : "") + (c.when ? ". " + c.when : "") },
+        "aria-label": Looscid.lcNameJoin(c.name + (c.unread > 0 ? " (" + c.unread + " unread)" : ""), pinned && !deleted ? "pinned" : "", Looscid.lcChatMuted && Looscid.lcChatMuted(ck) ? "muted" : "") /* #150, #155 */ + (c.preview ? ". " + c.preview : "") + (c.when ? ". " + c.when : "") },
       lcAvEl({ name: c.name, initials: String(c.name || "?").slice(0, 1), color: "#6d28d9" }, 46),
       h('div', { className: "cif", "aria-hidden": "true" }, h('div', { className: "cnm" }, c.name), h('div', { className: "cpv" }, c.preview)),
       h('div', { "aria-hidden": "true", style: { display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 } },
