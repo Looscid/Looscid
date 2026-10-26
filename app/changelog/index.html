@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Looscid changelog</title>
+<!-- #161 (Round 7.24): the changelog page, with its own link preview. Absolute addresses, as previewers need; they come
+     first, right after the charset. -->
+<meta name="description" content="Every Looscid update, from the first listed version to the newest, with what changed in each.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Looscid">
+<meta property="og:title" content="Looscid changelog">
+<meta property="og:description" content="Every Looscid update, from the first listed version to the newest, with what changed in each.">
+<meta property="og:url" content="https://looscid.github.io/Looscid/changelog/">
+<meta property="og:image" content="https://looscid.github.io/Looscid/assets/looscid-og.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Looscid logo and the words: Looscid, a social app built for VoiceOver, braille and keyboard from day one.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Looscid">
+<meta name="twitter:title" content="Looscid changelog">
+<meta name="twitter:description" content="Every Looscid update, from the first listed version to the newest, with what changed in each.">
+<meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/looscid-og.png">
+<meta name="twitter:image:alt" content="The Looscid logo and the words: Looscid, a social app built for VoiceOver, braille and keyboard from day one.">
+<link rel="icon" type="image/png" sizes="32x32" href="https://looscid.github.io/Looscid/assets/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="https://looscid.github.io/Looscid/assets/icons/apple-touch-icon.png">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self' https://raw.githubusercontent.com; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<style>
+:root{color-scheme:dark;--bg:#0c0a1a;--sf:#17142b;--bd:#2e2850;--tx:#f2f0ff;--tx2:#c9c3e6;--ac:#a78bfa}
+@media (prefers-color-scheme:light){:root{color-scheme:light;--bg:#faf9ff;--sf:#fff;--bd:#d9d4f0;--tx:#16132b;--tx2:#4a4466;--ac:#5b21b6}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:17px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:24px 16px 64px}
+a{color:var(--ac)}
+h1{font-size:1.8em;margin:0 0 4px}
+h2{font-size:1.3em;margin:24px 0 4px}
+.sub{color:var(--tx2);margin:0 0 16px}
+.links{display:flex;flex-wrap:wrap;gap:8px 16px;margin:0 0 20px;padding:0;list-style:none}
+.mb{position:relative;display:inline-block;max-width:100%}
+.mb-btn{font:inherit;color:var(--tx);background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:10px 14px;min-height:44px;cursor:pointer;text-align:left;max-width:100%}
+.mb-btn:focus-visible,.mb-item:focus-visible,.mb-list:focus-visible,a:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.mb-list{position:absolute;z-index:5;left:0;top:calc(100% + 4px);min-width:min(320px,90vw);max-height:60vh;overflow:auto;margin:0;padding:6px;list-style:none;background:var(--sf);border:1px solid var(--bd);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+.mb-item{padding:10px 12px;border-radius:8px;cursor:pointer;min-height:44px;display:flex;gap:8px;align-items:center}
+.mb-item[aria-checked="true"]{font-weight:700}
+.mb-item:hover{background:var(--bd)}
+.mb-check{width:1em;flex-shrink:0}
+.when{color:var(--tx2);margin:0 0 8px}
+#notes ul{padding-left:1.2em}
+#notes li{margin:6px 0}
+code{font-size:.92em;background:var(--sf);border:1px solid var(--bd);border-radius:5px;padding:0 4px;overflow-wrap:anywhere}
+.sr-pause{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</head>
+<body>
+<!-- The one announcer, as in the app. -->
+<div id="looscid-live" class="sr-pause" aria-live="polite" aria-atomic="true"></div>
+<main class="wrap" id="main">
+<h1>Looscid changelog</h1>
+<p class="sub">Every listed Looscid update, from the first to the newest. Versions are YEAR.FEATURES.FIXES (BUILD).</p>
+<ul class="links">
+<li><a href="../">Open Looscid</a></li>
+<li><a href="https://github.com/Looscid/Looscid/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">Changelog on GitHub (opens in a new tab)</a></li>
+</ul>
+<div id="picker"><p>Loading the changelog…</p></div>
+<section id="notes" aria-labelledby="ver-h"></section>
+</main>
+<script src="changelog.js"></script>
+</body>
+</html>

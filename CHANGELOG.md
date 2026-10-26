@@ -2,6 +2,14 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.125.49 (174): Round 7.24
+
+Released October 26, 2026 at 12:56 AM (Eastern Time, 2026-10-26T04:56:58Z UTC)
+
+A feature update, asked for by Carter (changelog page, #161).
+
+- Feature: the changelog has its own page at looscid.github.io/Looscid/changelog, with its own link preview. One Version button lists every version from the first to the newest; pick one to read what changed in it. The footer's About group links to it.
+
 ## Looscid 2026.124.49 (173): Round 7.23
 
 Released October 26, 2026 at 12:54 AM (Eastern Time, 2026-10-26T04:54:36Z UTC)

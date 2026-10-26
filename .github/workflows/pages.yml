@@ -26,6 +26,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      # #161: the changelog page (app/changelog/) reads the site's own copy of CHANGELOG.md.
+      - name: Put CHANGELOG.md on the site
+        run: cp CHANGELOG.md app/CHANGELOG.md
       - uses: actions/upload-pages-artifact@v3
         with:
           path: app

@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.124.49",
-  "build": 173,
-  "features": 124,
+  "version": "2026.125.49",
+  "build": 174,
+  "features": 125,
   "fixes": 49,
-  "builds_without_fixes": 124,
-  "released": "2026-10-26T04:54:36Z",
-  "title": "Round 7.23",
-  "notes": "Round 7.23 (build 173), a feature update. Reorder tab bar is in your profile's More, next to Reorder profile tabs."
+  "builds_without_fixes": 125,
+  "released": "2026-10-26T04:56:58Z",
+  "title": "Round 7.24",
+  "notes": "Round 7.24 (build 174), a feature update. A changelog page on the site, with a Version button that lists every version from the first to the newest."
 }

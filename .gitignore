@@ -1,3 +1,5 @@
 # Intentionally minimal after repository reset
 .DS_Store
 node_modules/
+# #161: the site copy of CHANGELOG.md is made when the site is published (.github/workflows/pages.yml)
+app/CHANGELOG.md

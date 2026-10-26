@@ -2506,12 +2506,15 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 124; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 125; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 49;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.124.49", build: 173, released: LOOSCID_RELEASED, title: "Round 7.23", notes: [
+  { version: "2026.125.49", build: 174, released: LOOSCID_RELEASED, title: "Round 7.24", notes: [
+    "Feature: the changelog has its own page at looscid.github.io/Looscid/changelog, with its own link preview. One Version button lists every version from the first to the newest; pick one to read what changed in it. The footer's About group links to it.",
+  ] },
+  { version: "2026.124.49", build: 173, released: "2026-10-26T04:54:36Z", title: "Round 7.23", notes: [
     "Feature: you can reorder the tab bar from your profile's More: Reorder tab bar opens Settings, Tab Bar, and Back brings you back to your profile. The old Reorder tabs item is now called Reorder profile tabs, so the two are easy to tell apart.",
   ] },
   { version: "2026.123.49", build: 172, released: "2026-10-26T04:53:31Z", title: "Round 7.22", notes: [
