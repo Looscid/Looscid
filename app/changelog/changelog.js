@@ -32,23 +32,30 @@
   function parse(md) {
     var vs = [], cur = null;
     md.split(/\r?\n/).forEach(function (line) {
-      var h = /^## (Looscid (\S+) \((\d+)\)(?::\s*(.*))?)$/.exec(line);
-      if (h) { cur = { title: h[1], version: h[2], build: +h[3], round: h[4] || "", blocks: [] }; vs.push(cur); return; }
+      /* Round 7.42 (Carter: "The code names comes before the build info"): headings are "## Midnight Snack (Build 191, Round 7.41)"
+         and the version number is on the next line ("Version 2026.135.56, released ..."). The old heading shape
+         ("## Looscid 2026.135.56 (191): Round 7.41") still reads, in case an old copy of CHANGELOG.md is served. */
+      var h = /^## (.+?) \(Build (\d+)(?:, ([^)]+))?\)\s*$/.exec(line), o = /^## Looscid (\S+) \((\d+)\)(?::\s*(.*))?$/.exec(line);
+      if (h) { cur = { codename: h[1], version: "", build: +h[2], round: h[3] || "", blocks: [] }; vs.push(cur); return; }
+      if (o) { var rr = o[3] || "", cn = "", q = /\s*"([^"]*)"\s*$/.exec(rr); if (q) { cn = q[1]; rr = rr.slice(0, q.index); }
+        cur = { codename: cn, version: o[1], build: +o[2], round: rr, blocks: [] }; vs.push(cur); return; }
       if (!cur) return;
       if (/^#{1,2} /.test(line)) { cur = null; return; }
       if (/^\s*[-*] /.test(line)) { var b = cur.blocks[cur.blocks.length - 1]; if (!b || b.kind !== "ul") { b = { kind: "ul", items: [] }; cur.blocks.push(b); } b.items.push(line.replace(/^\s*[-*] /, "")); return; }
       if (/^\s+\S/.test(line)) { var lb = cur.blocks[cur.blocks.length - 1]; if (lb && lb.kind === "ul") { lb.items[lb.items.length - 1] += " " + line.trim(); return; } }
+      var vl = /^Version (\S+), released /.exec(line); if (vl && !cur.version) cur.version = vl[1];
       if (line.trim()) { var pb = cur.blocks[cur.blocks.length - 1]; if (pb && pb.kind === "p" && !pb.done) pb.text += " " + line.trim(); else cur.blocks.push({ kind: "p", text: line.trim() }); }
       else { var e2 = cur.blocks[cur.blocks.length - 1]; if (e2) e2.done = true; }
     });
     return vs.sort(function (a, b) { return a.build - b.build; }); // first to newest
   }
-  function name(v) { return "Looscid " + v.version + " (" + v.build + ")" + (v.round ? ", " + v.round : ""); }
+  // The same shape as the app (lcBuildName): codename first, then the build info in parens.
+  function name(v) { var info = ["Build " + v.build, v.round].filter(Boolean).join(", "); return v.codename ? v.codename + " (" + info + ")" : info; }
   function show(vs, i) {
     var v = vs[i]; notes.textContent = "";
     notes.appendChild(el("h2", { id: "ver-h" }, [name(v) + (i === vs.length - 1 ? ", the newest" : "")]));
     v.blocks.forEach(function (b, k) {
-      if (b.kind === "p") notes.appendChild(el("p", { "class": k === 0 && /^Released /.test(b.text) ? "when" : null }, inline(b.text)));
+      if (b.kind === "p") notes.appendChild(el("p", { "class": k === 0 && /^(Version \S+, r|R)eleased /.test(b.text) ? "when" : null }, inline(b.text)));
       else notes.appendChild(el("ul", {}, b.items.map(function (t) { return el("li", {}, inline(t)); })));
     });
     try { history.replaceState(null, "", "#" + v.build); } catch (e) {}

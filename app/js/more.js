@@ -1,7 +1,7 @@
 /* Looscid more.js: the More tab: Settings, LooscidID pages, About, Apps and the other pages it opens.
    Plain script (not a module). Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order. */
 (function (Looscid) {
-const { A11Y_DEFAULTS, A11Y_KEY, A11ySwitch, AlertDialog, Av, BackHeader, Cbx, CommentView, DREAMS_INIT, DreamCard, Earcon, GROUPS, ID_PROVIDERS, Ic, LC_A11Y_CATS, LC_A11Y_PAGE, LC_ALERT_PREFS_KEY, LC_ALERT_TYPES, LC_AUDIO_CATS, LC_BOOT, LC_BR_BUILTIN, LC_BR_MAX, LC_BUILTIN_KEYS, LC_EXPORT_KEYS, LC_FEED_MODES, LC_FIND_KEY, LC_MSG_CATS, LC_NEXOS_APPS, LC_NEXOS_SHELL, LC_SECTIONS, LC_SET, LC_SETTINGS_KEY, LC_SET_BY, LC_SR_NAMES_DEF, LC_UPDATE_AUTO_KEY, LID_NOSTR_SK_KEY, LOOSCID_BUILD, LOOSCID_RELEASED, LOOSCID_SLOGAN, LOOSCID_VERSION, LcCmdLog, LcFindMeSwitch, LcMenu, LcSpeech, ME, MUSIC_GENRES, MenuPopupButton, Music, PROVIDER_NAMES, SecretField, TRENDING, USERS, announce, getAIPrefs, getActivity, getDrafts, getIdentity, getLocalProfile, getMethods, getTopics, hexToBytes, lcAiOn, lcAlertCats, lcAlertPrefs, lcAlerts, lcAlertsMarkAll, lcAppItems, lcAudCustom, lcBlocked, lcBlockedSet, lcBrCreate, lcBrDate, lcBrDelete, lcBrForget, lcBrList, lcBrNotice, lcBrRename, lcBrSelect, lcBrStamp, lcBrUndo, lcBrUsePast, lcBrowserName, lcCatState, lcCheckUpdate, lcCloseProps, lcDownloadSettings, lcFeedMode, lcHandle, lcHapticsSupported, lcHints, lcIdbDo, lcKeyName, lcLoadCustomPack, lcNexosSend, lcOpenReset, lcPitchCue, lcQuietNow, lcReleasedText, lcSectionTitle, lcSet, lcSpoken, lcSrName, lcStorageKB, lcTranslateOk, lcUpdateAuto, lcValueText, lcVerb, lcVersionLabel, lcWords, lh, logActivity, removeMethod, sanitizeInput, setAIPrefs, shortNpub, systemReducedMotion, updateLocalProfile, useA11yNow, useCats, useCmdHistory, useCmdLog, useDreams, useEffect, useEnterSubmit, useKeyboardInset, useOAuthReturn, useRef, useState } = Looscid;
+const { A11Y_DEFAULTS, A11Y_KEY, A11ySwitch, AlertDialog, Av, BackHeader, Cbx, CommentView, DREAMS_INIT, DreamCard, Earcon, GROUPS, ID_PROVIDERS, Ic, LC_A11Y_CATS, LC_A11Y_PAGE, LC_ALERT_PREFS_KEY, LC_ALERT_TYPES, LC_AUDIO_CATS, LC_BOOT, LC_BR_BUILTIN, LC_BR_MAX, LC_BUILTIN_KEYS, LC_EXPORT_KEYS, LC_FEED_MODES, LC_FIND_KEY, LC_MSG_CATS, LC_NEXOS_APPS, LC_NEXOS_SHELL, LC_SECTIONS, LC_SET, LC_SETTINGS_KEY, LC_SET_BY, LC_SR_NAMES_DEF, LC_UPDATE_AUTO_KEY, LID_NOSTR_SK_KEY, LOOSCID_BUILD, LOOSCID_RELEASED, LOOSCID_SLOGAN, LOOSCID_VERSION, LcCmdLog, LcFindMeSwitch, LcMenu, LcSpeech, ME, MUSIC_GENRES, MenuPopupButton, Music, PROVIDER_NAMES, SecretField, TRENDING, USERS, announce, getAIPrefs, getActivity, getDrafts, getIdentity, getLocalProfile, getMethods, getTopics, hexToBytes, lcAiOn, lcAlertCats, lcAlertPrefs, lcAlerts, lcAlertsMarkAll, lcAppItems, lcAudCustom, lcBlocked, lcBlockedSet, lcBrCreate, lcBrDate, lcBrDelete, lcBrForget, lcBrList, lcBrNotice, lcBrRename, lcBrSelect, lcBrStamp, lcBrUndo, lcBrUsePast, lcBrowserName, lcCatState, lcCheckUpdate, lcCloseProps, lcDownloadSettings, lcFeedMode, lcHandle, lcHapticsSupported, lcHints, lcIdbDo, lcKeyName, lcLoadCustomPack, lcNexosSend, lcOpenReset, lcPitchCue, lcQuietNow, lcReleasedText, lcSectionTitle, lcSet, lcSpoken, lcSrName, lcStorageKB, lcTranslateOk, lcUpdateAuto, lcValueText, lcVerb, lcVersionLabel, lcBuildName, lcWords, lh, logActivity, removeMethod, sanitizeInput, setAIPrefs, shortNpub, systemReducedMotion, updateLocalProfile, useA11yNow, useCats, useCmdHistory, useCmdLog, useDreams, useEffect, useEnterSubmit, useKeyboardInset, useOAuthReturn, useRef, useState } = Looscid;
 Object.assign(Looscid, { ListsPage, ProfileLists, ProfileTabsSettings, CreditsPage, ProfileView, ProfilePage, DreamorProfilePage, AccountSettings, LcAudience, lcCatSave, LcCatCustomize, MessageSettings, NotificationsSettings, PrivacySettings, LcResetLast, LcTabs, LcBlockedPanel, LcPrivacyMedia, FeedSwitchSetting, LcCatMenu, LcCatPage, CustomizabilitySettings, lcSetAiPref, IntelligenceSettings, lcMenuList, lcSubLine, AccessibilitySettings, A11yCategory, AboutSettings, MorePage, MoreAppsGroup, FeedbackPage, PolicyPage, HourStoryPage, normalizeUrl, fieldValueText, ProfileInfoList, ChangeInfoScreen, useProfileEditor, lcJoin, methodLabel, getStoredNostrSk, ComingSoonPanel, LoginMethods, lcGetIds, lcSaveIds, lcBech32Polymod, lcDecodeBech32Key, lcCheckId, lcVerifyId, LcKeysPanel, lcIdLabel, lidWhen, thisDeviceLabel, localDataSummary, exportLocalData, deleteLocalData, LooscidIDManager, lcUnzip, lcCheckPackFiles, lcAutoMap, lcUpdateAutoSet, lcPitchPreview, MusicPage, lcAudCustomSet, useBlocked, lcAlertPrefsSet, termOutputOpen, setTermOutputOpen, lcOsName, lcAboutInfo, AboutLooscidMore, TerminalPage, LabsSettings, lcAppGet, lcAppPut, LcAppRange, AppsSettings, NexosAppsPage, NexosAppFrame, lcLinkedProviders, LcSetRow, LcWordsRow, LcVoiceRow, LcResetBtn, LcSection, BrailleStyle, LcVerbosityPanel, SrTabs, LcSpeechTest, LcSrRename, AudioSettings, LcPackImport, lcShortcutOk, KeyboardSettings, TabBarSettings, lcImportSettings, BackupSettings });
 
 /* --- PROFILE (OWN) ----------------------- */
@@ -1575,7 +1575,7 @@ function lcBugReportUrl() {
     "**How can I make it happen again?**", "1. ", "",
     "**Screen reader or braille display (if any):**", "", "",
     "---",
-    "Looscid " + LOOSCID_VERSION + " (build " + LOOSCID_BUILD + "), " + Looscid.LOOSCID_ROUND + ", codename " + Looscid.LOOSCID_CODENAME,
+    "Looscid " + lcVersionLabel() + ", version " + LOOSCID_VERSION,
     "Device: " + dev,
     "User agent: " + ua
   ].join("\n");
@@ -1607,7 +1607,7 @@ function DevMenuPage({ navigate }) {
     lh('p', { className: "lc-desc", style: { padding: "12px 16px" } }, "Nice try. The Dev menu is locked. Tap the build number in About 7 times to unlock it."));
   const outl = lcDevOutlines();
   const facts = [
-    ["Version", LOOSCID_VERSION], ["Build", String(LOOSCID_BUILD)], ["Round", Looscid.LOOSCID_ROUND], ["Codename", Looscid.LOOSCID_CODENAME],
+    ["This build", lcVersionLabel()], ["Codename", Looscid.LOOSCID_CODENAME], ["Build", String(LOOSCID_BUILD)], ["Round", Looscid.LOOSCID_ROUND], ["Version", LOOSCID_VERSION],
     ["Released", LOOSCID_RELEASED + (lcReleasedText(LOOSCID_RELEASED) ? " (" + lcReleasedText(LOOSCID_RELEASED) + ")" : "")],
     ["Branch", "main"], ["Device", lcOsName() + ", " + lcBrowserName()], ["Screen", window.innerWidth + " by " + window.innerHeight + ", pixel ratio " + (window.devicePixelRatio || 1)],
     ["User agent", navigator.userAgent || "unknown"]
@@ -1663,7 +1663,10 @@ function AboutSettings({navigate}) {
     setVOpen(!vOpen);
     const now = Date.now(), t = taps.current;
     t.n = now - t.at > 4000 ? 1 : t.n + 1; t.at = now;
-    if (t.n >= 4 && t.n < 7) announce((7 - t.n) + (7 - t.n === 1 ? " more tap" : " more taps") + " for the Dev menu.");
+    /* Round 7.42 (b191 QA): "2 more taps" and "1 more tap" were swallowed. Quick taps queued them behind "3 more taps", and
+       the 7th tap's page change dropped whatever was still waiting. The count is now a state word for one control (key
+       "lc-dev-taps"), so it survives the page change and is said in order before "Dev menu unlocked". Short words, so they fit. */
+    if (t.n >= 4 && t.n < 7) announce((7 - t.n) + (7 - t.n === 1 ? " more tap" : " more taps"), "state", "lc-dev-taps");
     if (t.n >= 7) {
       t.n = 0;
       if (devOn) announce("Dev menu's already unlocked. Opening it.");
@@ -1679,15 +1682,15 @@ function AboutSettings({navigate}) {
       lh('button', { type: "button", id: "about-version", className: "lc-acc-btn", "aria-expanded": vOpen ? "true" : "false", "aria-controls": "about-version-p", onClick: onVersion },
         lh('span', null, lcVersionLabel()), lh('span', { className: "msec-toggle-ic" + (vOpen ? " open" : ""), "aria-hidden": "true" }, "\u203a")),
       lh('div', { id: "about-version-p", hidden: !vOpen, className: "lc-acc-p" }, vOpen ? lh(React.Fragment, null,
-        lh('p', { className: "lid-help", id: "about-codename" }, Looscid.LOOSCID_ROUND + ", codename " + Looscid.LOOSCID_CODENAME),
+        lh('p', { className: "lid-help", id: "about-codename" }, "Codename " + Looscid.LOOSCID_CODENAME + ", version " + LOOSCID_VERSION),
         lh('p', { className: "lid-help" }, LOOSCID_FEATURE_BUILDS + " feature updates"),
         lh('p', { className: "lid-help" }, LOOSCID_FIXES + " fixes"),
         lh('p', { className: "lid-help" }, LOOSCID_BUILD + " builds, " + LOOSCID_FEATURE_BUILDS + " without fix updates"),
         rel ? lh('p', { className: "lid-help" }, "Released " + rel) : null,
         lh('h3', { id: "about-history-h", className: "lid-sub" }, "Version history"),
         lh('ul', { className: "lid-help lc-history", "aria-labelledby": "about-history-h", style: { paddingLeft: 22, margin: "6px 0" } }, LC_VERSION_HISTORY.map(function (v) {
-          return lh('li', { key: v.build }, lh('p', { style: { margin: "4px 0", fontWeight: 700 } }, "Looscid " + v.version + " (" + v.build + "), " + v.title + (v.codename ? ", codename " + v.codename : "")),
-            lh('p', { style: { margin: "2px 0" } }, "Released " + lcReleasedText(v.released)),
+          return lh('li', { key: v.build }, lh('p', { style: { margin: "4px 0", fontWeight: 700 } }, lcBuildName(v.codename, v.build, v.title)),
+            lh('p', { style: { margin: "2px 0" } }, "Version " + v.version + ", released " + lcReleasedText(v.released)),
             lh('ul', { style: { paddingLeft: 18 } }, v.notes.map(function (n, i) { return lh('li', { key: i }, n); })));
         }))) : null),
       lh('p', { className: "lid-help lc-slogan" }, LOOSCID_SLOGAN), // Round 7.39: "Just Dream", no period
@@ -1864,7 +1867,7 @@ function FeedbackPage({navigate}) {
     {id:"access",name:"Accessibility"},
   ];
   // Real, not a fake "received" screen: it opens a new GitHub issue on Looscid/Looscid with your words filled in.
-  const url = function () { const c = cats.find(function (x) { return x.id === category; }).name; return "https://github.com/Looscid/Looscid/issues/new?title=" + encodeURIComponent(c + ": " + txt.trim().split("\n")[0].slice(0, 70)) + "&body=" + encodeURIComponent(txt.trim() + "\n\nLooscid " + LOOSCID_VERSION + ", " + lcBrowserName()); };
+  const url = function () { const c = cats.find(function (x) { return x.id === category; }).name; return "https://github.com/Looscid/Looscid/issues/new?title=" + encodeURIComponent(c + ": " + txt.trim().split("\n")[0].slice(0, 70)) + "&body=" + encodeURIComponent(txt.trim() + "\n\nLooscid " + lcVersionLabel() + ", version " + LOOSCID_VERSION + ", " + lcBrowserName()); };
   return lh('div', { className: "pg" },
     lh(BackHeader, { title: "Send Feedback", onBack: function () { navigate("settings"); } }),
     lh('div', { style: { padding: "16px 16px 32px", display: "flex", flexDirection: "column", gap: 14 } },
@@ -2750,14 +2753,23 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 135; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 136; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 56;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
-/* Round 7.41 (Carter, Oct 26 2026): What's new is written in my voice ("I fixed...", "I added..."), short. Each Round can have
-   a codename (the codename field); About shows it next to the Round. */
+/* Round 7.41 (Carter, Oct 26 2026): What's new is written in my voice ("I fixed...", "I added..."), short.
+   Round 7.42 (Carter, Oct 26 2026 7:11 and 7:15 PM: "code names for all builds no matter what past also", "The code names comes
+   before the build info"): EVERY build has a codename (the codename field), and this list is the one place they live. Shown
+   everywhere as codename first, then the build: "Midnight Snack (Build 191, Round 7.41)" (lcBuildName in core.js). A new build
+   needs a new codename here, in LOOSCID_CODENAME (core.js), version.json and the CHANGELOG.md heading. No repeats. */
 const LC_VERSION_HISTORY = [
-  { version: "2026.135.56", build: 191, released: LOOSCID_RELEASED, title: "Round 7.41", codename: "Midnight Snack", notes: [
+  { version: "2026.136.56", build: 192, released: LOOSCID_RELEASED, title: "Round 7.42", codename: "Name Tag", notes: [
+    "I gave every build a codename, all the way back to Round 6. Build 136 is Fresh Pillow, 186 is Robot Lullaby, 188 is Lights Out, and this one is Name Tag.",
+    "The codename comes first now, then the build: like Midnight Snack (Build 191, Round 7.41). Same everywhere: About, the version history, What's new, the changelog page, the Dev menu, Report a bug and the update banner.",
+    "The Dev menu countdown says 3 more taps, 2 more taps and 1 more tap now. The 2 and the 1 were getting swallowed.",
+    "Reset on the Appearance page puts your heading character back to the Robot, surrounding the label, on everything. Even if you picked None before.",
+  ] },
+  { version: "2026.135.56", build: 191, released: "2026-10-26T23:08:43Z", title: "Round 7.41", codename: "Midnight Snack", notes: [
     "I gave Looscid some personality. It's a side project made by one kid (me) and Tab, so now it sounds like it, not like a big company.",
     "I rewrote the empty screens, error messages and loading lines. They're a little funny now, and they still tell you what to do.",
     "About tells my story now, and there's a public Known bugs list. No hiding stuff.",
@@ -2769,19 +2781,19 @@ const LC_VERSION_HISTORY = [
     "Every Round gets a codename now. This one is Midnight Snack.",
     "There might be a secret or two hidden in here. I'm not saying where."
   ] },
-  { version: "2026.134.56", build: 190, released: "2026-10-26T22:29:20Z", title: "Round 7.40", notes: [
+  { version: "2026.134.56", build: 190, released: "2026-10-26T22:29:20Z", title: "Round 7.40", codename: "Tucked In", notes: [
     "I tightened up the robots. On Home they sit inside the heading now, so it reads as one heading: robot, Home, robot. Every page title and section heading works the same way. On For You and the other tabs there's one space between each robot and the label, not two, and buttons and links got the same fix."
   ] },
-  { version: "2026.134.55", build: 189, released: "2026-10-26T22:08:59Z", title: "Round 7.39", notes: [
+  { version: "2026.134.55", build: 189, released: "2026-10-26T22:08:59Z", title: "Round 7.39", codename: "Daydream", notes: [
     "New slogan: Just Dream. Home is now called \u201cLooscid - Just Dream\u201d, and the slogan is on the startup screen, Welcome, About, the changelog page and the link previews when you share Looscid. Accessibility first is still how Looscid is made."
   ] },
-  { version: "2026.133.55", build: 188, released: "2026-10-26T21:31:08Z", title: "Round 7.38", notes: [
+  { version: "2026.133.55", build: 188, released: "2026-10-26T21:31:08Z", title: "Round 7.38", codename: "Lights Out", notes: [
     "New: Logout is the last row of Settings, in its own group, like Sign Out on iPhone. It asks first, then does the same thing as Logout in your profile's More: it removes your login methods from this device (a Nostr key saved here is deleted) and your LooscidID starts fresh. Your Dreams and settings stay. Settings Order keeps it last, and Search and the Commandbar find it when you type logout or sign out.",
     "Logout is one word everywhere now, like Login (Carter: it's Logout, not two words): your profile's More, the confirmation, Help Center, What's new and what Looscid says when it's done.",
     "Your LooscidID card in Settings reads like the account row on iPhone: your name, your @handle, then \u201cLooscidID, keys, logins and devices\u201d. It's still the only row that shows values.",
     "Settings looks more polished: a bigger title, a rounder search field, rounder cards, a little more space and no gradients, in Looscid's own colors (visual polish inspired by VoltAgent's awesome-design-md)."
   ] },
-  { version: "2026.132.55", build: 187, released: "2026-10-26T21:09:03Z", title: "Round 7.37", notes: [
+  { version: "2026.132.55", build: 187, released: "2026-10-26T21:09:03Z", title: "Round 7.37", codename: "Apple Pie", notes: [
     "New: Settings looks and works like iOS Settings (full Apple Mode). Search is at the top, then your LooscidID card, then short grouped lists: Alerts, Chats and Earcons; Accessibility, Customization, Privacy and Cherry; General; and Help Center. Every row opens its own page, Back comes right back to that row, and each group has a short footer saying what it's for.",
     "Moved and renamed, with every setting and every saved value kept: Customizability is now Customization, and Tab Bar and Profile Tabs live in it. Intelligence is now Cherry. The new General page holds About, a new Updates page, Keyboard (was Keyboard shortcuts), Commandbar (was in Accessibility), Backup (was Settings backup), Labs (was Looscid Labs) and Reset. In Customization: Appearance (was Theme and colors), Feeds (was Feeds and home) and Media (was Media and translation). In Accessibility: Motion (was Motion and seizure) and Motor (was Motor and switch). Earcons is at the top of Settings only.",
     "New: Privacy's sections, Sense's General, Speech, Verbosity and Braille, and LooscidID's sections are now rows that each open their own page, instead of an accordion or tabs. Private account and Let others share my Dreams sit at the top of Privacy.",
@@ -2789,79 +2801,79 @@ const LC_VERSION_HISTORY = [
     "Fix: Settings search results read their name and their path apart, like \u201cText size, Accessibility, Vision\u201d (they ran together). Search also lists every page, understands words like notifications, DMs and dark mode, still finds things by their old names, and keeps what you typed when you come Back.",
     "Tab Bar and Profile Tabs now say where a tab moved, like \u201cHome, moved to (2 of 5)\u201d."
   ] },
-  { version: "2026.131.55", build: 186, released: "2026-10-26T20:00:54Z", title: "Round 7.36", notes: [
+  { version: "2026.131.55", build: 186, released: "2026-10-26T20:00:54Z", title: "Round 7.36", codename: "Robot Lullaby", notes: [
     "New: Unspeakable characters around headings and buttons, with a switch in Settings. A small robot character (the Font Awesome robot, U+F544) now sits before and after the text of headings, buttons (collapsibles too), tabs, links, menu buttons and menu items. VoiceOver reads it as \u201cunspeakable\u201d and braille shows a dot pattern; on screen it's a small robot. It's on by default. Turn it off in Settings, Accessibility, Sense, General: \u201cUnspeakable characters\u201d, and it's gone everywhere. Radio buttons, switches and checkboxes never get it.",
     "New: The Feed picker in Pop-up button mode (Settings, Customizability, Feeds, Feed switching) shows the feeds as real radio buttons, built just like the ones in Privacy settings: a Feeds group with one radio per feed. Opening it puts you on the current feed, the arrow keys switch feeds, and Enter or Escape closes it and goes back to the Feed button.",
   ] },
-  { version: "2026.130.55", build: 185, released: "2026-10-26T11:24:49Z", title: "Round 7.35", notes: [
+  { version: "2026.130.55", build: 185, released: "2026-10-26T11:24:49Z", title: "Round 7.35", codename: "Sleepover", notes: [
     "New: the footer's Social links include Discord, after YouTube. It opens the Looscid Discord in a new tab, where you can hang out, share feedback and talk accessibility.",
   ] },
-  { version: "2026.129.55", build: 184, released: "2026-10-26T10:52:33Z", title: "Round 7.34", notes: [
+  { version: "2026.129.55", build: 184, released: "2026-10-26T10:52:33Z", title: "Round 7.34", codename: "Cherry on Top", notes: [
     "Fix: Cherry's \"Cherry settings\" button opens Settings, Intelligence as before, and Back now comes right back to Cherry, on that button (it went to the top of Settings). Cherry's own Back still goes where you opened Cherry from.",
   ] },
-  { version: "2026.129.54", build: 183, released: "2026-10-26T10:46:12Z", title: "Round 7.33", notes: [
+  { version: "2026.129.54", build: 183, released: "2026-10-26T10:46:12Z", title: "Round 7.33", codename: "Yarn Ball", notes: [
     "New: a Followed Threads tab on your profile, right after Lists, listing every thread you follow, newest first, each with Unfollow Thread. It uses the same list as Follow Thread, so following or unfollowing anywhere updates it right away.",
     "New: Settings, Privacy, Followed Threads has \"Show followed threads on my profile\". It's off until you turn it on. You always see your own tab; with it on, others see it too (try View as others).",
   ] },
-  { version: "2026.128.54", build: 182, released: "2026-10-26T10:41:58Z", title: "Round 7.32", notes: [
+  { version: "2026.128.54", build: 182, released: "2026-10-26T10:41:58Z", title: "Round 7.32", codename: "Quiet Hours", notes: [
     "Fix: Inbox shows the Send a message button only when Chats is selected. On Alerts it's gone, so Alerts has just Mark all read and Alerts settings.",
   ] },
-  { version: "2026.128.53", build: 181, released: "2026-10-26T10:40:51Z", title: "Round 7.31", notes: [
+  { version: "2026.128.53", build: 181, released: "2026-10-26T10:40:51Z", title: "Round 7.31", codename: "Grocery List", notes: [
     "Fix: Create's Custom Feed is now List, and it works. It opens Lists with focus in New list name (a list is a custom feed you can pin to Home). Back goes to where you opened Create.",
   ] },
-  { version: "2026.128.52", build: 180, released: "2026-10-26T10:39:39Z", title: "Round 7.30", notes: [
+  { version: "2026.128.52", build: 180, released: "2026-10-26T10:39:39Z", title: "Round 7.30", codename: "Late Night Call", notes: [
     "Fix: Create, New Chat works now. It opens the same Send a message form as Inbox, Chats, with focus in To. Back goes to Inbox, Chats.",
   ] },
-  { version: "2026.128.51", build: 179, released: "2026-10-26T05:55:52Z", title: "Round 7.29", notes: [
+  { version: "2026.128.51", build: 179, released: "2026-10-26T05:55:52Z", title: "Round 7.29", codename: "Locked Diary", notes: [
     "Fix: Settings, Privacy says why it matters and links to the policy. Under the intro: \"We care about your privacy. Your Dreams, settings and chats stay on this device until you choose to send or share them. We don't sell your data, track you or show ads.\" Then a Privacy Policy link that opens the policy page, and Back comes right back to Privacy.",
   ] },
-  { version: "2026.128.50", build: 178, released: "2026-10-26T05:53:26Z", title: "Round 7.28", notes: [
+  { version: "2026.128.50", build: 178, released: "2026-10-26T05:53:26Z", title: "Round 7.28", codename: "Comfy Blanket", notes: [
     "Fix: collapsible buttons are plain buttons now, not headings. VoiceOver on iPhone reads just the name and collapsed or expanded, like \"Permissions, button, collapsed\". This covers the Privacy sections, the Reset groups and Commandbar's output toggle.",
   ] },
-  { version: "2026.128.49", build: 177, released: "2026-10-26T05:01:30Z", title: "Round 7.27", notes: [
+  { version: "2026.128.49", build: 177, released: "2026-10-26T05:01:30Z", title: "Round 7.27", codename: "Fridge Magnet", notes: [
     "Feature: pin someone's profile as a tab. Their profile's More has Pin as a feed tab (a tab on Home with just their Dreams) and Add to tab bar (their own tab at the bottom, before Profile), with Unpin feed tab and Remove from tab bar to undo. Settings, Tab Bar orders it like any other tab.",
   ] },
-  { version: "2026.127.49", build: 176, released: "2026-10-26T05:00:03Z", title: "Round 7.26", notes: [
+  { version: "2026.127.49", build: 176, released: "2026-10-26T05:00:03Z", title: "Round 7.26", codename: "Do Not Disturb", notes: [
     "Feature: chats can be muted. A chat's More has Mute (and Unmute): its new messages still come in and count as unread, but they're never said aloud or sounded. Each chat's More is now Reply, Pin, Mute, Mark read or Mark unread, Delete and Block, and a muted chat says \"muted\" after its name.",
   ] },
-  { version: "2026.126.49", build: 175, released: "2026-10-26T04:59:17Z", title: "Round 7.25", notes: [
+  { version: "2026.126.49", build: 175, released: "2026-10-26T04:59:17Z", title: "Round 7.25", codename: "Sharing Plate", notes: [
     "Feature: Settings, Privacy, Permissions has Let others share my Dreams (on by default). Turn it off and Share is hidden for everyone but you on the Dreams you send from then on. Dreams you already sent keep sharing on, and other Nostr apps may not follow it.",
   ] },
-  { version: "2026.125.49", build: 174, released: "2026-10-26T04:56:58Z", title: "Round 7.24", notes: [
+  { version: "2026.125.49", build: 174, released: "2026-10-26T04:56:58Z", title: "Round 7.24", codename: "Dream Journal", notes: [
     "Feature: the changelog has its own page at looscid.github.io/Looscid/changelog, with its own link preview. One Version button lists every version from the first to the newest; pick one to read what changed in it. The footer's About group links to it.",
   ] },
-  { version: "2026.124.49", build: 173, released: "2026-10-26T04:54:36Z", title: "Round 7.23", notes: [
+  { version: "2026.124.49", build: 173, released: "2026-10-26T04:54:36Z", title: "Round 7.23", codename: "Musical Chairs", notes: [
     "Feature: you can reorder the tab bar from your profile's More: Reorder tab bar opens Settings, Tab Bar, and Back brings you back to your profile. The old Reorder tabs item is now called Reorder profile tabs, so the two are easy to tell apart.",
   ] },
-  { version: "2026.123.49", build: 172, released: "2026-10-26T04:53:31Z", title: "Round 7.22", notes: [
+  { version: "2026.123.49", build: 172, released: "2026-10-26T04:53:31Z", title: "Round 7.22", codename: "Alarm Clock", notes: [
     "Feature: Looscid on your Home Screen tells you when there's an update. When a new version ships, a banner at the top says \"Update available\" with the version, and an Update button and Later. It's said once, politely, and focus stays where it is.",
     "It checks when Looscid opens, every 10 minutes, and whenever you come back to it, including a Home Screen app waking up. Update gets the new files past the cache before reloading, so you really land on the new version. Anything you're writing is kept.",
   ] },
-  { version: "2026.122.49", build: 171, released: "2026-10-26T04:52:23Z", title: "Round 7.21", notes: [
+  { version: "2026.122.49", build: 171, released: "2026-10-26T04:52:23Z", title: "Round 7.21", codename: "Sneak Peek", notes: [
     "Fix: links to Looscid show a preview again, in iMessage and everywhere else. The title, description, share card and icons now come first on the page, before anything else loads, and the share card is a full-size 1200 by 630 image with the Looscid logo and name.",
   ] },
-  { version: "2026.122.48", build: 170, released: "2026-10-26T04:51:06Z", title: "Round 7.20", notes: [
+  { version: "2026.122.48", build: 170, released: "2026-10-26T04:51:06Z", title: "Round 7.20", codename: "Pizza Slices", notes: [
     "Fix: counts read the same way everywhere, in parens and said once. A filter says \"Unread (8)\", never \"Unread (8 Unread\". The Inbox tab says \"Inbox (5)\", and your profile's More says \"Inbox (5)\", \"Alerts (2)\" and \"Chats (3)\" instead of \"Inbox, 5 unread\".",
     "Profile Circle filters say \"Member (3)\" instead of \"Member, 3 circles\". A chat says \"Ava (2 unread)\". Mark all as read says \"Mark all as read (4)\". A thread's heading says \"Thread (5 Dreams)\", and Reading mode says \"Reading mode (Dream 2 of 9)\".",
   ] },
-  { version: "2026.122.47", build: 169, released: "2026-10-26T04:49:40Z", title: "Round 7.19", notes: [
+  { version: "2026.122.47", build: 169, released: "2026-10-26T04:49:40Z", title: "Round 7.19", codename: "Pillow Talk", notes: [
     "Feature: Chats has its own filters: DMs, Requests, Pinned and Deleted. There's no All and no Circles in Chats.",
     "Unread isn't a filter. DMs and Pinned have a \"Show unread only\" switch instead.",
     "Requests holds messages from people Who can message me doesn't allow. They stay silent there until you Accept, which moves them to DMs. Each request also has Open, Delete and Block.",
     "Each chat's More button has Pin or Unpin, Mark read or Mark unread, Delete and Block. Pinned chats are also first in DMs. A deleted chat waits in Deleted with Restore, and comes back by itself when a new message arrives.",
   ] },
-  { version: "2026.121.47", build: 168, released: "2026-10-26T04:47:46Z", title: "Round 7.18", notes: [
+  { version: "2026.121.47", build: 168, released: "2026-10-26T04:47:46Z", title: "Round 7.18", codename: "Noodle Trail", notes: [
     "Feature: Follow Thread. Every Dream in a thread, the first one and every reply, has Follow Thread in its More menu, and Unfollow Thread once you follow. It's one setting per thread, so every menu in that thread changes together.",
     "Followed Threads is its own filter in Inbox, Alerts. New replies in threads you follow land there, not in Replies. Manage Followed Threads at the top lists every thread you follow, each with Unfollow Thread. An alert from a followed thread has Unfollow Thread in its More menu too.",
     "A Like never follows a thread. If you like a couple of Dreams in the same thread in a row, Looscid offers once: \"You liked a few dreams in this thread. Follow it to see new ones?\" with Follow Thread and No thanks. It's said politely, and focus stays where it is.",
   ] },
-  { version: "2026.120.47", build: 167, released: "2026-10-26T04:44:49Z", title: "Round 7.17", notes: [
+  { version: "2026.120.47", build: 167, released: "2026-10-26T04:44:49Z", title: "Round 7.17", codename: "Breakfast in Bed", notes: [
     "Feature: the Alerts tab is now Inbox. Inbox has two views, Alerts (likes, replies, mentions, follows and Circles) and Chats (what was Messages).",
     "One menu button at the top picks the view. It reads \"Showing Alerts, 12\", and its menu has \"Alerts (12)\" and \"Chats (3)\". It's a button, not a tab, so the filters below it are the only tabs on the page.",
     "Alerts has one filter row: All, Unread, Circles (new), Replies, Mentions, Likes, Redreams, Quotes, New Dreamor and Deleted Dreams. A filter with something new says how many in parens, like \"Replies (3)\".",
     "The Inbox tab's badge counts Alerts and Chats together, and reads \"Inbox (5)\". Your profile's More and Commandbar say Inbox too (\"open inbox\", \"open alerts\", \"open chats\"); old Alerts addresses still open it, and a saved Messages tab opens Chats.",
   ] },
-  { version: "2026.119.47", build: 166, released: "2026-10-25T05:00:10Z", title: "Round 7.16", notes: [
+  { version: "2026.119.47", build: 166, released: "2026-10-25T05:00:10Z", title: "Round 7.16", codename: "Light Breakfast", notes: [
     "Feature: a leaner Home. The feed tabs come right after the Home heading: no Cherry button and no welcome line. Each feed has only its Sort button (Latest or Popular) above it, Federated too.",
     "For You's Show following switches, Federated's Networks and Pin a tab moved to Settings, Customizability, Feeds and home, so you set them once. Feed tabs can still be unpinned from the tab itself.",
     "Federated is Latest or Popular. Local (Dreams from around you) is gone, and a rough area it saved on this device is removed. Mastodon and Bluesky are no longer listed as Coming soon.",
@@ -2870,11 +2882,11 @@ const LC_VERSION_HISTORY = [
     "No more Cherry cards or Cherry insights in the feed. An empty Following feed offers Find people in Discover.",
     "Discover: Filters has only Verified, the one that works. Join on a Circle result works, and Follow always works. Your profile's More has Circles instead of a Discover page, and Settings no longer has an Apps row.",
   ] },
-  { version: "2026.118.47", build: 165, released: "2026-10-25T04:45:12Z", title: "Round 7.15", notes: [
+  { version: "2026.118.47", build: 165, released: "2026-10-25T04:45:12Z", title: "Round 7.15", codename: "Fuzzy Slippers", notes: [
     "Fix: a cleaner footer. Four short groups: Social (GitHub, X, YouTube), Legal (Terms, Privacy, Rules, Child Safety, License), About (About Looscid, Accessibility, Credits) and Download. They sit side by side when there is room.",
     "The Linux edition is no longer offered, so it's gone from the footer.",
   ] },
-  { version: "2026.118.46", build: 164, released: "2026-10-24T16:04:37Z", title: "Round 7.14", notes: [
+  { version: "2026.118.46", build: 164, released: "2026-10-24T16:04:37Z", title: "Round 7.14", codename: "Selfie Toast", notes: [
     "Feature: the More tab is now Profile, and it opens your own profile. It is still the last tab, always shown.",
     "Feature: profiles have a More button after the name. On your profile it holds Edit profile, Share profile, Copy link, Copy username, View as others see it, Reorder tabs, Lists and Drafts; then Cherry, Discover, Create, Alerts, Settings, Commandbar, Help and Commands; then Credits, Feedback and Logout, last. Logout asks first.",
     "Feature: on someone else's profile, More starts with Share profile, Copy link, Add to list, Mute, Block and Report (Report stays unavailable until Looscid has somewhere to send reports), then Follow, Message and the other options it already had.",
@@ -2883,48 +2895,48 @@ const LC_VERSION_HISTORY = [
     "Loostore is no longer linked anywhere in Looscid: not in More, Help Center or Commandbar.",
     "Fix: a pop-up menu with groups names each group the right way for screen readers.",
   ] },
-  { version: "2026.117.46", build: 163, released: "2026-10-24T15:38:57Z", title: "Round 7.13", notes: [
+  { version: "2026.117.46", build: 163, released: "2026-10-24T15:38:57Z", title: "Round 7.13", codename: "Candy Shop", notes: [
     "Fix: More has one Loostore link instead of Apps and Projects. Loostore lists every app and project in one place, each on its own site, and opens in a new tab.",
   ] },
-  { version: "2026.117.45", build: 162, released: "2026-10-23T23:30:02Z", title: "Round 7.12", notes: [
+  { version: "2026.117.45", build: 162, released: "2026-10-23T23:30:02Z", title: "Round 7.12", codename: "Taco Tuesday", notes: [
     "Fix: every set of tabs tells screen readers each tab's place, like \u201cHome, tab, 1 of 5\u201d, so VoiceOver on iPhone can say it. Tab names don't change.",
     "Fix: Circles tabs work with the arrow keys, Home and End, like the other tabs.",
     "Fix: clearing the Discover search on All or Dreams goes back to Trending.",
   ] },
-  { version: "2026.117.44", build: 161, released: "2026-10-20T19:17:55Z", title: "Round 7.11", notes: [
+  { version: "2026.117.44", build: 161, released: "2026-10-20T19:17:55Z", title: "Round 7.11", codename: "Cereal Box", notes: [
     "Fix: the NexOS download now uses the name Carter.",
   ] },
-  { version: "2026.117.43", build: 160, released: "2026-10-20T18:39:41Z", title: "Round 7.10", notes: [
+  { version: "2026.117.43", build: 160, released: "2026-10-20T18:39:41Z", title: "Round 7.10", codename: "Warm Milk", notes: [
     "Fix: credits on the Legal page now use the name Carter.",
   ] },
-  { version: "2026.117.42", build: 159, released: "2026-10-14T21:38:44Z", title: "Round 7.9", notes: [
+  { version: "2026.117.42", build: 159, released: "2026-10-14T21:38:44Z", title: "Round 7.9", codename: "Shooting Star", notes: [
     "Fix: in Insomnia, the first tap or double tap after closing the Starfield screensaver works right away. Only the touch or key that closed it is held back, so it still can't press what's underneath or reopen the screensaver.",
   ] },
-  { version: "2026.117.41", build: 158, released: "2026-10-14T21:37:53Z", title: "Round 7.8", notes: [
+  { version: "2026.117.41", build: 158, released: "2026-10-14T21:37:53Z", title: "Round 7.8", codename: "Desk Nap", notes: [
     "Fix: on a computer, Insomnia inside Looscid looks the way it did before Round 7.3 again: the taskbar sits at the bottom of its frame and windows like Soundscape.exe open over the desktop. The scrolling phone layout is for touch screens only.",
   ] },
-  { version: "2026.117.40", build: 157, released: "2026-10-14T21:37:26Z", title: "Round 7.7", notes: [
+  { version: "2026.117.40", build: 157, released: "2026-10-14T21:37:26Z", title: "Round 7.7", codename: "Counting Sheep", notes: [
     "Fix: on someone else's Liked tab, your Dreams that are saved on this device no longer say 0 Likes. They count at least that Dreamor's like and show their real age.",
   ] },
-  { version: "2026.117.39", build: 156, released: "2026-10-14T21:37:09Z", title: "Round 7.6", notes: [
+  { version: "2026.117.39", build: 156, released: "2026-10-14T21:37:09Z", title: "Round 7.6", codename: "Leftovers", notes: [
     "Fix: the Liked tab switches are gone from Settings, Privacy, and your own Liked tab no longer mentions them. They did nothing any more: on your profile, other people only ever see the Dreams of theirs that you liked.",
   ] },
-  { version: "2026.117.38", build: 155, released: "2026-10-14T21:36:22Z", title: "Round 7.5", notes: [
+  { version: "2026.117.38", build: 155, released: "2026-10-14T21:36:22Z", title: "Round 7.5", codename: "Snooze Button", notes: [
     "Fix: Sense is no longer pinned at the top of Settings. It lives in one place, Settings, Accessibility, Sense, and open sense, Find a setting and Help still go straight there.",
   ] },
-  { version: "2026.117.37", build: 154, released: "2026-10-14T20:07:53Z", title: "Round 7.4", notes: [
+  { version: "2026.117.37", build: 154, released: "2026-10-14T20:07:53Z", title: "Round 7.4", codename: "Main Course", notes: [
     "Fix: the accessibility commitment, About and license links point at the main branch, now that preview is main.",
   ] },
-  { version: "2026.117.36", build: 153, released: "2026-10-14T20:07:06Z", title: "Round 7.3", notes: [
+  { version: "2026.117.36", build: 153, released: "2026-10-14T20:07:06Z", title: "Round 7.3", codename: "Insomnia Cookies", notes: [
     "Fix: Insomnia opened from Apps works on phones. Looscid now tells it it's inside Looscid, so its own flash notice no longer covers the desktop and Escape goes back. On a phone the page scrolls normally instead of nesting scroll boxes, so tapping an icon or a control opens it instead of only scrolling to it. Back and Escape return to the Apps page you came from, on the Insomnia row. Memeprojects is opened the same way, and in Desktop a soundscape you leave playing keeps playing after you close Insomnia OS.",
   ] },
-  { version: "2026.117.35", build: 152, released: "2026-10-14T19:55:33Z", title: "Round 7.2", notes: [
+  { version: "2026.117.35", build: 152, released: "2026-10-14T19:55:33Z", title: "Round 7.2", codename: "Two Scoops", notes: [
     "Fix: Liked and Mutual likes are one tab now, Liked. On your own profile it shows everything you liked. On someone else's it shows only the Dreams of yours that they liked, read from their likes on Nostr, or says they haven't liked any yet; when you're not logged in it says so. Saved Dreams there show their real time and likes, not 1 minute ago and 0 Likes. A saved tab order or backup with Mutual likes still loads.",
   ] },
-  { version: "2026.117.34", build: 151, released: "2026-10-14T19:46:17Z", title: "Round 7.1", notes: [
+  { version: "2026.117.34", build: 151, released: "2026-10-14T19:46:17Z", title: "Round 7.1", codename: "Pajama Party", notes: [
     "Fix: the made-up Admin Panel is gone. Looscid is a Nostr app with no central admin, so nobody is shown as an administrator any more: no Admin Access on More, no ADMIN badge or star by your name, and the /Admin address now opens Home like any address that has no page.",
   ] },
-  { version: "2026.117.33", build: 150, released: "2026-10-14T06:38:46Z", title: "Round 7", notes: [
+  { version: "2026.117.33", build: 150, released: "2026-10-14T06:38:46Z", title: "Round 7", codename: "Moonrise", notes: [
     "Round 7: a feature update, asked for by 2three1y. Built in steps, one commit each.",
     "Every menu, sheet, dialog and pop-up is truly modal (2three1y: after the last item in Create, VoiceOver read Home and the status page behind it). While one is open, everything outside it is hidden from VoiceOver, braille and the keyboard; Tab and Shift+Tab stay inside a dialog; when it closes, focus goes back to the button that opened it. The live announcer still speaks. Covers Create, More, the Commandbar, pop-up menus, Dream options, alerts, Circle sheets and Reset. Escape now closes More too.",
     "Fix (2three1y, testing on iPhone): VoiceOver read a whole menu's contents as its hint. Every menu, sheet and dialog now has one short hint of its own: menus say Swipe to choose. Escape or a two-finger scrub closes; sheets and dialogs say Swipe to move through it. Escape or a two-finger scrub closes. Only the menu or dialog itself has a hint, never a button or other control.",
@@ -3035,7 +3047,7 @@ const LC_VERSION_HISTORY = [
     "On a hardware keyboard, Enter or Space on a Circle in the Circles list now opens it, the same as tapping it.",
     "After a reload, Back to a page from before the reload now puts focus on that page's heading, like every other Back, instead of the top of the page.",
   ] },
-  { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", notes: [
+  { version: "2026.116.33", build: 149, released: "2026-10-11T08:18:22Z", title: "Round 6.8.1", codename: "Lost Sock", notes: [
     "Round 6.8.1: a fix update, asked for by 2three1y. The stray comma on profiles is gone, the bio and fields look like Feditext's, and tab names have no position numbers.",
     "The stray comma: hidden commas stood in for the bullet between N Dreams and Joined, and before Follows you, Muted and Blocked. VoiceOver read each one on its own as comma. They're gone; each part is its own piece with a plain space.",
     "The bio is shown like Feditext's: paragraphs and line breaks kept, links, mentions and hashtags as real links. A mention opens that Dreamor's profile, a hashtag opens Discover.",
@@ -3046,14 +3058,14 @@ const LC_VERSION_HISTORY = [
     "The profile Media tab has Show: Images, Videos or Both, Both to start, remembered on this device.",
     "Following and Followers lists say Mutuals, Following or Follows you, like Feditext.",
   ] },
-  { version: "2026.116.32", build: 148, released: "2026-10-11T03:45:29Z", title: "Round 6.8", notes: [
+  { version: "2026.116.32", build: 148, released: "2026-10-11T03:45:29Z", title: "Round 6.8", codename: "Pancake Stack", notes: [
     "Round 6.8: a feature update. Liked in More, Like Search, and Create with nine options.",
     "More has Liked: the same Liked as your profile's Liked tab, with Dreams, Circles, Apps, Marketplace, Chats and Searches, and an Images only filter. Only you can see it.",
     "Like and Unlike on Circles, Apps and Cherry chats too. Cherry chats are in Chats.",
     "Like Search: on a search in Discover, or say like search in the Commandbar. Each Liked Search has an Alerts switch, off to start. With it on, Looscid checks the search when it's open, across the networks you have, and new Dreams show in Alerts under From Looscid, naming the network.",
     "Create has nine options, the same in the Create tab and in More: Dream, Circle, Custom Feed, App or Game (for developers), New Call, New Chat, New Chat with Cherry, Go Live and GIF. The ones Looscid can't do yet say Unavailable.",
   ] },
-  { version: "2026.115.32", build: 147, released: "2026-10-11T02:44:37Z", title: "Round 6.7", notes: [
+  { version: "2026.115.32", build: 147, released: "2026-10-11T02:44:37Z", title: "Round 6.7", codename: "Second Pancake", notes: [
     "Round 6.7: a feature update. Your profile, rebuilt, and Liked.",
     "Profiles are recreated from Feditext's profile layout (no Feditext code is used): the buttons, your name, your LooscidID with Follows you, your Dreams count and Joined date, fields, bio, then Following and Followers buttons that open their own pages, then the tabs Dreams, Replies, Redreams and Media.",
     "Liking is saving: one store, one name, Liked. Your own profile has a private Liked tab with Dreams, Circles, Apps, Marketplace, Chats and Searches, and an Images only filter. Anything you saved before is in Liked.",
@@ -3064,7 +3076,7 @@ const LC_VERSION_HISTORY = [
     "The Redreams tab has Show: Quotes only, Redreams only or Both.",
     "A Dream that tags you has Remove me from this Dream in its options. More has View your profile near the top.",
   ] },
-  { version: "2026.114.32", build: 146, released: "2026-10-11T01:25:26Z", title: "Round 6.6.1", notes: [
+  { version: "2026.114.32", build: 146, released: "2026-10-11T01:25:26Z", title: "Round 6.6.1", codename: "Wind Chime", notes: [
     "Round 6.6.1: a fix update for Earcons on iPhone, and names that ended in a comma.",
     "Earcons no longer break up or go quiet on iPhone. The sound engine stays awake while Looscid is on screen, and every tap or key press wakes it if iPhone put it to sleep (after a lock, a call or Siri). Earcons, pitch cues and Soundpacks sound exactly the same.",
     "Many earcons at once (fast swiping, a double-tap that opens something) no longer pile up and crackle.",
@@ -3072,7 +3084,7 @@ const LC_VERSION_HISTORY = [
     "Settings, Earcons: a Test earcons button plays a short sequence and says Earcons playing. New switch: Earcons when iPhone is on silent.",
     "Menu items no longer read with a stray comma when Verbosity is High. The position is now part of one name: Redream, 1 of 2. Tab badges and a few labels too.",
   ] },
-  { version: "2026.114.31", build: 145, released: "2026-10-10T23:28:24Z", title: "Round 6.6", notes: [
+  { version: "2026.114.31", build: 145, released: "2026-10-10T23:28:24Z", title: "Round 6.6", codename: "Waffle Workshop", notes: [
     "Round 6.6: Projects. 2three1y's own projects are built into Looscid.",
     "More has a new Projects section, near the end: Memeprojects, Lyric Finder, Vibework, Soundvault, Reactor Toolbar, Code Translator, chaoticmodel, Yapper, Alex Classic, Easyconvert, MyWEB and Agentsync. It remembers whether you left it open.",
     "Each project opens right here, with Back and Close. Projects that need a server say Coming soon instead of showing a fake control.",
@@ -3093,23 +3105,23 @@ const LC_VERSION_HISTORY = [
     "One About Looscid page: More's About is now one button that opens it, with no submenu. Send Feedback, Legal and the Welcome intro are on the page.",
     "Legal, from About Looscid and the legal command: Terms, Privacy, Community rules, Looscid's license (LPL v1.0: no ads, no commercial use), the open source credits and the MIT notices.",
   ] },
-  { version: "2026.113.31", build: 144, released: "2026-10-10T21:10:00Z", title: "Round 6.5.3", notes: [
+  { version: "2026.113.31", build: 144, released: "2026-10-10T21:10:00Z", title: "Round 6.5.3", codename: "Cherry Soda", notes: [
     "Round 6.5.3: Cherry in Commandbar, and a Commands page.",
     "New Commandbar commands: open cherry, new cherry chat, cherry pinned chats and cherry history. Capitals and colons don't matter, so Cherry: Pinned chats works too. New cherry chat puts focus in the message box; the Pinned and All commands put focus on that tab and say how many chats are there.",
     "Spaces are optional: opencherry, cherrychats and pinnedchats work. Path style too: fil > Cherry pinned.",
     "The Commands page lists every command by area, each a button that runs it. Open it with commands, or from More, Commands, the new last section.",
   ] },
-  { version: "2026.112.31", build: 143, released: "2026-10-10T20:15:00Z", title: "Round 6.5.2", notes: [
+  { version: "2026.112.31", build: 143, released: "2026-10-10T20:15:00Z", title: "Round 6.5.2", codename: "Cherry Pie", notes: [
     "Round 6.5.2: Cherry gets its own page.",
     "Cherry is a page now, not a pop-up: open it from More, the Home button or Ask Cherry, and Back takes you to where you were. New Chat is at the top.",
     "Your History lists your chats with Cherry, with All and Pinned tabs. Pin a chat to keep it handy. Chats are saved on this device and are in Settings backup.",
     "Cherry's answers are read out as they arrive, and focus stays in the message box.",
   ] },
-  { version: "2026.111.31", build: 142, released: "2026-10-10T18:42:07Z", title: "Round 6.5.1", notes: [
+  { version: "2026.111.31", build: 142, released: "2026-10-10T18:42:07Z", title: "Round 6.5.1", codename: "Sleepwalker", notes: [
     "Round 6.5.1: Dreamor everywhere.",
     "A fix update: Dreamor and Dreamors are the words for you and everyone on Looscid again, in the app, the docs and the LICENSE. Redream keeps its one spelling.",
   ] },
-  { version: "2026.111.30", build: 141, released: "2026-10-10T17:50:27Z", title: "Round 6.5", notes: [
+  { version: "2026.111.30", build: 141, released: "2026-10-10T17:50:27Z", title: "Round 6.5", codename: "Bedtime Story", notes: [
     "Round 6.5: the new composer, Replies that stay, and Nostr threads.",
     "One composer for New Dream, Reply and Quote, laid out like Feditext's: the Dream you answer sits right before your text box, so one swipe left reads it. Hear Dream reads it aloud, and Read back my reply reads yours.",
     "Who gets notified is a list of checkboxes, not typed handles. A reply starts with the Dream's Audience and content warning, and you can change both. Write a whole thread in one go with Add another Dream.",
@@ -3117,27 +3129,27 @@ const LC_VERSION_HISTORY = [
     "Alt text helper for photos, link previews (YouTube, Vimeo and Spotify players load only when you press Play), and a Credits and open source page in the menu.",
     "One word everywhere: Replies. Redream is spelled one way too.",
   ] },
-  { version: "2026.110.30", build: 140, released: "2026-10-10T16:52:30Z", title: "Round 6.4", notes: [
+  { version: "2026.110.30", build: 140, released: "2026-10-10T16:52:30Z", title: "Round 6.4", codename: "Secret Cookie Jar", notes: [
     "Round 6.4: Dreams on Nostr, your key in a secure field with an optional passcode.",
     "Set up a Nostr key in Settings, LooscidID, Keys and IDs: use a signer, enter your key in a secure field with a Show key button, or create a new key. An optional passcode keeps it locked on this device.",
     "With Audience Everyone, a new Dream also goes to Nostr relays, so you and anyone can see it from any device. Your own Dreams load back from the relays when you open Looscid with your key. Audience has a new choice: Only this device.",
   ] },
-  { version: "2026.109.30", build: 139, released: "2026-10-10T15:40:22Z", title: "Round 6.3", notes: [
+  { version: "2026.109.30", build: 139, released: "2026-10-10T15:40:22Z", title: "Round 6.3", codename: "Pillow Fort", notes: [
     "Round 6.3: Dreams are saved on your device, composer order and focus fixes.",
     "Your Dreams stay after a reload. They're saved only on this device for now, and the composer says so.",
     "New Dream is a dialog: the text box comes first, then attachments, then Dream and Close. Control+Enter or Command+Enter dreams it, Escape closes, and then focus moves to your new Dream.",
   ] },
-  { version: "2026.109.29", build: 138, released: "2026-10-10T14:33:35Z", title: "Round 6.2", notes: [
+  { version: "2026.109.29", build: 138, released: "2026-10-10T14:33:35Z", title: "Round 6.2", codename: "Night Light", notes: [
     "A fix update: Looscid has its icon.",
     "Add to Home Screen on iPhone and Android shows the Looscid logo, named Looscid, and the browser tab shows it too.",
   ] },
-  { version: "2026.109.28", build: 137, released: "2026-10-10T14:08:08Z", title: "Round 6.1", notes: [
+  { version: "2026.109.28", build: 137, released: "2026-10-10T14:08:08Z", title: "Round 6.1", codename: "Folded Laundry", notes: [
     "A fix update: nothing you see or hear changes.",
     "Looscid is split into files: styles in css/, code in js/, one file per tab.",
     "Alerts and Discover are plain JavaScript with native HTML elements. The other tabs follow one at a time.",
     "Settings backups from Round 6 still import, and new ones import into Round 6.",
   ] },
-  { version: "2026.109.27", build: 136, released: "2026-10-10T12:41:40Z", title: "Round 6", notes: [
+  { version: "2026.109.27", build: 136, released: "2026-10-10T12:41:40Z", title: "Round 6", codename: "Fresh Pillow", notes: [
     "No extra descriptions: VoiceOver reads each control's name, role and state, and explanations are plain text under headings.",
     "Verbosity is a tab on Sense.",
     "Apps are Looscid's own: Settings, Apps, and the Looscid App Store.",
@@ -3235,7 +3247,8 @@ function lcAboutInfo() {
       "Built for VoiceOver, TalkBack, keyboards, switches and braille displays.",
     ],
     facts: [
-      ["Version", lcVersionLabel()],
+      ["Looscid", lcVersionLabel()],
+      ["Version number", LOOSCID_VERSION],
       ["Browser", lcBrowserName()],
       ["Operating system", lcOsName()],
       ["Language", (navigator.languages && navigator.languages.length ? navigator.languages.slice(0, 3).join(", ") : navigator.language) || "not reported by this browser"],
@@ -3376,7 +3389,7 @@ function AboutLooscidMore() {
   const list = function (items) { return lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } }, items.map(function (t, i) { return lh('li', { key: i }, t); })); };
   const sec = function (id, title, kids) { return lh('section', { "aria-labelledby": id, style: { padding: "0 16px 12px" } }, lh('h2', { id: id, className: "lid-sub" }, title), kids); };
   return lh(React.Fragment, null,
-    sec("about-new", "What's new", [lh('p', { key: "r", className: "lid-help" }, LC_VERSION_HISTORY[0].title + (LC_VERSION_HISTORY[0].codename ? ", codename " + LC_VERSION_HISTORY[0].codename : "") + ":"), lh(React.Fragment, { key: "l" }, list(info.whatsNew))]),
+    sec("about-new", "What's new", [lh('p', { key: "r", className: "lid-help" }, lcBuildName(LC_VERSION_HISTORY[0].codename, LC_VERSION_HISTORY[0].build, LC_VERSION_HISTORY[0].title) + ":"), lh(React.Fragment, { key: "l" }, list(info.whatsNew))]),
     sec("about-features", "Features", list(info.features)),
     sec("about-sys", "System info", [
       lh('div', { key: "dl", className: "lc-sysinfo" }, info.facts.map(function (f) { return lh('p', { key: f[0], className: "lid-help" }, f[0] + ": " + f[1]); })),

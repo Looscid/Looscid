@@ -1,13 +1,14 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.135.56",
-  "build": 191,
-  "features": 135,
+  "version": "2026.136.56",
+  "build": 192,
+  "features": 136,
   "fixes": 56,
-  "builds_without_fixes": 135,
-  "released": "2026-10-26T23:08:43Z",
-  "title": "Round 7.41",
-  "codename": "Midnight Snack",
-  "notes": "Round 7.41 (build 191), codename Midnight Snack, a feature update. I gave Looscid some personality: What's new in my voice, fun empty screens and loading lines, my story and a Known bugs list in About, plain-English Terms and Privacy, Report a bug, a Credits thank-you to testers and the Discord, a Now working on line on Home, Round codenames, a Heading character picker in Customization, and a secret or two."
+  "builds_without_fixes": 136,
+  "released": "2026-10-26T23:24:42Z",
+  "title": "Round 7.42",
+  "codename": "Name Tag",
+  "notes": "Name Tag (Build 192, Round 7.42), a feature update. I gave every build a codename, all the way back to build 136, and the codename comes first now, then the build, everywhere a build shows up. Plus two small fixes: the Dev menu countdown says 2 more taps and 1 more tap again, and Reset on the Appearance page brings the Robot heading character back, even after None.",
+  "label": "Name Tag (Build 192, Round 7.42)"
 }

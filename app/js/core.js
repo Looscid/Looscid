@@ -36,7 +36,7 @@ function lcRenameOld(store) {
   try { if (ls && ls.getItem("looscid_migrated_v1") === null) ls.setItem("looscid_migrated_v1", new Date().toISOString()); } catch (e) {}
 })();
 Object.assign(Looscid, { LC_OLD_PREFIX, lcNewKey, lcRenameOld });
-Object.assign(Looscid, { lcNpub, lcShareLink, lcProfileLink, lcProfileOriginals, lcDreamUrl, lcDreamNet, lcDreamInfoLines, lcHint, lcHintReason, lcModalSync, lcModalState, lcReplyObj, lcRedreamsRaw, lcRedreamHas, lcPeopleList, lcPeopleSet, lcPeopleHas, lcIsMuted, lcNoteFor, lcSetNote, useUntagTick, lcLikedRaw, lcLikedHas, lcLikedItems, lcLikedSet, lcLikedPatch, lcDreamSnap, lcWithLiked, lcLikedDreams, useLikedTick, lcIsUntagged, lcSetUntagged, lcTagsMe, lcUntaggedText, lcNewId, lcRepliesRaw, lcRepliesFor, lcAddReply, lcRepliesChanged, useRepliesTick, lcCompose, lcLinkCard, LinkCard, ReplyItem, lcLoadDreams, lcMergeDreams, lcSyncOwnDreams, useSavedDreams, _optionalChain, getDrafts, saveDraftItem, getSavedTheme, saveTheme, applyTheme, getOnboardingSeen, setOnboardingSeen, resetOnboarding, getLinkInfo, useDreams, Av, ChkMark, Cbx, Modal, lcThreadOf, lcHearThread, DreamExtra, lcTranslate, lcShareText, DreamOptionsMenu, BackHeader, DreamText, SiteEmbed, CommentItem, CommentView, DreamCard, lcCatState, useCats, lcAlertCats, lcResetKeyItems, lcLsDel, lcResetModel, lcOpenReset, LcResetHost, lcAiOn, lcSettingIndex, lcFindSettings, lcGoSetting, LcSettingFind, sanitizeInput, makeLocalProfile, saveLocalProfile, getLocalProfile, applyLocalProfileToMe, ensureLocalProfile, renameLocalProfile, resetLocalProfile, getAnalyticsConsent, setAnalyticsConsent, AnalyticsBanner, getWelcomeSeen, setWelcomeSeen, getAIPrefs, setAIPrefs, getActiveAI, getHabits, recordHabit, getPredictions, spellCheck, applySpellFix, detectAutoLinks, getAttribPref, HabitInsightCard, MainMenu, lcVerb, lcHints, announce, useEnterSubmit, updateLocalProfile, LcMenu, lcViewLimits, lcAnnounceCount, MenuPopupButton, getIdentity, setIdentity, getMethods, saveMethods, addMethod, getActivity, logActivity, getSessions, setSession, removeMethod, setStoredNostrSk, signOutIdentity, loadNostrTools, bytesToHex, hexToBytes, shortNpub, identityLabel, SecretField, NostrPanel, b64url, randomToken, pkceChallenge, appRedirectUri, normalizeHost, startMastodonLogin, startFunkwhaleLogin, startHubzillaLogin, lidOAuthIdentity, finishOAuthIfReturning, useOAuthReturn, MastodonPanel, LidOAuthPanel, FunkwhalePanel, HubzillaPanel, resolvePds, BlueskyPanel, AlertDialog, LooscidIDChooser, getTopics, TopicPicker, LooscidOnboarding, lcSectionKeys, lcSectionDefaults, lcSrName, lcSectionTitle, lcSet, lcValueText, lcTimeSpoken, lcWords, lcQuietNow, lcAutoplayAllowed, lcHapticsSupported, lcBuzz, lcEmojiName, lcSpeechText, lcBrailleText, lcTimeParts, lcDreamKind, lcDreamWords, lcFiltered, lcDreamSpeechParts, lcIdb, lcIdbDo, lcCurrentDream, lcLoadCustomPack, lcUpdateAuto, lcFetchVersion, lcCheckUpdate, lcApplyUpdate, LcUpdateBanner, lcVersionLabel, lcReleasedText, loadA11y, saveA11y, a11yAsked, setA11yAsked, systemReducedMotion, motionReduced, a11yEnterSends, lcCloseProps, lcPcOn, lcPackChime, lcPitchCue, lcPcKindOf, areaOfPage, musicFind, lcLev, lcSectionReport, lcFindSection, lcParseTime, lcRegistryIntent, lcTranslateOk, lcA11yReport, lcA11yIntent, lcFeedFind, lcFeedMode, lcFeedLabel, lcSetFeed, lcStepFeed, lcAudCustom, lcHandle, lcAudienceOk, lcBlocked, lcBlockedSet, lcBlockedUser, lcWordHit, LcBlockedHidden, lcAlertPrefs, lcAlerts, lcAlertsSave, lcNotify, lcAlertsMarkAll, useAlerts, lcVersionAlert, lcSetAlertsTab, lcSetShowFriends, lcFeedIntent, lcApplyFeedIntent, lcAppItems, lcNorm, lcClosestPlace, lcHistory, lcPushHistory, lcSpoken, lcExtraIntent, lcRun, lcTrapTab, useCmdHistory, useKeyboardInset, LcCmdLog, CommandBar, lcLogSave, lcLogAdd, lcLogClear, useCmdLog, lcBrowserName, lcStorageKB, lcNexosSettings, lcNexosSend, lcNexosBroadcast, lcBootLines, LcBoot, useInertBehind, DeviceQuestion, useA11yNow, lcResetSection, lcBrList, lcBrSave, lcBrWord, lcBrStyleLabel, lcBrDate, lcBrFind, lcBrCheck, lcBrNotice, lcBrSelect, lcBrCreate, lcBrRename, lcBrDelete, lcBrUndo, lcBrUsePast, lcBrForget, lcBrStamp, lcBrWatch, lcBrIntent, lcKeyName, lcExportSettings, lcDownloadSettings, LcFindMeSwitch, LcUndoBar, A11ySwitch, App });
+Object.assign(Looscid, { lcNpub, lcShareLink, lcProfileLink, lcProfileOriginals, lcDreamUrl, lcDreamNet, lcDreamInfoLines, lcHint, lcHintReason, lcModalSync, lcModalState, lcReplyObj, lcRedreamsRaw, lcRedreamHas, lcPeopleList, lcPeopleSet, lcPeopleHas, lcIsMuted, lcNoteFor, lcSetNote, useUntagTick, lcLikedRaw, lcLikedHas, lcLikedItems, lcLikedSet, lcLikedPatch, lcDreamSnap, lcWithLiked, lcLikedDreams, useLikedTick, lcIsUntagged, lcSetUntagged, lcTagsMe, lcUntaggedText, lcNewId, lcRepliesRaw, lcRepliesFor, lcAddReply, lcRepliesChanged, useRepliesTick, lcCompose, lcLinkCard, LinkCard, ReplyItem, lcLoadDreams, lcMergeDreams, lcSyncOwnDreams, useSavedDreams, _optionalChain, getDrafts, saveDraftItem, getSavedTheme, saveTheme, applyTheme, getOnboardingSeen, setOnboardingSeen, resetOnboarding, getLinkInfo, useDreams, Av, ChkMark, Cbx, Modal, lcThreadOf, lcHearThread, DreamExtra, lcTranslate, lcShareText, DreamOptionsMenu, BackHeader, DreamText, SiteEmbed, CommentItem, CommentView, DreamCard, lcCatState, useCats, lcAlertCats, lcResetKeyItems, lcLsDel, lcResetModel, lcOpenReset, LcResetHost, lcAiOn, lcSettingIndex, lcFindSettings, lcGoSetting, LcSettingFind, sanitizeInput, makeLocalProfile, saveLocalProfile, getLocalProfile, applyLocalProfileToMe, ensureLocalProfile, renameLocalProfile, resetLocalProfile, getAnalyticsConsent, setAnalyticsConsent, AnalyticsBanner, getWelcomeSeen, setWelcomeSeen, getAIPrefs, setAIPrefs, getActiveAI, getHabits, recordHabit, getPredictions, spellCheck, applySpellFix, detectAutoLinks, getAttribPref, HabitInsightCard, MainMenu, lcVerb, lcHints, announce, useEnterSubmit, updateLocalProfile, LcMenu, lcViewLimits, lcAnnounceCount, MenuPopupButton, getIdentity, setIdentity, getMethods, saveMethods, addMethod, getActivity, logActivity, getSessions, setSession, removeMethod, setStoredNostrSk, signOutIdentity, loadNostrTools, bytesToHex, hexToBytes, shortNpub, identityLabel, SecretField, NostrPanel, b64url, randomToken, pkceChallenge, appRedirectUri, normalizeHost, startMastodonLogin, startFunkwhaleLogin, startHubzillaLogin, lidOAuthIdentity, finishOAuthIfReturning, useOAuthReturn, MastodonPanel, LidOAuthPanel, FunkwhalePanel, HubzillaPanel, resolvePds, BlueskyPanel, AlertDialog, LooscidIDChooser, getTopics, TopicPicker, LooscidOnboarding, lcSectionKeys, lcSectionDefaults, lcSrName, lcSectionTitle, lcSet, lcValueText, lcTimeSpoken, lcWords, lcQuietNow, lcAutoplayAllowed, lcHapticsSupported, lcBuzz, lcEmojiName, lcSpeechText, lcBrailleText, lcTimeParts, lcDreamKind, lcDreamWords, lcFiltered, lcDreamSpeechParts, lcIdb, lcIdbDo, lcCurrentDream, lcLoadCustomPack, lcUpdateAuto, lcFetchVersion, lcCheckUpdate, lcApplyUpdate, LcUpdateBanner, lcVersionLabel, lcBuildName, lcReleasedText, loadA11y, saveA11y, a11yAsked, setA11yAsked, systemReducedMotion, motionReduced, a11yEnterSends, lcCloseProps, lcPcOn, lcPackChime, lcPitchCue, lcPcKindOf, areaOfPage, musicFind, lcLev, lcSectionReport, lcFindSection, lcParseTime, lcRegistryIntent, lcTranslateOk, lcA11yReport, lcA11yIntent, lcFeedFind, lcFeedMode, lcFeedLabel, lcSetFeed, lcStepFeed, lcAudCustom, lcHandle, lcAudienceOk, lcBlocked, lcBlockedSet, lcBlockedUser, lcWordHit, LcBlockedHidden, lcAlertPrefs, lcAlerts, lcAlertsSave, lcNotify, lcAlertsMarkAll, useAlerts, lcVersionAlert, lcSetAlertsTab, lcSetShowFriends, lcFeedIntent, lcApplyFeedIntent, lcAppItems, lcNorm, lcClosestPlace, lcHistory, lcPushHistory, lcSpoken, lcExtraIntent, lcRun, lcTrapTab, useCmdHistory, useKeyboardInset, LcCmdLog, CommandBar, lcLogSave, lcLogAdd, lcLogClear, useCmdLog, lcBrowserName, lcStorageKB, lcNexosSettings, lcNexosSend, lcNexosBroadcast, lcBootLines, LcBoot, useInertBehind, DeviceQuestion, useA11yNow, lcResetSection, lcBrList, lcBrSave, lcBrWord, lcBrStyleLabel, lcBrDate, lcBrFind, lcBrCheck, lcBrNotice, lcBrSelect, lcBrCreate, lcBrRename, lcBrDelete, lcBrUndo, lcBrUsePast, lcBrForget, lcBrStamp, lcBrWatch, lcBrIntent, lcKeyName, lcExportSettings, lcDownloadSettings, LcFindMeSwitch, LcUndoBar, A11ySwitch, App });
 
  function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 const {useState, useEffect, useRef, useCallback} = React;
@@ -1507,7 +1507,10 @@ const LC_RESET_G = {
   snd_pack: { l: "Soundpacks", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[1].keys, LC_AUDIO_CATS[1].keys); } },
   snd_events: { l: "Event earcons", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[2].keys, LC_AUDIO_CATS[2].keys); } },
   snd_haptics: { l: "Music and haptics", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[3].keys, LC_AUDIO_CATS[3].keys); } },
-  theme: { l: "Appearance", items: function () { return [{ id: "theme", l: "Light or dark mode", run: function () { saveTheme("dark"); if (Looscid.LC_SET_THEME) Looscid.LC_SET_THEME("dark"); } }]; } },
+  // Round 7.42 (b191 QA): Appearance's Reset includes the Heading character: back to the Robot (LC_US_DEFAULT), Surround, on
+  // everything, and turned back on even after None.
+  theme: { l: "Appearance", items: function () { return [{ id: "theme", l: "Light or dark mode", run: function () { saveTheme("dark"); if (Looscid.LC_SET_THEME) Looscid.LC_SET_THEME("dark"); } },
+    { id: "uschar", l: "Heading character", patch: lcSectionDefaults("uschar") }]; } },
   feeds: { l: "Feeds", items: function () { return lcResetKeyItems("feeds", null, ["feedSwitch"]); } },
   menu: { l: "Menu", items: function () { return [{ id: "menu", l: "Menu button position and Close buttons", run: function () { if (Looscid.LC_SET_PREFS) Looscid.LC_SET_PREFS(function (p) { return Object.assign({}, p, { menu: { pos: "bottom", hideTopClose: false, hideBotClose: false } }); }); } }]; } },
   posting: { l: "Dreaming", items: function () { return [{ id: "charLimit", l: "Character limit", run: function () { if (Looscid.LC_SET_PREFS) Looscid.LC_SET_PREFS(function (p) { return Object.assign({}, p, { charLimitEnabled: false, charLimit: 280 }); }); } }].concat(lcResetKeyItems("posting")); } },
@@ -3849,7 +3852,9 @@ Object.assign(A11Y_DEFAULTS, LC_NEW_DEFAULTS);
 const LC_OLD_KEYS = ["textSize", "highContrast", "boldText", "dyslexiaFont", "screenReader", "captions", "visualCue", "calmMode", "reduceMotion", "brailleOutput", "enterSend", "earcons", "earconVolume", "pitchCues", "closeLabels", "feedSwitch", "largeBtns", "switchAccess", "termOutput", "termHeadings", "flashSafety"];
 Looscid.LC_OLD_KEYS = LC_OLD_KEYS;
 function lcSectionKeys(sec) { const s = LC_SECTIONS[sec]; return (s && s.keys ? s.keys.slice() : []).concat(LC_SET.filter(function (x) { return x.s === sec; }).map(function (x) { return x.k; })).concat(sec === "sr_general" ? ["srNames"] : []).concat(sec === "keyboard" ? ["shortcuts"] : []); }
-function lcSectionDefaults(sec) { const o = {}; lcSectionKeys(sec).forEach(function (k) { o[k] = A11Y_DEFAULTS[k]; }); if (sec === "sr_general") delete o.srNames; return o; }
+// Round 7.42 (b191 QA): the Heading character's defaults include turning the characters back on. None is the same as
+// Unspeakable characters off (it lives in Sense), so a reset after None put the Robot back but left it hidden.
+function lcSectionDefaults(sec) { const o = {}; lcSectionKeys(sec).forEach(function (k) { o[k] = A11Y_DEFAULTS[k]; }); if (sec === "sr_general") delete o.srNames; if (sec === "uschar") o.unspeakable = true; return o; }
 function lcSrName(id) { const n = (Looscid.A11Y_NOW && Looscid.A11Y_NOW.srNames) || {}; const v = String(n[id] || "").trim(); return v || LC_SR_NAMES_DEF[id]; }
 function lcSectionTitle(sec) { const s = LC_SECTIONS[sec]; return s.sr ? lcSrName(s.sr) : s.t; }
 // Lets screens outside the App props change a setting (App fills it in).
@@ -4259,19 +4264,20 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.135.56";
+const LOOSCID_VERSION = "2026.136.56";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 191;
+const LOOSCID_BUILD = 192;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-/* Round 7.41 (Carter, Oct 26 2026: "not corpo shit"): every Round gets a codename. Set the next one here and in the new
-   LC_VERSION_HISTORY entry (its codename field) and version.json ("codename"). */
-const LOOSCID_ROUND = "Round 7.41";
-const LOOSCID_CODENAME = "Midnight Snack";
+/* Round 7.41 (Carter, Oct 26 2026: "not corpo shit"): every Round gets a codename. Round 7.42: every build has one, back to
+   build 136. Set the next one here and in the new LC_VERSION_HISTORY entry (its codename field), version.json ("codename")
+   and the CHANGELOG.md heading. Shown as "Codename (Build N, Round X)" everywhere (lcBuildName). */
+const LOOSCID_ROUND = "Round 7.42";
+const LOOSCID_CODENAME = "Name Tag";
 Looscid.LOOSCID_ROUND = LOOSCID_ROUND; Looscid.LOOSCID_CODENAME = LOOSCID_CODENAME;
 /* Round 7.41: the one line under the Home heading. Edit this one string to change what it says (empty string hides it). */
 const LOOSCID_NOW_WORKING_ON = "a Discord #bugs channel that turns your bug reports into GitHub issues";
 Looscid.LOOSCID_NOW_WORKING_ON = LOOSCID_NOW_WORKING_ON;
-const LOOSCID_RELEASED = "2026-10-26T23:08:43Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-26T23:24:42Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -4331,7 +4337,7 @@ function LcUpdateBanner() {
   useEffect(function () {
     const on = function (e) {
       const d = e.detail || {}; setV(d);
-      if (Looscid.LC_UPDATE_SEEN !== +d.build) { Looscid.LC_UPDATE_SEEN = +d.build; announce("Update available: Looscid " + d.version + " (" + d.build + "). The Update button is at the top of the screen."); try { Earcon.play("alerts"); } catch (x) {} }
+      if (Looscid.LC_UPDATE_SEEN !== +d.build) { Looscid.LC_UPDATE_SEEN = +d.build; announce("Update available: " + lcBuildName(d.codename, d.build, d.title) + ". The Update button is at the top of the screen."); try { Earcon.play("alerts"); } catch (x) {} }
     };
     window.addEventListener("looscid:update", on);
     const first = setTimeout(function () { lcCheckUpdate(false); }, 1500);
@@ -4345,12 +4351,19 @@ function LcUpdateBanner() {
   }, []);
   if (!v) return null;
   return lh('div', { className: "lc-update", role: "region", "aria-label": "Update available" },
-    lh('p', { id: "lc-update-t" }, "Update available: Looscid " + v.version + " (" + v.build + ")."),
+    lh('p', { id: "lc-update-t" }, "Update available: " + lcBuildName(v.codename, v.build, v.title) + "."),
     lh('div', { className: "lc-update-btns" },
       lh('button', { type: "button", id: "lc-update-now", className: "btn bp lc-btn", onClick: lcApplyUpdate }, "Update"),
       lh('button', { type: "button", id: "lc-update-later", className: "btn bgb lc-btn", onClick: function () { try { localStorage.setItem(LC_UPDATE_LATER_KEY, String(v.build)); } catch (e) {} setV(null); announce("OK, later. Check for updates is in About."); } }, "Later")));
 }
-function lcVersionLabel() { return "Looscid " + LOOSCID_VERSION + " (" + LOOSCID_BUILD + ")"; }
+/* Round 7.42 (Carter, Oct 26 2026 7:15 PM: "The code names comes before the build info"): one way to name a build, used
+   everywhere a build is shown: the codename first, then the build info in parens, "Midnight Snack (Build 191, Round 7.41)".
+   A build without a codename (shouldn't happen: every build in LC_VERSION_HISTORY has one) is "Build 191, Round 7.41". */
+function lcBuildName(codename, build, round) {
+  const info = ["Build " + build, round].filter(Boolean).join(", ");
+  return codename ? codename + " (" + info + ")" : info;
+}
+function lcVersionLabel() { return lcBuildName(LOOSCID_CODENAME, LOOSCID_BUILD, LOOSCID_ROUND); }
 /* Round 7.41 (Carter, Oct 26 2026: side project vibe): fun loading lines. The line you see rotates every 2 seconds, but it's
    aria-hidden: screen readers get one plain, unchanging text ("Loading Dreams"), so nothing is re-read or announced. With
    Reduce Motion on, the first line stays put. Edit the list here. */
@@ -5912,7 +5925,7 @@ function useAlerts() {
 function lcVersionAlert() {
   try {
     const k = "looscid_seen_version", was = localStorage.getItem(k);
-    if (was !== LOOSCID_VERSION) { localStorage.setItem(k, LOOSCID_VERSION); if (was) lcNotify("system", "Looscid updated to " + LOOSCID_VERSION + ". What's new is in About.", null); }
+    if (was !== LOOSCID_VERSION) { localStorage.setItem(k, LOOSCID_VERSION); if (was) lcNotify("system", "Looscid updated to " + lcVersionLabel() + ". What's new is in About.", null); }
   } catch (e) {}
 }
 // Security pass (Oct 2026): a Nostr key saved without a passcode (from before passcodes were the default) gets one gentle
