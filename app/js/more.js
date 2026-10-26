@@ -2506,10 +2506,13 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 122; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 48;
+const LOOSCID_FIXES = 49;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.122.48", build: 170, released: LOOSCID_RELEASED, title: "Round 7.20", notes: [
+  { version: "2026.122.49", build: 171, released: LOOSCID_RELEASED, title: "Round 7.21", notes: [
+    "Fix: links to Looscid show a preview again, in iMessage and everywhere else. The title, description, share card and icons now come first on the page, before anything else loads, and the share card is a full-size 1200 by 630 image with the Looscid logo and name.",
+  ] },
+  { version: "2026.122.48", build: 170, released: "2026-10-26T04:51:06Z", title: "Round 7.20", notes: [
     "Fix: counts read the same way everywhere, in parens and said once. A filter says \"Unread (8)\", never \"Unread (8 Unread\". The Inbox tab says \"Inbox (5)\", and your profile's More says \"Inbox (5)\", \"Alerts (2)\" and \"Chats (3)\" instead of \"Inbox, 5 unread\".",
     "Profile Circle filters say \"Member (3)\" instead of \"Member, 3 circles\". A chat says \"Ava (2 unread)\". Mark all as read says \"Mark all as read (4)\". A thread's heading says \"Thread (5 Dreams)\", and Reading mode says \"Reading mode (Dream 2 of 9)\".",
   ] },

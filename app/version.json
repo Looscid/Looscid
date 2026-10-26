@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.122.48",
-  "build": 170,
+  "version": "2026.122.49",
+  "build": 171,
   "features": 122,
-  "fixes": 48,
+  "fixes": 49,
   "builds_without_fixes": 122,
-  "released": "2026-10-26T04:51:06Z",
-  "title": "Round 7.20",
-  "notes": "Round 7.20 (build 170), a fix update. Counts read the same way everywhere, in parens and said once, like \"Unread (8)\"."
+  "released": "2026-10-26T04:52:23Z",
+  "title": "Round 7.21",
+  "notes": "Round 7.21 (build 171), a fix update. Links to Looscid show a full-size preview card again, in iMessage too."
 }

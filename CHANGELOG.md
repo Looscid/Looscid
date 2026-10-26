@@ -2,6 +2,14 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.122.49 (171): Round 7.21
+
+Released October 26, 2026 at 12:52 AM (Eastern Time, 2026-10-26T04:52:23Z UTC)
+
+A fix update, asked for by Carter (link preview, #162).
+
+- Fix: links to Looscid show a preview again, in iMessage and everywhere else. The title, description, share card and icons now come first on the page, before anything else loads, and the share card is a full-size 1200 by 630 image with the Looscid logo and name.
+
 ## Looscid 2026.122.48 (170): Round 7.20
 
 Released October 26, 2026 at 12:51 AM (Eastern Time, 2026-10-26T04:51:06Z UTC)
