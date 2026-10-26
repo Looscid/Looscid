@@ -4039,11 +4039,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.129.54";
+const LOOSCID_VERSION = "2026.129.55";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 183;
+const LOOSCID_BUILD = 184;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-26T10:46:12Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-26T10:52:33Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -6900,7 +6900,15 @@ useEffect(() => {
        never send a later Back somewhere stale (Settings > Alerts > Back landed in the Inbox after Open LooscidID). */
     if (target !== "settings_account") Looscid.LC_LID_RETURN = null;
     Looscid.LC_CV_REOPEN = null;
-    if (Looscid.LC_SETTINGS_BACK && !/^settings_(notifications|messages|profiletabs|tabbar)$/.test(target)) Looscid.LC_SETTINGS_BACK = null;
+    /* Round 7.34 (Settings links check, Oct 26 2026): Cherry's "Cherry settings" button opens Settings, Intelligence, and Back
+       there went to the top of Settings. Back from Intelligence now returns to Cherry, on that button (also after visiting
+       Intelligence's own pages), and Cherry's Back still goes where Cherry was opened from. If Cherry was turned off meanwhile,
+       Back goes to Settings as before. */
+    let keepCherryBack = false;
+    if (target === "settings" && !openSettings && cur === "settings_intelligence" && Looscid.LC_SETTINGS_BACK === "cherry") {
+      Looscid.LC_SETTINGS_BACK = null; if (lcAiOn()) { target = "cherry"; data = { cmd: "settings", n: Date.now() }; keepCherryBack = true; } }
+    if (Looscid.LC_SETTINGS_BACK && !/^settings_(notifications|messages|profiletabs|tabbar|intelligence|ai_[a-z_]+)$/.test(target)
+      && !(Looscid.LC_SETTINGS_BACK === "cherry" && target === "settings" && /^settings_ai_/.test(cur))) Looscid.LC_SETTINGS_BACK = null;
     if (target === "settings" && !openSettings && cur === "settings_ai_cherry" && cherryOffMenu.current) { cherryOffMenu.current = false; delete openers.current[cur]; moreBack("cherry"); return; }
     // "settings" means Back to the Settings menu: the screen it came from, or the More menu on that item.
     if (target === "settings" && !openSettings) {
@@ -6952,7 +6960,7 @@ useEffect(() => {
     // No accounts: old login/signup links open the local profile settings
     if (target === "login" || target === "signup") { setPage("settings_account"); setPdata(null); return; }
     // Round 6.5.2: Cherry is a page. Back returns to where you opened it (the More menu reopens on Open Cherry).
-    if (target === "cherry" && cur !== "cherry") cherryBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
+    if (target === "cherry" && cur !== "cherry" && !keepCherryBack) cherryBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
     // Round 6.5.3: the Commands page works the same way (the More menu reopens on Commands).
     if (target === "commands" && cur !== "commands") commandsBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
     // Round 6.6: a project works the same way (the More menu reopens on Projects, on that project).

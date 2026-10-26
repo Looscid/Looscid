@@ -337,7 +337,8 @@ const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
       }, 0);
     },
     setTab: function (t) { LC_CHERRY.tab = t === "pinned" ? "pinned" : "all"; draw(); },
-    settings: function () { if (p.navigate) p.navigate("settings_intelligence"); },
+    // Round 7.34: Back from Intelligence returns here, on this button.
+    settings: function () { if (p.navigate) { Looscid.LC_SETTINGS_BACK = "cherry"; p.navigate("settings_intelligence"); } },
     // Chat options menu (build 150, #66). Keys like every Looscid pop-up menu: Up/Down/Home/End move, Enter or Space
     // chooses, Escape and Tab close with focus back on Chat options. Choosing plays the same Soundpack sounds as LcMenu.
     menuOpen: function (key, id, btnId, at, byName) { LC_CHERRY.menu = { key: key, id: id, btn: btnId, active: at || 0, atName: !!byName }; draw(); focusItem(); }, // #76: a tap opens it on its name
@@ -441,6 +442,8 @@ const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
       draw(); return "cherry-input";
     }
     if (d.cmd === "pinned" || d.cmd === "all") { LC_CHERRY.tab = d.cmd; draw(); return "cherry-tab-" + d.cmd; }
+    // Round 7.34: Back from Settings, Intelligence (opened with Cherry settings) lands on that button.
+    if (d.cmd === "settings") return "cherry-settings";
     return null;
   };
   const focusId = function (id) { const el = document.getElementById(id); if (el) el.focus(); };

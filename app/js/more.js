@@ -2578,10 +2578,13 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 129; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 54;
+const LOOSCID_FIXES = 55;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.129.54", build: 183, released: LOOSCID_RELEASED, title: "Round 7.33", notes: [
+  { version: "2026.129.55", build: 184, released: LOOSCID_RELEASED, title: "Round 7.34", notes: [
+    "Fix: Cherry's \"Cherry settings\" button opens Settings, Intelligence as before, and Back now comes right back to Cherry, on that button (it went to the top of Settings). Cherry's own Back still goes where you opened Cherry from.",
+  ] },
+  { version: "2026.129.54", build: 183, released: "2026-10-26T10:46:12Z", title: "Round 7.33", notes: [
     "New: a Followed Threads tab on your profile, right after Lists, listing every thread you follow, newest first, each with Unfollow Thread. It uses the same list as Follow Thread, so following or unfollowing anywhere updates it right away.",
     "New: Settings, Privacy, Followed Threads has \"Show followed threads on my profile\". It's off until you turn it on. You always see your own tab; with it on, others see it too (try View as others).",
   ] },

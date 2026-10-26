@@ -2,6 +2,14 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.129.55 (184): Round 7.34
+
+Released October 26, 2026 at 6:52 AM (Eastern Time, 2026-10-26T10:52:33Z UTC)
+
+A fix update, found while checking every settings link by hand.
+
+- Fix: Cherry's "Cherry settings" button opens Settings, Intelligence as before, and Back now comes right back to Cherry, on that button (it went to the top of Settings). Cherry's own Back still goes where you opened Cherry from. It also works after visiting Intelligence's own pages.
+
 ## Looscid 2026.129.54 (183): Round 7.33
 
 Released October 26, 2026 at 6:46 AM (Eastern Time, 2026-10-26T10:46:12Z UTC)

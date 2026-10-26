@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.129.54",
-  "build": 183,
+  "version": "2026.129.55",
+  "build": 184,
   "features": 129,
-  "fixes": 54,
+  "fixes": 55,
   "builds_without_fixes": 129,
-  "released": "2026-10-26T10:46:12Z",
-  "title": "Round 7.33",
-  "notes": "Round 7.33 (build 183), a feature update. A Followed Threads tab on your profile, and Show followed threads on my profile in Privacy (off until you turn it on)."
+  "released": "2026-10-26T10:52:33Z",
+  "title": "Round 7.34",
+  "notes": "Round 7.34 (build 184), a fix update. Back from Settings, Intelligence returns to Cherry when you opened it with Cherry settings."
 }
