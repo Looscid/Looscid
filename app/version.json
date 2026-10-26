@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.120.47",
-  "build": 167,
-  "features": 120,
+  "version": "2026.121.47",
+  "build": 168,
+  "features": 121,
   "fixes": 47,
-  "builds_without_fixes": 120,
-  "released": "2026-10-26T04:44:49Z",
-  "title": "Round 7.17",
-  "notes": "Round 7.17 (build 167), a feature update. The Alerts tab is Inbox: one menu button switches between Alerts and Chats, with one filter row under it."
+  "builds_without_fixes": 121,
+  "released": "2026-10-26T04:47:46Z",
+  "title": "Round 7.18",
+  "notes": "Round 7.18 (build 168), a feature update. Follow Thread in every Dream's More menu, a Followed Threads filter in Inbox with Manage Followed Threads, and a one-time offer to follow after a few Likes."
 }

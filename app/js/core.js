@@ -994,6 +994,7 @@ function DreamDeleteDialog({ id, onConfirm, onCancel }) {
         lh('button', { type: "button", className: "btn bp", "aria-label": "Delete", onClick: onConfirm }, "Delete"))));
 }
 function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, cherryCtx, onExtra, forYou, allowDelete, onDeleted }) {
+  useThreadSubsTick(); // #148: Follow Thread / Unfollow Thread is always current
   const [deleting, setDeleting] = useState(false);
   const canDelete = allowDelete && dream.user === ME && !dream.isReply && dream.replyTo == null && dream.circleId == null;
   const cancelDelete = function () {
@@ -1065,10 +1066,9 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
     (function () { const root = dream._root || dream.replyTo || dream.id; if (!lcPinHas("thread", root)) return null;
       return { id: "pinthread", name: "Unpin thread tab", a: function () { lcPinRemove(lcPinId({ kind: "thread", ref: root })); } }; })(),
     // Build 151 (#74, 2three1y Oct 11 4:56-4:58 PM): Subscribe to thread. New Replies in it land in Alerts, Replies.
-    (function () { const root = String(dream._root || dream.replyTo || dream.id); const on = lcThreadSubbed(root);
-      return { id: "subthread", name: on ? "Unsubscribe from thread" : "Subscribe to thread", a: function () {
-        if (on) { lcThreadUnsub(root); announce("Unsubscribed from this thread."); }
-        else { lcThreadSub(root, dream); announce("Subscribed to this thread. New Replies show up in Alerts, Replies."); } } }; })(),
+    // Round 7.18 (#148, Carter Oct 25 2026): it's Follow Thread or Unfollow Thread, in the More menu of every Dream in a thread
+    // (the first Dream and every reply), all for the same thread. New replies land in Inbox, Alerts, Followed Threads.
+    lcFollowThreadItem(dream),
     handle && !(dream.user === ME || lcHandle(handle) === lcHandle(ME.handle || "")) ? (function () { const on = lcPinHas("person", lcHandle(handle));
       return { id: "pinperson", name: on ? "Unpin @" + handle + " tab" : "Pin @" + handle + " as a tab", a: function () { if (on) lcPinRemove(lcPinId({ kind: "person", ref: lcHandle(handle) })); else lcPinAdd("person", lcHandle(handle), (dream.user && dream.user.name) || "@" + handle); } }; })() : null,
     // Round 7.16 (#216): no Ask Cherry about this Dream (not social).
@@ -1195,7 +1195,8 @@ function ReplyItem({cm, navigate, onReply}) {
   const [liked, setLiked] = useState(!!cm.liked);
   const [likes, setLikes] = useState(cm.likes || 0);
   const [open, setOpen] = useState(false);
-  const toggle = () => { setLiked(l=>!l); setLikes(n=>liked?n-1:n+1); };
+  useThreadSubsTick(); // #148
+  const toggle = () => { if (!liked) lcThreadLikeNudge(cm); setLiked(l=>!l); setLikes(n=>liked?n-1:n+1); }; // #148: a Like never follows; two in a row may offer to
   const name = (cm.user && cm.user.name) || "Someone", handle = (cm.user && cm.user.handle) || "";
   const body = lcWordHit(cm.text) ? lh(LcBlockedHidden, { what: "reply" }, lh('p', { className: "cm-body" }, cm.text)) : lh('p', { className: "cm-body" }, cm.text);
   return lh('div', { className: "cm-item", "data-dream-id": String(cm.id), tabIndex: -1 },
@@ -1217,6 +1218,7 @@ function ReplyItem({cm, navigate, onReply}) {
             } }
             : { id: "share", name: "Share reply", note: "unavailable: this reply is only on this device", hint: "Not available yet: this reply has no public address until it's on Nostr.", disabled: true },
           navigate && handle ? { id: "profile", name: "View @" + handle.replace("@","") + "'s profile", a: function () { navigate("dp", cm.user); } } : null,
+          lcFollowThreadItem(cm), // Round 7.18 (#148): every reply's More menu has Follow Thread / Unfollow Thread
         ].filter(Boolean) })),
     cm.cw ? lh(React.Fragment, null,
       lh('p', { className: "lc-cw-t" }, "Content warning: " + cm.cw),
@@ -1318,7 +1320,7 @@ function CommentView({dream, backTo, onBack, onLike, onRedream, onUndoRedream, o
             , linkInfo && !dream.nopv && lh(LinkCard, { info: linkInfo })
             /* Dream interaction row on the Replies page */
             , React.createElement('div', { className: "ixn-row", style: {margin:"0 -16px",borderTop:"1px solid var(--bd)"},}
-              , React.createElement('button', { className: "cbx-wrap" + (dream.liked?" liked":""), "aria-pressed": !!dream.liked, onClick: ()=>{ onLike(dream.id); announce(dream.liked ? "Like removed" : "Liked", "state", "like:" + dream.id); }, 'aria-label': lcCountWord(dream.likes, "like", "likes"),}
+              , React.createElement('button', { className: "cbx-wrap" + (dream.liked?" liked":""), "aria-pressed": !!dream.liked, onClick: ()=>{ if (!dream.liked) lcThreadLikeNudge(dream); onLike(dream.id); announce(dream.liked ? "Like removed" : "Liked", "state", "like:" + dream.id); }, 'aria-label': lcCountWord(dream.likes, "like", "likes"),}
                 , React.createElement('div', { className: "cbx-box",}, dream.liked && React.createElement(ChkMark, null))
                 , React.createElement('span', null, fmt(dream.likes), dream.likes === 1 ? " Like" : " Likes" )
               )
@@ -1440,7 +1442,7 @@ function DreamBodyCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndo
               btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, calm ? "" : fmt(rdTotal), calm ? "Redreams" : rdTotal === 1 ? " Redream" : " Redreams")],
               items: [{ id: "rd", name: dream.redreamed ? "Unredream" : "Redream" }, { id: "q", name: dream.quoted ? "Unquote Dream" : "Quote Dream" }],
               onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); announce(dream.redreamed ? "Redream removed" : "Redreamed", "state", "rd:" + dream.id); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
-          , React.createElement('button', { className: "cbx-wrap"+(dream.liked?" liked":""), "aria-pressed": !!dream.liked, onClick: ()=>{ if (!dream.liked) Earcon.play("like"); onLike(dream.id); announce(dream.liked ? "Like removed" : "Liked", "state", "like:" + dream.id); }, 'aria-label': lcVerb() === "low" ? "Like" : (calm ? "Likes" : lcCountWord(dream.likes, "like", "likes")) + (lcVerb() === "high" ? ", double tap to " + (dream.liked ? "unlike" : "like") : ""),}
+          , React.createElement('button', { className: "cbx-wrap"+(dream.liked?" liked":""), "aria-pressed": !!dream.liked, onClick: ()=>{ if (!dream.liked) { Earcon.play("like"); lcThreadLikeNudge(dream); } onLike(dream.id); announce(dream.liked ? "Like removed" : "Liked", "state", "like:" + dream.id); }, 'aria-label': lcVerb() === "low" ? "Like" : (calm ? "Likes" : lcCountWord(dream.likes, "like", "likes")) + (lcVerb() === "high" ? ", double tap to " + (dream.liked ? "unlike" : "like") : ""),}
             , React.createElement('div', { className: "cbx-box",}, dream.liked && React.createElement(ChkMark, null))
             , React.createElement('span', null, calm ? "" : fmt(dream.likes), calm ? "Likes" : dream.likes === 1 ? " Like" : " Likes" )
           )
@@ -1469,7 +1471,8 @@ Looscid.LC_MSG_CATS = LC_MSG_CATS;
 // Round 7.17 (#149, Carter Oct 25 2026, "NAMING FINAL"): the bottom tab is Inbox, and Inbox has two views, Alerts and Chats,
 // picked with one menu button. These are the Alerts view's filters; Messages moved out (it is the Chats view), Circles is
 // new (Circles activity), and Deleted Dreams sits after the others instead of before All.
-const LC_INBOX_TABS = [{ id: "all", label: "All" }, { id: "unread", label: "Unread" }, { id: "circle", label: "Circles" }, { id: "reply", label: "Replies" }, { id: "mention", label: "Mentions" },
+// Round 7.18 (#148): Followed Threads is its own filter; those replies are no longer mixed into Replies.
+const LC_INBOX_TABS = [{ id: "all", label: "All" }, { id: "unread", label: "Unread" }, { id: "circle", label: "Circles" }, { id: "thread", label: "Followed Threads" }, { id: "reply", label: "Replies" }, { id: "mention", label: "Mentions" },
   { id: "like", label: "Likes" }, { id: "redream", label: "Redreams" }, { id: "quote", label: "Quotes" }, { id: "follow", label: "New Dreamor" }, { id: "deletedDream", label: "Deleted Dreams" }];
 function lcAlertCats() { return LC_INBOX_TABS.slice(); }
 /* --- Round 6: Reset. The last item in every settings list opens one native <dialog>, scoped to
@@ -4029,11 +4032,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.120.47";
+const LOOSCID_VERSION = "2026.121.47";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 167;
+const LOOSCID_BUILD = 168;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-26T04:44:49Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-26T04:47:46Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -5158,10 +5161,57 @@ function lcThreadSub(root, dream) {
   let nid = null; try { nid = Looscid.lcNostr && Looscid.lcNostr.nidOf ? Looscid.lcNostr.nidOf(root) : null; } catch (e) {}
   if (!nid && /^[0-9a-f]{64}$/i.test(root)) nid = root.toLowerCase();
   if (!nid && dream && !dream.replyTo && /^[0-9a-f]{64}$/i.test(String(dream.nid || ""))) nid = String(dream.nid).toLowerCase();
-  const who = dream && dream.user ? (dream.user === ME ? "your" : String(dream.user.name || "a Dreamor") + "'s") : "a";
+  const who = dream && dream.user && !dream.replyTo ? (dream.user === ME ? "your" : String(dream.user.name || "a Dreamor") + "'s") : "a"; // #148: followed from a reply, the reply's author isn't the thread's
   lcThreadSubsSave(lcThreadSubs().concat([{ root: root, nid: nid, label: who + " thread", since: Math.floor(Date.now() / 1000) }]));
   lcThreadWatchSoon();
 }
+/* Round 7.18 (#148, Carter Oct 25 2026): Follow Thread. One state per thread: following from the first Dream or from any
+   reply follows the whole thread, and every More menu in it says Unfollow Thread. A Like never follows a thread. */
+function lcThreadRoot(d) { return d ? String(d._root || d.replyTo || d.id) : ""; }
+function lcFollowThreadItem(d) {
+  const root = lcThreadRoot(d), on = lcThreadSubbed(root);
+  return { id: "subthread", name: on ? "Unfollow Thread" : "Follow Thread", a: function () {
+    if (on) { lcThreadUnsub(root); announce("Unfollowed this thread."); }
+    else { lcThreadSub(root, d); announce("Following this thread. New replies show up in Inbox, Alerts, Followed Threads."); } } };
+}
+// Every menu that shows Follow Thread re-draws when any thread is followed or unfollowed, so its label is never stale.
+function useThreadSubsTick() { useIdListTick("looscid:threadsubs"); }
+/* The one-time nudge (#148): like two Dreams in the same thread in a row (within 10 minutes) and Looscid offers, once,
+   "You liked a few dreams in this thread. Follow it to see new ones?" with a Follow Thread button. It's said through
+   #looscid-live and focus never moves. Shown once per thread; it can come back only after 30 days and new likes there. */
+const LC_THREAD_NUDGE_KEY = "looscid_thread_nudged";
+let lcNudgeRun = { root: null, n: 0, at: 0 };
+function lcThreadLikeNudge(d) {
+  const root = lcThreadRoot(d); if (!root || lcThreadSubbed(root)) return;
+  const now = Date.now();
+  if (lcNudgeRun.root === root && now - lcNudgeRun.at < 10 * 60 * 1000) lcNudgeRun.n++; else lcNudgeRun = { root: root, n: 1, at: now };
+  lcNudgeRun.at = now;
+  if (lcNudgeRun.n < 2) return;
+  let seen = {}; try { seen = JSON.parse(localStorage.getItem(LC_THREAD_NUDGE_KEY) || "{}") || {}; } catch (e) {}
+  if (seen[root] && now - seen[root] < 30 * 24 * 3600 * 1000) return;
+  seen[root] = now;
+  const keys = Object.keys(seen).sort(function (a, b) { return seen[b] - seen[a]; }).slice(0, 200), keep = {}; keys.forEach(function (k) { keep[k] = seen[k]; });
+  try { localStorage.setItem(LC_THREAD_NUDGE_KEY, JSON.stringify(keep)); } catch (e) {}
+  lcNudgeRun = { root: null, n: 0, at: 0 };
+  window.dispatchEvent(new CustomEvent("looscid:threadnudge", { detail: { root: root, dream: d } }));
+}
+function LcThreadNudge() {
+  const [n, setN] = useState(null);
+  useEffect(function () {
+    let t = null;
+    const on = function (e) { setN(e.detail); clearTimeout(t); t = setTimeout(function () { announce("You liked a few dreams in this thread. Follow it to see new ones? Follow Thread is above the tab bar."); }, 900); };
+    const subs = function () { setN(function (cur) { return cur && lcThreadSubbed(cur.root) ? null : cur; }); };
+    window.addEventListener("looscid:threadnudge", on); window.addEventListener("looscid:threadsubs", subs);
+    return function () { clearTimeout(t); window.removeEventListener("looscid:threadnudge", on); window.removeEventListener("looscid:threadsubs", subs); };
+  }, []);
+  if (!n) return null;
+  return lh('div', { className: "lc-undo lc-nudge", role: "region", "aria-label": "Follow this thread?" },
+    lh('p', { className: "lc-undo-t" }, "You liked a few dreams in this thread. Follow it to see new ones?"),
+    lh('div', { style: { display: "flex", gap: 8, flexShrink: 0 } },
+      lh('button', { type: "button", id: "lc-nudge-follow", className: "btn bp lc-btn", onClick: function () { lcThreadSub(n.root, n.dream); setN(null); announce("Following this thread. New replies show up in Inbox, Alerts, Followed Threads."); } }, "Follow Thread"),
+      lh('button', { type: "button", id: "lc-nudge-no", className: "btn bgb lc-btn", onClick: function () { setN(null); announce("OK. You can follow it anytime from a Dream's More menu."); } }, "No thanks")));
+}
+Object.assign(Looscid, { lcThreadRoot, lcFollowThreadItem, lcThreadLikeNudge, LcThreadNudge });
 function lcThreadUnsub(root) { lcThreadSubsSave(lcThreadSubs().filter(function (s) { return String(s.root) !== String(root); })); }
 function lcThreadAlert(root, user, text) {
   if (user && typeof lcAudienceOk === "function" && !lcAudienceOk((Looscid.A11Y_NOW || {}).whoReply || "everyone", user, "perm_whoReply")) return null;
@@ -7540,6 +7590,7 @@ useEffect(() => {
       , React.createElement('button', { type: "button", className: "btn", onClick: () => setShowCreate(true), "aria-label": "Create", "aria-haspopup": "dialog" }, "Create")
       , React.createElement('main', {id:"main-content", style:{display:"contents"}}, renderPage())
       , lh(LcResetHost, null)
+      , lh(LcThreadNudge, null)
       , lh(LcFooterHost, { page: page, navigate: navigate }
       , undo && lh(LcUndoBar, { undo: undo })
       /* Tab bar: Home | Discover | Create | Alerts | More by default; Settings > Tab Bar changes it (build 151, #75) */

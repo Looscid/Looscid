@@ -2,6 +2,16 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.121.47 (168): Round 7.18
+
+Released October 26, 2026 at 12:47 AM (Eastern Time, 2026-10-26T04:47:46Z UTC)
+
+A feature update, asked for by Carter (Follow Thread, #148).
+
+- Feature: Follow Thread. Every Dream in a thread, the first one and every reply, has Follow Thread in its More menu, and Unfollow Thread once you follow. It's one setting per thread, so every menu in that thread changes together.
+- Followed Threads is its own filter in Inbox, Alerts. New replies in threads you follow land there, not in Replies. Manage Followed Threads at the top lists every thread you follow, each with Unfollow Thread. An alert from a followed thread has Unfollow Thread in its More menu too.
+- A Like never follows a thread. If you like a couple of Dreams in the same thread in a row, Looscid offers once: "You liked a few dreams in this thread. Follow it to see new ones?" with Follow Thread and No thanks. It's said politely, and focus stays where it is.
+
 ## Looscid 2026.120.47 (167): Round 7.17
 
 Released October 26, 2026 at 12:44 AM (Eastern Time, 2026-10-26T04:44:49Z UTC)

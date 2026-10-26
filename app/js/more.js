@@ -2504,12 +2504,17 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 120; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 121; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 47;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.120.47", build: 167, released: LOOSCID_RELEASED, title: "Round 7.17", notes: [
+  { version: "2026.121.47", build: 168, released: LOOSCID_RELEASED, title: "Round 7.18", notes: [
+    "Feature: Follow Thread. Every Dream in a thread, the first one and every reply, has Follow Thread in its More menu, and Unfollow Thread once you follow. It's one setting per thread, so every menu in that thread changes together.",
+    "Followed Threads is its own filter in Inbox, Alerts. New replies in threads you follow land there, not in Replies. Manage Followed Threads at the top lists every thread you follow, each with Unfollow Thread. An alert from a followed thread has Unfollow Thread in its More menu too.",
+    "A Like never follows a thread. If you like a couple of Dreams in the same thread in a row, Looscid offers once: \"You liked a few dreams in this thread. Follow it to see new ones?\" with Follow Thread and No thanks. It's said politely, and focus stays where it is.",
+  ] },
+  { version: "2026.120.47", build: 167, released: "2026-10-26T04:44:49Z", title: "Round 7.17", notes: [
     "Feature: the Alerts tab is now Inbox. Inbox has two views, Alerts (likes, replies, mentions, follows and Circles) and Chats (what was Messages).",
     "One menu button at the top picks the view. It reads \"Showing Alerts, 12\", and its menu has \"Alerts (12)\" and \"Chats (3)\". It's a button, not a tab, so the filters below it are the only tabs on the page.",
     "Alerts has one filter row: All, Unread, Circles (new), Replies, Mentions, Likes, Redreams, Quotes, New Dreamor and Deleted Dreams. A filter with something new says how many in parens, like \"Replies (3)\".",

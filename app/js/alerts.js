@@ -99,6 +99,8 @@ function notifRow(st, draw, n) {
         if (n.nid && n.user) Looscid.lcCompose({ mode: "reply", parent: { id: n.nid, nid: n.nid, user: n.user, text: n.preview || "" }, root: n.ref ? { id: n.ref, nid: n.ref, user: Looscid.ME } : undefined });
         else Looscid.lcCompose({ mode: "new", text: n.user && n.user.handle ? "@" + String(n.user.handle).replace(/^@/, "") + " " : "" }); }] : null,
       [n.unread ? "Mark read" : "Mark unread", function () { lcAlertToggle(n.id); announce(n.unread ? "Marked as read." : "Marked as unread."); }],
+      // Round 7.18 (#148): an alert from a followed thread can unfollow it right here.
+      n.thread && Looscid.lcThreadSubbed && Looscid.lcThreadSubbed(n.thread) ? ["Unfollow Thread", function () { Looscid.lcThreadUnsub(n.thread); announce("Unfollowed this thread."); }] : null,
       blockWho(n.user)]));
 }
 function convoRow(st, draw, c) {
@@ -245,6 +247,28 @@ function filterRow(id, label, tabs, cur, count, setTab) {
         t.label, k > 0 ? [" ", h('span', { key: "b", className: "lc-alert-badge", "aria-hidden": "true" }, String(k))] : null);
     }));
 }
+/* Round 7.18 (#148): Manage Followed Threads. Every thread you follow, newest first, each with Unfollow Thread. */
+function manageThreadsView(st, draw) {
+  const subs = (Looscid.lcThreadSubs ? Looscid.lcThreadSubs() : []).slice().reverse();
+  const back = function () { st.manage = false; draw(); setTimeout(function () { const b = document.getElementById("inbox-manage-threads"); if (b) b.focus(); }, 0); };
+  return h('div', { className: "pg lc-inbox" },
+    lcBackHeaderEl("Followed Threads", back),
+    h('p', { className: "lc-desc", style: { padding: "0 16px 8px" } }, "New replies in these threads show up in Inbox, Alerts, Followed Threads. A Like never follows a thread."),
+    subs.length === 0 ? h('div', { className: "es", style: { paddingTop: 24, paddingBottom: 24 } }, h('p', { className: "esl" }, "You're not following any threads"))
+      : h('ul', { className: "lc-inbox-list", role: "list" }, subs.map(function (sb, i) {
+          const name = sb.label ? sb.label.charAt(0).toUpperCase() + sb.label.slice(1) : "A thread", since = sb.since ? lcAlertTime(sb.since * 1000) : "";
+          const key = "ft-" + String(sb.root).replace(/[^a-z0-9-]/gi, "").slice(0, 40);
+          return h('li', { key: key, className: "ni" },
+            h('p', { className: "ntx", style: { flex: 1, margin: 0 } }, name + (since ? ", followed " + since : "")),
+            h('button', { type: "button", id: key + "-unf", className: "btn bgb lc-btn", "aria-label": "Unfollow Thread, " + name,
+              onClick: function () {
+                Looscid.lcThreadUnsub(sb.root); announce("Unfollowed " + name + ".");
+                // Focus goes to the next thread's button, or the previous one, or Back.
+                setTimeout(function () { const l = document.querySelectorAll('.lc-inbox-list button[id^="ft-"]'); const el = l[Math.min(i, l.length - 1)] || document.querySelector(".lc-inbox .lc-back, .lc-inbox button"); if (el) el.focus(); }, 30);
+              } }, "Unfollow Thread"));
+        })),
+    h('div', { style: { height: 72 } }));
+}
 function alertsView(st, draw) {
   if (st.compose) return composeView(st, draw);
   if (st.pm) return pmView(st, draw);
@@ -253,20 +277,20 @@ function alertsView(st, draw) {
   const chats = st.box === "chats";
   const tabs = lcCatList("alert", lcAlertCats());
   const cur = tabs.some(function (t) { return t.id === st.view; }) ? st.view : "all";
-  const notifs = lcAlerts(), convos = allConvos(), only = onlyFollowed();
+  if (st.manage) return manageThreadsView(st, draw);
+  const notifs = lcAlerts(), convos = allConvos();
   const goSet = function (pg, focus) { Looscid.LC_SETTINGS_BACK = "alerts"; if (Looscid.LC_NAV) Looscid.LC_NAV(pg); if (focus) setTimeout(function () { const el = document.getElementById(focus); if (el) el.focus(); }, 300); };
   const unreadN = notifs.filter(function (n) { return n.unread; }).length, unreadC = convos.reduce(function (a, c) { return a + (c.unread || 0); }, 0);
   const isCircle = function (n) { return n.type === "circle" || !!n.circle; };
-  const count = function (id) { return id === "unread" ? unreadN : id === "all" ? 0 : id === "circle" ? notifs.filter(function (n) { return n.unread && isCircle(n); }).length : notifs.filter(function (n) { return n.unread && n.type === id; }).length; };
+  // Round 7.18 (#148): alerts from threads you follow (new replies, and a deleted Dream there) are Followed Threads, not Replies.
+  const isThread = function (n) { return !!n.sub || n.type === "deletedDream"; };
+  const inTab = function (id, n) { return id === "all" ? true : id === "unread" ? n.unread : id === "circle" ? isCircle(n) : id === "thread" ? isThread(n) : id === "reply" ? n.type === "reply" && !n.sub : n.type === id; };
+  const count = function (id) { return id === "all" ? 0 : notifs.filter(function (n) { return n.unread && inTab(id, n); }).length; };
   let rows = [];
   if (chats) rows = convos.map(function (c) { return { c: c }; });
-  else {
-    let ns = cur === "all" ? notifs : cur === "unread" ? notifs.filter(function (n) { return n.unread; }) : cur === "circle" ? notifs.filter(isCircle) : notifs.filter(function (n) { return n.type === cur; });
-    if (cur === "reply" && only) ns = ns.filter(function (n) { return n.sub; });
-    rows = ns.map(function (n) { return { n: n, t: n.time }; });
-  }
+  else rows = notifs.filter(function (n) { return inTab(cur, n); }).map(function (n) { return { n: n, t: n.time }; });
   const setTab = function (id) { st.view = id; st.more = null; lcSetAlertsTab(id, true); draw(); };
-  const empty = chats ? "No chats yet" : ({ all: "Nothing here yet", unread: "You're all caught up", circle: "No Circles alerts yet", reply: only ? "No new replies in threads you follow" : "No replies yet", mention: "No mentions yet", like: "No Likes yet", redream: "No Redreams yet", quote: "No Quotes yet", follow: "No new Dreamors yet", deletedDream: "No deleted Dreams" }[cur] || "Nothing here yet");
+  const empty = chats ? "No chats yet" : ({ all: "Nothing here yet", unread: "You're all caught up", circle: "No Circles alerts yet", thread: "No new replies in threads you follow", reply: "No replies yet", mention: "No mentions yet", like: "No Likes yet", redream: "No Redreams yet", quote: "No Quotes yet", follow: "No new Dreamors yet", deletedDream: "No deleted Dreams" }[cur] || "Nothing here yet");
   return h('div', { className: "pg lc-inbox" },
     h('div', { className: "hdr" },
       h('div', { style: { display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8, padding: "48px 16px 12px" } },
@@ -278,9 +302,9 @@ function alertsView(st, draw) {
     viewMenu(st, draw, { alerts: unreadN, chats: unreadC }),
     chats ? null : filterRow("inbox-filters", "Alerts filters", tabs, cur, count, setTab),
     h('div', chats ? { id: "inbox-panel", role: "region", "aria-label": "Chats" } : { id: "inbox-panel", role: "tabpanel", "aria-labelledby": "inbox-tab-" + cur },
-      !chats && cur === "reply" ? h('fieldset', { className: "lc-inbox-only" }, h('legend', null, "Replies"),
-        h('label', { className: "lc-cbx-row" }, h('input', { type: "checkbox", id: "inbox-only-followed", checked: only,
-          onChange: function (e) { try { localStorage.setItem(ONLY_FOLLOWED_KEY, e.target.checked ? "1" : "0"); } catch (x) {} draw(); } }), " Only threads I follow")) : null,
+      // Round 7.18 (#148): Manage Followed Threads is the first thing in Followed Threads (it replaces Replies' "Only threads I follow").
+      !chats && cur === "thread" ? h('div', { style: { padding: "10px 16px 4px" } }, h('button', { type: "button", id: "inbox-manage-threads", className: "btn bgb lc-btn",
+        onClick: function () { st.manage = true; st.more = null; draw(); setTimeout(Looscid.lcFocusHeading, 30); } }, "Manage Followed Threads")) : null,
       chats && pmStateNote() ? h('p', { className: "lc-desc", style: { padding: "8px 16px" } }, pmStateNote()) : null,
       chats && Looscid.lcPmHeld && Looscid.lcPmHeld() > 0 ? h('div', { className: "lc-pm-held", style: { padding: "8px 16px" } },
         h('p', { className: "lc-desc", id: "pm-held-note" }, (function (k) { return k === 1 ? "1 Dreamor who isn't allowed by Who can message me has messages waiting. They stay hidden and silent." : k + " Dreamors who aren't allowed by Who can message me have messages waiting. They stay hidden and silent."; })(Looscid.lcPmHeld())),
