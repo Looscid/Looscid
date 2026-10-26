@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.128.49",
-  "build": 177,
+  "version": "2026.128.50",
+  "build": 178,
   "features": 128,
-  "fixes": 49,
+  "fixes": 50,
   "builds_without_fixes": 128,
-  "released": "2026-10-26T05:01:30Z",
-  "title": "Round 7.27",
-  "notes": "Round 7.27 (build 177), a feature update. Pin a profile as a Home feed tab or as its own tab in the tab bar, from that profile's More."
+  "released": "2026-10-26T05:53:26Z",
+  "title": "Round 7.28",
+  "notes": "Round 7.28 (build 178), a fix update. Collapsible buttons in Privacy, Reset and Commandbar are plain buttons, not headings, so VoiceOver reads only their name and expanded or collapsed."
 }

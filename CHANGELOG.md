@@ -2,6 +2,14 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.128.50 (178): Round 7.28
+
+Released October 26, 2026 at 1:53 AM (Eastern Time, 2026-10-26T05:53:26Z UTC)
+
+A fix update, asked for by Carter (collapsible buttons read as headings on iOS).
+
+- Fix: collapsible buttons are plain buttons now, not headings. VoiceOver on iPhone reads just the name and collapsed or expanded, like "Permissions, button, collapsed". This covers the Privacy sections, the Reset groups and Commandbar's output toggle.
+
 ## Looscid 2026.128.49 (177): Round 7.27
 
 Released October 26, 2026 at 1:01 AM (Eastern Time, 2026-10-26T05:01:30Z UTC)

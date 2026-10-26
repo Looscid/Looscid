@@ -1065,7 +1065,9 @@ function PrivacySettings({navigate, authUser, onUpdateProfile}) {
     lh('div', { className: "lc-acc" }, SECS.map(function (s) {
       const on = open === s[0];
       return lh('div', { key: s[0], className: "lc-acc-item" },
-        lh('h2', { className: "lc-acc-h" },
+        // Round 7.28 (Carter, Oct 26 2026): a plain button, not a button inside a heading, so VoiceOver on iOS reads just
+        // its name and expanded or collapsed. The div keeps the old heading's class, so it looks the same.
+        lh('div', { className: "lc-acc-h" },
           lh('button', { type: "button", id: "priv-acc-" + s[0], className: "lc-acc-btn", "aria-expanded": on ? "true" : "false", "aria-controls": "priv-acc-p-" + s[0], onClick: function () { toggle(s[0]); } },
             lh('span', null, s[1]), lh('span', { className: "msec-toggle-ic" + (on ? " open" : ""), "aria-hidden": "true" }, "\u203a"))),
         lh('div', { id: "priv-acc-p-" + s[0], className: "lc-acc-p", hidden: !on }, on ? s[2]() : null));
@@ -2528,10 +2530,13 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 128; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 49;
+const LOOSCID_FIXES = 50;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.128.49", build: 177, released: LOOSCID_RELEASED, title: "Round 7.27", notes: [
+  { version: "2026.128.50", build: 178, released: LOOSCID_RELEASED, title: "Round 7.28", notes: [
+    "Fix: collapsible buttons are plain buttons now, not headings. VoiceOver on iPhone reads just the name and collapsed or expanded, like \"Permissions, button, collapsed\". This covers the Privacy sections, the Reset groups and Commandbar's output toggle.",
+  ] },
+  { version: "2026.128.49", build: 177, released: "2026-10-26T05:01:30Z", title: "Round 7.27", notes: [
     "Feature: pin someone's profile as a tab. Their profile's More has Pin as a feed tab (a tab on Home with just their Dreams) and Add to tab bar (their own tab at the bottom, before Profile), with Unpin feed tab and Remove from tab bar to undo. Settings, Tab Bar orders it like any other tab.",
   ] },
   { version: "2026.127.49", build: 176, released: "2026-10-26T05:00:03Z", title: "Round 7.26", notes: [
@@ -3134,7 +3139,7 @@ function TerminalPage({ exec, onClose, a11y }) {
     lh('div', { className: "lc-term-body", ref: bodyRef, tabIndex: 0, role: "region", "aria-label": "Commandbar scrollback" },
       lh('p', { className: "lc-term-hi" }, "Welcome to Commandbar. Type help and press Enter. Commands you run in the bar show here too."),
       mode === "collapsible"
-        ? lh('h2', { className: "lc-out-h" },
+        ? lh('div', { className: "lc-out-h" }, // Round 7.28: a plain button with aria-expanded, no heading around it
           lh('button', { type: "button", id: "lc-out-toggle", className: "lc-out-tg", "aria-expanded": open, "aria-controls": "lc-out",
             onClick: function () { setOutput(!open); } },
             lh('span', { className: "lc-out-ic", "aria-hidden": "true" }, open ? "\u25be" : "\u25b8"), countText))
