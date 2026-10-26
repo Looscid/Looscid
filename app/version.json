@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.122.47",
-  "build": 169,
+  "version": "2026.122.48",
+  "build": 170,
   "features": 122,
-  "fixes": 47,
+  "fixes": 48,
   "builds_without_fixes": 122,
-  "released": "2026-10-26T04:49:40Z",
-  "title": "Round 7.19",
-  "notes": "Round 7.19 (build 169), a feature update. Chats filters: DMs, Requests, Pinned and Deleted, with a Show unread only switch and Pin, Mark unread and Delete on each chat."
+  "released": "2026-10-26T04:51:06Z",
+  "title": "Round 7.20",
+  "notes": "Round 7.20 (build 170), a fix update. Counts read the same way everywhere, in parens and said once, like \"Unread (8)\"."
 }

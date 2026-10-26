@@ -693,7 +693,7 @@ function DreamExtra({ extra, dream, onClose }) {
   if (extra.kind === "thread") {
     const t = lcThreadOf(dream);
     return lh('section', { className: "lc-extra", "aria-labelledby": "thr-h-" + dream.id },
-      lh('h3', { id: "thr-h-" + dream.id, className: "lc-sub-h", tabIndex: -1, ref: ref }, "Thread, " + t.length + (t.length === 1 ? " Dream" : " Dreams")),
+      lh('h3', { id: "thr-h-" + dream.id, className: "lc-sub-h", tabIndex: -1, ref: ref }, "Thread (" + t.length + (t.length === 1 ? " Dream)" : " Dreams)")), // Round 7.20 (#150): counts in parens
       lh('ol', { className: "lc-thread" }, t.map(function (x, i) { return lh('li', { key: x.id || i }, lh('span', { className: "lc-thread-who" }, (i ? "Reply from " : "") + ((x.user && x.user.name) || "Someone") + ": "), lcSpeechText(x.text)); })),
       lh('div', { className: "lc-inrow" },
         lh('button', { type: "button", className: "btn bgb lc-btn", "aria-disabled": LcSpeech.ok ? undefined : "true", onClick: function () { if (!LcSpeech.ok) { announce("Hear thread isn't available: this browser can't read aloud."); return; } lcHearThread(dream); } }, "Hear thread"),
@@ -2370,12 +2370,12 @@ function lcMoreItemLi(s, item) {
               var subId = "msub-" + s.id + "-" + item.label.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
               var hasBadge = item.badge>0;
               var hasCount = item.count!=null;
-              var badge = hasBadge ? React.createElement('span',{key:"b",style:{fontWeight:700,color:"var(--rd)"}},", "+item.badge) : null;
+              var badge = hasBadge ? React.createElement('span',{key:"b",style:{fontWeight:700,color:"var(--rd)"}}," ("+item.badge+")") : null; // Round 7.20 (#150): counts in parens
               var count = hasCount ? React.createElement('span',{key:"c",className:"mitem-count"}, item.count) : null;
               // Build 151 (#75): a Settings row says its current value after its name, like Spring ("Tab Bar, Home, Discover...").
               var val = typeof item.value === "function" ? item.value() : item.value;
               var valEl = val ? React.createElement('span',{key:"val",className:"mitem-val","aria-hidden":"true"}, val) : null;
-              var ariaLabel = item.label+(val?", "+val:"")+(hasBadge?", "+item.badge+" unread":"")+(hasCount?", "+item.count:"");
+              var ariaLabel = item.label+(hasBadge?" ("+item.badge+")":"")+(hasCount?" ("+item.count+")":"")+(val?", "+val:""); // Round 7.20 (#150): "Chats (3)", never "Chats, 3 unread"
               var itemStyle = item.special==="cherry"
                 ? {background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",borderBottom:"1px solid rgba(168,85,247,.2)"}
                 : item.discoverLink
@@ -2465,7 +2465,7 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
         return React.createElement('li', {key:s.id, className:"msec-hdr msec-li", style:{padding:0}},
           React.createElement('a', {id:"msec-btn-"+s.id, className:"msec-direct", "data-sec":s.id, href: lcPathFor(pg), onClick: go,
             "aria-braillelabel": Looscid.A11Y_NOW.brailleOutput ? s.label : undefined,
-            "aria-label": s.badge>0 ? lcNameJoin(s.label, s.badge + " unread") : undefined},
+            "aria-label": s.badge>0 ? s.label + " (" + s.badge + ")" : undefined}, // Round 7.20 (#150): "Inbox (3)"
             React.createElement('span', {style:{display:"flex",alignItems:"center",gap:7}},
               React.createElement('span', null, s.label),
               s.badge>0 ? React.createElement('span', {className:"mitem-badge",style:{marginLeft:4},"aria-hidden":"true"}, s.badge) : null),
@@ -4032,11 +4032,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.122.47";
+const LOOSCID_VERSION = "2026.122.48";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 169;
+const LOOSCID_BUILD = 170;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-26T04:49:40Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-26T04:51:06Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).

@@ -863,7 +863,7 @@ function LcProfileCircles({ circ, isMe, name, navigate, uid, f0 }) {
     lh('div', { className: "ftabs lc-circ-filters", role: "tablist", "aria-label": "Circle filters", onKeyDown: onKey },
       ids.map(function (id, i) { const on = f === id, n = (circ[id] || []).length;
         return lh('button', { key: id, id: "pf-circ-f-" + id, type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", "aria-setsize": ids.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1,
-          "aria-controls": "pf-circ-list", "aria-label": label[id] + ", " + words(n), onClick: function () { setF(id); } }, label[id], lh('span', { "aria-hidden": "true" }, " (" + n.toLocaleString() + ")")); })),
+          "aria-controls": "pf-circ-list", "aria-label": label[id] + " (" + n.toLocaleString() + ")", onClick: function () { setF(id); } }, label[id], lh('span', { "aria-hidden": "true" }, " (" + n.toLocaleString() + ")")); })), // Round 7.20 (#150): "Member (3)", one count, no repeated word
     lh('div', { id: "pf-circ-list", role: "tabpanel", "aria-labelledby": "pf-circ-f-" + f },
       list.length ? lh('ul', { className: "lc-people", role: "list" }, list.map(row)) : lh('p', { className: "lc-muted", style: { padding: "12px 16px" } }, emptyText)));
 }
@@ -986,7 +986,7 @@ function NotificationsSettings({navigate}) {
       , lh('section', { className: "lc-grp", "aria-labelledby": "al-more-h" },
           lh('h2', { id: "al-more-h", className: "lc-grp-h" }, "All alerts"),
           lh(A11ySwitch, { id: "al-group", label: "Group similar alerts", on: !!P.group, onToggle: function () { setP(lcAlertPrefsSet({ group: !P.group })); announce("Group similar alerts " + (!P.group ? "on" : "off") + "."); } }),
-          lh('div', { className: "lc-row" }, lh('button', { type: "button", id: "al-markall", className: "btn bgb lc-big", onClick: function () { const n = lcAlertsMarkAll(); announce(n ? "All alerts marked as read." : "No alerts to mark."); setP(lcAlertPrefs()); } }, "Mark all as read" + (unread ? ", " + unread + " unread" : ""))))
+          lh('div', { className: "lc-row" }, lh('button', { type: "button", id: "al-markall", className: "btn bgb lc-big", onClick: function () { const n = lcAlertsMarkAll(); announce(n ? "All alerts marked as read." : "No alerts to mark."); setP(lcAlertPrefs()); } }, "Mark all as read" + (unread ? " (" + unread + ")" : "")))) // Round 7.20 (#150): count in parens
       , lh(LcSection, { sec: "quiet", intro: lcQuietNow() ? "Quiet hours are on right now." : null, noReset: true })
       , lh(LcCatCustomize, { kind: "alert", defs: lcAlertCats(), title: "Customize Alerts filters" })
       , lh(LcResetLast, { scope: "alerts" })
@@ -2506,10 +2506,14 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 122; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 47;
+const LOOSCID_FIXES = 48;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.122.47", build: 169, released: LOOSCID_RELEASED, title: "Round 7.19", notes: [
+  { version: "2026.122.48", build: 170, released: LOOSCID_RELEASED, title: "Round 7.20", notes: [
+    "Fix: counts read the same way everywhere, in parens and said once. A filter says \"Unread (8)\", never \"Unread (8 Unread\". The Inbox tab says \"Inbox (5)\", and your profile's More says \"Inbox (5)\", \"Alerts (2)\" and \"Chats (3)\" instead of \"Inbox, 5 unread\".",
+    "Profile Circle filters say \"Member (3)\" instead of \"Member, 3 circles\". A chat says \"Ava (2 unread)\". Mark all as read says \"Mark all as read (4)\". A thread's heading says \"Thread (5 Dreams)\", and Reading mode says \"Reading mode (Dream 2 of 9)\".",
+  ] },
+  { version: "2026.122.47", build: 169, released: "2026-10-26T04:49:40Z", title: "Round 7.19", notes: [
     "Feature: Chats has its own filters: DMs, Requests, Pinned and Deleted. There's no All and no Circles in Chats.",
     "Unread isn't a filter. DMs and Pinned have a \"Show unread only\" switch instead.",
     "Requests holds messages from people Who can message me doesn't allow. They stay silent there until you Accept, which moves them to DMs. Each request also has Open, Delete and Block.",

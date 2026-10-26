@@ -153,7 +153,7 @@ function convoRow(st, draw, c) {
       block];
   return h('li', { key: key, className: "ci" },
     h('button', { type: "button", className: "lc-ci-main", onClick: open,
-        "aria-label": Looscid.lcNameJoin(c.name, c.unread > 0 ? c.unread + " unread" : "", pinned && !deleted ? "pinned" : "") + (c.preview ? ". " + c.preview : "") + (c.when ? ". " + c.when : "") },
+        "aria-label": Looscid.lcNameJoin(c.name + (c.unread > 0 ? " (" + c.unread + " unread)" : ""), pinned && !deleted ? "pinned" : "") /* #150 */ + (c.preview ? ". " + c.preview : "") + (c.when ? ". " + c.when : "") },
       lcAvEl({ name: c.name, initials: String(c.name || "?").slice(0, 1), color: "#6d28d9" }, 46),
       h('div', { className: "cif", "aria-hidden": "true" }, h('div', { className: "cnm" }, c.name), h('div', { className: "cpv" }, c.preview)),
       h('div', { "aria-hidden": "true", style: { display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 } },

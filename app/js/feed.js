@@ -106,7 +106,7 @@ function FeedPage({navigate, prefs, cherryCtx}) {
       , rmOn && lh('div', { className: "lc-rm", onKeyDown: function (e) { if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return; if (e.key === "ArrowRight") { e.preventDefault(); rmGo(rmI + 1); } else if (e.key === "ArrowLeft") { e.preventDefault(); rmGo(rmI - 1); } },
           onTouchStart: function (e) { const t = e.touches[0]; rmTouch.current = { x: t.clientX, y: t.clientY }; },
           onTouchEnd: function (e) { const s0 = rmTouch.current; rmTouch.current = null; if (!s0) return; const t = e.changedTouches[0], dx = t.clientX - s0.x; if (Math.abs(dx) > 60 && Math.abs(t.clientY - s0.y) < 40) rmGo(rmI + (dx < 0 ? 1 : -1)); } },
-          lh('h2', { id: "rm-pos", className: "lc-sub-h", tabIndex: -1, style: { padding: "0 16px" } }, "Reading mode, Dream " + (rmI + 1) + " of " + visible.length),
+          lh('h2', { id: "rm-pos", className: "lc-sub-h", tabIndex: -1, style: { padding: "0 16px" } }, "Reading mode (Dream " + (rmI + 1) + " of " + visible.length + ")"), // Round 7.20 (#150): positions in parens
           lh('div', { className: "lc-inrow", style: { padding: "0 16px" } },
             lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { rmGo(rmI - 1); }, "aria-label": "Previous Dream" }, "Previous"),
             lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { rmGo(rmI + 1); }, "aria-label": "Next Dream" }, "Next")))

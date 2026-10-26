@@ -2,6 +2,15 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.122.48 (170): Round 7.20
+
+Released October 26, 2026 at 12:51 AM (Eastern Time, 2026-10-26T04:51:06Z UTC)
+
+A fix update, asked for by Carter (count labels, #150).
+
+- Fix: counts read the same way everywhere, in parens and said once. A filter says "Unread (8)", never "Unread (8 Unread". The Inbox tab says "Inbox (5)", and your profile's More says "Inbox (5)", "Alerts (2)" and "Chats (3)" instead of "Inbox, 5 unread".
+- Profile Circle filters say "Member (3)" instead of "Member, 3 circles". A chat says "Ava (2 unread)". Mark all as read says "Mark all as read (4)". A thread's heading says "Thread (5 Dreams)", and Reading mode says "Reading mode (Dream 2 of 9)".
+
 ## Looscid 2026.122.47 (169): Round 7.19
 
 Released October 26, 2026 at 12:49 AM (Eastern Time, 2026-10-26T04:49:40Z UTC)
