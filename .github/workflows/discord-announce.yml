@@ -1,0 +1,62 @@
+name: Discord announcements
+
+# Sends plain-text announcements to #announcements on the Looscid Discord through the
+# "Looscid Bot" webhook (secret DISCORD_ANNOUNCE_WEBHOOK). See docs/dev/ANNOUNCEMENTS.md.
+#   - every 30 minutes: new videos on youtube.com/@Looscid
+#   - a push to main that changes app/version.json: the new build and its What's new
+#   - Run workflow (Actions tab): a typed message and optional link, for news such as a new tweet
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  push:
+    branches: [main]
+    paths: ['app/version.json']
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Announcement text (leave empty to just check for new videos and builds)'
+        required: false
+        default: ''
+      url:
+        description: 'Optional link added after the text (for example the tweet)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: discord-announce
+  cancel-in-progress: false
+
+jobs:
+  announce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Announce
+        env:
+          DISCORD_ANNOUNCE_WEBHOOK: ${{ secrets.DISCORD_ANNOUNCE_WEBHOOK }}
+          ANNOUNCE_MESSAGE: ${{ github.event.inputs.message }}
+          ANNOUNCE_URL: ${{ github.event.inputs.url }}
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then mode=youtube
+          elif [ "${{ github.event_name }}" = "push" ]; then mode=release
+          elif [ -n "$ANNOUNCE_MESSAGE$ANNOUNCE_URL" ]; then mode=manual
+          else mode=all; fi
+          node .github/scripts/discord-announce.mjs "$mode"
+      - name: Remember what was announced
+        run: |
+          if git diff --quiet -- .github/announce-state.json; then echo "Nothing new to remember."; exit 0; fi
+          git config user.name "Looscid Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/announce-state.json
+          git commit -m "Announcements: remember what was announced [skip ci]"
+          for i in 1 2 3; do git pull --rebase origin main && git push origin HEAD:main && exit 0; sleep 5; done
+          exit 1
