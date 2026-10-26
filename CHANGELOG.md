@@ -2,6 +2,14 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.124.49 (173): Round 7.23
+
+Released October 26, 2026 at 12:54 AM (Eastern Time, 2026-10-26T04:54:36Z UTC)
+
+A feature update, asked for by Carter (tab reorder from More, #151).
+
+- Feature: you can reorder the tab bar from your profile's More: Reorder tab bar opens Settings, Tab Bar, and Back brings you back to your profile. The old Reorder tabs item is now called Reorder profile tabs, so the two are easy to tell apart.
+
 ## Looscid 2026.123.49 (172): Round 7.22
 
 Released October 26, 2026 at 12:53 AM (Eastern Time, 2026-10-26T04:53:31Z UTC)

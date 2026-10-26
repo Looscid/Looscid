@@ -591,7 +591,9 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
     ? g(G1, [{ id: "edit", name: "Edit profile", a: function () { openEdit(true); } },
        { id: "share", name: "Share profile", a: share }, copyLink].concat(extraItems, [
        { id: "viewas", name: "View as others see it", a: function () { setViewAs(true); announce("Viewing your profile as others see it."); } },
-       { id: "reorder", name: "Reorder tabs", a: function () { Looscid.LC_SETTINGS_BACK = "profile"; navigate("settings_profiletabs"); } },
+       { id: "reorder", name: "Reorder profile tabs", a: function () { Looscid.LC_SETTINGS_BACK = "profile"; navigate("settings_profiletabs"); } },
+       // Round 7.23 (#151, Carter Oct 25 2026): the bottom tab bar can be reordered from More too (Settings, Tab Bar), and Back returns here.
+       { id: "reordertabbar", name: "Reorder tab bar", a: function () { Looscid.LC_SETTINGS_BACK = "profile"; navigate("settings_tabbar"); } },
        { id: "lists", name: "Lists", a: function () { navigate("lists"); } },
        { id: "drafts", name: "Drafts", a: function () { navigate("drafts"); } }]))
       .concat(g(G2, [
@@ -625,7 +627,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
        hidesRd ? { id: "showrd", name: "Show Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, false); say("Showing Redreams from " + user.name + "."); } }
                : { id: "hiderd", name: "Hide Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, true); say("Hiding Redreams from " + user.name + "."); } },
        { id: "note", name: note ? "Edit note" : "Add note", a: function () { setNoteText(note); setNoteEdit(true); } },
-       { id: "reorder", name: "Reorder tabs", a: function () { Looscid.LC_SETTINGS_BACK = null; navigate("settings_profiletabs"); } }]);
+       { id: "reorder", name: "Reorder profile tabs", a: function () { Looscid.LC_SETTINGS_BACK = null; navigate("settings_profiletabs"); } }]);
   // Log out asks first, in the app's own confirm dialog. Cancel (or Escape) puts focus back on More.
   const logoutWarn = (function () { const N = Looscid.lcNostr, w = N && N.forgetWarning ? N.forgetWarning() : ""; return w ? " " + w : ""; })();
   const logoutDlg = logoutAsk ? lh(AlertDialog, { title: "Log out of Looscid?",
@@ -2504,12 +2506,15 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 123; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 124; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 49;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.123.49", build: 172, released: LOOSCID_RELEASED, title: "Round 7.22", notes: [
+  { version: "2026.124.49", build: 173, released: LOOSCID_RELEASED, title: "Round 7.23", notes: [
+    "Feature: you can reorder the tab bar from your profile's More: Reorder tab bar opens Settings, Tab Bar, and Back brings you back to your profile. The old Reorder tabs item is now called Reorder profile tabs, so the two are easy to tell apart.",
+  ] },
+  { version: "2026.123.49", build: 172, released: "2026-10-26T04:53:31Z", title: "Round 7.22", notes: [
     "Feature: Looscid on your Home Screen tells you when there's an update. When a new version ships, a banner at the top says \"Update available\" with the version, and an Update button and Later. It's said once, politely, and focus stays where it is.",
     "It checks when Looscid opens, every 10 minutes, and whenever you come back to it, including a Home Screen app waking up. Update gets the new files past the cache before reloading, so you really land on the new version. Anything you're writing is kept.",
   ] },
@@ -3675,7 +3680,7 @@ function TabBarSettings({ navigate }) {
     keep("tb-" + (d < 0 ? "up-" : "down-") + sid(t.id)); announce("Moved " + t.l + (d < 0 ? " up" : " down") + ", now position " + n + ".");
   };
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
-    lh(BackHeader, { title: "Tab Bar", onBack: function () { navigate("settings"); } }),
+    lh(BackHeader, { title: "Tab Bar", onBack: function () { const b = Looscid.LC_SETTINGS_BACK; Looscid.LC_SETTINGS_BACK = null; navigate(b || "settings"); } }), // #151: Back to your profile when opened from its More
     lh('p', { className: "lc-desc", style: { padding: "8px 16px", margin: 0 } }, "Choose which tabs show at the bottom, and their order. Profile is always last."),
     lh('ul', { className: "lc-tb-list", role: "list" }, list.map(function (t, i) {
       return lh('li', { key: t.id, className: "lc-tb-row" },

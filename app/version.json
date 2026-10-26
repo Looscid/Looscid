@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.123.49",
-  "build": 172,
-  "features": 123,
+  "version": "2026.124.49",
+  "build": 173,
+  "features": 124,
   "fixes": 49,
-  "builds_without_fixes": 123,
-  "released": "2026-10-26T04:53:31Z",
-  "title": "Round 7.22",
-  "notes": "Round 7.22 (build 172), a feature update. An \"Update available\" banner with an Update button, made for the Home Screen app: it checks when you come back, and Update loads the new files past the cache."
+  "builds_without_fixes": 124,
+  "released": "2026-10-26T04:54:36Z",
+  "title": "Round 7.23",
+  "notes": "Round 7.23 (build 173), a feature update. Reorder tab bar is in your profile's More, next to Reorder profile tabs."
 }
