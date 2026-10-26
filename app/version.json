@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.119.47",
-  "build": 166,
-  "features": 119,
+  "version": "2026.120.47",
+  "build": 167,
+  "features": 120,
   "fixes": 47,
-  "builds_without_fixes": 119,
-  "released": "2026-10-25T05:00:10Z",
-  "title": "Round 7.16",
-  "notes": "Round 7.16 (build 166), a feature update. A leaner Discover and Home: Sort is the only control above each feed, feed options moved to Settings, Cherry is gone from the feed, Dream menus are shorter, Discover's filters and Join work, and Circles is its own item in your profile's More."
+  "builds_without_fixes": 120,
+  "released": "2026-10-26T04:44:49Z",
+  "title": "Round 7.17",
+  "notes": "Round 7.17 (build 167), a feature update. The Alerts tab is Inbox: one menu button switches between Alerts and Chats, with one filter row under it."
 }

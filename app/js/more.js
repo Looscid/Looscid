@@ -600,7 +600,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
        // is a tab, Lists is above).
        { id: "circles", name: "Circles", a: function () { navigate("groups"); } },
        { id: "create", name: "Create", a: function () { navigate("more_create"); } },
-       { id: "alerts", name: "Alerts", a: function () { navigate("more_alerts"); } },
+       { id: "alerts", name: "Inbox", a: function () { navigate("more_alerts"); } }, // Round 7.17 (#149): Alerts is Inbox
        { id: "settings", name: "Settings", a: function () { navigate("settings_open"); } },
        { id: "cmdbar", name: "Commandbar", a: function () { setTimeout(function () { if (Looscid.LC_OPEN_CMD) Looscid.LC_OPEN_CMD(); }, 60); } },
        { id: "help", name: "Help", a: function () { navigate("helpcenter"); } },
@@ -988,7 +988,7 @@ function NotificationsSettings({navigate}) {
           lh(A11ySwitch, { id: "al-group", label: "Group similar alerts", on: !!P.group, onToggle: function () { setP(lcAlertPrefsSet({ group: !P.group })); announce("Group similar alerts " + (!P.group ? "on" : "off") + "."); } }),
           lh('div', { className: "lc-row" }, lh('button', { type: "button", id: "al-markall", className: "btn bgb lc-big", onClick: function () { const n = lcAlertsMarkAll(); announce(n ? "All alerts marked as read." : "No alerts to mark."); setP(lcAlertPrefs()); } }, "Mark all as read" + (unread ? ", " + unread + " unread" : ""))))
       , lh(LcSection, { sec: "quiet", intro: lcQuietNow() ? "Quiet hours are on right now." : null, noReset: true })
-      , lh(LcCatCustomize, { kind: "alert", defs: lcAlertCats(), title: "Customize Inbox tabs" })
+      , lh(LcCatCustomize, { kind: "alert", defs: lcAlertCats(), title: "Customize Alerts filters" })
       , lh(LcResetLast, { scope: "alerts" })
     )
   );
@@ -2504,12 +2504,18 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 119; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 120; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 47;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.119.47", build: 166, released: LOOSCID_RELEASED, title: "Round 7.16", notes: [
+  { version: "2026.120.47", build: 167, released: LOOSCID_RELEASED, title: "Round 7.17", notes: [
+    "Feature: the Alerts tab is now Inbox. Inbox has two views, Alerts (likes, replies, mentions, follows and Circles) and Chats (what was Messages).",
+    "One menu button at the top picks the view. It reads \"Showing Alerts, 12\", and its menu has \"Alerts (12)\" and \"Chats (3)\". It's a button, not a tab, so the filters below it are the only tabs on the page.",
+    "Alerts has one filter row: All, Unread, Circles (new), Replies, Mentions, Likes, Redreams, Quotes, New Dreamor and Deleted Dreams. A filter with something new says how many in parens, like \"Replies (3)\".",
+    "The Inbox tab's badge counts Alerts and Chats together, and reads \"Inbox (5)\". Your profile's More and Commandbar say Inbox too (\"open inbox\", \"open alerts\", \"open chats\"); old Alerts addresses still open it, and a saved Messages tab opens Chats.",
+  ] },
+  { version: "2026.119.47", build: 166, released: "2026-10-25T05:00:10Z", title: "Round 7.16", notes: [
     "Feature: a leaner Home. The feed tabs come right after the Home heading: no Cherry button and no welcome line. Each feed has only its Sort button (Latest or Popular) above it, Federated too.",
     "For You's Show following switches, Federated's Networks and Pin a tab moved to Settings, Customizability, Feeds and home, so you set them once. Feed tabs can still be unpinned from the tab itself.",
     "Federated is Latest or Popular. Local (Dreams from around you) is gone, and a rough area it saved on this device is removed. Mastodon and Bluesky are no longer listed as Coming soon.",

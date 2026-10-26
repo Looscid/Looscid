@@ -192,51 +192,97 @@ function pmView(st, draw) {
     h('div', { style: { height: 72 } }));
 }
 
+/* Round 7.17 (#149, Carter Oct 25 2026, "NAMING FINAL"): the bottom tab is Inbox. Inbox has two views, Alerts (what was
+   Notifications: likes, replies, mentions, follows, Circles) and Chats (what was Messages). One menu (pop-up) button picks
+   the view, "Showing Alerts, 12", with "Alerts (12)" and "Chats (3)" in its menu; it is a button, not a tab. Under it is one
+   filter row, the only group with a selected state (a real tablist). Counts are in parens. The Inbox tab's badge is both. */
+function viewMenu(st, draw, counts) {
+  const items = [{ id: "alerts", name: "Alerts" }, { id: "chats", name: "Chats" }];
+  const cur = items.find(function (it) { return it.id === st.box; }) || items[0], k = counts[cur.id] || 0;
+  const focusBtn = function () { setTimeout(function () { const b = document.getElementById("inbox-view-btn"); if (b) b.focus(); }, 0); };
+  const focusItem = function (i) { setTimeout(function () { const l = document.querySelectorAll("#inbox-view-menu [data-mi]"); const el = l[Math.max(0, Math.min(l.length - 1, i))]; if (el) el.focus(); }, 0); };
+  const close = function () { st.menu = false; draw(); focusBtn(); };
+  const pick = function (id) {
+    st.menu = false; st.more = null;
+    if (id !== st.box) { st.box = id; Looscid.lcSetInboxView(id, true); }
+    draw(); focusBtn(); announce("Showing " + (id === "chats" ? "Chats" : "Alerts") + ".");
+  };
+  const curIdx = Math.max(0, items.indexOf(cur));
+  const onMenuKey = function (e) {
+    const l = Array.prototype.slice.call(document.querySelectorAll("#inbox-view-menu [data-mi]")), i = l.indexOf(document.activeElement);
+    if (e.key === "Escape" || e.key === "Tab") { e.preventDefault(); e.stopPropagation(); close(); return; }
+    let n = -1;
+    if (e.key === "ArrowDown") n = i < 0 ? 0 : (i + 1) % l.length; else if (e.key === "ArrowUp") n = i < 0 ? l.length - 1 : (i - 1 + l.length) % l.length;
+    else if (e.key === "Home") n = 0; else if (e.key === "End") n = l.length - 1;
+    else if ((e.key === "Enter" || e.key === " ") && i >= 0) { e.preventDefault(); l[i].click(); return; }
+    if (n >= 0) { e.preventDefault(); l[n].focus(); }
+  };
+  return h('div', { className: "lmenu lc-inbox-view", style: { padding: "0 16px 8px" } },
+    // The button's name is its visible words: "Showing Alerts, 12" (#149 approved label), or "Showing Alerts" with nothing new.
+    h('button', { id: "inbox-view-btn", type: "button", className: "lmenu-btn", "aria-haspopup": "menu", "aria-expanded": st.menu ? "true" : "false", "aria-controls": st.menu ? "inbox-view-menu" : undefined,
+        onClick: function () { st.menu = !st.menu; draw(); if (st.menu) setTimeout(function () { const m = document.getElementById("inbox-view-menu"); if (m) m.focus(); }, 0); },
+        onKeyDown: function (e) { if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); st.menu = true; draw(); focusItem(e.key === "ArrowUp" ? items.length : curIdx); } } },
+      "Showing " + cur.name + (k > 0 ? ", " + k : ""), h('span', { className: "lmenu-caret", "aria-hidden": "true" }, st.menu ? "\u25B4" : "\u25BE")),
+    st.menu ? h('div', { className: "lmenu-list" },
+      // Opened by a tap or click, focus goes to the menu itself (#76), so VoiceOver says only "Inbox, menu"; Down moves in.
+      h('ul', { id: "inbox-view-menu", role: "menu", className: "lmenu-ul", "aria-label": "Inbox", tabIndex: -1, onKeyDown: onMenuKey },
+        items.map(function (it, i) {
+          const on = it.id === cur.id, c = counts[it.id] || 0;
+          return h('li', { key: it.id, id: "inbox-view-" + it.id, "data-mi": "1", role: "menuitemradio", "aria-checked": on ? "true" : "false", tabIndex: -1, className: "lmenu-item",
+              onClick: function () { pick(it.id); } },
+            h('span', { className: "lmenu-check", "aria-hidden": "true" }, on ? "\u2713" : ""),
+            h('span', null, it.name + (c > 0 ? " (" + c + ")" : "")));
+        }),
+        h('li', { key: "__close", id: "inbox-view-close", "data-mi": "1", role: "menuitem", tabIndex: -1, className: "lmenu-item lmenu-close", "aria-label": "Close Inbox menu", "aria-braillelabel": "Close", onClick: close }, "Close"))) : null);
+}
+/* One filter row (a real tablist). Each filter with something unread says it in parens: "Replies (3)". */
+function filterRow(id, label, tabs, cur, count, setTab) {
+  return h('div', { key: id, className: "ftabs lc-alert-tabs", role: "tablist", "aria-label": label, onKeyDown: subTabKey(tabs, cur, setTab), style: { overflowX: "auto", scrollbarWidth: "none", borderBottom: "1px solid var(--bd)" } },
+    tabs.map(function (t, i) {
+      const on = cur === t.id, k = count(t.id);
+      return h('button', { key: t.id, id: "inbox-tab-" + t.id, type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", "aria-controls": "inbox-panel",
+          "aria-setsize": tabs.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1, onClick: function () { setTab(t.id); }, "aria-label": k > 0 ? t.label + " (" + k + ")" : undefined },
+        t.label, k > 0 ? [" ", h('span', { key: "b", className: "lc-alert-badge", "aria-hidden": "true" }, String(k))] : null);
+    }));
+}
 function alertsView(st, draw) {
   if (st.compose) return composeView(st, draw);
   if (st.pm) return pmView(st, draw);
   if (st.convo) return h('div', { className: "pg", style: { display: "flex", flexDirection: "column", paddingBottom: 0 } },
     convoView(st.convo, draw, function () { st.convo = null; draw(); }));
+  const chats = st.box === "chats";
   const tabs = lcCatList("alert", lcAlertCats());
   const cur = tabs.some(function (t) { return t.id === st.view; }) ? st.view : "all";
   const notifs = lcAlerts(), convos = allConvos(), only = onlyFollowed();
   const goSet = function (pg, focus) { Looscid.LC_SETTINGS_BACK = "alerts"; if (Looscid.LC_NAV) Looscid.LC_NAV(pg); if (focus) setTimeout(function () { const el = document.getElementById(focus); if (el) el.focus(); }, 300); };
   const unreadN = notifs.filter(function (n) { return n.unread; }).length, unreadC = convos.reduce(function (a, c) { return a + (c.unread || 0); }, 0);
-  const count = function (id) { return id === "unread" ? unreadN + unreadC : id === "messages" ? unreadC : id === "all" ? 0 : notifs.filter(function (n) { return n.unread && n.type === id; }).length; };
+  const isCircle = function (n) { return n.type === "circle" || !!n.circle; };
+  const count = function (id) { return id === "unread" ? unreadN : id === "all" ? 0 : id === "circle" ? notifs.filter(function (n) { return n.unread && isCircle(n); }).length : notifs.filter(function (n) { return n.unread && n.type === id; }).length; };
   let rows = [];
-  if (cur === "messages") rows = convos.map(function (c) { return { c: c }; });
+  if (chats) rows = convos.map(function (c) { return { c: c }; });
   else {
-    let ns = cur === "all" ? notifs : cur === "unread" ? notifs.filter(function (n) { return n.unread; }) : notifs.filter(function (n) { return n.type === cur; });
+    let ns = cur === "all" ? notifs : cur === "unread" ? notifs.filter(function (n) { return n.unread; }) : cur === "circle" ? notifs.filter(isCircle) : notifs.filter(function (n) { return n.type === cur; });
     if (cur === "reply" && only) ns = ns.filter(function (n) { return n.sub; });
     rows = ns.map(function (n) { return { n: n, t: n.time }; });
-    if (cur === "all" || cur === "unread") {
-      const cs = convos.filter(function (c) { return cur === "all" || c.unread > 0; });
-      rows = rows.concat(cs.map(function (c) { return { c: c, t: c.t }; })).sort(function (a, b) { return (b.t || 0) - (a.t || 0); });
-    }
   }
   const setTab = function (id) { st.view = id; st.more = null; lcSetAlertsTab(id, true); draw(); };
-  const empty = { all: "Nothing here yet", unread: "You're all caught up", messages: "No messages yet", reply: only ? "No new replies in threads you follow" : "No replies yet", mention: "No mentions yet", like: "No Likes yet", redream: "No Redreams yet", quote: "No Quotes yet", follow: "No new Dreamors yet" }[cur] || "Nothing here yet";
+  const empty = chats ? "No chats yet" : ({ all: "Nothing here yet", unread: "You're all caught up", circle: "No Circles alerts yet", reply: only ? "No new replies in threads you follow" : "No replies yet", mention: "No mentions yet", like: "No Likes yet", redream: "No Redreams yet", quote: "No Quotes yet", follow: "No new Dreamors yet", deletedDream: "No deleted Dreams" }[cur] || "Nothing here yet");
   return h('div', { className: "pg lc-inbox" },
     h('div', { className: "hdr" },
       h('div', { style: { display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8, padding: "48px 16px 12px" } },
-        h('h1', { className: "htit", tabIndex: -1, style: { marginRight: "auto" } }, "Alerts"),
+        h('h1', { className: "htit", tabIndex: -1, style: { marginRight: "auto" } }, "Inbox"),
         h('button', { type: "button", id: "inbox-send", className: "btn bp", style: { fontSize: 12, padding: "6px 12px" }, onClick: function () { st.compose = { to: "", text: "", msg: "" }; draw(); setTimeout(function () { const t = document.getElementById("pm-to"); if (t) t.focus(); }, 0); } }, "Send a message"),
         h('button', { type: "button", id: "inbox-markall", className: "btn bgb", style: { fontSize: 12, padding: "6px 12px" },
           onClick: function () { const n = lcAlertsMarkAll(); const m = Looscid.lcPmMarkRead ? Looscid.lcPmMarkRead(null) : false; announce(n || m ? "All marked as read." : "Nothing to mark."); } }, "Mark all read"),
-        h('button', { type: "button", id: "alerts-settings-link", className: "btn bgb", style: { fontSize: 12, padding: "6px 12px" }, onClick: function () { goSet("settings_notifications"); } }, "Alerts settings"))),
-    h('div', { className: "ftabs lc-alert-tabs", role: "tablist", "aria-label": "Inbox", onKeyDown: subTabKey(tabs, cur, setTab), style: { overflowX: "auto", scrollbarWidth: "none", borderBottom: "1px solid var(--bd)" } },
-      tabs.map(function (t, i) {
-        const on = cur === t.id, k = count(t.id);
-        return h('button', { key: t.id, id: "inbox-tab-" + t.id, type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", "aria-controls": "inbox-panel",
-            "aria-setsize": tabs.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1, onClick: function () { setTab(t.id); }, "aria-label": k > 0 ? t.label + " (" + k + " unread)" : undefined },
-          t.label, k > 0 ? [" ", h('span', { key: "b", className: "lc-alert-badge", "aria-hidden": "true" }, String(k))] : null);
-      })),
-    h('div', { id: "inbox-panel", role: "tabpanel", "aria-labelledby": "inbox-tab-" + cur },
-      cur === "reply" ? h('fieldset', { className: "lc-inbox-only" }, h('legend', null, "Replies"),
+        h('button', { type: "button", id: "alerts-settings-link", className: "btn bgb", style: { fontSize: 12, padding: "6px 12px" }, onClick: function () { goSet(chats ? "settings_messages" : "settings_notifications"); } }, chats ? "Chats settings" : "Alerts settings"))),
+    viewMenu(st, draw, { alerts: unreadN, chats: unreadC }),
+    chats ? null : filterRow("inbox-filters", "Alerts filters", tabs, cur, count, setTab),
+    h('div', chats ? { id: "inbox-panel", role: "region", "aria-label": "Chats" } : { id: "inbox-panel", role: "tabpanel", "aria-labelledby": "inbox-tab-" + cur },
+      !chats && cur === "reply" ? h('fieldset', { className: "lc-inbox-only" }, h('legend', null, "Replies"),
         h('label', { className: "lc-cbx-row" }, h('input', { type: "checkbox", id: "inbox-only-followed", checked: only,
           onChange: function (e) { try { localStorage.setItem(ONLY_FOLLOWED_KEY, e.target.checked ? "1" : "0"); } catch (x) {} draw(); } }), " Only threads I follow")) : null,
-      cur === "messages" && pmStateNote() ? h('p', { className: "lc-desc", style: { padding: "8px 16px" } }, pmStateNote()) : null,
-      cur === "messages" && Looscid.lcPmHeld && Looscid.lcPmHeld() > 0 ? h('div', { className: "lc-pm-held", style: { padding: "8px 16px" } },
+      chats && pmStateNote() ? h('p', { className: "lc-desc", style: { padding: "8px 16px" } }, pmStateNote()) : null,
+      chats && Looscid.lcPmHeld && Looscid.lcPmHeld() > 0 ? h('div', { className: "lc-pm-held", style: { padding: "8px 16px" } },
         h('p', { className: "lc-desc", id: "pm-held-note" }, (function (k) { return k === 1 ? "1 Dreamor who isn't allowed by Who can message me has messages waiting. They stay hidden and silent." : k + " Dreamors who aren't allowed by Who can message me have messages waiting. They stay hidden and silent."; })(Looscid.lcPmHeld())),
         h('button', { type: "button", id: "pm-held-settings", className: "btn bgb lc-btn", onClick: function () { goSet("settings_messages"); } }, "Message settings")) : null,
       rows.length === 0
@@ -248,7 +294,8 @@ function alertsView(st, draw) {
 /* The Alerts tab (the Inbox). The chosen tab is saved on this device. */
 const AlertsPage = lcPlainScreen("AlertsPage", function (host) {
   const saved = lcAlertsTab();
-  const st = { view: saved, convo: null, pm: null, compose: null, more: null };
+  // Round 7.17 (#149): box is the Inbox view (Alerts or Chats), saved on this device; view is the Alerts filter.
+  const st = { box: Looscid.lcInboxView ? Looscid.lcInboxView() : "alerts", view: saved, convo: null, pm: null, compose: null, more: null, menu: false };
   // Round 5 fixes: Direct message on a Dreamor's profile opens their chat, or a new message to them; Back returns to the profile.
   const dm = Looscid.LC_PM_OPEN; Looscid.LC_PM_OPEN = null;
   /* Round 9 fixes (QA round 8): Open LooscidID from this chat (or from Send a message) set a Back target for Settings
@@ -267,6 +314,8 @@ const AlertsPage = lcPlainScreen("AlertsPage", function (host) {
     if (aid && !host.contains(document.activeElement)) { const el = document.getElementById(aid); if (el) el.focus(); }
   };
   const onTab = function (e) { st.view = e.detail; draw(); };
+  const onBox = function (e) { if (st.box !== e.detail) { st.box = e.detail; st.more = null; st.menu = false; draw(); } };
+  window.addEventListener("looscid:inboxview", onBox);
   const evs = ["looscid:alerts", "looscid:cats", "looscid:pms", "looscid:blocked", "looscid:threadsubs"];
   window.addEventListener("looscid:alertstab", onTab);
   evs.forEach(function (e) { window.addEventListener(e, draw); });
@@ -274,7 +323,7 @@ const AlertsPage = lcPlainScreen("AlertsPage", function (host) {
   if (Looscid.lcPmCheck) setTimeout(function () { Looscid.lcPmCheck(); if (Looscid.lcInboxCheck) Looscid.lcInboxCheck(); }, 400);
   return {
     update: draw,
-    stop: function () { window.removeEventListener("looscid:alertstab", onTab); evs.forEach(function (e) { window.removeEventListener(e, draw); }); }
+    stop: function () { window.removeEventListener("looscid:alertstab", onTab); window.removeEventListener("looscid:inboxview", onBox); evs.forEach(function (e) { window.removeEventListener(e, draw); }); }
   };
 });
 Looscid.AlertsPage = AlertsPage;
@@ -285,5 +334,5 @@ function lcCatList(kind, defs) {
 }
 function lcAlertTime(t) { const s = Math.round((Date.now() - t) / 1000); return s < 60 ? "just now" : s < 3600 ? Math.floor(s / 60) + " min ago" : s < 86400 ? Math.floor(s / 3600) + " h ago" : new Date(t).toLocaleDateString(); }
 function lcAlertToggle(id) { lcAlertsSave(lcAlerts().map(function (x) { return x.id === id ? Object.assign({}, x, { unread: !x.unread }) : x; })); }
-function lcAlertsTab() { let v = "all"; try { v = localStorage.getItem(ALERTS_TAB_KEY) || "all"; } catch (e) {} return v === "notifications" ? "all" : v; }
+function lcAlertsTab() { let v = "all"; try { v = localStorage.getItem(ALERTS_TAB_KEY) || "all"; } catch (e) {} return v === "notifications" || v === "messages" ? "all" : v; }
 })(window.Looscid = window.Looscid || {});

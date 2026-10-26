@@ -1466,8 +1466,11 @@ const LC_MSG_CATS = [{ id: "all", label: "All" }, { id: "requests", label: "Requ
 Looscid.LC_MSG_CATS = LC_MSG_CATS;
 // Build 151 (#73, 2three1y Oct 11 4:53-4:58 PM): the Inbox tabs, Reddit's Inbox layout as an idea only. Settings, Alerts
 // can reorder or hide them (All stays). New Dreams and From Looscid show under All and Unread.
-const LC_INBOX_TABS = [{ id: "deletedDream", label: "Deleted Dreams" },{ id: "all", label: "All" }, { id: "unread", label: "Unread" }, { id: "messages", label: "Messages" }, { id: "reply", label: "Replies" }, { id: "mention", label: "Mentions" },
-  { id: "like", label: "Likes" }, { id: "redream", label: "Redreams" }, { id: "quote", label: "Quotes" }, { id: "follow", label: "New Dreamor" }];
+// Round 7.17 (#149, Carter Oct 25 2026, "NAMING FINAL"): the bottom tab is Inbox, and Inbox has two views, Alerts and Chats,
+// picked with one menu button. These are the Alerts view's filters; Messages moved out (it is the Chats view), Circles is
+// new (Circles activity), and Deleted Dreams sits after the others instead of before All.
+const LC_INBOX_TABS = [{ id: "all", label: "All" }, { id: "unread", label: "Unread" }, { id: "circle", label: "Circles" }, { id: "reply", label: "Replies" }, { id: "mention", label: "Mentions" },
+  { id: "like", label: "Likes" }, { id: "redream", label: "Redreams" }, { id: "quote", label: "Quotes" }, { id: "follow", label: "New Dreamor" }, { id: "deletedDream", label: "Deleted Dreams" }];
 function lcAlertCats() { return LC_INBOX_TABS.slice(); }
 /* --- Round 6: Reset. The last item in every settings list opens one native <dialog>, scoped to
    where you are: collapsible groups (one open at a time), a checkbox per setting, "Reset all
@@ -1999,7 +2002,7 @@ const NAV = [
   {id:"feed",    l:"Home",     icon:"Home",  badge:0},
   {id:"discover",l:"Discover", icon:"Srch",  badge:0},
   {id:"create",  l:"Create",   icon:"Pls",   isCreate:true},
-  {id:"alerts",  l:"Alerts",   icon:"Bell",  badge:6},
+  {id:"alerts",  l:"Inbox",    icon:"Bell",  badge:6}, // Round 7.17 (#149): the Alerts tab is Inbox; its id stays "alerts"
   {id:"more",    l:"Profile",  icon:"Usr",   badge:0}, // Round 7.14 (Carter, Oct 24 2026): the More tab is Profile; its id stays "more"
 ];
 Looscid.NAV = NAV;
@@ -2246,7 +2249,7 @@ Looscid.ErrorBoundary = ErrorBoundary;
    routing, so app/404.html sends any unknown address under /Looscid/ back to the app as ?p=<path>, and the app opens
    that page and puts the real address back. The site folder itself (/Looscid/) is case-sensitive on GitHub's side. */
 const LC_ROUTES = [
-  ["feed", ""], ["discover", "Discover"], ["alerts", "Alerts"], ["groups", "Circles"], ["liked", "Liked"], ["lists", "Lists"], ["profile", "Profile"], ["drafts", "Drafts"],
+  ["feed", ""], ["discover", "Discover"], ["alerts", "Inbox"], ["alerts", "Alerts"], ["groups", "Circles"], ["liked", "Liked"], ["lists", "Lists"], ["profile", "Profile"], ["drafts", "Drafts"],
   ["cherry", "Cherry"], ["more", "More"], ["settings", "Settings"],
   ["settings_account", "Settings/LooscidID"], ["settings_notifications", "Settings/Alerts"], ["settings_messages", "Settings/Messages"], ["settings_privacy", "Settings/Privacy"],
   ["settings_customizability", "Settings/Customizability"], ["settings_cz_theme", "Settings/Customizability/Theme"], ["settings_cz_feeds", "Settings/Customizability/Feeds"],
@@ -2319,9 +2322,10 @@ function lcMoreSections(o) {
     { id:"apps", emoji:"Apps", label:"Apps", hideInMenu: true, items: lcAppItems().map(function (it) { return { icon: it.l, label: it.l, sub: it.sub, action(){ onClose(); it.go(navigate); } }; }) },
     // Build 148 (2three1y): Create is the same list as the Create tab, one shared implementation (js/create.js, CreateOptions).
     { id:"create", emoji:"Create", label:"Create", items:[], render: function () { return Looscid.CreateOptions ? lh(Looscid.CreateOptions, { idp: "more-create", navigate: navigate, close: onClose, open: function (scr) { onClose(); if (Looscid.LC_OPEN_CREATE) Looscid.LC_OPEN_CREATE(scr); } }) : null; } },
-    { id:"alerts", emoji:"Alerts", label:"Alerts", badge:totalAlerts, items:[
-      { icon:"Messages", label:"Messages",      sub:"Private Dreams",           badge:unreadMsgs,   action(){onClose();lcSetAlertsTab("messages", true);goRoot("alerts");} },
-      { icon:"Notifications", label:"Notifications", sub:"Likes, follows, mentions", badge:unreadNotifs, action(){onClose();lcSetAlertsTab("all", true);goRoot("alerts");} },
+    // Round 7.17 (#149): Inbox holds Alerts and Chats (Notifications is Alerts, Messages is Chats).
+    { id:"alerts", emoji:"Alerts", label:"Inbox", badge:totalAlerts, items:[
+      { icon:"Notifications", label:"Alerts", sub:"Likes, replies, mentions, follows", badge:unreadNotifs, action(){onClose();lcSetAlertsTab("all", true);goRoot("alerts");} },
+      { icon:"Messages", label:"Chats",         sub:"Private messages",         badge:unreadMsgs,   action(){onClose();lcSetInboxView("chats", true);goRoot("alerts");} },
     ]},
 
     { id:"settings", emoji:"Settings", label:"Settings", top: true,
@@ -4025,11 +4029,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.119.47";
+const LOOSCID_VERSION = "2026.120.47";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 166;
+const LOOSCID_BUILD = 167;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-25T05:00:10Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-26T04:44:49Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -5401,10 +5405,26 @@ function lcKeyLockAlert() {
 Looscid.lcKeyLockAlert = lcKeyLockAlert;
 const ALERTS_TAB_KEY = "looscid_alerts_tab";
 Looscid.ALERTS_TAB_KEY = ALERTS_TAB_KEY;
+// Round 7.17 (#149): which Inbox view shows, Alerts or Chats (saved on this device).
+const INBOX_VIEW_KEY = "looscid_inbox_view";
+Looscid.INBOX_VIEW_KEY = INBOX_VIEW_KEY;
+function lcInboxView() { try { return localStorage.getItem(INBOX_VIEW_KEY) === "chats" ? "chats" : "alerts"; } catch (e) { return "alerts"; } }
+function lcSetInboxView(v, quiet) {
+  v = v === "chats" ? "chats" : "alerts";
+  try { localStorage.setItem(INBOX_VIEW_KEY, v); } catch (e) {}
+  window.dispatchEvent(new CustomEvent("looscid:inboxview", { detail: v }));
+  if (!quiet) announce(v === "chats" ? "Showing Chats." : "Showing Alerts.");
+}
+Object.assign(Looscid, { lcInboxView, lcSetInboxView });
+// Once per device: a saved Messages tab (from before Round 7.17) opens the Chats view.
+try { if (localStorage.getItem("looscid_alerts_tab") === "messages") { localStorage.setItem("looscid_alerts_tab", "all"); localStorage.setItem(INBOX_VIEW_KEY, "chats"); } } catch (e) {}
 function lcSetAlertsTab(v, quiet) {
   // Build 151 (#73): one Inbox tablist. The old "notifications" opens All; "messages" opens Messages.
+  // Round 7.17 (#149): "messages" (or "chats") opens the Chats view; anything else is an Alerts filter.
+  if (v === "messages" || v === "chats") { lcSetInboxView("chats", quiet); return; }
   v = v === "notifications" ? "all" : LC_INBOX_TABS.some(function (t) { return t.id === v; }) ? v : "all";
-  try { localStorage.setItem(ALERTS_TAB_KEY, v); } catch (e) {}
+  try { localStorage.setItem(ALERTS_TAB_KEY, v); localStorage.setItem(INBOX_VIEW_KEY, "alerts"); } catch (e) {}
+  window.dispatchEvent(new CustomEvent("looscid:inboxview", { detail: "alerts" }));
   window.dispatchEvent(new CustomEvent("looscid:alertstab", { detail: v }));
   if (!quiet) announce("Alerts: " + LC_INBOX_TABS.find(function (t) { return t.id === v; }).label + ".");
 }
@@ -5442,9 +5462,10 @@ function lcApplyFeedIntent(it) {
 /* --- The one command engine ---------------------------------------------- */
 const LC_PLACES = {
   feed: { label: "Feed", root: "feed" },
-  alerts: { label: "Alerts", root: "alerts" },
-  notifications: { label: "Alerts, All", root: "alerts", alertsTab: "all" },
-  messages: { label: "Alerts, Messages", root: "alerts", alertsTab: "messages" },
+  alerts: { label: "Inbox, Alerts", root: "alerts", alertsTab: "all" }, // Round 7.17 (#149): Inbox has Alerts and Chats
+  inbox: { label: "Inbox", root: "alerts" },
+  notifications: { label: "Inbox, Alerts", root: "alerts", alertsTab: "all" },
+  messages: { label: "Inbox, Chats", root: "alerts", alertsTab: "chats" },
   circles: { label: "Circles", root: "circles" },
   discover: { label: "Discover", root: "discover" },
   settings: { label: "Settings", page: "settings" },
@@ -5538,8 +5559,9 @@ const LC_PLACE_WORDS = [
   ["customizability", ["customizability", "customize", "customise", "theme", "themes"]],
   ["account", ["account", "looscidid", "looscid id", "login", "security"]],
   ["alerts", ["alerts", "alert"]],
+  ["inbox", ["inbox"]],
   ["notifications", ["notifications", "notification"]],
-  ["messages", ["messages", "message", "inbox", "dms"]],
+  ["messages", ["chats", "messages", "message", "dms"]],
   ["circles", ["circles", "circle", "groups", "group", "communities", "community"]],
   ["feed", ["feed", "home", "timeline"]],
   ["discover", ["discover", "explore", "trending"]],
@@ -5558,7 +5580,7 @@ const LC_PLACE_WORDS = [
 ];
 Looscid.LC_PLACE_WORDS = LC_PLACE_WORDS;
 const LC_COMMANDS = [
-  ["open feed", "your Home feed"], ["open alerts", "Alerts"], ["open notifications", "Alerts, All"], ["open messages", "Alerts, Messages"], ["open circles", "your Circles"],
+  ["open feed", "your Home feed"], ["open inbox", "Inbox"], ["open alerts", "Inbox, Alerts"], ["open chats", "Inbox, Chats"], ["open circles", "your Circles"],
   ["open settings", "Settings"], ["open accessibility", "Settings, Accessibility"], ["open terminal", "Commandbar"], ["open music", "Music"],
   ["help", "this list"], ["status", "what is on, and what is saved on this device"],
   ["open braille", "Settings, Accessibility, Sense, Braille"], ["find setting and a word", "jump to a setting, like find setting label or find setting braille"],
@@ -6394,7 +6416,7 @@ function lcKeyName(e) {
    Each tab can be shown or hidden and moved up or down; tabs you pinned on the feed (#54) can be added as custom tabs.
    More is always last, so Settings is always one tap away. Stored as looscid_tabbar: { order, hide, show }. */
 const LC_TABBAR_KEY = "looscid_tabbar";
-const LC_TABBAR_BASE = [{ id: "feed", l: "Home" }, { id: "discover", l: "Discover" }, { id: "create", l: "Create" }, { id: "alerts", l: "Alerts" }];
+const LC_TABBAR_BASE = [{ id: "feed", l: "Home" }, { id: "discover", l: "Discover" }, { id: "create", l: "Create" }, { id: "alerts", l: "Inbox" }]; // Round 7.17 (#149): Alerts is Inbox
 function lcTabBarCfg() { const v = lcJsonLs(LC_TABBAR_KEY, {}) || {}; return { order: Array.isArray(v.order) ? v.order.map(String) : [], hide: Array.isArray(v.hide) ? v.hide.map(String) : [], show: Array.isArray(v.show) ? v.show.map(String) : [] }; }
 function lcTabBarAll() {
   const cfg = lcTabBarCfg();
@@ -7337,12 +7359,12 @@ useEffect(() => {
     var titles = {
       feed:     "Home",
       discover: "Discover",
-      alerts:   "Alerts",
+      alerts:   "Inbox",
       profile:  (authUser && authUser.displayName) ? authUser.displayName : "Profile",
       dp:       pdata ? (pdata.name || "Profile") : "Profile",
       lists:    pdata && pdata.list ? ((lcListGet(pdata.list) || {}).name || "Lists") : "Lists",
       settings: lcMoreTitle("settings", "Settings"),
-      more_discover: "Discover", more_apps: "Apps", more_create: "Create", more_alerts: "Alerts", more_projects: "Projects",
+      more_discover: "Discover", more_apps: "Apps", more_create: "Create", more_alerts: "Inbox", more_projects: "Projects",
       settings_account: "LooscidID",
       settings_labs: "Looscid Labs",
       settings_notifications: "Alerts Settings",
@@ -7495,10 +7517,10 @@ useEffect(() => {
     if (t.id === "create") return React.createElement('button', { key: t.id, className: "nb nb-create", onClick: () => setShowCreate(true), role: "tab", "aria-selected": false, "aria-label": "Create", "aria-haspopup": "dialog", "aria-setsize": tbVis.length + 1, "aria-posinset": i + 1, tabIndex: ti },
       React.createElement(Ic.Pls, {"aria-hidden":"true", style:{width:22,height:22}}), React.createElement('span', {"aria-hidden":"true"}, "Create"));
     if (t.id === "alerts") return React.createElement('button', { key: t.id, className: "nb" + (sel ? " on" : ""), onClick: () => { headingFocusNext.current = page!=="alerts"; goRoot("alerts"); }, role: "tab", "aria-selected": sel,
-        "aria-label": "Alerts" + ((unreadNotifs+unreadMsgs)>0 ? " (" + (unreadNotifs+unreadMsgs) + " unread)" : ""), "aria-controls": "main-content", "aria-setsize": tbVis.length + 1, "aria-posinset": i + 1, tabIndex: ti },
+        "aria-label": "Inbox" + ((unreadNotifs+unreadMsgs)>0 ? " (" + (unreadNotifs+unreadMsgs) + ")" : "") /* Round 7.17 (#149, #150): Alerts plus Chats, count in parens */, "aria-controls": "main-content", "aria-setsize": tbVis.length + 1, "aria-posinset": i + 1, tabIndex: ti },
       React.createElement('div', {style:{position:"relative"}}, React.createElement(Ic.Bell, {"aria-hidden":"true", style:{width:22,height:22}}),
         (unreadNotifs+unreadMsgs) > 0 && React.createElement('span', { className: "nbdg", "aria-hidden": "true" }, unreadNotifs+unreadMsgs)),
-      React.createElement('span', {"aria-hidden":"true"}, "Alerts"));
+      React.createElement('span', {"aria-hidden":"true"}, "Inbox"));
     const go = t.custom ? function () { headingFocusNext.current = !sel; goRoot("feed"); if (Looscid.LC_FEED !== t.id) lcSetFeed(t.id, true); }
       : function () { headingFocusNext.current = page !== t.id || tbCustomOn; if (t.id === "feed" && tbCustomOn) lcSetFeed("for you", true); goRoot(t.id); };
     return React.createElement('button', { key: t.id, className: "nb" + (sel ? " on" : "") + (t.custom ? " nb-custom" : ""), onClick: go, role: "tab", "aria-selected": sel, "aria-label": t.l, "aria-controls": "main-content", "aria-setsize": tbVis.length + 1, "aria-posinset": i + 1, tabIndex: ti },

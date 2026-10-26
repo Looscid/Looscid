@@ -2,6 +2,17 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.120.47 (167): Round 7.17
+
+Released October 26, 2026 at 12:44 AM (Eastern Time, 2026-10-26T04:44:49Z UTC)
+
+A feature update, asked for by Carter (Inbox with Alerts and Chats, #149).
+
+- Feature: the Alerts tab is now Inbox. Inbox has two views, Alerts (likes, replies, mentions, follows and Circles) and Chats (what was Messages).
+- One menu button at the top picks the view. It reads "Showing Alerts, 12", and its menu has "Alerts (12)" and "Chats (3)". It's a button, not a tab, so the filters below it are the only tabs on the page.
+- Alerts has one filter row: All, Unread, Circles (new), Replies, Mentions, Likes, Redreams, Quotes, New Dreamor and Deleted Dreams. A filter with something new says how many in parens, like "Replies (3)".
+- The Inbox tab's badge counts Alerts and Chats together, and reads "Inbox (5)". Your profile's More and Commandbar say Inbox too ("open inbox", "open alerts", "open chats"); old Alerts addresses still open it, and a saved Messages tab opens Chats.
+
 ## Looscid 2026.119.47 (166): Round 7.16
 
 Released October 25, 2026 at 1:00 AM (Eastern Time, 2026-10-25T05:00:10Z UTC)
