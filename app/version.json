@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.121.47",
-  "build": 168,
-  "features": 121,
+  "version": "2026.122.47",
+  "build": 169,
+  "features": 122,
   "fixes": 47,
-  "builds_without_fixes": 121,
-  "released": "2026-10-26T04:47:46Z",
-  "title": "Round 7.18",
-  "notes": "Round 7.18 (build 168), a feature update. Follow Thread in every Dream's More menu, a Followed Threads filter in Inbox with Manage Followed Threads, and a one-time offer to follow after a few Likes."
+  "builds_without_fixes": 122,
+  "released": "2026-10-26T04:49:40Z",
+  "title": "Round 7.19",
+  "notes": "Round 7.19 (build 169), a feature update. Chats filters: DMs, Requests, Pinned and Deleted, with a Show unread only switch and Pin, Mark unread and Delete on each chat."
 }

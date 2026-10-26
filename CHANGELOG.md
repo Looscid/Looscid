@@ -2,6 +2,17 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.122.47 (169): Round 7.19
+
+Released October 26, 2026 at 12:49 AM (Eastern Time, 2026-10-26T04:49:40Z UTC)
+
+A feature update, asked for by Carter (Chats filters, #149).
+
+- Feature: Chats has its own filters: DMs, Requests, Pinned and Deleted. There's no All and no Circles in Chats.
+- Unread isn't a filter. DMs and Pinned have a "Show unread only" switch instead.
+- Requests holds messages from people Who can message me doesn't allow. They stay silent there until you Accept, which moves them to DMs. Each request also has Open, Delete and Block.
+- Each chat's More button has Pin or Unpin, Mark read or Mark unread, Delete and Block. Pinned chats are also first in DMs. A deleted chat waits in Deleted with Restore, and comes back by itself when a new message arrives.
+
 ## Looscid 2026.121.47 (168): Round 7.18
 
 Released October 26, 2026 at 12:47 AM (Eastern Time, 2026-10-26T04:47:46Z UTC)

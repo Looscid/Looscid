@@ -2504,12 +2504,18 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 121; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 122; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 47;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.121.47", build: 168, released: LOOSCID_RELEASED, title: "Round 7.18", notes: [
+  { version: "2026.122.47", build: 169, released: LOOSCID_RELEASED, title: "Round 7.19", notes: [
+    "Feature: Chats has its own filters: DMs, Requests, Pinned and Deleted. There's no All and no Circles in Chats.",
+    "Unread isn't a filter. DMs and Pinned have a \"Show unread only\" switch instead.",
+    "Requests holds messages from people Who can message me doesn't allow. They stay silent there until you Accept, which moves them to DMs. Each request also has Open, Delete and Block.",
+    "Each chat's More button has Pin or Unpin, Mark read or Mark unread, Delete and Block. Pinned chats are also first in DMs. A deleted chat waits in Deleted with Restore, and comes back by itself when a new message arrives.",
+  ] },
+  { version: "2026.121.47", build: 168, released: "2026-10-26T04:47:46Z", title: "Round 7.18", notes: [
     "Feature: Follow Thread. Every Dream in a thread, the first one and every reply, has Follow Thread in its More menu, and Unfollow Thread once you follow. It's one setting per thread, so every menu in that thread changes together.",
     "Followed Threads is its own filter in Inbox, Alerts. New replies in threads you follow land there, not in Replies. Manage Followed Threads at the top lists every thread you follow, each with Unfollow Thread. An alert from a followed thread has Unfollow Thread in its More menu too.",
     "A Like never follows a thread. If you like a couple of Dreams in the same thread in a row, Looscid offers once: \"You liked a few dreams in this thread. Follow it to see new ones?\" with Follow Thread and No thanks. It's said politely, and focus stays where it is.",

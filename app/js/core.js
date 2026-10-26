@@ -4032,11 +4032,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.121.47";
+const LOOSCID_VERSION = "2026.122.47";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 168;
+const LOOSCID_BUILD = 169;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-26T04:47:46Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-26T04:49:40Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -5362,9 +5362,13 @@ function lcPmBlocked(peer) { const np = (function () { try { return window.Nostr
 /* Build 152 prep: "Who can message me" (Settings, Messages) applies to incoming NIP-17 messages. A conversation you
    started, or once wrote in, always shows. Anyone else must pass the setting (same audiences as Who can reply). Held
    messages stay on this device, unseen and unannounced, so changing the setting later shows them. */
+// Round 7.19 (#149 Chats): a request you accept is allowed from then on (looscid_pm_accepted, on this device).
+function lcPmAccepted() { try { const v = JSON.parse(localStorage.getItem("looscid_pm_accepted") || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
+function lcPmAccept(peer) { const l = lcPmAccepted(); if (l.indexOf(peer) < 0) { l.push(peer); try { localStorage.setItem("looscid_pm_accepted", JSON.stringify(l)); } catch (e) {} } window.dispatchEvent(new CustomEvent("looscid:pms")); }
 function lcPmAllowed(peer, all) {
   const who = (Looscid.A11Y_NOW || {}).whoMessage || "following";
   if (who === "everyone") return true;
+  if (lcPmAccepted().indexOf(peer) >= 0) return true;
   if ((all || lcPms()).some(function (m) { return m.peer === peer && m.me; })) return true;
   const u = (typeof USERS !== "undefined" ? USERS : []).find(function (x) { return x && x.pk && x.pk === peer; });
   let np = ""; try { np = window.NostrTools ? window.NostrTools.nip19.npubEncode(peer) : ""; } catch (e) {}
@@ -5427,7 +5431,7 @@ function lcPmPeerFrom(s) {
   try { const d = window.NostrTools && window.NostrTools.nip19.decode(s); if (d && d.type === "npub") return d.data; if (d && d.type === "nprofile") return d.data.pubkey; } catch (e) {}
   return null;
 }
-Object.assign(Looscid, { LC_PMS_KEY, lcPms, lcPmsSave, lcPmConvos, lcPmAllowed, lcPmHeld, lcPmUnread, lcPmMarkRead, lcPmCheck, lcPmSend, lcPmPeerFrom, lcDmPeerOf, lcPmBlocked, lcInboxCheck, lcNostrName, lcNostrNameRemember, LC_INBOX_TABS });
+Object.assign(Looscid, { LC_PMS_KEY, lcPms, lcPmsSave, lcPmConvos, lcPmAllowed, lcPmAccept, lcPmAccepted, lcPmHeld, lcPmUnread, lcPmMarkRead, lcPmCheck, lcPmSend, lcPmPeerFrom, lcDmPeerOf, lcPmBlocked, lcInboxCheck, lcNostrName, lcNostrNameRemember, LC_INBOX_TABS });
 Object.assign(Looscid, { LC_THREAD_SUBS_KEY, lcThreadSubs, lcThreadSubbed, lcThreadSub, lcThreadUnsub, lcThreadAlert, lcThreadCheck, lcThreadWatch });
 function lcAlertsMarkAll() { const l = lcAlerts().map(function (x) { return Object.assign({}, x, { unread: false }); }); lcAlertsSave(l); return l.length; }
 function useAlerts() {

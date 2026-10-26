@@ -103,22 +103,63 @@ function notifRow(st, draw, n) {
       n.thread && Looscid.lcThreadSubbed && Looscid.lcThreadSubbed(n.thread) ? ["Unfollow Thread", function () { Looscid.lcThreadUnsub(n.thread); announce("Unfollowed this thread."); }] : null,
       blockWho(n.user)]));
 }
+/* Round 7.19 (#149 Chats, Carter Oct 25 2026): Chats filters are DMs, Requests, Pinned and Deleted (last). No All and no
+   Circles in Chats. Unread is not a filter: "Show unread only" is a switch inside DMs and Pinned. Each chat's More has
+   Pin or Unpin, Mark read or Mark unread, and Delete (Deleted holds it, with Restore). Kept on this device. */
+const CHAT_PINNED_KEY = "looscid_chat_pinned", CHAT_DELETED_KEY = "looscid_chat_deleted", CHAT_FILTER_KEY = "looscid_chats_filter", CHAT_UNREAD_ONLY_KEY = "looscid_chats_unread_only";
+const CHAT_FILTERS = [{ id: "dms", label: "DMs" }, { id: "requests", label: "Requests" }, { id: "pinned", label: "Pinned" }, { id: "deleted", label: "Deleted" }];
+function chatJson(k, d) { try { const v = JSON.parse(localStorage.getItem(k) || "null"); return v == null ? d : v; } catch (e) { return d; } }
+function chatSave(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:pms")); }
+function chatKey(c) { return c.pm ? "pm:" + c.peer : "demo:" + c.id; }
+function chatPinned() { const v = chatJson(CHAT_PINNED_KEY, []); return Array.isArray(v) ? v : []; }
+function chatDeleted() { const v = chatJson(CHAT_DELETED_KEY, {}); return v && typeof v === "object" && !Array.isArray(v) ? v : {}; }
+// A chat deleted on this device comes back by itself when a newer message arrives.
+function chatIsDeleted(c) { const at = chatDeleted()[chatKey(c)]; return !!at && !(c.t && c.t > at); }
+function chatFilter() { let v = "dms"; try { v = localStorage.getItem(CHAT_FILTER_KEY) || "dms"; } catch (e) {} return CHAT_FILTERS.some(function (f) { return f.id === v; }) ? v : "dms"; }
+function chatUnreadOnly() { try { return localStorage.getItem(CHAT_UNREAD_ONLY_KEY) === "1"; } catch (e) { return false; } }
+function chatMarkUnread(c) {
+  if (!c.pm) { c.demo.unread = Math.max(1, c.demo.unread || 0); return; }
+  const l = Looscid.lcPms(); let at = -1; l.forEach(function (m, i) { if (m.peer === c.peer && !m.me) at = i; });
+  if (at >= 0) { l[at] = Object.assign({}, l[at], { read: false }); Looscid.lcPmsSave(l); }
+}
+// Requests: people who wrote to you but aren't allowed by Who can message me. Accept moves them to DMs.
+function requestConvos() {
+  if (!Looscid.lcPms || !Looscid.lcPmAllowed) return [];
+  const all = Looscid.lcPms(), by = {};
+  all.forEach(function (m) { if (m.me || (Looscid.lcPmBlocked && Looscid.lcPmBlocked(m.peer)) || Looscid.lcPmAllowed(m.peer, all)) return; (by[m.peer] = by[m.peer] || []).push(m); });
+  return Object.keys(by).map(function (p) { const ms = by[p], last = ms[ms.length - 1]; return { pm: true, request: true, peer: p, name: Looscid.lcNostrName(p), unread: ms.filter(function (m) { return !m.read; }).length, preview: String(last.text || "").slice(0, 80), when: lcAlertTime(last.created), t: last.created }; })
+    .sort(function (a, b) { return b.t - a.t; });
+}
 function convoRow(st, draw, c) {
   const key = "c-" + String(c.peer || c.id).slice(0, 24);
   const open = function () { if (c.pm) { Looscid.lcPmMarkRead(c.peer); st.pm = c.peer; } else st.convo = { convo: c.demo, msgs: c.demo.msgs || [], inp: "", shown: new Set(), scroll: true }; draw(); };
+  const ck = chatKey(c), pinned = chatPinned().indexOf(ck) >= 0, deleted = chatIsDeleted(c);
+  const block = c.pm ? ["Block " + c.name, function () { let np = ""; try { np = window.NostrTools.nip19.npubEncode(c.peer); } catch (e) { np = c.peer; } Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").concat([np])); announce("Blocked " + c.name + ". Their messages are hidden."); }]
+    : blockWho(c.demo && c.demo.user);
+  const acts = deleted ? [
+      ["Restore", function () { const d = chatDeleted(); delete d[ck]; chatSave(CHAT_DELETED_KEY, d); announce("Restored the chat with " + c.name + "."); }],
+      block]
+    : c.request ? [
+      ["Accept", function () { Looscid.lcPmAccept(c.peer); announce("Accepted. " + c.name + " is in DMs now."); }],
+      ["Open", open],
+      ["Delete", function () { const d = chatDeleted(); d[ck] = Date.now(); chatSave(CHAT_DELETED_KEY, d); Looscid.lcPmMarkRead(c.peer); announce("Deleted the request from " + c.name + ". It's in Deleted."); }],
+      block]
+    : [
+      ["Reply", open],
+      [pinned ? "Unpin" : "Pin", function () { chatSave(CHAT_PINNED_KEY, pinned ? chatPinned().filter(function (x) { return x !== ck; }) : chatPinned().concat([ck])); announce(pinned ? "Unpinned the chat with " + c.name + "." : "Pinned the chat with " + c.name + ". It's in Pinned."); }],
+      c.unread > 0 ? ["Mark read", function () { if (c.pm) Looscid.lcPmMarkRead(c.peer); else c.demo.unread = 0; announce("Marked as read."); }]
+        : ["Mark unread", function () { chatMarkUnread(c); announce("Marked as unread."); }],
+      ["Delete", function () { const d = chatDeleted(); d[ck] = Date.now(); chatSave(CHAT_DELETED_KEY, d); if (c.pm) Looscid.lcPmMarkRead(c.peer); else c.demo.unread = 0; announce("Deleted the chat with " + c.name + ". It's in Deleted until a new message comes."); }],
+      block];
   return h('li', { key: key, className: "ci" },
     h('button', { type: "button", className: "lc-ci-main", onClick: open,
-        "aria-label": Looscid.lcNameJoin(c.name, c.unread > 0 ? c.unread + " unread" : "") + (c.preview ? ". " + c.preview : "") + (c.when ? ". " + c.when : "") },
+        "aria-label": Looscid.lcNameJoin(c.name, c.unread > 0 ? c.unread + " unread" : "", pinned && !deleted ? "pinned" : "") + (c.preview ? ". " + c.preview : "") + (c.when ? ". " + c.when : "") },
       lcAvEl({ name: c.name, initials: String(c.name || "?").slice(0, 1), color: "#6d28d9" }, 46),
       h('div', { className: "cif", "aria-hidden": "true" }, h('div', { className: "cnm" }, c.name), h('div', { className: "cpv" }, c.preview)),
       h('div', { "aria-hidden": "true", style: { display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 } },
         h('span', { style: { fontSize: 11, color: "var(--tx3)" } }, c.when),
         c.unread > 0 && h('span', { className: "ucnt" }, String(c.unread)))),
-    rowMore(st, draw, key, c.name, [
-      ["Reply", open],
-      c.unread > 0 ? ["Mark read", function () { if (c.pm) Looscid.lcPmMarkRead(c.peer); else c.demo.unread = 0; announce("Marked as read."); }] : null,
-      c.pm ? ["Block " + c.name, function () { let np = ""; try { np = window.NostrTools.nip19.npubEncode(c.peer); } catch (e) { np = c.peer; } Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").concat([np])); announce("Blocked " + c.name + ". Their messages are hidden."); }]
-        : blockWho(c.demo && c.demo.user)]));
+    rowMore(st, draw, key, c.name, acts));
 }
 function allConvos() {
   const pm = (Looscid.lcPmConvos ? Looscid.lcPmConvos() : []).map(function (c) { return { pm: true, peer: c.peer, name: c.name, unread: c.unread, preview: (c.last.me ? "You: " : "") + c.last.text.slice(0, 80), when: lcAlertTime(c.time), t: c.time }; });
@@ -286,11 +327,23 @@ function alertsView(st, draw) {
   const isThread = function (n) { return !!n.sub || n.type === "deletedDream"; };
   const inTab = function (id, n) { return id === "all" ? true : id === "unread" ? n.unread : id === "circle" ? isCircle(n) : id === "thread" ? isThread(n) : id === "reply" ? n.type === "reply" && !n.sub : n.type === id; };
   const count = function (id) { return id === "all" ? 0 : notifs.filter(function (n) { return n.unread && inTab(id, n); }).length; };
+  // Round 7.19: the Chats filters.
+  const cf = st.chatF, uOnly = chatUnreadOnly(), reqs = requestConvos(), pins = chatPinned();
+  const live = convos.filter(function (c) { return !chatIsDeleted(c); });
+  const chatList = function (id) {
+    if (id === "requests") return reqs.filter(function (c) { return !chatIsDeleted(c); });
+    if (id === "deleted") return convos.concat(reqs).filter(chatIsDeleted);
+    let l = id === "pinned" ? live.filter(function (c) { return pins.indexOf(chatKey(c)) >= 0; }) : live.slice();
+    if (id === "dms") l.sort(function (a, b) { return (pins.indexOf(chatKey(b)) >= 0) - (pins.indexOf(chatKey(a)) >= 0); }); // pinned first in DMs
+    return uOnly ? l.filter(function (c) { return c.unread > 0; }) : l;
+  };
+  const chatCount = function (id) { return id === "deleted" ? 0 : id === "requests" ? chatList("requests").length : (id === "pinned" ? live.filter(function (c) { return pins.indexOf(chatKey(c)) >= 0; }) : live).reduce(function (a, c) { return a + (c.unread > 0 ? 1 : 0); }, 0); };
+  const setChatF = function (id) { st.chatF = id; st.more = null; try { localStorage.setItem(CHAT_FILTER_KEY, id); } catch (e) {} draw(); };
   let rows = [];
-  if (chats) rows = convos.map(function (c) { return { c: c }; });
+  if (chats) rows = chatList(cf).map(function (c) { return { c: c }; });
   else rows = notifs.filter(function (n) { return inTab(cur, n); }).map(function (n) { return { n: n, t: n.time }; });
   const setTab = function (id) { st.view = id; st.more = null; lcSetAlertsTab(id, true); draw(); };
-  const empty = chats ? "No chats yet" : ({ all: "Nothing here yet", unread: "You're all caught up", circle: "No Circles alerts yet", thread: "No new replies in threads you follow", reply: "No replies yet", mention: "No mentions yet", like: "No Likes yet", redream: "No Redreams yet", quote: "No Quotes yet", follow: "No new Dreamors yet", deletedDream: "No deleted Dreams" }[cur] || "Nothing here yet");
+  const empty = chats ? ({ dms: uOnly ? "No unread chats" : "No chats yet", requests: "No requests", pinned: uOnly ? "No unread pinned chats" : "No pinned chats. Pin a chat from its More button.", deleted: "Nothing deleted" }[cf] || "No chats yet") : ({ all: "Nothing here yet", unread: "You're all caught up", circle: "No Circles alerts yet", thread: "No new replies in threads you follow", reply: "No replies yet", mention: "No mentions yet", like: "No Likes yet", redream: "No Redreams yet", quote: "No Quotes yet", follow: "No new Dreamors yet", deletedDream: "No deleted Dreams" }[cur] || "Nothing here yet");
   return h('div', { className: "pg lc-inbox" },
     h('div', { className: "hdr" },
       h('div', { style: { display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8, padding: "48px 16px 12px" } },
@@ -300,14 +353,20 @@ function alertsView(st, draw) {
           onClick: function () { const n = lcAlertsMarkAll(); const m = Looscid.lcPmMarkRead ? Looscid.lcPmMarkRead(null) : false; announce(n || m ? "All marked as read." : "Nothing to mark."); } }, "Mark all read"),
         h('button', { type: "button", id: "alerts-settings-link", className: "btn bgb", style: { fontSize: 12, padding: "6px 12px" }, onClick: function () { goSet(chats ? "settings_messages" : "settings_notifications"); } }, chats ? "Chats settings" : "Alerts settings"))),
     viewMenu(st, draw, { alerts: unreadN, chats: unreadC }),
-    chats ? null : filterRow("inbox-filters", "Alerts filters", tabs, cur, count, setTab),
-    h('div', chats ? { id: "inbox-panel", role: "region", "aria-label": "Chats" } : { id: "inbox-panel", role: "tabpanel", "aria-labelledby": "inbox-tab-" + cur },
+    chats ? filterRow("chat-filters", "Chats filters", CHAT_FILTERS, cf, chatCount, setChatF) : filterRow("inbox-filters", "Alerts filters", tabs, cur, count, setTab),
+    h('div', { id: "inbox-panel", role: "tabpanel", "aria-labelledby": "inbox-tab-" + (chats ? cf : cur) },
+      // Unread is a switch inside DMs and Pinned, not a filter (Carter, Oct 25 2026 4:57 PM).
+      chats && (cf === "dms" || cf === "pinned") ? h('div', { className: "lc-row", style: { padding: "8px 16px 0" } },
+        h('button', { id: "chats-unread-only", type: "button", role: "switch", className: "lc-sw", "aria-checked": uOnly ? "true" : "false",
+            onClick: function () { try { localStorage.setItem(CHAT_UNREAD_ONLY_KEY, uOnly ? "0" : "1"); } catch (e) {} draw(); announce(uOnly ? "Showing all chats." : "Showing unread chats only."); } },
+          h('span', { className: "lc-sw-l" }, "Show unread only"),
+          h('span', { className: "lc-sw-v", "aria-hidden": "true" }, uOnly ? "On" : "Off", h('span', { className: "lc-knob" })))) : null,
       // Round 7.18 (#148): Manage Followed Threads is the first thing in Followed Threads (it replaces Replies' "Only threads I follow").
       !chats && cur === "thread" ? h('div', { style: { padding: "10px 16px 4px" } }, h('button', { type: "button", id: "inbox-manage-threads", className: "btn bgb lc-btn",
         onClick: function () { st.manage = true; st.more = null; draw(); setTimeout(Looscid.lcFocusHeading, 30); } }, "Manage Followed Threads")) : null,
       chats && pmStateNote() ? h('p', { className: "lc-desc", style: { padding: "8px 16px" } }, pmStateNote()) : null,
-      chats && Looscid.lcPmHeld && Looscid.lcPmHeld() > 0 ? h('div', { className: "lc-pm-held", style: { padding: "8px 16px" } },
-        h('p', { className: "lc-desc", id: "pm-held-note" }, (function (k) { return k === 1 ? "1 Dreamor who isn't allowed by Who can message me has messages waiting. They stay hidden and silent." : k + " Dreamors who aren't allowed by Who can message me have messages waiting. They stay hidden and silent."; })(Looscid.lcPmHeld())),
+      chats && cf === "requests" ? h('div', { className: "lc-pm-held", style: { padding: "8px 16px" } },
+        h('p', { className: "lc-desc", id: "pm-held-note" }, "Messages from people Who can message me doesn't allow wait here, silent, until you accept them."),
         h('button', { type: "button", id: "pm-held-settings", className: "btn bgb lc-btn", onClick: function () { goSet("settings_messages"); } }, "Message settings")) : null,
       rows.length === 0
         ? h('div', { className: "es", style: { paddingTop: 24, paddingBottom: 24 } }, h('p', { className: "esl" }, empty))
@@ -319,7 +378,7 @@ function alertsView(st, draw) {
 const AlertsPage = lcPlainScreen("AlertsPage", function (host) {
   const saved = lcAlertsTab();
   // Round 7.17 (#149): box is the Inbox view (Alerts or Chats), saved on this device; view is the Alerts filter.
-  const st = { box: Looscid.lcInboxView ? Looscid.lcInboxView() : "alerts", view: saved, convo: null, pm: null, compose: null, more: null, menu: false };
+  const st = { box: Looscid.lcInboxView ? Looscid.lcInboxView() : "alerts", chatF: chatFilter(), view: saved, convo: null, pm: null, compose: null, more: null, menu: false };
   // Round 5 fixes: Direct message on a Dreamor's profile opens their chat, or a new message to them; Back returns to the profile.
   const dm = Looscid.LC_PM_OPEN; Looscid.LC_PM_OPEN = null;
   /* Round 9 fixes (QA round 8): Open LooscidID from this chat (or from Send a message) set a Back target for Settings
