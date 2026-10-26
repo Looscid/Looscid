@@ -140,6 +140,12 @@ function helpView(p, act) {
     // Round 6.6 (2three1y, 7:13 PM: yes to a Getting help section): the last section. Plain headings, paragraphs and links.
     h('section', { className: "lc-grp lc-help-sec", "aria-labelledby": "lc-help-h-gethelp", style: { padding: "0 16px 24px" } },
       h('h2', { id: "lc-help-h-gethelp", className: "lc-sub-h" }, "Getting help"),
+      // Round 7.41 (Carter): Report a bug opens a new GitHub issue with the build and device filled in; the Discord is next to it.
+      h('h3', { className: "lid-sub" }, "Report a bug"),
+      h('p', { className: "lc-desc" }, "Found something broken? Tell me. This opens a new GitHub issue with your build number and device already filled in, so you just say what happened."),
+      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-report-bug", className: "btn bgb lc-big lc-bug-link", href: Looscid.lcBugReportUrl ? Looscid.lcBugReportUrl() : "https://github.com/Looscid/Looscid/issues/new", target: "_blank", rel: "noopener noreferrer",
+        onClick: function (e) { if (Looscid.lcBugReportUrl) e.currentTarget.href = Looscid.lcBugReportUrl(); } }, "Report a bug", h('span', { className: "sr-only" }, ", opens a new GitHub issue in a new tab"))),
+      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-discord", className: "lc-link", href: Looscid.LC_DISCORD_URL || "https://discord.gg/M6xrD8EBXU", target: "_blank", rel: "noopener noreferrer" }, "Or tell me on the Looscid Discord", h('span', { className: "sr-only" }, ", opens in a new tab"))),
       h('h3', { className: "lid-sub" }, "Send Feedback"),
       h('p', { className: "lc-desc" }, "Send Feedback is on the About Looscid page: open About Looscid from the footer at the end of any page, then Send Feedback. Choose a category, like Bug report, Feature request or Accessibility, write what happened, and press Open it on GitHub. That opens a new issue on Looscid's public GitHub page with your words filled in, so everyone can follow it. GitHub asks you to log in there."),
       h('button', { type: "button", id: "lc-help-feedback", className: "btn bgb lc-btn", onClick: act.feedback }, "Open Send Feedback"),

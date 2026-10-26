@@ -22,6 +22,11 @@ window.addEventListener('unhandledrejection', function(e) {
 
 document.addEventListener("DOMContentLoaded", function () {
   var f = document.getElementById("lc-fonts"); if (f) f.media = "all";
+  /* Round 7.41 (Carter: side project vibe): the startup screen's fun loading line rotates (on screen only: it's aria-hidden,
+     and screen readers hear "Starting Looscid…" once). It stops when the app replaces the startup screen, and with Reduce Motion. */
+  var ld = document.getElementById("lc-boot-load"), lines = ["Dreaming\u2026", "Waking up the relays\u2026", "Fluffing the pillows\u2026", "Counting sheep\u2026", "Almost there, probably\u2026"], li = 0;
+  var rm = false; try { rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+  if (ld && !rm) { var iv = setInterval(function () { if (!document.body.contains(ld)) { clearInterval(iv); return; } li = (li + 1) % lines.length; ld.textContent = lines[li]; }, 1500); }
   if (!window.LOOSCID_FRAMED) return;
   var root = document.getElementById("root"); if (root) root.textContent = "";
   var box = document.createElement("main"); box.id = "lc-framed"; box.className = "lc-framed";

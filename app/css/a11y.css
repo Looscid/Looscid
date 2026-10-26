@@ -263,14 +263,16 @@ body.acc-text-2 .pg{zoom:1.3}
 /* Round 7.40: where the robot is real text (headings and tabs, data-lc-ut), every font stack starts with Looscid Unspeakable; its
    unicode-range is only U+F544, so every other letter still comes from the next font in the stack. */
 @font-face{font-family:"Looscid Unspeakable";src:url("../assets/fonts/unspeakable/looscid-unspeakable.woff2") format("woff2");font-weight:400;font-style:normal;font-display:block;unicode-range:U+F544}
-html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *,[data-lc-ut])::before,
-html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *,[data-lc-ut]):not(.nb-menu.has-notif)::after{font-family:"Looscid Unspeakable";font-weight:400;font-style:normal;font-synthesis:none;font-size:.85em;line-height:1;letter-spacing:0;text-transform:none;speak:normal;display:inline;position:static;width:auto;height:auto;background:none;border:0;opacity:1}
-html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *,[data-lc-ut])::before{content:"\f544" " "}
-html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *,[data-lc-ut]):not(.nb-menu.has-notif)::after{content:" " "\f544"}
+html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *,[data-lc-ut],[data-lc-us-off])::before,
+html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *,[data-lc-ut],[data-lc-us-off]):not(.nb-menu.has-notif)::after{font-family:"Looscid Unspeakable";font-weight:400;font-style:normal;font-synthesis:none;font-size:.85em;line-height:1;letter-spacing:0;text-transform:none;speak:normal;display:inline;position:static;width:auto;height:auto;background:none;border:0;opacity:1}
+html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *,[data-lc-ut],[data-lc-us-off])::before{content:var(--lc-us-b,"\f544" " ")}
+html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *,[data-lc-ut],[data-lc-us-off]):not(.nb-menu.has-notif)::after{content:var(--lc-us-a," " "\f544")}
 /* The tab bar stacks icon over label, so there the robots sit at the sides instead of above and below. */
+/* Round 7.41: the character and its sides come from CSS variables set by js/core.js lcUnspeakableApply (Heading character,
+   Where it goes); kinds turned off in Shows on are marked data-lc-us-off and skipped. */
 /* Round 7.40: no no-break space on a side where the screen reader already adds a space (js/core.js lcUsEdgeMark). */
-html.lc-unspeakable [data-lc-ub~="s"]:not(#lc-us-x):not(#lc-us-y)::before{content:"\f544";margin-inline-end:.3em}
-html.lc-unspeakable [data-lc-ub~="e"]:not(#lc-us-x):not(#lc-us-y):not(.nb-menu.has-notif)::after{content:"\f544";margin-inline-start:.3em}
+html.lc-unspeakable [data-lc-ub~="s"]:not(#lc-us-x):not(#lc-us-y)::before{content:var(--lc-us-bc,"\f544");margin-inline-end:.3em}
+html.lc-unspeakable [data-lc-ub~="e"]:not(#lc-us-x):not(#lc-us-y):not(.nb-menu.has-notif)::after{content:var(--lc-us-ac,"\f544");margin-inline-start:.3em}
 html.lc-unspeakable .bnav :is(.nb,.nb-menu):not(#lc-us-x):not(#lc-us-y)::before{position:absolute;left:3px;top:50%;transform:translateY(-50%)}
 html.lc-unspeakable .bnav :is(.nb,.nb-menu):not(.has-notif):not(#lc-us-x):not(#lc-us-y)::after{position:absolute;right:3px;top:50%;transform:translateY(-50%)}
 /* Settings' segmented tabs (Sense sections and the like) are narrow: there the robots sit above and below the word. */
@@ -345,3 +347,12 @@ html.lc-unspeakable .lc-stab:not(#lc-us-x):not(#lc-us-y)::before,html.lc-unspeak
 .lc-ios-list .lc-ios-danger-row{justify-content:center;width:100%}
 .lc-ios-list .lc-ios-danger-row .mitem-lbl{color:var(--rd,#d92d20);font-weight:400;text-align:center;flex:0 1 auto}
 
+
+/* Round 7.41 (Carter, Oct 26 2026: side project vibe) */
+.lc-home-now{margin:6px 16px 0;font-size:14px;line-height:1.5;color:var(--tx2)}
+.lc-loading-line{margin:6px 0}
+.lc-foot-cowrite{opacity:.85}
+.lc-bug-link{display:block;text-align:center;text-decoration:none;box-sizing:border-box;width:100%;margin-top:8px}
+.lc-dev-pre{white-space:pre-wrap;word-break:break-word;font-size:13px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:10px;margin:8px 0}
+html.lc-debug-outlines body *{outline:1px dashed rgba(236,72,153,.7)!important;outline-offset:-1px}
+html.lc-debug-outlines body *:focus-visible{outline:3px solid var(--ac3,#a855f7)!important;outline-offset:2px}

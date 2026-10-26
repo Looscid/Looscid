@@ -1289,6 +1289,24 @@ const LC_CZ_CATS = [
 ];
 const LC_CZ_FOOT = { look: "How Looscid looks, how you move between feeds, the menu, writing Dreams and media.", tabs: "Choose and reorder the tab bar, the tabs on profiles and the rows of Settings. Each has Move up and Move down.", reset: "Puts Customization back to how it was when you started." };
 Looscid.LC_CZ_CATS = LC_CZ_CATS;
+/* Round 7.41 (Carter, Oct 26 2026 6:59 PM): Heading character, in Customization, Appearance. Which character (real radios),
+   where it goes (Before, After, Surround) and what it shows on (checkboxes). One space between the character and the label,
+   always. None is the same as turning off Unspeakable characters in Sense. Defaults: LC_US_DEFAULT, LC_US_POS_DEFAULT and
+   LC_US_ON_DEFAULT in core.js. */
+function LcHeadingCharSettings() {
+  useA11yNow();
+  const off = Looscid.A11Y_NOW.unspeakable === false || Looscid.A11Y_NOW.headingChar === "none";
+  return lh('section', { className: "lc-grp", "aria-labelledby": "set-uschar-h", id: "lcs-uschar" },
+    lh('h2', { id: "set-uschar-h", className: "lc-grp-h", tabIndex: -1 }, "Heading character"),
+    lh('p', { className: "lc-desc lc-sec-d" }, "The little character around headings, tabs, buttons and links. Always one space between it and the label. The robot reads as \u201cunspeakable\u201d in VoiceOver; the others are read by name."),
+    lh(LcSetRow, { def: LC_SET_BY.headingChar }),
+    lh(LcSetRow, { def: LC_SET_BY.headingCharPos }),
+    lh('fieldset', { className: "lc-fs", id: "set-us-where" },
+      lh('legend', { className: "lc-fs-l" }, "Shows on"),
+      lh('div', { className: "lc-radios lc-radios-col" }, Looscid.LC_US_KINDS.map(function (k) { return lh(LcSetRow, { key: k[2], def: LC_SET_BY[k[2]] }); }))),
+    off ? lh('p', { className: "lc-desc", id: "set-uschar-off" }, "Heading characters are off right now. Pick a character above to turn them back on.") : null,
+    lh(LcResetBtn, { sec: "uschar", label: "Heading character" }));
+}
 function CustomizabilitySettings({navigate, prefs, setPrefs, theme, setTheme, page}) {
   const limits = [140,280,500,1000];
   const mp = prefs.menu || {};
@@ -1308,7 +1326,8 @@ function CustomizabilitySettings({navigate, prefs, setPrefs, theme, setTheme, pa
   };
   let body;
   if (cat.id === "theme") body = lh(React.Fragment, null, lh(A11ySwitch, { id: "cz-theme", label: "Light mode", desc: "Off: dark mode. Saved on this device.", on: theme === "light", onToggle: () => setTheme && setTheme(theme === "light" ? "dark" : "light") }),
-    lh(LcSetRow, { def: LC_SET_BY.timeFormat })); // round 9 (2three1y, Oct 13): Time format, a real radio group
+    lh(LcSetRow, { def: LC_SET_BY.timeFormat }), // round 9 (2three1y, Oct 13): Time format, a real radio group
+    lh(LcHeadingCharSettings, null));
   // Round 7.16 (#216, Carter said yes Oct 25 2026): For You's Show following switches, Federated's Networks and Pin a tab
   // moved here from above the feeds, so they're set once instead of read before the feed on every visit.
   else if (cat.id === "feeds") body = lh(React.Fragment, null, lh(FeedSwitchSetting, { prefs: prefs, setPrefs: setPrefs }), lh(LcSetRow, { def: LC_SET_BY.calmFeed }),
@@ -1537,33 +1556,144 @@ function A11yCategory({ page, navigate, prefs, setPrefs }) {
     lh('div', { className: "lc-grp lc-catpage" }, body),
     lh(LcResetLast, { scope: cat.id === "sr" ? "g:sr_general,sr_speech,verbosity,sr_braille" : "g:" + cat.id }));
 }
+/* --- Round 7.41 (Carter, Oct 26 2026: "not corpo shit"): Known bugs, Report a bug, the Discord, and the secret Dev menu --- */
+const LC_DISCORD_URL = "https://discord.gg/M6xrD8EBXU";
+// The honest list for About. Only real ones: things the changelog and my test notes say aren't done or aren't tested.
+const LC_KNOWN_BUGS = [
+  "VoiceOver with Safari on iPhone isn't fully tested on the newest screens. Every build gets checked in Chrome, and I use Looscid with VoiceOver myself, but not every new screen has had a full VoiceOver and Safari pass yet.",
+  "Braille: the robot characters and the short braille labels haven't been checked on every page with a real braille display.",
+  "Photos, polls, links and places you attach to a Dream can't be sent yet. Looscid tells you first and offers to send just the text.",
+  "Direct messages only work with Nostr Dreamors for now. For anyone else, Looscid says why it can't.",
+  "Bug reports from the Discord don't turn into GitHub issues by themselves yet. I'm working on that."
+];
+function lcBugReportUrl() {
+  const ua = (typeof navigator !== "undefined" && navigator.userAgent) || "unknown";
+  let dev = "unknown"; try { dev = lcOsName() + ", " + lcBrowserName(); } catch (e) {}
+  const body = [
+    "**What happened?**", "", "",
+    "**What did you expect to happen?**", "", "",
+    "**How can I make it happen again?**", "1. ", "",
+    "**Screen reader or braille display (if any):**", "", "",
+    "---",
+    "Looscid " + LOOSCID_VERSION + " (build " + LOOSCID_BUILD + "), " + Looscid.LOOSCID_ROUND + ", codename " + Looscid.LOOSCID_CODENAME,
+    "Device: " + dev,
+    "User agent: " + ua
+  ].join("\n");
+  return "https://github.com/Looscid/Looscid/issues/new?labels=bug&title=" + encodeURIComponent("Bug: ") + "&body=" + encodeURIComponent(body);
+}
+// A real link (it opens GitHub), styled like the big buttons. The address is made when it's pressed too, so it's always current.
+function LcBugLink({ id }) {
+  return lh('a', { id: id, className: "btn bgb lc-big lc-bug-link", href: lcBugReportUrl(), target: "_blank", rel: "noopener noreferrer",
+    onClick: function (e) { e.currentTarget.href = lcBugReportUrl(); } },
+    "Report a bug", lh('span', { className: "sr-only" }, ", opens a new GitHub issue in a new tab"));
+}
+const LC_DEV_KEY = "looscid_dev_unlocked", LC_DEV_OUTLINES_KEY = "looscid_dev_outlines";
+function lcDevUnlocked() { try { return localStorage.getItem(LC_DEV_KEY) === "1"; } catch (e) { return false; } }
+function lcDevOutlines(on) {
+  if (on !== undefined) { try { localStorage.setItem(LC_DEV_OUTLINES_KEY, on ? "1" : "0"); } catch (e) {} }
+  let v = false; try { v = localStorage.getItem(LC_DEV_OUTLINES_KEY) === "1"; } catch (e) {}
+  document.documentElement.classList.toggle("lc-debug-outlines", v);
+  return v;
+}
+try { lcDevOutlines(); } catch (e) {}
+function DevMenuPage({ navigate }) {
+  const [, tick] = useState(0);
+  const [ask, setAsk] = useState(false);
+  const [vjOpen, setVjOpen] = useState(false);
+  const [vj, setVj] = useState("");
+  const back = function () { navigate("settings"); };
+  if (!lcDevUnlocked()) return lh('div', { className: "pg lc-dev" },
+    lh(BackHeader, { title: "Dev menu", onBack: back }),
+    lh('p', { className: "lc-desc", style: { padding: "12px 16px" } }, "Nice try. The Dev menu is locked. Tap the build number in About 7 times to unlock it."));
+  const outl = lcDevOutlines();
+  const facts = [
+    ["Version", LOOSCID_VERSION], ["Build", String(LOOSCID_BUILD)], ["Round", Looscid.LOOSCID_ROUND], ["Codename", Looscid.LOOSCID_CODENAME],
+    ["Released", LOOSCID_RELEASED + (lcReleasedText(LOOSCID_RELEASED) ? " (" + lcReleasedText(LOOSCID_RELEASED) + ")" : "")],
+    ["Branch", "main"], ["Device", lcOsName() + ", " + lcBrowserName()], ["Screen", window.innerWidth + " by " + window.innerHeight + ", pixel ratio " + (window.devicePixelRatio || 1)],
+    ["User agent", navigator.userAgent || "unknown"]
+  ];
+  const toggleVj = function () {
+    const next = !vjOpen; setVjOpen(next);
+    if (next) fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then(function (r) { return r.text(); }).then(function (t) {
+      let pretty = t; try { pretty = JSON.stringify(JSON.parse(t), null, 2); } catch (e) {}
+      setVj(pretty); announce("version.json loaded.");
+    }, function () { setVj("Couldn't load version.json. Are you offline?"); announce("Couldn't load version.json."); });
+  };
+  const clearCache = function () {
+    setAsk(false);
+    announce("Cache cleared. Reloading Looscid.");
+    const done = function () { setTimeout(function () { try { location.reload(); } catch (e) {} }, 900); };
+    try { sessionStorage.clear(); } catch (e) {}
+    try {
+      if (window.caches && caches.keys) { caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); }).then(done, done); return; }
+    } catch (e) {}
+    done();
+  };
+  const sec = function (id, title, kids) { return lh('section', { className: "lc-grp", "aria-labelledby": id, style: { padding: "0 16px" } }, lh('h2', { id: id, className: "lc-sub-h" }, title), kids); };
+  return lh('div', { className: "pg lc-dev" },
+    lh(BackHeader, { title: "Dev menu", onBack: back }),
+    lh('p', { className: "lc-desc", style: { padding: "12px 16px 0" } }, "You found it. Nothing here touches your Dreams, keys or settings, promise."),
+    sec("dev-build-h", "Build info", lh('div', { id: "dev-build" }, facts.map(function (f) { return lh('p', { key: f[0], className: "lid-help" }, f[0] + ": " + f[1]); }))),
+    sec("dev-look-h", "Layout", lh(A11ySwitch, { id: "dev-outlines", label: "Debug outlines", desc: "Draws a dashed outline around every box on the screen, so you can see the layout.", on: outl,
+      onToggle: function () { const v = lcDevOutlines(!outl); tick(function (x) { return x + 1; }); announce("Debug outlines: " + (v ? "on" : "off") + "."); } })),
+    sec("dev-cache-h", "Cache", [
+      lh('p', { key: "p", className: "lc-desc" }, "Empties saved web caches and this tab's session memory, then reloads. Your Dreams, keys and settings stay."),
+      lh('button', { key: "b", type: "button", id: "dev-clear-cache", className: "btn bgb lc-big", onClick: function () { setAsk(true); } }, "Clear local cache")]),
+    sec("dev-vj-h", "version.json", [
+      lh('button', { key: "b", type: "button", id: "dev-vj-btn", className: "lc-acc-btn", "aria-expanded": vjOpen ? "true" : "false", "aria-controls": "dev-vj", onClick: toggleVj }, "Show version.json"),
+      lh('div', { key: "d", id: "dev-vj", hidden: !vjOpen }, vjOpen ? lh('pre', { className: "lc-dev-pre" }, vj || "Loading\u2026") : null)]),
+    sec("dev-lock-h", "Lock it again", [
+      lh('button', { key: "b", type: "button", id: "dev-lock", className: "btn bgb lc-big", onClick: function () { try { localStorage.removeItem(LC_DEV_KEY); } catch (e) {} lcDevOutlines(false); announce("Dev menu locked. Tap the build number 7 times to get it back."); navigate("settings"); } }, "Lock the Dev menu")]),
+    ask ? lh(AlertDialog, { title: "Clear local cache?", message: "This empties saved web caches and this tab's session memory, then reloads Looscid. Your Dreams, keys and settings stay.", confirmLabel: "Clear and reload", onConfirm: clearCache, onCancel: function () { setAsk(false); setTimeout(function () { const b = document.getElementById("dev-clear-cache"); if (b) b.focus(); }, 0); } }) : null,
+    lh('div', { style: { height: 24 } }));
+}
+Object.assign(Looscid, { LC_DISCORD_URL, LC_KNOWN_BUGS, lcBugReportUrl, LcBugLink, lcDevUnlocked, lcDevOutlines, DevMenuPage });
 function AboutSettings({navigate}) {
   const link = function (href, text) { return lh('li', { key: href }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer" }, text)); };
   const newTab = function (href, text) { return lh('li', { key: href }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer" }, text, lh('span', { className: "sr-only" }, ", opens in a new tab"))); };
   const [vOpen, setVOpen] = useState(false);
   const [, tick] = useState(0);
   const auto = lcUpdateAuto();
+  /* Round 7.41 (Carter: "tap the build number for a secret dev menu"): activating the version button 7 times in a row (each
+     within 4 seconds of the last) unlocks the Dev menu, like Android's build number. 4, 5 and 6 say how many taps are left;
+     the 7th says "Dev menu unlocked" through #looscid-live and opens it. Works with a tap, Enter, Space or a VoiceOver double tap. */
+  const taps = useRef({ n: 0, at: 0 });
+  const devOn = lcDevUnlocked();
+  const onVersion = function () {
+    setVOpen(!vOpen);
+    const now = Date.now(), t = taps.current;
+    t.n = now - t.at > 4000 ? 1 : t.n + 1; t.at = now;
+    if (t.n >= 4 && t.n < 7) announce((7 - t.n) + (7 - t.n === 1 ? " more tap" : " more taps") + " for the Dev menu.");
+    if (t.n >= 7) {
+      t.n = 0;
+      if (devOn) announce("Dev menu's already unlocked. Opening it.");
+      else { try { localStorage.setItem(LC_DEV_KEY, "1"); } catch (e) {} announce("Dev menu unlocked"); }
+      navigate("settings_dev");
+    }
+  };
   const rel = lcReleasedText(Looscid.lcReleased ? Looscid.lcReleased() : LOOSCID_RELEASED);
   return lh('div', { className: "pg lc-about" },
     lh(BackHeader, { title: "About Looscid", onBack: function () { navigate("settings"); } }),
     // Round 6: one About page. The version is itself the disclosure button.
     lh('div', { className: "lc-about-top", style: { padding: "12px 16px 4px" } },
-      lh('button', { type: "button", id: "about-version", className: "lc-acc-btn", "aria-expanded": vOpen ? "true" : "false", "aria-controls": "about-version-p", onClick: function () { setVOpen(!vOpen); } },
+      lh('button', { type: "button", id: "about-version", className: "lc-acc-btn", "aria-expanded": vOpen ? "true" : "false", "aria-controls": "about-version-p", onClick: onVersion },
         lh('span', null, lcVersionLabel()), lh('span', { className: "msec-toggle-ic" + (vOpen ? " open" : ""), "aria-hidden": "true" }, "\u203a")),
       lh('div', { id: "about-version-p", hidden: !vOpen, className: "lc-acc-p" }, vOpen ? lh(React.Fragment, null,
+        lh('p', { className: "lid-help", id: "about-codename" }, Looscid.LOOSCID_ROUND + ", codename " + Looscid.LOOSCID_CODENAME),
         lh('p', { className: "lid-help" }, LOOSCID_FEATURE_BUILDS + " feature updates"),
         lh('p', { className: "lid-help" }, LOOSCID_FIXES + " fixes"),
         lh('p', { className: "lid-help" }, LOOSCID_BUILD + " builds, " + LOOSCID_FEATURE_BUILDS + " without fix updates"),
         rel ? lh('p', { className: "lid-help" }, "Released " + rel) : null,
         lh('h3', { id: "about-history-h", className: "lid-sub" }, "Version history"),
         lh('ul', { className: "lid-help lc-history", "aria-labelledby": "about-history-h", style: { paddingLeft: 22, margin: "6px 0" } }, LC_VERSION_HISTORY.map(function (v) {
-          return lh('li', { key: v.build }, lh('p', { style: { margin: "4px 0", fontWeight: 700 } }, "Looscid " + v.version + " (" + v.build + "), " + v.title),
+          return lh('li', { key: v.build }, lh('p', { style: { margin: "4px 0", fontWeight: 700 } }, "Looscid " + v.version + " (" + v.build + "), " + v.title + (v.codename ? ", codename " + v.codename : "")),
             lh('p', { style: { margin: "2px 0" } }, "Released " + lcReleasedText(v.released)),
             lh('ul', { style: { paddingLeft: 18 } }, v.notes.map(function (n, i) { return lh('li', { key: i }, n); })));
         }))) : null),
       lh('p', { className: "lid-help lc-slogan" }, LOOSCID_SLOGAN), // Round 7.39: "Just Dream", no period
       lh('button', { type: "button", id: "about-check", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { lcCheckUpdate(true); } }, "Check for updates"),
-      lh(A11ySwitch, { id: "about-autoupdate", label: "Automatically check for updates", on: auto, onToggle: function () { lcUpdateAutoSet(!auto); tick(function (x) { return x + 1; }); announce("Automatically check for updates: " + (!auto ? "on" : "off") + "."); } })),
+      lh(A11ySwitch, { id: "about-autoupdate", label: "Automatically check for updates", on: auto, onToggle: function () { lcUpdateAutoSet(!auto); tick(function (x) { return x + 1; }); announce("Automatically check for updates: " + (!auto ? "on" : "off") + "."); } }),
+      devOn ? lh('button', { type: "button", id: "about-dev", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { navigate("settings_dev"); } }, "Dev menu") : null),
     lh('section', { "aria-labelledby": "about-lead", style: { padding: "8px 16px 12px" } },
       lh('h2', { id: "about-lead", className: "lid-sub" }, "Looscid in short"),
       lh('p', { className: "lid-help" }, "Looscid is a decentralized, free and open source social app that works the way you do: with a screen reader, a braille display, a keyboard, a switch or just your thumbs. Your data stays on your device, and your LooscidID is yours."),
@@ -1574,10 +1704,19 @@ function AboutSettings({navigate}) {
           return lh('li', { key: x[0], className: "mli" }, lh('button', { type: "button", id: "about-btn-" + x[0], className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { navigate(x[0]); } }, x[1]));
         }))),
     lh('section', { "aria-labelledby": "about-story", style: { padding: "8px 16px 12px" } },
-      lh('h2', { id: "about-story", className: "lid-sub" }, "Our story"),
-      lh('p', { className: "lid-help" }, "Looscid is my side project, not a company. I'm 2three1y, a blind developer, and I wanted a social app that works as well with a screen reader and a braille display as it does with eyes."),
-      lh('p', { className: "lid-help" }, "So I build Looscid accessibility first: VoiceOver, TalkBack and NVDA, braille displays, keyboards and switches are tested from the start, sounds have captions, and nothing flashes."),
-      lh('p', { className: "lid-help" }, "I paused development for a while. It's back on now, and I build in public, with Tab, my digital assistant, helping write and test the code.")),
+      lh('h2', { id: "about-story", className: "lid-sub" }, "My story"),
+      // Round 7.41 (Carter: "not corpo shit"): the story in my own words. Side project, one dev, built in the open.
+      lh('p', { className: "lid-help" }, "Hi, I'm 2three1y. I'm blind, I use VoiceOver and braille every day, and most social apps treat that like an afterthought. Buttons with no labels, feeds that jump around, stuff that flashes. So I'm building my own."),
+      lh('p', { className: "lid-help" }, "Looscid is a side project, not a company. No investors, no ads, no growth team. Just me, and Tab, my digital assistant, who helps me write and test the code."),
+      lh('p', { className: "lid-help" }, "It runs on Nostr because your account should belong to you, not to a company that can switch it off. And it's accessibility first: VoiceOver, TalkBack, NVDA, braille displays, keyboards and switches come first, not last."),
+      lh('p', { className: "lid-help" }, "I build it in the open. Every change is on GitHub, every bug I know about is listed below, and you can tell me what's broken any time.")),
+    lh('section', { "aria-labelledby": "about-bugs", style: { padding: "0 16px 12px" } },
+      lh('h2', { id: "about-bugs", className: "lid-sub" }, "Known bugs"),
+      lh('p', { className: "lid-help" }, "The honest list. If you find something that isn't here, please tell me."),
+      lh('ul', { className: "lid-help", id: "about-bugs-list", style: { paddingLeft: 22, margin: "6px 0" } }, LC_KNOWN_BUGS.map(function (t, i) { return lh('li', { key: i }, t); })),
+      lh('ul', { className: "mlist", "aria-label": "Report a bug" },
+        lh('li', { className: "mli" }, lh(LcBugLink, { id: "about-report-bug" })),
+        lh('li', { className: "mli" }, lh('a', { id: "about-discord", className: "lc-link", href: LC_DISCORD_URL, target: "_blank", rel: "noopener noreferrer" }, "Or tell me on the Looscid Discord", lh('span', { className: "sr-only" }, ", opens in a new tab"))))),
     lh('section', { "aria-labelledby": "about-purpose", style: { padding: "0 16px 12px" } },
       lh('h2', { id: "about-purpose", className: "lid-sub" }, "What Looscid is"),
       lh('p', { className: "lid-help" }, "A decentralized, free, open source and accessible everything app. I made it to:"),
@@ -2611,12 +2750,26 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 134; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 135; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 56;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
+/* Round 7.41 (Carter, Oct 26 2026): What's new is written in my voice ("I fixed...", "I added..."), short. Each Round can have
+   a codename (the codename field); About shows it next to the Round. */
 const LC_VERSION_HISTORY = [
-  { version: "2026.134.56", build: 190, released: LOOSCID_RELEASED, title: "Round 7.40", notes: [
+  { version: "2026.135.56", build: 191, released: LOOSCID_RELEASED, title: "Round 7.41", codename: "Midnight Snack", notes: [
+    "I gave Looscid some personality. It's a side project made by one kid (me) and Tab, so now it sounds like it, not like a big company.",
+    "I rewrote the empty screens, error messages and loading lines. They're a little funny now, and they still tell you what to do.",
+    "About tells my story now, and there's a public Known bugs list. No hiding stuff.",
+    "Terms and Privacy are in plain English. Same promises, fewer big words.",
+    "I added Report a bug, in Help Center and in About. It opens a new GitHub issue with your build and device already filled in, and there's a link to the Discord too.",
+    "Credits thanks the testers and the Discord now, and the footer says Co-written with Tab.",
+    "Home has a Now working on line, so you can see what I'm building next.",
+    "You can pick the heading character now, in Settings, Customization, Appearance: Robot, Bullet, Star, Sparkle, Diamond or None. You also pick where it goes (before, after or both sides) and what it shows on (page headings, section headings, tabs, buttons, links). Still one space between it and the label.",
+    "Every Round gets a codename now. This one is Midnight Snack.",
+    "There might be a secret or two hidden in here. I'm not saying where."
+  ] },
+  { version: "2026.134.56", build: 190, released: "2026-10-26T22:29:20Z", title: "Round 7.40", notes: [
     "I tightened up the robots. On Home they sit inside the heading now, so it reads as one heading: robot, Home, robot. Every page title and section heading works the same way. On For You and the other tabs there's one space between each robot and the label, not two, and buttons and links got the same fix."
   ] },
   { version: "2026.134.55", build: 189, released: "2026-10-26T22:08:59Z", title: "Round 7.39", notes: [
@@ -3073,17 +3226,8 @@ function lcOsName() {
 function lcAboutInfo() {
   const a = Looscid.A11Y_NOW, dpr = window.devicePixelRatio || 1;
   return {
-    whatsNew: [
-      "Replies: one composer for New Dream, Reply and Quote. The Dream you answer sits right before your text box, replies stay after a reload, and they reach Nostr as real replies.",
-      "Commandbar: press Ctrl+K or Cmd+K anywhere, or the command button at the top. Exact commands run at once; anything else goes to Cherry, which answers or opens the closest match.",
-      "Commandbar: one place for commands. Ctrl+K or Cmd+K opens the bar anywhere; Full screen (or Apps, Commandbar) shows the same output and history, with quick commands and output you can fold away.",
-      "Earcons: a short, quiet sound for Feed, Alerts, Circles, Settings and Commandbar, made live with Web Audio.",
-      "Music: the Looscid OS beats (Morning to Night, Hyperpop, Lo-fi chill, Drum and bass, Chiptune) in the More tab, or type music hyperpop.",
-      "Change accessibility settings in plain words, with Cherry, Commandbar: turn on calm mode, make text bigger, volume 50, set sounds off.",
-      "Faster start: a startup screen paints at once while Looscid loads, and screen readers hear Looscid loaded.",
-      "Settings, Accessibility, grouped by need: Vision, Hearing, Motion & Seizure, Braille, Sounds and Commandbar, with one first-visit question that sets them up.",
-      "Cherry now understands \u201cWhat is Looscid?\u201d and \u201cTell me about Looscid\u201d.",
-    ],
+    // Round 7.41: What's new is this Round's own notes, in my voice (it was an old fixed list).
+    whatsNew: LC_VERSION_HISTORY[0].notes.slice(),
     features: [
       "LooscidID, made on this device the first time you open Looscid. Add login methods any time: Nostr, Mastodon and the fediverse, or Bluesky.",
       "Feed, Discover, Circles and Alerts, with Cherry, the built-in assistant.",
@@ -3194,6 +3338,7 @@ function CreditsPage({ navigate }) {
       sec("credits-by", "Created by", [
         lh('p', { key: "me", className: "lc-roll-star" }, ext("https://github.com/2three1y", "2three1y", "2three1y on GitHub", "me")),
         lh('p', { key: "t", className: "lc-roll-what" }, "Design, code, sounds and words."),
+        lh('p', { key: "tab", id: "credits-tab", className: "lc-roll-what" }, "Co-written with Tab, my digital assistant, who helps me write and test the code."),
         sub("credits-mine", "2three1y's projects inside Looscid", [
           lh('p', { key: "p", className: "lc-roll-what" }, "These are mine. They're MIT unless it says otherwise, and each one keeps its own LICENSE file next to its copy in Looscid."),
           ul(LC_CREDITS.mine.map(entry))]),
@@ -3211,6 +3356,11 @@ function CreditsPage({ navigate }) {
         plain("wa", "Every earcon", "Made live with Web Audio. No recorded samples, at all."),
         plain("sp", "Soundpacks", "The Looscid OS classic and Insomnia Soundpacks come from my own projects above. The FastSM-inspired pack is inspired by FastSMRW, with every sound made fresh."),
         plain("vo", "Spoken feedback", "Uses the voices already on your device, through your browser's speech.")])),
+      // Round 7.41 (Carter): the people who actually test this thing.
+      sec("credits-testers", "Testers and the Discord", [
+        lh('p', { key: "p", className: "lc-roll-what" }, "Huge thanks to everyone who tests Looscid with VoiceOver, TalkBack, NVDA, braille displays and keyboards and tells me what broke. You're the reason it works."),
+        lh('p', { key: "d", className: "lc-roll-what" }, "And to everyone in the Looscid Discord: thanks for the ideas, the bug reports and the memes."),
+        lh('p', { key: "l", className: "lc-roll-links" }, ext(LC_DISCORD_URL, "Join the Looscid Discord", "Join the Looscid Discord, opens in a new tab", "dl"))]),
       sec("credits-thanks", "Special thanks", [
         ul([
           plain("my", "MystyDev", "For Yapper, the app behind the Yapper website."),
@@ -3226,7 +3376,7 @@ function AboutLooscidMore() {
   const list = function (items) { return lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } }, items.map(function (t, i) { return lh('li', { key: i }, t); })); };
   const sec = function (id, title, kids) { return lh('section', { "aria-labelledby": id, style: { padding: "0 16px 12px" } }, lh('h2', { id: id, className: "lid-sub" }, title), kids); };
   return lh(React.Fragment, null,
-    sec("about-new", "What's new", list(info.whatsNew)),
+    sec("about-new", "What's new", [lh('p', { key: "r", className: "lid-help" }, LC_VERSION_HISTORY[0].title + (LC_VERSION_HISTORY[0].codename ? ", codename " + LC_VERSION_HISTORY[0].codename : "") + ":"), lh(React.Fragment, { key: "l" }, list(info.whatsNew))]),
     sec("about-features", "Features", list(info.features)),
     sec("about-sys", "System info", [
       lh('div', { key: "dl", className: "lc-sysinfo" }, info.facts.map(function (f) { return lh('p', { key: f[0], className: "lid-help" }, f[0] + ": " + f[1]); })),
@@ -3445,9 +3595,17 @@ function NexosAppFrame({ app, navigate }) {
 function lcLinkedProviders() { const o = { local: true }; try { getMethods().forEach(function (m) { o[m.provider] = true; }); } catch (e) {} return o; }
 function LcSetRow({ def, onChange }) {
   if (def.k === "findPubky") return null; // Pubky login is on the Coming soon list, so there is nothing to find yet
-  const a = Looscid.A11Y_NOW, v = a[def.k], id = def.k === "earconVolume" ? "a11y-volume" : (def.old ? "a11y-" : "set-") + def.k; // older settings keep their round-1 ids
-  const put = function (val, say) { const p = {}; p[def.k] = val; lcSet(p); if (onChange) onChange(val); if (say !== false) announce(def.l + ": " + lcValueText(def, val) + ".", "confirm"); };
-  if (def.t === "bool" && def.pc) {
+  const a = Looscid.A11Y_NOW, id = def.k === "earconVolume" ? "a11y-volume" : (def.old ? "a11y-" : "set-") + def.k; // older settings keep their round-1 ids
+  let v = a[def.k];
+  // Round 7.41: "" means "the default" (def.dflt), so a new default reaches everyone who never picked. Heading character
+  // shows None while Unspeakable characters is off.
+  if (def.dflt && (v === "" || v == null)) v = def.dflt();
+  if (def.k === "headingChar" && a.unspeakable === false) v = "none";
+  const put = function (val, say) { const p = {}; p[def.k] = val;
+    if (def.k === "headingChar") p.unspeakable = val !== "none"; // None is the same as off; a character turns it back on
+    if (def.k === "unspeakable" && val && a.headingChar === "none") p.headingChar = "";
+    lcSet(p); if (onChange) onChange(val); if (say !== false) announce(def.l + ": " + lcValueText(def, val) + ".", "confirm"); };
+  if (def.t === "bool" && (def.pc || def.cb)) { // Round 7.41: cb = a plain checkbox too (Heading character, Shows on)
     // Pitch cue types (Verbosity page): native checkboxes inside the "Pitch cue for" fieldset.
     return lh('label', { className: "lc-radio" + (v ? " on" : "") },
       lh('input', { type: "checkbox", id: id, checked: v !== false, onChange: function () { put(v === false); } }), lh('span', null, def.l));

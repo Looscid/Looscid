@@ -94,13 +94,15 @@ function FeedPage({navigate, prefs, cherryCtx}) {
           /* Round 7.16 (#216, Carter said yes Oct 25 2026): no Cherry button and no "everything app" welcome line here, so the
              feed tabs come right after the heading. Cherry stays in Profile, More. */
         )
+        /* Round 7.41 (Carter, Oct 26 2026): one line saying what I'm building right now. Edit LOOSCID_NOW_WORKING_ON in core.js. */
+        , Looscid.LOOSCID_NOW_WORKING_ON ? lh('p', { id: "home-now", className: "lc-home-now" }, "Now working on: " + Looscid.LOOSCID_NOW_WORKING_ON) : null
       )
       , lh('div', { className: "lc-feed-bar" }, lh(FeedTabs, null))
       , lh('div', { className: "lc-feed-ctl" }, lh(FeedControls, { tab: tab, cherryCtx: cherryCtx, dreams: rawDreams, pubState: pubKey && pub.key === pubKey ? pub.state : "idle" }))
       , visible.length===0 && lh('div', { className: "es" },
-          lh('p', { className: "esl" }, tab==="following" && showFriends ? "No Dreams from friends yet" : "No Dreams yet"),
+          lh('p', { className: "esl" }, tab==="following" && showFriends ? "No Dreams from friends yet. Quiet in here." : "No Dreams yet. Kinda peaceful, honestly."), // Round 7.41: playful, still says what to do
           lh('p', { style: {fontSize:14,color:"var(--tx2)",marginTop:6,lineHeight:1.6,maxWidth:260,textAlign:"center"} },
-            (tab==="following" && showFriends) ? "Friends are Dreamors who follow each other." : tab==="following" ? "Follow people to fill this feed." : tab==="federated" && !nets.length ? "Choose at least one network above." : /^pin:/.test(tab) ? "Dreams for this tab will show up here." : "New Dreams will show up here."),
+            (tab==="following" && showFriends) ? "Friends are Dreamors who follow each other. Follow someone back and they show up here." : tab==="following" ? "Follow some people and this feed wakes up." : tab==="federated" && !nets.length ? "Pick at least one network in Settings, Customization, Feeds." : /^pin:/.test(tab) ? "Dreams for this tab land here once there are some." : "When someone Dreams, it lands here. Or you could go first."),
           // Round 7.16 (#216): Discover, not Cherry, is where you find people.
           tab==="following" && lh('button', { type: "button", id: "feed-find-people", className: "btn bgb lc-btn", style: {margin:"10px auto 0",display:"flex"}, onClick: ()=>navigate("discover") }, "Find people in Discover"))
       , rmOn && lh('div', { className: "lc-rm", onKeyDown: function (e) { if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return; if (e.key === "ArrowRight") { e.preventDefault(); rmGo(rmI + 1); } else if (e.key === "ArrowLeft") { e.preventDefault(); rmGo(rmI - 1); } },
@@ -309,8 +311,9 @@ function FeedControls({ tab, cherryCtx, dreams, pubState }) {
 function FederatedControls({ pubState, sortPick }) {
   return lh('div', { className: "lc-feed-ctl lc-fed" },
     sortPick("federated"),
-    pubState === "loading" ? lh('p', { className: "lc-muted" }, "Getting Dreams from your Nostr relays\u2026") :
-    pubState === "error" ? lh('p', { className: "lc-muted" }, "Couldn't reach your Nostr relays just now. Showing what Looscid has.") : null);
+    // Round 7.41: fun loading lines (screen readers hear one steady "Getting Dreams from your Nostr relays").
+    pubState === "loading" ? lh(Looscid.LcLoadingLine, { sr: "Getting Dreams from your Nostr relays", id: "fed-loading" }) :
+    pubState === "error" ? lh('p', { className: "lc-muted" }, "The Nostr relays didn't pick up. Probably napping. Showing what Looscid already has. Try again in a minute.") : null);
 }
 /* Round 7.16 (#216): set once in Settings, Customization, Feeds, not above the feed every visit. */
 // For You: Show following, and which kinds of what you follow are mixed in.

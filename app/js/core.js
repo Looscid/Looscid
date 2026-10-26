@@ -1892,60 +1892,63 @@ function LcSettingFind({ navigate, onClose, q: qIn, setQ: setQIn }) {
     })) : null,
     res.length > shown.length ? lh('button', { type: "button", id: "lc-setfind-all", className: "btn bgb lc-btn", onClick: function () { setAll(true); setTimeout(function () { const b = document.querySelectorAll(".lc-setfind-res button")[25]; if (b) b.focus(); }, 0); } }, "Show all (" + res.length + ")") : null);
 }
-const TERMS_CONTENT = `<p><strong>Last updated: October 10, 2026</strong></p>
-<p>These are the terms for using Looscid, in plain language. They are not legal advice.</p>
-<h2>Who we are</h2>
-<p>Looscid is my side project. I'm 2three1y, a blind developer. It is not a company, and it has no investors, ads or paid plans.</p>
+const TERMS_CONTENT = `<p><strong>Last updated: October 26, 2026</strong></p>
+<p>The deal for using Looscid, in plain English. I'm not a lawyer, so this isn't legal advice.</p>
+<h2>Who I am</h2>
+<p>Looscid is my side project, not a company. I'm 2three1y, a blind developer. No investors, no ads, no paid plans.</p>
 <h2>Using Looscid</h2>
 <ul>
-<li>You can use Looscid without a phone number or an email address. Your LooscidID is made on your own device.</li>
-<li>You are responsible for the Dreams you share. Follow the <a href="#" data-policy-link="guidelines">Community rules</a>.</li>
+<li>You don't need a phone number or an email address. Your LooscidID is made right on your own device.</li>
+<li>You're responsible for the Dreams you share. Follow the <a href="#" data-policy-link="guidelines">Community rules</a>.</li>
 <li>Don't use Looscid to break the law, to harass people, or to attack or overload the app or the networks it connects to.</li>
 </ul>
-<h2>Your content</h2>
+<h2>Your stuff</h2>
 <ul>
-<li>What you write stays yours. When you Dream through a network you linked, like Mastodon, Bluesky or Nostr, that network's own rules apply there too.</li>
-<li>Looscid stores your profile, settings and drafts on your device. You can export or delete them any time in Settings.</li>
+<li>What you write is yours. When you Dream through a network you linked, like Mastodon, Bluesky or Nostr, that network's own rules apply there too.</li>
+<li>Your profile, settings and drafts are saved on your device. You can export or delete them any time in Settings.</li>
 </ul>
-<h2>Our accessibility commitments</h2>
+<h2>My accessibility promises</h2>
 <ul>
 <li>Every feature is built to work with screen readers, like VoiceOver, TalkBack and NVDA, and with braille displays.</li>
 <li>Flash safety is on by default, and nothing in Looscid flashes more than three times a second.</li>
-<li>If something doesn't work with your screen reader or braille display, that is a bug. Tell us in Send Feedback.</li>
+<li>If something doesn't work with your screen reader or braille display, that's a bug. Tell me in Send Feedback.</li>
 </ul>
 <h2>Open source</h2>
-<p>Looscid's code is public on <a href="https://github.com/Looscid/Looscid" target="_blank" rel="noopener noreferrer">GitHub</a> under the Looscid Public License.</p>
+<p>All of Looscid's code is public on <a href="https://github.com/Looscid/Looscid" target="_blank" rel="noopener noreferrer">GitHub</a> under the Looscid Public License.</p>
 <h2>No guarantees</h2>
-<p>Looscid is a preview built by one person. It is offered as it is. Features can change, break or be removed, and we can't promise it will always be available.</p>
+<p>Looscid is a preview built by one person, and it's offered as it is. Features can change, break or go away, and I can't promise it will always be available.</p>
 <h2>Changes</h2>
-<p>If these terms change, the date at the top changes too, and the update is mentioned in About Looscid.</p>
-<h2>Questions</h2>
-<p>Use Send Feedback in the menu, or find us on <a href="https://x.com/Looscid" target="_blank" rel="noopener noreferrer">X as @Looscid</a>.</p>`;
+<p>If these terms change, the date at the top changes too, and I'll mention it in About Looscid.</p>
+<h2>Questions?</h2>
+<p>Use Send Feedback in the menu, or find me on <a href="https://x.com/Looscid" target="_blank" rel="noopener noreferrer">X as @Looscid</a>.</p>`;
 Looscid.TERMS_CONTENT = TERMS_CONTENT;
-const PRIVACY_CONTENT = `<p><strong>Last updated: October 10, 2026</strong></p>
-<p>The short version: Looscid keeps your data on your device, and we don't sell it, track you or show ads.</p>
-<h2>What Looscid stores, and where</h2>
+const PRIVACY_CONTENT = `<p><strong>Last updated: October 26, 2026</strong></p>
+<p>The short version: your data stays on your device. I don't sell it, I don't track you, and there are no ads.</p>
+<h2>What Looscid saves, and where</h2>
 <ul>
 <li>Your profile, settings, drafts, Dreams and Soundpacks are saved on this device only, in your browser's storage (the keys start with <code>looscid_</code>).</li>
-<li>Replies you write are saved on this device too, the same way. Like Dreams, they are not in Settings backup.</li>
-<li>Your chats with Cherry (Your History, and which ones you pinned) are saved on this device only. They are in Settings backup, so a backup file brings them to another device.</li>
+<li>Replies you write are saved on this device too. Like Dreams, they're not in Settings backup.</li>
+<li>Your chats with Cherry (Your History, and which ones you pinned) stay on this device only. They are in Settings backup, so a backup file can bring them to another device.</li>
 <li>There are no Looscid sign-up servers. Supabase and Cloudflare are gone.</li>
-<li>You never need a phone number or an email address, and Looscid never uses them to find you or to suggest you to others.</li>
+<li>You never need a phone number or an email address, and Looscid never uses them to find you or suggest you to other people.</li>
 </ul>
-<h2>When Looscid talks to the network</h2>
+<h2>When Looscid talks to the internet</h2>
 <ul>
-<li>When you link a login method (Nostr, Mastodon and the fediverse, Bluesky, Funkwhale or Hubzilla), Looscid talks straight to that network from your device. Your server may have your email; Looscid never asks for it.</li>
-<li>Dreams on Nostr: when you set up a Nostr key in Settings, LooscidID, a Dream with Audience Everyone goes from your device straight to the Nostr relays in your list, and it's public there. Looscid also reads your own Dreams back from those relays, so they show on any device with your key. Your secret key never leaves this device, and it's never in Settings backup. With Audience "Only this device", or without a key, nothing is sent. A reply to a Dream that's on Nostr goes as a Nostr reply (threaded under it), and only with Audience Everyone; Followers only, My Circles and Only this device never leave your device.</li>
+<li>Linking a login method (Nostr, Mastodon and the fediverse, Bluesky, Funkwhale or Hubzilla): Looscid talks straight to that network from your device. Your server might have your email; Looscid never asks for it.</li>
+<li>Dreams on Nostr: once you set up a Nostr key in Settings, LooscidID, a Dream with Audience Everyone goes from your device straight to the Nostr relays in your list, and it's public there. Looscid also reads your own Dreams back from those relays, so they show up on any device with your key.</li>
+<li>Your Nostr secret key never leaves this device, and it's never in Settings backup.</li>
+<li>With Audience "Only this device", or with no key, nothing is sent.</li>
+<li>A reply to a Dream that's on Nostr goes out as a Nostr reply (threaded under it), and only with Audience Everyone. Followers only, My Circles and Only this device never leave your device.</li>
 <li>Link previews are made on your device from the link alone. Looscid never fetches the linked page. A YouTube, Vimeo or Spotify player loads from that site only when you press Play.</li>
 <li>Music and the apps load only when you open them.</li>
-<li>Cherry is off until you turn it on. Its on-device model downloads only after you say yes. After that it runs on your device, offline.</li>
+<li>Cherry is off until you turn it on. Its on-device model downloads only after you say yes, and after that it runs on your device, offline.</li>
 <li>When you link a Bluesky or fediverse handle in Keys and IDs, Looscid looks it up once on that network to check it exists. A Nostr public key is checked on your device.</li>
-<li>Every piece of code Looscid runs comes from this site, never from a code CDN. Only the fonts load from Google Fonts.</li>
+<li>All the code Looscid runs comes from this site, never from a code CDN. Only the fonts load from Google Fonts.</li>
 </ul>
 <h2>Cherry and AI</h2>
-<p>Cherry works on your device. Nothing you write is sent to an outside AI service. Translation uses your browser's own on-device translator, when it has one.</p>
+<p>Cherry works on your device. Nothing you write goes to an outside AI service. Translation uses your browser's own on-device translator, when it has one.</p>
 <h2>No ads, no tracking, no selling</h2>
-<p>Looscid has no ads and no ad trackers, and we never sell or share your data. Looscid sends no crash reports or usage data, so it doesn't ask you about them either.</p>
+<p>No ads, no ad trackers, and I never sell or share your data. Looscid sends no crash reports or usage data, so it doesn't ask you about them either.</p>
 <h2>Your choices</h2>
 <ul>
 <li>Export or import all your settings in Settings, General, Backup.</li>
@@ -2031,7 +2034,9 @@ function LcSiteFooter({ navigate, cur }) {
     grp("lc-foot-dl", "Download", [
       lh('li', { key: "ios" }, lh('p', { className: "lc-foot-p" }, "iPhone and iPad: open Looscid in Safari, then Share, then Add to Home Screen.")),
       soon("Android app", "and")])),
-    lh('p', { className: "lc-foot-p lc-foot-end" }, "Looscid is open source and local first."));
+    lh('p', { className: "lc-foot-p lc-foot-end" }, "Looscid is open source and local first."),
+    // Round 7.41 (Carter: "not corpo shit"): one kid and Tab make this, and the footer says so.
+    lh('p', { className: "lc-foot-p lc-foot-cowrite", id: "lc-foot-cowrite" }, "Co-written with Tab"));
 }
 /* 2three1y (Oct 12, 5:33 PM): "The footer is on every page at the bottom like GitHub", but in reading and swipe order the
    tab bar (ending with More) comes BEFORE the footer, and the footer is the very last thing. So the end of every scrolling
@@ -2365,7 +2370,7 @@ const LC_ROUTES = [
   ["settings_ai_cherry", "Settings/Intelligence/Cherry"], ["settings_ai_model", "Settings/Intelligence/Model"], ["settings_ai_cmd", "Settings/Intelligence/Commandbar"],
   ["settings_ai_memory", "Settings/Intelligence/Memory"], ["settings_ai_tools", "Settings/Intelligence/Tools"], ["settings_ai_audit", "Settings/Intelligence/What-Cherry-did"],
   ["settings_general", "Settings/General"], ["settings_updates", "Settings/General/Updates"], ["settings_labs", "Settings/Labs"], ["settings_about", "About"], ["terms", "Terms"], ["privacy", "Privacy"], ["guidelines", "Rules"], ["child_safety", "Child-Safety"],
-  ["credits", "Credits"], ["legal", "Legal"], ["feedback", "Feedback"], ["helpcenter", "Help"], ["commands", "Commands"], ["music", "Music"], ["terminal", "Commandbar"],
+  ["credits", "Credits"], ["legal", "Legal"], ["feedback", "Feedback"], ["settings_dev", "About/Dev"], ["helpcenter", "Help"], ["commands", "Commands"], ["music", "Music"], ["terminal", "Commandbar"],
   ["nexos_apps", "Apps"], ["hour_story", "Our-Story"],
   ["more_discover", "More/Discover"], ["more_apps", "More/Apps"], ["more_create", "More/Create"], ["more_alerts", "More/Alerts"], ["more_projects", "Projects"],
 ];
@@ -3653,6 +3658,7 @@ const LC_SECTIONS = {
   keyboard: { t: "Keyboard", d: "Built-in keys and your own shortcuts.", where: "Settings, General, Keyboard", al: ["keyboard", "shortcuts", "keyboard shortcuts"] },
   ai: { t: "Cherry", d: "Cherry, Looscid's on-device assistant.", where: "Settings, Cherry, Cherry", al: ["cherry", "ai", "intelligence"] },
   clock: { t: "Time format", d: "Clock times as 12-hour or 24-hour.", where: "Settings, Customization, Appearance", al: ["time format", "clock", "clock format"] },
+  uschar: { t: "Heading character", d: "The character around headings, buttons, tabs and links.", where: "Settings, Customization, Appearance", al: ["heading character", "decoration", "robot", "unspeakable"] },
 };
 Looscid.LC_SECTIONS = LC_SECTIONS;
 // [key, section, label, kind, default, options|range, aliases, description, extra]
@@ -3662,9 +3668,36 @@ Object.keys(LC_SECTIONS).forEach(function (k) { if (LC_SECTIONS[k].where) LC_SEC
 const LC_SECTION_PAGE = { vision: ["settings_a11y_vision"], sr_general: ["settings_a11y_sr", "general"], sr_speech: ["settings_a11y_sr", "speech"], sr_braille: ["settings_a11y_sr", "braille"],
   hearing: ["settings_a11y_hearing"], motion: ["settings_a11y_motion"], terminal: ["settings_a11y_terminal"], motor: ["settings_a11y_motor"], audio: ["settings_audio"], verbosity: ["settings_a11y_sr", "verbosity"],
   quiet: ["settings_notifications"], feeds: ["settings_cz_feeds"], posting: ["settings_cz_posting"], media: ["settings_cz_media"],
-  filters: ["settings_privacy"], perm: ["settings_privacy"], pmedia: ["settings_privacy"], keyboard: ["settings_keyboard"], ai: ["settings_ai_cherry"], clock: ["settings_cz_theme"] };
+  filters: ["settings_privacy"], perm: ["settings_privacy"], pmedia: ["settings_privacy"], keyboard: ["settings_keyboard"], ai: ["settings_ai_cherry"], clock: ["settings_cz_theme"], uschar: ["settings_cz_theme"] };
 Looscid.LC_SECTION_PAGE = LC_SECTION_PAGE;
+/* Round 7.41 (Carter, Oct 26 2026 6:59 PM): pick the heading character, in Settings, Customization, Appearance: "Heading
+   character". The same pattern everywhere (character, one space, label, one space, character). None is the same as turning
+   Unspeakable characters off. LC_US_DEFAULT is the ONE place the default lives: change it to "star" (or any id below) and
+   everyone who never picked one gets it. */
+const LC_US_DEFAULT = "robot";
+// Round 7.41 (Carter, Oct 26 2026): WHERE the character goes and WHICH things get it. The defaults are these two constants
+// (Surround, and every kind on, which is exactly what build 190 did).
+const LC_US_POS_DEFAULT = "surround";
+const LC_US_ON_DEFAULT = { h1: true, hx: true, tab: true, btn: true, link: true };
+// The kinds, in the order the checkboxes show them: [id, checkbox label, setting key].
+const LC_US_KINDS = [["h1", "Page headings", "usOnH1"], ["hx", "Section headings", "usOnHx"], ["tab", "Tabs", "usOnTab"], ["btn", "Buttons", "usOnBtn"], ["link", "Links and menu items", "usOnLink"]];
+const LC_US_CHARS = [
+  ["robot", "Robot (unspeakable)", "\uF544"], ["bullet", "Bullet \u2022", "\u2022"], ["star", "Star \u2605", "\u2605"],
+  ["sparkle", "Sparkle \u2726", "\u2726"], ["diamond", "Diamond \u25C6", "\u25C6"], ["none", "None", ""]
+];
+function lcUsCharFor(id) { const x = LC_US_CHARS.find(function (c) { return c[0] === id; }) || LC_US_CHARS.find(function (c) { return c[0] === LC_US_DEFAULT; }); return x[2]; }
+Object.assign(Looscid, { LC_US_DEFAULT, LC_US_CHARS, lcUsCharFor, LC_US_POS_DEFAULT, LC_US_ON_DEFAULT, LC_US_KINDS });
 const LC_SET = [
+  // Round 7.41 (Carter, Oct 26 2026 6:59 PM): the heading character, a real radio group in Customization, Appearance. None is the
+  // same as turning Unspeakable characters off (and picking a character turns it back on). Default: LC_US_DEFAULT.
+  { k: "headingChar", s: "uschar", l: "Character", t: "choice", d: "", dflt: function () { return LC_US_DEFAULT; }, al: ["heading character", "heading characters", "decorative character", "robot", "bullet", "star", "sparkle", "diamond"], o: LC_US_CHARS.map(function (c) { return [c[0], c[1], [c[0]]]; }) },
+  { k: "headingCharPos", s: "uschar", l: "Where it goes", t: "choice", d: "", dflt: function () { return LC_US_POS_DEFAULT; }, al: ["heading character position", "before", "after", "surround"],
+    o: [["before", "Before the label", ["before"]], ["after", "After the label", ["after"]], ["surround", "Surround (before and after)", ["surround", "both"]]] },
+  { k: "usOnH1", s: "uschar", g: "Shows on", l: "Page headings", t: "bool", cb: true, d: LC_US_ON_DEFAULT.h1, al: ["heading character on page headings"] },
+  { k: "usOnHx", s: "uschar", g: "Shows on", l: "Section headings", t: "bool", cb: true, d: LC_US_ON_DEFAULT.hx, al: ["heading character on section headings"] },
+  { k: "usOnTab", s: "uschar", g: "Shows on", l: "Tabs", t: "bool", cb: true, d: LC_US_ON_DEFAULT.tab, al: ["heading character on tabs"] },
+  { k: "usOnBtn", s: "uschar", g: "Shows on", l: "Buttons", t: "bool", cb: true, d: LC_US_ON_DEFAULT.btn, al: ["heading character on buttons"] },
+  { k: "usOnLink", s: "uschar", g: "Shows on", l: "Links and menu items", t: "bool", cb: true, d: LC_US_ON_DEFAULT.link, al: ["heading character on links and menu items"] },
   // Round 9 (2three1y, Oct 13): Time format, in Customizability, Theme and colors. 12-hour stays the default.
   { k: "timeFormat", s: "clock", l: "Time format", t: "choice", d: "12", al: ["time format", "clock", "clock format", "24-hour time", "12-hour time", "24 hour clock", "12 hour clock"], o: [["12", "12-hour, like 2:46 PM", ["12", "12-hour", "12 hour", "am pm"]], ["24", "24-hour, like 14:46", ["24", "24-hour", "24 hour", "military"]]] },
   // Sense > General
@@ -3684,7 +3717,7 @@ const LC_SET = [
     desc: "Shows one Dream at a time, read top to bottom. Next and Previous buttons, the left and right arrow keys, a swipe or braille Enter move between Dreams." },
   // Round 7.36 (#179, Carter): the robot character VoiceOver reads as "unspeakable", around headings, buttons, tabs, links and menus.
   { k: "unspeakable", s: "sr_general", l: "Unspeakable characters", t: "bool", d: true, al: ["unspeakable characters", "unspeakable character", "unspeakable", "robot character", "robot icon", "robot"],
-    desc: "On by default. A robot character before and after the text of headings, buttons, tabs, links, menu buttons and menu items. VoiceOver reads it as \u201cunspeakable\u201d, braille shows a dot pattern, and on screen it's a small robot. Turn it off to remove it everywhere." },
+    desc: "On by default. A character before and after the text of headings, buttons, tabs, links, menu buttons and menu items. It's the robot unless you pick another in Customization, Appearance, Heading character: VoiceOver reads the robot as \u201cunspeakable\u201d, braille shows a dot pattern, and on screen it's a small robot. Turn it off to remove it everywhere." },
   // Speech
   { k: "pitchCues", s: "verbosity", l: "Pitch cues", t: "bool", d: true, old: true, al: ["pitch cues", "pitch cue", "pitch changes", "pitch"],
     desc: "On by default. A short tone at its own pitch when focus lands on a link, button, heading, text field or switch, when something opens or closes, on list position, and on success or error. Replies are read aloud a little lower. Never when you switch feeds, never while you type." },
@@ -3822,7 +3855,7 @@ function lcSectionTitle(sec) { const s = LC_SECTIONS[sec]; return s.sr ? lcSrNam
 // Lets screens outside the App props change a setting (App fills it in).
 Looscid.LC_SET_A11Y = null;
 // Build 151 (#75): a setting's current value in words, for the value shown on Settings rows ("on", "Medium", "Looscid").
-function lcSetVal(k) { try { const d = LC_SET.find(function (x) { return x.k === k; }); if (!d) return ""; let v = Looscid.A11Y_NOW ? Looscid.A11Y_NOW[k] : undefined; if (v == null) v = d.d;
+function lcSetVal(k) { try { const d = LC_SET.find(function (x) { return x.k === k; }); if (!d) return ""; let v = Looscid.A11Y_NOW ? Looscid.A11Y_NOW[k] : undefined; if (v == null) v = d.d; if (d.dflt && (v === "" || v == null)) v = d.dflt();
   if (d.t === "bool") return v ? "on" : "off"; if (d.t === "choice") { const o = (d.o || []).find(function (x) { return x[0] === v; }); return o ? o[1] : String(v); } return String(v); } catch (e) { return ""; } }
 function lcSet(patch) { if (Looscid.LC_SET_A11Y) Looscid.LC_SET_A11Y(patch); else { Looscid.A11Y_NOW = Object.assign({}, Looscid.A11Y_NOW, patch); saveA11y(Looscid.A11Y_NOW); } }
 function lcValueText(def, v) {
@@ -4226,11 +4259,19 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.134.56";
+const LOOSCID_VERSION = "2026.135.56";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 190;
+const LOOSCID_BUILD = 191;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-26T22:29:20Z"; // this update's commit time (version.json "released" matches)
+/* Round 7.41 (Carter, Oct 26 2026: "not corpo shit"): every Round gets a codename. Set the next one here and in the new
+   LC_VERSION_HISTORY entry (its codename field) and version.json ("codename"). */
+const LOOSCID_ROUND = "Round 7.41";
+const LOOSCID_CODENAME = "Midnight Snack";
+Looscid.LOOSCID_ROUND = LOOSCID_ROUND; Looscid.LOOSCID_CODENAME = LOOSCID_CODENAME;
+/* Round 7.41: the one line under the Home heading. Edit this one string to change what it says (empty string hides it). */
+const LOOSCID_NOW_WORKING_ON = "a Discord #bugs channel that turns your bug reports into GitHub issues";
+Looscid.LOOSCID_NOW_WORKING_ON = LOOSCID_NOW_WORKING_ON;
+const LOOSCID_RELEASED = "2026-10-26T23:08:43Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -4310,6 +4351,45 @@ function LcUpdateBanner() {
       lh('button', { type: "button", id: "lc-update-later", className: "btn bgb lc-btn", onClick: function () { try { localStorage.setItem(LC_UPDATE_LATER_KEY, String(v.build)); } catch (e) {} setV(null); announce("OK, later. Check for updates is in About."); } }, "Later")));
 }
 function lcVersionLabel() { return "Looscid " + LOOSCID_VERSION + " (" + LOOSCID_BUILD + ")"; }
+/* Round 7.41 (Carter, Oct 26 2026: side project vibe): fun loading lines. The line you see rotates every 2 seconds, but it's
+   aria-hidden: screen readers get one plain, unchanging text ("Loading Dreams"), so nothing is re-read or announced. With
+   Reduce Motion on, the first line stays put. Edit the list here. */
+const LC_LOADING_LINES = ["Dreaming\u2026", "Waking up the relays\u2026", "Fluffing the pillows\u2026", "Counting sheep\u2026", "Almost there, probably\u2026"];
+function LcLoadingLine({ sr, className, id }) {
+  const [i, setI] = useState(0);
+  useEffect(function () {
+    if (motionReduced()) return;
+    const t = setInterval(function () { setI(function (x) { return (x + 1) % LC_LOADING_LINES.length; }); }, 2000);
+    return function () { clearInterval(t); };
+  }, []);
+  return lh('p', { className: "lc-muted lc-loading-line" + (className ? " " + className : ""), id: id },
+    lh('span', { className: "sr-only" }, sr || "Loading Dreams"),
+    lh('span', { "aria-hidden": "true" }, LC_LOADING_LINES[i]));
+}
+Object.assign(Looscid, { LC_LOADING_LINES, LcLoadingLine });
+/* Round 7.41 easter egg: the Konami code (Up Up Down Down Left Right Left Right B A) on a keyboard. Harmless: it says one
+   line through #looscid-live and plays the Like earcon. Ignored while typing in a text field. */
+(function () {
+  const seq = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
+  let pos = 0;
+  window.addEventListener("keydown", function (e) {
+    const t = e.target; if (t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable)) { pos = 0; return; }
+    const k = e.key && e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    if (k === seq[pos]) pos++; else pos = k === seq[0] ? 1 : 0;
+    if (pos === seq.length) {
+      pos = 0; Looscid.LC_EGG_KONAMI = (Looscid.LC_EGG_KONAMI || 0) + 1;
+      announce("Konami code! You found a secret. Plus 30 lives. Okay, not really, but I'm proud of you.");
+      try { Earcon.play("like"); } catch (er) {}
+    }
+  }, true);
+})();
+/* Round 7.41: going offline or coming back is said once through #looscid-live (offline only if it lasts 2 seconds, and
+   "back online" only after an offline message), so a flaky connection doesn't spam. */
+(function () {
+  let said = false, t = null;
+  window.addEventListener("offline", function () { clearTimeout(t); t = setTimeout(function () { if (navigator.onLine === false) { said = true; announce("You're offline. Your stuff is safe on this device, and anything waiting to send goes out when you're back."); } }, 2000); });
+  window.addEventListener("online", function () { clearTimeout(t); if (said) { said = false; announce("Back online. We're so back."); } });
+})();
 // "October 10, 2026 at 1:09 PM" in this device's time zone.
 function lcReleasedText(iso) {
   const d = new Date(iso); if (isNaN(d)) return "";
@@ -4355,7 +4435,7 @@ Looscid.A11Y_NOW = loadA11y(); // read outside React by earcons and Enter = Send
    beats CSS text, so those labels get the character added here; the label as written is kept in data-lc-al, and code that
    matches labels reads lcAL(el), which gives the label without the characters. Sighted people see a small robot
    (assets/fonts/unspeakable, a one-character subset of Font Awesome Free). */
-const LC_US_G = "\uF544";
+let LC_US_G = "\uF544";
 Looscid.LC_US_G = LC_US_G;
 const LC_US_SEL = 'h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]';
 const LC_US_NOT = '[role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *';
@@ -4368,14 +4448,33 @@ function lcAL(el) {
   const v = el.getAttribute("aria-label"); return v == null ? null : (v.indexOf(LC_US_G) >= 0 ? lcUsStrip(v) : v);
 }
 Looscid.lcAL = lcAL;
-function lcUsWants(el) { try { return el.nodeType === 1 && el.matches(LC_US_SEL) && !el.matches(LC_US_NOT); } catch (e) { return false; } }
+/* Round 7.41: where the character goes (LC_US_POS: before, after or surround) and which kinds are off (LC_US_OFF). A kind
+   that's off is marked data-lc-us-off, so the CSS characters skip it too. */
+let LC_US_POS = LC_US_POS_DEFAULT, LC_US_OFF = {};
+function lcUsKind(el) {
+  if (el.matches("h1")) return "h1";
+  if (el.matches('h2,h3,h4,h5,h6,[role="heading"]')) return "hx";
+  if (el.matches('[role="tab"]')) return "tab";
+  if (el.matches('[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],a[href],[role="link"]')) return "link";
+  return "btn";
+}
+function lcUsDeco(base) { return (LC_US_POS !== "after" ? LC_US_G + " " : "") + base + (LC_US_POS !== "before" ? " " + LC_US_G : ""); }
+function lcUsWants(el) { try { return el.nodeType === 1 && el.matches(LC_US_SEL) && !el.matches(LC_US_NOT) && !LC_US_OFF[lcUsKind(el)]; } catch (e) { return false; } }
+function lcUsOffMark(el) {
+  try {
+    if (!el || el.nodeType !== 1) return;
+    const off = el.matches(LC_US_SEL) && !el.matches(LC_US_NOT) && !!LC_US_OFF[lcUsKind(el)];
+    if (off) { if (!el.hasAttribute("data-lc-us-off")) el.setAttribute("data-lc-us-off", ""); }
+    else if (el.hasAttribute("data-lc-us-off")) el.removeAttribute("data-lc-us-off");
+  } catch (e) {}
+}
 function lcUsWrap(el) {
   if (!lcUsWants(el) || !el.hasAttribute("aria-label")) return;
   const v = el.getAttribute("aria-label");
-  if (v.charAt(0) === LC_US_G && v.charAt(v.length - 1) === LC_US_G) return; // already done
   const base = lcUsStrip(v); if (!base) return;
+  if (v === lcUsDeco(base)) return; // already done
   el.setAttribute("data-lc-al", base);
-  el.setAttribute("aria-label", LC_US_G + " " + base + " " + LC_US_G);
+  el.setAttribute("aria-label", lcUsDeco(base));
 }
 /* Round 7.40 (Carter, Oct 26 2026 6:16 PM): on headings and tabs the characters are real text now, one plain space
    on each side, in the same text as the label: "\uF544 Home \uF544". Drawn by CSS, VoiceOver read the Home heading's
@@ -4388,7 +4487,7 @@ function lcUsTextWrap(el) {
   try { if (!el.matches(LC_US_TXT)) return; } catch (e) { return; }
   const n = el.childNodes; if (n.length !== 1 || n[0].nodeType !== 3) return;
   const t = n[0], v = t.nodeValue || "";
-  const want = LC_US_G + " " + lcUsStrip(v) + " " + LC_US_G;
+  const want = lcUsDeco(lcUsStrip(v));
   if (!lcUsStrip(v)) return;
   if (v !== want) t.nodeValue = want;
   if (!el.hasAttribute("data-lc-ut")) el.setAttribute("data-lc-ut", "");
@@ -4438,12 +4537,33 @@ function lcUsScan(root) {
   root.querySelectorAll(LC_US_TXT).forEach(lcUsTextWrap);
   lcUsEdgeMark(root);
   root.querySelectorAll(LC_US_SEL).forEach(lcUsEdgeMark);
+  lcUsOffMark(root); root.querySelectorAll(LC_US_SEL).forEach(lcUsOffMark);
 }
 Looscid.LC_US_OBS = null;
-function lcUnspeakableOn() { const a = Looscid.A11Y_NOW || {}; return a.unspeakable !== false; }
+function lcUsCharId() { const a = Looscid.A11Y_NOW || {}; return a.headingChar || LC_US_DEFAULT; }
+function lcUnspeakableOn() { const a = Looscid.A11Y_NOW || {}; return a.unspeakable !== false && lcUsCharId() !== "none"; }
 Looscid.lcUnspeakableOn = lcUnspeakableOn;
-function lcUnspeakableApply(on) {
+function lcUnspeakableApply(on, charId, cfg) {
   try {
+    // Round 7.41: a new heading character. Take the old one off everywhere first (it's matched by the old character), then
+    // switch, then put the new one on. CSS reads the characters from --lc-us-b, --lc-us-a, --lc-us-bc and --lc-us-ac (none on a side that has none).
+    const ch = lcUsCharFor(charId || lcUsCharId());
+    if (!ch) on = false;
+    const a = cfg || Looscid.A11Y_NOW || {};
+    const pos = /^(before|after|surround)$/.test(a.headingCharPos || "") ? a.headingCharPos : LC_US_POS_DEFAULT;
+    const offs = {}; LC_US_KINDS.forEach(function (k) { const v = a[k[2]]; if ((v == null ? LC_US_ON_DEFAULT[k[0]] : v) === false) offs[k[0]] = true; });
+    const changed = (ch && ch !== LC_US_G) || pos !== LC_US_POS || JSON.stringify(offs) !== JSON.stringify(LC_US_OFF);
+    if (changed) {
+      // Take everything off with the old settings (it's matched by the old character), then switch.
+      if (Looscid.LC_US_OBS) { Looscid.LC_US_OBS.disconnect(); Looscid.LC_US_OBS = null; }
+      lcUsUnwrapAll(); lcUsTextUnwrapAll();
+      document.querySelectorAll("[data-lc-us-off]").forEach(function (el) { el.removeAttribute("data-lc-us-off"); });
+      if (ch) { LC_US_G = ch; Looscid.LC_US_G = ch; }
+      LC_US_POS = pos; LC_US_OFF = offs;
+    }
+    const de = document.documentElement.style, q = JSON.stringify(LC_US_G);
+    de.setProperty("--lc-us-b", pos !== "after" ? q + ' " "' : "none"); de.setProperty("--lc-us-bc", pos !== "after" ? q : "none");
+    de.setProperty("--lc-us-a", pos !== "before" ? '" " ' + q : "none"); de.setProperty("--lc-us-ac", pos !== "before" ? q : "none");
     document.documentElement.classList.toggle("lc-unspeakable", !!on);
     if (on) {
       if (!Looscid.LC_US_OBS && typeof MutationObserver !== "undefined") {
@@ -4467,7 +4587,7 @@ function lcUnspeakableApply(on) {
   } catch (e) {}
 }
 Looscid.lcUnspeakableApply = lcUnspeakableApply;
-try { if (typeof document !== "undefined") lcUnspeakableApply(lcUnspeakableOn()); } catch (e) {}
+try { if (typeof document !== "undefined") lcUnspeakableApply(lcUnspeakableOn(), lcUsCharId()); } catch (e) {}
 function systemReducedMotion() { try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } }
 function motionReduced() { return !!Looscid.A11Y_NOW.reduceMotion || systemReducedMotion(); }
 function a11yEnterSends() { return Looscid.A11Y_NOW.enterSend !== false; }
@@ -6120,6 +6240,12 @@ function lcRun(raw, api) {
 
   // Round 6.6 (2three1y): help is the top commands; an area and help (cherry help, cherryhelp) reads that area; help list
   // reads every command; help center opens the Help Center; new dream opens the composer (js/helpcenter.js).
+  // Round 7.41 easter egg (Carter: side project vibe): checked first, so nothing else grabs it. Said once, like every result.
+  if (n === "sudo make me a sandwich" || n === "make me a sandwich") {
+    Looscid.LC_EGG_SANDWICH = (Looscid.LC_EGG_SANDWICH || 0) + 1;
+    L(n.indexOf("sudo") === 0 ? "Okay. You're a sandwich now. I don't make the rules, sudo does." : "What? Make it yourself. (Psst, try sudo.)", "ok");
+    return out;
+  }
   const hlp = Looscid.lcHelpIntent ? Looscid.lcHelpIntent(n) : null;
   if (hlp) {
     if (hlp.place) return goTo(hlp.place);
@@ -7539,7 +7665,7 @@ useEffect(() => {
     if (rel === null) { const lp = location.pathname; if (lp.toLowerCase().indexOf(LOOSCID_BASE.toLowerCase()) === 0) rel = lp.slice(LOOSCID_BASE.length); }
     const r = rel ? lcRouteFor(rel) : null;
     if (r && r.missing) setTimeout(() => announce(r.missing), 800);
-    if (rel && !r) setTimeout(() => announce("There's no page at that address, so Looscid opened Home."), 800);
+    if (rel && !r) setTimeout(() => announce("That page doesn't exist. Maybe I dreamed it? I opened Home for you."), 800);
     const to = r && r.page !== "feed" ? r : null;
     try { const want = to ? lcPathFor(to.page, to.data) : LOOSCID_BASE; if (to || /[?&]p=/.test(location.search) || (rel && !r)) history.replaceState({ lcPage: to ? to.page : "feed" }, "", want + location.hash); } catch (e) {}
     if (to) { routeInit.current = to.page; setPage(to.page); setPdata(to.data); } else routeInit.current = null;
@@ -7778,7 +7904,7 @@ useEffect(() => {
     b.toggle("acc-switch", !!acc.switchAccess);
     b.add("lc-has-cmd");
     if (acc.brailleOutput) document.documentElement.setAttribute("data-braille-output", "1"); else document.documentElement.removeAttribute("data-braille-output");
-    lcUnspeakableApply(acc.unspeakable !== false); // Round 7.36 (#179)
+    lcUnspeakableApply(acc.unspeakable !== false && (acc.headingChar || LC_US_DEFAULT) !== "none", acc.headingChar || LC_US_DEFAULT, acc); // Round 7.36 (#179); 7.41: the heading character, where it goes and on what
   }, [prefs.accessibility, sysRM]);
   // Earcon when the area changes (Feed, Alerts, Circles, Settings)
   const lastArea = useRef("feed");
@@ -7841,6 +7967,7 @@ useEffect(() => {
       nexos_app: "App",
       nexos_apps: "Apps",
       credits: "Credits and open source",
+      settings_dev: "Dev menu",
       settings_audio: "Earcons",
       settings_keyboard: "Keyboard",
       settings_tabbar: "Tab Bar",
@@ -7918,6 +8045,7 @@ useEffect(() => {
       case "settings_cz_order":       return Looscid.SettingsOrderSettings ? React.createElement(Looscid.SettingsOrderSettings, { navigate: navigate,}) : null;
       case "nexos_apps":              return React.createElement(Looscid.NexosAppsPage, { navigate: navigate,});
       case "credits":                 return React.createElement(Looscid.CreditsPage, { navigate: navigate,});
+      case "settings_dev":            return Looscid.DevMenuPage ? React.createElement(Looscid.DevMenuPage, { navigate: navigate,}) : null;
       case "nexos_app":               return React.createElement(Looscid.NexosAppFrame, { key: (pdata && pdata.id) || "app", app: pdata, navigate: navigate,});
       case "settings_intelligence": case "settings_ai_cherry": case "settings_ai_model": case "settings_ai_cmd": case "settings_ai_memory": case "settings_ai_tools": case "settings_ai_audit":
                                       return React.createElement(Looscid.IntelligenceSettings, { key: page, page: page, navigate: navigate, prefs: prefs, setPrefs: setPrefs, cherryCtx: cherryCtx,});

@@ -1,12 +1,13 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.134.56",
-  "build": 190,
-  "features": 134,
+  "version": "2026.135.56",
+  "build": 191,
+  "features": 135,
   "fixes": 56,
-  "builds_without_fixes": 134,
-  "released": "2026-10-26T22:29:20Z",
-  "title": "Round 7.40",
-  "notes": "Round 7.40 (build 190), a fix update. The robots now sit inside the Home heading, so it reads as one heading, and every heading works that way. For You and the other tabs have one space between each robot and the label instead of two, and buttons and links got the same fix."
+  "builds_without_fixes": 135,
+  "released": "2026-10-26T23:08:43Z",
+  "title": "Round 7.41",
+  "codename": "Midnight Snack",
+  "notes": "Round 7.41 (build 191), codename Midnight Snack, a feature update. I gave Looscid some personality: What's new in my voice, fun empty screens and loading lines, my story and a Known bugs list in About, plain-English Terms and Privacy, Report a bug, a Credits thank-you to testers and the Discord, a Now working on line on Home, Round codenames, a Heading character picker in Customization, and a secret or two."
 }

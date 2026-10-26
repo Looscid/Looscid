@@ -2,6 +2,24 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.135.56 (191): Round 7.41 "Midnight Snack"
+
+Released October 26, 2026 at 7:08 PM (Eastern Time, 2026-10-26T23:08:43Z UTC)
+
+A feature update, asked for by Carter (“not corpo shit”: Looscid should feel like a side project built by one kid, with the Apple-style layout kept). From now on What's new is written in my voice, and every Round gets a codename.
+
+- I gave Looscid some personality. Empty screens, error messages and loading lines are a little funny now and still say what to do: an empty Home says “No Dreams yet. Kinda peaceful, honestly.”, an empty Inbox says “Your Inbox is empty. Enjoy the silence.”, a bad address says “That page doesn't exist. Maybe I dreamed it? I opened Home for you.”, and going offline or coming back is said once.
+- Fun loading lines (“Dreaming…”, “Waking up the relays…”, “Fluffing the pillows…”, “Counting sheep…”, “Almost there, probably…”) rotate on the startup screen and while Federated loads. Screen readers hear one steady line and nothing is announced over and over. Reduce Motion keeps the first line.
+- About tells my story (why an accessibility-first Nostr app, built in the open, one dev plus Tab) and has a public Known bugs list. What's new in About shows this Round's notes, and the version history shows each Round's codename.
+- Terms and Privacy are rewritten in plain English, in my voice. Same promises, nothing removed. Their addresses (Terms, Privacy) are the same.
+- New: Report a bug, in Help Center (Getting help) and in About. It opens a new GitHub issue with the build, Round, device and user agent already filled in, with the Looscid Discord linked next to it. (A Discord bugs channel that makes GitHub issues by itself needs the Discord bot; that's next.)
+- Credits thanks the testers and the Discord, links the Looscid Discord, and says “Co-written with Tab”. The site footer, at the end of every page, ends with “Co-written with Tab” too.
+- New: a “Now working on” line under the Home heading. It's one string in js/core.js (LOOSCID_NOW_WORKING_ON).
+- New: Heading character, in Settings, Customization, Appearance. Character: Robot (unspeakable, the default), Bullet •, Star ★, Sparkle ✦, Diamond ◆ or None (None is the same as turning off Unspeakable characters). Where it goes: Before the label, After the label, or Surround (the default). Shows on: Page headings, Section headings, Tabs, Buttons, and Links and menu items (all on by default, like build 190). Always one space between the character and the label. The defaults are constants in js/core.js (LC_US_DEFAULT, LC_US_POS_DEFAULT, LC_US_ON_DEFAULT).
+- New: a secret Dev menu. Activate the version button in About 7 times in a row and it says “Dev menu unlocked” and opens: build info, Debug outlines, Clear local cache (asks first; your Dreams, keys and settings stay) and version.json. Lock the Dev menu puts it away again.
+- Two small easter eggs. I'm not saying where. (Hint: one of them is very old and involves arrow keys.)
+- Version 2026.135.56 (191), Round 7.41, codename Midnight Snack.
+
 ## Looscid 2026.134.56 (190): Round 7.40
 
 Released October 26, 2026 at 6:29 PM (Eastern Time, 2026-10-26T22:29:20Z UTC)
