@@ -2,6 +2,15 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.123.49 (172): Round 7.22
+
+Released October 26, 2026 at 12:53 AM (Eastern Time, 2026-10-26T04:53:31Z UTC)
+
+A feature update, asked for by Carter (Home Screen update prompt, #165).
+
+- Feature: Looscid on your Home Screen tells you when there's an update. When a new version ships, a banner at the top says "Update available" with the version, and an Update button and Later. It's said once, politely, and focus stays where it is.
+- It checks when Looscid opens, every 10 minutes, and whenever you come back to it, including a Home Screen app waking up. Update gets the new files past the cache before reloading, so you really land on the new version. Anything you're writing is kept.
+
 ## Looscid 2026.122.49 (171): Round 7.21
 
 Released October 26, 2026 at 12:52 AM (Eastern Time, 2026-10-26T04:52:23Z UTC)

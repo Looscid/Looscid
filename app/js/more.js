@@ -2504,12 +2504,16 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 122; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 123; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 49;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.122.49", build: 171, released: LOOSCID_RELEASED, title: "Round 7.21", notes: [
+  { version: "2026.123.49", build: 172, released: LOOSCID_RELEASED, title: "Round 7.22", notes: [
+    "Feature: Looscid on your Home Screen tells you when there's an update. When a new version ships, a banner at the top says \"Update available\" with the version, and an Update button and Later. It's said once, politely, and focus stays where it is.",
+    "It checks when Looscid opens, every 10 minutes, and whenever you come back to it, including a Home Screen app waking up. Update gets the new files past the cache before reloading, so you really land on the new version. Anything you're writing is kept.",
+  ] },
+  { version: "2026.122.49", build: 171, released: "2026-10-26T04:52:23Z", title: "Round 7.21", notes: [
     "Fix: links to Looscid show a preview again, in iMessage and everywhere else. The title, description, share card and icons now come first on the page, before anything else loads, and the share card is a full-size 1200 by 630 image with the Looscid logo and name.",
   ] },
   { version: "2026.122.48", build: 170, released: "2026-10-26T04:51:06Z", title: "Round 7.20", notes: [

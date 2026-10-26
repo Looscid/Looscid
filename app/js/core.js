@@ -4032,11 +4032,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.122.49";
+const LOOSCID_VERSION = "2026.123.49";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 171;
+const LOOSCID_BUILD = 172;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-26T04:52:23Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-26T04:53:31Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -4065,10 +4065,24 @@ function lcCheckUpdate(manual) {
     return null;
   }, function () { if (manual) announce("Couldn't check for updates. Check your connection and try again."); return null; });
 }
+/* Round 7.22 (#165, Carter Oct 25 2026): a Home Screen web app (Add to Home Screen on iPhone) keeps running from memory and
+   from its own cache, so a new version could sit unseen for days. The same check runs when it comes back to the front
+   (visibilitychange and pageshow), the banner says "Update available" with an Update button, and Update first re-fetches
+   the page's own files past the cache, so the reload really is the new version. Looscid has no service worker of its own;
+   a leftover registration is only asked to update, never removed. */
+function lcIsHomeScreenApp() { try { return !!(window.navigator.standalone || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches)); } catch (e) { return false; } }
+Looscid.lcIsHomeScreenApp = lcIsHomeScreenApp;
+function lcRefreshAppFiles() {
+  const urls = ["./", "index.html", "version.json"];
+  try { document.querySelectorAll("script[src], link[rel=stylesheet][href]").forEach(function (el) { const u = el.getAttribute("src") || el.getAttribute("href"); if (u && !/^https?:/i.test(u) && !/vendor\//.test(u)) urls.push(u); }); } catch (e) {}
+  const all = Promise.all(urls.map(function (u) { return fetch(u, { cache: "reload", credentials: "same-origin" }).catch(function () {}); }));
+  return Promise.race([all, new Promise(function (r) { setTimeout(r, 4000); })]);
+}
 function lcApplyUpdate() {
   // Keep what's being written, then load the new version.
   try { const t = document.querySelector("textarea"); if (t && t.value && t.value.trim() && Looscid.A11Y_NOW.draftAutosave) localStorage.setItem(LC_AUTOSAVE_KEY, t.value); } catch (e) {}
-  const go = function () { try { location.reload(); } catch (e) {} };
+  announce("Updating Looscid…");
+  const go = function () { lcRefreshAppFiles().then(function () { try { location.reload(); } catch (e) {} }); };
   try {
     if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
       navigator.serviceWorker.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.update().catch(function () {}); })); }).then(go, go);
@@ -4082,20 +4096,23 @@ function LcUpdateBanner() {
   useEffect(function () {
     const on = function (e) {
       const d = e.detail || {}; setV(d);
-      if (Looscid.LC_UPDATE_SEEN !== +d.build) { Looscid.LC_UPDATE_SEEN = +d.build; announce("A new update is available for Looscid: " + d.version + " (" + d.build + ")."); try { Earcon.play("alerts"); } catch (x) {} }
+      if (Looscid.LC_UPDATE_SEEN !== +d.build) { Looscid.LC_UPDATE_SEEN = +d.build; announce("Update available: Looscid " + d.version + " (" + d.build + "). The Update button is at the top of the screen."); try { Earcon.play("alerts"); } catch (x) {} }
     };
     window.addEventListener("looscid:update", on);
     const first = setTimeout(function () { lcCheckUpdate(false); }, 1500);
     const iv = setInterval(function () { lcCheckUpdate(false); }, 10 * 60 * 1000);
     const vis = function () { if (document.visibilityState === "visible") lcCheckUpdate(false); };
     document.addEventListener("visibilitychange", vis);
-    return function () { window.removeEventListener("looscid:update", on); clearTimeout(first); clearInterval(iv); document.removeEventListener("visibilitychange", vis); };
+    // #165: a Home Screen app or a page brought back from the back-forward cache checks again too.
+    const shown = function (e) { if (e && e.persisted) lcCheckUpdate(false); };
+    window.addEventListener("pageshow", shown);
+    return function () { window.removeEventListener("looscid:update", on); clearTimeout(first); clearInterval(iv); document.removeEventListener("visibilitychange", vis); window.removeEventListener("pageshow", shown); };
   }, []);
   if (!v) return null;
-  return lh('div', { className: "lc-update", role: "region", "aria-label": "Update" },
-    lh('p', { id: "lc-update-t" }, "A new update is available for Looscid: " + v.version + " (" + v.build + ")."),
+  return lh('div', { className: "lc-update", role: "region", "aria-label": "Update available" },
+    lh('p', { id: "lc-update-t" }, "Update available: Looscid " + v.version + " (" + v.build + ")."),
     lh('div', { className: "lc-update-btns" },
-      lh('button', { type: "button", id: "lc-update-now", className: "btn bp lc-btn", onClick: lcApplyUpdate }, "Update now"),
+      lh('button', { type: "button", id: "lc-update-now", className: "btn bp lc-btn", onClick: lcApplyUpdate }, "Update"),
       lh('button', { type: "button", id: "lc-update-later", className: "btn bgb lc-btn", onClick: function () { try { localStorage.setItem(LC_UPDATE_LATER_KEY, String(v.build)); } catch (e) {} setV(null); announce("OK, later. Check for updates is in About."); } }, "Later")));
 }
 function lcVersionLabel() { return "Looscid " + LOOSCID_VERSION + " (" + LOOSCID_BUILD + ")"; }

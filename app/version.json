@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.122.49",
-  "build": 171,
-  "features": 122,
+  "version": "2026.123.49",
+  "build": 172,
+  "features": 123,
   "fixes": 49,
-  "builds_without_fixes": 122,
-  "released": "2026-10-26T04:52:23Z",
-  "title": "Round 7.21",
-  "notes": "Round 7.21 (build 171), a fix update. Links to Looscid show a full-size preview card again, in iMessage too."
+  "builds_without_fixes": 123,
+  "released": "2026-10-26T04:53:31Z",
+  "title": "Round 7.22",
+  "notes": "Round 7.22 (build 172), a feature update. An \"Update available\" banner with an Update button, made for the Home Screen app: it checks when you come back, and Update loads the new files past the cache."
 }
