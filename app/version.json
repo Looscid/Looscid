@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.128.50",
-  "build": 178,
+  "version": "2026.128.51",
+  "build": 179,
   "features": 128,
-  "fixes": 50,
+  "fixes": 51,
   "builds_without_fixes": 128,
-  "released": "2026-10-26T05:53:26Z",
-  "title": "Round 7.28",
-  "notes": "Round 7.28 (build 178), a fix update. Collapsible buttons in Privacy, Reset and Commandbar are plain buttons, not headings, so VoiceOver reads only their name and expanded or collapsed."
+  "released": "2026-10-26T05:55:52Z",
+  "title": "Round 7.29",
+  "notes": "Round 7.29 (build 179), a fix update. Settings, Privacy has a short \"we care\" paragraph and a Privacy Policy link."
 }

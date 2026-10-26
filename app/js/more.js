@@ -1062,6 +1062,10 @@ function PrivacySettings({navigate, authUser, onUpdateProfile}) {
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
     lh(BackHeader, { title: "Privacy", onBack: function () { navigate("settings"); } }),
     lh('p', { className: "lc-intro" }, "Choose a section. Everything here is saved on this device."),
+    // Round 7.29 (Carter, Oct 26 2026): the "we care" paragraph and a real link to the Privacy Policy page (Back returns here).
+    lh('p', { className: "lc-intro", id: "priv-care" }, "We care about your privacy. Your Dreams, settings and chats stay on this device until you choose to send or share them. We don't sell your data, track you or show ads."),
+    lh('p', { className: "lc-intro" }, lh('a', { id: "priv-policy-link", className: "lc-link", href: (Looscid.lcPathFor ? Looscid.lcPathFor("privacy") : "#"),
+      onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("privacy"); } }, "Privacy Policy")),
     lh('div', { className: "lc-acc" }, SECS.map(function (s) {
       const on = open === s[0];
       return lh('div', { key: s[0], className: "lc-acc-item" },
@@ -2530,10 +2534,13 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 128; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 50;
+const LOOSCID_FIXES = 51;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.128.50", build: 178, released: LOOSCID_RELEASED, title: "Round 7.28", notes: [
+  { version: "2026.128.51", build: 179, released: LOOSCID_RELEASED, title: "Round 7.29", notes: [
+    "Fix: Settings, Privacy says why it matters and links to the policy. Under the intro: \"We care about your privacy. Your Dreams, settings and chats stay on this device until you choose to send or share them. We don't sell your data, track you or show ads.\" Then a Privacy Policy link that opens the policy page, and Back comes right back to Privacy.",
+  ] },
+  { version: "2026.128.50", build: 178, released: "2026-10-26T05:53:26Z", title: "Round 7.28", notes: [
     "Fix: collapsible buttons are plain buttons now, not headings. VoiceOver on iPhone reads just the name and collapsed or expanded, like \"Permissions, button, collapsed\". This covers the Privacy sections, the Reset groups and Commandbar's output toggle.",
   ] },
   { version: "2026.128.49", build: 177, released: "2026-10-26T05:01:30Z", title: "Round 7.27", notes: [

@@ -2,6 +2,14 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.128.51 (179): Round 7.29
+
+Released October 26, 2026 at 1:55 AM (Eastern Time, 2026-10-26T05:55:52Z UTC)
+
+A fix update, asked for by Carter (Privacy Policy link and the "we care" paragraph in Privacy).
+
+- Fix: Settings, Privacy says why it matters and links to the policy. Under the intro: "We care about your privacy. Your Dreams, settings and chats stay on this device until you choose to send or share them. We don't sell your data, track you or show ads." Then a Privacy Policy link that opens the policy page, and Back comes right back to Privacy.
+
 ## Looscid 2026.128.50 (178): Round 7.28
 
 Released October 26, 2026 at 1:53 AM (Eastern Time, 2026-10-26T05:53:26Z UTC)
