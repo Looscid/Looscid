@@ -8,7 +8,7 @@ Released October 26, 2026 at 5:31 PM (Eastern Time, 2026-10-26T21:31:08Z UTC)
 
 A feature update, asked for by Carter (“Logout should also be in the Settings menu”).
 
-- New: Logout is the last row of Settings, in its own group, like Sign Out on iPhone. It asks first, then does the same thing as Logout in your profile's More: it removes your login methods from this device (a Nostr key saved here is deleted) and your LooscidID starts fresh. Your Dreams and settings stay. Settings Order keeps it last, and Search and the Commandbar find it (logout, log out or sign out).
+- New: Logout is the last row of Settings, in its own group, like Sign Out on iPhone. It asks first, then does the same thing as Logout in your profile's More: it removes your login methods from this device (a Nostr key saved here is deleted) and your LooscidID starts fresh. Your Dreams and settings stay. Settings Order keeps it last, and Search and the Commandbar find it when you type logout or sign out.
 - Logout is one word everywhere now, like Login (Carter: it's Logout, not two words): your profile's More, the confirmation, Help Center, What's new and what Looscid says when it's done.
 - Your LooscidID card in Settings reads like the account row on iPhone: your name, your @handle, then “LooscidID, keys, logins and devices”. It's still the only row that shows values.
 - Settings looks more polished: a bigger title, a rounder search field, rounder cards, a little more space and no gradients, in Looscid's own colors (visual polish inspired by VoltAgent's awesome-design-md).
