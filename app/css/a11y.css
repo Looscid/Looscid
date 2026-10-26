@@ -270,3 +270,42 @@ html.lc-unspeakable .bnav :is(.nb,.nb-menu):not(.has-notif):not(#lc-us-x):not(#l
 /* Settings' segmented tabs (Sense sections and the like) are narrow: there the robots sit above and below the word. */
 html.lc-unspeakable .lc-stab:not(#lc-us-x):not(#lc-us-y){overflow-wrap:normal;padding-top:4px;padding-bottom:4px}
 html.lc-unspeakable .lc-stab:not(#lc-us-x):not(#lc-us-y)::before,html.lc-unspeakable .lc-stab:not(#lc-us-x):not(#lc-us-y)::after{display:block;font-size:.75em}
+
+/* Round 7.37 (#176, Carter Oct 26 2026: "full Apple Mode"): Settings looks like modern iOS Settings, built from Looscid's own
+   styles and icons (no Apple art): a large title, a rounded search field, rounded grouped cards with thin separators, small
+   colored icon tiles and short footers under each group. Screen reader, earcon and pitch-cue behavior is unchanged. */
+.lc-ios,.lc-ios-page{padding-bottom:24px}
+.lc-ios .hdr-title{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:28px;line-height:1.15;font-weight:700;letter-spacing:-.01em}
+.lc-ios-page .hdr-title{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:22px;font-weight:700}
+.lc-ios .lc-setfind{padding:4px 16px 10px}
+.lc-ios-searchl{display:block;font-size:13px;color:var(--tx2);margin:0 4px 4px}
+.lc-ios-search{width:100%;box-sizing:border-box;min-height:40px;border-radius:12px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx);padding:8px 12px;font-size:16px}
+.lc-ios-list{list-style:none;margin:8px 16px 0;padding:0;background:var(--sf2);border:1px solid var(--bd);border-radius:14px;overflow:hidden}
+.lc-ios-list>li{margin:0}
+.lc-ios-list>li+li{border-top:1px solid var(--bd)}
+.lc-ios-list .mitem,.lc-ios-list .lc-ios-row{border-bottom:none;min-height:48px;padding:10px 14px;background:none}
+.lc-ios-list .mitem:hover,.lc-ios-list .mitem:focus-visible{background:var(--sf3)}
+.lc-ios-list .mitem-lbl{font-size:16px;font-weight:500}
+.lc-ios-ic{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;color:#fff;background:#6d28d9;flex-shrink:0}
+.lc-ios-ic-alerts{background:#e5484d}.lc-ios-ic-chats{background:#30a46c}.lc-ios-ic-earcons{background:#d6409f}.lc-ios-ic-accessibility{background:#0b74de}
+.lc-ios-ic-customization{background:#8e4ec6}.lc-ios-ic-privacy{background:#3e63dd}.lc-ios-ic-cherry{background:#dc3e42}.lc-ios-ic-general{background:#6f6e77}.lc-ios-ic-helpcenter{background:#12a594}
+.lc-ios-foot{margin:6px 30px 18px;font-size:13px;line-height:1.4;color:var(--tx2)}
+.lc-ios-idcard{margin-top:6px}
+.lc-ios-id{gap:14px;min-height:72px!important}
+.lc-ios-av{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;font-size:20px;font-weight:700;flex-shrink:0}
+.lc-ios-idname{display:block;font-size:19px;font-weight:600;color:var(--tx)}
+.lc-ios-id small{font-size:13px;color:var(--tx2);margin-top:2px}
+.lc-ios-card{margin:8px 16px 0;padding:10px 14px;background:var(--sf2);border:1px solid var(--bd);border-radius:14px}
+.lc-ios-card+.lc-ios-card{margin-top:12px}
+.lc-ios-big{margin:2px 0;font-size:17px;font-weight:600;color:var(--tx)}
+.lc-setfind-res.lc-ios-list{margin:6px 0 0}
+.lc-setfind-res.lc-ios-list li{margin:0}
+.lc-setfind-res .lc-ios-res{display:flex;align-items:center;gap:4px;width:100%;text-align:left;background:none;border:none;border-radius:0;color:var(--tx);font:inherit;padding:10px 14px;min-height:48px;cursor:pointer}
+.lc-ios-res-t{flex:1;min-width:0}
+.lc-ios-res:focus-visible,.lc-ios-res:hover{background:var(--sf3)}
+.lc-ios-res-n{font-size:16px;font-weight:500}
+.lc-ios-res small{display:block;font-size:12px;color:var(--tx2);margin-top:2px}
+.lc-drill{padding:4px 0 0}
+.lc-ios-page .lc-tb-list.lc-ios-list{margin:8px 16px 0}
+.lc-ios-page .lc-tb-list.lc-ios-list>li{padding:10px 14px}
+@media (prefers-reduced-motion:reduce){.lc-ios-list .mitem{transition:none}}

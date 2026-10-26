@@ -2,6 +2,19 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.132.55 (187): Round 7.37
+
+Released October 26, 2026 at 5:09 PM (Eastern Time, 2026-10-26T21:09:03Z UTC)
+
+A feature update, asked for by Carter (“We going full Apple Mode”).
+
+- New: Settings looks and works like iOS Settings (full Apple Mode). Search is at the top, then your LooscidID card, then short grouped lists: Alerts, Chats and Earcons; Accessibility, Customization, Privacy and Cherry; General; and Help Center. Every row opens its own page, Back comes right back to that row, and each group has a short footer saying what it's for.
+- Moved and renamed, with every setting and every saved value kept: Customizability is now Customization, and Tab Bar and Profile Tabs live in it. Intelligence is now Cherry. The new General page holds About, a new Updates page, Keyboard (was Keyboard shortcuts), Commandbar (was in Accessibility), Backup (was Settings backup), Labs (was Looscid Labs) and Reset. In Customization: Appearance (was Theme and colors), Feeds (was Feeds and home) and Media (was Media and translation). In Accessibility: Motion (was Motion and seizure) and Motor (was Motor and switch). Earcons is at the top of Settings only.
+- New: Privacy's sections, Sense's General, Speech, Verbosity and Braille, and LooscidID's sections are now rows that each open their own page, instead of an accordion or tabs. Private account and Let others share my Dreams sit at the top of Privacy.
+- New: Settings Order, in Customization: Default (grouped), Alphabetical, or Custom with Move up and Move down on each row. LooscidID stays first and Help Center stays last. It's saved in Settings backup.
+- Fix: Settings search results read their name and their path apart, like “Text size, Accessibility, Vision” (they ran together). Search also lists every page, understands words like notifications, DMs and dark mode, still finds things by their old names, and keeps what you typed when you come Back.
+- Tab Bar and Profile Tabs now say where a tab moved, like “Home, moved to (2 of 5)”.
+
 ## Looscid 2026.131.55 (186): Round 7.36
 
 Released October 26, 2026 at 4:00 PM (Eastern Time, 2026-10-26T20:00:54Z UTC)

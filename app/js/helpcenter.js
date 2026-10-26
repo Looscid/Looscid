@@ -101,7 +101,7 @@ const LC_HELP_SECTIONS = [
   ["Cherry", [
     "Cherry is the Looscid assistant. Open it from Profile, More, Cherry, or type open cherry. new cherry chat starts fresh; cherry history and cherry pinned chats open Your History.",
     "The Cherry page is called Cherry - DO IT YOUR WAY. New Chat is at the top, then Your History (All and Pinned), then the chat you're in. Each chat has Chat options: Pin, Edit name, Delete, New Chat and History.",
-    "Turn Cherry on or off in Settings, Intelligence. Intelligence also has Memory (saving chats), Tools (what Cherry may do for you) and What Cherry did, with Undo.",
+    "Turn Cherry on or off in Settings, Cherry. Intelligence also has Memory (saving chats), Tools (what Cherry may do for you) and What Cherry did, with Undo.",
   ]],
   ["Earcons and sounds", [
     "Earcons are Looscid's short sounds. Settings, Earcons has the master volume, Soundpacks (Looscid, Looscid OS classic, Insomnia, Hyper Synth, FastSM-inspired, Soundvault, or your own imported pack), and switches for each sound.",
@@ -110,14 +110,14 @@ const LC_HELP_SECTIONS = [
   ["Accessibility", [
     "VoiceOver: every control has a name, and Looscid speaks results once, politely. Focus only moves when you do something.",
     "Braille: Settings, Accessibility, Sense has braille output, short labels, and Enter to send. Close buttons show Close on a braille display.",
-    "Keyboard: Tab and Shift Tab move, Enter and Space press, Escape closes. Settings, Keyboard shortcuts lists them all.",
-    "Calm mode, Flash safety and Reduce Motion are in Settings, Accessibility, Motion and seizure.",
+    "Keyboard: Tab and Shift Tab move, Enter and Space press, Escape closes. Settings, General, Keyboard lists them all.",
+    "Calm mode, Flash safety and Reduce Motion are in Settings, Accessibility, Motion.",
   ]],
   ["Legal", [
     "About Looscid has a Legal button, and the legal command opens it too: Terms, Privacy, Community rules, Looscid's license (no ads, no commercial use) and the open source credits.",
   ], "legal"],
   ["Backup and data", [
-    "Settings, Settings backup saves every setting as one file and brings it back. Backups never hold your keys or passwords.",
+    "Settings, General, Backup saves every setting as one file and brings it back. Backups never hold your keys or passwords.",
     "Settings, LooscidID shows what is stored on this device, and lets you export or delete it.",
   ]],
 ];

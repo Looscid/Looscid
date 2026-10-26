@@ -288,7 +288,7 @@ function lcSwitch(id, label, on, onChange) { return lh(Looscid.A11ySwitch, { key
 function FeedControls({ tab, cherryCtx, dreams, pubState }) {
   useFeedTick();
   // Round 7.16 (#216, Carter said yes Oct 25 2026): Sort is the only control above each feed. Show following and its four
-  // switches, Federated's Networks and the Pin a tab form moved to Settings, Customizability, Feeds and home.
+  // switches, Federated's Networks and the Pin a tab form moved to Settings, Customization, Feeds.
   const sortPick = function (feed) {
     const fed = feed === "federated";
     return lh('div', { key: "sort", className: "lc-feed-sort" }, lh(LcMenu, { id: "feed-sort-btn", menuId: "feed-sort", label: "Sort", hideLabel: true, title: "Sort", inline: true, prefix: "Sort: ", btnClass: "btn bgb lc-btn",
@@ -305,14 +305,14 @@ function FeedControls({ tab, cherryCtx, dreams, pubState }) {
   return null;
 }
 // Federated: the same Sort button as the other feeds (Latest or Popular; it was Popular, Latest and Local tabs), then the
-// relay status lines. Round 7.16 (#216): Local is gone, and Networks is in Settings, Customizability, Feeds and home.
+// relay status lines. Round 7.16 (#216): Local is gone, and Networks is in Settings, Customization, Feeds.
 function FederatedControls({ pubState, sortPick }) {
   return lh('div', { className: "lc-feed-ctl lc-fed" },
     sortPick("federated"),
     pubState === "loading" ? lh('p', { className: "lc-muted" }, "Getting Dreams from your Nostr relays\u2026") :
     pubState === "error" ? lh('p', { className: "lc-muted" }, "Couldn't reach your Nostr relays just now. Showing what Looscid has.") : null);
 }
-/* Round 7.16 (#216): set once in Settings, Customizability, Feeds and home, not above the feed every visit. */
+/* Round 7.16 (#216): set once in Settings, Customization, Feeds, not above the feed every visit. */
 // For You: Show following, and which kinds of what you follow are mixed in.
 function FyFollowSettings() {
   useFeedTick();
@@ -337,7 +337,7 @@ function FedNetsSettings() {
       })));
 }
 // Pin a Circle, a person, a hashtag, a thread or one of your Lists (build 152) as its own feed tab. Round 7.16 (#216): in
-// Settings, Customizability, Feeds and home, under Feed tabs (it sat on top of the Following feed).
+// Settings, Customization, Feeds, under Feed tabs (it sat on top of the Following feed).
 function PinForm({ cherryCtx, dreams }) {
   const [kind, setKind] = useState("circle"), [val, setVal] = useState(""), [tag, setTag] = useState("");
   const groups = ((cherryCtx && cherryCtx.groups) || []).filter(function (g) { return g.joined; });

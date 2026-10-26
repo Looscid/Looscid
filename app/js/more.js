@@ -607,7 +607,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
        { id: "lists", name: "Lists", a: function () { navigate("lists"); } },
        { id: "drafts", name: "Drafts", a: function () { navigate("drafts"); } }]))
       .concat(g(G2, [
-       { id: "cherry", name: "Cherry", a: function () { navigate("cherry"); } }, // Cherry off: opens Settings, Intelligence, and says so
+       { id: "cherry", name: "Cherry", a: function () { navigate("cherry"); } }, // Cherry off: opens Settings, Cherry, and says so
        // Round 7.16 (#216): Circles is its own item. The Discover page that held Discover, Circles and Lists is gone (Discover
        // is a tab, Lists is above).
        { id: "circles", name: "Circles", a: function () { navigate("groups"); } },
@@ -641,7 +641,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
        following ? { id: "unfollow", name: "Unfollow", a: follow } : { id: "follow", name: "Follow", a: follow },
        // Round 8 fixes (QA round 7): Back from that chat lands on More, the button the menu was opened from.
        dmPeer ? { id: "message", name: "Message", a: function () { if (moreBtn.current) Looscid.LC_LAST_ACT = { el: moreBtn.current, at: Date.now() }; openDm(); } } : { id: "message", name: "Message", note: "unavailable: " + dmWhy, disabled: true },
-       cherryOn ? { id: "cherry", name: "Ask Cherry for a summary", a: askCherry } : { id: "cherry", name: "Ask Cherry for a summary", note: "unavailable: Cherry is off", hint: "Not available while Cherry is off. Turn it on in Settings, Intelligence.", disabled: true }]
+       cherryOn ? { id: "cherry", name: "Ask Cherry for a summary", a: askCherry } : { id: "cherry", name: "Ask Cherry for a summary", note: "unavailable: Cherry is off", hint: "Not available while Cherry is off. Turn it on in Settings, Cherry.", disabled: true }]
       .concat(extraItems, [
        hidesRd ? { id: "showrd", name: "Show Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, false); say("Showing Redreams from " + user.name + "."); } }
                : { id: "hiderd", name: "Hide Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, true); say("Hiding Redreams from " + user.name + "."); } },
@@ -998,7 +998,7 @@ function LcCatCustomize({ kind, defs, title }) {
 function MessageSettings({ navigate }) {
   useA11yNow();
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
-    lh(BackHeader, { title: "Message settings", onBack: function () { const b = Looscid.LC_SETTINGS_BACK; Looscid.LC_SETTINGS_BACK = null; navigate(b || "settings"); } }),
+    lh(BackHeader, { title: "Chats", onBack: function () { const b = Looscid.LC_SETTINGS_BACK; Looscid.LC_SETTINGS_BACK = null; navigate(b || "settings"); } }),
     lh('p', { className: "lc-desc", style: { padding: "0 16px" } }, "Who can message you. Private messages use Nostr (NIP-17): end-to-end encrypted, and only you and the person you write to can read them."),
     lh('section', { className: "lc-grp", "aria-labelledby": "ms-who-h" },
       lh('h2', { id: "ms-who-h", className: "lc-grp-h" }, "Who can message me"),
@@ -1068,23 +1068,31 @@ function LcCirclesPrivacy() {
             lh('span', { id: "priv-circ-hl-l-" + k }, " Highlight on my profile")));
       })) : lh('p', { className: "lc-intro" }, "You're not in any Circles yet, so there is nothing to show."));
 }
+// Round 7.37 (#176, Carter Oct 26 2026: every section drills into its own page, like iOS): Privacy's sections are rows now,
+// not an accordion. Each opens its own page with Back (focus comes back to its row). Search, Commandbar and Inbox still open
+// a section straight away through looscid_priv_open and the looscid:privopen event, as before.
+const LC_PRIV_SECS = [["perm", "Permissions", "who can see reply follow mention tag message online read receipts find me discoverability"], ["blocked", "Blocked and muted", "block mute words filters"],
+  ["pmedia", "Media and content", "save download screenshots blur photo details exif cherry"], ["pcircles", "Circles on my profile", "circles profile"], ["pthreads", "Followed Threads", "followed threads profile"]];
+Looscid.LC_PRIV_SECS = LC_PRIV_SECS;
 function PrivacySettings({navigate, authUser, onUpdateProfile}) {
   useA11yNow(); useBlocked();
   const priv = !!(authUser && authUser.private);
   Looscid.LC_FORCED = priv ? { whoSee: "followers", whoFollow: "approve" } : {};
-  // Round 6: an accordion. Disclosure buttons (aria-expanded); one section open at a time.
   const rd = function (k, d) { try { return sessionStorage.getItem(k) || d; } catch (e) { return d; } };
-  const [open, setOpen] = useState(function () { const v = rd("looscid_priv_open", "perm"); return v === "none" ? "" : v; });
+  const [open, setOpen0] = useState(function () { const v = rd("looscid_priv_open", ""); return v === "none" ? "" : v; });
+  const focusTo = useRef(null);
+  const setOpen = function (v, back) { focusTo.current = back ? "priv-acc-" + back : (v ? "h1" : null); setOpen0(v); try { sessionStorage.setItem("looscid_priv_open", v || "none"); } catch (e) {} };
   useEffect(function () {
-    const f = function (e) { setOpen(e.detail); };
+    const f = function (e) { focusTo.current = null; setOpen0(e.detail || ""); };
     window.addEventListener("looscid:privopen", f); return function () { window.removeEventListener("looscid:privopen", f); };
   }, []);
-  const toggle = function (id) { const v = open === id ? "" : id; setOpen(v); try { sessionStorage.setItem("looscid_priv_open", v || "none"); } catch (e) {} };
+  useEffect(function () { const t = focusTo.current; focusTo.current = null; if (!t) return;
+    setTimeout(function () { const el = t === "h1" ? document.querySelector("#main-content h1") : document.getElementById(t); if (el) el.focus(); }, 40); }, [open]);
   // Private account forces "Who can see my Dreams" to Followers and "Who can follow me" to Approve requests.
   const privSwitch = lh('div', { style: { padding: "0 0 6px" } }, lh(A11ySwitch, { id: "set-privateAccount", label: "Private account", on: priv,
     onToggle: function () { if (onUpdateProfile) onUpdateProfile({ private: !priv }); announce(priv ? "Private account off." : "Private account on."); } }));
   const SECS = [
-    ["perm", "Permissions", function () { return lh(LcSection, { sec: "perm", bare: true, labelledBy: "priv-acc-perm", noReset: true, before: lh(React.Fragment, null, privSwitch, lh(LcShareMineSwitch, null)),
+    ["perm", "Permissions", function () { return lh(LcSection, { sec: "perm", bare: true, labelledBy: "priv-drill-h", noReset: true,
       intro: priv ? "Private account is on, so Who can see my Dreams counts as Followers and Who can follow me as Approve requests." : "Who can see, reply to and message you. Saved on this device and sent with your Dreams as your preferences. Looscid is decentralized, so other apps on the same networks decide whether they follow them." }); }],
     ["blocked", "Blocked and muted", function () { return lh(LcBlockedPanel, null); }],
     ["pmedia", "Media and content", function () { return lh(LcPrivacyMedia, { navigate: navigate }); }],
@@ -1092,23 +1100,23 @@ function PrivacySettings({navigate, authUser, onUpdateProfile}) {
     // Round 7.33 (Carter, Oct 26 2026): whether others see your Followed Threads tab.
     ["pthreads", "Followed Threads", function () { return lh(LcShowThreadsSwitch, null); }],
   ];
-  return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
+  const sec = open ? SECS.find(function (s) { return s[0] === open; }) : null;
+  if (sec) return lh('div', { className: "pg lc-a11y lc-ios-page", "aria-live": "off" },
+    lh(BackHeader, { title: sec[1], hid: "priv-drill-h", onBack: function () { setOpen("", sec[0]); } }),
+    lh('div', { id: "priv-acc-p-" + sec[0], className: "lc-acc-p lc-drill" }, sec[2]()));
+  return lh('div', { className: "pg lc-a11y lc-ios-page", "aria-live": "off" },
     lh(BackHeader, { title: "Privacy", onBack: function () { navigate("settings"); } }),
-    lh('p', { className: "lc-intro" }, "Choose a section. Everything here is saved on this device."),
     // Round 7.29 (Carter, Oct 26 2026): the "we care" paragraph and a real link to the Privacy Policy page (Back returns here).
     lh('p', { className: "lc-intro", id: "priv-care" }, "We care about your privacy. Your Dreams, settings and chats stay on this device until you choose to send or share them. We don't sell your data, track you or show ads."),
     lh('p', { className: "lc-intro" }, lh('a', { id: "priv-policy-link", className: "lc-link", href: (Looscid.lcPathFor ? Looscid.lcPathFor("privacy") : "#"),
       onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("privacy"); } }, "Privacy Policy")),
-    lh('div', { className: "lc-acc" }, SECS.map(function (s) {
-      const on = open === s[0];
-      return lh('div', { key: s[0], className: "lc-acc-item" },
-        // Round 7.28 (Carter, Oct 26 2026): a plain button, not a button inside a heading, so VoiceOver on iOS reads just
-        // its name and expanded or collapsed. The div keeps the old heading's class, so it looks the same.
-        lh('div', { className: "lc-acc-h" },
-          lh('button', { type: "button", id: "priv-acc-" + s[0], className: "lc-acc-btn", "aria-expanded": on ? "true" : "false", "aria-controls": "priv-acc-p-" + s[0], onClick: function () { toggle(s[0]); } },
-            lh('span', null, s[1]), lh('span', { className: "msec-toggle-ic" + (on ? " open" : ""), "aria-hidden": "true" }, "\u203a"))),
-        lh('div', { id: "priv-acc-p-" + s[0], className: "lc-acc-p", hidden: !on }, on ? s[2]() : null));
+    lh('div', { className: "lc-ios-card", id: "priv-main" }, privSwitch, lh(LcShareMineSwitch, null)),
+    lh('ul', { className: "mlist lc-catlist lc-ios-list", role: "list", id: "priv-rows" }, SECS.map(function (s) {
+      return lh('li', { key: s[0], className: "mli" },
+        lh('button', { type: "button", id: "priv-acc-" + s[0], className: "mitem lc-cat lc-ios-row", onClick: function () { setOpen(s[0]); } },
+          lh('span', { className: "mitem-lbl" }, s[1]), lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })));
     })),
+    lh('p', { className: "lc-ios-foot" }, "Who can see and reach you, who you blocked or muted, and how your media and profile are shared. Everything here is saved on this device."),
     lh(LcResetLast, { scope: "privacy" }));
 }
 /* Round 7.25 (#164, Carter Oct 25 2026): Let others share my Dreams. On by default. Off, each Dream you send to Nostr from then
@@ -1245,7 +1253,7 @@ function FeedSwitchSetting({ prefs, setPrefs }) {
    Back and an h1. Back returns to the list, on the category it came from. */
 const LC_CATMENU_RESET = { "lc-cz-cats": "customizability", "lc-ai-cats": "intelligence", "lc-audio-cats": "sounds" };
 Looscid.LC_CATMENU_RESET = LC_CATMENU_RESET;
-function LcCatMenu({ id, title, intro, cats, navigate, after, reset }) {
+function LcCatMenu({ id, title, intro, cats, navigate, after, reset, foots }) {
   useEffect(function () {
     let from = null; try { from = sessionStorage.getItem("looscid_cat_from_" + id); sessionStorage.removeItem("looscid_cat_from_" + id); } catch (e) {}
     if (from) setTimeout(function () { const b = document.getElementById(id + "-" + from); if (b) b.focus(); }, 90);
@@ -1254,8 +1262,8 @@ function LcCatMenu({ id, title, intro, cats, navigate, after, reset }) {
     lh(BackHeader, { title: title, onBack: function () { navigate("settings"); } }),
     intro ? lh('p', { className: "lc-intro" }, intro) : null,
     lcMenuList(id, title + " categories", cats.map(function (c) {
-      return { id: c.id, l: c.l, sub: c.sub, a: function () { try { sessionStorage.setItem("looscid_cat_from_" + id, c.id); } catch (e) {} navigate(c.page); } };
-    }).concat(reset !== false && (reset || LC_CATMENU_RESET[id]) ? [{ id: "reset", l: "Reset", a: function () { lcOpenReset(reset || LC_CATMENU_RESET[id]); } }] : [])),
+      return { id: c.id, l: c.l, sub: c.sub, grp: c.grp, a: function () { try { sessionStorage.setItem("looscid_cat_from_" + id, c.id); } catch (e) {} navigate(c.page); } };
+    }).concat(reset !== false && (reset || LC_CATMENU_RESET[id]) ? [{ id: "reset", l: "Reset", grp: cats.some(function (c) { return c.grp; }) ? "reset" : undefined, a: function () { lcOpenReset(reset || LC_CATMENU_RESET[id]); } }] : []), foots),
     after || null);
 }
 function LcCatPage({ title, intro, navigate, children, reset }) {
@@ -1265,13 +1273,20 @@ function LcCatPage({ title, intro, navigate, children, reset }) {
     lh('div', { className: "lc-catbody" }, children),
     reset ? lh(LcResetLast, { scope: reset }) : null);
 }
+// Round 7.37 (#176): short iOS names (Appearance was "Theme and colors", Feeds was "Feeds and home", Media was "Media and
+// translation"; the old names stay as search words), and a Tabs group: Tab Bar and Profile Tabs moved here from the top of
+// Settings (same pages), plus the new Settings Order.
 const LC_CZ_CATS = [
-  { id: "theme", page: "settings_cz_theme", l: "Theme and colors", sub: "Light or dark mode, 12-hour or 24-hour time" },
-  { id: "feeds", page: "settings_cz_feeds", l: "Feeds and home", sub: "How you switch feeds, For You, networks, feed tabs, calm feed" },
-  { id: "menu", page: "settings_cz_menu", l: "Menu", sub: "Where the menu button sits, its Close buttons" },
-  { id: "posting", page: "settings_cz_posting", l: "Dreaming", sub: "Character limit, undo send, alt text reminder, drafts" },
-  { id: "media", page: "settings_cz_media", l: "Media and translation", sub: "Auto-play, translate Dreams" },
+  { id: "theme", page: "settings_cz_theme", l: "Appearance", old: "theme and colors dark mode light mode", grp: "look", sub: "Light or dark mode, 12-hour or 24-hour time" },
+  { id: "feeds", page: "settings_cz_feeds", l: "Feeds", old: "feeds and home", grp: "look", sub: "How you switch feeds, For You, networks, feed tabs, calm feed" },
+  { id: "menu", page: "settings_cz_menu", l: "Menu", grp: "look", sub: "Where the menu button sits, its Close buttons" },
+  { id: "posting", page: "settings_cz_posting", l: "Dreaming", grp: "look", sub: "Character limit, undo send, alt text reminder, drafts" },
+  { id: "media", page: "settings_cz_media", l: "Media", old: "media and translation", grp: "look", sub: "Auto-play, translate Dreams" },
+  { id: "tabbar", page: "settings_tabbar", l: "Tab Bar", grp: "tabs", sub: "Which tabs show at the bottom, and their order" },
+  { id: "profiletabs", page: "settings_profiletabs", l: "Profile Tabs", grp: "tabs", sub: "The order of the tabs on profiles" },
+  { id: "order", page: "settings_cz_order", l: "Settings Order", grp: "tabs", sub: "Default, Alphabetical or your own order of Settings" },
 ];
+const LC_CZ_FOOT = { look: "How Looscid looks, how you move between feeds, the menu, writing Dreams and media.", tabs: "Choose and reorder the tab bar, the tabs on profiles and the rows of Settings. Each has Move up and Move down.", reset: "Puts Customization back to how it was when you started." };
 Looscid.LC_CZ_CATS = LC_CZ_CATS;
 function CustomizabilitySettings({navigate, prefs, setPrefs, theme, setTheme, page}) {
   const limits = [140,280,500,1000];
@@ -1281,7 +1296,7 @@ function CustomizabilitySettings({navigate, prefs, setPrefs, theme, setTheme, pa
   const hideBotClose = !!mp.hideBotClose;
   const setMenu = (k,v) => setPrefs(p=>({...p,menu:{...(p.menu||{}),pos:mp.pos||"bottom",hideTopClose:!!mp.hideTopClose,hideBotClose:!!mp.hideBotClose,[k]:v}}));
   const cat = LC_CZ_CATS.find(function (c) { return c.page === page; });
-  if (!cat) return lh(LcCatMenu, { id: "lc-cz-cats", title: "Customizability", intro: "Choose a category. Earcons are in Settings, Earcons. Cherry and AI are in Settings, Intelligence.", cats: LC_CZ_CATS, navigate: navigate });
+  if (!cat) return lh(LcCatMenu, { id: "lc-cz-cats", title: "Customization", cats: LC_CZ_CATS, foots: LC_CZ_FOOT, navigate: navigate });
   const radios = function (name, legend, opts, cur, onPick, fid) {
     return lh('fieldset', { className: "lc-fs", id: fid },
       lh('legend', { className: "lc-fs-l" }, legend),
@@ -1320,7 +1335,7 @@ function lcSetAiPref(patch) { setAIPrefs(Object.assign({}, getAIPrefs(), patch))
 const LC_AI_CATS = [
   { id: "cherry", page: "settings_ai_cherry", l: "Cherry", sub: "Turn Cherry on or off, learning from your habits, privacy" },
   { id: "model", page: "settings_ai_model", l: "Cherry model", sub: "Built-in, or an on-device model you download once" },
-  { id: "cmd", page: "settings_ai_cmd", l: "Commandbar", sub: "Cherry's answers when a command doesn't match" },
+  { id: "cmd", page: "settings_ai_cmd", l: "Commandbar Answers", old: "commandbar", sub: "Cherry's answers when a command doesn't match" },
   // Build 150 (#66): Cherry's memory, tools and audit. Feed algorithm settings are not here: they are in Feeds.
   { id: "memory", page: "settings_ai_memory", l: "Memory", sub: "Saving chats in Your History, deleting them" },
   { id: "tools", page: "settings_ai_tools", l: "Tools", sub: "What Cherry is allowed to do for you" },
@@ -1333,7 +1348,7 @@ function IntelligenceSettings({ navigate, page, prefs, setPrefs, cherryCtx }) {
   useEffect(function () { const f = function () { tick(function (x) { return x + 1; }); }; window.addEventListener("looscid:llm", f); return function () { window.removeEventListener("looscid:llm", f); }; }, []);
   const ap = getAIPrefs();
   const cat = LC_AI_CATS.find(function (c) { return c.page === page; });
-  if (!cat) return lh(LcCatMenu, { id: "lc-ai-cats", title: "Intelligence", navigate: navigate, cats: LC_AI_CATS,
+  if (!cat) return lh(LcCatMenu, { id: "lc-ai-cats", title: "Cherry", navigate: navigate, cats: LC_AI_CATS,
     intro: "Cherry is Looscid's assistant. It is off until you turn it on, and it runs on this device: nothing you type is sent anywhere. Cherry is " + (lcAiOn() ? "on." : "off.") });
   let body;
   if (cat.id === "cherry") {
@@ -1354,7 +1369,7 @@ function IntelligenceSettings({ navigate, page, prefs, setPrefs, cherryCtx }) {
     body = lh(React.Fragment, null,
       lh(Looscid.CherryModelPicker, null),
       lh('p', { className: "lc-desc" }, "On-device models need WebGPU: Safari 26 on iPhone, or a recent Chrome or Edge. Sizes are the download size. Cherry built-in needs no download."),
-      lcAiOn() ? null : lh('p', { className: "lc-desc" }, "Cherry is off, so the model is only used after you turn Cherry on in Intelligence, Cherry."));
+      lcAiOn() ? null : lh('p', { className: "lc-desc" }, "Cherry is off, so the model is only used after you turn Cherry on in Settings, Cherry."));
   } else if (cat.id === "memory") {
     const chats = Looscid.lcCherryChats(), pins = chats.filter(function (c) { return c.pinned; }).length;
     const keep = getAIPrefs().keepChats !== false;
@@ -1363,7 +1378,7 @@ function IntelligenceSettings({ navigate, page, prefs, setPrefs, cherryCtx }) {
         onToggle: function () { const v = !(getAIPrefs().keepChats !== false); lcSetAiPref({ keepChats: v }); announce("Save chats in Your History: " + (v ? "on" : "off") + "."); } }),
       lh('p', { className: "lc-desc", id: "ai-mem-count" }, chats.length ? chats.length + (chats.length === 1 ? " chat" : " chats") + " saved on this device" + (pins ? ", " + pins + " pinned." : ".") : "No chats saved on this device."),
       lh('button', { type: "button", id: "ai-mem-del", className: "btn bgb lc-big", "aria-disabled": chats.length ? undefined : "true", onClick: function () { if (!chats.length) { announce("There are no chats to delete."); return; } setAskDel(true); } }, "Delete all chats"),
-      lh('p', { className: "lc-desc" }, "Cherry keeps nothing else about you. Learned habits are in Intelligence, Cherry, and media memory is in Privacy, Media and content."),
+      lh('p', { className: "lc-desc" }, "Cherry keeps nothing else about you. Learned habits are in Settings, Cherry, and media memory is in Privacy, Media and content."),
       askDel ? lh(AlertDialog, { title: "Delete all chats?", message: "This deletes all " + chats.length + (chats.length === 1 ? " chat" : " chats") + " with Cherry from this device, pinned ones too. It can't be undone.", confirmLabel: "Delete all",
         onCancel: function () { setAskDel(false); },
         onConfirm: function () {
@@ -1414,19 +1429,26 @@ function IntelligenceSettings({ navigate, page, prefs, setPrefs, cherryCtx }) {
   return lh(LcCatPage, { title: cat.l, navigate: navigate, reset: cat.id === "cherry" ? "g:ai,cherry" : "g:cherry" }, body);
 }
 // Round 6: Verbosity is a tab on Sense (General / Speech / Verbosity / Braille), not a page.
-function lcMenuList(id, label, items) {
+function lcMenuList(id, label, items, foots) {
   // ul role=list > li > button first: VoiceOver says "button, 1 of 7" (round-5 queue item 3).
-  const vb = lcVerb();
-  return lh('ul', { className: "mlist lc-catlist", role: "list", "aria-label": label, id: id },
-    items.map(function (it) {
-      const sid = id + "-" + it.id + "-d";
-      return lh('li', { key: it.id, className: "mli" },
-        lh('button', { type: "button", id: id + "-" + it.id, className: "mitem lc-cat", onClick: it.a },
-          // Round 6 (2three1y): VoiceOver says just "Privacy, button": the label only. Explanations live as
-          // plain text under section headings, not on or after each button.
-          lh('span', { className: "mitem-lbl" }, it.l),
-          lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })));
-    }));
+  // Round 7.37 (#176, iOS Settings): items with a grp are split into grouped lists (rounded cards), each followed by its
+  // short footer from foots[grp]. The first list keeps the id; button ids never change.
+  const groups = [];
+  items.forEach(function (it) { const g = it.grp || "_"; let x = groups.find(function (y) { return y.k === g; }); if (!x) { x = { k: g, rows: [] }; groups.push(x); } x.rows.push(it); });
+  const one = function (g, gi) {
+    return lh(React.Fragment, { key: g.k },
+      lh('ul', { className: "mlist lc-catlist lc-ios-list", role: "list", "aria-label": groups.length > 1 ? undefined : label, id: gi === 0 ? id : id + "-g-" + g.k },
+        g.rows.map(function (it) {
+          return lh('li', { key: it.id, className: "mli" },
+            lh('button', { type: "button", id: id + "-" + it.id, className: "mitem lc-cat lc-ios-row", onClick: it.a },
+              // Round 6 (2three1y): VoiceOver says just "Privacy, button": the label only. Explanations live as
+              // plain text under section headings, not on or after each button.
+              lh('span', { className: "mitem-lbl" }, it.l),
+              lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })));
+        })),
+      foots && foots[g.k] ? lh('p', { className: "lc-ios-foot", id: id + "-f-" + g.k }, foots[g.k]) : null);
+  };
+  return groups.length === 1 && !(foots && foots[groups[0].k]) ? one(groups[0], 0) : lh(React.Fragment, null, groups.map(one));
 }
 // Round 6 (2three1y, 7:14 AM): no per-control explanation lines. Kept as a no-op so callers stay simple.
 function lcSubLine() { return null; }
@@ -1437,13 +1459,17 @@ function AccessibilitySettings({ navigate, onAskDevice }) {
   }, []);
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
     lh(BackHeader, { title: "Accessibility", onBack: function () { navigate("settings"); } }),
-    lh('p', { className: "lc-intro" }, "Choose a category. Everything is saved on this device."),
-    lcMenuList("lc-a11y-cats", "Accessibility categories", LC_A11Y_CATS.map(function (c) {
-      return { id: c.id, l: c.l, sub: c.sub, a: function () { try { sessionStorage.setItem("looscid_a11y_from", c.id); } catch (e) {} navigate(c.page); } };
-    }).concat([{ id: "reset", l: "Reset", a: function () { lcOpenReset("accessibility"); } }])),
+    // Round 7.37 (#176): grouped like iOS Accessibility, each group with a short footer. Commandbar moved to General and
+    // Earcons is a top-level row, so neither is listed here (their pages and ids are unchanged).
+    lcMenuList("lc-a11y-cats", "Accessibility categories", LC_A11Y_CATS.filter(function (c) { return !c.hide; }).map(function (c) {
+      return { id: c.id, l: c.l, sub: c.sub, grp: c.grp, a: function () { try { sessionStorage.setItem("looscid_a11y_from", c.id); if (c.id === "sr") sessionStorage.removeItem("looscid_sr_tab"); } catch (e) {} navigate(c.page); } };
+    }).concat([{ id: "reset", l: "Reset", grp: "reset", a: function () { lcOpenReset("accessibility"); } }]), {
+      sense: "Sense is how Looscid works with VoiceOver, TalkBack, NVDA and braille displays: what it says, how it reads and how controls show in braille.",
+      body: "Text size and contrast, captions for sounds, calmer motion with flash safety, and larger buttons.",
+      reset: "Everything here is saved on this device." }),
     lh('div', { className: "lc-grp" },
       lh('button', { type: "button", className: "btn bgb lc-big", onClick: onAskDevice }, "Ask me again: How do you use your device?"),
-      lh('p', { className: "lc-desc" }, "Tip: Find a setting, at the top of Settings, jumps straight to any option. Ctrl+K or Cmd+K opens Commandbar.")));
+      lh('p', { className: "lc-desc" }, "Tip: Search, at the top of Settings, jumps straight to any option. Ctrl+K or Cmd+K opens Commandbar.")));
 }
 function A11yCategory({ page, navigate, prefs, setPrefs }) {
   const cat = LC_A11Y_PAGE[page];
@@ -1501,6 +1527,8 @@ function A11yCategory({ page, navigate, prefs, setPrefs }) {
     let from = null; try { from = sessionStorage.getItem("looscid_cat_from_lc-sr-more"); sessionStorage.removeItem("looscid_cat_from_lc-sr-more"); } catch (e) {}
     if (from) setTimeout(function () { const b = document.getElementById("lc-sr-more-" + from); if (b) b.focus(); }, 90);
   }, []);
+  const goBack = function () { if (cat.parent) { try { sessionStorage.setItem("looscid_cat_from_lc-sr-more", cat.id); } catch (e) {} } navigate(cat.parent || "settings"); };
+  if (cat.id === "sr") return lh(SrTabs, { onBack: goBack }); // Round 7.37: Sense is its own list of drill-in pages
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
     lh(BackHeader, { title: cat.l, onBack: function () { if (cat.parent) { try { sessionStorage.setItem("looscid_cat_from_lc-sr-more", cat.id); } catch (e) {} } navigate(cat.parent || "settings"); } }), // Round 5 fixes: Back goes where you came from (Sense opens from Settings too)
     // Round 6: one line of plain text under the page heading (Sense has one per tab instead).
@@ -1556,7 +1584,7 @@ function AboutSettings({navigate}) {
         lh('li', null, "Give people a more decentralized experience, away from Big Tech."),
         lh('li', null, "Show that everything can be accessible for anyone."),
         lh('li', null, "Give you control and privacy.")),
-      lh('p', { className: "lid-help" }, "Your LooscidID is made on this device the first time you open Looscid, with no phone number or email. Add login methods any time: Nostr, Mastodon and the fediverse, Bluesky, Funkwhale or Hubzilla. What I plan next is listed in Settings, Looscid Labs.")),
+      lh('p', { className: "lid-help" }, "Your LooscidID is made on this device the first time you open Looscid, with no phone number or email. Add login methods any time: Nostr, Mastodon and the fediverse, Bluesky, Funkwhale or Hubzilla. What I plan next is listed in Settings, General, Labs.")),
     lh(AboutLooscidMore, null),
     lh('section', { "aria-labelledby": "about-nexos", style: { padding: "0 16px 12px" } },
       lh('h2', { id: "about-nexos", className: "lid-sub" }, "Looscid OS"),
@@ -2334,7 +2362,7 @@ function lcIdLabel(x) {
    Makes it"): a header with your avatar, name and @username, then real tabs:
    Home, Personal info, Data & privacy, Security, People & sharing. No payments.
    Alerts are not here; they have their own section. */
-const LID_TABS = [["home", "Home"], ["info", "Profile"], ["methods", "Login methods"], ["keys", "Keys and IDs"], ["security", "Security"], ["devices", "Devices"], ["data", "Data"], ["apps", "Connected apps"]];
+const LID_TABS = Looscid.LID_TABS = [["home", "Home"], ["info", "Profile"], ["methods", "Login methods"], ["keys", "Keys and IDs"], ["security", "Security"], ["devices", "Devices"], ["data", "Data"], ["apps", "Connected apps"]];
 Looscid.LID_TABS = LID_TABS;
 function lidWhen(t) { try { return new Date(t).toLocaleString(undefined, Looscid.lcTimeOpts({ month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })); } catch (e) { return ""; } }
 function thisDeviceLabel() {
@@ -2491,23 +2519,29 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
     lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { go("methods", "lid-methods-h"); } }, "Open Login methods"),
     lh('h3', { className: "lid-label" }, "Apps using your LooscidID"),
     lh('p', { className: "lid-help" }, "No apps use your LooscidID yet."));
-  return lh('div', { className: "pg", ref: wrapRef },
-    lh(BackHeader, { title: title || "LooscidID", onBack: function () {
-      const c = fromCard.current; fromCard.current = null;
-      if (c && tab !== "home") { setNote(""); setTab("home"); setTimeout(function () { const b = document.getElementById(c); if (b) b.focus(); }, 0); return; }
-      if (onBack) onBack(); else navigate("settings"); } }),
+  // Round 7.37 (#176, Carter Oct 26 2026: drill-in pages like iOS): the sections were tabs; now Home is the LooscidID page
+  // with one row per section, and each section opens its own page. Back comes back to the row (or the Home card) you used.
+  const tabName = (LID_TABS.find(function (t) { return t[0] === tab; }) || [tab, "LooscidID"])[1];
+  if (tab !== "home") return lh('div', { className: "pg lc-ios-page", ref: wrapRef },
+    lh(BackHeader, { title: tabName, onBack: function () {
+      if (Looscid.LC_LID_RETURN && initialTab && tab === initialTab && onBack) { onBack(); return; }
+      const c = fromCard.current, was = tab; fromCard.current = null; setNote(""); setTab("home");
+      setTimeout(function () { const b = document.getElementById(c || ("lid-tab-" + was)); if (b) b.focus(); }, 0); } }),
+    lh('div', { id: "lid-panel", className: "lid-body" }, panel));
+  return lh('div', { className: "pg lc-ios-page", ref: wrapRef },
+    lh(BackHeader, { title: title || "LooscidID", onBack: function () { if (onBack) onBack(); else navigate("settings"); } }),
     lh('div', { className: "lid-ghead" },
       lh('div', { className: "lid-gavatar", 'aria-hidden': "true" }, u.initials || "D"),
       lh('p', { className: "lid-gname" }, name),
       lh('p', { className: "lid-ghandle" }, handle + ", LooscidID"),
       lh('p', { className: "lid-help" }, "Manage your LooscidID")),
-    lh('div', { role: "tablist", 'aria-label': "LooscidID",  className: "ftabs lid-tabs", onKeyDown: onTabKey },
-      LID_TABS.map(function (t, i) {
-        const on = t[0] === tab;
-        return lh('button', { key: t[0], id: "lid-tab-" + t[0], type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), 'aria-selected': on ? "true" : "false",
-          'aria-controls': "lid-panel", "aria-setsize": LID_TABS.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1, onClick: function () { fromCard.current = null; setNote(""); setTab(t[0]); } }, t[1]);
-      })),
-    lh('div', { id: "lid-panel", role: "tabpanel", 'aria-labelledby': "lid-tab-" + tab, className: "lid-body" }, panel));
+    lh('ul', { className: "mlist lc-catlist lc-ios-list", role: "list", id: "lid-rows" }, LID_TABS.filter(function (t) { return t[0] !== "home"; }).map(function (t) {
+      return lh('li', { key: t[0], className: "mli" },
+        lh('button', { type: "button", id: "lid-tab-" + t[0], className: "mitem lc-cat lc-ios-row", onClick: function () { fromCard.current = null; setNote(""); setTab(t[0]); setTimeout(function () { const h = wrapRef.current && wrapRef.current.querySelector("h1"); if (h) h.focus(); }, 0); } },
+          lh('span', { className: "mitem-lbl" }, t[1]), lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })));
+    })),
+    lh('p', { className: "lc-ios-foot" }, "Your profile, how you log in, your keys, security, devices, your data on this device and apps using your LooscidID."),
+    lh('div', { id: "lid-panel", className: "lid-body" }, panel));
 }
 Looscid.LC_FORCED = {}; // Private account forces two Permissions
 // What each event is called, for previews, mapping and captions.
@@ -2576,12 +2610,20 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 131; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 132; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 55;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.131.55", build: 186, released: LOOSCID_RELEASED, title: "Round 7.36", notes: [
+  { version: "2026.132.55", build: 187, released: LOOSCID_RELEASED, title: "Round 7.37", notes: [
+    "New: Settings looks and works like iOS Settings (full Apple Mode). Search is at the top, then your LooscidID card, then short grouped lists: Alerts, Chats and Earcons; Accessibility, Customization, Privacy and Cherry; General; and Help Center. Every row opens its own page, Back comes right back to that row, and each group has a short footer saying what it's for.",
+    "Moved and renamed, with every setting and every saved value kept: Customizability is now Customization, and Tab Bar and Profile Tabs live in it. Intelligence is now Cherry. The new General page holds About, a new Updates page, Keyboard (was Keyboard shortcuts), Commandbar (was in Accessibility), Backup (was Settings backup), Labs (was Looscid Labs) and Reset. In Customization: Appearance (was Theme and colors), Feeds (was Feeds and home) and Media (was Media and translation). In Accessibility: Motion (was Motion and seizure) and Motor (was Motor and switch). Earcons is at the top of Settings only.",
+    "New: Privacy's sections, Sense's General, Speech, Verbosity and Braille, and LooscidID's sections are now rows that each open their own page, instead of an accordion or tabs. Private account and Let others share my Dreams sit at the top of Privacy.",
+    "New: Settings Order, in Customization: Default (grouped), Alphabetical, or Custom with Move up and Move down on each row. LooscidID stays first and Help Center stays last. It's saved in Settings backup.",
+    "Fix: Settings search results read their name and their path apart, like \u201cText size, Accessibility, Vision\u201d (they ran together). Search also lists every page, understands words like notifications, DMs and dark mode, still finds things by their old names, and keeps what you typed when you come Back.",
+    "Tab Bar and Profile Tabs now say where a tab moved, like \u201cHome, moved to (2 of 5)\u201d."
+  ] },
+  { version: "2026.131.55", build: 186, released: "2026-10-26T20:00:54Z", title: "Round 7.36", notes: [
     "New: Unspeakable characters around headings and buttons, with a switch in Settings. A small robot character (the Font Awesome robot, U+F544) now sits before and after the text of headings, buttons (collapsibles too), tabs, links, menu buttons and menu items. VoiceOver reads it as \u201cunspeakable\u201d and braille shows a dot pattern; on screen it's a small robot. It's on by default. Turn it off in Settings, Accessibility, Sense, General: \u201cUnspeakable characters\u201d, and it's gone everywhere. Radio buttons, switches and checkboxes never get it.",
     "New: The Feed picker in Pop-up button mode (Settings, Customizability, Feeds, Feed switching) shows the feeds as real radio buttons, built just like the ones in Privacy settings: a Feeds group with one radio per feed. Opening it puts you on the current feed, the arrow keys switch feeds, and Enter or Escape closes it and goes back to the Feed button.",
   ] },
@@ -3262,7 +3304,7 @@ const LC_COMING_SOON = [
 Looscid.LC_COMING_SOON = LC_COMING_SOON;
 function LabsSettings({ navigate }) {
   return lh('div', { className: "pg" },
-    lh(BackHeader, { title: "Looscid Labs", onBack: function () { navigate("settings"); } }),
+    lh(BackHeader, { title: "Labs", onBack: function () { navigate("settings"); } }),
     lh('div', { style: { padding: "0 16px 24px" } },
       lh('p', { className: "lc-desc", style: { fontSize: 15 } }, "Looscid Labs is where we build in public. Nothing on this page is a control: it is a plain list of what we plan, so every other screen shows only things that work today."),
       lh('h2', { className: "slbl", id: "lc-soon-h" }, "Coming soon"),
@@ -3399,7 +3441,7 @@ function LcSetRow({ def, onChange }) {
   }
   if (def.t === "bool") {
     if (def.k === "haptics" && !lcHapticsSupported()) return lh(A11ySwitch, { id: id, label: def.l + ", not supported on this device", desc: "This device or browser has no vibration support, so Haptics stays off. " + (def.desc || ""), on: false, locked: true });
-    if (def.cherry && !lcAiOn()) return lh(A11ySwitch, { id: id, label: def.l + ", turn on Cherry first", desc: "Cherry is off. Turn it on in Settings, Intelligence, Cherry.", on: false, locked: true });
+    if (def.cherry && !lcAiOn()) return lh(A11ySwitch, { id: id, label: def.l + ", turn on Cherry first", desc: "Cherry is off. Turn it on in Settings, Cherry, Cherry.", on: false, locked: true });
     if (def.id && def.id !== "local" && !lcLinkedProviders()[def.id]) return lh(A11ySwitch, { id: id, label: def.l + ", link it in LooscidID first", desc: "Link this identity in Settings, LooscidID, Login methods. Then you can turn this on.", on: false, locked: true });
     return lh(A11ySwitch, { id: id, label: def.l, desc: def.desc, on: !!v, onToggle: function () { put(!v, false); } });
   }
@@ -3612,33 +3654,39 @@ function LcPitchCuesPanel() {
         lh('div', { className: "lc-radios lc-radios-col" }, LC_SET.filter(function (d) { return d.pc; }).map(function (d) { return lh(LcSetRow, { key: d.k, def: d }); }))),
       lh('button', { type: "button", className: "btn bgb lc-btn", id: "lc-pc-preview", onClick: function () { lcPitchPreview(); } }, "Preview every pitch cue")));
 }
-function SrTabs() {
+/* Round 7.37 (#176, Carter Oct 26 2026: drill-in pages like iOS): Sense's General, Speech, Verbosity and Braille were tabs;
+   now each is a row that opens its own page (Back comes back to its row). Your own section names still name the rows and
+   pages. Search and Commandbar still open a section straight away through looscid_sr_tab. Same settings and storage. */
+function SrTabs({ onBack }) {
   useA11yNow();
-  const [cur, setCur] = useState(function () { let t = "general"; try { t = sessionStorage.getItem("looscid_sr_tab") || "general"; } catch (e) {} return LC_SR_TABS.some(function (x) { return x[0] === t; }) ? t : "general"; });
-  const pick = function (id, focus) { setCur(id); try { sessionStorage.setItem("looscid_sr_tab", id); } catch (e) {} if (focus) setTimeout(function () { const b = document.getElementById("srtab-" + id); if (b) b.focus(); }, 0); };
-  const idx = LC_SR_TABS.findIndex(function (t) { return t[0] === cur; });
-  const onKey = function (e) {
-    const n = LC_SR_TABS.length; let i = null;
-    if (e.key === "ArrowRight" || e.key === "ArrowDown") i = (idx + 1) % n; else if (e.key === "ArrowLeft" || e.key === "ArrowUp") i = (idx - 1 + n) % n; else if (e.key === "Home") i = 0; else if (e.key === "End") i = n - 1;
-    if (i !== null) { e.preventDefault(); pick(LC_SR_TABS[i][0], true); }
-  };
-  return lh('div', { className: "lc-srtabs" },
-    lh('div', { role: "tablist", "aria-label": "Sense sections", className: "lc-stabs", onKeyDown: onKey },
-      LC_SR_TABS.map(function (t, i) {
-        const on = t[0] === cur;
-        return lh('button', { key: t[0], id: "srtab-" + t[0], type: "button", role: "tab", "aria-selected": on, "aria-controls": "srpanel-" + t[0], "aria-setsize": LC_SR_TABS.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1, className: "lc-stab" + (on ? " on" : ""), onClick: function () { pick(t[0], false); } }, lcSrName(t[0]));
-      })),
-    // All three panels stay in the page; only the selected one is shown (hidden ones are out of the a11y tree).
-    LC_SR_TABS.map(function (t) {
-      const sec = t[1];
-      return lh('div', { key: t[0], role: "tabpanel", id: "srpanel-" + t[0], "aria-labelledby": "srtab-" + t[0], className: "lc-stpanel", hidden: t[0] !== cur },
-        t[0] === "verbosity" ? lh(LcVerbosityPanel, null) : lh(LcSection, { sec: sec,
+  const valid = function (t) { return LC_SR_TABS.some(function (x) { return x[0] === t; }) ? t : ""; };
+  const [cur, setCur0] = useState(function () { let t = ""; try { t = sessionStorage.getItem("looscid_sr_tab") || ""; } catch (e) {} return valid(t); });
+  const focusTo = useRef(null);
+  const setCur = function (id, back) { focusTo.current = back ? "srtab-" + back : (id ? "h1" : null); setCur0(id); try { if (id) sessionStorage.setItem("looscid_sr_tab", id); else sessionStorage.removeItem("looscid_sr_tab"); } catch (e) {} };
+  useEffect(function () { const f = function (e) { focusTo.current = null; setCur0(valid(e.detail)); }; window.addEventListener("looscid:srtab", f); return function () { window.removeEventListener("looscid:srtab", f); }; }, []);
+  useEffect(function () { const t = focusTo.current; focusTo.current = null; if (!t) return;
+    setTimeout(function () { const el = t === "h1" ? document.querySelector("#main-content h1") : document.getElementById(t); if (el) el.focus(); }, 40); }, [cur]);
+  if (cur) {
+    const sec = LC_SR_TABS.find(function (t) { return t[0] === cur; })[1];
+    return lh('div', { className: "pg lc-a11y lc-ios-page", "aria-live": "off" },
+      lh(BackHeader, { title: lcSrName(cur), hid: "srtab-h", onBack: function () { setCur("", cur); } }),
+      lh('div', { id: "srpanel-" + cur, className: "lc-stpanel lc-drill" },
+        cur === "verbosity" ? lh(LcVerbosityPanel, null) : lh(LcSection, { sec: sec, bare: true, labelledBy: "srtab-h",
           before: sec === "sr_braille" ? lh(React.Fragment, null, lh(BrailleStyle, null), lh('p', { className: "lc-desc" }, "Your display\u2019s own settings, like contracted braille, cells and cursor, are set in VoiceOver, TalkBack or NVDA on your device.")) : null,
           after: lh(React.Fragment, null,
             sec === "sr_speech" ? lh(LcSpeechTest, null) : null,
             sec === "sr_speech" ? lh(LcPitchCuesPanel, null) : null,
-            sec === "sr_general" ? lh(LcSrRename, null) : null) }));
-    }));
+            sec === "sr_general" ? lh(LcSrRename, null) : null) })));
+  }
+  return lh('div', { className: "pg lc-a11y lc-ios-page", "aria-live": "off" },
+    lh(BackHeader, { title: "Sense", onBack: onBack }),
+    lh('ul', { className: "mlist lc-catlist lc-ios-list", role: "list", id: "lc-srtabs" }, LC_SR_TABS.map(function (t) {
+      return lh('li', { key: t[0], className: "mli" },
+        lh('button', { type: "button", id: "srtab-" + t[0], className: "mitem lc-cat lc-ios-row", onClick: function () { setCur(t[0]); } },
+          lh('span', { className: "mitem-lbl" }, lcSrName(t[0])), lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })));
+    })),
+    lh('p', { className: "lc-ios-foot" }, "How Looscid works with VoiceOver, TalkBack or NVDA, what it reads aloud, how much it says, and how things show on your braille display. Rename these in " + lcSrName("general") + "."),
+    lh(LcResetLast, { scope: "g:sr_general,sr_speech,verbosity,sr_braille" }));
 }
 function LcSpeechTest() {
   return lh('div', { className: "lc-row" },
@@ -3653,7 +3701,7 @@ function LcSrRename() {
   const reset = function () { lcSet({ srNames: Object.assign({}, LC_SR_NAMES_DEF) }); setVals(Object.assign({}, LC_SR_NAMES_DEF)); setMsg("Section names are back to General, Speech, Verbosity and Braille."); announce("Section names are back to General, Speech, Verbosity and Braille."); };
   return lh('section', { className: "lc-rename", "aria-labelledby": "lc-rename-h" },
     lh('h3', { id: "lc-rename-h", className: "lc-sub-h" }, "Rename sections"),
-    lh('p', { className: "lc-desc" }, "Give General, Speech, Verbosity and Braille your own names. The tabs, headings and Commandbar use them."),
+    lh('p', { className: "lc-desc" }, "Give General, Speech, Verbosity and Braille your own names. The rows, pages and Commandbar use them."),
     LC_SR_TABS.map(function (t) {
       const id = "lc-rn-" + t[0];
       return lh('div', { key: t[0], className: "lc-row" },
@@ -3789,7 +3837,7 @@ function TabBarSettings({ navigate }) {
   const move = function (t, d) {
     const n = Looscid.lcTabBarMove(t.id, d);
     if (!n) { announce(d < 0 ? t.l + " is already first." : t.l + " is already last before More."); return; }
-    keep("tb-" + (d < 0 ? "up-" : "down-") + sid(t.id)); announce("Moved " + t.l + (d < 0 ? " up" : " down") + ", now position " + n + ".");
+    keep("tb-" + (d < 0 ? "up-" : "down-") + sid(t.id)); announce(t.l + ", moved to (" + n + " of " + list.length + ")."); // Round 7.37: the same words as Settings Order
   };
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
     lh(BackHeader, { title: "Tab Bar", onBack: function () { const b = Looscid.LC_SETTINGS_BACK; Looscid.LC_SETTINGS_BACK = null; navigate(b || "settings"); } }), // #151: Back to your profile when opened from its More
@@ -3814,7 +3862,7 @@ function ProfileTabsSettings({ navigate }) {
   const move = function (t, d) {
     const n = Looscid.lcProfileTabsMove(t.id, d);
     if (!n) { announce(d < 0 ? t.l + " is already first." : t.l + " is already last."); return; }
-    keep("ptab-" + (d < 0 ? "up-" : "down-") + t.id); announce("Moved " + t.l + (d < 0 ? " up" : " down") + ", now position " + n + ".");
+    keep("ptab-" + (d < 0 ? "up-" : "down-") + t.id); announce(t.l + ", moved to (" + n + " of " + list.length + ")."); // Round 7.37: the same words as Settings Order
   };
   const back = function () { const b = Looscid.LC_SETTINGS_BACK; Looscid.LC_SETTINGS_BACK = null; navigate(b || "settings"); };
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
@@ -3831,6 +3879,101 @@ function ProfileTabsSettings({ navigate }) {
     lh('div', { style: { padding: "12px 16px" } },
       lh('button', { type: "button", id: "ptab-reset", className: "btn bgb lc-btn", onClick: function () { Looscid.lcProfileTabsReset(); announce("Profile tabs are back in the usual order: " + Looscid.lcProfileTabsAll().map(function (t) { return t.l; }).join(", ") + "."); keep("ptab-reset"); } }, "Back to the usual order")));
 }
+/* Round 7.37 (#176, Carter Oct 26 2026: "full Apple Mode"): Settings, General, like iOS General. About, Updates, Keyboard,
+   Backup, Labs and Commandbar each open their own page (Back comes back to the row), and Reset opens the same Reset dialog
+   as before. Keyboard shortcuts, Settings backup, Looscid Labs and Reset were rows at the top of Settings; Commandbar was in
+   Accessibility (Carter, Oct 26 1:47 AM: "Commandbar settings go in General"). Same pages, ids and keys. */
+const LC_GEN_ROWS = [
+  { id: "about", l: "About", grp: "info", page: "settings_about" }, { id: "updates", l: "Updates", grp: "info", page: "settings_updates" },
+  { id: "keyboard", l: "Keyboard", grp: "use", page: "settings_keyboard" }, { id: "commandbar", l: "Commandbar", grp: "use", page: "settings_a11y_terminal" },
+  { id: "backup", l: "Backup", grp: "data", page: "settings_backup" }, { id: "labs", l: "Labs", grp: "data", page: "settings_labs" },
+  { id: "reset", l: "Reset", grp: "reset", reset: "all" },
+];
+Looscid.LC_GEN_ROWS = LC_GEN_ROWS;
+function lcIosRows(idp, rows, foots, onPick) {
+  const groups = [];
+  rows.forEach(function (r) { let g = groups.find(function (x) { return x.k === r.grp; }); if (!g) { g = { k: r.grp, rows: [] }; groups.push(g); } g.rows.push(r); });
+  return groups.map(function (g) {
+    return lh(React.Fragment, { key: g.k },
+      lh('ul', { className: "mlist lc-catlist lc-ios-list", role: "list", id: idp + "-g-" + g.k }, g.rows.map(function (r) {
+        return lh('li', { key: r.id, className: "mli" }, lh('button', { type: "button", id: idp + "-" + r.id, className: "mitem lc-cat lc-ios-row", onClick: function () { onPick(r); } },
+          lh('span', { className: "mitem-lbl" }, r.l), lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })));
+      })),
+      foots[g.k] ? lh('p', { className: "lc-ios-foot", id: idp + "-f-" + g.k }, foots[g.k]) : null);
+  });
+}
+function GeneralSettings({ navigate }) {
+  return lh('div', { className: "pg lc-a11y lc-ios-page", "aria-live": "off" },
+    lh(BackHeader, { title: "General", onBack: function () { navigate("settings"); } }),
+    lcIosRows("set-gen", LC_GEN_ROWS, {
+      info: "Your version of Looscid and its history, and checking for a newer one.",
+      use: "Built-in keys and your own shortcuts, and how Commandbar shows and reads its output.",
+      data: "Export or import all your settings in one file, and early features we're still building.",
+      reset: "Reset the whole app, or just some settings. You choose what goes back to how it was before anything changes.",
+    }, function (r) { if (r.reset) { lcOpenReset(r.reset); return; } navigate(r.page); }));
+}
+// Round 7.37 (#176): General, Updates. The same Check for updates and automatic check as About (About keeps them too),
+// with the same storage and the same update prompt.
+function UpdatesSettings({ navigate }) {
+  const [, tick] = useState(0);
+  const auto = lcUpdateAuto();
+  const rel = lcReleasedText(Looscid.lcReleased ? Looscid.lcReleased() : LOOSCID_RELEASED);
+  return lh('div', { className: "pg lc-a11y lc-ios-page", "aria-live": "off" },
+    lh(BackHeader, { title: "Updates", onBack: function () { navigate("settings"); } }),
+    lh('div', { className: "lc-ios-card", id: "upd-card" },
+      lh('p', { className: "lc-ios-big", id: "upd-version" }, lcVersionLabel()),
+      rel ? lh('p', { className: "lid-help" }, "Released " + rel) : null,
+      lh('button', { type: "button", id: "upd-check", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { lcCheckUpdate(true); } }, "Check for updates")),
+    lh('div', { className: "lc-ios-card" },
+      lh(A11ySwitch, { id: "upd-auto", label: "Automatically check for updates", on: auto, onToggle: function () { lcUpdateAutoSet(!auto); tick(function (x) { return x + 1; }); announce("Automatically check for updates: " + (!auto ? "on" : "off") + "."); } })),
+    lh('p', { className: "lc-ios-foot" }, "Looscid checks for a newer version when it opens and asks before it updates. What changed in each version is in General, About."));
+}
+/* Round 7.37 (#176, Carter Oct 26 1:38 AM): Customization, Settings Order. Default keeps the iOS groups; Alphabetical sorts
+   the rows A to Z; Custom is your own order, starting from the current one, with Move up and Move down on each row (no
+   dragging). LooscidID always stays first and Help Center always stays last. Saved on this device and in Settings backup
+   (looscid_settings_order_mode, looscid_settings_order). */
+function SettingsOrderSettings({ navigate }) {
+  Looscid.useSetOrderTick();
+  const items = (Looscid.lcMoreSections({ onClose: function () {}, navigate: navigate, goRoot: function () {}, unreadNotifs: 0, unreadMsgs: 0 }).find(function (s) { return s.id === "settings"; }) || { items: [] }).items;
+  const mode = Looscid.lcSetOrderMode();
+  const list = Looscid.lcSetOrdered(items, mode === "default" ? "default" : mode);
+  const keep = function (elId) { setTimeout(function () { const el = document.getElementById(elId); if (el) el.focus(); }, 0); };
+  const save = function (ids) { try { localStorage.setItem(Looscid.LC_SET_ORDER_KEY, JSON.stringify(ids)); } catch (e) {} Looscid.lcSetOrderTick(); };
+  const setMode = function (m) {
+    if (m === "custom" && mode !== "custom") save(Looscid.lcSetOrdered(items, mode).map(function (x) { return x.id; })); // Custom starts from the current order
+    try { localStorage.setItem(Looscid.LC_SET_ORDER_MODE_KEY, m); } catch (e) {} Looscid.lcSetOrderTick();
+    announce("Settings order: " + (m === "alpha" ? "Alphabetical" : m === "custom" ? "Custom" : "Default") + ".");
+  };
+  const move = function (it, d) {
+    const ids = list.map(function (x) { return x.id; }), i = ids.indexOf(it.id), j = i + d;
+    if (j < 0 || j >= ids.length) { announce(it.label + (d < 0 ? " is already first." : " is already last.")); keep("ord-" + (d < 0 ? "down-" : "up-") + it.id); return; }
+    ids.splice(i, 1); ids.splice(j, 0, it.id); save(ids);
+    announce(it.label + ", moved to (" + (j + 1) + " of " + ids.length + ").");
+    keep("ord-" + (d < 0 ? "up-" : "down-") + it.id);
+  };
+  const opts = [["default", "Default", "Grouped like iOS"], ["alpha", "Alphabetical", "A to Z"], ["custom", "Custom", "Your own order"]];
+  return lh('div', { className: "pg lc-a11y lc-ios-page", "aria-live": "off" },
+    lh(BackHeader, { title: "Settings Order", onBack: function () { navigate("settings"); } }),
+    lh('fieldset', { className: "lc-fs lc-ios-card", id: "cz-order-mode" },
+      lh('legend', { className: "lc-fs-l" }, "Order of Settings"),
+      lh('div', { className: "lc-radios lc-radios-col" }, opts.map(function (o) {
+        return lh('label', { key: o[0], className: "lc-radio" + (mode === o[0] ? " on" : "") },
+          lh('input', { type: "radio", name: "cz-order-mode", value: o[0], checked: mode === o[0], onChange: function () { setMode(o[0]); } }),
+          lh('span', { className: "lc-q-txt" }, lh('span', { className: "lc-q-l" }, o[1]), lh('span', { className: "lc-q-s" }, o[2])));
+      }))),
+    lh('p', { className: "lc-ios-foot" }, "LooscidID always stays first and Help Center always stays last."),
+    mode === "custom" ? lh(React.Fragment, null,
+      lh('ul', { className: "lc-tb-list lc-ios-list", role: "list", id: "ord-list", "aria-label": "Your order" }, list.map(function (it, i) {
+        return lh('li', { key: it.id, className: "lc-tb-row" },
+          lh('p', { className: "lc-ptab-name", id: "ord-name-" + it.id }, it.label),
+          lh('div', { className: "lc-tb-moves" },
+            lh('button', { type: "button", id: "ord-up-" + it.id, className: "btn bgb lc-btn", "aria-label": "Move " + it.label + " up", "aria-disabled": i === 0 ? "true" : undefined, onClick: function () { move(it, -1); } }, "Move up"),
+            lh('button', { type: "button", id: "ord-down-" + it.id, className: "btn bgb lc-btn", "aria-label": "Move " + it.label + " down", "aria-disabled": i === list.length - 1 ? "true" : undefined, onClick: function () { move(it, 1); } }, "Move down")));
+      })),
+      lh('div', { style: { padding: "12px 16px" } },
+        lh('button', { type: "button", id: "ord-reset", className: "btn bgb lc-btn", onClick: function () { save(Looscid.lcSetMovable(items).map(function (x) { return x.id; })); announce("Settings order reset."); keep("ord-reset"); } }, "Reset to Default Order"))) : null);
+}
+Object.assign(Looscid, { GeneralSettings, UpdatesSettings, SettingsOrderSettings });
 function KeyboardSettings({ navigate }) {
   useA11yNow();
   const list = Looscid.A11Y_NOW.shortcuts || [];
@@ -3846,7 +3989,7 @@ function KeyboardSettings({ navigate }) {
     lcSet({ shortcuts: list.concat([{ keys: keys, cmd: c }]).slice(0, 30) }); setKeys(""); setCmd(""); say("Added: " + keys + " runs " + c + ".");
   };
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
-    lh(BackHeader, { title: "Keyboard shortcuts", onBack: function () { navigate("settings"); } }),
+    lh(BackHeader, { title: "Keyboard", onBack: function () { navigate("settings"); } }),
     lh('section', { className: "lc-grp", "aria-labelledby": "kb-b-h" },
       lh('h2', { id: "kb-b-h", className: "lc-grp-h" }, "Built-in shortcuts"),
       lh('ul', { className: "lc-keys lc-rows", role: "list", "aria-label": "Built-in shortcuts" }, LC_BUILTIN_KEYS.map(function (k) { return lh('li', { key: k[0] }, lh('span', { className: "lc-dt" }, k[0], lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, k[1])); }))),
@@ -3895,7 +4038,7 @@ function BackupSettings({ navigate, onImported }) {
     f.text().then(function (t) { const r = lcImportSettings(t); land(); if (r.err) return say(r.err); if (onImported) onImported(); say("Settings imported: " + r.n + " groups of settings restored."); });
   };
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
-    lh(BackHeader, { title: "Settings backup", onBack: function () { navigate("settings"); } }),
+    lh(BackHeader, { title: "Backup", onBack: function () { navigate("settings"); } }),
     lh('section', { className: "lc-grp", "aria-labelledby": "bk-e-h" },
       lh('h2', { id: "bk-e-h", className: "lc-grp-h" }, "Export and import"),
       lh('p', { className: "lc-desc" }, "One JSON file with all your settings: accessibility, audio, Sense, permissions, muted words, shortcuts, theme, music and Cherry. Your Cherry chats and the Circles you made are in it too. No keys, passwords or Dreams are in it. Imported Soundpacks stay on this device."),

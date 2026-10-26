@@ -1062,7 +1062,7 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
       ? { id: "retag", name: "Add me back to this Dream", a: function () { lcSetUntagged(dream, false); announce("You're back in this Dream."); } }
       : { id: "untag", name: "Remove me from this Dream", a: function () { lcSetUntagged(dream, true); announce("Removed you from this Dream. Your mention in it isn't a link to you anymore."); } }) : null,
     // Round 7.16 (#216): one way to follow a thread here, Subscribe (Alerts). Pin thread as a tab is gone from this menu; a
-    // thread can still be pinned in Settings, Customizability, Feeds and home, Feed tabs. A thread tab already pinned can
+    // thread can still be pinned in Settings, Customization, Feeds, Feed tabs. A thread tab already pinned can
     // still be unpinned here.
     (function () { const root = dream._root || dream.replyTo || dream.id; if (!lcPinHas("thread", root)) return null;
       return { id: "pinthread", name: "Unpin thread tab", a: function () { lcPinRemove(lcPinId({ kind: "thread", ref: root })); } }; })(),
@@ -1094,14 +1094,14 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
     className: "lc-dmenu", style: { flex: ".5", display: "flex" }, itemClass: "lc-dopt", btnText: lh(Ic.Dots, { style: { width: 15, height: 15 } }), items: ordered,
     onSelect: function (k, it) { if (it.a) it.a(); } }));
 }
-function BackHeader({title, onBack, right}) {
+function BackHeader({title, onBack, right, hid}) {
   return (
     React.createElement('div', { className: "hdr",}
       , React.createElement('div', { className: "hdr-row",}
         , React.createElement('button', { className: "bi", onClick: onBack, 'aria-label': "Back" ,}
           , React.createElement(Ic.Bck, { style: {width:21,height:21},})
         )
-        , React.createElement('h1', { className: "hdr-title", tabIndex:-1,}, title)
+        , React.createElement('h1', { className: "hdr-title", id: hid, tabIndex:-1,}, title)
         , right
       )
     )
@@ -1500,18 +1500,18 @@ const LC_RESET_G = {
   verbosity: { l: "Verbosity and pitch cues", items: function () { return lcResetKeyItems("verbosity"); } },
   sr_braille: { l: "Braille", items: function () { return lcResetKeyItems("sr_braille"); } },
   hearing: { l: "Hearing", items: function () { return lcResetKeyItems("hearing"); } },
-  motion: { l: "Motion and seizure", items: function () { return lcResetKeyItems("motion"); } },
+  motion: { l: "Motion", items: function () { return lcResetKeyItems("motion"); } },
   terminal: { l: "Commandbar output", items: function () { return lcResetKeyItems("terminal"); } },
-  motor: { l: "Motor and switch", items: function () { return lcResetKeyItems("motor"); } },
+  motor: { l: "Motor", items: function () { return lcResetKeyItems("motor"); } },
   snd_volume: { l: "Volume, focus sounds and keyboard clicks", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[0].keys, LC_AUDIO_CATS[0].keys); } },
   snd_pack: { l: "Soundpacks", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[1].keys, LC_AUDIO_CATS[1].keys); } },
   snd_events: { l: "Event earcons", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[2].keys, LC_AUDIO_CATS[2].keys); } },
   snd_haptics: { l: "Music and haptics", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[3].keys, LC_AUDIO_CATS[3].keys); } },
-  theme: { l: "Theme and colors", items: function () { return [{ id: "theme", l: "Light or dark mode", run: function () { saveTheme("dark"); if (Looscid.LC_SET_THEME) Looscid.LC_SET_THEME("dark"); } }]; } },
-  feeds: { l: "Feeds and home", items: function () { return lcResetKeyItems("feeds", null, ["feedSwitch"]); } },
+  theme: { l: "Appearance", items: function () { return [{ id: "theme", l: "Light or dark mode", run: function () { saveTheme("dark"); if (Looscid.LC_SET_THEME) Looscid.LC_SET_THEME("dark"); } }]; } },
+  feeds: { l: "Feeds", items: function () { return lcResetKeyItems("feeds", null, ["feedSwitch"]); } },
   menu: { l: "Menu", items: function () { return [{ id: "menu", l: "Menu button position and Close buttons", run: function () { if (Looscid.LC_SET_PREFS) Looscid.LC_SET_PREFS(function (p) { return Object.assign({}, p, { menu: { pos: "bottom", hideTopClose: false, hideBotClose: false } }); }); } }]; } },
   posting: { l: "Dreaming", items: function () { return [{ id: "charLimit", l: "Character limit", run: function () { if (Looscid.LC_SET_PREFS) Looscid.LC_SET_PREFS(function (p) { return Object.assign({}, p, { charLimitEnabled: false, charLimit: 280 }); }); } }].concat(lcResetKeyItems("posting")); } },
-  media: { l: "Media and translation", items: function () { return lcResetKeyItems("media"); } },
+  media: { l: "Media", items: function () { return lcResetKeyItems("media"); } },
   alertTypes: { l: "Alert types", items: function () { return [{ id: "alertPrefs", l: "Each alert's on, sound and who, and Group similar alerts", run: lcLsDel([LC_ALERT_PREFS_KEY], "looscid:alerts") }]; } },
   quiet: { l: "Quiet hours", items: function () { return lcResetKeyItems("quiet"); } },
   cats: { l: "Category order", items: function () { return [{ id: "catOrder", l: "Category order and hidden categories on Messages and Alerts", run: lcLsDel(["looscid_msg_cat_order", "looscid_msg_cat_hidden", "looscid_alert_cat_order", "looscid_alert_cat_hidden"], "looscid:cats") }]; } },
@@ -1522,7 +1522,7 @@ const LC_RESET_G = {
   ai: { l: "Cherry settings", items: function () { return lcResetKeyItems("ai").concat([{ id: "habits", l: "Learn from my habits, and what Cherry learned", run: function () { lcLsDel(["looscid_habits"])(); if (Looscid.LC_SET_PREFS) Looscid.LC_SET_PREFS(function (p) { return Object.assign({}, p, { cherry: {} }); }); } }]); } },
   cherry: { l: "Cherry on or off, model and Commandbar answers", items: function () { return [{ id: "aiPrefs", l: "Cherry on or off, model and Commandbar answers", run: lcLsDel([AI_PREFS_KEY], "looscid:llm") }]; } },
   apps: { l: "App settings", items: function () { return [["Insomnia", ["insomnia-os:volume", "insomnia-os:muted", "insomnia-os:mix"]], ["Desktop", ["looscid:volume", "looscid:muted", "looscid:key_sounds", "looscid:beat_genre"]], ["Kernel", ["nexos-real-sound"]]].map(function (x) { return { id: "app_" + x[0].toLowerCase(), l: x[0] + " settings", run: function () { lcLsDel(x[1])(); } }; }); } },
-  keyboard: { l: "Keyboard shortcuts", items: function () { return lcResetKeyItems("keyboard"); } },
+  keyboard: { l: "Keyboard", items: function () { return lcResetKeyItems("keyboard"); } },
   drafts: { l: "Drafts and history", items: function () { return [{ id: "drafts", l: "Saved drafts", run: lcLsDel([DRAFTS_KEY]) }, { id: "autosave", l: "Autosaved text in New Dream", run: lcLsDel([LC_AUTOSAVE_KEY]) }, { id: "cmdlog", l: "Commandbar history", run: lcLsDel([LC_CMD_LOG_KEY], "looscid:cmdlog") }]; } },
   keys: { l: "Keys and IDs", danger: true, items: function () { return [{ id: "nostrKey", l: "Nostr key on this device", danger: true, run: lcResetNostrKey }, { id: "identity", l: "LooscidID on this device", danger: true, run: lcLsDel([LID_IDENTITY_KEY]) }]; } },
 };
@@ -1539,12 +1539,12 @@ function lcResetNostrKey() {
 const LC_RESET_SECTIONS = [
   ["accessibility", "Accessibility", ["vision", "sr_general", "sr_speech", "verbosity", "sr_braille", "hearing", "motion", "terminal", "motor"]],
   ["sounds", "Earcons", ["snd_volume", "snd_pack", "snd_events", "snd_haptics"]],
-  ["customizability", "Customizability", ["theme", "feeds", "menu", "posting", "media"]],
+  ["customizability", "Customization", ["theme", "feeds", "menu", "posting", "media"]],
   ["alerts", "Alerts", ["alertTypes", "quiet", "cats"]],
   ["privacy", "Privacy", ["perm", "pmedia", "blocked", "filters"]],
   ["intelligence", "Intelligence", ["ai", "cherry"]],
   ["apps", "Apps", ["apps"]],
-  ["keyboard", "Keyboard shortcuts", ["keyboard"]],
+  ["keyboard", "Keyboard", ["keyboard"]],
   ["drafts", "Drafts and history", ["drafts"]],
   ["keys", "Keys and IDs", ["keys"]],
 ];
@@ -1646,13 +1646,15 @@ function lcAiOn() { return getAIPrefs().enabled === true; }
 // Settings > Accessibility (round 5): a short menu of categories, Sense first.
 // Each category is its own page with a Back button (2three1y: "not all one gigantic list").
 const LC_A11Y_CATS = [
-  { id: "sr", page: "settings_a11y_sr", l: "Sense", sub: "General, Speech and Braille tabs, button style on braille" },
-  { id: "vision", page: "settings_a11y_vision", l: "Vision", sub: "Text size, high contrast, bold text, spacing" },
-  { id: "hearing", page: "settings_a11y_hearing", l: "Hearing", sub: "Captions and visual cues for sounds" },
-  { id: "motion", page: "settings_a11y_motion", l: "Motion and seizure", sub: "Calm mode, Flash safety, Reduce Motion" },
-  { id: "motor", page: "settings_a11y_motor", l: "Motor and switch", sub: "Larger buttons, strong focus outline" },
-  { id: "terminal", page: "settings_a11y_terminal", l: "Commandbar", sub: "How Commandbar output is laid out and read" },
-  { id: "audio", page: "settings_audio", l: "Earcons", sub: "Opens Settings, Earcons: Soundpacks, volume, keyboard and command earcons, haptics" },
+  { id: "sr", page: "settings_a11y_sr", l: "Sense", grp: "sense", sub: "General, Speech, Verbosity and Braille, button style on braille" },
+  { id: "vision", page: "settings_a11y_vision", l: "Vision", grp: "body", sub: "Text size, high contrast, bold text, spacing" },
+  { id: "hearing", page: "settings_a11y_hearing", l: "Hearing", grp: "body", sub: "Captions and visual cues for sounds" },
+  { id: "motion", page: "settings_a11y_motion", l: "Motion", old: "motion and seizure flashing", grp: "body", sub: "Calm mode, Flash safety, Reduce Motion" },
+  { id: "motor", page: "settings_a11y_motor", l: "Motor", old: "motor and switch", grp: "body", sub: "Larger buttons, strong focus outline" },
+  // Round 7.37 (Carter, Oct 26 1:47 AM: Commandbar settings go in General): same page and id, listed in General now.
+  { id: "terminal", page: "settings_a11y_terminal", l: "Commandbar", hide: true, sub: "How Commandbar output is laid out and read" },
+  // Round 7.37 (#176): Earcons is a top-level row of Settings, so Accessibility no longer lists it.
+  { id: "audio", page: "settings_audio", l: "Earcons", hide: true, sub: "Opens Settings, Earcons: Soundpacks, volume, keyboard and command earcons, haptics" },
 ];
 Looscid.LC_A11Y_CATS = LC_A11Y_CATS;
 const LC_A11Y_PAGE = {};
@@ -1684,11 +1686,14 @@ const LC_FIND_STATIC = [
   { l: "Accessibility", w: "a11y categories", page: "settings_accessibility", where: "Settings" },
   { l: "Sense", w: "sense screen reader and braille voiceover talkback nvda speech braille", page: "settings_a11y_sr", where: "Settings, Accessibility" },
   { l: "LooscidID", w: "account profile login methods security nostr mastodon bluesky funkwhale hubzilla friendica", page: "settings_account", where: "Settings" },
-  { l: "Alerts settings", w: "notifications push quiet hours", page: "settings_notifications", where: "Settings" },
+  { l: "Alerts", w: "alerts settings notification settings notifications push quiet hours alert types sound who can trigger categories order inbox tabs", page: "settings_notifications", where: "Settings" },
   { l: "Privacy", w: "permissions muted words blocked", page: "settings_privacy", where: "Settings" },
-  { l: "Reset", pri: true, w: "reset defaults factory reset start over clear settings", reset: "all", where: "Settings" },
-  { l: "Check for updates", w: "update updates new version upgrade refresh", page: "settings_about", focus: "about-check", where: "About Looscid" },
-  { l: "Automatically check for updates", w: "auto update updates automatic", page: "settings_about", focus: "about-autoupdate", where: "About Looscid" },
+  { l: "Private account", w: "private account approve followers lock", page: "settings_privacy", focus: "set-privateAccount", where: "Settings, Privacy" },
+  { l: "Let others share my Dreams", w: "allow sharing share my dreams reshare", page: "settings_privacy", focus: "set-shareMine", where: "Settings, Privacy" },
+  { l: "Privacy Policy", w: "privacy policy we care data", page: "settings_privacy", focus: "priv-policy-link", where: "Settings, Privacy" },
+  { l: "Reset", pri: true, w: "reset defaults factory reset start over clear settings", reset: "all", where: "Settings, General" },
+  { l: "Check for updates", w: "update updates new version upgrade refresh", page: "settings_updates", focus: "upd-check", where: "Settings, General, Updates" },
+  { l: "Automatically check for updates", w: "auto update updates automatic", page: "settings_updates", focus: "upd-auto", where: "Settings, General, Updates" },
   { l: "Version and version history", w: "version build history changelog release what's new", page: "settings_about", focus: "about-version", where: "About Looscid" },
   { l: "System info", w: "system info device browser storage", page: "settings_about", focus: "about-sys", where: "About Looscid" },
   { l: "Credits and open source", w: "credits open source licenses license thanks third party react nostr-tools noble nexos looscid os insomnia feditext v86 fonts repos", page: "credits", where: "Menu, About" },
@@ -1696,41 +1701,47 @@ const LC_FIND_STATIC = [
   { l: "Blocked Circles", w: "block circle blocked circles", page: "settings_privacy", priv: "blocked", privTab: "circles", focus: "priv-bl-tab-circles", where: "Settings, Privacy, Blocked and muted" },
   { l: "Blocked words", w: "block word blocked words hide words everywhere", page: "settings_privacy", priv: "blocked", privTab: "words", focus: "priv-bl-words-in", where: "Settings, Privacy, Blocked and muted" },
   { l: "Forget what Cherry knows about my media", w: "cherry forget media", page: "settings_privacy", priv: "pmedia", focus: "priv-cherry-forget", where: "Settings, Privacy, Media and content" },
-  { l: "Customizability", w: "themes feeds dreaming posting media", page: "settings_customizability", where: "Settings" },
+  { l: "Customization", w: "customizability themes feeds dreaming posting media tabs", page: "settings_customizability", where: "Settings" },
   // Round 7.16 (#216): what moved here from above the feeds
-  { l: "Show following, Networks and Feed tabs", w: "show following for you networks federated nostr pin a tab feed tabs pinned tabs", page: "settings_cz_feeds", focus: "fy-show-following", where: "Settings, Customizability, Feeds and home" },
+  { l: "Show following, Networks and Feed tabs", w: "show following for you networks federated nostr pin a tab feed tabs pinned tabs", page: "settings_cz_feeds", focus: "fy-show-following", where: "Settings, Customization, Feeds" },
   { l: "Earcons", w: "audio earcons earcon sounds sound pack soundpack soundpacks looscid os classic nexos volume haptics beeps keyboard clicks keyboard earcons command earcons", page: "settings_audio", where: "Settings" },
   { l: "Inbox earcons", w: "inbox earcons inbox earcon inbox sounds inbox sound alert earcons message reply mention like redream quote new dreamor preview", page: "settings_audio_events", focus: "lca-inbox-h", where: "Settings, Earcons, Event earcons" },
   { l: "Event earcons", w: "event earcons event earcon event sounds event sound send like new dream error alert feed switch previews", page: "settings_audio_events", where: "Settings, Earcons" },
-  { l: "Keyboard shortcuts", w: "keys shortcuts", page: "settings_keyboard", where: "Settings" },
-  { l: "Tab Bar", w: "tab bar tabbar bottom tabs order reorder hide show custom tab pinned tab move up move down", page: "settings_tabbar", where: "Settings" },
-  { l: "Profile Tabs", w: "profile tabs order reorder dreams replies circles redreams media liked lists followed threads about move up move down", page: "settings_profiletabs", where: "Settings" },
+  { l: "Keyboard", w: "keyboard shortcuts keys shortcuts", page: "settings_keyboard", where: "Settings, General" },
+  { l: "Tab Bar", w: "tab bar tabbar bottom tabs order reorder hide show custom tab pinned tab move up move down", page: "settings_tabbar", where: "Settings, Customization" },
+  { l: "Profile Tabs", w: "profile tabs order reorder dreams replies circles redreams media liked lists followed threads about move up move down", page: "settings_profiletabs", where: "Settings, Customization" },
   // Round 7.33
   { l: "Show followed threads on my profile", w: "followed threads follow thread profile show hide privacy", page: "settings_privacy", priv: "pthreads", focus: "set-showThreads", where: "Settings, Privacy, Followed Threads" },
-  { l: "Settings backup", w: "export import reset", page: "settings_backup", where: "Settings" },
-  { l: "Intelligence", w: "ai cherry assistant artificial intelligence", page: "settings_intelligence", where: "Settings" },
-  { l: "Cherry on or off", w: "ai cherry turn on off enable disable assistant opt in", page: "settings_ai_cherry", focus: "ai-on", where: "Settings, Intelligence, Cherry" },
-  { l: "Learn from my habits", w: "ai cherry habits habit learning tips clear", page: "settings_ai_cherry", focus: "ai-habits", where: "Settings, Intelligence, Cherry" },
-  { l: "Cherry model", w: "ai model on-device download qwen gemma phi webllm llm", page: "settings_ai_model", focus: "cherry-model", where: "Settings, Intelligence, Cherry model" },
-  { l: "Cherry answers in Commandbar", w: "ai Commandbar terminal answers cherry", page: "settings_ai_cmd", focus: "ai-cmd", where: "Settings, Intelligence, Commandbar" },
-  { l: "Save chats in Your History", w: "ai cherry memory history chats save keep delete all chats forget", page: "settings_ai_memory", focus: "ai-keep", where: "Settings, Intelligence, Memory" },
-  { l: "Cherry tools", w: "ai cherry tools allowed permissions can do actions", page: "settings_ai_tools", focus: "ai-tool-settings", where: "Settings, Intelligence, Tools" },
-  { l: "What Cherry did", w: "ai cherry what cherry did audit log actions undo history", page: "settings_ai_audit", where: "Settings, Intelligence, What Cherry did" },
-  { l: "Light mode", w: "theme colors colours dark light appearance", page: "settings_cz_theme", focus: "cz-theme", where: "Settings, Customizability, Theme and colors" },
-  { l: "Menu button position", w: "menu top bottom one handed position", page: "settings_cz_menu", focus: "cz-menupos", where: "Settings, Customizability, Menu" },
-  { l: "Menu Close buttons", w: "menu close button top bottom", page: "settings_cz_menu", focus: "cz-topclose", where: "Settings, Customizability, Menu" },
-  { l: "Character limit", w: "character limit length dream posting", page: "settings_cz_posting", focus: "cz-charlimit", where: "Settings, Customizability, Dreaming" },
+  { l: "Backup", w: "settings backup export import reset", page: "settings_backup", where: "Settings, General" },
+  { l: "Cherry", w: "intelligence ai cherry assistant artificial intelligence", page: "settings_intelligence", where: "Settings" },
+  { l: "Cherry on or off", w: "ai cherry turn on off enable disable assistant opt in", page: "settings_ai_cherry", focus: "ai-on", where: "Settings, Cherry, Cherry" },
+  { l: "Learn from my habits", w: "ai cherry habits habit learning tips clear", page: "settings_ai_cherry", focus: "ai-habits", where: "Settings, Cherry, Cherry" },
+  { l: "Cherry model", w: "ai model on-device download qwen gemma phi webllm llm", page: "settings_ai_model", focus: "cherry-model", where: "Settings, Cherry, Cherry model" },
+  { l: "Cherry answers in Commandbar", w: "ai Commandbar terminal answers cherry", page: "settings_ai_cmd", focus: "ai-cmd", where: "Settings, Cherry, Commandbar" },
+  { l: "Save chats in Your History", w: "ai cherry memory history chats save keep delete all chats forget", page: "settings_ai_memory", focus: "ai-keep", where: "Settings, Cherry, Memory" },
+  { l: "Cherry tools", w: "ai cherry tools allowed permissions can do actions", page: "settings_ai_tools", focus: "ai-tool-settings", where: "Settings, Cherry, Tools" },
+  { l: "What Cherry did", w: "ai cherry what cherry did audit log actions undo history", page: "settings_ai_audit", where: "Settings, Cherry, What Cherry did" },
+  { l: "Light mode", w: "theme colors colours dark light appearance", page: "settings_cz_theme", focus: "cz-theme", where: "Settings, Customization, Appearance" },
+  { l: "Menu button position", w: "menu top bottom one handed position", page: "settings_cz_menu", focus: "cz-menupos", where: "Settings, Customization, Menu" },
+  { l: "Menu Close buttons", w: "menu close button top bottom", page: "settings_cz_menu", focus: "cz-topclose", where: "Settings, Customization, Menu" },
+  { l: "Character limit", w: "character limit length dream posting", page: "settings_cz_posting", focus: "cz-charlimit", where: "Settings, Customization, Dreaming" },
   { l: "Keys and IDs", w: "nostr npub key fediverse mastodon bluesky handle link id keys login", page: "settings_account", data: { tab: "keys" }, focus: "lid-panel-h", where: "Settings, LooscidID" },
   { l: "Nostr key", w: "nostr key nsec npub passcode signer relays create key secret key dream on nostr", page: "settings_account", data: { tab: "keys" }, focus: "nostr-key-h", where: "Settings, LooscidID, Keys and IDs" },
-  { l: "Looscid Labs and Coming soon", w: "labs planned coming soon roadmap", page: "settings_labs", where: "Settings" },
+  { l: "Labs", w: "looscid labs and coming soon planned roadmap", page: "settings_labs", where: "Settings, General" },
   { l: "Apps", w: "apps nexos insomnia memeprojects meme projects easyconvert desktop kernel app store", page: "nexos_apps", where: "Menu, Apps" },
   { l: "Looscid App Store", w: "app store nexos app store store apps install", page: "nexos_apps", focus: "lc-nx-shell-store", where: "Apps, Desktop" },
   { l: "Insomnia Soundpack", w: "insomnia sounds sound pack soundpack chimes", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Earcons, Soundpacks", pri: true },
   { l: "Hyper Synth Soundpack", w: "synth hyper synth sounds sound pack soundpack", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Earcons, Soundpacks", pri: true },
   { l: "FastSM-inspired Soundpack", w: "fastsm fast sm fastsmrw fastsm inspired earcons sounds sound pack soundpack mastodon bluesky client", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Earcons, Soundpacks", pri: true },
-  { l: "Alerts settings", w: "alerts settings notifications alert types sound who can trigger quiet hours", page: "settings_notifications", where: "Alerts tab, Alerts settings" },
-  { l: "Notification settings", w: "notification settings notifications categories order inbox tabs", page: "settings_notifications", where: "Alerts tab" },
-  { l: "Message settings", w: "message settings messages who can message me categories order starred", page: "settings_messages", where: "Alerts tab, Messages" },
+  { l: "Chats", w: "message settings messages who can message me categories order starred dms", page: "settings_messages", where: "Settings" },
+  // Round 7.37 (#176): the new pages.
+  { l: "General", w: "general about updates keyboard backup labs reset commandbar", page: "settings_general", where: "Settings" },
+  { l: "Updates", w: "software update updates check automatic version", page: "settings_updates", where: "Settings, General" },
+  { l: "About", w: "about looscid version", page: "settings_about", where: "Settings, General" },
+  { l: "Commandbar", w: "commandbar command bar output headings terminal", page: "settings_a11y_terminal", where: "Settings, General" },
+  { l: "Settings Order", w: "settings order reorder sort alphabetical custom default move up move down", page: "settings_cz_order", where: "Settings, Customization" },
+  { l: "Order of Settings", w: "settings order alphabetical a to z custom default", page: "settings_cz_order", focus: "cz-order-mode", where: "Settings, Customization, Settings Order" },
+  { l: "Help Center", w: "help center guides getting started", page: "helpcenter", where: "Settings" },
 ];
 Looscid.LC_FIND_STATIC = LC_FIND_STATIC;
 function lcSettingIndex() {
@@ -1754,23 +1765,65 @@ function lcSettingIndex() {
     const c = LC_A11Y_PAGE[x.page];
     out.push(Object.assign({ where: x.where || (c ? "Settings, Accessibility, " + c.l + (x.tab ? ", " + lcSrName(x.tab) : "") : "Settings") }, x));
   });
+  // Round 7.37 (#175): every page and sub-page is a result too (Vision, Appearance, Speech, Blocked...), with its path.
+  const pageGroups = [["Settings, Accessibility", LC_A11Y_CATS.filter(function (c) { return !c.hide; })],
+    ["Settings, Customization", (Looscid.LC_CZ_CATS || []).filter(function (c) { return /^settings_cz_(theme|feeds|menu|posting|media)$/.test(c.page); })],
+    ["Settings, Cherry", Looscid.LC_AI_CATS || []], ["Settings, Earcons", LC_AUDIO_CATS]];
+  pageGroups.forEach(function (g) { g[1].forEach(function (c) {
+    if (out.some(function (e) { return e.page === c.page && !e.focus && !e.tab && e.l === c.l; })) return;
+    out.push({ l: c.l, w: (c.sub || "") + " " + (c.old || ""), where: g[0], page: c.page }); }); });
+  (Looscid.LC_SR_TABS || []).forEach(function (t) { out.push({ l: lcSrName(t[0]), w: "sense screen reader " + t[0], where: "Settings, Accessibility, Sense", page: "settings_a11y_sr", tab: t[0], isPage: true }); });
+  (Looscid.LC_PRIV_SECS || []).forEach(function (p) { out.push({ l: p[1], w: "privacy " + (p[2] || ""), where: "Settings, Privacy", page: "settings_privacy", priv: p[0], isPage: true }); });
+  (Looscid.LID_TABS || []).forEach(function (t) { if (t[0] === "keys" || t[0] === "home") return; out.push({ l: t[1], w: "looscidid account " + t[0], where: "Settings, LooscidID", page: "settings_account", data: { tab: t[0] }, focus: "lid-panel-h", isPage: true }); });
+  out.forEach(function (e) { e.where = lcIosWhere(e.where); if (e.page && !e.focus && !e.reset) e.isPage = true; });
   return out;
 }
+// Round 7.37 (#175): words people use for the same thing. They only help matching and are never shown.
+const LC_SET_SYN = { notification: "alerts", notifications: "alerts", push: "alerts", messages: "chats", message: "chats", dm: "chats", dms: "chats",
+  sounds: "earcons", sound: "earcons", audio: "earcons", beeps: "earcons", beep: "earcons", voiceover: "sense", talkback: "sense", nvda: "sense",
+  dark: "appearance", theme: "appearance", themes: "appearance", colors: "appearance", colours: "appearance", font: "text size", bigger: "text size",
+  account: "looscidid", profile: "looscidid", login: "looscidid", saved: "liked", post: "dream", posts: "dreams", block: "blocked", seizure: "flash",
+  flashing: "flash", shortcuts: "keyboard", update: "updates", version: "updates", customizability: "customization", intelligence: "cherry", ai: "cherry",
+  order: "settings order", reorder: "order", help: "help center" };
+// Old names, so paths match where things live now (they are the same pages and keys; only the names and places changed).
+function lcIosWhere(w) {
+  let s = String(w || "");
+  s = s.replace(/^Settings, Customizability/, "Settings, Customization").replace(/^Settings, Intelligence/, "Settings, Cherry")
+    .replace(/^Settings, Customization, Theme and colors/, "Settings, Customization, Appearance").replace(/^Settings, Customization, Feeds and home/, "Settings, Customization, Feeds")
+    .replace(/^Settings, Customization, Media and translation/, "Settings, Customization, Media")
+    .replace(/^Settings, Accessibility, Motion and seizure/, "Settings, Accessibility, Motion").replace(/^Settings, Accessibility, Motor and switch/, "Settings, Accessibility, Motor")
+    .replace(/^Settings, Accessibility, Commandbar/, "Settings, General, Commandbar").replace(/^Settings, Keyboard shortcuts/, "Settings, General, Keyboard")
+    .replace(/^Settings, Settings backup/, "Settings, General, Backup").replace(/^Settings, Looscid Labs/, "Settings, General, Labs")
+    .replace(/^Settings, Tab Bar/, "Settings, Customization, Tab Bar").replace(/^Settings, Profile Tabs/, "Settings, Customization, Profile Tabs")
+    .replace(/^About Looscid/, "Settings, General, About").replace(/^Alerts tab, Messages/, "Settings, Chats").replace(/^Alerts tab, Alerts settings/, "Settings, Alerts").replace(/^Alerts tab$/, "Settings");
+  return s;
+}
+Looscid.lcIosWhere = lcIosWhere;
 function lcFindSettings(q) {
   const words = lcNorm(q).split(" ").filter(Boolean); if (!words.length) return [];
   const scored = [];
+  const has = function (hay, w) { if (hay.indexOf(w) >= 0) return true; const s = LC_SET_SYN[w]; return !!(s && hay.indexOf(s) >= 0); };
   lcSettingIndex().forEach(function (e) {
-    const lab = lcNorm(e.l), hay = lab + " " + lcNorm(e.w || "") + " " + lcNorm(e.where || "");
-    if (!words.every(function (w) { return hay.indexOf(w) >= 0; })) return;
-    const s = (e.pri ? -2 : 0) + (lab.indexOf(words[0]) === 0 ? 0 : lab.indexOf(words[0]) >= 0 ? 1 : 2);
+    const lab = lcNorm(e.l), kw = lcNorm(e.w || ""), wh = lcNorm(lcWhereShort(e.where));
+    const hay = lab + " " + kw + " " + wh;
+    if (!words.every(function (w) { return has(hay, w); })) return;
+    // Ranking, like iOS: the name starts with the word, then the name has it, then a keyword, then only the path.
+    const w0 = words[0], s0 = LC_SET_SYN[w0];
+    const rk = (lab.indexOf(w0) === 0 || (s0 && lab.indexOf(s0) === 0)) ? 0 : (has(lab, w0) ? 1 : has(kw, w0) ? 2 : 3);
+    const s = (e.pri ? -2 : 0) + rk + (e.isPage ? 0 : 0.5);
     scored.push([s, e]);
   });
   scored.sort(function (a, b) { return a[0] - b[0]; });
-  return scored.map(function (x) { return x[1]; });
+  // The same setting listed twice with the same path is shown once.
+  const seen = {};
+  return scored.map(function (x) { return x[1]; }).filter(function (e) { const k = e.l + "|" + e.where + "|" + (e.focus || ""); if (seen[k]) return false; seen[k] = true; return true; });
 }
 function lcGoSetting(e, navigate) {
   if (e.reset) { setTimeout(function () { lcOpenReset(e.reset); }, 120); return; }
-  if (e.tab) { try { sessionStorage.setItem("looscid_sr_tab", e.tab); } catch (x) {} }
+  if (e.tab) { try { sessionStorage.setItem("looscid_sr_tab", e.tab); } catch (x) {} try { window.dispatchEvent(new CustomEvent("looscid:srtab", { detail: e.tab })); } catch (x) {} }
+  // Round 7.37 (#176): Privacy and Sense open on their own list of rows unless a result points inside one of their pages.
+  else if (e.page === "settings_a11y_sr") { try { sessionStorage.removeItem("looscid_sr_tab"); } catch (x) {} }
+  if (e.page === "settings_privacy" && !e.priv) { try { sessionStorage.setItem("looscid_priv_open", "none"); } catch (x) {} try { window.dispatchEvent(new CustomEvent("looscid:privopen", { detail: "" })); } catch (x) {} }
   if (e.privTab) { try { sessionStorage.setItem("looscid_priv_tab", e.privTab); } catch (x) {} try { window.dispatchEvent(new CustomEvent("looscid:privtab", { detail: e.privTab })); } catch (x) {} }
   if (e.priv) { try { sessionStorage.setItem("looscid_priv_open", e.priv); } catch (x) {} try { window.dispatchEvent(new CustomEvent("looscid:privopen", { detail: e.priv })); } catch (x) {} }
   navigate(e.page, e.data || null);
@@ -1788,18 +1841,31 @@ function lcGoSetting(e, navigate) {
     } else if (tries > 30) clearInterval(t);
   }, 60);
 }
-function LcSettingFind({ navigate, onClose }) {
-  const [q, setQ] = useState("");
+/* Round 7.37 (#175, like iOS Settings search): the field is "Search". Each result shows its short name with its path under it
+   (the path skips "Settings", like iOS), and the two are read apart: "Text size, Accessibility, Vision" (they ran together,
+   "...on my profileSettings, Privacy..."). Up to 25 results, then "Show all (N)". What you typed is still there when you
+   come Back. Typing announces the count through #looscid-live only. Escape clears the field. */
+function lcWhereShort(w) { return String(w || "").replace(/^Settings(, |$)/, ""); }
+Looscid.lcWhereShort = lcWhereShort;
+function LcSettingFind({ navigate, onClose, q: qIn, setQ: setQIn }) {
+  const [q0, setQ0] = useState("");
+  const q = qIn != null ? qIn : q0, setQ = setQIn || setQ0;
+  const [all, setAll] = useState(false);
   const res = q.trim() ? lcFindSettings(q) : [];
+  const shown = all ? res : res.slice(0, 25);
   return lh('div', { className: "lc-setfind", role: "search", "aria-label": "Settings" },
-    lh('label', { htmlFor: "lc-setfind-q", className: "lmenu-label" }, "Find a setting"),
-    lh('input', { id: "lc-setfind-q", type: "search", className: "lc-input", value: q, enterKeyHint: "search", autoComplete: "off", autoCorrect: "off", autoCapitalize: "off", spellCheck: false,
-      onChange: function (e) { const v = e.target.value; setQ(v); lcAnnounceCount(v, lcFindSettings(v).length, "setting found", "settings found"); },
-      onKeyDown: function (e) { if (e.key === "Enter") { e.preventDefault(); if (res.length) { if (onClose) onClose(); lcGoSetting(res[0], navigate); } } else if (e.key === "ArrowDown" && res.length) { e.preventDefault(); const b = document.querySelector(".lc-setfind-res button"); if (b) b.focus(); } } }),
+    lh('label', { htmlFor: "lc-setfind-q", className: "lmenu-label lc-ios-searchl" }, "Search"),
+    lh('input', { id: "lc-setfind-q", type: "search", className: "lc-input lc-ios-search", value: q, enterKeyHint: "search", autoComplete: "off", autoCorrect: "off", autoCapitalize: "off", spellCheck: false,
+      onChange: function (e) { const v = e.target.value; setQ(v); setAll(false); lcAnnounceCount(v, lcFindSettings(v).length, "setting found", "settings found"); },
+      onKeyDown: function (e) { if (e.key === "Enter") { e.preventDefault(); if (res.length) { if (onClose) onClose(); lcGoSetting(res[0], navigate); } } else if (e.key === "ArrowDown" && res.length) { e.preventDefault(); const b = document.querySelector(".lc-setfind-res button"); if (b) b.focus(); } else if (e.key === "Escape" && q) { e.preventDefault(); e.stopPropagation(); setQ(""); } } }),
     q.trim() && !res.length ? lh('p', { className: "lc-desc" }, "No settings match \u201c" + q.trim() + "\u201d.") : null,
-    res.length ? lh('ul', { className: "lc-setfind-res", role: "list", "aria-label": res.length + (res.length === 1 ? " result" : " results") }, res.slice(0, 25).map(function (e, i) {
-      return lh('li', { key: e.l + i }, lh('button', { type: "button", onClick: function () { if (onClose) onClose(); lcGoSetting(e, navigate); } }, e.l, lh('small', null, e.where)));
-    })) : null);
+    res.length ? lh('ul', { className: "lc-setfind-res lc-ios-list", role: "list", "aria-label": "Results (" + res.length + ")" }, shown.map(function (e, i) {
+      const path = lcWhereShort(e.where);
+      // The name is the setting then its path, joined with commas, so VoiceOver reads "Text size, Accessibility, Vision".
+      return lh('li', { key: e.l + "|" + (e.where || "") + "|" + i }, lh('button', { type: "button", className: "lc-ios-res", "aria-label": lcNameJoin(e.l, path), onClick: function () { if (onClose) onClose(); lcGoSetting(e, navigate); } },
+        lh('span', { className: "lc-ios-res-t", "aria-hidden": "true" }, lh('span', { className: "lc-ios-res-n" }, e.l), path ? lh('small', null, path) : null)));
+    })) : null,
+    res.length > shown.length ? lh('button', { type: "button", id: "lc-setfind-all", className: "btn bgb lc-btn", onClick: function () { setAll(true); setTimeout(function () { const b = document.querySelectorAll(".lc-setfind-res button")[25]; if (b) b.focus(); }, 0); } }, "Show all (" + res.length + ")") : null);
 }
 const TERMS_CONTENT = `<p><strong>Last updated: October 10, 2026</strong></p>
 <p>These are the terms for using Looscid, in plain language. They are not legal advice.</p>
@@ -1857,7 +1923,7 @@ const PRIVACY_CONTENT = `<p><strong>Last updated: October 10, 2026</strong></p>
 <p>Looscid has no ads and no ad trackers, and we never sell or share your data. Looscid sends no crash reports or usage data, so it doesn't ask you about them either.</p>
 <h2>Your choices</h2>
 <ul>
-<li>Export or import all your settings in Settings, Settings backup.</li>
+<li>Export or import all your settings in Settings, General, Backup.</li>
 <li>Delete everything Looscid saved on this device in Settings, LooscidID, Data.</li>
 <li>Remove a linked login method, key or handle any time in Settings, LooscidID, Keys and IDs.</li>
 </ul>
@@ -2263,17 +2329,17 @@ Looscid.ErrorBoundary = ErrorBoundary;
 const LC_ROUTES = [
   ["feed", ""], ["discover", "Discover"], ["alerts", "Inbox"], ["alerts", "Alerts"], ["groups", "Circles"], ["liked", "Liked"], ["lists", "Lists"], ["profile", "Profile"], ["drafts", "Drafts"],
   ["cherry", "Cherry"], ["more", "More"], ["settings", "Settings"],
-  ["settings_account", "Settings/LooscidID"], ["settings_notifications", "Settings/Alerts"], ["settings_messages", "Settings/Messages"], ["settings_privacy", "Settings/Privacy"],
-  ["settings_customizability", "Settings/Customizability"], ["settings_cz_theme", "Settings/Customizability/Theme"], ["settings_cz_feeds", "Settings/Customizability/Feeds"],
+  ["settings_account", "Settings/LooscidID"], ["settings_notifications", "Settings/Alerts"], ["settings_messages", "Settings/Chats"], ["settings_messages", "Settings/Messages"], ["settings_privacy", "Settings/Privacy"],
+  ["settings_customizability", "Settings/Customization"], ["settings_customizability", "Settings/Customizability"], ["settings_cz_order", "Settings/Customization/Settings-Order"], ["settings_cz_theme", "Settings/Customizability/Theme"], ["settings_cz_feeds", "Settings/Customizability/Feeds"],
   ["settings_cz_menu", "Settings/Customizability/Menu"], ["settings_cz_posting", "Settings/Customizability/Dreaming"], ["settings_cz_media", "Settings/Customizability/Media"],
   ["settings_accessibility", "Settings/Accessibility"], ["settings_a11y_sr", "Settings/Sense"], ["settings_a11y_vision", "Settings/Accessibility/Vision"],
   ["settings_a11y_hearing", "Settings/Accessibility/Hearing"], ["settings_a11y_motion", "Settings/Accessibility/Motion"], ["settings_a11y_motor", "Settings/Accessibility/Motor"],
   ["settings_a11y_terminal", "Settings/Accessibility/Commandbar"], ["settings_audio", "Settings/Earcons"], ["settings_audio_volume", "Settings/Earcons/Volume"],
   ["settings_audio_pack", "Settings/Earcons/Soundpacks"], ["settings_audio_events", "Settings/Earcons/Events"], ["settings_audio_haptics", "Settings/Earcons/Haptics"],
-  ["settings_apps", "Settings/Apps"], ["settings_keyboard", "Settings/Keyboard"], ["settings_tabbar", "Settings/Tab-Bar"], ["settings_profiletabs", "Settings/Profile-Tabs"], ["settings_backup", "Settings/Backup"], ["settings_intelligence", "Settings/Intelligence"],
+  ["settings_apps", "Settings/Apps"], ["settings_keyboard", "Settings/Keyboard"], ["settings_tabbar", "Settings/Tab-Bar"], ["settings_profiletabs", "Settings/Profile-Tabs"], ["settings_backup", "Settings/Backup"], ["settings_intelligence", "Settings/Cherry"], ["settings_intelligence", "Settings/Intelligence"],
   ["settings_ai_cherry", "Settings/Intelligence/Cherry"], ["settings_ai_model", "Settings/Intelligence/Model"], ["settings_ai_cmd", "Settings/Intelligence/Commandbar"],
   ["settings_ai_memory", "Settings/Intelligence/Memory"], ["settings_ai_tools", "Settings/Intelligence/Tools"], ["settings_ai_audit", "Settings/Intelligence/What-Cherry-did"],
-  ["settings_labs", "Settings/Labs"], ["settings_about", "About"], ["terms", "Terms"], ["privacy", "Privacy"], ["guidelines", "Rules"], ["child_safety", "Child-Safety"],
+  ["settings_general", "Settings/General"], ["settings_updates", "Settings/General/Updates"], ["settings_labs", "Settings/Labs"], ["settings_about", "About"], ["terms", "Terms"], ["privacy", "Privacy"], ["guidelines", "Rules"], ["child_safety", "Child-Safety"],
   ["credits", "Credits"], ["legal", "Legal"], ["feedback", "Feedback"], ["helpcenter", "Help"], ["commands", "Commands"], ["music", "Music"], ["terminal", "Commandbar"],
   ["nexos_apps", "Apps"], ["hour_story", "Our-Story"],
   ["more_discover", "More/Discover"], ["more_apps", "More/Apps"], ["more_create", "More/Create"], ["more_alerts", "More/Alerts"], ["more_projects", "Projects"],
@@ -2322,7 +2388,7 @@ function lcMoreSections(o) {
     { id:"cherry", emoji:"Cherry", label:"Cherry", items:[
       lcAiOn()
         ? { icon:"Cherry", label:"Open Cherry",     sub:"Cherry - DO IT YOUR WAY", special:"cherry", action(){onClose();goRoot("cherry");} }
-        : { icon:"Cherry", label:"Turn on Cherry",  sub:"Cherry is off. Opens Settings, Intelligence", action(){onClose();navigate("settings_ai_cherry");} },
+        : { icon:"Cherry", label:"Turn on Cherry",  sub:"Cherry is off. Opens Settings, Cherry", action(){onClose();navigate("settings_ai_cherry");} },
     ]},
     // Round 7.16 (#216, Carter said yes Oct 25 2026): the Discover page (Discover, Circles, Lists) is gone. Discover is its tab,
     // Lists is in your profile's More, and Circles is its own item, opening Circles directly.
@@ -2341,24 +2407,22 @@ function lcMoreSections(o) {
     ]},
 
     { id:"settings", emoji:"Settings", label:"Settings", top: true,
-      // Build 151 (#75, 2three1y Oct 11 5:16 PM "Yes", Spring's Settings as a layout idea only): every row says its current
-      // value after its name, and Tab Bar has its own page. Round 7.5 (2three1y, Oct 14 5:24 PM: "Sense goes in Accessibility.
-      // It's not meant to be pinned"): Sense is no longer pinned at the top; it lives only in Settings, Accessibility.
+      // Round 7.37 (#176, Carter Oct 26 2026: "We going full Apple Mode"): Settings is laid out like iOS Settings. Search on
+      // top, your LooscidID card, then short grouped lists: every row is one short name that opens its own page, and each
+      // group has a short footer. No values in row names. Keyboard shortcuts, Settings backup, Looscid Labs and Reset moved
+      // into General; Tab Bar and Profile Tabs into Customization (was Customizability); Intelligence is now Cherry.
+      // The order can be changed in Customization, Settings Order (Default, Alphabetical or Custom).
       items:[
-      { icon:"LooscidID", label:"LooscidID",       sub:"Profile, login methods and security", value: function () { return ME && ME.handle ? "@" + String(ME.handle).replace(/^@/, "") : ""; },              action(){onClose();navigate("settings_account");} },
-      { icon:"Alerts", label:"Alerts",          sub:"New Dreams, mentions, replies, quiet hours", value: function () { return "Quiet hours " + lcSetVal("quietHours"); }, action(){onClose();navigate("settings_notifications");} },
-      { icon:"Privacy", label:"Privacy",         sub:"Visibility, blocked users",   action(){onClose();navigate("settings_privacy");} },
-      { icon:"Customizability", label:"Customizability", sub:"Theme, feeds, menu, Dreaming, media", value: function () { return getSavedTheme() === "light" ? "Light theme" : "Dark theme"; },     action(){onClose();navigate("settings_customizability");} },
-      { icon:"Tab Bar", label:"Tab Bar", sub:"Which tabs show at the bottom, and their order", value: function () { return lcTabBarVisible().map(function (t) { return t.l; }).concat(["Profile"]).join(", "); }, action(){onClose();navigate("settings_tabbar");} },
-      { icon:"Tab Bar", label:"Profile Tabs", sub:"The order of the tabs on profiles", value: function () { return lcProfileTabsAll().slice(0, 4).map(function (t) { return t.l; }).join(", ") + ", and more"; }, action(){onClose();navigate("settings_profiletabs");} },
-      { icon:"Accessibility", label:"Accessibility",  sub:"Sense, vision, hearing, motion",  action(){onClose();navigate("settings_accessibility");} },
-      { icon:"Audio", label:"Earcons",  sub:"Soundpacks, volume, keyboard and command earcons, your own sounds, haptics", value: function () { return lcSetVal("earcons") === "off" ? "Off" : lcSetVal("soundPack") + ", volume " + lcSetVal("earconVolume") + " percent"; },  action(){onClose();navigate("settings_audio");} },
-      // Round 7.16 (#216): no Apps row (Insomnia, Memeprojects, Easyconvert, Desktop and Kernel are not part of social Looscid).
-      { icon:"Keyboard", label:"Keyboard shortcuts",  sub:"Built-in keys and your own shortcuts", value: function () { const n = (Looscid.A11Y_NOW.shortcuts || []).length; return n === 1 ? "1 of your own" : n + " of your own"; },  action(){onClose();navigate("settings_keyboard");} },
-      { icon:"Backup", label:"Settings backup",  sub:"Export, import or reset all settings",  action(){onClose();navigate("settings_backup");} },
-      { icon:"Intelligence", label:"Intelligence", sub:"Cherry, the on-device model, Commandbar answers, memory, tools and What Cherry did", value: function () { return lcAiOn() ? "Cherry on" : "Cherry off"; },  action(){onClose();navigate("settings_intelligence");} },
-      { icon:"Labs", label:"Looscid Labs", sub:"Early access to features we are still building", action(){onClose();navigate("settings_labs");} },
-      { icon:"Reset", label:"Reset", sub:"Reset the whole app, or just some settings", action(){ lcOpenReset("all"); } },
+      { id:"looscidid", grp:"id", icon:"LooscidID", label:"LooscidID", sub:"Profile, login methods and security", action(){onClose();navigate("settings_account");} },
+      { id:"alerts", grp:"talk", icon:"Alerts", label:"Alerts", action(){onClose();navigate("settings_notifications");} },
+      { id:"chats", grp:"talk", icon:"Messages", label:"Chats", action(){onClose();Looscid.LC_SETTINGS_BACK = null;navigate("settings_messages");} },
+      { id:"earcons", grp:"talk", icon:"Audio", label:"Earcons", action(){onClose();navigate("settings_audio");} },
+      { id:"accessibility", grp:"you", icon:"Accessibility", label:"Accessibility", action(){onClose();navigate("settings_accessibility");} },
+      { id:"customization", grp:"you", icon:"Customizability", label:"Customization", action(){onClose();navigate("settings_customizability");} },
+      { id:"privacy", grp:"you", icon:"Privacy", label:"Privacy", action(){onClose();try { sessionStorage.removeItem("looscid_priv_open"); } catch (e) {} navigate("settings_privacy");} },
+      { id:"cherry", grp:"you", icon:"Intelligence", label:"Cherry", action(){onClose();navigate("settings_intelligence");} },
+      { id:"general", grp:"gen", icon:"Settings", label:"General", action(){onClose();navigate("settings_general");} },
+      { id:"helpcenter", grp:"help", icon:"Help", label:"Help Center", action(){onClose();navigate("helpcenter");} },
     ]},
     // Part 34a (2three1y, Oct 12 4:38 PM: "the More tab holds ONLY Looscid features"): About Looscid and Social moved to
     // the site footer (Values and Social). Their pages are unchanged; only where they are linked from moved.
@@ -2492,6 +2556,7 @@ function LcMorePage({ id, navigate, goRoot, unreadNotifs, unreadMsgs, onBack }) 
   useA11yNow(); useTabBarTick(); // build 151 (#75): the values on Settings rows stay current
   const s = lcMoreSections({ onClose: function () {}, navigate: navigate, goRoot: goRoot, unreadNotifs: unreadNotifs, unreadMsgs: unreadMsgs }).filter(function (x) { return x.id === id; })[0];
   if (!s) return null;
+  if (id === "settings") return lh(LcSettingsHome, { s: s, navigate: navigate, onBack: onBack });
   return lh('div', { className: "pg lc-more-page", id: "more-page-" + id },
     lh(BackHeader, { title: lcMoreTitle(id, s.label), onBack: onBack }),
     s.intro ? lh('p', { className: "lc-desc", style: { padding: "8px 16px", margin: 0 } }, s.intro) : null,
@@ -2500,6 +2565,78 @@ function LcMorePage({ id, navigate, goRoot, unreadNotifs, unreadMsgs, onBack }) 
     s.outro ? lh('p', { style: { padding: "8px 16px", margin: 0, fontSize: 13 } }, lh('a', { href: s.outro[1], target: "_blank", rel: "noopener noreferrer", className: "lc-help-link" }, s.outro[0])) : null);
 }
 Looscid.LcMorePage = LcMorePage;
+
+/* Round 7.37 (#176, Carter Oct 26 2026: "full Apple Mode"): the Settings page, like iOS Settings. One h1 (Settings, a large
+   title), the Search field, the LooscidID card, then short grouped lists of rows. Each row is a button that opens its own
+   page (Back comes back to that row), and each group ends with a short plain footer. While you search, the results take
+   the place of the lists, like iOS. The order of the rows is Default (grouped), Alphabetical or Custom: Customization,
+   Settings Order. LooscidID always stays first and Help Center always stays last. */
+const LC_SET_GRP_FOOT = {
+  talk: "How Looscid tells you about new Dreams, replies and chats, and the earcons it plays.",
+  you: "How Looscid works with your screen reader, how it looks, who can reach you, and Cherry, your assistant on this device.",
+  gen: "About, Updates, Keyboard, Backup, Labs, Commandbar and Reset.",
+  help: "Guides for getting started, commands, Cherry, earcons and accessibility, and how to get help.",
+};
+// Our own line icons (the Ic set) on small colored tiles, iOS-style. Decoration only (aria-hidden).
+const LC_SET_ICON = {"alerts": "Bell", "chats": "Cmt", "earcons": "Vol", "accessibility": "Eye", "customization": "Font", "privacy": "Lock", "cherry": "HrtF", "general": "Dots", "helpcenter": "Srch"};
+const LC_SET_ORDER_KEY = "looscid_settings_order", LC_SET_ORDER_MODE_KEY = "looscid_settings_order_mode";
+function lcSetOrderMode() { try { const v = localStorage.getItem(LC_SET_ORDER_MODE_KEY); return v === "alpha" || v === "custom" ? v : "default"; } catch (e) { return "default"; } }
+function lcSetOrderSaved() { try { const o = JSON.parse(localStorage.getItem(LC_SET_ORDER_KEY) || "[]"); return Array.isArray(o) ? o.map(String) : []; } catch (e) { return []; } }
+// The rows that can move: everything except LooscidID (first) and Help Center (last), in their default order.
+function lcSetMovable(items) { return items.filter(function (it) { return it.grp !== "id" && it.grp !== "help"; }); }
+function lcSetOrdered(items, mode) {
+  const mv = lcSetMovable(items);
+  if (mode === "alpha") return mv.slice().sort(function (a, b) { return a.label.localeCompare(b.label); });
+  if (mode === "custom") { const o = lcSetOrderSaved(), out = [];
+    o.forEach(function (id) { const it = mv.find(function (x) { return x.id === id; }); if (it && out.indexOf(it) < 0) out.push(it); });
+    mv.forEach(function (it) { if (out.indexOf(it) < 0) out.push(it); }); return out; }
+  return mv;
+}
+function lcSetOrderTick() { try { window.dispatchEvent(new CustomEvent("looscid:setorder")); } catch (e) {} }
+function useSetOrderTick() { const [, t] = useState(0); useEffect(function () { const f = function () { t(function (x) { return x + 1; }); }; window.addEventListener("looscid:setorder", f); return function () { window.removeEventListener("looscid:setorder", f); }; }, []); }
+function lcSetRowId(label) { return "set-row-" + String(label).replace(/[^a-z0-9]+/gi, "-").toLowerCase(); }
+function lcSetRow(it) {
+  return lh('li', { key: it.id, className: "mli" }, lh('button', { type: "button", id: lcSetRowId(it.label), className: "mitem lc-ios-row", onClick: it.action },
+    lh('span', { className: "mitem-ic lc-ios-ic lc-ios-ic-" + it.id, "aria-hidden": "true" }, LC_SET_ICON[it.id] && Ic[LC_SET_ICON[it.id]] ? lh(Ic[LC_SET_ICON[it.id]], { style: { width: 17, height: 17 }, "aria-hidden": "true", focusable: "false" }) : null),
+    lh('span', { className: "mitem-lbl" }, it.label),
+    lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })));
+}
+function lcSetGroup(key, rows, foot) {
+  return lh(React.Fragment, { key: key },
+    lh('ul', { className: "mlist lc-ios-list", role: "list", id: "set-grp-" + key }, rows.map(lcSetRow)),
+    foot ? lh('p', { className: "lc-ios-foot", id: "set-grp-" + key + "-f" }, foot) : null);
+}
+function LcSettingsHome({ s, navigate, onBack }) {
+  useSetOrderTick();
+  const [q, setQ0] = useState(function () { return Looscid.LC_SETFIND_Q || ""; });
+  const setQ = function (v) { Looscid.LC_SETFIND_Q = v; setQ0(v); };
+  const items = s.items, mode = lcSetOrderMode();
+  const me = (typeof ME !== "undefined" && ME) || {};
+  const idItem = items.find(function (it) { return it.grp === "id"; }), help = items.filter(function (it) { return it.grp === "help"; });
+  const handle = me.handle ? "@" + String(me.handle).replace(/^@/, "") : "";
+  const name = me.name || me.displayName || "Dreamor";
+  let lists;
+  if (mode === "default") {
+    const grps = [];
+    items.forEach(function (it) { if (it.grp === "id" || it.grp === "help") return; let g = grps.find(function (x) { return x.k === it.grp; }); if (!g) { g = { k: it.grp, rows: [] }; grps.push(g); } g.rows.push(it); });
+    lists = grps.map(function (g) { return lcSetGroup(g.k, g.rows, LC_SET_GRP_FOOT[g.k]); });
+  } else {
+    lists = [lcSetGroup("main", lcSetOrdered(items, mode), mode === "alpha" ? "Sorted A to Z. Change the order in Customization, Settings Order." : "Your own order. Change it in Customization, Settings Order.")];
+  }
+  return lh('div', { className: "pg lc-more-page lc-ios", id: "more-page-settings" },
+    lh(BackHeader, { title: lcMoreTitle("settings", s.label), onBack: onBack }),
+    lh(LcSettingFind, { navigate: navigate, onClose: function () {}, q: q, setQ: setQ }),
+    q.trim() ? null : lh(React.Fragment, null,
+      idItem ? lh('ul', { className: "mlist lc-ios-list lc-ios-idcard", role: "list", id: "set-grp-id" },
+        lh('li', { className: "mli" }, lh('button', { type: "button", id: lcSetRowId(idItem.label), className: "mitem lc-ios-row lc-ios-id", onClick: idItem.action, "aria-label": lcNameJoin(name, handle, "LooscidID") },
+          lh('span', { className: "lc-ios-av", "aria-hidden": "true" }, String(me.initials || name.charAt(0) || "D").slice(0, 2)),
+          lh('span', { className: "mitem-lbl", "aria-hidden": "true" }, lh('span', { className: "lc-ios-idname" }, name), lh('small', null, (handle ? handle + ", " : "") + "LooscidID, profile, login methods and security")),
+          lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })))) : null,
+      lists,
+      help.length ? lcSetGroup("help", help, LC_SET_GRP_FOOT.help) : null));
+}
+Looscid.LcSettingsHome = LcSettingsHome;
+Object.assign(Looscid, { lcSetOrderMode, lcSetOrderSaved, lcSetMovable, lcSetOrdered, lcSetOrderTick, useSetOrderTick, LC_SET_ORDER_KEY, LC_SET_ORDER_MODE_KEY, lcSetRowId });
 /* === LooscidID, "CHANGE YOUR INFO" AND FIRST-RUN ONBOARDING ===============
    Built from 2three1y's design docs (Looscid Business, Halfview,
    ID Manager, Overview). Accessibility first: every control
@@ -3461,25 +3598,27 @@ const LC_SECTIONS = {
   sr_speech: { t: "Speech", sr: "speech", d: "What Looscid reads aloud with its own voice, and how.", where: "Settings, Accessibility, Sense", al: ["speech"] },
   sr_braille: { t: "Braille", sr: "braille", d: "How buttons and labels show on your braille display.", where: "Settings, Accessibility, Sense", al: ["braille"] },
   hearing: { t: "Hearing", d: "Captions and a visual cue in place of sounds.", where: "Settings, Accessibility, Hearing", al: ["hearing"], keys: ["captions", "visualCue"] },
-  motion: { t: "Motion and seizure", d: "Calmer movement and protection from flashing.", where: "Settings, Accessibility, Motion and seizure", al: ["motion", "seizure", "motion and seizure"], keys: ["calmMode", "flashSafety", "reduceMotion"] },
-  terminal: { t: "Commandbar", d: "How Commandbar shows its output.", where: "Settings, Accessibility, Commandbar", al: ["commandbar", "command bar", "terminal"], keys: ["termOutput", "termHeadings"] },
-  motor: { t: "Motor and switch", d: "Bigger buttons and switch access.", where: "Settings, Accessibility, Motor and switch", al: ["motor", "switch", "motor and switch"], keys: ["largeBtns", "switchAccess"] },
+  motion: { t: "Motion", d: "Calmer movement and protection from flashing.", where: "Settings, Accessibility, Motion", al: ["motion", "seizure", "motion and seizure"], keys: ["calmMode", "flashSafety", "reduceMotion"] },
+  terminal: { t: "Commandbar", d: "How Commandbar shows its output.", where: "Settings, General, Commandbar", al: ["commandbar", "command bar", "terminal"], keys: ["termOutput", "termHeadings"] },
+  motor: { t: "Motor", d: "Bigger buttons and switch access.", where: "Settings, Accessibility, Motor", al: ["motor", "switch", "motor and switch"], keys: ["largeBtns", "switchAccess"] },
   audio: { t: "Earcons", d: "Looscid's earcons and how loud they are.", where: "Settings, Earcons", al: ["sounds", "sound", "audio", "earcons", "earcon"] },
   verbosity: { t: "Verbosity", where: "Settings, Accessibility, Sense, Verbosity", al: ["verbosity", "verbosity settings", "pitch cue settings"] },
   quiet: { t: "Quiet hours", d: "Times when Looscid stays silent.", where: "Settings, Alerts", al: ["quiet hours", "quiet"] },
-  feeds: { t: "Feeds", d: "Which feeds you see and how you switch between them.", where: "Settings, Customizability, Feeds and home", al: ["feeds", "feed"] },
-  posting: { t: "Dreaming", d: "How writing and sending a Dream works.", where: "Settings, Customizability, Dreaming", al: ["dreaming", "posting", "composer", "compose"] },
-  media: { t: "Media and translation", d: "Images, video and translation.", where: "Settings, Customizability, Media and translation", al: ["media", "translation"] },
+  feeds: { t: "Feeds", d: "Which feeds you see and how you switch between them.", where: "Settings, Customization, Feeds", al: ["feeds", "feed"] },
+  posting: { t: "Dreaming", d: "How writing and sending a Dream works.", where: "Settings, Customization, Dreaming", al: ["dreaming", "posting", "composer", "compose"] },
+  media: { t: "Media", d: "Images, video and translation.", where: "Settings, Customization, Media", al: ["media", "translation"] },
   filters: { t: "Muted words and content warnings", d: "Words you don't want to see, and content warnings.", where: "Settings, Privacy", al: ["muted words", "content warnings", "filters"] },
   perm: { t: "Permissions", d: "Who can see, reply to and message you.", where: "Settings, Privacy", al: ["permissions", "privacy"] },
   pmedia: { t: "Media and content", d: "Who can save and reshare your media, screenshots, blur, photo details and Cherry.", where: "Settings, Privacy", al: ["media and content", "media privacy", "exif", "screenshots"] },
-  keyboard: { t: "Keyboard shortcuts", d: "Built-in keys and your own shortcuts.", where: "Settings, Keyboard shortcuts", al: ["keyboard", "shortcuts", "keyboard shortcuts"] },
-  ai: { t: "Cherry", d: "Cherry, Looscid's on-device assistant.", where: "Settings, Intelligence, Cherry", al: ["cherry", "ai", "intelligence"] },
-  clock: { t: "Time format", d: "Clock times as 12-hour or 24-hour.", where: "Settings, Customizability, Theme and colors", al: ["time format", "clock", "clock format"] },
+  keyboard: { t: "Keyboard", d: "Built-in keys and your own shortcuts.", where: "Settings, General, Keyboard", al: ["keyboard", "shortcuts", "keyboard shortcuts"] },
+  ai: { t: "Cherry", d: "Cherry, Looscid's on-device assistant.", where: "Settings, Cherry, Cherry", al: ["cherry", "ai", "intelligence"] },
+  clock: { t: "Time format", d: "Clock times as 12-hour or 24-hour.", where: "Settings, Customization, Appearance", al: ["time format", "clock", "clock format"] },
 };
 Looscid.LC_SECTIONS = LC_SECTIONS;
 // [key, section, label, kind, default, options|range, aliases, description, extra]
 // Where each section lives (Find a setting, commands): page, and the Screen reader tab when there is one.
+// Round 7.37: section paths follow the new places and names (Commandbar answers say "It's in Settings, Customization, Feeds").
+Object.keys(LC_SECTIONS).forEach(function (k) { if (LC_SECTIONS[k].where) LC_SECTIONS[k].where = lcIosWhere(LC_SECTIONS[k].where); });
 const LC_SECTION_PAGE = { vision: ["settings_a11y_vision"], sr_general: ["settings_a11y_sr", "general"], sr_speech: ["settings_a11y_sr", "speech"], sr_braille: ["settings_a11y_sr", "braille"],
   hearing: ["settings_a11y_hearing"], motion: ["settings_a11y_motion"], terminal: ["settings_a11y_terminal"], motor: ["settings_a11y_motor"], audio: ["settings_audio"], verbosity: ["settings_a11y_sr", "verbosity"],
   quiet: ["settings_notifications"], feeds: ["settings_cz_feeds"], posting: ["settings_cz_posting"], media: ["settings_cz_media"],
@@ -4044,11 +4183,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.131.55";
+const LOOSCID_VERSION = "2026.132.55";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 186;
+const LOOSCID_BUILD = 187;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-26T20:00:54Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-26T21:09:03Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -4853,7 +4992,7 @@ function lcRegistryIntent(n, isOn, isOff) {
   const a = Looscid.A11Y_NOW, t = " " + n + " "; let m;
   // reset
   if ((m = /^(reset|restore)( all)? (.+?)( settings| section)?( to defaults?| defaults?)?$/.exec(n)) || /^reset( all)?( settings)?$/.test(n)) {
-    if (/^reset( all)?( settings)?$/.test(n) || (m && /^(all|everything|all settings)$/.test(m[3]))) return { say: "To reset every setting, open Settings, Settings backup, and choose Reset all settings. To reset one section, say reset and its name, like reset audio or reset speech." };
+    if (/^reset( all)?( settings)?$/.test(n) || (m && /^(all|everything|all settings)$/.test(m[3]))) return { say: "To reset every setting, open Settings, General, Backup, and choose Reset all settings. To reset one section, say reset and its name, like reset audio or reset speech." };
     const sec = lcFindSection(m[3]); if (!sec) return null;
     return { patch: lcSectionDefaults(sec), say: lcSectionTitle(sec) + " is back to its defaults." };
   }
@@ -4917,7 +5056,7 @@ function lcA11yReport() {
     "Commandbar output: " + TERM_MODES[a.termOutput || "collapsible"] + ". Heading per command: " + o(a.termHeadings !== false) + ".",
     "Customizability: Feed switching: " + LC_FEED_MODES.find(function (x) { return x[0] === lcFeedMode(a.feedSwitch); })[1] + ".",
   ].concat(["sr_general", "verbosity", "sr_speech", "sr_braille", "audio", "quiet", "feeds", "posting", "media", "filters", "perm"].map(lcSectionReport).filter(Boolean))
-   .concat([(a.shortcuts || []).length ? "Your shortcuts: " + a.shortcuts.map(function (s) { return s.keys + " runs " + s.cmd; }).join("; ") + "." : "Your shortcuts: none yet. Add them in Settings, Keyboard shortcuts."]);
+   .concat([(a.shortcuts || []).length ? "Your shortcuts: " + a.shortcuts.map(function (s) { return s.keys + " runs " + s.cmd; }).join("; ") + "." : "Your shortcuts: none yet. Add them in Settings, General, Keyboard."]);
 }
 // Returns null (not a settings request), or { patch, say } / { say } / { report: lines }.
 function lcA11yIntent(raw) {
@@ -4937,7 +5076,7 @@ function lcA11yIntent(raw) {
     const v = /\b(menu|pop ?up|popup|button)\b/.test(n) ? "menu" : /\btabs?\b/.test(n) ? "tabs" : null;
     const nm = function (k) { return LC_FEED_MODES.find(function (x) { return x[0] === k; })[1]; };
     if (!v) return { say: "Feed switching is " + nm(lcFeedMode(a.feedSwitch)) + ". Say feed switching tabs or feed switching button." };
-    return { patch: { feedSwitch: v }, say: "Feed switching is now " + nm(v) + ". It lives in Settings, Customizability." };
+    return { patch: { feedSwitch: v }, say: "Feed switching is now " + nm(v) + ". It lives in Settings, Customization." };
   }
   if ((m = /\b(earcon |sound |sounds )?volume( to)? (\d{1,3})( percent)?$/.exec(n))) {
     const v = Math.max(0, Math.min(100, Math.round(+m[3] / 10) * 10)); return { patch: { earconVolume: v }, say: "Earcon volume is now " + v + " percent." };
@@ -5643,31 +5782,37 @@ const LC_PLACES = {
   braille: { label: "Sense settings, Braille", page: "settings_a11y_sr", srTab: "braille" },
   vision: { label: "Vision settings", page: "settings_a11y_vision" },
   hearing: { label: "Hearing settings", page: "settings_a11y_hearing" },
-  motion: { label: "Motion and seizure settings", page: "settings_a11y_motion" },
-  motor: { label: "Motor and switch settings", page: "settings_a11y_motor" },
+  motion: { label: "Motion settings", page: "settings_a11y_motion" },
+  motor: { label: "Motor settings", page: "settings_a11y_motor" },
   terminalsettings: { label: "Commandbar settings", page: "settings_a11y_terminal" },
   nexosapps: { label: "Apps", page: "nexos_apps" },
   credits: { label: "Credits and open source", page: "credits" },
   appsettings: { label: "App settings", page: "settings_apps" },
-  comingsoon: { label: "Looscid Labs, Coming soon", page: "settings_labs" },
-  customizability: { label: "Customizability settings", page: "settings_customizability" },
+  comingsoon: { label: "Labs, Coming soon", page: "settings_labs" },
+  customizability: { label: "Customization settings", page: "settings_customizability" },
   account: { label: "LooscidID", page: "settings_account" },
   privacy: { label: "Privacy settings", page: "settings_privacy" },
   profile: { label: "your profile", page: "profile" },
   terminal: { label: "Commandbar", page: "terminal" },
   about: { label: "About Looscid", page: "settings_about" },
-  labs: { label: "Looscid Labs", page: "settings_labs" },
+  labs: { label: "Labs", page: "settings_labs" },
   music: { label: "Music", page: "music" },
   audio: { label: "Earcons settings", page: "settings_audio" },
   verbosity: { label: "Verbosity settings", page: "settings_a11y_sr", srTab: "verbosity" },
   pitchcues: { label: "Pitch cues", page: "settings_a11y_sr", srTab: "speech" }, // build 150 (#56): Pitch cues live on the Speech tab
-  keyboard: { label: "Keyboard shortcuts", page: "settings_keyboard" },
+  keyboard: { label: "Keyboard settings", page: "settings_keyboard" },
+  // Round 7.37 (#176): the new Settings pages.
+  general: { label: "General settings", page: "settings_general" },
+  updates: { label: "Updates", page: "settings_updates" },
+  customization: { label: "Customization settings", page: "settings_customizability" },
+  settingsorder: { label: "Settings Order", page: "settings_cz_order" },
+  chatsettings: { label: "Chats settings", page: "settings_messages" },
   tabbar: { label: "Tab Bar settings", page: "settings_tabbar" }, // build 151 (#75)
   profiletabs: { label: "Profile Tabs settings", page: "settings_profiletabs" }, // build 152 prep (#98)
-  backup: { label: "Settings backup", page: "settings_backup" },
+  backup: { label: "Backup settings", page: "settings_backup" },
   alertsettings: { label: "Alerts settings", page: "settings_notifications" },
-  intelligence: { label: "Intelligence settings", page: "settings_intelligence" },
-  cherrysettings: { label: "Intelligence, Cherry", page: "settings_ai_cherry" },
+  intelligence: { label: "Cherry settings", page: "settings_intelligence" },
+  cherrysettings: { label: "Cherry settings, Cherry", page: "settings_ai_cherry" },
   keys: { label: "LooscidID, Keys and IDs", page: "settings_account", data: { tab: "keys" } },
   // Round 6.5.3: the Cherry page from Commandbar. cmd tells the page what to do; ownFocus: the page puts focus where the command points.
   cherry: { label: "Cherry", page: "cherry" },
@@ -5690,7 +5835,11 @@ function lcAppItems() {
     { id: "appsettings", l: "App settings", sub: "Settings, Apps", go: function (nav) { nav("settings_apps"); } },
   ]);
 }
-const LC_EXACT = { "open commandbar": "terminal", "commandbar": "terminal", "open command bar": "terminal", "open commandbar full screen": "terminal", "open apps": "nexosapps", "apps": "nexosapps", "open app settings": "appsettings", "app settings": "appsettings", "open apps settings": "appsettings", "open feed": "feed", "open alerts": "alerts", "open notifications": "notifications", "open messages": "messages", "open circles": "circles", "open settings": "settings", "open accessibility": "accessibility", "open customizability": "customizability", "open terminal": "terminal", "open music": "music", "open about": "about", "open account": "account", "open labs": "labs", "open looscid labs": "labs", "open looscidid": "account", "open looscid id": "account", "open audio": "audio", "open sounds": "audio", "open verbosity": "verbosity", "open pitch cues": "pitchcues", "open keyboard shortcuts": "keyboard", "open shortcuts": "keyboard", "open settings backup": "backup", "open backup": "backup", "open privacy": "privacy", "open permissions": "privacy", "open quiet hours": "alertsettings", "open alerts settings": "alertsettings", "import settings": "backup",
+const LC_EXACT = { "open commandbar": "terminal", "commandbar": "terminal", "open command bar": "terminal", "open commandbar full screen": "terminal", "open apps": "nexosapps", "apps": "nexosapps", "open app settings": "appsettings", "app settings": "appsettings", "open apps settings": "appsettings", "open feed": "feed", "open alerts": "alerts", "open notifications": "notifications", "open messages": "messages", "open circles": "circles", "open settings": "settings", "open accessibility": "accessibility", "open customizability": "customizability", "open terminal": "terminal", "open music": "music", "open about": "about", "open account": "account", "open labs": "labs", "open looscid labs": "labs", "open looscidid": "account", "open looscid id": "account", "open audio": "audio", "open sounds": "audio", "open verbosity": "verbosity", "open pitch cues": "pitchcues", "open keyboard shortcuts": "keyboard", "open shortcuts": "keyboard", "open settings backup": "backup", "open backup": "backup",
+  // Round 7.37 (#176): the new Settings names; the old words above stay as aliases.
+  "open general": "general", "open general settings": "general", "open updates": "updates", "open software update": "updates", "check updates settings": "updates",
+  "open customization": "customization", "open customization settings": "customization", "open settings order": "settingsorder", "settings order": "settingsorder",
+  "open chats settings": "chatsettings", "open chat settings": "chatsettings", "open keyboard": "keyboard", "open earcons": "audio", "open privacy": "privacy", "open permissions": "privacy", "open quiet hours": "alertsettings", "open alerts settings": "alertsettings", "import settings": "backup",
   "open braille": "braille", "open braille settings": "braille", "open screen reader": "screenreader", "open screen reader settings": "screenreader", "open screen reader and braille": "screenreader", "open sense": "screenreader", "sense": "screenreader", "sense settings": "screenreader",
   "open credits": "credits", "credits": "credits", "open source": "credits", "licenses": "credits",
   "open vision": "vision", "open hearing": "hearing", "open motion": "motion", "open motion and seizure": "motion", "open motor": "motor", "open motor and switch": "motor", "open terminal settings": "terminalsettings",
@@ -5763,7 +5912,7 @@ const LC_COMMANDS = [
   ["music", "the beat styles; music and a style plays one, like music hyperpop; music pause, music stop. beat works too"],
   ["set", "change an accessibility setting, like set calm on, set sounds off, set volume 50, braille output on, braille short labels off or pitch cues off"],
   ["about", "About Looscid: version, what's new and system info"], ["version", "the Looscid version"],
-  ["settings", "read out every setting"], ["open sounds", "Settings, Earcons (open earcons works too)"], ["open insomnia", "an app, inside Looscid: insomnia, memes, easyconvert, desktop or kernel"], ["open verbosity", "Verbosity and pitch cues"], ["open keyboard shortcuts", "Settings, Keyboard shortcuts"], ["open privacy", "Settings, Privacy, with Permissions"],
+  ["settings", "read out every setting"], ["open sounds", "Settings, Earcons (open earcons works too)"], ["open insomnia", "an app, inside Looscid: insomnia, memes, easyconvert, desktop or kernel"], ["open verbosity", "Verbosity and pitch cues"], ["open keyboard shortcuts", "Settings, General, Keyboard"], ["open privacy", "Settings, Privacy, with Permissions"],
   ["verbosity", "verbosity low, medium or high"], ["read order", "read order name first or text first"], ["announce new dreams", "off, count or read"],
   ["speak timestamps", "off, short or full"], ["speak emoji", "name, skip or word"], ["hashtags", "hashtags read or skip"], ["typing echo", "characters, words, both or off"], ["read aloud rate", "read aloud rate and a number from 50 to 200; read aloud pitch 50 to 150; voice and a name"],
   ["braille emoji", "braille emoji name or strip; braille timestamps on or off; braille prefix on or off"],
@@ -5862,7 +6011,7 @@ function lcRun(raw, api) {
   const goTo = function (id, prefix) {
     // Round 6.5.3: the Cherry commands. Cherry off: open Intelligence, Cherry, where it is turned on, and say so.
     if (LC_PLACES[id].page === "cherry") {
-      if (!lcAiOn()) { out.go = "cherrysettings"; L((prefix || "") + "Cherry is off. Opened Intelligence, Cherry, where you can turn it on.", "ok"); out.earcon = null; return out; }
+      if (!lcAiOn()) { out.go = "cherrysettings"; L((prefix || "") + "Cherry is off. Opened Settings, Cherry, where you can turn it on.", "ok"); out.earcon = null; return out; }
       const cmd = LC_PLACES[id].data && LC_PLACES[id].data.cmd;
       if (cmd === "pinned" || cmd === "all") {
         const cs = Looscid.lcCherryChats ? Looscid.lcCherryChats() : [], k = cmd === "pinned" ? cs.filter(function (c) { return c.pinned; }).length : cs.length;
@@ -5906,7 +6055,7 @@ function lcRun(raw, api) {
       L("Calm mode: " + (a.calmMode ? "on" : "off") + ". Flash safety: " + (a.flashSafety ? "on" : "off") + ". Reduce Motion: " + (motionReduced() ? "on" + (systemReducedMotion() ? ", set by your device" : "") : "off") + ". Three-flash limit: always enforced.");
       if (Music.playing()) L("Music: " + Music.current().label + ", playing.");
       L("Sense: Screen reader hints " + (a.screenReader ? "on" : "off") + ", Braille output " + (a.brailleOutput ? "on" : "off") + ", Enter = Send " + (a.enterSend ? "on" : "off") + ", Short labels on braille " + (a.closeLabels !== false ? "on" : "off") + ".");
-      L("Feed switching: " + LC_FEED_MODES.find(function (x) { return x[0] === lcFeedMode(a.feedSwitch); })[1] + ", in Settings, Customizability.");
+      L("Feed switching: " + LC_FEED_MODES.find(function (x) { return x[0] === lcFeedMode(a.feedSwitch); })[1] + ", in Settings, Customization.");
       return out;
     }
     case "about": case "sysinfo": case "open about":
@@ -5930,7 +6079,7 @@ function lcRun(raw, api) {
   if (n === "export settings" || n === "export all settings" || n === "backup settings") { try { lcDownloadSettings(); L("Exported all your settings as looscid-settings.json.", "ok"); } catch (e) { return err("Couldn't export settings here."); } return out; }
   if (n === "shortcuts" || n === "my shortcuts" || n === "keyboard shortcuts" || n === "list shortcuts") {
     L("Built-in: " + LC_BUILTIN_KEYS.map(function (k) { return k[0] + ": " + k[1]; }).join(". ") + ".", "hi");
-    const sc = a.shortcuts || []; L(sc.length ? "Yours: " + sc.map(function (s) { return s.keys + " runs " + s.cmd; }).join(". ") + "." : "You have no shortcuts of your own yet. Add them in Settings, Keyboard shortcuts.");
+    const sc = a.shortcuts || []; L(sc.length ? "Yours: " + sc.map(function (s) { return s.keys + " runs " + s.cmd; }).join(". ") + "." : "You have no shortcuts of your own yet. Add them in Settings, General, Keyboard.");
     return out;
   }
   if (n === "read this dream" || n === "read dream" || n === "read aloud" || n === "stop reading" || n === "stop reading aloud") {
@@ -6679,7 +6828,9 @@ const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "looscid_braille_styles", "lo
   // Build 152 prep (#99, part 4b): your Lists. Added at the end, so older backups still import; an import adds to yours.
   "looscid_lists",
   // Round 7.33: Show followed threads on my profile. Added at the end, so older backups still import.
-  "looscid_show_threads"];
+  "looscid_show_threads",
+  // Round 7.37 (#176): Settings Order (Default, Alphabetical or Custom) and your own order. Added at the end, so older backups still import.
+  "looscid_settings_order_mode", "looscid_settings_order"];
 Looscid.LC_EXPORT_KEYS = LC_EXPORT_KEYS;
 function lcExportSettings() {
   const o = { app: "Looscid", kind: "settings", version: LOOSCID_VERSION, exported: new Date().toISOString(), settings: {} };
@@ -6722,8 +6873,8 @@ function A11ySwitch({ id, label, desc, on, onToggle, soon, locked }) {
 // Which More-menu item each Settings screen belongs to (Back returns there, focus on that item).
 const SETTINGS_MENU_ITEM = {
   settings_account: ["settings", "LooscidID"], settings_notifications: ["settings", "Alerts"], settings_privacy: ["settings", "Privacy"],
-  settings_customizability: ["settings", "Customizability"], settings_accessibility: ["settings", "Accessibility"], settings_intelligence: ["settings", "Intelligence"], settings_labs: ["settings", "Looscid Labs"], settings_about: ["about", "About Looscid"],
-  settings_audio: ["settings", "Earcons"], settings_keyboard: ["settings", "Keyboard shortcuts"], settings_tabbar: ["settings", "Tab Bar"], settings_profiletabs: ["settings", "Profile Tabs"], settings_apps: ["settings", "Apps"], settings_messages: ["settings", "Alerts"], settings_backup: ["settings", "Settings backup"],
+  settings_customizability: ["settings", "Customization"], settings_accessibility: ["settings", "Accessibility"], settings_intelligence: ["settings", "Cherry"], settings_about: ["about", "About Looscid"],
+  settings_audio: ["settings", "Earcons"], settings_apps: ["settings", "General"], settings_messages: ["settings", "Chats"], settings_general: ["settings", "General"],
   settings_a11y_sr: ["settings", "Accessibility"], settings_a11y_vision: ["settings", "Accessibility"], settings_a11y_hearing: ["settings", "Accessibility"],
   settings_a11y_motion: ["settings", "Accessibility"], settings_a11y_motor: ["settings", "Accessibility"], settings_a11y_terminal: ["settings", "Accessibility"],
   terms: ["about", "Terms"], privacy: ["about", "Privacy"], guidelines: ["about", "Community rules"], feedback: ["about", "Send Feedback"],
@@ -6731,6 +6882,21 @@ const SETTINGS_MENU_ITEM = {
   nexos_apps: ["settings", "Apps"],
 };
 Looscid.SETTINGS_MENU_ITEM = SETTINGS_MENU_ITEM;
+/* Round 7.37 (#176): a page one level down (General, Keyboard; Customization, Tab Bar; Accessibility, Vision...) opened
+   straight from Search, Commandbar or a link goes Back up one level, like iOS: to its parent page, on the row for it. */
+const SETTINGS_PARENT = {
+  settings_keyboard: ["settings_general", "set-gen-keyboard"], settings_backup: ["settings_general", "set-gen-backup"], settings_labs: ["settings_general", "set-gen-labs"],
+  settings_updates: ["settings_general", "set-gen-updates"], settings_a11y_terminal: ["settings_general", "set-gen-commandbar"],
+  settings_tabbar: ["settings_customizability", "lc-cz-cats-tabbar"], settings_profiletabs: ["settings_customizability", "lc-cz-cats-profiletabs"], settings_cz_order: ["settings_customizability", "lc-cz-cats-order"],
+  settings_cz_theme: ["settings_customizability", "lc-cz-cats-theme"], settings_cz_feeds: ["settings_customizability", "lc-cz-cats-feeds"], settings_cz_menu: ["settings_customizability", "lc-cz-cats-menu"],
+  settings_cz_posting: ["settings_customizability", "lc-cz-cats-posting"], settings_cz_media: ["settings_customizability", "lc-cz-cats-media"],
+  settings_a11y_sr: ["settings_accessibility", "lc-a11y-cats-sr"], settings_a11y_vision: ["settings_accessibility", "lc-a11y-cats-vision"], settings_a11y_hearing: ["settings_accessibility", "lc-a11y-cats-hearing"],
+  settings_a11y_motion: ["settings_accessibility", "lc-a11y-cats-motion"], settings_a11y_motor: ["settings_accessibility", "lc-a11y-cats-motor"],
+  settings_ai_cherry: ["settings_intelligence", "lc-ai-cats-cherry"], settings_ai_model: ["settings_intelligence", "lc-ai-cats-model"], settings_ai_cmd: ["settings_intelligence", "lc-ai-cats-cmd"],
+  settings_ai_memory: ["settings_intelligence", "lc-ai-cats-memory"], settings_ai_tools: ["settings_intelligence", "lc-ai-cats-tools"], settings_ai_audit: ["settings_intelligence", "lc-ai-cats-audit"],
+  settings_audio_volume: ["settings_audio", "lc-audio-cats-volume"], settings_audio_pack: ["settings_audio", "lc-audio-cats-pack"], settings_audio_events: ["settings_audio", "lc-audio-cats-events"], settings_audio_haptics: ["settings_audio", "lc-audio-cats-haptics"],
+};
+Looscid.SETTINGS_PARENT = SETTINGS_PARENT;
 /* Round 5 fixes (QA "as 2three1y", Oct 13): after opening a page, focus fell to <body> (only the tab bar moved it to the
    heading), and Back found the row it came from only when the row's whole name matched. The control that opened a page is
    remembered by its id or name; Back puts focus on it again, and a newly opened page puts focus on its heading. */
@@ -6955,6 +7121,8 @@ useEffect(() => {
        More. More's Settings link asks for "settings_open": always the Settings page itself, focus on its heading. */
     let openSettings = false;
     if (target === "settings_open") { target = "settings"; openSettings = true; }
+    // Round 7.37 (#175): Settings opened from outside Settings starts with an empty Search field; inside Settings (Back) it keeps it.
+    if (target === "settings" && (openSettings || !/^settings/.test(pageRef.current))) Looscid.LC_SETFIND_Q = "";
     if (target === "about") target = "settings_about";
     if (target === "more_discover") target = "discover"; // Round 7.16 (#216): the old More, Discover page is the Discover tab
     // Round 7.14 (Carter, Oct 24 2026): Liked is a tab on your profile. The Liked page's name and address open that tab.
@@ -6963,8 +7131,8 @@ useEffect(() => {
        LC_DP_BACK_NEXT just before it opens the profile; any other way of opening a profile (a Home card's "View <name>'s
        profile", a Dream's menu, the Commandbar) leaves none, so an older one from Discover is never used. */
     if (target === "dp") { Looscid.LC_DP_BACK = Looscid.LC_DP_BACK_NEXT || null; Looscid.LC_DP_BACK_NEXT = null; } // the old separate About page is gone: one About Looscid
-    if (target === "settings_a11y_verbosity") { try { sessionStorage.setItem("looscid_sr_tab", "verbosity"); } catch (e) {} target = "settings_a11y_sr"; } // round 6: Verbosity is a tab
-    if (target === "settings_cherry") target = "settings_ai_cherry"; // round 5: Cherry lives in Settings, Intelligence
+    if (target === "settings_a11y_verbosity") { try { sessionStorage.setItem("looscid_sr_tab", "verbosity"); window.dispatchEvent(new CustomEvent("looscid:srtab", { detail: "verbosity" })); } catch (e) {} target = "settings_a11y_sr"; } // round 6: Verbosity is a tab
+    if (target === "settings_cherry") target = "settings_ai_cherry"; // round 5: Cherry lives in Settings, Cherry
     if (target === "settings_cherry_algo") target = "settings_labs";
     // Round 6 fixes: More > Cherry while Cherry is off opens Intelligence; Back from there returns to the More menu on Cherry.
     if (target !== "cherry" && (target !== "settings" || openSettings)) cherryOffMenu.current = false;
@@ -6976,7 +7144,7 @@ useEffect(() => {
        never send a later Back somewhere stale (Settings > Alerts > Back landed in the Inbox after Open LooscidID). */
     if (target !== "settings_account") Looscid.LC_LID_RETURN = null;
     Looscid.LC_CV_REOPEN = null;
-    /* Round 7.34 (Settings links check, Oct 26 2026): Cherry's "Cherry settings" button opens Settings, Intelligence, and Back
+    /* Round 7.34 (Settings links check, Oct 26 2026): Cherry's "Cherry settings" button opens Settings, Cherry, and Back
        there went to the top of Settings. Back from Intelligence now returns to Cherry, on that button (also after visiting
        Intelligence's own pages), and Cherry's Back still goes where Cherry was opened from. If Cherry was turned off meanwhile,
        Back goes to Settings as before. */
@@ -6999,6 +7167,12 @@ useEffect(() => {
         lcCvReopenLater(Looscid.lcFooterCv); Looscid.lcFooterCv = null;
         setPage(mainBack.current || "feed"); setPdata(same ? op.data || null : null); Earcon.play("settings");
         lcFocusFooterLink(fl); return; }
+      const par = SETTINGS_PARENT[cur];
+      if (par && par[0] !== cur) {
+        setPage(par[0]); setPdata(null); Earcon.play("settings"); delete openers.current[cur];
+        setTimeout(() => { const b = document.getElementById(par[1]); if (b) b.focus(); else lcFocusHeading(); }, 90);
+        return;
+      }
       const m = SETTINGS_MENU_ITEM[cur] || ["settings", null];
       // Part 40 (#67): Settings is its own page now. Back from a Settings screen lands there, on the row it came from.
       if (m[0] === "settings" && cur !== "settings") {
@@ -7007,8 +7181,9 @@ useEffect(() => {
         // Rows say their value after the name ("Alerts, Quiet hours off"), so the row is found by the control that opened
         // this page, else by the name before the first comma.
         setTimeout(() => { const pg = document.getElementById("more-page-settings"); const rows = pg ? Array.from(pg.querySelectorAll(".mitem")) : [];
-          const row = (op && op.page === "settings" ? lcFindOpener(op) : null) || (m[1] ? rows.find(b => String(Looscid.lcAL(b) || "").split(",")[0].trim() === m[1]) : null);
-          if (row) row.focus(); else lcFocusHeading(); }, 60);
+          const row = (op && op.page === "settings" ? lcFindOpener(op) : null) || (m[1] ? (document.getElementById(lcSetRowId(m[1])) || rows.find(b => String(Looscid.lcAL(b) || "").split(",")[0].trim() === m[1])) : null);
+          // Round 7.37: while a search is still showing its results, Back lands on the Search field, like iOS.
+          if (row && row.isConnected) row.focus(); else { const sq = document.getElementById("lc-setfind-q"); if (sq && sq.value) sq.focus(); else lcFocusHeading(); } }, 60);
         return;
       }
       backToProfileMore(); // Round 7.14: Back to More is Back to your profile's More button
@@ -7077,7 +7252,7 @@ useEffect(() => {
   const goRoot = id => {
     if(id==="create"){setShowCreate(true);return;}
     // Round 7 fixes (QA round 6): a tab switch starts a new visit, so a profile's old way Back to Discover is forgotten.
-    Looscid.LC_DP_BACK = null; Looscid.LC_DP_BACK_NEXT = null; Looscid.LC_LID_RETURN = null; Looscid.LC_SETTINGS_BACK = null; Looscid.LC_CV_REOPEN = null; lcFooterForget(); // Round 11: and the footer page you left
+    Looscid.LC_DP_BACK = null; Looscid.LC_DP_BACK_NEXT = null; Looscid.LC_LID_RETURN = null; Looscid.LC_SETTINGS_BACK = null; Looscid.LC_SETFIND_Q = ""; Looscid.LC_CV_REOPEN = null; lcFooterForget(); // Round 11: and the footer page you left
     Looscid.lcDiscLeft = null; // Round 12: a tab switch opens Discover fresh
     // Round 12 (QA round 11): the tab you are on, with a Dream's Replies open on it (Home), closes the Replies: that page
     // opens fresh, focus on its heading. For the browser's history it counts as Back, so Forward reopens the Replies.
@@ -7379,7 +7554,7 @@ useEffect(() => {
     const bwHit = lcWordHit(full), say = bwHit && (" " + lcNorm(t) + " ").indexOf(" " + lcNorm(bwHit) + " ") < 0 ? "Hidden: contains a blocked word." : say0;
     if (r.go) {
       if (LC_PLACES[r.go].alertsTab) lcSetAlertsTab(LC_PLACES[r.go].alertsTab, true);
-      if (LC_PLACES[r.go].srTab) { try { sessionStorage.setItem("looscid_sr_tab", LC_PLACES[r.go].srTab); } catch (e) {} }
+      if (LC_PLACES[r.go].srTab) { try { sessionStorage.setItem("looscid_sr_tab", LC_PLACES[r.go].srTab); window.dispatchEvent(new CustomEvent("looscid:srtab", { detail: LC_PLACES[r.go].srTab })); } catch (e) {} } else if (LC_PLACES[r.go].page === "settings_a11y_sr") { try { sessionStorage.removeItem("looscid_sr_tab"); window.dispatchEvent(new CustomEvent("looscid:srtab", { detail: "" })); } catch (e) {} }
       const pl = LC_PLACES[r.go], target = pl.root ? (pl.root === "circles" ? "groups" : pl.root) : pl.page;
       if (target !== page || pl.data) {
         const ta = areaOfPage(target);
@@ -7552,31 +7727,31 @@ useEffect(() => {
       settings: lcMoreTitle("settings", "Settings"),
       more_discover: "Discover", more_apps: "Apps", more_create: "Create", more_alerts: "Inbox", more_projects: "Projects",
       settings_account: "LooscidID",
-      settings_labs: "Looscid Labs",
-      settings_notifications: "Alerts Settings",
+      settings_labs: "Labs",
+      settings_notifications: "Alerts",
       settings_privacy: "Privacy",
-      settings_customizability: "Customizability",
-      settings_cz_theme: "Theme and colors", settings_cz_feeds: "Feeds and home", settings_cz_menu: "Menu", settings_cz_posting: "Dreaming", settings_cz_media: "Media and translation",
+      settings_customizability: "Customization", settings_cz_order: "Settings Order", settings_general: "General", settings_updates: "Updates",
+      settings_cz_theme: "Appearance", settings_cz_feeds: "Feeds", settings_cz_menu: "Menu", settings_cz_posting: "Dreaming", settings_cz_media: "Media",
       settings_audio_volume: "Volume and focus sounds", settings_audio_pack: "Soundpacks", settings_audio_events: "Event earcons", settings_audio_haptics: "Music and haptics",
-      settings_intelligence: "Intelligence", settings_ai_model: "Cherry model", settings_ai_cmd: "Commandbar", settings_ai_memory: "Memory", settings_ai_tools: "Tools", settings_ai_audit: "What Cherry did",
+      settings_intelligence: "Cherry", settings_ai_model: "Cherry model", settings_ai_cmd: "Commandbar Answers", settings_ai_memory: "Memory", settings_ai_tools: "Tools", settings_ai_audit: "What Cherry did",
       settings_accessibility: "Accessibility",
       settings_a11y_sr: "Sense",
       settings_a11y_vision: "Vision",
       settings_a11y_hearing: "Hearing",
-      settings_a11y_motion: "Motion and seizure",
-      settings_a11y_motor: "Motor and switch",
-      settings_a11y_terminal: "Commandbar settings",
+      settings_a11y_motion: "Motion",
+      settings_a11y_motor: "Motor",
+      settings_a11y_terminal: "Commandbar",
       nexos_app: "App",
       nexos_apps: "Apps",
       credits: "Credits and open source",
       settings_audio: "Earcons",
-      settings_keyboard: "Keyboard shortcuts",
+      settings_keyboard: "Keyboard",
       settings_tabbar: "Tab Bar",
       settings_profiletabs: "Profile Tabs",
       settings_apps: "Apps",
-      settings_messages: "Message settings",
-      settings_backup: "Settings backup",
-      settings_cherry: "Intelligence",
+      settings_messages: "Chats",
+      settings_backup: "Backup",
+      settings_cherry: "Cherry",
       settings_about: "About",
       settings_social: "Social",
       feedback: "Send Feedback",
@@ -7640,6 +7815,10 @@ useEffect(() => {
       case "terminal":      return React.createElement(Looscid.TerminalPage, { exec: execCommand, onClose: closeTerminal, a11y: prefs.accessibility,});
       case "settings_about":          return React.createElement(Looscid.AboutSettings, { navigate: navigate,});
       case "settings_labs":           return React.createElement(Looscid.LabsSettings, { navigate: navigate,});
+      // Round 7.37 (#176): General (About, Updates, Keyboard, Backup, Labs, Commandbar, Reset), Updates, and Settings Order.
+      case "settings_general":        return Looscid.GeneralSettings ? React.createElement(Looscid.GeneralSettings, { navigate: navigate,}) : null;
+      case "settings_updates":        return Looscid.UpdatesSettings ? React.createElement(Looscid.UpdatesSettings, { navigate: navigate,}) : null;
+      case "settings_cz_order":       return Looscid.SettingsOrderSettings ? React.createElement(Looscid.SettingsOrderSettings, { navigate: navigate,}) : null;
       case "nexos_apps":              return React.createElement(Looscid.NexosAppsPage, { navigate: navigate,});
       case "credits":                 return React.createElement(Looscid.CreditsPage, { navigate: navigate,});
       case "nexos_app":               return React.createElement(Looscid.NexosAppFrame, { key: (pdata && pdata.id) || "app", app: pdata, navigate: navigate,});

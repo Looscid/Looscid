@@ -139,7 +139,7 @@ function cherryView(st, p, act) {
   const keep = lcCherryKeepChats();
 
   // Build 150 (#65, #66): the page is "Cherry - DO IT YOUR WAY". Reading order: heading, New Chat, Your History,
-  // then the chat you're in. No "Try asking" suggestions and no canned answer. What Cherry did is in Settings, Intelligence.
+  // then the chat you're in. No "Try asking" suggestions and no canned answer. What Cherry did is in Settings, Cherry.
   return h('div', { className: "pg lc-cherry" },
     h('div', { className: "hdr" },
       h('div', { className: "hdr-row" },
@@ -154,7 +154,7 @@ function cherryView(st, p, act) {
     /* Your History: All and Pinned */
     h('section', { className: "lc-cherry-hist", "aria-labelledby": "cherry-hist-h" },
       h('h2', { id: "cherry-hist-h", className: "lc-sub-h", tabIndex: -1 }, "Your History"),
-      h('p', { className: "lc-desc" }, keep ? "Your chats with Cherry, newest first. Chat options has Pin, Edit name and Delete." : "Saving chats is off, so new chats aren't kept. Turn it on in Settings, Intelligence, Memory."),
+      h('p', { className: "lc-desc" }, keep ? "Your chats with Cherry, newest first. Chat options has Pin, Edit name and Delete." : "Saving chats is off, so new chats aren't kept. Turn it on in Settings, Cherry, Memory."),
       h('div', { className: "ftabs lc-cherry-tabs", role: "tablist", "aria-label": "Your History", onKeyDown: onTabKey },
         TABS.map(function (t, i) {
           const on = tab === t[0];
@@ -246,7 +246,7 @@ const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
   const draw = function () { if (alive) lcPatch(host, cherryView(st, p, act)); };
   const saveCur = function () {
     const c = LC_CHERRY.cur; if (!c || !c.msgs.length) return;
-    // Build 150: Settings, Intelligence, Memory can turn saving off. A chat already in Your History still keeps its changes.
+    // Build 150: Settings, Cherry, Memory can turn saving off. A chat already in Your History still keeps its changes.
     if (!lcCherryKeepChats() && !lcCherryChats().some(function (x) { return x.id === c.id; })) return;
     const list = lcCherryChats().filter(function (x) { return x.id !== c.id; });
     list.unshift({ id: c.id, title: c.title, created: c.created, updated: c.updated, pinned: c.pinned, msgs: c.msgs.map(function (m) { return m.out ? { me: m.me, text: m.text, t: m.t, out: m.out } : { me: m.me, text: m.text, t: m.t }; }) });
@@ -442,7 +442,7 @@ const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
       draw(); return "cherry-input";
     }
     if (d.cmd === "pinned" || d.cmd === "all") { LC_CHERRY.tab = d.cmd; draw(); return "cherry-tab-" + d.cmd; }
-    // Round 7.34: Back from Settings, Intelligence (opened with Cherry settings) lands on that button.
+    // Round 7.34: Back from Settings, Cherry (opened with Cherry settings) lands on that button.
     if (d.cmd === "settings") return "cherry-settings";
     return null;
   };
@@ -557,14 +557,14 @@ function SourcesPanel({ sources, onClose }) {
    Both sides are normalized: the input is lowercased and every phrase it is matched
    against is lowercase too ("what is Looscid" used to never match). */
 function cherryNorm(s) { return String(s || "").toLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/\s+/g, " ").trim(); }
-/* Build 150 (#66): Settings, Intelligence, Tools says what Cherry may do for you. A tool that's off is never run:
+/* Build 150 (#66): Settings, Cherry, Tools says what Cherry may do for you. A tool that's off is never run:
    Cherry says so, and nothing changes. All tools are on by default (the same as before build 150). */
 function lcCherryToolOn(k) { const t = getAIPrefs().tools || {}; return t[k] !== false; }
 function cherryRespond(text, cherryCtx) {
   const r = cherryRespond0(text, cherryCtx);
   if (r && r.tool && (r.autoFn || r.confirm) && !lcCherryToolOn(r.tool)) {
     const t = LC_CHERRY_TOOLS.find(function (x) { return x[0] === r.tool; });
-    return { action: null, result: (t ? t[2] : "That") + " is off for Cherry, so nothing was changed. You can turn it on in Settings, Intelligence, Tools." };
+    return { action: null, result: (t ? t[2] : "That") + " is off for Cherry, so nothing was changed. You can turn it on in Settings, Cherry, Tools." };
   }
   return r;
 }
@@ -627,7 +627,7 @@ function cherryRespond0(text, cherryCtx) {
       return {action:null, result:"You can delete your LooscidID in Settings > LooscidID. It's permanent — your Dreams, followers and profile will all be removed. You'll have 60 days to cancel if you change your mind. Want me to take you to that screen?"};
 
     if (lo.includes("report") || lo.includes("block") || lo.includes("mute"))
-      return {action:null, result:"Report, Mute and Block aren't in Looscid yet. They're on the Coming soon list in Settings, Looscid Labs. For now, muted words in Settings, Privacy hide Dreams with words you choose."};
+      return {action:null, result:"Report, Mute and Block aren't in Looscid yet. They're on the Coming soon list in Settings, General, Labs. For now, muted words in Settings, Privacy hide Dreams with words you choose."};
 
     if (lo.includes("what do i like") || lo.includes("my liked") || lo.includes("liked dreams"))
       return {action:null, result:`You've liked: ${ctx.likedDreams}. Want me to find more Dreams like those?`};
