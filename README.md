@@ -11,6 +11,10 @@ Looscid is a social app built for VoiceOver, braille and keyboard from day one. 
 
 **Our words:** Dreams, Redreams, Dreamors and the rest are explained in [TERMINOLOGY.md](docs/guides/TERMINOLOGY.md).
 
+## Community
+
+- Discord: [Join the Looscid Discord](https://discord.gg/M6xrD8EBXU)
+
 ## Official version
 
 `main` is the shipped Looscid line, and the site is built from it. Its [version.json](app/version.json) is authoritative: **Looscid 2026.129.55 (184)**. Versions are YEAR.FEATURES.FIXES (BUILD): feature updates add something, fix updates only fix things, and builds count every update.
