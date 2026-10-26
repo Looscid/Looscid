@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.134.55",
-  "build": 189,
+  "version": "2026.134.56",
+  "build": 190,
   "features": 134,
-  "fixes": 55,
+  "fixes": 56,
   "builds_without_fixes": 134,
-  "released": "2026-10-26T22:08:59Z",
-  "title": "Round 7.39",
-  "notes": "Round 7.39 (build 189), a feature update. Looscid's new slogan is Just Dream: Home is now called “Looscid - Just Dream”, and the slogan is on the startup screen, Welcome, About, the changelog page and the link previews when you share Looscid."
+  "released": "2026-10-26T22:29:20Z",
+  "title": "Round 7.40",
+  "notes": "Round 7.40 (build 190), a fix update. The robots now sit inside the Home heading, so it reads as one heading, and every heading works that way. For You and the other tabs have one space between each robot and the label instead of two, and buttons and links got the same fix."
 }

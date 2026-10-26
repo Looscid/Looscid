@@ -18,7 +18,7 @@
   --tx:#ede9fe;--tx2:#9d85c0;--tx3:#958ab9;
   --fs:14px;--btn-h:44px;
 }
-body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--tx);font-size:var(--fs);-webkit-font-smoothing:antialiased}
+body{font-family:"Looscid Unspeakable",'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--tx);font-size:var(--fs);-webkit-font-smoothing:antialiased}
 :focus-visible{outline:3px solid var(--ac3);outline-offset:2px;border-radius:4px}
 button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--ac3);outline-offset:2px}
 .bi:focus-visible{outline:3px solid var(--ac3);outline-offset:3px;border-radius:50%}
@@ -59,9 +59,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .hdr.lc-hdr-static{position:relative;border-bottom:0;z-index:auto}
 .lc-feed-bar{position:sticky;top:0;z-index:10;background:rgba(7,5,15,.93);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 .lc-feed-ctl{position:relative;z-index:9;border-bottom:1px solid var(--bd)}
-.htit{font-family:'DM Serif Display',Georgia,serif;font-size:22px;background:linear-gradient(135deg,var(--ac4),var(--ac3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.htit{font-family:"Looscid Unspeakable",'DM Serif Display',Georgia,serif;font-size:22px;background:linear-gradient(135deg,var(--ac4),var(--ac3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .hdr-row{display:flex;align-items:center;gap:6px;padding:48px 14px 12px}
-.hdr-title{font-family:'DM Serif Display',Georgia,serif;font-size:20px;color:var(--tx);flex:1}
+.hdr-title{font-family:"Looscid Unspeakable",'DM Serif Display',Georgia,serif;font-size:20px;color:var(--tx);flex:1}
 /* Feed tabs */
 .ftabs{display:flex;overflow-x:auto;scrollbar-width:none;padding:0 8px;gap:2px;border-bottom:1px solid var(--bd)}
 .ftabs::-webkit-scrollbar{display:none}
@@ -128,7 +128,7 @@ textarea.inp{resize:none;line-height:1.55}
 @keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .mhd{width:32px;height:4px;background:var(--bd2);border-radius:2px;margin:11px auto 0}
 .min{padding:13px 17px 40px}
-.mtt{font-family:'DM Serif Display',Georgia,serif;font-size:20px;margin-bottom:3px}
+.mtt{font-family:"Looscid Unspeakable",'DM Serif Display',Georgia,serif;font-size:20px;margin-bottom:3px}
 .msb{font-size:12px;color:var(--tx3);margin-bottom:16px}
 .osb{display:flex;align-items:center;gap:13px;width:100%;background:none;border:none;cursor:pointer;color:var(--tx2);padding:13px 0;font-size:14px;font-family:inherit;border-bottom:1px solid var(--bd);text-align:left}
 .osb:last-child{border-bottom:none}
@@ -149,7 +149,7 @@ textarea.inp{resize:none;line-height:1.55}
 /* Profile */
 .pcov{height:100px;background:linear-gradient(135deg,#12063a,#26095e,#07123a);position:relative}
 .pbdy{padding:38px 16px 12px}
-.pnm{font-family:'DM Serif Display',Georgia,serif;font-size:20px;margin-bottom:2px}
+.pnm{font-family:"Looscid Unspeakable",'DM Serif Display',Georgia,serif;font-size:20px;margin-bottom:2px}
 .phdl{font-size:13px;color:var(--tx3);margin-bottom:7px}
 .pbio{font-size:13px;color:var(--tx2);line-height:1.6;margin-bottom:9px}
 .pmr{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px}
@@ -243,7 +243,7 @@ h2.slbl,div.slbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:
 .sr-desc{font-size:11px;color:var(--tx3);margin-top:3px;line-height:1.45;max-width:250px}
 /* Policy */
 .policy-body{padding:16px 20px 32px;font-size:13px;color:var(--tx2);line-height:1.8}
-.policy-body h2{font-family:'DM Serif Display',Georgia,serif;font-size:17px;color:var(--tx);margin:22px 0 8px}
+.policy-body h2{font-family:"Looscid Unspeakable",'DM Serif Display',Georgia,serif;font-size:17px;color:var(--tx);margin:22px 0 8px}
 .policy-body p{margin-bottom:10px}
 .policy-body ul{padding-left:18px;margin-bottom:10px}
 .policy-body li{margin-bottom:5px}
@@ -360,8 +360,8 @@ h2.slbl,div.slbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:
 .lid-wide{width:100%;padding:13px;font-size:14px}
 .lid-panel{display:flex;flex-direction:column;gap:10px;margin-top:6px}
 .lid-secret{display:flex;gap:8px;align-items:center}
-.lid-secret .inp{font-family:ui-monospace,Menlo,monospace;font-size:14px}
-.lid-mono{font-family:ui-monospace,Menlo,monospace;overflow-wrap:anywhere;color:var(--tx)}
+.lid-secret .inp{font-family:"Looscid Unspeakable",ui-monospace,Menlo,monospace;font-size:14px}
+.lid-mono{font-family:"Looscid Unspeakable",ui-monospace,Menlo,monospace;overflow-wrap:anywhere;color:var(--tx)}
 .lid-soon{font-weight:700;color:var(--tx);margin:0}
 .lid-disclose,.lid-skip{background:none;border:none;color:var(--ac4);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer;padding:10px 0;text-align:left;min-height:44px}
 .lid-pastebox[hidden],.lid-subs[hidden]{display:none!important}
@@ -392,10 +392,10 @@ h2.slbl,div.slbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:
 .lmenu-note{color:var(--tx2)}
 .lid-onb{position:fixed;inset:0;z-index:10002;background:var(--bg);overflow-y:auto}
 .lid-onb-in{max-width:520px;margin:0 auto;padding:40px 22px 48px;display:flex;flex-direction:column;gap:12px}
-.lid-onb-h{font-family:'DM Serif Display',Georgia,serif;font-size:28px;color:var(--tx);line-height:1.25;margin:0 0 4px}
+.lid-onb-h{font-family:"Looscid Unspeakable",'DM Serif Display',Georgia,serif;font-size:28px;color:var(--tx);line-height:1.25;margin:0 0 4px}
 .lid-onb-h2{font-size:17px;font-weight:700;color:var(--tx);margin:12px 0 0}
 .lid-onb-p{font-size:15px;color:var(--tx2);line-height:1.7;margin:0}
-.lid-onb-slogan{font-family:"DM Serif Display",Georgia,serif;font-size:20px;color:var(--tx);margin:2px 0 6px}
+.lid-onb-slogan{font-family:"Looscid Unspeakable","DM Serif Display",Georgia,serif;font-size:20px;color:var(--tx);margin:2px 0 6px}
 .lid-step{font-size:13px;color:var(--tx2);margin:0}
 .lid-onb-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px}
 .lid-terms{margin:0;padding:0}

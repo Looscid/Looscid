@@ -186,7 +186,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
         , React.createElement('button', { className: "bi", style: {position:"absolute",top:48,left:12,background:"rgba(0,0,0,.55)"}, onClick: onBack, 'aria-label': "Back",}, React.createElement(Ic.Bck, { style: {width:19,height:19},}))
         , isAdmin&&React.createElement('button', { className: "bi", style: {position:"absolute",top:48,right:12,background:"rgba(245,158,11,.2)",color:"#f59e0b"}, onClick: ()=>setShowAdmin(true), 'aria-label': "Circle admin settings"  ,}, React.createElement(Ic.Dots, { style: {width:19,height:19},}))
         , React.createElement('div', { style: {fontSize:38,marginBottom:4},}, group.emoji)
-        , React.createElement('h1', { ref: headRef, tabIndex: -1, style: {margin:0,fontWeight:400,fontFamily:"'DM Serif Display',Georgia,serif",fontSize:18,color:"#fff",textShadow:"0 2px 8px rgba(0,0,0,.6)"},}, group.name)
+        , React.createElement('h1', { ref: headRef, tabIndex: -1, style: {margin:0,fontWeight:400,fontFamily:"\"Looscid Unspeakable\",'DM Serif Display',Georgia,serif",fontSize:18,color:"#fff",textShadow:"0 2px 8px rgba(0,0,0,.6)"},}, group.name)
       )
 
       /* Group meta */

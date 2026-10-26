@@ -1616,7 +1616,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
       React.createElement('div', {style:{padding:"24px 16px",display:"flex",flexDirection:"column",gap:12}},
         React.createElement('div', {style:{padding:"20px",background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",border:"1px solid rgba(168,85,247,.2)",borderRadius:16,textAlign:"center"}},
           React.createElement('div', {style:{fontSize:44,marginBottom:12}}, "Guest Mode"),
-          React.createElement('div', {style:{fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,marginBottom:8}}, "You are in Guest Mode"),
+          React.createElement('div', {style:{fontFamily:"\"Looscid Unspeakable\",'DM Serif Display',Georgia,serif",fontSize:20,marginBottom:8}}, "You are in Guest Mode"),
           React.createElement('p', {style:{fontSize:13,color:"var(--tx2)",lineHeight:1.7,marginBottom:20}}, "Create a free LooscidID to share Dreams, follow Dreamors, get notifications and make the app yours."),
           React.createElement('button', {className:"btn bp",style:{width:"100%",padding:13,fontSize:14,marginBottom:10},onClick:()=>navigate("login"),"aria-label":"Create a LooscidID"}, "Create a LooscidID"),
           React.createElement('button', {className:"btn bgb",style:{width:"100%",padding:11,fontSize:13},onClick:()=>navigate("login"),"aria-label":"Login to your LooscidID"}, "Login")
@@ -1754,7 +1754,7 @@ function HourStoryPage({ navigate, back }) {
         // Hero
         , React.createElement('div', { style: {textAlign:"center",marginBottom:32,padding:"0 8px"},}
           , React.createElement('div', { style: {fontSize:56,marginBottom:12,'aria-hidden':"true"},}, "🌙")
-          , React.createElement('h1', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:26,lineHeight:1.3,
+          , React.createElement('h1', { style: {fontFamily:"\"Looscid Unspeakable\",'DM Serif Display',Georgia,serif",fontSize:26,lineHeight:1.3,
               background:"linear-gradient(135deg,var(--ac4),var(--ac3))",
               WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text",
               marginBottom:12},}, "Looscid")
@@ -1767,7 +1767,7 @@ function HourStoryPage({ navigate, back }) {
         , React.createElement('div', { style: {display:"flex",flexDirection:"column",gap:28},}
 
           , React.createElement('section', { 'aria-label': "How it started",}
-            , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10},}, "How it started")
+            , React.createElement('h2', { style: {fontFamily:"\"Looscid Unspeakable\",'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10},}, "How it started")
             , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8},},
               "Looscid started as my late-night idea. Not a business plan. Not a pitch deck. Just a feeling that the internet needed a place that was quieter, kinder, and more yours."
             )
@@ -1779,7 +1779,7 @@ function HourStoryPage({ navigate, back }) {
           , React.createElement('div', { style: {height:1,background:"var(--bd)",'aria-hidden':"true"},})
 
           , React.createElement('section', { 'aria-label': "What we believe",}
-            , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10},}, "What we believe")
+            , React.createElement('h2', { style: {fontFamily:"\"Looscid Unspeakable\",'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10},}, "What we believe")
             , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8},},
               "We believe the best social platforms feel like journals, not stadiums. We believe people deserve tools that work for them — not against them. We believe accessibility is not a feature, it is a right."
             )
@@ -1791,7 +1791,7 @@ function HourStoryPage({ navigate, back }) {
           , React.createElement('div', { style: {height:1,background:"var(--bd)",'aria-hidden':"true"},})
 
           , React.createElement('section', { 'aria-label': "Built with Claude",}
-            , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10},}, "Built in the open")
+            , React.createElement('h2', { style: {fontFamily:"\"Looscid Unspeakable\",'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10},}, "Built in the open")
             , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8},},
               "This app was built transparently — with Claude as a development partner, documented in the open, and released as open source. Anyone can read the code, fork it, build on top of it. That is intentional. We want this to belong to everyone."
             )
@@ -1803,7 +1803,7 @@ function HourStoryPage({ navigate, back }) {
           , React.createElement('div', { style: {height:1,background:"var(--bd)",'aria-hidden':"true"},})
 
           , React.createElement('section', { 'aria-label': "To you",}
-            , React.createElement('h2', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10},}, "To you")
+            , React.createElement('h2', { style: {fontFamily:"\"Looscid Unspeakable\",'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10},}, "To you")
             , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8},},
               "If you are reading this, you are part of it. You are not a user number in a database. You are a Dreamor — and this place is yours as much as it is anyone's."
             )
@@ -1818,7 +1818,7 @@ function HourStoryPage({ navigate, back }) {
           // Mission statement
           , React.createElement('div', { style: {background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",border:"1px solid rgba(168,85,247,.2)",borderRadius:16,padding:"20px 18px",textAlign:"center"},}
             , React.createElement('div', { style: {fontSize:28,marginBottom:10,'aria-hidden':"true"},}, "🌙")
-            , React.createElement('p', { style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:17,color:"var(--tx)",lineHeight:1.6,fontStyle:"italic"},},
+            , React.createElement('p', { style: {fontFamily:"\"Looscid Unspeakable\",'DM Serif Display',Georgia,serif",fontSize:17,color:"var(--tx)",lineHeight:1.6,fontStyle:"italic"},},
               "'A platform that puts the Dreamor first. Free, accessible, and always yours.'"
             )
             , React.createElement('p', { style: {fontSize:11,color:"var(--tx3)",marginTop:8},}, "Looscid mission statement")
@@ -2613,13 +2613,16 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 134; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 55;
+const LOOSCID_FIXES = 56;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.134.55", build: 189, released: LOOSCID_RELEASED, title: "Round 7.39", notes: [
+  { version: "2026.134.56", build: 190, released: LOOSCID_RELEASED, title: "Round 7.40", notes: [
+    "I tightened up the robots. On Home they sit inside the heading now, so it reads as one heading: robot, Home, robot. Every page title and section heading works the same way. On For You and the other tabs there's one space between each robot and the label, not two, and buttons and links got the same fix."
+  ] },
+  { version: "2026.134.55", build: 189, released: "2026-10-26T22:08:59Z", title: "Round 7.39", notes: [
     "New slogan: Just Dream. Home is now called \u201cLooscid - Just Dream\u201d, and the slogan is on the startup screen, Welcome, About, the changelog page and the link previews when you share Looscid. Accessibility first is still how Looscid is made."
   ] },
-  { version: "2026.133.55", build: 188, released: LOOSCID_RELEASED, title: "Round 7.38", notes: [
+  { version: "2026.133.55", build: 188, released: "2026-10-26T21:31:08Z", title: "Round 7.38", notes: [
     "New: Logout is the last row of Settings, in its own group, like Sign Out on iPhone. It asks first, then does the same thing as Logout in your profile's More: it removes your login methods from this device (a Nostr key saved here is deleted) and your LooscidID starts fresh. Your Dreams and settings stay. Settings Order keeps it last, and Search and the Commandbar find it when you type logout or sign out.",
     "Logout is one word everywhere now, like Login (Carter: it's Logout, not two words): your profile's More, the confirmation, Help Center, What's new and what Looscid says when it's done.",
     "Your LooscidID card in Settings reads like the account row on iPhone: your name, your @handle, then \u201cLooscidID, keys, logins and devices\u201d. It's still the only row that shows values.",

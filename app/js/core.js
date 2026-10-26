@@ -4226,11 +4226,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.134.55";
+const LOOSCID_VERSION = "2026.134.56";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 189;
+const LOOSCID_BUILD = 190;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-26T22:08:59Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-26T22:29:20Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -4377,6 +4377,51 @@ function lcUsWrap(el) {
   el.setAttribute("data-lc-al", base);
   el.setAttribute("aria-label", LC_US_G + " " + base + " " + LC_US_G);
 }
+/* Round 7.40 (Carter, Oct 26 2026 6:16 PM): on headings and tabs the characters are real text now, one plain space
+   on each side, in the same text as the label: "\uF544 Home \uF544". Drawn by CSS, VoiceOver read the Home heading's
+   characters as their own heading, and on the feed tabs (flex boxes) the no-break space plus the gap read as two spaces
+   ("\uF544\u00a0 For You \u00a0\uF544"). Only when the heading or tab is one piece of text with no aria-label
+   (those get the characters in the label, above); the rest keep the CSS characters. Marked data-lc-ut so CSS skips them. */
+const LC_US_TXT = 'h1,h2,h3,h4,h5,h6,[role="heading"],[role="tab"]';
+function lcUsTextWrap(el) {
+  if (!el || el.nodeType !== 1 || el.hasAttribute("aria-label") || !lcUsWants(el)) return;
+  try { if (!el.matches(LC_US_TXT)) return; } catch (e) { return; }
+  const n = el.childNodes; if (n.length !== 1 || n[0].nodeType !== 3) return;
+  const t = n[0], v = t.nodeValue || "";
+  const want = LC_US_G + " " + lcUsStrip(v) + " " + LC_US_G;
+  if (!lcUsStrip(v)) return;
+  if (v !== want) t.nodeValue = want;
+  if (!el.hasAttribute("data-lc-ut")) el.setAttribute("data-lc-ut", "");
+}
+/* Round 7.40: everything else with CSS characters. In a flex or grid box the characters are their own boxes, and screen
+   readers already put a space between boxes, so the CSS no-break space made two. Same at the end of a link whose last
+   piece is hidden screen-reader text (", opens in a new tab"). data-lc-ub="s" / "e" drops the no-break space on that side. */
+function lcUsBlocky(n) {
+  if (!n || n.nodeType !== 1) return false;
+  try { const cs = getComputedStyle(n); return cs.position === "absolute" || cs.position === "fixed" || !/^inline/.test(cs.display) && cs.display !== "contents" && cs.display !== "none"; } catch (e) { return false; }
+}
+function lcUsEdgeMark(el) {
+  if (!el || el.nodeType !== 1 || el.hasAttribute("aria-label") || el.hasAttribute("data-lc-ut") || !lcUsWants(el)) return;
+  let v = "";
+  try {
+    const d = getComputedStyle(el).display;
+    if (/flex|grid/.test(d)) v = "s e";
+    else {
+      const kids = Array.prototype.filter.call(el.childNodes, function (n) { return n.nodeType === 1 || (n.nodeType === 3 && /\S/.test(n.nodeValue)); });
+      const s = lcUsBlocky(kids[0]), e = lcUsBlocky(kids[kids.length - 1]);
+      v = (s ? "s" : "") + (s && e ? " " : "") + (e ? "e" : "");
+    }
+  } catch (e) { return; }
+  if (v) { if (el.getAttribute("data-lc-ub") !== v) el.setAttribute("data-lc-ub", v); }
+  else if (el.hasAttribute("data-lc-ub")) el.removeAttribute("data-lc-ub");
+}
+function lcUsTextUnwrapAll() {
+  document.querySelectorAll("[data-lc-ub]").forEach(function (el) { el.removeAttribute("data-lc-ub"); });
+  document.querySelectorAll("[data-lc-ut]").forEach(function (el) {
+    el.removeAttribute("data-lc-ut");
+    const n = el.childNodes; if (n.length === 1 && n[0].nodeType === 3 && n[0].nodeValue.indexOf(LC_US_G) >= 0) n[0].nodeValue = lcUsStrip(n[0].nodeValue);
+  });
+}
 function lcUsUnwrapAll() {
   document.querySelectorAll("[data-lc-al]").forEach(function (el) {
     const v = el.getAttribute("aria-label"); if (v != null && v.indexOf(LC_US_G) >= 0) el.setAttribute("aria-label", el.getAttribute("data-lc-al"));
@@ -4384,9 +4429,15 @@ function lcUsUnwrapAll() {
   });
 }
 function lcUsScan(root) {
-  if (!root || root.nodeType !== 1) return;
+  if (!root) return;
+  if (root.nodeType === 3) { lcUsTextWrap(root.parentNode); return; }
+  if (root.nodeType !== 1) return;
   lcUsWrap(root);
   root.querySelectorAll("[aria-label]").forEach(lcUsWrap);
+  lcUsTextWrap(root);
+  root.querySelectorAll(LC_US_TXT).forEach(lcUsTextWrap);
+  lcUsEdgeMark(root);
+  root.querySelectorAll(LC_US_SEL).forEach(lcUsEdgeMark);
 }
 Looscid.LC_US_OBS = null;
 function lcUnspeakableOn() { const a = Looscid.A11Y_NOW || {}; return a.unspeakable !== false; }
@@ -4400,17 +4451,18 @@ function lcUnspeakableApply(on) {
           recs.forEach(function (r) {
             if (r.type === "attributes") {
               const el = r.target, v = el.getAttribute("aria-label");
-              if (v == null) { el.removeAttribute("data-lc-al"); return; }
+              if (v == null) { el.removeAttribute("data-lc-al"); lcUsTextWrap(el); return; }
               if (v.indexOf(LC_US_G) < 0) { el.removeAttribute("data-lc-al"); lcUsWrap(el); } // React (or anyone) set a new label
-            } else r.addedNodes.forEach(lcUsScan);
+            } else if (r.type === "characterData") lcUsTextWrap(r.target.parentNode); // React changed a heading's or tab's text
+            else { r.addedNodes.forEach(lcUsScan); lcUsTextWrap(r.target); lcUsEdgeMark(r.target); }
           });
         });
-        Looscid.LC_US_OBS.observe(document.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ["aria-label"] });
+        Looscid.LC_US_OBS.observe(document.documentElement, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ["aria-label"] });
       }
       lcUsScan(document.documentElement);
     } else {
       if (Looscid.LC_US_OBS) { Looscid.LC_US_OBS.disconnect(); Looscid.LC_US_OBS = null; }
-      lcUsUnwrapAll();
+      lcUsUnwrapAll(); lcUsTextUnwrapAll();
     }
   } catch (e) {}
 }
@@ -6957,10 +7009,10 @@ function lcOpenerEl() { const l = Looscid.LC_LAST_ACT; return l && l.el && l.el.
 const LC_OPENER_SEL = "button, a[href], [role=button], [role=tab], [role=link], [role=menuitem], input, select, [tabindex]";
 function lcOpenerDesc(el) {
   if (!el || el === document.body || el === document.documentElement || !el.getAttribute) return null;
-  const d = { id: el.id || "", label: Looscid.lcAL(el) || "", text: String(el.textContent || "").trim().slice(0, 120) };
+  const d = { id: el.id || "", label: Looscid.lcAL(el) || "", text: lcUsStrip(el.textContent).slice(0, 120) };
   const root = document.getElementById("main-content");
   if (root && root.contains(el) && !d.id) {
-    const same = Array.from(root.querySelectorAll(LC_OPENER_SEL)).filter(function (b) { return d.label ? Looscid.lcAL(b) === d.label : String(b.textContent || "").trim().slice(0, 120) === d.text; });
+    const same = Array.from(root.querySelectorAll(LC_OPENER_SEL)).filter(function (b) { return d.label ? Looscid.lcAL(b) === d.label : lcUsStrip(b.textContent).slice(0, 120) === d.text; });
     const i = same.indexOf(el); if (i > 0) d.nth = i;
   }
   return d;
@@ -6971,10 +7023,10 @@ function lcFindOpener(o) {
   if (o.id) { const e = document.getElementById(o.id); if (e && root.contains(e)) return e; }
   const all = Array.from(root.querySelectorAll(LC_OPENER_SEL));
   const head = function (t) { return String(t || "").split(",")[0].trim(); };
-  if (o.nth) { const same = all.filter(function (b) { return o.label ? Looscid.lcAL(b) === o.label : String(b.textContent || "").trim().slice(0, 120) === o.text; }); if (same[o.nth]) return same[o.nth]; }
+  if (o.nth) { const same = all.filter(function (b) { return o.label ? Looscid.lcAL(b) === o.label : lcUsStrip(b.textContent).slice(0, 120) === o.text; }); if (same[o.nth]) return same[o.nth]; }
   return (o.label && all.find(function (b) { return Looscid.lcAL(b) === o.label; }))
     || (o.label && all.find(function (b) { return head(Looscid.lcAL(b)) === head(o.label); }))
-    || (o.text && all.find(function (b) { return String(b.textContent || "").trim().slice(0, 120) === o.text; })) || null;
+    || (o.text && all.find(function (b) { return lcUsStrip(b.textContent).slice(0, 120) === o.text; })) || null;
 }
 function lcFocusHeading() {
   const h = document.querySelector("#main-content h1"); if (!h) return false;
@@ -7689,7 +7741,7 @@ useEffect(() => {
       const t = e.target && e.target.closest && e.target.closest('button, [role="button"], [role="switch"], [role="menuitem"], input[type="checkbox"], input[type="radio"]');
       if (!t || t.closest("#feed-tablist, #feed-menu, #feed-menu-btn")) return;
       const before = t.getAttribute("aria-expanded"), sw = t.getAttribute("role") === "switch" || t.type === "checkbox";
-      const lab = (Looscid.lcAL(t) || t.textContent || "").trim();
+      const lab = (Looscid.lcAL(t) || lcUsStrip(t.textContent) || "").trim();
       if (t.classList.contains("bi") || /^(Back|Close)\b/.test(lab)) { Looscid.LC_PC_BACK_AT = Date.now(); Looscid.LC_CHIME_AT = 0; lcPackChime("close"); }
       setTimeout(() => {
         if (Date.now() < Looscid.LC_PC_QUIET_UNTIL) return;
@@ -7702,7 +7754,7 @@ useEffect(() => {
       }, 30);
     };
     // Round 6.6: Back and Close are noted before the page changes (capture), so the page they land on never plays the opening sound.
-    const onTapEarly = e => { const t = e.target && e.target.closest && e.target.closest('button, [role="button"]'); if (!t) return; const lab = (Looscid.lcAL(t) || t.textContent || "").trim(); if (t.classList.contains("bi") || /^(Back|Close)\b/.test(lab)) Looscid.LC_PC_BACK_AT = Date.now(); };
+    const onTapEarly = e => { const t = e.target && e.target.closest && e.target.closest('button, [role="button"]'); if (!t) return; const lab = (Looscid.lcAL(t) || lcUsStrip(t.textContent) || "").trim(); if (t.classList.contains("bi") || /^(Back|Close)\b/.test(lab)) Looscid.LC_PC_BACK_AT = Date.now(); };
     window.addEventListener("keydown", onKey); document.addEventListener("focusin", onFocus);
     document.addEventListener("click", onTapEarly, true);
     document.addEventListener("keydown", onType, true); document.addEventListener("click", onTap);
@@ -7816,7 +7868,7 @@ useEffect(() => {
       hour_story: "Our Story",
     };
     // Home: "Looscid - <slogan>"; every other page: just its name (no suffix, no middle dot).
-    document.title = page === "feed" ? "Looscid - " + LOOSCID_SLOGAN : (titles[page] || (function () { const h = document.querySelector("#main-content h1"); return h && h.textContent.trim() ? h.textContent.trim() : "Looscid"; })());
+    document.title = page === "feed" ? "Looscid - " + LOOSCID_SLOGAN : (titles[page] || (function () { const h = document.querySelector("#main-content h1"); return h && lcUsStrip(h.textContent) ? lcUsStrip(h.textContent) : "Looscid"; })());
   }, [page, pdata, authUser]);
   // Page changes: the open cue rises (the close cue already fell on Back), and High verbosity says the page name.
   const pcPrev = useRef(null);
@@ -7824,7 +7876,7 @@ useEffect(() => {
     const prev = pcPrev.current; pcPrev.current = page;
     if (prev === null || prev === page) return;
     if (Date.now() - Looscid.LC_PC_BACK_AT > 600) lcPitchCue("open", null, { force: true });
-    if (lcVerb() === "high") setTimeout(() => { if (Date.now() - Looscid.LC_ANN_AT > 300) { const h = document.querySelector("#main-content h1"); announce((h && h.textContent.trim() ? h.textContent.trim() : document.title) + ", page", "nav"); } }, 350);
+    if (lcVerb() === "high") setTimeout(() => { if (Date.now() - Looscid.LC_ANN_AT > 300) { const h = document.querySelector("#main-content h1"); announce((h && lcUsStrip(h.textContent) ? lcUsStrip(h.textContent) : document.title) + ", page", "nav"); } }, 350);
   }, [page]);
 
   const renderPage = () => {

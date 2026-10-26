@@ -622,7 +622,7 @@ function LcComposer(props) {
         onCancel: function () { setAltAsk(false); setTimeout(function () { const f = document.querySelector(".lc-photo-att input"); if (f) f.focus(); }, 40); }, onConfirm: function () { setAltAsk(false); doPost(); } })] },
     /* The dialog's heading names the mode */
     lh('div', { style: {display:"flex",alignItems:"center",gap:8,padding:"14px 16px 10px",borderBottom:"1px solid var(--bd)"} },
-      lh('h2', { id: "cr-dream-h", style: {fontFamily:"'DM Serif Display',Georgia,serif",fontSize:17,fontWeight:400,margin:0,flex:1} }, head)),
+      lh('h2', { id: "cr-dream-h", style: {fontFamily:"\"Looscid Unspeakable\",'DM Serif Display',Georgia,serif",fontSize:17,fontWeight:400,margin:0,flex:1} }, head)),
     recover && lh('section', { className: "lc-recover", "aria-labelledby": "lc-recover-h" },
       lh('h2', { id: "lc-recover-h", className: "lc-sub-h", tabIndex: -1 }, isReply ? "Recover your reply to " + who + "?" : "Recover draft?"),
       lh('p', { className: "lc-desc" }, (isReply ? "You started a reply earlier: \u201c" : "You started a Dream earlier: \u201c") + recover.slice(0, 120) + (recover.length > 120 ? "\u2026" : "") + "\u201d"),

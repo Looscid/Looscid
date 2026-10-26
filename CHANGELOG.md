@@ -2,6 +2,16 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.134.56 (190): Round 7.40
+
+Released October 26, 2026 at 6:29 PM (Eastern Time, 2026-10-26T22:29:20Z UTC)
+
+A fix update, asked for by Carter (“the characters should surround it, not be on separate heading”, and one space by the label, not two).
+
+- Fix: the Unspeakable robots are part of the heading now. Home reads as one heading, “robot Home robot” (the robots were read as their own heading), and every page title, section heading and tab works the same way.
+- Fix: one space between each robot and its label, not two. For You, Following, Federated and every other tab, plus buttons and links that are laid out in a row (like the Settings rows) or end in hidden screen reader text (like the footer links), read as robot, space, label, space, robot.
+- What's new for Round 7.39 and Round 7.38 shows their own release times again.
+
 ## Looscid 2026.134.55 (189): Round 7.39
 
 Released October 26, 2026 at 6:08 PM (Eastern Time, 2026-10-26T22:08:59Z UTC)

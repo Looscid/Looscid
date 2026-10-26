@@ -1,6 +1,6 @@
 /* Looscid startup screen, Commandbar, earcon cues and Settings > Accessibility styles (moved verbatim from index.html). */
 /* Startup screen: plain HTML, no animation, same background as the app (no layout shift) */
-.lc-boot{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:#07050f;color:#e9d5ff;font-family:system-ui,-apple-system,sans-serif;margin:0}
+.lc-boot{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:#07050f;color:#e9d5ff;font-family:"Looscid Unspeakable",system-ui,-apple-system,sans-serif;margin:0}
 .lc-boot-name{font:400 30px/1.2 Georgia,serif;margin:0}
 .lc-boot-slogan{font:italic 400 19px/1.3 Georgia,serif;color:#c4b5fd;margin:0 0 6px}
 .lc-boot-sub{font-size:15px;color:#c4b5fd;margin:8px 0 0}
@@ -21,7 +21,7 @@
 .lc-icon-btn{min-width:44px;min-height:44px;border-radius:12px;border:1px solid var(--bd2);background:var(--sf2);color:var(--tx);font:600 15px/1.2 inherit;font-family:inherit;cursor:pointer;padding:0 12px}
 .lc-cmd-label{display:block;font-size:15px;font-weight:600;margin:8px 0 6px;color:var(--tx)}
 .lc-cmd-row,.lc-term-form{display:flex;gap:8px;align-items:center}
-.lc-cmd-row input,.lc-term-form input{flex:1;min-width:0;min-height:48px;box-sizing:border-box;font-size:17px;font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--bg);color:var(--tx);border:1px solid var(--bd2);border-radius:12px;padding:0 12px}
+.lc-cmd-row input,.lc-term-form input{flex:1;min-width:0;min-height:48px;box-sizing:border-box;font-size:17px;font-family:"Looscid Unspeakable",ui-monospace,Menlo,Consolas,monospace;background:var(--bg);color:var(--tx);border:1px solid var(--bd2);border-radius:12px;padding:0 12px}
 .lc-run{min-height:48px;min-width:64px;font-size:16px}
 .lc-desc{font-size:14px;color:var(--tx2);line-height:1.5;margin:6px 2px 0}
 .lc-cmd-out{margin-top:12px;padding:10px 12px;background:var(--sf2);border-radius:12px;font-size:16px;line-height:1.5;color:var(--tx);overflow-wrap:anywhere}
@@ -31,8 +31,8 @@ body.acc-high-contrast .lc-l-err{color:#fecaca}
 /* Commandbar: full height, input kept above the on-screen keyboard */
 .lc-term{position:fixed;left:0;right:0;top:0;height:100vh;height:100dvh;margin:0 auto;max-width:760px;z-index:350;display:flex;flex-direction:column;background:var(--bg);color:var(--tx);box-sizing:border-box;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) 0 env(safe-area-inset-left,0px)}
 .lc-term-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;border-bottom:1px solid var(--bd)}
-.lc-term-title{font-size:20px;margin:0;font-family:ui-monospace,Menlo,Consolas,monospace}
-.lc-term-body{flex:1;overflow-y:auto;overflow-x:hidden;padding:8px 12px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:16px;line-height:1.5}
+.lc-term-title{font-size:20px;margin:0;font-family:"Looscid Unspeakable",ui-monospace,Menlo,Consolas,monospace}
+.lc-term-body{flex:1;overflow-y:auto;overflow-x:hidden;padding:8px 12px;font-family:"Looscid Unspeakable",ui-monospace,Menlo,Consolas,monospace;font-size:16px;line-height:1.5}
 .lc-term-hi{margin:4px 0 8px;color:var(--tx2)}
 .lc-out-h{margin:0;font-size:16px}
 .lc-out-plain{padding:10px 0;color:var(--tx)}
@@ -68,7 +68,7 @@ p.lc-entry-cmd{margin:4px 0;font-weight:600}
 .lc-out{padding:4px 0}
 .lc-entry{border-bottom:1px solid var(--bd);padding:6px 0}
 .lc-entry-h{font-size:16px;margin:4px 0;color:var(--ac4);overflow-wrap:anywhere}
-.lc-prompt{color:var(--ac3);font-family:ui-monospace,Menlo,Consolas,monospace}
+.lc-prompt{color:var(--ac3);font-family:"Looscid Unspeakable",ui-monospace,Menlo,Consolas,monospace}
 .lc-l{margin:2px 0;overflow-wrap:anywhere}
 .lc-term-foot{border-top:1px solid var(--bd);padding:8px 12px calc(10px + env(safe-area-inset-bottom,0px))}
 .lc-chips-h{font-size:14px;margin:0 0 6px;color:var(--tx2);font-weight:600}
@@ -120,7 +120,7 @@ body.acc-text-2 .pg{zoom:1.3}
 .lc-q-ov{position:fixed;inset:0;z-index:450;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
 .lc-q{box-sizing:border-box;width:100%;max-width:480px;max-height:100%;overflow-y:auto;background:var(--sf);color:var(--tx);border:1px solid var(--bd2);border-radius:18px;padding:18px 16px}
 .lc-q-intro p{font-size:15px;line-height:1.5;color:var(--tx2);margin:0 0 8px}
-.lc-q-h{font-size:21px;margin:0 0 4px;font-family:'DM Serif Display',Georgia,serif;font-weight:400}
+.lc-q-h{font-size:21px;margin:0 0 4px;font-family:"Looscid Unspeakable",'DM Serif Display',Georgia,serif;font-weight:400}
 .lc-q-t{font-size:24px;margin:0 0 10px}
 .lc-q-set{border:0;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
 .lc-q-opt{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 12px;border:1px solid var(--bd2);border-radius:14px;background:var(--sf2);cursor:pointer}
@@ -224,9 +224,9 @@ body.acc-text-2 .pg{zoom:1.3}
 /* Part 35: a dimmed Save (aria-disabled) still gets focus and is still read; it just looks and acts unavailable. */
 .btn.lc-dim, .btn[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
 .lid-textarea { min-height: 160px; resize: vertical; font-family: inherit; line-height: 1.5; }
-.lc-md-pre { white-space: pre-wrap; word-break: break-word; background: var(--sf2, rgba(255,255,255,.06)); border: 1px solid var(--bd); border-radius: 8px; padding: 10px 12px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 14px; line-height: 1.45; margin: 8px 0; }
+.lc-md-pre { white-space: pre-wrap; word-break: break-word; background: var(--sf2, rgba(255,255,255,.06)); border: 1px solid var(--bd); border-radius: 8px; padding: 10px 12px; font-family: "Looscid Unspeakable",ui-monospace, Menlo, Consolas, monospace; font-size: 14px; line-height: 1.45; margin: 8px 0; }
 .lc-md-pre:focus-visible { outline: 3px solid var(--ac3); outline-offset: 2px; }
-.lc-md-code { font-family: ui-monospace, Menlo, Consolas, monospace; background: var(--sf2, rgba(255,255,255,.06)); border-radius: 4px; padding: 0 4px; }
+.lc-md-code { font-family: "Looscid Unspeakable",ui-monospace, Menlo, Consolas, monospace; background: var(--sf2, rgba(255,255,255,.06)); border-radius: 4px; padding: 0 4px; }
 .lc-md-list { margin: 6px 0; padding-left: 22px; }
 .lc-md-quote { margin: 8px 0; padding-left: 12px; border-left: 3px solid var(--bd2, var(--bd)); }
 .lc-md-h { font-size: 1.05em; margin: 10px 0 4px; }
@@ -260,12 +260,17 @@ body.acc-text-2 .pg{zoom:1.3}
    html.lc-unspeakable is set (Settings, Accessibility, Sense, General). Not aria-hidden on purpose: it is in the name.
    The font is a one-character subset of Font Awesome 6 Free Solid (SIL OFL 1.1, icon CC BY 4.0), assets/fonts/unspeakable.
    Never on radios, switches, checkboxes or the Feed picker's menu items (js/core.js LC_US_NOT). */
+/* Round 7.40: where the robot is real text (headings and tabs, data-lc-ut), every font stack starts with Looscid Unspeakable; its
+   unicode-range is only U+F544, so every other letter still comes from the next font in the stack. */
 @font-face{font-family:"Looscid Unspeakable";src:url("../assets/fonts/unspeakable/looscid-unspeakable.woff2") format("woff2");font-weight:400;font-style:normal;font-display:block;unicode-range:U+F544}
-html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *)::before,
-html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *):not(.nb-menu.has-notif)::after{font-family:"Looscid Unspeakable";font-weight:400;font-style:normal;font-synthesis:none;font-size:.85em;line-height:1;letter-spacing:0;text-transform:none;speak:normal;display:inline;position:static;width:auto;height:auto;background:none;border:0;opacity:1}
-html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *)::before{content:"\f544\a0"}
-html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *):not(.nb-menu.has-notif)::after{content:"\a0\f544"}
+html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *,[data-lc-ut])::before,
+html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *,[data-lc-ut]):not(.nb-menu.has-notif)::after{font-family:"Looscid Unspeakable";font-weight:400;font-style:normal;font-synthesis:none;font-size:.85em;line-height:1;letter-spacing:0;text-transform:none;speak:normal;display:inline;position:static;width:auto;height:auto;background:none;border:0;opacity:1}
+html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *,[data-lc-ut])::before{content:"\f544" " "}
+html.lc-unspeakable :is(h1,h2,h3,h4,h5,h6,[role="heading"],button,[role="button"],[role="tab"],a[href],[role="link"],[aria-haspopup="menu"],[aria-haspopup="true"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):not([role="radio"],[role="switch"],[role="checkbox"],[role="option"],input,select,textarea,#feed-menu *,[data-lc-ut]):not(.nb-menu.has-notif)::after{content:" " "\f544"}
 /* The tab bar stacks icon over label, so there the robots sit at the sides instead of above and below. */
+/* Round 7.40: no no-break space on a side where the screen reader already adds a space (js/core.js lcUsEdgeMark). */
+html.lc-unspeakable [data-lc-ub~="s"]:not(#lc-us-x):not(#lc-us-y)::before{content:"\f544";margin-inline-end:.3em}
+html.lc-unspeakable [data-lc-ub~="e"]:not(#lc-us-x):not(#lc-us-y):not(.nb-menu.has-notif)::after{content:"\f544";margin-inline-start:.3em}
 html.lc-unspeakable .bnav :is(.nb,.nb-menu):not(#lc-us-x):not(#lc-us-y)::before{position:absolute;left:3px;top:50%;transform:translateY(-50%)}
 html.lc-unspeakable .bnav :is(.nb,.nb-menu):not(.has-notif):not(#lc-us-x):not(#lc-us-y)::after{position:absolute;right:3px;top:50%;transform:translateY(-50%)}
 /* Settings' segmented tabs (Sense sections and the like) are narrow: there the robots sit above and below the word. */
@@ -276,8 +281,8 @@ html.lc-unspeakable .lc-stab:not(#lc-us-x):not(#lc-us-y)::before,html.lc-unspeak
    styles and icons (no Apple art): a large title, a rounded search field, rounded grouped cards with thin separators, small
    colored icon tiles and short footers under each group. Screen reader, earcon and pitch-cue behavior is unchanged. */
 .lc-ios,.lc-ios-page{padding-bottom:24px}
-.lc-ios .hdr-title{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:28px;line-height:1.15;font-weight:700;letter-spacing:-.01em}
-.lc-ios-page .hdr-title{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:22px;font-weight:700}
+.lc-ios .hdr-title{font-family:"Looscid Unspeakable",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:28px;line-height:1.15;font-weight:700;letter-spacing:-.01em}
+.lc-ios-page .hdr-title{font-family:"Looscid Unspeakable",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:22px;font-weight:700}
 .lc-ios .lc-setfind{padding:4px 16px 10px}
 .lc-ios-searchl{display:block;font-size:13px;color:var(--tx2);margin:0 4px 4px}
 .lc-ios-search{width:100%;box-sizing:border-box;min-height:40px;border-radius:12px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx);padding:8px 12px;font-size:16px}
@@ -315,7 +320,7 @@ html.lc-unspeakable .lc-stab:not(#lc-us-x):not(#lc-us-y)::before,html.lc-unspeak
    spacing rhythm (8/12/16/24/32), 18px rounded cards, 8px icon tiles, a pill-shaped search field, 17px row labels with a
    slight tightening, hairline borders, no shadows and no decorative gradients, one accent (Looscid's own) for focus and the
    field, and a small press state. Looscid's colors, dark and high-contrast themes and focus outlines stay. Visual only. */
-.lc-ios,.lc-ios-page{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:32px}
+.lc-ios,.lc-ios-page{font-family:"Looscid Unspeakable",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:32px}
 .lc-ios .hdr-title{font-size:clamp(26px,7vw,34px);line-height:1.1;font-weight:700;letter-spacing:-.011em}
 .lc-ios-page .hdr-title{font-size:21px;line-height:1.2;font-weight:600;letter-spacing:-.011em}
 .lc-ios .lc-setfind{padding:4px 16px 12px}
