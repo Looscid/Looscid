@@ -4037,11 +4037,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.128.52";
+const LOOSCID_VERSION = "2026.128.53";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 180;
+const LOOSCID_BUILD = 181;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-26T10:39:39Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-26T10:40:51Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -6929,6 +6929,8 @@ useEffect(() => {
     } else if (/^settings_/.test(target) && !/^settings_/.test(cur)) delete subFrom.current[target];
     // About Looscid's own buttons (Terms, Privacy, Community rules, Send Feedback): Back returns to About.
     if (!showMenuRef.current && cur === "settings_about" && /^(terms|privacy|guidelines|feedback|credits|nexos_apps)$/.test(target)) subFrom.current[target] = cur;
+    // Round 7.31: Lists opened from Create, List: Back returns to the page you opened Create on (any other way in forgets it).
+    if (target === "lists" && cur !== "lists") { if (data && data.newList) subFrom.current.lists = cur; else delete subFrom.current.lists; }
     // Round 7.29: Settings, Privacy's "Privacy Policy" link: Back returns to Settings, Privacy, on the link.
     if (!showMenuRef.current && cur === "settings_privacy" && target === "privacy") subFrom.current[target] = cur;
     // Round 6.6: Legal's buttons (Terms, Privacy, Community rules, Credits): Back returns to Legal.

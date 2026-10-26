@@ -302,13 +302,14 @@ function ListsPage({ navigate, cherryCtx, data }) {
   const id = data && data.list;
   const list = id ? Looscid.lcListGet(id) : null;
   if (id && list) return lh(ListView, { list: list, navigate: navigate, cherryCtx: cherryCtx });
-  return lh(ListsIndex, { navigate: navigate, gone: !!id });
+  return lh(ListsIndex, { navigate: navigate, gone: !!id, newList: !!(data && data.newList) });
 }
-function ListsIndex({ navigate, gone }) {
+function ListsIndex({ navigate, gone, newList }) {
   Looscid.useIdListTick("looscid:pins");
   const head = useRef(null);
   const [name, setName] = useState(""), [msg, setMsg] = useState("");
-  useEffect(function () { if (head.current) head.current.focus(); }, []);
+  // Round 7.31: opened from Create, List, focus goes straight to New list name.
+  useEffect(function () { const t = newList ? document.getElementById("lists-new") : null; if (t) t.focus(); else if (head.current) head.current.focus(); }, []);
   const lists = Looscid.lcListsRead();
   const make = function (e) {
     e.preventDefault();
@@ -2534,10 +2535,13 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 128; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 52;
+const LOOSCID_FIXES = 53;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.128.52", build: 180, released: LOOSCID_RELEASED, title: "Round 7.30", notes: [
+  { version: "2026.128.53", build: 181, released: LOOSCID_RELEASED, title: "Round 7.31", notes: [
+    "Fix: Create's Custom Feed is now List, and it works. It opens Lists with focus in New list name (a list is a custom feed you can pin to Home). Back goes to where you opened Create.",
+  ] },
+  { version: "2026.128.52", build: 180, released: "2026-10-26T10:39:39Z", title: "Round 7.30", notes: [
     "Fix: Create, New Chat works now. It opens the same Send a message form as Inbox, Chats, with focus in To. Back goes to Inbox, Chats.",
   ] },
   { version: "2026.128.51", build: 179, released: "2026-10-26T05:55:52Z", title: "Round 7.29", notes: [

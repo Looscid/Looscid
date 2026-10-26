@@ -144,7 +144,8 @@ var LC_CREATE_DESC = "Choose what you want to create.";
 var LC_CREATE_OPTS = [
   { id: "dream", l: "Dream", go: "dream", done: "" },
   { id: "circle", l: "Circle", go: "group" },
-  { id: "feed", l: "Custom Feed" },
+  // Round 7.31 (Carter, Oct 26 2026): Custom Feed is now List (a list is a custom feed you can pin). The id stays "feed".
+  { id: "feed", l: "List", list: true },
   { id: "app", l: "App or Game (for developers)" },
   { id: "call", l: "New Call" },
   { id: "chat", l: "New Chat", chat: true }, // Round 7.30 (Carter, Oct 26 2026): opens Inbox, Chats, Send a message
@@ -162,6 +163,12 @@ function lcCreatePick(o, ctx) {
     return;
   }
   // Round 7.30 (Carter, Oct 26 2026): New Chat opens the same Send a message form as Inbox, Chats (focus in To).
+  // Round 7.31: List opens Lists with focus in New list name; Back goes to where you opened Create.
+  if (o.list) {
+    if (ctx.close) ctx.close();
+    ctx.navigate("lists", { newList: true });
+    return;
+  }
   if (o.chat) {
     if (ctx.close) ctx.close();
     if (Looscid.lcOpenNewChat) Looscid.lcOpenNewChat(ctx.navigate);
@@ -175,7 +182,7 @@ function CreateOptions({ idp, navigate, close, open }) {
   return lh('div', { className: "lc-create" },
     lh('p', { className: "lc-create-desc" }, LC_CREATE_DESC),
     lh('ul', { className: "mlist lc-create-list", role: "list", "aria-label": "Create options" }, LC_CREATE_OPTS.map(function (o) {
-      const ok = !!(o.go || o.cherry || o.chat);
+      const ok = !!(o.go || o.cherry || o.chat || o.list);
       return lh('li', { key: o.id, className: "mli" },
         lh('button', { type: "button", id: idp + "-" + o.id, className: "mitem lc-create-opt" + (ok ? "" : " lc-unavail"), "data-create": o.id,
             // Part 18: an unavailable option is its short name; why it's unavailable is its hint.

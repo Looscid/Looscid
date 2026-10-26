@@ -2,6 +2,14 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.128.53 (181): Round 7.31
+
+Released October 26, 2026 at 6:40 AM (Eastern Time, 2026-10-26T10:40:51Z UTC)
+
+A fix update, asked for by Carter ("a custom feed is now a list").
+
+- Fix: Create's Custom Feed is now List, and it works. It opens Lists with focus in New list name (a list is a custom feed you can pin to Home). Back goes to where you opened Create. It no longer says Unavailable.
+
 ## Looscid 2026.128.52 (180): Round 7.30
 
 Released October 26, 2026 at 6:39 AM (Eastern Time, 2026-10-26T10:39:39Z UTC)

@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.128.52",
-  "build": 180,
+  "version": "2026.128.53",
+  "build": 181,
   "features": 128,
-  "fixes": 52,
+  "fixes": 53,
   "builds_without_fixes": 128,
-  "released": "2026-10-26T10:39:39Z",
-  "title": "Round 7.30",
-  "notes": "Round 7.30 (build 180), a fix update. Create, New Chat opens the Send a message form from Inbox, Chats."
+  "released": "2026-10-26T10:40:51Z",
+  "title": "Round 7.31",
+  "notes": "Round 7.31 (build 181), a fix update. Create's Custom Feed is now List and opens Lists, ready to name a new list."
 }

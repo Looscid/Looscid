@@ -737,4 +737,4 @@ Cherry is a page, not a dialog. It is built screen-reader first: the page is a s
 | Profile, Direct message and Dreamor options, Message (unavailable) | Not available yet: direct messages aren't ready yet. |
 | Dreamor options, Report (unavailable) | Not available yet: Looscid has nowhere to send reports yet. |
 | Dreamor options, Ask Cherry for a summary (while Cherry is off) | Not available while Cherry is off. Turn it on in Settings, Intelligence. |
-| Create, an option that isn't in Looscid yet ("Custom Feed") | Not available in Looscid yet. |
+| Create, an option that isn't in Looscid yet ("Go Live") | Not available in Looscid yet. |
