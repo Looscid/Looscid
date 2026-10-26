@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.127.49",
-  "build": 176,
-  "features": 127,
+  "version": "2026.128.49",
+  "build": 177,
+  "features": 128,
   "fixes": 49,
-  "builds_without_fixes": 127,
-  "released": "2026-10-26T05:00:03Z",
-  "title": "Round 7.26",
-  "notes": "Round 7.26 (build 176), a feature update. Mute a chat from its More button: new messages arrive quietly, never said or sounded."
+  "builds_without_fixes": 128,
+  "released": "2026-10-26T05:01:30Z",
+  "title": "Round 7.27",
+  "notes": "Round 7.27 (build 177), a feature update. Pin a profile as a Home feed tab or as its own tab in the tab bar, from that profile's More."
 }

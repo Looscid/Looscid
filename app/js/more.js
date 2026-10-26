@@ -613,6 +613,15 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
        { id: "logout", name: "Log out", danger: true, a: function () { setLogoutAsk(true); } }]))
     : [{ id: "share", name: "Share profile", a: share }, copyLink,
        { id: "addlist", name: "Add to list", a: function () { setListsOpen(true); } },
+       // Round 7.27 (#152, Carter approved Oct 25 2026, "like Spring"): pin this profile as a Home feed tab, or as its own tab in the tab bar.
+       (function () { const L = Looscid, ref = L.lcHandle ? L.lcHandle(handle) : handle, pinned = L.lcPinHas && L.lcPinHas("person", ref), pid = "pin:person:" + ref;
+         return pinned ? { id: "unpinfeed", name: "Unpin feed tab", a: function () { L.lcPinRemove(pid, true); say("Unpinned " + user.name + "'s feed tab."); } }
+           : { id: "pinfeed", name: "Pin as a feed tab", a: function () { L.lcPinAdd("person", ref, user.name || "@" + handle, true); say(user.name + " is a feed tab on Home now."); } }; })(),
+       (function () { const L = Looscid, ref = L.lcHandle ? L.lcHandle(handle) : handle, pid = "pin:person:" + ref;
+         const inBar = (L.lcTabBarAll ? L.lcTabBarAll() : []).some(function (t) { return t.id === pid && t.on; });
+         return { id: "tabbar", name: inBar ? "Remove from tab bar" : "Add to tab bar", a: function () {
+           if (!inBar && !(L.lcPinHas && L.lcPinHas("person", ref))) L.lcPinAdd("person", ref, user.name || "@" + handle, true);
+           const t = L.lcTabBarToggle ? L.lcTabBarToggle(pid) : ""; say(t || (inBar ? "Removed from the tab bar." : "Added to the tab bar.")); } }; })(),
        muted ? { id: "unmute", name: "Unmute", a: function () { Looscid.lcPeopleSet("looscid_muted_dreamors", user.handle, false); say("Unmuted " + user.name + "."); } }
              : { id: "mute", name: "Mute", a: function () { Looscid.lcPeopleSet("looscid_muted_dreamors", user.handle, true); say("Muted " + user.name + ". Their Dreams are hidden from your feed."); } },
        blocked ? { id: "unblock", name: "Unblock", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").filter(function (h) { return h !== Looscid.lcHandle(user.handle); })); say("Unblocked " + user.name + "."); } }
@@ -2517,12 +2526,15 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 127; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 128; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 49;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.127.49", build: 176, released: LOOSCID_RELEASED, title: "Round 7.26", notes: [
+  { version: "2026.128.49", build: 177, released: LOOSCID_RELEASED, title: "Round 7.27", notes: [
+    "Feature: pin someone's profile as a tab. Their profile's More has Pin as a feed tab (a tab on Home with just their Dreams) and Add to tab bar (their own tab at the bottom, before Profile), with Unpin feed tab and Remove from tab bar to undo. Settings, Tab Bar orders it like any other tab.",
+  ] },
+  { version: "2026.127.49", build: 176, released: "2026-10-26T05:00:03Z", title: "Round 7.26", notes: [
     "Feature: chats can be muted. A chat's More has Mute (and Unmute): its new messages still come in and count as unread, but they're never said aloud or sounded. Each chat's More is now Reply, Pin, Mute, Mark read or Mark unread, Delete and Block, and a muted chat says \"muted\" after its name.",
   ] },
   { version: "2026.126.49", build: 175, released: "2026-10-26T04:59:17Z", title: "Round 7.25", notes: [

@@ -2,6 +2,14 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.128.49 (177): Round 7.27
+
+Released October 26, 2026 at 1:01 AM (Eastern Time, 2026-10-26T05:01:30Z UTC)
+
+A feature update, asked for by Carter (custom tabs, #152).
+
+- Feature: pin someone's profile as a tab. Their profile's More has Pin as a feed tab (a tab on Home with just their Dreams) and Add to tab bar (their own tab at the bottom, before Profile), with Unpin feed tab and Remove from tab bar to undo. Settings, Tab Bar orders it like any other tab.
+
 ## Looscid 2026.127.49 (176): Round 7.26
 
 Released October 26, 2026 at 1:00 AM (Eastern Time, 2026-10-26T05:00:03Z UTC)
