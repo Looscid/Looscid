@@ -18,7 +18,7 @@
 "use strict";
 const SK_KEY = "looscid_nostr_sk", ENC_KEY = "looscid_nostr_ncryptsec", RELAYS_KEY = "looscid_nostr_relays", QUEUE_KEY = "looscid_nostr_queue", HIDDEN_KEY = "looscid_nostr_hidden";
 const IDENTITY_KEY = "looscid_identity", IDS_KEY = "looscid_linked_ids", DREAMS_KEY = "looscid_dreams", REPLIES_KEY = "looscid_replies";
-const KEEP_TAGS = ["e", "p", "q", "content-warning", "client"]; // build 152 prep: "client" names the app in Dream info
+const KEEP_TAGS = ["e", "p", "q", "content-warning", "client", "looscid-share"] // + #164; // build 152 prep: "client" names the app in Dream info
 const DEFAULT_RELAYS = ["wss://relay.damus.io", "wss://nos.lol", "wss://relay.primal.net", "wss://relay.nostr.band"];
 const VENDOR_SRC = "js/vendor/nostr-tools-2.25.2-nip17.min.js";
 const TAGS = [["client", "Looscid"], ["t", "looscid"]];
@@ -480,6 +480,8 @@ function dreamTemplate(d, NT, myPk) {
     }
   }
   if (d.cw && String(d.cw).trim()) tags.push(["content-warning", String(d.cw).trim().slice(0, 200)]);
+  // Round 7.25 (#164): Settings, Privacy, Let others share my Dreams is off, so this Dream says so; Looscid hides Share for others.
+  try { if (localStorage.getItem("looscid_share_off") === "1") tags.push(["looscid-share", "off"]); } catch (e) {}
   return { kind: 1, created_at: Math.floor((+d.created || Date.now()) / 1000), tags: tags, content: content };
 }
 async function signDream(d) {

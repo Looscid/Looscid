@@ -1044,7 +1044,7 @@ function PrivacySettings({navigate, authUser, onUpdateProfile}) {
   const privSwitch = lh('div', { style: { padding: "0 0 6px" } }, lh(A11ySwitch, { id: "set-privateAccount", label: "Private account", on: priv,
     onToggle: function () { if (onUpdateProfile) onUpdateProfile({ private: !priv }); announce(priv ? "Private account off." : "Private account on."); } }));
   const SECS = [
-    ["perm", "Permissions", function () { return lh(LcSection, { sec: "perm", bare: true, labelledBy: "priv-acc-perm", noReset: true, before: privSwitch,
+    ["perm", "Permissions", function () { return lh(LcSection, { sec: "perm", bare: true, labelledBy: "priv-acc-perm", noReset: true, before: lh(React.Fragment, null, privSwitch, lh(LcShareMineSwitch, null)),
       intro: priv ? "Private account is on, so Who can see my Dreams counts as Followers and Who can follow me as Approve requests." : "Who can see, reply to and message you. Saved on this device and sent with your Dreams as your preferences. Looscid is decentralized, so other apps on the same networks decide whether they follow them." }); }],
     ["blocked", "Blocked and muted", function () { return lh(LcBlockedPanel, null); }],
     ["pmedia", "Media and content", function () { return lh(LcPrivacyMedia, { navigate: navigate }); }],
@@ -1062,6 +1062,17 @@ function PrivacySettings({navigate, authUser, onUpdateProfile}) {
         lh('div', { id: "priv-acc-p-" + s[0], className: "lc-acc-p", hidden: !on }, on ? s[2]() : null));
     })),
     lh(LcResetLast, { scope: "privacy" }));
+}
+/* Round 7.25 (#164, Carter Oct 25 2026): Let others share my Dreams. On by default. Off, each Dream you send to Nostr from then
+   on carries a "looscid-share off" tag, and Looscid hides Share for everyone but you on those Dreams. Dreams already sent keep
+   what they had; other Nostr apps may not follow it. */
+function LcShareMineSwitch() {
+  const [on, setOn] = useState(function () { try { return localStorage.getItem("looscid_share_off") !== "1"; } catch (e) { return true; } });
+  return lh('div', { style: { padding: "0 0 6px" } },
+    lh(A11ySwitch, { id: "set-shareMine", label: "Let others share my Dreams", on: on, onToggle: function () {
+      const v = !on; try { localStorage.setItem("looscid_share_off", v ? "0" : "1"); } catch (e) {} setOn(v);
+      announce(v ? "Others can share your Dreams again, starting with the next one you send." : "Others can't share your Dreams. Share is hidden for others on the Dreams you send from now on."); } }),
+    lh('p', { className: "lc-desc", id: "set-shareMine-d" }, "When this is off, Share is hidden for others on Dreams you send from now on. Dreams you already sent keep sharing on, and other Nostr apps may not follow it."));
 }
 // The one Reset button at the end of a settings page.
 function LcResetLast({ scope }) {
@@ -2506,12 +2517,15 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 125; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 126; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 49;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.125.49", build: 174, released: LOOSCID_RELEASED, title: "Round 7.24", notes: [
+  { version: "2026.126.49", build: 175, released: LOOSCID_RELEASED, title: "Round 7.25", notes: [
+    "Feature: Settings, Privacy, Permissions has Let others share my Dreams (on by default). Turn it off and Share is hidden for everyone but you on the Dreams you send from then on. Dreams you already sent keep sharing on, and other Nostr apps may not follow it.",
+  ] },
+  { version: "2026.125.49", build: 174, released: "2026-10-26T04:56:58Z", title: "Round 7.24", notes: [
     "Feature: the changelog has its own page at looscid.github.io/Looscid/changelog, with its own link preview. One Version button lists every version from the first to the newest; pick one to read what changed in it. The footer's About group links to it.",
   ] },
   { version: "2026.124.49", build: 173, released: "2026-10-26T04:54:36Z", title: "Round 7.23", notes: [

@@ -1031,7 +1031,8 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
     } } : null,
     // Round 7.16 (#216): no Like or Unlike item here; the Like button is right next to More.
     // Share opens the phone's share sheet with the Dream's link (its Copy replaced our Copy link item); see lcShareLink.
-    lcDreamUrl(dream) ? { id: "share", name: "Share Dream", a: function () {
+    // Round 7.25 (#164): no Share for others on a Dream whose author turned off Let others share my Dreams.
+    lcShareOff(dream) ? null : lcDreamUrl(dream) ? { id: "share", name: "Share Dream", a: function () {
         const url = lcDreamUrl(dream);
         lcShareLink({ title: dream.user && dream.user.name ? "Dream by " + dream.user.name : "Dream", url: url,
           copy: function () { lcCopyLine(url, "Link"); }, back: function () { return (btnRef && btnRef.current) || document.getElementById(id + "-btn"); } });
@@ -1211,7 +1212,7 @@ function ReplyItem({cm, navigate, onReply}) {
           { id: "hear", name: "Hear reply", a: function () { LcSpeech.speak(lcDreamSpeechParts(cm)); } },
           { id: "copy", name: "Copy text", a: function () { if (navigator.clipboard) navigator.clipboard.writeText(cm.text || "").then(function () { announce("Reply copied."); }, function () { announce("Copy is not available here."); }); else announce("Copy is not available here."); } },
           // Share reply works like Share Dream (lcShareLink): the share sheet with the reply's link; device-only replies have none yet.
-          lcDreamUrl(cm) ? { id: "share", name: "Share reply", a: function () {
+          lcShareOff(cm) ? null : lcDreamUrl(cm) ? { id: "share", name: "Share reply", a: function () {
               const url = lcDreamUrl(cm);
               lcShareLink({ title: cm.user && cm.user.name ? "Reply by " + cm.user.name : "Reply", url: url,
                 copy: function () { lcCopyLine(url, "Link"); }, back: function () { return document.getElementById("cmo-" + cm.id); } });
@@ -4035,11 +4036,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.125.49";
+const LOOSCID_VERSION = "2026.126.49";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 174;
+const LOOSCID_BUILD = 175;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-26T04:56:58Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-26T04:59:17Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -5187,6 +5188,9 @@ function lcThreadSub(root, dream) {
 }
 /* Round 7.18 (#148, Carter Oct 25 2026): Follow Thread. One state per thread: following from the first Dream or from any
    reply follows the whole thread, and every More menu in it says Unfollow Thread. A Like never follows a thread. */
+// Round 7.25 (#164): the author of this Dream turned sharing off (its "looscid-share off" tag), and it isn't yours.
+function lcShareOff(d) { return !!(d && Array.isArray(d.tags) && d.tags.some(function (t) { return t && t[0] === "looscid-share" && t[1] === "off"; }) && !(typeof lcIsMine === "function" && lcIsMine(d))); }
+Looscid.lcShareOff = lcShareOff;
 function lcThreadRoot(d) { return d ? String(d._root || d.replyTo || d.id) : ""; }
 function lcFollowThreadItem(d) {
   const root = lcThreadRoot(d), on = lcThreadSubbed(root);

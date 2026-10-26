@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.125.49",
-  "build": 174,
-  "features": 125,
+  "version": "2026.126.49",
+  "build": 175,
+  "features": 126,
   "fixes": 49,
-  "builds_without_fixes": 125,
-  "released": "2026-10-26T04:56:58Z",
-  "title": "Round 7.24",
-  "notes": "Round 7.24 (build 174), a feature update. A changelog page on the site, with a Version button that lists every version from the first to the newest."
+  "builds_without_fixes": 126,
+  "released": "2026-10-26T04:59:17Z",
+  "title": "Round 7.25",
+  "notes": "Round 7.25 (build 175), a feature update. Let others share my Dreams, in Settings, Privacy: off hides Share for others on the Dreams you send from then on."
 }

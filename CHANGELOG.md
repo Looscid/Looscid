@@ -2,6 +2,14 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.126.49 (175): Round 7.25
+
+Released October 26, 2026 at 12:59 AM (Eastern Time, 2026-10-26T04:59:17Z UTC)
+
+A feature update, asked for by Carter (share privacy, #164).
+
+- Feature: Settings, Privacy, Permissions has Let others share my Dreams (on by default). Turn it off and Share is hidden for everyone but you on the Dreams you send from then on. Dreams you already sent keep sharing on, and other Nostr apps may not follow it.
+
 ## Looscid 2026.125.49 (174): Round 7.24
 
 Released October 26, 2026 at 12:56 AM (Eastern Time, 2026-10-26T04:56:58Z UTC)
