@@ -147,7 +147,7 @@ var LC_CREATE_OPTS = [
   { id: "feed", l: "Custom Feed" },
   { id: "app", l: "App or Game (for developers)" },
   { id: "call", l: "New Call" },
-  { id: "chat", l: "New Chat" },
+  { id: "chat", l: "New Chat", chat: true }, // Round 7.30 (Carter, Oct 26 2026): opens Inbox, Chats, Send a message
   { id: "cherry", l: "New Chat with Cherry", cherry: true },
   { id: "live", l: "Go Live" },
   { id: "gif", l: "GIF" },
@@ -161,6 +161,12 @@ function lcCreatePick(o, ctx) {
     announce("New chat with Cherry.");
     return;
   }
+  // Round 7.30 (Carter, Oct 26 2026): New Chat opens the same Send a message form as Inbox, Chats (focus in To).
+  if (o.chat) {
+    if (ctx.close) ctx.close();
+    if (Looscid.lcOpenNewChat) Looscid.lcOpenNewChat(ctx.navigate);
+    return;
+  }
   if (!o.go) { announce(o.l + " is unavailable in Looscid for now."); return; }
   ctx.open(o.go);
 }
@@ -169,7 +175,7 @@ function CreateOptions({ idp, navigate, close, open }) {
   return lh('div', { className: "lc-create" },
     lh('p', { className: "lc-create-desc" }, LC_CREATE_DESC),
     lh('ul', { className: "mlist lc-create-list", role: "list", "aria-label": "Create options" }, LC_CREATE_OPTS.map(function (o) {
-      const ok = !!(o.go || o.cherry);
+      const ok = !!(o.go || o.cherry || o.chat);
       return lh('li', { key: o.id, className: "mli" },
         lh('button', { type: "button", id: idp + "-" + o.id, className: "mitem lc-create-opt" + (ok ? "" : " lc-unavail"), "data-create": o.id,
             // Part 18: an unavailable option is its short name; why it's unavailable is its hint.

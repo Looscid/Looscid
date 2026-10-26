@@ -2,6 +2,14 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.128.52 (180): Round 7.30
+
+Released October 26, 2026 at 6:39 AM (Eastern Time, 2026-10-26T10:39:39Z UTC)
+
+A fix update, asked for by Carter (New Chat in Create said it was unavailable).
+
+- Fix: Create, New Chat works now. It opens the same Send a message form as Inbox, Chats, with focus in To. Back goes to Inbox, Chats. It no longer says Unavailable.
+
 ## Looscid 2026.128.51 (179): Round 7.29
 
 Released October 26, 2026 at 1:55 AM (Eastern Time, 2026-10-26T05:55:52Z UTC)

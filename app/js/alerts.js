@@ -4,7 +4,17 @@
 (function (Looscid) {
 const { ALERTS_TAB_KEY, CONVOS, LC_MSG_CATS, a11yEnterSends, announce, lcAlertCats, lcAlerts, lcAlertsMarkAll, lcAlertsSave, lcCatState, lcSetAlertsTab, lcWordHit,
   lcEl: h, lcPatch, lcPlainScreen, lcAvEl, lcIconEl, lcBackHeaderEl, lcBlockedHiddenEl } = Looscid;
-Object.assign(Looscid, { lcCatList, lcAlertTime, lcAlertToggle, lcAlertsTab });
+Object.assign(Looscid, { lcCatList, lcAlertTime, lcAlertToggle, lcAlertsTab, lcOpenNewChat });
+/* Round 7.30 (Carter, Oct 26 2026): Create, New Chat opens Inbox on Chats with the Send a message form, focus in To.
+   The Inbox reads LC_PM_OPEN when it opens; when it is already open, the looscid:newchat event hands the form over. */
+function lcOpenNewChat(navigate) {
+  if (Looscid.lcSetInboxView) Looscid.lcSetInboxView("chats", true);
+  Looscid.LC_PM_OPEN = { compose: { to: "", text: "", msg: "" } };
+  const nav = navigate || Looscid.LC_NAV; if (nav) nav("alerts");
+  window.dispatchEvent(new CustomEvent("looscid:newchat"));
+  let n = 0; const go = function () { const t = document.getElementById("pm-to"); if (t) { if (document.activeElement !== t) t.focus(); return; } if (++n < 40) setTimeout(go, 50); };
+  setTimeout(go, 60);
+}
 
 /* One conversation. st holds { convo, msgs, inp, shown } and lives as long as the conversation is open. */
 function convoView(st, draw, onBack) {
@@ -401,6 +411,10 @@ const AlertsPage = lcPlainScreen("AlertsPage", function (host) {
   const onTab = function (e) { st.view = e.detail; draw(); };
   const onBox = function (e) { if (st.box !== e.detail) { st.box = e.detail; st.more = null; st.menu = false; draw(); } };
   window.addEventListener("looscid:inboxview", onBox);
+  // Round 7.30: Create, New Chat while the Inbox is already open.
+  const onNew = function () { const d = Looscid.LC_PM_OPEN; if (!d || !d.compose) return; Looscid.LC_PM_OPEN = null;
+    st.box = "chats"; st.pm = null; st.pmBack = null; st.convo = null; st.manage = false; st.more = null; st.menu = false; st.compose = d.compose; draw(); };
+  window.addEventListener("looscid:newchat", onNew);
   const evs = ["looscid:alerts", "looscid:cats", "looscid:pms", "looscid:blocked", "looscid:threadsubs"];
   window.addEventListener("looscid:alertstab", onTab);
   evs.forEach(function (e) { window.addEventListener(e, draw); });
@@ -408,7 +422,7 @@ const AlertsPage = lcPlainScreen("AlertsPage", function (host) {
   if (Looscid.lcPmCheck) setTimeout(function () { Looscid.lcPmCheck(); if (Looscid.lcInboxCheck) Looscid.lcInboxCheck(); }, 400);
   return {
     update: draw,
-    stop: function () { window.removeEventListener("looscid:alertstab", onTab); window.removeEventListener("looscid:inboxview", onBox); evs.forEach(function (e) { window.removeEventListener(e, draw); }); }
+    stop: function () { window.removeEventListener("looscid:alertstab", onTab); window.removeEventListener("looscid:inboxview", onBox); window.removeEventListener("looscid:newchat", onNew); evs.forEach(function (e) { window.removeEventListener(e, draw); }); }
   };
 });
 Looscid.AlertsPage = AlertsPage;

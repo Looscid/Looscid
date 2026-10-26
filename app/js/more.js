@@ -2534,10 +2534,13 @@ function lcAutoMap(files) {
 }
 const LOOSCID_FEATURE_BUILDS = 128; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
-const LOOSCID_FIXES = 51;
+const LOOSCID_FIXES = 52;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.128.51", build: 179, released: LOOSCID_RELEASED, title: "Round 7.29", notes: [
+  { version: "2026.128.52", build: 180, released: LOOSCID_RELEASED, title: "Round 7.30", notes: [
+    "Fix: Create, New Chat works now. It opens the same Send a message form as Inbox, Chats, with focus in To. Back goes to Inbox, Chats.",
+  ] },
+  { version: "2026.128.51", build: 179, released: "2026-10-26T05:55:52Z", title: "Round 7.29", notes: [
     "Fix: Settings, Privacy says why it matters and links to the policy. Under the intro: \"We care about your privacy. Your Dreams, settings and chats stay on this device until you choose to send or share them. We don't sell your data, track you or show ads.\" Then a Privacy Policy link that opens the policy page, and Back comes right back to Privacy.",
   ] },
   { version: "2026.128.50", build: 178, released: "2026-10-26T05:53:26Z", title: "Round 7.28", notes: [

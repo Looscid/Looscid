@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.128.51",
-  "build": 179,
+  "version": "2026.128.52",
+  "build": 180,
   "features": 128,
-  "fixes": 51,
+  "fixes": 52,
   "builds_without_fixes": 128,
-  "released": "2026-10-26T05:55:52Z",
-  "title": "Round 7.29",
-  "notes": "Round 7.29 (build 179), a fix update. Settings, Privacy has a short \"we care\" paragraph and a Privacy Policy link."
+  "released": "2026-10-26T10:39:39Z",
+  "title": "Round 7.30",
+  "notes": "Round 7.30 (build 180), a fix update. Create, New Chat opens the Send a message form from Inbox, Chats."
 }
