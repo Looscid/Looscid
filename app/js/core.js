@@ -1704,7 +1704,9 @@ const LC_FIND_STATIC = [
   { l: "Event earcons", w: "event earcons event earcon event sounds event sound send like new dream error alert feed switch previews", page: "settings_audio_events", where: "Settings, Earcons" },
   { l: "Keyboard shortcuts", w: "keys shortcuts", page: "settings_keyboard", where: "Settings" },
   { l: "Tab Bar", w: "tab bar tabbar bottom tabs order reorder hide show custom tab pinned tab move up move down", page: "settings_tabbar", where: "Settings" },
-  { l: "Profile Tabs", w: "profile tabs order reorder dreams replies circles redreams media liked lists about move up move down", page: "settings_profiletabs", where: "Settings" },
+  { l: "Profile Tabs", w: "profile tabs order reorder dreams replies circles redreams media liked lists followed threads about move up move down", page: "settings_profiletabs", where: "Settings" },
+  // Round 7.33
+  { l: "Show followed threads on my profile", w: "followed threads follow thread profile show hide privacy", page: "settings_privacy", priv: "pthreads", focus: "set-showThreads", where: "Settings, Privacy, Followed Threads" },
   { l: "Settings backup", w: "export import reset", page: "settings_backup", where: "Settings" },
   { l: "Intelligence", w: "ai cherry assistant artificial intelligence", page: "settings_intelligence", where: "Settings" },
   { l: "Cherry on or off", w: "ai cherry turn on off enable disable assistant opt in", page: "settings_ai_cherry", focus: "ai-on", where: "Settings, Intelligence, Cherry" },
@@ -4037,11 +4039,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.128.54";
+const LOOSCID_VERSION = "2026.129.54";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 182;
+const LOOSCID_BUILD = 183;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-26T10:41:58Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-26T10:46:12Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -5238,6 +5240,12 @@ function LcThreadNudge() {
 }
 Object.assign(Looscid, { lcThreadRoot, lcFollowThreadItem, lcThreadLikeNudge, LcThreadNudge });
 function lcThreadUnsub(root) { lcThreadSubsSave(lcThreadSubs().filter(function (s) { return String(s.root) !== String(root); })); }
+/* Round 7.33 (Carter, Oct 26 2026): Settings, Privacy, Followed Threads has "Show followed threads on my profile", off until
+   you turn it on (looscid_show_threads "1"). Your profile's Followed Threads tab always shows to you; View as others (and
+   anyone else's view) shows it only when this is on. The tab reads the same list as Follow Thread, so it is always in sync. */
+const LC_SHOW_THREADS_KEY = "looscid_show_threads";
+function lcShowThreadsOn() { try { return localStorage.getItem(LC_SHOW_THREADS_KEY) === "1"; } catch (e) { return false; } }
+function lcShowThreadsSet(on) { try { if (on) localStorage.setItem(LC_SHOW_THREADS_KEY, "1"); else localStorage.removeItem(LC_SHOW_THREADS_KEY); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:threadsubs")); }
 function lcThreadAlert(root, user, text) {
   if (user && typeof lcAudienceOk === "function" && !lcAudienceOk((Looscid.A11Y_NOW || {}).whoReply || "everyone", user, "perm_whoReply")) return null;
   return lcNotify("reply", "New reply in a thread you follow", user, String(text || "").slice(0, 140), { sub: true, thread: root });
@@ -5463,7 +5471,7 @@ function lcPmPeerFrom(s) {
   return null;
 }
 Object.assign(Looscid, { LC_PMS_KEY, lcPms, lcPmsSave, lcPmConvos, lcPmAllowed, lcPmAccept, lcPmAccepted, lcPmHeld, lcPmUnread, lcPmMarkRead, lcPmCheck, lcPmSend, lcPmPeerFrom, lcDmPeerOf, lcPmBlocked, lcInboxCheck, lcNostrName, lcNostrNameRemember, LC_INBOX_TABS });
-Object.assign(Looscid, { LC_THREAD_SUBS_KEY, lcThreadSubs, lcThreadSubbed, lcThreadSub, lcThreadUnsub, lcThreadAlert, lcThreadCheck, lcThreadWatch });
+Object.assign(Looscid, { LC_THREAD_SUBS_KEY, lcThreadSubs, lcThreadSubbed, lcThreadSub, lcThreadUnsub, lcThreadAlert, lcThreadCheck, lcThreadWatch, LC_SHOW_THREADS_KEY, lcShowThreadsOn, lcShowThreadsSet });
 function lcAlertsMarkAll() { const l = lcAlerts().map(function (x) { return Object.assign({}, x, { unread: false }); }); lcAlertsSave(l); return l.length; }
 function useAlerts() {
   const [l, setL] = useState(lcAlerts());
@@ -6541,7 +6549,9 @@ Object.assign(Looscid, { LC_TABBAR_KEY, lcTabBarAll, lcTabBarVisible, lcTabBarTo
 const LC_PROFILE_TABS_KEY = "looscid_profile_tabs";
 const LC_PROFILE_TABS = [{ id: "dreams", l: "Dreams" }, { id: "replies", l: "Replies" }, { id: "circles", l: "Circles", sub: "The Circles you own and are a member of; on others' only the ones they show" }, { id: "redreams", l: "Redreams" }, { id: "media", l: "Media" },
   { id: "liked", l: "Liked", sub: "On your profile everything you liked; on others' only the Dreams of yours they liked" },
-  { id: "lists", l: "Lists", sub: "Your Lists on your profile; on others' only the ones they show" }, { id: "about", l: "About" }];
+  { id: "lists", l: "Lists", sub: "Your Lists on your profile; on others' only the ones they show" },
+  // Round 7.33: Followed Threads, after Lists.
+  { id: "threads", l: "Followed Threads", sub: "The threads you follow; others see them only when Show followed threads on my profile is on, in Privacy" }, { id: "about", l: "About" }];
 function lcProfileTabsAll() {
   const v = lcJsonLs(LC_PROFILE_TABS_KEY, {}) || {}, order = Array.isArray(v.order) ? v.order.map(String) : [], out = [];
   order.forEach(function (id) { const t = LC_PROFILE_TABS.find(function (x) { return x.id === id; }); if (t && out.indexOf(t) < 0) out.push(t); });
@@ -6591,7 +6601,9 @@ const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "looscid_braille_styles", "lo
   // Build 152 prep (#99): pinned Dreams, muted conversations and Not interested. Added at the end, so older backups still import.
   "looscid_pinned_dreams", "looscid_muted_threads", "looscid_not_interested",
   // Build 152 prep (#99, part 4b): your Lists. Added at the end, so older backups still import; an import adds to yours.
-  "looscid_lists"];
+  "looscid_lists",
+  // Round 7.33: Show followed threads on my profile. Added at the end, so older backups still import.
+  "looscid_show_threads"];
 Looscid.LC_EXPORT_KEYS = LC_EXPORT_KEYS;
 function lcExportSettings() {
   const o = { app: "Looscid", kind: "settings", version: LOOSCID_VERSION, exported: new Date().toISOString(), settings: {} };

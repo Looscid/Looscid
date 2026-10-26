@@ -534,6 +534,14 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const myLists = self ? Looscid.lcListsRead() : [];
   const visLists = isMe ? myLists : preview ? myLists.filter(function (l) { return l.shown; })
     : (Array.isArray(user.lists) ? user.lists.filter(function (l) { return l && typeof l.name === "string" && l.name.trim() && l.shown !== false; }) : []);
+  // Round 7.33 (Carter, Oct 26 2026): Followed Threads. Yours always shows to you; View as others shows it only when Settings,
+  // Privacy, Show followed threads on my profile is on; another Dreamor's only when their profile carries followedThreads.
+  // It reads the same list as Follow Thread (looscid_thread_subs), so following or unfollowing anywhere updates it.
+  Looscid.useIdListTick("looscid:threadsubs");
+  const myThreads = self && Looscid.lcThreadSubs ? Looscid.lcThreadSubs().slice().reverse() : [];
+  const showThreads = Looscid.lcShowThreadsOn ? Looscid.lcShowThreadsOn() : false;
+  const visThreads = isMe ? myThreads : preview ? (showThreads ? myThreads : [])
+    : (Array.isArray(user.followedThreads) ? user.followedThreads.filter(function (t) { return t && t.root; }) : []);
   // Tabs: Feditext's four, then 2three1y's: Liked (yours: everything you liked; on others: the Dreams of yours they
   // liked), About.
   // Build 152 (2three1y via Tomo, Oct 13): Circles, right after Replies. Yours always shows; on someone else's profile
@@ -543,6 +551,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const TABS0 = [["dreams", "Dreams"], ["replies", "Replies"]].concat(isMe || nCirc ? [["circles", "Circles"]] : []).concat([["redreams", "Redreams"], ["media", "Media"]])
     .concat(isMe || !self ? [["liked", "Liked"]] : [])
     .concat(isMe || visLists.length ? [["lists", "Lists"]] : [])
+    .concat(isMe || visThreads.length ? [["threads", "Followed Threads"]] : [])
     .concat([["about", "About"]]);
   Looscid.useProfileTabsTick(); Looscid.useIdListTick("looscid:pinned");
   const TABS = Looscid.lcProfileTabsSort(TABS0); // build 152 prep (#98): in your order (Settings, Profile Tabs)
@@ -692,6 +701,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       case "redreams": return byId(plainRd).length + byId(quotes).length;
       case "media": return mediaAll.length;
       case "lists": return visLists.length;
+      case "threads": return visThreads.length;
       case "circles": return nCirc;
       case "liked": return isMe ? Looscid.lcLikedItems().filter(function (x) { return x.k !== "chat" || !x.cherry || Looscid.lcAiOn(); }).length : (likedLoading ? null : theirLiked.length);
     }
@@ -751,6 +761,26 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
               : lh('p', { className: "lc-person lc-list-row" }, lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, l.name, lh('span', { className: "sr-only" }, ",")), lh('span', { className: "lc-person-h" }, cnt(l)))));
           })),
           isMe ? lh('p', { className: "lc-muted" }, "Others see only the lists you show. Choose on each list's page with Show on my profile.") : null);
+      }
+      case "threads": {
+        if (!visThreads.length) return empty(isMe ? "No Followed Threads yet" : "No Followed Threads", isMe ? "Follow a thread from any Dream's More button: Follow Thread." : null);
+        const threadName = function (t) { return t.label ? t.label.charAt(0).toUpperCase() + t.label.slice(1) : "A thread"; };
+        const findRoot = function (t) { const s = String(t.root), n = t.nid ? String(t.nid) : ""; return all.find(function (d) { return String(d.id) === s || (d.nid && (String(d.nid) === s || (n && String(d.nid) === n))); }) || null; };
+        return lh('section', { className: "lc-prof-threads", "aria-labelledby": "pf-threads-h" },
+          lh('h2', { id: "pf-threads-h", className: "lc-sub-h" }, isMe ? "Your Followed Threads" : (user.name || "Dreamor") + "'s Followed Threads"),
+          isMe ? lh('p', { className: "lc-muted", style: { padding: "0 16px" } }, showThreads ? "Others can see this tab. Turn it off in Settings, Privacy, Followed Threads." : "Only you can see this tab. To show it to others, turn on Show followed threads on my profile in Settings, Privacy, Followed Threads.") : null,
+          lh('ul', { className: "lc-prof-thread-list", role: "list" }, visThreads.map(function (t, i) {
+            const d = self ? findRoot(t) : null, name = threadName(t), since = t.since && Looscid.lcAlertTime ? Looscid.lcAlertTime(t.since * 1000) : "";
+            const key = "pf-thread-" + String(t.root).replace(/[^a-z0-9-]/gi, "").slice(0, 40);
+            return lh('li', { key: key, className: "lc-prof-thread" },
+              d ? card(d) : lh('p', { className: "lc-person lc-list-row" }, lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, name, lh('span', { className: "sr-only" }, ",")), lh('span', { className: "lc-person-h" }, since ? "followed " + since : "followed"))),
+              isMe ? lh('button', { type: "button", id: key + "-unf", className: "btn bgb lc-btn", "aria-label": "Unfollow Thread, " + (d && d.user && d.user.name ? d.user.name + "'s thread" : name),
+                onClick: function () {
+                  Looscid.lcThreadUnsub(t.root); announce("Unfollowed " + (d && d.user && d.user.name ? d.user.name + "'s thread" : name) + ".");
+                  // Focus goes to the next thread's Unfollow Thread, or the previous one, or the tab.
+                  setTimeout(function () { const l = document.querySelectorAll('.lc-prof-thread-list button[id^="pf-thread-"]'); const el = l[Math.min(i, l.length - 1)] || document.getElementById("pf-threads-h") || document.querySelector('[role="tab"][aria-selected="true"]'); if (el) { if (el.tagName === "H2") el.setAttribute("tabindex", "-1"); el.focus(); } }, 30);
+                } }, "Unfollow Thread") : null);
+          })));
       }
       case "about": {
         const rows = [];
@@ -1059,6 +1089,8 @@ function PrivacySettings({navigate, authUser, onUpdateProfile}) {
     ["blocked", "Blocked and muted", function () { return lh(LcBlockedPanel, null); }],
     ["pmedia", "Media and content", function () { return lh(LcPrivacyMedia, { navigate: navigate }); }],
     ["pcircles", "Circles on my profile", function () { return lh(LcCirclesPrivacy, null); }],
+    // Round 7.33 (Carter, Oct 26 2026): whether others see your Followed Threads tab.
+    ["pthreads", "Followed Threads", function () { return lh(LcShowThreadsSwitch, null); }],
   ];
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
     lh(BackHeader, { title: "Privacy", onBack: function () { navigate("settings"); } }),
@@ -1089,6 +1121,17 @@ function LcShareMineSwitch() {
       const v = !on; try { localStorage.setItem("looscid_share_off", v ? "0" : "1"); } catch (e) {} setOn(v);
       announce(v ? "Others can share your Dreams again, starting with the next one you send." : "Others can't share your Dreams. Share is hidden for others on the Dreams you send from now on."); } }),
     lh('p', { className: "lc-desc", id: "set-shareMine-d" }, "When this is off, Share is hidden for others on Dreams you send from now on. Dreams you already sent keep sharing on, and other Nostr apps may not follow it."));
+}
+/* Round 7.33 (Carter, Oct 26 2026): Show followed threads on my profile. Off until you turn it on. It only changes who sees
+   your profile's Followed Threads tab; following and unfollowing still work the same everywhere. */
+function LcShowThreadsSwitch() {
+  Looscid.useIdListTick("looscid:threadsubs");
+  const on = Looscid.lcShowThreadsOn();
+  return lh('div', { style: { padding: "0 0 6px" } },
+    lh(A11ySwitch, { id: "set-showThreads", label: "Show followed threads on my profile", on: on, onToggle: function () {
+      Looscid.lcShowThreadsSet(!on);
+      announce(on ? "Your followed threads are only for you now." : "Others can see your followed threads on your profile."); } }),
+    lh('p', { className: "lc-desc", id: "set-showThreads-d" }, "Your profile has a Followed Threads tab. You always see it. When this is on, others see it too, in View as others and on your profile."));
 }
 // The one Reset button at the end of a settings page.
 function LcResetLast({ scope }) {
@@ -2533,12 +2576,16 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 128; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 129; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 54;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.128.54", build: 182, released: LOOSCID_RELEASED, title: "Round 7.32", notes: [
+  { version: "2026.129.54", build: 183, released: LOOSCID_RELEASED, title: "Round 7.33", notes: [
+    "New: a Followed Threads tab on your profile, right after Lists, listing every thread you follow, newest first, each with Unfollow Thread. It uses the same list as Follow Thread, so following or unfollowing anywhere updates it right away.",
+    "New: Settings, Privacy, Followed Threads has \"Show followed threads on my profile\". It's off until you turn it on. You always see your own tab; with it on, others see it too (try View as others).",
+  ] },
+  { version: "2026.128.54", build: 182, released: "2026-10-26T10:41:58Z", title: "Round 7.32", notes: [
     "Fix: Inbox shows the Send a message button only when Chats is selected. On Alerts it's gone, so Alerts has just Mark all read and Alerts settings.",
   ] },
   { version: "2026.128.53", build: 181, released: "2026-10-26T10:40:51Z", title: "Round 7.31", notes: [

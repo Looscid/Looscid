@@ -2,6 +2,16 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.129.54 (183): Round 7.33
+
+Released October 26, 2026 at 6:46 AM (Eastern Time, 2026-10-26T10:46:12Z UTC)
+
+A feature update, asked for by Carter (Followed Threads on profiles, opt-in).
+
+- New: a Followed Threads tab on your profile, right after Lists, listing every thread you follow, newest first, each with Unfollow Thread. It uses the same list as Follow Thread, so following or unfollowing anywhere updates it right away.
+- New: Settings, Privacy, Followed Threads has "Show followed threads on my profile". It's off until you turn it on. You always see your own tab; with it on, others see it too (try View as others).
+- Profile Tabs can move Followed Threads like any other tab, Settings search finds the new switch, and Settings backup includes it.
+
 ## Looscid 2026.128.54 (182): Round 7.32
 
 Released October 26, 2026 at 6:41 AM (Eastern Time, 2026-10-26T10:41:58Z UTC)

@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.128.54",
-  "build": 182,
-  "features": 128,
+  "version": "2026.129.54",
+  "build": 183,
+  "features": 129,
   "fixes": 54,
-  "builds_without_fixes": 128,
-  "released": "2026-10-26T10:41:58Z",
-  "title": "Round 7.32",
-  "notes": "Round 7.32 (build 182), a fix update. Inbox's Send a message button shows only on Chats, not on Alerts."
+  "builds_without_fixes": 129,
+  "released": "2026-10-26T10:46:12Z",
+  "title": "Round 7.33",
+  "notes": "Round 7.33 (build 183), a feature update. A Followed Threads tab on your profile, and Show followed threads on my profile in Privacy (off until you turn it on)."
 }
