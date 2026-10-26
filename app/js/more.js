@@ -1561,7 +1561,7 @@ function AboutSettings({navigate}) {
             lh('p', { style: { margin: "2px 0" } }, "Released " + lcReleasedText(v.released)),
             lh('ul', { style: { paddingLeft: 18 } }, v.notes.map(function (n, i) { return lh('li', { key: i }, n); })));
         }))) : null),
-      lh('p', { className: "lid-help" }, LOOSCID_SLOGAN + "."),
+      lh('p', { className: "lid-help lc-slogan" }, LOOSCID_SLOGAN), // Round 7.39: "Just Dream", no period
       lh('button', { type: "button", id: "about-check", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { lcCheckUpdate(true); } }, "Check for updates"),
       lh(A11ySwitch, { id: "about-autoupdate", label: "Automatically check for updates", on: auto, onToggle: function () { lcUpdateAutoSet(!auto); tick(function (x) { return x + 1; }); announce("Automatically check for updates: " + (!auto ? "on" : "off") + "."); } })),
     lh('section', { "aria-labelledby": "about-lead", style: { padding: "8px 16px 12px" } },
@@ -2611,11 +2611,14 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 133; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 134; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 55;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
+  { version: "2026.134.55", build: 189, released: LOOSCID_RELEASED, title: "Round 7.39", notes: [
+    "New slogan: Just Dream. Home is now called \u201cLooscid - Just Dream\u201d, and the slogan is on the startup screen, Welcome, About, the changelog page and the link previews when you share Looscid. Accessibility first is still how Looscid is made."
+  ] },
   { version: "2026.133.55", build: 188, released: LOOSCID_RELEASED, title: "Round 7.38", notes: [
     "New: Logout is the last row of Settings, in its own group, like Sign Out on iPhone. It asks first, then does the same thing as Logout in your profile's More: it removes your login methods from this device (a Nostr key saved here is deleted) and your LooscidID starts fresh. Your Dreams and settings stay. Settings Order keeps it last, and Search and the Commandbar find it when you type logout or sign out.",
     "Logout is one word everywhere now, like Login (Carter: it's Logout, not two words): your profile's More, the confirmation, Help Center, What's new and what Looscid says when it's done.",

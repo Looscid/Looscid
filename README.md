@@ -1,6 +1,6 @@
 # Looscid
 
-Accessibility first, always.
+**Just Dream**
 
 Looscid is a social app built for VoiceOver, braille and keyboard from day one. It brings back the customization and freedom other apps took away. It's open source, so that power stays with the people who use it.
 
@@ -17,7 +17,7 @@ Looscid is a social app built for VoiceOver, braille and keyboard from day one. 
 
 ## Official version
 
-`main` is the shipped Looscid line, and the site is built from it. Its [version.json](app/version.json) is authoritative: **Looscid 2026.133.55 (188)**. Versions are YEAR.FEATURES.FIXES (BUILD): feature updates add something, fix updates only fix things, and builds count every update.
+`main` is the shipped Looscid line, and the site is built from it. Its [version.json](app/version.json) is authoritative: **Looscid 2026.134.55 (189)**. Versions are YEAR.FEATURES.FIXES (BUILD): feature updates add something, fix updates only fix things, and builds count every update.
 
 The old `main` line (retired October 14, 2026) and combined branch counters are deprecated, not inherited into the product version. Documentation-only consolidation does not renumber the shipped version.
 

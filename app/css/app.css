@@ -395,6 +395,7 @@ h2.slbl,div.slbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:
 .lid-onb-h{font-family:'DM Serif Display',Georgia,serif;font-size:28px;color:var(--tx);line-height:1.25;margin:0 0 4px}
 .lid-onb-h2{font-size:17px;font-weight:700;color:var(--tx);margin:12px 0 0}
 .lid-onb-p{font-size:15px;color:var(--tx2);line-height:1.7;margin:0}
+.lid-onb-slogan{font-family:"DM Serif Display",Georgia,serif;font-size:20px;color:var(--tx);margin:2px 0 6px}
 .lid-step{font-size:13px;color:var(--tx2);margin:0}
 .lid-onb-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px}
 .lid-terms{margin:0;padding:0}

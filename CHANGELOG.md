@@ -2,6 +2,14 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.134.55 (189): Round 7.39
+
+Released October 26, 2026 at 6:08 PM (Eastern Time, 2026-10-26T22:08:59Z UTC)
+
+A feature update, asked for by Carter (“Just Dream is perfect”).
+
+- New slogan: Just Dream. Home is now called “Looscid - Just Dream” (it was “Looscid - Accessibility first, always”), and the slogan is on the startup screen, the Welcome screen, About, the changelog page, the README, the app's install description and the link previews when you share Looscid. Accessibility first is still how Looscid is made.
+
 ## Looscid 2026.133.55 (188): Round 7.38
 
 Released October 26, 2026 at 5:31 PM (Eastern Time, 2026-10-26T21:31:08Z UTC)

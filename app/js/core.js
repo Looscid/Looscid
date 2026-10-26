@@ -3532,6 +3532,7 @@ function LooscidOnboarding({ onDone }) {
   let body;
   if (step === 0) body = lh(React.Fragment, null,
     H("Welcome to Looscid"),
+    lh('p', { className: "lid-onb-p lid-onb-slogan" }, LOOSCID_SLOGAN),
     P("The first decentralized everything app that keeps your data private, and lets you control it."),
     P("Looscid is the first everything app to be accessible, private and open source. That means you can access your data from anywhere, keep it private and use it with no blocks."),
     H2("Powerful"), P("Looscid's decentralization means that no single service, company or provider can control Looscid."),
@@ -4214,7 +4215,10 @@ Looscid.LC_UNDO_SET = null;
 Looscid.LC_CUSTOM_PACK = null; // { files: [...], map: { event: fileName } } loaded from IndexedDB
 function lcLoadCustomPack() { return lcPackGet().then(function (v) { Looscid.LC_CUSTOM_PACK = v || null; return Looscid.LC_CUSTOM_PACK; }, function () { return null; }); }
 try { if (typeof window !== "undefined") setTimeout(lcLoadCustomPack, 0); } catch (e) {}
-const LOOSCID_SLOGAN = "Accessibility first, always"; // Home page title: "Looscid - " + slogan (a placeholder 2three1y may change)
+/* Round 7.39 (Carter, Oct 26 2026 6:04 PM): Looscid's slogan is exactly "Just Dream" (capital D, no period, nothing in front).
+   Home's title is "Looscid - " + slogan, so it reads "Looscid - Just Dream". The startup screen, Welcome, About, the site's
+   descriptions, the app manifest, the changelog page and the README all use it. It was "Accessibility first, always". */
+const LOOSCID_SLOGAN = "Just Dream";
 Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
 /* Round 6 versioning (2three1y, Oct 10 2026): YEAR.FEATURES.FIXES (BUILD), counted on the preview branch.
    A commit is a fix when its subject matches (?i)^\s*(fix|hotfix|bugfix|chore|typo|revert|patch|docs?|style|refactor|cleanup|tweak|ci)\b
@@ -4222,11 +4226,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.133.55";
+const LOOSCID_VERSION = "2026.134.55";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 188;
+const LOOSCID_BUILD = 189;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-26T21:31:08Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-26T22:08:59Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).

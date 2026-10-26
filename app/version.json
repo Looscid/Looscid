@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.133.55",
-  "build": 188,
-  "features": 133,
+  "version": "2026.134.55",
+  "build": 189,
+  "features": 134,
   "fixes": 55,
-  "builds_without_fixes": 133,
-  "released": "2026-10-26T21:31:08Z",
-  "title": "Round 7.38",
-  "notes": "Round 7.38 (build 188), a feature update. Logout is the last row of Settings, like Sign Out on iPhone, and it's one word everywhere. The LooscidID card shows your name, @handle and “LooscidID, keys, logins and devices”, and Settings got a visual polish."
+  "builds_without_fixes": 134,
+  "released": "2026-10-26T22:08:59Z",
+  "title": "Round 7.39",
+  "notes": "Round 7.39 (build 189), a feature update. Looscid's new slogan is Just Dream: Home is now called “Looscid - Just Dream”, and the slogan is on the startup screen, Welcome, About, the changelog page and the link previews when you share Looscid."
 }
