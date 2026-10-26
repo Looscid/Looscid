@@ -1,12 +1,12 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.129.55",
-  "build": 184,
-  "features": 129,
+  "version": "2026.130.55",
+  "build": 185,
+  "features": 130,
   "fixes": 55,
-  "builds_without_fixes": 129,
-  "released": "2026-10-26T10:52:33Z",
-  "title": "Round 7.34",
-  "notes": "Round 7.34 (build 184), a fix update. Back from Settings, Intelligence returns to Cherry when you opened it with Cherry settings."
+  "builds_without_fixes": 130,
+  "released": "2026-10-26T11:24:49Z",
+  "title": "Round 7.35",
+  "notes": "Round 7.35 (build 185), a feature update. The footer's Social links include Discord."
 }

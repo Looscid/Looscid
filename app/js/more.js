@@ -2576,12 +2576,15 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 129; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 130; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 55;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
 const LC_VERSION_HISTORY = [
-  { version: "2026.129.55", build: 184, released: LOOSCID_RELEASED, title: "Round 7.34", notes: [
+  { version: "2026.130.55", build: 185, released: LOOSCID_RELEASED, title: "Round 7.35", notes: [
+    "New: the footer's Social links include Discord, after YouTube. It opens the Looscid Discord in a new tab, where you can hang out, share feedback and talk accessibility.",
+  ] },
+  { version: "2026.129.55", build: 184, released: "2026-10-26T10:52:33Z", title: "Round 7.34", notes: [
     "Fix: Cherry's \"Cherry settings\" button opens Settings, Intelligence as before, and Back now comes right back to Cherry, on that button (it went to the top of Settings). Cherry's own Back still goes where you opened Cherry from.",
   ] },
   { version: "2026.129.54", build: 183, released: "2026-10-26T10:46:12Z", title: "Round 7.33", notes: [

@@ -1929,7 +1929,9 @@ function LcSiteFooter({ navigate, cur }) {
   return lh('footer', { className: "lc-footer", role: "contentinfo", "aria-labelledby": "lc-foot-title" },
     lh('h2', { id: "lc-foot-title", className: "lc-foot-title" }, "Footer"),
     lh('div', { className: "lc-foot-grps" },
-    grp("lc-foot-social", "Social", [ext("https://github.com/Looscid", "GitHub", "gh"), ext("https://x.com/Looscid", "X", "x"), ext("https://www.youtube.com/@Looscid", "YouTube", "yt")]),
+    grp("lc-foot-social", "Social", [ext("https://github.com/Looscid", "GitHub", "gh"), ext("https://x.com/Looscid", "X", "x"), ext("https://www.youtube.com/@Looscid", "YouTube", "yt"),
+      // Round 7.35 (Carter, Oct 26 2026): the Looscid Discord, last in Social.
+      ext("https://discord.gg/M6xrD8EBXU", "Discord", "dc")]),
     grp("lc-foot-legal", "Legal", [go("terms", "Terms", "t"), go("privacy", "Privacy", "p"), go("guidelines", "Rules", "r"), go("child_safety", "Child Safety", "c"), go("legal", "License", "l")]),
     grp("lc-foot-values", "About", [go("settings_about", "About Looscid", "ab"),
       // Round 7.24 (#161): the changelog is its own page on the site (every version, with its own link preview).
@@ -4039,11 +4041,11 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.129.55";
+const LOOSCID_VERSION = "2026.130.55";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 184;
+const LOOSCID_BUILD = 185;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
-const LOOSCID_RELEASED = "2026-10-26T10:52:33Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-26T11:24:49Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).

@@ -2,6 +2,14 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update.
 
+## Looscid 2026.130.55 (185): Round 7.35
+
+Released October 26, 2026 at 7:24 AM (Eastern Time, 2026-10-26T11:24:49Z UTC)
+
+A feature update, asked for by Carter (the Looscid Discord).
+
+- New: the footer's Social links include Discord, after YouTube. It opens the Looscid Discord in a new tab, where you can hang out, share feedback and talk accessibility: [Join the Looscid Discord](https://discord.gg/M6xrD8EBXU).
+
 ## Looscid 2026.129.55 (184): Round 7.34
 
 Released October 26, 2026 at 6:52 AM (Eastern Time, 2026-10-26T10:52:33Z UTC)
