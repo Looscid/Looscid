@@ -624,3 +624,12 @@ body.acc-text-2 .pg .lc-end-chrome { zoom: 0.769231; }
 .lc-chk-row{display:flex;gap:8px;align-items:center;margin:4px 0}
 .lc-fedtabs{margin:0}
 .lc-fed-local p{margin:0 0 6px;line-height:1.5}
+
+/* Build 194: the Looscid logo. Top bar on every page (logo left of Create) and bigger on the welcome screens. From
+   assets/icons/icon-512.png, scaled down by CSS so it is sharp on Retina. No animation. */
+.lc-topbar{display:flex;align-items:center;gap:10px;flex:0 0 auto;padding:calc(6px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 0 max(12px,env(safe-area-inset-left,0px))}
+.lc-topbar>.btn{flex:1 1 auto;min-width:0}
+.lc-logo{display:block;flex-shrink:0;border-radius:22%;object-fit:contain;-webkit-user-select:none;user-select:none}
+.lc-topbar-logo{width:40px;height:40px}
+.lid-onb-logo{width:88px;height:88px;margin:0 0 4px}
+@media (forced-colors:active){.lc-logo{forced-color-adjust:none}}

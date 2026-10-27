@@ -52,6 +52,7 @@ h2{font-size:1.3em;margin:24px 0 4px}
 #notes ul{padding-left:1.2em}
 #notes li{margin:6px 0}
 code{font-size:.92em;background:var(--sf);border:1px solid var(--bd);border-radius:5px;padding:0 4px;overflow-wrap:anywhere}
+.logo{display:block;width:64px;height:64px;border-radius:22%;margin:0 0 10px}
 .sr-pause{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 </style>
 </head>
@@ -59,6 +60,8 @@ code{font-size:.92em;background:var(--sf);border:1px solid var(--bd);border-radi
 <!-- The one announcer, as in the app. -->
 <div id="looscid-live" class="sr-pause" aria-live="polite" aria-atomic="true"></div>
 <main class="wrap" id="main">
+<!-- Build 194: the Looscid logo. The heading under it says Looscid, so the picture is hidden from screen readers. -->
+<img class="logo" src="../assets/icons/icon-512.png" alt="" aria-hidden="true" width="64" height="64">
 <h1>Looscid changelog</h1>
 <p class="slogan">Just Dream</p>
 <p class="sub">Every listed Looscid update, from the first to the newest. Versions are YEAR.FEATURES.FIXES (BUILD).</p>

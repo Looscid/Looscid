@@ -1,14 +1,14 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.136.57",
-  "build": 193,
-  "features": 136,
+  "version": "2026.137.57",
+  "build": 194,
+  "features": 137,
   "fixes": 57,
-  "builds_without_fixes": 136,
-  "released": "2026-10-26T23:41:44Z",
-  "title": "Round 7.43",
-  "codename": "Old Pajamas",
-  "notes": "Old Pajamas: Looscid 2026.136.57 (193), a fix update. Codenames now sit up top, and the old version style is back: the version text is exactly how it was before build 192, with the codename in front, like Midnight Snack: Looscid 2026.135.56 (191).",
-  "label": "Old Pajamas: Looscid 2026.136.57 (193)"
+  "builds_without_fixes": 137,
+  "released": "2026-10-27T00:59:52Z",
+  "title": "Round 7.44",
+  "codename": "Night Badge",
+  "notes": "Night Badge: Looscid 2026.137.57 (194), a feature update. The Looscid logo now shows at the top of every page and on the welcome screen.",
+  "label": "Night Badge: Looscid 2026.137.57 (194)"
 }

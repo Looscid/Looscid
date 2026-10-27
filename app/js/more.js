@@ -2753,7 +2753,7 @@ function lcAutoMap(files) {
   LC_EVENTS.forEach(function (ev) { const f = files.find(function (x) { const n = x.name.toLowerCase(); return (words[ev[0]] || []).some(function (w) { return n.indexOf(w) >= 0; }); }); if (f) map[ev[0]] = f.name; });
   return map;
 }
-const LOOSCID_FEATURE_BUILDS = 136; // builds without the fix updates
+const LOOSCID_FEATURE_BUILDS = 137; // builds without the fix updates
 Looscid.LOOSCID_FEATURE_BUILDS = LOOSCID_FEATURE_BUILDS;
 const LOOSCID_FIXES = 57;
 Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
@@ -2764,7 +2764,13 @@ Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
    exact version text: "Midnight Snack: Looscid 2026.135.56 (191)", no Round (lcCodenamed in core.js). A new build needs a
    new codename here, in LOOSCID_CODENAME (core.js), version.json and the CHANGELOG.md heading. No repeats. */
 const LC_VERSION_HISTORY = [
-  { version: "2026.136.57", build: 193, released: LOOSCID_RELEASED, title: "Round 7.43", codename: "Old Pajamas", notes: [
+  { version: "2026.137.57", build: 194, released: LOOSCID_RELEASED, title: "Round 7.44", codename: "Night Badge", notes: [
+    "The Looscid logo now shows at the top of every page and on the welcome screen.",
+    "It sits at the top left, next to Create. VoiceOver says it once, as Looscid, image. On the first welcome screen it's hidden from VoiceOver, because the heading right under it already says Welcome to Looscid.",
+    "The changelog page and the status page show it too.",
+    "This one's codename is Night Badge, because Looscid finally wears its badge.",
+  ] },
+  { version: "2026.136.57", build: 193, released: "2026-10-26T23:41:44Z", title: "Round 7.43", codename: "Old Pajamas", notes: [
     "Codenames now sit up top, and the old version style is back. Like Midnight Snack: Looscid 2026.135.56 (191). No more Round text in the name.",
     "The version text is exactly how it was before build 192. The codename just goes in front of it, with a colon. Same in About, the version history, What's new, Updates, System info, the changelog page, the Dev menu, Report a bug, Send Feedback and the update banner.",
     "This one's codename is Old Pajamas, because the old style is the comfy one.",

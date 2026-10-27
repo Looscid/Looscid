@@ -2,6 +2,19 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
+## Night Badge: Looscid 2026.137.57 (194)
+
+Released October 26, 2026 at 9:02 PM (Eastern Time, 2026-10-27T00:59:52Z UTC)
+
+A feature update, asked for by Carter (“All Looscid stuff should have the Looscid logo. It should also be on the Site” and “The logo on the page”).
+
+- The Looscid logo now shows at the top of every page and on the welcome screen.
+- It sits at the top left of every page, next to Create. VoiceOver says it once, as “Looscid, image”. It isn't a link and it isn't inside a heading, so every page still has one heading level 1, and the headings say exactly what they said before.
+- The welcome screens show it bigger, on every step. On the first one it's hidden from VoiceOver, because the heading right under it already says Welcome to Looscid.
+- The changelog page and the status page show it too, hidden from VoiceOver there because the word Looscid is right next to it.
+- It's the Looscid app icon from Looscid itself, so it stays sharp on Retina screens and nothing loads from anywhere else.
+- This one's codename is Night Badge, because Looscid finally wears its badge.
+
 ## Old Pajamas: Looscid 2026.136.57 (193)
 
 Released October 26, 2026 at 7:41 PM (Eastern Time, 2026-10-26T23:41:44Z UTC)

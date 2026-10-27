@@ -24,6 +24,7 @@ a:hover{text-decoration:underline}
 
 header{background:rgba(7,5,15,.95);backdrop-filter:blur(18px);border-bottom:1px solid var(--bd);padding:20px 20px 16px;position:sticky;top:0;z-index:10}
 .header-inner{max-width:680px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:inline-flex;align-items:center;gap:10px}.brand-logo{display:block;width:32px;height:32px;border-radius:22%}
 .logo{font-family:'DM Serif Display',Georgia,serif;font-size:20px;background:linear-gradient(135deg,#e9d5ff,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .back-link{font-size:13px;color:var(--tx3);display:flex;align-items:center;gap:5px}
 
@@ -110,7 +111,7 @@ footer{max-width:680px;margin:32px auto 0;padding:20px 20px 0;border-top:1px sol
 
 <header role="banner">
   <div class="header-inner">
-    <span class="logo">Looscid</span>
+    <span class="brand"><img class="brand-logo" src="assets/icons/icon-512.png" alt="" aria-hidden="true" width="32" height="32"><span class="logo">Looscid</span></span>
     <a href="/Looscid/" class="back-link" aria-label="Back to Looscid app">← Back to app</a>
   </div>
 </header>
