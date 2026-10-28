@@ -2035,14 +2035,14 @@ function LcSiteFooter({ navigate, cur }) {
   return lh('footer', { className: "lc-footer", role: "contentinfo", "aria-labelledby": "lc-foot-title" },
     lh('h2', { id: "lc-foot-title", className: "lc-foot-title" }, "Footer"),
     lh('div', { className: "lc-foot-grps" },
-    grp("lc-foot-social", "Social", [ext("https://github.com/Looscid", "GitHub", "gh"), ext("https://x.com/Looscid", "X", "x"), ext("https://www.youtube.com/@Looscid", "YouTube", "yt"),
+    grp("lc-foot-social", "Say hi", [ext("https://github.com/Looscid", "GitHub", "gh"), ext("https://x.com/Looscid", "X", "x"), ext("https://www.youtube.com/@Looscid", "YouTube", "yt"),
       // Round 7.35 (Carter, Oct 26 2026): the Looscid Discord, last in Social.
       ext("https://discord.gg/M6xrD8EBXU", "Discord", "dc")]),
-    grp("lc-foot-legal", "Legal", [go("terms", "Terms", "t"), go("privacy", "Privacy", "p"), go("guidelines", "Rules", "r"), go("child_safety", "Child Safety", "c"), go("legal", "License", "l")]),
+    grp("lc-foot-legal", "The fine print", [go("terms", "Terms", "t"), go("privacy", "Privacy", "p"), go("guidelines", "Rules", "r"), go("child_safety", "Child Safety", "c"), go("legal", "License", "l"), go("credits", "Credits", "cr")]),
     grp("lc-foot-values", "About", [go("settings_about", "About Looscid", "ab"),
       // Round 7.24 (#161): the changelog is its own page on the site (every version, with its own link preview).
       lh('li', { key: "chg" }, lh('a', { href: (typeof LOOSCID_BASE === "string" ? LOOSCID_BASE : "") + "changelog/", className: "lc-link" }, "Changelog")),
-      ext("https://github.com/Looscid/Looscid/blob/main/docs/guides/ACCESSIBILITY.md", "Accessibility", "a"), go("credits", "Credits", "cr")])));
+      ext("https://github.com/Looscid/Looscid/blob/main/docs/guides/ACCESSIBILITY.md", "Accessibility", "a")])));
     // Round 7.41 (Carter: "not corpo shit"): one kid and Tab make this, and the footer says so.
 }
 /* 2three1y (Oct 12, 5:33 PM): "The footer is on every page at the bottom like GitHub", but in reading and swipe order the
