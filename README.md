@@ -28,4 +28,4 @@ The old `main` line (retired October 14, 2026) and combined branch counters are 
 
 </details>
 
-Created by [@2three1y](https://looscid.github.io/Looscid/).
+Created by [2three1y](https://looscid.github.io/Looscid/).
