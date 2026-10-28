@@ -2045,9 +2045,8 @@ function LcSiteFooter({ navigate, cur }) {
       ext("https://github.com/Looscid/Looscid/blob/main/docs/guides/ACCESSIBILITY.md", "Accessibility", "a"), go("credits", "Credits", "cr")]),
     grp("lc-foot-dl", "Download", [
       lh('li', { key: "ios" }, lh('p', { className: "lc-foot-p" }, "iPhone and iPad: open Looscid in Safari, then Share, then Add to Home Screen.")),
-      soon("Android app", "and")])),
+      soon("Android app", "and")])));
     // Round 7.41 (Carter: "not corpo shit"): one kid and Tab make this, and the footer says so.
-    lh('p', { className: "lc-foot-p lc-foot-cowrite", id: "lc-foot-cowrite" }, "Co-written with Tab"));
 }
 /* 2three1y (Oct 12, 5:33 PM): "The footer is on every page at the bottom like GitHub", but in reading and swipe order the
    tab bar (ending with More) comes BEFORE the footer, and the footer is the very last thing. So the end of every scrolling
