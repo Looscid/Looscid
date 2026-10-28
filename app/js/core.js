@@ -1215,7 +1215,7 @@ function ReplyItem({cm, navigate, onReply}) {
       lh('div', { style: {flex:1} },
         lh('span', { style: {fontWeight:700,fontSize:13} }, name),
         lh('span', { style: {fontSize:11,color:"var(--tx3)",marginLeft:6} }, handle, cm.time ? ", " + cm.time : "")),
-      lh(LcMenu, { id: "cmo-" + cm.id, kind: "action", title: "Reply options", btnLabel: "Reply options", btnClass: "bi", noCaret: true, align: "right",
+      lh(LcMenu, { id: "cmo-" + cm.id, kind: "action", title: "Reply options", btnLabel: "Thread options", btnClass: "bi", noCaret: true, align: "right",
         btnText: lh(Ic.Dots, { style: {width:14,height:14} }), onSelect: function (k, it) { it.a(); }, items: [
           onReply ? { id: "reply", name: "Reply", a: function () { onReply(cm); } } : null,
           { id: "hear", name: "Hear reply", a: function () { LcSpeech.speak(lcDreamSpeechParts(cm)); } },
