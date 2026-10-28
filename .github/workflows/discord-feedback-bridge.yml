@@ -1,0 +1,56 @@
+name: Discord feedback to GitHub issues
+
+# Every 15 minutes LooscidBOT reads new messages in the Looscid Discord's #feedback channel and turns each one into a
+# GitHub issue (labels: from Discord + bug, enhancement or feedback), or adds it to an open issue that already tracks the
+# same thing. It answers in a thread under the message with the link. See .github/scripts/discord-feedback-bridge.mjs.
+#   Secrets: DISCORD_BOT_TOKEN (LooscidBOT on Discord), LOOSCIDBOT_APP_ID + LOOSCIDBOT_PRIVATE_KEY (LooscidBOT GitHub App).
+#   Variables: DISCORD_BUGS_CHANNEL_ID (the channel), DISCORD_BUGS_START_ID (messages older than this are ignored).
+# Without the app secrets it falls back to the workflow's own token (issues then come from github-actions).
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run: only log what it would do'
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: discord-feedback-bridge
+  cancel-in-progress: false
+
+jobs:
+  bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      HAS_APP: ${{ secrets.LOOSCIDBOT_APP_ID != '' && secrets.LOOSCIDBOT_PRIVATE_KEY != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+      - name: LooscidBOT GitHub App token
+        id: app
+        if: env.HAS_APP == 'true'
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.LOOSCIDBOT_APP_ID }}
+          private-key: ${{ secrets.LOOSCIDBOT_PRIVATE_KEY }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Bridge
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_BUGS_CHANNEL_ID: ${{ vars.DISCORD_BUGS_CHANNEL_ID }}
+          DISCORD_BUGS_START_ID: ${{ vars.DISCORD_BUGS_START_ID }}
+          GH_TOKEN: ${{ steps.app.outputs.token || github.token }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: node .github/scripts/discord-feedback-bridge.mjs
