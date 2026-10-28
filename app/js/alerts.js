@@ -83,7 +83,7 @@ function pmStateNote() {
 function rowMore(st, draw, key, label, acts) {
   const open = st.more === key;
   return [
-    h('button', { key: "mb", type: "button", id: "more-" + key, className: "btn bgb lc-btn lc-inbox-more", "aria-expanded": open ? "true" : "false", "aria-controls": "acts-" + key, "aria-label": "More, " + label,
+    h('button', { key: "mb", type: "button", id: "more-" + key, className: "btn bgb lc-btn lc-inbox-more", "aria-expanded": open ? "true" : "false", "aria-controls": "acts-" + key, "aria-label": key.indexOf("n-") === 0 ? "Alert options" : "More, " + label,
       onClick: function () { st.more = open ? null : key; draw(); if (!open) setTimeout(function () { const b = document.querySelector("#acts-" + key + " button"); if (b) b.focus(); }, 0); } }, "More"),
     open ? h('ul', { key: "ma", id: "acts-" + key, className: "lc-inbox-acts", role: "list",
         onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); st.more = null; draw(); setTimeout(function () { const b = document.getElementById("more-" + key); if (b) b.focus(); }, 0); } } },
