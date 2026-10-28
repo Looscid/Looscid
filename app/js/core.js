@@ -2046,7 +2046,6 @@ function LcSiteFooter({ navigate, cur }) {
     grp("lc-foot-dl", "Download", [
       lh('li', { key: "ios" }, lh('p', { className: "lc-foot-p" }, "iPhone and iPad: open Looscid in Safari, then Share, then Add to Home Screen.")),
       soon("Android app", "and")])),
-    lh('p', { className: "lc-foot-p lc-foot-end" }, "Looscid is open source and local first."),
     // Round 7.41 (Carter: "not corpo shit"): one kid and Tab make this, and the footer says so.
     lh('p', { className: "lc-foot-p lc-foot-cowrite", id: "lc-foot-cowrite" }, "Co-written with Tab"));
 }
