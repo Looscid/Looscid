@@ -27,3 +27,5 @@ The old `main` line (retired October 14, 2026) and combined branch counters are 
 - October 14, 2026: the old `main` line was retired and `preview` was renamed to `main`. `MainV1`, `main-reset`, `rewrite/vanilla-phase-1`, `refactor/terminology-rename`, `refactor/discover-extraction` and `refactor/vite-build` were deleted after their useful docs were merged into `docs/`.
 
 </details>
+
+Created by [@2three1y](https://looscid.github.io/Looscid/).
