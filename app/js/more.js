@@ -654,7 +654,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
     message: Looscid.lcLogoutMessage(),
     confirmLabel: LT.ok, onCancel: function () { setLogoutAsk(false); backToMore(); },
     onConfirm: function () { setLogoutAsk(false); Looscid.lcDoLogout(); } }) : null;
-  const moreMenu = preview ? null : lh(React.Fragment, null, lh(LcMenu, { id: "pf-more-btn", menuId: "pf-more", kind: "action", title: "More", btnLabel: "More", btnRef: moreBtn,
+  const moreMenu = preview ? null : lh(React.Fragment, null, lh(LcMenu, { id: "pf-more-btn", menuId: "pf-more", kind: "action", title: "More", btnLabel: "Dreamor options", btnRef: moreBtn,
     btnClass: "btn bgb lc-big lc-prof-morebtn", className: "lc-prof-more", itemClass: "lc-dopt",
     btnText: lh('span', null, lh(Ic.Dots, { style: { width: 18, height: 18 }, "aria-hidden": "true" }), " More"), items: moreItems,
     onSelect: function (k, it) { if (it.a) it.a(); } }), logoutDlg);
