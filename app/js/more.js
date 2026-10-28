@@ -1563,8 +1563,7 @@ const LC_KNOWN_BUGS = [
   "VoiceOver with Safari on iPhone isn't fully tested on the newest screens. Every build gets checked in Chrome, and I use Looscid with VoiceOver myself, but not every new screen has had a full VoiceOver and Safari pass yet.",
   "Braille: the robot characters and the short braille labels haven't been checked on every page with a real braille display.",
   "Photos, polls, links and places you attach to a Dream can't be sent yet. Looscid tells you first and offers to send just the text.",
-  "Direct messages only work with Nostr Dreamors for now. For anyone else, Looscid says why it can't.",
-  "Bug reports from the Discord don't turn into GitHub issues by themselves yet. I'm working on that."
+  "Direct messages only work with Nostr Dreamors for now. For anyone else, Looscid says why it can't."
 ];
 function lcBugReportUrl() {
   const ua = (typeof navigator !== "undefined" && navigator.userAgent) || "unknown";

@@ -4283,7 +4283,7 @@ const LOOSCID_ROUND = "Round 7.44";
 const LOOSCID_CODENAME = "Night Badge";
 Looscid.LOOSCID_ROUND = LOOSCID_ROUND; Looscid.LOOSCID_CODENAME = LOOSCID_CODENAME;
 /* Round 7.41: the one line under the Home heading. Edit this one string to change what it says (empty string hides it). */
-const LOOSCID_NOW_WORKING_ON = "a Discord #bugs channel that turns your bug reports into GitHub issues";
+const LOOSCID_NOW_WORKING_ON = "sending photos, polls, links and places with your Dreams";
 Looscid.LOOSCID_NOW_WORKING_ON = LOOSCID_NOW_WORKING_ON;
 const LOOSCID_RELEASED = "2026-10-27T00:59:52Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;

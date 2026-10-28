@@ -2,6 +2,20 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
+## LooscidBOT: Discord feedback turns into GitHub issues (no new build)
+
+Added October 28, 2026 (Eastern Time). This doesn't change the app itself, so the build stays Night Badge: Looscid 2026.137.57 (194).
+
+Asked for by Carter in the Dreamor Council (a Discord to GitHub issues bridge with LooscidBOT, and GitHub Issues as the one home for all bugs).
+
+- Every message in #feedback on the Looscid Discord now turns into a GitHub issue by itself. LooscidBOT checks every 15 minutes.
+- LooscidBOT has a GitHub App now too, with the same logo as on Discord, so the issues come from LooscidBOT.
+- Each issue gets the "from Discord" label, plus bug, enhancement (for feature requests) or feedback, picked from the words in the message. Bugs use the same layout as Report a bug, with the build and device when the message says them.
+- LooscidBOT answers in a thread under your message with the link. If it's a bug and the build, device or steps are missing, it asks for them there.
+- No duplicates: before it opens a new issue, LooscidBOT looks through the open issues. If one clearly tracks the same thing already, it adds your report to that issue as a comment and answers "Already tracked" with the link. If it's only maybe the same, it opens a new issue and says which one might be related. It's careful on purpose, because two different bugs merged into one is worse than one extra issue.
+- Messages from bots, replies, and short chat like "same" or "thanks" don't turn into issues. Nothing from before today was imported.
+- Home's "Now working on" line moved on to the next thing, and the Discord line is gone from Known bugs in About.
+
 ## Night Badge: Looscid 2026.137.57 (194)
 
 Released October 26, 2026 at 9:02 PM (Eastern Time, 2026-10-27T00:59:52Z UTC)
