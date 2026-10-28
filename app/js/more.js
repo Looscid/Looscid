@@ -1698,21 +1698,20 @@ function AboutSettings({navigate}) {
       lh(A11ySwitch, { id: "about-autoupdate", label: "Automatically check for updates", on: auto, onToggle: function () { lcUpdateAutoSet(!auto); tick(function (x) { return x + 1; }); announce("Automatically check for updates: " + (!auto ? "on" : "off") + "."); } }),
       devOn ? lh('button', { type: "button", id: "about-dev", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { navigate("settings_dev"); } }, "Dev menu") : null),
     lh('section', { "aria-labelledby": "about-lead", style: { padding: "8px 16px 12px" } },
-      lh('h2', { id: "about-lead", className: "lid-sub" }, "Looscid in short"),
-      lh('p', { className: "lid-help" }, "Looscid is a decentralized, free and open source social app that works the way you do: with a screen reader, a braille display, a keyboard, a switch or just your thumbs. Your data stays on your device, and your LooscidID is yours."),
+      lh('h2', { id: "about-lead", className: "lid-sub" }, "About Looscid"),
+      lh('p', { className: "lid-help" }, "I was on my iPod when I started wanting accessible versions of things. I wanted an accessible email and phone-number thing too, but I couldn't find one. I didn't build that one. My wish list, apparently, had other plans."),
+      lh('p', { className: "lid-help" }, "Later, when I got into social media, I wanted an accessible social platform with Nostr and customization as part of identity. All those ideas kept growing into one thing: Looscid."),
+      lh('p', { className: "lid-help" }, "Looscid is a free, open source browser-based OS experience with a social app. It's built to work the way you do: with a screen reader, a braille display, a keyboard, a switch or just your thumbs. Your data stays on your device, and your LooscidID is yours."),
+      lh('p', { className: "lid-help" }, "Hi, I'm 2three1y. I'm blind, I use VoiceOver and braille every day, and most social apps treat that like an afterthought. Buttons with no labels, feeds that jump around, stuff that flashes. So I'm building my own."),
+      lh('p', { className: "lid-help" }, "Looscid is a side project, not a company. No investors, no ads, no growth team. Just me, and Tab, my digital assistant, who helps me write and test the code."),
+      lh('p', { className: "lid-help" }, "I want Nostr and customization to make identity your own, because your account should belong to you, not to a company that can switch it off. And it's accessibility first: VoiceOver, TalkBack, NVDA, braille displays, keyboards and switches come first, not last."),
+      lh('p', { className: "lid-help" }, "I build it in the open. Every change is on GitHub, every bug I know about is listed below, and you can tell me what's broken any time."),
       // Round 6.6 (2three1y 5:24 and 5:25 PM): everything that was in More's About submenu is on this one page.
       // Terms, Privacy, Community rules and the license are under Legal.
       lh('ul', { className: "mlist", "aria-label": "Feedback, legal and the welcome intro" },
         [["feedback", "Send Feedback"], ["legal", "Legal"], ["intro", "Welcome intro"]].map(function (x) {
           return lh('li', { key: x[0], className: "mli" }, lh('button', { type: "button", id: "about-btn-" + x[0], className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { navigate(x[0]); } }, x[1]));
         }))),
-    lh('section', { "aria-labelledby": "about-story", style: { padding: "8px 16px 12px" } },
-      lh('h2', { id: "about-story", className: "lid-sub" }, "My story"),
-      // Round 7.41 (Carter: "not corpo shit"): the story in my own words. Side project, one dev, built in the open.
-      lh('p', { className: "lid-help" }, "Hi, I'm 2three1y. I'm blind, I use VoiceOver and braille every day, and most social apps treat that like an afterthought. Buttons with no labels, feeds that jump around, stuff that flashes. So I'm building my own."),
-      lh('p', { className: "lid-help" }, "Looscid is a side project, not a company. No investors, no ads, no growth team. Just me, and Tab, my digital assistant, who helps me write and test the code."),
-      lh('p', { className: "lid-help" }, "It runs on Nostr because your account should belong to you, not to a company that can switch it off. And it's accessibility first: VoiceOver, TalkBack, NVDA, braille displays, keyboards and switches come first, not last."),
-      lh('p', { className: "lid-help" }, "I build it in the open. Every change is on GitHub, every bug I know about is listed below, and you can tell me what's broken any time.")),
     lh('section', { "aria-labelledby": "about-bugs", style: { padding: "0 16px 12px" } },
       lh('h2', { id: "about-bugs", className: "lid-sub" }, "Known bugs"),
       lh('p', { className: "lid-help" }, "The honest list. If you find something that isn't here, please tell me."),
