@@ -3599,8 +3599,8 @@ function LooscidOnboarding({ onDone }) {
       onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); finish(); } } },
     lh('div', { className: "lid-onb-in" },
       /* Build 194: the Looscid logo, bigger, on every step of the welcome screens. On step 1 the heading right under it says
-         "Welcome to Looscid", so the picture is hidden from VoiceOver there; on the other steps it is named Looscid. */
-      lh(LcLogo, { size: 88, alt: step === 0 ? "" : "Looscid", className: "lid-onb-logo" }),
+         "Welcome to Looscid", so the picture is hidden from VoiceOver there; on the other steps it is named Looscid logo. */
+      lh(LcLogo, { size: 88, alt: step === 0 ? "" : "Looscid logo", className: "lid-onb-logo" }),
       lh('p', { className: "lid-step" }, "Step " + (step + 1) + " of " + TOTAL),
       body,
       lh('div', { className: "lid-onb-nav" },
@@ -8159,10 +8159,10 @@ useEffect(() => {
       , Looscid.A11Y_NOW.skipLinks !== false && lh('a', { href: "#main-content", className: "skip-link", onClick: e => { e.preventDefault(); const h = document.querySelector("#main-content h1"); if (h) { if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); h.focus(); } } }, "Skip to content")
       /* Build 194 (Carter, Oct 26 2026 8:24 and 8:31 PM: "All Looscid stuff should have the Looscid logo. It should also be on
          the Site", "The logo on the page"): the top bar shows the Looscid logo on every page, left of Create. No word Looscid
-         sits next to it here, so the picture itself is named Looscid (one stop, "Looscid, image"). It is not a link and not in
+         sits next to it here, so the picture itself is named Looscid logo (one stop). It is not a link and not in
          a heading, so every page still has exactly one h1 and its spoken text is unchanged. */
       , lh('div', { className: "lc-topbar" },
-        lh(LcLogo, { size: 40, alt: "Looscid", className: "lc-topbar-logo" }),
+        lh(LcLogo, { size: 40, alt: "Looscid logo", className: "lc-topbar-logo" }),
         React.createElement('button', { type: "button", className: "btn", onClick: () => setShowCreate(true), "aria-label": "Create", "aria-haspopup": "dialog" }, "Create"))
       , React.createElement('main', {id:"main-content", style:{display:"contents"}}, renderPage())
       , lh(LcResetHost, null)
