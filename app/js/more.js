@@ -3358,7 +3358,7 @@ function CreditsPage({ navigate }) {
     lh('div', { className: "lc-roll" },
       lh('p', { className: "lc-roll-lead" }, "This page is where I say thanks."),
       sec("credits-by", "Created by", [
-        lh('p', { key: "me", className: "lc-roll-star" }, ext("https://github.com/2three1y", "2three1y", "2three1y on GitHub", "me")),
+        lh('p', { key: "me", className: "lc-roll-star" }, ext("https://looscid.github.io/Looscid/", "2three1y", "2three1y", "me")),
         lh('p', { key: "t", className: "lc-roll-what" }, "Design, code, sounds and words."),
         lh('p', { key: "tab", id: "credits-tab", className: "lc-roll-what" }, "Co-written with Tab, my digital assistant, who helps me write and test the code."),
         sub("credits-mine", "2three1y's projects inside Looscid", [
