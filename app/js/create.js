@@ -18,7 +18,7 @@ function lcAttList(atts) {
 /* --- CREATE MENU ------------------------- */
 function AttachPanel({onClose, onAttach, mode, start}) {
   // mode: "dream" or "reply"; start: open straight on one screen (Round 6.5: the Poll button opens Create Poll)
-  const [screen, setScreen] = useState(start || "main"); // main | poll | gif | location | link
+  const [screen, setScreen] = useState(start || "main"); // main | poll | location | link
   const [pollQ, setPollQ] = useState("");
   const [pollOpts, setPollOpts] = useState(["","",""]);
   const [pollDur, setPollDur] = useState("24h");
@@ -36,19 +36,14 @@ function AttachPanel({onClose, onAttach, mode, start}) {
     const t = setTimeout(function () { const h = document.querySelector('.msh[aria-label="' + ({ poll: "Create Poll", link: "Attach Link", location: "Tag Location" })[screen] + '"] h2'); if (h) { if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); h.focus(); } }, 40);
     return function () { clearTimeout(t); };
   }, [screen]);
-  // GIF, Schedule, Mood and Music had no picker: they added an empty chip and said nothing. Until they are real they stay
-  // findable, aria-disabled, and say why once.
-  const SOON = { gif: "Not available yet: a GIF picker comes in a later build.", schedule: "Not available yet: scheduling a Dream comes in a later build.", mood: "Not available yet: adding a mood comes in a later build.", music: "Not available yet: attaching a song comes in a later build." };
+  /* GIF, Schedule, Mood and Music had no picker, so they were listed aria-disabled with "Not available yet".
+     Build 195 follow-up (Carter, Oct 29 2026, Dreamor Council): like Create, Add to Dream only lists what works. They come back when they're real. */
   const attachItems = [
     {id:"photo",icon:"Photo / Video",label:"Photo / Video",sub:"Share an image or video clip"},
-    {id:"gif",icon:"GIF",label:"GIF",sub:"Animated GIF from your library"},
     {id:"poll",icon:"Poll",label:"Poll",sub:"Let your audience vote"},
     {id:"link",icon:"Link",label:"Link",sub:"Attach a website, article or video"},
     {id:"location",icon:"Location",label:"Location",sub:"Tag a place to your Dream"},
-    {id:"schedule",icon:"Schedule",label:"Schedule",sub:"Set a time to publish this Dream"},
-    {id:"mood",icon:"Mood",label:"Mood",sub:"Express how you're feeling"},
-    {id:"music",icon:"Music",label:"Music",sub:"Attach a song you're listening to"},
-  ].filter(i => mode==="reply" || mode==="comment" ? ["photo","gif","poll","link","mood"].includes(i.id) : true);
+  ].filter(i => mode==="reply" || mode==="comment" ? ["photo","poll","link"].includes(i.id) : true);
 
   if (screen==="poll") return (
     React.createElement(Modal, { onClose: ()=>{ if (start === "poll") onClose(); else backTo("poll"); }, title: "Create Poll" , subtitle: "Ask your followers a question"    ,}
@@ -106,14 +101,13 @@ function AttachPanel({onClose, onAttach, mode, start}) {
         } })
       , React.createElement('div', { style: {display:"grid",gridTemplateColumns:"1fr 1fr",gap:8},}
         , attachItems.map(item=>(
-          React.createElement('button', { key: item.id, style: {background:"var(--sf2)",border:"1px solid var(--bd)",borderRadius:12,padding:"13px 10px",cursor:"pointer",textAlign:"center",transition:"all .15s",opacity:SOON[item.id]?.6:1,display:"flex",flexDirection:"column",alignItems:"center",gap:5}, onClick: ()=>{
+          React.createElement('button', { key: item.id, style: {background:"var(--sf2)",border:"1px solid var(--bd)",borderRadius:12,padding:"13px 10px",cursor:"pointer",textAlign:"center",transition:"all .15s",display:"flex",flexDirection:"column",alignItems:"center",gap:5}, onClick: ()=>{
             if(item.id==="poll") setScreen("poll");
             else if(item.id==="link") setScreen("link");
             else if(item.id==="location") setScreen("location");
             else if(item.id==="photo") { const f = document.getElementById("lc-photo-file"); if (f) f.click(); }
-            else if (SOON[item.id]) announce(SOON[item.id]);
             else {onAttach({type:item.id});onClose();}
-          }, id: "lc-att-" + item.id, 'aria-label': item.label+" — "+item.sub, "aria-disabled": SOON[item.id] ? "true" : undefined, "aria-describedby": SOON[item.id] && Looscid.lcHint ? Looscid.lcHint(SOON[item.id]) : undefined,}
+          }, id: "lc-att-" + item.id, 'aria-label': item.label+" — "+item.sub,}
             , React.createElement('span', { style: {fontSize:26},}, item.icon)
             , React.createElement('span', { style: {fontSize:12,fontWeight:700,color:"var(--tx)"},}, item.label)
             , React.createElement('span', { style: {fontSize:10,color:"var(--tx3)",lineHeight:1.3},}, item.sub)
@@ -676,7 +670,7 @@ function LcComposer(props) {
         } }),
       lh('button', Object.assign({}, tb, { onClick: function () { const f = document.getElementById("cr-photo-file"); if (f) f.click(); else setAttach("main"); }, "aria-label": "Add Photo" }), "Photo"),
       lh('button', Object.assign({}, tb, { onClick: function () { setAttach("poll"); }, "aria-label": "Add Poll" }), "Poll"),
-      // Add to Dream (link, GIF, location, schedule, mood, music) was reached only through Add Photo; it has its own button now.
+      // Add to Dream (link, location and more) was reached only through Add Photo; it has its own button now.
       lh('button', Object.assign({}, tb, { id: "cr-attach-more", onClick: function () { setAttach("main"); }, "aria-label": "Attach: link, location and more" }), "Attach"),
       lh(LcMenu, { id: "cr-audience", label: "Audience", hideLabel: true, title: "Who can see this?", prefix: "Audience: ", btnClass: "btn bgb lc-aud-btn", align: "left", up: true, value: audience,
         items: [

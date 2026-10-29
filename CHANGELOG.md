@@ -2,6 +2,14 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
+## Add to Dream only lists what works (no new build yet)
+
+Added October 29, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).
+
+Asked for by Carter in the Dreamor Council (a yes to removing them, the same as the Create menu).
+
+- Add to Dream only lists what works now: Photo / Video, Poll, Link and Location (Photo / Video, Poll and Link in a reply). GIF, Schedule, Mood and Music were listed as Not available yet, and they're gone until they work.
+
 ## Recipe Card: Looscid 2026.138.57 (195)
 
 Released October 29, 2026 at 12:17 AM (Eastern Time, 2026-10-29T04:17:44Z UTC)
