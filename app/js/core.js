@@ -2675,7 +2675,7 @@ function LcSettingsHome({ s, navigate, onBack }) {
       idItem ? lh('ul', { className: "mlist lc-ios-list lc-ios-idcard", role: "list", id: "set-grp-id" },
         lh('li', { className: "mli" }, lh('button', { type: "button", id: lcSetRowId(idItem.label), className: "mitem lc-ios-row lc-ios-id", onClick: idItem.action, "aria-label": lcNameJoin(name, handle, LC_SET_ID_SUB) },
           lh('span', { className: "lc-ios-av", "aria-hidden": "true" }, String(me.initials || name.charAt(0) || "D").slice(0, 2)),
-          lh('span', { className: "mitem-lbl", "aria-hidden": "true" }, lh('span', { className: "lc-ios-idname" }, name), handle ? lh('small', { className: "lc-ios-idhandle" }, handle) : null),
+          lh('span', { className: "mitem-lbl", "aria-hidden": "true" }, idItem.label),           lh('span', { "aria-hidden": "true", style: { color: "var(--tx3)", textAlign: "right", maxWidth: "45%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, handle ? name + " " + handle : name),
           lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })))) : null,
       lists,
       help.length ? lcSetGroup("help", help, LC_SET_GRP_FOOT.help) : null,
