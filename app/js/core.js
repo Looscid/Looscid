@@ -1215,7 +1215,7 @@ function ReplyItem({cm, navigate, onReply}) {
       lh('div', { style: {flex:1} },
         lh('span', { style: {fontWeight:700,fontSize:13} }, name),
         lh('span', { style: {fontSize:11,color:"var(--tx3)",marginLeft:6} }, handle, cm.time ? ", " + cm.time : "")),
-      lh(LcMenu, { id: "cmo-" + cm.id, kind: "action", title: "Reply options", btnLabel: "Thread options", btnClass: "bi", noCaret: true, align: "right",
+      lh(LcMenu, { id: "cmo-" + cm.id, kind: "action", title: "Reply Options", btnLabel: "Thread Options", btnClass: "bi", noCaret: true, align: "right",
         btnText: lh(Ic.Dots, { style: {width:14,height:14} }), onSelect: function (k, it) { it.a(); }, items: [
           onReply ? { id: "reply", name: "Reply", a: function () { onReply(cm); } } : null,
           { id: "hear", name: "Hear reply", a: function () { LcSpeech.speak(lcDreamSpeechParts(cm)); } },
@@ -3595,8 +3595,8 @@ function LooscidOnboarding({ onDone }) {
       onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); finish(); } } },
     lh('div', { className: "lid-onb-in" },
       /* Build 194: the Looscid logo, bigger, on every step of the welcome screens. On step 1 the heading right under it says
-         "Welcome to Looscid", so the picture is hidden from VoiceOver there; on the other steps it is named Looscid logo. */
-      lh(LcLogo, { size: 88, alt: step === 0 ? "" : "Looscid logo", className: "lid-onb-logo" }),
+         "Welcome to Looscid", so the picture is hidden from VoiceOver there; on the other steps it is named Looscid (build 195: alt "Looscid", Carter). */
+      lh(LcLogo, { size: 88, alt: step === 0 ? "" : "Looscid", className: "lid-onb-logo" }),
       lh('p', { className: "lid-step" }, "Step " + (step + 1) + " of " + TOTAL),
       body,
       lh('div', { className: "lid-onb-nav" },
@@ -4272,20 +4272,20 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.137.57";
+const LOOSCID_VERSION = "2026.138.57";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 194;
+const LOOSCID_BUILD = 195;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
 /* Round 7.41 (Carter, Oct 26 2026: "not corpo shit"): every Round gets a codename. Round 7.42: every build has one, back to
    build 136. Set the next one here and in the new LC_VERSION_HISTORY entry (its codename field), version.json ("codename")
    and the CHANGELOG.md heading. Round 7.43: shown as "Codename: <the old version text>" everywhere (see lcCodenamed). */
-const LOOSCID_ROUND = "Round 7.44";
-const LOOSCID_CODENAME = "Night Badge";
+const LOOSCID_ROUND = "Round 7.51";
+const LOOSCID_CODENAME = "Recipe Card";
 Looscid.LOOSCID_ROUND = LOOSCID_ROUND; Looscid.LOOSCID_CODENAME = LOOSCID_CODENAME;
 /* Round 7.41: the one line under the Home heading. Edit this one string to change what it says (empty string hides it). */
 const LOOSCID_NOW_WORKING_ON = "sending photos, polls, links and places with your Dreams";
 Looscid.LOOSCID_NOW_WORKING_ON = LOOSCID_NOW_WORKING_ON;
-const LOOSCID_RELEASED = "2026-10-27T00:59:52Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-10-29T04:17:44Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -4376,7 +4376,7 @@ function lcOldVersion(version, build) { return "Looscid " + version + " (" + bui
 function lcCodenamed(codename, text) { return codename ? codename + ": " + text : text; }
 function lcBuildName(codename, build, round, version) { return lcCodenamed(codename, lcOldVersion(version, build)); }
 function lcVersionLabel() { return lcOldVersion(LOOSCID_VERSION, LOOSCID_BUILD); } // build 191's exact text, no codename
-function lcCodenameLabel() { return lcCodenamed(LOOSCID_CODENAME, lcVersionLabel()); } // "Night Badge: Looscid 2026.137.57 (194)"
+function lcCodenameLabel() { return lcCodenamed(LOOSCID_CODENAME, lcVersionLabel()); } // "Recipe Card: Looscid 2026.138.57 (195)"
 /* Round 7.41 (Carter, Oct 26 2026: side project vibe): fun loading lines. The line you see rotates every 2 seconds, but it's
    aria-hidden: screen readers get one plain, unchanging text ("Loading Dreams"), so nothing is re-read or announced. With
    Reduce Motion on, the first line stays put. Edit the list here. */
@@ -4625,7 +4625,7 @@ function lcCloseProps(target) {
 }
 const LC_INTRO = [
   "Somewhere between your midnight thoughts and your wildest ideas, there’s a place made for you. Welcome to Looscid: a decentralized, open source everything app where your data stays yours.",
-  "Looscid works the way you do, with a screen reader, a braille display, a keyboard, a switch or just your thumbs.",
+  "Looscid works the way you do, on any phone or computer: with your thumbs, a mouse, a keyboard, a switch, a screen reader or a braille display.",
 ];
 Looscid.LC_INTRO = LC_INTRO;
 const DEVICE_PRESETS = [
@@ -8156,9 +8156,10 @@ useEffect(() => {
       /* Build 194 (Carter, Oct 26 2026 8:24 and 8:31 PM: "All Looscid stuff should have the Looscid logo. It should also be on
          the Site", "The logo on the page"): the top bar shows the Looscid logo on every page, left of Create. No word Looscid
          sits next to it here, so the picture itself is named Looscid logo (one stop). It is not a link and not in
-         a heading, so every page still has exactly one h1 and its spoken text is unchanged. */
+         a heading, so every page still has exactly one h1 and its spoken text is unchanged.
+         Build 195 (Carter, Oct 28 2026): its alt text is just "Looscid". */
       , lh('div', { className: "lc-topbar" },
-        lh(LcLogo, { size: 40, alt: "Looscid logo", className: "lc-topbar-logo" }),
+        lh(LcLogo, { size: 40, alt: "Looscid", className: "lc-topbar-logo" }),
         React.createElement('button', { type: "button", className: "btn", onClick: () => setShowCreate(true), "aria-label": "Create", "aria-haspopup": "dialog" }, "Create"))
       , React.createElement('main', {id:"main-content", style:{display:"contents"}}, renderPage())
       , lh(LcResetHost, null)

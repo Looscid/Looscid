@@ -10,3 +10,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: echo "Build OK"
+      # Build 195: the Help Center website (app/help-center/) must match app/js/helpdata.js.
+      - name: Help Center is up to date
+        run: node .github/scripts/build-help.mjs --check

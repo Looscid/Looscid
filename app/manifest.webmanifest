@@ -1,7 +1,7 @@
 {
   "name": "Looscid",
   "short_name": "Looscid",
-  "description": "Just Dream. A social app built for VoiceOver, braille and keyboard from day one.",
+  "description": "Just Dream. An open source social app for everyone, on any phone or computer.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#003AB2",

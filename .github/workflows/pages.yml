@@ -29,6 +29,11 @@ jobs:
       # #161: the changelog page (app/changelog/) reads the site's own copy of CHANGELOG.md.
       - name: Put CHANGELOG.md on the site
         run: cp CHANGELOG.md app/CHANGELOG.md
+      # Build 195: the Help Center website lives in app/help-center/ (made by .github/scripts/build-help.mjs) and is
+      # published at /help/, as Carter asked. It can't be called help in the repo: app/Help/ (the Help link card) already
+      # exists, and on Mac and Windows help and Help are the same folder. GitHub Pages tells them apart, so both work.
+      - name: Put the Help Center at /help/
+        run: cp -r app/help-center app/help
       - uses: actions/upload-pages-artifact@v3
         with:
           path: app

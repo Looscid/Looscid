@@ -1,0 +1,2 @@
+/* Made by .github/scripts/build-help.mjs from app/js/helpdata.js. */
+window.LC_HELP_COURSES = {"looscid-basics":{"t":"Looscid Basics","lessons":[["what-is-looscid","What is Looscid?"],["make-a-looscidid","Make your LooscidID"],["getting-around","Get around Looscid"],["write-a-dream","Write your first Dream"],["reply","Reply to a Dream"],["like-and-redream","Like, Redream and Quote"],["start-a-chat","Start a private chat"],["find-settings","Find any setting"],["backup","Back up and bring back your settings"]]}};

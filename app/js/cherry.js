@@ -74,15 +74,15 @@ function lcCherryKeepChats() { return getAIPrefs().keepChats !== false; }
 function cherryMenuEl(c, where, act) {
   const key = where + ":" + c.id, m = LC_CHERRY.menu, open = !!(m && m.key === key);
   const btnId = "cherry-opt-" + where + "-" + c.id, menuId = btnId + "-menu";
-  const items = lcCherryMenuItems(c), name = "Chat options for " + c.title;
+  const items = lcCherryMenuItems(c), name = "Chat Options for " + c.title;
   return h('div', { key: "opt-" + key, className: "lmenu lc-cherry-opt" },
     h('button', { id: btnId, type: "button", className: "btn bgb lc-btn lmenu-btn", "aria-haspopup": "menu", "aria-expanded": open ? "true" : "false",
-        "aria-controls": open ? menuId : undefined, "aria-label": where === "cur" ? "Chat options" : name, "data-chat": c.id,
+        "aria-controls": open ? menuId : undefined, "aria-label": where === "cur" ? "Chat Options" : name, "data-chat": c.id,
         onClick: function () { open ? act.menuClose(false) : act.menuOpen(key, c.id, btnId, 0, true); },
         onKeyDown: function (e) { if (e.key === "ArrowDown") { e.preventDefault(); act.menuOpen(key, c.id, btnId, 0); } else if (e.key === "ArrowUp") { e.preventDefault(); act.menuOpen(key, c.id, btnId, items.length - 1); } } },
-      "Chat options"),
+      "Chat Options"),
     open ? h('div', { key: "list", className: "lmenu-list" },
-      h('ul', { id: menuId, role: "menu", className: "lmenu-ul", tabIndex: -1, "aria-label": where === "cur" ? "Chat options" : name, onKeyDown: function (e) { act.menuKey(e, items); },
+      h('ul', { id: menuId, role: "menu", className: "lmenu-ul", tabIndex: -1, "aria-label": where === "cur" ? "Chat Options" : name, onKeyDown: function (e) { act.menuKey(e, items); },
           onFocus: function (e) { const m = LC_CHERRY.menu; if (m && m.atName && e.target !== e.currentTarget) { const j = Array.prototype.indexOf.call(e.currentTarget.querySelectorAll("[data-mi]"), e.target.closest("[data-mi]")); if (j >= 0) m.active = j; m.atName = false; act.draw(); } } }, // build 152 fix: was draw(), not defined here
         items.map(function (it, i) {
           const label = it.note ? Looscid.lcNameJoin(it.name, it.note) : it.name;
@@ -154,7 +154,7 @@ function cherryView(st, p, act) {
     /* Your History: All and Pinned */
     h('section', { className: "lc-cherry-hist", "aria-labelledby": "cherry-hist-h" },
       h('h2', { id: "cherry-hist-h", className: "lc-sub-h", tabIndex: -1 }, "Your History"),
-      h('p', { className: "lc-desc" }, keep ? "Your chats with Cherry, newest first. Chat options has Pin, Edit name and Delete." : "Saving chats is off, so new chats aren't kept. Turn it on in Settings, Cherry, Memory."),
+      h('p', { className: "lc-desc" }, keep ? "Your chats with Cherry, newest first. Chat Options has Pin, Edit name and Delete." : "Saving chats is off, so new chats aren't kept. Turn it on in Settings, Cherry, Memory."),
       h('div', { className: "ftabs lc-cherry-tabs", role: "tablist", "aria-label": "Your History", onKeyDown: onTabKey },
         TABS.map(function (t, i) {
           const on = tab === t[0];
@@ -176,7 +176,7 @@ function cherryView(st, p, act) {
                     // Build 148: like a Cherry chat and it's in Liked, Chats.
                     Looscid.lcLikeBtnEl ? Looscid.lcLikeBtnEl("chat", c.id, c.title, { cherry: true }, act.draw) : null));
               }))
-          : h('p', { className: "lc-muted" }, tab === "pinned" ? "No pinned chats yet. Use Chat options, Pin to keep a chat here." : "No chats yet. Your chats with Cherry will be listed here."))),
+          : h('p', { className: "lc-muted" }, tab === "pinned" ? "No pinned chats yet. Use Chat Options, Pin to keep a chat here." : "No chats yet. Your chats with Cherry will be listed here."))),
 
     /* The chat you're in */
     h('section', { className: "lc-cherry-chat", "aria-labelledby": "cherry-chat-h" },

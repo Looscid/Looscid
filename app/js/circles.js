@@ -245,7 +245,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
               , React.createElement('div', { style: {fontWeight:700,fontSize:13},}, u.name, u.verified&&React.createElement('span', { style: {color:"var(--ac2)",fontSize:10},}, " ✓" ))
               , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)"},}, u.handle, ", "  , u.dreamCount, " dreams" )
             )
-            , isAdmin&&u.id!==ME.id&&React.createElement('button', { className: "btn bgb" , style: {fontSize:11,padding:"4px 10px"}, 'aria-label': "Member options for "+u.name,}, "")
+            , isAdmin&&u.id!==ME.id&&React.createElement('button', { className: "btn bgb" , style: {fontSize:11,padding:"4px 10px"}, 'aria-label': "Member Options for "+u.name,}, "")
           )
         ))
       )

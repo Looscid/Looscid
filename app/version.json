@@ -1,14 +1,14 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.137.57",
-  "build": 194,
-  "features": 137,
+  "version": "2026.138.57",
+  "build": 195,
+  "features": 138,
   "fixes": 57,
-  "builds_without_fixes": 137,
-  "released": "2026-10-27T00:59:52Z",
-  "title": "Round 7.44",
-  "codename": "Night Badge",
-  "notes": "Night Badge: Looscid 2026.137.57 (194), a feature update. The Looscid logo now shows at the top of every page and on the welcome screen.",
-  "label": "Night Badge: Looscid 2026.137.57 (194)"
+  "builds_without_fixes": 138,
+  "released": "2026-10-29T04:17:44Z",
+  "title": "Round 7.51",
+  "codename": "Recipe Card",
+  "notes": "Recipe Card: Looscid 2026.138.57 (195), a feature update. A brand new Help Center for beginners, with its own website, the Looscid Basics course and Contact Us. Create only shows what works.",
+  "label": "Recipe Card: Looscid 2026.138.57 (195)"
 }

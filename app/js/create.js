@@ -137,21 +137,18 @@ function lcOpenNostrKey(navigate) {
   let n = 0; const go = function () { const h = document.getElementById("nostr-key-h"); if (h) { h.focus(); return; } if (++n < 30) setTimeout(go, 50); }; setTimeout(go, 80);
 }
 Looscid.lcOpenNostrKey = lcOpenNostrKey;
-/* Build 148 (2three1y's spec sheet): Create has exactly 9 options. ONE implementation, CreateOptions, is used by the Create tab
-   (the dialog below) and by the Create section in More: same description, same options, same names. Options with a real flow
-   in Looscid open it; the rest say Unavailable in plain text and stay reachable, so VoiceOver and the braille display can find them. */
+/* Build 148 (2three1y's spec sheet): ONE implementation, CreateOptions, is used by the Create tab (the dialog below) and by
+   the Create section in More: same description, same options, same names.
+   Build 195 (Carter, Oct 28 2026, Dreamor Council): only options that work are listed. App or Game, New Call, Go Live and GIF
+   were listed as Unavailable; they are gone until they work, and come back here when they do. */
 var LC_CREATE_DESC = "Choose what you want to create.";
 var LC_CREATE_OPTS = [
   { id: "dream", l: "Dream", go: "dream", done: "" },
   { id: "circle", l: "Circle", go: "group" },
   // Round 7.31 (Carter, Oct 26 2026): Custom Feed is now List (a list is a custom feed you can pin). The id stays "feed".
   { id: "feed", l: "List", list: true },
-  { id: "app", l: "App or Game (for developers)" },
-  { id: "call", l: "New Call" },
   { id: "chat", l: "New Chat", chat: true }, // Round 7.30 (Carter, Oct 26 2026): opens Inbox, Chats, Send a message
   { id: "cherry", l: "New Chat with Cherry", cherry: true },
-  { id: "live", l: "Go Live" },
-  { id: "gif", l: "GIF" },
 ];
 // ctx: { navigate, close, open(screen) }. open("dream") opens the composer (local save), open("group") the New Circle flow.
 function lcCreatePick(o, ctx) {
@@ -181,8 +178,8 @@ function CreateOptions({ idp, navigate, close, open }) {
   const ctx = { navigate: navigate, close: close, open: open };
   return lh('div', { className: "lc-create" },
     lh('p', { className: "lc-create-desc" }, LC_CREATE_DESC),
-    lh('ul', { className: "mlist lc-create-list", role: "list", "aria-label": "Create options" }, LC_CREATE_OPTS.map(function (o) {
-      const ok = !!(o.go || o.cherry || o.chat || o.list);
+    lh('ul', { className: "mlist lc-create-list", role: "list", "aria-label": "Create Options" }, LC_CREATE_OPTS.filter(function (o) { return !!(o.go || o.cherry || o.chat || o.list); }).map(function (o) {
+      const ok = true;
       return lh('li', { key: o.id, className: "mli" },
         lh('button', { type: "button", id: idp + "-" + o.id, className: "mitem lc-create-opt" + (ok ? "" : " lc-unavail"), "data-create": o.id,
             // Part 18: an unavailable option is its short name; why it's unavailable is its hint.
@@ -209,7 +206,7 @@ function CreateMenu({onClose, onCircleCreate, prefs, navigate, cherryCtx, start}
       lh('div', { className: "min" },
         lh('div', { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 } },
           lh('h2', { id: "create-h", className: "mtt", tabIndex: -1, ref: headRef, style: { margin: 0, flex: 1 } }, "Create"),
-          lh('button', Object.assign({ type: "button", className: "lc-close", onClick: close }, lcCloseProps("Create")), "Close")),
+          lh('button', Object.assign({ type: "button", className: "lc-close", onClick: close }, lcCloseProps("Creation Options")), "Close")),
         lh(CreateOptions, { idp: "create", navigate: navigate, close: onClose, open: setScreen }))));
 }
 // The first-run welcome is LooscidOnboarding (see the LooscidID block below App's helpers).

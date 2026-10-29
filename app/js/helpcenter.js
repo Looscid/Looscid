@@ -5,8 +5,8 @@
      command, the old long list. <area> help, help <area> or <area>help (cherry help, cherryhelp, projects help,
      earcons help): that area's commands, the same areas as the Commands page. help center: the Help Center page.
      new dream: the Dream composer, empty (you press Dream yourself).
-   - HelpCenterPage: Back, the heading, Close Help Center (braille: "Close"), then short sections with plain headings
-     and paragraphs. Opening it moves focus to its heading, because you asked for it. Nothing else moves focus. */
+   - HelpCenterPage: Back, the heading, Close Help Center (braille: "Close"), then the collections, the course and Contact Us
+     (build 195, words in js/helpdata.js). Opening it moves focus to its heading, because you asked for it. */
 (function (Looscid) {
 const { LC_COMMANDS, lcNorm, lcCloseProps, lcCompose } = Looscid;
 const { lcEl: h, lcPatch, lcPlainScreen, lcIconEl } = Looscid;
@@ -73,7 +73,7 @@ function lcHelpIntent(n) {
   if (hl) hl[1] = "the top commands. An area and help reads that area, like cherry help or cherryhelp; help list reads every command";
   C.push(["help list", "read every command, the long list"]);
   C.push(["cherry help", "just the Cherry commands; any area works: projects help, earcons help, braille help, settings help"]);
-  C.push(["help center", "the Help Center: getting started, commands, Cherry, earcons, accessibility, backup, and how to get help"]);
+  C.push(["help center", "the Help Center: step-by-step articles in Getting Started; Dreams, replies and threads; Chats, Circles and Cherry; Settings, privacy and backup; the Looscid Basics course; and Contact Us"]);
   C.push(["new dream", "the Dream composer, empty; you press Dream yourself"]);
   C.push(["legal", "the Legal page: Terms, Privacy, Community rules, Looscid's license and open source credits"]);
   const G = Looscid.LC_CMD_GROUPS; if (!G) return;
@@ -85,86 +85,177 @@ function lcHelpIntent(n) {
   if (fd) fd[1].unshift("new dream");
 })();
 
-/* The Help Center page. */
-const LC_HELP_SECTIONS = [
-  ["Getting started", [
-    "Looscid is a social app made for VoiceOver, braille and the keyboard. Home has your feed of Dreams. Below it are the tabs: Home, Discover, Create, Alerts and Profile.",
-    "Profile is your own profile. Its tabs include Dreams, Replies and Liked. Its More button holds Cherry, Circles, Create, Alerts, Settings, Commandbar, Help, Lists, Drafts, Credits, Feedback and Logout. On someone else's profile, More has Share profile, Copy link, Add to list, Mute, Block and Report.",
-    "To write a Dream, open Create, or type new dream in Commandbar. You always press Dream yourself.",
-    "Everything stays on this device unless you choose to share it.",
-  ]],
-  ["Commands", [
-    "Commandbar opens from Profile, More, Commandbar, or with Control K or Command K, anywhere. Type a command and press Enter. Anything else goes to Cherry.",
-    "Top commands: " + LC_HELP_TOP.slice(0, 9).map(function (c) { return c[0]; }).join(", ") + ".",
-    "Type help for that short list, an area and help for one area (cherry help, projects help), and commands for the Commands page, where every command is a button.",
-  ], "commands"],
-  ["Cherry", [
-    "Cherry is the Looscid assistant. Open it from Profile, More, Cherry, or type open cherry. new cherry chat starts fresh; cherry history and cherry pinned chats open Your History.",
-    "The Cherry page is called Cherry - DO IT YOUR WAY. New Chat is at the top, then Your History (All and Pinned), then the chat you're in. Each chat has Chat options: Pin, Edit name, Delete, New Chat and History.",
-    "Turn Cherry on or off in Settings, Cherry. Intelligence also has Memory (saving chats), Tools (what Cherry may do for you) and What Cherry did, with Undo.",
-  ]],
-  ["Earcons and sounds", [
-    "Earcons are Looscid's short sounds. Settings, Earcons has the master volume, Soundpacks (Looscid, Looscid OS classic, Insomnia, Hyper Synth, FastSM-inspired, Soundvault, or your own imported pack), and switches for each sound.",
-    "Command earcons give every command its own sound, and a failed command plays the error sound. Keyboard earcons click as you type, with their own sounds for Space, Delete and Enter. Both are on by default, and Calm mode never mutes them.",
-  ]],
-  ["Accessibility", [
-    "VoiceOver: every control has a name, and Looscid speaks results once, politely. Focus only moves when you do something.",
-    "Braille: Settings, Accessibility, Sense has braille output, short labels, and Enter to send. Close buttons show Close on a braille display.",
-    "Keyboard: Tab and Shift Tab move, Enter and Space press, Escape closes. Settings, General, Keyboard lists them all.",
-    "Calm mode, Flash safety and Reduce Motion are in Settings, Accessibility, Motion.",
-  ]],
-  ["Legal", [
-    "About Looscid has a Legal button, and the legal command opens it too: Terms, Privacy, Community rules, Looscid's license (no ads, no commercial use) and the open source credits.",
-  ], "legal"],
-  ["Backup and data", [
-    "Settings, General, Backup saves every setting as one file and brings it back. Backups never hold your keys or passwords.",
-    "Settings, LooscidID shows what is stored on this device, and lets you export or delete it.",
-  ]],
-];
+/* The Help Center page.
+   Build 195 (Carter, Oct 28 2026, Dreamor Council): rebuilt for total beginners, for everyone, on any phone or computer.
+   The words live in js/helpdata.js (LC_HELP), the same ones the Help Center website at /help/ shows. It has:
+   - Collections (Getting Started; Dreams, replies and threads; Chats, Circles and Cherry; Settings, privacy and backup),
+     each listing its step-by-step articles; articles link related articles.
+   - Wherever an article says to go somewhere, a real link opens that screen, with the path after it, like
+     "Open Backup (Profile, More, Settings, General)".
+   - The Looscid Basics course: Lesson 1, 2, 3 with Next. Progress is saved only on this device (localStorage,
+     looscid_help_progress, shared with the website).
+   - Contact Us: Report a bug (a prefilled GitHub issue) and the Discord, whose #feedback turns into GitHub issues. No email.
+   One h1, the screen you're on. Opening a part moves focus to its heading, because you asked for it. */
+const LC_HELP_KEY = "looscid_help_progress";
+const LC_HELP_LIST = { paddingLeft: "1.6em", margin: "4px 0 12px" };
+function lcHelpData() { return Looscid.LC_HELP || { collections: [], articles: [], courses: [], contact: {} }; }
+function lcHelpDone(course) { try { const o = JSON.parse(localStorage.getItem(LC_HELP_KEY) || "{}"); return Array.isArray(o[course]) ? o[course] : []; } catch (e) { return []; } }
+function lcHelpMark(course, id, clear) {
+  try { const o = JSON.parse(localStorage.getItem(LC_HELP_KEY) || "{}") || {};
+    if (clear) delete o[course]; else { const d = Array.isArray(o[course]) ? o[course] : []; if (d.indexOf(id) < 0) d.push(id); o[course] = d; }
+    localStorage.setItem(LC_HELP_KEY, JSON.stringify(o)); } catch (e) {}
+}
+// Turns [[Route|Label|Path]] and {{article}} into links. Screen links open that screen in Looscid; article links open the article here.
+function lcHelpRich(text, act) {
+  const out = [], re = /\[\[([^|\]]*)\|([^|\]]+)\|([^\]]+)\]\]|\{\{([a-z0-9-]+)(?:\|([^}]+))?\}\}/g, D = lcHelpData();
+  let last = 0, m, k = 0;
+  while ((m = re.exec(text))) {
+    if (m.index > last) out.push(text.slice(last, m.index));
+    if (m[1] !== undefined) {
+      const r = Looscid.lcRouteFor ? Looscid.lcRouteFor(m[1]) : null, page = r ? r.page : null;
+      const href = page && Looscid.lcPathFor ? (Looscid.lcPathFor(page) || "#") : "#";
+      out.push(h('a', { key: "g" + (k++), className: "lc-link lc-help-go", href: href, onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); if (page && Looscid.LC_NAV) Looscid.LC_NAV(page); } }, "Open " + m[2]));
+      out.push(" (" + m[3] + ")");
+    } else {
+      const a = D.articles.find(function (x) { return x.id === m[4]; });
+      out.push(h('a', { key: "a" + (k++), className: "lc-link", href: (D.home || "help/") + m[4] + "/", onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); act.open({ kind: "art", id: m[4] }); } }, m[5] || (a ? a.t : m[4])));
+    }
+    last = re.lastIndex;
+  }
+  if (last < text.length) out.push(text.slice(last));
+  return out;
+}
+function lcHelpTitle(v) {
+  const D = lcHelpData();
+  if (v.kind === "col") { const c = D.collections.find(function (x) { return x.id === v.id; }); return c ? c.t : "Help Center"; }
+  if (v.kind === "art") { const a = D.articles.find(function (x) { return x.id === v.id; }); return a ? a.t : "Help Center"; }
+  if (v.kind === "course") { const c = D.courses.find(function (x) { return x.id === v.id; }); return c ? c.t : "Help Center"; }
+  if (v.kind === "contact") return D.contact.t || "Contact Us";
+  return "Help Center";
+}
+function lcHelpArtLink(a, act, extra) {
+  return h('a', { className: "lc-link", href: (lcHelpData().home || "help/") + a.id + "/", onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); act.open(Object.assign({ kind: "art", id: a.id }, extra || {})); } }, a.t);
+}
+function helpBody(v, act) {
+  const D = lcHelpData(), pad = { padding: "0 16px" }, web = D.home || "https://looscid.github.io/Looscid/help/";
+  const P = function (t, k) { return h('p', { key: k, className: "lc-desc" }, t); };
+  if (v.kind === "col") {
+    const c = D.collections.find(function (x) { return x.id === v.id; }) || {}, arts = D.articles.filter(function (a) { return a.c === v.id; });
+    return h('div', { className: "lc-grp lc-help-sec", style: pad },
+      P(c.s, "s"),
+      h('h2', { className: "lc-sub-h" }, "Articles in this collection"),
+      h('ol', { className: "lc-help-list", style: LC_HELP_LIST }, arts.map(function (a) { return h('li', { key: a.id }, lcHelpArtLink(a, act), h('p', { className: "lc-muted" }, a.s)); })));
+  }
+  if (v.kind === "art") {
+    const a = D.articles.find(function (x) { return x.id === v.id; });
+    if (!a) return P("That article isn't here anymore.", "x");
+    const co = v.course ? D.courses.find(function (x) { return x.id === v.course; }) : null, idx = co ? co.lessons.indexOf(a.id) : -1;
+    const col = D.collections.find(function (x) { return x.id === a.c; });
+    return h('div', { className: "lc-grp lc-help-sec", style: pad },
+      co && idx >= 0 ? h('p', { className: "lc-desc lc-help-lesson" }, co.t + ": Lesson " + (idx + 1) + " of " + co.lessons.length) : null,
+      h('p', { className: "lc-desc" }, lcHelpRich(a.s, act)),
+      h('h2', { className: "lc-sub-h" }, "Steps"),
+      h('ol', { className: "lc-help-steps", style: LC_HELP_LIST }, a.steps.map(function (t, i) { return h('li', { key: i, className: "lc-desc" }, lcHelpRich(t, act)); })),
+      a.tips && a.tips.length ? h('h2', { className: "lc-sub-h" }, "Good to know") : null,
+      a.tips && a.tips.length ? h('ul', { style: LC_HELP_LIST }, a.tips.map(function (t, i) { return h('li', { key: i, className: "lc-desc" }, lcHelpRich(t, act)); })) : null,
+      a.sr && a.sr.length ? h('p', null, h('button', { type: "button", id: "lc-help-sr-btn", className: "btn bgb lc-btn", "aria-expanded": act.srOpen ? "true" : "false", "aria-controls": "lc-help-sr", onClick: act.toggleSr }, "Screen reader tips (optional)")) : null,
+      a.sr && a.sr.length && act.srOpen ? h('ul', { id: "lc-help-sr", style: LC_HELP_LIST }, a.sr.map(function (t, i) { return h('li', { key: i, className: "lc-desc" }, lcHelpRich(t, act)); })) : null,
+      a.rel && a.rel.length ? h('h2', { className: "lc-sub-h" }, "Related articles") : null,
+      a.rel && a.rel.length ? h('ul', { style: LC_HELP_LIST }, a.rel.map(function (id) { const r = D.articles.find(function (x) { return x.id === id; }); return r ? h('li', { key: id }, lcHelpArtLink(r, act)) : null; })) : null,
+      co && idx >= 0 ? h('div', { className: "lc-inrow lc-help-course-nav", style: { marginTop: 16 } },
+        idx > 0 ? h('button', { type: "button", id: "lc-help-prev", className: "btn bgb lc-btn", onClick: function () { act.open({ kind: "art", id: co.lessons[idx - 1], course: co.id }); } }, "Previous lesson") : null,
+        idx < co.lessons.length - 1
+          ? h('button', { type: "button", id: "lc-help-next", className: "btn bp lc-btn", onClick: function () { lcHelpMark(co.id, a.id); act.open({ kind: "art", id: co.lessons[idx + 1], course: co.id }); } }, "Next lesson")
+          : h('button', { type: "button", id: "lc-help-next", className: "btn bp lc-btn", onClick: function () { lcHelpMark(co.id, a.id); act.open({ kind: "course", id: co.id }); act.say("You finished " + co.t + "."); } }, "Finish the course"),
+        h('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { act.open({ kind: "course", id: co.id }); } }, "All lessons"))
+        : (col ? h('p', { className: "lc-desc" }, h('a', { className: "lc-link", href: web + col.id + "/", onClick: function (e) { e.preventDefault(); act.open({ kind: "col", id: col.id }); } }, "More in " + col.t)) : null),
+      h('p', { className: "lc-desc" }, h('a', { className: "lc-link", href: web + a.id + "/", target: "_blank", rel: "noopener noreferrer" }, "This article on the web", h('span', { className: "sr-only" }, ", opens in a new tab"))));
+  }
+  if (v.kind === "course") {
+    const co = D.courses.find(function (x) { return x.id === v.id; }) || { lessons: [] }, d = lcHelpDone(co.id);
+    const n = co.lessons.filter(function (id) { return d.indexOf(id) >= 0; }).length, next = co.lessons.find(function (id) { return d.indexOf(id) < 0; });
+    return h('div', { className: "lc-grp lc-help-sec", style: pad },
+      P(co.s, "s"),
+      P(n === 0 ? co.lessons.length + " lessons." : n >= co.lessons.length ? "All " + co.lessons.length + " lessons done." : n + " of " + co.lessons.length + " lessons done.", "n"),
+      h('button', { type: "button", id: "lc-help-course-go", className: "btn bp lc-big", onClick: function () { act.open({ kind: "art", id: next || co.lessons[0], course: co.id }); } },
+        next ? (n ? "Continue with Lesson " : "Start Lesson ") + (co.lessons.indexOf(next) + 1) : "Go over Lesson 1 again"),
+      h('h2', { className: "lc-sub-h" }, "Lessons"),
+      h('ol', { className: "lc-help-list", style: LC_HELP_LIST }, co.lessons.map(function (id, i) { const a = D.articles.find(function (x) { return x.id === id; }); if (!a) return null;
+        return h('li', { key: id }, h('a', { className: "lc-link", href: web + id + "/?course=" + co.id, onClick: function (e) { e.preventDefault(); act.open({ kind: "art", id: id, course: co.id }); } }, "Lesson " + (i + 1) + ": " + a.t + (d.indexOf(id) >= 0 ? ", done" : ""))); })),
+      h('button', { type: "button", id: "lc-help-course-reset", className: "btn bgb lc-btn", onClick: function () { lcHelpMark(co.id, null, true); act.redraw(); act.say("Progress cleared. The course starts at Lesson 1 again."); } }, "Start the course over"),
+      P("Your progress is saved only on this device. Nothing is sent anywhere.", "p"));
+  }
+  if (v.kind === "contact") {
+    const k = D.contact || {};
+    return h('div', { className: "lc-grp lc-help-sec", style: pad },
+      P(k.s, "s"),
+      h('h2', { className: "lc-sub-h" }, "Report a bug"),
+      P("Found something broken? This opens a new GitHub issue with your build number and device already filled in, so you just say what happened. GitHub asks you to log in there.", "b"),
+      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-report-bug", className: "btn bgb lc-big lc-bug-link", href: Looscid.lcBugReportUrl ? Looscid.lcBugReportUrl() : "https://github.com/Looscid/Looscid/issues/new", target: "_blank", rel: "noopener noreferrer",
+        onClick: function (e) { if (Looscid.lcBugReportUrl) e.currentTarget.href = Looscid.lcBugReportUrl(); } }, "Report a bug", h('span', { className: "sr-only" }, ", opens a new GitHub issue in a new tab"))),
+      h('h2', { className: "lc-sub-h" }, "Send feedback or join the Discord"),
+      P("Ideas, questions, or just want to say hi? Join the Looscid Discord. Anything you write in its #feedback channel turns into a GitHub issue by itself, and LooscidBOT answers you there with the link.", "d"),
+      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-discord", className: "lc-link", href: k.discord || Looscid.LC_DISCORD_URL || "https://discord.gg/M6xrD8EBXU", target: "_blank", rel: "noopener noreferrer" }, "Join the Looscid Discord", h('span', { className: "sr-only" }, ", opens in a new tab"))),
+      P("Send Feedback writes a GitHub issue for you: pick a category, say what happened, and press Open it on GitHub.", "f"),
+      h('button', { type: "button", id: "lc-help-feedback", className: "btn bgb lc-btn", onClick: act.feedback }, "Open Send Feedback"),
+      h('h2', { className: "lc-sub-h" }, "See what others reported"),
+      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-issues", className: "lc-link", href: k.issues || "https://github.com/Looscid/Looscid/issues", target: "_blank", rel: "noopener noreferrer" }, "Looscid's GitHub issues", h('span', { className: "sr-only" }, ", opens in a new tab"))),
+      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-build", className: "lc-link", href: "https://github.com/Looscid/Looscid", target: "_blank", rel: "noopener noreferrer" }, "Help build Looscid on GitHub", h('span', { className: "sr-only" }, ", opens in a new tab"))));
+  }
+  // Home
+  return h('div', null,
+    h('p', { className: "lc-desc", style: { padding: "12px 16px 0" } }, "Step-by-step help for Looscid, for everyone, on any phone or computer. New here? Start with the Looscid Basics course. In these articles, press means tap, click, or Enter or Space on a keyboard."),
+    h('section', { className: "lc-grp lc-help-sec", "aria-labelledby": "lc-help-h-courses", style: pad },
+      h('h2', { id: "lc-help-h-courses", className: "lc-sub-h" }, "Courses"),
+      D.courses.map(function (co) { const n = lcHelpDone(co.id).length;
+        return h('div', { key: co.id },
+          h('p', { className: "lc-desc" }, h('a', { id: "lc-help-course-" + co.id, className: "lc-link", href: web + co.id + "/", onClick: function (e) { e.preventDefault(); act.open({ kind: "course", id: co.id }); } }, co.t),
+            ". " + co.s + (n ? " " + Math.min(n, co.lessons.length) + " of " + co.lessons.length + " lessons done." : ""))); })),
+    D.collections.map(function (c) {
+      const hid = "lc-help-h-" + c.id;
+      return h('section', { key: c.id, className: "lc-grp lc-help-sec", "aria-labelledby": hid, style: pad },
+        h('h2', { id: hid, className: "lc-sub-h" }, c.t),
+        P(c.s, "s"),
+        h('ul', { style: LC_HELP_LIST }, D.articles.filter(function (a) { return a.c === c.id; }).map(function (a) { return h('li', { key: a.id, className: "lc-desc" }, lcHelpArtLink(a, act)); })),
+        h('button', { type: "button", id: "lc-help-col-" + c.id, className: "btn bgb lc-btn", onClick: function () { act.open({ kind: "col", id: c.id }); } }, "Open " + c.t));
+    }),
+    h('section', { className: "lc-grp lc-help-sec", "aria-labelledby": "lc-help-h-more", style: pad },
+      h('h2', { id: "lc-help-h-more", className: "lc-sub-h" }, "Commands and the fine print"),
+      P("Type help in Commandbar for the top commands, an area and help for one area, like cherry help, and commands for every command.", "c"),
+      h('button', { type: "button", id: "lc-help-commands", className: "btn bgb lc-btn", onClick: act.commands }, "Open the Commands page"),
+      P("Terms, Privacy, Community rules, Looscid's license and the open source credits are on the Legal page.", "l"),
+      h('button', { type: "button", id: "lc-help-legal", className: "btn bgb lc-btn", onClick: function () { if (Looscid.LC_NAV) Looscid.LC_NAV("legal"); } }, "Open Legal")),
+    h('section', { className: "lc-grp lc-help-sec", "aria-labelledby": "lc-help-h-gethelp", style: { padding: "0 16px 24px" } },
+      h('h2', { id: "lc-help-h-gethelp", className: "lc-sub-h" }, "Contact Us"),
+      P("Something broken, or an idea? Report a bug on GitHub, or tell us on the Looscid Discord. Looscid has no email.", "k"),
+      h('button', { type: "button", id: "lc-help-contact", className: "btn bgb lc-btn", onClick: function () { act.open({ kind: "contact" }); } }, "Open Contact Us"),
+      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-web", className: "lc-link", href: web, target: "_blank", rel: "noopener noreferrer" }, "The Help Center on the web", h('span', { className: "sr-only" }, ", opens in a new tab")))));
+}
 function helpView(p, act) {
+  const v = act.view;
   return h('div', { className: "pg lc-helpcenter" },
     h('div', { className: "hdr" },
       h('div', { className: "hdr-row" },
-        h('button', { type: "button", className: "bi", onClick: act.back, "aria-label": "Back" }, lcIconEl("Bck", { style: { width: 21, height: 21 } })),
-        h('h1', { className: "hdr-title", tabIndex: -1 }, "Help Center"),
+        h('button', { type: "button", className: "bi", onClick: act.up, "aria-label": "Back" }, lcIconEl("Bck", { style: { width: 21, height: 21 } })),
+        h('h1', { className: "hdr-title", tabIndex: -1 }, lcHelpTitle(v)),
         h('button', Object.assign({ type: "button", className: "lc-close", onClick: act.back }, lcCloseProps("Help Center")), "Close"))),
-    h('p', { className: "lc-desc", style: { padding: "12px 16px 0" } }, "Short answers for using Looscid with VoiceOver, braille or a keyboard. Each part has its own heading."),
-    LC_HELP_SECTIONS.map(function (s, i) {
-      const hid = "lc-help-h-" + i;
-      return h('section', { key: s[0], className: "lc-grp lc-help-sec", "aria-labelledby": hid, style: { padding: "0 16px" } },
-        h('h2', { id: hid, className: "lc-sub-h" }, s[0]),
-        s[1].map(function (t, k) { return h('p', { key: k, className: "lc-desc" }, t); }),
-        s[2] === "commands" ? h('button', { type: "button", id: "lc-help-commands", className: "btn bgb lc-btn", onClick: act.commands }, "Open the Commands page") : null,
-        s[2] === "legal" ? h('button', { type: "button", id: "lc-help-legal", className: "btn bgb lc-btn", onClick: function () { if (Looscid.LC_NAV) Looscid.LC_NAV("legal"); } }, "Open Legal") : null);
-    }),
-    // Round 6.6 (2three1y, 7:13 PM: yes to a Getting help section): the last section. Plain headings, paragraphs and links.
-    h('section', { className: "lc-grp lc-help-sec", "aria-labelledby": "lc-help-h-gethelp", style: { padding: "0 16px 24px" } },
-      h('h2', { id: "lc-help-h-gethelp", className: "lc-sub-h" }, "Getting help"),
-      // Round 7.41 (Carter): Report a bug opens a new GitHub issue with the build and device filled in; the Discord is next to it.
-      h('h3', { className: "lid-sub" }, "Report a bug"),
-      h('p', { className: "lc-desc" }, "Found something broken? Tell me. This opens a new GitHub issue with your build number and device already filled in, so you just say what happened."),
-      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-report-bug", className: "btn bgb lc-big lc-bug-link", href: Looscid.lcBugReportUrl ? Looscid.lcBugReportUrl() : "https://github.com/Looscid/Looscid/issues/new", target: "_blank", rel: "noopener noreferrer",
-        onClick: function (e) { if (Looscid.lcBugReportUrl) e.currentTarget.href = Looscid.lcBugReportUrl(); } }, "Report a bug", h('span', { className: "sr-only" }, ", opens a new GitHub issue in a new tab"))),
-      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-discord", className: "lc-link", href: Looscid.LC_DISCORD_URL || "https://discord.gg/M6xrD8EBXU", target: "_blank", rel: "noopener noreferrer" }, "Or tell me on the Looscid Discord", h('span', { className: "sr-only" }, ", opens in a new tab"))),
-      h('h3', { className: "lid-sub" }, "Send Feedback"),
-      h('p', { className: "lc-desc" }, "Send Feedback is on the About Looscid page: open About Looscid from the footer at the end of any page, then Send Feedback. Choose a category, like Bug report, Feature request or Accessibility, write what happened, and press Open it on GitHub. That opens a new issue on Looscid's public GitHub page with your words filled in, so everyone can follow it. GitHub asks you to log in there."),
-      h('button', { type: "button", id: "lc-help-feedback", className: "btn bgb lc-btn", onClick: act.feedback }, "Open Send Feedback"),
-      h('h3', { className: "lid-sub" }, "Report a bug or ask for a feature"),
-      h('p', { className: "lc-desc" }, "You can also go straight to GitHub issues. It opens in a new tab."),
-      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-issues", className: "lc-link", href: "https://github.com/Looscid/Looscid/issues", target: "_blank", rel: "noopener noreferrer" }, "Looscid's GitHub issues: https://github.com/Looscid/Looscid/issues")),
-      h('h3', { className: "lid-sub" }, "Help build Looscid"),
-      h('p', { className: "lc-desc" }, "Looscid is open source, and help is welcome."),
-      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-build", className: "lc-link", href: "https://github.com/Looscid/Looscid", target: "_blank", rel: "noopener noreferrer" }, "Help build Looscid on GitHub")),
-      h('h3', { className: "lid-sub" }, "Quick reminders"),
-      h('p', { className: "lc-desc" }, "Type help for the top commands, an area and help for one area, like cherry help or projects help, and commands for every command.")));
+    helpBody(v, act));
 }
 const HelpCenterPage = lcPlainScreen("HelpCenterPage", function (host, props) {
   let p = props, alive = true;
   const act = {
+    view: { kind: "home" }, srOpen: false, trail: [],
     back: function () { if (p.onBack) p.onBack(); },
     commands: function () { if (Looscid.LC_NAV) Looscid.LC_NAV("commands"); },
     feedback: function () { if (Looscid.LC_NAV) Looscid.LC_NAV("feedback"); },
+    say: function (t) { if (Looscid.announce) Looscid.announce(t); },
+    redraw: function () { draw(); },
+    toggleSr: function () { act.srOpen = !act.srOpen; draw(); },
+    open: function (v) { act.trail.push(act.view); act.view = v; act.srOpen = false; draw(); focusHead(); },
+    // Back inside the Help Center goes to the part you came from; at the start, it leaves the Help Center.
+    up: function () { if (act.trail.length) { act.view = act.trail.pop(); act.srOpen = false; draw(); focusHead(); } else act.back(); },
   };
+  const focusHead = function () { setTimeout(function () { if (!alive) return; const hd = host.querySelector("h1"); if (hd) { hd.focus(); try { window.scrollTo(0, 0); } catch (e) {} } }, 40); };
   const draw = function () { if (alive) lcPatch(host, helpView(p, act)); };
   draw();
   setTimeout(function () { if (!alive) return; const hd = host.querySelector("h1"); if (hd && !host.contains(document.activeElement)) hd.focus(); }, 60);
@@ -220,5 +311,5 @@ const LegalPage = lcPlainScreen("LegalPage", function (host, props) {
   return { update: function (np) { p = np; draw(); }, stop: function () { alive = false; } };
 });
 
-Object.assign(Looscid, { HelpCenterPage, LegalPage, LC_HELP_TOP, LC_HELP_AREAS, LC_HELP_SECTIONS, lcHelpIntent, lcHelpArea });
+Object.assign(Looscid, { HelpCenterPage, LegalPage, LC_HELP_TOP, LC_HELP_AREAS, lcHelpIntent, lcHelpArea, lcHelpRich });
 })(window.Looscid = window.Looscid || {});

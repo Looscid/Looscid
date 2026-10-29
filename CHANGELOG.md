@@ -2,6 +2,25 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
+## Recipe Card: Looscid 2026.138.57 (195)
+
+Released October 29, 2026 at 12:17 AM (Eastern Time, 2026-10-29T04:17:44Z UTC)
+
+A feature update, asked for by Carter in the Dreamor Council (a Help Center that teaches anyone how to use Looscid, with “articles and links to articles, collections lol like Getting Started”, and “GitHub is good enough” for Contact Us).
+
+- The Help Center is brand new, written for total beginners, for everyone, on any phone or computer with touch, a mouse or a keyboard. Screen reader tips are an optional extra in the articles that need them.
+- It's organized into four collections of step-by-step articles: Getting Started (What is Looscid, Make your LooscidID, Log in and log out, Get around Looscid, Use Commandbar); Dreams, replies and threads; Chats, Circles and Cherry; and Settings, privacy and backup. Each collection lists its articles, and articles link to related ones.
+- When an article says to go somewhere, it's a real link that opens that screen, followed by the way to get there by hand, like “Open Backup (Profile, More, Settings, General)”.
+- New course: Looscid Basics. Nine short lessons, Lesson 1 to Lesson 9, with a Next button. Your progress is saved only on your device, and Start the course over clears it.
+- Contact Us, like X's help center: Report a bug opens a GitHub issue with your build and device filled in, and the Looscid Discord's #feedback channel turns into GitHub issues by itself. There's no email.
+- The Help Center has its own website at looscid.github.io/Looscid/help/. Every collection, article, the course and Contact Us has its own link to share, like /help/getting-started/ and /help/make-a-looscidid/. The app's Help Center and the website use the same words (app/js/helpdata.js).
+- Create only lists what works now: Dream, Circle, List, New Chat and New Chat with Cherry. App or Game, New Call, Go Live and GIF are gone until they work. Its close button is called Close Creation Options.
+- Options has a capital O in every name: Dreamor Options, Thread Options, Reply Options, Chat Options (and Chat Options for a chat's name), Alert Options, Create Options, Member Options, and Dream and Reply Options.
+- The Looscid logo in the top bar and on the welcome screens has the alt text Looscid. Where the word Looscid is right next to it, it stays hidden from screen readers.
+- Looscid is for everyone: the descriptions on the site, in link previews, the app manifest and the README say “an open source social app for everyone, on any phone or computer” now, instead of putting one kind of device first.
+- Link previews: Looscid links already showed a card, and now the Help Center pages do too, each with its own title and description.
+- This one's codename is Recipe Card, because the Help Center is step by step now, like a good recipe.
+
 ## LooscidBOT: Discord feedback turns into GitHub issues (no new build)
 
 Added October 28, 2026 (Eastern Time). This doesn't change the app itself, so the build stays Night Badge: Looscid 2026.137.57 (194).

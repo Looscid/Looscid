@@ -26,6 +26,7 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 | `app/js/cherry.js` | Cherry, the assistant, on its own page (Round 6.5.2): the chat, New Chat, Your History (All and Pinned, saved in `looscid_cherry_chats`) and What Cherry did. The page is **plain JavaScript**; the model picker in Settings, Intelligence is still React. Cherry's answers (`cherryRespond`) live here too. |
 | `app/js/commands.js` | The Commands page (Round 6.5.3): every Commandbar command grouped by area, each a button that runs it through Commandbar's own runner. **Plain JavaScript.** The commands themselves (`LC_COMMANDS`, `LC_EXACT`, `lcRun`) stay in `app/js/core.js`. |
 | `app/js/projects.js` | Projects (Round 6.6): 2three1y's own projects (`LC_PROJECTS`), the project page with Back and Close, the Commandbar words (projects, open and a project, lyrics and a song) and Dream Results from Memeprojects. **Plain JavaScript.** |
+| `app/js/helpdata.js` | Build 195: the Help Center's words (collections, articles, the Looscid Basics course, Contact Us) as `Looscid.LC_HELP`. Used by `helpcenter.js` and by `.github/scripts/build-help.mjs`, which makes the Help Center website in `app/help-center/` (published at `/help/`). Run `node .github/scripts/build-help.mjs` after editing it. **Plain JavaScript.** |
 | `app/js/helpcenter.js` | Help (Round 6.6): `help` (the top commands), an area and `help` (cherry help), `help list`, `new dream`, and the Help Center page. **Plain JavaScript.** |
 | `app/js/liked.js` | Liked (build 147): `LikedView`, one component for everything you like (Dreams, Circles, Apps, Marketplace, Chats, Searches, with an Images filter), used by your profile's Liked tab. Its store, `looscid_liked`, is in `app/js/core.js`. Still React, like the profile. |
 | `app/projects/` | The ported projects, one folder each with its own `LICENSE`, plus `dream-results.js` (the Dream Results button inside Memeprojects). |
@@ -42,7 +43,7 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 5. `app/js/cherry.js` (Round 6.5.2: same place in the order; the frame shows its page with `case "cherry"` in `app/js/core.js`)
 6. `app/js/commands.js` (Round 6.5.3: new, right after `app/js/cherry.js`; the frame shows its page with `case "commands"` in `app/js/core.js`)
 7. `app/js/projects.js` (Round 6.6: new, right after `app/js/commands.js`; the frame shows a project with `case "project"` in `app/js/core.js`)
-8. `app/js/helpcenter.js` (Round 6.6: new, right after `app/js/projects.js`; the frame shows its page with `case "helpcenter"` in `app/js/core.js`)
+8. `app/js/helpcenter.js`, with `app/js/helpdata.js` right before it (build 195) (Round 6.6: new, right after `app/js/projects.js`; the frame shows its page with `case "helpcenter"` in `app/js/core.js`)
 9. `app/js/liked.js` (build 147: new, right after `app/js/helpcenter.js`; the profile's Liked tab renders `Looscid.LikedView`)
 10. The mount: `app/js/mount.js` at the end of `app/index.html` starts the app (not inside another website's frame).
 

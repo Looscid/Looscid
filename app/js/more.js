@@ -654,7 +654,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
     message: Looscid.lcLogoutMessage(),
     confirmLabel: LT.ok, onCancel: function () { setLogoutAsk(false); backToMore(); },
     onConfirm: function () { setLogoutAsk(false); Looscid.lcDoLogout(); } }) : null;
-  const moreMenu = preview ? null : lh(React.Fragment, null, lh(LcMenu, { id: "pf-more-btn", menuId: "pf-more", kind: "action", title: "More", btnLabel: "Dreamor options", btnRef: moreBtn,
+  const moreMenu = preview ? null : lh(React.Fragment, null, lh(LcMenu, { id: "pf-more-btn", menuId: "pf-more", kind: "action", title: "More", btnLabel: "Dreamor Options", btnRef: moreBtn,
     btnClass: "btn bgb lc-big lc-prof-morebtn", className: "lc-prof-more", itemClass: "lc-dopt",
     btnText: lh('span', null, lh(Ic.Dots, { style: { width: 18, height: 18 }, "aria-hidden": "true" }), " More"), items: moreItems,
     onSelect: function (k, it) { if (it.a) it.a(); } }), logoutDlg);
@@ -2762,7 +2762,19 @@ Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
    exact version text: "Midnight Snack: Looscid 2026.135.56 (191)", no Round (lcCodenamed in core.js). A new build needs a
    new codename here, in LOOSCID_CODENAME (core.js), version.json and the CHANGELOG.md heading. No repeats. */
 const LC_VERSION_HISTORY = [
-  { version: "2026.137.57", build: 194, released: LOOSCID_RELEASED, title: "Round 7.44", codename: "Night Badge", notes: [
+  { version: "2026.138.57", build: 195, released: LOOSCID_RELEASED, title: "Round 7.51", codename: "Recipe Card", notes: [
+    "The Help Center is brand new, for total beginners. Step-by-step articles in four collections: Getting Started; Dreams, replies and threads; Chats, Circles and Cherry; and Settings, privacy and backup.",
+    "When an article says to go somewhere, it's a real link that opens that screen, with the way to get there after it, like Open Backup (Profile, More, Settings, General).",
+    "New course: Looscid Basics. Nine short lessons with a Next button. Your progress is saved only on your device.",
+    "Contact Us is in the Help Center: Report a bug on GitHub, or tell us on the Looscid Discord. No email.",
+    "The Help Center has its own website now, at looscid.github.io/Looscid/help/, and every collection and article has its own link you can share.",
+    "Create only shows what works: Dream, Circle, List, New Chat and New Chat with Cherry. Its close button says Close Creation Options.",
+    "Options has a capital O everywhere: Dreamor Options, Thread Options, Reply Options, Chat Options, Alert Options, Create Options and Member Options.",
+    "The Looscid logo's alt text is just Looscid. Looscid links show a preview card, and the Help Center's do too.",
+    "Looscid is for everyone, on any phone or computer, so its descriptions say that now.",
+    "This one's codename is Recipe Card, because the Help Center is step by step now, like a good recipe.",
+  ] },
+  { version: "2026.137.57", build: 194, released: "2026-10-27T00:59:52Z", title: "Round 7.44", codename: "Night Badge", notes: [
     "The Looscid logo now shows at the top of every page and on the welcome screen.",
     "It sits at the top left, next to Create. VoiceOver says it once, as Looscid, image. On the first welcome screen it's hidden from VoiceOver, because the heading right under it already says Welcome to Looscid.",
     "The changelog page and the status page show it too.",
@@ -3254,7 +3266,7 @@ function lcAboutInfo() {
       "LooscidID, made on this device the first time you open Looscid. Add login methods any time: Nostr, Mastodon and the fediverse, or Bluesky.",
       "Feed, Discover, Circles and Alerts, with Cherry, the built-in assistant.",
       "No ads and no algorithm hiding your Dreams. Your data stays yours.",
-      "Built for VoiceOver, TalkBack, keyboards, switches and braille displays.",
+      "Works with touch, mouse, keyboard, switches and screen readers, on any phone or computer.",
     ],
     facts: [
       ["Version", lcCodenameLabel()],
@@ -3473,7 +3485,7 @@ const LC_COMING_SOON = [
   { name: "RTT and TTY", where: "Accessibility, Hearing", desc: "Real-time text for calls." },
   { name: "Native braille drivers", where: "Sense", desc: "Direct USB and Bluetooth braille display support, without a screen reader." },
   // Round 5 fixes: Mute and Block are no longer listed here; both exist (a Dreamor's options, and Settings, Privacy).
-  { name: "Report", where: "Dream and reply options", desc: "Flag a Dream or reply for review." },
+  { name: "Report", where: "Dream and Reply Options", desc: "Flag a Dream or reply for review." },
   { name: "Custom feeds", where: "Feeds and Create", desc: "Build your own feed, as its own tab." },
   { name: "Pubky login", where: "LooscidID", desc: "Log in with the Pubky Ring app. No email or phone number." },
   { name: "Plume", where: "LooscidID", desc: "Its login needs your password, so Looscid will follow Plume blogs over ActivityPub instead." },
@@ -3642,7 +3654,7 @@ function LcSetRow({ def, onChange }) {
     const soon = def.k === "translateTo" && !lcTranslateOk();
     return lh('div', { className: "lc-row" },
       lh(LcMenu, { id: id, label: def.l, value: v, items: def.o.map(function (o) { return { id: o[0], name: o[1] }; }), onSelect: function (val) { put(val); } }),
-      soon ? lh('p', { id: id + "-d", className: "lc-desc" }, "This browser has no on-device translator, so the Translate action stays hidden in Dream options here. Looscid never sends your Dreams to an outside service to translate them.") : lh('p', { className: "lc-desc" }, "Translate uses your browser's own on-device translator. Nothing leaves your device."));
+      soon ? lh('p', { id: id + "-d", className: "lc-desc" }, "This browser has no on-device translator, so the Translate action stays hidden in Dream Options here. Looscid never sends your Dreams to an outside service to translate them.") : lh('p', { className: "lc-desc" }, "Translate uses your browser's own on-device translator. Nothing leaves your device."));
   }
   if (def.t === "choice" && def.aud && !Looscid.LC_FORCED[def.k]) {
     // Round 6: audience radios. Values from older builds: "friends" is Mutuals.
