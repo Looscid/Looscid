@@ -2675,7 +2675,7 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
       lh('div', { className: "lid-gavatar", 'aria-hidden': "true" }, u.initials || "D"),
       lh('p', { className: "lid-gname" }, name),
       lh('p', { className: "lid-ghandle" }, handle + ", LooscidID"),
-      lh('p', { className: "lid-help" }, "Manage your LooscidID")),
+      lh('p', { className: "lid-help" }, "Manage your LooscidID"),     lh('p', { className: "lid-help" }, "LooscidID, keys, logins and devices")),
     lh('ul', { className: "mlist lc-catlist lc-ios-list", role: "list", id: "lid-rows" }, LID_TABS.filter(function (t) { return t[0] !== "home"; }).map(function (t) {
       return lh('li', { key: t[0], className: "mli" },
         lh('button', { type: "button", id: "lid-tab-" + t[0], className: "mitem lc-cat lc-ios-row", onClick: function () { fromCard.current = null; setNote(""); setTab(t[0]); setTimeout(function () { const h = wrapRef.current && wrapRef.current.querySelector("h1"); if (h) h.focus(); }, 0); } },
