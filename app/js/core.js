@@ -2645,7 +2645,7 @@ function lcSetRow(it) {
 function lcSetGroup(key, rows, foot) {
   return lh(React.Fragment, { key: key },
     lh('ul', { className: "mlist lc-ios-list", role: "list", id: "set-grp-" + key }, rows.map(lcSetRow)),
-    foot ? lh('p', { className: "lc-ios-foot", id: "set-grp-" + key + "-f" }, foot) : null);
+    null);
 }
 /* Round 7.38 (Carter, Oct 26 2026 5:24 PM): the LooscidID card reads like iOS's Apple Account row: your name, your @handle,
    then a short line, "LooscidID, keys, logins and devices". It is the only row with values; every other row is its name. */
@@ -2675,7 +2675,7 @@ function LcSettingsHome({ s, navigate, onBack }) {
       idItem ? lh('ul', { className: "mlist lc-ios-list lc-ios-idcard", role: "list", id: "set-grp-id" },
         lh('li', { className: "mli" }, lh('button', { type: "button", id: lcSetRowId(idItem.label), className: "mitem lc-ios-row lc-ios-id", onClick: idItem.action, "aria-label": lcNameJoin(name, handle, LC_SET_ID_SUB) },
           lh('span', { className: "lc-ios-av", "aria-hidden": "true" }, String(me.initials || name.charAt(0) || "D").slice(0, 2)),
-          lh('span', { className: "mitem-lbl", "aria-hidden": "true" }, lh('span', { className: "lc-ios-idname" }, name), handle ? lh('small', { className: "lc-ios-idhandle" }, handle) : null, lh('small', null, LC_SET_ID_SUB)),
+          lh('span', { className: "mitem-lbl", "aria-hidden": "true" }, lh('span', { className: "lc-ios-idname" }, name), handle ? lh('small', { className: "lc-ios-idhandle" }, handle) : null),
           lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })))) : null,
       lists,
       help.length ? lcSetGroup("help", help, LC_SET_GRP_FOOT.help) : null,
