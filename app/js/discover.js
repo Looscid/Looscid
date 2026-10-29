@@ -76,9 +76,7 @@ function discoverView(st, p, draw) {
           h('span', { style: { fontSize: 9, opacity: .6, marginLeft: 2 } }, filtersOpen ? "\u25b2" : "\u25bc")),
         filters.length > 0 && h('button', { style: { background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "var(--tx3)", padding: "4px 6px", fontFamily: "inherit" },
           onClick: function () { st.filters = []; draw(); }, "aria-label": "Clear all filters" }, "Clear"),
-        q.trim() && Looscid.lcLikeSearch ? h('button', { type: "button", id: "discover-like-search", className: "btn bgb lc-btn", style: { marginLeft: "auto", fontSize: 12 }, onClick: likeSearch,
-          // Round 7 fixes (QA round 6): "Like Search" alone was unclear; its hint says what it does.
-          "aria-describedby": Looscid.lcHint ? Looscid.lcHint(sLiked ? "Takes this search out of Liked." : "Saves this search in Liked, under Searches.") : undefined }, sLiked ? "Unlike Search" : "Like Search") : null),
+        q.trim() && Looscid.lcLikeSearch ? h('button', { type: "button", id: "discover-like-search", className: "btn bgb lc-btn", style: { marginLeft: "auto", fontSize: 12 }, onClick: likeSearch }, sLiked ? "Unlike Search" : "Like Search") : null),
       q && filtersOpen && h('div', { style: { margin: "0 16px 10px", background: "var(--sf2)", border: "1px solid var(--bd2)", borderRadius: 12, padding: "12px 14px" }, role: "group", "aria-label": "Search filters" },
         filterGroups.map(function (group) {
           return h('div', { key: group.label, style: { marginBottom: 10 } },

@@ -2,6 +2,18 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
+## TalkBack: US English page language, cleaner links (no new build yet)
+
+Added October 29, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).
+
+Asked for by Carter, after testing it with TalkBack on Android.
+
+- Every page now says its language is US English (en-US) instead of just English (en). On a phone set to English (United States), TalkBack reads a button as one phrase with a short comma pause, like "Like Search, button", instead of two separate sentences. A Dream translated into English is marked US English too.
+- Links are plain links now, with no hidden "opens in a new tab" text, so TalkBack reads just the link's own words. Visible link text didn't change.
+- Buttons no longer have hidden hints like "Opens the list." or "Opens the thread.", and the Like button no longer adds "double tap to like" at High verbosity. Every button keeps its name and its on or off state.
+- The status page's email box offers to fill in your email.
+- The Help Center pages were rebuilt with the same changes.
+
 ## Add to Dream only lists what works (no new build yet)
 
 Added October 29, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).

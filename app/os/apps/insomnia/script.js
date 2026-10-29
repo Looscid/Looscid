@@ -378,7 +378,7 @@ $$("[data-preset]").forEach(b => b.addEventListener("click", () => {
 
 /* ================= Mute + generic click sounds ================= */
 const muteBtn = $("#mute");
-function renderMute() { muteBtn.setAttribute("aria-pressed", String(A.muted)); muteBtn.firstElementChild.textContent = A.muted ? "🔇" : "🔊"; muteBtn.title = A.muted ? "Sound is muted" : "Mute all sound"; }
+function renderMute() { muteBtn.setAttribute("aria-pressed", String(A.muted)); muteBtn.firstElementChild.textContent = A.muted ? "🔇" : "🔊"; }
 renderMute();
 muteBtn.addEventListener("click", () => { A.setMuted(!A.muted); renderMute(); if (!A.muted) A.play("click"); announce(A.muted ? "All sound muted." : "Sound on."); });
 document.addEventListener("mousedown", e => {

@@ -177,7 +177,7 @@ function CreateOptions({ idp, navigate, close, open }) {
       return lh('li', { key: o.id, className: "mli" },
         lh('button', { type: "button", id: idp + "-" + o.id, className: "mitem lc-create-opt" + (ok ? "" : " lc-unavail"), "data-create": o.id,
             // Part 18: an unavailable option is its short name; why it's unavailable is its hint.
-            "aria-disabled": ok ? undefined : "true", "aria-label": ok ? undefined : o.l, "aria-describedby": ok ? undefined : Looscid.lcHint("Not available in Looscid yet."), onClick: function () { lcCreatePick(o, ctx); } },
+            "aria-disabled": ok ? undefined : "true", "aria-label": ok ? undefined : o.l, onClick: function () { lcCreatePick(o, ctx); } },
           lh('span', { className: "mitem-lbl" }, o.l),
           ok ? null : lh('span', { className: "lc-unavail-tag", "aria-hidden": "true" }, "Unavailable")));
     })));

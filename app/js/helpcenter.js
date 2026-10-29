@@ -169,7 +169,7 @@ function helpBody(v, act) {
           : h('button', { type: "button", id: "lc-help-next", className: "btn bp lc-btn", onClick: function () { lcHelpMark(co.id, a.id); act.open({ kind: "course", id: co.id }); act.say("You finished " + co.t + "."); } }, "Finish the course"),
         h('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { act.open({ kind: "course", id: co.id }); } }, "All lessons"))
         : (col ? h('p', { className: "lc-desc" }, h('a', { className: "lc-link", href: web + col.id + "/", onClick: function (e) { e.preventDefault(); act.open({ kind: "col", id: col.id }); } }, "More in " + col.t)) : null),
-      h('p', { className: "lc-desc" }, h('a', { className: "lc-link", href: web + a.id + "/", target: "_blank", rel: "noopener noreferrer" }, "This article on the web", h('span', { className: "sr-only" }, ", opens in a new tab"))));
+      h('p', { className: "lc-desc" }, h('a', { className: "lc-link", href: web + a.id + "/", target: "_blank", rel: "noopener noreferrer" }, "This article on the web")));
   }
   if (v.kind === "course") {
     const co = D.courses.find(function (x) { return x.id === v.id; }) || { lessons: [] }, d = lcHelpDone(co.id);
@@ -192,15 +192,15 @@ function helpBody(v, act) {
       h('h2', { className: "lc-sub-h" }, "Report a bug"),
       P("Found something broken? This opens a new GitHub issue with your build number and device already filled in, so you just say what happened. GitHub asks you to log in there.", "b"),
       h('p', { className: "lc-desc" }, h('a', { id: "lc-help-report-bug", className: "btn bgb lc-big lc-bug-link", href: Looscid.lcBugReportUrl ? Looscid.lcBugReportUrl() : "https://github.com/Looscid/Looscid/issues/new", target: "_blank", rel: "noopener noreferrer",
-        onClick: function (e) { if (Looscid.lcBugReportUrl) e.currentTarget.href = Looscid.lcBugReportUrl(); } }, "Report a bug", h('span', { className: "sr-only" }, ", opens a new GitHub issue in a new tab"))),
+        onClick: function (e) { if (Looscid.lcBugReportUrl) e.currentTarget.href = Looscid.lcBugReportUrl(); } }, "Report a bug")),
       h('h2', { className: "lc-sub-h" }, "Send feedback or join the Discord"),
       P("Ideas, questions, or just want to say hi? Join the Looscid Discord. Anything you write in its #feedback channel turns into a GitHub issue by itself, and LooscidBOT answers you there with the link.", "d"),
-      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-discord", className: "lc-link", href: k.discord || Looscid.LC_DISCORD_URL || "https://discord.gg/M6xrD8EBXU", target: "_blank", rel: "noopener noreferrer" }, "Join the Looscid Discord", h('span', { className: "sr-only" }, ", opens in a new tab"))),
+      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-discord", className: "lc-link", href: k.discord || Looscid.LC_DISCORD_URL || "https://discord.gg/M6xrD8EBXU", target: "_blank", rel: "noopener noreferrer" }, "Join the Looscid Discord")),
       P("Send Feedback writes a GitHub issue for you: pick a category, say what happened, and press Open it on GitHub.", "f"),
       h('button', { type: "button", id: "lc-help-feedback", className: "btn bgb lc-btn", onClick: act.feedback }, "Open Send Feedback"),
       h('h2', { className: "lc-sub-h" }, "See what others reported"),
-      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-issues", className: "lc-link", href: k.issues || "https://github.com/Looscid/Looscid/issues", target: "_blank", rel: "noopener noreferrer" }, "Looscid's GitHub issues", h('span', { className: "sr-only" }, ", opens in a new tab"))),
-      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-build", className: "lc-link", href: "https://github.com/Looscid/Looscid", target: "_blank", rel: "noopener noreferrer" }, "Help build Looscid on GitHub", h('span', { className: "sr-only" }, ", opens in a new tab"))));
+      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-issues", className: "lc-link", href: k.issues || "https://github.com/Looscid/Looscid/issues", target: "_blank", rel: "noopener noreferrer" }, "Looscid's GitHub issues")),
+      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-build", className: "lc-link", href: "https://github.com/Looscid/Looscid", target: "_blank", rel: "noopener noreferrer" }, "Help build Looscid on GitHub")));
   }
   // Home
   return h('div', null,
@@ -229,7 +229,7 @@ function helpBody(v, act) {
       h('h2', { id: "lc-help-h-gethelp", className: "lc-sub-h" }, "Contact Us"),
       P("Something broken, or an idea? Report a bug on GitHub, or tell us on the Looscid Discord. Looscid has no email.", "k"),
       h('button', { type: "button", id: "lc-help-contact", className: "btn bgb lc-btn", onClick: function () { act.open({ kind: "contact" }); } }, "Open Contact Us"),
-      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-web", className: "lc-link", href: web, target: "_blank", rel: "noopener noreferrer" }, "The Help Center on the web", h('span', { className: "sr-only" }, ", opens in a new tab")))));
+      h('p', { className: "lc-desc" }, h('a', { id: "lc-help-web", className: "lc-link", href: web, target: "_blank", rel: "noopener noreferrer" }, "The Help Center on the web"))));
 }
 function helpView(p, act) {
   const v = act.view;

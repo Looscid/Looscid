@@ -701,7 +701,7 @@ function DreamExtra({ extra, dream, onClose }) {
   }
   return lh('section', { className: "lc-extra", "aria-labelledby": "tr-h-" + dream.id },
     lh('h3', { id: "tr-h-" + dream.id, className: "lc-sub-h", tabIndex: -1, ref: ref }, "Translation"),
-    lh('p', { lang: extra.lang || undefined }, extra.text || "Translating…"), close);
+    lh('p', { lang: extra.lang === "en" ? "en-US" : (extra.lang || undefined) }, extra.text || "Translating…"), close);
 }
 // Build 152 prep (#99, part 3): the edit box under the Dream. Save keeps the old text in Edit history.
 function DreamEdit({ dream, onClose, headRef }) {
@@ -1187,7 +1187,7 @@ function LinkCard({ info }) {
         d ? lh('p', { className: "lc-muted" }, d.length > 140 ? d.slice(0, 139) + "\u2026" : d) : null,
         lh('div', { className: "lc-inrow" }, g
           ? lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { if (Looscid.LC_NAV) Looscid.LC_NAV("groups", { circle: g.id }); } }, "Open Circle")
-          : lh('a', { href: info.url, target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, "Open " + info.handle, lh('span', { className: "sr-only" }, ", opens in a new tab")))));
+          : lh('a', { href: info.url, target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, "Open " + info.handle))));
   }
   const tall = info.kind === "spotify" ? (info.sub === "track" || info.sub === "episode" ? 152 : 352) : null;
   return lh('div', { className: "lc-link-card embed" },
@@ -1295,7 +1295,7 @@ function CommentView({dream, backTo, onBack, onLike, onRedream, onUndoRedream, o
   }, []);
   const above = React.useMemo(function () { return lcThreadAbove(dream); }, [dream.id, tick]);
   const threadBtn = lh('button', { type: "button", id: "cv-thread-btn", className: "btn bgb lc-btn lc-thread-btn", "aria-controls": "cv-thread",
-    "aria-describedby": lcHint(expanded ? "Shows only this Dream." : "Shows the Dreams above and every reply."), onClick: function () { setExpanded(!expanded); } }, expanded ? "Collapse thread" : "Expand thread");
+    onClick: function () { setExpanded(!expanded); } }, expanded ? "Collapse thread" : "Expand thread");
   return (
     /* Round 5 fixes: the Replies view scrolls like every other page. It was a column with its own inner scroll box, so the
        site footer (kept last on the page) took the space at the bottom and was drawn over the Dream once Reply opened. */
@@ -1445,14 +1445,14 @@ function DreamBodyCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndo
         )
         /* Interaction row - Save removed, lives in Dream Options menu */
         , React.createElement('div', { className: "ixn-row",}
-          , React.createElement('button', { className: "ixn-btn", onClick: ()=>onComment && onComment(dream), 'aria-label': fmt(nReplies)+(nReplies === 1 ? " reply" : " replies"), "aria-describedby": lcHint("Opens the thread."),}
+          , React.createElement('button', { className: "ixn-btn", onClick: ()=>onComment && onComment(dream), 'aria-label': fmt(nReplies)+(nReplies === 1 ? " reply" : " replies"),}
             , React.createElement(Ic.Cmt, { style: {width:15,height:15},}), React.createElement('span', null, fmt(nReplies), nReplies === 1 ? " Reply" : " Replies" )
           )
           , lh(LcMenu, { id: "rd-" + dream.id, kind: "action", title: "Redream or Quote", btnLabel: calm ? "Redreams" + lcRdState(dream) : lcCountWord(rdTotal, "Redream", "Redreams") + lcRdState(dream), btnHint: "Opens Redream and Quote.", btnClass: "cbx-wrap"+(rdActive?" redd":""), noCaret: true, up: true, className: "lc-rdmenu",
               btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, calm ? "" : fmt(rdTotal), calm ? "Redreams" : rdTotal === 1 ? " Redream" : " Redreams")],
               items: [{ id: "rd", name: dream.redreamed ? "Unredream" : "Redream" }, { id: "q", name: dream.quoted ? "Unquote Dream" : "Quote Dream" }],
               onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); announce(dream.redreamed ? "Redream removed" : "Redreamed", "state", "rd:" + dream.id); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
-          , React.createElement('button', { className: "cbx-wrap"+(dream.liked?" liked":""), "aria-pressed": !!dream.liked, onClick: ()=>{ if (!dream.liked) { Earcon.play("like"); lcThreadLikeNudge(dream); } onLike(dream.id); announce(dream.liked ? "Like removed" : "Liked", "state", "like:" + dream.id); }, 'aria-label': lcVerb() === "low" ? "Like" : (calm ? "Likes" : lcCountWord(dream.likes, "like", "likes")) + (lcVerb() === "high" ? ", double tap to " + (dream.liked ? "unlike" : "like") : ""),}
+          , React.createElement('button', { className: "cbx-wrap"+(dream.liked?" liked":""), "aria-pressed": !!dream.liked, onClick: ()=>{ if (!dream.liked) { Earcon.play("like"); lcThreadLikeNudge(dream); } onLike(dream.id); announce(dream.liked ? "Like removed" : "Liked", "state", "like:" + dream.id); }, 'aria-label': lcVerb() === "low" ? "Like" : (calm ? "Likes" : lcCountWord(dream.likes, "like", "likes")),}
             , React.createElement('div', { className: "cbx-box",}, dream.liked && React.createElement(ChkMark, null))
             , React.createElement('span', null, calm ? "" : fmt(dream.likes), calm ? "Likes" : dream.likes === 1 ? " Like" : " Likes" )
           )
@@ -2019,7 +2019,7 @@ Looscid.CHILD_SAFETY_CONTENT = CHILD_SAFETY_CONTENT;
 function lcFooterForget() { Looscid.lcFooterFrom = null; Looscid.lcFooterLink = null; Looscid.lcFooterCv = null; Looscid.lcFooterHop = null; }
 Looscid.lcFooterForget = lcFooterForget;
 function LcSiteFooter({ navigate, cur }) {
-  const ext = function (href, text, key) { return lh('li', { key: key }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer", className: "lc-link", "aria-label": text + " (external)", "aria-describedby": "lc-foot-ext-" + key }, text + " (external)", lh('span', { id: "lc-foot-ext-" + key, className: "sr-only" }, "Opens in a new tab"))); };
+  const ext = function (href, text, key) { return lh('li', { key: key }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer", className: "lc-link", "aria-label": text + " (external)" }, text + " (external)")); };
   const go = function (page, text, key) { return lh('li', { key: key }, lh('a', { href: (Looscid.lcPathFor ? Looscid.lcPathFor(page) : "#"), className: "lc-link",
     onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault();
       // Round 10 fixes: a footer page opened from another footer page keeps where the first one came from (its Replies too).
@@ -2975,7 +2975,7 @@ function LcMenu(props) {
     const hint = it.close ? null : (it.hint || reasonHint);
     const nm = it.exactAria ? it.aria : it.close ? "Close " + menuName : (reasonHint ? lcNameJoin(it.aria || it.name, pos) || undefined : (it.note || pos || it.aria ? lcNameJoin(it.aria || it.name, it.note, pos) : undefined));
     return lh('li', { key: it.id, "data-mi": "1", role: radio ? "menuitemradio" : "menuitem", "aria-checked": radio ? (it.id === value ? "true" : "false") : undefined,
-        "aria-disabled": it.disabled ? "true" : undefined, tabIndex: i === active ? 0 : -1, "aria-describedby": hint ? lcHint(hint) : undefined,
+        "aria-disabled": it.disabled ? "true" : undefined, tabIndex: i === active ? 0 : -1,
         "aria-label": nm, "aria-braillelabel": it.close ? "Close" : undefined,
         className: "lmenu-item" + (i === active ? " act" : "") + (it.close ? " lmenu-close" : "") + (it.danger ? " lmenu-danger" : "") + (props.itemClass && !it.close ? " " + props.itemClass : ""),
         onClick: function () { choose(it); }, onMouseMove: function () { if (active !== i) setActive(i); } },
@@ -3005,7 +3005,7 @@ function LcMenu(props) {
     labelled ? lh('span', { id: id + "-label", className: "lmenu-label" }, props.label) : null,
     lh('button', { id: id, ref: btnRef, type: "button", className: props.btnClass || "lmenu-btn", "aria-haspopup": "menu", "aria-expanded": open ? "true" : "false",
         "aria-controls": open ? menuId : undefined, "aria-labelledby": labelled ? id + "-label " + id : undefined, "aria-label": labelled ? undefined : props.btnLabel,
-        "aria-braillelabel": props.btnBraille, "aria-disabled": props.disabled ? "true" : undefined, "aria-describedby": props.btnHint ? lcHint(props.btnHint) : undefined,
+        "aria-braillelabel": props.btnBraille, "aria-disabled": props.disabled ? "true" : undefined,
         // Build 152 fix: an unavailable menu button stays findable (aria-disabled, not native disabled), opens nothing and says why once.
         onClick: function () { if (props.disabled) { const why = props.disabledWhy || props.btnHint; if (why) announce(why); return; } open ? setOpen(false) : openMenu(undefined, true); },
         onKeyDown: function (e) { if (props.disabled && (e.key === "ArrowDown" || e.key === "ArrowUp")) { e.preventDefault(); return; } if (e.key === "ArrowDown") { e.preventDefault(); openMenu(props.search ? undefined : 0); } else if (e.key === "ArrowUp") { e.preventDefault(); openMenu(items.length - 1); } } },

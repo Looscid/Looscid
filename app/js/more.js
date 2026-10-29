@@ -836,7 +836,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
             lh('button', { type: "button", ref: editBtn, id: "pf-edit-btn", className: "btn bgb lc-big", "aria-expanded": editOpen ? "true" : "false", "aria-controls": "pf-edit", onClick: function () { setEditOpen(!editOpen); } }, "Edit profile"))
         : lh('div', { className: "lc-prof-acts" },
             dmPeer ? lh('button', { type: "button", id: "pf-dm-btn", className: "btn bgb lc-big", onClick: openDm }, "Direct message")
-              : lh('button', { type: "button", id: "pf-dm-btn", className: "btn bgb lc-big", "aria-disabled": "true", onClick: function () { announce(Looscid.lcHintReason("unavailable: " + dmWhy)); }, "aria-describedby": Looscid.lcHint(Looscid.lcHintReason("unavailable: " + dmWhy)) }, "Direct message", lh('span', { className: "lc-muted", "aria-hidden": "true" }, " (unavailable)")),
+              : lh('button', { type: "button", id: "pf-dm-btn", className: "btn bgb lc-big", "aria-disabled": "true", onClick: function () { announce(Looscid.lcHintReason("unavailable: " + dmWhy)); } }, "Direct message", lh('span', { className: "lc-muted", "aria-hidden": "true" }, " (unavailable)")),
             lh('button', { type: "button", className: "btn " + (following ? "bgb" : "bp") + " lc-big", "aria-pressed": following ? "true" : "false", onClick: follow }, following ? "Following" : "Follow")),
       isMe && lh('div', { id: "pf-edit", className: "lc-prof-edit", hidden: !editOpen }, editOpen ? ed.list : null),
       moreMenu,
@@ -865,8 +865,8 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       // Feditext's bio: rich text, its paragraphs and line breaks kept, links, mentions and hashtags as real links.
       user.bio ? lh('div', { className: "lc-prof-bio" }, lcBioParas(user.bio, navigate)) : (isMe ? lh('p', { className: "lc-prof-bio lc-muted" }, "No bio yet.") : null),
       lh('div', { className: "lc-prof-counts" },
-        lh('button', { type: "button", id: "pf-count-following", className: "btn bgb lc-big", "aria-describedby": Looscid.lcHint("Opens the list."), onClick: function () { setPeople("following"); } }, nFollowing.toLocaleString() + " Following"),
-        lh('button', { type: "button", id: "pf-count-followers", className: "btn bgb lc-big", "aria-describedby": Looscid.lcHint("Opens the list."), onClick: function () { setPeople("followers"); } }, nFollowers.toLocaleString() + " " + (nFollowers === 1 ? "Follower" : "Followers")))),
+        lh('button', { type: "button", id: "pf-count-following", className: "btn bgb lc-big", onClick: function () { setPeople("following"); } }, nFollowing.toLocaleString() + " Following"),
+        lh('button', { type: "button", id: "pf-count-followers", className: "btn bgb lc-big", onClick: function () { setPeople("followers"); } }, nFollowers.toLocaleString() + " " + (nFollowers === 1 ? "Follower" : "Followers")))),
     lh('div', { className: "ftabs lc-prof-tabs", role: "tablist", "aria-label": "Profile sections", onKeyDown: onTabKey },
       // Build 149 (2three1y: iOS already says "tab, 1 of 4"): no position in the names, ever. Each tab's name is its
       // visible text, with how many it holds in parentheses, like "Dreams (106)". Round 7.12: the position is
@@ -1584,7 +1584,7 @@ function lcBugReportUrl() {
 function LcBugLink({ id }) {
   return lh('a', { id: id, className: "btn bgb lc-big lc-bug-link", href: lcBugReportUrl(), target: "_blank", rel: "noopener noreferrer",
     onClick: function (e) { e.currentTarget.href = lcBugReportUrl(); } },
-    "Report a bug", lh('span', { className: "sr-only" }, ", opens a new GitHub issue in a new tab"));
+    "Report a bug");
 }
 const LC_DEV_KEY = "looscid_dev_unlocked", LC_DEV_OUTLINES_KEY = "looscid_dev_outlines";
 function lcDevUnlocked() { try { return localStorage.getItem(LC_DEV_KEY) === "1"; } catch (e) { return false; } }
@@ -1649,7 +1649,7 @@ function DevMenuPage({ navigate }) {
 Object.assign(Looscid, { LC_DISCORD_URL, LC_KNOWN_BUGS, lcBugReportUrl, LcBugLink, lcDevUnlocked, lcDevOutlines, DevMenuPage });
 function AboutSettings({navigate}) {
   const link = function (href, text) { return lh('li', { key: href }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer" }, text)); };
-  const newTab = function (href, text) { return lh('li', { key: href }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer" }, text, lh('span', { className: "sr-only" }, ", opens in a new tab"))); };
+  const newTab = function (href, text) { return lh('li', { key: href }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer" }, text)); };
   const [vOpen, setVOpen] = useState(false);
   const [, tick] = useState(0);
   const auto = lcUpdateAuto();
@@ -1717,7 +1717,7 @@ function AboutSettings({navigate}) {
       lh('ul', { className: "lid-help", id: "about-bugs-list", style: { paddingLeft: 22, margin: "6px 0" } }, LC_KNOWN_BUGS.map(function (t, i) { return lh('li', { key: i }, t); })),
       lh('ul', { className: "mlist", "aria-label": "Report a bug" },
         lh('li', { className: "mli" }, lh(LcBugLink, { id: "about-report-bug" })),
-        lh('li', { className: "mli" }, lh('a', { id: "about-discord", className: "lc-link", href: LC_DISCORD_URL, target: "_blank", rel: "noopener noreferrer" }, "Or tell me on the Looscid Discord", lh('span', { className: "sr-only" }, ", opens in a new tab"))))),
+        lh('li', { className: "mli" }, lh('a', { id: "about-discord", className: "lc-link", href: LC_DISCORD_URL, target: "_blank", rel: "noopener noreferrer" }, "Or tell me on the Looscid Discord")))),
     lh('section', { "aria-labelledby": "about-purpose", style: { padding: "0 16px 12px" } },
       lh('h2', { id: "about-purpose", className: "lid-sub" }, "What Looscid is"),
       lh('p', { className: "lid-help" }, "A decentralized, free, open source and accessible everything app. I made it to:"),

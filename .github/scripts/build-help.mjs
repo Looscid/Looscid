@@ -49,7 +49,7 @@ function page({ slug, title, desc, body, depth, crumbs }) {
   const up = "../".repeat(depth);
   const nav = crumbs && crumbs.length ? '<nav class="crumbs" aria-label="Breadcrumb"><ol>' + crumbs.map(c => "<li>" + (c[1] ? '<a href="' + c[1] + '">' + esc(c[0]) + "</a>" : '<span aria-current="page">' + esc(c[0]) + "</span>") + "</li>").join("") + "</ol></nav>" : "";
   return `<!DOCTYPE html>
-<html lang="en" data-help-root="${up}">
+<html lang="en-US" data-help-root="${up}">
 <head>
 <meta charset="UTF-8"/>
 <title>${esc(full)}</title>
@@ -141,10 +141,10 @@ for (const co of H.courses) {
 {
   const k = H.contact;
   let b = "<h1>" + esc(k.t) + '</h1>\n<p class="lead">' + esc(k.s) + "</p>\n";
-  b += '<h2>Report a bug</h2>\n<p>Found something broken? This opens a new GitHub issue with your device already filled in, so you just say what happened. GitHub asks you to log in there.</p>\n<p><a class="btn" id="help-report-bug" href="https://github.com/Looscid/Looscid/issues/new?labels=bug&amp;title=Bug%3A%20" target="_blank" rel="noopener noreferrer">Report a bug<span class="sr-only">, opens a new GitHub issue in a new tab</span></a></p>\n';
-  b += '<h2>Send feedback or join the Discord</h2>\n<p>Ideas, questions, or just want to say hi? Join the Looscid Discord. Anything you write in the #feedback channel turns into a GitHub issue by itself, and LooscidBOT answers you there with the link.</p>\n<p><a class="btn" href="' + k.discord + '" target="_blank" rel="noopener noreferrer">Join the Looscid Discord<span class="sr-only">, opens in a new tab</span></a></p>\n';
+  b += '<h2>Report a bug</h2>\n<p>Found something broken? This opens a new GitHub issue with your device already filled in, so you just say what happened. GitHub asks you to log in there.</p>\n<p><a class="btn" id="help-report-bug" href="https://github.com/Looscid/Looscid/issues/new?labels=bug&amp;title=Bug%3A%20" target="_blank" rel="noopener noreferrer">Report a bug</a></p>\n';
+  b += '<h2>Send feedback or join the Discord</h2>\n<p>Ideas, questions, or just want to say hi? Join the Looscid Discord. Anything you write in the #feedback channel turns into a GitHub issue by itself, and LooscidBOT answers you there with the link.</p>\n<p><a class="btn" href="' + k.discord + '" target="_blank" rel="noopener noreferrer">Join the Looscid Discord</a></p>\n';
   b += '<p>Already using Looscid? <a class="go" href="../../?p=%2FFeedback">Open Send Feedback</a> (Profile, More, Feedback) writes a GitHub issue for you.</p>\n';
-  b += '<h2>See what others reported</h2>\n<p><a href="' + k.issues + '" target="_blank" rel="noopener noreferrer">Looscid\'s GitHub issues<span class="sr-only">, opens in a new tab</span></a>. Everything is public, so you can follow along.</p>';
+  b += '<h2>See what others reported</h2>\n<p><a href="' + k.issues + '" target="_blank" rel="noopener noreferrer">Looscid\'s GitHub issues</a>. Everything is public, so you can follow along.</p>';
   put("contact/index.html", page({ slug: "contact", title: k.t, desc: "Report a bug or send feedback about Looscid, on GitHub or the Looscid Discord.", body: b, depth: 1, crumbs: [["Help Center", "../"], [k.t, null]] }));
 }
 // What help.js needs: the course lessons and titles.
