@@ -2664,7 +2664,7 @@ function LcSettingsHome({ s, navigate, onBack }) {
   if (mode === "default") {
     const grps = [];
     items.forEach(function (it) { if (it.grp === "id" || it.grp === "help" || it.grp === "logout") return; let g = grps.find(function (x) { return x.k === it.grp; }); if (!g) { g = { k: it.grp, rows: [] }; grps.push(g); } g.rows.push(it); });
-    lists = grps.map(function (g) { return lcSetGroup(g.k, g.rows, LC_SET_GRP_FOOT[g.k]); });
+    grps.sort(function (a, b) { return ["talk", "gen", "you"].indexOf(a.k) - ["talk", "gen", "you"].indexOf(b.k); }); lists = grps.map(function (g) { return lcSetGroup(g.k, g.rows, LC_SET_GRP_FOOT[g.k]); });
   } else {
     lists = [lcSetGroup("main", lcSetOrdered(items, mode), mode === "alpha" ? "Sorted A to Z. Change the order in Customization, Settings Order." : "Your own order. Change it in Customization, Settings Order.")];
   }
