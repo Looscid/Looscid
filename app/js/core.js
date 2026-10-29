@@ -2019,7 +2019,7 @@ Looscid.CHILD_SAFETY_CONTENT = CHILD_SAFETY_CONTENT;
 function lcFooterForget() { Looscid.lcFooterFrom = null; Looscid.lcFooterLink = null; Looscid.lcFooterCv = null; Looscid.lcFooterHop = null; }
 Looscid.lcFooterForget = lcFooterForget;
 function LcSiteFooter({ navigate, cur }) {
-  const ext = function (href, text, key) { return lh('li', { key: key }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, text, lh('span', { className: "sr-only" }, ", opens in a new tab"))); }; // round 12: says it opens a new tab
+  const ext = function (href, text, key) { return lh('li', { key: key }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer", className: "lc-link", "aria-label": text + " (external)", "aria-describedby": "lc-foot-ext-" + key }, text + " (external)", lh('span', { id: "lc-foot-ext-" + key, className: "sr-only" }, "Opens in a new tab"))); };
   const go = function (page, text, key) { return lh('li', { key: key }, lh('a', { href: (Looscid.lcPathFor ? Looscid.lcPathFor(page) : "#"), className: "lc-link",
     onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault();
       // Round 10 fixes: a footer page opened from another footer page keeps where the first one came from (its Replies too).
