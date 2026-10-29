@@ -1697,7 +1697,7 @@ function AboutSettings({navigate}) {
       lh(A11ySwitch, { id: "about-autoupdate", label: "Automatically check for updates", on: auto, onToggle: function () { lcUpdateAutoSet(!auto); tick(function (x) { return x + 1; }); announce("Automatically check for updates: " + (!auto ? "on" : "off") + "."); } }),
       devOn ? lh('button', { type: "button", id: "about-dev", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { navigate("settings_dev"); } }, "Dev menu") : null),
     lh('section', { "aria-labelledby": "about-lead", style: { padding: "8px 16px 12px" } },
-      lh('h2', { id: "about-lead", className: "lid-sub" }, "About Looscid"),
+      lh('h2', { id: "about-lead", className: "lid-sub" }, "About Looscid"), lh('p', { className: "lid-help" }, "Draft placeholder: I'll write this myself."),
       lh('p', { className: "lid-help" }, "I was on my iPod when I started wanting accessible versions of things. I wanted an accessible email and phone-number thing too, but I couldn't find one. I didn't build that one. My wish list, apparently, had other plans."),
       lh('p', { className: "lid-help" }, "Later, when I got into social media, I wanted an accessible social platform with Nostr and customization as part of identity. All those ideas kept growing into one thing: Looscid."),
       lh('p', { className: "lid-help" }, "Looscid is a free, open source browser-based OS experience with a social app. It's built to work the way you do: with a screen reader, a braille display, a keyboard, a switch or just your thumbs. Your data stays on your device, and your LooscidID is yours."),
