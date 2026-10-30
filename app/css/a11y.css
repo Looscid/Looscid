@@ -178,6 +178,12 @@ body.acc-text-2 .pg{zoom:1.3}
 .lc-liked-acts{display:flex;gap:6px}
 .lc-liked-acts .btn{min-height:44px}
 .lc-liked-priv-row{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+/* Round 7.51: inset Settings groups and align separators with row labels. */
+#more-page-settings .lc-ios-list:not(.lc-setfind-res){margin-top:24px}
+#more-page-settings .lc-ios-idcard{margin-top:8px!important}
+#more-page-settings .lc-ios-list:not(.lc-setfind-res)>li+li{position:relative;border-top:0}
+#more-page-settings .lc-ios-list:not(.lc-setfind-res)>li+li::before{content:"";position:absolute;top:0;left:58px;right:0;border-top:1px solid var(--bd);pointer-events:none}
+
 .lc-more-profile{display:flex;align-items:center;width:calc(100% - 24px);min-height:48px;margin:6px 12px;padding:8px 14px;border:1px solid var(--bd2);border-radius:12px;background:var(--sf2);color:var(--tx);font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;text-align:left}
 .lc-more-profile:focus-visible{outline:3px solid var(--ac3);outline-offset:2px}
 
