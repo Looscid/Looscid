@@ -362,3 +362,21 @@ html.lc-unspeakable .lc-stab:not(#lc-us-x):not(#lc-us-y)::before,html.lc-unspeak
 .lc-dev-pre{white-space:pre-wrap;word-break:break-word;font-size:13px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:10px;margin:8px 0}
 html.lc-debug-outlines body *{outline:1px dashed rgba(236,72,153,.7)!important;outline-offset:-1px}
 html.lc-debug-outlines body *:focus-visible{outline:3px solid var(--ac3,#a855f7)!important;outline-offset:2px}
+
+/* Touch-style settings (Carter, Oct 30 2026 7:42 PM, "Yea to all"): on/off rows are real checkboxes, choice rows open a
+   small page of real radio buttons, and each page is one list. Same row look as before; only the control changed. */
+.lc-cb{cursor:pointer}
+.lc-cb-in{flex:none;width:24px;height:24px;margin:0;accent-color:var(--ac);cursor:inherit}
+.lc-cb-in:focus-visible,.lc-pick-opt input:focus-visible{outline:3px solid var(--ac3);outline-offset:2px}
+.lc-cb:has(.lc-cb-in:focus-visible),.lc-pick-opt:has(input:focus-visible){outline:3px solid var(--ac3);outline-offset:-3px}
+.lc-cb:has(.lc-cb-in[aria-disabled="true"]){cursor:not-allowed}
+.lc-cb:has(.lc-cb-in[aria-disabled="true"]) .lc-cb-in{opacity:.55}
+.lc-pick .lc-sw-v{font-weight:400;color:var(--tx2);text-align:right;max-width:55%;overflow-wrap:anywhere}
+.lc-pick-fs{border:0;margin:0;padding:0;min-width:0}
+.lc-pick-list{display:flex;flex-direction:column;margin:8px 16px 0;background:var(--sf2);border:1px solid var(--bd2);border-radius:14px;overflow:hidden}
+.lc-pick-list>.lc-pick-opt{border:0;border-radius:0;min-height:48px;font-weight:500;padding:10px 16px;background:none}
+.lc-pick-list>.lc-pick-opt+.lc-pick-opt{border-top:1px solid var(--bd)}
+.lc-pick-opt input{flex:none;width:22px;height:22px;margin:0;accent-color:var(--ac);cursor:pointer}
+.lc-pick-opt.on .lc-sw-l{font-weight:700}
+.lc-pick-foot{padding:8px 16px;margin:0 16px}
+.lc-touch-list>li.lc-grp-start{border-top:10px solid var(--bg)}

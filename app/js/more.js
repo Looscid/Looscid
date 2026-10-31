@@ -1261,18 +1261,18 @@ function LcCatMenu({ id, title, intro, cats, navigate, after, reset, foots }) {
   }, []);
   return lh('div', { className: "pg lc-a11y" },
     lh(BackHeader, { title: title, onBack: function () { navigate("settings"); } }),
-    intro ? lh('p', { className: "lc-intro" }, intro) : null,
     lcMenuList(id, title + " categories", cats.map(function (c) {
       return { id: c.id, l: c.l, sub: c.sub, grp: c.grp, a: function () { try { sessionStorage.setItem("looscid_cat_from_" + id, c.id); } catch (e) {} navigate(c.page); } };
     }).concat(reset !== false && (reset || LC_CATMENU_RESET[id]) ? [{ id: "reset", l: "Reset", grp: cats.some(function (c) { return c.grp; }) ? "reset" : undefined, a: function () { lcOpenReset(reset || LC_CATMENU_RESET[id]); } }] : []), foots),
-    after || null);
+    after || null,
+    intro ? lh('p', { className: "lc-intro" }, intro) : null); // Touch-style settings: the intro is the footer, after the list
 }
 function LcCatPage({ title, intro, navigate, children, reset }) {
   return lh('div', { className: "pg lc-a11y" },
     lh(BackHeader, { title: title, onBack: function () { navigate("settings"); } }),
-    intro ? lh('p', { className: "lc-intro" }, intro) : null,
     lh('div', { className: "lc-catbody" }, children),
-    reset ? lh(LcResetLast, { scope: reset }) : null);
+    reset ? lh(LcResetLast, { scope: reset }) : null,
+    intro ? lh('p', { className: "lc-intro" }, intro) : null); // Touch-style settings: the intro is the footer, after the list
 }
 // Round 7.37 (#176): short iOS names (Appearance was "Theme and colors", Feeds was "Feeds and home", Media was "Media and
 // translation"; the old names stay as search words), and a Tabs group: Tab Bar and Profile Tabs moved here from the top of
@@ -1451,24 +1451,23 @@ function IntelligenceSettings({ navigate, page, prefs, setPrefs, cherryCtx }) {
 // Round 6: Verbosity is a tab on Sense (General / Speech / Verbosity / Braille), not a page.
 function lcMenuList(id, label, items, foots) {
   // ul role=list > li > button first: VoiceOver says "button, 1 of 7" (round-5 queue item 3).
-  // Round 7.37 (#176, iOS Settings): items with a grp are split into grouped lists (rounded cards), each followed by its
-  // short footer from foots[grp]. The first list keeps the id; button ids never change.
+  // Touch-style settings (Carter, Oct 30 2026 7:42 PM): ONE list per page, so Down arrow and swipes go straight through
+  // every row and "Bottom" is said at the end. Rows of a new group only get a little space above them (looks, no speech),
+  // and the short footers come after the list, one after another. Button ids and footer ids never change.
   const groups = [];
   items.forEach(function (it) { const g = it.grp || "_"; let x = groups.find(function (y) { return y.k === g; }); if (!x) { x = { k: g, rows: [] }; groups.push(x); } x.rows.push(it); });
-  const one = function (g, gi) {
-    return lh(React.Fragment, { key: g.k },
-      lh('ul', { className: "mlist lc-catlist lc-ios-list", role: "list", "aria-label": groups.length > 1 ? undefined : label, id: gi === 0 ? id : id + "-g-" + g.k },
-        g.rows.map(function (it) {
-          return lh('li', { key: it.id, className: "mli" },
-            lh('button', { type: "button", id: id + "-" + it.id, className: "mitem lc-cat lc-ios-row", onClick: it.a },
-              // Round 6 (2three1y): VoiceOver says just "Privacy, button": the label only. Explanations live as
-              // plain text under section headings, not on or after each button.
-              lh('span', { className: "mitem-lbl" }, it.l),
-              lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })));
-        })),
-      foots && foots[g.k] ? lh('p', { className: "lc-ios-foot", id: id + "-f-" + g.k }, foots[g.k]) : null);
-  };
-  return groups.length === 1 && !(foots && foots[groups[0].k]) ? one(groups[0], 0) : lh(React.Fragment, null, groups.map(one));
+  const rows = []; groups.forEach(function (g, gi) { g.rows.forEach(function (it, ri) { rows.push({ it: it, start: gi > 0 && ri === 0 }); }); });
+  return lh(React.Fragment, null,
+    lh('ul', { className: "mlist lc-catlist lc-ios-list lc-touch-list", role: "list", "aria-label": label, id: id },
+      rows.map(function (r) {
+        const it = r.it;
+        return lh('li', { key: it.id, className: "mli" + (r.start ? " lc-grp-start" : "") },
+          lh('button', { type: "button", id: id + "-" + it.id, className: "mitem lc-cat lc-ios-row" + (it.id === "reset" ? " lc-ios-danger-row" : ""), onClick: it.a },
+            // Round 6 (2three1y): VoiceOver says just "Privacy, button": the label only.
+            lh('span', { className: "mitem-lbl" }, it.l),
+            lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })));
+      })),
+    foots ? groups.map(function (g) { return foots[g.k] ? lh('p', { key: g.k, className: "lc-ios-foot", id: id + "-f-" + g.k }, foots[g.k]) : null; }) : null);
 }
 // Round 6 (2three1y, 7:14 AM): no per-control explanation lines. Kept as a no-op so callers stay simple.
 function lcSubLine() { return null; }
@@ -1552,9 +1551,10 @@ function A11yCategory({ page, navigate, prefs, setPrefs }) {
   return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
     lh(BackHeader, { title: cat.l, onBack: function () { if (cat.parent) { try { sessionStorage.setItem("looscid_cat_from_lc-sr-more", cat.id); } catch (e) {} } navigate(cat.parent || "settings"); } }), // Round 5 fixes: Back goes where you came from (Sense opens from Settings too)
     // Round 6: one line of plain text under the page heading (Sense has one per tab instead).
-    cat.id !== "sr" && LC_SECTIONS[cat.id] && LC_SECTIONS[cat.id].d ? lh('p', { className: "lc-desc lc-sec-d", style: { padding: "0 16px" } }, LC_SECTIONS[cat.id].d) : null,
     lh('div', { className: "lc-grp lc-catpage" }, body),
-    lh(LcResetLast, { scope: cat.id === "sr" ? "g:sr_general,sr_speech,verbosity,sr_braille" : "g:" + cat.id }));
+    lh(LcResetLast, { scope: cat.id === "sr" ? "g:sr_general,sr_speech,verbosity,sr_braille" : "g:" + cat.id }),
+    // Touch-style settings (Oct 30 2026): the page's one line of plain text is its footer, after the list and its Reset.
+    cat.id !== "sr" && LC_SECTIONS[cat.id] && LC_SECTIONS[cat.id].d ? lh('p', { className: "lc-desc lc-sec-d", style: { padding: "0 16px" } }, LC_SECTIONS[cat.id].d) : null);
 }
 /* --- Round 7.41 (Carter, Oct 26 2026: "not corpo shit"): Known bugs, Report a bug, the Discord, and the secret Dev menu --- */
 const LC_DISCORD_URL = "https://discord.gg/M6xrD8EBXU";
@@ -3652,8 +3652,9 @@ function LcSetRow({ def, onChange }) {
   }
   if (def.t === "choice" && def.menu) {
     const soon = def.k === "translateTo" && !lcTranslateOk();
-    return lh('div', { className: "lc-row" },
-      lh(LcMenu, { id: id, label: def.l, value: v, items: def.o.map(function (o) { return { id: o[0], name: o[1] }; }), onSelect: function (val) { put(val); } }),
+    // Touch-style settings (Oct 30 2026): a row named "Translate into, English" that opens its own page of choices.
+    return lh(React.Fragment, null,
+      lh(LcPickRow, { def: def, id: id, v: v, put: put }),
       soon ? lh('p', { id: id + "-d", className: "lc-desc" }, "This browser has no on-device translator, so the Translate action stays hidden in Dream Options here. Looscid never sends your Dreams to an outside service to translate them.") : lh('p', { className: "lc-desc" }, "Translate uses your browser's own on-device translator. Nothing leaves your device."));
   }
   if (def.t === "choice" && def.aud && !Looscid.LC_FORCED[def.k]) {
@@ -3671,22 +3672,10 @@ function LcSetRow({ def, onChange }) {
         const on = forced === o[0];
         return lh('label', { key: o[0], className: "lc-radio" + (on ? " on" : "") }, lh('input', Object.assign({ type: "radio", name: "lcs-" + def.k, value: o[0], checked: on, readOnly: true }, lcOffInput(def.l + " is set by Private account. Turn off Private account to change it."))), lh('span', null, o[1]));
       })));
-    return lh('fieldset', { className: "lc-fs", id: id },
-      lh('legend', { className: "lc-fs-l" }, def.l),
-      
-      lh('div', { className: "lc-radios lc-radios-col" }, def.o.map(function (o) {
-        const on = String(v) === String(o[0]);
-        // Round 5 fixes: "Your imported pack" with nothing imported is unavailable and says why (it could be chosen and said
-        // "Soundpack: Your imported pack.").
-        if (def.k === "soundPack" && o[0] === "custom" && !on && !Looscid.LC_CUSTOM_PACK) return lh('label', { key: o[0], className: "lc-radio" },
-          lh('input', Object.assign({ type: "radio", name: "lcs-" + def.k, value: o[0], checked: false }, lcOffInput("Not available yet: import your own sounds first, with Import a Soundpack on this page."))), lh('span', null, o[1]));
-        return lh('label', { key: o[0], className: "lc-radio" + (on ? " on" : "") },
-          lh('input', { type: "radio", name: "lcs-" + def.k, value: o[0], checked: on,
-            // Round 6.6 (2three1y, 5:19 PM): Soundpacks. Moving to a pack plays a short preview of it; choosing it (Space,
-            // arrows, a tap, VoiceOver double-tap, braille Enter) switches every earcon to it right away and says so once.
-            onFocus: def.k === "soundPack" ? function () { if (o[0] === "custom") return; Looscid.LC_PACK_PREV_AT = Date.now(); Earcon.play(o[0] === "soundvault" ? "open" : "send", { test: true, pack: o[0] }); } : undefined,
-            onChange: function () { if (def.k === "soundPack") { put(o[0], false); announce("Soundpack: " + o[1] + ".", "essential"); } else put(o[0]); if (def.k === "soundPack") { window.__lcPackSwitch = (window.__lcPackSwitch || 0) + 1; if (Date.now() - (Looscid.LC_PACK_PREV_AT || 0) > 200) setTimeout(function () { Earcon.play(o[0] === "soundvault" ? "open" : "send", { test: true }); }, 40); } } }), lh('span', null, o[1]));
-      })));
+    // Touch-style settings (Carter, Oct 30 2026 7:42 PM): a choice is one row, a button named "Label, value" (for example
+    // "Speak timestamps, Full"). It opens a small page of real radio buttons; picking one saves it right away and comes
+    // back to this same row, which now says the new value. Same id and same saved key as the old inline radios.
+    return lh(LcPickRow, { def: def, id: id, v: v, put: put });
   }
   if (def.t === "range") {
     return lh('div', { className: "lc-row lc-vol" },
@@ -3704,6 +3693,70 @@ function LcSetRow({ def, onChange }) {
   if (def.t === "words") return lh(LcWordsRow, { def: def });
   if (def.t === "voice") return lh(LcVoiceRow, { def: def });
   return null;
+}
+/* Touch-style settings (Carter, Oct 30 2026 7:42 PM, "Yea to all"): a choice setting's row and its own small page of choices.
+   The row is a button whose name is "Label, value". Its page has one h1 (the setting's name), a Back button and the real
+   radio buttons of the setting, with focus on the one that's picked. Down and Up move without picking. Enter, Space, a tap
+   or a double tap picks: it's saved right away (no Save or OK), and you're back on the same row, which says the new value.
+   Back, Escape, Backspace or the browser's Back leaves without changing anything, also onto the same row. The page you came
+   from stays as it was (it's only hidden while the choices are open), so nothing on it is lost. */
+function LcPickRow({ def, id, v, put }) {
+  const [open, setOpen] = useState(false);
+  const val = lcValueText(def, v);
+  return lh(React.Fragment, null,
+    lh('div', { className: "lc-row lc-pickrow" },
+      // Its name is its own words, "Speak timestamps, Full" (the comma is for speech only), so what's read is what's shown.
+      lh('button', { type: "button", id: id, className: "lc-sw lc-pick", onClick: function () { setOpen(true); } },
+        lh('span', { className: "lc-sw-l" }, def.l), lh('span', { className: "sr-only" }, ", "),
+        lh('span', { className: "lc-sw-v" }, val, lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true", focusable: "false" })))),
+    open ? lh(LcPicker, { def: def, id: id, v: v, onPick: function (x) { setOpen(false); if (String(x) !== String(v)) put(x, false); }, onClose: function () { setOpen(false); } }) : null);
+}
+function LcPicker({ def, id, v, onPick, onClose }) {
+  const [host] = useState(function () { const d = document.createElement("div"); d.className = "pg lc-a11y lc-picker"; d.id = id + "-pick"; return d; });
+  useEffect(function () {
+    const btn = document.getElementById(id), page = btn && btn.closest(".pg");
+    // Placed just before the page, so the tab bar and site footer (they follow the first page in #main-content) move here
+    // while the choices are open, and go back to the page when they close.
+    if (page && page.parentNode) page.parentNode.insertBefore(host, page); else (document.getElementById("main-content") || document.body).appendChild(host);
+    if (page) page.hidden = true;
+    Looscid.LC_PICK_CLOSE = onClose;
+    try { window.scrollTo(0, 0); } catch (e) {}
+    const t = setTimeout(function () { const r = host.querySelector('input[type="radio"]:checked') || host.querySelector('input[type="radio"]'); if (r) r.focus(); }, 30);
+    return function () {
+      clearTimeout(t);
+      if (Looscid.LC_PICK_CLOSE === onClose) Looscid.LC_PICK_CLOSE = null;
+      if (page) page.hidden = false;
+      const box = host.querySelector(".lc-footer-box");
+      if (box && page && page.isConnected) page.appendChild(box);
+      if (host.parentNode) host.parentNode.removeChild(host);
+      // Back on the same row. Tried again a moment later in case the page redrew the row with its new value.
+      const toRow = function () { const b = document.getElementById(id), ae = document.activeElement; if (b && !b.closest("[hidden]") && ae !== b && (!ae || ae === document.body || !ae.isConnected || ae.closest(".lc-picker"))) { try { b.focus(); } catch (e) {} } };
+      setTimeout(toRow, 0); setTimeout(toRow, 150);
+    };
+  }, []);
+  const cur = String(v);
+  const offWhy = function (o) { return def.k === "soundPack" && o[0] === "custom" && cur !== "custom" && !Looscid.LC_CUSTOM_PACK ? "Not available yet: import your own sounds first, with Import a Soundpack." : ""; };
+  const pick = function (o) { if (offWhy(o)) { announce(offWhy(o)); return; } onPick(o[0]); if (def.k === "soundPack") setTimeout(function () { Earcon.play(o[0] === "soundvault" ? "open" : "send", { test: true }); }, 60); };
+  return ReactDOM.createPortal(lh('div', { className: "lc-pick-wrap",
+      onKeyDown: function (e) {
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        const tg = e.target;
+        if (e.key === "Escape" || (e.key === "Backspace" && !(tg && tg.tagName === "INPUT" && tg.type === "text"))) { e.preventDefault(); e.stopPropagation(); onClose(); return; }
+        if (e.key === "Enter" && tg && tg.type === "radio") { e.preventDefault(); const o = def.o.find(function (x) { return String(x[0]) === tg.value; }); if (o) pick(o); }
+      } },
+    lh(BackHeader, { title: def.l, onBack: onClose }),
+    lh('fieldset', { className: "lc-fs lc-pick-fs" },
+      lh('legend', { className: "sr-only" }, def.l),
+      lh('div', { className: "lc-pick-list" }, def.o.map(function (o) {
+        const on = cur === String(o[0]), why = offWhy(o);
+        return lh('label', { key: o[0], className: "lc-sw lc-pick-opt" + (on ? " on" : "") },
+          lh('span', { className: "lc-sw-l" }, o[1]),
+          lh('input', Object.assign({ type: "radio", name: "lcp-" + def.k, value: String(o[0]), id: id + "-opt-" + String(o[0]).replace(/[^a-z0-9]+/gi, "-"), checked: on,
+            onChange: function () {}, onClick: function (e) { if (why) { e.preventDefault(); } pick(o); },
+            onFocus: def.k === "soundPack" && o[0] !== "custom" ? function () { Earcon.play(o[0] === "soundvault" ? "open" : "send", { test: true, pack: o[0] }); } : undefined },
+            why ? { "aria-disabled": "true" } : {})));
+      }))),
+    def.desc ? lh('p', { className: "lc-desc lc-pick-foot" }, def.desc) : null), host);
 }
 function LcWordsRow({ def }) {
   const [txt, setTxt] = useState(String(Looscid.A11Y_NOW[def.k] || ""));
@@ -3740,10 +3793,12 @@ function LcSection({ sec, level, title, intro, before, after, noReset, only, bar
   return lh('section', { className: "lc-grp", "aria-labelledby": labelledBy || hid, id: "lcs-" + sec + sfx },
     bare ? null : lh(H, { id: hid, className: level === 3 ? "lc-sub-h" : "lc-grp-h", tabIndex: -1 }, title || lcSectionTitle(sec)),
     // Round 6: one short line of plain text under the section heading (never linked to a control).
-    (intro || LC_SECTIONS[sec].d) ? lh('p', { className: "lc-desc lc-sec-d" }, intro || LC_SECTIONS[sec].d) : null,
     before || null,
     groups.map(function (g) { return lh(React.Fragment, { key: g[0] || "x" }, g[0] ? lh(SubH, { className: "lc-sub-h" }, g[0]) : null, g[1].map(function (d) { return lh(LcSetRow, { key: d.k, def: d }); })); }),
     after || null,
+    // Touch-style settings (Oct 30 2026): the page's short line of plain text is its footer, after the rows, so moving
+    // through the settings isn't broken up by a paragraph.
+    (intro || LC_SECTIONS[sec].d) ? lh('p', { className: "lc-desc lc-sec-d" }, intro || LC_SECTIONS[sec].d) : null,
     noReset ? null : lh(LcResetBtn, { sec: sec, label: title }));
 }
 function BrailleStyle() {

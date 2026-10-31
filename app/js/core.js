@@ -2451,14 +2451,16 @@ function lcMoreSections(o) {
       // into General; Tab Bar and Profile Tabs into Customization (was Customizability); Intelligence is now Cherry.
       // The order can be changed in Customization, Settings Order (Default, Alphabetical or Custom).
       items:[
-      { id:"looscidid", grp:"id", icon:"LooscidID", label:"LooscidID", sub:"Keys, logins and devices", action(){onClose();navigate("settings_account");} },
+      // Touch-style settings (Carter, Oct 30 2026 7:42 PM, "Yea to all"): one short list, most-used first, like a braille
+      // notetaker's options menu. Accessibility (Sense is its first row) leads; LooscidID moved down beside General.
+      { id:"accessibility", grp:"you", icon:"Accessibility", label:"Accessibility", action(){onClose();navigate("settings_accessibility");} },
+      { id:"earcons", grp:"talk", icon:"Audio", label:"Earcons", action(){onClose();navigate("settings_audio");} },
       { id:"alerts", grp:"talk", icon:"Alerts", label:"Alerts", action(){onClose();navigate("settings_notifications");} },
       { id:"chats", grp:"talk", icon:"Messages", label:"Chats", action(){onClose();Looscid.LC_SETTINGS_BACK = null;navigate("settings_messages");} },
-      { id:"earcons", grp:"talk", icon:"Audio", label:"Earcons", action(){onClose();navigate("settings_audio");} },
-      { id:"accessibility", grp:"you", icon:"Accessibility", label:"Accessibility", action(){onClose();navigate("settings_accessibility");} },
-      { id:"customization", grp:"you", icon:"Customizability", label:"Customization", action(){onClose();navigate("settings_customizability");} },
       { id:"privacy", grp:"you", icon:"Privacy", label:"Privacy", action(){onClose();try { sessionStorage.removeItem("looscid_priv_open"); } catch (e) {} navigate("settings_privacy");} },
+      { id:"customization", grp:"you", icon:"Customizability", label:"Customization", action(){onClose();navigate("settings_customizability");} },
       { id:"cherry", grp:"you", icon:"Intelligence", label:"Cherry", action(){onClose();navigate("settings_intelligence");} },
+      { id:"looscidid", grp:"id", icon:"LooscidID", label:"LooscidID", sub:"Keys, logins and devices", action(){onClose();navigate("settings_account");} },
       { id:"general", grp:"gen", icon:"Settings", label:"General", action(){onClose();navigate("settings_general");} },
       { id:"helpcenter", grp:"help", icon:"Help", label:"Help Center", action(){onClose();navigate("helpcenter");} },
       // Round 7.38 (Carter, Oct 26 2026 5:21 PM: "Logout should also be in the Settings menu", one word, like Login): the
@@ -2660,11 +2662,20 @@ function LcSettingsHome({ s, navigate, onBack }) {
   const logout = items.filter(function (it) { return it.grp === "logout"; });
   const handle = me.handle ? "@" + String(me.handle).replace(/^@/, "") : "";
   const name = me.name || me.displayName || "Dreamor";
+  const idLi = idItem ? lh('li', { key: "looscidid", className: "mli lc-ios-idli" }, lh('button', { type: "button", id: lcSetRowId(idItem.label), className: "mitem lc-ios-row lc-ios-id", onClick: idItem.action, "aria-label": lcNameJoin(name, handle, LC_SET_ID_SUB) },
+          lh('span', { className: "lc-ios-av", "aria-hidden": "true" }, String(me.initials || name.charAt(0) || "D").slice(0, 2)),
+          lh('span', { className: "mitem-lbl", "aria-hidden": "true" }, idItem.label),           lh('span', { "aria-hidden": "true", style: { color: "var(--tx3)", textAlign: "right", maxWidth: "45%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, handle ? name + " " + handle : name),
+          lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" }))) : null;
   let lists;
+  /* Touch-style settings (Carter, Oct 30 2026 7:42 PM): Default is ONE list, most-used first, Logout last (it asks first).
+     No group cards between rows, so arrow keys and swipes go straight down the list, and "Bottom" is said at the end.
+     Alphabetical and Custom keep LooscidID first, Help Center and Logout last, as before. */
   if (mode === "default") {
-    const grps = [];
-    items.forEach(function (it) { if (it.grp === "id" || it.grp === "help" || it.grp === "logout") return; let g = grps.find(function (x) { return x.k === it.grp; }); if (!g) { g = { k: it.grp, rows: [] }; grps.push(g); } g.rows.push(it); });
-    grps.sort(function (a, b) { return ["talk", "gen", "you"].indexOf(a.k) - ["talk", "gen", "you"].indexOf(b.k); }); lists = grps.map(function (g) { return lcSetGroup(g.k, g.rows, LC_SET_GRP_FOOT[g.k]); });
+    lists = lh('ul', { className: "mlist lc-ios-list lc-touch-list", role: "list", id: "set-grp-main" }, items.map(function (it) {
+      if (it.grp === "id") return idLi;
+      if (it.grp === "logout") return lcSetDangerRow(it);
+      return lcSetRow(it);
+    }));
   } else {
     lists = [lcSetGroup("main", lcSetOrdered(items, mode), mode === "alpha" ? "Sorted A to Z. Change the order in Customization, Settings Order." : "Your own order. Change it in Customization, Settings Order.")];
   }
@@ -2672,14 +2683,11 @@ function LcSettingsHome({ s, navigate, onBack }) {
     lh(BackHeader, { title: lcMoreTitle("settings", s.label), onBack: onBack }),
     lh(LcSettingFind, { navigate: navigate, onClose: function () {}, q: q, setQ: setQ }),
     q.trim() ? null : lh(React.Fragment, null,
-      idItem ? lh('ul', { className: "mlist lc-ios-list lc-ios-idcard", role: "list", id: "set-grp-id" },
-        lh('li', { className: "mli" }, lh('button', { type: "button", id: lcSetRowId(idItem.label), className: "mitem lc-ios-row lc-ios-id", onClick: idItem.action, "aria-label": lcNameJoin(name, handle, LC_SET_ID_SUB) },
-          lh('span', { className: "lc-ios-av", "aria-hidden": "true" }, String(me.initials || name.charAt(0) || "D").slice(0, 2)),
-          lh('span', { className: "mitem-lbl", "aria-hidden": "true" }, idItem.label),           lh('span', { "aria-hidden": "true", style: { color: "var(--tx3)", textAlign: "right", maxWidth: "45%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, handle ? name + " " + handle : name),
-          lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })))) : null,
+      mode !== "default" && idItem ? lh('ul', { className: "mlist lc-ios-list lc-ios-idcard", role: "list", id: "set-grp-id" },
+        idLi) : null,
       lists,
-      help.length ? lcSetGroup("help", help, LC_SET_GRP_FOOT.help) : null,
-      logout.length ? lh('ul', { className: "mlist lc-ios-list lc-ios-danger", role: "list", id: "set-grp-logout" }, logout.map(lcSetDangerRow)) : null));
+      mode !== "default" && help.length ? lcSetGroup("help", help, LC_SET_GRP_FOOT.help) : null,
+      mode !== "default" && logout.length ? lh('ul', { className: "mlist lc-ios-list lc-ios-danger", role: "list", id: "set-grp-logout" }, logout.map(lcSetDangerRow)) : null));
 }
 // Round 7.38: Logout, the last row in its own group, like iOS's Sign Out: red text, no icon and no arrow (it doesn't open a
 // page; it asks first). It is a plain button named "Logout".
@@ -2748,6 +2756,10 @@ function announce(msg, kind, key) {
   const isOk = !isErr && kind !== "state" && (kind === "success" || kind === "confirm" || LC_OK_RE.test(s.trim()));
   if (!isErr && (kind === "confirm" || (!kind && isOk)) && vb === "low") return;
   if ((kind === "nav" || kind === "hint") && vb !== "high") return;
+  /* Touch-style settings (Oct 30 2026): a checkbox that just changed already says its new state ("checked"), so a short
+     "Group similar alerts on." for that same focused checkbox isn't said a second time. Errors are always said. */
+  const fsay = Looscid.LC_FOCUS_SAYS, ae = document.activeElement;
+  if (!isErr && fsay && Date.now() - fsay.at < 800 && ae && ae.id === fsay.id && s.length < 100 && /\b(on|off|checked|unchecked)\.?$/i.test(s.trim())) return;
   if (isErr) lcPitchCue("error"); else if (isOk && LC_OK_RE.test(s.trim())) lcPitchCue("success");
   const el = document.getElementById("looscid-live");
   if (!el) return;
@@ -7109,16 +7121,101 @@ function LcUndoBar({ undo }) {
     lh('p', { className: "lc-undo-t" }, undo.what + " sends in " + undo.secs + " seconds."),
     lh('button', { ref: ref, type: "button", className: "btn bp lc-btn", onClick: function () { undo.cancel(); } }, "Undo"));
 }
+/* Touch-style settings (Carter, Oct 30 2026 7:42 PM, "Yea to all"): every on/off setting is a real checkbox, read
+   "Haptics, checkbox, checked" like a braille notetaker's options, not a switch. Same id, same saved key, same onToggle.
+   Enter flips it too (Space already does). A checkbox that can't be used stays focusable, is aria-disabled and says why.
+   Its new state is said by the checkbox itself, so announce() skips a matching "X on." for it (LC_FOCUS_SAYS). */
 function A11ySwitch({ id, label, desc, on, onToggle, soon, locked }) {
   const off = soon || locked;
-  return lh('div', { className: "lc-row" + (soon ? " lc-soon" : "") },
-    lh('button', { id: id, type: "button", role: "switch", className: "lc-sw", "aria-checked": !!on, "aria-disabled": off ? "true" : undefined,
-      onClick: function () { if (!off && onToggle) onToggle(); } },
+  return lh('div', { className: "lc-row lc-cbrow" + (soon ? " lc-soon" : "") },
+    lh('label', { className: "lc-sw lc-cb", htmlFor: id },
       lh('span', { className: "lc-sw-l" }, label),
-      lh('span', { className: "lc-sw-v", "aria-hidden": "true" }, soon ? "Soon" : on ? "On" : "Off", lh('span', { className: "lc-knob" }))),
+      soon ? lh('span', { className: "lc-sw-v", "aria-hidden": "true" }, "Soon") : null,
+      lh('input', { id: id, type: "checkbox", className: "lc-cb-in", checked: !!on, "aria-disabled": off ? "true" : undefined,
+        onClick: function (e) { if (off) e.preventDefault(); },
+        onChange: function () { if (off) return; Looscid.LC_FOCUS_SAYS = { at: Date.now(), id: id }; if (onToggle) onToggle(); },
+        onKeyDown: function (e) { if (e.key === "Enter" && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) { e.preventDefault(); if (!off) e.currentTarget.click(); } } })),
     // Round 6 (2three1y): no line after each switch. Only a switch that can't be used says why, as plain text.
     desc && off ? lh('p', { id: id + "-d", className: "lc-desc" }, desc) : null);
 }
+
+/* Touch-style settings (Carter, Oct 30 2026 7:42 PM, "Yea to all", on for everyone): on every Settings page the rows are one
+   list you can walk with the keyboard, like a braille notetaker's options menu.
+   - Down / Up arrow: next / previous row. At the ends nothing moves and "Bottom" or "Top" is said (#looscid-live).
+   - Home / End: first / last row. Typing a letter or number jumps to the next row that starts with it (again for the next one).
+   - Enter: activates, and flips a checkbox too. Escape or Backspace: Back, to the row you came from.
+   A group of radio buttons is one row (Left and Right still pick inside it); a slider keeps Left and Right for its value.
+   Tab still moves through every control as before. Nothing happens while you type in a text box, or inside an open menu
+   or dialog, and the page's own keys (Search, menus) come first. */
+function lcSetNavName(el) {
+  let t = "";
+  if (el.type === "radio" && !el.closest(".lc-picker")) { const fs = el.closest("fieldset"), lg = fs && fs.querySelector("legend"); if (lg) t = lg.textContent; }
+  const lb = el.getAttribute("aria-labelledby");
+  if (!t && lb) t = lb.split(/\s+/).map(function (x) { const n = document.getElementById(x); return n ? n.textContent : ""; }).join(" ");
+  if (!t) t = el.getAttribute("aria-label") || (el.labels && el.labels[0] ? el.labels[0].textContent : "") || el.textContent || "";
+  return lcUsStrip(String(t)).replace(/^[^A-Za-z0-9]+/, "").trim().toLowerCase();
+}
+function lcSetNavRows(root) {
+  const picker = root.classList.contains("lc-picker"), out = [], radios = {};
+  root.querySelectorAll('button, a[href], input:not([type="hidden"]), select, textarea, [tabindex="0"]').forEach(function (el) {
+    // The page's own rows only: not its header (Back, title), and not the tab bar and site footer that sit at its end.
+    if (el.disabled || el.closest('.hdr, .lc-footer-box, [hidden], [role="menu"], [role="listbox"], [role="dialog"], [role="alertdialog"]')) return;
+    if (!el.getClientRects().length) return;
+    if (el.type === "radio" && el.name && !picker) {
+      if (radios[el.name] != null) { if (el.checked) out[radios[el.name]] = el; return; }
+      radios[el.name] = out.length;
+    }
+    out.push(el);
+  });
+  return out;
+}
+function lcSetNavRoot(a) {
+  const pg = Looscid.LC_PAGE_NOW || "";
+  if (!(pg === "settings" || pg.indexOf("settings_") === 0) || !a || !a.closest) return null;
+  const main = document.getElementById("main-content");
+  if (!main || !main.contains(a)) return null;
+  return a.closest(".lc-picker") || a.closest(".pg");
+}
+function lcSetNavKey(e) {
+  if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
+  const a = document.activeElement, root = lcSetNavRoot(a);
+  if (!root || a.closest('[role="menu"], [role="listbox"], [role="dialog"], [role="alertdialog"], [role="tablist"], [role="grid"]')) return;
+  const tag = a.tagName, ty = String(a.type || "").toLowerCase(), k = e.key;
+  // A one-line text box (Search, a name) keeps every key for typing; only Down and Up leave it for the next or previous row
+  // (its own handler, like Search's results, goes first). Number, date and time boxes keep their arrows.
+  const oneLine = tag === "INPUT" && ["text", "search", "email", "url", "tel", "password"].indexOf(ty) >= 0;
+  if (oneLine && k !== "ArrowDown" && k !== "ArrowUp") return;
+  if (!oneLine && (tag === "TEXTAREA" || tag === "SELECT" || a.isContentEditable || (tag === "INPUT" && ["checkbox", "radio", "range", "button", "submit", "reset"].indexOf(ty) < 0))) return;
+  const rows = lcSetNavRows(root);
+  if (!rows.length) return;
+  const inHdr = !!a.closest(".hdr");
+  let i = rows.indexOf(a);
+  if (i < 0 && ty === "radio" && a.name) i = rows.findIndex(function (r) { return r.type === "radio" && r.name === a.name; });
+  const go = function (n) { e.preventDefault(); const r = rows[n]; if (r) { try { r.focus(); } catch (x) {} } };
+  if (k === "ArrowDown" || k === "ArrowUp") {
+    if (i < 0 && !inHdr) return;
+    const n = k === "ArrowDown" ? i + 1 : (i < 0 ? -1 : i - 1);
+    if (n >= rows.length) { e.preventDefault(); announce("Bottom", "essential"); return; }
+    if (n < 0) { e.preventDefault(); announce("Top", "essential"); return; }
+    return go(n);
+  }
+  if ((k === "Home" || k === "End") && ty !== "range") return go(k === "Home" ? 0 : rows.length - 1);
+  if (k === "Enter" && ty === "checkbox") { e.preventDefault(); a.click(); return; }
+  if ((k === "Escape" || k === "Backspace") && !root.classList.contains("lc-picker")) {
+    const back = root.querySelector('.hdr button[data-lc-al="Back"], .hdr button[aria-label="Back"], .hdr button.bi');
+    if (back) { e.preventDefault(); back.click(); }
+    return;
+  }
+  if (k.length === 1 && /[A-Za-z0-9]/.test(k)) {
+    const c = k.toLowerCase();
+    for (let s = 1; s <= rows.length; s++) {
+      const r = rows[((i < 0 ? -1 : i) + s + rows.length) % rows.length];
+      if (lcSetNavName(r).charAt(0) === c) { e.preventDefault(); try { r.focus(); } catch (x) {} return; }
+    }
+  }
+}
+if (!Looscid.LC_SETNAV_ON) { Looscid.LC_SETNAV_ON = true; document.addEventListener("keydown", lcSetNavKey); }
+Object.assign(Looscid, { lcSetNavRows, lcSetNavName, lcSetNavKey });
 // Which More-menu item each Settings screen belongs to (Back returns there, focus on that item).
 const SETTINGS_MENU_ITEM = {
   settings_account: ["settings", "LooscidID"], settings_notifications: ["settings", "Alerts"], settings_privacy: ["settings", "Privacy"],
@@ -7212,7 +7309,7 @@ function App() {
   // Commandbar (Ctrl/Cmd+K), Commandbar, first-visit question and earcons
   const [cmdOpen, setCmdOpen] = useState(false);
   const [menuInit, setMenuInit] = useState(null); // { open, focus, n } when Back reopens the More menu
-  const pageRef = useRef("feed"); pageRef.current = page;
+  const pageRef = useRef("feed"); pageRef.current = page; Looscid.LC_PAGE_NOW = page; // Touch-style settings: the arrow-key list knows it is on a Settings page
   const pdataRef = useRef(null); pdataRef.current = pdata;
   const mainBack = useRef("feed");   // last page that is not a Settings screen
   const subFrom = useRef({});        // Settings screen -> the Settings screen it was opened from
@@ -7720,6 +7817,10 @@ useEffect(() => {
       const H = hist.current; let st = null; try { st = history.state; } catch (e) {}
       const n = st && typeof st.lcN === "number" ? st.lcN : null;
       if (H.pend > 0) { H.pend -= 1; if (n !== null) H.idx = n; if (!H.pend) clearTimeout(H.goT); const f = H.after; H.after = null; if (f) f(); return; }
+      // Touch-style settings (Oct 30 2026): the browser's Back while a setting's page of choices is open closes it, like its
+      // own Back (nothing changes, focus goes back to the row), and the history steps forward again so you stay on the page.
+      if (typeof Looscid.LC_PICK_CLOSE === "function" && !showMenuRef.current && !document.querySelector('[role="dialog"], [role="alertdialog"]')) {
+        Looscid.LC_PICK_CLOSE(); histGo(n !== null && n !== H.idx ? H.idx - n : 1); return; }
       if (n === null || n === H.idx) { urlRoute(); return; }
       if (n < H.idx) {
         const B = histEntry(), steps = H.idx - n; H.idx = n;
