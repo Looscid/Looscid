@@ -93,6 +93,14 @@ function blockWho(user) {
   if (!user || !user.handle) return null;
   return ["Block " + user.name, function () { const l = Looscid.lcBlocked("dreamers"); Looscid.lcBlockedSet("dreamers", l.concat([user.handle])); announce("Blocked " + user.name + ". You won't see their Dreams, alerts or messages."); }];
 }
+function alertMuteItem(n) {
+  const refs = [n.thread, n.root, n.ref].filter(function (x) { return x != null && x !== ""; }).map(String);
+  if (!refs.length || !Looscid.lcThreadMuted || !Looscid.lcThreadMuteToggle) return null;
+  const on = Looscid.lcThreadMuted(refs);
+  return [on ? "Unmute this conversation" : "Mute this conversation", function () {
+    if (on) { const l = Looscid.lcThreadMuted; refs.concat(n.nid ? [String(n.nid)] : []).forEach(function (r) { if (l(r)) Looscid.lcThreadMuteToggle({ id: r }); }); announce("Unmuted this conversation. Its alerts come back."); }
+    else announce(Looscid.lcThreadMuteToggle({ _root: refs[0], nid: n.nid && n.nid !== refs[0] ? n.nid : undefined })); }];
+}
 function notifRow(st, draw, n) {
   const key = "n-" + String(n.id).replace(/[^a-z0-9-]/gi, "");
   const canReply = n.type === "reply" || n.type === "mention" || n.type === "quote";
@@ -111,6 +119,8 @@ function notifRow(st, draw, n) {
       [n.unread ? "Mark read" : "Mark unread", function () { lcAlertToggle(n.id); announce(n.unread ? "Marked as read." : "Marked as unread."); }],
       // Round 7.18 (#148): an alert from a followed thread can unfollow it right here.
       n.thread && Looscid.lcThreadSubbed && Looscid.lcThreadSubbed(n.thread) ? ["Unfollow Thread", function () { Looscid.lcThreadUnsub(n.thread); announce("Unfollowed this thread."); }] : null,
+      // Oct 31 2026 (Carter): Mute this conversation is here too, the same switch as in a Dream's More menu (kept on this device).
+      alertMuteItem(n),
       blockWho(n.user)]));
 }
 /* Round 7.19 (#149 Chats, Carter Oct 25 2026): Chats filters are DMs, Requests, Pinned and Deleted (last). No All and no
@@ -158,7 +168,7 @@ function convoRow(st, draw, c) {
       ["Reply", open],
       [pinned ? "Unpin" : "Pin", function () { chatSave(CHAT_PINNED_KEY, pinned ? chatPinned().filter(function (x) { return x !== ck; }) : chatPinned().concat([ck])); announce(pinned ? "Unpinned the chat with " + c.name + "." : "Pinned the chat with " + c.name + ". It's in Pinned."); }],
       // Round 7.26 (#155): Mute or Unmute: a muted chat's new messages are never said or sounded (still counted unread).
-      [Looscid.lcChatMuted && Looscid.lcChatMuted(ck) ? "Unmute" : "Mute", function () { const on = Looscid.lcChatMuteToggle(ck); announce(on ? "Muted the chat with " + c.name + ". New messages won't be said or make a sound." : "Unmuted the chat with " + c.name + "."); }],
+      [Looscid.lcChatMuted && Looscid.lcChatMuted(ck) ? "Unmute this conversation" : "Mute this conversation", function () { const on = Looscid.lcChatMuteToggle(ck); announce(on ? "Muted the chat with " + c.name + ". New messages won't be said or make a sound." : "Unmuted the chat with " + c.name + "."); }],
       c.unread > 0 ? ["Mark read", function () { if (c.pm) Looscid.lcPmMarkRead(c.peer); else c.demo.unread = 0; announce("Marked as read."); }]
         : ["Mark unread", function () { chatMarkUnread(c); announce("Marked as unread."); }],
       ["Delete", function () { const d = chatDeleted(); d[ck] = Date.now(); chatSave(CHAT_DELETED_KEY, d); if (c.pm) Looscid.lcPmMarkRead(c.peer); else c.demo.unread = 0; announce("Deleted the chat with " + c.name + ". It's in Deleted until a new message comes."); }],
