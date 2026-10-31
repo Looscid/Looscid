@@ -453,7 +453,9 @@ function dreamTemplate(d, NT, myPk) {
   const ps = [];
   const addP = function (pk) { if (isHex64(pk) && ps.indexOf(pk.toLowerCase()) < 0) ps.push(pk.toLowerCase()); };
   if (d.parentRef != null) {
-    const par = findLocal(d.parentRef);
+    // Oct 31 2026: a Dream from Federated (or any Nostr Dream) isn't saved here, so the composer hands over its Nostr id,
+    // author and tags (parentNote). Before, replies to other people's Nostr Dreams never left this device.
+    const loc = findLocal(d.parentRef), par = loc && isHex64(loc.nid) ? loc : (d.parentNote && isHex64(d.parentNote.nid) ? d.parentNote : loc);
     if (!par || !isHex64(par.nid)) return null;
     const ppk = isHex64(par.pk) ? par.pk : myPk;
     const pt = Array.isArray(par.tags) ? par.tags : [];
@@ -472,7 +474,7 @@ function dreamTemplate(d, NT, myPk) {
   (d.notifyPks || []).forEach(addP);
   ps.forEach(function (pk) { tags.push(["p", pk]); });
   if (d.quoteRef != null) {
-    const q = findLocal(d.quoteRef);
+    const ql = findLocal(d.quoteRef), q = ql && isHex64(ql.nid) ? ql : (d.quoteNote && isHex64(d.quoteNote.nid) ? d.quoteNote : ql); // Oct 31 2026: same for Quote
     if (q && isHex64(q.nid)) {
       const qpk = isHex64(q.pk) ? q.pk : myPk;
       tags.push(qpk ? ["q", q.nid, hint, qpk] : ["q", q.nid, hint]);
@@ -490,7 +492,7 @@ async function signDream(d) {
   if (!tpl) return { wait: true };
   return { ev: await sign(tpl) };
 }
-const DRAFT_KEYS = ["parentRef", "quoteRef", "cw", "notifyPks"];
+const DRAFT_KEYS = ["parentRef", "quoteRef", "cw", "notifyPks", "parentNote", "quoteNote"];
 async function processQueue() {
   if (busyQueue) return; busyQueue = true;
   try {
