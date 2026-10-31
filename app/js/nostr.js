@@ -494,9 +494,11 @@ const DRAFT_KEYS = ["parentRef", "quoteRef", "cw", "notifyPks"];
 async function processQueue() {
   if (busyQueue) return; busyQueue = true;
   try {
-    let q = queue(); const now = Date.now(); const out = [];
+    let q = queue(); const now = Date.now(); const out = [], hid = new Set(hidden());
     for (let i = 0; i < q.length; i++) {
       let it = q[i];
+      // Oct 31 2026: a Dream you deleted here is never sent later (its deletion, kind 5, still is).
+      if (it.ev && it.ev.kind !== 5 && hid.has(it.ev.id)) continue;
       if ((it.next || 0) > now + 500 && !it.kick) { out.push(it); continue; }
       delete it.kick;
       if (!it.ev && it.draft) {
@@ -847,6 +849,16 @@ async function publishDeletion(nids) {
 /* --- Reading your own Dreams back (any device) ------------------------------------- */
 function hidden() { const h = lsJson(HIDDEN_KEY, []); return Array.isArray(h) ? h : []; }
 function hide(nid) { if (!isHex64(nid)) return; const h = hidden(); if (h.indexOf(nid) < 0) { h.push(nid); lsSet(HIDDEN_KEY, JSON.stringify(h.slice(-2000))); } }
+// Oct 31 2026: Delete Dream takes the Dream out of the send queue too, signed or still waiting for the passcode.
+// draftsOnly: just the ones still waiting to be signed (publishDeletion reads the signed ones first to prove they're yours).
+function forget(dreamRef, nids, draftsOnly) {
+  const ids = (nids || []).filter(isHex64), q = queue();
+  const keep = q.filter(function (it) { if (it.draft && dreamRef != null && String(it.draft.dreamRef) === String(dreamRef)) return false;
+    if (draftsOnly) return true;
+    if (it.ev && it.ev.kind !== 5 && (ids.indexOf(it.ev.id) >= 0 || (dreamRef != null && String(it.dreamRef) === String(dreamRef)))) return false; return true; });
+  if (keep.length !== q.length) { saveQueue(keep); emit(); }
+  return q.length - keep.length;
+}
 async function fetchOwn() {
   const st = state(); if (!st.pubkey) return { added: 0 };
   let NT; try { NT = await load(); } catch (e) { return { added: 0, error: "load" }; }
@@ -966,7 +978,7 @@ if (document.readyState === "complete") start(); else window.addEventListener("l
 
 Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, VENDOR_URL: VENDOR_URL, load: load, toolsMsg: toolsMsg, toolsReady: toolsReady, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
   importKey: importKey, isCurrentKey: isCurrentKey, createKey: createKey, passcodeProblem: passcodeProblem, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, dropKey: dropKey, sealedSignins: sealedSignins, forgetWarning: forgetWarning, signedOutText: signedOutText, nsecNow: nsecNow, sealSessions: sealSessions, sealSessionsNow: sealSessionsNow, openSessions: openSessions, dmRelaysOf: dmRelaysOf,
-  publishDream: publishDream, publishDeletion: publishDeletion, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchRootDeletions: fetchRootDeletions, fetchReactions: fetchReactions, fetchLikesOf: fetchLikesOf, myDreamNids: myDreamNids, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide };
+  publishDream: publishDream, publishDeletion: publishDeletion, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchRootDeletions: fetchRootDeletions, fetchReactions: fetchReactions, fetchLikesOf: fetchLikesOf, myDreamNids: myDreamNids, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide, forget: forget };
 // Tokens saved before this update, when the key already has a passcode, are sealed a few seconds after startup.
 setTimeout(function () { sealSessions(); }, 2500);
 })(window.Looscid = window.Looscid || {});
