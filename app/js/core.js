@@ -7450,7 +7450,10 @@ useEffect(() => {
     window.addEventListener("looscid-dreams-fetched", f);
     return function () { window.removeEventListener("looscid-dreams-fetched", f); };
   }, []);
-  const [appFollowing, setAppFollowing] = useState(new Set(LC_FIX.following || [])); // IDs we follow
+  // Oct 31 2026: who you follow is kept on this device (looscid_following). It lived only in memory, so every follow was
+  // gone after a reload or on the next visit.
+  const [appFollowing, setAppFollowing] = useState(function () { const v = lcJsonLs("looscid_following", null); return new Set(Array.isArray(v) ? v : (LC_FIX.following || [])); }); // IDs we follow
+  useEffect(function () { try { localStorage.setItem("looscid_following", JSON.stringify(Array.from(appFollowing))); } catch (e) {} }, [appFollowing]);
   const [appGroups, setAppGroups] = useState(GROUPS);                                     // joined state
   const [appNotifs, setAppNotifs] = useState(NOTIFS_INIT);
   const cherryBack = useRef(null);                              // Round 6.5.2: where Back on the Cherry page goes
