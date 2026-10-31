@@ -975,8 +975,18 @@ function lcEditSave(d, text) {
 function lcWithEdit(d) { const t = lcTombstoneOf(d); if (t) return t; const e = lcEditOf(d); return e ? Object.assign({}, d, { text: e.text, edits: e.history, editedAt: e.at }) : d; }
 function lcIsMine(d) { return !!d && !!d.user && (d.user === ME || (!!d.user.handle && lcHandle(d.user.handle) === lcHandle(ME.handle || ""))); }
 Object.assign(Looscid, { LC_EDITS_KEY, lcEdits, lcEditOf, lcEditSave, lcWithEdit });
-function DreamDeleteDialog({ id, onConfirm, onCancel }) {
+function DreamDeleteDialog({ id, onConfirm, onCancel, onNostr }) {
   const boxRef = useRef(null), headingRef = useRef(null);
+  // Oct 31 2026: a Dream on Nostr needs the unlocked key to sign its deletion (NIP-09, kind 5). When the key is locked the
+  // dialog asks for the passcode right here, so Delete Dream really asks relays to delete it instead of failing quietly.
+  const NS = Looscid.lcNostr, locked = !!(onNostr && NS && NS.state && NS.state().mode === "locked");
+  const [pass, setPass] = useState(""), [passMsg, setPassMsg] = useState(""), [busy, setBusy] = useState(false);
+  const confirm = function () {
+    if (!locked || !pass) { onConfirm(); return; }
+    setBusy(true); setPassMsg("");
+    NS.unlock(pass).then(function (r) { setBusy(false); if (r && r.ok) onConfirm(); else setPassMsg((r && r.err) || "That passcode isn't right. Try again."); },
+      function () { setBusy(false); setPassMsg("That passcode isn't right. Try again."); });
+  };
   useEffect(function () { if (headingRef.current) headingRef.current.focus(); }, []);
   const onKey = function (e) {
     if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); onCancel(); return; }
@@ -989,9 +999,15 @@ function DreamDeleteDialog({ id, onConfirm, onCancel }) {
     lh('div', { ref: boxRef, className: "lid-alert", role: "alertdialog", "aria-modal": "true", "aria-labelledby": id + "-title", "aria-describedby": id + "-message", "data-lc-no-focus-trap": "", onKeyDown: onKey },
       lh('h2', { ref: headingRef, tabIndex: -1, "data-lc-autofocus": "", id: id + "-title", className: "lid-sub" }, "Delete this Dream?"),
       lh('p', { id: id + "-message", className: "lid-help" }, "Confirming removes this Dream from this device. Replies stay readable. This cannot be undone. Copies on relays may remain. Cancel makes no changes."),
+      locked && lh('div', { className: "lc-cr-unlock" },
+        lh('p', { id: id + "-locked", className: "lid-help" }, "Your Nostr key is locked. Enter your passcode so Nostr relays are asked to delete it too. Leave it empty to delete it from this device only."),
+        lh('label', { htmlFor: id + "-pass", className: "lc-fs-l" }, "Passcode"),
+        lh('input', { id: id + "-pass", type: "password", className: "lc-text", autoComplete: "off", autoCapitalize: "off", spellCheck: false, value: pass, "aria-describedby": id + "-locked",
+          onChange: function (e) { setPass(e.target.value); }, onKeyDown: function (e) { if (e.key === "Enter") { e.preventDefault(); confirm(); } } }),
+        passMsg && lh('p', { className: "lid-err", role: "alert" }, passMsg)),
       lh('div', { className: "lid-actions" },
         lh('button', { type: "button", className: "btn bgb", "aria-label": "Cancel", onClick: onCancel }, "Cancel"),
-        lh('button', { type: "button", className: "btn bp", "aria-label": "Delete", onClick: onConfirm }, "Delete"))));
+        lh('button', { type: "button", className: "btn bp", "aria-label": "Delete Dream", disabled: busy, onClick: confirm }, "Delete Dream"))));
 }
 function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, cherryCtx, onExtra, forYou, allowDelete, onDeleted }) {
   useThreadSubsTick(); // #148: Follow Thread / Unfollow Thread is always current
@@ -1012,8 +1028,18 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
     setDeleting(false);
     if (tombstoned) announce("This Dream was deleted");
     else announce("Dream deleted from this device. Replies remain readable.");
+    // Oct 31 2026: the More button is gone with the Dream, so focus lands on the "This Dream was deleted" line in its place
+    // (or the page heading), never on nothing.
+    if (tombstoned || !onDeleted) setTimeout(function () { const a = document.activeElement;
+      if (a && a !== document.body && a.isConnected) return;
+      const el = document.getElementById("deleted-dream-" + dream.id) || document.querySelector("h1");
+      if (el) { if (!el.hasAttribute("tabindex")) el.setAttribute("tabindex", "-1"); el.focus(); } }, 120);
     const N = Looscid.lcNostr;
-    if (N && N.publishDeletion) N.publishDeletion(nids).catch(function () { announce("Relay deletion could not be requested. Copies may remain."); });
+    // Oct 31 2026: a deleted Dream is never sent later: drafts leave the send queue now, signed copies once the deletion is asked for.
+    const forget = function (draftsOnly) { if (N && N.forget) { try { N.forget(dream.id, nids, draftsOnly); } catch (e) {} } };
+    forget(true);
+    if (N && N.publishDeletion) N.publishDeletion(nids).then(function () { forget(false); }, function () { forget(false); announce("Relay deletion could not be requested. Copies may remain."); });
+    else forget(false);
     if (!tombstoned && onDeleted) onDeleted();
   };
   useIdListTick("looscid:pinned"); useIdListTick("looscid:mutedthreads"); // build 152 fix: Pin and Mute labels follow the change
@@ -1042,7 +1068,6 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
     onExtra ? { id: "likedby", name: "Liked by", a: function () { onExtra({ kind: "people", which: "likes" }); } } : null,
     onExtra ? { id: "redreamedby", name: "Redreamed by", a: function () { onExtra({ kind: "people", which: "redreams" }); } } : null,
     onExtra ? { id: "info", name: "Dream info", a: function () { onExtra({ kind: "info" }); } } : null,
-    canDelete ? { id: "delete", name: "Delete", aria: "Delete Dream", exactAria: true, danger: true, a: function () { setDeleting(true); } } : null,
     // Build 152 prep (#99, part 3)
     onExtra && lcIsMine(dream) ? { id: "edit", name: dream.replyTo ? "Edit reply" : "Edit Dream", a: function () { onExtra({ kind: "edit" }); } } : null,
     onExtra && Array.isArray(dream.edits) && dream.edits.length ? { id: "history", name: "Edit history", a: function () { onExtra({ kind: "history" }); } } : null,
@@ -1086,10 +1111,12 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
             : { id: "block", name: "Block " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").concat([handle])); announce("Blocked " + who + ". Unblock here or in Settings, Privacy."); } },
     // Round 7.16 (#216): Report is hidden until Looscid has somewhere to send reports (it was a dimmed Coming soon item).
   ];
-  const ordered = fx.concat(items);
+  // Oct 31 2026 (Carter): Delete Dream is on your own Dreams everywhere they show (Home, profiles, Liked, Replies page),
+  // not only on the Replies page. Its visible name says what it deletes, and it's last so it's never hit by accident.
+  const ordered = fx.concat(items).concat(canDelete ? [{ id: "delete", name: "Delete Dream", aria: "Delete Dream", exactAria: true, danger: true, a: function () { setDeleting(true); } }] : []);
   // Round 5 fixes: each Dream's More button says whose Dream it is ("More, Dream by Ava"), so the rotor list isn't a row of "More".
   return lh(React.Fragment, null,
-    deleting && lh(DreamDeleteDialog, { id: id + "-delete", onConfirm: confirmDelete, onCancel: cancelDelete }),
+    deleting && lh(DreamDeleteDialog, { id: id + "-delete", onConfirm: confirmDelete, onCancel: cancelDelete, onNostr: [dream.nid, String(dream.id)].concat((lcSavedDreamsRaw().find(function (s) { return s.id === dream.id; }) || {}).nid || []).some(function (x) { return /^[0-9a-f]{64}$/i.test(String(x || "")); }) }),
     lh(LcMenu, { id: id + "-btn", menuId: id, kind: "action", title: "More", btnLabel: "More, " + (dream && dream.user && dream.user.name ? "Dream by " + dream.user.name : "Dream"), btnHint: "Opens actions for this Dream.", btnClass: "ixn-btn", btnRef: btnRef, noCaret: true, align: "right", up: true,
     className: "lc-dmenu", style: { flex: ".5", display: "flex" }, itemClass: "lc-dopt", btnText: lh(Ic.Dots, { style: { width: 15, height: 15 } }), items: ordered,
     onSelect: function (k, it) { if (it.a) it.a(); } }));
@@ -1456,7 +1483,7 @@ function DreamBodyCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndo
             , React.createElement('div', { className: "cbx-box",}, dream.liked && React.createElement(ChkMark, null))
             , React.createElement('span', null, calm ? "" : fmt(dream.likes), calm ? "Likes" : dream.likes === 1 ? " Like" : " Likes" )
           )
-          , lh(DreamOptionsMenu, { id: "dopts-" + dream.id, dream: dream, btnRef: optsBtn, onBookmark: onBookmark, onLike: onLike, navigate: navigate, cherryCtx: cherryCtx, onExtra: setExtra, forYou: !!forYou })
+          , lh(DreamOptionsMenu, { id: "dopts-" + dream.id, dream: dream, btnRef: optsBtn, onBookmark: onBookmark, onLike: onLike, navigate: navigate, cherryCtx: cherryCtx, onExtra: setExtra, forYou: !!forYou, allowDelete: true })
         )
         )
 
