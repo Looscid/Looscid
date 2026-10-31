@@ -427,7 +427,7 @@ const AlertsPage = lcPlainScreen("AlertsPage", function (host) {
   const onNew = function () { const d = Looscid.LC_PM_OPEN; if (!d || !d.compose) return; Looscid.LC_PM_OPEN = null;
     st.box = "chats"; st.pm = null; st.pmBack = null; st.convo = null; st.manage = false; st.more = null; st.menu = false; st.compose = d.compose; draw(); };
   window.addEventListener("looscid:newchat", onNew);
-  const evs = ["looscid:alerts", "looscid:cats", "looscid:pms", "looscid:blocked", "looscid:threadsubs"];
+  const evs = ["looscid:alerts", "looscid:cats", "looscid:pms", "looscid:blocked", "looscid:threadsubs", "looscid-nostr"]; // Oct 31 2026: looscid-nostr, so "Unlock your key" goes away the moment it's unlocked
   window.addEventListener("looscid:alertstab", onTab);
   evs.forEach(function (e) { window.addEventListener(e, draw); });
   draw();
