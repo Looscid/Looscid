@@ -2043,7 +2043,7 @@ function LcSiteFooter({ navigate, cur }) {
       // Round 7.24 (#161): the changelog is its own page on the site (every version, with its own link preview).
       lh('li', { key: "chg" }, lh('a', { href: (typeof LOOSCID_BASE === "string" ? LOOSCID_BASE : "") + "changelog/", className: "lc-link" }, "Changelog")),
       ext("https://github.com/Looscid/Looscid/blob/main/docs/guides/ACCESSIBILITY.md", "Accessibility", "a")])),
-    lh('p', { className: "lc-foot-credit" }, "Created by ", lh('a', { href: "https://looscid.github.io/Looscid/", className: "lc-link" }, "2three1y")));
+    lh('p', { className: "lc-foot-credit" }, lh('a', { href: "https://2three1y.github.io/", className: "lc-link" }, "Made by Chaotic Carter")));
     // Round 7.41 (Carter: "not corpo shit"): one kid and Tab make this, and the footer says so.
 }
 /* 2three1y (Oct 12, 5:33 PM): "The footer is on every page at the bottom like GitHub", but in reading and swipe order the
