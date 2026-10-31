@@ -3269,6 +3269,9 @@ function NostrPanel({ onDone }) {
     const so = r.signedOut ? " " + r.signedOut : "";
     announce("Logged in with your Nostr key" + (so ? "." + so : ""));
     onDone((noPass ? "Logged in with your Nostr key. It's saved only on this device, without a passcode." : "Logged in with your Nostr key. It's saved only on this device, locked with your passcode.") + so);
+    // Oct 31 2026: on a new device, bring your Dreams and replies back from Nostr right away (it waited for the next reload).
+    if (Looscid.lcNostr.fetchOwn) Looscid.lcNostr.fetchOwn().then(function (f) { const n = f ? (f.added || 0) + (f.replies || 0) : 0;
+      if (n) setTimeout(function () { announce("Found " + n + (n === 1 ? " of your Dreams" : " of your Dreams and replies") + " on Nostr."); }, 2500); }, function () {});
   };
   const pasteRef = useEnterSubmit(usePasted);
 
