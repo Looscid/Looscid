@@ -5842,6 +5842,14 @@ function lcThreadWatch() {
   if (lcThreadTimer) return;
   const run = function () { if (document.hidden) return; lcThreadCheck(); lcDeletedDreamCheck(); lcInboxCheck(); lcPmCheck(); };
   setTimeout(run, 1500); lcThreadTimer = setInterval(run, 2 * 60000);
+  // Oct 31 2026: the moment you unlock your key (or a signer connects), check messages and the Inbox right away instead
+  // of at the next 2-minute check, so a chat that came in while it was locked shows up now.
+  let lastMode = null;
+  window.addEventListener("looscid-nostr", function () {
+    const N = Looscid.lcNostr, m = N && N.pmMode ? N.pmMode() : null, ready = m === "key" || m === "signer";
+    if (ready && lastMode !== m && lastMode !== null) setTimeout(function () { if (!document.hidden) { lcInboxCheck(); lcPmCheck(); } }, 300);
+    lastMode = m;
+  });
 }
 /* Build 151 (#73): the Inbox on Nostr. Replies, mentions, Likes, Redreams, Quotes and new Dreamors that tag you go
    through lcNotify, so Settings, Alerts (on/off, sound, who), blocks, muted words and quiet hours all apply. */
