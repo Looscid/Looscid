@@ -431,10 +431,17 @@ function lcAltSuggest(att) {
     img.src = att.src;
   });
 }
+// Oct 31 2026: the Nostr id, author and tags of a Dream that isn't saved on this device (Federated, profiles from Nostr),
+// so a Reply or Quote to it can be signed and sent.
+function lcNoteRef(x) {
+  if (!x || !/^[0-9a-f]{64}$/i.test(String(x.nid || ""))) return null;
+  const pk = /^[0-9a-f]{64}$/i.test(String(x.pk || "")) ? x.pk : x.user && /^npub:[0-9a-f]{64}$/i.test(String(x.user.id || "")) ? String(x.user.id).slice(5) : undefined;
+  return { nid: x.nid, pk: pk, tags: Array.isArray(x.tags) ? x.tags : [] };
+}
 async function lcPublishChain(items) {
   for (let i = 0; i < items.length; i++) {
     const it = items[i];
-    try { await Looscid.lcNostr.publishDream({ id: it.id, text: it.text, created: typeof it.id === "number" ? it.id : Date.now(), parentRef: it.parentRef, quoteRef: it.quoteRef, cw: it.cw || undefined, notifyPks: it.notifyPks }, { quiet: i < items.length - 1 }); } catch (e) {}
+    try { await Looscid.lcNostr.publishDream({ id: it.id, text: it.text, created: typeof it.id === "number" ? it.id : Date.now(), parentRef: it.parentRef, quoteRef: it.quoteRef, cw: it.cw || undefined, notifyPks: it.notifyPks, parentNote: it.parentNote || undefined, quoteNote: it.quoteNote || undefined }, { quiet: i < items.length - 1 }); } catch (e) {}
   }
 }
 function LcComposer(props) {
@@ -543,7 +550,8 @@ function LcComposer(props) {
           id = Looscid.lcAddReply(Object.assign(extra, { replyTo: isReply ? root.id : firstId, replyToReply: toReply, text: t, notify: i === 0 ? notify : undefined }));
           store = "replies";
         }
-        items.push({ id: id, text: t, parentRef: i === 0 ? (isReply ? parent.id : null) : prevId, quoteRef: i === 0 && isQuote ? parent.id : null, cw: cwText, notifyPks: i === 0 ? notifyPks : [] });
+        items.push({ id: id, text: t, parentRef: i === 0 ? (isReply ? parent.id : null) : prevId, quoteRef: i === 0 && isQuote ? parent.id : null, cw: cwText, notifyPks: i === 0 ? notifyPks : [],
+          parentNote: i === 0 && isReply ? lcNoteRef(parent) : null, quoteNote: i === 0 && isQuote ? lcNoteRef(parent) : null });
         if (i === 0) firstId = id; prevId = id; prevStore = store;
       });
       lcFocusAfterPost(firstId, opener);
