@@ -2520,7 +2520,8 @@ function localDataSummary() {
   return [
     { k: "Profile", v: "Name, @username" + (p.bio ? ", bio" : "") + (p.website ? ", website" : "") + ((p.links || []).length ? ", " + p.links.length + " social links" : "") },
     { k: "Login methods", v: methods.length ? methods.length + " linked, public identifiers only" : "None yet" },
-    { k: "Nostr secret key", v: getStoredNostrSk() ? "Saved on this device" : "Not saved here" },
+    // Oct 31 2026: a key locked with a passcode is saved here too (it said "Not saved here").
+    { k: "Nostr secret key", v: getStoredNostrSk() ? "Saved on this device" : (function () { try { return localStorage.getItem("looscid_nostr_ncryptsec") ? "Saved on this device, locked with your passcode" : "Not saved here"; } catch (e) { return "Not saved here"; } })() },
     { k: "Topics", v: topics.length ? topics.length + " chosen" : "None chosen" },
     { k: "Drafts", v: drafts.length ? drafts.length + " saved" : "None" },
     { k: "Circles you made", v: (function () { const n = Looscid.lcCirclesRead ? Looscid.lcCirclesRead().length : 0; return n ? n + " saved" : "None"; })() },
@@ -2534,6 +2535,12 @@ function exportLocalData() {
   const data = { app: "Looscid", exportedAt: new Date().toISOString(), note: "Secret keys and login tokens are not included.",
     profile: getLocalProfile(), loginMethods: getMethods().map(function (m) { return { provider: m.provider, publicId: m.publicId, linkedAt: m.at }; }),
     topics: getTopics(), drafts: drafts, circles: Looscid.lcCirclesRead ? Looscid.lcCirclesRead() : [], securityActivity: getActivity() };
+  // Oct 31 2026: everything you made or chose is in the file too: your Dreams, replies, edits, Redreams, likes, chats,
+  // follows, blocks and mutes (local-first means you can take all of it with you). Still no secret keys or tokens.
+  const lsAll = function (k) { try { const v = JSON.parse(localStorage.getItem(k) || "null"); return v == null ? undefined : v; } catch (e) { return undefined; } };
+  [["dreams", "looscid_dreams"], ["replies", "looscid_replies"], ["edits", "looscid_dream_edits"], ["redreams", "looscid_redreams"], ["liked", "looscid_liked"],
+   ["chats", "looscid_pms"], ["following", "looscid_following"], ["blocked", "looscid_blocked_dreamers"], ["mutedDreamors", "looscid_muted_dreamors"],
+   ["mutedConversations", "looscid_muted_threads"], ["pinnedDreams", "looscid_pinned_dreams"], ["lists", "looscid_lists"]].forEach(function (p) { const v = lsAll(p[1]); if (v !== undefined) data[p[0]] = v; });
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a"); a.href = url; a.download = "looscid-my-data.json"; document.body.appendChild(a); a.click(); a.remove();
@@ -2607,7 +2614,7 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
     lh('h3', { className: "lid-label" }, "What's stored on this device"),
     lh('ul', { className: "lid-dl lc-rows", role: "list" }, summary.map(function (r) { return lh('li', { key: r.k }, lh('span', { className: "lc-dt" }, r.k, lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, r.v)); })),
     lh('h3', { className: "lid-label" }, "Download your data"),
-    lh('p', { className: "lid-help", id: "lid-export-help" }, "Get a copy of your profile, login methods, topics, drafts and security activity as a JSON file. Secret keys and login tokens are left out."),
+    lh('p', { className: "lid-help", id: "lid-export-help" }, "Get a copy of your Dreams, replies, chats, likes, follows, profile, login methods, topics, drafts and security activity as a JSON file. Secret keys and login tokens are left out."),
     lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { exportLocalData(); setNote("Your data was downloaded as looscid-my-data.json."); announce("Data downloaded"); } }, "Export my data"),
     note && lh('p', { className: "lid-saved" }, note),
     lh('h3', { className: "lid-label" }, "Delete your data"),
