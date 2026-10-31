@@ -949,7 +949,10 @@ function lcPinnedToggle(d) { const id = String(d.id), l = lcPinnedIds(), on = l.
   return on ? "Unpinned from your profile." : "Pinned to your profile. It shows first on your Dreams tab."; }
 function lcThreadKeys(d) { if (!d) return []; return [d._root, d.replyTo, d.id, d.nid].filter(function (x) { return x != null && x !== ""; }).map(String); }
 function lcThreadMuted(ref) { if (ref == null) return false; const l = lcIdList(LC_MUTED_THREADS_KEY); return (Array.isArray(ref) ? ref : [ref]).some(function (r) { return r != null && l.indexOf(String(r)) >= 0; }); }
-function lcThreadMuteToggle(d) { const keys = lcThreadKeys(d).slice(0, 1).concat(d && d.nid ? [String(d.nid)] : []), l = lcIdList(LC_MUTED_THREADS_KEY), on = lcThreadMuted(lcThreadKeys(d).slice(0, 1));
+// Oct 31 2026: muting from a reply also keeps the first Dream's Nostr id, so alerts that arrive from relays (named by that id) stay quiet too.
+function lcThreadRootNid(k) { if (k == null) return null; k = String(k); const s = lcSavedDreamsRaw().find(function (x) { return String(x.id) === k; }) || (Looscid.LC_APP_DREAMS || []).find(function (x) { return x && String(x.id) === k; });
+  return s && s.nid && String(s.nid) !== k ? String(s.nid) : null; }
+function lcThreadMuteToggle(d) { const k0 = lcThreadKeys(d).slice(0, 1), rn = lcThreadRootNid(k0[0]), keys = k0.concat(rn ? [rn] : []).concat(d && d.nid && String(d.nid) !== rn ? [String(d.nid)] : []), l = lcIdList(LC_MUTED_THREADS_KEY), on = lcThreadMuted(k0);
   lcIdListSet(LC_MUTED_THREADS_KEY, on ? l.filter(function (x) { return keys.indexOf(x) < 0; }) : keys.concat(l.filter(function (x) { return keys.indexOf(x) < 0; })), "looscid:mutedthreads", 500);
   return on ? "Unmuted this conversation. Its alerts come back." : "Muted this conversation. You won't get alerts from it."; }
 function lcNotInterested() { return lcIdList(LC_NOT_INT_KEY); }
@@ -1233,6 +1236,7 @@ function ReplyItem({cm, navigate, onReply}) {
   const [likes, setLikes] = useState(cm.likes || 0);
   const [open, setOpen] = useState(false);
   useThreadSubsTick(); // #148
+  useIdListTick("looscid:mutedthreads"); // Oct 31 2026: Mute this conversation label follows the change
   const toggle = () => { if (!liked) lcThreadLikeNudge(cm); setLiked(l=>!l); setLikes(n=>liked?n-1:n+1); }; // #148: a Like never follows; two in a row may offer to
   const name = (cm.user && cm.user.name) || "Someone", handle = (cm.user && cm.user.handle) || "";
   const body = lcWordHit(cm.text) ? lh(LcBlockedHidden, { what: "reply" }, lh('p', { className: "cm-body" }, cm.text)) : lh('p', { className: "cm-body" }, cm.text);
@@ -1256,6 +1260,8 @@ function ReplyItem({cm, navigate, onReply}) {
             : { id: "share", name: "Share reply", note: "unavailable: this reply is only on this device", hint: "Not available yet: this reply has no public address until it's on Nostr.", disabled: true },
           navigate && handle ? { id: "profile", name: "View @" + handle.replace("@","") + "'s profile", a: function () { navigate("dp", cm.user); } } : null,
           lcFollowThreadItem(cm), // Round 7.18 (#148): every reply's More menu has Follow Thread / Unfollow Thread
+          // Oct 31 2026 (Carter): Mute this conversation is on every reply too, the same as on Dreams, Alerts and Chats.
+          { id: "mutethread", name: lcThreadMuted(lcThreadKeys(cm).slice(0, 1)) ? "Unmute this conversation" : "Mute this conversation", a: function () { announce(lcThreadMuteToggle(cm)); } },
         ].filter(Boolean) })),
     cm.cw ? lh(React.Fragment, null,
       lh('p', { className: "lc-cw-t" }, "Content warning: " + cm.cw),
