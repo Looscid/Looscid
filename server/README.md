@@ -1,6 +1,9 @@
-# looscidserver
+# Looscid server
 
 **The Looscid home server. Looscid runs on Rem.**
+
+This folder is the server, inside the Looscid repo (it used to be its own repo, github.com/2three1y/looscidserver,
+now archived). The app it serves is this repo's `app/` folder, the same app as https://looscid.github.io/Looscid/.
 
 Looscid is an accessible social app built for screen reader users first. This is its home server: the
 place where Dreamors meet. Looscid is **local-first, syncs through the Looscid server**: your LooscidID
@@ -37,15 +40,16 @@ Live home: https://looscidserver.sites.tab.bot/
 Needs Node 20 or newer, `tar` and `curl`. No other dependencies to install.
 
 ```sh
-git clone https://github.com/2three1y/looscidserver
-cd looscidserver
+git clone https://github.com/Looscid/Looscid
+cd Looscid/server
 sh scripts/setup-sqlite.sh          # fetches SQLite's native file for your Node version
 sh scripts/fetch-app.sh             # copies the Looscid app (pinned commit in scripts/app-commit.txt) into webapp/
 REM_PUBLIC_HOST=localhost:8080 node server/main.mjs
 ```
 
 `webapp/` isn't in git. Without it the classic client is served at `/` as well. To move to a newer app, put its
-commit in `scripts/app-commit.txt`, run `sh scripts/fetch-app.sh` again and restart.
+commit in `scripts/app-commit.txt`, run `sh scripts/fetch-app.sh` again and restart. `sh scripts/fetch-app.sh here`
+copies the app from your own clone (`../app`) instead, as it is right now.
 
 Then open http://localhost:8080/. Settings are environment variables (see `server/config.mjs`):
 
@@ -69,7 +73,7 @@ and `node test/smoke.mjs <home-url> <secrets.json>` (57 end-to-end checks; it cl
 
 - `public/js/rem-core.js` the protocol rules shared by server and clients (objects, signatures, LooscidID, recovery phrase, NIP-44).
 - `public/js/rem-client.js` a small client library. `public/app.js` the classic web client (served at `/classic/`).
-- `webapp/` the Looscid app, made by `scripts/fetch-app.sh` (not in git).
+- `webapp/` the Looscid app (a copy of this repo's `app/`), made by `scripts/fetch-app.sh` (not in git).
 - `server/` the home: `main.mjs` (HTTP + routes), `rem.mjs` (rules), `db.mjs` (SQLite), `live.mjs` (WebSocket),
   `media.mjs` (image cleaning), `linkcard.mjs` (safe link cards), `config.mjs` (settings).
 
@@ -77,4 +81,5 @@ and `node test/smoke.mjs <home-url> <secrets.json>` (57 end-to-end checks; it cl
 
 See [CREDITS.md](CREDITS.md): noble-secp256k1 (MIT), better-sqlite3 (MIT), the BIP-39 wordlist (MIT).
 
-MIT License. Made by 2three1y. Co-written with Tab.
+The server folder is MIT licensed ([LICENSE](LICENSE)); the rest of the Looscid repo has its own license.
+Made by 2three1y. Co-written with Tab.

@@ -55,7 +55,7 @@ const ipOf = (req) => req.headers['cf-connecting-ip'] || req.socket.remoteAddres
 function wellKnown() {
   return { protocol: `${PROTOCOL.key}/${PROTOCOL.version}`, protocol_name: PROTOCOL.name, api: B, live: PROTOCOL.live, home: config.host, name: config.appName,
     invite_only: true, owner_handle: config.ownerHandle, owner_claimed: R.ownerClaimed(), min_age: config.minAge, public_read: config.publicRead, nostr_bridge: false, chats: 'mutuals_only, end-to-end encrypted (NIP-44 v2)',
-    limits: config.limits, invites: config.invites, spec: 'https://github.com/2three1y/looscidserver/blob/main/PROTOCOL.md', software: 'looscidserver 0.1.0' };
+    limits: config.limits, invites: config.invites, spec: 'https://github.com/Looscid/Looscid/blob/main/server/PROTOCOL.md', software: 'looscidserver 0.1.0' };
 }
 
 async function api(req, res, url) {

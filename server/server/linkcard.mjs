@@ -33,7 +33,7 @@ async function safeGet(url, hops = 0) {
     const req = mod.request({
       host: ip, servername: net.isIP(host) ? undefined : host, port: u.port || (u.protocol === 'https:' ? 443 : 80),
       path: u.pathname + u.search, method: 'GET', timeout: TIMEOUT,
-      headers: { Host: u.host, 'User-Agent': 'LooscidLinkCard/0 (+https://github.com/2three1y/looscidserver)', Accept: 'text/html', 'Accept-Encoding': 'identity' },
+      headers: { Host: u.host, 'User-Agent': 'LooscidLinkCard/0 (+https://github.com/Looscid/Looscid/tree/main/server)', Accept: 'text/html', 'Accept-Encoding': 'identity' },
     }, (res) => {
       if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location) {
         res.resume(); if (hops >= 3) return reject(new Error('redirects'));

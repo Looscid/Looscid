@@ -1,15 +1,17 @@
 #!/bin/sh
 # Copies the real Looscid app into webapp/, which the server serves at / (the classic client stays at /classic/).
-# It's the app/ folder of github.com/Looscid/Looscid at one pinned commit (scripts/app-commit.txt), finished the same
-# way the app's GitHub Pages deploy does it (.github/workflows/pages.yml): CHANGELOG.md copied in, the Help Center
-# copied to help/. Nothing in the app is changed.
-#   sh scripts/fetch-app.sh            the pinned commit
+# The server lives in the Looscid repo (github.com/Looscid/Looscid, folder server/), next to the app's own app/ folder.
+# webapp/ is that app/ folder, finished the same way the app's GitHub Pages deploy does it
+# (.github/workflows/pages.yml): CHANGELOG.md copied in, the Help Center copied to help/. Nothing in the app is changed.
+#   sh scripts/fetch-app.sh            the pinned commit (scripts/app-commit.txt), downloaded from GitHub
 #   sh scripts/fetch-app.sh <sha>      another commit (then put it in scripts/app-commit.txt)
-#   sh scripts/fetch-app.sh <folder>   a local clone of Looscid/Looscid (for testing)
-# Then republish. webapp/ is not in git (it's ~15 MB of someone else's repo); this script rebuilds it.
+#   sh scripts/fetch-app.sh here       the app/ in the repo this server folder sits in (your clone, as it is now)
+#   sh scripts/fetch-app.sh <folder>   any local clone of Looscid/Looscid (for testing)
+# Then republish. webapp/ is not in git (it's ~15 MB, a copy of ../app); this script rebuilds it.
 set -eu
 cd "$(dirname "$0")/.."
 SRC="${1:-$(tr -d ' \n' < scripts/app-commit.txt)}"
+[ "$SRC" = here ] && SRC=..
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 if [ -d "$SRC" ]; then
