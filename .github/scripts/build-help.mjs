@@ -24,6 +24,25 @@ const H = sandbox.window.Looscid.LC_HELP;
 const coreSrc = fs.readFileSync(path.join(APP, "js", "core.js"), "utf8");
 const routes = new Set([...coreSrc.slice(coreSrc.indexOf("const LC_ROUTES = ["), coreSrc.indexOf("];", coreSrc.indexOf("const LC_ROUTES = ["))).matchAll(/\["[a-z_]+", "([^"]*)"\]/g)].map(m => m[1].toLowerCase()));
 
+/* Nov 1 2026 (Carter: "steal the most coolist Help center UI and footer", "footer is sitewide"): the sitewide footer.
+   The same markup is in app/changelog/index.html and app/status.html, and the app draws it too (core.js LcSiteFooter).
+   Only links that already exist; external ones say they open in a new tab. */
+const SITE_FOOTER = "<footer class=\"sf\" aria-labelledby=\"sf-title\">\n<h2 id=\"sf-title\" class=\"sf-sr\">Footer</h2>\n<div class=\"sf-in\">\n<p class=\"sf-brand\"><img src=\"/Looscid/assets/icons/icon-512.png?v=nl1\" alt=\"\" aria-hidden=\"true\" width=\"28\" height=\"28\"><span class=\"sf-name\">Looscid</span><span class=\"sf-tag\">Just Dream. Open source and local first.</span></p>\n<div class=\"sf-cols\">\n<section class=\"sf-col\" aria-labelledby=\"sf-h-looscid\"><h3 id=\"sf-h-looscid\">Looscid</h3><ul><li><a href=\"/Looscid/\">Open Looscid</a></li><li><a href=\"/Looscid/About/\">About</a></li><li><a href=\"/Looscid/Our-Story/\">Our Story</a></li><li><a href=\"/Looscid/changelog/\">Changelog</a></li><li><a href=\"/Looscid/Credits/\">Credits</a></li></ul></section>\n<section class=\"sf-col\" aria-labelledby=\"sf-h-help\"><h3 id=\"sf-h-help\">Help</h3><ul><li><a href=\"/Looscid/help/\">Help Center</a></li><li><a href=\"/Looscid/help/getting-started/\">Getting Started</a></li><li><a href=\"/Looscid/help/looscid-basics/\">Looscid Basics course</a></li><li><a href=\"/Looscid/help/contact/\">Contact Us</a></li><li><a href=\"/Looscid/Feedback/\">Send Feedback</a></li></ul></section>\n<section class=\"sf-col\" aria-labelledby=\"sf-h-dev\"><h3 id=\"sf-h-dev\">Developers</h3><ul><li><a href=\"https://github.com/Looscid/Looscid\" target=\"_blank\" rel=\"noopener noreferrer\">Source code <span class=\"sf-sr\">(opens in a new tab)</span></a></li><li><a href=\"https://github.com/Looscid/Looscid/tree/main/docs\" target=\"_blank\" rel=\"noopener noreferrer\">Docs <span class=\"sf-sr\">(opens in a new tab)</span></a></li><li><a href=\"https://github.com/Looscid/Looscid/blob/main/docs/CONTRIBUTING.md\" target=\"_blank\" rel=\"noopener noreferrer\">Contributing <span class=\"sf-sr\">(opens in a new tab)</span></a></li><li><a href=\"https://github.com/Looscid/Looscid/blob/main/docs/guides/ACCESSIBILITY.md\" target=\"_blank\" rel=\"noopener noreferrer\">Accessibility <span class=\"sf-sr\">(opens in a new tab)</span></a></li><li><a href=\"https://github.com/Looscid/Looscid/issues\" target=\"_blank\" rel=\"noopener noreferrer\">Issues <span class=\"sf-sr\">(opens in a new tab)</span></a></li></ul></section>\n<section class=\"sf-col\" aria-labelledby=\"sf-h-legal\"><h3 id=\"sf-h-legal\">Legal</h3><ul><li><a href=\"/Looscid/Terms/\">Terms</a></li><li><a href=\"/Looscid/Privacy/\">Privacy</a></li><li><a href=\"/Looscid/Rules/\">Rules</a></li><li><a href=\"/Looscid/Child-Safety/\">Child Safety</a></li><li><a href=\"/Looscid/Legal/\">License</a></li></ul></section>\n<section class=\"sf-col\" aria-labelledby=\"sf-h-hi\"><h3 id=\"sf-h-hi\">Say hi</h3><ul><li><a href=\"https://github.com/Looscid\" target=\"_blank\" rel=\"noopener noreferrer\">GitHub <span class=\"sf-sr\">(opens in a new tab)</span></a></li><li><a href=\"https://x.com/Looscid\" target=\"_blank\" rel=\"noopener noreferrer\">X <span class=\"sf-sr\">(opens in a new tab)</span></a></li><li><a href=\"https://www.youtube.com/@Looscid\" target=\"_blank\" rel=\"noopener noreferrer\">YouTube <span class=\"sf-sr\">(opens in a new tab)</span></a></li><li><a href=\"https://discord.gg/M6xrD8EBXU\" target=\"_blank\" rel=\"noopener noreferrer\">Discord <span class=\"sf-sr\">(opens in a new tab)</span></a></li></ul></section>\n</div>\n<p class=\"sf-bottom\">© 2026 Looscid · Open source under the <a href=\"/Looscid/Legal/\">Looscid Public License</a> · Made by Chaotic Carter, co-written with Tab</p>\n</div>\n</footer>";
+// The Help Center home's topic icons (decoration only; the words say everything).
+const ICONS = {
+  "getting-started": '<path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/>',
+  "dreams": '<path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/>',
+  "chats-circles-cherry": '<circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M3 19c.6-3 2.6-5 5-5s4.4 2 5 5M11 19c.6-3 2.6-5 5-5s4.4 2 5 5"/>',
+  "settings-privacy-backup": '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',
+  "course": '<path d="M3 7l9-4 9 4-9 4z"/><path d="M7 9v5c0 1.7 2.2 3 5 3s5-1.3 5-3V9"/>',
+  "bug": '<path d="M9 7a3 3 0 016 0"/><rect x="7" y="7" width="10" height="12" rx="5"/><path d="M12 11v8M3 13h4M17 13h4M4 7l3 2M20 7l-3 2M4 19l3-2M20 19l-3-2"/>',
+  "chat": '<path d="M4 5h16v11H9l-5 4z"/>',
+  "heart": '<path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z"/>',
+  "search": '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+};
+const icon = k => '<svg class="ic" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + ICONS[k] + "</svg>";
+// Popular articles on the home page (chosen by hand; nothing is tracked).
+const POPULAR = ["make-a-looscidid", "write-a-dream", "start-a-chat", "find-settings", "backup", "privacy"];
 const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const byId = Object.fromEntries(H.articles.map(a => [a.id, a]));
 const colById = Object.fromEntries(H.collections.map(c => [c.id, c]));
@@ -78,7 +97,8 @@ function page({ slug, title, desc, body, depth, crumbs }) {
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<link rel="stylesheet" href="${up}help.css">
+<link rel="stylesheet" href="${up}help.css?v=hc2">
+<link rel="stylesheet" href="${up}../assets/site-footer.css?v=1">
 </head>
 <body>
 <div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
@@ -87,8 +107,8 @@ function page({ slug, title, desc, body, depth, crumbs }) {
 ${nav}
 ${body}
 </main>
-<footer class="foot"><p><a href="${up}contact/">Contact Us</a> · <a href="${up}">Help Center</a> · <a href="${up}../changelog/">Changelog</a> · <a href="${up}../">Open Looscid</a></p><p>Co-written with Tab</p></footer>
-<script src="${up}help.js"></script>
+${SITE_FOOTER}
+<script src="${up}help.js?v=hc2"></script>
 </body>
 </html>
 `;
@@ -99,17 +119,30 @@ const put = (rel, html) => { files[rel] = html; };
 const artLink = (a, up, extra) => '<a href="' + up + a.id + '/' + (extra || "") + '">' + esc(a.t) + "</a>";
 const course = H.courses[0];
 
-// Home
+// Home (Nov 1 2026 redesign): a big search first, then topics as cards, popular articles, the course, and a contact row.
 {
-  let b = '<h1>Looscid Help Center</h1>\n<p class="lead">Step-by-step help for Looscid, for everyone, on any phone or computer. New to Looscid? Start with the Looscid Basics course.</p>\n';
-  b += '<section aria-labelledby="h-courses"><h2 id="h-courses">Courses</h2>\n';
-  for (const c of H.courses) b += '<div class="card"><h3><a href="' + c.id + '/">' + esc(c.t) + '</a></h3><p>' + esc(c.s) + '</p><p class="progress" data-course="' + c.id + '" data-total="' + c.lessons.length + '">' + c.lessons.length + ' lessons</p></div>\n';
-  b += '</section>\n<section aria-labelledby="h-cols"><h2 id="h-cols">Collections</h2>\n';
+  const nArt = H.articles.length;
+  let b = '<div class="hero">\n<h1>Looscid Help Center</h1>\n';
+  b += '<form class="search" role="search" action="./" method="get" id="help-search">\n<label for="help-q" class="search-l">How can we help?</label>\n';
+  b += '<div class="search-box">' + icon("search") + '<input id="help-q" name="q" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search" placeholder="Search articles" aria-describedby="help-q-hint"><button type="submit" class="search-go">Search</button></div>\n';
+  b += '<p id="help-q-hint" class="hint">Searches all ' + nArt + ' articles, right on this device.</p>\n</form>\n</div>\n';
+  b += '<section id="results" class="results" aria-labelledby="h-results" hidden><h2 id="h-results" tabindex="-1">Search results</h2><p id="results-n" role="status"></p><ol class="list" id="results-list"></ol></section>\n';
+  b += '<section aria-labelledby="h-topics"><h2 id="h-topics">Browse by topic</h2>\n<ul class="topics" role="list">\n';
   for (const c of H.collections) {
-    b += '<div class="card"><h3><a href="' + c.id + '/">' + esc(c.t) + '</a></h3><p>' + esc(c.s) + '</p><ul>' + H.articles.filter(a => a.c === c.id).map(a => "<li>" + artLink(a, "") + "</li>").join("") + "</ul></div>\n";
+    const arts = H.articles.filter(a => a.c === c.id);
+    b += '<li class="topic">' + icon(c.id) + '<h3><a class="stretch" href="' + c.id + '/">' + esc(c.t) + '</a></h3><p>' + esc(c.s) + '</p><p class="count">' + arts.length + ' articles</p><ul class="topic-arts">' + arts.map(a => "<li>" + artLink(a, "") + "</li>").join("") + "</ul></li>\n";
   }
-  b += '</section>\n<section aria-labelledby="h-contact"><h2 id="h-contact">Contact Us</h2><p>' + esc(H.contact.s) + ' <a href="contact/">Report a bug or send feedback</a>.</p></section>';
-  put("index.html", page({ slug: "", title: "Looscid Help Center", desc: "Step-by-step help for Looscid: make your LooscidID, write Dreams, chat, and set things up. Courses, collections and Contact Us.", body: b, depth: 0 }));
+  b += '</ul>\n</section>\n';
+  b += '<section aria-labelledby="h-popular"><h2 id="h-popular">Popular articles</h2>\n<ol class="popular">' + POPULAR.filter(id => byId[id] || (problems.push("popular " + id + " missing"), false)).map(id => '<li><a href="' + id + '/">' + esc(byId[id].t) + '</a><p>' + esc(byId[id].s.replace(/\{\{[^}]*\}\}|\[\[[^\]]*\]\]/g, "")) + "</p></li>").join("") + "</ol>\n</section>\n";
+  b += '<section aria-labelledby="h-courses"><h2 id="h-courses">Courses</h2>\n';
+  for (const c of H.courses) b += '<div class="card course-card">' + icon("course") + '<div><h3><a href="' + c.id + '/">' + esc(c.t) + '</a></h3><p>' + esc(c.s) + '</p><p class="progress" data-course="' + c.id + '" data-total="' + c.lessons.length + '">' + c.lessons.length + ' lessons</p></div></div>\n';
+  b += '</section>\n';
+  b += '<section aria-labelledby="h-contact"><h2 id="h-contact">Still need help?</h2>\n<p class="lead">' + esc(H.contact.s) + '</p>\n<ul class="contact-row" role="list">';
+  b += '<li>' + icon("bug") + '<a class="stretch" href="contact/">Report a bug</a><p>On GitHub, with your device filled in.</p></li>';
+  b += '<li>' + icon("chat") + '<a class="stretch" href="' + esc(H.contact.discord) + '" target="_blank" rel="noopener noreferrer">Join the Discord<span class="sr-only"> (opens in a new tab)</span></a><p>Ideas, questions, or just say hi.</p></li>';
+  b += '<li>' + icon("heart") + '<a class="stretch" href="../?p=%2FFeedback">Send Feedback in Looscid</a><p>Profile, More, Feedback.</p></li>';
+  b += '</ul>\n</section>';
+  put("index.html", page({ slug: "", title: "Looscid Help Center", desc: "Step-by-step help for Looscid: make your LooscidID, write Dreams, chat, and set things up. Search, topics, courses and Contact Us.", body: b, depth: 0 }));
 }
 // Collections
 for (const c of H.collections) {
@@ -150,6 +183,13 @@ for (const co of H.courses) {
 // What help.js needs: the course lessons and titles.
 const meta = "/* Made by .github/scripts/build-help.mjs from app/js/helpdata.js. */\nwindow.LC_HELP_COURSES = " + JSON.stringify(Object.fromEntries(H.courses.map(c => [c.id, { t: c.t, lessons: c.lessons.map(id => [id, byId[id] ? byId[id].t : id]) }]))) + ";\n";
 files["courses.js"] = meta;
+// What the home page's search reads (Nov 1 2026): every article, collection and course, its words only. Nothing is sent anywhere.
+const plain = t => String(t || "").replace(/\{\{([a-z0-9-]+)(?:\|([^}]+))?\}\}/g, (m, id, w) => w || (byId[id] ? byId[id].t : "")).replace(/\[\[[^|\]]*\|([^|\]]+)\|([^\]]+)\]\]/g, "$1 ($2)");
+files["search.js"] = "/* Made by .github/scripts/build-help.mjs from app/js/helpdata.js. */\nwindow.LC_HELP_INDEX = " + JSON.stringify(
+  H.articles.map(a => ({ u: a.id + "/", t: a.t, s: plain(a.s), c: colById[a.c] ? colById[a.c].t : "", k: [].concat(a.steps || [], a.tips || []).map(plain).join(" ") }))
+    .concat(H.collections.map(c => ({ u: c.id + "/", t: c.t, s: c.s, c: "Topic", k: "" })))
+    .concat(H.courses.map(c => ({ u: c.id + "/", t: c.t, s: c.s, c: "Course", k: "" })))
+    .concat([{ u: "contact/", t: H.contact.t, s: H.contact.s, c: "Contact", k: "report a bug feedback discord github issue" }])) + ";\n";
 
 // "post" is never a word in Looscid (standing rule).
 for (const [rel, html] of Object.entries(files)) if (/\bpost(s|ed|ing)?\b/i.test(html.replace(/method="post"/gi, ""))) problems.push("the word post in " + rel);

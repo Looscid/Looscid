@@ -89,3 +89,59 @@
     try { fetch(ROOT + "../version.json", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (j) { if (j && j.label) { ver = j.label; make(); } }).catch(function () {}); } catch (e) {}
   }
 })();
+
+/* Nov 1 2026: the home page's search. Type to see matching articles right away; Search (or Enter) moves VoiceOver to the
+   results. Reads search.js (made from helpdata.js); nothing is sent anywhere. ?q= in the address searches on load. */
+(function () {
+  "use strict";
+  var form = document.getElementById("help-search"), q = document.getElementById("help-q");
+  var box = document.getElementById("results"), list = document.getElementById("results-list"), n = document.getElementById("results-n");
+  if (!form || !q || !box || !list || !n) return;
+  var IDX = null, timer = null, last = "";
+  function load(fn) {
+    if (IDX) { fn(); return; }
+    if (window.LC_HELP_INDEX) { IDX = window.LC_HELP_INDEX; fn(); return; }
+    var s = document.createElement("script"); s.src = "search.js?v=hc2";
+    s.onload = function () { IDX = window.LC_HELP_INDEX || []; fn(); };
+    document.head.appendChild(s);
+  }
+  function norm(t) { return String(t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim(); }
+  function score(e, words) {
+    var t = norm(e.t), s = norm(e.s), k = norm(e.k), c = norm(e.c), total = 0;
+    for (var i = 0; i < words.length; i++) {
+      var w = words[i], p = 0;
+      if (t.indexOf(w) >= 0) p += (" " + t).indexOf(" " + w) >= 0 ? 10 : 6;
+      if (s.indexOf(w) >= 0) p += 3;
+      if (c.indexOf(w) >= 0) p += 2;
+      if (k.indexOf(w) >= 0) p += 1;
+      if (!p) return 0;
+      total += p;
+    }
+    return total;
+  }
+  function show(text, moveFocus) {
+    var words = norm(text).split(" ").filter(function (w) { return w.length > 1 || /\d/.test(w); });
+    if (!words.length) { box.hidden = true; list.textContent = ""; n.textContent = ""; last = ""; return; }
+    load(function () {
+      var hits = IDX.map(function (e) { return { e: e, p: score(e, words) }; }).filter(function (x) { return x.p > 0; })
+        .sort(function (a, b) { return b.p - a.p; }).slice(0, 12);
+      list.textContent = "";
+      hits.forEach(function (h) {
+        var li = document.createElement("li"), a = document.createElement("a"), p = document.createElement("p");
+        a.href = h.e.u; a.textContent = h.e.t;
+        p.textContent = (h.e.c ? h.e.c + ". " : "") + h.e.s;
+        li.appendChild(a); li.appendChild(p); list.appendChild(li);
+      });
+      box.hidden = false;
+      var msg = hits.length ? hits.length + (hits.length === 1 ? " article" : " articles") + " found for \u201c" + text.trim() + "\u201d." :
+        "Nothing found for \u201c" + text.trim() + "\u201d. Try other words, or Contact Us below.";
+      if (msg !== last) { n.textContent = msg; last = msg; }
+      if (moveFocus) { var h2 = document.getElementById("h-results"); if (h2) h2.focus(); }
+    });
+  }
+  q.addEventListener("input", function () { clearTimeout(timer); timer = setTimeout(function () { show(q.value, false); }, 350); });
+  form.addEventListener("submit", function (e) { e.preventDefault(); clearTimeout(timer); show(q.value, true);
+    try { var u = new URL(location.href); if (q.value.trim()) u.searchParams.set("q", q.value.trim()); else u.searchParams.delete("q"); history.replaceState(null, "", u); } catch (x) {} });
+  q.addEventListener("keydown", function (e) { if (e.key === "Escape" && q.value) { e.preventDefault(); q.value = ""; show("", false); } });
+  try { var start = new URL(location.href).searchParams.get("q"); if (start) { q.value = start; show(start, true); } } catch (x) {}
+})();
