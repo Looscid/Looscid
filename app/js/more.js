@@ -2,7 +2,7 @@
    Plain script (not a module). Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order. */
 (function (Looscid) {
 const { A11Y_DEFAULTS, A11Y_KEY, A11ySwitch, AlertDialog, Av, BackHeader, Cbx, CommentView, DREAMS_INIT, DreamCard, Earcon, GROUPS, ID_PROVIDERS, Ic, LC_A11Y_CATS, LC_A11Y_PAGE, LC_ALERT_PREFS_KEY, LC_ALERT_TYPES, LC_AUDIO_CATS, LC_BOOT, LC_BR_BUILTIN, LC_BR_MAX, LC_BUILTIN_KEYS, LC_EXPORT_KEYS, LC_FEED_MODES, LC_FIND_KEY, LC_MSG_CATS, LC_NEXOS_APPS, LC_NEXOS_SHELL, LC_SECTIONS, LC_SET, LC_SETTINGS_KEY, LC_SET_BY, LC_SR_NAMES_DEF, LC_UPDATE_AUTO_KEY, LID_NOSTR_SK_KEY, LOOSCID_BUILD, LOOSCID_RELEASED, LOOSCID_SLOGAN, LOOSCID_VERSION, LcCmdLog, LcFindMeSwitch, LcMenu, LcSpeech, ME, MUSIC_GENRES, MenuPopupButton, Music, PROVIDER_NAMES, SecretField, TRENDING, USERS, announce, getAIPrefs, getActivity, getDrafts, getIdentity, getLocalProfile, getMethods, getTopics, hexToBytes, lcAiOn, lcAlertCats, lcAlertPrefs, lcAlerts, lcAlertsMarkAll, lcAppItems, lcAudCustom, lcBlocked, lcBlockedSet, lcBrCreate, lcBrDate, lcBrDelete, lcBrForget, lcBrList, lcBrNotice, lcBrRename, lcBrSelect, lcBrStamp, lcBrUndo, lcBrUsePast, lcBrowserName, lcCatState, lcCheckUpdate, lcCloseProps, lcDownloadSettings, lcFeedMode, lcHandle, lcHapticsSupported, lcHints, lcIdbDo, lcKeyName, lcLoadCustomPack, lcNexosSend, lcOpenReset, lcPitchCue, lcQuietNow, lcReleasedText, lcSectionTitle, lcSet, lcSpoken, lcSrName, lcStorageKB, lcTranslateOk, lcUpdateAuto, lcValueText, lcVerb, lcVersionLabel, lcBuildName, lcOldVersion, lcCodenamed, lcCodenameLabel, lcWords, lh, logActivity, removeMethod, sanitizeInput, setAIPrefs, shortNpub, systemReducedMotion, updateLocalProfile, useA11yNow, useCats, useCmdHistory, useCmdLog, useDreams, useEffect, useEnterSubmit, useKeyboardInset, useOAuthReturn, useRef, useState } = Looscid;
-Object.assign(Looscid, { ListsPage, ProfileLists, ProfileTabsSettings, CreditsPage, ProfileView, ProfilePage, DreamorProfilePage, AccountSettings, LcAudience, lcCatSave, LcCatCustomize, MessageSettings, NotificationsSettings, PrivacySettings, LcResetLast, LcTabs, LcBlockedPanel, LcPrivacyMedia, FeedSwitchSetting, LcCatMenu, LcCatPage, CustomizabilitySettings, lcSetAiPref, IntelligenceSettings, lcMenuList, lcSubLine, AccessibilitySettings, A11yCategory, AboutSettings, MorePage, MoreAppsGroup, FeedbackPage, PolicyPage, HourStoryPage, normalizeUrl, fieldValueText, ProfileInfoList, ChangeInfoScreen, useProfileEditor, lcJoin, methodLabel, getStoredNostrSk, ComingSoonPanel, LoginMethods, lcGetIds, lcSaveIds, lcBech32Polymod, lcDecodeBech32Key, lcCheckId, lcVerifyId, LcKeysPanel, lcIdLabel, lidWhen, thisDeviceLabel, localDataSummary, exportLocalData, deleteLocalData, LooscidIDManager, lcUnzip, lcCheckPackFiles, lcAutoMap, lcUpdateAutoSet, lcPitchPreview, MusicPage, lcAudCustomSet, useBlocked, lcAlertPrefsSet, termOutputOpen, setTermOutputOpen, lcOsName, lcAboutInfo, AboutLooscidMore, TerminalPage, LabsSettings, lcAppGet, lcAppPut, LcAppRange, AppsSettings, NexosAppsPage, NexosAppFrame, lcLinkedProviders, LcSetRow, LcWordsRow, LcVoiceRow, LcResetBtn, LcSection, BrailleStyle, LcVerbosityPanel, SrTabs, LcSpeechTest, LcSrRename, AudioSettings, LcPackImport, lcShortcutOk, KeyboardSettings, TabBarSettings, lcImportSettings, BackupSettings });
+Object.assign(Looscid, { ListsPage, ProfileLists, ProfileTabsSettings, CreditsPage, ProfileView, ProfilePage, DreamorProfilePage, AccountSettings, LcAudience, lcCatSave, LcCatCustomize, MessageSettings, NotificationsSettings, PrivacySettings, LcResetLast, LcTabs, LcBlockedPanel, LcPrivacyMedia, FeedSwitchSetting, LcCatMenu, LcCatPage, CustomizabilitySettings, lcSetAiPref, IntelligenceSettings, lcMenuList, lcSubLine, AccessibilitySettings, A11yCategory, AboutSettings, MorePage, MoreAppsGroup, FeedbackPage, PolicyPage, HourStoryPage, normalizeUrl, fieldValueText, ProfileInfoList, ChangeInfoScreen, LcProfileEditor, useProfileEditor, lcJoin, methodLabel, getStoredNostrSk, ComingSoonPanel, LoginMethods, lcGetIds, lcSaveIds, lcBech32Polymod, lcDecodeBech32Key, lcCheckId, lcVerifyId, LcKeysPanel, lcIdLabel, lidWhen, thisDeviceLabel, localDataSummary, exportLocalData, deleteLocalData, LooscidIDManager, lcUnzip, lcCheckPackFiles, lcAutoMap, lcUpdateAutoSet, lcPitchPreview, MusicPage, lcAudCustomSet, useBlocked, lcAlertPrefsSet, termOutputOpen, setTermOutputOpen, lcOsName, lcAboutInfo, AboutLooscidMore, TerminalPage, LabsSettings, lcAppGet, lcAppPut, LcAppRange, AppsSettings, NexosAppsPage, NexosAppFrame, lcLinkedProviders, LcSetRow, LcWordsRow, LcVoiceRow, LcResetBtn, LcSection, BrailleStyle, LcVerbosityPanel, SrTabs, LcSpeechTest, LcSrRename, AudioSettings, LcPackImport, lcShortcutOk, KeyboardSettings, TabBarSettings, lcImportSettings, BackupSettings });
 
 /* --- PROFILE (OWN) ----------------------- */
 
@@ -414,7 +414,6 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const [tab, setTab] = useState(function () { const r = Looscid.LC_PROF_RESTORE;
     if (r && r.uid === user.id && Date.now() - (r.at || 0) < 3000) { Looscid.LC_PROF_RESTORE = null; restore.current = r; return r.tab || "dreams"; } return "dreams"; });
   const [viewAs, setViewAs] = useState(false); // your own profile, shown the way others see it
-  const [editOpen, setEditOpen] = useState(false);
   const [people, setPeople] = useState(null); // "following" | "followers"
   const [noteEdit, setNoteEdit] = useState(false);
   const [noteText, setNoteText] = useState("");
@@ -599,7 +598,8 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const linksName = pfLinks.length ? lcJoin("Links", (function (t) { return t.length > 32 ? t.slice(0, 30) + "\u2026" : t; })(lcLinkShow(pfLinks[0].url)), pfLinks.length > 1 ? "and " + (pfLinks.length - 1) + " more" : "") : "Links, share and copy";
   const linksItem = { id: "links", name: linksName, a: function () { setLinksOpen(true); } };
   const extraItems = [];
-  const openEdit = function (fromMore) { setEditOpen(true); if (fromMore) setTimeout(function () { const a = document.getElementById("pf-link-name") || editBtn.current; if (a) a.focus(); }, 30); };
+  // Nov 1 2026 (X-style Edit profile): Edit profile opens the one editor sheet; Close or Save puts focus back where you were.
+  const openEdit = function (fromMore) { ed.open("all", fromMore ? "pf-more-btn" : "pf-edit-btn"); };
   const follow = function () { cherryCtx && cherryCtx.followUser(user.id); announce(following ? "Unfollowed " + user.name + "." : "Following " + user.name + ".", "state", "follow:" + user.id); };
   const cherryOn = !!cherryCtx && lcAiOn();
   const askCherry = function () { cherryCtx.openCherry("Give me a short summary of " + (user.name || "this Dreamor") + " (@" + handle + "): who they are and what they Dream about."); };
@@ -849,7 +849,10 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       lh('p', { className: "lc-muted" }, "This is how other Dreamors see your profile."),
       lh('button', { type: "button", id: "pf-preview-done", className: "btn bp lc-big", onClick: function () { if (onExitPreview) onExitPreview(); } }, "Done viewing as others")) : null,
     lh('div', { className: "lc-prof-head" },
-      lh('div', { "aria-hidden": "true" }, lh(Av, { user: user, size: 72 })),
+      // Nov 1 2026 (X-style Edit profile): a color banner behind the avatar, drawn whole like X's refined profiles, so the
+      // Avatar color you pick in Edit profile shows here the way its Preview showed it. Decoration only.
+      lh('div', { className: "lc-prof-banner", "aria-hidden": "true", style: { background: "linear-gradient(135deg," + (user.color || "#6d28d9") + ",#a855f7)" } }),
+      lh('div', { className: "lc-prof-avwrap", "aria-hidden": "true" }, lh(Av, { user: user, size: 72 })),
       lh('h1', { className: "lc-prof-name", tabIndex: -1, ref: headRef }, user.name || "Dreamor"),
       // Feditext's account line: @handle, the lock for a private (locked) account, then the "Follows you", "Muted" and
       // "Blocked" capsules. Build 149: each is its own piece with a plain space between, no hidden commas.
@@ -864,12 +867,11 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       // swiping forward from the heading never reached them. They follow the name and @handle now.
       preview ? null : isMe
         ? lh('div', { className: "lc-prof-acts" },
-            lh('button', { type: "button", ref: editBtn, id: "pf-edit-btn", className: "btn bgb lc-big", "aria-expanded": editOpen ? "true" : "false", "aria-controls": "pf-edit", onClick: function () { setEditOpen(!editOpen); } }, "Edit profile"))
+            lh('button', { type: "button", ref: editBtn, id: "pf-edit-btn", className: "btn bgb lc-big", onClick: function () { openEdit(false); } }, "Edit profile"))
         : lh('div', { className: "lc-prof-acts" },
             dmPeer ? lh('button', { type: "button", id: "pf-dm-btn", className: "btn bgb lc-big", onClick: openDm }, "Direct message")
               : lh('button', { type: "button", id: "pf-dm-btn", className: "btn bgb lc-big", "aria-disabled": "true", onClick: function () { announce(Looscid.lcHintReason("unavailable: " + dmWhy)); } }, "Direct message", lh('span', { className: "lc-muted", "aria-hidden": "true" }, " (unavailable)")),
             lh('button', { type: "button", className: "btn " + (following ? "bgb" : "bp") + " lc-big", "aria-pressed": following ? "true" : "false", onClick: follow }, following ? "Following" : "Follow")),
-      isMe && lh('div', { id: "pf-edit", className: "lc-prof-edit", hidden: !editOpen }, editOpen ? ed.list : null),
       moreMenu,
       listsOpen && !self ? lh(ProfileLists, { user: user, navigate: navigate, onClose: function () { setListsOpen(false); backToMore(); } }) : null,
       user.isOriginals ? lh('p', { className: "lc-muted" }, "Founding account") : null,
@@ -2191,25 +2193,190 @@ function ChangeInfoScreen({ field, profile, onSave, onClose }) {
         lh('button', Object.assign({ type: "button", className: "btn bgb", onClick: onClose }, lcCloseProps(field.label ? field.label + " editor" : "editor")), "Close")))
   );
 }
-// Holds which change screen is open and puts focus back where it belongs.
+/* --- Edit profile, X style (Nov 1 2026, Carter: "Profile editing needs some work. Copy Benji Taylor's idea for X") ----
+   Benji Taylor (X's head of design) refined X's profiles (Jul 2026: the header shows whole, nothing cropped) and showed X's
+   new web profile editor (Oct 30 2026: "see how your profile will look to others before you hit save"). This is that idea,
+   written fresh for Looscid (no X code or images): ONE sheet with every field, Close on the left, the "Edit profile" heading
+   (focus lands on it), Save on the right, and two views, Edit and Preview. Edit has a live header (color banner, avatar,
+   name, @username) that changes as you type, the avatar color, then Name, Username, Bio, Website and Social links in one
+   card. Preview shows your profile the way other Dreamors will see it, before anything is saved. Save keeps every change
+   at once (it stays dimmed until something changed); Close with changes asks "Discard changes?" first. Storage is the same
+   local profile as before (displayName, handle, bio, website, links, color); nothing is sent anywhere. */
+const LC_PE_COLORS = [["#6d28d9", "Purple"], ["#2563eb", "Blue"], ["#0e7490", "Teal"], ["#15803d", "Green"], ["#c2410c", "Orange"], ["#b91c1c", "Red"], ["#be185d", "Pink"], ["#475569", "Graphite"]];
+function lcPeInitials(n) { return String(n || "").split(/\s+/).filter(Boolean).map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase() || "D"; }
+function LcProfileEditor({ profile, focusKey, onSave, onClose }) {
+  const p = profile || {};
+  const orig = useRef({ name: p.displayName || p.name || "", username: (p.handle || "").replace(/^@/, ""), bio: p.bio || "", website: p.website || "", links: (p.links || []).slice(), color: p.color || "#6d28d9" });
+  const o = orig.current;
+  const [d, setD] = useState(function () { return Object.assign({}, o, { links: o.links.slice() }); });
+  const [view, setView] = useState("edit");
+  const [errs, setErrs] = useState({});
+  const [linkName, setLinkName] = useState("");
+  const [linkUrl, setLinkUrl] = useState("");
+  const [ask, setAsk] = useState(false);
+  const headRef = useRef(null);
+  const set = function (k, v) { setD(function (x) { const n = Object.assign({}, x); n[k] = v; return n; }); if (errs[k]) setErrs(function (e) { const n = Object.assign({}, e); delete n[k]; return n; }); };
+  useEffect(function () {
+    const el = focusKey && focusKey !== "all" ? document.getElementById(focusKey === "links" ? "pe-link-name" : "pe-" + focusKey) : null;
+    if (el) el.focus(); else if (headRef.current) headRef.current.focus();
+  }, []);
+  const linksChanged = JSON.stringify(d.links) !== JSON.stringify(o.links);
+  const changed = d.name !== o.name || d.username !== o.username || d.bio !== o.bio || d.website !== o.website || d.color !== o.color || linksChanged || !!linkName.trim() || !!linkUrl.trim();
+  const addLink = function (quiet) {
+    const n = sanitizeInput(linkName || ""), u = normalizeUrl(linkUrl);
+    let m = "";
+    if (!n) m = "Give the link a name, like Mastodon."; else if (!u) m = "Add a web address for " + n + "."; else if (d.links.length >= 10) m = "You can add up to 10 links.";
+    if (m) { setErrs(function (e) { return Object.assign({}, e, { link: m }); }); announce(m); const f = document.getElementById(!n ? "pe-link-name" : "pe-link-url"); if (f) f.focus(); return null; }
+    const next = d.links.concat([{ name: n.slice(0, 40), url: u }]);
+    set("links", next); setLinkName(""); setLinkUrl(""); setErrs(function (e) { const x = Object.assign({}, e); delete x.link; return x; });
+    if (!quiet) announce(n + " link added. Save keeps it.");
+    return next;
+  };
+  const F = {}; PROFILE_FIELDS.forEach(function (f) { F[f.key] = f; });
+  const save = function () {
+    if (!changed) { announce("Nothing to save yet. Change something first."); return; }
+    const patch = {}, bad = {};
+    if (d.name !== o.name) { const r = F.name.toPatch(d.name); if (r.error) bad.name = r.error; else Object.assign(patch, r.patch); }
+    if (d.username !== o.username) { const r = F.username.toPatch(d.username); if (r.error) bad.username = r.error; else Object.assign(patch, r.patch); }
+    if (d.bio !== o.bio) Object.assign(patch, F.bio.toPatch(d.bio).patch);
+    if (d.website !== o.website) { const r = F.website.toPatch(d.website); if (r.error) bad.website = r.error; else Object.assign(patch, r.patch); }
+    if (d.color !== o.color) patch.color = d.color;
+    let links = d.links;
+    if (linkName.trim() || linkUrl.trim()) { const added = addLink(true); if (!added) return; links = added; }
+    if (JSON.stringify(links) !== JSON.stringify(o.links)) patch.links = links;
+    const keys = Object.keys(bad);
+    if (keys.length) {
+      setErrs(bad); setView("edit");
+      const first = ["name", "username", "website"].filter(function (k) { return bad[k]; })[0];
+      announce(bad[first]);
+      setTimeout(function () { const el = document.getElementById("pe-" + first); if (el) el.focus(); }, 30);
+      return;
+    }
+    onSave(patch);
+  };
+  const close = function () { if (changed) { setAsk(true); return; } onClose(); };
+  const showName = sanitizeInput(d.name || "") || "Dreamor";
+  const showHandle = "@" + ((d.username || "").trim().replace(/^@+/, "").toLowerCase() || "dreamor");
+  const draftUser = { name: showName, initials: lcPeInitials(showName), color: d.color };
+  const colorName = (LC_PE_COLORS.find(function (c) { return c[0] === d.color; }) || [d.color, "Custom"])[1];
+  const err = function (k) { return errs[k] ? lh('p', { className: "lc-pe-err", id: "pe-" + k + "-err" }, errs[k]) : null; };
+  const desc = function (k, extra) { return [extra, errs[k] ? "pe-" + k + "-err" : null].filter(Boolean).join(" ") || undefined; };
+  const nameRef = useEnterSubmit(save), userRef = useEnterSubmit(save), siteRef = useEnterSubmit(save);
+  const lnRef = useEnterSubmit(function () { const u = document.getElementById("pe-link-url"); if (u && !linkUrl.trim()) u.focus(); else addLink(false); });
+  const luRef = useEnterSubmit(function () { addLink(false); });
+  const tabs = [["edit", "Edit"], ["preview", "Preview"]];
+  const onTabKey = function (e) {
+    const i = tabs.findIndex(function (t) { return t[0] === view; }); let n = null;
+    if (e.key === "ArrowRight" || e.key === "ArrowLeft") n = (i + 1) % 2; else if (e.key === "Home") n = 0; else if (e.key === "End") n = 1;
+    if (n === null) return; e.preventDefault(); setView(tabs[n][0]); setTimeout(function () { const b = document.getElementById("pe-tab-" + tabs[n][0]); if (b) b.focus(); }, 0);
+  };
+  // The live header: decoration only (the fields below and the Preview view say the same words to VoiceOver).
+  const head = function (cls) {
+    return lh('div', { className: "lc-pe-head " + (cls || ""), "aria-hidden": "true" },
+      lh('div', { className: "lc-pe-banner", style: { background: "linear-gradient(135deg," + d.color + ",#a855f7)" } }),
+      lh('div', { className: "lc-pe-avwrap" }, lh(Av, { user: draftUser, size: 84 })),
+      lh('p', { className: "lc-pe-hname" }, showName),
+      lh('p', { className: "lc-pe-hhandle" }, showHandle));
+  };
+  const editPanel = lh('form', { className: "lc-pe-form", noValidate: true, onSubmit: function (e) { e.preventDefault(); save(); } },
+    head(),
+    lh('fieldset', { className: "lc-pe-card lc-pe-colors" },
+      lh('legend', { className: "lc-pe-legend" }, "Avatar color"),
+      lh('div', { className: "lc-pe-swatches", role: "radiogroup", "aria-label": "Avatar color, " + colorName,
+        onKeyDown: function (e) {
+          const i = LC_PE_COLORS.findIndex(function (c) { return c[0] === d.color; }); let n = null;
+          if (e.key === "ArrowRight" || e.key === "ArrowDown") n = (i + 1) % LC_PE_COLORS.length; else if (e.key === "ArrowLeft" || e.key === "ArrowUp") n = (i + LC_PE_COLORS.length - 1) % LC_PE_COLORS.length;
+          if (n === null) return; e.preventDefault(); set("color", LC_PE_COLORS[n][0]); setTimeout(function () { const b = document.getElementById("pe-color-" + n); if (b) b.focus(); }, 0);
+        } },
+        LC_PE_COLORS.map(function (c, i) {
+          const on = d.color === c[0] || (i === 0 && !LC_PE_COLORS.some(function (x) { return x[0] === d.color; }));
+          return lh('button', { key: c[0], type: "button", id: "pe-color-" + i, role: "radio", "aria-checked": on ? "true" : "false", "aria-label": c[1], tabIndex: on ? 0 : -1,
+              className: "lc-pe-sw" + (on ? " on" : ""), style: { background: c[0] }, onClick: function () { set("color", c[0]); } },
+            on ? lh('svg', { width: 16, height: 16, viewBox: "0 0 24 24", "aria-hidden": "true", focusable: "false" }, lh('path', { d: "M5 12.5l4.5 4.5L19 7.5", fill: "none", stroke: "#fff", strokeWidth: 3, strokeLinecap: "round", strokeLinejoin: "round" })) : null);
+        }))),
+    lh('div', { className: "lc-pe-card" },
+      lh('div', { className: "lc-pe-row" },
+        lh('div', { className: "lc-pe-lrow" }, lh('label', { htmlFor: "pe-name", className: "lc-pe-label" }, "Name"), lh('span', { className: "lc-pe-count", "aria-hidden": "true" }, d.name.length + "/40")),
+        lh('input', { id: "pe-name", ref: nameRef, className: "lc-pe-input", type: "text", value: d.name, maxLength: 40, autoComplete: "name", enterKeyHint: "done", "aria-invalid": errs.name ? "true" : undefined, "aria-describedby": desc("name", "pe-name-help"),
+          onChange: function (e) { set("name", e.target.value); } }),
+        lh('p', { className: "sr-only", id: "pe-name-help" }, "Up to 40 characters."), err("name")),
+      lh('div', { className: "lc-pe-row" },
+        lh('label', { htmlFor: "pe-username", className: "lc-pe-label" }, "Username"),
+        lh('div', { className: "lc-pe-inwrap" }, lh('span', { className: "lc-pe-at", "aria-hidden": "true" }, "@"),
+          lh('input', { id: "pe-username", ref: userRef, className: "lc-pe-input lc-pe-input-at", type: "text", value: d.username, maxLength: 30, autoComplete: "username", autoCapitalize: "none", spellCheck: false, enterKeyHint: "done",
+            "aria-invalid": errs.username ? "true" : undefined, "aria-describedby": desc("username", "pe-username-help"), onChange: function (e) { set("username", e.target.value); } })),
+        lh('p', { className: "lc-pe-help", id: "pe-username-help" }, "Your LooscidID username. It's how Dreamors @mention you. 3 to 30 letters, numbers or underscores."), err("username")),
+      lh('div', { className: "lc-pe-row" },
+        lh('label', { htmlFor: "pe-bio", className: "lc-pe-label" }, "Bio"),
+        lh('textarea', { id: "pe-bio", className: "lc-pe-input lc-pe-bio", rows: 5, value: d.bio, autoComplete: "off", spellCheck: true, "aria-describedby": "pe-bio-help", onChange: function (e) { set("bio", e.target.value); } }),
+        lh('p', { className: "lc-pe-help", id: "pe-bio-help" }, "About you, as long as you like. Markdown works: **bold**, *italic*, [links](https://example.com), - lists and `code`.")),
+      lh('div', { className: "lc-pe-row" },
+        lh('label', { htmlFor: "pe-website", className: "lc-pe-label" }, "Website"),
+        lh('input', { id: "pe-website", ref: siteRef, className: "lc-pe-input", type: "url", inputMode: "url", value: d.website, maxLength: 200, autoComplete: "url", autoCapitalize: "none", spellCheck: false, enterKeyHint: "done", placeholder: "example.com",
+          "aria-invalid": errs.website ? "true" : undefined, "aria-describedby": desc("website"), onChange: function (e) { set("website", e.target.value); } }), err("website"))),
+    lh('section', { className: "lc-pe-card", "aria-labelledby": "pe-links-h" },
+      lh('h2', { id: "pe-links-h", className: "lc-pe-h2" }, "Social links"),
+      lh('p', { className: "lc-pe-help" }, "Your Mastodon, Bluesky, Nostr, GitHub, YouTube or any other profile. Up to 10."),
+      d.links.length ? lh('ul', { className: "lc-pe-links", "aria-label": "Your links" }, d.links.map(function (l, i) {
+        return lh('li', { key: i + l.url, className: "lc-pe-link" },
+          lh('span', { className: "lc-pe-link-t" }, lh('span', { className: "lc-pe-link-n" }, l.name), lh('span', { className: "sr-only" }, ", "), lh('span', { className: "lc-pe-link-u" }, lcLinkShow(l.url))),
+          lh('button', { type: "button", id: "pe-link-rm-" + i, className: "lc-pe-rm", "aria-label": "Remove " + l.name + " link",
+            onClick: function () { const next = d.links.filter(function (_, j) { return j !== i; }); set("links", next); announce(l.name + " link removed. Save keeps this change.");
+              setTimeout(function () { const b = document.getElementById("pe-link-rm-" + Math.min(i, next.length - 1)) || document.getElementById("pe-link-name"); if (b) b.focus(); }, 30); } }, "Remove"));
+      })) : lh('p', { className: "lc-pe-help" }, "No links yet."),
+      lh('div', { className: "lc-pe-addlink" },
+        lh('label', { htmlFor: "pe-link-name", className: "lc-pe-label" }, "Link name"),
+        lh('input', { id: "pe-link-name", ref: lnRef, className: "lc-pe-input", type: "text", value: linkName, maxLength: 40, placeholder: "Mastodon", enterKeyHint: "next", "aria-describedby": errs.link ? "pe-link-err" : undefined,
+          onChange: function (e) { setLinkName(e.target.value); } }),
+        lh('label', { htmlFor: "pe-link-url", className: "lc-pe-label" }, "Link address"),
+        lh('input', { id: "pe-link-url", ref: luRef, className: "lc-pe-input", type: "url", inputMode: "url", value: linkUrl, maxLength: 200, placeholder: "https://", autoCapitalize: "none", spellCheck: false, enterKeyHint: "done", "aria-describedby": errs.link ? "pe-link-err" : undefined,
+          onChange: function (e) { setLinkUrl(e.target.value); } }),
+        err("link"),
+        lh('button', { type: "button", className: "lc-pe-add", onClick: function () { addLink(false); } }, "Add link"))));
+  // Preview: your profile the way other Dreamors see it, with what you typed, before you save.
+  const pLinks = (d.website.trim() ? [{ name: "Website", url: normalizeUrl(d.website) || d.website.trim() }] : []).concat(d.links);
+  const previewPanel = lh('div', { className: "lc-pe-preview" },
+    lh('p', { className: "lc-pe-note" }, changed ? "This is how other Dreamors will see your profile once you save." : "This is how other Dreamors see your profile."),
+    lh('div', { className: "lc-pe-pcard" },
+      head("lc-pe-head-p"),
+      lh('h2', { className: "lc-pe-pname" }, lh('span', { className: "sr-only" }, "Preview: "), showName),
+      lh('p', { className: "lc-pe-phandle" }, showHandle),
+      // Same order as the profile itself: the links (its fields), then the bio.
+      pLinks.length ? lh('ul', { className: "lc-pe-plinks", "aria-label": "Links" }, pLinks.map(function (l, i) { return lh('li', { key: i }, lh('span', { className: "lc-pe-link-n" }, l.name), lh('span', { className: "sr-only" }, ", "), " ", lh('span', { className: "lc-pe-link-u" }, lcLinkShow(l.url))); })) : null,
+      d.bio.trim() ? lh('div', { className: "lc-prof-bio lc-pe-pbio" }, lcBioParas(d.bio.trim(), function () {})) : lh('p', { className: "lc-pe-help" }, "No bio yet.")));
+  return lh('div', { className: "pg lc-i27 lc-pe", role: "region", "aria-labelledby": "pe-h1",
+      onKeyDown: function (e) { if (e.key === "Escape" && !ask) { e.preventDefault(); close(); } } },
+    lh('div', { className: "hdr lc-i27-hdr lc-pe-hdr" }, lh('div', { className: "hdr-row lc-i27-hrow" },
+      lh('button', Object.assign({ type: "button", id: "pe-close", className: "bi lc-i27-back", onClick: close }, lcCloseProps("Edit profile")), lh(Looscid.LcI27Glyph, { g: "x", size: 18 })),
+      lh('h1', { id: "pe-h1", className: "hdr-title lc-i27-title", tabIndex: -1, ref: headRef }, "Edit profile"),
+      lh('button', { type: "button", id: "pe-save", className: "lc-pe-save" + (changed ? "" : " lc-dim"), "aria-disabled": changed ? undefined : "true", "aria-describedby": changed ? undefined : "pe-save-why", onClick: save }, "Save"),
+      lh('span', { id: "pe-save-why", className: "sr-only" }, "Dimmed until you change something."))),
+    lh('div', { className: "lc-pe-seg", role: "tablist", "aria-label": "Edit or preview", onKeyDown: onTabKey },
+      tabs.map(function (t) { const on = view === t[0];
+        return lh('button', { key: t[0], type: "button", role: "tab", id: "pe-tab-" + t[0], "aria-selected": on ? "true" : "false", "aria-controls": "pe-panel", tabIndex: on ? 0 : -1, className: "lc-pe-segb" + (on ? " on" : ""), onClick: function () { setView(t[0]); } }, t[1]); })),
+    lh('div', { id: "pe-panel", role: "tabpanel", "aria-labelledby": "pe-tab-" + view, className: "lc-pe-panel" }, view === "edit" ? editPanel : previewPanel),
+    ask ? lh(AlertDialog, { title: "Discard changes?", message: "Your changes to your profile won't be saved.", confirmLabel: "Discard",
+      onConfirm: function () { setAsk(false); onClose(); }, onCancel: function () { setAsk(false); setTimeout(function () { const b = document.getElementById("pe-close"); if (b) b.focus(); }, 0); } }) : null);
+}
+// Holds whether the editor is open and puts focus back where it was opened from.
 function useProfileEditor(authUser, onUpdateProfile, navigate) {
   const [editing, setEditing] = useState(null);
   const [saved, setSaved] = useState(false);
   const returnTo = useRef(null);
   useEffect(function () {
     if (!editing && returnTo.current) {
-      const el = document.getElementById("pf-link-" + returnTo.current);
-      returnTo.current = null;
-      if (el) el.focus();
+      const id = returnTo.current; returnTo.current = null;
+      setTimeout(function () { const el = document.getElementById(id); if (el) el.focus(); }, 30);
     }
   }, [editing]);
-  const field = PROFILE_FIELDS.find(function (f) { return f.key === editing; });
-  const close = function () { returnTo.current = editing; setEditing(null); };
-  const save = function (patch) { onUpdateProfile(patch); returnTo.current = editing; setSaved(true); setEditing(null); announce("Profile saved"); };
+  const open = function (k, from) { setSaved(false); returnTo.current = null; setEditing({ k: k || "all", from: from || (k && k !== "all" ? "pf-link-" + k : "pf-edit-btn") }); };
+  const close = function () { returnTo.current = editing && editing.from; setEditing(null); };
+  const save = function (patch) { onUpdateProfile(patch); returnTo.current = editing && editing.from; setSaved(true); setEditing(null); announce("Profile saved"); };
   return {
-    editing: !!field,
-    screen: field ? lh(ChangeInfoScreen, { key: field.key, field: field, profile: authUser || {}, onSave: save, onClose: close }) : null,
-    list: lh(ProfileInfoList, { profile: authUser || {}, saved: saved, onOpen: function (k) { setSaved(false); setEditing(k); }, onView: function () { navigate("profile"); } }),
+    editing: !!editing,
+    open: open,
+    screen: editing ? lh(LcProfileEditor, { key: "pe", profile: authUser || {}, focusKey: editing.k, onSave: save, onClose: close }) : null,
+    list: lh(ProfileInfoList, { profile: authUser || {}, saved: saved, onOpen: function (k) { open(k); }, onView: function () { navigate("profile"); } }),
   };
 }
 // Accessible names: join only the parts that have words, so a missing value never leaves "Profile , " behind.
