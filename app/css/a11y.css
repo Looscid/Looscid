@@ -380,3 +380,87 @@ html.lc-debug-outlines body *:focus-visible{outline:3px solid var(--ac3,#a855f7)
 .lc-pick-opt.on .lc-sw-l{font-weight:700}
 .lc-pick-foot{padding:8px 16px;margin:0 16px}
 .lc-touch-list>li.lc-grp-start{border-top:10px solid var(--bg)}
+
+/* === iOS 27 Settings look (Oct 31 2026, Carter: "settings need to look like iOS 27 Settings"). Settings, LooscidID and
+   Security. Pure black (dark) or #f2f2f7 (light) behind rounded cards; rows with small colored tiles, gray values and
+   arrows; a big left "Settings" title; round Back buttons. Visual only: the rows stay one list for the screen reader.
+   High contrast keeps Looscid's own colors. Reduce Motion turns off the press animation. */
+.lc-i27{--i-bg:#000;--i-card:#1c1c1e;--i-press:#2c2c2e;--i-sep:#38383a;--i-tx:#fff;--i-tx2:#8e8e93;--i-blue:#0a84ff;--i-red:#ff453a;--i-ring:#0a84ff;--i-chev:#5a5a5f;--i-link:#409cff;--i-tx2h:#a1a1a6;
+  background:var(--i-bg);color:var(--i-tx);min-height:100%;padding-bottom:40px;
+  font-family:"Looscid Unspeakable",-apple-system,BlinkMacSystemFont,system-ui,"SF Pro Text","Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+html[data-lc-theme="light"] .lc-i27{--i-bg:#f2f2f7;--i-card:#fff;--i-press:#e5e5ea;--i-sep:#c6c6c8;--i-tx:#000;--i-tx2:#6c6c70;--i-blue:#007aff;--i-red:#d70015;--i-ring:#0060df;--i-chev:#bcbcc0;--i-link:#0060df;--i-tx2h:#5b5b60}
+body.acc-high-contrast .lc-i27{--i-tx2h:var(--tx);--i-link:var(--ac2);--i-bg:var(--bg);--i-card:var(--sf2);--i-press:var(--sf3);--i-sep:var(--bd2);--i-tx:var(--tx);--i-tx2:var(--tx);--i-ring:var(--ac2)}
+.lc-i27 .hdr.lc-i27-hdr{background:var(--i-bg);border-bottom:0;padding:6px 16px 4px;position:sticky;top:0;z-index:5}
+.lc-i27 .lc-i27-hrow{display:flex;align-items:center;gap:8px;min-height:52px;padding:0}
+.lc-i27 .lc-i27-back{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;min-width:44px;border-radius:50%;background:var(--i-card);color:var(--i-tx);border:0;padding:0;flex-shrink:0}
+.lc-i27 .lc-i27-back:focus-visible,.lc-i27 .lc-i27-copy:focus-visible{outline:3px solid var(--i-ring);outline-offset:2px}
+.lc-i27 .lc-i27-title{flex:1;text-align:center;margin:0;font-size:17px;line-height:1.25;font-weight:600;letter-spacing:-.02em;color:var(--i-tx);overflow-wrap:anywhere}
+.lc-i27 .lc-i27-hspace{width:44px;flex-shrink:0}
+.lc-i27 .lc-i27-ltitle{display:block;margin:6px 4px 2px;font-size:34px;line-height:1.12;font-weight:700;letter-spacing:-.025em;color:var(--i-tx);text-align:left}
+.lc-i27 .lc-i27-slogan{margin:0 4px 6px;font-size:15px;font-weight:400;color:var(--i-tx2)}
+.lc-i27 h1:focus-visible{outline:3px solid var(--i-ring);outline-offset:3px;border-radius:6px}
+/* Search, at the top under the title */
+.lc-i27 .lc-setfind{padding:6px 16px 4px}
+.lc-i27 .lc-i27-sbox{position:relative}
+.lc-i27 .lc-i27-sgl{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--i-tx2);pointer-events:none}
+.lc-i27 .lc-ios-search{width:100%;min-height:44px;border-radius:9999px;border:0;background:var(--i-card);color:var(--i-tx);padding:10px 16px 10px 38px;font-size:17px;font-family:inherit}
+.lc-i27 .lc-ios-search::placeholder{color:var(--i-tx2);opacity:1}
+.lc-i27 .lc-ios-search:focus-visible{outline:3px solid var(--i-ring);outline-offset:2px}
+.lc-i27 .lc-setfind-res.lc-ios-list{margin:12px 0 0;background:var(--i-card);border:0;border-radius:20px}
+.lc-i27 .lc-setfind-res .lc-ios-res{color:var(--i-tx);min-height:48px}
+.lc-i27 .lc-setfind-res .lc-ios-res small{color:var(--i-tx2)}
+.lc-i27 .lc-setfind-res>li+li{border-top:.5px solid var(--i-sep)}
+.lc-i27 .lc-setfind .lc-desc{color:var(--i-tx2);margin:10px 4px 0}
+/* The list: one list, drawn as cards */
+.lc-i27 .lc-i27-list{list-style:none;margin:0 16px;padding:0;background:none;border:0;box-shadow:none}
+.lc-i27 .lc-i27-li{margin:0;background:var(--i-card);position:relative}
+.lc-i27 .lc-i27-li.lc-g-first{margin-top:22px;border-top-left-radius:20px;border-top-right-radius:20px}
+.lc-i27 .lc-i27-li.lc-g-last{border-bottom-left-radius:20px;border-bottom-right-radius:20px}
+.lc-i27 .lc-i27-li:not(.lc-g-first)::before{content:"";position:absolute;top:0;left:60px;right:0;border-top:.5px solid var(--i-sep);pointer-events:none;z-index:1}
+.lc-i27 .lc-i27-row{display:flex;align-items:center;gap:14px;width:100%;min-height:52px;padding:10px 16px;background:none;border:0;border-radius:inherit;color:var(--i-tx);font:inherit;text-align:left;cursor:pointer;box-sizing:border-box}
+.lc-i27 .lc-i27-row:hover{background:var(--i-press)}
+.lc-i27 .lc-i27-row:active{background:var(--i-press)}
+.lc-i27 .lc-i27-row:focus-visible{outline:3px solid var(--i-ring);outline-offset:-3px;background:var(--i-press)}
+.lc-i27 .lc-i27-row:hover .lc-i27-sub,.lc-i27 .lc-i27-row:focus-visible .lc-i27-sub,.lc-i27 .lc-i27-row:hover .lc-i27-val,.lc-i27 .lc-i27-row:focus-visible .lc-i27-val{color:var(--i-tx2h)}
+.lc-i27 .lc-i27-ic{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:7px;color:#fff;flex-shrink:0}
+.lc-i27 .lc-i27-txt{display:flex;flex-direction:column;flex:1;min-width:0}
+.lc-i27 .lc-i27-lbl{font-size:17px;line-height:1.25;font-weight:400;letter-spacing:-.02em;color:var(--i-tx)}
+.lc-i27 .lc-i27-sub{font-size:13px;line-height:1.35;color:var(--i-tx2);margin-top:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.lc-i27 .lc-i27-val{font-size:17px;color:var(--i-tx2);flex-shrink:0;max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lc-i27 .lc-i27-chev{color:var(--i-chev);flex-shrink:0}.lc-i27 .lc-i27-chev path{stroke-width:3}
+.lc-i27 .lc-i27-danger{justify-content:center;min-height:52px;color:var(--i-red);font-size:17px}
+.lc-i27 .lc-i27-dli .mitem-lbl{color:var(--i-red);font-weight:400}
+.lc-i27 .lc-i27-foot{margin:8px 32px 24px;font-size:13px;line-height:1.4;color:var(--i-tx2)}
+/* The LooscidID card at the top of Settings */
+.lc-i27 .lc-i27-idli{margin-top:14px!important}
+.lc-i27 .lc-i27-id{min-height:84px;padding:14px 16px;gap:14px}
+.lc-i27 .lc-i27-av{display:inline-flex;align-items:center;justify-content:center;width:60px;height:60px;border-radius:50%;background:linear-gradient(160deg,#a5a5ad,#6e6e76);color:#fff;font-size:24px;font-weight:600;flex-shrink:0}
+.lc-i27 .lc-i27-idname{font-size:20px;line-height:1.2;font-weight:600;letter-spacing:-.02em;color:var(--i-tx)}
+.lc-i27 .lc-i27-np{display:flex;align-items:center;gap:10px;margin:0;padding:6px 12px 10px 16px;color:var(--i-tx2);position:relative}
+.lc-i27 .lc-i27-idli .lc-i27-np::before{content:"";position:absolute;top:0;left:16px;right:0;border-top:.5px solid var(--i-sep)}
+.lc-i27 .lc-i27-idli .lc-i27-np{padding-left:16px;padding-top:8px;padding-bottom:8px}
+.lc-i27 .lc-i27-np-t{flex:1;min-width:0;margin:0;font-size:15px;color:var(--i-tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lc-i27 .lc-i27-np-k{color:var(--i-tx2);font-weight:600;margin-right:4px}
+.lc-i27 .lc-i27-np-v{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:14px;letter-spacing:-.01em}
+.lc-i27 .lc-i27-np-none{font-size:14px;color:var(--i-tx2);padding:8px 16px 12px}
+.lc-i27 .lc-i27-copy{display:inline-flex;align-items:center;gap:6px;min-height:44px;min-width:44px;padding:0 14px;border-radius:9999px;border:0;background:var(--i-press);color:var(--i-link);font:inherit;font-size:15px;font-weight:600;cursor:pointer;flex-shrink:0}
+html[data-lc-theme="light"] .lc-i27 .lc-i27-copy{background:#e9e9ee}
+/* LooscidID page (Apple Account style) and Security (Privacy & Security style) */
+.lid-i27 .lid-i27-head{display:flex;flex-direction:column;align-items:center;text-align:center;padding:8px 16px 0;gap:2px}
+.lid-i27 .lc-i27-bigav{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#a5a5ad,#6e6e76);color:#fff;font-size:38px;font-weight:600;margin:4px auto 10px}
+.lid-i27 .lid-i27-name{margin:0;font-size:26px;line-height:1.2;font-weight:700;letter-spacing:-.025em;color:var(--i-tx)}
+.lid-i27 .lid-i27-handle{margin:2px 0 0;font-size:15px;color:var(--i-tx2)}
+.lid-i27 .lid-i27-head .lc-i27-np{margin-top:14px;background:var(--i-card);border-radius:9999px;padding:4px 4px 4px 16px;max-width:100%;box-sizing:border-box}
+.lid-i27 .lid-body{padding:0}
+.lid-i27 .lid-i27-help,.lid-i27 .lid-body>.lid-help{margin:10px 32px 4px;font-size:13px;line-height:1.4;color:var(--i-tx2)}
+.lid-i27 .lid-i27-hero{margin:14px 16px 0;padding:20px 18px 18px;background:var(--i-card);border-radius:20px;text-align:center}
+.lid-i27 .lid-i27-hero-ic{width:56px;height:56px;border-radius:14px;margin:0 auto 10px}
+.lid-i27 .lid-i27-hero-t{margin:0 0 4px;font-size:20px;font-weight:700;letter-spacing:-.02em;color:var(--i-tx)}
+.lid-i27 .lid-i27-hero-d{margin:0;font-size:15px;line-height:1.4;color:var(--i-tx2)}
+.lid-i27 .lid-i27-card,.lid-i27 .lid-body>.lid-panel,.lid-i27 .lid-body>section{margin:22px 16px 0;padding:14px 16px;background:var(--i-card);border:0;border-radius:20px;color:var(--i-tx)}
+.lid-i27 .lid-i27-card .lid-label{margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.02em;text-transform:none;color:var(--i-tx2)}
+.lid-i27 .lid-i27-card .lid-help,.lid-i27 .lid-i27-card .lid-links{color:var(--i-tx)}
+.lid-i27 .lid-i27-note{margin:14px 32px 0}
+.lid-i27 .lid-body .btn{min-height:44px}
+@media (prefers-reduced-motion:reduce){.lc-i27 .lc-i27-row,.lc-i27 .lc-i27-back{transition:none!important;transform:none!important}}
+html[data-lc-theme="light"] .lc-i27 .lid-warn,html[data-lc-theme="light"] .lc-i27 #bk-warn{color:#6b4500}
