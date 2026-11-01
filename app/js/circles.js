@@ -136,9 +136,9 @@ function CreateGroupFlow({onClose, onCreate, navigate}) {
             , React.createElement('div', { style: {fontSize:10,color:"var(--tx3)",textAlign:"right",marginTop:3},}, form.name.length, lcLimit("circleName") ? "/" + lcLimit("circleName") : "")
           )
           , React.createElement('div', { style: {marginBottom:12},}
-            , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",marginBottom:6},}, "Description")
+            , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",marginBottom:6}, "aria-hidden": "true",}, "About this Circle")
             // Part 35 (2three1y, Oct 12 4:43 PM): no length limit; Markdown and code blocks work, like bios.
-            , React.createElement('textarea', { className: "inp", style: {minHeight:100,fontSize:13}, placeholder: "What is this Circle about?"    , value: form.description, onChange: e=>set("description",e.target.value), 'aria-label': "Circle description" ,})
+            , React.createElement('textarea', { className: "inp", style: {minHeight:100,fontSize:13}, placeholder: "What is this Circle about?"    , value: form.description, onChange: e=>set("description",e.target.value), 'aria-label': "About this Circle" ,})
             , React.createElement('p', { className: "lc-desc", style: {fontSize:12,margin:"4px 0 0"},}, "As long as you like. Markdown works: headings, lists, links, bold, italic, code and code blocks.")
           )
           , React.createElement('div', { style: {marginBottom:16},}

@@ -124,7 +124,7 @@ const course = H.courses[0];
   const nArt = H.articles.length;
   let b = '<div class="hero">\n<h1>Looscid Help Center</h1>\n';
   b += '<form class="search" role="search" action="./" method="get" id="help-search">\n<label for="help-q" class="search-l">How can we help?</label>\n';
-  b += '<div class="search-box">' + icon("search") + '<input id="help-q" name="q" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search" placeholder="Search articles" aria-describedby="help-q-hint"><button type="submit" class="search-go">Search</button></div>\n';
+  b += '<div class="search-box">' + icon("search") + '<input id="help-q" name="q" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search" placeholder="Search articles"><button type="submit" class="search-go">Search</button></div>\n';
   b += '<p id="help-q-hint" class="hint">Searches all ' + nArt + ' articles, right on this device.</p>\n</form>\n</div>\n';
   b += '<section id="results" class="results" aria-labelledby="h-results" hidden><h2 id="h-results" tabindex="-1">Search results</h2><p id="results-n" role="status"></p><ol class="list" id="results-list"></ol></section>\n';
   b += '<section aria-labelledby="h-topics"><h2 id="h-topics">Browse by topic</h2>\n<ul class="topics" role="list">\n';
@@ -193,6 +193,12 @@ files["search.js"] = "/* Made by .github/scripts/build-help.mjs from app/js/help
 
 // "post" is never a word in Looscid (standing rule).
 for (const [rel, html] of Object.entries(files)) if (/\bpost(s|ed|ing)?\b/i.test(html.replace(/method="post"/gi, ""))) problems.push("the word post in " + rel);
+// Nov 1 2026 (Carter: "Description, dimmed" is gone and banned): no page may give anything an accessible description
+// (VoiceOver on iPhone says "description" for it) or show a Description label. Hints are plain text under their control.
+for (const [rel, html] of Object.entries(files)) {
+  if (/aria-describedby|aria-description/i.test(html)) problems.push("an aria-describedby or aria-description in " + rel + " (banned: VoiceOver says description)");
+  if (/>\s*Description\s*(:\s*)?</i.test(html) || /(aria-label|placeholder|title)="Description\b/i.test(html) || /<d[dt][\s>]/i.test(html)) problems.push("a Description label in " + rel + " (banned)");
+}
 if (problems.length) { console.error("Help Center problems:\n- " + [...new Set(problems)].join("\n- ")); process.exit(1); }
 
 let stale = [];
