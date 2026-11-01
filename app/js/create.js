@@ -655,6 +655,10 @@ function LcComposer(props) {
       attachments.map(function (att, i) {
         const nth = attachments.slice(0, i + 1).filter(function (x) { return x.type === att.type; }).length;
         if (att.type === "photo") return lh('li', { key: i, className: "lc-photo-att" },
+          // Nov 1 2026 (Carter: "Add Alt text for every Image"): the photo itself is shown, and its alt is the alt text you
+          // typed below (or says there is none yet), so VoiceOver reads the same words people will get.
+          att.src ? lh('img', { src: att.src, className: "lc-photo-thumb", width: 56, height: 56, decoding: "async",
+            alt: String(att.alt || "").trim() || ("Photo " + nth + (att.name ? ", " + att.name : "") + ", no alt text yet") }) : null,
           lh('label', { htmlFor: "lc-alt-" + i, className: "lc-fs-l" }, "Alt text for photo " + nth),
           lh('input', { id: "lc-alt-" + i, type: "text", className: "lc-text", value: att.alt || "", placeholder: "Describe the photo", onChange: function (e) { setAlt(i, e.target.value); } }),
           !String(att.alt || "").trim() && lh('p', { className: "lc-desc lc-alt-none" }, "No alt text yet."),
