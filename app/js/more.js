@@ -791,7 +791,18 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
         const logins = self ? Looscid.getMethods() : (user.logins || []);
         if (logins.length) rows.push(["Connected Logins", lh('ul', { key: "l", className: "lc-about-logins", role: "list" }, logins.map(function (m) { return lh('li', { key: m.id || m.provider }, Looscid.lcNameJoin(Looscid.PROVIDER_NAMES && Looscid.PROVIDER_NAMES[m.provider] || m.provider, m.provider === "nostr" && Looscid.shortNpub ? Looscid.shortNpub(m.publicId) : m.publicId)); }))]);
         const npubM = logins.find(function (m) { return m.provider === "nostr" && /^npub1/.test(m.publicId || ""); });
-        const npub = npubM ? npubM.publicId : user.npub;
+        let npub = npubM ? npubM.publicId : user.npub;
+        /* Nov 1 2026 (Carter: "my Nostr npub is not on my profile"; it must always show on your own profile, in Local and
+           server mode). The row above only read the login list, so it vanished when this device has your key but the list
+           lost its Nostr entry (a backup file put back an older list). On your own profile it also comes from your key
+           itself, its public key, or the Looscid server's copy of it. Nothing new is saved or sent. */
+        if (!npub && self) {
+          const toNpub = function (v) { v = String(v || "").trim(); return /^npub1[02-9ac-hj-np-z]{58}$/.test(v) ? v : (Looscid.lcNpub ? Looscid.lcNpub(v.replace(/^(npub|nostr):/, "")) : ""); };
+          const idn = Looscid.getIdentity ? Looscid.getIdentity() : null, st = Looscid.lcNostr && Looscid.lcNostr.state ? Looscid.lcNostr.state() : null;
+          const sv = Looscid.lcServer && Looscid.lcServer.cfg ? Looscid.lcServer.cfg() : null;
+          [logins.find(function (m) { return m.provider === "nostr"; }), idn && idn.provider === "nostr" ? idn.npub : "", idn && idn.provider === "nostr" ? idn.pubkey : "", st && st.npub, st && st.pubkey, sv && sv.pubkey]
+            .some(function (v) { npub = toNpub(v && typeof v === "object" ? v.publicId : v); return !!npub; });
+        }
         if (npub) rows.push(["Nostr public key", lh('span', { key: "n", className: "lc-break" }, npub), lh('button', { key: "c", type: "button", className: "btn bgb lc-btn", onClick: function () { lcCopy(npub, "Nostr public key"); } }, "Copy Nostr public key")]);
         if (user.verified) rows.push(["Verified", "Yes"]);
         return lh('section', { className: "lc-prof-about", "aria-labelledby": "pf-about-h" },

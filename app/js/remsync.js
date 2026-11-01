@@ -321,6 +321,8 @@ async function restoreBackup(opened, passcode) {
       if (k === SRV_KEY) { try { const s = JSON.parse(d.app[k]); delete s.token; if (opened.pk && s.pubkey && s.pubkey !== opened.pk) return; lsSetJ(k, s); } catch (e) {} return; }
       try { localStorage.setItem(k, d.app[k]); } catch (e) {}
     });
+    // Nov 1 2026: the file's login list must not drop this device's Nostr login (your key stays here, and its npub shows on your profile).
+    try { const idn = Looscid.getIdentity && Looscid.getIdentity(); if (idn && idn.provider === "nostr" && Looscid.getMethods && !Looscid.getMethods().some(function (x2) { return x2 && x2.provider === "nostr"; })) Looscid.setIdentity(idn); } catch (e) {}
   } else {
     // A file from the Looscid server's website: its Dreams and replies become Dreams on this device (already on the server).
     const map = Object.assign({}, cfg().map || {}), sig = Object.assign({}, cfg().sig || {});
