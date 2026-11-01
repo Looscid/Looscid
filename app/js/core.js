@@ -8352,6 +8352,8 @@ useEffect(() => {
       , showHabitCard && React.createElement(HabitInsightCard, { onDismiss: ()=>setShowHabitCard(false),})
       , cmdOpen && lh(CommandBar, { onClose: closeCmd, exec: execCommand, onFull: function () { setCmdOpen(false); cmdReturn.current = null; if (page !== "terminal") termBack.current = page; navigate("terminal"); } })
       , askDevice && !showWelcome && getWelcomeSeen() && lh(DeviceQuestion, { onDone: onDeviceDone })
+      // Nov 1 2026 (Carter): a one-time "Switch to the Looscid server?" question for Local mode, after first-run setup (js/remsync.js)
+      , !showWelcome && !askDevice && !showBoot && !showAnalytics && !cmdOpen && Looscid.LcServerAsk && lh(Looscid.LcServerAsk, { navigate: navigate })
       , showBoot && !showWelcome && !askDevice && lh(LcBoot, { onDone: function () { try { sessionStorage.setItem("looscid_booted", "1"); } catch (e) {} setShowBoot(false); focusMainHeading(); } })
       , showSymPicker && React.createElement(Looscid.SymbolPicker, { onInsert: s=>{ if(symTarget)symTarget(s); setShowSymPicker(false); setSymTarget(null); }, onClose:()=>setShowSymPicker(false),})
     )
