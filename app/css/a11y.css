@@ -464,3 +464,18 @@ html[data-lc-theme="light"] .lc-i27 .lc-i27-copy{background:#e9e9ee}
 .lid-i27 .lid-body .btn{min-height:44px}
 @media (prefers-reduced-motion:reduce){.lc-i27 .lc-i27-row,.lc-i27 .lc-i27-back{transition:none!important;transform:none!important}}
 html[data-lc-theme="light"] .lc-i27 .lid-warn,html[data-lc-theme="light"] .lc-i27 #bk-warn{color:#6b4500}
+/* Links sheet (Nov 1 2026): a bottom sheet like iOS, with YouTube-style link rows (name, then the address). */
+.lc-links-ov{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center}
+.lc-links-sheet.lc-i27{--i-bg:#1c1c1e;--i-card:#2c2c2e;--i-press:#333336;--i-sep:#48484a;--i-tx2:#98989f;--i-tx2h:#aeaeb2;min-height:0;width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:24px 24px 0 0;padding:8px 0 28px;box-sizing:border-box}
+html[data-lc-theme="light"] .lc-links-sheet.lc-i27{--i-bg:#f2f2f7;--i-card:#fff;--i-press:#e5e5ea;--i-sep:#c6c6c8}
+.lc-links-top{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 0}
+.lc-links-h{margin:0 4px;font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--i-tx)}
+.lc-links-h:focus-visible{outline:3px solid var(--i-ring);outline-offset:3px;border-radius:6px}
+.lc-links-sheet .lc-i27-back{background:var(--i-card)}
+.lc-links-sheet .lc-link-row{text-decoration:none}
+.lc-links-sheet .lc-link-tile{font-size:15px;font-weight:700}
+.lc-links-sheet .lc-link-url{color:var(--i-link);-webkit-line-clamp:1;word-break:break-all}
+.lc-links-sheet .lc-qr{margin:18px auto 0;text-align:center}
+.lc-links-sheet .lc-qr svg{display:block;margin:0 auto;border-radius:12px}
+@media (prefers-reduced-motion:no-preference){.lc-links-sheet{animation:lcSheetUp .25s ease-out}}
+@keyframes lcSheetUp{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}

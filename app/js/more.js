@@ -424,6 +424,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const [activeComment, setActiveComment] = useState(function () { return Looscid.lcCvTake ? Looscid.lcCvTake() : null; }); // round 9: Back from a footer page
   const [listsOpen, setListsOpen] = useState(false); // part 4b: Add to list, under More
   const [logoutAsk, setLogoutAsk] = useState(false); // Round 7.14: Logout asks first
+  const [linksOpen, setLinksOpen] = useState(false); // Nov 1 2026: the Links sheet (links, share, QR, copy)
   Looscid.useLikedTick();
   const moreBtn = useRef(null), editBtn = useRef(null), noteRef = useRef(null), headRef = useRef(null);
   // preview: your own profile as others see it. Your own data, nobody else's controls.
@@ -581,8 +582,23 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const backToMore = function () { setTimeout(function () { const b = document.getElementById("pf-more-btn"); if (b) b.focus(); }, 30); };
   const originals = Looscid.lcProfileOriginals(user, self ? Looscid.getMethods() : user.logins);
   const openOriginal = function (o) { const w = window.open(o.url, "_blank", "noopener,noreferrer"); if (w) w.opener = null; };
-  const extraItems = [{ id: "copyuser", name: "Copy username", a: function () { lcCopy("@" + handle, "Username"); } }]
-    .concat(originals.map(function (o) { return { id: "orig-" + o.net, name: "Open original profile on " + o.label, a: function () { openOriginal(o); } }; }));
+  /* Nov 1 2026 (Carter, 11:50 PM: "declutter the Dreamor options", like YouTube's channel Links): every link and share
+     item is in ONE item, "Links", named with the first link and how many more ("Links, github.com/2three1y, and 3 more").
+     It opens the Links sheet: each link (the profile's website and links, link fields, and the original profile on Nostr,
+     Mastodon or Bluesky) as a row with its name and address, then Share profile, QR code, Copy link and Copy username.
+     Nothing was removed; those items moved into the sheet. */
+  const pfLinks = (function () {
+    const out = [], seen = {};
+    const add = function (name, url) { url = String(url || "").trim(); if (!/^https?:\/\/[^\s"<>]+$/i.test(url) || seen[url]) return; seen[url] = 1; out.push({ name: String(name || "").trim() || lcLinkHost(url), url: url }); };
+    const site = self ? lp && lp.website : user.website; if (site) add("Website", /^https?:/i.test(site) ? site : "https://" + site);
+    ((self ? lp && lp.links : user.links) || []).forEach(function (l) { if (l && l.url) add(l.name, l.url); });
+    (user.fields || []).forEach(function (f) { if (!f || !f.value) return; let v = String(f.value); if (/<[a-z][^>]*>/i.test(v) && typeof DOMParser !== "undefined") { try { v = new DOMParser().parseFromString("<div>" + v + "</div>", "text/html").body.textContent || ""; } catch (e) {} } v = v.trim(); if (/^https?:\/\//i.test(v)) add(f.name, v); });
+    originals.forEach(function (o) { add(o.label + " (original profile)", o.url); });
+    return out;
+  })();
+  const linksName = pfLinks.length ? lcJoin("Links", (function (t) { return t.length > 32 ? t.slice(0, 30) + "\u2026" : t; })(lcLinkShow(pfLinks[0].url)), pfLinks.length > 1 ? "and " + (pfLinks.length - 1) + " more" : "") : "Links, share and copy";
+  const linksItem = { id: "links", name: linksName, a: function () { setLinksOpen(true); } };
+  const extraItems = [];
   const openEdit = function (fromMore) { setEditOpen(true); if (fromMore) setTimeout(function () { const a = document.getElementById("pf-link-name") || editBtn.current; if (a) a.focus(); }, 30); };
   const follow = function () { cherryCtx && cherryCtx.followUser(user.id); announce(following ? "Unfollowed " + user.name + "." : "Following " + user.name + ".", "state", "follow:" + user.id); };
   const cherryOn = !!cherryCtx && lcAiOn();
@@ -598,8 +614,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const G1 = "Profile", G2 = "Looscid", G3 = "About and account";
   const g = function (grp, list) { return list.map(function (it) { return Object.assign({ group: grp }, it); }); };
   const moreItems = isMe
-    ? g(G1, [{ id: "edit", name: "Edit profile", a: function () { openEdit(true); } },
-       { id: "share", name: "Share profile", a: share }, copyLink].concat(extraItems, [
+    ? g(G1, [{ id: "edit", name: "Edit profile", a: function () { openEdit(true); } }, linksItem].concat(extraItems, [
        { id: "viewas", name: "View as others see it", a: function () { setViewAs(true); announce("Viewing your profile as others see it."); } },
        { id: "reorder", name: "Reorder profile tabs", a: function () { Looscid.LC_SETTINGS_BACK = "profile"; navigate("settings_profiletabs"); } },
        // Round 7.23 (#151, Carter Oct 25 2026): the bottom tab bar can be reordered from More too (Settings, Tab Bar), and Back returns here.
@@ -621,8 +636,19 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
        { id: "credits", name: "Credits", a: function () { navigate("credits"); } },
        { id: "feedback", name: "Feedback", a: function () { navigate("feedback"); } },
        { id: "logout", name: "Logout", danger: true, a: function () { setLogoutAsk(true); } }]))
-    : [{ id: "share", name: "Share profile", a: share }, copyLink,
+    // Main actions first (Message, Follow, Add to list, Mute, Block, Report), then Links (every link and share item), then
+    // the rest. Nothing was removed.
+    : [
+       // Round 8 fixes (QA round 7): Back from that chat lands on More, the button the menu was opened from.
+       dmPeer ? { id: "message", name: "Message", a: function () { if (moreBtn.current) Looscid.LC_LAST_ACT = { el: moreBtn.current, at: Date.now() }; openDm(); } } : { id: "message", name: "Message", note: "unavailable: " + dmWhy, disabled: true },
+       following ? { id: "unfollow", name: "Unfollow", a: follow } : { id: "follow", name: "Follow", a: follow },
        { id: "addlist", name: "Add to list", a: function () { setListsOpen(true); } },
+       muted ? { id: "unmute", name: "Unmute", a: function () { Looscid.lcPeopleSet("looscid_muted_dreamors", user.handle, false); say("Unmuted " + user.name + "."); } }
+             : { id: "mute", name: "Mute", a: function () { Looscid.lcPeopleSet("looscid_muted_dreamors", user.handle, true); say("Muted " + user.name + ". Their Dreams are hidden from your feed."); } },
+       blocked ? { id: "unblock", name: "Unblock", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").filter(function (h) { return h !== Looscid.lcHandle(user.handle); })); say("Unblocked " + user.name + "."); } }
+               : { id: "block", name: "Block", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").concat([user.handle])); say("Blocked " + user.name + ". Unblock here or in Settings, Privacy."); } },
+       { id: "report", name: "Report", note: "unavailable: Looscid has nowhere to send reports yet", disabled: true },
+       linksItem,
        // Round 7.27 (#152, Carter approved Oct 25 2026, "like Spring"): pin this profile as a Home feed tab, or as its own tab in the tab bar.
        (function () { const L = Looscid, ref = L.lcHandle ? L.lcHandle(handle) : handle, pinned = L.lcPinHas && L.lcPinHas("person", ref), pid = "pin:person:" + ref;
          return pinned ? { id: "unpinfeed", name: "Unpin feed tab", a: function () { L.lcPinRemove(pid, true); say("Unpinned " + user.name + "'s feed tab."); } }
@@ -632,15 +658,6 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
          return { id: "tabbar", name: inBar ? "Remove from tab bar" : "Add to tab bar", a: function () {
            if (!inBar && !(L.lcPinHas && L.lcPinHas("person", ref))) L.lcPinAdd("person", ref, user.name || "@" + handle, true);
            const t = L.lcTabBarToggle ? L.lcTabBarToggle(pid) : ""; say(t || (inBar ? "Removed from the tab bar." : "Added to the tab bar.")); } }; })(),
-       muted ? { id: "unmute", name: "Unmute", a: function () { Looscid.lcPeopleSet("looscid_muted_dreamors", user.handle, false); say("Unmuted " + user.name + "."); } }
-             : { id: "mute", name: "Mute", a: function () { Looscid.lcPeopleSet("looscid_muted_dreamors", user.handle, true); say("Muted " + user.name + ". Their Dreams are hidden from your feed."); } },
-       blocked ? { id: "unblock", name: "Unblock", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").filter(function (h) { return h !== Looscid.lcHandle(user.handle); })); say("Unblocked " + user.name + "."); } }
-               : { id: "block", name: "Block", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").concat([user.handle])); say("Blocked " + user.name + ". Unblock here or in Settings, Privacy."); } },
-       { id: "report", name: "Report", note: "unavailable: Looscid has nowhere to send reports yet", disabled: true },
-       // The options this menu already had stay, after the six above.
-       following ? { id: "unfollow", name: "Unfollow", a: follow } : { id: "follow", name: "Follow", a: follow },
-       // Round 8 fixes (QA round 7): Back from that chat lands on More, the button the menu was opened from.
-       dmPeer ? { id: "message", name: "Message", a: function () { if (moreBtn.current) Looscid.LC_LAST_ACT = { el: moreBtn.current, at: Date.now() }; openDm(); } } : { id: "message", name: "Message", note: "unavailable: " + dmWhy, disabled: true },
        cherryOn ? { id: "cherry", name: "Ask Cherry for a summary", a: askCherry } : { id: "cherry", name: "Ask Cherry for a summary", note: "unavailable: Cherry is off", hint: "Not available while Cherry is off. Turn it on in Settings, Cherry.", disabled: true }]
       .concat(extraItems, [
        hidesRd ? { id: "showrd", name: "Show Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, false); say("Showing Redreams from " + user.name + "."); } }
@@ -657,7 +674,10 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const moreMenu = preview ? null : lh(React.Fragment, null, lh(LcMenu, { id: "pf-more-btn", menuId: "pf-more", kind: "action", title: "More", btnLabel: "Dreamor Options", btnRef: moreBtn,
     btnClass: "btn bgb lc-big lc-prof-morebtn", className: "lc-prof-more", itemClass: "lc-dopt",
     btnText: lh('span', null, lh(Ic.Dots, { style: { width: 18, height: 18 }, "aria-hidden": "true" }), " More"), items: moreItems,
-    onSelect: function (k, it) { if (it.a) it.a(); } }), logoutDlg);
+    onSelect: function (k, it) { if (it.a) it.a(); } }), logoutDlg,
+    linksOpen ? lh(LcLinksSheet, { who: user.name || "@" + handle, links: pfLinks, profLink: profLink, handle: handle,
+      onShare: function () { setLinksOpen(false); setTimeout(share, 30); },
+      onClose: function () { setLinksOpen(false); backToMore(); } }) : null);
   const onTabKey = function (e) {
     const i = TABS.findIndex(function (t) { return t[0] === cur; }); let n = null;
     if (e.key === "ArrowRight") n = (i + 1) % TABS.length; else if (e.key === "ArrowLeft") n = (i + TABS.length - 1) % TABS.length; else if (e.key === "Home") n = 0; else if (e.key === "End") n = TABS.length - 1;
@@ -923,6 +943,58 @@ function LcProfileCircles({ circ, isMe, name, navigate, uid, f0 }) {
 }
 function ProfilePage({navigate, authUser, cherryCtx, onUpdateProfile}) {
   return lh(ProfileView, { user: ME, isMe: true, navigate: navigate, cherryCtx: cherryCtx, onUpdateProfile: onUpdateProfile, authUser: authUser });
+}
+/* === Links sheet (Nov 1 2026, Carter: declutter the Dreamor options, links like YouTube's channel "Links") ===========
+   A proper dialog: heading "Links" (focus lands on it), each link as a row (a tile with the site's first letter, the
+   site's name, and the address under it; it opens in a new tab), then Share profile, QR code, Copy link and Copy username.
+   Escape or Close closes it and focus goes back to the button that opened it. Nothing is fetched from the linked sites. */
+function lcLinkHost(u) { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return String(u || ""); } }
+function lcLinkShow(u) { return String(u || "").replace(/^https?:\/\/(www\.)?/i, "").replace(/\/$/, ""); }
+const LC_LINK_TILE = { "github.com": "#24292f", "x.com": "#000", "twitter.com": "#000", "youtube.com": "#ff0033", "tiktok.com": "#111", "discord.gg": "#5865f2", "discord.com": "#5865f2", "bsky.app": "#0a7aff", "njump.me": "#8e44ad", "mastodon.social": "#6364ff", "twitch.tv": "#9146ff", "instagram.com": "#c13584" };
+function lcLoadQr() {
+  if (window.qrcode) return Promise.resolve(window.qrcode);
+  return new Promise(function (ok, no) { const s = document.createElement("script"); s.src = "js/vendor/qrcode-generator-1.4.4.js"; s.onload = function () { window.qrcode ? ok(window.qrcode) : no(new Error("no qrcode")); }; s.onerror = no; document.head.appendChild(s); });
+}
+function LcQr({ text }) {
+  const [qr, setQr] = useState(null); const [err, setErr] = useState(false);
+  useEffect(function () { let live = true; lcLoadQr().then(function (q) { if (!live) return; const c = q(0, "M"); c.addData(text); c.make(); setQr(c); }).catch(function () { if (live) setErr(true); }); return function () { live = false; }; }, [text]);
+  if (err) return lh('p', { className: "lid-help" }, "The QR code didn't load. Use Copy link instead.");
+  if (!qr) return lh('p', { className: "lid-help" }, "Making the QR code\u2026");
+  const n = qr.getModuleCount(), q = 4, d = [];
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) d.push("M" + (c + q) + " " + (r + q) + "h1v1h-1z");
+  return lh('figure', { className: "lc-qr" },
+    lh('svg', { viewBox: "0 0 " + (n + 2 * q) + " " + (n + 2 * q), width: 200, height: 200, role: "img", "aria-label": "QR code for " + lcLinkShow(text), shapeRendering: "crispEdges" },
+      lh('rect', { width: n + 2 * q, height: n + 2 * q, fill: "#fff" }), lh('path', { d: d.join(""), fill: "#000" })),
+    lh('figcaption', { className: "lid-help" }, "Scanning it opens " + lcLinkShow(text) + "."));
+}
+function LcLinksSheet({ who, links, profLink, handle, onShare, onClose }) {
+  const boxRef = useRef(null), hRef = useRef(null), ovRef = useRef(null);
+  const [showQr, setShowQr] = useState(false);
+  if (Looscid.useInertBehind) Looscid.useInertBehind(ovRef);
+  useEffect(function () { if (hRef.current) hRef.current.focus(); }, []);
+  const onKey = function (e) {
+    if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); onClose(); return; }
+    if (Looscid.lcTrapTab) Looscid.lcTrapTab(e, boxRef.current);
+  };
+  return lh('div', { className: "lc-q-ov lc-links-ov", ref: ovRef, onClick: function (e) { if (e.target === e.currentTarget) onClose(); } },
+    lh('div', { className: "lc-links-sheet lc-i27", role: "dialog", "aria-modal": "true", "aria-labelledby": "pf-links-h", ref: boxRef, onKeyDown: onKey },
+      lh('div', { className: "lc-links-top" },
+        lh('h2', { id: "pf-links-h", className: "lc-links-h", tabIndex: -1, ref: hRef }, "Links"),
+        lh('button', { type: "button", className: "lc-i27-back lc-links-x", onClick: onClose, "aria-label": "Close" }, lh(Looscid.LcI27Glyph, { g: "x", size: 18 }))),
+      links.length ? lh('ul', { className: "mlist lc-i27-list lc-links-list", role: "list", "aria-label": "Links (" + links.length + ")" }, links.map(function (l, i) {
+        const host = lcLinkHost(l.url), tile = LC_LINK_TILE[host] || "#636366";
+        return lh('li', { key: l.url, className: "mli lc-i27-li" + (i === 0 ? " lc-g-first" : "") + (i === links.length - 1 ? " lc-g-last" : "") },
+          lh('a', { className: "lc-i27-row lc-link-row", href: l.url, target: "_blank", rel: "noopener noreferrer me" },
+            lh('span', { className: "lc-i27-ic lc-link-tile", style: { background: tile }, "aria-hidden": "true" }, (host.charAt(0) || "?").toUpperCase()),
+            lh('span', { className: "lc-i27-txt" }, lh('span', { className: "lc-i27-lbl" }, l.name), lh('span', { className: "lc-i27-sub lc-link-url" }, lh('span', { className: "sr-only" }, ", "), lcLinkShow(l.url)), lh('span', { className: "sr-only" }, ", opens in a new tab")),
+            lh(Looscid.LcI27Glyph, { g: "out", size: 14, cls: "lc-i27-chev" })));
+      })) : lh('p', { className: "lc-i27-foot" }, who + " hasn't added any links yet."),
+      lh('ul', { className: "mlist lc-i27-list", role: "list", "aria-label": "Share" }, Looscid.lcI27Cards([[
+        { id: "pf-links-share", g: "share", c: "#007aff", label: "Share profile", noChev: true, onClick: function () { onShare(); } },
+        { id: "pf-links-qr", g: "qr", c: "#8e8e93", label: showQr ? "Hide QR code" : "QR code", noChev: true, onClick: function () { setShowQr(!showQr); } },
+        { id: "pf-links-copy", g: "link", c: "#34c759", label: "Copy link", sub: lcLinkShow(profLink), noChev: true, onClick: function () { lcCopy(profLink, "Profile link"); } },
+        { id: "pf-links-user", g: "person", c: "#8e8e93", label: "Copy username", sub: "@" + handle, noChev: true, onClick: function () { lcCopy("@" + handle, "Username"); } }]])),
+      showQr ? lh(LcQr, { text: profLink }) : null));
 }
 function DreamorProfilePage({user, navigate, cherryCtx}) {
   return lh(ProfileView, { key: user.id, user: user, isMe: user.id === ME.id, navigate: navigate, cherryCtx: cherryCtx, dpRoute: true });

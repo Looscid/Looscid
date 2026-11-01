@@ -2714,6 +2714,10 @@ const LC_I27_GLYPH = {
   chev: "M9 5l7 7-7 7",
   back: "M15 5l-7 7 7 7",
   search: "M10.5 17a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13zM15.5 15.5L20 20",
+  x: "M6 6l12 12M18 6L6 18",
+  out: "M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5",
+  share: "M12 3v12M7.5 7.5L12 3l4.5 4.5M6 11H5v9h14v-9h-1",
+  qr: "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2",
 };
 function LcI27Glyph({ g, size, cls }) {
   return lh('svg', { className: cls || "lc-i27-gl", width: size || 18, height: size || 18, viewBox: "0 0 24 24", "aria-hidden": "true", focusable: "false" },
