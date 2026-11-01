@@ -252,7 +252,7 @@ async function tick() {
     if (c.optin === "all") await upload(null);
     else { const pk = c.pubkey, after = c.optinAt || 0, keys = new Set(); localDreams(pk).forEach(function (d) { if (atOf(d) > after) keys.add("d:" + d.id); }); localReplies(pk).forEach(function (r) { if (atOf(r) > after) keys.add("r:" + r.id); }); if (keys.size || (c.del || []).length) await upload(keys); }
     if (!c.lastPull || Date.now() - c.lastPull > 5 * 60000) await pull();
-  } catch (e) { /* quiet: the Looscid server page shows the state, and the next tick tries again */ }
+  } catch (e) { /* quiet: the Looscid server page shows the state, and the next tick tries again */ if (e && e.code === "busy") { clearTimeout(tickT); tickT = setTimeout(tick, 3000); } }
 }
 window.addEventListener("online", function () { setTimeout(tick, 2000); });
 window.addEventListener("looscid-nostr", function () { setTimeout(tick, 3000); });
@@ -389,8 +389,9 @@ function LcServerPanel({ go }) {
   const run = async function (fn) { setBusy(true); setEr(""); setMsg(""); try { await fn(); } catch (e) { fail(e); } finally { setBusy(false); } };
   const gotText = function (g) { const n = (g && g.added || 0) + (g && g.replies || 0); return n ? " Got " + plural(n, "Dream") + " back from the server." : ""; };
   const upText = function (r) {
-    const bits = [plural(r.sent, "Dream") + " put on the server"];
-    if (r.already) bits.push(r.already + " already there");
+    const bits = [r.sent || !r.already ? plural(r.sent, "Dream") + " put on the server" : "Your Dreams were already on the server"];
+    if (r.already && r.sent) bits.push(r.already + " already there");
+    if (!r.sent && !r.already && !r.noParent && !r.tooLong && !r.refused) return "All your Dreams are already on the server.";
     if (r.noParent) bits.push(plural(r.noParent, "reply", "replies") + " stay on this device because they answer Dreams that aren't on the server");
     if (r.tooLong) bits.push(r.tooLong + " too long for the server (1000 characters) stay on this device");
     if (r.refused) bits.push(r.refused + " the server didn't take" + (r.messages[0] ? " (" + r.messages[0] + ")" : ""));
