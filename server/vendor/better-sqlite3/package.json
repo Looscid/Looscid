@@ -1,0 +1,8 @@
+{
+  "name": "better-sqlite3",
+  "version": "12.4.1",
+  "type": "commonjs",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "comment": "Vendored JS from better-sqlite3 12.4.1 (MIT, Joshua Wise). The native file is fetched by scripts/setup-sqlite.sh."
+}

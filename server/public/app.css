@@ -1,0 +1,71 @@
+:root {
+  --bg: #0f0e1a; --panel: #1b1930; --panel2: #24213f; --text: #f2f0ff; --muted: #b9b4d6; --accent: #c9b6ff; --accent2: #7cf2d0;
+  --line: #3a3660; --danger: #ff9a9a; --focus: #ffe066; --btn: #c9b6ff; --btntext: #14122b; color-scheme: dark;
+}
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) {
+  --bg: #fbfaff; --panel: #ffffff; --panel2: #f1eeff; --text: #1a1730; --muted: #4f4a6e; --accent: #5a3fd6; --accent2: #087a5c;
+  --line: #d6d0f0; --danger: #b3261e; --focus: #1a1730; --btn: #5a3fd6; --btntext: #ffffff; color-scheme: light; } }
+:root[data-theme="light"] {
+  --bg: #fbfaff; --panel: #ffffff; --panel2: #f1eeff; --text: #1a1730; --muted: #4f4a6e; --accent: #5a3fd6; --accent2: #087a5c;
+  --line: #d6d0f0; --danger: #b3261e; --focus: #1a1730; --btn: #5a3fd6; --btntext: #ffffff; color-scheme: light; }
+* { box-sizing: border-box; }
+html { font-size: 112.5%; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 1rem/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+a { color: var(--accent); text-underline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+.skip { position: absolute; left: -999px; top: 0; background: var(--btn); color: var(--btntext); padding: .6rem 1rem; z-index: 10; }
+.skip:focus { left: .5rem; top: .5rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.top { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); padding: .5rem 1rem; }
+.brand { margin: 0; font-weight: 800; letter-spacing: .02em; font-size: 1.15rem; }
+.logo { color: var(--accent2); }
+nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: .25rem .5rem; margin: .4rem 0 0; padding: 0; }
+nav a { display: inline-block; padding: .35rem .7rem; border-radius: 999px; text-decoration: none; color: var(--text); background: var(--panel2); min-height: 44px; line-height: 1.9; }
+nav a[aria-current="page"] { background: var(--btn); color: var(--btntext); font-weight: 700; }
+main { max-width: 44rem; margin: 0 auto; padding: 1rem; }
+main:focus, #title:focus { outline: none; }
+h1 { font-size: 1.6rem; margin: .5rem 0 1rem; }
+h2 { font-size: 1.3rem; margin: 1.2rem 0 .6rem; }
+h3 { font-size: 1.05rem; margin: 0; }
+.status { background: var(--panel2); border-left: 4px solid var(--accent2); padding: .5rem .8rem; border-radius: 8px; }
+.card > h2:first-child { margin-top: 0; }
+.card, article.dream, .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: .9rem 1rem; margin: 0 0 .8rem; }
+article.dream h3 a { color: var(--text); text-decoration: none; }
+article.dream h3 .handle { color: var(--muted); font-weight: 400; }
+.meta { color: var(--muted); font-size: .9rem; margin: .2rem 0 .4rem; }
+.text { white-space: pre-wrap; overflow-wrap: anywhere; margin: .4rem 0; }
+.cw { background: var(--panel2); border-radius: 10px; padding: .5rem .7rem; }
+.media img { max-width: 100%; height: auto; border-radius: 10px; display: block; margin: .5rem 0; }
+.linkcard { display: block; border: 1px solid var(--line); border-radius: 10px; padding: .5rem .7rem; margin: .4rem 0; text-decoration: none; color: var(--text); }
+.linkcard span { display: block; color: var(--muted); font-size: .9rem; }
+.actions { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+button, .btn { font: inherit; min-height: 44px; padding: .4rem .9rem; border-radius: 999px; border: 1px solid var(--line); background: var(--panel2); color: var(--text); cursor: pointer; }
+button.primary { background: var(--btn); color: var(--btntext); border-color: transparent; font-weight: 700; }
+button[aria-pressed="true"] { background: var(--accent2); color: #062a20; border-color: transparent; }
+button.danger { color: var(--danger); }
+label { display: block; font-weight: 600; margin: .7rem 0 .25rem; }
+.hint { color: var(--muted); font-size: .9rem; margin: .2rem 0; }
+input[type=text], input[type=search], input[type=datetime-local], textarea, select { width: 100%; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: .55rem .7rem; min-height: 44px; }
+input[type=checkbox], input[type=radio] { width: 1.3rem; height: 1.3rem; vertical-align: middle; margin-right: .4rem; }
+.check { font-weight: 400; }
+textarea { min-height: 6rem; resize: vertical; }
+details { margin: .6rem 0; } summary { cursor: pointer; min-height: 44px; padding: .5rem 0; font-weight: 600; }
+fieldset { border: 1px solid var(--line); border-radius: 10px; margin: .7rem 0; } legend { font-weight: 600; padding: 0 .3rem; }
+.new-btn { width: 100%; margin-bottom: .8rem; }
+.phrase { font-family: ui-monospace, Menlo, monospace; background: var(--panel2); padding: .7rem; border-radius: 10px; word-spacing: .3rem; }
+ol.chatlog { list-style: none; padding: 0; } ol.chatlog li { margin: .4rem 0; padding: .5rem .7rem; border-radius: 12px; background: var(--panel2); max-width: 85%; }
+ol.chatlog li.mine { margin-left: auto; background: var(--btn); color: var(--btntext); }
+ul.plain { list-style: none; padding: 0; } ul.plain li { margin: .4rem 0; }
+.error { color: var(--danger); font-weight: 600; }
+.warn { border-left: 4px solid var(--danger); padding: .3rem .7rem; background: var(--panel2); border-radius: 8px; }
+.ok { color: var(--text); border-left: 4px solid var(--accent2); padding: .3rem .7rem; font-weight: 600; }
+.ok:focus { outline: none; }
+.foot { max-width: 44rem; margin: 2rem auto; padding: 0 1rem 2rem; color: var(--muted); font-size: .9rem; }
+.badge { background: var(--accent2); color: #062a20; border-radius: 999px; padding: 0 .45rem; font-size: .8rem; font-weight: 700; margin-left: .25rem; }
+@media (prefers-reduced-motion: no-preference) { button, nav a { transition: background-color .15s; } }
+@media (max-width: 600px) {
+  .top { position: static; padding: .4rem .75rem; }
+  nav ul { gap: .3rem; }
+  nav a { padding: .3rem .65rem; font-size: .95rem; }
+  main { padding: .75rem; }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "looscidserver",
+  "version": "0.1.0",
+  "description": "The Looscid home server. Looscid runs on Rem.",
+  "type": "module",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server/main.mjs",
+    "setup": "sh scripts/setup-sqlite.sh",
+    "test": "node test/core.test.mjs test/nip44.vectors.json"
+  }
+}
