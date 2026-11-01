@@ -538,7 +538,41 @@ function LcBackupPanel({ go }) {
     lh(Note, { msg: msg, err: er, id: "bk-msg" }));
 }
 
-Looscid.lcServer = { cfg: cfg, signIn: signIn, join: join, signOut: signOut, upload: upload, pull: pull, tick: tick, makeBackup: makeBackup, openBackup: openBackup, restoreBackup: restoreBackup, DEFAULT_HOME: DEFAULT_HOME };
+/* --- Mode: Local only or Looscid server (Oct 31 2026, Carter: "how would you know if you're using the local version or
+   the server based version"). One plain line at the top of More, the LooscidID home page, Looscid server and Settings.
+   A change of mode is announced once, politely, a moment after the change so it doesn't cut off the other message. */
+function agoText(t) {
+  const s = Math.round((Date.now() - t) / 1000); if (s < 45) return "just now";
+  const m = Math.round(s / 60); if (m < 60) return plural(m, "minute") + " ago";
+  const h = Math.round(m / 60); if (h < 24) return plural(h, "hour") + " ago";
+  const d = Math.round(h / 24); if (d < 7) return plural(d, "day") + " ago";
+  return "on " + new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+function modeNow() {
+  const c = cfg(), on = !!(c.token && c.handle);
+  return { on: on, sync: on && (c.optin === "all" || c.optin === "pick"), handle: c.handle || "", host: hostOf(c.home || DEFAULT_HOME), last: Math.max(+c.lastSync || 0, +c.lastPull || 0) };
+}
+function modeText(m) {
+  m = m || modeNow();
+  if (m.sync) return "Mode: Looscid server. Synced to " + m.host + " as @" + m.handle + ". " + (m.last ? "Last synced " + agoText(m.last) + "." : "Not synced yet.");
+  if (m.on) return "Mode: Local only. Your Dreams live on this device. You're signed in to " + m.host + " as @" + m.handle + ", but syncing is off.";
+  return "Mode: Local only. Your Dreams live on this device.";
+}
+let lastModeKey = modeNow().sync ? "server" : "local", modeSayT = null;
+window.addEventListener("looscid-server", function () {
+  const k = modeNow().sync ? "server" : "local"; if (k === lastModeKey) return; lastModeKey = k;
+  clearTimeout(modeSayT); modeSayT = setTimeout(function () { say(k === "server" ? "Mode is now Looscid server." : "Mode is now Local only."); }, 1800);
+});
+function LcModeLine(props) {
+  const [, tick] = useState(0);
+  useEffect(function () { const f = function () { tick(function (n) { return n + 1; }); }; window.addEventListener("looscid-server", f); const iv = setInterval(f, 60000);
+    return function () { window.removeEventListener("looscid-server", f); clearInterval(iv); }; }, []);
+  const m = modeNow();
+  return lh('p', { className: "lc-mode-line " + (m.sync ? "lc-mode-server" : "lc-mode-local"), style: Object.assign({ margin: "8px 16px", padding: "10px 12px", borderRadius: 12, borderLeft: "4px solid " + (m.sync ? "#10b981" : "#a78bfa"), background: "rgba(127,127,127,.12)", fontSize: 14, lineHeight: 1.45, fontWeight: 600 }, props && props.style) }, modeText(m));
+}
+Looscid.lcServer = { cfg: cfg, signIn: signIn, join: join, signOut: signOut, upload: upload, pull: pull, tick: tick, makeBackup: makeBackup, openBackup: openBackup, restoreBackup: restoreBackup, mode: modeNow, DEFAULT_HOME: DEFAULT_HOME };
 Looscid.LcServerPanel = LcServerPanel;
+Looscid.LcModeLine = LcModeLine;
+Looscid.lcModeText = modeText;
 Looscid.LcBackupPanel = LcBackupPanel;
 })(window.Looscid = window.Looscid || {});
