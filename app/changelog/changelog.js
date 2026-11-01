@@ -5,6 +5,13 @@
   "use strict";
   var live = document.getElementById("looscid-live"), picker = document.getElementById("picker"), notes = document.getElementById("notes");
   function say(t) { live.textContent = ""; setTimeout(function () { live.textContent = t; }, 60); }
+  // Nov 1 2026 (Carter): a link to another site gets a title hint, "Go to GitHub", like Ableton's footer. Looscid's own pages get none.
+  function goTo(href) {
+    var h = ""; try { h = new URL(href).hostname.replace(/^www\./, ""); } catch (e) { return null; }
+    if (h === "looscid.github.io") return null;
+    var known = { "github.com": "GitHub", "x.com": "X", "twitter.com": "X", "discord.gg": "Discord", "discord.com": "Discord", "youtube.com": "YouTube", "youtu.be": "YouTube" };
+    return "Go to " + (known[h] || h);
+  }
   function el(tag, attrs, kids) {
     var e = document.createElement(tag); attrs = attrs || {};
     Object.keys(attrs).forEach(function (k) { if (attrs[k] != null) e.setAttribute(k, attrs[k]); });
@@ -21,7 +28,7 @@
       else if (t.charAt(0) === "*") out.push(el("strong", {}, [t.slice(2, -2)]));
       else {
         var mm = /^\[([^\]]+)\]\(([^)\s]+)\)$/.exec(t), href = mm[2];
-        if (/^https:\/\//i.test(href)) out.push(el("a", { href: href, target: "_blank", rel: "noopener noreferrer" }, [mm[1] + " (opens in a new tab)"]));
+        if (/^https:\/\//i.test(href)) out.push(el("a", { href: href, target: "_blank", rel: "noopener noreferrer", title: goTo(href) }, [mm[1] + " (opens in a new tab)"]));
         else out.push(mm[1]);
       }
       last = m.index + t.length;
@@ -65,7 +72,8 @@
     vs.forEach(function (v, i) { if (v.build === want) at = i; });
     picker.textContent = "";
     var wrap = el("div", { "class": "mb" }), open = false;
-    var btn = el("button", { type: "button", id: "ver-btn", "class": "mb-btn", "aria-haspopup": "menu", "aria-expanded": "false" });
+    // Nov 1 2026 (Carter): a title hint, read by VoiceOver after the name ("Version: ..."). No aria-describedby.
+    var btn = el("button", { type: "button", id: "ver-btn", "class": "mb-btn", "aria-haspopup": "menu", "aria-expanded": "false", title: "Shows every version" });
     var list = null;
     function label() { btn.textContent = "Version: " + name(vs[at]); }
     function items() { return list ? Array.prototype.slice.call(list.querySelectorAll("[role^=menuitem]")) : []; }
