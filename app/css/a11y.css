@@ -479,3 +479,76 @@ html[data-lc-theme="light"] .lc-links-sheet.lc-i27{--i-bg:#f2f2f7;--i-card:#fff;
 .lc-links-sheet .lc-qr svg{display:block;margin:0 auto;border-radius:12px}
 @media (prefers-reduced-motion:no-preference){.lc-links-sheet{animation:lcSheetUp .25s ease-out}}
 @keyframes lcSheetUp{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+
+/* Edit profile, X style (Nov 1 2026, Carter: "Copy Benji Taylor's idea for X"): one sheet, Close / heading / Save on top,
+   Edit and Preview, a live header (banner shown whole, avatar over its edge), then the fields in iOS 27 cards. */
+.lc-pe .lc-pe-hdr .lc-i27-hrow{gap:10px}
+.lc-pe-save{min-height:44px;min-width:64px;padding:0 18px;border-radius:9999px;border:0;background:var(--i-tx);color:var(--i-bg);font:inherit;font-size:16px;font-weight:700;cursor:pointer;flex-shrink:0}
+.lc-pe-save.lc-dim{opacity:.4}
+.lc-pe-save:focus-visible,.lc-pe-segb:focus-visible,.lc-pe-sw:focus-visible,.lc-pe-rm:focus-visible,.lc-pe-add:focus-visible{outline:3px solid var(--i-ring);outline-offset:2px}
+.lc-pe-seg{display:flex;margin:4px 16px 0;padding:3px;background:var(--i-card);border-radius:9999px}
+.lc-pe-segb{flex:1;min-height:44px;border:0;border-radius:9999px;background:none;color:var(--i-tx2h);font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+.lc-pe-segb.on{background:var(--i-press);color:var(--i-tx)}
+html[data-lc-theme="light"] .lc-pe-segb.on{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+html[data-lc-theme="light"] .lc-pe-seg{background:#e3e3e8}
+.lc-pe-panel{padding-bottom:24px}
+.lc-pe-form{margin:0}
+.lc-pe-head{margin:14px 16px 0;position:relative}
+.lc-pe-banner{width:100%;aspect-ratio:3/1;border-radius:20px}
+.lc-pe-avwrap{margin:-42px 0 0 14px;width:max-content;border-radius:50%;border:4px solid var(--i-bg);position:relative}
+.lc-pe-avwrap .av{border-radius:50%}
+.lc-pe-hname{margin:8px 2px 0;font-size:22px;line-height:1.2;font-weight:800;letter-spacing:-.02em;color:var(--i-tx);overflow-wrap:anywhere}
+.lc-pe-hhandle{margin:2px 2px 0;font-size:15px;color:var(--i-tx2);overflow-wrap:anywhere}
+.lc-pe-card{margin:18px 16px 0;padding:6px 16px 10px;background:var(--i-card);border:0;border-radius:20px;color:var(--i-tx);min-width:0}
+.lc-pe-colors{padding:12px 16px 14px}
+.lc-pe-legend{float:left;width:100%;margin:0 0 10px;padding:0;font-size:13px;font-weight:600;color:var(--i-tx2)}
+.lc-pe-swatches{clear:both;display:flex;flex-wrap:wrap;gap:12px}
+.lc-pe-sw{width:44px;height:44px;border-radius:50%;border:0;padding:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.lc-pe-sw.on{box-shadow:0 0 0 3px var(--i-card),0 0 0 5px var(--i-tx)}
+.lc-pe-row{padding:12px 0;position:relative}
+.lc-pe-row+.lc-pe-row{border-top:.5px solid var(--i-sep)}
+.lc-pe-lrow{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.lc-pe-label{display:block;margin:0 0 6px;font-size:13px;font-weight:600;color:var(--i-tx2)}
+.lc-pe-count{font-size:13px;color:var(--i-tx2);font-variant-numeric:tabular-nums}
+.lc-pe-input{display:block;width:100%;box-sizing:border-box;min-height:44px;padding:10px 12px;border:1px solid transparent;border-radius:12px;background:var(--i-press);color:var(--i-tx);font:inherit;font-size:17px;line-height:1.35;-webkit-appearance:none;appearance:none}
+.lc-pe-input::placeholder{color:var(--i-tx2);opacity:1}
+.lc-pe-input:focus-visible{outline:3px solid var(--i-ring);outline-offset:1px}
+.lc-pe-input[aria-invalid="true"]{border-color:var(--i-red)}
+html[data-lc-theme="light"] .lc-pe-input{background:#f2f2f7}
+.lc-pe-bio{min-height:120px;resize:vertical}
+.lc-pe-inwrap{position:relative}
+.lc-pe-at{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--i-tx2);pointer-events:none}
+.lc-pe-input-at{padding-left:30px}
+.lc-pe-help{margin:6px 2px 0;font-size:13px;line-height:1.4;color:var(--i-tx2)}
+.lc-pe-err{margin:6px 2px 0;font-size:14px;font-weight:600;color:var(--i-red)}
+.lc-pe-h2{margin:8px 0 2px;font-size:17px;font-weight:700;letter-spacing:-.01em;color:var(--i-tx)}
+.lc-pe-links{list-style:none;margin:10px 0 0;padding:0}
+.lc-pe-link{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:.5px solid var(--i-sep)}
+.lc-pe-link-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.lc-pe-link-n{font-size:16px;font-weight:600;color:var(--i-tx)}
+.lc-pe-link-u{font-size:14px;color:var(--i-link);overflow-wrap:anywhere}
+.lc-pe-rm{min-height:44px;padding:0 14px;border:0;border-radius:9999px;background:var(--i-press);color:#ff6961;font:inherit;font-size:15px;font-weight:600;cursor:pointer;flex-shrink:0}
+.lc-pe-addlink{margin-top:12px;padding-top:12px;border-top:.5px solid var(--i-sep);display:flex;flex-direction:column;gap:2px}
+.lc-pe-addlink .lc-pe-label{margin-top:6px}
+.lc-pe-add{margin-top:12px;min-height:44px;border:0;border-radius:9999px;background:var(--i-press);color:var(--i-link);font:inherit;font-size:16px;font-weight:600;cursor:pointer}
+html[data-lc-theme="light"] .lc-pe-rm,html[data-lc-theme="light"] .lc-pe-add{background:#e9e9ee}
+html[data-lc-theme="light"] .lc-pe-rm{color:#b0000f}
+html[data-lc-theme="light"] .lc-pe-add{color:#0052c2}
+.lc-pe-note{margin:14px 32px 0;font-size:13px;line-height:1.4;color:var(--i-tx2)}
+.lc-pe-pcard{margin:10px 16px 0;padding:0 0 16px;background:var(--i-card);border-radius:20px;overflow:hidden}
+.lc-pe-pcard .lc-pe-head{margin:0}
+.lc-pe-pcard .lc-pe-banner{border-radius:0}
+.lc-pe-pcard .lc-pe-avwrap{border-color:var(--i-card);margin-left:14px}
+.lc-pe-pcard .lc-pe-hname,.lc-pe-pcard .lc-pe-hhandle{display:none}
+.lc-pe-pname{margin:8px 16px 0;font-size:22px;line-height:1.2;font-weight:800;letter-spacing:-.02em;color:var(--i-tx);overflow-wrap:anywhere}
+.lc-pe-phandle{margin:2px 16px 0;font-size:15px;color:var(--i-tx2)}
+.lc-pe-pbio{margin:10px 16px 0;color:var(--i-tx)}
+.lc-pe-pcard>.lc-pe-help{margin:10px 16px 0}
+.lc-pe-plinks{list-style:none;margin:10px 16px 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.lc-pe-plinks li{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}
+.lc-pe-plinks .lc-pe-link-n{font-size:14px;color:var(--i-tx2)}
+body.acc-high-contrast .lc-pe-input{border-color:var(--bd2)}
+@media (prefers-reduced-motion:no-preference){.lc-pe-segb{transition:background .15s,color .15s}}
+/* The profile header's banner (shows the Avatar color, drawn whole) */
+.lc-prof-banner{margin:-8px -16px 0;aspect-ratio:3/1;max-height:180px}
+.lc-prof-avwrap{margin-top:-40px;width:max-content;border-radius:50%;border:4px solid var(--bg);position:relative}
