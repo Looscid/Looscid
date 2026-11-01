@@ -2524,9 +2524,10 @@ function LcProfileEditor({ profile, focusKey, onSave, onClose }) {
     lh('div', { className: "hdr lc-i27-hdr lc-pe-hdr" }, lh('div', { className: "hdr-row lc-i27-hrow" },
       lh('button', Object.assign({ type: "button", id: "pe-close", className: "bi lc-i27-back", onClick: close }, lcCloseProps("Edit profile")), lh(Looscid.LcI27Glyph, { g: "x", size: 18 })),
       lh('h1', { id: "pe-h1", className: "hdr-title lc-i27-title", tabIndex: -1, ref: headRef }, "Edit profile"),
-      // Nov 1 2026 (Carter, 9:45 AM: "Description, dimmed ... is gone and banned"): Save is a plain button now. It isn't
-      // dimmed for VoiceOver and has no hint; with nothing changed, tapping it says "Nothing to save yet. Change something first."
-      lh('button', { type: "button", id: "pe-save", className: "lc-pe-save" + (changed ? "" : " lc-dim"), onClick: save }, "Save"))),
+      // Nov 1 2026 (Carter, 9:45 AM: "Description, dimmed ... is gone and banned"): Save has no hint. (Carter, 10:39 AM:
+      // "Dimmed is OK. Reporting a button's status is OK") so it is dimmed for VoiceOver (aria-disabled) until something
+      // changed: "Save, dimmed". Tapping it then still says "Nothing to save yet. Change something first."
+      lh('button', { type: "button", id: "pe-save", className: "lc-pe-save" + (changed ? "" : " lc-dim"), "aria-disabled": changed ? undefined : "true", onClick: save }, "Save"))),
     lh('div', { className: "lc-pe-seg", role: "tablist", "aria-label": "Edit or preview", onKeyDown: onTabKey },
       tabs.map(function (t) { const on = view === t[0];
         return lh('button', { key: t[0], type: "button", role: "tab", id: "pe-tab-" + t[0], "aria-selected": on ? "true" : "false", "aria-controls": "pe-panel", tabIndex: on ? 0 : -1, className: "lc-pe-segb" + (on ? " on" : ""), onClick: function () { setView(t[0]); } }, t[1]); })),

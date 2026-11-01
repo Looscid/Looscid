@@ -2938,7 +2938,8 @@ Looscid.lcNameJoin = lcNameJoin;
    - no aria-describedby and no aria-description, anywhere (controls, fields, dialogs, menus, the Help Center);
    - no "Description" label on screen (the Circle field is "About this Circle"), no dd/dt (WebKit calls a dd "description");
    - a help or hint sentence is plain text right under its control, read in order. It is never dimmed or disabled.
-   - a button that can't do anything yet isn't dimmed for VoiceOver with a hint; it says why when you press it.
+   - a button that can't do anything yet may be dimmed (aria-disabled: Carter, Nov 1 10:39 AM, "Dimmed is OK. Reporting a
+     button's status is OK"), but never with a hint; it says why when you press it.
    The Validate workflow (.github/workflows/deploy.yml, "No Description labels") fails a push that brings one back.
    lcHint used to put a hidden hint on a control through aria-describedby (Build 150, part 18). It now returns nothing,
    so an old call can't bring a description back. */
