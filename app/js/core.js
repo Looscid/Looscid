@@ -2941,6 +2941,9 @@ Looscid.lcNameJoin = lcNameJoin;
    - a button that can't do anything yet may be dimmed (aria-disabled: Carter, Nov 1 10:39 AM, "Dimmed is OK. Reporting a
      button's status is OK"), but never with a hint; it says why when you press it.
    The Validate workflow (.github/workflows/deploy.yml, "No Description labels") fails a push that brings one back.
+   One kind of hint is allowed (Carter, Nov 1 2026, 2:43 and 2:45 PM, the Ableton style): a title on a button, tab or link
+   to another site that says something different from its name ("Go to GitHub", "Saves your changes"). VoiceOver reads it
+   as a hint after a pause. lcTipStamp (next to the braille stamp) puts them on; see "Hints on buttons, tabs and outside links".
    lcHint used to put a hidden hint on a control through aria-describedby (Build 150, part 18). It now returns nothing,
    so an old call can't bring a description back. */
 function lcHint() { return undefined; }
@@ -7142,6 +7145,251 @@ function lcBrWatch() {
   try { if (!localStorage.getItem("looscid_br_bn150")) { localStorage.setItem("looscid_br_bn150", "1"); if (Looscid.A11Y_NOW.brailleStyle === "iphone") lcSet({ brailleStyle: "braillenote" }); } } catch (e) {}
   lcBrStamp();
 }
+/* --- Hints on buttons, tabs and outside links (Carter, Nov 1 2026, 2:43 and 2:45 PM) -------------------------
+   Ableton's footer does it this way: the link's name comes from its label, and its title says something different
+   ("Go to Facebook"), so VoiceOver on iPhone reads the title as a hint after a short pause. Carter: "Add that hint
+   that they do not the description", then "Can you apply that hint style on Buttons and Tabs".
+   So every button, tab and link to another site gets a title hint here, the same way the braille stamp above works
+   (one pass over the page, again whenever the page changes):
+   - a link that leaves Looscid: "Go to X", "Go to Discord", "Go to GitHub", "Go to YouTube";
+   - a tab: where it goes or what it shows ("Goes to Home", "Shows Replies");
+   - a button: a short sentence, starting with a verb, saying what happens ("Saves your changes", "Closes this window").
+   Rules: the title is never the same as the name (VoiceOver would drop it), nothing is renamed, nothing shows on
+   screen, and there is still no aria-describedby or aria-description anywhere (the "Description" ban stands; title
+   hints are the one kind of hint Carter allowed). A title someone wrote in the code is kept. Never the word "account":
+   it is LooscidID. Internal links stay as they are. Switches, checkboxes and radio buttons keep VoiceOver's own words.
+   The marker data-lctip says the title came from here, so it is updated when the name changes. */
+Looscid.LC_TIP_MO = null; Looscid.LC_TIP_RAF = 0;
+// Places a link can go, by address. Anything else is named by its address (example.org).
+const LC_TIP_SITES = [
+  [/(^|\.)(x|twitter)\.com$/, "X"], [/(^|\.)discord\.(gg|com)$/, "Discord"], [/(^|\.)github\.com$/, "GitHub"], [/(^|\.)github\.io$/, ""],
+  [/(^|\.)(youtube\.com|youtu\.be)$/, "YouTube"], [/(^|\.)tiktok\.com$/, "TikTok"], [/(^|\.)instagram\.com$/, "Instagram"],
+  [/(^|\.)reddit\.com$/, "Reddit"], [/(^|\.)bsky\.app$/, "Bluesky"], [/(^|\.)facebook\.com$/, "Facebook"], [/(^|\.)threads\.net$/, "Threads"],
+  [/(^|\.)twitch\.tv$/, "Twitch"], [/(^|\.)spotify\.com$/, "Spotify"], [/(^|\.)soundcloud\.com$/, "SoundCloud"], [/(^|\.)apple\.com$/, "Apple"],
+  [/(^|\.)fonts\.google\.com$/, "Google Fonts"], [/(^|\.)fontawesome\.com$/, "Font Awesome"], [/(^|\.)cybertip\.org$/, "the CyberTipline"],
+  [/(^|\.)openfontlicense\.org$/, "the Open Font License site"], [/(^|\.)seabios\.org$/, "SeaBIOS"], [/(^|\.)njump\.me$/, "njump"],
+  [/(^|\.)primal\.net$/, "Primal"], [/(^|\.)nostr\.(com|how)$/, "Nostr"], [/(^|\.)wikipedia\.org$/, "Wikipedia"],
+  [/mastodon|mstdn|fosstodon|hachyderm|mas\.to$/, "Mastodon"], [/(^|\.)mail\.tab\.bot$/, "email"],
+];
+function lcTipPlace(a) {
+  let u; try { u = new URL(a.getAttribute("href"), location.href); } catch (e) { return null; }
+  if (u.protocol === "mailto:") return "Writes an email";
+  if (u.protocol === "tel:") return "Calls this number";
+  if (u.protocol !== "http:" && u.protocol !== "https:") return null;
+  const host = u.hostname.toLowerCase().replace(/^www\./, "");
+  // Looscid's own pages (the app, the Help Center, the changelog) are internal: no hint.
+  if (u.origin === location.origin && /^\/looscid(\/|$)/i.test(u.pathname)) return null;
+  if (host === "looscid.github.io" && /^\/looscid(\/|$)/i.test(u.pathname)) return null;
+  if (u.origin === location.origin && location.hostname !== "looscid.github.io") return null;
+  for (let i = 0; i < LC_TIP_SITES.length; i++) {
+    if (LC_TIP_SITES[i][0].test(host)) {
+      if (LC_TIP_SITES[i][1]) return "Go to " + LC_TIP_SITES[i][1];
+      // A GitHub Pages site: Carter's own site, or someone's project page.
+      return host === "2three1y.github.io" ? "Go to Carter's website" : "Go to " + host;
+    }
+  }
+  return "Go to " + host;
+}
+// The name VoiceOver reads, worked out the same way: aria-label, then aria-labelledby, then the text and image names inside.
+function lcTipText(el) {
+  let s = "";
+  el.childNodes.forEach(function (n) {
+    if (n.nodeType === 3) s += n.nodeValue;
+    else if (n.nodeType === 1) {
+      if (n.getAttribute("aria-hidden") === "true" || n.hidden) return;
+      const t = n.tagName.toLowerCase();
+      if (t === "img") s += " " + (n.getAttribute("alt") || "") + " ";
+      else if (t === "svg") s += " " + (n.getAttribute("aria-label") || "") + " ";
+      else if (t !== "script" && t !== "style") s += " " + lcTipText(n) + " ";
+    }
+  });
+  return s;
+}
+function lcTipName(el) {
+  const al = el.getAttribute("aria-label"); if (al && al.replace(/[\ue000-\uf8ff]/g, "").trim()) return al.replace(/[\ue000-\uf8ff]/g, "").replace(/\s+/g, " ").trim();
+  const lb = el.getAttribute("aria-labelledby");
+  if (lb) { const t = lb.split(/\s+/).map(function (i) { const e = document.getElementById(i); return e ? e.textContent : ""; }).join(" ").replace(/\s+/g, " ").trim(); if (t) return t; }
+  return lcTipText(el).replace(/[\ue000-\uf8ff]/g, "").replace(/\s+/g, " ").trim();
+}
+// Exact names (lower case, counts and "▾" taken off) and what pressing them does.
+const LC_TIP_NAMES = {
+  "create": "Makes a Dream, Circle or List", "home": "Goes to Home", "discover": "Goes to Discover", "inbox": "Goes to your Inbox",
+  "profile": "Goes to your profile", "more": "Shows more options", "menu": "Opens the menu settings",
+  "back": "Goes to the previous screen", "cancel": "Closes without saving", "close": "Closes this window", "\u2715": "Closes this window",
+  "done": "Finishes and closes this", "save": "Saves your changes", "send": "Sends it now", "undo": "Takes back the last change",
+  "reset": "Puts these settings back to default", "skip": "Skips this step", "later": "Asks you again later", "dismiss": "Hides this notice",
+  "dismiss notice": "Hides this notice", "discard": "Throws away your changes", "continue editing": "Goes back to your changes",
+  "add": "Adds it to the list", "delete": "Deletes it for good", "recover": "Brings it back", "view": "Opens your profile",
+  "update": "Loads the newest Looscid", "reload app": "Restarts Looscid", "run": "Runs the command", "stop": "Stops it",
+  "unlock": "Opens it with your passcode", "block": "Hides them from you everywhere", "no thanks": "Closes this and keeps going",
+  "yes, help improve": "Shares anonymous usage info", "keep my keys": "Keeps your keys on this device",
+  "yes, remove my keys too": "Deletes your keys from this device", "keep list": "Closes this and keeps it",
+  "make list": "Makes a new List", "manage lists": "Opens your Lists", "delete list": "Deletes this List",
+  "rename list": "Gives this List a new name", "edit profile": "Changes your name, bio and links",
+  "view your profile": "Opens your profile", "invite friends": "Shares your invite link", "copy looscidid": "Copies your LooscidID",
+  "copy nostr public key": "Copies your public key", "copy key": "Copies the key", "copy npub": "Copies your public key",
+  "show key": "Shows the key on screen", "save key": "Keeps this key on this device", "create key": "Makes a new key",
+  "create a new key on this device": "Makes a new key here", "i already have a key (last resort)": "Lets you paste your key",
+  "i saved my key": "Goes on to the next step", "remove key from this device": "Deletes the key from this device",
+  "create a looscidid": "Starts making your LooscidID", "login to your looscidid": "Signs you in", "log in": "Signs you in",
+  "login with my nostr signer extension": "Signs in with your extension", "use my nostr signer extension": "Signs in with your extension",
+  "use my signer": "Signs in with your signer", "logout": "Signs you out of Looscid", "log out": "Signs you out of Looscid",
+  "stay local": "Keeps your Dreams on this device", "switch to server": "Moves your Dreams to a server",
+  "set up looscid": "Starts the setup", "continue to setup": "Goes on to setup", "skip intro": "Goes straight to setup",
+  "skip, i'm just browsing": "Looks around without signing in", "welcome intro": "Plays the welcome again",
+  "change passcode": "Picks a new passcode", "remove passcode": "Turns the passcode off", "lock with passcode": "Locks Looscid with a passcode",
+  "lock the dev menu": "Hides the Dev menu again", "dev menu": "Opens tools for developers", "check for updates": "Looks for a newer Looscid",
+  "export all settings": "Saves your settings to a file", "export my data": "Saves your data to a file",
+  "clear local cache": "Frees space on this device", "delete local data": "Erases Looscid data on this device",
+  "reset local profile": "Starts your profile over", "delete all chats": "Erases every chat on this device",
+  "clear learned habits": "Forgets what Looscid learned", "forget what cherry knows about my media": "Clears Cherry's media memory",
+  "refresh system info": "Reads the system info again", "show version.json": "Shows the build file",
+  "play a test sound": "Plays a sound to check volume", "test earcons": "Plays every earcon once", "preview boot chime": "Plays the start sound",
+  "preview every pitch cue": "Plays each pitch cue", "preview a keyboard click": "Plays the key sound",
+  "preview a command earcon": "Plays the command sound", "preview the delete key": "Plays the Delete key sound",
+  "preview the enter key": "Plays the Enter key sound", "preview the space key": "Plays the Space key sound",
+  "remove your soundpack": "Goes back to the built-in sounds", "add photo": "Picks a photo to add", "add poll": "Adds a poll to this Dream",
+  "add poll to dream": "Adds the poll to your Dream", "add option": "Adds another choice", "add rule": "Adds another rule",
+  "remove rule": "Takes this rule off", "add link": "Adds a new link", "attach link": "Adds a link to this Dream",
+  "attach: link, location and more": "Shows things you can attach", "insert symbol": "Opens the symbol list",
+  "add relay": "Adds this relay", "use default relays": "Goes back to the usual relays", "add shortcut": "Adds a new shortcut",
+  "approve dream": "Lets this Dream show", "reject dream": "Keeps this Dream hidden", "delete dream": "Deletes this Dream for good",
+  "open deleted dream": "Shows the deleted Dream", "next dream": "Goes to the next Dream", "previous dream": "Goes to the previous Dream",
+  "hear dream": "Reads the Dream aloud", "hear thread": "Reads the whole thread aloud", "stop reading aloud": "Stops the voice",
+  "show dream": "Shows the hidden Dream", "hide dream": "Hides this Dream again", "show reply": "Shows the hidden reply", "hide reply": "Hides this reply again",
+  "show preview": "Shows how it will look", "remove preview": "Takes the link preview off", "full screen": "Fills the screen with it",
+  "follow thread": "Alerts you about new replies", "manage followed threads": "Opens your Followed Threads",
+  "direct message": "Starts a private chat", "send a message": "Starts a private chat", "new chat": "Starts a new chat",
+  "new chat with cherry": "Starts a new Cherry chat", "mark all as read": "Clears every unread mark", "mark all read": "Clears every unread mark",
+  "clear all filters": "Shows everything again", "find people in discover": "Goes to Discover to find people",
+  "create circle": "Makes the Circle", "share circle": "Shares a link to this Circle", "open circle": "Goes into this Circle",
+  "circle settings": "Opens this Circle's settings", "circle admin settings": "Opens admin tools for this Circle",
+  "save circle settings": "Saves this Circle's changes", "next: circle rules": "Goes on to the rules", "next: settings": "Goes on to settings",
+  "message settings": "Opens chat settings", "accessibility settings": "Opens Accessibility settings",
+  "cherry settings: memory, tools and what cherry did": "Opens Cherry's settings", "turn on cherry in intelligence": "Opens Cherry's settings",
+  "credits and open source": "Opens the credits", "privacy policy": "Opens the Privacy Policy", "terms": "Opens the Terms",
+  "pin as a tab": "Adds it to your tab bar", "unpin this tab": "Takes it off your tab bar", "pin to home": "Shows it on your Home",
+  "unpin from home": "Takes it off your Home", "move up": "Moves it one spot up", "move down": "Moves it one spot down",
+  "back to the usual order": "Puts the order back", "reset to default order": "Puts the order back", "reset names to default": "Puts the names back",
+  "no limit": "Takes the limit off", "screen reader tips (optional)": "Shows tips for screen readers",
+  "ask me again: how do you use your device?": "Asks the setup question again", "start the course over": "Clears your course progress",
+  "finish the course": "Marks the course as done", "next lesson": "Goes to the next lesson", "previous lesson": "Goes to the previous lesson",
+  "all lessons": "Shows every lesson", "try again now": "Tries to connect again", "open the commands page": "Shows every command",
+  "open it on github": "Go to GitHub", "source code on github": "Go to GitHub", "looscid on x": "Go to X",
+  "report a bug": "Tells Looscid what went wrong", "search": "Finds articles that match", "subscribe to status updates": "Gets alerts when Looscid has problems",
+  "showing alerts": "Switches between Alerts and Chats", "showing chats": "Switches between Alerts and Chats",
+  "done viewing as others": "Goes back to your own view", "back to links": "Goes back to your links", "invite": "Shares an invite",
+  "like": "Adds it to your likes", "unlike": "Takes it off your likes", "follow": "Shows their Dreams in Following",
+  "following": "Stops following them", "reply": "Writes a reply", "dream": "Writes a new Dream", "circle": "Makes a new Circle",
+  "list": "Makes a new List", "settings": "Opens Settings", "help": "Opens the Help Center", "help center": "Opens the Help Center",
+  "send feedback": "Shares what you think", "drafts": "Opens your saved drafts", "looscidid": "Opens your LooscidID settings",
+  "collapse thread": "Hides the replies", "expand thread": "Shows the replies", "leave group": "Leaves this group chat", "join group": "Joins this group chat",
+  "chats settings": "Opens chat settings", "alerts settings": "Opens alert settings", "chat options": "Shows options for this chat",
+  "alert options": "Shows options for this alert", "close menu": "Closes this menu", "dreamor options": "Shows options for this person",
+  "read back my reply": "Reads your reply aloud", "read back my dream": "Reads your Dream aloud",
+  "ask cherry to write this reply": "Lets Cherry draft it", "ask cherry to write this dream": "Lets Cherry draft it",
+  "test the read-aloud voice": "Plays a sample of the voice", "use this pack": "Switches to these sounds", "using your pack": "Keeps these sounds on",
+  "go over lesson 1 again": "Starts the course again", "continue to your server": "Opens your server", "opening your server\u2026": "Opens your server",
+  "link bluesky": "Connects your Bluesky", "logging in\u2026": "Connects your Bluesky", "checking\u2026": "Checks the ID",
+  "suggest alt text": "Lets Cherry describe the photo", "open legal": "Opens the legal pages", "open contact us": "Shows ways to get in touch",
+  "status": "Shows if Looscid is working", "clear screen": "Clears the Commandbar output", "sort: latest": "Changes how Dreams are sorted",
+};
+// Patterns: the first that matches wins. Names with a person, a Circle or a number in them land here.
+const LC_TIP_RULES = [
+  [/, looscidid, security\b/, "Opens your LooscidID settings"], [/^test the read-aloud voice/, "Plays a sample of the voice"],
+  [/, [\d,]+ followers?$/, "Opens their profile"], [/, collapse$/, "Hides the replies"], [/, expand$/, "Shows the replies"],
+  [/^[\d,]+ repl(y|ies)$/, "Opens the replies"], [/^[\d,]+ likes?$/, "Shows who liked it"], [/^close .*menu$/, "Closes this menu"],
+  [/^(start|continue with) lesson\b/, "Opens this lesson"], [/^link .+ id$/, "Connects it to your LooscidID"], [/^commandbar output\b/, "Shows or hides the output"],
+  [/^back to (.+)$/, "Goes to the previous screen"], [/^back\b/, "Goes to the previous screen"],
+  [/^close\b/, "Closes this window"], [/^cancel\b/, "Closes without saving"],
+  [/^save name for /, "Saves the new name"], [/^save\b/, "Saves your changes"],
+  [/^move .+ to top$/, "Moves it to the top"], [/^move .+ up$/, "Moves it one spot up"], [/^move .+ down$/, "Moves it one spot down"],
+  [/^preview the .+ pack$/, "Plays a sample of these sounds"], [/^preview .+ from your pack$/, "Plays the sound from your pack"],
+  [/^preview /, "Plays the sound once"], [/^play a test sound/, "Plays a sound to check volume"],
+  [/^(play|pause) .+ player$|^stop .+ player$/, "Starts or stops the music"], [/^play\b/, "Starts playing"], [/^pause\b/, "Pauses it"],
+  [/^copy\b/, "Copies it"], [/^remove .+ login$/, "Takes this sign-in method off"], [/^remove .+ link$/, "Takes this link off your profile"],
+  [/^remove relay\b/, "Stops using this relay"], [/^remove shortcut\b/, "Deletes this shortcut"], [/^remove option\b/, "Takes this choice off"],
+  [/^remove photo\b/, "Takes this photo off"], [/^permanently remove .+ from history$/, "Deletes it from your history"],
+  [/^remove @/, "Takes this person off"], [/^remove .+ from /, "Takes them out"], [/^remove\b/, "Takes it off"],
+  [/^delete\b/, "Deletes it for good"], [/^reset all .+ settings$/, "Puts these settings back to default"], [/^reset selected/, "Puts the picked ones back"],
+  [/^reset\b/, "Puts it back to default"], [/^undo\b/, "Takes back the last change"],
+  [/^unfollow thread\b/, "Stops alerts about new replies"], [/^follow thread\b/, "Alerts you about new replies"],
+  [/^unfollow\b/, "Stops following them"], [/^follow\b/, "Shows their Dreams in Following"], [/^following\b/, "Stops following them"],
+  [/^unblock\b/, "Lets them reach you again"], [/^block\b/, "Hides them from you everywhere"],
+  [/^unlike search\b/, "Takes this search off your likes"], [/^like search\b/, "Saves this search to your likes"],
+  [/^unlike\b/, "Takes it off your likes"], [/^like\b/, "Adds it to your likes"],
+  [/^approve\b/, "Lets them in"], [/^decline\b/, "Turns down the request"], [/^invite\b/, "Sends them an invite"],
+  [/^join the .+ circle$/, "Joins this Circle"], [/^join\b/, "Joins it"], [/^leave\b/, "Leaves it"],
+  [/^reply to\b/, "Writes a reply"], [/^tag\b/, "Adds this tag"], [/^insert\b/, "Types it in"], [/^use\b/, "Picks this one"],
+  [/^add another\b/, "Adds one more"], [/^add\b/, "Adds it"],
+  [/^view .+'s profile$/, "Opens their profile"], [/^member options for /, "Shows options for this member"], [/^admin actions for /, "Shows admin tools for them"],
+  [/^more in\b/, "Shows more articles like this"], [/^more, /, "Shows more options"], [/ options$|^options\b/, "Shows more options"],
+  [/^open (.+)$/, function (m) { return /^(chats|dreams|settings|getting started)/.test(m[1]) ? "Shows these settings" : "Goes there now"; }],
+  [/^show all\b/, "Shows the whole list"], [/^show\b/, "Shows it"], [/^hide\b/, "Hides it"],
+  [/^links: /, "Shows all their links"], [/^\d+ followers?$/, "Shows who follows them"], [/^\d+ following$/, "Shows who they follow"],
+  [/^lesson \d+/, "Opens this lesson"], [/^suggest alt text/, "Lets Cherry describe the photo"], [/^recipe card: /, "Shows the build details"],
+  [/^check(ing)?\b/, "Checks it now"], [/^next\b/, "Goes to the next step"], [/^previous\b/, "Goes to the previous step"],
+  [/^skip\b/, "Skips this step"], [/^continue\b/, "Goes on to the next step"], [/^start\b/, "Starts it"], [/^stop\b/, "Stops it"],
+  [/^turn (on|off)\b/, "Changes this setting"], [/^find\b/, "Searches for it"], [/^report\b/, "Sends a report"],
+  [/^send\b/, "Sends it now"], [/^share\b/, "Shares a link to it"], [/^pin: /, "Changes what to pin"], [/^pin\b/, "Pins it"], [/^unpin\b/, "Unpins it"],
+];
+const LC_TIP_TABLISTS = [ // what a tab does, by the name of its tab list
+  [/main navigation/, function (n, k) { return LC_TIP_NAMES[k] || "Goes to " + n; }],
+  [/filter/, function (n, k) { return k === "all" ? "Shows every alert" : "Shows only " + n; }],
+  [/feeds/, function (n) { return "Shows the " + n + " feed"; }],
+];
+function lcTipKey(name) {
+  return name.toLowerCase().replace(/[\u25be\ue000-\uf8ff]/g, "").replace(/\s*\(\d[\d,]*\)\s*/g, " ").replace(/\s*,\s*(selected|done|pinned to home|shown on your profile|only you|verified)\b.*$/, "").replace(/\s+/g, " ").trim();
+}
+function lcTipFor(el, name) {
+  const tag = el.tagName.toLowerCase(), role = el.getAttribute("role") || "";
+  if (tag === "a" && role !== "button" && role !== "tab") return lcTipPlace(el);
+  const k = lcTipKey(name); if (!k) return null;
+  const cls = String(el.className && el.className.baseVal !== undefined ? el.className.baseVal : el.className || "");
+  if (role === "tab") {
+    const tl = el.closest('[role="tablist"]'), tln = tl ? lcTipKey(tl.getAttribute("aria-label") || "") : "";
+    for (let i = 0; i < LC_TIP_TABLISTS.length; i++) if (LC_TIP_TABLISTS[i][0].test(tln)) return LC_TIP_TABLISTS[i][1](name.replace(/\s*\(\d[\d,]*\)\s*/g, " ").trim(), k);
+    return k === "all" ? "Shows everything" : "Shows " + name.replace(/\s*\(\d[\d,]*\)\s*/g, " ").trim();
+  }
+  if (/\blc-cmds-run\b/.test(cls)) return "Runs this command";
+  if (/\blc-pick\b/.test(cls)) return "Shows the choices";
+  if (Object.prototype.hasOwnProperty.call(LC_TIP_NAMES, k)) return LC_TIP_NAMES[k];
+  for (let i = 0; i < LC_TIP_RULES.length; i++) {
+    const m = LC_TIP_RULES[i][0].exec(k);
+    if (m) return typeof LC_TIP_RULES[i][1] === "function" ? LC_TIP_RULES[i][1](m) : LC_TIP_RULES[i][1];
+  }
+  const first = name.replace(/[\ue000-\uf8ff]/g, "").split(/\s*,\s+|\s*\u25be|\.\s/)[0].replace(/\s*\([^)]*\)\s*$/, "").trim();
+  if (/\blmenu-btn\b/.test(cls) || el.getAttribute("aria-haspopup") === "menu" || el.getAttribute("aria-haspopup") === "listbox") return "Shows the choices";
+  if (/\blc-reset\b/.test(cls)) return "Puts these settings back to default";
+  if (/\blc-create-opt\b/.test(cls)) return "Makes a new " + first;
+  if (el.hasAttribute("aria-expanded")) return el.getAttribute("aria-expanded") === "true" ? "Hides what's inside" : "Shows what's inside";
+  if (/\b(mitem|lc-i27-row|lc-ios-row|lc-cat)\b/.test(cls)) return "Opens " + first;
+  if (el.getAttribute("aria-haspopup") === "dialog" || el.getAttribute("aria-haspopup") === "true") return "Opens " + first;
+  return "Opens " + first;
+}
+function lcTipStamp() {
+  if (typeof document === "undefined" || !document.body) return;
+  document.querySelectorAll('button, [role="button"], [role="tab"], a[href]').forEach(function (el) {
+    const role = el.getAttribute("role");
+    if (role && role !== "button" && role !== "tab") return; // switches, checkboxes, radios, menu items keep VoiceOver's own words
+    if (el.hasAttribute("title") && !el.hasAttribute("data-lctip")) return; // a title written in the code stays
+    if (el.getAttribute("data-lctip") === "off") return;
+    const name = lcTipName(el);
+    let tip = name ? lcTipFor(el, name) : null; // with no name, a title would become the name, so none
+    if (tip && tip.replace(/[^a-z0-9]/gi, "").toLowerCase() === name.replace(/[^a-z0-9]/gi, "").toLowerCase()) tip = null;
+    if (!tip) { if (el.hasAttribute("data-lctip")) { el.removeAttribute("title"); el.removeAttribute("data-lctip"); } return; }
+    if (el.getAttribute("title") !== tip) { el.setAttribute("title", tip); el.setAttribute("data-lctip", "1"); }
+  });
+}
+function lcTipSoon() { if (Looscid.LC_TIP_RAF) return; Looscid.LC_TIP_RAF = requestAnimationFrame(function () { Looscid.LC_TIP_RAF = 0; lcTipStamp(); }); }
+function lcTipWatch() {
+  if (Looscid.LC_TIP_MO || typeof MutationObserver === "undefined") return;
+  Looscid.LC_TIP_MO = new MutationObserver(lcTipSoon);
+  // Names change ("Follow" to "Following", counts), so text and labels are watched too. Not title itself: that would loop.
+  Looscid.LC_TIP_MO.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["aria-label", "aria-labelledby", "href", "role", "aria-expanded"] });
+  lcTipStamp();
+}
+Object.assign(Looscid, { lcTipStamp, lcTipFor, lcTipName, lcTipPlace });
 // Commands and Cherry: every braille-style action (queue 4g).
 function lcBrIntent(raw) {
   const n = lcNorm(raw); let m;
@@ -7543,7 +7791,7 @@ function App() {
   useEffect(() => {
     try { performance.mark("looscid-interactive"); } catch (e) {}
     if (!window.__lcLoadedSaid) { window.__lcLoadedSaid = true; announce("Looscid loaded"); }
-    lcBrWatch(); lcBnavRoom();
+    lcBrWatch(); lcTipWatch(); lcBnavRoom();
   }, []);
   useEffect(() => {
     let mq; try { mq = window.matchMedia("(prefers-reduced-motion: reduce)"); } catch (e) { return; }
