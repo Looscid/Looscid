@@ -212,6 +212,7 @@ function getSavedTheme() { try { return localStorage.getItem(THEME_KEY); } catch
 function saveTheme(t) { try { localStorage.setItem(THEME_KEY, t); } catch (e9) {} }
 function applyTheme(theme) {
   const root = document.documentElement;
+  root.setAttribute("data-lc-theme", theme === "light" ? "light" : "dark"); // the iOS 27 Settings look reads this (css/a11y.css)
   if (theme === "light") {
     const vars = {"--bg":"#f5f5f7","--sf":"#ffffff","--sf2":"#f0f0f5","--sf3":"#e5e5ea",
       "--bd":"#d1d1d6","--bd2":"#c7c7cc","--tx":"#1c1c1e","--tx2":"#3a3a3c","--tx3":"#8e8e93"};
@@ -1792,8 +1793,8 @@ const LC_FIND_STATIC = [
   { l: "Menu button position", w: "menu top bottom one handed position", page: "settings_cz_menu", focus: "cz-menupos", where: "Settings, Customization, Menu" },
   { l: "Menu Close buttons", w: "menu close button top bottom", page: "settings_cz_menu", focus: "cz-topclose", where: "Settings, Customization, Menu" },
   { l: "Character limit", w: "character limit length dream posting", page: "settings_cz_posting", focus: "cz-charlimit", where: "Settings, Customization, Dreaming" },
-  { l: "Keys and IDs", w: "nostr npub key fediverse mastodon bluesky handle link id keys login", page: "settings_account", data: { tab: "keys" }, focus: "lid-panel-h", where: "Settings, LooscidID" },
-  { l: "Nostr key", w: "nostr key nsec npub passcode signer relays create key secret key dream on nostr", page: "settings_account", data: { tab: "keys" }, focus: "nostr-key-h", where: "Settings, LooscidID, Keys and IDs" },
+  { l: "Keys and IDs", w: "nostr npub key fediverse mastodon bluesky handle link id keys login", page: "settings_account", data: { tab: "keys" }, where: "Settings, Security" },
+  { l: "Nostr key", w: "nostr key nsec npub passcode signer relays create key secret key dream on nostr", page: "settings_account", data: { tab: "keys" }, focus: "nostr-key-h", where: "Settings, Security, Keys and IDs" },
   { l: "Labs", w: "looscid labs and coming soon planned roadmap", page: "settings_labs", where: "Settings, General" },
   { l: "Apps", w: "apps nexos insomnia memeprojects meme projects easyconvert desktop kernel app store", page: "nexos_apps", where: "Menu, Apps" },
   { l: "Looscid App Store", w: "app store nexos app store store apps install", page: "nexos_apps", focus: "lc-nx-shell-store", where: "Apps, Desktop" },
@@ -1843,7 +1844,8 @@ function lcSettingIndex() {
     out.push({ l: c.l, w: (c.sub || "") + " " + (c.old || ""), where: g[0], page: c.page }); }); });
   (Looscid.LC_SR_TABS || []).forEach(function (t) { out.push({ l: lcSrName(t[0]), w: "sense screen reader " + t[0], where: "Settings, Accessibility, Sense", page: "settings_a11y_sr", tab: t[0], isPage: true }); });
   (Looscid.LC_PRIV_SECS || []).forEach(function (p) { out.push({ l: p[1], w: "privacy " + (p[2] || ""), where: "Settings, Privacy", page: "settings_privacy", priv: p[0], isPage: true }); });
-  (Looscid.LID_TABS || []).forEach(function (t) { if (t[0] === "keys" || t[0] === "home") return; out.push({ l: t[1], w: "looscidid account " + t[0], where: "Settings, LooscidID", page: "settings_account", data: { tab: t[0] }, focus: "lid-panel-h", isPage: true }); });
+  // Oct 31 2026: the key and login pages live in Security now; the search says so ("Login methods, Security").
+  (Looscid.LID_TABS || []).forEach(function (t) { if (t[0] === "keys" || t[0] === "home") return; const par = (Looscid.LID_PARENT || {})[t[0]]; out.push({ l: t[1], w: "looscidid account " + t[0] + (t[0] === "security" ? " key passcode password login secret nsec backup sign in sign out server session" : ""), where: t[0] === "security" ? "Settings" : par === "security" ? "Settings, Security" : "Settings, LooscidID", page: "settings_account", data: { tab: t[0] }, isPage: true }); });
   out.forEach(function (e) { e.where = lcIosWhere(e.where); if (e.page && !e.focus && !e.reset) e.isPage = true; });
   return out;
 }
@@ -1924,10 +1926,13 @@ function LcSettingFind({ navigate, onClose, q: qIn, setQ: setQIn }) {
   const res = q.trim() ? lcFindSettings(q) : [];
   const shown = all ? res : res.slice(0, 25);
   return lh('div', { className: "lc-setfind", role: "search", "aria-label": "Settings" },
-    lh('label', { htmlFor: "lc-setfind-q", className: "lmenu-label lc-ios-searchl" }, "Search"),
-    lh('input', { id: "lc-setfind-q", type: "search", className: "lc-input lc-ios-search", value: q, enterKeyHint: "search", autoComplete: "off", autoCorrect: "off", autoCapitalize: "off", spellCheck: false,
+    // Oct 31 2026 (Carter, 11:33 PM): the Search field sits at the top, iOS 27 style: a rounded field with a magnifier.
+    // Its name is "Search settings"; typing filters live and says the count politely (lcAnnounceCount).
+    lh('label', { htmlFor: "lc-setfind-q", className: "lmenu-label lc-ios-searchl sr-only" }, "Search settings"),
+    lh('div', { className: "lc-i27-sbox" }, lh(LcI27Glyph, { g: "search", size: 17, cls: "lc-i27-sgl" }),
+    lh('input', { id: "lc-setfind-q", type: "search", className: "lc-input lc-ios-search", value: q, placeholder: "Search", enterKeyHint: "search", autoComplete: "off", autoCorrect: "off", autoCapitalize: "off", spellCheck: false,
       onChange: function (e) { const v = e.target.value; setQ(v); setAll(false); lcAnnounceCount(v, lcFindSettings(v).length, "setting found", "settings found"); },
-      onKeyDown: function (e) { if (e.key === "Enter") { e.preventDefault(); if (res.length) { if (onClose) onClose(); lcGoSetting(res[0], navigate); } } else if (e.key === "ArrowDown" && res.length) { e.preventDefault(); const b = document.querySelector(".lc-setfind-res button"); if (b) b.focus(); } else if (e.key === "Escape" && q) { e.preventDefault(); e.stopPropagation(); setQ(""); } } }),
+      onKeyDown: function (e) { if (e.key === "Enter") { e.preventDefault(); if (res.length) { if (onClose) onClose(); lcGoSetting(res[0], navigate); } } else if (e.key === "ArrowDown" && res.length) { e.preventDefault(); const b = document.querySelector(".lc-setfind-res button"); if (b) b.focus(); } else if (e.key === "Escape" && q) { e.preventDefault(); e.stopPropagation(); setQ(""); } } })),
     q.trim() && !res.length ? lh('p', { className: "lc-desc" }, "No settings match \u201c" + q.trim() + "\u201d.") : null,
     res.length ? lh('ul', { className: "lc-setfind-res lc-ios-list", role: "list", "aria-label": "Results (" + res.length + ")" }, shown.map(function (e, i) {
       const path = lcWhereShort(e.where);
@@ -2494,6 +2499,9 @@ function lcMoreSections(o) {
       { id:"customization", grp:"you", icon:"Customizability", label:"Customization", action(){onClose();navigate("settings_customizability");} },
       { id:"cherry", grp:"you", icon:"Intelligence", label:"Cherry", action(){onClose();navigate("settings_intelligence");} },
       { id:"looscidid", grp:"id", icon:"LooscidID", label:"LooscidID", sub:"Keys, logins and devices", action(){onClose();navigate("settings_account");} },
+      // Oct 31 2026 (Carter, 11:28 PM: "the settings for LooscidID, the key and login should be in Security"): Security has
+      // its own row, under the LooscidID card: your key, passcode, login methods, backup file, the Looscid server and devices.
+      { id:"security", grp:"sec", icon:"Privacy", label:"Security", action(){onClose();navigate("settings_account", { tab: "security", from: "settings" });} },
       { id:"general", grp:"gen", icon:"Settings", label:"General", action(){onClose();navigate("settings_general");} },
       { id:"helpcenter", grp:"help", icon:"Help", label:"Help Center", action(){onClose();navigate("helpcenter");} },
       // Round 7.38 (Carter, Oct 26 2026 5:21 PM: "Logout should also be in the Settings menu", one word, like Login): the
@@ -2659,7 +2667,7 @@ const LC_SET_ORDER_KEY = "looscid_settings_order", LC_SET_ORDER_MODE_KEY = "loos
 function lcSetOrderMode() { try { const v = localStorage.getItem(LC_SET_ORDER_MODE_KEY); return v === "alpha" || v === "custom" ? v : "default"; } catch (e) { return "default"; } }
 function lcSetOrderSaved() { try { const o = JSON.parse(localStorage.getItem(LC_SET_ORDER_KEY) || "[]"); return Array.isArray(o) ? o.map(String) : []; } catch (e) { return []; } }
 // The rows that can move: everything except LooscidID (first), Help Center and Logout (last), in their default order.
-function lcSetMovable(items) { return items.filter(function (it) { return it.grp !== "id" && it.grp !== "help" && it.grp !== "logout"; }); }
+function lcSetMovable(items) { return items.filter(function (it) { return it.grp !== "id" && it.grp !== "help" && it.grp !== "logout" && it.grp !== "sec"; }); }
 function lcSetOrdered(items, mode) {
   const mv = lcSetMovable(items);
   if (mode === "alpha") return mv.slice().sort(function (a, b) { return a.label.localeCompare(b.label); });
@@ -2671,63 +2679,186 @@ function lcSetOrdered(items, mode) {
 function lcSetOrderTick() { try { window.dispatchEvent(new CustomEvent("looscid:setorder")); } catch (e) {} }
 function useSetOrderTick() { const [, t] = useState(0); useEffect(function () { const f = function () { t(function (x) { return x + 1; }); }; window.addEventListener("looscid:setorder", f); return function () { window.removeEventListener("looscid:setorder", f); }; }, []); }
 function lcSetRowId(label) { return "set-row-" + String(label).replace(/[^a-z0-9]+/gi, "-").toLowerCase(); }
-function lcSetRow(it) {
-  return lh('li', { key: it.id, className: "mli" }, lh('button', { type: "button", id: lcSetRowId(it.label), className: "mitem lc-ios-row", onClick: it.action },
-    lh('span', { className: "mitem-ic lc-ios-ic lc-ios-ic-" + it.id, "aria-hidden": "true" }, LC_SET_ICON[it.id] && Ic[LC_SET_ICON[it.id]] ? lh(Ic[LC_SET_ICON[it.id]], { style: { width: 17, height: 17 }, "aria-hidden": "true", focusable: "false" }) : null),
-    lh('span', { className: "mitem-lbl" }, it.label),
-    lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })));
+/* === iOS 27 SETTINGS LOOK (Carter, Oct 31 2026 11:28 PM: "settings need to look like iOS 27 Settings", from his own
+   screenshot) ======================================================================================================
+   A big left "Settings" title, the Search field under it, your LooscidID card on top (avatar, name, @handle and your npub
+   with Copy), then rounded cards of rows: a small colored tile with a white glyph, the name, a gray value, and an arrow.
+   Visual only, for the screen reader nothing about the order changes: the rows are still ONE list (Touch-style, Oct 30),
+   so swipes and arrow keys go straight down and "Bottom" is said at the end; the cards are drawn with CSS on the list
+   items (lc-g-first / lc-g-last). Every row is a real button whose name carries its value ("Mode, Server, ..."). The
+   tiles and arrows are decoration (aria-hidden): no meaning is carried by color. Glyphs are our own inline SVG. */
+const LC_I27_GLYPH = {
+  person: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM5 20a7 7 0 0 1 14 0",
+  shield: "M12 3l7 3v5c0 4.5-3 8.4-7 10-4-1.6-7-5.5-7-10V6z",
+  check: "M12 3l7 3v5c0 4.5-3 8.4-7 10-4-1.6-7-5.5-7-10V6zM9 12l2 2 4-4",
+  key: "M8 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM11 11l9 9M17 17l2-2M14.5 14.5l2-2",
+  lock: "M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3",
+  cloud: "M7 18h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5 1.5A3.5 3.5 0 0 0 7 18z",
+  doc: "M7 3h7l4 4v14H7zM14 3v4h4M12.5 11v6M9.5 14l3 3 3-3",
+  phone: "M8 3h8a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM11 18h2",
+  data: "M5 6c0-1.7 3.1-3 7-3s7 1.3 7 3-3.1 3-7 3-7-1.3-7-3zM5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3",
+  grid: "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z",
+  link: "M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1",
+  mode: "M4 8h14l-3.5-3.5M20 16H6l3.5 3.5",
+  a11y: "M12 6.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM5 8.5l7 1.5 7-1.5M12 10v4.5L9 20M12 14.5l3 5.5",
+  speaker: "M4 9h4l5-4v14l-5-4H4zM16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11",
+  bell: "M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 20.5a2 2 0 0 0 4 0",
+  bubble: "M4 5h16v11H10l-5 4v-4H4z",
+  hand: "M8 13V6.5a1.5 1.5 0 0 1 3 0V11V4.5a1.5 1.5 0 0 1 3 0V11V6a1.5 1.5 0 0 1 3 0v8a7 7 0 0 1-7 7c-2.2 0-4-1-5.2-3L3.6 14.5a1.5 1.5 0 0 1 2.5-1.6L8 15",
+  sliders: "M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4",
+  sparkle: "M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z",
+  gear: "M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4zM10.3 3h3.4l.5 2.5 1.8 1 2.4-.9 1.7 2.9-1.9 1.7v2.1l1.9 1.6-1.7 3-2.4-.9-1.8 1-.5 2.5h-3.4l-.5-2.5-1.8-1-2.4.9-1.7-3 1.9-1.6V10.2L3.9 8.5l1.7-2.9 2.4.9 1.8-1z",
+  help: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.3 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.4-2.7 3.8M12 17h.01",
+  clock: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2",
+  copy: "M9 9h11v11H9zM15 9V4H4v11h5",
+  chev: "M9 5l7 7-7 7",
+  back: "M15 5l-7 7 7 7",
+  search: "M10.5 17a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13zM15.5 15.5L20 20",
+};
+function LcI27Glyph({ g, size, cls }) {
+  return lh('svg', { className: cls || "lc-i27-gl", width: size || 18, height: size || 18, viewBox: "0 0 24 24", "aria-hidden": "true", focusable: "false" },
+    lh('path', { d: LC_I27_GLYPH[g] || LC_I27_GLYPH.gear, fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" }));
 }
-function lcSetGroup(key, rows, foot) {
-  return lh(React.Fragment, { key: key },
-    lh('ul', { className: "mlist lc-ios-list", role: "list", id: "set-grp-" + key }, rows.map(lcSetRow)),
-    null);
+// The tile color and glyph for each Settings row (decoration only).
+const LC_I27_ROW = {
+  looscidid: ["person", "#8e8e93"], mode: ["mode", "#34c759"], security: ["shield", "#007aff"],
+  accessibility: ["a11y", "#0a84ff"], earcons: ["speaker", "#ff2d55"], alerts: ["bell", "#ff3b30"], chats: ["bubble", "#34c759"],
+  privacy: ["hand", "#5856d6"], customization: ["sliders", "#af52de"], cherry: ["sparkle", "#ff375f"],
+  general: ["gear", "#8e8e93"], helpcenter: ["help", "#30b0c7"],
+};
+/* One row. o: { id, k (LC_I27_ROW key) or g + c (glyph, color), label, value, sub, onClick, first, last, extra (name
+   parts said after the label but not shown), name (the whole accessible name, when given) }. The value and sub are shown;
+   the accessible name is "label, value, sub", like "Mode, Server, Synced to ... as @carter". */
+function LcI27Row(o) {
+  const t = LC_I27_ROW[o.k] || [o.g || "gear", o.c || "#8e8e93"];
+  const cls = "mli lc-i27-li" + (o.first ? " lc-g-first" : "") + (o.last ? " lc-g-last" : "") + (o.danger ? " lc-i27-dli" : "");
+  if (o.danger) return lh('li', { key: o.id, className: cls }, lh('button', { type: "button", id: o.id, className: "mitem lc-i27-row lc-i27-danger", onClick: o.onClick }, lh('span', { className: "mitem-lbl" }, o.label)));
+  // The name comes from the row's own words, in reading order: label, value, then the line under it. The value is said
+  // right after the label (hidden text) and drawn on the right (hidden from the screen reader), so the two never differ.
+  return lh('li', { key: o.id, className: cls },
+    lh('button', { type: "button", id: o.id, className: "mitem lc-i27-row", onClick: o.onClick, "aria-label": o.name || undefined },
+      lh('span', { className: "lc-i27-ic", style: { background: t[1] }, "aria-hidden": "true" }, lh(LcI27Glyph, { g: t[0] })),
+      lh('span', { className: "lc-i27-txt" },
+        lh('span', { className: "lc-i27-lbl" }, o.label, o.value ? lh('span', { className: "sr-only" }, ", " + o.value) : null),
+        o.sub ? lh('span', { className: "lc-i27-sub" }, lh('span', { className: "sr-only" }, ", "), o.sub) : null),
+      o.value ? lh('span', { className: "lc-i27-val", "aria-hidden": "true" }, o.value) : null,
+      o.noChev ? null : lh(LcI27Glyph, { g: "chev", size: 14, cls: "lc-i27-chev" })));
 }
-/* Round 7.38 (Carter, Oct 26 2026 5:24 PM): the LooscidID card reads like iOS's Apple Account row: your name, your @handle,
-   then a short line, "LooscidID, keys, logins and devices". It is the only row with values; every other row is its name. */
-const LC_SET_ID_SUB = "LooscidID, keys, logins and devices";
+// Mark the first and last row of each card. groups: arrays of row option objects; returns the flat list of rows.
+function lcI27Cards(groups) {
+  const out = [];
+  groups.filter(function (g) { return g && g.length; }).forEach(function (g) { g.forEach(function (o, i) { out.push(lh(LcI27Row, Object.assign({ key: o.id }, o, { first: i === 0, last: i === g.length - 1 }))); }); });
+  return out;
+}
+/* A screen header. Settings (large: true): the round Back button on its own line, then the big left title. Every other
+   screen: the round Back button and the title centered beside it, like iOS 27. The h1 is focusable (focus lands on it when
+   the screen opens). The Back button's name says where it goes ("Back to Settings"). */
+function LcI27Header({ title, onBack, backLabel, large, sub }) {
+  return lh('div', { className: "hdr lc-i27-hdr" + (large ? " lc-i27-hdr-lg" : "") },
+    lh('div', { className: "hdr-row lc-i27-hrow" },
+      lh('button', { type: "button", className: "bi lc-i27-back", onClick: onBack, "aria-label": backLabel || "Back" }, lh(LcI27Glyph, { g: "back", size: 20 })),
+      large ? null : lh('h1', { className: "hdr-title lc-i27-title", tabIndex: -1 }, title),
+      large ? null : lh('span', { className: "lc-i27-hspace", "aria-hidden": "true" })),
+    large ? lh('h1', { className: "hdr-title lc-i27-ltitle", tabIndex: -1 }, title) : null,
+    sub || null);
+}
+// Your npub, from your Nostr key, your linked key or your Looscid server sign-in. Encoded here (bech32), so it shows even
+// before the Nostr tools have loaded.
+function lcI27Bech32(hrp, hex) {
+  const C = "qpzry9x8gf2tvdw0s3jn54khce6mua7l", G = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
+  const bytes = []; for (let i = 0; i < hex.length; i += 2) bytes.push(parseInt(hex.substr(i, 2), 16));
+  const data = []; let acc = 0, bits = 0; bytes.forEach(function (v) { acc = (acc << 8) | v; bits += 8; while (bits >= 5) { bits -= 5; data.push((acc >> bits) & 31); } }); if (bits) data.push((acc << (5 - bits)) & 31);
+  const poly = function (vals) { let chk = 1; vals.forEach(function (v) { const b = chk >> 25; chk = ((chk & 0x1ffffff) << 5) ^ v; for (let i = 0; i < 5; i++) if ((b >> i) & 1) chk ^= G[i]; }); return chk; };
+  const hx = []; for (let i = 0; i < hrp.length; i++) hx.push(hrp.charCodeAt(i) >> 5); hx.push(0); for (let i = 0; i < hrp.length; i++) hx.push(hrp.charCodeAt(i) & 31);
+  const pm = poly(hx.concat(data).concat([0, 0, 0, 0, 0, 0])) ^ 1, ck = []; for (let i = 0; i < 6; i++) ck.push((pm >> (5 * (5 - i))) & 31);
+  return hrp + "1" + data.concat(ck).map(function (d) { return C.charAt(d); }).join("");
+}
+function lcMyNpub() {
+  try {
+    const st = Looscid.lcNostr && Looscid.lcNostr.state ? Looscid.lcNostr.state() : null;
+    if (st && st.npub) return st.npub;
+    const idn = typeof getIdentity === "function" ? getIdentity() : null;
+    if (idn && idn.npub) return idn.npub;
+    let pk = (st && st.pubkey) || (idn && idn.pubkey) || "";
+    if (!pk && Looscid.lcServer && Looscid.lcServer.cfg) { const c = Looscid.lcServer.cfg(); pk = (c && c.pubkey) || ""; }
+    if (/^[0-9a-f]{64}$/i.test(pk)) return lcI27Bech32("npub", pk.toLowerCase());
+  } catch (e) {}
+  return "";
+}
+function lcNpubShort(np) { return np && np.length > 24 ? np.slice(0, 12) + "\u2026" + np.slice(-6) : (np || ""); }
+function lcCopyNpub(np) {
+  if (!np) return;
+  if (typeof lcCopy === "function") { lcCopy(np, "npub"); return; }
+  try { navigator.clipboard.writeText(np).then(function () { announce("npub copied."); }, function () { announce("Couldn't copy your npub."); }); } catch (e) { announce("Couldn't copy your npub."); }
+}
+// The npub line with its Copy button: shown on the Settings LooscidID card and the LooscidID page.
+function LcNpubLine({ np, id }) {
+  if (!np) return lh('p', { className: "lc-i27-np lc-i27-np-none", id: id }, "No Nostr key yet. Add one in Security, Keys and IDs.");
+  return lh('div', { className: "lc-i27-np", id: id },
+    lh('p', { className: "lc-i27-np-t" }, lh('span', { className: "sr-only" }, "Your npub: "),
+      lh('span', { className: "lc-i27-np-v", "aria-hidden": "true" }, lcNpubShort(np)), lh('span', { className: "sr-only" }, np)),
+    lh('button', { type: "button", className: "lc-i27-copy", onClick: function () { lcCopyNpub(np); }, "aria-label": "Copy npub" }, lh(LcI27Glyph, { g: "copy", size: 16 }), lh('span', { "aria-hidden": "true" }, "Copy")));
+}
+function useServerTick() { const [, t] = useState(0); useEffect(function () { const f = function () { t(function (x) { return x + 1; }); }; window.addEventListener("looscid-server", f); window.addEventListener("looscid-methods", f); const iv = setInterval(f, 60000); return function () { window.removeEventListener("looscid-server", f); window.removeEventListener("looscid-methods", f); clearInterval(iv); }; }, []); }
+// The Mode row (it was the Mode line, Oct 31): "Mode", value Local or Server, and the same words the line said under it.
+function lcModeRow(id, onClick) {
+  const m = Looscid.lcServer && Looscid.lcServer.mode ? Looscid.lcServer.mode() : { sync: false };
+  const words = Looscid.lcModeText ? String(Looscid.lcModeText(m)).replace(/^Mode:\s*/, "") : "";
+  return { id: id, k: "mode", label: "Mode", value: m.sync ? "Server" : "Local", sub: words, onClick: onClick };
+}
+Object.assign(Looscid, { LcI27Row, LcI27Glyph, LcI27Header, lcI27Cards, lcMyNpub, lcNpubShort, lcCopyNpub, LcNpubLine, useServerTick, lcModeRow, LC_I27_ROW });
+function lcSetRowO(it) { return { id: lcSetRowId(it.label), k: it.id, label: it.label, onClick: it.action, value: typeof it.value === "function" ? it.value() : it.value }; }
+/* Round 7.38 / Oct 31 2026: the LooscidID card reads like iOS's Apple Account card: your name, your @handle, your npub
+   (with its own Copy button), then "LooscidID, Security, and more". */
+const LC_SET_ID_SUB = "LooscidID, Security, and more";
 function LcSettingsHome({ s, navigate, onBack }) {
-  useSetOrderTick();
+  useSetOrderTick(); useServerTick();
   const [q, setQ0] = useState(function () { return Looscid.LC_SETFIND_Q || ""; });
   const setQ = function (v) { Looscid.LC_SETFIND_Q = v; setQ0(v); };
   const items = s.items, mode = lcSetOrderMode();
   const me = (typeof ME !== "undefined" && ME) || {};
   const idItem = items.find(function (it) { return it.grp === "id"; }), help = items.filter(function (it) { return it.grp === "help"; });
   const logout = items.filter(function (it) { return it.grp === "logout"; });
+  const sec = items.filter(function (it) { return it.grp === "sec"; });
   const handle = me.handle ? "@" + String(me.handle).replace(/^@/, "") : "";
   const name = me.name || me.displayName || "Dreamor";
-  const idLi = idItem ? lh('li', { key: "looscidid", className: "mli lc-ios-idli" }, lh('button', { type: "button", id: lcSetRowId(idItem.label), className: "mitem lc-ios-row lc-ios-id", onClick: idItem.action, "aria-label": lcNameJoin(name, handle, LC_SET_ID_SUB) },
-          lh('span', { className: "lc-ios-av", "aria-hidden": "true" }, String(me.initials || name.charAt(0) || "D").slice(0, 2)),
-          lh('span', { className: "mitem-lbl", "aria-hidden": "true" }, idItem.label),           lh('span', { "aria-hidden": "true", style: { color: "var(--tx3)", textAlign: "right", maxWidth: "45%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, handle ? name + " " + handle : name),
-          lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" }))) : null;
-  let lists;
-  /* Touch-style settings (Carter, Oct 30 2026 7:42 PM): Default is ONE list, most-used first, Logout last (it asks first).
-     No group cards between rows, so arrow keys and swipes go straight down the list, and "Bottom" is said at the end.
-     Alphabetical and Custom keep LooscidID first, Help Center and Logout last, as before. */
+  const np = lcMyNpub();
+  const idLi = idItem ? lh('li', { key: "looscidid", className: "mli lc-i27-li lc-g-first lc-g-last lc-i27-idli" },
+    // Its name, from its own words: "Carter, @2three1y, npub1…, LooscidID, Security, and more".
+    lh('button', { type: "button", id: lcSetRowId(idItem.label), className: "mitem lc-i27-row lc-i27-id", onClick: idItem.action },
+      lh('span', { className: "lc-i27-av", "aria-hidden": "true" }, String(me.initials || name.charAt(0) || "D").slice(0, 2)),
+      lh('span', { className: "lc-i27-txt" },
+        lh('span', { className: "lc-i27-idname" }, name),
+        handle ? lh('span', { className: "lc-i27-sub" }, lh('span', { className: "sr-only" }, ", "), handle) : null,
+        np ? lh('span', { className: "sr-only" }, ", " + lcNpubShort(np)) : null,
+        lh('span', { className: "lc-i27-sub" }, lh('span', { className: "sr-only" }, ", "), LC_SET_ID_SUB)),
+      lh(LcI27Glyph, { g: "chev", size: 14, cls: "lc-i27-chev" })),
+    lh(LcNpubLine, { np: np, id: "set-npub" })) : null;
+  const go = function (it) { return lcSetRowO(it); };
+  // Mode and Security sit together under the LooscidID card.
+  const top = [lcModeRow("set-row-mode", function () { navigate("settings_account", { tab: "server", from: "settings" }); })].concat(sec.map(go));
+  let groups;
   if (mode === "default") {
-    lists = lh('ul', { className: "mlist lc-ios-list lc-touch-list", role: "list", id: "set-grp-main" }, items.map(function (it) {
-      if (it.grp === "id") return idLi;
-      if (it.grp === "logout") return lcSetDangerRow(it);
-      return lcSetRow(it);
-    }));
+    const by = function (ids) { return ids.map(function (k) { return items.find(function (it) { return it.id === k; }); }).filter(Boolean).map(go); };
+    const placed = ["accessibility", "earcons", "alerts", "chats", "privacy", "customization", "cherry", "general", "helpcenter"];
+    const rest = items.filter(function (it) { return placed.indexOf(it.id) < 0 && ["id", "logout", "sec"].indexOf(it.grp) < 0; }).map(go);
+    groups = [top, by(["accessibility", "earcons", "alerts", "chats"]), by(["privacy", "customization", "cherry"]), by(["general", "helpcenter"]).concat(rest)];
   } else {
-    lists = [lcSetGroup("main", lcSetOrdered(items, mode), mode === "alpha" ? "Sorted A to Z. Change the order in Customization, Settings Order." : "Your own order. Change it in Customization, Settings Order.")];
+    groups = [top, lcSetOrdered(items, mode).map(go), help.map(go)];
   }
-  return lh('div', { className: "pg lc-more-page lc-ios", id: "more-page-settings" },
-    lh(BackHeader, { title: lcMoreTitle("settings", s.label), onBack: onBack }),
-    Looscid.LcModeLine ? lh(Looscid.LcModeLine, null) : null,
+  const rows = lcI27Cards(groups);
+  const out = logout.map(function (it) { return lh(LcI27Row, { key: it.id, id: lcSetRowId(it.label), label: it.label, onClick: it.action, danger: true, first: true, last: true }); });
+  return lh('div', { className: "pg lc-more-page lc-ios lc-i27", id: "more-page-settings" },
+    // The large title is just "Settings", like iOS; the slogan is the small line under it.
+    lh(LcI27Header, { large: true, title: s.label, onBack: onBack, backLabel: "Back to More", sub: LC_MORE_SLOGANS.settings ? lh('p', { className: "lc-i27-slogan" }, LC_MORE_SLOGANS.settings) : null }),
     lh(LcSettingFind, { navigate: navigate, onClose: function () {}, q: q, setQ: setQ }),
-    q.trim() ? null : lh(React.Fragment, null,
-      mode !== "default" && idItem ? lh('ul', { className: "mlist lc-ios-list lc-ios-idcard", role: "list", id: "set-grp-id" },
-        idLi) : null,
-      lists,
-      mode !== "default" && help.length ? lcSetGroup("help", help, LC_SET_GRP_FOOT.help) : null,
-      mode !== "default" && logout.length ? lh('ul', { className: "mlist lc-ios-list lc-ios-danger", role: "list", id: "set-grp-logout" }, logout.map(lcSetDangerRow)) : null));
+    q.trim() ? null : lh('ul', { className: "mlist lc-i27-list lc-touch-list", role: "list", id: "set-grp-main" }, [idLi].concat(rows).concat(out)),
+    q.trim() || mode === "default" ? null : lh('p', { className: "lc-i27-foot" }, mode === "alpha" ? "Sorted A to Z. Change the order in Customization, Settings Order." : "Your own order. Change it in Customization, Settings Order."));
 }
-// Round 7.38: Logout, the last row in its own group, like iOS's Sign Out: red text, no icon and no arrow (it doesn't open a
+// Round 7.38: Logout, the last row in its own card, like iOS's Sign Out: red text, no icon and no arrow (it doesn't open a
 // page; it asks first). It is a plain button named "Logout".
 function lcSetDangerRow(it) {
-  return lh('li', { key: it.id, className: "mli" }, lh('button', { type: "button", id: lcSetRowId(it.label), className: "mitem lc-ios-row lc-ios-danger-row", onClick: it.action },
-    lh('span', { className: "mitem-lbl" }, it.label)));
+  return lh(LcI27Row, { key: it.id, id: lcSetRowId(it.label), label: it.label, onClick: it.action, danger: true, first: true, last: true });
 }
 Looscid.LcSettingsHome = LcSettingsHome;
 Object.assign(Looscid, { lcSetOrderMode, lcSetOrderSaved, lcSetMovable, lcSetOrdered, lcSetOrderTick, useSetOrderTick, LC_SET_ORDER_KEY, LC_SET_ORDER_MODE_KEY, lcSetRowId });
@@ -8192,7 +8323,7 @@ useEffect(() => {
       case "liked":         return React.createElement(Looscid.LikedPage, { key: "liked" + pageNonce, navigate: navigate, cherryCtx: cherryCtx,}); // build 148: Liked, in More
       case "lists":         return React.createElement(Looscid.ListsPage, { key: "lists-" + ((pdata && pdata.list) || ""), data: pdata, navigate: navigate, cherryCtx: cherryCtx,}); // build 152 prep (#99, part 4b)
       case "dp":            return pdata ? React.createElement(Looscid.DreamorProfilePage, { key: "dp" + pageNonce, user: pdata, navigate: navigate, cherryCtx: cherryCtx,}) : React.createElement(Looscid.FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
-      case "settings_account":        return React.createElement(Looscid.AccountSettings, { key: "acct-" + ((pdata && pdata.tab) || "home"), navigate: navigate, authUser: authUser, onSignOut: handleSignOut, onRenameProfile: handleRenameProfile, onUpdateProfile: handleUpdateProfile, initialTab: pdata && pdata.tab,});
+      case "settings_account":        return React.createElement(Looscid.AccountSettings, { key: "acct-" + ((pdata && pdata.tab) || "home"), navigate: navigate, authUser: authUser, onSignOut: handleSignOut, onRenameProfile: handleRenameProfile, onUpdateProfile: handleUpdateProfile, initialTab: pdata && pdata.tab, fromSettings: !!(pdata && pdata.from === "settings"),});
       case "settings_notifications":  return React.createElement(Looscid.NotificationsSettings, { navigate: navigate, prefs: prefs, setPrefs: setPrefs,});
       case "settings_privacy":        return React.createElement(Looscid.PrivacySettings, { navigate: navigate, authUser: authUser, onUpdateProfile: handleUpdateProfile,});
       case "settings_audio": case "settings_audio_volume": case "settings_audio_pack": case "settings_audio_events": case "settings_audio_haptics":
