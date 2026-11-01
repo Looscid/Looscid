@@ -1131,13 +1131,17 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
    alt "" plus aria-hidden is still there for a logo inside a card that already says Looscid. Never put it inside a heading.
    Carter, Nov 1 2026, 3:53 PM ("Bro no Alt text"): a named logo also carries role="img" and aria-label, so VoiceOver on
    iPhone always treats it as an image with that name, whatever else the page does around it. */
+/* Nov 1 2026 (Carter, 4:03 PM: "Describe it lol", "The site as no descriptions for the logo"): every named logo says what
+   it looks like, not just its name. Checked against icon-512.png: a white ring with its gap on the right (an open ring), a
+   white dot in the middle, on blue. Same words on the Help Center, changelog and status pages. */
+const LC_LOGO_ALT = "Looscid logo: a white open ring with a dot in the middle, on blue";
 function LcLogo({ size, alt, className }) {
   const named = !!alt;
   return lh('img', Object.assign({ src: LOOSCID_BASE + "assets/icons/icon-512.png?v=nl1", alt: named ? alt : "", width: size, height: size,
     className: "lc-logo" + (className ? " " + className : ""), decoding: "async", draggable: false },
     named ? { role: "img", "aria-label": alt } : { "aria-hidden": "true" }));
 }
-Looscid.LcLogo = LcLogo;
+Looscid.LcLogo = LcLogo; Looscid.LC_LOGO_ALT = LC_LOGO_ALT;
 function BackHeader({title, onBack, right, hid}) {
   return (
     React.createElement('div', { className: "hdr",}
@@ -2082,7 +2086,7 @@ function LcSiteFooter({ navigate, cur }) {
   const site = function (href, text, key) { return lh('li', { key: key }, lh('a', { href: base + href, className: "lc-link" }, text)); };
   return lh('footer', { className: "lc-footer", role: "contentinfo", "aria-labelledby": "lc-foot-title" },
     lh('h2', { id: "lc-foot-title", className: "lc-foot-title" }, "Footer"),
-    lh('p', { className: "lc-foot-brand" }, lh(LcLogo, { size: 28, alt: "Looscid" }), lh('span', { className: "lc-foot-name", "aria-hidden": "true" }, "Looscid"), lh('span', { className: "lc-foot-tag" }, "Just Dream. Open source and local first.")),
+    lh('p', { className: "lc-foot-brand" }, lh(LcLogo, { size: 28, alt: LC_LOGO_ALT }), lh('span', { className: "lc-foot-name", "aria-hidden": "true" }, "Looscid"), lh('span', { className: "lc-foot-tag" }, "Just Dream. Open source and local first.")),
     lh('div', { className: "lc-foot-grps" },
     grp("lc-foot-looscid", "Looscid", [go("settings_about", "About Looscid", "ab"), go("hour_story", "Our Story", "os"),
       // Round 7.24 (#161): the changelog is its own page on the site (every version, with its own link preview).
@@ -3822,7 +3826,7 @@ function LooscidOnboarding({ onDone }) {
     lh('div', { className: "lid-onb-in" },
       /* Build 194: the Looscid logo, bigger, on every step of the welcome screens. Named "Looscid" on every step, step 1 too
          (Carter, Nov 1 2026, 3:23 PM: "alt tex on the logo"). */
-      lh(LcLogo, { size: 88, alt: "Looscid", className: "lid-onb-logo" }),
+      lh(LcLogo, { size: 88, alt: LC_LOGO_ALT, className: "lid-onb-logo" }),
       lh('p', { className: "lid-step" }, "Step " + (step + 1) + " of " + TOTAL),
       body,
       lh('div', { className: "lid-onb-nav" },
@@ -8790,7 +8794,7 @@ useEffect(() => {
          a heading, so every page still has exactly one h1 and its spoken text is unchanged.
          Build 195 (Carter, Oct 28 2026): its alt text is just "Looscid". */
       , lh('div', { className: "lc-topbar" },
-        lh(LcLogo, { size: 40, alt: "Looscid", className: "lc-topbar-logo" }),
+        lh(LcLogo, { size: 40, alt: LC_LOGO_ALT, className: "lc-topbar-logo" }),
         React.createElement('button', { type: "button", className: "btn", onClick: () => setShowCreate(true), "aria-label": "Create", "aria-haspopup": "dialog" }, "Create"))
       , React.createElement('main', {id:"main-content", style:{display:"contents"}}, renderPage())
       , lh(LcResetHost, null)
