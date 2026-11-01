@@ -46,8 +46,9 @@
     });
     var go = document.getElementById("course-go");
     if (go && items.length) {
-      if (firstOpen < 0) { go.textContent = "Course finished. Go over Lesson 1 again"; go.href = items[0].querySelector("a").getAttribute("href"); }
-      else { go.textContent = (firstOpen === 0 && !d.length ? "Start" : "Continue with") + " Lesson " + (firstOpen + 1); go.href = items[firstOpen].querySelector("a").getAttribute("href"); }
+      if (firstOpen < 0) { go.textContent = "Course finished. Go over Lesson 1 again"; go.href = items[0].querySelector("a").getAttribute("href"); go.title = "Opens Lesson 1"; }
+      else { go.textContent = (firstOpen === 0 && !d.length ? "Start" : "Continue with") + " Lesson " + (firstOpen + 1); go.href = items[firstOpen].querySelector("a").getAttribute("href");
+        go.title = firstOpen === 0 && !d.length ? "Starts the course" : "Opens the next lesson you haven't done"; }
     }
   }
   paint();
@@ -68,11 +69,12 @@
     var q = "?course=" + m[1], n = co.lessons.length, nav = document.createElement("nav");
     bar.textContent = co.t + ": Lesson " + (idx + 1) + " of " + n; bar.hidden = false;
     nav.className = "course-nav"; nav.setAttribute("aria-label", co.t + " lessons");
-    function link(text, href, cls, onClick) { var a = document.createElement("a"); a.textContent = text; a.href = href; a.className = cls || ""; if (onClick) a.addEventListener("click", onClick); nav.appendChild(a); return a; }
-    if (idx > 0) link("Previous lesson", "../" + co.lessons[idx - 1][0] + "/" + q, "btn ghost");
-    if (idx < n - 1) link("Next: Lesson " + (idx + 2) + ", " + co.lessons[idx + 1][1], "../" + co.lessons[idx + 1][0] + "/" + q, "btn", function () { mark(m[1], here); });
-    else link("Finish the course", "../" + m[1] + "/", "btn", function () { mark(m[1], here); });
-    link("All lessons", "../" + m[1] + "/", "plain");
+    // Each link has a title hint (Carter, Nov 1 2026: hints on links), never the same words as the link.
+    function link(text, href, cls, onClick, tip) { var a = document.createElement("a"); a.textContent = text; a.href = href; a.className = cls || ""; if (tip) a.title = tip; if (onClick) a.addEventListener("click", onClick); nav.appendChild(a); return a; }
+    if (idx > 0) link("Previous lesson", "../" + co.lessons[idx - 1][0] + "/" + q, "btn ghost", null, "Opens the lesson before this one");
+    if (idx < n - 1) link("Next: Lesson " + (idx + 2) + ", " + co.lessons[idx + 1][1], "../" + co.lessons[idx + 1][0] + "/" + q, "btn", function () { mark(m[1], here); }, "Marks this lesson done and opens the next one");
+    else link("Finish the course", "../" + m[1] + "/", "btn", function () { mark(m[1], here); }, "Marks this lesson done and goes back to the course");
+    link("All lessons", "../" + m[1] + "/", "plain", null, "Goes back to the course");
     var main = document.getElementById("main"); if (main) main.appendChild(nav);
   });
 
@@ -129,6 +131,7 @@
       hits.forEach(function (h) {
         var li = document.createElement("li"), a = document.createElement("a"), p = document.createElement("p");
         a.href = h.e.u; a.textContent = h.e.t;
+        a.title = h.e.c === "Topic" ? "Opens this topic" : h.e.c === "Course" ? "Opens this course" : h.e.c === "Contact" ? "Goes to Contact Us" : "Opens this article";
         p.textContent = (h.e.c ? h.e.c + ". " : "") + h.e.s;
         li.appendChild(a); li.appendChild(p); list.appendChild(li);
       });

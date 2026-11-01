@@ -1126,8 +1126,9 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
     onSelect: function (k, it) { if (it.a) it.a(); } }));
 }
 /* Build 194: the Looscid logo, from Looscid itself (assets/icons/icon-512.png, no outside requests), sized with CSS so it
-   stays sharp on Retina. alt "" plus aria-hidden when the word Looscid is already right next to it (VoiceOver says it once);
-   alt "Looscid" when it stands alone. Never put it inside a heading. */
+   stays sharp on Retina. The logo itself reads "Looscid" (Carter, Nov 1 2026, 3:23 PM: "alt tex on the logo"); where the word
+   Looscid sits right next to it (the footer), that word is hidden from VoiceOver instead, so it is said once, by the logo.
+   alt "" plus aria-hidden is still there for a logo inside a card that already says Looscid. Never put it inside a heading. */
 function LcLogo({ size, alt, className }) {
   const named = !!alt;
   return lh('img', Object.assign({ src: LOOSCID_BASE + "assets/icons/icon-512.png?v=nl1", alt: named ? alt : "", width: size, height: size,
@@ -2078,7 +2079,7 @@ function LcSiteFooter({ navigate, cur }) {
   const site = function (href, text, key) { return lh('li', { key: key }, lh('a', { href: base + href, className: "lc-link" }, text)); };
   return lh('footer', { className: "lc-footer", role: "contentinfo", "aria-labelledby": "lc-foot-title" },
     lh('h2', { id: "lc-foot-title", className: "lc-foot-title" }, "Footer"),
-    lh('p', { className: "lc-foot-brand" }, lh(LcLogo, { size: 28 }), lh('span', { className: "lc-foot-name" }, "Looscid"), lh('span', { className: "lc-foot-tag" }, "Just Dream. Open source and local first.")),
+    lh('p', { className: "lc-foot-brand" }, lh(LcLogo, { size: 28, alt: "Looscid" }), lh('span', { className: "lc-foot-name", "aria-hidden": "true" }, "Looscid"), lh('span', { className: "lc-foot-tag" }, "Just Dream. Open source and local first.")),
     lh('div', { className: "lc-foot-grps" },
     grp("lc-foot-looscid", "Looscid", [go("settings_about", "About Looscid", "ab"), go("hour_story", "Our Story", "os"),
       // Round 7.24 (#161): the changelog is its own page on the site (every version, with its own link preview).
@@ -3816,9 +3817,9 @@ function LooscidOnboarding({ onDone }) {
   return lh('div', { id: "lid-onb", className: "lid-onb", role: "dialog", 'aria-modal': "true", 'aria-labelledby': "lid-onb-h",
       onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); finish(); } } },
     lh('div', { className: "lid-onb-in" },
-      /* Build 194: the Looscid logo, bigger, on every step of the welcome screens. On step 1 the heading right under it says
-         "Welcome to Looscid", so the picture is hidden from VoiceOver there; on the other steps it is named Looscid (build 195: alt "Looscid", Carter). */
-      lh(LcLogo, { size: 88, alt: step === 0 ? "" : "Looscid", className: "lid-onb-logo" }),
+      /* Build 194: the Looscid logo, bigger, on every step of the welcome screens. Named "Looscid" on every step, step 1 too
+         (Carter, Nov 1 2026, 3:23 PM: "alt tex on the logo"). */
+      lh(LcLogo, { size: 88, alt: "Looscid", className: "lid-onb-logo" }),
       lh('p', { className: "lid-step" }, "Step " + (step + 1) + " of " + TOTAL),
       body,
       lh('div', { className: "lid-onb-nav" },
@@ -7171,16 +7172,52 @@ const LC_TIP_SITES = [
   [/(^|\.)primal\.net$/, "Primal"], [/(^|\.)nostr\.(com|how)$/, "Nostr"], [/(^|\.)wikipedia\.org$/, "Wikipedia"],
   [/mastodon|mstdn|fosstodon|hachyderm|mas\.to$/, "Mastodon"], [/(^|\.)mail\.tab\.bot$/, "email"],
 ];
+/* Nov 1 2026 (Carter, 3:23 PM: "no hints on the some Links"): links that stay inside Looscid get a short hint too, never the
+   same words as the link: "Goes to Settings", "Opens this article", "Goes back to Help Center". The same rules are in
+   .github/scripts/link-hints.mjs, which writes them into the Help Center, changelog, status and link card pages. */
+const LC_TIP_PAGES = { "": "Home", dev: "the Dev Menu", help: "Help Center", "help-center": "Help Center", looscidid: "LooscidID", theme: "Appearance" };
+function lcTipInside(u, here, name, raw, help) {
+  if (/^#./.test(raw || "")) return "Jumps to that part of this page";
+  const strip = function (p) { return p.replace(/^\/looscid(?=\/|$)/i, "").replace(/\/index\.html?$/i, "/").replace(/\.html?$/i, ""); };
+  let p = strip(u.pathname); const q = u.searchParams.get("p");
+  if (q && (p === "/" || p === "")) p = q;
+  const segs = p.split("/").filter(Boolean).map(function (s) { try { return decodeURIComponent(s); } catch (e) { return s; } });
+  const hp = strip(here.pathname).split("/").filter(Boolean), inHelp = hp.length && /^help(-center)?$/.test(hp[0]);
+  if (!segs.length) {
+    if (u.searchParams.get("u")) return "Opens their profile";
+    let other = false; u.searchParams.forEach(function (v, k) { if (!/^(v|p|utm_.*)$/.test(k)) other = true; });
+    return other ? "Opens it in Looscid" : "Goes to Home";
+  }
+  const s0 = segs[0].toLowerCase(), last = segs[segs.length - 1], lk = last.toLowerCase();
+  if (s0 === "help" || s0 === "help-center") {
+    if (segs.length === 1) return !inHelp ? "Goes to Help Center" : hp.length === 1 ? "Goes to the top of Help Center" : "Goes back to Help Center";
+    const slug = segs[1].toLowerCase(), h = help || {};
+    if (slug === "contact") return "Goes to Contact Us";
+    if (u.searchParams.get("course")) return /^start\b/i.test(name || "") ? "Starts the course" : "Opens this lesson";
+    if ((h.topics || []).indexOf(slug) >= 0) return "Opens this topic";
+    if ((h.courses || []).indexOf(slug) >= 0) return "Opens this course";
+    return "Opens this article";
+  }
+  if (s0 === "changelog") return "Goes to the changelog";
+  if (s0 === "status") return "Goes to the status page";
+  if (s0 === "os" || s0 === "projects") return segs.length === 1 && s0 === "os" ? "Goes to Looscid OS" : "Opens this app";
+  if (s0 === "open") return "Goes to Home";
+  const label = segs.length === 1 && lk === "alerts" ? "Inbox" : Object.prototype.hasOwnProperty.call(LC_TIP_PAGES, lk) ? LC_TIP_PAGES[lk] : last.replace(/[-_]+/g, " ");
+  return "Goes to " + label + (s0 === "settings" && segs.length > 1 ? " settings" : "");
+}
+function lcTipHelp() {
+  const H = Looscid.LC_HELP || {};
+  return { topics: (H.collections || []).map(function (x) { return String(x.id); }), courses: (H.courses || []).map(function (x) { return String(x.id); }) };
+}
 function lcTipPlace(a) {
   let u; try { u = new URL(a.getAttribute("href"), location.href); } catch (e) { return null; }
   if (u.protocol === "mailto:") return "Writes an email";
   if (u.protocol === "tel:") return "Calls this number";
   if (u.protocol !== "http:" && u.protocol !== "https:") return null;
   const host = u.hostname.toLowerCase().replace(/^www\./, "");
-  // Looscid's own pages (the app, the Help Center, the changelog) are internal: no hint.
-  if (u.origin === location.origin && /^\/looscid(\/|$)/i.test(u.pathname)) return null;
-  if (host === "looscid.github.io" && /^\/looscid(\/|$)/i.test(u.pathname)) return null;
-  if (u.origin === location.origin && location.hostname !== "looscid.github.io") return null;
+  // Looscid's own pages (the app, the Help Center, the changelog) are internal: a "Goes to" hint of their own (lcTipInside).
+  if ((u.origin === location.origin && /^\/looscid(\/|$)/i.test(u.pathname)) || (host === "looscid.github.io" && /^\/looscid(\/|$)/i.test(u.pathname)) ||
+      (u.origin === location.origin && location.hostname !== "looscid.github.io")) return lcTipInside(u, new URL(location.href), lcTipName(a), a.getAttribute("href"), lcTipHelp());
   for (let i = 0; i < LC_TIP_SITES.length; i++) {
     if (LC_TIP_SITES[i][0].test(host)) {
       if (LC_TIP_SITES[i][1]) return "Go to " + LC_TIP_SITES[i][1];
@@ -7357,7 +7394,12 @@ function lcTipToggle(k, cls, on) {
 }
 function lcTipFor(el, name) {
   const tag = el.tagName.toLowerCase(), role = el.getAttribute("role") || "";
-  if (tag === "a" && role !== "button" && role !== "tab") return lcTipPlace(el);
+  if (tag === "a" && role !== "button" && role !== "tab") {
+    const raw = (el.getAttribute("href") || "").trim();
+    // A link that only runs code ("#"): the policy links go to that page; any other acts like a button, so it gets a button's hint.
+    if (el.hasAttribute("data-policy-link") && (raw === "#" || /^javascript:/i.test(raw))) return "Goes to " + name;
+    if (raw !== "#" && !/^javascript:/i.test(raw)) return lcTipPlace(el);
+  }
   const k = lcTipKey(name); if (!k) return null;
   const cls = String(el.className && el.className.baseVal !== undefined ? el.className.baseVal : el.className || "");
   if (role === "tab") {

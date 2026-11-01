@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
 <script src="../looscid-bridge.js"></script>
 </head>
 <body>
-<a class="skip" href="#cmd">Skip to the command box</a>
+<a class="skip" href="#cmd" title="Jumps to that part of this page">Skip to the command box</a>
 <section id="ps-notice" aria-labelledby="ps-title">
   <h2 id="ps-title">Photosensitivity notice</h2>
   <p>This page's controls don't flash. The emulated PC screen can't be fully guaranteed, so Calm mode, on by default, hides it.</p>
@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
       <li>Sound: the PC speaker only beeps when Looscid OS asks, after you press something. Turn it off with the Sound on checkbox. The emulator and its sound pause while this tab is in the background.</li>
       <li>This was tested with automated measurement, not a clinical tool like PEAT, and not on every device.</li>
     </ul>
-    <p>If anything here ever flickers, please <a href="https://github.com/Looscid/Looscid/issues">report it on GitHub</a>.</p>
+    <p>If anything here ever flickers, please <a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub">report it on GitHub</a>.</p>
     </div>
   </details>
   </div>
@@ -139,8 +139,8 @@ document.addEventListener("DOMContentLoaded",function(){sync(false);});})();
 
   <section aria-labelledby="about-h">
     <h2 id="about-h">About this page</h2>
-    <p>This is not a simulation. It boots the same <code>nexos-i686.iso</code> you can build from the <a href="https://github.com/2three1y/nexos">NexOS repository</a> (Looscid OS started as NexOS) with <code>make iso32</code>: GRUB loads the 32-bit kernel, which sets up paging, interrupts and ring-3 apps. The PC is emulated by <a href="https://github.com/copy/v86">v86</a> (BSD-2-Clause), served from this site so it also works offline.</p>
-    <p>The kernel's shell runs on the serial port as well as the screen, which is how the console above reads and types. Prefer the lighter web twin? <a href="../web/">Open the Looscid OS desktop</a>. This copy is part of Looscid; it came from the NexOS repository, copied from <a href="https://github.com/2three1y/nexos/tree/0c2fb6b85493f1e9af9cd6a9ffda3d4df65a1ceb">NexOS commit 0c2fb6b</a>.</p>
+    <p>This is not a simulation. It boots the same <code>nexos-i686.iso</code> you can build from the <a href="https://github.com/2three1y/nexos" title="Go to GitHub">NexOS repository</a> (Looscid OS started as NexOS) with <code>make iso32</code>: GRUB loads the 32-bit kernel, which sets up paging, interrupts and ring-3 apps. The PC is emulated by <a href="https://github.com/copy/v86" title="Go to GitHub">v86</a> (BSD-2-Clause), served from this site so it also works offline.</p>
+    <p>The kernel's shell runs on the serial port as well as the screen, which is how the console above reads and types. Prefer the lighter web twin? <a href="../web/" title="Goes to Looscid OS: the desktop and Looscid terminal">Open the Looscid OS desktop</a>. This copy is part of Looscid; it came from the NexOS repository, copied from <a href="https://github.com/2three1y/nexos/tree/0c2fb6b85493f1e9af9cd6a9ffda3d4df65a1ceb" title="Go to GitHub">NexOS commit 0c2fb6b</a>.</p>
   </section>
 </main>
 <script src="v86/libv86.js"></script>
