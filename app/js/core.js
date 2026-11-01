@@ -2714,6 +2714,7 @@ function LcSettingsHome({ s, navigate, onBack }) {
   }
   return lh('div', { className: "pg lc-more-page lc-ios", id: "more-page-settings" },
     lh(BackHeader, { title: lcMoreTitle("settings", s.label), onBack: onBack }),
+    Looscid.LcModeLine ? lh(Looscid.LcModeLine, null) : null,
     lh(LcSettingFind, { navigate: navigate, onClose: function () {}, q: q, setQ: setQ }),
     q.trim() ? null : lh(React.Fragment, null,
       mode !== "default" && idItem ? lh('ul', { className: "mlist lc-ios-list lc-ios-idcard", role: "list", id: "set-grp-id" },
