@@ -7341,6 +7341,20 @@ const LC_TIP_TABLISTS = [ // what a tab does, by the name of its tab list
 function lcTipKey(name) {
   return name.toLowerCase().replace(/[\u25be\ue000-\uf8ff]/g, "").replace(/\s*\(\d[\d,]*\)\s*/g, " ").replace(/\s*,\s*(selected|done|pinned to home|shown on your profile|only you|verified)\b.*$/, "").replace(/\s+/g, " ").trim();
 }
+/* Toggle buttons (aria-pressed): the hint says what the NEXT tap does, so it flips on every tap (Carter, Nov 1 2026,
+   2:46 PM: "The like button Likes this Dream Liked, Unlike this Dream"). The name and VoiceOver's own pressed state
+   stay as they are; only the title changes. aria-pressed is watched (lcTipWatch), so the flip lands right after the tap. */
+function lcTipToggle(k, cls, on) {
+  if (/\bcbx-wrap\b/.test(cls) && /\blikes?\b/.test(k)) return on ? "Unlike this Dream" : "Likes this Dream";
+  if (/\bcm-act\b/.test(cls) && /\blikes?\b/.test(k)) return on ? "Unlike this reply" : "Likes this reply";
+  if (/^follow(ing)?\b/.test(k) && !/\bthread\b/.test(k)) return on ? "Unfollows them" : "Shows their Dreams in Following";
+  if (/^join the .+ circle$/.test(k)) return on ? "Leaves this Circle" : "Joins this Circle";
+  if (k === "show key") return on ? "Hides the key again" : "Shows the key as text";
+  if (/^(play|stop) .+/.test(k)) return on ? "Stops the player" : "Plays it right here";
+  if (/\blid-chip\b/.test(cls)) return on ? "Takes this topic off" : "Adds this topic";
+  if (/^\d+ (hour|hours|day|days)$/.test(k)) return "Sets how long the poll runs";
+  return null;
+}
 function lcTipFor(el, name) {
   const tag = el.tagName.toLowerCase(), role = el.getAttribute("role") || "";
   if (tag === "a" && role !== "button" && role !== "tab") return lcTipPlace(el);
@@ -7351,6 +7365,8 @@ function lcTipFor(el, name) {
     for (let i = 0; i < LC_TIP_TABLISTS.length; i++) if (LC_TIP_TABLISTS[i][0].test(tln)) return LC_TIP_TABLISTS[i][1](name.replace(/\s*\(\d[\d,]*\)\s*/g, " ").trim(), k);
     return k === "all" ? "Shows everything" : "Shows " + name.replace(/\s*\(\d[\d,]*\)\s*/g, " ").trim();
   }
+  const pressed = el.getAttribute("aria-pressed");
+  if (pressed === "true" || pressed === "false") { const t = lcTipToggle(k, cls, pressed === "true"); if (t) return t; }
   if (/\blc-cmds-run\b/.test(cls)) return "Runs this command";
   if (/\blc-pick\b/.test(cls)) return "Shows the choices";
   if (Object.prototype.hasOwnProperty.call(LC_TIP_NAMES, k)) return LC_TIP_NAMES[k];
@@ -7385,11 +7401,12 @@ function lcTipSoon() { if (Looscid.LC_TIP_RAF) return; Looscid.LC_TIP_RAF = requ
 function lcTipWatch() {
   if (Looscid.LC_TIP_MO || typeof MutationObserver === "undefined") return;
   Looscid.LC_TIP_MO = new MutationObserver(lcTipSoon);
-  // Names change ("Follow" to "Following", counts), so text and labels are watched too. Not title itself: that would loop.
-  Looscid.LC_TIP_MO.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["aria-label", "aria-labelledby", "href", "role", "aria-expanded"] });
+  // Names change ("Follow" to "Following", counts), so text and labels are watched too, and aria-pressed, so a toggle's hint
+  // flips on every tap (Like / Unlike this Dream). Not title itself: that would loop.
+  Looscid.LC_TIP_MO.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["aria-label", "aria-labelledby", "href", "role", "aria-expanded", "aria-pressed"] });
   lcTipStamp();
 }
-Object.assign(Looscid, { lcTipStamp, lcTipFor, lcTipName, lcTipPlace });
+Object.assign(Looscid, { lcTipStamp, lcTipFor, lcTipName, lcTipPlace, lcTipToggle });
 // Commands and Cherry: every braille-style action (queue 4g).
 function lcBrIntent(raw) {
   const n = lcNorm(raw); let m;
