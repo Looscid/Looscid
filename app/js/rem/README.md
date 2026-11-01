@@ -1,6 +1,6 @@
 # app/js/rem
 
-The Rem client that the Looscid server uses, copied from [2three1y/looscidserver](https://github.com/2three1y/looscidserver)
+The Rem client that the Looscid server uses, copied from [Looscid/looscidserver](https://github.com/Looscid/looscidserver)
 `public/js/` (MIT), so the app signs Dreams for the server with the same code the server checks them with.
 
 - `rem-core.js`, `rem-client.js`: Rem objects, ids, signatures (BIP-340 Schnorr, the same math as Nostr), the LooscidID helpers and the client.
