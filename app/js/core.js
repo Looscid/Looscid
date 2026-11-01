@@ -2071,18 +2071,26 @@ function LcSiteFooter({ navigate, cur }) {
      groups in a grid that falls to one column when narrow or zoomed. Credits moved from Legal to About; Legal and license
      is just License; Social links are just the site's name. The Linux edition item is gone. The iPhone line and the
      Android app item stay as they were. */
+  /* Nov 1 2026 (Carter: "steal the most coolist ... footer", "footer is sitewide"): the same footer as the website pages
+     (Help Center, changelog, status; assets/site-footer.css): Looscid, Help, Developers, Legal and Say hi, then one small
+     line. Every link was already somewhere in Looscid; nothing new is sent anywhere. The made-by line has no link now. */
+  const base = typeof LOOSCID_BASE === "string" ? LOOSCID_BASE : "";
+  const site = function (href, text, key) { return lh('li', { key: key }, lh('a', { href: base + href, className: "lc-link" }, text)); };
   return lh('footer', { className: "lc-footer", role: "contentinfo", "aria-labelledby": "lc-foot-title" },
     lh('h2', { id: "lc-foot-title", className: "lc-foot-title" }, "Footer"),
+    lh('p', { className: "lc-foot-brand" }, lh(LcLogo, { size: 28 }), lh('span', { className: "lc-foot-name" }, "Looscid"), lh('span', { className: "lc-foot-tag" }, "Just Dream. Open source and local first.")),
     lh('div', { className: "lc-foot-grps" },
+    grp("lc-foot-looscid", "Looscid", [go("settings_about", "About Looscid", "ab"), go("hour_story", "Our Story", "os"),
+      // Round 7.24 (#161): the changelog is its own page on the site (every version, with its own link preview).
+      site("changelog/", "Changelog", "chg"), go("credits", "Credits", "cr")]),
+    grp("lc-foot-help", "Help", [go("helpcenter", "Help Center", "hc"), site("help/getting-started/", "Getting Started", "gs"), site("help/contact/", "Contact Us", "cu"), go("feedback", "Send Feedback", "fb")]),
+    grp("lc-foot-dev", "Developers", [ext("https://github.com/Looscid/Looscid", "Source code", "src"), ext("https://github.com/Looscid/Looscid/tree/main/docs", "Docs", "docs"),
+      ext("https://github.com/Looscid/Looscid/blob/main/docs/CONTRIBUTING.md", "Contributing", "con"), ext("https://github.com/Looscid/Looscid/blob/main/docs/guides/ACCESSIBILITY.md", "Accessibility", "a")]),
+    grp("lc-foot-legal", "Legal", [go("terms", "Terms", "t"), go("privacy", "Privacy", "p"), go("guidelines", "Rules", "r"), go("child_safety", "Child Safety", "c"), go("legal", "License", "l")]),
     grp("lc-foot-social", "Say hi", [ext("https://github.com/Looscid", "GitHub", "gh"), ext("https://x.com/Looscid", "X", "x"), ext("https://www.youtube.com/@Looscid", "YouTube", "yt"),
       // Round 7.35 (Carter, Oct 26 2026): the Looscid Discord, last in Social.
-      ext("https://discord.gg/M6xrD8EBXU", "Discord", "dc")]),
-    grp("lc-foot-legal", "The fine print", [go("terms", "Terms", "t"), go("privacy", "Privacy", "p"), go("guidelines", "Rules", "r"), go("child_safety", "Child Safety", "c"), go("legal", "License", "l"), go("credits", "Credits", "cr")]),
-    grp("lc-foot-values", "About", [go("settings_about", "About Looscid", "ab"),
-      // Round 7.24 (#161): the changelog is its own page on the site (every version, with its own link preview).
-      lh('li', { key: "chg" }, lh('a', { href: (typeof LOOSCID_BASE === "string" ? LOOSCID_BASE : "") + "changelog/", className: "lc-link" }, "Changelog")),
-      ext("https://github.com/Looscid/Looscid/blob/main/docs/guides/ACCESSIBILITY.md", "Accessibility", "a")])),
-    lh('p', { className: "lc-foot-credit" }, lh('a', { href: "https://2three1y.github.io/", className: "lc-link" }, "Made by Chaotic Carter")));
+      ext("https://discord.gg/M6xrD8EBXU", "Discord", "dc")])),
+    lh('p', { className: "lc-foot-credit" }, "\u00a9 2026 Looscid \u00b7 Made by Chaotic Carter, co-written with Tab"));
     // Round 7.41 (Carter: "not corpo shit"): one kid and Tab make this, and the footer says so.
 }
 /* 2three1y (Oct 12, 5:33 PM): "The footer is on every page at the bottom like GitHub", but in reading and swipe order the

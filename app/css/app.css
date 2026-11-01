@@ -636,3 +636,16 @@ body.acc-text-2 .pg .lc-end-chrome { zoom: 0.769231; }
 
 /* Nov 1 2026: the attached photo in New Dream, with its alt text as its alt */
 .lc-photo-thumb{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--bd2);flex:none}
+
+/* Nov 1 2026: the footer, same as the website pages (assets/site-footer.css): brand line, five short columns, one small
+   line. Light mode links were #e9d5ff on white (contrast 1.25:1, axe); they are dark purple now. */
+.lc-foot-brand { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 4px 0 8px; }
+.lc-foot-brand .lc-logo { width: 28px; height: 28px; border-radius: 22%; }
+.lc-foot-name { font-weight: 800; font-size: 17px; color: var(--tx); }
+.lc-foot-tag { flex-basis: 100%; font-size: 14px; }
+.lc-footer .lc-foot-h { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.lc-footer .lc-foot-list li { margin: 0; }
+.lc-footer .lc-link { text-decoration: none; }
+.lc-footer .lc-link:hover { text-decoration: underline; }
+.lc-foot-credit { margin: 16px 0 0; padding-top: 12px; border-top: 1px solid var(--bd); font-size: 13px; }
+html[data-lc-theme="light"] .lc-footer .lc-link { color: #4c1d95; }
