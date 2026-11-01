@@ -426,6 +426,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const [logoutAsk, setLogoutAsk] = useState(false); // Round 7.14: Logout asks first
   const [linkSet, setLinkSet] = useState(false); // Nov 1 2026: Link settings ("settings" or "privacy"), opened from the Links sheet
   const [linksOpen, setLinksOpen] = useState(false); // Nov 1 2026: the Links sheet (links, share, QR, copy)
+  const linksFrom = useRef("pf-more-btn"); // where focus goes back when the Links sheet closes (More, or the Links row)
   Looscid.useLikedTick();
   const moreBtn = useRef(null), editBtn = useRef(null), noteRef = useRef(null), headRef = useRef(null);
   // preview: your own profile as others see it. Your own data, nobody else's controls.
@@ -606,7 +607,9 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
     return out;
   })();
   const linksName = pfLinks.length ? lcJoin("Links", (function (t) { return t.length > 32 ? t.slice(0, 30) + "\u2026" : t; })(lcLinkShow(pfLinks[0].url)), pfLinks.length > 1 ? "and " + (pfLinks.length - 1) + " more" : "") : "Links, share and copy";
-  const linksItem = { id: "links", name: linksName, a: function () { setLinksOpen(true); } };
+  const linksItem = { id: "links", name: linksName, a: function () { linksFrom.current = "pf-more-btn"; setLinksOpen(true); } };
+  const linksRowFirst = pfLinks.length ? (function (t) { return t.length > 32 ? t.slice(0, 30) + "\u2026" : t; })(lcLinkShow(pfLinks[0].url)) : "";
+  const linksRowText = linksRowFirst + (pfLinks.length > 1 ? " and " + (pfLinks.length - 1) + " more" : "");
   const extraItems = [];
   // Nov 1 2026 (X-style Edit profile): Edit profile opens the one editor sheet; Close or Save puts focus back where you were.
   const openEdit = function (fromMore) { ed.open("all", fromMore ? "pf-more-btn" : "pf-edit-btn"); };
@@ -689,7 +692,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       own: isMe ? { onEdit: function () { ed.open("linkscard", "pf-links-edit"); }, onSettings: function () { setLinkSet("settings"); }, onPrivacy: function () { setLinkSet("privacy"); },
         who: { everyone: "Everyone", following: "People I follow", me: "Only me" }[lcLinkPrefs(lp).who] } : null,
       onShare: function () { setLinksOpen(false); setTimeout(share, 30); },
-      onClose: function () { setLinksOpen(false); backToMore(); } }) : null);
+      onClose: function () { setLinksOpen(false); const from = linksFrom.current; linksFrom.current = "pf-more-btn"; if (from === "pf-links-row") setTimeout(function () { const b = document.getElementById(from); if (b) b.focus(); else backToMore(); }, 30); else backToMore(); } }) : null);
   const onTabKey = function (e) {
     const i = TABS.findIndex(function (t) { return t[0] === cur; }); let n = null;
     if (e.key === "ArrowRight") n = (i + 1) % TABS.length; else if (e.key === "ArrowLeft") n = (i + TABS.length - 1) % TABS.length; else if (e.key === "Home") n = 0; else if (e.key === "End") n = TABS.length - 1;
@@ -704,12 +707,14 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const joined = lcJoinedText(self ? lcOwnCreatedAt(lp) : (user.createdAt || user.joined || ""));
   const locked = self ? !!(lp && lp.private) : !!(user.locked || user.private);
   const fields = [];
-  const site = self ? lp && lp.website : user.website;
-  // Nov 1 2026: your own links follow Link settings (order, shown first, hidden), like the Links sheet.
-  if (self) (preview && lcLinkPrefs(lp).who !== "everyone" ? [] : lcOwnLinksShown(lp)).forEach(function (l) { if (l.name && l.url) fields.push({ name: l.name, value: l.site ? site : l.url }); });
-  else { if (site) fields.push({ name: "Website", value: site });
-    (user.links || []).forEach(function (l) { if (l && l.name && l.url) fields.push({ name: l.name, value: l.url }); }); }
-  (user.fields || []).forEach(function (f) { if (f && f.name && f.value) fields.push({ name: f.name, value: f.value, verified: f.verified, verifiedAt: f.verifiedAt || f.verified_at || null }); });
+  /* Nov 1 2026 (Carter, 9:41 AM: YouTube-style links on every profile): the website and links are no longer rows in the
+     fields table. They are ONE row under the @handle, "example.com and 3 more", that opens the Links sheet (it follows
+     Link settings: order, Show first, hidden links and Privacy, because it is built from the same list as the sheet).
+     The table keeps the other profile fields; a link field moves into the Links row unless it is verified (then it
+     stays in the table with its checkmark). */
+  (user.fields || []).forEach(function (f) { if (!f || !f.name || !f.value) return; const ver = f.verified || f.verifiedAt || f.verified_at;
+    if (!ver && /^\s*(<a\b[^>]*>\s*)?https?:\/\//i.test(String(f.value)) && /^https?:\/\/\S+$/i.test(String(f.value).replace(/<[^>]*>/g, "").trim())) return;
+    fields.push({ name: f.name, value: f.value, verified: f.verified, verifiedAt: f.verifiedAt || f.verified_at || null }); });
   const rdList = (function () {
     const r = byId(plainRd), q = byId(quotes);
     return rdShow === "quotes" ? q : rdShow === "redreams" ? r : r.concat(q);
@@ -900,6 +905,11 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
           lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { setNoteEdit(false); setTimeout(function () { const b = document.getElementById("pf-more-btn"); if (b) b.focus(); }, 30); } }, "Cancel"))),
       // Feditext's fields: a bordered table of rows, the label on the left third, the value (its links live) on the right;
       // a verified value gets a green row and a checkmark, read as "Verified" and the date when there is one.
+      // Nov 1 2026: the Links row (see fields above). One link: just that address. Several: the first and how many more.
+      pfLinks.length ? lh('button', { type: "button", id: "pf-links-row", className: "lc-prof-linksrow", "aria-label": "Links: " + linksRowText,
+          onClick: function () { linksFrom.current = "pf-links-row"; setLinksOpen(true); } },
+        lh(Looscid.LcI27Glyph || "span", { g: "link", size: 15 }),
+        lh('span', { className: "lc-prof-linksrow-t", "aria-hidden": "true" }, lh('span', { className: "lc-prof-linksrow-u" }, linksRowFirst), pfLinks.length > 1 ? " and " + (pfLinks.length - 1) + " more" : null)) : null,
       fields.length ? lh('ul', { className: "lc-prof-fields lc-rows", role: "list" }, fields.map(function (f, i) {
         const vAt = f.verifiedAt ? lcJoinedText(f.verifiedAt).replace(/ at .*$/, "") : "";
         return lh('li', { key: i, className: "lc-prof-field" + (f.verified || f.verifiedAt ? " lc-verified" : "") },
@@ -2505,8 +2515,9 @@ function LcProfileEditor({ profile, focusKey, onSave, onClose }) {
       head("lc-pe-head-p"),
       lh('h2', { className: "lc-pe-pname" }, lh('span', { className: "sr-only" }, "Preview: "), showName),
       lh('p', { className: "lc-pe-phandle" }, showHandle),
-      // Same order as the profile itself: the links (its fields), then the bio.
-      pLinks.length ? lh('ul', { className: "lc-pe-plinks", "aria-label": "Links" }, pLinks.map(function (l, i) { return lh('li', { key: i }, lh('span', { className: "lc-pe-link-n" }, l.name), lh('span', { className: "sr-only" }, ", "), " ", lh('span', { className: "lc-pe-link-u" }, lcLinkShow(l.url))); })) : null,
+      // Same order as the profile itself: the Links row ("example.com and 3 more", Nov 1 2026), then the bio.
+      pLinks.length ? lh('p', { className: "lc-prof-linksrow lc-pe-plinks" }, lh(Looscid.LcI27Glyph || "span", { g: "link", size: 15 }),
+        lh('span', { className: "lc-prof-linksrow-t" }, lh('span', { className: "sr-only" }, "Links: "), lh('span', { className: "lc-prof-linksrow-u" }, (function (t) { return t.length > 32 ? t.slice(0, 30) + "\u2026" : t; })(lcLinkShow(pLinks[0].url))), pLinks.length > 1 ? " and " + (pLinks.length - 1) + " more" : null)) : null,
       d.bio.trim() ? lh('div', { className: "lc-prof-bio lc-pe-pbio" }, lcBioParas(d.bio.trim(), function () {})) : lh('p', { className: "lc-pe-help" }, "No bio yet.")));
   return lh('div', { className: "pg lc-i27 lc-pe", role: "region", "aria-labelledby": "pe-h1",
       onKeyDown: function (e) { if (e.key === "Escape" && !ask) { e.preventDefault(); close(); } } },
