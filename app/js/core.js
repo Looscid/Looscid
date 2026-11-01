@@ -1128,11 +1128,14 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
 /* Build 194: the Looscid logo, from Looscid itself (assets/icons/icon-512.png, no outside requests), sized with CSS so it
    stays sharp on Retina. The logo itself reads "Looscid" (Carter, Nov 1 2026, 3:23 PM: "alt tex on the logo"); where the word
    Looscid sits right next to it (the footer), that word is hidden from VoiceOver instead, so it is said once, by the logo.
-   alt "" plus aria-hidden is still there for a logo inside a card that already says Looscid. Never put it inside a heading. */
+   alt "" plus aria-hidden is still there for a logo inside a card that already says Looscid. Never put it inside a heading.
+   Carter, Nov 1 2026, 3:53 PM ("Bro no Alt text"): a named logo also carries role="img" and aria-label, so VoiceOver on
+   iPhone always treats it as an image with that name, whatever else the page does around it. */
 function LcLogo({ size, alt, className }) {
   const named = !!alt;
   return lh('img', Object.assign({ src: LOOSCID_BASE + "assets/icons/icon-512.png?v=nl1", alt: named ? alt : "", width: size, height: size,
-    className: "lc-logo" + (className ? " " + className : ""), decoding: "async", draggable: false }, named ? {} : { "aria-hidden": "true" }));
+    className: "lc-logo" + (className ? " " + className : ""), decoding: "async", draggable: false },
+    named ? { role: "img", "aria-label": alt } : { "aria-hidden": "true" }));
 }
 Looscid.LcLogo = LcLogo;
 function BackHeader({title, onBack, right, hid}) {
