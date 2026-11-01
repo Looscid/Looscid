@@ -1130,7 +1130,7 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
    alt "Looscid" when it stands alone. Never put it inside a heading. */
 function LcLogo({ size, alt, className }) {
   const named = !!alt;
-  return lh('img', Object.assign({ src: LOOSCID_BASE + "assets/icons/icon-512.png", alt: named ? alt : "", width: size, height: size,
+  return lh('img', Object.assign({ src: LOOSCID_BASE + "assets/icons/icon-512.png?v=nl1", alt: named ? alt : "", width: size, height: size,
     className: "lc-logo" + (className ? " " + className : ""), decoding: "async", draggable: false }, named ? {} : { "aria-hidden": "true" }));
 }
 Looscid.LcLogo = LcLogo;
@@ -1212,7 +1212,7 @@ function LinkCard({ info }) {
   if (info.kind === "circle") {
     const g = lcCircleByHandle(info.handle), d = g && g.description ? String(g.description).replace(/\s+/g, " ").trim() : "";
     return lh('div', { className: "lc-link-card lc-circ-card" },
-      lh('img', { src: LOOSCID_BASE + "assets/looscid-logo.png", alt: "", "aria-hidden": "true", className: "lc-circ-card-logo", width: 48, height: 48 }),
+      lh('img', { src: LOOSCID_BASE + "assets/looscid-logo.png?v=nl1", alt: "", "aria-hidden": "true", className: "lc-circ-card-logo", width: 48, height: 48 }),
       lh('div', { className: "lc-circ-card-t" },
         lh('p', { className: "lc-link-what" }, (g ? g.name + ", " : "") + "Circle " + info.handle + " on Looscid"),
         d ? lh('p', { className: "lc-muted" }, d.length > 140 ? d.slice(0, 139) + "\u2026" : d) : null,

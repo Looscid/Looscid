@@ -13,20 +13,20 @@
 <meta property="og:title" content="Looscid - Just Dream">
 <meta property="og:description" content="Just Dream. An open source social app for everyone, on any phone or computer, with the customization and freedom other apps took away.">
 <meta property="og:url" content="https://looscid.github.io/Looscid/">
-<meta property="og:image" content="https://looscid.github.io/Looscid/assets/looscid-og.png?v=195">
-<meta property="og:image:secure_url" content="https://looscid.github.io/Looscid/assets/looscid-og.png?v=195">
+<meta property="og:image" content="https://looscid.github.io/Looscid/assets/looscid-og.png?v=nl1">
+<meta property="og:image:secure_url" content="https://looscid.github.io/Looscid/assets/looscid-og.png?v=nl1">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Looscid - Just Dream">
+<meta property="og:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Looscid - Just Dream”">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@Looscid">
 <meta name="twitter:title" content="Looscid - Just Dream">
 <meta name="twitter:description" content="Just Dream. An open source social app for everyone, on any phone or computer, with the customization and freedom other apps took away.">
-<meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/looscid-og.png?v=195">
-<meta name="twitter:image:alt" content="Looscid - Just Dream">
-<link rel="icon" type="image/png" sizes="32x32" href="https://looscid.github.io/Looscid/assets/icons/favicon-32.png">
-<link rel="apple-touch-icon" href="https://looscid.github.io/Looscid/assets/icons/apple-touch-icon.png">
+<meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/looscid-og.png?v=nl1">
+<meta name="twitter:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Looscid - Just Dream”">
+<link rel="icon" type="image/png" sizes="32x32" href="https://looscid.github.io/Looscid/assets/icons/favicon-32.png?v=nl1">
+<link rel="apple-touch-icon" href="https://looscid.github.io/Looscid/assets/icons/apple-touch-icon.png?v=nl1">
 <script>
 /* Security pass 5/6: this is the only script written inline in this page, so the page's Content-Security-Policy below
    can allow it by its sha256 hash and refuse every other inline script. It runs first, before anything else.
@@ -51,7 +51,7 @@
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta name="apple-mobile-web-app-title" content="Looscid">
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="manifest" href="manifest.webmanifest?v=nl1">
 <!-- Startup: React downloads early (preload) but runs at the end of <body>, so the startup screen paints first.
      React is served from this site only (js/vendor, pinned 18.2.0), never a CDN; integrity= makes the browser refuse a changed file. -->
 <link rel="preload" as="script" href="js/vendor/react-18.2.0.production.min.js" integrity="sha384-tMH8h3BGESGckSAVGZ82T9n90ztNXxvdwvdM6UoR56cYcf+0iGXBliJ29D+wZ/x8"/>
@@ -60,8 +60,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" id="lc-fonts"/>
 <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/></noscript>
-<link rel="stylesheet" href="css/app.css"/>
-<link rel="stylesheet" href="css/a11y.css?v=7.53-ls1" id="lc-a11y-css"/>
+<link rel="stylesheet" href="css/app.css?v=7.53-al1"/>
+<link rel="stylesheet" href="css/a11y.css?v=7.53-al1" id="lc-a11y-css"/>
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/unspeakable/looscid-unspeakable.woff2" crossorigin/>
 </head>
 <body>
@@ -74,14 +74,14 @@
 <!-- Security pass: the host side of the sandboxed Looscid OS apps and Projects (sandbox flags, their saved data) -->
 <script src="js/apphost.js"></script>
 <!-- Load order: React, then core, then nostr (small; its crypto loads only when used), then one file per tab, then Cherry, then the Commands page, then Projects, then the Help Center, then the mount below (see docs/dev/FILES.md) -->
-<script src="js/core.js?v=7.53-ls1"></script>
+<script src="js/core.js?v=7.53-al1"></script>
 <script src="js/nostr.js"></script>
 <script src="js/discover.js"></script>
 <script src="js/circles.js?v=7.53-ls1"></script>
 <script src="js/feed.js"></script>
-<script src="js/create.js?v=7.53-ls1"></script>
+<script src="js/create.js?v=7.53-al1"></script>
 <script src="js/alerts.js"></script>
-<script src="js/more.js?v=7.53-ls1"></script>
+<script src="js/more.js?v=7.53-al1"></script>
 <script src="js/cherry.js"></script>
 <script src="js/commands.js"></script>
 <script src="js/projects.js"></script>
