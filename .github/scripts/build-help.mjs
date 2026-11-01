@@ -60,21 +60,21 @@ function page({ slug, title, desc, body, depth, crumbs }) {
 <meta property="og:title" content="${esc(full)}">
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:url" content="${url}">
-<meta property="og:image" content="${SITE}assets/cards/help.png?v=195">
-<meta property="og:image:secure_url" content="${SITE}assets/cards/help.png?v=195">
+<meta property="og:image" content="${SITE}assets/cards/help.png?v=nl1">
+<meta property="og:image:secure_url" content="${SITE}assets/cards/help.png?v=nl1">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Looscid Help Center">
+<meta property="og:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@Looscid">
 <meta name="twitter:title" content="${esc(full)}">
 <meta name="twitter:description" content="${esc(desc)}">
-<meta name="twitter:image" content="${SITE}assets/cards/help.png?v=195">
-<meta name="twitter:image:alt" content="Looscid Help Center">
+<meta name="twitter:image" content="${SITE}assets/cards/help.png?v=nl1">
+<meta name="twitter:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
 <link rel="canonical" href="${url}">
-<link rel="icon" type="image/png" sizes="32x32" href="${SITE}assets/icons/favicon-32.png">
-<link rel="apple-touch-icon" href="${SITE}assets/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="${SITE}assets/icons/favicon-32.png?v=nl1">
+<link rel="apple-touch-icon" href="${SITE}assets/icons/apple-touch-icon.png?v=nl1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
@@ -82,7 +82,7 @@ function page({ slug, title, desc, body, depth, crumbs }) {
 </head>
 <body>
 <div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
-<header class="top"><a class="brand" href="${up || "./"}"><img src="${up}../assets/icons/icon-512.png" alt="" aria-hidden="true" width="32" height="32"><span>Looscid Help Center</span></a><a class="open" href="${up}../">Open Looscid</a></header>
+<header class="top"><a class="brand" href="${up || "./"}"><img src="${up}../assets/icons/icon-512.png?v=nl1" alt="" aria-hidden="true" width="32" height="32"><span>Looscid Help Center</span></a><a class="open" href="${up}../">Open Looscid</a></header>
 <main class="wrap" id="main">
 ${nav}
 ${body}
