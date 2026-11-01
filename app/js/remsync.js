@@ -570,9 +570,57 @@ function LcModeLine(props) {
   const m = modeNow();
   return lh('p', { className: "lc-mode-line " + (m.sync ? "lc-mode-server" : "lc-mode-local"), style: Object.assign({ margin: "8px 16px", padding: "10px 12px", borderRadius: 12, borderLeft: "4px solid " + (m.sync ? "#10b981" : "#a78bfa"), background: "rgba(127,127,127,.12)", fontSize: 14, lineHeight: 1.45, fontWeight: 600 }, props && props.style) }, modeText(m));
 }
+/* --- "Switch to the Looscid server?" (Nov 1 2026, Carter: "a prompt appears that you are using the local version of
+   Looscid. Do you want to upgrade to server?"). Shown once, to people in Local mode who aren't signed in to a server, after
+   first-run setup and never on top of another dialog. Switch to server opens Settings, LooscidID, Looscid server (nothing
+   syncs until you sign in and choose your Dreams there); Stay local, or Escape, keeps Local mode. Either way it's remembered
+   (localStorage looscid_server_ask) and never shown again on its own; the option stays in Settings. */
+const ASK_KEY = "looscid_server_ask";
+function askDone() { try { return !!localStorage.getItem(ASK_KEY); } catch (e) { return true; } }
+function LcServerAsk(props) {
+  const [show, setShow] = useState(false);
+  const hRef = React.useRef(null), boxRef = React.useRef(null);
+  useEffect(function () {
+    if (askDone() || modeNow().on) return;
+    const t = setTimeout(function () {
+      if (askDone() || modeNow().on) return;
+      if (document.querySelector('[role="dialog"],[role="alertdialog"],[aria-modal="true"]')) return; // another dialog is open: ask on the next visit
+      setShow(true);
+    }, 2500);
+    return function () { clearTimeout(t); };
+  }, []);
+  useEffect(function () { if (show && hRef.current) hRef.current.focus(); }, [show]);
+  if (!show) return null;
+  const pick = function (v) {
+    try { localStorage.setItem(ASK_KEY, v); } catch (e) {}
+    setShow(false);
+    if (v === "server") { if (props.navigate) props.navigate("settings_account", { tab: "server" }); }
+    else say("Staying in Local mode. The Looscid server is in Settings, LooscidID, whenever you want it.");
+  };
+  const onKey = function (e) {
+    if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); pick("local"); return; }
+    if (Looscid.lcTrapTab) Looscid.lcTrapTab(e, boxRef.current);
+  };
+  return lh(AskOverlay, null,
+    lh('div', { className: "lc-q", role: "dialog", "aria-modal": "true", "aria-labelledby": "lc-srv-ask-t", ref: boxRef, onKeyDown: onKey },
+      lh('h2', { id: "lc-srv-ask-t", tabIndex: -1, ref: hRef, className: "lc-q-h lc-q-t" }, "You're using Looscid in Local mode"),
+      lh('div', { className: "lc-q-intro" },
+        lh('p', null, "Want to switch to the Looscid server? It keeps your Dreams synced on all your devices with your LooscidID."),
+        lh('p', null, "Nothing goes on the server until you sign in and choose which Dreams to put there. You can switch any time in Settings, LooscidID, Looscid server.")),
+      lh('div', { className: "lc-q-btns" },
+        lh('button', { type: "button", className: "btn bp lc-big", onClick: function () { pick("server"); } }, "Switch to server"),
+        lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { pick("local"); } }, "Stay local"))));
+}
+// The overlay makes everything behind the question unreachable while it's open (same as the first-run question).
+function AskOverlay(props) {
+  const ref = React.useRef(null);
+  if (Looscid.useInertBehind) Looscid.useInertBehind(ref);
+  return lh('div', { className: "lc-q-ov", ref: ref }, props.children);
+}
 Looscid.lcServer = { cfg: cfg, signIn: signIn, join: join, signOut: signOut, upload: upload, pull: pull, tick: tick, makeBackup: makeBackup, openBackup: openBackup, restoreBackup: restoreBackup, mode: modeNow, DEFAULT_HOME: DEFAULT_HOME };
 Looscid.LcServerPanel = LcServerPanel;
 Looscid.LcModeLine = LcModeLine;
+Looscid.LcServerAsk = LcServerAsk;
 Looscid.lcModeText = modeText;
 Looscid.LcBackupPanel = LcBackupPanel;
 })(window.Looscid = window.Looscid || {});
