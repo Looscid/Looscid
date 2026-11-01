@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "flags": {
+    "flagsDemo": {
+      "enabled": true,
+      "only": [
+        "carter",
+        "2three1y"
+      ],
+      "note": "Demo flag. Does nothing visible: when it's on for you, VoiceOver says \", flags on\" after the version in Settings > About Looscid. Safe to delete."
+    }
+  }
+}

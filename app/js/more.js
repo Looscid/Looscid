@@ -1910,6 +1910,10 @@ function AboutSettings({navigate}) {
   const [vOpen, setVOpen] = useState(false);
   const [, tick] = useState(0);
   const auto = lcUpdateAuto();
+  // Nov 1 2026: flags.json's demo flag. When "flagsDemo" is on for this LooscidID, VoiceOver hears ", flags on" after the
+  // version. Nothing visible changes. Re-renders when flags.json loads or changes.
+  useEffect(function () { const h = function () { tick(function (x) { return x + 1; }); }; window.addEventListener("looscid-flags", h); return function () { window.removeEventListener("looscid-flags", h); }; }, []);
+  const flagsDemo = !!(window.LooscidFlags && window.LooscidFlags.on("flagsDemo"));
   /* Round 7.41 (Carter: "tap the build number for a secret dev menu"): activating the version button 7 times in a row (each
      within 4 seconds of the last) unlocks the Dev menu, like Android's build number. 4, 5 and 6 say how many taps are left;
      the 7th says "Dev menu unlocked" through #looscid-live and opens it. Works with a tap, Enter, Space or a VoiceOver double tap. */
@@ -1935,7 +1939,7 @@ function AboutSettings({navigate}) {
     lh(BackHeader, { title: "About Looscid", onBack: function () { navigate("settings"); } }),
     // Round 6: one About page. The version is itself the disclosure button.
     lh('div', { className: "lc-about-top", style: { padding: "12px 16px 4px" } },
-      lh('button', { type: "button", id: "about-version", className: "lc-acc-btn", "aria-expanded": vOpen ? "true" : "false", "aria-controls": "about-version-p", onClick: onVersion },
+      lh('button', { type: "button", id: "about-version", className: "lc-acc-btn", "aria-label": flagsDemo ? lcCodenameLabel() + ", flags on" : undefined, "aria-expanded": vOpen ? "true" : "false", "aria-controls": "about-version-p", onClick: onVersion },
         lh('span', null, lcCodenameLabel()), lh('span', { className: "msec-toggle-ic" + (vOpen ? " open" : ""), "aria-hidden": "true" }, "\u203a")),
       lh('div', { id: "about-version-p", hidden: !vOpen, className: "lc-acc-p" }, vOpen ? lh(React.Fragment, null,
         lh('p', { className: "lid-help", id: "about-codename" }, "Codename " + Looscid.LOOSCID_CODENAME),

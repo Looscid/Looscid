@@ -4530,6 +4530,48 @@ Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
 function lcReleased() { return LOOSCID_RELEASED; }
 Looscid.lcReleased = lcReleased;
+/* --- Nov 1 2026 (Carter 4:53 PM): feature flags. flags.json at the site root turns a feature on or off without a new build,
+   for everyone or only for some LooscidIDs. Shape: {"version":1,"flags":{"name":{"enabled":true,"only":["carter"],"note":"..."}}}.
+   "only" is a list of LooscidID usernames (no @, any case); empty or missing means everyone, when enabled.
+   Fetched past every cache at start and when Looscid comes back to the front; it never blocks the app starting. If it can't
+   load, every flag is off. localStorage "looscid.flags.override" (JSON, same shape as "flags", or "name": true/false) wins
+   over the file, for testing on one device. Gate code with: if (LooscidFlags.on("name")) { ... }
+   A change fires "looscid-flags" on window, so an open screen can re-render. How to add or flip one: work notes / flags.json. */
+const LC_FLAGS_OVERRIDE_KEY = "looscid.flags.override";
+let lcFlagsFile = {};
+function lcFlagsOverride() { try { const o = JSON.parse(localStorage.getItem(LC_FLAGS_OVERRIDE_KEY) || "null"); return o && typeof o === "object" ? (o.flags && typeof o.flags === "object" ? o.flags : o) : {}; } catch (e) { return {}; } }
+function lcFlagOn(name) {
+  const o = lcFlagsOverride();
+  let f = Object.prototype.hasOwnProperty.call(o, name) ? o[name] : lcFlagsFile[name];
+  if (typeof f === "boolean") return f;
+  if (!f || typeof f !== "object" || f.enabled !== true) return false;
+  const only = Array.isArray(f.only) ? f.only.map(function (h) { return String(h || "").replace(/^@/, "").trim().toLowerCase(); }).filter(Boolean) : [];
+  if (!only.length) return true;
+  let me = ""; try { me = lcMyHandle(); } catch (e) {}
+  return !!me && only.indexOf(me) !== -1;
+}
+function lcFlagsLoad() {
+  let p;
+  try {
+    p = fetch("flags.json?t=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function (j) { return j && j.flags && typeof j.flags === "object" ? j.flags : {}; }, function () { return {}; });
+  } catch (e) { p = Promise.resolve({}); }
+  return p.then(function (flags) {
+    const was = JSON.stringify(lcFlagsFile); lcFlagsFile = flags;
+    if (JSON.stringify(flags) !== was) { try { window.dispatchEvent(new CustomEvent("looscid-flags")); } catch (e) {} }
+    return flags;
+  });
+}
+const LooscidFlags = {
+  on: lcFlagOn,
+  ready: lcFlagsLoad(),
+  reload: lcFlagsLoad,
+  list: function () { const all = Object.assign({}, lcFlagsFile, lcFlagsOverride()), out = {}; Object.keys(all).forEach(function (k) { out[k] = lcFlagOn(k); }); return out; },
+  OVERRIDE_KEY: LC_FLAGS_OVERRIDE_KEY,
+};
+window.LooscidFlags = LooscidFlags; Looscid.LooscidFlags = LooscidFlags;
+try { document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") lcFlagsLoad(); }); } catch (e) {}
 /* --- Round 6: in-app update check. version.json (no-store) on load, every 10 minutes and when
    Looscid comes back to the front. A newer build shows one banner: Update now or Later. Never
    reloads by itself. Later hides that version until a newer one. Drafts autosave on this device. */
