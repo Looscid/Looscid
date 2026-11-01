@@ -1,5 +1,8 @@
 {
   "version": 1,
+  "devs": [
+    "carter"
+  ],
   "flags": {
     "flagsDemo": {
       "enabled": true,

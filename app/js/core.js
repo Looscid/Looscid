@@ -4531,23 +4531,32 @@ Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 function lcReleased() { return LOOSCID_RELEASED; }
 Looscid.lcReleased = lcReleased;
 /* --- Nov 1 2026 (Carter 4:53 PM): feature flags. flags.json at the site root turns a feature on or off without a new build,
-   for everyone or only for some LooscidIDs. Shape: {"version":1,"flags":{"name":{"enabled":true,"only":["carter"],"note":"..."}}}.
+   for everyone or only for some LooscidIDs. Shape: {"version":1,"devs":["carter"],"flags":{"name":{"enabled":true,"only":["carter"],"note":"..."}}}.
    "only" is a list of LooscidID usernames (no @, any case); empty or missing means everyone, when enabled.
    Fetched past every cache at start and when Looscid comes back to the front; it never blocks the app starting. If it can't
-   load, every flag is off. localStorage "looscid.flags.override" (JSON, same shape as "flags", or "name": true/false) wins
-   over the file, for testing on one device. Gate code with: if (LooscidFlags.on("name")) { ... }
+   load, every flag is off. Gate code with: if (LooscidFlags.on("name")) { ... }
+   Testing override (Carter 4:59 PM, abuse blocking): localStorage "looscid.flags.override" (JSON, same shape as "flags", or
+   "name": true/false) wins over the file ONLY when the signed-in LooscidID is on flags.json's top-level "devs" list. For
+   everyone else it is ignored completely, and nothing in the address (no URL parameter) can ever turn a flag on or off.
+   NOT SECURITY: flags only hide features in the app. Anyone can read the site's JS and flags.json, and a LooscidID's username
+   lives on the device, so anything secret or server-side must also be checked on the server. Never trust a flag for security.
    A change fires "looscid-flags" on window, so an open screen can re-render. How to add or flip one: work notes / flags.json. */
 const LC_FLAGS_OVERRIDE_KEY = "looscid.flags.override";
-let lcFlagsFile = {};
-function lcFlagsOverride() { try { const o = JSON.parse(localStorage.getItem(LC_FLAGS_OVERRIDE_KEY) || "null"); return o && typeof o === "object" ? (o.flags && typeof o.flags === "object" ? o.flags : o) : {}; } catch (e) { return {}; } }
+let lcFlagsFile = {}, lcFlagsDevs = [];
+function lcFlagNames(a) { return Array.isArray(a) ? a.map(function (h) { return String(h || "").replace(/^@/, "").trim().toLowerCase(); }).filter(Boolean) : []; }
+function lcFlagMe() { try { return lcMyHandle(); } catch (e) { return ""; } }
+function lcFlagsOverride() {
+  const me = lcFlagMe(); if (!me || lcFlagsDevs.indexOf(me) === -1) return {}; // devs only
+  try { const o = JSON.parse(localStorage.getItem(LC_FLAGS_OVERRIDE_KEY) || "null"); return o && typeof o === "object" && !Array.isArray(o) ? (o.flags && typeof o.flags === "object" ? o.flags : o) : {}; } catch (e) { return {}; }
+}
 function lcFlagOn(name) {
   const o = lcFlagsOverride();
-  let f = Object.prototype.hasOwnProperty.call(o, name) ? o[name] : lcFlagsFile[name];
+  const f = Object.prototype.hasOwnProperty.call(o, name) ? o[name] : (Object.prototype.hasOwnProperty.call(lcFlagsFile, name) ? lcFlagsFile[name] : null);
   if (typeof f === "boolean") return f;
   if (!f || typeof f !== "object" || f.enabled !== true) return false;
-  const only = Array.isArray(f.only) ? f.only.map(function (h) { return String(h || "").replace(/^@/, "").trim().toLowerCase(); }).filter(Boolean) : [];
+  const only = lcFlagNames(f.only);
   if (!only.length) return true;
-  let me = ""; try { me = lcMyHandle(); } catch (e) {}
+  const me = lcFlagMe();
   return !!me && only.indexOf(me) !== -1;
 }
 function lcFlagsLoad() {
@@ -4555,11 +4564,12 @@ function lcFlagsLoad() {
   try {
     p = fetch("flags.json?t=" + Date.now(), { cache: "no-store" })
       .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-      .then(function (j) { return j && j.flags && typeof j.flags === "object" ? j.flags : {}; }, function () { return {}; });
+      .then(function (j) { return j && typeof j === "object" ? j : {}; }, function () { return {}; });
   } catch (e) { p = Promise.resolve({}); }
-  return p.then(function (flags) {
-    const was = JSON.stringify(lcFlagsFile); lcFlagsFile = flags;
-    if (JSON.stringify(flags) !== was) { try { window.dispatchEvent(new CustomEvent("looscid-flags")); } catch (e) {} }
+  return p.then(function (j) {
+    const flags = j.flags && typeof j.flags === "object" && !Array.isArray(j.flags) ? j.flags : {}, devs = lcFlagNames(j.devs);
+    const was = JSON.stringify([lcFlagsFile, lcFlagsDevs]); lcFlagsFile = flags; lcFlagsDevs = devs;
+    if (JSON.stringify([flags, devs]) !== was) { try { window.dispatchEvent(new CustomEvent("looscid-flags")); } catch (e) {} }
     return flags;
   });
 }
