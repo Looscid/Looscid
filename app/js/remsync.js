@@ -369,7 +369,7 @@ function UnlockKey({ id, why }) {
   return lh('div', null,
     lh('p', { className: "lid-help", id: id + "-why" }, why),
     lh('label', { htmlFor: id + "-kp", className: "lid-label" }, "Your key's passcode"),
-    lh('input', { id: id + "-kp", className: "inp", type: "password", autoComplete: "current-password", autoCapitalize: "off", spellCheck: false, value: p, "aria-describedby": id + "-why", onChange: function (ev) { setP(ev.target.value); } }),
+    lh('input', { id: id + "-kp", className: "inp", type: "password", autoComplete: "current-password", autoCapitalize: "off", spellCheck: false, value: p, onChange: function (ev) { setP(ev.target.value); } }),
     e ? lh('p', { className: "lid-warn", id: id + "-ke", tabIndex: -1 }, e) : null,
     lh(Btn, { disabled: busy, onClick: async function () {
       setBusy(true); setE("");
@@ -410,7 +410,7 @@ function LcServerPanel({ go }) {
   else if (st.mode === "locked") body = lh(UnlockKey, { id: "srv", why: "Your key is locked with a passcode. Unlock it to sign in to the Looscid server." });
   else if (!connected) body = lh(React.Fragment, null,
     lh('p', { className: "lid-help", id: "srv-where" }, "Not signed in. Server: " + hostOf(home) + "."),
-    lh(Btn, { id: "srv-signin", disabled: busy, "aria-describedby": "srv-where", onClick: function () { run(async function () {
+    lh(Btn, { id: "srv-signin", disabled: busy, onClick: function () { run(async function () {
       try { const r = await signIn(home); setJoinOpen(false); done("Signed in as @" + r.handle + "." + gotText(r.got), "srv-msg"); }
       catch (e) { if (e.code === "not_member") { setJoinOpen(true); setEr(""); setMsg("Your key isn't on this server yet. Join with an invite code below."); say("Your key isn't on this server yet. Join with an invite code."); focusSoon("srv-join-h"); } else throw e; }
     }); } }, "Sign in to the Looscid server"),
@@ -421,7 +421,7 @@ function LcServerPanel({ go }) {
       lh('label', { htmlFor: "srv-inv", className: "lid-label" }, "Invite code"),
       lh('input', { id: "srv-inv", className: "inp", type: "text", autoComplete: "off", autoCapitalize: "characters", spellCheck: false, value: inv, onChange: function (e) { setInv(e.target.value); } }),
       lh('label', { htmlFor: "srv-handle", className: "lid-label" }, "Handle"),
-      lh('input', { id: "srv-handle", className: "inp", type: "text", autoComplete: "username", autoCapitalize: "none", spellCheck: false, value: handle, "aria-describedby": "srv-handle-d", onChange: function (e) { setHandle(e.target.value); } }),
+      lh('input', { id: "srv-handle", className: "inp", type: "text", autoComplete: "username", autoCapitalize: "none", spellCheck: false, value: handle, onChange: function (e) { setHandle(e.target.value); } }),
       lh('p', { className: "lid-help", id: "srv-handle-d" }, "2 to 20 letters, numbers or underscores. People find you by it."),
       lh('label', { htmlFor: "srv-name", className: "lid-label" }, "Display name (optional)"),
       lh('input', { id: "srv-name", className: "inp", type: "text", maxLength: Looscid.lcMax ? Looscid.lcMax("serverName") : 50, value: name, onChange: function (e) { setName(e.target.value); } }),
@@ -502,14 +502,14 @@ function LcBackupPanel({ go }) {
     lh('h2', { className: "lid-label", id: "bk-save-h" }, "Save backup file"),
     st.mode === "locked" && withKey ? lh(UnlockKey, { id: "bk", why: "Your key is locked with a passcode. Unlock it so it can go in the file." }) : null,
     noKeyHere ? lh('p', { className: "lid-help" }, st.mode === "signer" ? "Your key is in a signer extension, so it can't go in the file. Everything else can." : "This device doesn't have a key yet, so the file won't have one.") :
-      lh('label', { className: "lc-radio" + (withKey ? " on" : "") }, lh('input', { type: "checkbox", id: "bk-withkey", checked: withKey, "aria-describedby": "bk-withkey-d", onChange: function () { setWithKey(!withKey); } }), lh('span', null, "Put my key in the file (recommended)")),
+      lh('label', { className: "lc-radio" + (withKey ? " on" : "") }, lh('input', { type: "checkbox", id: "bk-withkey", checked: withKey, onChange: function () { setWithKey(!withKey); } }), lh('span', null, "Put my key in the file (recommended)")),
     noKeyHere ? null : lh('p', { className: "lid-help", id: "bk-withkey-d" }, withKey ? "With your key, the file brings back everything on a new device by itself." : "Without your key, you'll need your key (or recovery phrase) too when you restore."),
     lh('label', { htmlFor: "bk-pass", className: "lid-label" }, "Passcode for the file"),
-    lh('input', { id: "bk-pass", className: "inp", type: "password", autoComplete: "new-password", autoCapitalize: "off", spellCheck: false, value: p1, "aria-describedby": "bk-pass-d", onChange: function (e) { setP1(e.target.value); } }),
+    lh('input', { id: "bk-pass", className: "inp", type: "password", autoComplete: "new-password", autoCapitalize: "off", spellCheck: false, value: p1, onChange: function (e) { setP1(e.target.value); } }),
     lh('p', { className: "lid-help", id: "bk-pass-d" }, "At least 8 characters. Four short words work well, like: blue lamp river jump. Nobody can recover it if you forget it."),
     lh('label', { htmlFor: "bk-pass2", className: "lid-label" }, "Type the passcode again"),
     lh('input', { id: "bk-pass2", className: "inp", type: "password", autoComplete: "new-password", autoCapitalize: "off", spellCheck: false, value: p2, onChange: function (e) { setP2(e.target.value); } }),
-    lh(Btn, { id: "bk-save", disabled: busy, "aria-describedby": "bk-warn", onClick: async function () {
+    lh(Btn, { id: "bk-save", disabled: busy, onClick: async function () {
       const m = await mods().catch(function (e) { fail(e); return null; }); if (!m) return;
       const bad = m.backup.passcodeProblem(p1); if (bad) { fail(new Error(bad), "bk-pass"); return; }
       if (p1 !== p2) { fail(new Error("The two passcodes don't match. Type them again."), "bk-pass2"); return; }
@@ -520,7 +520,7 @@ function LcBackupPanel({ go }) {
     lh('h2', { className: "lid-label", id: "bk-restore-h" }, "Restore from backup file"),
     lh('p', { className: "lid-help", id: "bk-file-d" }, "Bring everything back from a .looscid file, made here or on the Looscid server's website. Your key from the file is saved on this device, locked with the file's passcode."),
     lh('label', { htmlFor: "bk-file", className: "lid-label" }, "Backup file"),
-    lh('input', { id: "bk-file", ref: fileRef, className: "inp", type: "file", "aria-describedby": "bk-file-d", onChange: function (e) { setFileName(e.target.files && e.target.files[0] ? e.target.files[0].name : ""); } }),
+    lh('input', { id: "bk-file", ref: fileRef, className: "inp", type: "file", onChange: function (e) { setFileName(e.target.files && e.target.files[0] ? e.target.files[0].name : ""); } }),
     lh('label', { htmlFor: "bk-rpass", className: "lid-label" }, "Passcode for the file"),
     lh('input', { id: "bk-rpass", className: "inp", type: "password", autoComplete: "current-password", autoCapitalize: "off", spellCheck: false, value: rp, onChange: function (e) { setRp(e.target.value); } }),
     lh(Btn, { id: "bk-restore", disabled: busy, onClick: async function () {

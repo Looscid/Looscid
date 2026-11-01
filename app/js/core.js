@@ -1000,13 +1000,13 @@ function DreamDeleteDialog({ id, onConfirm, onCancel, onNostr }) {
     return function () { document.removeEventListener("keydown", onKey); };
   }, [onCancel]);
   return lh('div', { className: "lid-alert-bg" },
-    lh('div', { ref: boxRef, className: "lid-alert", role: "alertdialog", "aria-modal": "true", "aria-labelledby": id + "-title", "aria-describedby": id + "-message", "data-lc-no-focus-trap": "", onKeyDown: onKey },
+    lh('div', { ref: boxRef, className: "lid-alert", role: "alertdialog", "aria-modal": "true", "aria-labelledby": id + "-title " + id + "-message", "data-lc-no-focus-trap": "", onKeyDown: onKey },
       lh('h2', { ref: headingRef, tabIndex: -1, "data-lc-autofocus": "", id: id + "-title", className: "lid-sub" }, "Delete this Dream?"),
       lh('p', { id: id + "-message", className: "lid-help" }, "Confirming removes this Dream from this device. Replies stay readable. This cannot be undone. Copies on relays may remain. Cancel makes no changes."),
       locked && lh('div', { className: "lc-cr-unlock" },
         lh('p', { id: id + "-locked", className: "lid-help" }, "Your Nostr key is locked. Enter your passcode so Nostr relays are asked to delete it too. Leave it empty to delete it from this device only."),
         lh('label', { htmlFor: id + "-pass", className: "lc-fs-l" }, "Passcode"),
-        lh('input', { id: id + "-pass", type: "password", className: "lc-text", autoComplete: "off", autoCapitalize: "off", spellCheck: false, value: pass, "aria-describedby": id + "-locked",
+        lh('input', { id: id + "-pass", type: "password", className: "lc-text", autoComplete: "off", autoCapitalize: "off", spellCheck: false, value: pass,
           onChange: function (e) { setPass(e.target.value); }, onKeyDown: function (e) { if (e.key === "Enter") { e.preventDefault(); confirm(); } } }),
         passMsg && lh('p', { className: "lid-err", role: "alert" }, passMsg)),
       lh('div', { className: "lid-actions" },
@@ -2932,22 +2932,17 @@ function lcNameJoin() {
   return Array.prototype.slice.call(arguments).map(function (x) { return x == null || x === false ? "" : String(x).replace(/\s+/g, " ").trim().replace(/^[,;:]\s*|\s*[,;:]$/g, "").trim(); }).filter(Boolean).join(", ");
 }
 Looscid.lcNameJoin = lcNameJoin;
-/* Build 150, part 18 (2three1y, Oct 11 7:05 PM: hints like a Swift app's): a real VoiceOver hint is aria-describedby on the
-   ONE control whose action isn't obvious from its name and role, pointing at a short sentence that ends in a period.
-   On iPhone, VoiceOver reads it after a pause as the control's hint (it follows the Hints setting) and braille shows it.
-   Never on a menu, sheet, dialog, list, tab or other container, and never on obvious controls like Like, Back or Close.
-   All hint sentences live once each in one hidden holder outside the app (#lc-hints), reused by id. */
-const LC_HINT_IDS = {};
-function lcHint(text) {
-  if (!text || typeof document === "undefined") return undefined;
-  const t = String(text).trim(); let id = LC_HINT_IDS[t];
-  if (id && document.getElementById(id)) return id;
-  let box = document.getElementById("lc-hints");
-  if (!box) { box = document.createElement("div"); box.id = "lc-hints"; box.hidden = true; (document.body || document.documentElement).appendChild(box); }
-  id = id || "lc-h-" + (Object.keys(LC_HINT_IDS).length + 1);
-  const sp = document.createElement("span"); sp.id = id; sp.textContent = t; box.appendChild(sp);
-  LC_HINT_IDS[t] = id; return id;
-}
+/* BANNED: VoiceOver "Description" labels (Carter, Nov 1 2026, 9:45 AM: "Can you remove the Description text pls? That's now
+   banned ... Like 'Description, dimmed' ... is gone and banned").
+   VoiceOver on iPhone says "description" for anything that has an accessible description, so Looscid uses NONE:
+   - no aria-describedby and no aria-description, anywhere (controls, fields, dialogs, menus, the Help Center);
+   - no "Description" label on screen (the Circle field is "About this Circle"), no dd/dt (WebKit calls a dd "description");
+   - a help or hint sentence is plain text right under its control, read in order. It is never dimmed or disabled.
+   - a button that can't do anything yet isn't dimmed for VoiceOver with a hint; it says why when you press it.
+   The Validate workflow (.github/workflows/deploy.yml, "No Description labels") fails a push that brings one back.
+   lcHint used to put a hidden hint on a control through aria-describedby (Build 150, part 18). It now returns nothing,
+   so an old call can't bring a description back. */
+function lcHint() { return undefined; }
 // A disabled item's reason as a hint sentence: "unavailable: Looscid has nowhere to send reports yet" becomes
 // "Not available yet: Looscid has nowhere to send reports yet."
 function lcHintReason(note) {
@@ -3356,12 +3351,12 @@ function LcPassFields({ id, pass, setPass, pass2, setPass2, noPass, setNoPass, l
   // existing: a pasted key that is already locked (ncryptsec1...): one field, its own passcode.
   if (existing) return lh(React.Fragment, null,
     lh('label', { htmlFor: id + "-pass", className: "lid-label" }, "Passcode for this key"),
-    lh('input', { id: id + "-pass", className: "inp", type: "password", autoComplete: "current-password", autoCapitalize: "off", spellCheck: false, value: pass, "aria-describedby": id + "-pass-d", onChange: function (e) { setPass(e.target.value); } }),
+    lh('input', { id: id + "-pass", className: "inp", type: "password", autoComplete: "current-password", autoCapitalize: "off", spellCheck: false, value: pass, onChange: function (e) { setPass(e.target.value); } }),
     lh('p', { className: "lid-help", id: id + "-pass-d" }, "This key is already locked. Type the passcode you locked it with. It stays locked with that passcode on this device."));
   return lh(React.Fragment, null,
     !noPass && lh(React.Fragment, null,
       lh('label', { htmlFor: id + "-pass", className: "lid-label" }, label || "Passcode"),
-      lh('input', { id: id + "-pass", className: "inp", type: "password", autoComplete: "new-password", autoCapitalize: "off", spellCheck: false, value: pass, "aria-describedby": id + "-pass-d", onChange: function (e) { setPass(e.target.value); } }),
+      lh('input', { id: id + "-pass", className: "inp", type: "password", autoComplete: "new-password", autoCapitalize: "off", spellCheck: false, value: pass, onChange: function (e) { setPass(e.target.value); } }),
       lh('p', { className: "lid-help", id: id + "-pass-d" }, "At least 8 characters. Four short words work well, like: blue lamp river jump. Your key is saved locked with it, and Looscid asks for it once each time you open it, before you Dream."),
       lh('label', { htmlFor: id + "-pass2", className: "lid-label" }, "Type the passcode again"),
       lh('input', { id: id + "-pass2", className: "inp", type: "password", autoComplete: "new-password", autoCapitalize: "off", spellCheck: false, value: pass2, onChange: function (e) { setPass2(e.target.value); } })),
@@ -3677,8 +3672,9 @@ function AlertDialog({ title, message, confirmLabel, onConfirm, onCancel, focusT
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   };
   return lh('div', { className: "lid-alert-bg" },
-    // Round 8 fixes (QA round 7): the dialog also names its message (aria-describedby), so it's read when the dialog opens.
-    lh('div', { ref: boxRef, className: "lid-alert", role: "alertdialog", 'aria-modal': "true", 'aria-labelledby': "lid-alert-t", 'aria-describedby': message ? "lid-alert-m" : undefined, onKeyDown: onKey },
+    // Round 8 fixes (QA round 7): the dialog's name includes its message, so it's read when the dialog opens. (Nov 1 2026: by
+    // aria-labelledby, not aria-describedby, which VoiceOver read as "description". See the ban note by lcHint.)
+    lh('div', { ref: boxRef, className: "lid-alert", role: "alertdialog", 'aria-modal': "true", 'aria-labelledby': message ? "lid-alert-t lid-alert-m" : "lid-alert-t", onKeyDown: onKey },
       lh('h2', { id: "lid-alert-t", className: "lid-sub", ref: titleRef, tabIndex: focusTitle ? -1 : undefined }, title),
       lh('p', { id: "lid-alert-m", className: "lid-help" }, message),
       lh('div', { className: "lid-actions" },
