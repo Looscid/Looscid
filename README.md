@@ -11,6 +11,10 @@ Looscid is a social app for everyone, on any phone or computer, with touch, mous
 
 **Our words:** Dreams, Redreams, Dreamors and the rest are explained in [TERMINOLOGY.md](docs/guides/TERMINOLOGY.md).
 
+## Server
+
+The Looscid server (the home that syncs Dreams, LooscidIDs and Chats in server mode) lives in [server/](server/). See [server/README.md](server/README.md) to run your own; the protocol is [server/PROTOCOL.md](server/PROTOCOL.md). The server folder is MIT licensed. It used to be github.com/2three1y/looscidserver, now archived.
+
 ## Community
 
 - Discord: [Join the Looscid Discord](https://discord.gg/M6xrD8EBXU)
