@@ -334,7 +334,7 @@ function ListsIndex({ navigate, gone, newList }) {
       lists.length ? lh('ul', { className: "lc-people lc-lists", role: "list", "aria-labelledby": "lists-yours-h" }, lists.slice().reverse().map(function (l) {
           return lh('li', { key: l.id },
             lh('button', { type: "button", className: "lc-person lc-list-row", id: "lists-open-" + l.id, "aria-label": l.name + ", " + lcListCount(l.members.length) + (Looscid.lcPinHas("list", l.id) ? ", pinned to Home" : ""), onClick: function () { navigate("lists", { list: l.id }); } },
-              lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, l.name, lh('span', { className: "sr-only" }, ",")), lh('span', { className: "lc-person-h" }, lcListCount(l.members.length) + (Looscid.lcPinHas("list", l.id) ? ", pinned to Home" : "")))));
+              lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, l.name), lh('span', { className: "lc-person-h" }, lcListCount(l.members.length) + (Looscid.lcPinHas("list", l.id) ? ", pinned to Home" : "")))));
         }))
         : lh('p', { className: "lc-muted" }, "No lists yet.")));
 }
@@ -797,8 +797,8 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
           lh('ul', { className: "lc-people", role: "list" }, visLists.map(function (l, i) {
             return lh('li', { key: l.id || i }, isMe
               ? lh('button', { type: "button", className: "lc-person lc-list-row", id: "pf-list-" + l.id, "aria-label": l.name + ", " + cnt(l) + (l.shown ? ", shown on your profile" : ", only you"), onClick: function () { navigate("lists", { list: l.id }); } },
-                  lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, l.name, lh('span', { className: "sr-only" }, ",")), lh('span', { className: "lc-person-h" }, cnt(l) + (l.shown ? ", shown on your profile" : ", only you"))))
-              : lh('p', { className: "lc-person lc-list-row" }, lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, l.name, lh('span', { className: "sr-only" }, ",")), lh('span', { className: "lc-person-h" }, cnt(l)))));
+                  lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, l.name), lh('span', { className: "lc-person-h" }, cnt(l) + (l.shown ? ", shown on your profile" : ", only you"))))
+              : lh('p', { className: "lc-person lc-list-row" }, lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, l.name), lh('span', { className: "lc-person-h" }, cnt(l)))));
           })),
           isMe ? lh('p', { className: "lc-muted" }, "Others see only the lists you show. Choose on each list's page with Show on my profile.") : null);
       }
@@ -813,7 +813,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
             const d = self ? findRoot(t) : null, name = threadName(t), since = t.since && Looscid.lcAlertTime ? Looscid.lcAlertTime(t.since * 1000) : "";
             const key = "pf-thread-" + String(t.root).replace(/[^a-z0-9-]/gi, "").slice(0, 40);
             return lh('li', { key: key, className: "lc-prof-thread" },
-              d ? card(d) : lh('p', { className: "lc-person lc-list-row" }, lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, name, lh('span', { className: "sr-only" }, ",")), lh('span', { className: "lc-person-h" }, since ? "followed " + since : "followed"))),
+              d ? card(d) : lh('p', { className: "lc-person lc-list-row" }, lh('span', { className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, name), lh('span', { className: "lc-person-h" }, since ? "followed " + since : "followed"))),
               isMe ? lh('button', { type: "button", id: key + "-unf", className: "btn bgb lc-btn", "aria-label": "Unfollow Thread, " + (d && d.user && d.user.name ? d.user.name + "'s thread" : name),
                 onClick: function () {
                   Looscid.lcThreadUnsub(t.root); announce("Unfollowed " + (d && d.user && d.user.name ? d.user.name + "'s thread" : name) + ".");
@@ -950,10 +950,11 @@ function LcProfileCircles({ circ, isMe, name, navigate, uid, f0 }) {
   const row = function (g, i) {
     const known = g.id != null && GROUPS.some(function (x) { return x.id === g.id; });
     const role = f === "owner" ? "Owner" : "Member";
-    const inner = [lh('span', { key: "t", className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, g.name, lh('span', { className: "sr-only" }, ",")),
-      lh('span', { className: "lc-person-h" }, Looscid.lcCircleHandle(g) + (g.highlight ? ", highlighted" : "") + (isMe ? (g.shown ? ", shown on your profile" : ", only you") : "")))];
+    const hText = Looscid.lcCircleHandle(g) + (g.highlight ? ", highlighted" : "") + (isMe ? (g.shown ? ", shown on your profile" : ", only you") : "");
+    const inner = [lh('span', { key: "t", className: "lc-person-t" }, lh('span', { className: "lc-person-n" }, g.name),
+      lh('span', { className: "lc-person-h" }, hText))];
     return lh('li', { key: (g.id != null ? g.id : "c") + "-" + i }, known
-      ? lh('button', { type: "button", className: "lc-person lc-circ-row", id: "pf-circ-" + g.id, onClick: function () { navigate("groups", { circle: g.id, back: { uid: uid, tab: "circles", f: f } }); } }, inner)
+      ? lh('button', { type: "button", className: "lc-person lc-circ-row", id: "pf-circ-" + g.id, "aria-label": Looscid.lcJoinName(g.name, hText), onClick: function () { navigate("groups", { circle: g.id, back: { uid: uid, tab: "circles", f: f } }); } }, inner)
       : lh('p', { className: "lc-person lc-circ-row" }, inner));
   };
   const emptyText = f === "owner" ? (isMe ? "You don't own any Circles yet. Make one in Circles with Create Circle." : name + " doesn't own any Circles they show.")
@@ -1029,7 +1030,7 @@ function LcLinkSettings({ profile, onSave, onBack, onEdit, focus }) {
   };
   const pickFirst = function (url, name) { const b = base(); b.first = url; savePrefs(b); announce(url ? name + " is shown first." : "Your top link is shown first."); };
   const rowCls = function (i, n) { return "lc-i27-li lc-ls-li" + (i === 0 ? " lc-g-first" : "") + (i === n - 1 ? " lc-g-last" : ""); };
-  const sub = function (l) { return lh('span', { className: "lc-i27-sub lc-ls-url" }, lh('span', { className: "sr-only" }, ", "), lcLinkShow(l.url)); };
+  const sub = function (l) { return lh('span', { className: "lc-i27-sub lc-ls-url" }, lcLinkShow(l.url)); };
   const editRow = lh('ul', { className: "mlist lc-i27-list", role: "list", "aria-label": "Edit" }, Looscid.lcI27Cards([[
     { id: "ls-edit", g: "link", c: "#007aff", label: "Edit links", sub: "Add, change or remove links in Edit profile", onClick: onEdit }]]));
   return lh('div', { className: "pg lc-ios-page lc-i27 lc-ls", role: "region", "aria-labelledby": "ls-h1",
@@ -1046,12 +1047,12 @@ function LcLinkSettings({ profile, onSave, onBack, onEdit, focus }) {
         return lh('li', { key: l.url, className: rowCls(i, all.length) },
           lh('div', { className: "lc-ls-row" },
             lh('p', { className: "lc-i27-txt lc-ls-txt", id: "ls-name-" + i },
-              lh('span', { className: "lc-i27-lbl" }, l.name, l.hidden ? lh('span', { className: "lc-ls-tag" }, lh('span', { className: "sr-only" }, ", "), "Hidden") : null,
-                l.url === firstUrl ? lh('span', { className: "lc-ls-tag" }, lh('span', { className: "sr-only" }, ", "), "Shown first") : null),
+              lh('span', { className: "lc-i27-lbl" }, l.name, l.hidden ? lh('span', { className: "lc-ls-tag" }, "Hidden") : null,
+                l.url === firstUrl ? lh('span', { className: "lc-ls-tag" }, "Shown first") : null),
               sub(l)),
             lh('div', { className: "lc-ls-moves" },
-              lh('button', { type: "button", id: "ls-up-" + i, className: "lc-ls-btn", "aria-disabled": i === 0 ? "true" : undefined, onClick: function () { move(l, i, -1); } }, "Move up", lh('span', { className: "sr-only" }, ", " + l.name)),
-              lh('button', { type: "button", id: "ls-down-" + i, className: "lc-ls-btn", "aria-disabled": i === all.length - 1 ? "true" : undefined, onClick: function () { move(l, i, 1); } }, "Move down", lh('span', { className: "sr-only" }, ", " + l.name)))));
+              lh('button', { type: "button", id: "ls-up-" + i, className: "lc-ls-btn", "aria-disabled": i === 0 ? "true" : undefined, "aria-label": "Move up, " + l.name, onClick: function () { move(l, i, -1); } }, "Move up"),
+              lh('button', { type: "button", id: "ls-down-" + i, className: "lc-ls-btn", "aria-disabled": i === all.length - 1 ? "true" : undefined, "aria-label": "Move down, " + l.name, onClick: function () { move(l, i, 1); } }, "Move down"))));
       })),
       lh('p', { className: "lc-i27-foot" }, "Your profile and its Links sheet list them in this order."),
       lh('fieldset', { className: "lc-ls-fs" },
@@ -1060,9 +1061,9 @@ function LcLinkSettings({ profile, onSave, onBack, onEdit, focus }) {
           const on = l.url === firstUrl;
           return lh('li', { key: l.url || "top", className: rowCls(i, arr.length) },
             lh('label', { className: "lc-i27-row lc-ls-radio", htmlFor: "ls-first-" + i },
-              lh('input', { type: "radio", name: "ls-first", id: "ls-first-" + i, checked: on, onChange: function () { pickFirst(l.url, l.name); } }),
+              lh('input', { type: "radio", name: "ls-first", id: "ls-first-" + i, checked: on, "aria-label": Looscid.lcJoinName(l.name, l.top ? (topLink ? lcLinkShow(topLink.url) + ", the first one in your order" : "None shown") : lcLinkShow(l.url)), onChange: function () { pickFirst(l.url, l.name); } }),
               lh('span', { className: "lc-i27-txt" }, lh('span', { className: "lc-i27-lbl" }, l.name),
-                l.top ? lh('span', { className: "lc-i27-sub" }, lh('span', { className: "sr-only" }, ", "), topLink ? lcLinkShow(topLink.url) + ", the first one in your order" : "None shown") : sub(l))));
+                l.top ? lh('span', { className: "lc-i27-sub" }, topLink ? lcLinkShow(topLink.url) + ", the first one in your order" : "None shown") : sub(l))));
         }))),
       lh('p', { className: "lc-i27-foot" }, "The link shown first is the one named in your More menu: \u201cLinks, " + (shown.length ? lcLinkShow(shown[0].url) : "\u2026") + (shown.length > 1 ? ", and " + (shown.length - 1) + " more" : "") + "\u201d."),
       lh('h2', { className: "lc-ls-h2", id: "ls-show-h" }, "Show on profile"),
@@ -1123,9 +1124,9 @@ function LcLinksSheet({ who, links, profLink, handle, onShare, onClose, own }) {
       links.length ? lh('ul', { className: "mlist lc-i27-list lc-links-list", role: "list", "aria-label": "Links (" + links.length + ")" }, links.map(function (l, i) {
         const host = lcLinkHost(l.url), tile = LC_LINK_TILE[host] || "#636366";
         return lh('li', { key: l.url, className: "mli lc-i27-li" + (i === 0 ? " lc-g-first" : "") + (i === links.length - 1 ? " lc-g-last" : "") },
-          lh('a', { className: "lc-i27-row lc-link-row", href: l.url, target: "_blank", rel: "noopener noreferrer me" },
+          lh('a', { className: "lc-i27-row lc-link-row", href: l.url, target: "_blank", rel: "noopener noreferrer me", "aria-label": Looscid.lcNameJoin(l.name, lcLinkShow(l.url), "opens in a new tab") },
             lh('span', { className: "lc-i27-ic lc-link-tile", style: { background: tile }, "aria-hidden": "true" }, (host.charAt(0) || "?").toUpperCase()),
-            lh('span', { className: "lc-i27-txt" }, lh('span', { className: "lc-i27-lbl" }, l.name), lh('span', { className: "lc-i27-sub lc-link-url" }, lh('span', { className: "sr-only" }, ", "), lcLinkShow(l.url)), lh('span', { className: "sr-only" }, ", opens in a new tab")),
+            lh('span', { className: "lc-i27-txt" }, lh('span', { className: "lc-i27-lbl" }, l.name), lh('span', { className: "lc-i27-sub lc-link-url" }, lcLinkShow(l.url))),
             lh(Looscid.LcI27Glyph, { g: "out", size: 14, cls: "lc-i27-chev" })));
       })) : lh('p', { className: "lc-i27-foot" }, own ? "You haven't added any links yet." : who + " hasn't added any links yet."),
       // Nov 1 2026 (Carter): on your own profile, Edit links (Edit profile, at Social links) and Link settings.
@@ -1604,7 +1605,7 @@ function LcCharLimits() {
               value: fs.max == null ? "" : String(fs.max),
               onChange: function (e) { const v = e.target.value.trim(); setField(f.id, { max: v === "" ? null : Math.max(1, Math.floor(+v) || 1) }); } }),
             lh('p', { id: nid + "-d", className: "lc-desc lc-cl-d" }, "Characters. Empty: no limit" + (f.hard ? " (stops at " + f.hard + ")" : "") + ". Usual: " + usual(f) + ". Now: " + now(f) + "." + (f.note ? " " + f.note : "")),
-            fs.max != null ? lh('button', { type: "button", className: "btn bgb lc-btn", id: nid + "-none", onClick: function () { setField(f.id, { max: null }); announce(f.l + ": no limit."); setTimeout(function () { const el = document.getElementById(nid); if (el) el.focus(); }, 0); } }, "No limit", lh('span', { className: "sr-only" }, ", " + f.l)) : null) : null);
+            fs.max != null ? lh('button', { type: "button", className: "btn bgb lc-btn", id: nid + "-none", "aria-label": "No limit, " + f.l, onClick: function () { setField(f.id, { max: null }); announce(f.l + ": no limit."); setTimeout(function () { const el = document.getElementById(nid); if (el) el.focus(); }, 0); } }, "No limit") : null) : null);
       }))) : null);
 }
 function lcSetAiPref(patch) { setAIPrefs(Object.assign({}, getAIPrefs(), patch)); try { window.dispatchEvent(new CustomEvent("looscid:llm")); } catch (e) {} }
@@ -2492,7 +2493,7 @@ function LcProfileEditor({ profile, focusKey, onSave, onClose }) {
       lh('p', { className: "lc-pe-help" }, "Your Mastodon, Bluesky, Nostr, GitHub, YouTube or any other profile. Up to 10."),
       d.links.length ? lh('ul', { className: "lc-pe-links", "aria-label": "Your links" }, d.links.map(function (l, i) {
         return lh('li', { key: i + l.url, className: "lc-pe-link" },
-          lh('span', { className: "lc-pe-link-t" }, lh('span', { className: "lc-pe-link-n" }, l.name), lh('span', { className: "sr-only" }, ", "), lh('span', { className: "lc-pe-link-u" }, lcLinkShow(l.url))),
+          lh('span', { className: "lc-pe-link-t" }, lh('span', { className: "lc-pe-link-n" }, l.name), lh('span', { className: "lc-pe-link-u" }, lcLinkShow(l.url))),
           lh('button', { type: "button", id: "pe-link-rm-" + i, className: "lc-pe-rm", "aria-label": "Remove " + l.name + " link",
             onClick: function () { const next = d.links.filter(function (_, j) { return j !== i; }); set("links", next); announce(l.name + " link removed. Save keeps this change.");
               setTimeout(function () { const b = document.getElementById("pe-link-rm-" + Math.min(i, next.length - 1)) || document.getElementById("pe-link-name"); if (b) b.focus(); }, 30); } }, "Remove"));
@@ -4171,8 +4172,8 @@ function LcPickRow({ def, id, v, put }) {
   return lh(React.Fragment, null,
     lh('div', { className: "lc-row lc-pickrow" },
       // Its name is its own words, "Speak timestamps, Full" (the comma is for speech only), so what's read is what's shown.
-      lh('button', { type: "button", id: id, className: "lc-sw lc-pick", onClick: function () { setOpen(true); } },
-        lh('span', { className: "lc-sw-l" }, def.l), lh('span', { className: "sr-only" }, ", "),
+      lh('button', { type: "button", id: id, className: "lc-sw lc-pick", "aria-label": Looscid.lcJoinName(def.l, val), onClick: function () { setOpen(true); } },
+        lh('span', { className: "lc-sw-l" }, def.l), Looscid.lcJoinName(def.l, val) ? null : lh('span', { className: "sr-only" }, ", "),
         lh('span', { className: "lc-sw-v" }, val, lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true", focusable: "false" })))),
     open ? lh(LcPicker, { def: def, id: id, v: v, onPick: function (x) { setOpen(false); if (String(x) !== String(v)) put(x, false); }, onClose: function () { setOpen(false); } }) : null);
 }

@@ -1346,7 +1346,7 @@ function CommentView({dream, backTo, onBack, onLike, onRedream, onUndoRedream, o
         , React.createElement('div', { className: "hdr-row",}
           , React.createElement('button', { className: "bi", onClick: onBack, 'aria-label': "Back",}, React.createElement(Ic.Bck, { style: {width:21,height:21},}))
           /* Round 5 fixes: the Replies view has a heading (it was plain text), and opening it puts focus there. */
-          , React.createElement('h1', { className: "hdr-title", tabIndex: -1, id: "cv-h1",}, "Replies", lh('span', { className: "sr-only" }, ", "),
+          , React.createElement('h1', { className: "hdr-title", tabIndex: -1, id: "cv-h1", "aria-label": "Replies, " + fmt(comments.length),}, "Replies",
               React.createElement('span', { style: {fontSize:13,color:"var(--tx3)",fontWeight:600,fontFamily:"inherit",marginLeft:8},}, fmt(comments.length)))
         )
       )
@@ -2786,11 +2786,11 @@ function LcI27Row(o) {
   // The name comes from the row's own words, in reading order: label, value, then the line under it. The value is said
   // right after the label (hidden text) and drawn on the right (hidden from the screen reader), so the two never differ.
   return lh('li', { key: o.id, className: cls },
-    lh('button', { type: "button", id: o.id, className: "mitem lc-i27-row", onClick: o.onClick, "aria-label": o.name || undefined },
+    lh('button', { type: "button", id: o.id, className: "mitem lc-i27-row", onClick: o.onClick, "aria-label": o.name || lcJoinName(o.label, o.value, o.sub) || undefined },
       lh('span', { className: "lc-i27-ic", style: { background: t[1] }, "aria-hidden": "true" }, lh(LcI27Glyph, { g: t[0] })),
       lh('span', { className: "lc-i27-txt" },
-        lh('span', { className: "lc-i27-lbl" }, o.label, o.value ? lh('span', { className: "sr-only" }, ", " + o.value) : null),
-        o.sub ? lh('span', { className: "lc-i27-sub" }, lh('span', { className: "sr-only" }, ", "), o.sub) : null),
+        lh('span', { className: "lc-i27-lbl" }, o.label, o.value && !lcJoinName(o.label, o.value, o.sub) && !o.name ? lh('span', { className: "sr-only" }, ", " + o.value) : null),
+        o.sub ? lh('span', { className: "lc-i27-sub" }, o.sub) : null),
       o.value ? lh('span', { className: "lc-i27-val", "aria-hidden": "true" }, o.value) : null,
       o.noChev ? null : lh(LcI27Glyph, { g: "chev", size: 14, cls: "lc-i27-chev" })));
 }
@@ -2875,13 +2875,12 @@ function LcSettingsHome({ s, navigate, onBack }) {
   const np = lcMyNpub();
   const idLi = idItem ? lh('li', { key: "looscidid", className: "mli lc-i27-li lc-g-first lc-g-last lc-i27-idli" },
     // Its name, from its own words: "Carter, @2three1y, npub1…, LooscidID, Security, and more".
-    lh('button', { type: "button", id: lcSetRowId(idItem.label), className: "mitem lc-i27-row lc-i27-id", onClick: idItem.action },
+    lh('button', { type: "button", id: lcSetRowId(idItem.label), className: "mitem lc-i27-row lc-i27-id", onClick: idItem.action, "aria-label": lcJoinName(name, handle, np ? lcNpubShort(np) : "", LC_SET_ID_SUB) || undefined },
       lh('span', { className: "lc-i27-av", "aria-hidden": "true" }, String(me.initials || name.charAt(0) || "D").slice(0, 2)),
       lh('span', { className: "lc-i27-txt" },
         lh('span', { className: "lc-i27-idname" }, name),
-        handle ? lh('span', { className: "lc-i27-sub" }, lh('span', { className: "sr-only" }, ", "), handle) : null,
-        np ? lh('span', { className: "sr-only" }, ", " + lcNpubShort(np)) : null,
-        lh('span', { className: "lc-i27-sub" }, lh('span', { className: "sr-only" }, ", "), LC_SET_ID_SUB)),
+        handle ? lh('span', { className: "lc-i27-sub" }, handle) : null,
+        lh('span', { className: "lc-i27-sub" }, LC_SET_ID_SUB)),
       lh(LcI27Glyph, { g: "chev", size: 14, cls: "lc-i27-chev" })),
     lh(LcNpubLine, { np: np, id: "set-npub" })) : null;
   const go = function (it) { return lcSetRowO(it); };
@@ -2940,6 +2939,16 @@ function lcNameJoin() {
   return Array.prototype.slice.call(arguments).map(function (x) { return x == null || x === false ? "" : String(x).replace(/\s+/g, " ").trim().replace(/^[,;:]\s*|\s*[,;:]$/g, "").trim(); }).filter(Boolean).join(", ");
 }
 Looscid.lcNameJoin = lcNameJoin;
+/* Nov 1 2026 (Carter, 4:08 PM: "their still is a 'Linkname ,' Comma pattern"): hidden ", " pieces inside a button, link or
+   heading are their own boxes, so screen readers put a space before them and read "Mode , Local" and "GitHub , github.com".
+   Those names are written whole now with lcJoinName: an aria-label made of the same words the row shows, joined with ", ".
+   It gives nothing (and the caller keeps its plain text) when there are fewer than two parts or a part isn't plain text. */
+function lcJoinName() {
+  const a = Array.prototype.slice.call(arguments).filter(function (x) { return x != null && x !== false && x !== ""; });
+  if (a.length < 2 || a.some(function (x) { return typeof x !== "string" && typeof x !== "number"; })) return undefined;
+  return lcNameJoin.apply(null, a) || undefined;
+}
+Looscid.lcJoinName = lcJoinName;
 /* BANNED: VoiceOver "Description" labels (Carter, Nov 1 2026, 9:45 AM: "Can you remove the Description text pls? That's now
    banned ... Like 'Description, dimmed' ... is gone and banned").
    VoiceOver on iPhone says "description" for anything that has an accessible description, so Looscid uses NONE:
@@ -7340,6 +7349,7 @@ const LC_TIP_NAMES = {
 };
 // Patterns: the first that matches wins. Names with a person, a Circle or a number in them land here.
 const LC_TIP_RULES = [
+  [/^move up, /, "Moves this link up the list"], [/^move down, /, "Moves this link down the list"], [/^no limit, /, "Takes the limit off"],
   [/, looscidid, security\b/, "Opens your LooscidID settings"], [/^test the read-aloud voice/, "Plays a sample of the voice"],
   [/, [\d,]+ followers?$/, "Opens their profile"], [/, collapse$/, "Hides the replies"], [/, expand$/, "Shows the replies"],
   [/^[\d,]+ repl(y|ies)$/, "Opens the replies"], [/^[\d,]+ likes?$/, "Shows who liked it"], [/^close .*menu$/, "Closes this menu"],

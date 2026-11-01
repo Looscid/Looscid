@@ -126,7 +126,7 @@ function discoverView(st, p, draw) {
             lcAvEl(u, 44),
             h('div', { className: "cif", "aria-hidden": "true" },
               h('div', { className: "cnm" }, u.name, u.verified && h('span', { style: { color: "var(--ac2)", fontSize: 11 } }, " \u2713")),
-              h('div', { className: "cpv" }, u.handle, " \u00b7 ", fmt(u.followers || 0), (u.followers || 0) === 1 ? " follower" : " followers"))),
+              h('div', { className: "cpv" }, u.handle, " ", h('span', { "aria-hidden": "true" }, "\u00b7"), " ", fmt(u.followers || 0), (u.followers || 0) === 1 ? " follower" : " followers"))),
           // Round 7.16 (#216): no more dimmed "open their profile to follow" button. Follow always works here.
           cherryCtx && cherryCtx.followUser
             ? h('button', { type: "button", className: "btn " + (fol ? "bgb" : "bp"), style: { padding: "7px 14px", fontSize: 12 }, "aria-pressed": fol ? "true" : "false", "aria-label": "Follow " + u.name,

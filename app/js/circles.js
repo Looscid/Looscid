@@ -33,8 +33,8 @@ function CreateGroupFlow({onClose, onCreate, navigate}) {
     return () => clearTimeout(t);
   }, [step]);
   const onSheetKey = e => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); onClose(); } };
-  const stepHead = (title, n) => React.createElement('h2', { ref: headRef, tabIndex: -1, className: "mtt lc-cc-h", style: {margin:0},},
-    React.createElement('span', null, title), React.createElement('span', { className: "sr-only" }, ", "), React.createElement('span', { className: "lc-cc-step" }, "Step " + n + " of 3"));
+  const stepHead = (title, n) => React.createElement('h2', { ref: headRef, tabIndex: -1, className: "mtt lc-cc-h", style: {margin:0}, "aria-label": title + ", Step " + n + " of 3",},
+    React.createElement('span', null, title), React.createElement('span', { className: "lc-cc-step" }, "Step " + n + " of 3"));
   // Single choices (privacy, category, icon) are real radio groups: Arrow keys move and choose, only the chosen one is
   // in the Tab order, and VoiceOver says "radio button, checked" (BrailleNote braille roles apply, see lcBrStamp).
   const radio = (key, val, cur, props, kids) => { const p = Object.assign({}, props); const first = p.first; delete p.first;
