@@ -2,7 +2,7 @@
 
 **The Looscid home server. Looscid runs on Rem.**
 
-This folder is the server, inside the Looscid repo (it used to be its own repo, github.com/2three1y/looscidserver,
+This folder is the server, inside the Looscid repo (it used to be its own repo, github.com/Looscid/looscidserver,
 now archived). The app it serves is this repo's `app/` folder, the same app as https://looscid.github.io/Looscid/.
 
 Looscid is an accessible social app built for screen reader users first. This is its home server: the
