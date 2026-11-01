@@ -13,3 +13,12 @@ jobs:
       # Build 195: the Help Center website (app/help-center/) must match app/js/helpdata.js.
       - name: Help Center is up to date
         run: node .github/scripts/build-help.mjs --check
+      # Nov 1 2026 (Carter, 9:45 AM: "Description, dimmed ... is gone and banned"): VoiceOver on iPhone says "description"
+      # for any accessible description, so Looscid has none. This fails a push that brings back an aria-describedby,
+      # an aria-description or a Description label in the app, the site pages or the Help Center builder.
+      - name: No Description labels
+        run: |
+          files=$(git ls-files 'app/*.html' 'app/**/*.html' 'app/js/*.js' '.github/scripts/build-help.mjs' | grep -v -e '^app/os/' -e '^app/projects/' -e '/vendor/')
+          if grep -nE "aria-describedby['\"]?[[:space:]]*[:=]|aria-description['\"]?[[:space:]]*[:=]|ariaDescription" $files; then echo "Banned: aria-describedby / aria-description (VoiceOver reads it as description)"; exit 1; fi
+          if grep -nE "[,(][[:space:]]*['\"]Description:?['\"][[:space:]]*\)|>[[:space:]]*Description:?[[:space:]]*<|(aria-label|placeholder|title)['\"]?[[:space:]]*[:=][[:space:]]*['\"]Description" $files; then echo "Banned: a Description label"; exit 1; fi
+          echo "No Description labels"
