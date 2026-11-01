@@ -416,7 +416,7 @@ function LcServerPanel({ go }) {
     }); } }, "Sign in to the Looscid server"),
     !joinOpen && lh(Btn, { disabled: busy, onClick: function () { setJoinOpen(true); focusSoon("srv-join-h"); } }, "Join with an invite code"),
     joinOpen && lh('section', { "aria-labelledby": "srv-join-h" },
-      lh('h3', { className: "lid-label", id: "srv-join-h", tabIndex: -1 }, "Join with an invite code"),
+      lh('h2', { className: "lid-label", id: "srv-join-h", tabIndex: -1 }, "Join with an invite code"),
       lh('p', { className: "lid-help" }, "The server is invite-only and for people 13 and older. It never asks for your email, phone number or location. Your key stays on this device."),
       lh('label', { htmlFor: "srv-inv", className: "lid-label" }, "Invite code"),
       lh('input', { id: "srv-inv", className: "inp", type: "text", autoComplete: "off", autoCapitalize: "characters", spellCheck: false, value: inv, onChange: function (e) { setInv(e.target.value); } }),
@@ -464,7 +464,7 @@ function LcServerPanel({ go }) {
     body = lh(React.Fragment, null,
       lh('p', { className: "lid-help", id: "srv-status", tabIndex: -1 }, "Signed in as @" + c.handle + " on " + hostOf(c.home || DEFAULT_HOME) + ". " + (n.on ? plural(n.on, "Dream") + " of " + (n.dreams + n.replies) + " on this device " + (n.on === 1 ? "is" : "are") + " on the server." : "")),
       c.optin == null ? lh('section', { "aria-labelledby": "srv-optin-h" },
-        lh('h3', { className: "lid-label", id: "srv-optin-h", tabIndex: -1 }, "Put your Dreams on the server?"),
+        lh('h2', { className: "lid-label", id: "srv-optin-h", tabIndex: -1 }, "Put your Dreams on the server?"),
         lh('p', { className: "lid-help" }, "You have " + plural(n.dreams, "Dream") + " and " + plural(n.replies, "reply", "replies") + " on this device" + (n.on ? ", and " + (n.on === n.dreams + n.replies ? "all of them are" : n.on + " are") + " already on the server" : "") + ". They're signed with your key and keep their original dates. Nothing uploads unless you choose, and new Dreams you post sync only after you choose All my Dreams or Let me pick."),
         lh(Btn, { disabled: busy, onClick: function () { run(async function () { saveCfg({ optin: "all", optinAt: Date.now() }); const r = await upload(null, progress); done(upText(r) + " New Dreams you post will sync too.", "srv-msg"); }); } }, "All my Dreams"),
         lh(Btn, { disabled: busy, onClick: function () { setPick(new Set()); focusSoon("srv-pick-h"); } }, "Let me pick"),
@@ -499,7 +499,7 @@ function LcBackupPanel({ go }) {
   return lh('div', { className: "lid-panel" },
     lh('p', { className: "lid-help" }, "One file with everything: your profile, Dreams, replies, chats, likes, follows, settings, and your LooscidID key. It opens in Looscid or on the Looscid server's website, on any device."),
     lh('p', { className: "lid-warn", id: "bk-warn" }, "This file contains your key. Anyone who has the file and its passcode can Dream as you, so keep it private. It's locked with a passcode you choose, and nobody can recover a forgotten passcode."),
-    lh('h3', { className: "lid-label", id: "bk-save-h" }, "Save backup file"),
+    lh('h2', { className: "lid-label", id: "bk-save-h" }, "Save backup file"),
     st.mode === "locked" && withKey ? lh(UnlockKey, { id: "bk", why: "Your key is locked with a passcode. Unlock it so it can go in the file." }) : null,
     noKeyHere ? lh('p', { className: "lid-help" }, st.mode === "signer" ? "Your key is in a signer extension, so it can't go in the file. Everything else can." : "This device doesn't have a key yet, so the file won't have one.") :
       lh('label', { className: "lc-radio" + (withKey ? " on" : "") }, lh('input', { type: "checkbox", id: "bk-withkey", checked: withKey, "aria-describedby": "bk-withkey-d", onChange: function () { setWithKey(!withKey); } }), lh('span', null, "Put my key in the file (recommended)")),
@@ -517,7 +517,7 @@ function LcBackupPanel({ go }) {
       try { const r = await makeBackup(p1, withKey && !noKeyHere); setP1(""); setP2(""); done("Backup file saved as " + r.name + ", with " + plural(r.dreams, "Dream") + (r.withKey ? " and your key" : ", without your key") + ". Keep it private."); }
       catch (e) { fail(e); } finally { setBusy(false); }
     } }, "Save backup file"),
-    lh('h3', { className: "lid-label", id: "bk-restore-h" }, "Restore from backup file"),
+    lh('h2', { className: "lid-label", id: "bk-restore-h" }, "Restore from backup file"),
     lh('p', { className: "lid-help", id: "bk-file-d" }, "Bring everything back from a .looscid file, made here or on the Looscid server's website. Your key from the file is saved on this device, locked with the file's passcode."),
     lh('label', { htmlFor: "bk-file", className: "lid-label" }, "Backup file"),
     lh('input', { id: "bk-file", ref: fileRef, className: "inp", type: "file", "aria-describedby": "bk-file-d", onChange: function (e) { setFileName(e.target.files && e.target.files[0] ? e.target.files[0].name : ""); } }),

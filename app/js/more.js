@@ -929,15 +929,15 @@ function DreamorProfilePage({user, navigate, cherryCtx}) {
 }
 /* --- SETTINGS ---------------------------- */
 /* --- ACCOUNT SETTINGS ---------------------------------------------------- */
-function AccountSettings({navigate, authUser, onSignOut, onRenameProfile, onUpdateProfile, initialTab}) {
+function AccountSettings({navigate, authUser, onSignOut, onRenameProfile, onUpdateProfile, initialTab, fromSettings}) {
   // Settings > Account IS LooscidID management (2three1y, Oct 8 2026), laid out like the
   // Google Account page. Alerts live only in Settings > Alerts, never here.
   const securityExtra = React.createElement(React.Fragment, null
-    , React.createElement('h3', { className: "lid-label",}, "Local profile")
+    , React.createElement('h2', { className: "lid-label", id: "lid-local-h",}, "Local profile")
     , React.createElement('p', { className: "lid-help",}, "Your LooscidID is saved only on this device. Resetting it starts fresh with the name Dreamor.")
     , React.createElement('button', { className: "btn bgb lid-wide", onClick: ()=>{ if (window.confirm("Reset your local profile on this device?")) onSignOut(); },}, "Reset local profile")
   );
-  return React.createElement(LooscidIDManager, { navigate: navigate, authUser: authUser, onUpdateProfile: onUpdateProfile || (()=>{}), initialTab: initialTab,
+  return React.createElement(LooscidIDManager, { navigate: navigate, authUser: authUser, onUpdateProfile: onUpdateProfile || (()=>{}), initialTab: initialTab, fromSettings: fromSettings,
     title: "LooscidID", onBack: ()=>{ const r = Looscid.LC_LID_RETURN; Looscid.LC_LID_RETURN = null; if (r) { Looscid.LC_PM_OPEN = r; navigate("alerts"); return; } navigate("settings"); }, securityExtra: securityExtra,});
 }
 // Round 6: one audience radio set (fieldset + legend, native radios) with the Custom picker.
@@ -2179,7 +2179,7 @@ function LoginMethods() {
   const done = function (m) { setAdding(null); setMethods(getMethods()); setNote(m); announce("Login method added");
     setTimeout(function () { const hd = document.getElementById("lid-methods-h"); if (hd && (!document.activeElement || document.activeElement === document.body || !document.activeElement.isConnected)) hd.focus(); }, 60); };
   return lh('section', { 'aria-labelledby': "lid-methods-h", className: "lid-panel" },
-    lh('h3', { id: "lid-methods-h", className: "lid-label", tabIndex: -1 }, "Linked to your LooscidID"),
+    lh('h2', { id: "lid-methods-h", className: "lid-label", tabIndex: -1 }, "Linked to your LooscidID"),
     lh('p', { className: "lid-help" }, "Your LooscidID already exists on this device. Login methods are optional: add any network to log in with it, and add as many as you like."),
     note && lh('p', { className: "lid-saved" }, note),
     lh('ul', { className: "lid-links", 'aria-label': "Login methods" },
@@ -2362,7 +2362,7 @@ function NostrKeySection() {
   const has = st.mode === "signer" || st.mode === "key" || st.mode === "locked";
   let body;
   if (created) body = lh('div', null,
-    lh('h4', { id: "nostr-new-h", className: "lid-label", tabIndex: -1 }, "Save your new key"),
+    lh('h3', { id: "nostr-new-h", className: "lid-label", tabIndex: -1 }, "Save your new key"),
     lh('p', { className: "lid-warn" }, "Save this key somewhere safe. It's the only way to get your Dreams on another device. Looscid can't recover it."),
     lh(SecretField, { id: "nostr-nsec-new", label: "Your new Nostr secret key (nsec)", value: created.nsec, readOnly: true }),
     lh('div', { className: "lid-actions" },
@@ -2378,7 +2378,7 @@ function NostrKeySection() {
     // Security pass: a key saved without a passcode (from before) gets a clear, gentle prompt to lock it. Nothing is forced:
     // the key keeps working, and "Copy key" first means a forgotten passcode never costs the key.
     st.mode === "key" && !st.encrypted && lh('div', { className: "lid-lockbox", role: "group", "aria-labelledby": "nostr-lock-h" },
-      lh('h4', { id: "nostr-lock-h", className: "lid-label" }, "Lock your key with a passcode"),
+      lh('h3', { id: "nostr-lock-h", className: "lid-label" }, "Lock your key with a passcode"),
       lh('p', { className: "lid-warn" }, "Your key is saved without a passcode, so anything that runs on this site could copy it. Lock it now. If you haven't saved your key somewhere safe yet, copy it first: if you ever forget the passcode, your key gets you back in."),
       lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bgb", onClick: function () { const k = N.nsecNow && N.nsecNow(); if (k) lcCopyText(k, "Key copied. Save it in your password manager."); else { say("One moment, then press Copy key again.", true); N.load().catch(function () {}); } } }, "Copy key")),
       lh(NostrPassFields, { pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2 }),
@@ -2412,12 +2412,12 @@ function NostrKeySection() {
       lh(NostrPassFields, { pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2, noPass: noPass, setNoPass: setNoPass }),
       lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", "aria-disabled": busy ? "true" : undefined, onClick: busy ? undefined : create }, "Create key"))));
   return lh('section', { className: "lid-panel", 'aria-labelledby': "nostr-key-h" },
-    lh('h3', { id: "nostr-key-h", className: "lid-label", tabIndex: -1 }, "Nostr key"),
+    lh('h2', { id: "nostr-key-h", className: "lid-label", tabIndex: -1 }, "Nostr key"),
     lh('p', { className: "lid-help" }, "With a Nostr key, your Dreams with Audience Everyone also go to Nostr relays, so you and anyone can see them anytime, from any device. Looscid has no server."),
     lh('p', { className: "lid-help", id: "nostr-status" }, status),
     msg && lh('p', { className: msg.err ? "lid-err" : "lid-help" }, msg.t),
     body,
-    lh('h4', { id: "nostr-relays-h", className: "lid-label", tabIndex: -1 }, "Relays"),
+    lh('h3', { id: "nostr-relays-h", className: "lid-label", tabIndex: -1 }, "Relays"),
     lh('p', { className: "lid-help" }, "Your Dreams go to these relays and are read back from them."),
     lh('ul', { className: "lid-links", role: "list", 'aria-labelledby': "nostr-relays-h" }, relayList.map(function (u) {
       return lh('li', { key: u }, lh('span', { className: "lid-mono" }, u),
@@ -2474,7 +2474,7 @@ function LcKeysPanel({ goMethods }) {
   };
   const ref = useEnterSubmit(add);
   return lh('div', { className: "lid-panel" },
-    lh('h3', { id: "lc-keys-list-h", className: "lid-label", tabIndex: -1 }, "Linked to your LooscidID"),
+    lh('h2', { id: "lc-keys-list-h", className: "lid-label", tabIndex: -1 }, "Linked to your LooscidID"),
     (ids.length || methods.length) ? lh('ul', { className: "lid-links", role: "list", "aria-labelledby": "lc-keys-list-h" },
       ids.map(function (x) {
         return lh('li', { key: x.kind + x.id }, lh('span', null, lcIdLabel(x) + ", " + (x.verified ? "verified" : "not verified yet")),
@@ -2485,7 +2485,7 @@ function LcKeysPanel({ goMethods }) {
           lh('button', { type: "button", id: "lc-keys-rm-" + m.provider, className: "btn bgb", "aria-label": "Remove " + PROVIDER_NAMES[m.provider] + " login", onClick: function () { setConfirmM(m); } }, "Remove"));
       }))
       : lh('p', { className: "lid-help" }, "Nothing linked yet."),
-    lh('h3', { className: "lid-label" }, "Link an ID"),
+    lh('h2', { className: "lid-label" }, "Link an ID"),
     lh('fieldset', { className: "lc-fs", id: "lc-id-kind" },
       lh('legend', { className: "lc-fs-l" }, "What are you linking?"),
       lh('div', { className: "lc-radios lc-radios-col" }, LC_ID_KINDS.map(function (x) {
@@ -2563,7 +2563,7 @@ function exportLocalData() {
 function deleteLocalData() {
   try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf("looscid_") === 0 || k.indexOf(Looscid.LC_OLD_PREFIX) === 0) localStorage.removeItem(k); /* and any old-prefix key left from before build 150 */ }); } catch (e) {}
 }
-function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onBack, title, securityExtra }) {
+function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onBack, title, securityExtra, fromSettings }) {
   const [tab, setTab] = useState(initialTab || "home");
   const [idn, setIdn] = useState(getIdentity());
   const [, bump] = useState(0);
@@ -2574,6 +2574,10 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   const wrapRef = useRef(null);
   // Round 6 fixes: Back from a section opened with a Home card goes back to Home, on that card (it left LooscidID).
   const fromCard = useRef(null);
+  // Oct 31 2026 (iOS 27 redesign): where each page came from, so Back returns to that page and that row.
+  const stack = useRef([]);
+  if (Looscid.useServerTick) Looscid.useServerTick(); else useState(0);
+  const nst = Looscid.useNostrState ? Looscid.useNostrState() : null;
   useEffect(function () { const h1 = wrapRef.current && wrapRef.current.querySelector("h1"); if (h1) h1.focus(); }, []);
   if (ed.editing) return ed.screen;
   const u = authUser || {};
@@ -2587,10 +2591,23 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
     if (n === null) return; e.preventDefault(); fromCard.current = null; setTab(LID_TABS[n][0]);
     setTimeout(function () { const b = document.getElementById("lid-tab-" + LID_TABS[n][0]); if (b) { b.focus(); b.scrollIntoView({ block: "nearest", inline: "nearest" }); } }, 0);
   };
-  // Cards on Home jump to a section and land on its heading.
+  // A row opens its page and focus lands on the page's heading (or on focusId, like Passcode's own heading).
+  const focusH1 = function () { const h = wrapRef.current && wrapRef.current.querySelector("h1"); if (h) h.focus(); };
   const go = function (t, focusId) {
+    const a = document.activeElement; stack.current.push({ tab: tab, focus: a && a.id ? a.id : null });
     fromCard.current = null; setNote(""); setTab(t);
-    setTimeout(function () { const el = document.getElementById(focusId || "lid-panel-h"); if (el) { el.focus(); } }, 0);
+    setTimeout(function () { const el = focusId && document.getElementById(focusId); if (el) el.focus(); else focusH1(); }, 0);
+  };
+  const tabLabel = function (t) { return t === "home" ? (title || "LooscidID") : (LID_TABS.find(function (x) { return x[0] === t; }) || [t, "LooscidID"])[1]; };
+  const leaves = !stack.current.length && (tab === "home" || ((fromSettings || Looscid.LC_LID_RETURN) && initialTab && tab === initialTab));
+  const backTo = stack.current.length ? stack.current[stack.current.length - 1].tab : (LID_PARENT[tab] || "home");
+  const backLabel = leaves ? (Looscid.LC_LID_RETURN ? "Back" : "Back to Settings") : "Back to " + tabLabel(backTo);
+  const back = function () {
+    setNote("");
+    if (leaves) { if (onBack) onBack(); else navigate("settings"); return; }
+    const prev = stack.current.pop(), was = tab;
+    setTab(prev ? prev.tab : backTo);
+    setTimeout(function () { const b = document.getElementById((prev && prev.focus) || ("lid-row-" + was)); if (b) b.focus(); else focusH1(); }, 0);
   };
   const methods = getMethods();
   const sk = getStoredNostrSk();
@@ -2601,42 +2618,36 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   const checkup = suggestions.length ? suggestions.length + (suggestions.length === 1 ? " suggestion" : " suggestions") + ": " + suggestions[0] : "No issues found";
   const methodsText = methods.length ? methods.map(function (m) { return PROVIDER_NAMES[m.provider]; }).join(", ") : "None yet. Add one any time";
   const summary = localDataSummary();
-  const PH = function (text, help) { return lh(React.Fragment, null,
-    lh('h2', { id: "lid-panel-h", className: "lid-sub", tabIndex: -1 }, text),
-    help ? lh('p', { className: "lid-help" }, help) : null); };
-  const Card = function (k, t, sub, onClick) {
-    return lh('li', { key: k }, lh('button', { type: "button", className: "lid-gcard", id: "lid-card-" + k, onClick: function () { onClick(); fromCard.current = "lid-card-" + k; }, "aria-label": lcJoin(t, sub) },
-      lh('span', { className: "lid-gcard-t", "aria-hidden": "true" }, t), lh('span', { className: "lid-gcard-s", "aria-hidden": "true" }, sub)));
-  };
+  // Each page's name is its h1 (iOS 27 header), so the section heading isn't repeated; its short help line stays.
+  const PH = function (text, help) { return help ? lh('p', { className: "lid-help lid-i27-help", id: "lid-panel-h", tabIndex: -1 }, help) : null; };
+  const R = Looscid.lcI27Cards;
+  const srvM = Looscid.lcServer && Looscid.lcServer.mode ? Looscid.lcServer.mode() : { on: false, sync: false, host: "", handle: "" };
+  const srvWords = Looscid.lcModeText ? String(Looscid.lcModeText(srvM)).replace(/^Mode:\s*/, "") : "";
+  const keyText = !nst || nst.mode === "none" ? "No Nostr key yet. Add one or link one here" : nst.mode === "signer" ? "Your Nostr key stays in your signer extension" : nst.mode === "view" ? "Linked public key only, no secret key on this device" : "Nostr key saved on this device" + (nst.encrypted ? ", locked with a passcode" : "");
+  const linkedN = lcGetIds().length;
+  const Hero = function (g, c, t, d) { return lh('div', { className: "lid-i27-hero" }, lh('span', { className: "lc-i27-ic lid-i27-hero-ic", style: { background: c }, "aria-hidden": "true" }, lh(Looscid.LcI27Glyph, { g: g, size: 30 })), lh('p', { className: "lid-i27-hero-t" }, t), lh('p', { className: "lid-i27-hero-d" }, d)); };
   let panel;
-  if (tab === "home") panel = lh(React.Fragment, null,
-    PH("Welcome, " + name, "Manage your info, privacy and security to make Looscid work better for you."),
-    Looscid.LcModeLine ? lh(Looscid.LcModeLine, null) : null,
-    lh('ul', { className: "lid-gcards", 'aria-label': "Your LooscidID at a glance" },
-      Card("info", "Profile", "Name " + name + ", username " + handle, function () { go("info"); }),
-      Card("methods", "Login methods", methodsText, function () { go("methods", "lid-methods-h"); }),
-      Card("keys", "Keys and IDs", (function () { const n = lcGetIds().length; return n ? n + " linked " + (n === 1 ? "ID" : "IDs") : "Link your Nostr, fediverse or Bluesky ID"; })(), function () { go("keys"); }),
-      Card("checkup", "Security checkup", checkup, function () { go("security", "lid-checkup-h"); }),
-      Card("devices", "Devices", "This device, " + thisDeviceLabel(), function () { go("devices"); }),
-      Card("data", "Data", summary.length + " kinds of data, stored only on this device", function () { go("data"); }),
-      Card("server", "Looscid server", (function () { try { const sc = JSON.parse(localStorage.getItem("looscid_server") || "null"); return sc && sc.token && sc.handle ? "Signed in as @" + sc.handle : "Put your Dreams on the server"; } catch (e) { return "Put your Dreams on the server"; } })(), function () { go("server"); }),
-      Card("backup", "Backup file", "Everything and your key in one locked file", function () { go("backup"); }),
-      Card("apps", "Connected apps", methods.length ? methods.length + " linked " + (methods.length === 1 ? "identity" : "identities") : "None yet", function () { go("apps"); })));
+  if (tab === "home") panel = lh('ul', { className: "mlist lc-i27-list", role: "list", id: "lid-rows" }, R([
+      [{ id: "lid-row-info", g: "person", c: "#8e8e93", label: "Profile", sub: "Name " + name + ", username " + handle, onClick: function () { go("info"); } },
+       { id: "lid-row-security", g: "shield", c: "#007aff", label: "Security", sub: "Key, passcode, login methods, backup and server. " + checkup, onClick: function () { go("security"); } }],
+      [{ id: "lid-row-server", g: "cloud", c: "#32ade6", label: "Looscid server", value: srvM.sync ? "Server" : "Local", sub: srvWords, onClick: function () { go("server"); } },
+       { id: "lid-row-apps", g: "grid", c: "#5856d6", label: "Connected apps", value: methods.length ? String(methods.length) : "None", sub: methods.length ? methods.length + " linked " + (methods.length === 1 ? "identity" : "identities") : "", onClick: function () { go("apps"); } }],
+      [{ id: "lid-row-data", g: "data", c: "#8e8e93", label: "Data", sub: summary.length + " kinds of data, stored only on this device", onClick: function () { go("data"); } }]]));
   else if (tab === "info") panel = lh(React.Fragment, null,
     PH("Profile", "Your name, username, avatar and bio. Choose a field to change it."),
     ed.list);
   else if (tab === "data") panel = lh(React.Fragment, null,
     PH("Data", "Your data stays on this device. Nothing goes to the Looscid server unless you choose it there."),
-    lh('h3', { className: "lid-label" }, "What's stored on this device"),
+    lh('h2', { className: "lid-label" }, "What's stored on this device"),
     lh('ul', { className: "lid-dl lc-rows", role: "list" }, summary.map(function (r) { return lh('li', { key: r.k }, lh('span', { className: "lc-dt" }, r.k, lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, r.v)); })),
-    lh('h3', { className: "lid-label" }, "Download your data"),
+    lh('h2', { className: "lid-label" }, "Download your data"),
     lh('p', { className: "lid-help", id: "lid-export-help" }, "Get a copy of your Dreams, replies, chats, likes, follows, profile, login methods, topics, drafts and security activity as a JSON file. Secret keys and login tokens are left out."),
     lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { exportLocalData(); setNote("Your data was downloaded as looscid-my-data.json."); announce("Data downloaded"); } }, "Export my data"),
     note && lh('p', { className: "lid-saved" }, note),
-    lh('h3', { className: "lid-label" }, "Delete your data"),
+    lh('h2', { className: "lid-label" }, "Delete your data"),
     lh('p', { className: "lid-help", id: "lid-delete-help" }, "Erase your LooscidID, logins, keys, drafts and settings from this device. Looscid then starts fresh with a new LooscidID."),
     lh('button', { type: "button", id: "lid-delete-data", className: "btn bgb lid-wide", onClick: function () { setConfirmDel(true); } }, "Delete local data"),
-    lh('h3', { className: "lid-label" }, "Settings and privacy"),
+    lh('h2', { className: "lid-label" }, "Settings and privacy"),
     lh('p', { className: "lid-help" }, "Who can see and reply to your Dreams, and how people find you, are in Settings, Privacy, Permissions. A file with just your settings is in Settings backup."),
     lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { navigate("settings_privacy"); } }, "Open Privacy and permissions"),
     lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { navigate("settings_backup"); } }, "Open Settings backup"),
@@ -2644,29 +2655,39 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
       message: "This erases your LooscidID, login methods, any Nostr key saved here, drafts and settings. It can't be undone. Export your data first if you want a copy.",
       confirmLabel: "Delete", onCancel: function () { setConfirmDel(false); setTimeout(function () { const b = document.getElementById("lid-delete-data"); if (b) b.focus(); }, 0); },
       onConfirm: function () { setConfirmDel(false); deleteLocalData(); location.reload(); } }));
+  // Oct 31 2026 (Carter: "the key and login should be in Security"), modeled on iOS 27 Privacy & Security: a short intro
+  // card, rows for everything that guards your LooscidID, then the checkup, your secret key and recent activity.
   else if (tab === "security") panel = lh(React.Fragment, null,
-      PH("Security", "Settings and suggestions to keep your LooscidID safe."),
-      lh('section', { 'aria-labelledby': "lid-checkup-h", className: "lid-panel" },
-        lh('h3', { id: "lid-checkup-h", className: "lid-label", tabIndex: -1 }, "Security checkup"),
+      Hero("shield", "#007aff", "Keep your LooscidID safe", "Your Nostr key and its passcode, how you log in, your backup file, the Looscid server and where you're signed in."),
+      lh('ul', { className: "mlist lc-i27-list", role: "list", id: "lid-sec-rows" }, R([
+        [{ id: "lid-row-keys", g: "key", c: "#ff9500", label: "Keys and IDs", value: linkedN ? String(linkedN) : "", sub: keyText, onClick: function () { go("keys"); } },
+         { id: "lid-row-passcode", g: "lock", c: "#8e8e93", label: "Passcode", value: nst && nst.encrypted ? "On" : "Off", sub: nst && nst.encrypted ? "Your key is locked with a passcode" : "Lock your Nostr key so nothing else on this site can copy it", onClick: function () { go("keys", "nostr-lock-h"); } },
+         { id: "lid-row-backup", g: "doc", c: "#34c759", label: "Backup file", sub: "Everything and your key in one locked file", onClick: function () { go("backup"); } }],
+        [{ id: "lid-row-methods", g: "link", c: "#007aff", label: "Login methods", value: methods.length ? String(methods.length) : "None", sub: methodsText, onClick: function () { go("methods"); } },
+         { id: "lid-row-server", g: "cloud", c: "#32ade6", label: "Looscid server", value: srvM.on ? "Signed in" : "Signed out", sub: srvM.on ? "@" + srvM.handle + " on " + srvM.host : "Sign in with your key", onClick: function () { go("server"); } }],
+        [{ id: "lid-row-devices", g: "phone", c: "#8e8e93", label: "Devices", value: "1", sub: "This device, " + thisDeviceLabel() + ", active now", onClick: function () { go("devices"); } }]])),
+      lh('section', { 'aria-labelledby': "lid-checkup-h", className: "lid-panel lid-i27-card" },
+        lh('h2', { id: "lid-checkup-h", className: "lid-label", tabIndex: -1 }, "Security checkup"),
         suggestions.length ? lh('ul', { className: "lid-help", style: { paddingLeft: 20, margin: 0 } }, suggestions.map(function (s2) { return lh('li', { key: s2 }, s2); }))
           : lh('p', { className: "lid-help" }, "No issues found.")),
-      idn && idn.method === "nip07" && lh('p', { className: "lid-help" }, "Your Nostr key stays in your signer extension. Looscid never sees it."),
-      idn && idn.method === "local" && sk && lh(React.Fragment, null,
-        lh('h3', { className: "lid-label" }, "Your Nostr key"),
+      idn && idn.method === "nip07" && lh('p', { className: "lid-help lid-i27-note" }, "Your Nostr key stays in your signer extension. Looscid never sees it."),
+      idn && idn.method === "local" && sk && lh('section', { 'aria-labelledby': "lid-sec-key-h", className: "lid-panel lid-i27-card" },
+        lh('h2', { id: "lid-sec-key-h", className: "lid-label" }, "Your Nostr key"),
         lh('p', { className: "lid-warn", id: "lid-sec-warn" }, "Your secret key is saved only in this browser on this device. Anyone with it can Dream as you."),
         lh(SecretField, { id: "lid-nsec-view", label: "Your secret key (nsec)", value: (window.NostrTools ? window.NostrTools.nip19.nsecEncode(hexToBytes(sk)) : sk), readOnly: true, describedBy: "lid-sec-warn" })),
-      lh('h3', { className: "lid-label" }, "Recent security activity"),
-      (function () { const acts = getActivity().slice(0, 8); return acts.length
-        ? lh('ul', { className: "lid-links", 'aria-label': "Recent security activity" }, acts.map(function (a2, i2) { return lh('li', { key: i2 }, lh('span', null, a2.what + ", " + lidWhen(a2.at))); }))
-        : lh('p', { className: "lid-help" }, "No security activity yet."); })(),
-      securityExtra || null);
+      lh('section', { 'aria-labelledby': "lid-act-h", className: "lid-panel lid-i27-card" },
+        lh('h2', { id: "lid-act-h", className: "lid-label" }, "Recent security activity"),
+        (function () { const acts = getActivity().slice(0, 8); return acts.length
+          ? lh('ul', { className: "lid-links", 'aria-label': "Recent security activity" }, acts.map(function (a2, i2) { return lh('li', { key: i2 }, lh('span', null, a2.what + ", " + lidWhen(a2.at))); }))
+          : lh('p', { className: "lid-help" }, "No security activity yet."); })()),
+      securityExtra ? lh('section', { className: "lid-panel lid-i27-card", 'aria-labelledby': "lid-local-h" }, securityExtra) : null);
   else if (tab === "methods") panel = lh(React.Fragment, null,
     PH("Login methods", "Optional ways to log in with your LooscidID. When you link one, you choose whether people can find you by it."),
     lh(LoginMethods, null));
   else if (tab === "keys") panel = lh(React.Fragment, null,
     PH("Keys and IDs", "Your Nostr key and your fediverse and Bluesky handles. Link one by pasting it: no password, nothing shared."),
     lh(NostrKeySection, null),
-    lh(LcKeysPanel, { goMethods: function () { go("methods", "lid-methods-h"); } }));
+    lh(LcKeysPanel, { goMethods: function () { go("methods"); } }));
   // Oct 31 2026 (Carter): the Looscid server (sign in with your key, put your Dreams on it) and the backup file (everything
   // plus your key, locked with a passcode) each have their own page here. They live in js/remsync.js.
   else if (tab === "server") panel = lh(React.Fragment, null,
@@ -2678,44 +2699,40 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
     Looscid.LcBackupPanel ? lh(Looscid.LcBackupPanel, { go: function (t) { go(t); } }) : lh('p', { className: "lid-help" }, "The Backup file page didn't load. Reload Looscid and try again."));
   else if (tab === "devices") panel = lh(React.Fragment, null,
     PH("Devices", "Where your LooscidID is signed in."),
-    lh('h3', { className: "lid-label" }, "This device"),
+    lh('h2', { className: "lid-label" }, "This device"),
     lh('ul', { className: "lid-links", 'aria-label': "Your devices" }, lh('li', null, lh('span', null, "This device, " + thisDeviceLabel() + ", active now"))),
-    lh('h3', { className: "lid-label" }, "Other devices"),
+    lh('h2', { className: "lid-label" }, "Other devices"),
     lh('p', { className: "lid-help" }, "None. Your LooscidID lives only on this device for now."));
   else panel = lh(React.Fragment, null,
     PH("Connected apps", "Networks and apps linked to your LooscidID."),
-    lh('h3', { className: "lid-label" }, "Linked identities"),
+    lh('h2', { className: "lid-label" }, "Linked identities"),
     methods.length ? lh('ul', { className: "lid-links", 'aria-label': "Linked identities" }, methods.map(function (m) {
       const fk = LC_FIND_KEY[m.provider];
       return lh('li', { key: m.id }, lh('span', null, methodLabel(m) + (fk ? (Looscid.A11Y_NOW[fk] ? ", people can find you by it" : ", hidden from search") : "")));
     })) : lh('p', { className: "lid-help" }, "None yet. Link Nostr, Mastodon, Bluesky or Pubky in Login methods."),
-    lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { go("methods", "lid-methods-h"); } }, "Open Login methods"),
-    lh('h3', { className: "lid-label" }, "Apps using your LooscidID"),
+    lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { go("methods"); } }, "Open Login methods"),
+    lh('h2', { className: "lid-label" }, "Apps using your LooscidID"),
     lh('p', { className: "lid-help" }, "No apps use your LooscidID yet."));
-  // Round 7.37 (#176, Carter Oct 26 2026: drill-in pages like iOS): the sections were tabs; now Home is the LooscidID page
-  // with one row per section, and each section opens its own page. Back comes back to the row (or the Home card) you used.
-  const tabName = (LID_TABS.find(function (t) { return t[0] === tab; }) || [tab, "LooscidID"])[1];
-  if (tab !== "home") return lh('div', { className: "pg lc-ios-page", ref: wrapRef },
-    lh(BackHeader, { title: tabName, onBack: function () {
-      if (Looscid.LC_LID_RETURN && initialTab && tab === initialTab && onBack) { onBack(); return; }
-      const c = fromCard.current, was = tab; fromCard.current = null; setNote(""); setTab("home");
-      setTimeout(function () { const b = document.getElementById(c || ("lid-tab-" + was)); if (b) b.focus(); }, 0); } }),
+  // Round 7.37 (#176) / Oct 31 2026 (iOS 27): every section is its own page with the round Back button and its name as the
+  // h1. Back returns to the page and row you came from (Security's pages come back to Security). Escape is Back too (the
+  // Touch-style keys press the header's Back button).
+  if (tab !== "home") return lh('div', { className: "pg lc-ios-page lc-i27 lid-i27", ref: wrapRef },
+    lh(Looscid.LcI27Header, { title: tabLabel(tab), onBack: back, backLabel: backLabel }),
     lh('div', { id: "lid-panel", className: "lid-body" }, panel));
-  return lh('div', { className: "pg lc-ios-page", ref: wrapRef },
-    lh(BackHeader, { title: title || "LooscidID", onBack: function () { if (onBack) onBack(); else navigate("settings"); } }),
-    lh('div', { className: "lid-ghead" },
-      lh('div', { className: "lid-gavatar", 'aria-hidden': "true" }, u.initials || "D"),
-      lh('p', { className: "lid-gname" }, name),
-      lh('p', { className: "lid-ghandle" }, handle + ", LooscidID"),
-      lh('p', { className: "lid-help" }, "Manage your LooscidID"),     lh('p', { className: "lid-help" }, "LooscidID, keys, logins and devices")),
-    lh('ul', { className: "mlist lc-catlist lc-ios-list", role: "list", id: "lid-rows" }, LID_TABS.filter(function (t) { return t[0] !== "home"; }).map(function (t) {
-      return lh('li', { key: t[0], className: "mli" },
-        lh('button', { type: "button", id: "lid-tab-" + t[0], className: "mitem lc-cat lc-ios-row", onClick: function () { fromCard.current = null; setNote(""); setTab(t[0]); setTimeout(function () { const h = wrapRef.current && wrapRef.current.querySelector("h1"); if (h) h.focus(); }, 0); } },
-          lh('span', { className: "mitem-lbl" }, t[1]), lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })));
-    })),
-    lh('p', { className: "lc-ios-foot" }, "Your profile, how you log in, your keys, security, devices, your data on this device, the Looscid server, your backup file and apps using your LooscidID."),
-    lh('div', { id: "lid-panel", className: "lid-body" }, panel));
+  // Home: like iOS 27's Apple Account page. Your avatar, name, @handle and npub (with Copy), then rows.
+  const np = Looscid.lcMyNpub ? Looscid.lcMyNpub() : "";
+  return lh('div', { className: "pg lc-ios-page lc-i27 lid-i27", ref: wrapRef },
+    lh(Looscid.LcI27Header, { title: title || "LooscidID", onBack: back, backLabel: backLabel }),
+    lh('div', { className: "lid-ghead lid-i27-head" },
+      lh('div', { className: "lid-gavatar lc-i27-bigav", 'aria-hidden': "true" }, u.initials || "D"),
+      lh('p', { className: "lid-gname lid-i27-name" }, name),
+      lh('p', { className: "lid-ghandle lid-i27-handle" }, handle + ", LooscidID"),
+      Looscid.LcNpubLine ? lh(Looscid.LcNpubLine, { np: np, id: "lid-npub" }) : null),
+    panel,
+    lh('p', { className: "lc-i27-foot" }, "Your profile, Security (your key, passcode, login methods, backup file, the Looscid server and devices), connected apps and your data on this device."));
 }
+// Which page each LooscidID page comes back to when it was opened straight (from Search, a link or another screen).
+const LID_PARENT = Looscid.LID_PARENT = { keys: "security", methods: "security", backup: "security", devices: "security", server: "security" };
 Looscid.LC_FORCED = {}; // Private account forces two Permissions
 // What each event is called, for previews, mapping and captions.
 // Preview button names in sentence case without losing proper terms: "Preview new Dream sound", never "new dream".
