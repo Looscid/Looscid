@@ -478,6 +478,35 @@ html[data-lc-theme="light"] .lc-links-sheet.lc-i27{--i-bg:#f2f2f7;--i-card:#fff;
 .lc-links-sheet .lc-qr{margin:18px auto 0;text-align:center}
 .lc-links-sheet .lc-qr svg{display:block;margin:0 auto;border-radius:12px}
 @media (prefers-reduced-motion:no-preference){.lc-links-sheet{animation:lcSheetUp .25s ease-out}}
+/* Link settings (Nov 1 2026): iOS 27 cards. Move up / Move down buttons and Show on profile switches, all 44pt or more. */
+.lc-ls .lc-ls-intro{margin:6px 32px 0}
+.lc-ls .lc-ls-h2{margin:22px 32px 0;padding:0;font-size:13px;font-weight:600;letter-spacing:.02em;color:var(--i-tx2)}
+.lc-ls .lc-ls-h2+.lc-i27-list .lc-g-first,.lc-ls .lc-ls-fs .lc-g-first{margin-top:8px}
+.lc-ls .lc-ls-fs{border:0;margin:0;padding:0;min-width:0}
+.lc-ls .lc-ls-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 16px;min-height:52px}
+.lc-ls .lc-ls-txt{margin:0;flex:1 1 140px}
+.lc-ls .lc-ls-url{-webkit-line-clamp:1;word-break:break-all}
+.lc-ls .lc-ls-tag{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:9999px;background:var(--i-press);color:var(--i-tx);font-size:12px;font-weight:600;vertical-align:2px}
+.lc-ls .lc-ls-moves{display:flex;gap:8px;flex:none}
+.lc-ls .lc-ls-btn{min-height:44px;min-width:44px;padding:0 14px;border-radius:9999px;border:0;background:var(--i-press);color:var(--i-link);font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+.lc-ls .lc-ls-btn[aria-disabled="true"]{color:var(--i-tx2);opacity:.6;cursor:default}
+.lc-ls .lc-ls-btn:focus-visible{outline:3px solid var(--i-ring);outline-offset:2px}
+.lc-ls .lc-i27-li:not(.lc-g-first)::before{left:16px}
+.lc-ls .lc-ls-radio input{width:22px;height:22px;margin:0;flex:none;accent-color:var(--i-link)}
+.lc-ls .lc-ls-radio:focus-within{outline:3px solid var(--i-ring);outline-offset:-3px;background:var(--i-press)}
+.lc-ls .lc-ls-sw{min-height:56px}
+.lc-ls .lc-ls-sw[aria-checked="true"] .lc-knob{background:#34c759;border-color:#34c759}
+.lc-ls .lc-ls-sw[aria-checked="true"] .lc-knob::after{left:23px}
+html[data-lc-theme="light"] .lc-ls .lc-ls-btn,html[data-lc-theme="light"] .lc-ls .lc-ls-tag{background:#e9e9ee}
+html[data-lc-theme="light"] .lc-ls .lc-ls-tag{color:#3c3c43}
+.lc-ls .lc-ls-legend{margin:14px 32px 0;padding:0;font-size:15px;font-weight:600;color:var(--i-tx)}
+.lc-ls .lc-ls-h2:focus-visible{outline:3px solid var(--i-ring);outline-offset:3px;border-radius:6px}
+.lc-cl-list{list-style:none;margin:0;padding:0}
+.lc-cl-num{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:4px 0 12px 12px}
+.lc-cl-lbl{flex:0 0 100%;font-size:15px;font-weight:600}
+.lc-cl-in{width:9em;min-height:44px;font-size:17px}
+.lc-cl-d{flex:0 0 100%;margin:0}
+.lc-pe-h2:focus-visible{outline:3px solid var(--ac3);outline-offset:3px;border-radius:6px}
 @keyframes lcSheetUp{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
 
 /* Edit profile, X style (Nov 1 2026, Carter: "Copy Benji Taylor's idea for X"): one sheet, Close / heading / Save on top,

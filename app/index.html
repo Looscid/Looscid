@@ -61,7 +61,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" id="lc-fonts"/>
 <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/></noscript>
 <link rel="stylesheet" href="css/app.css"/>
-<link rel="stylesheet" href="css/a11y.css?v=7.53-pe1" id="lc-a11y-css"/>
+<link rel="stylesheet" href="css/a11y.css?v=7.53-ls1" id="lc-a11y-css"/>
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/unspeakable/looscid-unspeakable.woff2" crossorigin/>
 </head>
 <body>
@@ -74,14 +74,14 @@
 <!-- Security pass: the host side of the sandboxed Looscid OS apps and Projects (sandbox flags, their saved data) -->
 <script src="js/apphost.js"></script>
 <!-- Load order: React, then core, then nostr (small; its crypto loads only when used), then one file per tab, then Cherry, then the Commands page, then Projects, then the Help Center, then the mount below (see docs/dev/FILES.md) -->
-<script src="js/core.js?v=7.53-pe1"></script>
+<script src="js/core.js?v=7.53-ls1"></script>
 <script src="js/nostr.js"></script>
 <script src="js/discover.js"></script>
-<script src="js/circles.js"></script>
+<script src="js/circles.js?v=7.53-ls1"></script>
 <script src="js/feed.js"></script>
-<script src="js/create.js"></script>
+<script src="js/create.js?v=7.53-ls1"></script>
 <script src="js/alerts.js"></script>
-<script src="js/more.js?v=7.53-pe1"></script>
+<script src="js/more.js?v=7.53-ls1"></script>
 <script src="js/cherry.js"></script>
 <script src="js/commands.js"></script>
 <script src="js/projects.js"></script>
@@ -89,7 +89,7 @@
 <script src="js/helpcenter.js"></script>
 <script src="js/liked.js"></script>
 <!-- The Looscid server and the backup file (Settings, LooscidID); its crypto in js/rem/ loads only when used -->
-<script src="js/remsync.js"></script>
+<script src="js/remsync.js?v=7.53-ls1"></script>
 <script src="js/mount.js"></script>
 </body>
 </html>
