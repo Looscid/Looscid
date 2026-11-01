@@ -1601,7 +1601,7 @@ function LcCharLimits() {
           on ? lh('div', { className: "lc-cl-num" },
             lh('label', { htmlFor: nid, className: "lc-cl-lbl" }, f.l + " limit"),
             lh('input', { id: nid, type: "number", inputMode: "numeric", min: 1, max: f.hard || undefined, step: 1, className: "inp lc-cl-in", placeholder: "No limit",
-              value: fs.max == null ? "" : String(fs.max), "aria-describedby": nid + "-d",
+              value: fs.max == null ? "" : String(fs.max),
               onChange: function (e) { const v = e.target.value.trim(); setField(f.id, { max: v === "" ? null : Math.max(1, Math.floor(+v) || 1) }); } }),
             lh('p', { id: nid + "-d", className: "lc-desc lc-cl-d" }, "Characters. Empty: no limit" + (f.hard ? " (stops at " + f.hard + ")" : "") + ". Usual: " + usual(f) + ". Now: " + now(f) + "." + (f.note ? " " + f.note : "")),
             fs.max != null ? lh('button', { type: "button", className: "btn bgb lc-btn", id: nid + "-none", onClick: function () { setField(f.id, { max: null }); announce(f.l + ": no limit."); setTimeout(function () { const el = document.getElementById(nid); if (el) el.focus(); }, 0); } }, "No limit", lh('span', { className: "sr-only" }, ", " + f.l)) : null) : null);
@@ -2433,7 +2433,7 @@ function LcProfileEditor({ profile, focusKey, onSave, onClose }) {
   const draftUser = { name: showName, initials: lcPeInitials(showName), color: d.color };
   const colorName = (LC_PE_COLORS.find(function (c) { return c[0] === d.color; }) || [d.color, "Custom"])[1];
   const err = function (k) { return errs[k] ? lh('p', { className: "lc-pe-err", id: "pe-" + k + "-err" }, errs[k]) : null; };
-  const desc = function (k, extra) { return [extra, errs[k] ? "pe-" + k + "-err" : null].filter(Boolean).join(" ") || undefined; };
+  // No aria-describedby on these fields (Nov 1 2026, Carter: VoiceOver's description label is banned). Help and errors are plain text under each field.
   const nameRef = useEnterSubmit(save), userRef = useEnterSubmit(save), siteRef = useEnterSubmit(save);
   const lnRef = useEnterSubmit(function () { const u = document.getElementById("pe-link-url"); if (u && !linkUrl.trim()) u.focus(); else addLink(false); });
   const luRef = useEnterSubmit(function () { addLink(false); });
@@ -2470,23 +2470,23 @@ function LcProfileEditor({ profile, focusKey, onSave, onClose }) {
     lh('div', { className: "lc-pe-card" },
       lh('div', { className: "lc-pe-row" },
         lh('div', { className: "lc-pe-lrow" }, lh('label', { htmlFor: "pe-name", className: "lc-pe-label" }, "Name"), lh('span', { className: "lc-pe-count", "aria-hidden": "true" }, d.name.length + (lcLimit("name") ? "/" + lcLimit("name") : ""))),
-        lh('input', { id: "pe-name", ref: nameRef, className: "lc-pe-input", type: "text", value: d.name, maxLength: lcMax("name"), autoComplete: "name", enterKeyHint: "done", "aria-invalid": errs.name ? "true" : undefined, "aria-describedby": desc("name", "pe-name-help"),
+        lh('input', { id: "pe-name", ref: nameRef, className: "lc-pe-input", type: "text", value: d.name, maxLength: lcMax("name"), autoComplete: "name", enterKeyHint: "done", "aria-invalid": errs.name ? "true" : undefined,
           onChange: function (e) { set("name", e.target.value); } }),
-        lh('p', { className: "sr-only", id: "pe-name-help" }, "Up to 40 characters."), err("name")),
+        lh('p', { className: "sr-only", id: "pe-name-help" }, lcLimit("name") ? "Up to " + lcLimit("name") + " characters." : "No limit."), err("name")),
       lh('div', { className: "lc-pe-row" },
         lh('label', { htmlFor: "pe-username", className: "lc-pe-label" }, "Username"),
         lh('div', { className: "lc-pe-inwrap" }, lh('span', { className: "lc-pe-at", "aria-hidden": "true" }, "@"),
           lh('input', { id: "pe-username", ref: userRef, className: "lc-pe-input lc-pe-input-at", type: "text", value: d.username, maxLength: lcMax("username"), autoComplete: "username", autoCapitalize: "none", spellCheck: false, enterKeyHint: "done",
-            "aria-invalid": errs.username ? "true" : undefined, "aria-describedby": desc("username", "pe-username-help"), onChange: function (e) { set("username", e.target.value); } })),
+            "aria-invalid": errs.username ? "true" : undefined, onChange: function (e) { set("username", e.target.value); } })),
         lh('p', { className: "lc-pe-help", id: "pe-username-help" }, "Your LooscidID username. It's how Dreamors @mention you. 3 to " + lcLimit("username") + " letters, numbers or underscores."), err("username")),
       lh('div', { className: "lc-pe-row" },
         lh('label', { htmlFor: "pe-bio", className: "lc-pe-label" }, "Bio"),
-        lh('textarea', { id: "pe-bio", className: "lc-pe-input lc-pe-bio", rows: 5, value: d.bio, maxLength: lcMax("bio"), autoComplete: "off", spellCheck: true, "aria-describedby": "pe-bio-help", onChange: function (e) { set("bio", e.target.value); } }),
+        lh('textarea', { id: "pe-bio", className: "lc-pe-input lc-pe-bio", rows: 5, value: d.bio, maxLength: lcMax("bio"), autoComplete: "off", spellCheck: true, onChange: function (e) { set("bio", e.target.value); } }),
         lh('p', { className: "lc-pe-help", id: "pe-bio-help" }, "About you, as long as you like. Markdown works: **bold**, *italic*, [links](https://example.com), - lists and `code`.")),
       lh('div', { className: "lc-pe-row" },
         lh('label', { htmlFor: "pe-website", className: "lc-pe-label" }, "Website"),
         lh('input', { id: "pe-website", ref: siteRef, className: "lc-pe-input", type: "url", inputMode: "url", value: d.website, maxLength: lcMax("website"), autoComplete: "url", autoCapitalize: "none", spellCheck: false, enterKeyHint: "done", placeholder: "example.com",
-          "aria-invalid": errs.website ? "true" : undefined, "aria-describedby": desc("website"), onChange: function (e) { set("website", e.target.value); } }), err("website"))),
+          "aria-invalid": errs.website ? "true" : undefined, onChange: function (e) { set("website", e.target.value); } }), err("website"))),
     lh('section', { className: "lc-pe-card", "aria-labelledby": "pe-links-h" },
       lh('h2', { id: "pe-links-h", className: "lc-pe-h2", tabIndex: -1 }, "Social links"),
       lh('p', { className: "lc-pe-help" }, "Your Mastodon, Bluesky, Nostr, GitHub, YouTube or any other profile. Up to 10."),
@@ -2499,10 +2499,10 @@ function LcProfileEditor({ profile, focusKey, onSave, onClose }) {
       })) : lh('p', { className: "lc-pe-help" }, "No links yet."),
       lh('div', { className: "lc-pe-addlink" },
         lh('label', { htmlFor: "pe-link-name", className: "lc-pe-label" }, "Link name"),
-        lh('input', { id: "pe-link-name", ref: lnRef, className: "lc-pe-input", type: "text", value: linkName, maxLength: lcMax("linkName"), placeholder: "Mastodon", enterKeyHint: "next", "aria-describedby": errs.link ? "pe-link-err" : undefined,
+        lh('input', { id: "pe-link-name", ref: lnRef, className: "lc-pe-input", type: "text", value: linkName, maxLength: lcMax("linkName"), placeholder: "Mastodon", enterKeyHint: "next", 
           onChange: function (e) { setLinkName(e.target.value); } }),
         lh('label', { htmlFor: "pe-link-url", className: "lc-pe-label" }, "Link address"),
-        lh('input', { id: "pe-link-url", ref: luRef, className: "lc-pe-input", type: "url", inputMode: "url", value: linkUrl, maxLength: lcMax("linkUrl"), placeholder: "https://", autoCapitalize: "none", spellCheck: false, enterKeyHint: "done", "aria-describedby": errs.link ? "pe-link-err" : undefined,
+        lh('input', { id: "pe-link-url", ref: luRef, className: "lc-pe-input", type: "url", inputMode: "url", value: linkUrl, maxLength: lcMax("linkUrl"), placeholder: "https://", autoCapitalize: "none", spellCheck: false, enterKeyHint: "done", 
           onChange: function (e) { setLinkUrl(e.target.value); } }),
         err("link"),
         lh('button', { type: "button", className: "lc-pe-add", onClick: function () { addLink(false); } }, "Add link"))));
@@ -2524,8 +2524,9 @@ function LcProfileEditor({ profile, focusKey, onSave, onClose }) {
     lh('div', { className: "hdr lc-i27-hdr lc-pe-hdr" }, lh('div', { className: "hdr-row lc-i27-hrow" },
       lh('button', Object.assign({ type: "button", id: "pe-close", className: "bi lc-i27-back", onClick: close }, lcCloseProps("Edit profile")), lh(Looscid.LcI27Glyph, { g: "x", size: 18 })),
       lh('h1', { id: "pe-h1", className: "hdr-title lc-i27-title", tabIndex: -1, ref: headRef }, "Edit profile"),
-      lh('button', { type: "button", id: "pe-save", className: "lc-pe-save" + (changed ? "" : " lc-dim"), "aria-disabled": changed ? undefined : "true", "aria-describedby": changed ? undefined : "pe-save-why", onClick: save }, "Save"),
-      lh('span', { id: "pe-save-why", className: "sr-only" }, "Dimmed until you change something."))),
+      // Nov 1 2026 (Carter, 9:45 AM: "Description, dimmed ... is gone and banned"): Save is a plain button now. It isn't
+      // dimmed for VoiceOver and has no hint; with nothing changed, tapping it says "Nothing to save yet. Change something first."
+      lh('button', { type: "button", id: "pe-save", className: "lc-pe-save" + (changed ? "" : " lc-dim"), onClick: save }, "Save"))),
     lh('div', { className: "lc-pe-seg", role: "tablist", "aria-label": "Edit or preview", onKeyDown: onTabKey },
       tabs.map(function (t) { const on = view === t[0];
         return lh('button', { key: t[0], type: "button", role: "tab", id: "pe-tab-" + t[0], "aria-selected": on ? "true" : "false", "aria-controls": "pe-panel", tabIndex: on ? 0 : -1, className: "lc-pe-segb" + (on ? " on" : ""), onClick: function () { setView(t[0]); } }, t[1]); })),
