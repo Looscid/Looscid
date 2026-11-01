@@ -2503,7 +2503,7 @@ function lcIdLabel(x) {
    Makes it"): a header with your avatar, name and @username, then real tabs:
    Home, Personal info, Data & privacy, Security, People & sharing. No payments.
    Alerts are not here; they have their own section. */
-const LID_TABS = Looscid.LID_TABS = [["home", "Home"], ["info", "Profile"], ["methods", "Login methods"], ["keys", "Keys and IDs"], ["security", "Security"], ["devices", "Devices"], ["data", "Data"], ["apps", "Connected apps"]];
+const LID_TABS = Looscid.LID_TABS = [["home", "Home"], ["info", "Profile"], ["methods", "Login methods"], ["keys", "Keys and IDs"], ["security", "Security"], ["devices", "Devices"], ["data", "Data"], ["server", "Looscid server"], ["backup", "Backup file"], ["apps", "Connected apps"]];
 Looscid.LID_TABS = LID_TABS;
 function lidWhen(t) { try { return new Date(t).toLocaleString(undefined, Looscid.lcTimeOpts({ month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })); } catch (e) { return ""; } }
 function thisDeviceLabel() {
@@ -2605,12 +2605,14 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
       Card("checkup", "Security checkup", checkup, function () { go("security", "lid-checkup-h"); }),
       Card("devices", "Devices", "This device, " + thisDeviceLabel(), function () { go("devices"); }),
       Card("data", "Data", summary.length + " kinds of data, stored only on this device", function () { go("data"); }),
+      Card("server", "Looscid server", (function () { try { const sc = JSON.parse(localStorage.getItem("looscid_server") || "null"); return sc && sc.token && sc.handle ? "Signed in as @" + sc.handle : "Put your Dreams on the server"; } catch (e) { return "Put your Dreams on the server"; } })(), function () { go("server"); }),
+      Card("backup", "Backup file", "Everything and your key in one locked file", function () { go("backup"); }),
       Card("apps", "Connected apps", methods.length ? methods.length + " linked " + (methods.length === 1 ? "identity" : "identities") : "None yet", function () { go("apps"); })));
   else if (tab === "info") panel = lh(React.Fragment, null,
     PH("Profile", "Your name, username, avatar and bio. Choose a field to change it."),
     ed.list);
   else if (tab === "data") panel = lh(React.Fragment, null,
-    PH("Data", "Your data stays on this device. Nothing is sent to a Looscid server."),
+    PH("Data", "Your data stays on this device. Nothing goes to the Looscid server unless you choose it there."),
     lh('h3', { className: "lid-label" }, "What's stored on this device"),
     lh('ul', { className: "lid-dl lc-rows", role: "list" }, summary.map(function (r) { return lh('li', { key: r.k }, lh('span', { className: "lc-dt" }, r.k, lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, r.v)); })),
     lh('h3', { className: "lid-label" }, "Download your data"),
@@ -2651,6 +2653,14 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
     PH("Keys and IDs", "Your Nostr key and your fediverse and Bluesky handles. Link one by pasting it: no password, nothing shared."),
     lh(NostrKeySection, null),
     lh(LcKeysPanel, { goMethods: function () { go("methods", "lid-methods-h"); } }));
+  // Oct 31 2026 (Carter): the Looscid server (sign in with your key, put your Dreams on it) and the backup file (everything
+  // plus your key, locked with a passcode) each have their own page here. They live in js/remsync.js.
+  else if (tab === "server") panel = lh(React.Fragment, null,
+    PH("Looscid server", "Sign in with your LooscidID key and choose which Dreams go on the server."),
+    Looscid.LcServerPanel ? lh(Looscid.LcServerPanel, { go: function (t) { go(t); } }) : lh('p', { className: "lid-help" }, "The Looscid server page didn't load. Reload Looscid and try again."));
+  else if (tab === "backup") panel = lh(React.Fragment, null,
+    PH("Backup file", "Save everything, your key included, in one file locked with a passcode. Or bring it all back from one."),
+    Looscid.LcBackupPanel ? lh(Looscid.LcBackupPanel, { go: function (t) { go(t); } }) : lh('p', { className: "lid-help" }, "The Backup file page didn't load. Reload Looscid and try again."));
   else if (tab === "devices") panel = lh(React.Fragment, null,
     PH("Devices", "Where your LooscidID is signed in."),
     lh('h3', { className: "lid-label" }, "This device"),
@@ -2688,7 +2698,7 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
         lh('button', { type: "button", id: "lid-tab-" + t[0], className: "mitem lc-cat lc-ios-row", onClick: function () { fromCard.current = null; setNote(""); setTab(t[0]); setTimeout(function () { const h = wrapRef.current && wrapRef.current.querySelector("h1"); if (h) h.focus(); }, 0); } },
           lh('span', { className: "mitem-lbl" }, t[1]), lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })));
     })),
-    lh('p', { className: "lc-ios-foot" }, "Your profile, how you log in, your keys, security, devices, your data on this device and apps using your LooscidID."),
+    lh('p', { className: "lc-ios-foot" }, "Your profile, how you log in, your keys, security, devices, your data on this device, the Looscid server, your backup file and apps using your LooscidID."),
     lh('div', { id: "lid-panel", className: "lid-body" }, panel));
 }
 Looscid.LC_FORCED = {}; // Private account forces two Permissions
