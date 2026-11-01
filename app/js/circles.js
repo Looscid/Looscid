@@ -2,6 +2,7 @@
    Still drawn with React, like the tabs not yet rewritten. Plain script (not a module); see docs/dev/FILES.md. */
 (function (Looscid) {
 const { Av, Cbx, CommentView, DREAMS_INIT, DreamCard, GROUPS, Ic, ME, Modal, USERS, fmt, lcCloseProps, useDreams, useState } = Looscid;
+const { lcMax, lcLimit } = Looscid; // Nov 1 2026: Custom character limits (core.js)
 Object.assign(Looscid, { CreateGroupFlow, GroupDetailPage, GroupAdminModal, GroupsPage });
 
 /* Round 7.12: the three Circles tablists get the same keys as the other tablists (Left and Right wrap, Home, End)
@@ -131,8 +132,8 @@ function CreateGroupFlow({onClose, onCreate, navigate}) {
           )
           , React.createElement('div', { style: {marginBottom:12},}
             , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",marginBottom:6}, "aria-hidden": "true",}, "Circle Name (required)"  )
-            , React.createElement('input', { className: "inp", placeholder: "e.g. Consciousness Lab"  , value: form.name, onChange: e=>set("name",e.target.value), maxLength: 40, required: true, 'aria-label': "Circle name" ,})
-            , React.createElement('div', { style: {fontSize:10,color:"var(--tx3)",textAlign:"right",marginTop:3},}, form.name.length, "/40")
+            , React.createElement('input', { className: "inp", placeholder: "e.g. Consciousness Lab"  , value: form.name, onChange: e=>set("name",e.target.value), maxLength: lcMax("circleName"), required: true, 'aria-label': "Circle name" ,})
+            , React.createElement('div', { style: {fontSize:10,color:"var(--tx3)",textAlign:"right",marginTop:3},}, form.name.length, lcLimit("circleName") ? "/" + lcLimit("circleName") : "")
           )
           , React.createElement('div', { style: {marginBottom:12},}
             , React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",marginBottom:6},}, "Description")

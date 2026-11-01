@@ -92,7 +92,7 @@ function lcCircleCreate(form) {
   const ids = GROUPS.map(function (g) { return typeof g.id === "number" ? g.id : 0; }).concat(lcCirclesRead().map(function (g) { return g.id; }));
   const g = {
     id: Math.max.apply(null, [1000].concat(ids)) + 1,
-    name: String(form.name || "").trim().slice(0, 40), description: String(form.description || "").trim(), // part 35: no length limit (Markdown and code)
+    name: lcCap(String(form.name || "").trim(), "circleName"), description: String(form.description || "").trim(), // part 35: no length limit (Markdown and code)
     category: form.category || "Other", emoji: form.emoji || "", privacy: form.privacy || "public",
     joinApproval: !!form.joinApproval, postApproval: !!form.postApproval, minAge: !!form.minAge,
     rules: (form.rules || []).map(function (r) { return String(r || "").trim(); }).filter(Boolean),
@@ -554,7 +554,7 @@ function lcIsMuted(user) { return !!user && typeof user === "object" && lcPeople
 function lcNoteFor(handle) { try { const o = JSON.parse(localStorage.getItem("looscid_dreamor_notes") || "{}"); return (o && typeof o === "object" && o[lcHandle(handle)]) || ""; } catch (e) { return ""; } }
 function lcSetNote(handle, text) {
   let o = {}; try { o = JSON.parse(localStorage.getItem("looscid_dreamor_notes") || "{}") || {}; } catch (e) {}
-  const h = lcHandle(handle), t = String(text || "").trim().slice(0, 500); if (!h) return;
+  const h = lcHandle(handle), t = lcCap(String(text || "").trim(), "note"); if (!h) return;
   if (t) o[h] = t; else delete o[h];
   try { if (Object.keys(o).length) localStorage.setItem("looscid_dreamor_notes", JSON.stringify(o)); else localStorage.removeItem("looscid_dreamor_notes"); } catch (e) {}
 }
@@ -849,7 +849,7 @@ const LC_LISTS_KEY = "looscid_lists", LC_LISTS_MAX = 100, LC_LIST_MEMBERS_MAX = 
 function lcListMemberKey(u) { if (!u) return ""; const h = u.handle ? lcHandle(String(u.handle)) : ""; return h ? "h:" + h.toLowerCase() : (u.id != null ? "i:" + String(u.id) : ""); }
 function lcListMemberOk(m) { return !!m && typeof m === "object" && !!lcListMemberKey(m) && (m.handle == null || typeof m.handle === "string") && (m.name == null || typeof m.name === "string"); }
 function lcListOk(l) { return !!l && typeof l === "object" && typeof l.id === "string" && /^[A-Za-z0-9_\-]{1,40}$/.test(l.id) && typeof l.name === "string" && l.name.trim() !== "" && Array.isArray(l.members); }
-function lcListClean(l) { return { id: l.id, name: String(l.name).trim().slice(0, 60), members: l.members.filter(lcListMemberOk).slice(0, LC_LIST_MEMBERS_MAX).map(lcListMemberSnap), created: typeof l.created === "string" ? l.created : "", shown: l.shown === true }; }
+function lcListClean(l) { return { id: l.id, name: lcCap(String(l.name).trim(), "listName"), members: l.members.filter(lcListMemberOk).slice(0, LC_LIST_MEMBERS_MAX).map(lcListMemberSnap), created: typeof l.created === "string" ? l.created : "", shown: l.shown === true }; }
 function lcListMemberSnap(u) {
   const m = { id: typeof u.id === "number" || typeof u.id === "string" ? u.id : null, handle: u.handle ? String(u.handle).slice(0, 120) : "", name: String(u.name || u.displayName || "").slice(0, 120) };
   if (u.net) m.net = String(u.net).slice(0, 20);
@@ -868,7 +868,7 @@ function lcListGet(id) { return lcListsRead().find(function (l) { return l.id ==
 function lcListNameTaken(name, exceptId) { const n = String(name || "").trim().toLowerCase(); return lcListsRead().some(function (l) { return l.id !== exceptId && l.name.toLowerCase() === n; }); }
 // Returns the new list, or { error } with words to say.
 function lcListCreate(name) {
-  const n = String(name || "").trim().slice(0, 60);
+  const n = lcCap(String(name || "").trim(), "listName");
   if (!n) return { error: "Type a name for the list first." };
   if (lcListNameTaken(n)) return { error: "You already have a list called " + n + "." };
   const have = lcListsRead();
@@ -878,7 +878,7 @@ function lcListCreate(name) {
   return l;
 }
 function lcListRename(id, name) {
-  const n = String(name || "").trim().slice(0, 60);
+  const n = lcCap(String(name || "").trim(), "listName");
   if (!n) return { error: "Type a name for the list first." };
   if (lcListNameTaken(n, id)) return { error: "You already have a list called " + n + "." };
   const have = lcListsRead(), l = have.find(function (x) { return x.id === id; }); if (!l) return { error: "That list is gone." };
@@ -1793,6 +1793,7 @@ const LC_FIND_STATIC = [
   { l: "Menu button position", w: "menu top bottom one handed position", page: "settings_cz_menu", focus: "cz-menupos", where: "Settings, Customization, Menu" },
   { l: "Menu Close buttons", w: "menu close button top bottom", page: "settings_cz_menu", focus: "cz-topclose", where: "Settings, Customization, Menu" },
   { l: "Character limit", w: "character limit length dream posting", page: "settings_cz_posting", focus: "cz-charlimit", where: "Settings, Customization, Dreaming" },
+  { l: "Custom character limits", w: "custom character limits no limit length max maximum long name bio links lists text fields", page: "settings_cz_posting", focus: "cz-charlimits", where: "Settings, Customization, Dreaming" },
   { l: "Keys and IDs", w: "nostr npub key fediverse mastodon bluesky handle link id keys login", page: "settings_account", data: { tab: "keys" }, where: "Settings, Security" },
   { l: "Nostr key", w: "nostr key nsec npub passcode signer relays create key secret key dream on nostr", page: "settings_account", data: { tab: "keys" }, focus: "nostr-key-h", where: "Settings, Security, Keys and IDs" },
   { l: "Labs", w: "looscid labs and coming soon planned roadmap", page: "settings_labs", where: "Settings, General" },
@@ -2170,12 +2171,40 @@ Looscid.NAV = NAV;
 const LOCAL_PROFILE_KEY = "looscid_local_profile";
 Looscid.LOCAL_PROFILE_KEY = LOCAL_PROFILE_KEY;
 // Sanitize input — strip dangerous characters
+/* Nov 1 2026 (Carter, 8:51 AM: "no limit on any text fields"; 8:54 AM: "If you enable it you can fully customize the limit
+   plus which textfields get it"): Custom character limits, in Settings, Customization, Dreaming. Off (the default): every
+   field keeps its usual limit, exactly as before. On: each field below has its own switch; a field with its switch on uses
+   your number, or no limit when the number is blank. Saved on this device as looscid_char_limits:
+   { on, fields: { <id>: { on, max } } } (max null = no limit), and in the settings backup.
+   The one hard limit: usernames stop at 64, because profile links (/@username) only work up to 64. */
+const LC_CHAR_LIMITS_KEY = "looscid_char_limits";
+const LC_CHAR_FIELDS = [
+  { id: "name", l: "Name", def: 40 }, { id: "username", l: "Username", def: 30, hard: 64 }, { id: "bio", l: "Bio", def: null },
+  { id: "website", l: "Website", def: 200 }, { id: "linkName", l: "Link names", def: 40 }, { id: "linkUrl", l: "Link addresses", def: 200 },
+  { id: "dream", l: "Dreams and replies", def: null, usual: "the Character limit switch above", note: "Some Nostr relays turn away very long Dreams (many stop around 64 KB)." },
+  { id: "listName", l: "List names", def: 60 }, { id: "note", l: "Notes on profiles", def: 500 }, { id: "circleName", l: "Circle names", def: 40 },
+  { id: "serverName", l: "Looscid server name", def: 50 }, { id: "sectionName", l: "Section names (Sense)", def: 30 }];
+function lcCharLimits() { const v = lcJsonLs(LC_CHAR_LIMITS_KEY, null) || {}; return { on: !!v.on, fields: v.fields && typeof v.fields === "object" ? v.fields : {} }; }
+function lcCharLimitsSave(v) { try { localStorage.setItem(LC_CHAR_LIMITS_KEY, JSON.stringify({ on: !!v.on, fields: v.fields || {} })); } catch (e) {} try { window.dispatchEvent(new CustomEvent("looscid:limits")); } catch (e) {} }
+// Is this field using your own limit? (Custom character limits on, and this field's switch on.)
+function lcLimitCustom(id) { const c = lcCharLimits(); return !!(c.on && c.fields[id] && c.fields[id].on); }
+// The limit for a field: a number, or null for no limit.
+function lcLimit(id) {
+  const f = LC_CHAR_FIELDS.find(function (x) { return x.id === id; }); if (!f) return null;
+  let n = f.def;
+  if (lcLimitCustom(id)) { const m = lcCharLimits().fields[id].max; n = m == null || m === "" ? null : Math.max(1, Math.floor(+m) || 1); }
+  if (f.hard && (n == null || n > f.hard)) n = f.hard;
+  return n;
+}
+function lcMax(id) { const n = lcLimit(id); return n == null ? undefined : n; }
+function lcCap(s, id) { s = String(s == null ? "" : s); const n = lcLimit(id); return n == null ? s : s.slice(0, n); }
+Object.assign(Looscid, { LC_CHAR_LIMITS_KEY, LC_CHAR_FIELDS, lcCharLimits, lcCharLimitsSave, lcLimitCustom, lcLimit, lcMax, lcCap });
 function sanitizeInput(str) {
   if (typeof str !== "string") return str;
   return str.replace(/[<>]/g, "").trim();
 }
 function makeLocalProfile(name) {
-  const display = (sanitizeInput(name || "") || "Dreamor").slice(0, 40);
+  const display = lcCap(sanitizeInput(name || "") || "Dreamor", "name");
   const slug = display.toLowerCase().replace(/[^a-z0-9_]+/g, "").slice(0, 30) || "dreamor";
   const initials = display.split(/\s+/).filter(Boolean).map(w => w[0]).join("").slice(0, 2).toUpperCase() || "D";
   return {
@@ -7272,7 +7301,9 @@ const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "looscid_braille_styles", "lo
   // Round 7.33: Show followed threads on my profile. Added at the end, so older backups still import.
   "looscid_show_threads",
   // Round 7.37 (#176): Settings Order (Default, Alphabetical or Custom) and your own order. Added at the end, so older backups still import.
-  "looscid_settings_order_mode", "looscid_settings_order"];
+  "looscid_settings_order_mode", "looscid_settings_order",
+  // Nov 1 2026: Custom character limits (Customization, Dreaming). Added at the end, so older backups still import.
+  "looscid_char_limits"];
 Looscid.LC_EXPORT_KEYS = LC_EXPORT_KEYS;
 function lcExportSettings() {
   const o = { app: "Looscid", kind: "settings", version: LOOSCID_VERSION, exported: new Date().toISOString(), settings: {} };

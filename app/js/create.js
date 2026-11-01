@@ -480,7 +480,8 @@ function LcComposer(props) {
     focusBox(0);
   };
   const passRef = useEnterSubmit(unlockKey);
-  const charLimit = (props.prefs && props.prefs.charLimitEnabled) ? props.prefs.charLimit : null;
+  // Nov 1 2026: Custom character limits (Customization, Dreaming) with Dreams and replies on wins over Character limit.
+  const charLimit = Looscid.lcLimitCustom && Looscid.lcLimitCustom("dream") ? Looscid.lcLimit("dream") : (props.prefs && props.prefs.charLimitEnabled) ? props.prefs.charLimit : null;
   // Like Feditext: a link counts as 23 characters and the content warning counts too.
   const lenOf = function (t) { return String(t || "").replace(/https?:\/\/\S+/gi, "x".repeat(23)).length + (cwOn ? cw.length : 0); };
   const overAny = !!charLimit && parts.some(function (t) { return lenOf(t) > charLimit; });

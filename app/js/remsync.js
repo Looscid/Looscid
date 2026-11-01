@@ -424,7 +424,7 @@ function LcServerPanel({ go }) {
       lh('input', { id: "srv-handle", className: "inp", type: "text", autoComplete: "username", autoCapitalize: "none", spellCheck: false, value: handle, "aria-describedby": "srv-handle-d", onChange: function (e) { setHandle(e.target.value); } }),
       lh('p', { className: "lid-help", id: "srv-handle-d" }, "2 to 20 letters, numbers or underscores. People find you by it."),
       lh('label', { htmlFor: "srv-name", className: "lid-label" }, "Display name (optional)"),
-      lh('input', { id: "srv-name", className: "inp", type: "text", maxLength: 50, value: name, onChange: function (e) { setName(e.target.value); } }),
+      lh('input', { id: "srv-name", className: "inp", type: "text", maxLength: Looscid.lcMax ? Looscid.lcMax("serverName") : 50, value: name, onChange: function (e) { setName(e.target.value); } }),
       lh('label', { className: "lc-radio" + (age ? " on" : "") }, lh('input', { type: "checkbox", id: "srv-age", checked: age, onChange: function () { setAge(!age); } }), lh('span', null, "I'm 13 or older")),
       lh(Btn, { disabled: busy, onClick: function () {
         if (!age) { fail(new Error("Check the box to confirm you're 13 or older.")); return; }
