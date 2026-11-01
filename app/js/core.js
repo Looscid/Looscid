@@ -2199,6 +2199,7 @@ function applyLocalProfileToMe(p) {
   if (!p) return p;
   ME.name = p.displayName; ME.handle = p.handle; ME.initials = p.initials;
   ME.bio = p.bio || ""; ME.website = p.website || ""; ME.links = p.links || [];
+  if (p.color) ME.color = p.color; // Nov 1 2026: the Avatar color chosen in Edit profile
   return p;
 }
 // Your LooscidID is created the moment Looscid first opens (2three1y, Oct 8 2026): no gate,
