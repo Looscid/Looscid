@@ -1753,6 +1753,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
           React.createElement('h1', {className:"htit", tabIndex:-1}, "More")
         )
       ),
+      Looscid.LcModeLine ? React.createElement(Looscid.LcModeLine, { style: { margin: "12px 16px 0" } }) : null,
       React.createElement('div', {style:{padding:"24px 16px",display:"flex",flexDirection:"column",gap:12}},
         React.createElement('div', {style:{padding:"20px",background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",border:"1px solid rgba(168,85,247,.2)",borderRadius:16,textAlign:"center"}},
           React.createElement('div', {style:{fontSize:44,marginBottom:12}}, "Guest Mode"),
@@ -1790,6 +1791,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
       , React.createElement('div', { className: "hdr",}
         , React.createElement('div', { style: {padding:"48px 16px 12px"},}, React.createElement('h1', { className: "htit", tabIndex:-1,}, "More"))
       )
+      , Looscid.LcModeLine ? React.createElement(Looscid.LcModeLine, { style: { margin: "12px 16px 0" } }) : null
       , React.createElement('div', { style: {padding:"12px 16px 0"},}
         , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:12,padding:"14px 0",borderBottom:"1px solid var(--bd)",cursor:"pointer"}, role: "button", tabIndex: 0, onClick: ()=>navigate("profile"), 'aria-label': "View your profile"  ,}
           , React.createElement('div', { style: {position:"relative"},}
@@ -2598,6 +2600,7 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   let panel;
   if (tab === "home") panel = lh(React.Fragment, null,
     PH("Welcome, " + name, "Manage your info, privacy and security to make Looscid work better for you."),
+    Looscid.LcModeLine ? lh(Looscid.LcModeLine, null) : null,
     lh('ul', { className: "lid-gcards", 'aria-label': "Your LooscidID at a glance" },
       Card("info", "Profile", "Name " + name + ", username " + handle, function () { go("info"); }),
       Card("methods", "Login methods", methodsText, function () { go("methods", "lid-methods-h"); }),
@@ -2657,6 +2660,7 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   // plus your key, locked with a passcode) each have their own page here. They live in js/remsync.js.
   else if (tab === "server") panel = lh(React.Fragment, null,
     PH("Looscid server", "Sign in with your LooscidID key and choose which Dreams go on the server."),
+    Looscid.LcModeLine ? lh(Looscid.LcModeLine, null) : null,
     Looscid.LcServerPanel ? lh(Looscid.LcServerPanel, { go: function (t) { go(t); } }) : lh('p', { className: "lid-help" }, "The Looscid server page didn't load. Reload Looscid and try again."));
   else if (tab === "backup") panel = lh(React.Fragment, null,
     PH("Backup file", "Save everything, your key included, in one file locked with a passcode. Or bring it all back from one."),
