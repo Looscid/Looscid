@@ -28,7 +28,7 @@
       else if (t.charAt(0) === "*") out.push(el("strong", {}, [t.slice(2, -2)]));
       else {
         var mm = /^\[([^\]]+)\]\(([^)\s]+)\)$/.exec(t), href = mm[2];
-        if (/^https:\/\//i.test(href)) out.push(el("a", { href: href, target: "_blank", rel: "noopener noreferrer", title: goTo(href) }, [mm[1] + " (opens in a new tab)"]));
+        if (/^https:\/\//i.test(href)) out.push(el("a", { href: href, target: "_blank", rel: "noopener noreferrer", title: goTo(href) }, [mm[1]]));
         else out.push(mm[1]);
       }
       last = m.index + t.length;

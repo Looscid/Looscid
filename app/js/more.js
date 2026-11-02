@@ -1124,7 +1124,7 @@ function LcLinksSheet({ who, links, profLink, handle, onShare, onClose, own }) {
       links.length ? lh('ul', { className: "mlist lc-i27-list lc-links-list", role: "list", "aria-label": "Links (" + links.length + ")" }, links.map(function (l, i) {
         const host = lcLinkHost(l.url), tile = LC_LINK_TILE[host] || "#636366";
         return lh('li', { key: l.url, className: "mli lc-i27-li" + (i === 0 ? " lc-g-first" : "") + (i === links.length - 1 ? " lc-g-last" : "") },
-          lh('a', { className: "lc-i27-row lc-link-row", href: l.url, target: "_blank", rel: "noopener noreferrer me", "aria-label": Looscid.lcNameJoin(l.name, lcLinkShow(l.url), "opens in a new tab") },
+          lh('a', { className: "lc-i27-row lc-link-row", href: l.url, target: "_blank", rel: "noopener noreferrer me", "aria-label": Looscid.lcNameJoin(l.name, lcLinkShow(l.url)) },
             lh('span', { className: "lc-i27-ic lc-link-tile", style: { background: tile }, "aria-hidden": "true" }, (host.charAt(0) || "?").toUpperCase()),
             lh('span', { className: "lc-i27-txt" }, lh('span', { className: "lc-i27-lbl" }, l.name), lh('span', { className: "lc-i27-sub lc-link-url" }, lcLinkShow(l.url))),
             lh(Looscid.LcI27Glyph, { g: "out", size: 14, cls: "lc-i27-chev" })));
@@ -3864,7 +3864,7 @@ function CreditsPage({ navigate }) {
       sec("credits-testers", "Testers and the Discord", [
         lh('p', { key: "p", className: "lc-roll-what" }, "Huge thanks to everyone who tests Looscid with VoiceOver, TalkBack, NVDA, braille displays and keyboards and tells me what broke. You're the reason it works."),
         lh('p', { key: "d", className: "lc-roll-what" }, "And to everyone in the Looscid Discord: thanks for the ideas, the bug reports and the memes."),
-        lh('p', { key: "l", className: "lc-roll-links" }, ext(LC_DISCORD_URL, "Join the Looscid Discord", "Join the Looscid Discord, opens in a new tab", "dl"))]),
+        lh('p', { key: "l", className: "lc-roll-links" }, ext(LC_DISCORD_URL, "Join the Looscid Discord", null, "dl"))]),
       sec("credits-thanks", "Special thanks", [
         ul([
           plain("my", "MystyDev", "For Yapper, the app behind the Yapper website."),
