@@ -3808,6 +3808,8 @@ const LC_CREDITS = {
     { n: "Feditext, by Metabolist", s: "Feditext", u: "https://github.com/feditext/feditext", l: "GPL-3.0", lu: "https://github.com/feditext/feditext/blob/develop/LICENSE", w: "Design inspiration only, no Feditext code is used anywhere in Looscid. The composer follows Feditext's layout: the Dream you're answering above your text, the toolbar order, and writing a whole thread in one go. The profile design, the More button and the Preferences-style settings are recreated from Feditext by Metabolist, again with zero code copied. Feditext is honestly one of the best accessible apps out there, go check it out." },
     // Round 6.6: FastSMRW has no license, so only the idea is borrowed.
     { n: "FastSMRW, by masonasons", s: "FastSMRW", u: "https://github.com/masonasons/FastSMRW", lead: "No license, so I only borrowed the idea.", w: "The FastSM-inspired earcon pack in Settings, Earcons, Soundpack is inspired by FastSMRW. No code or audio was copied: every sound in that pack is made fresh with Web Audio." },
+    // Nov 2 2026: the TalkBack test page gave Looscid its approved link, button, heading and edit box format.
+    { n: "TalkBack test", s: "TalkBack test", u: "https://2three1y.github.io/github-elements/talkback-test/", site: "GitHub Pages", w: "Where our link, button, heading and edit box format came from." },
   ],
   planned: [
     { n: "MyWEB", w: "feedback sent to me as an encrypted Nostr message, signed with your own key." },
