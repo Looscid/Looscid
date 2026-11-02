@@ -2,6 +2,19 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
+## TalkBack: links stay plain again (no new build yet)
+
+Added November 2, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build number doesn't change.
+
+The same approved TalkBack format as October 29, checked again everywhere.
+
+- The site footer (Help Center, status page and changelog page) had hidden "(opens in a new tab)" text back inside its links. It's gone, so each link reads just its own words. The Help Center build now refuses that text, so it can't come back.
+- The Discord link in the More menu and the links on a profile no longer end with "opens in a new tab", and the changelog page's links don't add it either.
+- The old web client on the Looscid server no longer gives fields and forms an accessible description. Help text stays plain text under each field.
+- Lyric Finder's song title box no longer says "required".
+- Easyconvert's "File actions" headings are plain, with no hidden words, and documents it makes in English are marked US English.
+- The Meme Projects disclaimer link is a plain "Full view" link, with no hidden words.
+
 ## TalkBack: US English page language, cleaner links (no new build yet)
 
 Added October 29, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).
