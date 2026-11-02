@@ -2,6 +2,12 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
+## Credits: link to developer's homepage (no new build yet)
+
+Added November 2, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build number doesn't change.
+
+- Credits and open source now has a "Developer's homepage" link under Created by.
+
 ## Credits: TalkBack test (no new build yet)
 
 Added November 2, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build number doesn't change.
