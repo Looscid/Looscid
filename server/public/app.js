@@ -181,7 +181,7 @@ function reportForm(target, where, what) {
 let composerN = 0;
 function composer({ replyTo, onDone } = {}) {
   const n = ++composerN; const id = (s) => `c${n}-${s}`;
-  const ta = h('textarea', { id: id('text'), maxlength: 1000, 'aria-describedby': id('count') });
+  const ta = h('textarea', { id: id('text'), maxlength: 1000 });
   const count = h('p', { id: id('count'), cls: 'hint' }, '1000 characters left');
   ta.addEventListener('input', () => { count.textContent = `${1000 - [...ta.value].length} characters left`; });
   const cw = h('input', { type: 'text', id: id('cw'), maxlength: 200 });
@@ -190,7 +190,7 @@ function composer({ replyTo, onDone } = {}) {
   const when = h('input', { type: 'datetime-local', id: id('when') });
   const pollOpts = [1, 2, 3, 4].map((i) => h('input', { type: 'text', id: id('p' + i), maxlength: 80 }));
   const file = h('input', { type: 'file', id: id('file'), accept: 'image/jpeg,image/png,image/webp' });
-  const alt = h('textarea', { id: id('alt'), maxlength: 1500, rows: 2, 'aria-describedby': id('alt-hint') });
+  const alt = h('textarea', { id: id('alt'), maxlength: 1500, rows: 2 });
   const errs = h('div', {});
   const f = h('form', { cls: 'card', onsubmit: async (e) => {
     e.preventDefault(); errs.replaceChildren(); const btn = f.querySelector('button.primary'); btn.disabled = true;
@@ -416,7 +416,7 @@ async function settingsView() {
 // One file with your profile, Dreams, replies, Chats, likes, follows, settings AND your LooscidID key, locked with a
 // passcode you choose (PBKDF2 + AES-GCM, see js/looscid-backup.js). The same file opens in the Looscid app.
 function passFields(prefix, confirm) {
-  const p1 = h('input', { type: 'password', id: prefix + '-pass', autocomplete: confirm ? 'new-password' : 'current-password', 'aria-describedby': prefix + '-pass-hint' });
+  const p1 = h('input', { type: 'password', id: prefix + '-pass', autocomplete: confirm ? 'new-password' : 'current-password' });
   const p2 = confirm ? h('input', { type: 'password', id: prefix + '-pass2', autocomplete: 'new-password' }) : null;
   const els = [h('label', { for: prefix + '-pass' }, 'Passcode for the file'),
     h('p', { id: prefix + '-pass-hint', cls: 'hint' }, confirm ? 'At least 8 characters. Four short words work well. Nobody can recover it if you forget it.' : 'The passcode you chose when you saved the file.'), p1];
@@ -439,7 +439,7 @@ function backupSection() {
     h('p', {}, 'One file with everything: your profile, Dreams, replies, Chats, likes, follows, settings, and your LooscidID key. It opens here or in the Looscid app, on any device.'),
     h('p', { cls: 'warn', id: 'bk-warn' }, h('strong', {}, 'This file contains your key. '), 'Anyone who has the file and its passcode can be you, so keep it private. It is locked with a passcode you choose, and nobody can recover a forgotten passcode, not even this server.'),
     h('h3', {}, 'Save backup file'),
-    h('form', { 'aria-describedby': 'bk-warn', onsubmit: async (e) => {
+    h('form', { onsubmit: async (e) => {
       e.preventDefault(); err.replaceChildren();
       const bad = backup.passcodeProblem(f.p1.value); if (bad) { err.append(h('p', { cls: 'error', role: 'alert' }, bad)); f.p1.focus(); return; }
       if (f.p1.value !== f.p2.value) { err.append(h('p', { cls: 'error', role: 'alert' }, "The two passcodes don't match. Type them again.")); f.p2.focus(); return; }
@@ -498,7 +498,7 @@ async function restoreToHome(d, sk) {
   return 'Backup restored: ' + parts.join(', ') + '.';
 }
 function restoreForm(prefix) {
-  const file = h('input', { type: 'file', id: prefix + '-rfile', 'aria-describedby': prefix + '-rfile-hint' });
+  const file = h('input', { type: 'file', id: prefix + '-rfile' });
   const f = passFields(prefix + 'r', false); const err = h('div', {}); const joinBox = h('div', {});
   const form = h('form', { onsubmit: async (e) => {
     e.preventDefault(); err.replaceChildren(); joinBox.replaceChildren();
@@ -591,7 +591,7 @@ function welcomeView(prefill = '') {
       h('li', {}, 'Nothing uploads unless you say yes, and your LooscidID signs everything, so nobody can fake your Dreams.'),
       h('li', {}, 'You can export everything or stop syncing at any time in Settings.'))));
   // sign in
-  const key = h('textarea', { id: 'in-key', rows: 3, autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', 'aria-describedby': 'in-key-hint' });
+  const key = h('textarea', { id: 'in-key', rows: 3, autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false' });
   const inErr = h('div', {});
   view.append(h('h2', {}, 'Sign in with your LooscidID'), h('form', { cls: 'card', onsubmit: async (e) => {
     e.preventDefault(); inErr.replaceChildren();
@@ -602,9 +602,9 @@ function welcomeView(prefill = '') {
   view.append(h('h2', { id: 'restore-h' }, 'Restore from a backup file'), h('section', { cls: 'card', 'aria-labelledby': 'restore-h' }, restoreForm('w')));
   // join
   const code = h('input', { type: 'text', id: 'j-code', value: prefill, autocomplete: 'off', autocapitalize: 'characters' });
-  const handle = h('input', { type: 'text', id: 'j-handle', autocomplete: 'username', autocapitalize: 'none', 'aria-describedby': 'j-handle-hint' });
+  const handle = h('input', { type: 'text', id: 'j-handle', autocomplete: 'username', autocapitalize: 'none' });
   const name = h('input', { type: 'text', id: 'j-name', maxlength: 50 });
-  const own = h('textarea', { id: 'j-own', rows: 2, autocomplete: 'off', spellcheck: 'false', 'aria-describedby': 'j-own-hint' });
+  const own = h('textarea', { id: 'j-own', rows: 2, autocomplete: 'off', spellcheck: 'false' });
   const age = h('input', { type: 'checkbox', id: 'j-age' });
   const jErr = h('div', {});
   view.append(h('h2', {}, 'Join with an invite'), h('form', { cls: 'card', onsubmit: async (e) => {
