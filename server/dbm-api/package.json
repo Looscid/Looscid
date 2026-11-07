@@ -1,0 +1,16 @@
+{
+  "name": "looscid-dbm-api",
+  "private": true,
+  "type": "module",
+  "description": "The Looscid server on Cloudflare Workers + D1 (Looscid Protocol v0, docs/protocol.md)",
+  "scripts": {
+    "build": "esbuild src/index.js --bundle --format=esm --platform=neutral --target=es2022 --outfile=dist/worker.js"
+  },
+  "dependencies": {
+    "@noble/curves": "^1.9.7",
+    "@noble/hashes": "^1.8.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}
