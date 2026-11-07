@@ -66,9 +66,19 @@ function FeedPage({navigate, prefs, cherryCtx}) {
       function () { if (live) setPub({ list: [], state: "error", key: pubKey }); });
     return function () { live = false; };
   }, [pubKey]);
+  // Nov 7 2026: Federated, Looscid now also reads public Dreams from the Looscid server (GET /feed, js/net.js).
+  const [srv, setSrv] = useState({ list: [], state: "idle" });
+  const wantSrv = tab === "federated" && nets.indexOf("looscid") >= 0 && !!Looscid.lcNet;
+  useEffect(function () {
+    if (!wantSrv) return; let live = true;
+    setSrv(function (p) { return { list: p.list, state: "loading" }; });
+    Looscid.lcNet.feed({ limit: 50 }).then(function (list) { if (live) setSrv({ list: list.map(lcNetDream), state: "done" }); },
+      function () { if (live) setSrv(function (p) { return { list: p.list, state: "error" }; }); });
+    return function () { live = false; };
+  }, [wantSrv]);
   Looscid.useIdListTick("looscid:notinterested"); // build 152 prep: Not interested hides a Dream from For You
   const notInt = tab === "for you" ? Looscid.lcNotInterested() : [];
-  const visible = lcFeedVisible(tab, rawDreams, { following: FOLLOWING, friends: FRIENDS_IDS, showFriends: showFriends, groups: cherryCtx && cherryCtx.groups, pub: pubKey && pub.key === pubKey ? pub.list : [] }).filter(function (d) { return notInt.indexOf(String(d.id)) < 0; });
+  const visible = lcFeedVisible(tab, rawDreams, { following: FOLLOWING, friends: FRIENDS_IDS, showFriends: showFriends, groups: cherryCtx && cherryCtx.groups, pub: pubKey && pub.key === pubKey ? pub.list : [], srv: wantSrv ? srv.list : [] }).filter(function (d) { return notInt.indexOf(String(d.id)) < 0; });
 
 
   if (activeComment) return (
@@ -236,6 +246,14 @@ function lcPubDream(r) {
   return { id: "n:" + r.id, nid: r.nid, user: { id: "npub:" + r.pk, name: short, handle: "@" + short, net: "nostr" }, text: r.text, time: lcAgo(r.created), created: r.created,
     likes: 0, comments: 0, redreams: 0, quotes: 0, liked: false, redreamed: false, quoted: false, bookmarked: false, cw: r.cw, net: "nostr", g: r.g, tags: r.tags, edits: r.edits, editedAt: r.editedAt };
 }
+// Nov 7 2026: a Dream from the Looscid server (js/net.js), shaped like the other Federated Dreams.
+function lcNetDream(r) {
+  let npub = ""; try { npub = window.NostrTools ? window.NostrTools.nip19.npubEncode(r.pk) : ""; } catch (e) {}
+  const short = String(npub || r.pk).slice(0, 14), cwT = (r.tags || []).find(function (t) { return t && t[0] === "content-warning"; });
+  return { id: "n:" + r.id, nid: r.nid || r.id, user: { id: "npub:" + r.pk, name: short, handle: "@" + short, net: "looscid" }, text: r.text, time: lcAgo(r.created), created: r.created,
+    likes: 0, comments: r.replies || 0, redreams: r.redreams || 0, quotes: r.quotes || 0, liked: false, redreamed: false, quoted: false, bookmarked: false,
+    cw: r.cw || (cwT ? cwT[1] || "Content warning" : undefined), net: "looscid", fromServer: true, tags: r.tags || [] };
+}
 function lcFeedVisible(tab, raw, o) {
   const pins = Looscid.lcPins(), FOL = o.following || new Set();
   const joined = new Set((o.groups || []).filter(function (g) { return g.joined; }).map(function (g) { return String(g.id); }));
@@ -252,7 +270,9 @@ function lcFeedVisible(tab, raw, o) {
   else if (tab === "federated") {
     const nets = Looscid.lcFedNets(), sub = Looscid.lcFedSub();
     const have = new Set(raw.map(function (d) { return d.nid; }).filter(Boolean));
-    const base = (nets.indexOf("looscid") >= 0 ? raw : []).concat(nets.indexOf("nostr") >= 0 ? (o.pub || []).filter(function (d) { return !have.has(d.nid); }) : []);
+    // Nov 7 2026: Looscid = your Dreams here plus the Looscid server's public feed; a Dream on both shows once.
+    const local = nets.indexOf("looscid") >= 0 ? raw.concat((o.srv || []).filter(function (d) { if (have.has(d.nid)) return false; have.add(d.nid); return true; })) : [];
+    const base = local.concat(nets.indexOf("nostr") >= 0 ? (o.pub || []).filter(function (d) { return !have.has(d.nid); }) : []);
     list = lcSortDreams(base, sub === "popular" ? "popular" : "latest");
   } else if (/^pin:/.test(tab)) {
     const f = LC_FEEDS.find(function (x) { return x.id === tab; }), p = f && f.pin;
