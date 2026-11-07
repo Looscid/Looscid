@@ -715,7 +715,9 @@ function DreamEdit({ dream, onClose, headRef }) {
     lcEditSave(dream, t);
     const N = Looscid.lcNostr, nid = dream.nid;
     if (nid && N && N.publishEdit) { setBusy(true); N.publishEdit(nid, t).then(function (r) {
-        announce(r && r.ok ? "Saved. It shows as Edited, and the edit went to " + r.ok + " of " + r.total + " relays." : "Saved here. It shows as Edited. " + (r && r.err === "locked" ? "Enter your passcode to send the edit to Nostr." : r && r.err === "nokey" ? "Add a Nostr key to send edits to Nostr." : "Couldn't send the edit to Nostr.")); onClose(); }); return; }
+        // Nov 7 2026: the edit goes to the Looscid server, and to Nostr relays only with the Nostr bridge on (js/net.js).
+        if (r && r.server && r.total === 1) { announce("Saved. It shows as Edited, and the edit went to Looscid."); onClose(); return; }
+        announce(r && r.ok ? "Saved. It shows as Edited, and the edit went to " + (r.server ? "Looscid and " : "") + r.ok + " of " + r.total + " relays." : "Saved here. It shows as Edited. " + (r && r.err === "locked" ? "Enter your passcode to send the edit to Nostr." : r && r.err === "nokey" ? "Add a Nostr key to send edits to Nostr." : "Couldn't send the edit to Nostr.")); onClose(); }); return; }
     announce("Saved. It shows as Edited."); onClose();
   };
   return lh('section', { className: "lc-extra", "aria-labelledby": "edit-h-" + dream.id },
@@ -789,7 +791,7 @@ function lcShareText(text, what) {
 /* Build 152 prep (#99): Copy link, Open original, Dream info, Liked by and Redreamed by. A Dream's public address is its
    Nostr note on njump.me (a public Nostr web viewer), or its own address when it came from Mastodon or another network
    with one. A Dream that is only on this device has no address yet. */
-function lcDreamNet(d) { if (!d) return "looscid"; if (d.net === "activitypub" || d.net === "mastodon") return "mastodon"; if (d.net === "nostr" || (d.user && d.user.net === "nostr")) return "nostr"; return d.nid ? "looscid+nostr" : "looscid"; }
+function lcDreamNet(d) { if (!d) return "looscid"; if (d.fromServer) return "looscid"; /* Nov 7 2026: from the Looscid server */ if (d.net === "activitypub" || d.net === "mastodon") return "mastodon"; if (d.net === "nostr" || (d.user && d.user.net === "nostr")) return "nostr"; return d.nid ? "looscid+nostr" : "looscid"; }
 function lcDreamUrl(d) {
   if (d && typeof d.url === "string" && /^https:\/\//i.test(d.url)) return d.url;
   const nid = d && d.nid; if (!nid || !/^[0-9a-f]{64}$/i.test(nid)) return "";
@@ -979,6 +981,30 @@ function lcEditSave(d, text) {
 function lcWithEdit(d) { const t = lcTombstoneOf(d); if (t) return t; const e = lcEditOf(d); return e ? Object.assign({}, d, { text: e.text, edits: e.history, editedAt: e.at }) : d; }
 function lcIsMine(d) { return !!d && !!d.user && (d.user === ME || (!!d.user.handle && lcHandle(d.user.handle) === lcHandle(ME.handle || ""))); }
 Object.assign(Looscid, { LC_EDITS_KEY, lcEdits, lcEditOf, lcEditSave, lcWithEdit });
+/* Nov 7 2026: Report Dream. Plain buttons, one per reason, and Cancel. The report is signed with your LooscidID key and
+   goes to the Looscid server (js/net.js). When 3 different people report a Dream, the server hides it from the feed. */
+function DreamReportDialog({ id, dream, authorPk, onDone }) {
+  const headingRef = useRef(null), [busy, setBusy] = useState(false), [msg, setMsg] = useState("");
+  // Focus the heading once the More menu has finished closing (it hands focus back to its button first).
+  useEffect(function () { const f = function () { if (headingRef.current) headingRef.current.focus(); }; f(); const t = setTimeout(f, 120); return function () { clearTimeout(t); }; }, []);
+  useEffect(function () {
+    const onKey = function (e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); onDone(); } };
+    document.addEventListener("keydown", onKey); return function () { document.removeEventListener("keydown", onKey); };
+  }, [onDone]);
+  const send = function (reason) {
+    if (busy) return; setBusy(true); setMsg("Sending the report.");
+    Looscid.lcNet.report(dream.nid, authorPk, reason).then(function (r) { setBusy(false); announce(r.say); if (r.ok) onDone(); else setMsg(r.say); });
+  };
+  return lh('div', { className: "lid-alert-bg" },
+    lh('div', { className: "lid-alert", role: "alertdialog", "aria-modal": "true", "aria-labelledby": id + "-title", "data-lc-no-focus-trap": "" },
+      lh('h2', { ref: headingRef, tabIndex: -1, "data-lc-autofocus": "", id: id + "-title", className: "lid-sub" }, "Report this Dream?"),
+      lh('p', { className: "lid-help" }, "Pick what's wrong. Your report goes to the Looscid server with your LooscidID. The person you report isn't told who reported them."),
+      msg ? lh('p', { className: "lid-help", role: "status" }, msg) : null,
+      Looscid.lcNet.REPORT_REASONS.map(function (r) {
+        return lh('button', { key: r[0], type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: function () { send(r[0]); } }, r[1]);
+      }),
+      lh('button', { type: "button", className: "btn bgb lid-wide", onClick: onDone }, "Cancel")));
+}
 function DreamDeleteDialog({ id, onConfirm, onCancel, onNostr }) {
   const boxRef = useRef(null), headingRef = useRef(null);
   // Oct 31 2026: a Dream on Nostr needs the unlocked key to sign its deletion (NIP-09, kind 5). When the key is locked the
@@ -1016,6 +1042,7 @@ function DreamDeleteDialog({ id, onConfirm, onCancel, onNostr }) {
 function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, cherryCtx, onExtra, forYou, allowDelete, onDeleted }) {
   useThreadSubsTick(); // #148: Follow Thread / Unfollow Thread is always current
   const [deleting, setDeleting] = useState(false);
+  const [reporting, setReporting] = useState(false); // Nov 7 2026: Report Dream (DreamReportDialog)
   const canDelete = allowDelete && dream.user === ME && !dream.isReply && dream.replyTo == null && dream.circleId == null;
   const cancelDelete = function () {
     setDeleting(false);
@@ -1108,18 +1135,23 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
   const mine = !!dream.user && (dream.user === ME || (handle && lcHandle(handle) === lcHandle(ME.handle || "")));
   const muted = !mine && handle && lcPeopleHas("looscid_muted_dreamors", handle), blocked = !mine && handle && lcBlocked("dreamers").indexOf(lcHandle(handle)) >= 0;
   const who = handle ? "@" + handle : "this Dreamor";
+  // Nov 7 2026: the author's key (from a Looscid or Nostr Dream) lets Block and Report reach the Looscid server.
+  const authorPk = (function () { const u = dream.user && typeof dream.user === "object" ? String(dream.user.id || "") : ""; const m = u.match(/^npub:([0-9a-f]{64})$/i); return m ? m[1].toLowerCase() : (/^[0-9a-f]{64}$/i.test(String(dream.pk || "")) ? String(dream.pk).toLowerCase() : null); })();
+  const reportable = !mine && !!Looscid.lcNet && /^[0-9a-f]{64}$/i.test(String(dream.nid || ""));
   const fx = mine || !handle ? [] : [
     muted ? { id: "unmute", name: "Unmute " + who, a: function () { lcPeopleSet("looscid_muted_dreamors", handle, false); announce("Unmuted " + who + "."); } }
           : { id: "mute", name: "Mute " + who, a: function () { lcPeopleSet("looscid_muted_dreamors", handle, true); announce("Muted " + who + ". Their Dreams are hidden from your feed."); } },
     blocked ? { id: "unblock", name: "Unblock " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").filter(function (h) { return h !== lcHandle(handle); })); announce("Unblocked " + who + "."); } }
-            : { id: "block", name: "Block " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").concat([handle])); announce("Blocked " + who + ". Unblock here or in Settings, Privacy."); } },
-    // Round 7.16 (#216): Report is hidden until Looscid has somewhere to send reports (it was a dimmed Coming soon item).
-  ];
+            : { id: "block", name: "Block " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").concat([handle])); if (authorPk && Looscid.lcNet) Looscid.lcNet.block(authorPk, handle); announce("Blocked " + who + ". Unblock here or in Settings, Privacy."); } },
+    // Nov 7 2026: Report is back now that the Looscid server takes reports (js/net.js). It's on Dreams with a Looscid id.
+    reportable ? { id: "report", name: "Report Dream", a: function () { setReporting(true); } } : null,
+  ].filter(Boolean);
   // Oct 31 2026 (Carter): Delete Dream is on your own Dreams everywhere they show (Home, profiles, Liked, Replies page),
   // not only on the Replies page. Its visible name says what it deletes, and it's last so it's never hit by accident.
   const ordered = fx.concat(items).concat(canDelete ? [{ id: "delete", name: "Delete Dream", aria: "Delete Dream", exactAria: true, danger: true, a: function () { setDeleting(true); } }] : []);
   // Round 5 fixes: each Dream's More button says whose Dream it is ("More, Dream by Ava"), so the rotor list isn't a row of "More".
   return lh(React.Fragment, null,
+    reporting && lh(DreamReportDialog, { id: id + "-report", dream: dream, authorPk: authorPk, onDone: function () { setReporting(false); setTimeout(function () { if (btnRef && btnRef.current) btnRef.current.focus(); }, 60); } }),
     deleting && lh(DreamDeleteDialog, { id: id + "-delete", onConfirm: confirmDelete, onCancel: cancelDelete, onNostr: [dream.nid, String(dream.id)].concat((lcSavedDreamsRaw().find(function (s) { return s.id === dream.id; }) || {}).nid || []).some(function (x) { return /^[0-9a-f]{64}$/i.test(String(x || "")); }) }),
     lh(LcMenu, { id: id + "-btn", menuId: id, kind: "action", title: "More", btnLabel: "More, " + (dream && dream.user && dream.user.name ? "Dream by " + dream.user.name : "Dream"), btnHint: "Opens actions for this Dream.", btnClass: "ixn-btn", btnRef: btnRef, noCaret: true, align: "right", up: true,
     className: "lc-dmenu", style: { flex: ".5", display: "flex" }, itemClass: "lc-dopt", btnText: lh(Ic.Dots, { style: { width: 15, height: 15 } }), items: ordered,
@@ -5843,6 +5875,8 @@ Looscid.LC_BLOCK_KEYS = LC_BLOCK_KEYS;
 function lcBlocked(kind) { try { const v = JSON.parse(localStorage.getItem(LC_BLOCK_KEYS[kind]) || "[]"); return Array.isArray(v) ? v.map(String) : []; } catch (e) { return []; } }
 function lcBlockedSet(kind, list) {
   const clean = []; list.forEach(function (x) { const v = kind === "words" ? String(x).trim().toLowerCase() : kind === "dreamers" ? lcHandle(x) : String(x); if (v && clean.indexOf(v) < 0) clean.push(v); });
+  // Nov 7 2026: unblocking someone you also blocked on the Looscid server tells the server too (js/net.js).
+  if (kind === "dreamers" && Looscid.lcNet) { try { lcBlocked("dreamers").forEach(function (h) { if (clean.indexOf(h) < 0 && Looscid.lcNet.blockedPk(h)) Looscid.lcNet.unblockHandle(h); }); } catch (e) {} }
   try { if (clean.length) localStorage.setItem(LC_BLOCK_KEYS[kind], JSON.stringify(clean.slice(0, 500))); else localStorage.removeItem(LC_BLOCK_KEYS[kind]); } catch (e) {}
   try { window.dispatchEvent(new CustomEvent("looscid:blocked")); } catch (e) {}
   return clean;

@@ -522,7 +522,9 @@ function LcComposer(props) {
   const goesToNostr = audience === "everyone" && nst.canDream && (!isReply || parentNostr);
   const audNote = audience === "device" ? "Only this device: this " + noun + " stays here and is never sent."
     : !nst.canDream ? "For now, " + (isReply ? "replies are" : "Dreams are") + " saved only on this device."
-    : audience === "everyone" ? (isReply && !parentNostr ? who + "\u2019s Dream isn\u2019t on Nostr, so this reply is saved on this device only." : "Everyone: your " + noun + " is public on Nostr and can't be fully deleted.")
+    // Nov 7 2026: public Dreams go to the Looscid server; Nostr only with "Also share my Dreams to Nostr" on (Settings, LooscidID, Connectionbase).
+    : audience === "everyone" ? (isReply && !parentNostr ? who + "\u2019s Dream isn\u2019t on Looscid\u2019s server or Nostr, so this reply is saved on this device only."
+      : Looscid.lcNet && !Looscid.lcNet.bridgeOn("nostr") ? "Everyone: your " + noun + " is public on Looscid." : "Everyone: your " + noun + " is public on Looscid and Nostr. Copies on Nostr can't be fully deleted.")
     : "Followers and Circles aren't on Nostr yet, so this " + noun + " is saved only on this device.";
   const widenNote = isReply && audience !== pAud ? who + "\u2019s Dream is for " + LC_AUD_NAMES[pAud] + ". Your reply is for " + LC_AUD_NAMES[audience] + "." : "";
   const what = isReply ? "Reply" : isQuote ? "Quote" : "Dream";
