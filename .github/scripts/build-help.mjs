@@ -11,6 +11,7 @@ import path from "node:path";
 import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 import { hintLinks } from "./link-hints.mjs";
+import { mdToHtml } from "./md-to-html.mjs";
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const APP = path.join(REPO, "app");
@@ -30,7 +31,7 @@ const routes = new Set([...coreSrc.slice(coreSrc.indexOf("const LC_ROUTES = ["),
    Only links that already exist; external ones say they open in a new tab. */
 /* Nov 1 2026 (Carter, 2:43 PM): links to other sites carry a title hint, "Go to GitHub", the way Ableton's footer does.
    The link text stays the name, so VoiceOver reads the title as a hint after a pause. No aria-describedby. */
-const SITE_FOOTER = "<footer class=\"sf\" aria-labelledby=\"sf-title\">\n<h2 id=\"sf-title\" class=\"sf-sr\">Footer</h2>\n<div class=\"sf-in\">\n<p class=\"sf-brand\"><img src=\"/Looscid/assets/icons/icon-512.png?v=nl1\" alt=\"Looscid logo: a white open ring with a dot in the middle, on blue\" role=\"img\" aria-label=\"Looscid logo: a white open ring with a dot in the middle, on blue\" width=\"28\" height=\"28\"><span class=\"sf-name\" aria-hidden=\"true\">Looscid</span><span class=\"sf-tag\">Just Dream. Open source and local first.</span></p>\n<div class=\"sf-cols\">\n<section class=\"sf-col\" aria-labelledby=\"sf-h-looscid\"><h3 id=\"sf-h-looscid\">Looscid</h3><ul><li><a href=\"/Looscid/\">Open Looscid</a></li><li><a href=\"/Looscid/About/\">About</a></li><li><a href=\"/Looscid/Our-Story/\">Our Story</a></li><li><a href=\"/Looscid/changelog/\">Changelog</a></li><li><a href=\"/Looscid/Credits/\">Credits</a></li></ul></section>\n<section class=\"sf-col\" aria-labelledby=\"sf-h-help\"><h3 id=\"sf-h-help\">Help</h3><ul><li><a href=\"/Looscid/help/\">Help Center</a></li><li><a href=\"/Looscid/help/getting-started/\">Getting Started</a></li><li><a href=\"/Looscid/help/looscid-basics/\">Looscid Basics course</a></li><li><a href=\"/Looscid/help/contact/\">Contact Us</a></li><li><a href=\"/Looscid/Feedback/\">Send Feedback</a></li></ul></section>\n<section class=\"sf-col\" aria-labelledby=\"sf-h-dev\"><h3 id=\"sf-h-dev\">Developers</h3><ul><li><a href=\"https://github.com/Looscid/Looscid\" title=\"Go to GitHub\" target=\"_blank\" rel=\"noopener noreferrer\">Source code</a></li><li><a href=\"https://github.com/Looscid/Looscid/tree/main/docs\" title=\"Go to GitHub\" target=\"_blank\" rel=\"noopener noreferrer\">Docs</a></li><li><a href=\"https://github.com/Looscid/Looscid/blob/main/docs/CONTRIBUTING.md\" title=\"Go to GitHub\" target=\"_blank\" rel=\"noopener noreferrer\">Contributing</a></li><li><a href=\"https://github.com/Looscid/Looscid/blob/main/docs/guides/ACCESSIBILITY.md\" title=\"Go to GitHub\" target=\"_blank\" rel=\"noopener noreferrer\">Accessibility</a></li><li><a href=\"https://github.com/Looscid/Looscid/issues\" title=\"Go to GitHub\" target=\"_blank\" rel=\"noopener noreferrer\">Issues</a></li></ul></section>\n<section class=\"sf-col\" aria-labelledby=\"sf-h-legal\"><h3 id=\"sf-h-legal\">Legal</h3><ul><li><a href=\"/Looscid/Terms/\">Terms</a></li><li><a href=\"/Looscid/Privacy/\">Privacy</a></li><li><a href=\"/Looscid/Rules/\">Rules</a></li><li><a href=\"/Looscid/Child-Safety/\">Child Safety</a></li><li><a href=\"/Looscid/Legal/\">License</a></li></ul></section>\n<section class=\"sf-col\" aria-labelledby=\"sf-h-hi\"><h3 id=\"sf-h-hi\">Say hi</h3><ul><li><a href=\"https://github.com/Looscid\" title=\"Go to GitHub\" target=\"_blank\" rel=\"noopener noreferrer\">GitHub</a></li><li><a href=\"https://x.com/Looscid\" title=\"Go to X\" target=\"_blank\" rel=\"noopener noreferrer\">X</a></li><li><a href=\"https://www.youtube.com/@Looscid\" title=\"Go to YouTube\" target=\"_blank\" rel=\"noopener noreferrer\">YouTube</a></li><li><a href=\"https://discord.gg/M6xrD8EBXU\" title=\"Go to Discord\" target=\"_blank\" rel=\"noopener noreferrer\">Discord</a></li></ul></section>\n</div>\n<p class=\"sf-bottom\">© 2026 Looscid <span aria-hidden=\"true\">·</span> Open source under the <a href=\"/Looscid/Legal/\">Looscid Public License</a> <span aria-hidden=\"true\">·</span> Made by Chaotic Carter, co-written with Tab</p>\n</div>\n</footer>";
+const SITE_FOOTER = "<footer class=\"sf\" aria-labelledby=\"sf-title\">\n<h2 id=\"sf-title\" class=\"sf-sr\">Footer</h2>\n<div class=\"sf-in\">\n<p class=\"sf-brand\"><img src=\"/Looscid/assets/icons/icon-512.png?v=nl1\" alt=\"Looscid logo: a white open ring with a dot in the middle, on blue\" role=\"img\" aria-label=\"Looscid logo: a white open ring with a dot in the middle, on blue\" width=\"28\" height=\"28\"><span class=\"sf-name\" aria-hidden=\"true\">Looscid</span><span class=\"sf-tag\">Just Dream. Open source and local first.</span></p>\n<div class=\"sf-cols\">\n<section class=\"sf-col\" aria-labelledby=\"sf-h-looscid\"><h3 id=\"sf-h-looscid\">Looscid</h3><ul><li><a href=\"/Looscid/\">Open Looscid</a></li><li><a href=\"/Looscid/About/\">About</a></li><li><a href=\"/Looscid/Our-Story/\">Our Story</a></li><li><a href=\"/Looscid/changelog/\">Changelog</a></li><li><a href=\"/Looscid/Credits/\">Credits</a></li></ul></section>\n<section class=\"sf-col\" aria-labelledby=\"sf-h-help\"><h3 id=\"sf-h-help\">Help</h3><ul><li><a href=\"/Looscid/help/\">Help Center</a></li><li><a href=\"/Looscid/help/getting-started/\">Getting Started</a></li><li><a href=\"/Looscid/help/looscid-basics/\">Looscid Basics course</a></li><li><a href=\"/Looscid/help/contact/\">Contact Us</a></li><li><a href=\"/Looscid/Feedback/\">Send Feedback</a></li></ul></section>\n<section class=\"sf-col\" aria-labelledby=\"sf-h-dev\"><h3 id=\"sf-h-dev\">Developers</h3><ul><li><a href=\"https://github.com/Looscid/Looscid\" title=\"Go to GitHub\" target=\"_blank\" rel=\"noopener noreferrer\">Source code</a></li><li><a href=\"/Looscid/help/#h-building\">Docs</a></li><li><a href=\"/Looscid/help/dev/contributing/\">Contributing</a></li><li><a href=\"/Looscid/help/dev/accessibility/\">Accessibility</a></li><li><a href=\"https://github.com/Looscid/Looscid/issues\" title=\"Go to GitHub\" target=\"_blank\" rel=\"noopener noreferrer\">Issues</a></li></ul></section>\n<section class=\"sf-col\" aria-labelledby=\"sf-h-legal\"><h3 id=\"sf-h-legal\">Legal</h3><ul><li><a href=\"/Looscid/Terms/\">Terms</a></li><li><a href=\"/Looscid/Privacy/\">Privacy</a></li><li><a href=\"/Looscid/Rules/\">Rules</a></li><li><a href=\"/Looscid/Child-Safety/\">Child Safety</a></li><li><a href=\"/Looscid/Legal/\">License</a></li></ul></section>\n<section class=\"sf-col\" aria-labelledby=\"sf-h-hi\"><h3 id=\"sf-h-hi\">Say hi</h3><ul><li><a href=\"https://github.com/Looscid\" title=\"Go to GitHub\" target=\"_blank\" rel=\"noopener noreferrer\">GitHub</a></li><li><a href=\"https://x.com/Looscid\" title=\"Go to X\" target=\"_blank\" rel=\"noopener noreferrer\">X</a></li><li><a href=\"https://www.youtube.com/@Looscid\" title=\"Go to YouTube\" target=\"_blank\" rel=\"noopener noreferrer\">YouTube</a></li><li><a href=\"https://discord.gg/M6xrD8EBXU\" title=\"Go to Discord\" target=\"_blank\" rel=\"noopener noreferrer\">Discord</a></li></ul></section>\n</div>\n<p class=\"sf-bottom\">© 2026 Looscid <span aria-hidden=\"true\">·</span> Open source under the <a href=\"/Looscid/Legal/\">Looscid Public License</a> <span aria-hidden=\"true\">·</span> Made by Chaotic Carter, co-written with Tab</p>\n</div>\n</footer>";
 // The Help Center home's topic icons (decoration only; the words say everything).
 const ICONS = {
   "getting-started": '<path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/>',
@@ -46,6 +47,24 @@ const ICONS = {
 const icon = k => '<svg class="ic" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + ICONS[k] + "</svg>";
 // Popular articles on the home page (chosen by hand; nothing is tracked).
 const POPULAR = ["make-a-looscidid", "write-a-dream", "start-a-chat", "find-settings", "backup", "privacy"];
+/* Nov 7 2026 (Carter: one place for docs, the Help Center, "Using Looscid" and "Building Looscid"): the repo's own docs,
+   each made into a page at /help/dev/<slug>/ from its Markdown file. Edit the .md file, then run this script again (the
+   Validate check fails if a page is out of date). Only Source code and Issues still go to GitHub. */
+const DOCS = [
+  { slug: "contributing", file: "docs/CONTRIBUTING.md", t: "Contributing", s: "How to help build Looscid, and how we work together." },
+  { slug: "terminology", file: "docs/guides/TERMINOLOGY.md", t: "Terminology", s: "Looscid's own words: Dream, ReDream, Circle and Dreamor." },
+  { slug: "accessibility", file: "docs/guides/ACCESSIBILITY.md", t: "Accessibility", s: "Looscid's accessibility commitments and the guide every screen follows." },
+  { slug: "roadmap", file: "docs/dev/ROADMAP.md", t: "Developer roadmap", s: "Looscid's vision, architecture and what's planned, for developers." },
+  { slug: "files", file: "docs/dev/FILES.md", t: "Files", s: "What every file in the app holds, and the order the browser loads them in." },
+  { slug: "nostr-architecture", file: "docs/dev/NOSTR_ARCHITECTURE.md", t: "Nostr and Cherry", s: "How Looscid uses Nostr, and how Cherry fits in." },
+  { slug: "announcements", file: "docs/dev/ANNOUNCEMENTS.md", t: "Discord announcements", s: "How the Looscid Discord's #announcements channel gets its messages." },
+  { slug: "cherry-upgrade", file: "docs/dev/cherry-upgrade.md", t: "Cherry upgrade spec", s: "A proposal for Cherry's next version." },
+  { slug: "dream-delete", file: "docs/dev/dream-delete.md", t: "Dream delete spec", s: "A proposal for deleting a Dream." },
+  { slug: "references", file: "docs/dev/REFERENCES.md", t: "Development references", s: "Projects we learned from, with credit." },
+  { slug: "security", file: "docs/SECURITY.md", t: "Security", s: "How to report a security problem, privately." },
+  { slug: "license", file: "LICENSE", t: "Looscid Public License", s: "The Looscid Public License (LPL) v1.0, in full." },
+];
+const docByFile = Object.fromEntries(DOCS.map(d => [d.file, d]));
 const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const byId = Object.fromEntries(H.articles.map(a => [a.id, a]));
 const colById = Object.fromEntries(H.collections.map(c => [c.id, c]));
@@ -100,7 +119,7 @@ function page({ slug, title, desc, body, depth, crumbs }) {
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<link rel="stylesheet" href="${up}help.css?v=hc4">
+<link rel="stylesheet" href="${up}help.css?v=hc5">
 <link rel="stylesheet" href="${up}../assets/site-footer.css?v=1">
 </head>
 <body>
@@ -137,16 +156,21 @@ const course = H.courses[0];
   b += '<div class="search-box">' + icon("search") + '<input id="help-q" name="q" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search" placeholder="Search articles"><button type="submit" class="search-go" title="Finds articles that match">Search</button></div>\n';
   b += '<p id="help-q-hint" class="hint">Searches all ' + nArt + ' articles, right on this device.</p>\n</form>\n</div>\n';
   b += '<section id="results" class="results" aria-labelledby="h-results" hidden><h2 id="h-results" tabindex="-1">Search results</h2><p id="results-n" role="status"></p><ol class="list" id="results-list"></ol></section>\n';
-  b += '<section aria-labelledby="h-topics"><h2 id="h-topics">Browse by topic</h2>\n<ul class="topics" role="list">\n';
+  // Nov 7 2026: the home page has two parts, Using Looscid (the guides) and Building Looscid (the repo's docs).
+  b += '<section aria-labelledby="h-using"><h2 id="h-using">Using Looscid</h2>\n<p class="lead">Step-by-step guides for everyone: make your LooscidID, write Dreams, chat, and set things up.</p>\n';
+  b += '<section aria-labelledby="h-topics"><h3 id="h-topics">Browse by topic</h3>\n<ul class="topics" role="list">\n';
   for (const c of H.collections) {
     const arts = H.articles.filter(a => a.c === c.id);
-    b += '<li class="topic">' + icon(c.id) + '<h3><a class="stretch" href="' + c.id + '/">' + esc(c.t) + '</a></h3><p>' + esc(c.s) + '</p><p class="count">' + arts.length + ' articles</p><ul class="topic-arts">' + arts.map(a => "<li>" + artLink(a, "") + "</li>").join("") + "</ul></li>\n";
+    b += '<li class="topic">' + icon(c.id) + '<h4><a class="stretch" href="' + c.id + '/">' + esc(c.t) + '</a></h4><p>' + esc(c.s) + '</p><p class="count">' + arts.length + ' articles</p><ul class="topic-arts">' + arts.map(a => "<li>" + artLink(a, "") + "</li>").join("") + "</ul></li>\n";
   }
   b += '</ul>\n</section>\n';
-  b += '<section aria-labelledby="h-popular"><h2 id="h-popular">Popular articles</h2>\n<ol class="popular">' + POPULAR.filter(id => byId[id] || (problems.push("popular " + id + " missing"), false)).map(id => '<li><a href="' + id + '/">' + esc(byId[id].t) + '</a><p>' + esc(byId[id].s.replace(/\{\{[^}]*\}\}|\[\[[^\]]*\]\]/g, "")) + "</p></li>").join("") + "</ol>\n</section>\n";
-  b += '<section aria-labelledby="h-courses"><h2 id="h-courses">Courses</h2>\n';
-  for (const c of H.courses) b += '<div class="card course-card">' + icon("course") + '<div><h3><a href="' + c.id + '/">' + esc(c.t) + '</a></h3><p>' + esc(c.s) + '</p><p class="progress" data-course="' + c.id + '" data-total="' + c.lessons.length + '">' + c.lessons.length + ' lessons</p></div></div>\n';
-  b += '</section>\n';
+  b += '<section aria-labelledby="h-popular"><h3 id="h-popular">Popular articles</h3>\n<ol class="popular">' + POPULAR.filter(id => byId[id] || (problems.push("popular " + id + " missing"), false)).map(id => '<li><a href="' + id + '/">' + esc(byId[id].t) + '</a><p>' + esc(byId[id].s.replace(/\{\{[^}]*\}\}|\[\[[^\]]*\]\]/g, "")) + "</p></li>").join("") + "</ol>\n</section>\n";
+  b += '<section aria-labelledby="h-courses"><h3 id="h-courses">Courses</h3>\n';
+  for (const c of H.courses) b += '<div class="card course-card">' + icon("course") + '<div><h4><a href="' + c.id + '/">' + esc(c.t) + '</a></h4><p>' + esc(c.s) + '</p><p class="progress" data-course="' + c.id + '" data-total="' + c.lessons.length + '">' + c.lessons.length + ' lessons</p></div></div>\n';
+  b += '</section>\n</section>\n';
+  b += '<section aria-labelledby="h-building"><h2 id="h-building">Building Looscid</h2>\n<p class="lead">For developers and anyone curious: how Looscid is made, its words, its rules for accessibility, and what\'s planned. The code itself is on GitHub.</p>\n';
+  b += '<ul class="list">' + DOCS.map(d => '<li><a href="dev/' + d.slug + '/">' + esc(d.t) + '</a><p>' + esc(d.s) + '</p></li>').join("") + '</ul>\n';
+  b += '<p><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a> <span aria-hidden="true">·</span> <a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a> <span aria-hidden="true">·</span> <a href="../changelog/">Roadmap and changelog</a> <span aria-hidden="true">·</span> <a href="../Rules/">Rules</a></p>\n</section>\n';
   b += '<section aria-labelledby="h-contact"><h2 id="h-contact">Still need help?</h2>\n<p class="lead">' + esc(H.contact.s) + '</p>\n<ul class="contact-row" role="list">';
   b += '<li>' + icon("bug") + '<a class="stretch" href="contact/">Report a bug</a><p>On GitHub, with your device filled in.</p></li>';
   b += '<li>' + icon("chat") + '<a class="stretch" href="' + esc(H.contact.discord) + '" title="Go to Discord" target="_blank" rel="noopener noreferrer">Join the Discord</a><p>Ideas, questions, or just say hi.</p></li>';
@@ -180,6 +204,25 @@ for (const co of H.courses) {
   b += '</ol>\n<p><button type="button" class="btn ghost" id="course-reset" title="Clears your course progress">Start the course over</button></p>\n<p class="small">Your progress is saved only on this device, in this browser. Nothing is sent anywhere.</p>';
   put(co.id + "/index.html", page({ slug: co.id, title: co.t, desc: co.s, body: b, depth: 1, crumbs: [["Help Center", "../"], [co.t, null]] }));
 }
+// The docs (Nov 7 2026): each one's Markdown made into a page. A link to another doc goes to its page; a link to any other
+// file in the repo goes to that file on GitHub (it's source code). The LICENSE is plain text, so its ALL CAPS lines are its headings.
+for (const d of DOCS) {
+  let md = fs.readFileSync(path.join(REPO, d.file), "utf8");
+  if (d.file === "LICENSE") md = md.replace(/^([^\n]+)\n/, "# $1\n").replace(/^([A-Z][A-Z0-9 ,()'’:-]{3,})$/gm, "## $1");
+  const dir = path.posix.dirname(d.file);
+  const linkFor = href => {
+    if (/^(https?:|mailto:|#)/i.test(href)) return href;
+    const [p, frag] = href.split("#"), target = path.posix.normalize(path.posix.join(dir, p)).replace(/\/$/, "");
+    const doc = docByFile[target];
+    if (doc) return (doc.slug === d.slug ? "" : "../" + doc.slug + "/") + (frag ? "#" + frag : "");
+    if (target === "CHANGELOG.md") return "../../../changelog/";
+    return "https://github.com/Looscid/Looscid/" + (/\.[a-z0-9]+$/i.test(target) ? "blob" : "tree") + "/main/" + target + (frag ? "#" + frag : "");
+  };
+  const r = mdToHtml(md, { linkFor });
+  const t = r.title || d.t;
+  const b = "<h1>" + esc(t) + '</h1>\n<p class="lead">' + esc(d.s) + '</p>\n<div class="doc">\n' + r.html + '\n</div>\n<p class="next"><a href="../../#h-building">More in Building Looscid</a> <span aria-hidden="true">·</span> <a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></p>';
+  put("dev/" + d.slug + "/index.html", page({ slug: "dev/" + d.slug, title: t, desc: d.s, body: b, depth: 2, crumbs: [["Help Center", "../../"], ["Building Looscid", "../../#h-building"], [t, null]] }));
+}
 // Contact Us (Carter, Oct 28 2026: "GitHub is good enough". No email.)
 {
   const k = H.contact;
@@ -202,14 +245,17 @@ files["search.js"] = "/* Made by .github/scripts/build-help.mjs from app/js/help
     .concat([{ u: "contact/", t: H.contact.t, s: H.contact.s, c: "Contact", k: "report a bug feedback discord github issue" }])) + ";\n";
 
 // "post" is never a word in Looscid (standing rule).
-for (const [rel, html] of Object.entries(files)) if (/\bpost(s|ed|ing)?\b/i.test(html.replace(/method="post"/gi, ""))) problems.push("the word post in " + rel);
+// The docs pages (dev/) are the repo's docs as they're written: TERMINOLOGY.md itself names the word, and code samples use it.
+for (const [rel, html] of Object.entries(files)) if (!rel.startsWith("dev/") && /\bpost(s|ed|ing)?\b/i.test(html.replace(/method="post"/gi, ""))) problems.push("the word post in " + rel);
 // Nov 1 2026 (Carter: "Description, dimmed" is gone and banned): no page may give anything an accessible description
 // (VoiceOver on iPhone says "description" for it) or show a Description label. Hints are plain text under their control.
 for (const [rel, html] of Object.entries(files)) {
-  if (/aria-describedby|aria-description/i.test(html)) problems.push("an aria-describedby or aria-description in " + rel + " (banned: VoiceOver says description)");
+  // A doc page may talk about the ban in its words (written as text); it may never have the attribute itself.
+  const isDoc = rel.startsWith("dev/");
+  if (isDoc ? /<[a-z][^>]*\saria-describ/i.test(html) : /aria-describedby|aria-description/i.test(html)) problems.push("an aria-describedby or aria-description in " + rel + " (banned: VoiceOver says description)");
   // Nov 2 2026 (Carter's approved TalkBack format): links are plain, with no hidden "(opens in a new tab)" text.
   if (/opens in a new tab/i.test(html)) problems.push("hidden \"(opens in a new tab)\" link text in " + rel + " (banned: links stay plain)");
-  if (/>\s*Description\s*(:\s*)?</i.test(html) || /(aria-label|placeholder|title)="Description\b/i.test(html) || /<d[dt][\s>]/i.test(html)) problems.push("a Description label in " + rel + " (banned)");
+  if ((!isDoc && />\s*Description\s*(:\s*)?</i.test(html)) || /(aria-label|placeholder|title)="Description\b/i.test(html) || /<d[dt][\s>]/i.test(html)) problems.push("a Description label in " + rel + " (banned)");
 }
 if (problems.length) { console.error("Help Center problems:\n- " + [...new Set(problems)].join("\n- ")); process.exit(1); }
 

@@ -114,7 +114,8 @@
     if (linked) { var d = document.getElementById("done"); if (d && d.scrollIntoView) d.scrollIntoView(); }
   }
   function get(url) { return fetch(url, { cache: "no-cache" }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); }); }
+  // Nov 7 2026: the page has no GitHub link now (only Source code and Issues go to GitHub); GitHub's copy is still the backup.
   get("../CHANGELOG.md").catch(function () { return get("https://raw.githubusercontent.com/Looscid/Looscid/main/CHANGELOG.md"); })
     .then(function (md) { var vs = parse(md); if (!vs.length) throw new Error("empty"); build(vs); })
-    .catch(function () { picker.textContent = ""; picker.appendChild(el("p", {}, ["The changelog couldn't load. Check your connection, or read it on GitHub with the link above."])); });
+    .catch(function () { picker.textContent = ""; picker.appendChild(el("p", {}, ["The changelog couldn't load. Check your connection, then try again."])); });
 })();

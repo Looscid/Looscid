@@ -2092,8 +2092,9 @@ function LcSiteFooter({ navigate, cur }) {
       // Round 7.24 (#161): the changelog is its own page on the site (every version, with its own link preview).
       site("changelog/", "Changelog", "chg"), go("credits", "Credits", "cr")]),
     grp("lc-foot-help", "Help", [go("helpcenter", "Help Center", "hc"), site("help/getting-started/", "Getting Started", "gs"), site("help/contact/", "Contact Us", "cu"), go("feedback", "Send Feedback", "fb")]),
-    grp("lc-foot-dev", "Developers", [ext("https://github.com/Looscid/Looscid", "Source code", "src"), ext("https://github.com/Looscid/Looscid/tree/main/docs", "Docs", "docs"),
-      ext("https://github.com/Looscid/Looscid/blob/main/docs/CONTRIBUTING.md", "Contributing", "con"), ext("https://github.com/Looscid/Looscid/blob/main/docs/guides/ACCESSIBILITY.md", "Accessibility", "a")]),
+    grp("lc-foot-dev", "Developers", [ext("https://github.com/Looscid/Looscid", "Source code", "src"), site("help/#h-building", "Docs", "docs"),
+      // Nov 7 2026 (Carter): the docs are pages in the Help Center now; only Source code (and Issues on the site) go to GitHub.
+      site("help/dev/contributing/", "Contributing", "con"), site("help/dev/accessibility/", "Accessibility", "a")]),
     grp("lc-foot-legal", "Legal", [go("terms", "Terms", "t"), go("privacy", "Privacy", "p"), go("guidelines", "Rules", "r"), go("child_safety", "Child Safety", "c"), go("legal", "License", "l")]),
     grp("lc-foot-social", "Say hi", [ext("https://github.com/Looscid", "GitHub", "gh"), ext("https://x.com/Looscid", "X", "x"), ext("https://www.youtube.com/@Looscid", "YouTube", "yt"),
       // Round 7.35 (Carter, Oct 26 2026): the Looscid Discord, last in Social.

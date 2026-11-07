@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en-US" data-help-root="../../">
+<head>
+<meta charset="UTF-8"/>
+<title>Nostr Architecture and Cherry AI Integration - Looscid Help Center</title>
+<!-- Made by .github/scripts/build-help.mjs from app/js/helpdata.js. Edit those, not this page. Link previews come first. -->
+<meta name="description" content="How Looscid uses Nostr, and how Cherry fits in.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Looscid">
+<meta property="og:title" content="Nostr Architecture and Cherry AI Integration - Looscid Help Center">
+<meta property="og:description" content="How Looscid uses Nostr, and how Cherry fits in.">
+<meta property="og:url" content="https://looscid.github.io/Looscid/help/dev/nostr-architecture/">
+<meta property="og:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:secure_url" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Looscid">
+<meta name="twitter:title" content="Nostr Architecture and Cherry AI Integration - Looscid Help Center">
+<meta name="twitter:description" content="How Looscid uses Nostr, and how Cherry fits in.">
+<meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta name="twitter:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<link rel="canonical" href="https://looscid.github.io/Looscid/help/dev/nostr-architecture/">
+<link rel="icon" type="image/png" sizes="32x32" href="https://looscid.github.io/Looscid/assets/icons/favicon-32.png?v=nl1">
+<link rel="apple-touch-icon" href="https://looscid.github.io/Looscid/assets/icons/apple-touch-icon.png?v=nl1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<link rel="stylesheet" href="../../help.css?v=hc5">
+<link rel="stylesheet" href="../../../assets/site-footer.css?v=1">
+</head>
+<body>
+<div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<header class="top"><a class="brand" href="../../" title="Goes back to Help Center" aria-label="Looscid Help Center, logo: a white open ring with a dot in the middle, on blue"><img src="../../../assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="32" height="32"><span><span aria-hidden="true">Looscid</span> Help Center</span></a><a class="open" href="../../../" title="Goes to Home">Open Looscid</a></header>
+<main class="wrap" id="main">
+<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../../" title="Goes back to Help Center">Help Center</a></li><li><a href="../../#h-building" title="Goes back to Help Center">Building Looscid</a></li><li><span aria-current="page">Nostr Architecture and Cherry AI Integration</span></li></ol></nav>
+<h1>Nostr Architecture and Cherry AI Integration</h1>
+<p class="lead">How Looscid uses Nostr, and how Cherry fits in.</p>
+<div class="doc">
+<p>Combined from <code>NOSTR_ARCHITECTURE.md</code>, <code>CHERRY_AI_NOSTR_INTEGRATION.md</code> and <code>docs/nostr-feedback.md</code>. See <a href="#feedback" title="Jumps to that part of this page">Nostr Feedback</a>.</p>
+<h2 id="nostr_architecture-md">NOSTR_ARCHITECTURE.md</h2>
+<p>Looscid is built on Nostr as its foundation.
+Your nsec key IS your Dream ID.
+Everything syncs across every device automatically.
+No central server owns your data. Ever.</p>
+<hr>
+<h3 id="how-it-works">How It Works</h3>
+<p>When you create a Dream ID you generate a Nostr keypair.
+Your public key (npub) is your identity across all of Looscid
+and the entire Nostr network simultaneously.
+Your private key (nsec) never leaves your device.</p>
+<p>Jack Dorsey can log into Looscid with his nsec key.
+His follows, his content, his identity — all there instantly.
+Anyone on Nostr can do the same.</p>
+<hr>
+<h3 id="what-works-today-rounds-6-4-and-6-5">What Works Today (Rounds 6.4 and 6.5)</h3>
+<p>Dreams on Nostr, with no server of ours:</p>
+<ul><li><strong>Your key.</strong> Settings, LooscidID, Keys and IDs, &quot;Nostr key&quot;: use a signer (NIP-07), enter your nsec in a secure field, or create a new key. An optional passcode saves it locked as a <strong>NIP-49</strong> ncryptsec (scrypt plus XChaCha20-Poly1305). Without one it's saved unlocked under <code>looscid_nostr_sk</code> on this device. It's never in Settings backup.</li><li><strong>Dreaming.</strong> With Audience Everyone, a new Dream is a kind:1 note signed on your device, tagged <code>[&quot;client&quot;,&quot;Looscid&quot;]</code> and <code>[&quot;t&quot;,&quot;looscid&quot;]</code>, sent to your relays (default: relay.damus.io, nos.lol, relay.primal.net, relay.nostr.band; you can change the list). Relays that don't answer are retried. Audience &quot;Only this device&quot; never sends.</li><li><strong>Reading back.</strong> On start, Looscid asks your relays for your own kind:1 notes tagged <code>looscid</code>, checks each signature, and adds the ones it doesn't have yet. That's how your Dreams show on a new device.</li><li><strong>Replies (Round 6.5).</strong> A reply to a Dream that's on Nostr is a kind:1 note with <strong>NIP-10</strong> marked tags: <code>[&quot;e&quot;, &lt;root id&gt;, &lt;relay&gt;, &quot;root&quot;, &lt;author&gt;]</code>, plus <code>[&quot;e&quot;, &lt;parent id&gt;, &lt;relay&gt;, &quot;reply&quot;, &lt;author&gt;]</code> when it answers a reply, and a <code>[&quot;p&quot;, ...]</code> for the author of what it answers and everyone that note tagged. Only Audience Everyone sends; a reply to a Dream that isn't on Nostr stays on the device. Replies are saved in <code>looscid_replies</code>.</li><li><strong>Quotes and warnings (Round 6.5).</strong> A Quote of a Nostr Dream carries a <strong>NIP-18</strong> <code>[&quot;q&quot;, &lt;id&gt;, &lt;relay&gt;, &lt;author&gt;]</code> tag and ends with a <code>nostr:nevent1...</code> link. A content warning is a <strong>NIP-36</strong> <code>[&quot;content-warning&quot;, &lt;reason&gt;]</code> tag.</li><li><strong>Reading back keeps threads (Round 6.5).</strong> Each note read back keeps its author key and its <code>e</code>, <code>p</code>, <code>q</code> and <code>content-warning</code> tags, so replies come back under their Dream on a new device.</li><li><strong>Not yet:</strong> a global feed, Redreams and profiles on Nostr, replies to other people's notes (Looscid only reads your own notes for now), and deleting a Dream from relays (NIP-09).</li><li>The code is <code>js/nostr.js</code>; the crypto is vendored in <code>js/vendor/</code> and loads only when you use Nostr.</li></ul>
+<hr>
+<h3 id="nostr-nips-looscid-uses">Nostr NIPs Looscid Uses</h3>
+<h4 id="identity-and-login">Identity and Login</h4>
+<ul><li><strong>NIP-01</strong> — Core protocol. Events, signatures, keypairs. Your Dream ID is a NIP-01 keypair.</li><li><strong>NIP-07</strong> — Browser extension support. Alby and nos2x users sign in with one tap.</li><li><strong>NIP-19</strong> — npub and nsec encoding. Human readable key format.</li></ul>
+<h4 id="dreams-social-posts">Dreams (Social Posts)</h4>
+<ul><li><strong>NIP-01 kind:1</strong> — Short text notes. These are Dreams.</li><li><strong>NIP-10</strong> — Reply threading. Replies to Dreams (Round 6.5).</li><li><strong>NIP-18</strong> — Reposts. These are Redreams.</li><li><strong>NIP-36</strong> — Sensitive content tagging.</li><li><strong>NIP-94</strong> — File attachments. Images, audio, video in Dreams.</li></ul>
+<h4 id="private-messages-chats">Private Messages (Chats)</h4>
+<ul><li><strong>NIP-17</strong> — Private direct messages with gift wrap encryption. True E2E encryption. Nobody can read your chats except you. This replaces the old NIP-04 which had weaknesses.</li><li><strong>NIP-59</strong> — Gift wrap. The encryption layer for NIP-17.</li></ul>
+<h4 id="profiles">Profiles</h4>
+<ul><li><strong>NIP-01 kind:0</strong> — Profile metadata. Name, bio, picture, website, npub — all stored on Nostr relays. Your profile follows you everywhere.</li></ul>
+<h4 id="follows-and-social-graph">Follows and Social Graph</h4>
+<ul><li><strong>NIP-02 kind:3</strong> — Contact lists. Who you follow. Your following list is on Nostr. Works across all clients.</li></ul>
+<h4 id="circles-groups">Circles (Groups)</h4>
+<ul><li><strong>NIP-29</strong> — Relay-based groups. Moderated communities. This powers Looscid Circles.</li></ul>
+<h4 id="live-streaming">Live Streaming</h4>
+<ul><li><strong>NIP-53 kind:30311</strong> — Live activities. Looscid live streams are Nostr live events. Anyone on Nostr can see when you go live.</li></ul>
+<h4 id="audio-rooms-calls-and-nests">Audio Rooms (Calls and Nests)</h4>
+<ul><li><strong>Nostr Nests + NIP-53</strong> — Decentralized audio rooms. Powered by MoQ (Media over QUIC) for real-time audio. Looscid phone calls and audio rooms use this. kind:30312 for rooms, kind:1311 for live chat, kind:10312 for presence (who is in the room).</li></ul>
+<h4 id="alerts-and-notifications">Alerts and Notifications</h4>
+<ul><li><strong>NIP-27</strong> — Mentions. @YourHandle in a Dream.</li><li><strong>NIP-65 kind:10002</strong> — Relay lists. Looscid knows which relays to check for your alerts.</li></ul>
+<h4 id="zaps-future-tipping-dreamors">Zaps (Future — Tipping Dreamors)</h4>
+<ul><li><strong>NIP-57</strong> — Lightning zaps. Send sats to a Dreamor directly from Looscid. No payment processor. No middleman.</li></ul>
+<h4 id="cherry-ai-on-nostr">Cherry AI on Nostr</h4>
+<ul><li><strong>NIP-90</strong> — Data Vending Machines. Cherry can interact with Nostr-native AI services. Future: Cherry requests AI tasks via Nostr events, gets results back the same way.</li></ul>
+<hr>
+<h3 id="looscid-relay-list">Looscid Relay List</h3>
+<p>Looscid connects to these relays by default.
+Dreamors can add their own.</p>
+<ul><li>wss://relay.damus.io</li><li>wss://relay.nostr.band</li><li>wss://nos.lol</li><li>wss://relay.snort.social</li><li>wss://purplepag.es</li><li>wss://relay.primal.net</li></ul>
+<hr>
+<h3 id="the-atab1pro-as-a-nostr-device">The Atab1pro as a Nostr Device</h3>
+<p>The physical Atab1pro device would be the first accessible
+device where your nsec key IS the device identity.</p>
+<ul><li>Boot the device = your Nostr key is loaded</li><li>Every app that supports Nostr connects automatically</li><li>Cherry uses your key for agent actions on your behalf</li><li>Calls, messages, Dreams — all signed with your key</li><li>No username. No password. No company owns your account.</li></ul>
+<hr>
+<h3 id="what-changes-about-looscid">What Changes About Looscid</h3>
+<p>Not much changes in how it feels. Everything changes underneath.</p>
+<ul><li>Dreams are stored on Nostr relays, not our server</li><li>Your profile lives on Nostr, not our database</li><li>Your follows are your Nostr contacts</li><li>Your chats are NIP-17 encrypted messages</li><li>Your calls are Nostr Nests audio rooms</li><li>Your live streams are NIP-53 live events</li></ul>
+<p>Looscid becomes a Nostr client that looks and feels like
+a full operating system. The best Nostr client ever built.
+Accessible first. Open source. Free for life.</p>
+<hr>
+<h3 id="open-source-libraries-we-use">Open Source Libraries We Use</h3>
+<p>All MIT licensed or public domain.</p>
+<ul><li><strong>nostr-tools</strong> (github.com/nbd-wtf/nostr-tools) Core Nostr client library. Events, signing, relay connections.</li><li><strong>nostr-protocol/nostr</strong> (github.com/nostr-protocol/nostr) The protocol specification itself. Reference for all NIPs.</li><li><strong>Nostr Nests</strong> (github.com/nostrnests/nests) Audio rooms. Powers Looscid calls and live audio. MIT licensed. We integrate their MoQ audio transport.</li><li><strong>awesome-nostr</strong> (github.com/aljazceru/awesome-nostr) Reference list of Nostr libraries and tools.</li></ul>
+<hr>
+<h3 id="credit">Credit</h3>
+<p>Looscid is built on top of the work of the Nostr community.
+We credit everyone whose code or protocol we use.
+We contribute back where we can.
+That is what open source means.</p>
+<h2 id="cherry_ai_nostr_integration-md">CHERRY_AI_NOSTR_INTEGRATION.md</h2>
+<p>Complete implementation guide for integrating Cherry AI with the Nostr protocol in Looscid.</p>
+<hr>
+<h3 id="cherry-ai-system-prompt">Cherry AI System Prompt</h3>
+<pre><code>You are Cherry, Looscid's AI assistant. You embody these core values:
+
+### Core Values
+- **Accessibility First**: Every response considers VoiceOver, TalkBack, NVDA, and Braille displays
+- **Privacy-Focused**: Never collect, store, or expose personal data
+- **Decentralized**: Embrace Nostr protocol for identity and data sovereignty
+- **Open Source**: All code and models must remain open
+- **Anarchist Principles**: Reject hierarchies; support self-determination
+
+### Looscid Terminology
+Always use this terminology (NEVER use alternatives):
+- Dreams (not Posts)
+- Dreamors (not Users)  
+- Redreams (not Reposts)
+- Circles (not Groups)
+- LooscidID (not Account)
+- Feed (not Home)
+- Alerts (not Notifications)
+- Login (not Sign In)
+
+### Nostr Protocol Knowledge
+You understand Nostr fundamentally:
+- Events are JSON objects signed with private keys
+- Relays store and distribute events
+- No central authority controls the network
+- User identity is their public key (npub)
+- Content is censorship-resistant by design
+
+### Cherry's Capabilities
+1. **Dream Composition**: Help Dreamors write Dreams with accessibility in mind
+2. **Relay Recommendations**: Suggest optimal relays based on geography/reliability
+3. **Community Moderation**: Suggest Circle guidelines and content policies
+4. **Accessibility Verification**: Ensure Dreams work with assistive technology
+5. **Privacy Analysis**: Verify Dreams don't leak personal information
+6. **Nostr Protocol Guidance**: Explain NIPs and relay specifications
+
+### Cherry's Boundaries
+- Never suggest centralized platforms
+- Never recommend closed-source tools
+- Never encourage surveillance
+- Never violate user privacy
+- Never suggest removing accessibility features
+
+### Example Interactions
+
+**User**: &quot;Help me post a Dream about privacy&quot;
+**Cherry**: &quot;Great! Let's make a Dream that's private-focused AND accessible. 
+- Avoid using images without alt text
+- Use clear headings with markdown (#)
+- Keep sentences under 25 words for screen reader clarity
+- Consider: Do you want this visible to all relays or specific ones?
+- Your Dream will be published to Nostr - permanently public&quot;
+
+**User**: &quot;What's a good relay?&quot;
+**Cherry**: &quot;It depends on your needs:
+- **Wss://relay.nostr.band** - Well-maintained, good uptime
+- **Wss://nos.lol** - Community-focused, responsive
+- For privacy: Run your own relay
+- Always use WSS (encrypted), never WS&quot;</code></pre>
+<hr>
+<h3 id="secure-nostr-client-integration">Secure Nostr Client Integration</h3>
+<pre><code>import * as nostrTools from 'nostr-tools';
+import { SimplePool } from 'nostr-tools/pool';
+
+class SecureNostrClient {
+  constructor() {
+    this.pool = new SimplePool();
+    this.relays = new Set();
+    this.eventCache = new Map();
+    this.validators = new NostrEventValidator();
+  }
+
+  /**
+   * Initialize relays (only WSS - encrypted WebSocket)
+   */
+  async initializeRelays(relayUrls) {
+    for (const url of relayUrls) {
+      try {
+        const validated = this.validateRelayUrl(url);
+        if (validated) {
+          this.relays.add(validated);
+          console.log('Relay connected:', validated);
+        }
+      } catch (error) {
+        console.error('Failed to connect relay:', url, error);
+      }
+    }
+  }
+
+  validateRelayUrl(url) {
+    try {
+      const parsed = new URL(url);
+      
+      // Only WSS (encrypted)
+      if (parsed.protocol !== 'wss:') {
+        throw new Error('Relays must use WSS (wss://) for encryption');
+      }
+      
+      // Valid hostname
+      if (!parsed.hostname.includes('.')) {
+        throw new Error('Invalid relay hostname');
+      }
+      
+      return url;
+    } catch (error) {
+      throw new Error(`Invalid relay URL: ${error.message}`);
+    }
+  }
+
+  /**
+   * Publish a Dream (Nostr event kind 1)
+   */
+  async publishDream(content, tags = [], privkey) {
+    try {
+      // Validate content
+      if (content.length &gt; 300000) {
+        throw new Error('Dream exceeds maximum size (300KB)');
+      }
+
+      if (!content.trim()) {
+        throw new Error('Dream cannot be empty');
+      }
+
+      // Create event
+      const event = {
+        content,
+        kind: 1, // Text note
+        tags,
+        created_at: Math.floor(Date.now() / 1000)
+      };
+
+      // Sign
+      const signedEvent = nostrTools.finalizeEvent(event, privkey);
+
+      // Validate signature
+      if (!nostrTools.verifyEvent(signedEvent)) {
+        throw new Error('Signature verification failed');
+      }
+
+      // Publish to relays
+      const results = await this.pool.publish(
+        Array.from(this.relays),
+        signedEvent
+      );
+
+      return {
+        success: true,
+        eventId: signedEvent.id,
+        publishedTo: results
+      };
+    } catch (error) {
+      console.error('Failed to publish Dream:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create a Circle (Nostr event kind 34550)
+   */
+  async createCircle(name, description, privkey) {
+    const event = {
+      kind: 34550, // Relay metadata
+      content: JSON.stringify({
+        name,
+        description,
+        picture: '',
+        banner: ''
+      }),
+      tags: [
+        ['d', name.toLowerCase().replace(/\s+/g, '-')]
+      ],
+      created_at: Math.floor(Date.now() / 1000)
+    };
+
+    const signedEvent = nostrTools.finalizeEvent(event, privkey);
+    
+    return this.pool.publish(Array.from(this.relays), signedEvent);
+  }
+
+  /**
+   * Subscribe to Feed (Dreamor public key)
+   */
+  subscribeToDreamor(pubkey, onDream) {
+    const filter = {
+      authors: [pubkey],
+      kinds: [1],
+      limit: 100
+    };
+
+    const sub = this.pool.sub(Array.from(this.relays), [filter]);
+    
+    sub.on('event', (event) =&gt; {
+      if (this.validators.validate(event).valid) {
+        onDream(event);
+      }
+    });
+
+    return sub;
+  }
+
+  /**
+   * Fetch Dreams from Feed with accessibility metadata
+   */
+  async fetchAccessibleFeed(filters = {}) {
+    const defaultFilters = {
+      kinds: [1],
+      limit: 50,
+      ...filters
+    };
+
+    const events = await this.pool.querySync(
+      Array.from(this.relays),
+      [defaultFilters]
+    );
+
+    return events
+      .filter(e =&gt; this.validators.validate(e).valid)
+      .map(event =&gt; this.enrichEventWithAccessibility(event));
+  }
+
+  enrichEventWithAccessibility(event) {
+    return {
+      ...event,
+      accessibility: {
+        hasAltText: event.tags.some(tag =&gt; tag[0] === 'alt'),
+        hasHeadings: /#/.test(event.content),
+        avgSentenceLength: this.calculateAvgSentenceLength(event.content),
+        recommendations: this.generateAccessibilityRecommendations(event)
+      }
+    };
+  }
+
+  calculateAvgSentenceLength(content) {
+    const sentences = content.match(/[.!?]+/g) || [];
+    const words = content.split(/\s+/).length;
+    return sentences.length &gt; 0 ? Math.round(words / sentences.length) : words;
+  }
+
+  generateAccessibilityRecommendations(event) {
+    const recommendations = [];
+    
+    if (!event.tags.some(tag =&gt; tag[0] === 'alt')) {
+      recommendations.push('Add alt text for images');
+    }
+    
+    const avgLength = this.calculateAvgSentenceLength(event.content);
+    if (avgLength &gt; 25) {
+      recommendations.push('Consider shorter sentences for screen readers');
+    }
+    
+    if (!/#/.test(event.content)) {
+      recommendations.push('Add headings with # for structure');
+    }
+
+    return recommendations;
+  }
+}
+
+// Nostr Event Validator
+class NostrEventValidator {
+  validate(event) {
+    const errors = [];
+
+    if (!event.id || typeof event.id !== 'string') {
+      errors.push('Invalid event ID');
+    }
+
+    if (typeof event.pubkey !== 'string' || !/^[0-9a-f]{64}$/i.test(event.pubkey)) {
+      errors.push('Invalid public key');
+    }
+
+    if (typeof event.created_at !== 'number') {
+      errors.push('Invalid timestamp');
+    }
+
+    // Check timestamp sanity
+    const now = Math.floor(Date.now() / 1000);
+    if (Math.abs(now - event.created_at) &gt; 300) { // 5 minute window
+      errors.push('Event timestamp suspicious');
+    }
+
+    if (typeof event.content !== 'string') {
+      errors.push('Invalid content');
+    }
+
+    if (!nostrTools.verifyEvent(event)) {
+      errors.push('Invalid signature');
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    };
+  }
+}
+
+export { SecureNostrClient, NostrEventValidator };</code></pre>
+<hr>
+<h3 id="cherry-ai-training-curriculum">Cherry AI Training Curriculum</h3>
+<h4 id="module-1-dream-composition">Module 1: Dream Composition</h4>
+<pre><code>const cherryPrompts = {
+  dreamComposition: `
+    Help the Dreamor write an accessible Dream:
+    1. Check: Do they have alt text for images?
+    2. Suggest: Break into paragraphs with headings
+    3. Warn: Don't leak personal information to Nostr
+    4. Recommend: Use simple, clear language
+    5. Verify: Test with screen reader simulation
+  `,
+  
+  relaySelection: `
+    When asked about relays:
+    1. Always recommend WSS (encrypted) only
+    2. Suggest geographic distribution
+    3. Explain relay trade-offs
+    4. Never suggest centralized services
+    5. Recommend running personal relay
+  `,
+  
+  circleModeration: `
+    When creating Circle guidelines:
+    1. Respect Dreamor autonomy
+    2. Suggest inclusive policies
+    3. Include accessibility requirements
+    4. Never recommend censorship tools
+    5. Focus on community safety
+  `
+};</code></pre>
+<hr>
+<h3 id="references">References</h3>
+<ul><li><a href="https://github.com/nostr-protocol/nostr" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Nostr Protocol</a></li><li><a href="https://github.com/nbd-wtf/nostr-tools" title="Go to GitHub" target="_blank" rel="noopener noreferrer">nostr-tools Documentation</a></li><li><a href="https://www.w3.org/WAI/WCAG21/quickref/" title="Go to w3.org" target="_blank" rel="noopener noreferrer">Accessibility Guidelines</a></li></ul>
+<hr>
+<h2 id="feedback">Feedback</h2>
+<p>A Looscid nsec identity receives feedback as a NIP-17 DM, not NIP-04. The worker replies as Looscid. The sender uses plain <code>/edit</code>, <code>/delete</code>, and <code>/publish</code> commands. A submitted entry stays private until its sender confirms <code>/publish</code>; that reply consents to their question entering the public feedback section.</p>
+<p>The nsec is NEVER in the repository, in a document, or pasted into chat. It lives only as a secret environment variable on the feedback bot's server, which is not part of this repository yet.</p>
+<h3 id="commands-and-events">Commands and events</h3>
+<p>Events are immutable. <code>/edit</code> publishes a replaceable kind 30078 event keyed by a <code>d</code> tag, reusing the same tag to overwrite the prior version. <code>/delete</code> publishes a NIP-09 kind 5 deletion request; relays may honor it, so deletion is a request, not a guarantee. <code>/publish</code> is explicit consent before broadcasting.</p>
+<p>Accept command DMs only from the exact npub that submitted the entry. Rate-limit per npub and validate command syntax before acting.</p>
+<h3 id="open-questions">Open questions</h3>
+<p>Which relay set? Is the feedback section a replaceable event per author or a single aggregate list? What is the nsec rotation plan if it leaks?</p>
+</div>
+<p class="next"><a href="../../#h-building" title="Goes back to Help Center">More in Building Looscid</a> <span aria-hidden="true">·</span> <a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></p>
+</main>
+<footer class="sf" aria-labelledby="sf-title">
+<h2 id="sf-title" class="sf-sr">Footer</h2>
+<div class="sf-in">
+<p class="sf-brand"><img src="/Looscid/assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="28" height="28"><span class="sf-name" aria-hidden="true">Looscid</span><span class="sf-tag">Just Dream. Open source and local first.</span></p>
+<div class="sf-cols">
+<section class="sf-col" aria-labelledby="sf-h-looscid"><h3 id="sf-h-looscid">Looscid</h3><ul><li><a href="/Looscid/" title="Goes to Home">Open Looscid</a></li><li><a href="/Looscid/About/" title="Goes to About">About</a></li><li><a href="/Looscid/Our-Story/" title="Goes to Our Story">Our Story</a></li><li><a href="/Looscid/changelog/" title="Goes to the changelog">Changelog</a></li><li><a href="/Looscid/Credits/" title="Goes to Credits">Credits</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-help"><h3 id="sf-h-help">Help</h3><ul><li><a href="/Looscid/help/" title="Goes back to Help Center">Help Center</a></li><li><a href="/Looscid/help/getting-started/" title="Opens this topic">Getting Started</a></li><li><a href="/Looscid/help/looscid-basics/" title="Opens this course">Looscid Basics course</a></li><li><a href="/Looscid/help/contact/" title="Goes to Contact Us">Contact Us</a></li><li><a href="/Looscid/Feedback/" title="Goes to Feedback">Send Feedback</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-dev"><h3 id="sf-h-dev">Developers</h3><ul><li><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a></li><li><a href="/Looscid/help/#h-building" title="Goes back to Help Center">Docs</a></li><li><a href="/Looscid/help/dev/contributing/" title="Opens this article">Contributing</a></li><li><a href="/Looscid/help/dev/accessibility/" title="Opens this article">Accessibility</a></li><li><a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-legal"><h3 id="sf-h-legal">Legal</h3><ul><li><a href="/Looscid/Terms/" title="Goes to Terms">Terms</a></li><li><a href="/Looscid/Privacy/" title="Goes to Privacy">Privacy</a></li><li><a href="/Looscid/Rules/" title="Goes to Rules">Rules</a></li><li><a href="/Looscid/Child-Safety/" title="Goes to Child Safety">Child Safety</a></li><li><a href="/Looscid/Legal/" title="Goes to Legal">License</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-hi"><h3 id="sf-h-hi">Say hi</h3><ul><li><a href="https://github.com/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">GitHub</a></li><li><a href="https://x.com/Looscid" title="Go to X" target="_blank" rel="noopener noreferrer">X</a></li><li><a href="https://www.youtube.com/@Looscid" title="Go to YouTube" target="_blank" rel="noopener noreferrer">YouTube</a></li><li><a href="https://discord.gg/M6xrD8EBXU" title="Go to Discord" target="_blank" rel="noopener noreferrer">Discord</a></li></ul></section>
+</div>
+<p class="sf-bottom">© 2026 Looscid <span aria-hidden="true">·</span> Open source under the <a href="/Looscid/Legal/" title="Goes to Legal">Looscid Public License</a> <span aria-hidden="true">·</span> Made by Chaotic Carter, co-written with Tab</p>
+</div>
+</footer>
+<script src="../../help.js?v=hc3"></script>
+</body>
+</html>

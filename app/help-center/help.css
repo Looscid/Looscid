@@ -63,8 +63,8 @@ h3{font-size:1.1em;margin:0 0 4px}
 .topic{position:relative;background:var(--sf);border:1px solid var(--bd);border-radius:18px;padding:16px 18px;transition:border-color .15s,transform .15s}
 .topic:hover{border-color:var(--ac)}
 .topic .ic,.course-card .ic,.contact-row .ic{display:block;width:44px;height:44px;padding:10px;border-radius:12px;background:var(--acbg);color:#fff;margin:0 0 10px}
-.topic h3{font-size:1.15em;margin:0 0 4px}
-.topic h3 a{text-decoration:none;color:var(--tx)}
+.topic h3,.topic h4{font-size:1.15em;margin:0 0 4px}
+.topic h3 a,.topic h4 a{text-decoration:none;color:var(--tx)}
 .topic p{margin:4px 0;color:var(--tx2)}
 .topic .count{font-size:.85em;font-weight:700;color:var(--ac)}
 .topic-arts{list-style:none;margin:10px 0 0;padding:10px 0 0;border-top:1px solid var(--bd)}
@@ -85,3 +85,21 @@ h3{font-size:1.1em;margin:0 0 4px}
 .topic:focus-within,.contact-row li:focus-within{border-color:var(--ac)}
 @media (prefers-color-scheme:light){.topic .ic,.course-card .ic,.contact-row .ic{background:#ede9fe;color:#5b21b6}}
 @media (prefers-reduced-motion:reduce){.topic{transition:none}}
+/* Nov 7 2026: the home page's Using Looscid and Building Looscid parts, and the docs pages (/help/dev/). Nothing scrolls sideways:
+   code and tables wrap. */
+#h-topics,#h-popular,#h-courses{font-size:1.15em;margin:22px 0 10px}
+.course-card h4{font-size:1.1em;margin:0 0 4px}
+.doc{overflow-wrap:anywhere}
+.doc h2{font-size:1.3em;margin:28px 0 8px}
+.doc h3{font-size:1.12em;margin:20px 0 6px}
+.doc h4,.doc h5,.doc h6{font-size:1em;margin:16px 0 4px}
+.doc ul,.doc ol{padding-left:1.4em}
+.doc li{margin:4px 0}
+.doc pre{white-space:pre-wrap;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px;font-size:.9em}
+.doc code{font-size:.92em}
+.doc table{border-collapse:collapse;width:100%;margin:8px 0 16px}
+.doc th,.doc td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:top}
+.doc table{font-size:.94em}
+.doc th:first-child,.doc td:first-child{width:36%}
+.doc blockquote{border-left:4px solid var(--bd);margin:12px 0;padding:0 12px;color:var(--tx2)}
+.doc hr{border:0;border-top:1px solid var(--bd);margin:20px 0}

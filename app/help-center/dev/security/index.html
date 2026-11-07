@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en-US" data-help-root="../../">
+<head>
+<meta charset="UTF-8"/>
+<title>Security - Looscid Help Center</title>
+<!-- Made by .github/scripts/build-help.mjs from app/js/helpdata.js. Edit those, not this page. Link previews come first. -->
+<meta name="description" content="How to report a security problem, privately.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Looscid">
+<meta property="og:title" content="Security - Looscid Help Center">
+<meta property="og:description" content="How to report a security problem, privately.">
+<meta property="og:url" content="https://looscid.github.io/Looscid/help/dev/security/">
+<meta property="og:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:secure_url" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Looscid">
+<meta name="twitter:title" content="Security - Looscid Help Center">
+<meta name="twitter:description" content="How to report a security problem, privately.">
+<meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta name="twitter:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<link rel="canonical" href="https://looscid.github.io/Looscid/help/dev/security/">
+<link rel="icon" type="image/png" sizes="32x32" href="https://looscid.github.io/Looscid/assets/icons/favicon-32.png?v=nl1">
+<link rel="apple-touch-icon" href="https://looscid.github.io/Looscid/assets/icons/apple-touch-icon.png?v=nl1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<link rel="stylesheet" href="../../help.css?v=hc5">
+<link rel="stylesheet" href="../../../assets/site-footer.css?v=1">
+</head>
+<body>
+<div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<header class="top"><a class="brand" href="../../" title="Goes back to Help Center" aria-label="Looscid Help Center, logo: a white open ring with a dot in the middle, on blue"><img src="../../../assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="32" height="32"><span><span aria-hidden="true">Looscid</span> Help Center</span></a><a class="open" href="../../../" title="Goes to Home">Open Looscid</a></header>
+<main class="wrap" id="main">
+<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../../" title="Goes back to Help Center">Help Center</a></li><li><a href="../../#h-building" title="Goes back to Help Center">Building Looscid</a></li><li><span aria-current="page">Security</span></li></ol></nav>
+<h1>Security</h1>
+<p class="lead">How to report a security problem, privately.</p>
+<div class="doc">
+<p>Carried over from the old <code>SECURITY.md</code> on the retired <code>main</code> line and rewritten for the Looscid that ships today. The old file's sample code and server advice did not match this app, so only its purpose is kept: how to report a problem, and what protects Dreamors now.</p>
+<h2 id="reporting-a-vulnerability">Reporting a vulnerability</h2>
+<ul><li>Please report security problems privately, not in a public issue or a Dream.</li><li>Use GitHub's private vulnerability reporting: open the repository's Security tab and choose Report a vulnerability, or go straight to <a href="https://github.com/Looscid/Looscid/security/advisories/new" title="Go to GitHub" target="_blank" rel="noopener noreferrer">github.com/Looscid/Looscid/security/advisories/new</a></li><li>Say what you found, how to reproduce it, and what a Dreamor could lose (their Nostr key, a sign-in, saved data).</li><li>2three1y reads every report. Please give a reasonable chance to fix it before you share details.</li></ul>
+<h2 id="what-is-supported">What is supported</h2>
+<ul><li>The live site, <a href="https://looscid.github.io/Looscid/" title="Goes to Home">looscid.github.io/Looscid/</a>, built from the <code>main</code> branch.</li><li>Older lines and retired branches get no security fixes.</li></ul>
+<h2 id="how-looscid-protects-dreamors-today">How Looscid protects Dreamors today</h2>
+<h3 id="your-keys-and-sign-ins">Your keys and sign-ins</h3>
+<ul><li>Your Nostr key stays on your device. You can lock it with a passcode (NIP-49), which is the default, or use a signer extension (NIP-07) so the key never enters Looscid at all.</li><li>Mastodon and Bluesky sign-ins are kept only on your device, sealed with your Nostr key's passcode when it has one.</li><li>For Bluesky, use an app password, never your main password. Looscid never stores the password itself.</li><li>Removing a locked key also signs out the Mastodon and Bluesky sign-ins sealed to it, and Looscid says so first.</li></ul>
+<h3 id="the-page-itself">The page itself</h3>
+<ul><li>A strict Content-Security-Policy: scripts load only from Looscid itself, plus one inline script allowed by its hash; no plugins; forms and the base address stay on Looscid.</li><li>React is served from Looscid itself with an integrity check, not from a CDN.</li><li>A frame guard: when another website shows Looscid in a frame, the app does not start and shows one plain message with a link that opens Looscid on its own.</li></ul>
+<h3 id="looscid-os-apps-and-projects">Looscid OS apps and Projects</h3>
+<ul><li>They run in a sandboxed frame without same-origin access, so they cannot reach Looscid's storage or your Nostr key.</li><li>Their saved data lives in one separate key, <code>looscid_appdata</code>.</li></ul>
+<h2 id="for-contributors">For contributors</h2>
+<ul><li>Never commit keys, passwords, tokens or anyone's private data.</li><li>Keep the Content-Security-Policy hash and the inline script in <code>app/index.html</code> in step: change one, change the other.</li><li>New outside code goes in <code>app/js/vendor/</code>, pinned to a version, with its license.</li><li>More on where things live: <a href="../files/" title="Opens this article">FILES.md</a>.</li></ul>
+</div>
+<p class="next"><a href="../../#h-building" title="Goes back to Help Center">More in Building Looscid</a> <span aria-hidden="true">·</span> <a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></p>
+</main>
+<footer class="sf" aria-labelledby="sf-title">
+<h2 id="sf-title" class="sf-sr">Footer</h2>
+<div class="sf-in">
+<p class="sf-brand"><img src="/Looscid/assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="28" height="28"><span class="sf-name" aria-hidden="true">Looscid</span><span class="sf-tag">Just Dream. Open source and local first.</span></p>
+<div class="sf-cols">
+<section class="sf-col" aria-labelledby="sf-h-looscid"><h3 id="sf-h-looscid">Looscid</h3><ul><li><a href="/Looscid/" title="Goes to Home">Open Looscid</a></li><li><a href="/Looscid/About/" title="Goes to About">About</a></li><li><a href="/Looscid/Our-Story/" title="Goes to Our Story">Our Story</a></li><li><a href="/Looscid/changelog/" title="Goes to the changelog">Changelog</a></li><li><a href="/Looscid/Credits/" title="Goes to Credits">Credits</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-help"><h3 id="sf-h-help">Help</h3><ul><li><a href="/Looscid/help/" title="Goes back to Help Center">Help Center</a></li><li><a href="/Looscid/help/getting-started/" title="Opens this topic">Getting Started</a></li><li><a href="/Looscid/help/looscid-basics/" title="Opens this course">Looscid Basics course</a></li><li><a href="/Looscid/help/contact/" title="Goes to Contact Us">Contact Us</a></li><li><a href="/Looscid/Feedback/" title="Goes to Feedback">Send Feedback</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-dev"><h3 id="sf-h-dev">Developers</h3><ul><li><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a></li><li><a href="/Looscid/help/#h-building" title="Goes back to Help Center">Docs</a></li><li><a href="/Looscid/help/dev/contributing/" title="Opens this article">Contributing</a></li><li><a href="/Looscid/help/dev/accessibility/" title="Opens this article">Accessibility</a></li><li><a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-legal"><h3 id="sf-h-legal">Legal</h3><ul><li><a href="/Looscid/Terms/" title="Goes to Terms">Terms</a></li><li><a href="/Looscid/Privacy/" title="Goes to Privacy">Privacy</a></li><li><a href="/Looscid/Rules/" title="Goes to Rules">Rules</a></li><li><a href="/Looscid/Child-Safety/" title="Goes to Child Safety">Child Safety</a></li><li><a href="/Looscid/Legal/" title="Goes to Legal">License</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-hi"><h3 id="sf-h-hi">Say hi</h3><ul><li><a href="https://github.com/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">GitHub</a></li><li><a href="https://x.com/Looscid" title="Go to X" target="_blank" rel="noopener noreferrer">X</a></li><li><a href="https://www.youtube.com/@Looscid" title="Go to YouTube" target="_blank" rel="noopener noreferrer">YouTube</a></li><li><a href="https://discord.gg/M6xrD8EBXU" title="Go to Discord" target="_blank" rel="noopener noreferrer">Discord</a></li></ul></section>
+</div>
+<p class="sf-bottom">© 2026 Looscid <span aria-hidden="true">·</span> Open source under the <a href="/Looscid/Legal/" title="Goes to Legal">Looscid Public License</a> <span aria-hidden="true">·</span> Made by Chaotic Carter, co-written with Tab</p>
+</div>
+</footer>
+<script src="../../help.js?v=hc3"></script>
+</body>
+</html>

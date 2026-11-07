@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en-US" data-help-root="../../">
+<head>
+<meta charset="UTF-8"/>
+<title>Discord announcements - Looscid Help Center</title>
+<!-- Made by .github/scripts/build-help.mjs from app/js/helpdata.js. Edit those, not this page. Link previews come first. -->
+<meta name="description" content="How the Looscid Discord's #announcements channel gets its messages.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Looscid">
+<meta property="og:title" content="Discord announcements - Looscid Help Center">
+<meta property="og:description" content="How the Looscid Discord's #announcements channel gets its messages.">
+<meta property="og:url" content="https://looscid.github.io/Looscid/help/dev/announcements/">
+<meta property="og:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:secure_url" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Looscid">
+<meta name="twitter:title" content="Discord announcements - Looscid Help Center">
+<meta name="twitter:description" content="How the Looscid Discord's #announcements channel gets its messages.">
+<meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta name="twitter:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<link rel="canonical" href="https://looscid.github.io/Looscid/help/dev/announcements/">
+<link rel="icon" type="image/png" sizes="32x32" href="https://looscid.github.io/Looscid/assets/icons/favicon-32.png?v=nl1">
+<link rel="apple-touch-icon" href="https://looscid.github.io/Looscid/assets/icons/apple-touch-icon.png?v=nl1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<link rel="stylesheet" href="../../help.css?v=hc5">
+<link rel="stylesheet" href="../../../assets/site-footer.css?v=1">
+</head>
+<body>
+<div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<header class="top"><a class="brand" href="../../" title="Goes back to Help Center" aria-label="Looscid Help Center, logo: a white open ring with a dot in the middle, on blue"><img src="../../../assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="32" height="32"><span><span aria-hidden="true">Looscid</span> Help Center</span></a><a class="open" href="../../../" title="Goes to Home">Open Looscid</a></header>
+<main class="wrap" id="main">
+<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../../" title="Goes back to Help Center">Help Center</a></li><li><a href="../../#h-building" title="Goes back to Help Center">Building Looscid</a></li><li><span aria-current="page">Discord announcements</span></li></ol></nav>
+<h1>Discord announcements</h1>
+<p class="lead">How the Looscid Discord's #announcements channel gets its messages.</p>
+<div class="doc">
+<p>The Looscid Discord's #announcements channel gets its announcements from the GitHub Actions workflow <code>.github/workflows/discord-announce.yml</code>, which runs <code>.github/scripts/discord-announce.mjs</code> (plain Node, no packages, no outside services). It speaks through the Discord webhook &quot;Looscid Bot&quot;, stored as the repository secret <code>DISCORD_ANNOUNCE_WEBHOOK</code>.</p>
+<p>In the channel, only Looscid Bot, Moderators and the Founder can write. Everyone can react, open threads and reply in them.</p>
+<h2 id="what-it-announces">What it announces</h2>
+<ul><li>New videos on youtube.com/@Looscid: checked every 30 minutes through YouTube's public feed. Text: &quot;New video: TITLE LINK&quot;.</li><li>New builds: whenever a push to main changes <code>app/version.json</code> to a higher build. Text: &quot;Looscid VERSION (build N) is live: WHAT'S NEW <a href="https://looscid.github.io/Looscid/changelog/" title="Goes to the changelog">looscid.github.io/Looscid/changelog/</a>&quot;, where What's new is the top CHANGELOG.md entry.</li><li>Anything else, on demand (for example a new tweet from @Looscid): see below.</li></ul>
+<p><code>.github/announce-state.json</code> remembers which videos and which build were already announced, so nothing repeats. The workflow updates it itself. If it is deleted, the next run only remembers what exists and announces nothing.</p>
+<h2 id="announcing-something-by-hand-a-tweet-news">Announcing something by hand (a tweet, news)</h2>
+<p>On GitHub: Looscid/Looscid, Actions, &quot;Discord announcements&quot;, Run workflow. Type the announcement in &quot;message&quot;, optionally paste a link (the tweet's address) in &quot;url&quot;, then Run workflow.</p>
+<p>From a terminal with the GitHub CLI:</p>
+<p>gh workflow run discord-announce.yml -R Looscid/Looscid -f message=&quot;Looscid has a new update&quot; -f url=&quot;<a href="https://x.com/Looscid/status/123" title="Go to X" target="_blank" rel="noopener noreferrer">x.com/Looscid/status/123</a>&quot;</p>
+<p>Or the API: POST /repos/Looscid/Looscid/actions/workflows/discord-announce.yml/dispatches with {&quot;ref&quot;:&quot;main&quot;,&quot;inputs&quot;:{&quot;message&quot;:&quot;...&quot;,&quot;url&quot;:&quot;...&quot;}}.</p>
+<p>Running it with both fields empty just checks for new videos and builds.</p>
+<p>Messages are plain text. Mentions like @everyone are never turned into pings.</p>
+<h2 id="changing-the-webhook">Changing the webhook</h2>
+<p>Discord, Looscid server, #announcements, Edit Channel, Integrations, Webhooks, Looscid Bot, Copy Webhook URL. Then on GitHub: Settings, Secrets and variables, Actions, DISCORD_ANNOUNCE_WEBHOOK, Update. Never put the address in a file or a commit.</p>
+</div>
+<p class="next"><a href="../../#h-building" title="Goes back to Help Center">More in Building Looscid</a> <span aria-hidden="true">·</span> <a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></p>
+</main>
+<footer class="sf" aria-labelledby="sf-title">
+<h2 id="sf-title" class="sf-sr">Footer</h2>
+<div class="sf-in">
+<p class="sf-brand"><img src="/Looscid/assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="28" height="28"><span class="sf-name" aria-hidden="true">Looscid</span><span class="sf-tag">Just Dream. Open source and local first.</span></p>
+<div class="sf-cols">
+<section class="sf-col" aria-labelledby="sf-h-looscid"><h3 id="sf-h-looscid">Looscid</h3><ul><li><a href="/Looscid/" title="Goes to Home">Open Looscid</a></li><li><a href="/Looscid/About/" title="Goes to About">About</a></li><li><a href="/Looscid/Our-Story/" title="Goes to Our Story">Our Story</a></li><li><a href="/Looscid/changelog/" title="Goes to the changelog">Changelog</a></li><li><a href="/Looscid/Credits/" title="Goes to Credits">Credits</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-help"><h3 id="sf-h-help">Help</h3><ul><li><a href="/Looscid/help/" title="Goes back to Help Center">Help Center</a></li><li><a href="/Looscid/help/getting-started/" title="Opens this topic">Getting Started</a></li><li><a href="/Looscid/help/looscid-basics/" title="Opens this course">Looscid Basics course</a></li><li><a href="/Looscid/help/contact/" title="Goes to Contact Us">Contact Us</a></li><li><a href="/Looscid/Feedback/" title="Goes to Feedback">Send Feedback</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-dev"><h3 id="sf-h-dev">Developers</h3><ul><li><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a></li><li><a href="/Looscid/help/#h-building" title="Goes back to Help Center">Docs</a></li><li><a href="/Looscid/help/dev/contributing/" title="Opens this article">Contributing</a></li><li><a href="/Looscid/help/dev/accessibility/" title="Opens this article">Accessibility</a></li><li><a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-legal"><h3 id="sf-h-legal">Legal</h3><ul><li><a href="/Looscid/Terms/" title="Goes to Terms">Terms</a></li><li><a href="/Looscid/Privacy/" title="Goes to Privacy">Privacy</a></li><li><a href="/Looscid/Rules/" title="Goes to Rules">Rules</a></li><li><a href="/Looscid/Child-Safety/" title="Goes to Child Safety">Child Safety</a></li><li><a href="/Looscid/Legal/" title="Goes to Legal">License</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-hi"><h3 id="sf-h-hi">Say hi</h3><ul><li><a href="https://github.com/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">GitHub</a></li><li><a href="https://x.com/Looscid" title="Go to X" target="_blank" rel="noopener noreferrer">X</a></li><li><a href="https://www.youtube.com/@Looscid" title="Go to YouTube" target="_blank" rel="noopener noreferrer">YouTube</a></li><li><a href="https://discord.gg/M6xrD8EBXU" title="Go to Discord" target="_blank" rel="noopener noreferrer">Discord</a></li></ul></section>
+</div>
+<p class="sf-bottom">© 2026 Looscid <span aria-hidden="true">·</span> Open source under the <a href="/Looscid/Legal/" title="Goes to Legal">Looscid Public License</a> <span aria-hidden="true">·</span> Made by Chaotic Carter, co-written with Tab</p>
+</div>
+</footer>
+<script src="../../help.js?v=hc3"></script>
+</body>
+</html>

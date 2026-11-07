@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en-US" data-help-root="../../">
+<head>
+<meta charset="UTF-8"/>
+<title>Contributing to Looscid - Looscid Help Center</title>
+<!-- Made by .github/scripts/build-help.mjs from app/js/helpdata.js. Edit those, not this page. Link previews come first. -->
+<meta name="description" content="How to help build Looscid, and how we work together.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Looscid">
+<meta property="og:title" content="Contributing to Looscid - Looscid Help Center">
+<meta property="og:description" content="How to help build Looscid, and how we work together.">
+<meta property="og:url" content="https://looscid.github.io/Looscid/help/dev/contributing/">
+<meta property="og:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:secure_url" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Looscid">
+<meta name="twitter:title" content="Contributing to Looscid - Looscid Help Center">
+<meta name="twitter:description" content="How to help build Looscid, and how we work together.">
+<meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta name="twitter:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<link rel="canonical" href="https://looscid.github.io/Looscid/help/dev/contributing/">
+<link rel="icon" type="image/png" sizes="32x32" href="https://looscid.github.io/Looscid/assets/icons/favicon-32.png?v=nl1">
+<link rel="apple-touch-icon" href="https://looscid.github.io/Looscid/assets/icons/apple-touch-icon.png?v=nl1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<link rel="stylesheet" href="../../help.css?v=hc5">
+<link rel="stylesheet" href="../../../assets/site-footer.css?v=1">
+</head>
+<body>
+<div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<header class="top"><a class="brand" href="../../" title="Goes back to Help Center" aria-label="Looscid Help Center, logo: a white open ring with a dot in the middle, on blue"><img src="../../../assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="32" height="32"><span><span aria-hidden="true">Looscid</span> Help Center</span></a><a class="open" href="../../../" title="Goes to Home">Open Looscid</a></header>
+<main class="wrap" id="main">
+<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../../" title="Goes back to Help Center">Help Center</a></li><li><a href="../../#h-building" title="Goes back to Help Center">Building Looscid</a></li><li><span aria-current="page">Contributing to Looscid</span></li></ol></nav>
+<h1>Contributing to Looscid</h1>
+<p class="lead">How to help build Looscid, and how we work together.</p>
+<div class="doc">
+<p>Welcome, and thank you for being here. Looscid is an open source project built with care, and we're glad you want to be part of it. Before you get started, take a few minutes to read this document. It'll help you understand what we're building and how we build it together.</p>
+<hr>
+<h2 id="language-and-terminology">Language and terminology</h2>
+<p>We have our own language here. Please read <a href="../terminology/" title="Opens this article">TERMINOLOGY.md</a> before anything else. Dreams, Redreams, Replies, Circles and Dreamors are the words of this platform and they belong everywhere — in code, in comments, in UI text and in documentation. It's a small thing that means a lot to us.</p>
+<hr>
+<h2 id="accessibility">Accessibility</h2>
+<p>Looscid was built by a blind Dreamor. Accessibility isn't something we added — it's something we started with. We ask every contributor to keep that spirit alive.</p>
+<p>That means meaningful ARIA labels on interactive elements, logical heading structure, touch targets that are easy to reach and color never being the only way something communicates meaning.</p>
+<p>We know not everyone has access to a screen reader for testing. If that's you, do your best and flag it in your pull request. We'd rather you contribute and be honest about what you couldn't test than not contribute at all. We'll work through it together.</p>
+<hr>
+<h2 id="code">Code</h2>
+<p>Keep it clean and readable. Comment your reasoning. If something might confuse someone coming to the code fresh, a short explanation goes a long way.</p>
+<hr>
+<h2 id="documentation-conventions">Documentation conventions</h2>
+<p>When two or more docs cover the same subject, bring them into one file. Keep each original source filename as a real Markdown heading (<code>##</code> or <code>###</code>) so its anchor works, not as bold text. Put a short line saying what was combined right below the top heading. Docs that only look alike but cover different subjects should stay separate.</p>
+<p>While merging, fix verified stale terms: Gabriel to Cherry, Dream Board and Dream Board Mobile to Looscid, Local to Nearby, and inline DiscoverPage to discover.js. Never edit quoted copy, sample strings or legal terms. Use relative links, never absolute GitHub blob URLs. Preserve accessibility-relevant copy and attributes exactly, including <code>role</code>, <code>tabindex</code>, focus handlers and <code>aria-*</code>.</p>
+<p>Never merge legal text. If <code>license.txt</code> and <code>LICENSE</code> differ in substance, keep them separate and let 2three1y decide.</p>
+<hr>
+<h2 id="the-spirit-of-this-project">The spirit of this project</h2>
+<p>Looscid exists to prove something. We hope you feel that when you build with us.</p>
+</div>
+<p class="next"><a href="../../#h-building" title="Goes back to Help Center">More in Building Looscid</a> <span aria-hidden="true">·</span> <a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></p>
+</main>
+<footer class="sf" aria-labelledby="sf-title">
+<h2 id="sf-title" class="sf-sr">Footer</h2>
+<div class="sf-in">
+<p class="sf-brand"><img src="/Looscid/assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="28" height="28"><span class="sf-name" aria-hidden="true">Looscid</span><span class="sf-tag">Just Dream. Open source and local first.</span></p>
+<div class="sf-cols">
+<section class="sf-col" aria-labelledby="sf-h-looscid"><h3 id="sf-h-looscid">Looscid</h3><ul><li><a href="/Looscid/" title="Goes to Home">Open Looscid</a></li><li><a href="/Looscid/About/" title="Goes to About">About</a></li><li><a href="/Looscid/Our-Story/" title="Goes to Our Story">Our Story</a></li><li><a href="/Looscid/changelog/" title="Goes to the changelog">Changelog</a></li><li><a href="/Looscid/Credits/" title="Goes to Credits">Credits</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-help"><h3 id="sf-h-help">Help</h3><ul><li><a href="/Looscid/help/" title="Goes back to Help Center">Help Center</a></li><li><a href="/Looscid/help/getting-started/" title="Opens this topic">Getting Started</a></li><li><a href="/Looscid/help/looscid-basics/" title="Opens this course">Looscid Basics course</a></li><li><a href="/Looscid/help/contact/" title="Goes to Contact Us">Contact Us</a></li><li><a href="/Looscid/Feedback/" title="Goes to Feedback">Send Feedback</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-dev"><h3 id="sf-h-dev">Developers</h3><ul><li><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a></li><li><a href="/Looscid/help/#h-building" title="Goes back to Help Center">Docs</a></li><li><a href="/Looscid/help/dev/contributing/" title="Opens this article">Contributing</a></li><li><a href="/Looscid/help/dev/accessibility/" title="Opens this article">Accessibility</a></li><li><a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-legal"><h3 id="sf-h-legal">Legal</h3><ul><li><a href="/Looscid/Terms/" title="Goes to Terms">Terms</a></li><li><a href="/Looscid/Privacy/" title="Goes to Privacy">Privacy</a></li><li><a href="/Looscid/Rules/" title="Goes to Rules">Rules</a></li><li><a href="/Looscid/Child-Safety/" title="Goes to Child Safety">Child Safety</a></li><li><a href="/Looscid/Legal/" title="Goes to Legal">License</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-hi"><h3 id="sf-h-hi">Say hi</h3><ul><li><a href="https://github.com/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">GitHub</a></li><li><a href="https://x.com/Looscid" title="Go to X" target="_blank" rel="noopener noreferrer">X</a></li><li><a href="https://www.youtube.com/@Looscid" title="Go to YouTube" target="_blank" rel="noopener noreferrer">YouTube</a></li><li><a href="https://discord.gg/M6xrD8EBXU" title="Go to Discord" target="_blank" rel="noopener noreferrer">Discord</a></li></ul></section>
+</div>
+<p class="sf-bottom">© 2026 Looscid <span aria-hidden="true">·</span> Open source under the <a href="/Looscid/Legal/" title="Goes to Legal">Looscid Public License</a> <span aria-hidden="true">·</span> Made by Chaotic Carter, co-written with Tab</p>
+</div>
+</footer>
+<script src="../../help.js?v=hc3"></script>
+</body>
+</html>

@@ -2,6 +2,17 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
+## Help Center: Using Looscid and Building Looscid (no new build yet)
+
+Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).
+
+Asked for by Carter: one place for docs, at the Help Center.
+
+- The Help Center home has two parts now. Using Looscid has the guides, topics, popular articles and the course, the same as before. Building Looscid lists the repo's docs.
+- Every doc has its own page on the site, made from its file in the repo: Contributing, Terminology, Accessibility, the developer roadmap, Files, Nostr and Cherry, Discord announcements, the Cherry and Dream delete specs, Development references, Security and the Looscid Public License.
+- The footer's Docs, Contributing and Accessibility links, Credits' license link, Legal's license link and About's accessibility commitments link go to those pages instead of GitHub. Only Source code and Issues still go to GitHub.
+- Every Help Center address is the same as before.
+
 ## Roadmap and changelog: one page (no new build yet)
 
 Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).

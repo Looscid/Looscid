@@ -2000,7 +2000,7 @@ function AboutSettings({navigate}) {
          listed twice here; this list keeps the source code and the commitments. Each link says it opens a new tab. */
       lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } },
         newTab("https://github.com/Looscid/Looscid", "Looscid's source code on GitHub"),
-        newTab("https://github.com/Looscid/Looscid/blob/main/docs/guides/ACCESSIBILITY.md", "Looscid's commitments: accessibility, fairness, humor")),
+        newTab("https://looscid.github.io/Looscid/help/dev/accessibility/", "Looscid's commitments: accessibility, fairness, humor")),
       lh('p', { className: "lid-help" }, "Looscid on GitHub, X and YouTube are in the footer at the end of this page, under Social."),
       lh('p', { className: "lid-help" }, "The welcome intro and terminology guide is the Welcome intro button above.")));
 }
@@ -3776,7 +3776,7 @@ function lcAboutInfo() {
    lu license link (none = plain text), w what it is. Planned items are plain text (each repo is linked above). */
 const LC_CREDITS = {
   intro: ["This page is where I say thanks. Looscid is open source under the ", "Looscid Public License", ". Below is every project Looscid uses and every one I learned from, and each of them keeps its own license. Oh, and every sound you hear is made live with Web Audio. No recorded samples, at all."],
-  licenseUrl: "https://github.com/Looscid/Looscid/blob/main/LICENSE",
+  licenseUrl: "https://looscid.github.io/Looscid/help/dev/license/", // Nov 7 2026: the license's own page in the Help Center docs
   uses: [
     { n: "React and React DOM 18.2.0", s: "React", u: "https://github.com/react/react", l: "MIT", lu: "https://github.com/react/react/blob/main/LICENSE", w: "This draws every single screen of Looscid. Loaded from jsDelivr." },
     { n: "nostr-tools 2.25.2", s: "nostr-tools", u: "https://github.com/nbd-wtf/nostr-tools", l: "Unlicense", lu: "https://github.com/nbd-wtf/nostr-tools/blob/master/LICENSE", w: "Nostr keys, signing and checking notes, npub and nsec, and passcode-locked keys. It lives in js/vendor with its license right next to it." },
@@ -3858,7 +3858,7 @@ function CreditsPage({ navigate }) {
       sec("credits-uses", "Open-source libraries and licenses", [
         lh('p', { key: "p", className: "lc-roll-what" }, "Looscid is open source under the ", ext(lic, "Looscid Public License", null, "i"), ". Every project below keeps its own license."),
         ul(LC_CREDITS.uses.map(entry)),
-        lh('p', { key: "src", className: "lc-roll-what" }, "Looscid's own source code is all on GitHub: ", ext("https://github.com/Looscid/Looscid", "Looscid on GitHub", null, "g"), ". The full license is in the ", ext(lic, "LICENSE file", "LICENSE file, Looscid's license", "l"), " there.")]),
+        lh('p', { key: "src", className: "lc-roll-what" }, "Looscid's own source code is all on GitHub: ", ext("https://github.com/Looscid/Looscid", "Looscid on GitHub", null, "g"), ". The full license has its own page: ", ext(lic, "the Looscid Public License", "the Looscid Public License, Looscid's license", "l"), ".")]),
       sec("credits-sounds", "Voices and sounds", ul([
         plain("wa", "Every earcon", "Made live with Web Audio. No recorded samples, at all."),
         plain("sp", "Soundpacks", "The Looscid OS classic and Insomnia Soundpacks come from my own projects above. The FastSM-inspired pack is inspired by FastSMRW, with every sound made fresh."),
