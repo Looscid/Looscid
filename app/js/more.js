@@ -1404,7 +1404,7 @@ function LcBlockedPanel() {
   const listOf = function (kind, label, say) {
     const l = lcBlocked(kind);
     return l.length ? lh('ul', { className: "lc-aud-list", "aria-label": label }, l.map(function (x) {
-      return lh('li', { key: x }, lh('span', null, say(x) + (kind === "dreamers" && Looscid.lcNet && Looscid.lcNet.blockedPk(x) ? ", also blocked on the Looscid server" : "")), lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { lcBlockedSet(kind, lcBlocked(kind).filter(function (y) { return y !== x; })); announce("Unblocked " + say(x) + "."); } }, "Unblock " + say(x)));
+      return lh('li', { key: x }, lh('span', null, say(x) + (kind === "dreamers" && Looscid.lcNet && Looscid.lcNet.blockedPk(x) ? ", also blocked on Rem" : "")), lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { lcBlockedSet(kind, lcBlocked(kind).filter(function (y) { return y !== x; })); announce("Unblocked " + say(x) + "."); } }, "Unblock " + say(x)));
     })) : lh('p', { className: "lc-desc" }, "Nothing blocked yet.");
   };
   const at = function (x) { return "@" + x; }, qt = function (x) { return "\u201c" + x + "\u201d"; };
@@ -1421,7 +1421,7 @@ function LcBlockedPanel() {
           lh('button', { type: "button", className: "btn bp lc-btn", id: "priv-bl-dreamers-add", onClick: function () { addList("dreamers", hIn, setHIn, at); } }, "Block")),
         listOf("dreamers", "Blocked Dreamors", at),
         // Nov 7 2026: blocks reach the Looscid server (js/net.js).
-        lh('p', { className: "lc-desc" }, "When you block someone from one of their Dreams, the Looscid server gets it too, so their Dreams stay out of your Looscid feed on every device. Unblock tells the server as well.")); }],
+        lh('p', { className: "lc-desc" }, "When you block someone from one of their Dreams, Rem gets it too, so their Dreams stay out of your Looscid feed on every device. Unblock tells Rem as well.")); }],
       ["circles", "Circles", function () { return circles.length ? lh('fieldset', { className: "lc-fs", id: "priv-bl-circles" },
         lh('legend', { className: "lc-fs-l" }, "Blocked Circles"),
         lh('div', { className: "lc-radios lc-radios-col" }, circles.map(function (g) {
@@ -1641,7 +1641,7 @@ function IntelligenceSettings({ navigate, page, prefs, setPrefs, cherryCtx }) {
       lh(LcSetRow, { def: LC_SET_BY.cherryAloud }),
       lh('h2', { className: "lc-grp-h" }, "Privacy"),
       lh('ul', { className: "lc-desc", role: "list" },
-        lh('li', null, "Cherry runs in this browser. Your Dreams, messages and questions are never sent to an AI company or a Looscid server."),
+        lh('li', null, "Cherry runs in this browser. Your Dreams, messages and questions are never sent to an AI company or to Rem."),
         lh('li', null, "An on-device model is downloaded only after you say yes, once, from Hugging Face. After that Cherry works offline."),
         lh('li', null, "Turning Cherry off hides it everywhere. Your downloaded model stays in the browser until you clear site data.")));
   } else if (cat.id === "model") {
@@ -2939,7 +2939,7 @@ function lcIdLabel(x) {
    Makes it"): a header with your avatar, name and @username, then real tabs:
    Home, Personal info, Data & privacy, Security, People & sharing. No payments.
    Alerts are not here; they have their own section. */
-const LID_TABS = Looscid.LID_TABS = [["home", "Home"], ["info", "Profile"], ["methods", "Login methods"], ["keys", "Keys and IDs"], ["security", "Security"], ["devices", "Devices"], ["data", "Data"], ["server", "Looscid server"], ["backup", "Backup file"], ["apps", "Connected apps"], ["connectionbase", "Connectionbase"]]; // Nov 7 2026: + Connectionbase (js/net.js)
+const LID_TABS = Looscid.LID_TABS = [["home", "Home"], ["info", "Profile"], ["methods", "Login methods"], ["keys", "Keys and IDs"], ["security", "Security"], ["devices", "Devices"], ["data", "Data"], ["server", "Rem"], ["backup", "Backup file"], ["apps", "Connected apps"], ["connectionbase", "Connectionbase"]]; // Nov 7 2026: + Connectionbase (js/net.js)
 Looscid.LID_TABS = LID_TABS;
 function lidWhen(t) { try { return new Date(t).toLocaleString(undefined, Looscid.lcTimeOpts({ month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })); } catch (e) { return ""; } }
 function thisDeviceLabel() {
@@ -3050,19 +3050,21 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   const linkedN = lcGetIds().length;
   const Hero = function (g, c, t, d) { return lh('div', { className: "lid-i27-hero" }, lh('span', { className: "lc-i27-ic lid-i27-hero-ic", style: { background: c }, "aria-hidden": "true" }, lh(Looscid.LcI27Glyph, { g: g, size: 30 })), lh('p', { className: "lid-i27-hero-t" }, t), lh('p', { className: "lid-i27-hero-d" }, d)); };
   let panel;
-  if (tab === "home") panel = lh('ul', { className: "mlist lc-i27-list", role: "list", id: "lid-rows" }, R([
+  if (tab === "home") panel = lh(React.Fragment, null, lh('ul', { className: "mlist lc-i27-list", role: "list", id: "lid-rows" }, R([
       [{ id: "lid-row-info", g: "person", c: "#8e8e93", label: "Profile", sub: "Name " + name + ", username " + handle, onClick: function () { go("info"); } },
        { id: "lid-row-security", g: "shield", c: "#007aff", label: "Security", sub: "Key, passcode, login methods, backup and server. " + checkup, onClick: function () { go("security"); } }],
-      [{ id: "lid-row-server", g: "cloud", c: "#32ade6", label: "Looscid server", value: srvM.sync ? "Server" : "Local", sub: srvWords, onClick: function () { go("server"); } },
-       // Nov 7 2026 (Carter): Connectionbase: the Looscid server and bridges (Nostr; Mastodon and Bluesky coming soon).
-       { id: "lid-row-connectionbase", g: "cloud", c: "#30b0c7", label: "Connectionbase", value: Looscid.lcNet && Looscid.lcNet.bridgeOn("nostr") ? "Looscid + Nostr" : "Looscid", sub: "Looscid server and bridges: Nostr, Mastodon, Bluesky", onClick: function () { go("connectionbase"); } },
+      // Nov 7 2026 (Carter): Connectionbase holds the connections: Rem (one concept now: the Looscid protocol and its server,
+      // incl. the older Rem home) and the bridges Nostr, Mastodon and Bluesky (coming soon).
+      [{ id: "lid-row-connectionbase", g: "cloud", c: "#30b0c7", label: "Connectionbase", value: Looscid.lcNet && Looscid.lcNet.bridgeOn("nostr") ? "Rem + Nostr" : "Rem", sub: (srvM.sync ? "Rem is syncing your Dreams" : "Rem") + ". Bridges: Nostr, Mastodon, Bluesky", onClick: function () { go("connectionbase"); } },
        { id: "lid-row-apps", g: "grid", c: "#5856d6", label: "Connected apps", value: methods.length ? String(methods.length) : "None", sub: methods.length ? methods.length + " linked " + (methods.length === 1 ? "identity" : "identities") : "", onClick: function () { go("apps"); } }],
-      [{ id: "lid-row-data", g: "data", c: "#8e8e93", label: "Data", sub: summary.length + " kinds of data, stored only on this device", onClick: function () { go("data"); } }]]));
+      [{ id: "lid-row-data", g: "data", c: "#8e8e93", label: "Data", sub: summary.length + " kinds of data, stored only on this device", onClick: function () { go("data"); } }]])),
+    // Nov 7 2026 (Carter, 6:10 PM): Download my Dreams and Delete my Rem data live on the LooscidID page itself (js/net.js).
+    Looscid.lcNet && Looscid.lcNet.LcRemData ? lh(Looscid.lcNet.LcRemData, null) : null);
   else if (tab === "info") panel = lh(React.Fragment, null,
     PH("Profile", "Your name, username, avatar and bio. Choose a field to change it."),
     ed.list);
   else if (tab === "data") panel = lh(React.Fragment, null,
-    PH("Data", "Your data stays on this device. Nothing goes to the Looscid server unless you choose it there."),
+    PH("Data", "Your data stays on this device. Only public Dreams (Audience Everyone) also go to Rem."),
     lh('h2', { className: "lid-label" }, "What's stored on this device"),
     lh('ul', { className: "lid-dl lc-rows", role: "list" }, summary.map(function (r) { return lh('li', { key: r.k }, lh('span', { className: "lc-dt" }, r.k, lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, r.v)); })),
     lh('h2', { className: "lid-label" }, "Download your data"),
@@ -3083,13 +3085,13 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   // Oct 31 2026 (Carter: "the key and login should be in Security"), modeled on iOS 27 Privacy & Security: a short intro
   // card, rows for everything that guards your LooscidID, then the checkup, your secret key and recent activity.
   else if (tab === "security") panel = lh(React.Fragment, null,
-      Hero("shield", "#007aff", "Keep your LooscidID safe", "Your Nostr key and its passcode, how you log in, your backup file, the Looscid server and where you're signed in."),
+      Hero("shield", "#007aff", "Keep your LooscidID safe", "Your Nostr key and its passcode, how you log in, your backup file, Rem and where you're signed in."),
       lh('ul', { className: "mlist lc-i27-list", role: "list", id: "lid-sec-rows" }, R([
         [{ id: "lid-row-keys", g: "key", c: "#ff9500", label: "Keys and IDs", value: linkedN ? String(linkedN) : "", sub: keyText, onClick: function () { go("keys"); } },
          { id: "lid-row-passcode", g: "lock", c: "#8e8e93", label: "Passcode", value: nst && nst.encrypted ? "On" : "Off", sub: nst && nst.encrypted ? "Your key is locked with a passcode" : "Lock your Nostr key so nothing else on this site can copy it", onClick: function () { go("keys", "nostr-lock-h"); } },
          { id: "lid-row-backup", g: "doc", c: "#34c759", label: "Backup file", sub: "Everything and your key in one locked file", onClick: function () { go("backup"); } }],
         [{ id: "lid-row-methods", g: "link", c: "#007aff", label: "Login methods", value: methods.length ? String(methods.length) : "None", sub: methodsText, onClick: function () { go("methods"); } },
-         { id: "lid-row-server", g: "cloud", c: "#32ade6", label: "Looscid server", value: srvM.on ? "Signed in" : "Signed out", sub: srvM.on ? "@" + srvM.handle + " on " + srvM.host : "Sign in with your key", onClick: function () { go("server"); } }],
+         { id: "lid-row-server", g: "cloud", c: "#32ade6", label: "Rem", value: srvM.sync ? "Syncing" : "Local", sub: srvM.sync ? "Your public Dreams sync to Rem" : "Put your Dreams on Rem", onClick: function () { go("connectionbase"); } }],
         [{ id: "lid-row-devices", g: "phone", c: "#8e8e93", label: "Devices", value: "1", sub: "This device, " + thisDeviceLabel() + ", active now", onClick: function () { go("devices"); } }]])),
       lh('section', { 'aria-labelledby': "lid-checkup-h", className: "lid-panel lid-i27-card" },
         lh('h2', { id: "lid-checkup-h", className: "lid-label", tabIndex: -1 }, "Security checkup"),
@@ -3115,12 +3117,10 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
     lh(LcKeysPanel, { goMethods: function () { go("methods"); } }));
   // Oct 31 2026 (Carter): the Looscid server (sign in with your key, put your Dreams on it) and the backup file (everything
   // plus your key, locked with a passcode) each have their own page here. They live in js/remsync.js.
-  else if (tab === "server") panel = lh(React.Fragment, null,
-    PH("Looscid server", "Sign in with your LooscidID key and choose which Dreams go on the server."),
+  // Nov 7 2026 (Rem v1 merge): the old "Looscid server" page (tab "server") is Rem in Connectionbase now; old links land there.
+  else if (tab === "connectionbase" || tab === "server") panel = lh(React.Fragment, null,
+    PH("Connectionbase", "Where your public Dreams go: Rem is their home, and bridges can also share them to other networks."),
     Looscid.LcModeLine ? lh(Looscid.LcModeLine, null) : null,
-    Looscid.LcServerPanel ? lh(Looscid.LcServerPanel, { go: function (t) { go(t); } }) : lh('p', { className: "lid-help" }, "The Looscid server page didn't load. Reload Looscid and try again."));
-  else if (tab === "connectionbase") panel = lh(React.Fragment, null,
-    PH("Connectionbase", "Where your public Dreams go: the Looscid server is their home, and bridges can also share them to other networks."),
     Looscid.lcNet && Looscid.lcNet.LcConnectionbase ? lh(Looscid.lcNet.LcConnectionbase, { go: function (t) { go(t); } }) : lh('p', { className: "lid-help" }, "The Connectionbase page didn't load. Reload Looscid and try again."));
   else if (tab === "backup") panel = lh(React.Fragment, null,
     PH("Backup file", "Save everything, your key included, in one file locked with a passcode. Or bring it all back from one."),
@@ -3157,7 +3157,7 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
       lh('p', { className: "lid-ghandle lid-i27-handle" }, handle + ", LooscidID"),
       Looscid.LcNpubLine ? lh(Looscid.LcNpubLine, { np: np, id: "lid-npub" }) : null),
     panel,
-    lh('p', { className: "lc-i27-foot" }, "Your profile, Security (your key, passcode, login methods, backup file, the Looscid server and devices), connected apps and your data on this device."));
+    lh('p', { className: "lc-i27-foot" }, "Your profile, Security (your key, passcode, login methods, backup file, Rem and devices), connected apps and your data on this device."));
 }
 // Which page each LooscidID page comes back to when it was opened straight (from Search, a link or another screen).
 const LID_PARENT = Looscid.LID_PARENT = { keys: "security", methods: "security", backup: "security", devices: "security", server: "security" };

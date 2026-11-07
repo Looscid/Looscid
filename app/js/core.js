@@ -998,7 +998,7 @@ function DreamReportDialog({ id, dream, authorPk, onDone }) {
   return lh('div', { className: "lid-alert-bg" },
     lh('div', { className: "lid-alert", role: "alertdialog", "aria-modal": "true", "aria-labelledby": id + "-title", "data-lc-no-focus-trap": "" },
       lh('h2', { ref: headingRef, tabIndex: -1, "data-lc-autofocus": "", id: id + "-title", className: "lid-sub" }, "Report this Dream?"),
-      lh('p', { className: "lid-help" }, "Pick what's wrong. Your report goes to the Looscid server with your LooscidID. The person you report isn't told who reported them."),
+      lh('p', { className: "lid-help" }, "Pick what's wrong. Your report goes to Rem with your LooscidID. The person you report isn't told who reported them."),
       msg ? lh('p', { className: "lid-help", role: "status" }, msg) : null,
       Looscid.lcNet.REPORT_REASONS.map(function (r) {
         return lh('button', { key: r[0], type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: function () { send(r[0]); } }, r[1]);
@@ -2232,7 +2232,7 @@ const LC_CHAR_FIELDS = [
   { id: "website", l: "Website", def: 200 }, { id: "linkName", l: "Link names", def: 40 }, { id: "linkUrl", l: "Link addresses", def: 200 },
   { id: "dream", l: "Dreams and replies", def: null, usual: "the Character limit switch above", note: "Some Nostr relays turn away very long Dreams (many stop around 64 KB)." },
   { id: "listName", l: "List names", def: 60 }, { id: "note", l: "Notes on profiles", def: 500 }, { id: "circleName", l: "Circle names", def: 40 },
-  { id: "serverName", l: "Looscid server name", def: 50 }, { id: "sectionName", l: "Section names (Sense)", def: 30 }];
+  { id: "serverName", l: "Older Rem home name", def: 50 }, { id: "sectionName", l: "Section names (Sense)", def: 30 }];
 function lcCharLimits() { const v = lcJsonLs(LC_CHAR_LIMITS_KEY, null) || {}; return { on: !!v.on, fields: v.fields && typeof v.fields === "object" ? v.fields : {} }; }
 function lcCharLimitsSave(v) { try { localStorage.setItem(LC_CHAR_LIMITS_KEY, JSON.stringify({ on: !!v.on, fields: v.fields || {} })); } catch (e) {} try { window.dispatchEvent(new CustomEvent("looscid:limits")); } catch (e) {} }
 // Is this field using your own limit? (Custom character limits on, and this field's switch on.)
@@ -2918,7 +2918,7 @@ function LcSettingsHome({ s, navigate, onBack }) {
     lh(LcNpubLine, { np: np, id: "set-npub" })) : null;
   const go = function (it) { return lcSetRowO(it); };
   // Mode and Security sit together under the LooscidID card.
-  const top = [lcModeRow("set-row-mode", function () { navigate("settings_account", { tab: "server", from: "settings" }); })].concat(sec.map(go));
+  const top = [lcModeRow("set-row-mode", function () { navigate("settings_account", { tab: "connectionbase", from: "settings" }); })].concat(sec.map(go));
   let groups;
   if (mode === "default") {
     const by = function (ids) { return ids.map(function (k) { return items.find(function (it) { return it.id === k; }); }).filter(Boolean).map(go); };
@@ -3741,7 +3741,7 @@ const ID_PROVIDERS = [
   { id: "pubky", name: "Pubky", status: "soon", note: "coming soon",
     why: "Pubky login needs the Pubky Ring app and Pubky's WebAssembly SDK talking to a Pubky relay and homeserver. That isn't wired into Looscid yet." },
   { id: "activitypub", name: "Mastodon & fediverse", status: "ready", Panel: MastodonPanel,
-    why: "Logging in with Mastodon or another fediverse server means registering Looscid with your server, which needs a small Looscid server that doesn't exist yet." },
+    why: "Logging in with Mastodon or another fediverse server means registering Looscid with your server, which needs a small Looscid login server that doesn't exist yet." },
   { id: "atproto", name: "Bluesky and AT Protocol", status: "ready", Panel: BlueskyPanel,
     why: "Bluesky login uses AT Protocol OAuth, which needs Looscid's app details published on its website and a connection to your Bluesky server." },
   { id: "funkwhale", name: "Funkwhale", status: "ready", Panel: FunkwhalePanel },

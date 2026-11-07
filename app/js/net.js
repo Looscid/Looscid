@@ -1,21 +1,21 @@
-/* Looscid net.js: the Looscid server (Looscid Protocol v0) and bridges.
+/* Looscid net.js: Rem (the Looscid protocol, Rem v1, and its server) and bridges.
    Plain script (not a module). Everything it shares goes on window.Looscid.lcNet; see docs/protocol.md.
 
-   Nov 7 2026 (Carter: "Looscid gets its own protocol"): the Looscid server is the home of public Dreams. Each Dream you
+   Nov 7 2026 (Carter: "Merge Rem with the other protocol"): one protocol, Rem. Rem is the home of public Dreams. Each Dream you
    post with Audience Everyone is a small JSON event signed with your LooscidID key and sent to the server, which checks
    the signature before it keeps it. Nostr is a bridge you can turn on in Settings, LooscidID, Connectionbase
    ("Also share my Dreams to Nostr"): then the same signed Dream also goes to your Nostr relays. Mastodon and Bluesky are coming soon.
-   Rem sync (js/remsync.js) is separate and unchanged.
+   "Put your Dreams on Rem" and the older Rem home (Rem v0) are in js/remsync.js, shown in Connectionbase under Rem.
 
    localStorage keys:
    - looscid_bridges         which bridges are on, like {"nostr": true}. Missing means: Nostr stays on if you already
                              used Nostr (Dreams with a Nostr id, a relay list or a send queue), and is off for new people.
-   - looscid_net_queue       signed events waiting to reach the Looscid server (offline, server busy)
+   - looscid_net_queue       signed events waiting to reach Rem (offline, server busy)
    - looscid_net_blocks      people you blocked on the server: {handle: pubkey}, so Unblock in Privacy reaches it too
    - looscid_nostr_crossposted  Nostr ids of Dreams that really went to Nostr (so deleting one asks relays too) */
 (function (Looscid) {
 const API = "https://dbm-api.thebntlovver.workers.dev";
-const PROTOCOL_TAG = ["looscid", "0"];
+const PROTOCOL_TAG = ["looscid", "1"]; // Rem v1 (docs/protocol.md)
 const BRIDGES_KEY = "looscid_bridges", QUEUE_KEY = "looscid_net_queue", BLOCKS_KEY = "looscid_net_blocks", XPOST_KEY = "looscid_nostr_crossposted";
 // Bridges: add a row here when a new one is built. "soon" rows show as Coming soon and can't be turned on.
 const BRIDGES = [
@@ -88,7 +88,7 @@ async function signAction(tpl) {
 }
 function whyText(e) {
   const m = e && e.message;
-  return m === "locked" ? "Your key is locked. Enter your passcode in Settings, LooscidID first." : m === "nokey" ? "You need a LooscidID key for this. Make one in Settings, LooscidID." : "Couldn't reach the Looscid server. Try again in a bit.";
+  return m === "locked" ? "Your key is locked. Enter your passcode in Settings, LooscidID first." : m === "nokey" ? "You need a LooscidID key for this. Make one in Settings, LooscidID." : "Couldn't reach Rem. Try again in a bit.";
 }
 
 /* --- Feed --- */
@@ -110,7 +110,7 @@ async function report(nid, authorPk, reason) {
     const ev = await signAction({ kind: 1984, tags: tags.concat([PROTOCOL_TAG]) });
     const r = await call("POST", "/report", ev);
     if (r.ok) return { ok: true, say: "Reported. Thanks for keeping Looscid safe." + (r.body.hidden ? " This Dream is now hidden while it's checked." : "") };
-    return { ok: false, say: r.status === 404 ? "This Dream isn't on the Looscid server, so it can't be reported there." : (r.body && r.body.error === "you can't report your own Dream") ? "You can't report your own Dream." : "Couldn't send the report. Try again in a bit." };
+    return { ok: false, say: r.status === 404 ? "This Dream isn't on Rem, so it can't be reported there." : (r.body && r.body.error === "you can't report your own Dream") ? "You can't report your own Dream." : "Couldn't send the report. Try again in a bit." };
   } catch (e) { return { ok: false, say: whyText(e) }; }
 }
 async function sendBlock(pk, unblock) {
@@ -138,43 +138,39 @@ async function exportMine() {
   let after = 0, all = [];
   try {
     for (let i = 0; i < 50; i++) { const r = await call("GET", "/export?limit=500&author=" + st.pubkey + "&after=" + after); if (!r.ok) throw new Error("x"); all = all.concat(r.body.events || []); if (!r.body.next) break; after = r.body.next; }
-  } catch (e) { return { ok: false, say: "Couldn't reach the Looscid server. Try again in a bit." }; }
-  const file = { protocol: "looscid/0", exported_at: new Date().toISOString(), pubkey: st.pubkey, events: all };
+  } catch (e) { return { ok: false, say: "Couldn't reach Rem. Try again in a bit." }; }
+  const file = { protocol: "rem/1", exported_at: new Date().toISOString(), pubkey: st.pubkey, events: all };
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(file, null, 2)], { type: "application/json" }));
   a.download = "looscid-dreams-" + new Date().toISOString().slice(0, 10) + ".json"; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(function () { URL.revokeObjectURL(a.href); }, 5000);
-  return { ok: true, say: "Downloaded " + all.length + (all.length === 1 ? " signed event" : " signed events") + " from the Looscid server." };
+  return { ok: true, say: "Downloaded " + all.length + (all.length === 1 ? " signed event" : " signed events") + " from Rem." };
 }
 async function forgetMe() {
   try { const ev = await signAction({ kind: 21985, tags: [["action", "delete-my-data"], PROTOCOL_TAG] }); const r = await call("POST", "/forget", ev);
-    return r.ok ? { ok: true, say: "Deleted. The Looscid server no longer has your Dreams, blocks or reports. Dreams on this device stay." } : { ok: false, say: "Couldn't delete it. Try again in a bit." }; }
+    return r.ok ? { ok: true, say: "Deleted. Rem no longer has your Dreams, blocks or reports. Dreams on this device stay." } : { ok: false, say: "Couldn't delete it. Try again in a bit." }; }
   catch (e) { return { ok: false, say: whyText(e) }; }
 }
 async function health() { try { const r = await call("GET", "/health"); return r.ok; } catch (e) { return false; } }
 
 
 /* --- Settings, LooscidID, Connectionbase (Nov 7 2026, Carter: bridges live in LooscidID under "Connectionbase") ---
+   Only the connections: Rem (the home of your public Dreams: Put your Dreams on Rem and the older Rem home, from
+   js/remsync.js), then the bridges Nostr, Mastodon (soon) and Bluesky (soon). Download my Dreams and Delete my Rem data
+   are on the LooscidID page itself (LcRemData below, Carter Nov 7 6:10 PM).
    Same markup as the other LooscidID pages: h2.lid-label headings, lid-help text, lid-wide buttons, real checkboxes. */
 function LcConnectionbase({ go }) {
   const lh = React.createElement, useState = React.useState, useEffect = React.useEffect;
-  const [, setTick] = useState(0), [up, setUp] = useState(null), [msg, setMsg] = useState(""), [busy, setBusy] = useState(false), [asking, setAsking] = useState(false);
+  const [, setTick] = useState(0), [up, setUp] = useState(null), [msg, setMsg] = useState("");
   useEffect(function () { let live = true; health().then(function (ok) { if (live) setUp(ok); }); return function () { live = false; }; }, []);
   useEffect(function () { const f = function () { setTick(function (n) { return n + 1; }); }; window.addEventListener("looscid:bridges", f); return function () { window.removeEventListener("looscid:bridges", f); }; }, []);
   const say = function (t) { setMsg(t); if (Looscid.announce) Looscid.announce(t); };
-  const run = function (p) { setBusy(true); p.then(function (r) { setBusy(false); say(r.say); }, function () { setBusy(false); say("Something went wrong. Try again."); }); };
   const st = Looscid.lcNostr && Looscid.lcNostr.state ? Looscid.lcNostr.state() : { canDream: false };
   return lh(React.Fragment, null,
-    lh('h2', { className: "lid-label", id: "cb-server-h" }, "Looscid server"),
-    lh('p', { className: "lid-help" }, "The home of your public Dreams. Each Dream with Audience Everyone is signed with your LooscidID key and saved on the Looscid server, which checks the signature first. It's open source and uses the Looscid Protocol, so your Dreams can be downloaded and moved anytime."),
-    lh('p', { className: "lid-help", role: "status" }, up === null ? "Checking the Looscid server." : up ? "The Looscid server is online." : "Couldn't reach the Looscid server right now. Dreams wait on this device and go when it's back."),
-    !st.canDream ? lh('p', { className: "lid-help" }, "Make a LooscidID key to Dream to the Looscid server.") : null,
-    lh('button', { type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: function () { run(exportMine()); } }, "Download my Dreams"),
-    asking ? lh(React.Fragment, null,
-        lh('p', { className: "lid-help", id: "cb-forget-q" }, "Delete everything the Looscid server has for your key? That's your Dreams, ReDreams, blocks and reports there. Dreams on this device stay, and copies on Nostr relays aren't touched. This can't be undone."),
-        lh('button', { type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: function () { setAsking(false); run(forgetMe()); } }, "Yes, delete my server data"),
-        lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { setAsking(false); say("Nothing was deleted."); } }, "Cancel"))
-      : lh('button', { type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: function () { setAsking(true); } }, "Delete my Looscid data on the server"),
-    go ? lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { go("server"); } }, "Open Rem sync") : null,
+    lh('h2', { className: "lid-label", id: "cb-server-h" }, "Rem"),
+    lh('p', { className: "lid-help" }, "Rem is the Looscid protocol and its server: the home of your public Dreams. Each Dream with Audience Everyone is signed with your LooscidID key and saved on Rem, which checks the signature first. It's open source, so your Dreams can be downloaded and moved anytime."),
+    lh('p', { className: "lid-help", role: "status" }, up === null ? "Checking Rem." : up ? "Rem is online." : "Couldn't reach Rem right now. Dreams wait on this device and go when it's back."),
+    !st.canDream ? lh('p', { className: "lid-help" }, "Make a LooscidID key to Dream to Rem.") : null,
+    Looscid.LcServerPanel ? lh(Looscid.LcServerPanel, { go: go }) : null,
     lh('h2', { className: "lid-label", id: "cb-bridges-h" }, "Bridges"),
     lh('p', { className: "lid-help" }, "Bridges also share your public Dreams to other networks. They're off unless you turn them on."),
     lh('fieldset', { className: "lc-fs", id: "cb-bridges" },
@@ -183,14 +179,32 @@ function LcConnectionbase({ go }) {
         const on = !b.soon && bridgeOn(b.id);
         return lh('label', { key: b.id, className: "lc-radio" + (on ? " on" : "") },
           lh('input', { type: "checkbox", id: "cb-bridge-" + b.id, checked: on, disabled: !!b.soon,
-            onChange: function () { setBridge(b.id, !on); say(b.label + (on ? " is off. New Dreams go to Looscid only." : " is on. New public Dreams also go to " + b.label + ".")); } }),
+            onChange: function () { setBridge(b.id, !on); say(b.label + (on ? " is off. New Dreams go to Rem only." : " is on. New public Dreams also go to " + b.label + ".")); } }),
           lh('span', null, b.soon ? b.label + ": Coming soon" : "Also share my Dreams to " + b.label));
       }))),
     BRIDGES.filter(function (b) { return !b.soon && b.note; }).map(function (b) { return lh('p', { key: b.id, className: "lid-help" }, b.label + ": " + b.note); }),
     msg ? lh('p', { className: "lid-help", role: "status" }, msg) : null);
 }
 
+/* --- On the LooscidID page itself: Download my Dreams, Delete my Rem data (Carter, Nov 7 6:10 PM) --- */
+function LcRemData() {
+  const lh = React.createElement, useState = React.useState;
+  const [msg, setMsg] = useState(""), [busy, setBusy] = useState(false), [asking, setAsking] = useState(false);
+  const say = function (t) { setMsg(t); if (Looscid.announce) Looscid.announce(t); };
+  const run = function (p) { setBusy(true); p.then(function (r) { setBusy(false); say(r.say); }, function () { setBusy(false); say("Something went wrong. Try again."); }); };
+  return lh('section', { className: "lid-panel lid-i27-card", "aria-labelledby": "lid-remdata-h" },
+    lh('h2', { className: "lid-label", id: "lid-remdata-h" }, "Your Dreams on Rem"),
+    lh('p', { className: "lid-help" }, "Download every Dream Rem has for your key, as the original signed file, or delete all of it."),
+    lh('button', { type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: function () { run(exportMine()); } }, "Download my Dreams"),
+    asking ? lh(React.Fragment, null,
+        lh('p', { className: "lid-help", id: "cb-forget-q" }, "Delete everything Rem has for your key? That's your Dreams, ReDreams, blocks and reports there. Dreams on this device stay, and copies on Nostr relays aren't touched. This can't be undone."),
+        lh('button', { type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: function () { setAsking(false); run(forgetMe()); } }, "Yes, delete my Rem data"),
+        lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { setAsking(false); say("Nothing was deleted."); } }, "Cancel"))
+      : lh('button', { type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: function () { setAsking(true); } }, "Delete my Rem data"),
+    msg ? lh('p', { className: "lid-help", role: "status" }, msg) : null);
+}
+
 Looscid.lcNet = { API: API, PROTOCOL_TAG: PROTOCOL_TAG, BRIDGES: BRIDGES, bridges: bridges, bridgeOn: bridgeOn, setBridge: setBridge, markCrossposted: markCrossposted, wasCrossposted: wasCrossposted,
   ingest: ingest, flush: flush, feed: feed, userDreams: userDreams, REPORT_REASONS: REPORT_REASONS, report: report, block: block, unblockHandle: unblockHandle, blockedPk: blockedPk,
-  exportMine: exportMine, forgetMe: forgetMe, health: health, LcConnectionbase: LcConnectionbase };
+  exportMine: exportMine, forgetMe: forgetMe, health: health, LcConnectionbase: LcConnectionbase, LcRemData: LcRemData };
 })(window.Looscid = window.Looscid || {});
