@@ -2,6 +2,17 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
+## Roadmap and changelog: one page (no new build yet)
+
+Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).
+
+Asked for by Carter: "One full page. Put in Changelog so old links work."
+
+- The changelog page is now the roadmap and changelog page, at the same address. The roadmap comes first, with Now, Next and Later, and then every update so far, under Done.
+- Old changelog links still work, and a link to a version, like changelog/#191, still opens that version.
+- The footer link still says Changelog.
+- The developer roadmap (docs/dev/ROADMAP.md) has a new Circles and Discord section with the same list.
+
 ## Credits: link to developer's homepage (no new build yet)
 
 Added November 2, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build number doesn't change.

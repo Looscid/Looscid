@@ -2,14 +2,15 @@
 <html lang="en-US">
 <head>
 <meta charset="UTF-8"/>
-<title>Looscid changelog</title>
-<!-- #161 (Round 7.24): the changelog page, with its own link preview. Absolute addresses, as previewers need; they come
+<title>Looscid roadmap and changelog</title>
+<!-- #161 (Round 7.24): the changelog page, with its own link preview. Nov 7 2026 (Carter: "One full page. Put in Changelog so old links
+     work."): the roadmap lives here too, first, and the changelog is its Done section. The card picture still says "Changelog". Absolute addresses, as previewers need; they come
      first, right after the charset. -->
-<meta name="description" content="Every Looscid update, from the first listed version to the newest, with what changed in each.">
+<meta name="description" content="What's coming to Looscid next, and every Looscid update so far, with what changed in each.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Looscid">
-<meta property="og:title" content="Changelog - Looscid">
-<meta property="og:description" content="Every Looscid update, from the first listed version to the newest, with what changed in each.">
+<meta property="og:title" content="Roadmap and Changelog - Looscid">
+<meta property="og:description" content="What's coming to Looscid next, and every Looscid update so far, with what changed in each.">
 <meta property="og:url" content="https://looscid.github.io/Looscid/changelog/">
 <meta property="og:image" content="https://looscid.github.io/Looscid/assets/cards/changelog.png?v=nl1">
 <meta property="og:image:secure_url" content="https://looscid.github.io/Looscid/assets/cards/changelog.png?v=nl1">
@@ -19,8 +20,8 @@
 <meta property="og:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Changelog - Looscid”">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@Looscid">
-<meta name="twitter:title" content="Changelog - Looscid">
-<meta name="twitter:description" content="Every Looscid update, from the first listed version to the newest, with what changed in each.">
+<meta name="twitter:title" content="Roadmap and Changelog - Looscid">
+<meta name="twitter:description" content="What's coming to Looscid next, and every Looscid update so far, with what changed in each.">
 <meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/cards/changelog.png?v=nl1">
 <meta name="twitter:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Changelog - Looscid”">
 <link rel="icon" type="image/png" sizes="32x32" href="https://looscid.github.io/Looscid/assets/icons/favicon-32.png?v=nl1">
@@ -37,7 +38,10 @@ body{margin:0;background:var(--bg);color:var(--tx);font:17px/1.55 system-ui,-app
 .wrap{max-width:760px;margin:0 auto;padding:24px 16px 64px}
 a{color:var(--ac)}
 h1{font-size:1.8em;margin:0 0 4px}
-h2{font-size:1.3em;margin:24px 0 4px}
+h2{font-size:1.3em;margin:28px 0 4px}
+h3{font-size:1.1em;margin:18px 0 4px}
+.rm ul{padding-left:1.2em}
+.rm li{margin:8px 0;overflow-wrap:anywhere}
 .sub{color:var(--tx2);margin:0 0 16px}
 .slogan{font-style:italic;margin:0 0 6px}
 .links{display:flex;flex-wrap:wrap;gap:8px 16px;margin:0 0 20px;padding:0;list-style:none}
@@ -63,13 +67,44 @@ code{font-size:.92em;background:var(--sf);border:1px solid var(--bd);border-radi
 <main class="wrap" id="main">
 <!-- Build 194: the Looscid logo. Nov 1 2026 (Carter, 3:23 PM: "alt tex on the logo"): it reads "Looscid". 4:03 PM ("Describe it lol"): it says what it looks like. -->
 <img class="logo" src="../assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="64" height="64">
-<h1>Looscid changelog</h1>
+<h1>Looscid roadmap and changelog</h1>
 <p class="slogan">Just Dream</p>
-<p class="sub">Every listed Looscid update, from the first to the newest. Versions are YEAR.FEATURES.FIXES (BUILD).</p>
+<p class="sub">What Looscid has now, what's coming next, what's further out, and every update so far. Plans can change, and nothing coming has a date.</p>
 <ul class="links">
 <li><a href="../" title="Goes to Home">Open Looscid</a></li>
 <li><a href="https://github.com/Looscid/Looscid/blob/main/CHANGELOG.md" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Changelog on GitHub</a></li>
+<li><a href="https://github.com/Looscid/Looscid/blob/main/docs/dev/ROADMAP.md" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Developer roadmap on GitHub</a></li>
 </ul>
+<!-- Nov 7 2026: the roadmap. Plain headings, lists and text, no scripts. The developer version is docs/dev/ROADMAP.md; keep the two in step. -->
+<div class="rm">
+<h2 id="now">Now</h2>
+<p>Live today.</p>
+<ul>
+<li>Looscid in your browser: Dreams and Replies, Discover, Alerts, Soundpacks and settings backup.</li>
+<li>LooscidID: your account, made on your device. Add a login method, like Nostr, Mastodon or Bluesky, to use it on other devices.</li>
+<li>The Help Center, with step-by-step guides.</li>
+<li>The Looscid Discord, with its own channels for 13 languages.</li>
+<li>Faith channels on the Discord: pick what you celebrate (optional), and you get a private channel with Dreamors who share your language and faith.</li>
+<li>Holiday messages, starting November 8: LooscidBOT wishes each language and faith happy holidays on its own holidays, in its own language, with no pings.</li>
+</ul>
+<h2 id="next">Next</h2>
+<h3>Circles and Discord</h3>
+<ul>
+<li>LooscidID profiles: sign up, log in, and add your language and what you celebrate. Both are optional.</li>
+<li>Exploring: your Nostr key as your LooscidID, so there's no password to remember or leak.</li>
+<li>Connect LooscidID to Discord: Linked Roles sync your language and faith roles automatically. Change them in Looscid once, and Discord follows.</li>
+<li>Looscid Circle as a Discord requirement: a server can ask for a Looscid Circle in its Linked Roles settings.</li>
+<li>Import from Discord: a button in Settings that takes your Discord data download and brings it into Looscid.</li>
+<li>Server copy: LooscidBOT saves a server's channels, roles, permissions and join questions, so you can import them into a Looscid Circle.</li>
+<li>Friend suggestions: you can always add a friend yourself, and that never depends on anyone else. On top of that, if you and another Dreamor were in the same server, Looscid can suggest you add each other. It's opt-in, both of you need to link your LooscidID, and it only ever suggests. It never adds anyone for you.</li>
+</ul>
+<h2 id="later">Later</h2>
+<ul>
+<li>Moving everyone from the Looscid Discord into Looscid itself, with Circles for every language and faith. LooscidBOT's holiday code comes along.</li>
+</ul>
+</div>
+<h2 id="done">Done</h2>
+<p class="sub">Every listed Looscid update, from the first to the newest. Versions are YEAR.FEATURES.FIXES (BUILD).</p>
 <div id="picker"><p>Loading the changelog…</p></div>
 <section id="notes" aria-labelledby="ver-h"></section>
 </main>
@@ -87,6 +122,6 @@ code{font-size:.92em;background:var(--sf);border:1px solid var(--bd);border-radi
 <p class="sf-bottom">© 2026 Looscid <span aria-hidden="true">·</span> Open source under the <a href="/Looscid/Legal/" title="Goes to Legal">Looscid Public License</a> <span aria-hidden="true">·</span> Made by Chaotic Carter</p>
 </div>
 </footer>
-<script src="changelog.js?v=ht1"></script>
+<script src="changelog.js?v=rm1"></script>
 </body>
 </html>

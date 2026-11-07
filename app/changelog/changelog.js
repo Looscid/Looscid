@@ -1,4 +1,4 @@
-/* Looscid changelog page (#161, Round 7.24). Reads CHANGELOG.md (the site's copy, put there when the site is published;
+/* Looscid changelog page (#161, Round 7.24; since Nov 7 2026 the Done section of the roadmap and changelog page). Reads CHANGELOG.md (the site's copy, put there when the site is published;
    GitHub's copy if that's missing) and shows one version at a time. The version is picked with one menu (pop-up) button
    that lists every version from the first to the newest. #looscid-live is the only announcer; focus stays on the button. */
 (function () {
@@ -60,7 +60,8 @@
   function name(v) { var old = v.version ? "Looscid " + v.version + " (" + v.build + ")" : "Build " + v.build; return v.codename ? v.codename + ": " + old : old; }
   function show(vs, i) {
     var v = vs[i]; notes.textContent = "";
-    notes.appendChild(el("h2", { id: "ver-h" }, [name(v) + (i === vs.length - 1 ? ", the newest" : "")]));
+    // Nov 7 2026: an h3 now, under the page's "Done" heading (the roadmap comes first, then the changelog).
+    notes.appendChild(el("h3", { id: "ver-h" }, [name(v) + (i === vs.length - 1 ? ", the newest" : "")]));
     v.blocks.forEach(function (b, k) {
       if (b.kind === "p") notes.appendChild(el("p", { "class": k === 0 && /^(Version \S+, r|R)eleased /.test(b.text) ? "when" : null }, inline(b.text)));
       else notes.appendChild(el("ul", {}, b.items.map(function (t) { return el("li", {}, inline(t)); })));
@@ -69,7 +70,8 @@
   }
   function build(vs) {
     var at = vs.length - 1, want = +(location.hash || "").slice(1);
-    vs.forEach(function (v, i) { if (v.build === want) at = i; });
+    var linked = false;
+    vs.forEach(function (v, i) { if (v.build === want) { at = i; linked = true; } });
     picker.textContent = "";
     var wrap = el("div", { "class": "mb" }), open = false;
     // Nov 1 2026 (Carter): a title hint, read by VoiceOver after the name ("Version: ..."). No aria-describedby.
@@ -108,6 +110,8 @@
     label(); wrap.appendChild(btn); picker.appendChild(wrap);
     picker.appendChild(el("p", { "class": "sub", style: "margin-top:8px" }, [vs.length + " versions listed, from " + name(vs[0]) + " to " + name(vs[vs.length - 1]) + "."]));
     show(vs, at);
+    // Nov 7 2026: the roadmap is above the changelog now, so an old link to a version (changelog/#191) still lands on it.
+    if (linked) { var d = document.getElementById("done"); if (d && d.scrollIntoView) d.scrollIntoView(); }
   }
   function get(url) { return fetch(url, { cache: "no-cache" }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); }); }
   get("../CHANGELOG.md").catch(function () { return get("https://raw.githubusercontent.com/Looscid/Looscid/main/CHANGELOG.md"); })

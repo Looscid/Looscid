@@ -96,6 +96,24 @@ Primary hosting is GitHub Pages at `https://looscid.github.io/Looscid/`. Deploym
 
 X: @Looscid
 
+## Circles and Discord
+
+The public version of this list is the top of the roadmap and changelog page on the site (app/changelog/, looscid.github.io/Looscid/changelog/): Now, Next and Later, then the changelog as Done. Keep the two in step.
+
+Now: the Looscid Discord has its own channels for 13 languages, optional faith channels (only Dreamors with both that language and that faith see them; LooscidBOT syncs the combined roles), and LooscidBOT holiday messages for each language and faith, with no pings (starting November 8, 2026).
+
+Next:
+
+- LooscidID profiles: sign up, log in, and an optional language and "what you celebrate" on the profile.
+- Exploring: the Dreamor's Nostr key as the LooscidID itself, so there is no password to store.
+- Discord Linked Roles: a Dreamor connects their LooscidID in Discord, Looscid tells Discord their language and faith, and Discord gives the roles. Change it in Looscid once and Discord follows.
+- A Looscid Circle as a Linked Roles requirement (role settings, Links, add Looscid).
+- Import from Discord: a Settings button that takes the Dreamor's own Discord data download.
+- Server copy: LooscidBOT saves a server's channels, roles, permissions and join questions to one file, and a Looscid Circle imports it. The bot uses its own role (Read Message History for messages), never a person's account.
+- Friend suggestions: opt-in, only when both Dreamors linked their LooscidID, suggestion only, never added automatically. Adding a friend directly never depends on anyone (no Admin, no setting): two Dreamors can always add each other themselves.
+
+Later: move from the Discord into Looscid itself, with Circles for every language and faith. LooscidBOT's holiday code comes along.
+
 ## Discover: navigation and refine decisions
 
 These decisions guide the next navigation, Feed, Discover, and catalog changes; checkboxes distinguish shipped work from planned work.
