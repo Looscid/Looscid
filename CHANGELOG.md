@@ -2,6 +2,16 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
+## New footer: Get help and Project (no new build yet)
+
+Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).
+
+Asked for by Carter: a footer with Get help and Project, and the build number in it.
+
+- The footer on the Help Center, the doc pages, the changelog and the status page has five groups now, each with a heading, so VoiceOver can jump to them by heading: Get help (Looscid Home, Help Home, Getting Started, Looscid Basics course, Accessibility, Contact Us, Send Feedback), Project (Roadmap & Changelog, Status, Docs, Contributing, Source code, Issues), Looscid (About, Our Story, Credits), Legal and Say hi.
+- Nothing was taken away, and every link is in one group only. Status is new in the footer.
+- The bottom line ends with the build, like "Looscid 2026.138.57 (195)". It comes from the same file the app checks for updates.
+
 ## Go to menu in the Help Center (no new build yet)
 
 Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).

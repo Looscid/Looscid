@@ -9,7 +9,7 @@
 .sf-name{font-weight:800;font-size:18px;color:var(--sf-tx)}
 .sf-tag{flex-basis:100%;font-size:15px}
 .sf-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,9.5rem),1fr));gap:8px 24px}
-.sf-col h3{margin:12px 0 4px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--sf-tx)}
+.sf-col h2,.sf-col h3{margin:12px 0 4px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--sf-tx)}
 .sf-col ul{list-style:none;margin:0;padding:0}
 .sf-col a,.sf-bottom a{color:var(--sf-link);text-decoration:none}
 .sf-col a{display:flex;align-items:center;min-height:44px;font-size:15px}

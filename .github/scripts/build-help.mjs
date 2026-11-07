@@ -31,7 +31,23 @@ const routes = new Set([...coreSrc.slice(coreSrc.indexOf("const LC_ROUTES = ["),
    Only links that already exist; external ones say they open in a new tab. */
 /* Nov 1 2026 (Carter, 2:43 PM): links to other sites carry a title hint, "Go to GitHub", the way Ableton's footer does.
    The link text stays the name, so VoiceOver reads the title as a hint after a pause. No aria-describedby. */
-const SITE_FOOTER = "<footer class=\"sf\" aria-labelledby=\"sf-title\">\n<h2 id=\"sf-title\" class=\"sf-sr\">Footer</h2>\n<div class=\"sf-in\">\n<p class=\"sf-brand\"><img src=\"/Looscid/assets/icons/icon-512.png?v=nl1\" alt=\"Looscid logo: a white open ring with a dot in the middle, on blue\" role=\"img\" aria-label=\"Looscid logo: a white open ring with a dot in the middle, on blue\" width=\"28\" height=\"28\"><span class=\"sf-name\" aria-hidden=\"true\">Looscid</span><span class=\"sf-tag\">Just Dream. Open source and local first.</span></p>\n<div class=\"sf-cols\">\n<section class=\"sf-col\" aria-labelledby=\"sf-h-looscid\"><h3 id=\"sf-h-looscid\">Looscid</h3><ul><li><a href=\"/Looscid/\">Home</a></li><li><a href=\"/Looscid/About/\">About</a></li><li><a href=\"/Looscid/Our-Story/\">Our Story</a></li><li><a href=\"/Looscid/changelog/\">Changelog</a></li><li><a href=\"/Looscid/Credits/\">Credits</a></li></ul></section>\n<section class=\"sf-col\" aria-labelledby=\"sf-h-help\"><h3 id=\"sf-h-help\">Help</h3><ul><li><a href=\"/Looscid/help/\">Help Center</a></li><li><a href=\"/Looscid/help/getting-started/\">Getting Started</a></li><li><a href=\"/Looscid/help/looscid-basics/\">Looscid Basics course</a></li><li><a href=\"/Looscid/help/contact/\">Contact Us</a></li><li><a href=\"/Looscid/Feedback/\">Send Feedback</a></li></ul></section>\n<section class=\"sf-col\" aria-labelledby=\"sf-h-dev\"><h3 id=\"sf-h-dev\">Developers</h3><ul><li><a href=\"https://github.com/Looscid/Looscid\" title=\"Go to GitHub\" target=\"_blank\" rel=\"noopener noreferrer\">Source code</a></li><li><a href=\"/Looscid/help/#h-building\">Docs</a></li><li><a href=\"/Looscid/help/dev/contributing/\">Contributing</a></li><li><a href=\"/Looscid/help/dev/accessibility/\">Accessibility</a></li><li><a href=\"https://github.com/Looscid/Looscid/issues\" title=\"Go to GitHub\" target=\"_blank\" rel=\"noopener noreferrer\">Issues</a></li></ul></section>\n<section class=\"sf-col\" aria-labelledby=\"sf-h-legal\"><h3 id=\"sf-h-legal\">Legal</h3><ul><li><a href=\"/Looscid/Terms/\">Terms</a></li><li><a href=\"/Looscid/Privacy/\">Privacy</a></li><li><a href=\"/Looscid/Rules/\">Rules</a></li><li><a href=\"/Looscid/Child-Safety/\">Child Safety</a></li><li><a href=\"/Looscid/Legal/\">License</a></li></ul></section>\n<section class=\"sf-col\" aria-labelledby=\"sf-h-hi\"><h3 id=\"sf-h-hi\">Say hi</h3><ul><li><a href=\"https://github.com/Looscid\" title=\"Go to GitHub\" target=\"_blank\" rel=\"noopener noreferrer\">GitHub</a></li><li><a href=\"https://x.com/Looscid\" title=\"Go to X\" target=\"_blank\" rel=\"noopener noreferrer\">X</a></li><li><a href=\"https://www.youtube.com/@Looscid\" title=\"Go to YouTube\" target=\"_blank\" rel=\"noopener noreferrer\">YouTube</a></li><li><a href=\"https://discord.gg/M6xrD8EBXU\" title=\"Go to Discord\" target=\"_blank\" rel=\"noopener noreferrer\">Discord</a></li></ul></section>\n</div>\n<p class=\"sf-bottom\">© 2026 Looscid <span aria-hidden=\"true\">·</span> Open source under the <a href=\"/Looscid/Legal/\">Looscid Public License</a> <span aria-hidden=\"true\">·</span> Made by Chaotic Carter, co-written with Tab</p>\n</div>\n</footer>";
+/* Nov 7 2026 (Carter approved: Get help and Project columns, the build in the bottom line): the footer has five groups,
+   each with its own h2 so VoiceOver can jump by heading: Get help, Project, Looscid, Legal and Say hi. Nothing was taken
+   away; every link is in one group only. The build comes from app/version.json, the file the app's update check reads,
+   written the way the app writes it ("Looscid 2026.138.57 (195)"). This builder also writes the footer into
+   app/changelog/index.html and app/status.html, so a new build only needs this script run again (--check catches it). */
+const VJ = JSON.parse(fs.readFileSync(path.join(APP, "version.json"), "utf8"));
+const BUILD_TEXT = "Looscid " + VJ.version + " (" + VJ.build + ")";
+const sfLi = (href, text) => '<li><a href="' + href + '">' + text + "</a></li>";
+const sfExt = (href, text, site) => '<li><a href="' + href + '" title="Go to ' + site + '" target="_blank" rel="noopener noreferrer">' + text + "</a></li>";
+const sfCol = (id, title, items) => '<section class="sf-col" aria-labelledby="sf-h-' + id + '"><h2 id="sf-h-' + id + '">' + title + "</h2><ul>" + items.join("") + "</ul></section>";
+const SITE_FOOTER = "<footer class=\"sf\">\n<div class=\"sf-in\">\n<p class=\"sf-brand\"><img src=\"/Looscid/assets/icons/icon-512.png?v=nl1\" alt=\"Looscid logo: a white open ring with a dot in the middle, on blue\" role=\"img\" aria-label=\"Looscid logo: a white open ring with a dot in the middle, on blue\" width=\"28\" height=\"28\"><span class=\"sf-name\" aria-hidden=\"true\">Looscid</span><span class=\"sf-tag\">Just Dream. Open source and local first.</span></p>\n<div class=\"sf-cols\">\n" + [
+  sfCol("help", "Get help", [sfLi("/Looscid/", "Looscid Home"), sfLi("/Looscid/help/", "Help Home"), sfLi("/Looscid/help/getting-started/", "Getting Started"), sfLi("/Looscid/help/looscid-basics/", "Looscid Basics course"), sfLi("/Looscid/help/dev/accessibility/", "Accessibility"), sfLi("/Looscid/help/contact/", "Contact Us"), sfLi("/Looscid/Feedback/", "Send Feedback")]),
+  sfCol("project", "Project", [sfLi("/Looscid/changelog/", "Roadmap &amp; Changelog"), sfLi("/Looscid/status.html", "Status"), sfLi("/Looscid/help/#h-building", "Docs"), sfLi("/Looscid/help/dev/contributing/", "Contributing"), sfExt("https://github.com/Looscid/Looscid", "Source code", "GitHub"), sfExt("https://github.com/Looscid/Looscid/issues", "Issues", "GitHub")]),
+  sfCol("looscid", "Looscid", [sfLi("/Looscid/About/", "About"), sfLi("/Looscid/Our-Story/", "Our Story"), sfLi("/Looscid/Credits/", "Credits")]),
+  sfCol("legal", "Legal", [sfLi("/Looscid/Terms/", "Terms"), sfLi("/Looscid/Privacy/", "Privacy"), sfLi("/Looscid/Rules/", "Rules"), sfLi("/Looscid/Child-Safety/", "Child Safety"), sfLi("/Looscid/Legal/", "License")]),
+  sfCol("hi", "Say hi", [sfExt("https://github.com/Looscid", "GitHub", "GitHub"), sfExt("https://x.com/Looscid", "X", "X"), sfExt("https://www.youtube.com/@Looscid", "YouTube", "YouTube"), sfExt("https://discord.gg/M6xrD8EBXU", "Discord", "Discord")])
+].join("\n") + "\n</div>\n<p class=\"sf-bottom\">© 2026 Looscid <span aria-hidden=\"true\">·</span> Open source under the <a href=\"/Looscid/Legal/\">Looscid Public License</a> <span aria-hidden=\"true\">·</span> Made by Chaotic Carter, co-written with Tab <span aria-hidden=\"true\">·</span> " + BUILD_TEXT + "</p>\n</div>\n</footer>";
 // The Help Center home's topic icons (decoration only; the words say everything).
 const ICONS = {
   "getting-started": '<path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/>',
@@ -120,7 +136,7 @@ function page({ slug, title, desc, body, depth, crumbs }) {
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <link rel="stylesheet" href="${up}help.css?v=hc6">
-<link rel="stylesheet" href="${up}../assets/site-footer.css?v=1">
+<link rel="stylesheet" href="${up}../assets/site-footer.css?v=2">
 </head>
 <body>
 <div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
@@ -254,6 +270,15 @@ files["search.js"] = "/* Made by .github/scripts/build-help.mjs from app/js/help
     .concat(H.courses.map(c => ({ u: c.id + "/", t: c.t, s: c.s, c: "Course", k: "" })))
     .concat([{ u: "contact/", t: H.contact.t, s: H.contact.s, c: "Contact", k: "report a bug feedback discord github issue" }])) + ";\n";
 
+// The same footer on the changelog and the status page (Nov 7 2026). Only the footer is replaced; the rest of each page is its own.
+const SITE_PAGES = { "changelog/index.html": SITE + "changelog/", "status.html": SITE + "status.html" };
+const siteFiles = {};
+for (const [rel, url] of Object.entries(SITE_PAGES)) {
+  const old = fs.readFileSync(path.join(APP, rel), "utf8");
+  if (!/<footer class="sf"[\s\S]*?<\/footer>/.test(old)) { problems.push("no site footer in app/" + rel); continue; }
+  siteFiles[rel] = old.replace(/<footer class="sf"[\s\S]*?<\/footer>/, () => hintLinks(SITE_FOOTER, url, { help: HINT_HELP }));
+}
+
 // "post" is never a word in Looscid (standing rule).
 // The docs pages (dev/) are the repo's docs as they're written: TERMINOLOGY.md itself names the word, and code samples use it.
 for (const [rel, html] of Object.entries(files)) if (!rel.startsWith("dev/") && /\bpost(s|ed|ing)?\b/i.test(html.replace(/method="post"/gi, ""))) problems.push("the word post in " + rel);
@@ -276,6 +301,12 @@ for (const [rel, html] of Object.entries(files)) {
   if (old === html) continue;
   if (CHECK) { stale.push(rel); continue; }
   fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, html);
+}
+for (const [rel, html] of Object.entries(siteFiles)) {
+  const f = path.join(APP, rel);
+  if (fs.readFileSync(f, "utf8") === html) continue;
+  if (CHECK) { stale.push("../" + rel); continue; }
+  fs.writeFileSync(f, html);
 }
 if (CHECK && stale.length) { console.error("Help Center pages are out of date. Run node .github/scripts/build-help.mjs\n- " + stale.join("\n- ")); process.exit(1); }
 console.log((CHECK ? "Help Center is up to date: " : "Help Center written: ") + Object.keys(files).length + " files in app/help-center/");
