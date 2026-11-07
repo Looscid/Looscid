@@ -27,6 +27,21 @@ document.addEventListener("DOMContentLoaded", function () {
   var ld = document.getElementById("lc-boot-load"), lines = ["Dreaming\u2026", "Waking up the relays\u2026", "Fluffing the pillows\u2026", "Counting sheep\u2026", "Almost there, probably\u2026"], li = 0;
   var rm = false; try { rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
   if (ld && !rm) { var iv = setInterval(function () { if (!document.body.contains(ld)) { clearInterval(iv); return; } li = (li + 1) % lines.length; ld.textContent = lines[li]; }, 1500); }
+  /* Nov 7 2026 (Grok's stranger path: no "Starting… Dreaming…" limbo without status): if the startup screen is still up
+     after 8 seconds, say so in plain words (a status line VoiceOver reads), and after 25 seconds offer a Reload button. */
+  setTimeout(function () {
+    if (!ld || !document.body.contains(ld)) return;
+    var sub = ld.parentNode && ld.parentNode.parentNode; if (!sub) return;
+    var st = document.createElement("p"); st.className = "lc-boot-status"; st.setAttribute("role", "status");
+    st.textContent = "Still starting. Slow connection, probably. Hang on a few more seconds.";
+    sub.appendChild(st);
+    setTimeout(function () {
+      if (!document.body.contains(ld)) return;
+      st.textContent = "This is taking way too long. Reloading usually fixes it.";
+      var b = document.createElement("button"); b.type = "button"; b.className = "btn bp"; b.textContent = "Reload Looscid";
+      b.onclick = function () { location.reload(); }; sub.appendChild(b);
+    }, 17000);
+  }, 8000);
   if (!window.LOOSCID_FRAMED) return;
   var root = document.getElementById("root"); if (root) root.textContent = "";
   var box = document.createElement("main"); box.id = "lc-framed"; box.className = "lc-framed";

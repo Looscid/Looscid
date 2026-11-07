@@ -1960,7 +1960,13 @@ function AboutSettings({navigate}) {
       lh(A11ySwitch, { id: "about-autoupdate", label: "Automatically check for updates", on: auto, onToggle: function () { lcUpdateAutoSet(!auto); tick(function (x) { return x + 1; }); announce("Automatically check for updates: " + (!auto ? "on" : "off") + "."); } }),
       devOn ? lh('button', { type: "button", id: "about-dev", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { navigate("settings_dev"); } }, "Dev menu") : null),
     lh('section', { "aria-labelledby": "about-lead", style: { padding: "8px 16px 12px" } },
-      lh('h2', { id: "about-lead", className: "lid-sub" }, "About Looscid"), lh('p', { className: "lid-help" }, "Draft placeholder: I'll write this myself."),
+      lh('h2', { id: "about-lead", className: "lid-sub" }, "About Looscid"),
+      // Nov 7 2026 (Carter, 6:38 PM positioning): ideas and Dreams first, your data, open source and no ads, Rem. Accessibility is a perk line.
+      lh('p', { className: "lid-help" }, "A place for your ideas and your Dreams. Your data stays yours: download it or delete it any time. Open source, no ads. Looscid runs on its own protocol, Rem, and can cross-post to Nostr if you want."),
+      lh('p', { className: "lid-help" }, "Works great with screen readers too."),
+      // Nov 7 2026 (Carter: "our story can go in the About link"): the story, in Carter's own words, under its own heading.
+      lh('h3', { id: "about-story", className: "lid-sub" }, "Our story"),
+      lh('p', { className: "lid-help" }, "Draft placeholder: I'll write this myself."),
       lh('p', { className: "lid-help" }, "I was on my iPod when I started wanting accessible versions of things. I wanted an accessible email and phone-number thing too, but I couldn't find one. I didn't build that one. My wish list, apparently, had other plans."),
       lh('p', { className: "lid-help" }, "Later, when I got into social media, I wanted an accessible social platform with Nostr and customization as part of identity. All those ideas kept growing into one thing: Looscid."),
       lh('p', { className: "lid-help" }, "Looscid is a free, open source browser-based OS experience with a social app. It's built to work the way you do: with a screen reader, a braille display, a keyboard, a switch or just your thumbs. Your data stays on your device, and your LooscidID is yours."),
@@ -1968,6 +1974,14 @@ function AboutSettings({navigate}) {
       lh('p', { className: "lid-help" }, "Looscid is a side project, not a company. No investors, no ads, no growth team. Just me, and Tab, my digital assistant, who helps me write and test the code."),
       lh('p', { className: "lid-help" }, "I want Nostr and customization to make identity your own, because your account should belong to you, not to a company that can switch it off. And it's accessibility first: VoiceOver, TalkBack, NVDA, braille displays, keyboards and switches come first, not last."),
       lh('p', { className: "lid-help" }, "I build it in the open. Every change is on GitHub, every bug I know about is listed below, and you can tell me what's broken any time."),
+      lh('button', { type: "button", id: "about-our-story", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { navigate("hour_story", "settings_about"); } }, "Read the whole story"),
+      // Nov 7 2026 (Carter): Looscid's socials, the same links as the Looscid org profile on GitHub.
+      lh('h3', { id: "about-social", className: "lid-sub" }, "Find Looscid"),
+      lh('ul', { className: "mlist", "aria-labelledby": "about-social" },
+        [["discord", "Discord: join the community", "https://discord.gg/M6xrD8EBXU"], ["youtube", "YouTube: @Looscid", "https://youtube.com/@Looscid"],
+         ["x", "X: @Looscid", "https://x.com/Looscid"], ["github", "GitHub: the source code", "https://github.com/Looscid/Looscid"]].map(function (s) {
+          return lh('li', { key: s[0], className: "mli" }, lh('a', { id: "about-social-" + s[0], className: "lc-link", href: s[2], target: "_blank", rel: "noopener noreferrer", style: { display: "block", padding: "8px 0" } }, s[1]));
+        })),
       // Round 6.6 (2three1y 5:24 and 5:25 PM): everything that was in More's About submenu is on this one page.
       // Terms, Privacy, Community rules and the license are under Legal.
       lh('ul', { className: "mlist", "aria-label": "Feedback, legal and the welcome intro" },
@@ -3050,9 +3064,17 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   const linkedN = lcGetIds().length;
   const Hero = function (g, c, t, d) { return lh('div', { className: "lid-i27-hero" }, lh('span', { className: "lc-i27-ic lid-i27-hero-ic", style: { background: c }, "aria-hidden": "true" }, lh(Looscid.LcI27Glyph, { g: g, size: 30 })), lh('p', { className: "lid-i27-hero-t" }, t), lh('p', { className: "lid-i27-hero-d" }, d)); };
   let panel;
-  if (tab === "home") panel = lh(React.Fragment, null, lh('ul', { className: "mlist lc-i27-list", role: "list", id: "lid-rows" }, R([
+  if (tab === "home") panel = lh(React.Fragment, null,
+    // Nov 7 2026 (Guest mode): a Guest has no LooscidID yet; one plain button makes it, and Restore brings one back.
+    Looscid.lcIsGuest && Looscid.lcIsGuest() ? lh('div', { id: "lid-guest", className: "lc-card", style: { padding: 14, margin: "8px 0 12px" } },
+      lh('h2', null, "You're a Guest"),
+      lh('p', null, "No LooscidID on this device yet. Guests can look around everything; to Dream, reply or quote, make a LooscidID. It's made on this device, no email or phone number."),
+      lh('div', { style: { display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 } },
+        lh('button', { type: "button", id: "lid-guest-create", className: "btn bp", onClick: function () { if (Looscid.lcCreateLooscidID) Looscid.lcCreateLooscidID(); } }, "Create a LooscidID"),
+        lh('button', { type: "button", className: "btn bgb", onClick: function () { go("backup"); } }, "Restore from a backup file"))) : null,
+    lh('ul', { className: "mlist lc-i27-list", role: "list", id: "lid-rows" }, R([
       [{ id: "lid-row-info", g: "person", c: "#8e8e93", label: "Profile", sub: "Name " + name + ", username " + handle, onClick: function () { go("info"); } },
-       { id: "lid-row-security", g: "shield", c: "#007aff", label: "Security", sub: "Key, passcode, login methods, backup and server. " + checkup, onClick: function () { go("security"); } }],
+       { id: "lid-row-security", g: "shield", c: "#007aff", label: "Security", sub: "Key, passcode, login methods, backup and Rem. " + checkup, onClick: function () { go("security"); } }],
       // Nov 7 2026 (Carter): Connectionbase holds the connections: Rem (one concept now: the Looscid protocol and its server,
       // incl. the older Rem home) and the bridges Nostr, Mastodon and Bluesky (coming soon).
       [{ id: "lid-row-connectionbase", g: "cloud", c: "#30b0c7", label: "Connectionbase", value: Looscid.lcNet && Looscid.lcNet.bridgeOn("nostr") ? "Rem + Nostr" : "Rem", sub: (srvM.sync ? "Rem is syncing your Dreams" : "Rem") + ". Bridges: Nostr, Mastodon, Bluesky", onClick: function () { go("connectionbase"); } },

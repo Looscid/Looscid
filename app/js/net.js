@@ -95,7 +95,7 @@ function whyText(e) {
 async function feed(opts) {
   opts = opts || {};
   const me = Looscid.lcNostr && Looscid.lcNostr.state ? Looscid.lcNostr.state().pubkey : null;
-  const q = "?limit=" + (opts.limit || 50) + (opts.before ? "&before=" + opts.before : "") + (isHex64(me || "") ? "&viewer=" + me : "");
+  const q = "?limit=" + (opts.limit || 50) + (opts.before ? "&before=" + opts.before : "") + (opts.sort === "new" ? "&sort=new" : "") + (isHex64(me || "") ? "&viewer=" + me : "");
   const r = await call("GET", "/feed" + q);
   if (!r.ok) throw new Error("feed");
   return r.body.dreams || [];

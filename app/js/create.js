@@ -2,10 +2,16 @@
    Plain script (not a module). Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order. */
 (function (Looscid) {
 const { AlertDialog, Av, BackHeader, CreateGroupFlow, DRAFTS_KEY, Earcon, LC_AUTOSAVE_KEY, LcMenu, ME, Modal, _optionalChain, announce, getDrafts, lcCloseProps, lcSpeechText, lh, recordHabit, useEffect, useEnterSubmit, useInertBehind, useRef, useState } = Looscid;
-Object.assign(Looscid, { LC_CREATE_DESC, LC_CREATE_OPTS, CreateOptions, lcCreatePick, LcComposer, lcReplyDrafts, lcAltSuggest, deleteDraftItem, AttachPanel, CreateMenu, DraftsPage, evalInlineCalc, SymbolPicker, lcSendWithUndo, lcPrepImage });
+Object.assign(Looscid, { lcSaveDraft, LC_CREATE_DESC, LC_CREATE_OPTS, CreateOptions, lcCreatePick, LcComposer, lcReplyDrafts, lcAltSuggest, deleteDraftItem, AttachPanel, CreateMenu, DraftsPage, evalInlineCalc, SymbolPicker, lcSendWithUndo, lcPrepImage });
 
 function deleteDraftItem(id) {
   try { localStorage.setItem(DRAFTS_KEY, JSON.stringify(getDrafts().filter(d => d.id !== id))); } catch (e7) {}
+}
+/* Nov 7 2026 (Carter): Dream drafts. "Save as draft" in New Dream keeps it in localStorage looscid_drafts (newest first,
+   up to 20). Drafts stay on this device only: they never go to Rem, Nostr or anywhere else, and the backup file is the
+   only copy that leaves (it's yours). Drafts (the page) opens, finishes or deletes them. */
+function lcSaveDraft(draft) {
+  try { const list = getDrafts().filter(d => d.id !== draft.id); list.unshift(draft); localStorage.setItem(DRAFTS_KEY, JSON.stringify(list.slice(0, 20))); return true; } catch (e) { return false; }
 }
 // Round 7 fixes: what is attached, in plain words: "photo", "2 photos and a poll", "photo, link and place".
 function lcAttList(atts) {
@@ -185,6 +191,9 @@ function CreateOptions({ idp, navigate, close, open }) {
 // The Create tab: a dialog with a focusable Create heading, then the shared options.
 function CreateMenu({onClose, onCircleCreate, prefs, navigate, cherryCtx, start}) {
   const [screen, setScreen] = useState(start || "menu"); // menu | dream | group
+  // Nov 7 2026: a draft opened from Drafts (Looscid.LC_PENDING_DRAFT, taken once) fills New Dream.
+  const draftRef = useRef(undefined);
+  if (draftRef.current === undefined) { draftRef.current = Looscid.LC_PENDING_DRAFT || null; Looscid.LC_PENDING_DRAFT = null; }
   // Round 6.3: closing the composer without dreaming puts focus back on what opened Create.
   const openerRef = useRef(null);
   if (openerRef.current === null) openerRef.current = document.activeElement || false;
@@ -192,7 +201,7 @@ function CreateMenu({onClose, onCircleCreate, prefs, navigate, cherryCtx, start}
   useEffect(function () { if (screen === "menu" && headRef.current) headRef.current.focus(); }, [screen]);
   if (screen==="group") return React.createElement(CreateGroupFlow, { onClose: onClose, onCreate: onCircleCreate, navigate: navigate,});
   // Round 6.5: New Dream is the shared composer (js/create.js, LcComposer), the same one Reply and Quote use.
-  if (screen==="dream") return lh(LcComposer, { mode: "new", prefs: prefs, navigate: navigate, cherryCtx: cherryCtx, opener: openerRef.current, onClose: onClose });
+  if (screen==="dream") return lh(LcComposer, { mode: "new", prefs: prefs, navigate: navigate, cherryCtx: cherryCtx, opener: openerRef.current, onClose: onClose, draft: draftRef.current });
   const close = function () { onClose(); const o = openerRef.current; if (o && o.focus && document.contains(o)) setTimeout(function () { try { o.focus(); } catch (e) {} }, 0); };
   return lh('div', { className: "ov", onClick: function (e) { if (e.target === e.currentTarget) close(); } },
     lh('div', { className: "msh", role: "dialog", "aria-modal": "true", "aria-labelledby": "create-h", onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(); } } },
@@ -207,27 +216,28 @@ function CreateMenu({onClose, onCircleCreate, prefs, navigate, cherryCtx, start}
 
 /* --- DRAFTS MANAGER ------------------------------------------------------- */
 function DraftsPage({ navigate, onLoadDraft }) {
+  // Nov 7 2026 (Carter): Drafts you saved in New Dream. Open one to finish and Dream it, or delete it. On this device only.
   const [items, setItems] = React.useState(getDrafts());
-  const remove = id => { deleteDraftItem(id); setItems(getDrafts()); };
-  return React.createElement('div', { className: "pg"},
-    React.createElement(BackHeader, { title: "Drafts", onBack: ()=>navigate("feed") }),
+  const remove = function (d) { deleteDraftItem(d.id); setItems(getDrafts()); announce("Draft deleted."); setTimeout(function () { const h = document.getElementById("drafts-count"); if (h) h.focus(); }, 30); };
+  const when = function (t) { try { return new Date(t).toLocaleDateString(undefined, Looscid.lcTimeOpts({ weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })); } catch (e) { return ""; } };
+  return lh('div', { className: "pg" },
+    lh(BackHeader, { title: "Drafts", onBack: function () { navigate("feed"); } }),
+    lh('p', { className: "lc-muted", id: "drafts-count", tabIndex: -1, style: { padding: "0 16px" } }, items.length ? (items.length === 1 ? "1 draft" : items.length + " drafts") + ". Drafts stay on this device and never go to Rem or Nostr." : "Drafts stay on this device and never go to Rem or Nostr."),
     items.length === 0
-      ? React.createElement('div', { className: "es"},
-          React.createElement('div', { className: "esi"}, "📝"),
-          React.createElement('div', { className: "est"}, "No drafts yet"),
-          React.createElement('div', { className: "ess"}, "Start writing a Dream and save it for later.")
-        )
-      : React.createElement('div', { style: {padding:"0 16px 24px"}},
-          items.map(draft => React.createElement('div', { key: draft.id, style: {background:"var(--sf2)",border:"1px solid var(--bd2)",borderRadius:14,padding:"14px 16px",marginBottom:10}},
-            React.createElement('div', { style: {fontSize:14,color:"var(--tx)",lineHeight:1.55,marginBottom:8}}, draft.text.slice(0, 120) + (draft.text.length > 120 ? "…" : "")),
-            React.createElement('div', { style: {fontSize:11,color:"var(--tx3)",marginBottom:10}}, new Date(draft.savedAt).toLocaleDateString(undefined, Looscid.lcTimeOpts({weekday:"short",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}))),
-            React.createElement('div', { style: {display:"flex",gap:8}},
-              React.createElement('button', { className: "btn bp", style: {flex:1,padding:"8px 0",fontSize:12}, onClick: ()=>{ onLoadDraft(draft); navigate("feed"); }}, "Continue editing"),
-              React.createElement('button', { className: "btn bgb", style: {flex:1,padding:"8px 0",fontSize:12,color:"var(--rd)",borderColor:"rgba(239,68,68,.3)"}, onClick: ()=>remove(draft.id)}, "Delete")
-            )
-          ))
-        )
-  );
+      ? lh('div', { className: "es" },
+          lh('div', { className: "esi", "aria-hidden": "true" }, "📝"),
+          lh('p', { className: "est" }, "No drafts yet"),
+          lh('p', { className: "ess" }, "In New Dream, choose Save as draft to finish it later."))
+      : lh('ul', { style: { listStyle: "none", padding: "0 16px 24px", margin: 0 } },
+          items.map(function (d, i) {
+            const t = String(d.text || ""), short = t.length > 120 ? t.slice(0, 120) + "…" : t;
+            return lh('li', { key: d.id, style: { background: "var(--sf2)", border: "1px solid var(--bd2)", borderRadius: 14, padding: "14px 16px", marginBottom: 10 } },
+              lh('h2', { className: "lc-sub-h", style: { fontSize: 14, margin: "0 0 6px" } }, "Draft " + (i + 1) + ", saved " + when(d.savedAt)),
+              lh('p', { style: { fontSize: 14, color: "var(--tx)", lineHeight: 1.55, margin: "0 0 10px" } }, short),
+              lh('div', { style: { display: "flex", gap: 8 } },
+                lh('button', { type: "button", className: "btn bp", style: { flex: 1, padding: "8px 0", fontSize: 13 }, onClick: function () { onLoadDraft(d); } }, "Open and finish"),
+                lh('button', { type: "button", className: "btn bgb", style: { flex: 1, padding: "8px 0", fontSize: 13, color: "var(--rd)", borderColor: "rgba(239,68,68,.3)" }, onClick: function () { remove(d); } }, "Delete draft")));
+          })));
 }
 /* --- INLINE CALCULATOR ---------------------------------------------------- */
 function evalInlineCalc(text) {
@@ -371,7 +381,9 @@ function lcFocusAfterPost(id, opener) {
 }
 function lcSendWithUndo(what, fn, text, draftKey) {
   const s = +Looscid.A11Y_NOW.undoSend || 0;
-  const send = function () { fn(); Earcon.play("send"); announce(what + " published."); }; // Round 5 fixes: publish wording (was "Dream dreamed.")
+  // Nov 7 2026: the very first Dream on this device gets its own line (Grok's stranger path: first Dream success announced).
+  const send = function () { fn(); Earcon.play("send"); let first = false; try { first = !localStorage.getItem("looscid_first_dream"); if (first) localStorage.setItem("looscid_first_dream", String(Date.now())); } catch (e) {}
+    announce(first && what === "Dream" ? "Your first Dream is out. Nice. It's on your profile and in the Feed." : what + " published."); }; // Round 5 fixes: publish wording (was "Dream dreamed.")
   if (!s || !Looscid.LC_UNDO_SET) { send(); return; }
   const t = setTimeout(function () { if (Looscid.LC_UNDO_SET) Looscid.LC_UNDO_SET(null); send(); }, s * 1000);
   Looscid.LC_UNDO_SET({ id: Date.now(), what: what, secs: s, cancel: function () { clearTimeout(t); if (Looscid.LC_UNDO_SET) Looscid.LC_UNDO_SET(null); if (text) { if (draftKey) lcReplyDraftSet(draftKey, text); else try { localStorage.setItem(LC_AUTOSAVE_KEY, text); } catch (e) {} } announce(what + " not sent." + (text ? (draftKey ? " Open it again to recover it." : " Open New Dream to recover it.") : "")); } });
@@ -444,7 +456,20 @@ async function lcPublishChain(items) {
     try { await Looscid.lcNostr.publishDream({ id: it.id, text: it.text, created: typeof it.id === "number" ? it.id : Date.now(), parentRef: it.parentRef, quoteRef: it.quoteRef, cw: it.cw || undefined, notifyPks: it.notifyPks, parentNote: it.parentNote || undefined, quoteNote: it.quoteNote || undefined }, { quiet: i < items.length - 1 }); } catch (e) {}
   }
 }
+/* Nov 7 2026 (Guest mode): a Guest can open the composer, but before writing it asks for a LooscidID, once, plainly.
+   Guest limits, stated once: a Guest can look around everything; Dreaming, replying and quoting need a LooscidID. */
 function LcComposer(props) {
+  const [guest, setGuest] = useState(function () { return !!(Looscid.lcIsGuest && Looscid.lcIsGuest()); });
+  useEffect(function () { const f = function () { setGuest(!!(Looscid.lcIsGuest && Looscid.lcIsGuest())); }; window.addEventListener("looscid:identity", f); return function () { window.removeEventListener("looscid:identity", f); }; }, []);
+  if (!guest) return lh(LcComposerInner, props);
+  return lh('div', { className: "cr-guest", style: { padding: 16 } },
+    lh('h2', { id: "cr-guest-h", tabIndex: -1 }, "Make a LooscidID to Dream"),
+    lh('p', null, "You're browsing as a Guest. Guests can look around everything, but Dreaming, replying and quoting need a LooscidID. It's made on this device in one tap. No email, no phone number."),
+    lh('div', { style: { display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 } },
+      lh('button', { type: "button", id: "cr-guest-create", className: "btn bp", onClick: function () { if (Looscid.lcCreateLooscidID) Looscid.lcCreateLooscidID(); setGuest(false); setTimeout(function () { const t = document.querySelector(".cr-text, textarea"); if (t && t.focus) t.focus(); }, 80); } }, "Create my LooscidID"),
+      props.onClose && lh('button', { type: "button", className: "btn bgb", onClick: props.onClose }, "Not now")));
+}
+function LcComposerInner(props) {
   const mode = props.mode === "reply" || props.mode === "quote" ? props.mode : "new";
   const parent = mode === "new" ? null : props.parent;
   const root = mode === "reply" ? (props.root || parent) : null;
@@ -454,11 +479,12 @@ function LcComposer(props) {
   const draftKey = parent ? (isReply ? "r:" : "q:") + String(parent.id) : null;
   const cherryCtx = props.cherryCtx, navigate = props.navigate;
   const pAud = parent && LC_AUD_NAMES[parent.aud] ? parent.aud : "everyone";
-  const [parts, setParts] = useState([props.text || ""]);
+  const draft = mode === "new" && props.draft && typeof props.draft === "object" ? props.draft : null; // opened from Drafts
+  const [parts, setParts] = useState(draft ? (Array.isArray(draft.parts) && draft.parts.length ? draft.parts.slice(0, LC_THREAD_MAX) : [String(draft.text || "")]) : [props.text || ""]);
   const [active, setActive] = useState(0);
-  const [audience, setAudience] = useState(isReply ? pAud : "everyone");
-  const [cwOn, setCwOn] = useState(!!(isReply && parent.cw));
-  const [cw, setCw] = useState(isReply && parent.cw ? String(parent.cw) : "");
+  const [audience, setAudience] = useState(isReply ? pAud : draft && LC_AUD_NAMES[draft.aud] ? draft.aud : "everyone");
+  const [cwOn, setCwOn] = useState(!!(isReply && parent.cw) || !!(draft && draft.cw));
+  const [cw, setCw] = useState(isReply && parent.cw ? String(parent.cw) : draft && draft.cw ? String(draft.cw) : "");
   const [people, setPeople] = useState(function () { return isReply ? lcNotifyPeople(parent, root) : []; });
   const [attachments, setAttachments] = useState([]);
   const [attach, setAttach] = useState(null); // null | "main" | "poll"
@@ -533,6 +559,7 @@ function LcComposer(props) {
     recordHabit("postDream", texts[0].slice(0, 30));
     sentRef.current = true;
     if (draftKey) lcReplyDraftSet(draftKey, ""); else try { localStorage.removeItem(LC_AUTOSAVE_KEY); } catch (e) {}
+    if (draft) deleteDraftItem(draft.id); // a finished draft leaves Drafts
     const opener = openerRef.current, cwText = cwOn ? cw.trim() : "", aud = audience, pub = goesToNostr, pv = nopv;
     const notify = people.filter(function (x) { return x.on; }).map(function (x) { return x.handle; });
     texts.forEach(function (t) { (t.match(/(^|\s)@[\w.-]+/g) || []).forEach(function (m) { const h = m.trim(); if (notify.indexOf(h) < 0 && !(ME && ME.handle && ME.handle.toLowerCase() === h.toLowerCase())) notify.push(h); }); });
@@ -563,6 +590,17 @@ function LcComposer(props) {
     }, texts.join("\n\n"), draftKey);
   };
   const close = function () { const o = openerRef.current; try { if (Looscid.LcSpeech) Looscid.LcSpeech.stop(); } catch (e) {} props.onClose(); setTimeout(function () { lcRefocus(o); }, 0); };
+  // Save as draft (New Dream only): on this device only, never sent anywhere.
+  const saveDraft = function () {
+    const texts = parts.map(function (t) { return t.trim(); }).filter(Boolean);
+    if (!texts.length) { announce("Type your Dream first, then save it as a draft."); return; }
+    const ok = lcSaveDraft({ id: draft ? draft.id : Date.now(), text: texts.join("\n\n"), parts: texts, cw: cwOn ? cw.trim() : "", aud: audience, savedAt: Date.now() });
+    if (!ok) { announce("Couldn't save the draft. This device's storage might be full."); return; }
+    sentRef.current = true;
+    try { localStorage.removeItem(LC_AUTOSAVE_KEY); } catch (e) {}
+    announce("Saved to Drafts. Drafts stay on this device and never go to Rem or Nostr.");
+    close();
+  };
   const tryPost = function () {
     // Build 152 fix: the button is aria-disabled (not native disabled) while it can't be sent, so it says why.
     /* Round 8 fixes (QA round 7): with only a photo (or other attachment) and no text, this said "Type your Dream first."
@@ -718,6 +756,7 @@ function LcComposer(props) {
     /* Dream (Reply in Reply mode), then Close: right after the content, as in 6.3 */
     lh('div', { style: {display:"flex",justifyContent:"flex-end",gap:8,padding:"10px 16px 6px",borderTop:"1px solid var(--bd)"} },
       lh('button', { type: "button", id: "cr-dream-btn", className: "btn bp", style: {padding:"8px 18px",fontSize:14}, onClick: tryPost, "aria-disabled": canPost ? undefined : "true" }, isReply ? "Reply" : "Dream"),
+      mode === "new" ? lh('button', { type: "button", id: "cr-draft-btn", className: "btn bgb", style: {padding:"8px 14px",fontSize:14}, onClick: saveDraft }, "Save as draft") : null,
       lh('button', Object.assign({ type: "button", className: "lc-close", onClick: close }, lcCloseProps(isReply ? "reply" : isQuote ? "Quote" : "new Dream")), "Close")),
     lh('div', { style: {height:"env(safe-area-inset-bottom,8px)"} }));
 }
