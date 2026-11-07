@@ -2,7 +2,7 @@
   "name": "looscid-dbm-api",
   "private": true,
   "type": "module",
-  "description": "The Looscid server on Cloudflare Workers + D1 (Looscid Protocol v0, docs/protocol.md)",
+  "description": "The Rem server on Cloudflare Workers + D1 (Rem, the Looscid protocol, v1: docs/protocol.md)",
   "scripts": {
     "build": "esbuild src/index.js --bundle --format=esm --platform=neutral --target=es2022 --outfile=dist/worker.js"
   },

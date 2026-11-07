@@ -15,7 +15,7 @@ Live home: https://looscidserver.sites.tab.bot/
 
 ## What it does
 
-- **Rem**, an open protocol (spec: [PROTOCOL.md](PROTOCOL.md)). Any app can be a Rem client. CORS is open.
+- **Rem**, an open protocol (spec: [docs/protocol.md](../docs/protocol.md); this home speaks Rem v0, Appendix A there). Any app can be a Rem client. CORS is open.
 - Every Dream, like, follow and Chat is signed by its author's LooscidID (the same kind of key as Nostr, so
   Nostr keys work). The server checks every signature and cannot forge anything.
 - Dreams with content warnings, "read aloud as" text, replies, quotes, ReDreams, likes, edits with history,

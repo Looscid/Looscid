@@ -1,4 +1,4 @@
--- Looscid Protocol v0: the whole D1 schema for dbm-api (step 1 tables + step 2 changes). Run it once in a new D1 database.
+-- Rem v1 (docs/protocol.md): the whole D1 schema for dbm-api (step 1 tables + step 2 changes). Run it once in a new D1 database.
 CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, handle TEXT UNIQUE, display_name TEXT, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS dreams (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), text TEXT NOT NULL, audience TEXT, cw TEXT, reply_to TEXT, quote_of TEXT, nostr_id TEXT, created_at INTEGER NOT NULL, updated_at INTEGER, deleted_at INTEGER, status TEXT NOT NULL DEFAULT 'ok' CHECK (status IN ('ok', 'hidden')), tags TEXT);
 CREATE INDEX IF NOT EXISTS dreams_user ON dreams(user_id, created_at);

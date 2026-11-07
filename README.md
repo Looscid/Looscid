@@ -13,7 +13,7 @@ Looscid is a social app for everyone, on any phone or computer, with touch, mous
 
 ## Server
 
-The Looscid server (the home that syncs Dreams, LooscidIDs and Chats in server mode) lives in [server/](server/). See [server/README.md](server/README.md) to run your own; the protocol is [server/PROTOCOL.md](server/PROTOCOL.md). The server folder is MIT licensed. It used to be its own repo, now archived at [Looscid/looscidserver](https://github.com/Looscid/looscidserver).
+The Looscid server (the home that syncs Dreams, LooscidIDs and Chats in server mode) lives in [server/](server/). See [server/README.md](server/README.md) to run your own; the protocol, Rem, is [docs/protocol.md](docs/protocol.md) (Rem v1; the v0 home in server/ is in its Appendix A). The server folder is MIT licensed. It used to be its own repo, now archived at [Looscid/looscidserver](https://github.com/Looscid/looscidserver).
 
 ## Community
 
