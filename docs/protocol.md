@@ -76,13 +76,23 @@ Base: `https://dbm-api.thebntlovver.workers.dev`. JSON in, JSON out. Browsers ma
 | method | path | does |
 |---|---|---|
 | GET | `/health` | `{ ok, protocol: "rem/1", tables }` |
-| GET | `/feed?limit=30&before=<score>&viewer=<pubkey>` | public Dreams (not replies), ranked (below). `viewer` leaves out people that key blocked. `next` is the `before` for the next page |
+| GET | `/feed?limit=30&before=<score>&viewer=<pubkey>&sort=new` | public Dreams (not replies), ranked (below). `sort=new` is pure time, no boost. `viewer` leaves out people that key blocked. `next` is the `before` for the next page. Each Dream carries `ev`, its original signed event, so an app can check the signature itself |
 | GET | `/dreams/<pubkey>?limit=50&before=<ms>` | one person's Dreams and replies, newest first |
 | GET | `/export?after=<seq>&limit=200&author=<pubkey>` | the original signed events and v0 objects, oldest first. `next` is the `after` for the next page. A v0 object is the one with `"rem": 0` |
 | POST | `/ingest` | body: a signed Rem v1 event (kinds 1, 1010, 5, 6, 16) or a signed Rem v0 object (types `dream`, `edit`, `delete`, `redream`) |
-| POST | `/report` | body: a signed kind 1984 event. 3 different people reporting the same Dream hides it |
+| POST | `/report` | body: a signed kind 1984 event. Reports are weighted (trusted reporters, below); a total of 3 hides the Dream |
 | POST | `/block` | body: a signed kind 21984 event |
 | POST | `/forget` | body: a signed kind 21985 event. Erases that key's Dreams, events, v0 objects, ReDreams, blocks and reports |
+
+**Trusted reporters.** A report counts 1 when the reporter's key is trusted, and 0.25 when it isn't. A key is trusted
+when the server first saw it at least 7 days ago (its own clock, `users.created_at`, never a date inside a signed
+event) AND it has at least 3 Dreams on this server. A Dream is hidden when its reports add up to 3 or more. So 3
+trusted people hide a Dream, 3 brand-new keys don't (0.75), and it would take 12 new keys. Each report answers with
+the `weight` it got.
+
+**Verified.** An app shows "Verified" next to a Dreamor's name when the Dream's `ev` checks out: its id and Schnorr
+signature are valid, it is signed by the Dream's key, and its words match. Rem v0 Dreams and edited Dreams aren't
+checked that way, so they show no badge.
 
 **Limits:** 30 Dreams per key per 10 minutes, 20 reports and 60 blocks per key per hour, 200 writes per network
 address per 10 minutes (the address is only kept as a daily-salted hash). Events up to 64 KB, text up to 20000

@@ -17,12 +17,14 @@
 //
 // Endpoints (Rem v1):
 //   GET  /health                         -> { ok, protocol, tables }
-//   GET  /feed?limit=&before=&viewer=    -> public Dreams (not replies), ranked by the "algo" below
+//   GET  /feed?limit=&before=&viewer=&sort= -> public Dreams (not replies), ranked by the "algo" below (sort=new: pure time).
+//                                        Each Dream carries "ev", its original signed event, so apps can check it.
 //   GET  /dreams/:pubkey?limit=&before=  -> one person's Dreams and replies, newest first
 //   GET  /export?after=&limit=           -> the original signed events, oldest first, for backup or another server
 //   POST /ingest   body: a signed Rem v1 event (kind 1 Dream, kind 1010 edit, kind 5 delete, kind 6/16 ReDream),
 //                  or a signed Rem v0 object (type dream, edit, delete or redream)
-//   POST /report   body: a signed kind 1984 event: ["e", <dream id>, <reason>], signed in the last 10 minutes
+//   POST /report   body: a signed kind 1984 event: ["e", <dream id>, <reason>], signed in the last 10 minutes.
+//                  Reports are weighted (trusted reporters, below); a total of 3 hides the Dream.
 //   POST /block    body: a signed kind 21984 event: ["p", <pubkey>], ["action", "block" | "unblock"], last 10 minutes
 //   POST /forget   body: a signed kind 21985 event: ["action", "delete-my-data"], last 10 minutes -> erases everything
 //                  this server holds for that key (Dreams, events, ReDreams, blocks, reports they made, the user row)
@@ -38,7 +40,13 @@ const PROTOCOL = "rem/1";        // Rem, the Looscid protocol, version 1 (docs/p
 const MAX_TEXT = 20000;
 const MAX_BODY = 65536;          // relays take up to 64 KB, so do we
 const FRESH_SEC = 600;           // reports and blocks must be signed within the last 10 minutes
-const HIDE_AT = 3;               // 3 different people report a Dream -> it is hidden from the feed
+const HIDE_AT = 3;               // reports with a total weight of 3 or more -> the Dream is hidden from the feed
+// Trusted reporters (Carter, Nov 7 2026), in plain words: a report from a key Rem has known for at least 7 days AND that
+// has at least 3 Dreams on Rem counts as 1. Any other report counts as 0.25. A Dream is hidden when its reports add up
+// to 3 or more. So 3 brand-new keys can't hide a Dream (3 x 0.25 = 0.75); it takes 3 trusted people, or 12 new keys.
+// "Known for 7 days" uses the time Rem FIRST SAW the key (users.created_at, the server's own clock), not a date inside
+// a signed event, because anyone can sign an event with an old date.
+const TRUST_AGE_MS = 7 * 86400000, TRUST_DREAMS = 3, WEIGHT_TRUSTED = 1, WEIGHT_NEW = 0.25;
 const LIMITS = {                 // simple rate limits: [max actions, per this many seconds]
   ingest: [30, 600], report: [20, 3600], block: [60, 3600], forget: [5, 3600], ip: [200, 600],
 };
@@ -219,6 +227,7 @@ async function ingest(env, ev) {
    score = created_at (ms) + min(6 h, replies*20 min + (redreams+quotes)*40 min)                              */
 const FEED_SQL = `
 SELECT d.id, d.user_id AS pk, d.text, d.cw, d.quote_of, d.created_at, d.updated_at, d.tags,
+  (SELECT e.json FROM events e WHERE e.id = d.id) AS ev,
   (SELECT COUNT(*) FROM dreams r WHERE r.reply_to = d.id AND r.deleted_at IS NULL AND r.status = 'ok') AS replies,
   (SELECT COUNT(*) FROM reposts p WHERE p.dream_id = d.id) AS redreams,
   (SELECT COUNT(*) FROM dreams q WHERE q.quote_of = d.id AND q.deleted_at IS NULL AND q.status = 'ok') AS quotes
@@ -228,23 +237,26 @@ WHERE d.reply_to IS NULL AND d.deleted_at IS NULL AND d.status = 'ok'
   AND (?2 IS NULL OR d.user_id NOT IN (SELECT blocked_id FROM blocks WHERE blocker_id = ?2))
 ORDER BY d.created_at DESC LIMIT 500`;
 const BOOST_CAP = 6 * 3600000, REPLY_BOOST = 20 * 60000, SHARE_BOOST = 40 * 60000;
+// The original signed event (or Rem v0 object), so an app can check the signature itself ("Verified").
+function parseEv(j) { if (!j) return undefined; try { return JSON.parse(j); } catch (e) { return undefined; } }
 function out(r) {
   let tags = []; try { tags = JSON.parse(r.tags || "[]"); } catch (e) {}
   return { id: r.id, nid: r.id, pk: r.pk, text: r.text, created: r.created_at, cw: r.cw || undefined, tags,
     reply_to: r.reply_to || undefined, quote_of: r.quote_of || undefined,
-    replies: r.replies || 0, redreams: r.redreams || 0, quotes: r.quotes || 0, score: r.score };
+    replies: r.replies || 0, redreams: r.redreams || 0, quotes: r.quotes || 0, score: r.score, ev: parseEv(r.ev) };
 }
 
 async function feed(req, env, url) {
   const limit = Math.max(1, Math.min(100, parseInt(url.searchParams.get("limit") || "30", 10) || 30));
   const before = parseInt(url.searchParams.get("before") || "", 10);
   const viewer = url.searchParams.get("viewer");
+  const newest = url.searchParams.get("sort") === "new"; // ?sort=new: pure time, no boost ("Newest" in the app)
   const rows = (await env.DB.prepare(FEED_SQL).bind(Date.now(), isHex(viewer, 64) ? viewer : null).all()).results;
-  for (const r of rows) r.score = r.created_at + Math.min(BOOST_CAP, r.replies * REPLY_BOOST + (r.redreams + r.quotes) * SHARE_BOOST);
+  for (const r of rows) r.score = newest ? r.created_at : r.created_at + Math.min(BOOST_CAP, r.replies * REPLY_BOOST + (r.redreams + r.quotes) * SHARE_BOOST);
   rows.sort((a, b) => b.score - a.score || (a.id < b.id ? -1 : 1));
   const page = rows.filter((r) => !Number.isFinite(before) || r.score < before).slice(0, limit);
   const next = page.length === limit ? page[page.length - 1].score : null;
-  return json(req, { ok: true, algo: "newest first, small boost for replies/redreams/quotes (max 6h)", dreams: page.map(out), next });
+  return json(req, { ok: true, algo: newest ? "newest first" : "newest first, small boost for replies/redreams/quotes (max 6h)", dreams: page.map(out), next });
 }
 
 async function userDreams(req, env, url, pk) {
@@ -252,7 +264,7 @@ async function userDreams(req, env, url, pk) {
   const limit = Math.max(1, Math.min(100, parseInt(url.searchParams.get("limit") || "50", 10) || 50));
   const before = parseInt(url.searchParams.get("before") || "", 10);
   const rows = (await env.DB.prepare(
-    "SELECT id, user_id AS pk, text, cw, reply_to, quote_of, created_at, updated_at, tags FROM dreams " +
+    "SELECT id, user_id AS pk, text, cw, reply_to, quote_of, created_at, updated_at, tags, (SELECT e.json FROM events e WHERE e.id = dreams.id) AS ev FROM dreams " +
     "WHERE user_id = ?1 AND deleted_at IS NULL AND status = 'ok' AND created_at < ?2 ORDER BY created_at DESC LIMIT ?3"
   ).bind(pk, Number.isFinite(before) ? before : 9e15, limit).all()).results;
   const next = rows.length === limit ? rows[rows.length - 1].created_at : null;
@@ -300,10 +312,17 @@ async function report(req, env, ev) {
   const reason = String(e[2] || ev.content || "other").slice(0, 200);
   await env.DB.prepare("INSERT INTO reports (id, dream_id, reporter_id, reason, created_at) VALUES (?1, ?2, ?3, ?4, ?5) ON CONFLICT DO NOTHING")
     .bind(ev.id, d.id, ev.pubkey, reason, Date.now()).run();
-  const c = await env.DB.prepare("SELECT COUNT(DISTINCT reporter_id) AS n FROM reports WHERE dream_id = ?1").bind(d.id).first();
+  // Add up the weight of every different reporter of this Dream (see "Trusted reporters" at the top).
+  const rows = (await env.DB.prepare(
+    "SELECT r.reporter_id, u.created_at AS first_seen, (SELECT COUNT(*) FROM dreams x WHERE x.user_id = r.reporter_id AND x.deleted_at IS NULL AND x.status = 'ok') AS dreams " +
+    "FROM reports r LEFT JOIN users u ON u.id = r.reporter_id WHERE r.dream_id = ?1 GROUP BY r.reporter_id"
+  ).bind(d.id).all()).results;
+  const weightOf = (r) => (r.first_seen != null && Date.now() - r.first_seen >= TRUST_AGE_MS && r.dreams >= TRUST_DREAMS ? WEIGHT_TRUSTED : WEIGHT_NEW);
+  const total = rows.reduce((n, r) => n + weightOf(r), 0);
+  const mine = rows.find((r) => r.reporter_id === ev.pubkey);
   let hidden = false;
-  if (c.n >= HIDE_AT) { await env.DB.prepare("UPDATE dreams SET status = 'hidden' WHERE id = ?1").bind(d.id).run(); hidden = true; }
-  return json(req, { ok: true, reported: d.id, hidden });
+  if (total >= HIDE_AT) { await env.DB.prepare("UPDATE dreams SET status = 'hidden' WHERE id = ?1").bind(d.id).run(); hidden = true; }
+  return json(req, { ok: true, reported: d.id, hidden, weight: mine ? weightOf(mine) : WEIGHT_NEW });
 }
 
 async function block(req, env, ev) {
