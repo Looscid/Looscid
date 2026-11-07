@@ -2099,7 +2099,7 @@ function LcSiteFooter({ navigate, cur }) {
     grp("lc-foot-social", "Say hi", [ext("https://github.com/Looscid", "GitHub", "gh"), ext("https://x.com/Looscid", "X", "x"), ext("https://www.youtube.com/@Looscid", "YouTube", "yt"),
       // Round 7.35 (Carter, Oct 26 2026): the Looscid Discord, last in Social.
       ext("https://discord.gg/M6xrD8EBXU", "Discord", "dc")])),
-    lh('p', { className: "lc-foot-credit" }, "\u00a9 2026 Looscid \u00b7 Made by Chaotic Carter, co-written with Tab"));
+    lh('p', { className: "lc-foot-credit" }, "\u00a9 2025\u2013" + String(LOOSCID_VERSION).split(".")[0] + " Looscid \u00b7 Made by Chaotic Carter, co-written with Tab"));
     // Round 7.41 (Carter: "not corpo shit"): one kid and Tab make this, and the footer says so.
 }
 /* 2three1y (Oct 12, 5:33 PM): "The footer is on every page at the bottom like GitHub", but in reading and swipe order the

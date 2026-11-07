@@ -37,6 +37,9 @@ const routes = new Set([...coreSrc.slice(coreSrc.indexOf("const LC_ROUTES = ["),
    written the way the app writes it ("Looscid 2026.138.57 (195)"). This builder also writes the footer into
    app/changelog/index.html and app/status.html, so a new build only needs this script run again (--check catches it). */
 const VJ = JSON.parse(fs.readFileSync(path.join(APP, "version.json"), "utf8"));
+/* Nov 7 2026 (Carter: Looscid's birthday is Jan 27, 2025, the repo's first day, so the copyright runs "like other companies"): from 2025 to the build's year.
+   The end year is the first part of version.json's YEAR.FEATURES.FIXES, so it moves with a new build and --check gives the same answer on any day. */
+const COPY_END = String(VJ.version).split(".")[0];
 const BUILD_TEXT = "Looscid " + VJ.version + " (" + VJ.build + ")";
 const sfLi = (href, text) => '<li><a href="' + href + '">' + text + "</a></li>";
 const sfExt = (href, text, site) => '<li><a href="' + href + '" title="Go to ' + site + '" target="_blank" rel="noopener noreferrer">' + text + "</a></li>";
@@ -47,7 +50,7 @@ const SITE_FOOTER = "<footer class=\"sf\">\n<div class=\"sf-in\">\n<p class=\"sf
   sfCol("looscid", "Looscid", [sfLi("/Looscid/About/", "About"), sfLi("/Looscid/Our-Story/", "Our Story"), sfLi("/Looscid/Credits/", "Credits")]),
   sfCol("legal", "Legal", [sfLi("/Looscid/Terms/", "Terms"), sfLi("/Looscid/Privacy/", "Privacy"), sfLi("/Looscid/Rules/", "Rules"), sfLi("/Looscid/Child-Safety/", "Child Safety"), sfLi("/Looscid/Legal/", "License")]),
   sfCol("hi", "Say hi", [sfExt("https://github.com/Looscid", "GitHub", "GitHub"), sfExt("https://x.com/Looscid", "X", "X"), sfExt("https://www.youtube.com/@Looscid", "YouTube", "YouTube"), sfExt("https://discord.gg/M6xrD8EBXU", "Discord", "Discord")])
-].join("\n") + "\n</div>\n<p class=\"sf-bottom\">© 2026 Looscid <span aria-hidden=\"true\">·</span> Open source under the <a href=\"/Looscid/Legal/\">Looscid Public License</a> <span aria-hidden=\"true\">·</span> Made by Chaotic Carter, co-written with Tab <span aria-hidden=\"true\">·</span> " + BUILD_TEXT + "</p>\n</div>\n</footer>";
+].join("\n") + "\n</div>\n<p class=\"sf-bottom\">© 2025–" + COPY_END + " Looscid <span aria-hidden=\"true\">·</span> Open source under the <a href=\"/Looscid/Legal/\">Looscid Public License</a> <span aria-hidden=\"true\">·</span> Made by Chaotic Carter, co-written with Tab <span aria-hidden=\"true\">·</span> " + BUILD_TEXT + "</p>\n</div>\n</footer>";
 // The Help Center home's topic icons (decoration only; the words say everything).
 const ICONS = {
   "getting-started": '<path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/>',

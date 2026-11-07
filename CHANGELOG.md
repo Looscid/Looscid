@@ -2,6 +2,15 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
+## Copyright year: 2025–2026 (no new build yet)
+
+Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).
+
+Asked for by Carter: Looscid's birthday is January 27, 2025, the day the project was started on GitHub, so the copyright now runs from that year to this one, like other companies.
+
+- The footer says "© 2025–2026 Looscid" on the Help Center, the doc pages, the changelog and the status page, and in the app's own footer. VoiceOver reads it as "copyright 2025 to 2026".
+- The second year comes from the build's version (the first part of 2026.138.57), so it moves on its own with the next build in a new year. The rest of the credit line is the same.
+
 ## New footer: Get help and Project (no new build yet)
 
 Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).
