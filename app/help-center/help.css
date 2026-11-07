@@ -103,3 +103,21 @@ h3{font-size:1.1em;margin:0 0 4px}
 .doc th:first-child,.doc td:first-child{width:36%}
 .doc blockquote{border-left:4px solid var(--bd);margin:12px 0;padding:0 12px;color:var(--tx2)}
 .doc hr{border:0;border-top:1px solid var(--bd);margin:20px 0}
+/* Nov 7 2026: the Go to menu in the top bar (build-help.mjs gotoMenu, help.js). Without scripts the two links sit in the bar. */
+.goto{position:relative}
+.top.has-goto{flex-wrap:nowrap}
+.top.has-goto .goto{flex:none}
+.top.has-goto .brand{min-width:0}
+@media (max-width:420px){.top{gap:8px}.brand{font-size:.94em;gap:8px}}
+.goto-list{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:0 16px}
+.goto-list a{min-height:44px;display:inline-flex;align-items:center}
+.goto-btn{font:inherit;font-weight:700;color:var(--tx);background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:8px 14px;min-height:44px;display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+.goto-btn[hidden]{display:none}
+.goto-btn:hover,.goto-btn[aria-expanded="true"]{border-color:var(--ac)}
+.goto-btn svg{transition:transform .15s}
+.goto-btn[aria-expanded="true"] svg{transform:rotate(180deg)}
+.goto.ready .goto-list{position:absolute;right:0;top:calc(100% + 6px);z-index:20;display:block;min-width:13rem;max-width:calc(100vw - 32px);background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:6px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.goto.ready .goto-list[hidden]{display:none}
+.goto.ready .goto-list a{display:flex;padding:0 12px;border-radius:10px;text-decoration:none;color:var(--tx);font-weight:600}
+.goto.ready .goto-list a:hover,.goto.ready .goto-list a[aria-current="page"]{background:var(--bg)}
+@media (prefers-reduced-motion:reduce){.goto-btn svg{transition:none}}

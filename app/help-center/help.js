@@ -1,4 +1,5 @@
 /* Looscid Help Center website (build 195). Plain script, no packages, nothing sent anywhere.
+   - Go to menu in the top bar: a button with aria-expanded showing Help Home and Looscid Home (plain links).
    - Collapsible extras (Screen reader tips): a button with aria-expanded, never inside a heading.
    - Courses: Lesson 1, 2, 3 with a Next button. Progress is saved only on this device (localStorage, looscid_help_progress),
      the same key the app's Help Center uses, so both show the same progress.
@@ -14,6 +15,20 @@
   function save(o) { try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} }
   function done(course) { var o = load(); return Array.isArray(o[course]) ? o[course] : []; }
   function mark(course, id) { var o = load(), d = Array.isArray(o[course]) ? o[course] : []; if (d.indexOf(id) < 0) d.push(id); o[course] = d; save(o); }
+
+  // Go to menu (Nov 7 2026, Carter: "a Go To menu pop up button. Go to Help Home or Looscid Home"). The page has the two
+  // links in the top bar; here they go behind one real button with aria-expanded. Plain links in a list (not role=menu),
+  // so VoiceOver swipes to them. Escape closes it and puts focus back on the button; a tap or click outside closes it.
+  (function () {
+    var b = document.querySelector("button.goto-btn"), list = document.getElementById("goto-list"); if (!b || !list) return;
+    var wrap = b.parentNode;
+    function isOpen() { return b.getAttribute("aria-expanded") === "true"; }
+    function set(open) { b.setAttribute("aria-expanded", open ? "true" : "false"); list.hidden = !open; }
+    set(false); wrap.classList.add("ready"); if (wrap.parentNode.classList) wrap.parentNode.classList.add("has-goto"); b.hidden = false;
+    b.addEventListener("click", function () { set(!isOpen()); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && isOpen()) { e.preventDefault(); set(false); b.focus(); } });
+    document.addEventListener("click", function (e) { if (isOpen() && !wrap.contains(e.target)) set(false); });
+  })();
 
   // Collapsibles
   Array.prototype.forEach.call(document.querySelectorAll("button.more[aria-controls]"), function (b) {

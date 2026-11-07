@@ -2,6 +2,15 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
+## Go to menu in the Help Center (no new build yet)
+
+Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).
+
+Asked for by Carter: a Go to button with Help Home and Looscid Home, and no Back link, because Back is just the page you came from.
+
+- The Help Center's top bar has one Go to button now, on every Help Center page and every doc page. It opens a small list with two links: Help Home and Looscid Home. VoiceOver says "Go to, collapsed, button", then "expanded" when it's open. Escape closes it and puts you back on the button, and tapping anywhere else closes it too.
+- Without scripts, the two links just sit in the top bar. The footer's Home link stays.
+
 ## Home links (no new build yet)
 
 Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).

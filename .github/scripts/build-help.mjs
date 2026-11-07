@@ -119,21 +119,31 @@ function page({ slug, title, desc, body, depth, crumbs }) {
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<link rel="stylesheet" href="${up}help.css?v=hc5">
+<link rel="stylesheet" href="${up}help.css?v=hc6">
 <link rel="stylesheet" href="${up}../assets/site-footer.css?v=1">
 </head>
 <body>
 <div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
-<header class="top"><a class="brand" href="${up || "./"}" aria-label="Looscid Help Center, logo: a white open ring with a dot in the middle, on blue"><img src="${up}../assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="32" height="32"><span><span aria-hidden="true">Looscid</span> Help Center</span></a><a class="open" href="${up}../">Home</a></header>
+<header class="top"><a class="brand" href="${up || "./"}" aria-label="Looscid Help Center, logo: a white open ring with a dot in the middle, on blue"><img src="${up}../assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="32" height="32"><span><span aria-hidden="true">Looscid</span> Help Center</span></a>${gotoMenu(up)}</header>
 <main class="wrap" id="main">
 ${nav}
 ${body}
 </main>
 ${SITE_FOOTER}
-<script src="${up}help.js?v=hc3"></script>
+<script src="${up}help.js?v=hc4"></script>
 </body>
 </html>
 `;
+}
+
+// Nov 7 2026 (Carter: "a Go To menu pop up button. Go to Help Home or Looscid Home. Back link is not there because it's just
+// a link to the previous page you came from"): the top bar has one "Go to" button that shows two plain links. Without
+// scripts the button stays hidden and both links just sit in the top bar. help.js turns it into the menu: a real button
+// with aria-expanded (like Screen reader tips), Escape closes it and puts focus back on the button, a tap outside closes it.
+// Not role="menu": VoiceOver reads plain links in a list, swipe right to reach them. No Back item on purpose.
+function gotoMenu(up) {
+  const home = up ? "" : ' aria-current="page"';
+  return '<div class="goto"><button type="button" class="goto-btn" aria-expanded="false" aria-controls="goto-list" hidden>Go to<svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><ul class="goto-list" id="goto-list"><li><a href="' + (up || "./") + '"' + home + '>Help Home</a></li><li><a href="' + up + '../">Looscid Home</a></li></ul></div>';
 }
 
 const files = {};
