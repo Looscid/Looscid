@@ -121,3 +121,10 @@ h3{font-size:1.1em;margin:0 0 4px}
 .goto.ready .goto-list a{display:flex;padding:0 12px;border-radius:10px;text-decoration:none;color:var(--tx);font-weight:600}
 .goto.ready .goto-list a:hover,.goto.ready .goto-list a[aria-current="page"]{background:var(--bg)}
 @media (prefers-reduced-motion:reduce){.goto-btn svg{transition:none}}
+
+/* Nov 8 2026: Report a problem (the public report list). Native select, 44px tall. */
+.select{min-height:44px;min-width:200px;padding:8px 12px;border-radius:10px;border:1px solid var(--tx2);background:var(--bg,#fff);color:inherit;font:inherit;font-size:17px}
+.select:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.issues h3{font-size:1.05em;margin:0 0 4px}
+.issues li{margin:0 0 18px}
+.issues ul{margin:4px 0 0;padding-left:1.2em}

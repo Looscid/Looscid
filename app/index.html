@@ -61,7 +61,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" id="lc-fonts"/>
 <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/></noscript>
 <link rel="stylesheet" href="css/app.css?v=7.53-pin1"/>
-<link rel="stylesheet" href="css/a11y.css?v=7.53-al1" id="lc-a11y-css"/>
+<link rel="stylesheet" href="css/a11y.css?v=7.53-iss1" id="lc-a11y-css"/>
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/unspeakable/looscid-unspeakable.woff2" crossorigin/>
 </head>
 <body>
@@ -74,9 +74,9 @@
 <!-- Security pass: the host side of the sandboxed Looscid OS apps and Projects (sandbox flags, their saved data) -->
 <script src="js/apphost.js"></script>
 <!-- Load order: React, then core, then nostr (small; its crypto loads only when used), then one file per tab, then Cherry, then the Commands page, then Projects, then the Help Center, then the mount below (see docs/dev/FILES.md) -->
-<script src="js/core.js?v=7.53-cq1"></script>
+<script src="js/core.js?v=7.53-iss1"></script>
 <script src="js/nostr.js"></script>
-<script src="js/net.js?v=7.53-sync1"></script>
+<script src="js/net.js?v=7.53-iss1"></script>
 <script src="js/modreasons.js?v=7.53-mod3"></script>
 <script src="js/discover.js?v=7.53-pin1"></script>
 <script src="js/circles.js?v=7.53-mod2"></script>
@@ -87,12 +87,13 @@
 <script src="js/cherry.js"></script>
 <script src="js/commands.js"></script>
 <script src="js/projects.js"></script>
-<script src="js/helpdata.js?v=7.53-mod2"></script>
-<script src="js/helpcenter.js?v=7.53-mod2"></script>
+<script src="js/helpdata.js?v=7.53-iss1"></script>
+<script src="js/helpcenter.js?v=7.53-iss1"></script>
 <script src="js/liked.js"></script>
 <!-- Rem sync (Connectionbase) and the backup file (Settings, LooscidID); its crypto in js/rem/ loads only when used -->
 <script src="js/remsync.js?v=7.53-sync1"></script>
 <script src="js/remlists.js?v=7.53-sync1"></script>
+<script src="js/issues.js?v=7.53-iss1"></script>
 <script src="js/mount.js"></script>
 </body>
 </html>

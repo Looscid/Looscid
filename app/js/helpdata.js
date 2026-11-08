@@ -147,6 +147,21 @@
         "Deleting your own Dream is different. If nobody replied, it's just gone. If it has replies, a line saying \u201cDream deleted\u201d stays so the thread still makes sense, with no name and no words.",
       ],
       rel: ["options-menus", "circles", "reply"] },
+    /* Nov 8 2026 (Carter: our own issue tracker, "public ... so people can agree or disagree", no other companies). live:
+       "issues" puts the Report form and the public list under the steps: in the app from js/issues.js, on the website the
+       list only (from Rem, by help.js), because reporting and voting need your Looscid key. */
+    { id: "report-a-problem", c: "getting-started", t: "Report a problem", live: "issues",
+      s: "Found a bug or got an idea? Report it right in Looscid. Everyone can read the reports, agree or disagree, and see what the mods say.",
+      steps: [
+        "Open Looscid and press Help Center (Profile, More, Help). Open this article, Report a problem. More, Help, Report a problem opens it too.",
+        "Pick Bug or Idea, type a short title and say what happened. Looscid adds the app and its version by itself.",
+        "Press Send report. It's signed with your Looscid key, so you need one. No other account, no email.",
+        "Every report is in the list below it, for everyone to read: its title, Bug or Idea, its status (new, working on it, fixed or closed) and how many people agree and disagree.",
+        "Press Agree or Disagree on any report. You get one vote per report, and you can change it or take it back. Nobody sees who voted, only the counts.",
+        "Looscid mods set the status, reply as Looscid mods, and close a report with a reason. All of it is public.",
+      ],
+      tips: ["Choose Show above the list to see only new, working on it, fixed or closed reports.", "Delete my Rem data (Settings, LooscidID) also deletes your reports and your votes."],
+      rel: ["mod-log", "getting-around"] },
 
     /* ---- Chats, Circles and Cherry ---- */
     { id: "start-a-chat", c: "chats-circles-cherry", t: "Start a private chat",

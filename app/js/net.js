@@ -189,7 +189,7 @@ async function exportMine() {
 async function forgetMe() {
   try { const ev = await signAction({ kind: 21985, tags: [["action", "delete-my-data"], PROTOCOL_TAG] }); const r = await call("POST", "/forget", ev);
     if (r.ok && Looscid.lcLists) Looscid.lcLists.pause(); // Nov 8 2026: your lists stop syncing here, so they aren't sent right back
-    return r.ok ? { ok: true, say: "Deleted. Rem no longer has your Dreams, blocks, reports, likes, ReDreams, pins, mutes or followed threads. Everything on this device stays, and your lists stop syncing here until you turn it back on." } : { ok: false, say: "Couldn't delete it. Try again in a bit." }; }
+    return r.ok ? { ok: true, say: "Deleted. Rem no longer has your Dreams, blocks, reports, likes, ReDreams, pins, mutes, followed threads, problem reports or votes on them. Everything on this device stays, and your lists stop syncing here until you turn it back on." } : { ok: false, say: "Couldn't delete it. Try again in a bit." }; }
   catch (e) { return { ok: false, say: whyText(e) }; }
 }
 async function health() { try { const r = await call("GET", "/health"); return r.ok; } catch (e) { return false; } }

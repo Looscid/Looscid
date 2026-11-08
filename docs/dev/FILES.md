@@ -32,6 +32,7 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 | `app/js/liked.js` | Liked (build 147): `LikedView`, one component for everything you like (Dreams, Circles, Apps, Marketplace, Chats, Searches, with an Images filter), used by your profile's Liked tab. Its store, `looscid_liked`, is in `app/js/core.js`. Still React, like the profile. |
 | `app/js/remsync.js` | Rem sync and the backup file: the Rem part of Connectionbase ("Put your Dreams on Rem?": public Dreams signed as Rem v1 events and sent to Rem, then sync), the Local or Rem mode line, and **Backup file** (one .looscid file with everything and your key, locked with a passcode). |
 | `app/js/remlists.js` | Your lists on every device (Nov 8 2026): likes, ReDreams, pinned Dreams, mutes, Not interested and followed threads sync through Rem (POST /list, POST /mine) by your LooscidID key. Pins, mutes and followed threads are private: only a read signed by your own key gets them. Guest mode stays on the device. |
+| `app/js/issues.js` | Report a problem (Nov 8 2026): Looscid's own issue tracker inside the Help Center's Report a problem article. Bug or Idea, title, What happened, signed with your key (POST /issues); the public list with Agree and Disagree (POST /issues/vote) and the status filter; Mod tools for Looscid mods (POST /issues/moderate). A typed report stays in memory until Rem takes it. |
 | `app/projects/` | The ported projects, one folder each with its own `LICENSE`, plus `dream-results.js` (the Dream Results button inside Memeprojects). |
 | `app/os/` | Looscid OS and its apps (it started as NexOS; the old `/Looscid/nexos/` addresses redirect here through `app/404.html`). Memeprojects also loads `app/projects/dream-results.js`. |
 | `app/js/apphost.js`, `app/js/appguard.js`, `app/open.html`, `app/js/open.js` | Security pass (Oct 2026): Looscid OS apps and Projects run in a sandboxed frame without allow-same-origin, so they can't reach Looscid's storage or your Nostr key. `apphost.js` (loaded by `index.html` and `open.html`) has the sandbox flags and keeps the apps' saved data in one key, `looscid_appdata`. `appguard.js` is the first script of every page under `app/os/` and `app/projects/`: opened on its own, the page reopens inside `open.html`; inside the sandbox it gives the page a stand-in localStorage. |
@@ -50,6 +51,7 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 9. `app/js/liked.js` (build 147: new, right after `app/js/helpcenter.js`; the profile's Liked tab renders `Looscid.LikedView`)
 9b. `app/js/remsync.js` (Oct 31 2026: right after `app/js/liked.js`; `app/js/more.js` renders `Looscid.LcServerPanel` and `Looscid.LcBackupPanel` on the LooscidID pages)
 9c. `app/js/remlists.js` (Nov 8 2026: right after `app/js/remsync.js`; needs js/net.js and js/core.js)
+9d. `app/js/issues.js` (Nov 8 2026: right after `app/js/remlists.js`; needs js/net.js and js/core.js; js/helpcenter.js calls it when the Report a problem article opens)
 10. The mount: `app/js/mount.js` at the end of `app/index.html` starts the app (not inside another website's frame).
 
 ## One namespace

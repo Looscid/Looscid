@@ -19,7 +19,7 @@ const OUT = path.join(APP, "help-center");
 const SITE = "https://looscid.github.io/Looscid/";
 const HELP = SITE + "help/";
 const CHECK = process.argv.includes("--check");
-const REM = "https://rem.thebntlovver.workers.dev"; // Nov 8 2026: Looscid's server, for the public mod log (Mod log article)
+const REM = "https://rem.thebntlovver.workers.dev"; // Nov 8 2026: Looscid's server, for the public mod log (Mod log) and the report list (Report a problem)
 
 const sandbox = { window: {} };
 vm.runInNewContext(fs.readFileSync(path.join(APP, "js", "helpdata.js"), "utf8"), sandbox);
@@ -139,7 +139,7 @@ function page({ slug, title, desc, body, depth, crumbs, connect }) {
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'${connect ? " " + connect : ""}; object-src 'none'; base-uri 'self'; form-action 'self'"/>
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<link rel="stylesheet" href="${up}help.css?v=hc6">
+<link rel="stylesheet" href="${up}help.css?v=hc7">
 <link rel="stylesheet" href="${up}../assets/site-footer.css?v=2">
 </head>
 <body>
@@ -150,7 +150,7 @@ ${nav}
 ${body}
 </main>
 ${SITE_FOOTER}
-<script src="${up}help.js?v=hc5"></script>
+<script src="${up}help.js?v=hc6"></script>
 </body>
 </html>
 `;
@@ -204,6 +204,7 @@ const course = H.courses[0];
   b += '<ul class="list">' + DOCS.map(d => '<li><a href="dev/' + d.slug + '/">' + esc(d.t) + '</a><p>' + esc(d.s) + '</p></li>').join("") + '</ul>\n';
   b += '<p><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a> <span aria-hidden="true">·</span> <a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a> <span aria-hidden="true">·</span> <a href="../changelog/">Roadmap and changelog</a> <span aria-hidden="true">·</span> <a href="../Rules/">Rules</a></p>\n</section>\n';
   b += '<section aria-labelledby="h-contact"><h2 id="h-contact">Still need help?</h2>\n<p class="lead">' + esc(H.contact.s) + '</p>\n<ul class="contact-row" role="list">';
+  b += '<li>' + icon("bug") + '<a class="stretch" href="report-a-problem/">Report a problem</a><p>Right in Looscid. Agree or disagree with other reports.</p></li>';
   b += '<li>' + icon("bug") + '<a class="stretch" href="contact/">Report a bug</a><p>On GitHub, with your device filled in.</p></li>';
   b += '<li>' + icon("chat") + '<a class="stretch" href="' + esc(H.contact.discord) + '" title="Go to Discord" target="_blank" rel="noopener noreferrer">Join the Discord</a><p>Ideas, questions, or just say hi.</p></li>';
   b += '<li>' + icon("heart") + '<a class="stretch" href="../?p=%2FFeedback">Send Feedback in Looscid</a><p>Profile, More, Feedback.</p></li>';
@@ -226,11 +227,15 @@ for (const a of H.articles) {
      help.js reads it from Rem (GET /modlog, public, no key) and writes one line per removal; without scripts the line
      below says where else to read it. Only this page may connect to Rem (its connect-src). */
   if (a.live === "modlog") b += '<section aria-labelledby="h-modlog"><h2 id="h-modlog">Looscid mod log</h2>\n<p id="modlog-status" role="status">The mod log loads here with JavaScript on. It is also in the app: Help Center, Mod log.</p>\n<ol id="modlog-list" class="list" data-rem="' + REM + '" hidden></ol>\n</section>\n';
+  /* Nov 8 2026 (Carter: our own issue tracker, public, agree or disagree, no other companies): live "issues" puts the
+     public report list under the steps. help.js reads it from Rem (GET /issues, public, no key, nothing sent), one
+     heading per report so it reads in one swipe. Reporting and voting need your Looscid key, so they're in the app. */
+  if (a.live === "issues") b += '<section aria-labelledby="h-issues"><h2 id="h-issues">Reports</h2>\n<p>To report a problem, or agree or disagree with one, open it in Looscid: <a href="../../?p=%2FHelp">Help Center, Report a problem</a>. It uses your Looscid key.</p>\n<p class="field"><label for="issues-filter">Show</label><br/><select id="issues-filter" class="select"><option value="all">Everything</option><option value="open">Still open</option><option value="new">New</option><option value="working">Working on it</option><option value="fixed">Fixed</option><option value="closed">Closed</option></select></p>\n<p id="issues-status" role="status">The report list loads here with JavaScript on. It is also in the app: Help Center, Report a problem.</p>\n<ol id="issues-list" class="list issues" data-rem="' + REM + '" hidden></ol>\n</section>\n';
   if (a.tips && a.tips.length) b += "<h2>Good to know</h2>\n<ul>" + a.tips.map(s => "<li>" + rich(s, 1) + "</li>").join("") + "</ul>\n";
   if (a.sr && a.sr.length) b += '<p><button type="button" class="more" aria-expanded="false" aria-controls="sr-tips" title="Shows tips for screen readers">Screen reader tips (optional)</button></p>\n<div id="sr-tips" class="extra"><ul>' + a.sr.map(s => "<li>" + rich(s, 1) + "</li>").join("") + "</ul></div>\n";
   if (a.rel && a.rel.length) b += "<h2>Related articles</h2>\n<ul>" + a.rel.map(id => { if (!byId[id]) { problems.push("related " + id + " missing in " + a.id); return ""; } return "<li>" + artLink(byId[id], "../") + "</li>"; }).join("") + "</ul>\n";
   b += '<p class="next"><a href="../' + a.c + '/">More in ' + esc(c ? c.t : "") + '</a> <span aria-hidden="true">·</span> <a href="../contact/">Still stuck? Contact Us</a></p>';
-  put(a.id + "/index.html", page({ slug: a.id, title: a.t, desc: a.s.replace(/\{\{[^}]*\}\}|\[\[[^\]]*\]\]/g, ""), body: b, depth: 1, connect: a.live === "modlog" ? REM : "", crumbs: [["Help Center", "../"], [c ? c.t : "", "../" + a.c + "/"], [a.t, null]] }));
+  put(a.id + "/index.html", page({ slug: a.id, title: a.t, desc: a.s.replace(/\{\{[^}]*\}\}|\[\[[^\]]*\]\]/g, ""), body: b, depth: 1, connect: a.live === "modlog" || a.live === "issues" ? REM : "", crumbs: [["Help Center", "../"], [c ? c.t : "", "../" + a.c + "/"], [a.t, null]] }));
 }
 // Courses
 for (const co of H.courses) {

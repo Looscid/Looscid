@@ -191,3 +191,38 @@
     status.textContent = items.length ? items.length + (items.length === 1 ? " removal." : " removals.") : "No Dreams have been removed. Nice.";
   }).catch(function () { status.textContent = "The mod log couldn't load right now. Try again later, or open it in the app: Help Center, Mod log."; });
 })();
+
+/* Nov 8 2026 (Carter: Looscid's own issue tracker, public, agree or disagree, no other companies): the Report a problem
+   article. Reads Rem's public list (GET /issues, no key, nothing sent). Each report is one heading, so VoiceOver reads it
+   in one swipe: title, Bug or Idea, status, and the agree and disagree counts. Mod replies are under it, as Looscid mods.
+   Show (a native select) picks a status. Everything is put on the page as text, never as HTML. */
+(function () {
+  "use strict";
+  var list = document.getElementById("issues-list"), status = document.getElementById("issues-status"), pick = document.getElementById("issues-filter");
+  if (!list || !status || !window.fetch) return;
+  var rem = list.getAttribute("data-rem") || "", words = { "new": "new", working: "working on it", fixed: "fixed", closed: "closed" };
+  function when(ms) { try { return new Date(+ms).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); } catch (x) { return ""; } }
+  function el(tag, text) { var e = document.createElement(tag); if (text != null) e.textContent = text; return e; }
+  function load() {
+    var f = pick ? pick.value : "all";
+    status.textContent = "Loading reports\u2026";
+    fetch(rem + "/issues?limit=100" + (f && f !== "all" ? "&status=" + encodeURIComponent(f) : ""), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (j) {
+      var items = j && j.ok && Array.isArray(j.issues) ? j.issues : null;
+      if (!items) throw new Error("no list");
+      list.textContent = "";
+      items.forEach(function (it) {
+        var li = el("li"), a = +it.agree || 0, d = +it.disagree || 0;
+        li.appendChild(el("h3", String(it.title || "") + ". " + (it.type === "idea" ? "Idea" : "Bug") + ", " + (words[it.status] || String(it.status || "")) + ". " + a + " agree, " + d + " disagree."));
+        if (it.body) { var p = el("p", String(it.body)); p.style.whiteSpace = "pre-wrap"; li.appendChild(p); }
+        li.appendChild(el("p", "Reported " + when(it.created_at) + (it.app ? " on " + it.app + (it.version ? " " + it.version : "") : "") + (it.status === "closed" && it.close_reason ? ". Closed because: " + it.close_reason : "")));
+        if (it.replies && it.replies.length) { var ul = el("ul"); it.replies.forEach(function (rp) {
+          ul.appendChild(el("li", "Looscid mods, " + when(rp.at) + ": " + (rp.status ? "set it to " + (words[rp.status] || rp.status) + (rp.text ? ". " : ".") : "") + String(rp.text || ""))); }); li.appendChild(ul); }
+        list.appendChild(li);
+      });
+      list.hidden = !items.length;
+      status.textContent = items.length ? items.length + (items.length === 1 ? " report." : " reports.") : (f === "all" ? "No reports yet." : "Nothing here with that status.");
+    }).catch(function () { list.hidden = true; status.textContent = "can't reach the report list rn, try again in a bit"; });
+  }
+  if (pick) pick.addEventListener("change", load);
+  load();
+})();

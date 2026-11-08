@@ -68,6 +68,9 @@ already on Nostr can be imported. `created_at` is in seconds.
 | 21985 | delete everything the server has for my key | `["action", "delete-my-data"]` |
 | 21987 | add to or remove from one of your lists (not exported) | `["list", <name>]`, `["action", "add" or "remove"]`, `["i", <item>, <saved copy, optional>]` (1 to 200) |
 | 21988 | read all your lists back (not stored) | `["action", "read-my-lists"]` |
+| 21989 | a problem report for Looscid's own issue tracker (stored as a report, not exported) | `["type", "bug" or "idea"]`, `["title", <up to 120 characters>]`, `["app", <app name>]`, `["version", <version>]`; `content` is what happened (up to 4000 characters) |
+| 21990 | agree or disagree with a report (not exported) | `["e", <report id>]`, `["vote", "agree", "disagree" or "none"]`, `["visibility", "private" or "public"]` (private when missing) |
+| 21991 | a Looscid mod's status change, reply or close on a report (not exported) | `["e", <report id>]`, `["status", "new", "working", "fixed" or "closed"]` (optional); `content` is the reply, or the reason when closing |
 
 Reports, blocks and "delete my data" must be Rem v1 events signed within the last 10 minutes, so an old one can't be
 replayed. A Dream id is its event id (or its v0 object id), so ids can't clash between people or versions.
@@ -79,7 +82,7 @@ Base: `https://rem.thebntlovver.workers.dev`. JSON in, JSON out. Browsers may ca
 
 | method | path | does |
 |---|---|---|
-| GET | `/health` | `{ ok, protocol: "rem/1", tables }` |
+| GET | `/health` | `{ ok, protocol: "rem/1", tables, issues: true }` (`issues`: this server has the issue tracker) |
 | GET | `/feed?limit=30&before=<score>&viewer=<pubkey>&sort=new` | public Dreams (not replies), ranked (below). `sort=new` is pure time, no boost. `viewer` leaves out people that key blocked, and says whether that key `liked` or `redreamed` each Dream. Each Dream has `likes`, `redreams`, `replies` and `quotes` counts. `next` is the `before` for the next page. Each Dream carries `ev`, its original signed event, so an app can check the signature itself |
 | GET | `/dreams/<pubkey>?limit=50&before=<ms>` | one person's Dreams and replies, newest first |
 | GET | `/export?after=<seq>&limit=200&author=<pubkey>` | the original signed events and v0 objects, oldest first. `next` is the `after` for the next page. A v0 object is the one with `"rem": 0` |
@@ -89,6 +92,11 @@ Base: `https://rem.thebntlovver.workers.dev`. JSON in, JSON out. Browsers may ca
 | POST | `/forget` | body: a signed kind 21985 event. Erases that key's Dreams, events, v0 objects, ReDreams, blocks, reports and lists |
 | POST | `/list` | body: a signed kind 21987 event, signed in the last 10 minutes, used once. Lists: `likes` and `redreams` (public: only counts come out), and the private `liked_other`, `pins`, `muted_dreamors`, `muted_threads`, `not_interested` and `threads`. A ReDream of a Dream on Rem also counts as a ReDream |
 | POST | `/mine` | body: a signed kind 21988 event, signed in the last 10 minutes, used once. Answers every list of that key, with each item's saved copy. It's the only way to read the private lists |
+| GET | `/issues?status=all&limit=50&before=<ms>` | Looscid's own issue tracker, public, no key: reports newest first, each with `id`, `by` (the reporter's key), `type`, `title`, `body`, `app`, `version`, `status`, `close_reason`, `agree` and `disagree` counts and `replies` (each `by: "Looscid mods"`, `text`, `status`, `at`). `status` is `all`, `open` (not closed), `new`, `working`, `fixed` or `closed`. `next` is the `before` for the next page |
+| GET | `/issues/<id>` | one report, the same shape |
+| POST | `/issues` | body: a signed kind 21989 event, signed in the last 10 minutes, used once. Answers the new report. 10 reports per key per day |
+| POST | `/issues/vote` | body: a signed kind 21990 event, signed in the last 10 minutes, used once. One vote per key per report; a new one replaces the old one and `none` takes it back. Answers the new `agree` and `disagree` counts |
+| POST | `/issues/moderate` | body: a signed kind 21991 event from a key in the Looscid mods list (`/moderators`), signed in the last 10 minutes, used once. Anyone else gets 403. Closing needs a reason. Answers the report |
 
 **Trusted reporters.** A report counts 1 when the reporter's key is trusted, and 0.25 when it isn't. A key is trusted
 when the server first saw it at least 7 days ago (its own clock, `users.created_at`, never a date inside a signed
@@ -105,7 +113,15 @@ checked that way, so they show no badge.
 server remembers its id for 20 minutes), so a copied request can't be replayed. That you liked or ReDreamed a Dream is
 public, like on Nostr, but only the counts come out.
 
-**Limits:** 30 Dreams per key per 10 minutes, 20 reports and 60 blocks per key per hour, 300 list writes and 240 list reads per key per hour, 200 writes per network
+**Looscid's own issue tracker** (Nov 8 2026). Reports live on Rem and nowhere else. Reading them needs no key. Reporting,
+voting and mod actions are signed with the person's own key, like every other write, and each signed request works once.
+Everything is plain text: Rem keeps the words as typed (control characters out) and apps show them as text, never as
+HTML. Votes are private unless the voter's event says `public`; only the counts come out. Mod replies and status
+changes are public and say "Looscid mods", never which key. `/forget` also erases that key's reports, the votes and mod
+replies on them, its own votes and, for a mod, its replies. Tables: `issues`, `issue_votes`, `issue_replies` (made by
+the code itself).
+
+**Limits:** 30 Dreams per key per 10 minutes, 20 reports and 60 blocks per key per hour, 300 list writes and 240 list reads per key per hour, 10 problem reports per key per day (20 an hour), 300 votes and 200 mod actions on reports per key per hour, 200 writes per network
 address per 10 minutes (the address is only kept as a daily-salted hash). Events up to 64 KB, text up to 20000
 characters. Over a limit: 429. A server error is a plain `{ "ok": false, "error": "server error" }` (details stay in
 the server's own log).

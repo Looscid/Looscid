@@ -40,6 +40,13 @@
 //   POST /mine     body: a signed kind 21988 event: ["action", "read-my-lists"], last 10 minutes, used once -> every list of
 //                  that key with each item's saved copy. This is the only way to read the private lists.
 //   GET  /feed     each Dream also says "likes", and with ?viewer= whether that key "liked" or "redreamed" it.
+// Looscid's own issue tracker (Nov 8 2026; tables issues, issue_votes, issue_replies, made by the code itself):
+//   GET  /issues?status=&limit=&before=  -> public reports, newest first, with agree/disagree counts and mod replies
+//   GET  /issues/:id                     -> one report
+//   POST /issues          body: a signed kind 21989 event: ["type", "bug" | "idea"], ["title", text], ["app"]?, ["version"]?,
+//                         content = what happened. Last 10 minutes, used once, 10 per key per day.
+//   POST /issues/vote     body: a signed kind 21990 event: ["e", id], ["vote", "agree" | "disagree" | "none"], ["visibility"]?
+//   POST /issues/moderate body: a signed kind 21991 event from a MODS key: ["e", id], ["status", s]?, content = reply/reason
 // CORS: only https://looscid.github.io (and the test preview https://looscid-preview.sites.tab.bot) get the allow headers.
 
 import { schnorr } from "@noble/curves/secp256k1";
@@ -62,6 +69,7 @@ const TRUST_AGE_MS = 7 * 86400000, TRUST_DREAMS = 3, WEIGHT_TRUSTED = 1, WEIGHT_
 const LIMITS = {                 // simple rate limits: [max actions, per this many seconds]
   ingest: [30, 600], report: [20, 3600], block: [60, 3600], forget: [5, 3600], moderate: [120, 3600], ip: [200, 600],
   list: [300, 3600], mine: [240, 3600], // Nov 8 2026: your lists (POST /list, POST /mine)
+  issues: [20, 3600], issue: [10, 86400], issue_vote: [300, 3600], issue_mod: [200, 3600], // Nov 8 2026: issue tracker (issue = reports per key per day)
 };
 
 /* ---------- small helpers ---------- */
@@ -360,6 +368,7 @@ async function forget(req, env, ev) {
   await modTable(env); // so the cleanup line below works on a database that never had a removal
   await circleModTable(env);
   await listsTable(env);
+  await issuesTable(env);
   await env.DB.batch([
     B("DELETE FROM pins WHERE user_id = ?1"), B("DELETE FROM alerts WHERE user_id = ?1"),
     B("DELETE FROM reposts WHERE user_id = ?1"), B("DELETE FROM reports WHERE reporter_id = ?1"),
@@ -369,6 +378,9 @@ async function forget(req, env, ev) {
     B("DELETE FROM circle_moderations WHERE mod_id = ?1"), B("DELETE FROM lists WHERE user_id = ?1"),
     B("DELETE FROM reposts WHERE dream_id IN (SELECT id FROM dreams WHERE user_id = ?1)"),
     B("DELETE FROM pins WHERE dream_id IN (SELECT id FROM dreams WHERE user_id = ?1)"),
+    B("DELETE FROM issue_votes WHERE user_id = ?1"), B("DELETE FROM issue_votes WHERE issue_id IN (SELECT id FROM issues WHERE user_id = ?1)"),
+    B("DELETE FROM issue_replies WHERE issue_id IN (SELECT id FROM issues WHERE user_id = ?1)"), B("DELETE FROM issue_replies WHERE mod_id = ?1"),
+    B("DELETE FROM issues WHERE user_id = ?1"),
     B("DELETE FROM dreams WHERE user_id = ?1"), B("DELETE FROM users WHERE id = ?1"),
   ]);
   return json(req, { ok: true, forgot: pk });
@@ -544,6 +556,136 @@ async function listsMine(req, env, ev) {
   for (const r of rows) if (lists[r.list]) lists[r.list].push({ ref: r.ref, data: r.data == null ? undefined : r.data, at: r.created_at });
   return json(req, { ok: true, pubkey: ev.pubkey, lists });
 }
+/* ---------- Looscid's own issue tracker (Nov 8 2026, Carter: "public ... so people can agree or disagree", "it's all
+   based on our own thing cause I don't wanna be depended on other companies") ----------
+   Tables (made by the code itself, on first use): issues, issue_votes, issue_replies.
+   POST /issues          a signed kind 21989 event: ["type", "bug" | "idea"], ["title", text], ["app", name]?, ["version", v]?;
+                         content = what happened. Last 10 minutes, used once, 10 reports per key per day.
+   POST /issues/vote     a signed kind 21990 event: ["e", issue id], ["vote", "agree" | "disagree" | "none"],
+                         ["visibility", "private" | "public"]? (private when missing). One vote per key per report; a new
+                         vote replaces the old one, "none" takes it back. Only the counts come out, never who voted.
+   POST /issues/moderate a signed kind 21991 event from a Looscid mod (MODS): ["e", issue id], ["status", s]?, content = a
+                         reply or the reason. Closing needs a reason. Anyone else gets 403. Shown in public as "Looscid mods".
+   GET  /issues?status=&limit=&before=   GET /issues/<id>
+   Everything is plain text: Rem stores the words as typed and apps put them on screen as text, never as HTML. */
+const ISSUE_STATUS = ["new", "working", "fixed", "closed"];
+const ISSUE_TITLE_MAX = 120, ISSUE_BODY_MAX = 4e3, ISSUE_REPLY_MAX = 2e3;
+let issuesReady = null;
+function issuesTable(env) {
+  if (!issuesReady) issuesReady = env.DB.batch([
+    env.DB.prepare("CREATE TABLE IF NOT EXISTS issues (id TEXT PRIMARY KEY, user_id TEXT NOT NULL, type TEXT NOT NULL, title TEXT NOT NULL, body TEXT NOT NULL, app TEXT, version TEXT, status TEXT NOT NULL DEFAULT 'new', close_reason TEXT, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)"),
+    env.DB.prepare("CREATE INDEX IF NOT EXISTS issues_status ON issues(status, created_at)"),
+    env.DB.prepare("CREATE INDEX IF NOT EXISTS issues_user ON issues(user_id)"),
+    env.DB.prepare("CREATE TABLE IF NOT EXISTS issue_votes (issue_id TEXT NOT NULL, user_id TEXT NOT NULL, vote INTEGER NOT NULL, visibility TEXT NOT NULL DEFAULT 'private', created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, PRIMARY KEY (issue_id, user_id))"),
+    env.DB.prepare("CREATE INDEX IF NOT EXISTS issue_votes_user ON issue_votes(user_id)"),
+    env.DB.prepare("CREATE TABLE IF NOT EXISTS issue_replies (id TEXT PRIMARY KEY, issue_id TEXT NOT NULL, mod_id TEXT NOT NULL, status TEXT, text TEXT NOT NULL, created_at INTEGER NOT NULL)"),
+    env.DB.prepare("CREATE INDEX IF NOT EXISTS issue_replies_issue ON issue_replies(issue_id, created_at)"),
+  ]).catch((e) => { issuesReady = null; throw e; });
+  return issuesReady;
+}
+// Plain text only: control characters out (new lines and tabs stay in the words), spaces trimmed.
+const issueText = (s, lines) => String(s == null ? "" : s).replace(lines ? /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g : /[\u0000-\u001f\u007f]+/g, lines ? "" : " ").trim();
+const issueChars = (s) => Array.from(s).length;
+const ISSUE_SQL = "SELECT i.id, i.user_id, i.type, i.title, i.body, i.app, i.version, i.status, i.close_reason, i.created_at, i.updated_at, " +
+  "(SELECT COUNT(*) FROM issue_votes v WHERE v.issue_id = i.id AND v.vote = 1) AS agree, " +
+  "(SELECT COUNT(*) FROM issue_votes v WHERE v.issue_id = i.id AND v.vote = -1) AS disagree FROM issues i";
+function issueOut(r, replies) {
+  return { id: r.id, by: r.user_id, type: r.type, title: r.title, body: r.body, app: r.app || null, version: r.version || null,
+    status: r.status, close_reason: r.close_reason || null, created_at: r.created_at, updated_at: r.updated_at,
+    agree: r.agree || 0, disagree: r.disagree || 0,
+    replies: (replies || []).map((x) => ({ by: "Looscid mods", text: x.text, status: x.status || null, at: x.created_at })) };
+}
+async function repliesFor(env, ids) {
+  const out = {}; if (!ids.length) return out;
+  const rows = (await env.DB.prepare("SELECT issue_id, status, text, created_at FROM issue_replies WHERE issue_id IN (" + ids.map((_, i) => "?" + (i + 1)).join(",") + ") ORDER BY created_at").bind(...ids).all()).results;
+  for (const r of rows) (out[r.issue_id] = out[r.issue_id] || []).push(r);
+  return out;
+}
+async function issuesList(req, env, url) {
+  await issuesTable(env);
+  const st = url.searchParams.get("status") || "all";
+  if (!["all", "open"].concat(ISSUE_STATUS).includes(st)) return json(req, { ok: false, error: "status is all, open, new, working, fixed or closed" }, 400);
+  const limit = Math.max(1, Math.min(100, parseInt(url.searchParams.get("limit") || "50", 10) || 50));
+  const before = parseInt(url.searchParams.get("before") || "", 10);
+  const where = [], args = [];
+  if (st === "open") where.push("i.status != 'closed'"); else if (st !== "all") { args.push(st); where.push("i.status = ?" + args.length); }
+  if (Number.isFinite(before)) { args.push(before); where.push("i.created_at < ?" + args.length); }
+  args.push(limit);
+  const rows = (await env.DB.prepare(ISSUE_SQL + (where.length ? " WHERE " + where.join(" AND ") : "") + " ORDER BY i.created_at DESC LIMIT ?" + args.length).bind(...args).all()).results;
+  const reps = await repliesFor(env, rows.map((r) => r.id));
+  return json(req, { ok: true, statuses: ISSUE_STATUS, issues: rows.map((r) => issueOut(r, reps[r.id])), next: rows.length === limit ? rows[rows.length - 1].created_at : null });
+}
+async function issueOne(req, env, id) {
+  await issuesTable(env);
+  const r = await env.DB.prepare(ISSUE_SQL + " WHERE i.id = ?1").bind(id).first();
+  if (!r) return json(req, { ok: false, error: "no such report" }, 404);
+  const reps = await repliesFor(env, [id]);
+  return json(req, { ok: true, issue: issueOut(r, reps[id]) });
+}
+async function issueNew(req, env, ev) {
+  if (ev.kind !== 21989 || !fresh(ev)) return json(req, { ok: false, error: "needs a fresh kind 21989 report event" }, 400);
+  const type = (tag(ev, "type") || [])[1];
+  if (type !== "bug" && type !== "idea") return json(req, { ok: false, error: "type is bug or idea" }, 400);
+  const title = issueText((tag(ev, "title") || [])[1], false), body = issueText(ev.content, true);
+  if (!title) return json(req, { ok: false, error: "a report needs a title" }, 400);
+  if (issueChars(title) > ISSUE_TITLE_MAX) return json(req, { ok: false, error: "title is up to 120 characters" }, 400);
+  if (issueChars(body) > ISSUE_BODY_MAX) return json(req, { ok: false, error: "what happened is up to 4000 characters" }, 400);
+  const app = issueText((tag(ev, "app") || [])[1], false).slice(0, 40) || null, version = issueText((tag(ev, "version") || [])[1], false).slice(0, 40) || null;
+  await issuesTable(env);
+  if (!await once(env, ev)) return json(req, { ok: false, error: "already used" }, 409);
+  if (!await allowed(env, "issueday:" + ev.pubkey, LIMITS.issue)) return json(req, { ok: false, error: "that's 10 reports today, try again tomorrow" }, 429);
+  const t = Date.now();
+  const r = await env.DB.prepare("INSERT INTO issues (id, user_id, type, title, body, app, version, status, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, 'new', ?8, ?8) ON CONFLICT(id) DO NOTHING").bind(ev.id, ev.pubkey, type, title, body, app, version, t).run();
+  if (!r.meta || !r.meta.changes) return json(req, { ok: false, error: "already used" }, 409);
+  return await issueOne(req, env, ev.id);
+}
+async function issueVote(req, env, ev) {
+  if (ev.kind !== 21990 || !fresh(ev)) return json(req, { ok: false, error: "needs a fresh kind 21990 vote event" }, 400);
+  const e = (tag(ev, "e") || [])[1], vote = (tag(ev, "vote") || [])[1], vis = (tag(ev, "visibility") || [])[1] || "private";
+  if (!isHex(e, 64)) return json(req, { ok: false, error: "no report (e tag)" }, 400);
+  if (!["agree", "disagree", "none"].includes(vote)) return json(req, { ok: false, error: "vote is agree, disagree or none" }, 400);
+  if (vis !== "private" && vis !== "public") return json(req, { ok: false, error: "visibility is private or public" }, 400);
+  await issuesTable(env);
+  const it = await env.DB.prepare("SELECT id FROM issues WHERE id = ?1").bind(e).first();
+  if (!it) return json(req, { ok: false, error: "no such report" }, 404);
+  if (!await once(env, ev)) return json(req, { ok: false, error: "already used" }, 409);
+  const t = Date.now();
+  if (vote === "none") await env.DB.prepare("DELETE FROM issue_votes WHERE issue_id = ?1 AND user_id = ?2").bind(e, ev.pubkey).run();
+  else await env.DB.prepare("INSERT INTO issue_votes (issue_id, user_id, vote, visibility, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?5) ON CONFLICT(issue_id, user_id) DO UPDATE SET vote = ?3, visibility = ?4, updated_at = ?5").bind(e, ev.pubkey, vote === "agree" ? 1 : -1, vis, t).run();
+  const c = await env.DB.prepare("SELECT SUM(CASE WHEN vote = 1 THEN 1 ELSE 0 END) AS agree, SUM(CASE WHEN vote = -1 THEN 1 ELSE 0 END) AS disagree FROM issue_votes WHERE issue_id = ?1").bind(e).first();
+  return json(req, { ok: true, id: e, vote, agree: c && c.agree || 0, disagree: c && c.disagree || 0 });
+}
+async function issueModerate(req, env, ev) {
+  if (ev.kind !== 21991 || !fresh(ev)) return json(req, { ok: false, error: "needs a fresh kind 21991 event" }, 400);
+  if (!mods(env).includes(ev.pubkey)) return json(req, { ok: false, error: "not a Looscid moderator" }, 403);
+  const e = (tag(ev, "e") || [])[1], st = (tag(ev, "status") || [])[1] || null, text = issueText(ev.content, true);
+  if (!isHex(e, 64)) return json(req, { ok: false, error: "no report (e tag)" }, 400);
+  if (st && !ISSUE_STATUS.includes(st)) return json(req, { ok: false, error: "status is new, working, fixed or closed" }, 400);
+  if (!st && !text) return json(req, { ok: false, error: "needs a status, a reply, or both" }, 400);
+  if (st === "closed" && !text) return json(req, { ok: false, error: "closing a report needs a reason" }, 400);
+  if (issueChars(text) > ISSUE_REPLY_MAX) return json(req, { ok: false, error: "a reply is up to 2000 characters" }, 400);
+  await issuesTable(env);
+  const it = await env.DB.prepare("SELECT id FROM issues WHERE id = ?1").bind(e).first();
+  if (!it) return json(req, { ok: false, error: "no such report" }, 404);
+  if (!await once(env, ev)) return json(req, { ok: false, error: "already used" }, 409);
+  const t = Date.now(), q = [env.DB.prepare("INSERT INTO issue_replies (id, issue_id, mod_id, status, text, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6) ON CONFLICT(id) DO NOTHING").bind(ev.id, e, ev.pubkey, st, text, t)];
+  if (st) q.push(env.DB.prepare("UPDATE issues SET status = ?2, close_reason = ?3, updated_at = ?4 WHERE id = ?1").bind(e, st, st === "closed" ? text : null, t));
+  else q.push(env.DB.prepare("UPDATE issues SET updated_at = ?2 WHERE id = ?1").bind(e, t));
+  await env.DB.batch(q);
+  return await issueOne(req, env, e);
+}
+async function issueRoute(req, env, path) {
+  if (!await allowed(env, await ipKey(req), LIMITS.ip)) return json(req, { ok: false, error: "slow down" }, 429);
+  const { ev, error } = await readEvent(req);
+  if (error) return json(req, { ok: false, error }, error === "too big" ? 413 : 400);
+  if (ev._v0) return json(req, { ok: false, error: "reports and votes need a fresh Rem v1 event" }, 400);
+  const k = path === "/issues" ? "issues" : path === "/issues/vote" ? "issue_vote" : "issue_mod";
+  if (!await allowed(env, k + ":" + ev.pubkey, LIMITS[k])) return json(req, { ok: false, error: "slow down" }, 429);
+  if (path === "/issues") return await issueNew(req, env, ev);
+  if (path === "/issues/vote") return await issueVote(req, env, ev);
+  return await issueModerate(req, env, ev);
+}
+
 export default {
   async fetch(req, env) {
     const url = new URL(req.url), path = url.pathname.replace(/\/+$/, "") || "/";
@@ -552,18 +694,22 @@ export default {
       if (req.method === "GET") {
         if (path === "/health") {
           const r = await env.DB.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name").all();
-          return json(req, { ok: true, protocol: PROTOCOL, tables: r.results.map((t) => t.name) });
+          return json(req, { ok: true, protocol: PROTOCOL, tables: r.results.map((t) => t.name), issues: true });
         }
         if (path === "/feed") return await feed(req, env, url);
         if (path === "/export") return await exportEvents(req, env, url);
         if (path === "/moderators") return json(req, { ok: true, moderators: mods(env) });
         if (path === "/modlog") return await modlog(req, env, url);
+        if (path === "/issues") return await issuesList(req, env, url);
+        const im = path.match(/^\/issues\/([0-9a-f]{64})$/i);
+        if (im) return await issueOne(req, env, im[1].toLowerCase());
         const mm = path.match(/^\/moderation\/([0-9a-f]{64})$/i);
         if (mm) return await moderationOf(req, env, mm[1].toLowerCase());
         const m = path.match(/^\/dreams\/([^/]+)$/);
         if (m) return await userDreams(req, env, url, decodeURIComponent(m[1]).toLowerCase());
         return json(req, { ok: false, error: "not found" }, 404);
       }
+      if (req.method === "POST" && ["/issues", "/issues/vote", "/issues/moderate"].includes(path)) return await issueRoute(req, env, path);
       if (req.method === "POST" && ["/ingest", "/report", "/block", "/forget", "/moderate", "/list", "/mine"].includes(path)) {
         if (!(await allowed(env, await ipKey(req), LIMITS.ip))) return json(req, { ok: false, error: "slow down" }, 429);
         const { ev, error } = await readEvent(req);

@@ -157,6 +157,8 @@ function helpBody(v, act) {
       h('h2', { className: "lc-sub-h" }, "Steps"),
       h('ol', { className: "lc-help-steps", style: LC_HELP_LIST }, a.steps.map(function (t, i) { return h('li', { key: i, className: "lc-desc" }, lcHelpRich(t, act)); })),
       a.live === "modlog" ? lcHelpModLog(act) : null,
+      // Nov 8 2026: Looscid's own issue tracker (js/issues.js): the Report form and the public list, right in this article.
+      a.live === "issues" && Looscid.lcIssuesSection ? Looscid.lcIssuesSection(act) : null,
       a.tips && a.tips.length ? h('h2', { className: "lc-sub-h" }, "Good to know") : null,
       a.tips && a.tips.length ? h('ul', { style: LC_HELP_LIST }, a.tips.map(function (t, i) { return h('li', { key: i, className: "lc-desc" }, lcHelpRich(t, act)); })) : null,
       a.sr && a.sr.length ? h('p', null, h('button', { type: "button", id: "lc-help-sr-btn", className: "btn bgb lc-btn", "aria-expanded": act.srOpen ? "true" : "false", "aria-controls": "lc-help-sr", onClick: act.toggleSr }, "Screen reader tips (optional)")) : null,
@@ -190,6 +192,9 @@ function helpBody(v, act) {
     const k = D.contact || {};
     return h('div', { className: "lc-grp lc-help-sec", style: pad },
       P(k.s, "s"),
+      h('h2', { className: "lc-sub-h" }, "Report a problem in Looscid"),
+      P("Report a bug or an idea right here in Looscid, with your Looscid key. Everyone can read the list, agree or disagree, and see what the mods say.", "o"),
+      h('p', { className: "lc-desc" }, h('button', { type: "button", id: "lc-help-report-own", className: "btn bp lc-big", onClick: function () { act.open({ kind: "art", id: "report-a-problem" }); } }, "Report a problem")),
       h('h2', { className: "lc-sub-h" }, "Report a bug"),
       P("Found something broken? This opens a new GitHub issue with your build number and device already filled in, so you just say what happened. GitHub asks you to log in there.", "b"),
       h('p', { className: "lc-desc" }, h('a', { id: "lc-help-report-bug", className: "btn bgb lc-big lc-bug-link", href: Looscid.lcBugReportUrl ? Looscid.lcBugReportUrl() : "https://github.com/Looscid/Looscid/issues/new", target: "_blank", rel: "noopener noreferrer",
@@ -229,6 +234,7 @@ function helpBody(v, act) {
     h('section', { className: "lc-grp lc-help-sec", "aria-labelledby": "lc-help-h-gethelp", style: { padding: "0 16px 24px" } },
       h('h2', { id: "lc-help-h-gethelp", className: "lc-sub-h" }, "Contact Us"),
       P("Something broken, or an idea? Report a bug on GitHub, or tell us on the Looscid Discord. Looscid has no email.", "k"),
+      h('button', { type: "button", id: "lc-help-report", className: "btn bgb lc-btn", onClick: function () { act.open({ kind: "art", id: "report-a-problem" }); } }, "Report a problem"),
       h('button', { type: "button", id: "lc-help-contact", className: "btn bgb lc-btn", onClick: function () { act.open({ kind: "contact" }); } }, "Open Contact Us"),
       h('p', { className: "lc-desc" }, h('a', { id: "lc-help-web", className: "lc-link", href: web, target: "_blank", rel: "noopener noreferrer" }, "The Help Center on the web"))));
 }
@@ -259,7 +265,8 @@ function helpView(p, act) {
 const HelpCenterPage = lcPlainScreen("HelpCenterPage", function (host, props) {
   let p = props, alive = true;
   const act = {
-    view: { kind: "home" }, srOpen: false, trail: [],
+    // Nov 8 2026: Looscid.LC_HELP_NEXT (set by More, Help, Report a problem) opens one article first, once.
+    view: (function () { const n = Looscid.LC_HELP_NEXT; Looscid.LC_HELP_NEXT = null; return n && n.kind ? n : { kind: "home" }; })(), srOpen: false, trail: [],
     back: function () { if (p.onBack) p.onBack(); },
     commands: function () { if (Looscid.LC_NAV) Looscid.LC_NAV("commands"); },
     feedback: function () { if (Looscid.LC_NAV) Looscid.LC_NAV("feedback"); },

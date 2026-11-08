@@ -23,3 +23,12 @@ CREATE TABLE IF NOT EXISTS circle_moderations (mod_id TEXT NOT NULL, circle_id T
 -- Nov 8 2026: your lists on every device (POST /list, POST /mine). likes and redreams are public as counts; every other list and every saved copy is private (only a read signed by the same key). The code also makes it itself.
 CREATE TABLE IF NOT EXISTS lists (user_id TEXT NOT NULL, list TEXT NOT NULL, ref TEXT NOT NULL, data TEXT, created_at INTEGER NOT NULL, PRIMARY KEY (user_id, list, ref));
 CREATE INDEX IF NOT EXISTS lists_ref ON lists(list, ref);
+-- Nov 8 2026: Looscid's own issue tracker (GET/POST /issues, POST /issues/vote, POST /issues/moderate). Plain text only. A vote's
+-- visibility is private unless the voter says public; only counts come out. The code also makes these itself.
+CREATE TABLE IF NOT EXISTS issues (id TEXT PRIMARY KEY, user_id TEXT NOT NULL, type TEXT NOT NULL, title TEXT NOT NULL, body TEXT NOT NULL, app TEXT, version TEXT, status TEXT NOT NULL DEFAULT 'new', close_reason TEXT, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS issues_status ON issues(status, created_at);
+CREATE INDEX IF NOT EXISTS issues_user ON issues(user_id);
+CREATE TABLE IF NOT EXISTS issue_votes (issue_id TEXT NOT NULL, user_id TEXT NOT NULL, vote INTEGER NOT NULL, visibility TEXT NOT NULL DEFAULT 'private', created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, PRIMARY KEY (issue_id, user_id));
+CREATE INDEX IF NOT EXISTS issue_votes_user ON issue_votes(user_id);
+CREATE TABLE IF NOT EXISTS issue_replies (id TEXT PRIMARY KEY, issue_id TEXT NOT NULL, mod_id TEXT NOT NULL, status TEXT, text TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS issue_replies_issue ON issue_replies(issue_id, created_at);

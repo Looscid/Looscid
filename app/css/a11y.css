@@ -591,3 +591,15 @@ button.lc-prof-linksrow:focus-visible{outline:2px solid var(--ac2);outline-offse
 .lc-pe-plinks.lc-prof-linksrow{flex-direction:row;min-height:0;margin:10px 16px 0;color:var(--i-tx)}
 .lc-pe-plinks .lc-prof-linksrow-u{color:var(--i-link)}
 html[data-lc-theme="light"] .lc-prof-linksrow-u{color:#5b21b6}
+
+/* Nov 8 2026: Report a problem (js/issues.js). Native controls, 44px tap targets. */
+.lc-issues .lc-issue-sel{min-height:44px;max-width:320px}
+.lc-issues .lc-issue-in{min-height:44px}
+.lc-issues .lc-issue-btn{min-height:44px}
+.lc-issue-list{padding-left:1.4em;margin:8px 0}
+.lc-issue{margin:0 0 18px}
+.lc-issue-h{font-size:16px;margin:0 0 4px;color:var(--tx)}
+.lc-issue-body{white-space:pre-wrap}
+.lc-issue-replies{padding-left:1.2em;margin:4px 0}
+.lc-issue-votes{gap:8px;flex-wrap:wrap}
+.lc-issue-mod{margin:6px 0 10px}

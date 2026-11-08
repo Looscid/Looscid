@@ -69,6 +69,7 @@ manifests are versioned JSON with `schema`, `id`, `name`, `summary`, `descriptio
 - [ ] Cherry hooked into context, chat, tagging and Alerts.
 - [ ] working with Mastodon and the fediverse, plus end-to-end encrypted messages n files.
 - [ ] an iOS companion app in Swift, tested with VoiceOver and the BrailleNote Touch Plus.
+- [x] our own issue tracker: report bugs or ideas right in looscid, agree or disagree, mods reply. no outside companies.
 
 ## accessibility + security (no shortcuts)
 

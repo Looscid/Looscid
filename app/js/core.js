@@ -2729,6 +2729,8 @@ function lcMoreSections(o) {
     // It holds Help Center and Commands; Commands is no longer its own section. Actions, so a menu, not a value picker.
     { id:"help", emoji:"Help", label:"Help", menu:true, items:[
       { icon:"Help", label:"Help Center", sub:"Getting started, commands, Cherry, earcons, accessibility, backup, and how to get help", action(){onClose();navigate("helpcenter");} },
+      // Nov 8 2026: Looscid's own issue tracker lives in the Help Center (js/issues.js); this opens its article.
+      { icon:"Help", label:"Report a problem", sub:"Report a bug or an idea, and agree or disagree with other reports", action(){onClose();Looscid.LC_HELP_NEXT = { kind: "art", id: "report-a-problem" };navigate("helpcenter");} },
       { icon:"Commands", label:"Commands", sub:"Every Commandbar command and keyboard shortcut, each one a button that runs it", action(){onClose();navigate("commands");} },
     ]},
   ];
@@ -7569,6 +7571,10 @@ const LC_TIP_NAMES = {
 };
 // Patterns: the first that matches wins. Names with a person, a Circle or a number in them land here.
 const LC_TIP_RULES = [
+  // Nov 8 2026: Report a problem (js/issues.js), Looscid's own issue tracker.
+  [/^report a problem$/, "Shows the report form and the list"], [/^send report$/, "Sends your report"], [/^(agree|agree instead)$/, "Agrees with this report"],
+  [/^(disagree|disagree instead)$/, "Disagrees with this report"], [/^take back (agree|disagree)$/, "Takes your vote back"], [/^mod tools$/, "Shows the mod tools for this report"],
+  [/^send as looscid mods$/, "Sends it as Looscid mods"], [/^try again$/, "Loads the report list again"],
   [/^move up, /, "Moves this link up the list"], [/^move down, /, "Moves this link down the list"], [/^no limit, /, "Takes the limit off"],
   [/, looscidid, security\b/, "Opens your LooscidID settings"], [/^test the read-aloud voice/, "Plays a sample of the voice"],
   [/, [\d,]+ followers?$/, "Opens their profile"], [/, collapse$/, "Hides the replies"], [/, expand$/, "Shows the replies"],
