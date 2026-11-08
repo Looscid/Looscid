@@ -47,7 +47,7 @@ async function call(method, path, body) {
 }
 async function sign(kind, tags, content) {
   const N = Looscid.lcNostr; if (!N || !N.sign || keyMode() !== "key") throw new Error("nokey");
-  const ev = await N.sign({ kind: kind, created_at: Math.floor(Date.now() / 1000), content: content || "", tags: tags.concat([(Looscid.lcNet && Looscid.lcNet.PROTOCOL_TAG) || ["looscid", "1"]]) });
+  const ev = await N.sign({ kind: kind, created_at: Math.floor(Date.now() / 1000), content: content || "", tags: tags.concat([(Looscid.lcNet && Looscid.lcNet.PROTOCOL_TAG) || ["looscid", "1"], ["n", Math.random().toString(36).slice(2, 10)]]) }); // the n tag: two reads in the same second get different ids, so Rem never says 409
   if (!ev) throw new Error("nokey"); return ev;
 }
 function when(ms) { try { return new Date(+ms).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return ""; } }
