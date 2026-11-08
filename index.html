@@ -6228,8 +6228,13 @@ function StepDots({ mode }) {
 }
 
 
+/* --- GUEST MODE user (shared by Splash + Login "Guest Mode") ------------- */
+function guestAuthUser() {
+  return { displayName:"Guest", name:"Guest", handle:"@guest", initials:"DD", color:"#6d28d9", bio:"Browsing as a guest. Sign in to Dream.", location:"Dream Land", joined:"February 2024", dreamCount:12, followers:3, following:7, verified:false, email:"guest@dream-os.pages.dev", emailVerified:true, photoURL:null, uid:"demo", isGuest:true };
+}
+
 /* --- SPLASH SCREEN ------------------------------------------------------- */
-function SplashScreen({ onLogin, onSignup }) {
+function SplashScreen({ onLogin, onSignup, onGuest }) {
   return (
     React.createElement('div', {className:"splash", role:"main", 'aria-label':"Welcome to DreamOS"}
       , React.createElement('div', {style:{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"48px 28px 24px",textAlign:"center"}}
@@ -6250,15 +6255,22 @@ function SplashScreen({ onLogin, onSignup }) {
             className:"btn bp",
             style:{width:"100%",padding:15,fontSize:15,fontWeight:700},
             onClick:onSignup,
-            'aria-label':"Create your Nostr account,"},
-          React.createElement('span', {'aria-hidden':"true"}, "Create your Nostr key")
+            'aria-label':"Create your Dream ID (not a real Nostr account)"},
+          React.createElement('span', {'aria-hidden':"true"}, "Create your Dream ID (not a real Nostr account)")
         )
         , React.createElement('button', {
             className:"btn bgb",
             style:{width:"100%",padding:13,fontSize:14},
             onClick:onLogin,
-            'aria-label':"Login with your existing Nostr key,"},
-          React.createElement('span', {'aria-hidden':"true"}, "Login with Nostr")
+            'aria-label':"Login with Dream ID"},
+          React.createElement('span', {'aria-hidden':"true"}, "Login with Dream ID")
+        )
+        , React.createElement('button', {
+            type:"button",
+            className:"btn bgb",
+            style:{width:"100%",padding:13,fontSize:14},
+            onClick:onGuest},
+          "Use Guest Mode (not included in OG version)"
         )
         , React.createElement('p', {style:{fontSize:11,color:"var(--tx3)",textAlign:"center",lineHeight:1.6,margin:0}},
           "Works with Alby, nos2x and any Nostr extension."
@@ -6329,7 +6341,7 @@ function LoginScreen({ onAuth, onBack, initialMode="login" }) {
 
   // --- Handlers ---
   const handleDemoLogin = () => {
-    onAuth({ displayName:"Guest", name:"Guest", handle:"@guest", initials:"DD", color:"#6d28d9", bio:"Browsing as a guest. Sign in to Dream.", location:"Dream Land", joined:"February 2024", dreamCount:12, followers:3, following:7, verified:false, email:"guest@dream-os.pages.dev", emailVerified:true, photoURL:null, uid:"demo", isGuest:true });
+    onAuth(guestAuthUser());
   };
 
   const handleLogin = async () => {
@@ -8043,7 +8055,8 @@ useEffect(() => {
   if (authStage === "splash") return (
     React.createElement(SplashScreen, {
       onLogin: ()=>{ setLoginMode("login"); setAuthStage("auth"); },
-      onSignup: ()=>{ setLoginMode("signup"); setAuthStage("auth"); },}
+      onSignup: ()=>{ setLoginMode("signup"); setAuthStage("auth"); },
+      onGuest: ()=>{ setAuthUser(guestAuthUser()); setAuthStage("app"); },}
     )
   );
   if (authStage === "gate") return React.createElement(TurnstileGate, { onVerified: () => setAuthStage("auth"),});
