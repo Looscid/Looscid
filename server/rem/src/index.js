@@ -33,6 +33,13 @@
 //   GET  /moderation/:pubkey             -> that Dreamor's removed or report-hidden Dreams, with the reason
 //   GET  /modlog?limit=&before=          -> the public mod log: every removal, newest first (Dream id, "admin", reason, when; never the words)
 //   POST /moderate body: a signed kind 21986 event: ["e", <dream id>], ["action", "remove" | "restore"], ["reason", text]
+// Your lists on every device (Nov 8 2026; table lists, made by the code itself):
+//   POST /list     body: a signed kind 21987 event: ["list", name], ["action", "add" | "remove"], ["i", ref, data?] x 1-200,
+//                  last 10 minutes, used once. Lists: likes, redreams (public: only counts come out, in /feed), and the
+//                  private ones: liked_other, pins, muted_dreamors, muted_threads, not_interested, threads.
+//   POST /mine     body: a signed kind 21988 event: ["action", "read-my-lists"], last 10 minutes, used once -> every list of
+//                  that key with each item's saved copy. This is the only way to read the private lists.
+//   GET  /feed     each Dream also says "likes", and with ?viewer= whether that key "liked" or "redreamed" it.
 // CORS: only https://looscid.github.io (and the test preview https://looscid-preview.sites.tab.bot) get the allow headers.
 
 import { schnorr } from "@noble/curves/secp256k1";
@@ -54,6 +61,7 @@ const HIDE_AT = 3;               // reports with a total weight of 3 or more -> 
 const TRUST_AGE_MS = 7 * 86400000, TRUST_DREAMS = 3, WEIGHT_TRUSTED = 1, WEIGHT_NEW = 0.25;
 const LIMITS = {                 // simple rate limits: [max actions, per this many seconds]
   ingest: [30, 600], report: [20, 3600], block: [60, 3600], forget: [5, 3600], moderate: [120, 3600], ip: [200, 600],
+  list: [300, 3600], mine: [240, 3600], // Nov 8 2026: your lists (POST /list, POST /mine)
 };
 
 /* ---------- small helpers ---------- */
@@ -235,7 +243,10 @@ SELECT d.id, d.user_id AS pk, d.text, d.cw, d.quote_of, d.created_at, d.updated_
   (SELECT e.json FROM events e WHERE e.id = d.id) AS ev,
   (SELECT COUNT(*) FROM dreams r WHERE r.reply_to = d.id AND r.deleted_at IS NULL AND r.status = 'ok') AS replies,
   (SELECT COUNT(*) FROM reposts p WHERE p.dream_id = d.id) AS redreams,
-  (SELECT COUNT(*) FROM dreams q WHERE q.quote_of = d.id AND q.deleted_at IS NULL AND q.status = 'ok') AS quotes
+  (SELECT COUNT(*) FROM dreams q WHERE q.quote_of = d.id AND q.deleted_at IS NULL AND q.status = 'ok') AS quotes,
+  (SELECT COUNT(*) FROM lists l WHERE l.list = 'likes' AND l.ref = d.id) AS likes,
+  (?2 IS NOT NULL AND EXISTS (SELECT 1 FROM lists l WHERE l.list = 'likes' AND l.ref = d.id AND l.user_id = ?2)) AS you_liked,
+  (?2 IS NOT NULL AND EXISTS (SELECT 1 FROM reposts p WHERE p.dream_id = d.id AND p.user_id = ?2)) AS you_redreamed
 FROM dreams d
 WHERE d.reply_to IS NULL AND d.deleted_at IS NULL AND d.status = 'ok'
   AND d.created_at > ?1 - 30 * 86400000
@@ -248,7 +259,9 @@ function out(r) {
   let tags = []; try { tags = JSON.parse(r.tags || "[]"); } catch (e) {}
   return { id: r.id, nid: r.id, pk: r.pk, text: r.text, created: r.created_at, cw: r.cw || undefined, tags,
     reply_to: r.reply_to || undefined, quote_of: r.quote_of || undefined,
-    replies: r.replies || 0, redreams: r.redreams || 0, quotes: r.quotes || 0, score: r.score, ev: parseEv(r.ev) };
+    replies: r.replies || 0, redreams: r.redreams || 0, quotes: r.quotes || 0, score: r.score, ev: parseEv(r.ev),
+    // Nov 8 2026: likes (from lists), and with ?viewer= whether that key liked or ReDreamed it (both are public)
+    likes: r.likes || 0, liked: r.you_liked ? true : undefined, redreamed: r.you_redreamed ? true : undefined };
 }
 
 async function feed(req, env, url) {
@@ -256,6 +269,7 @@ async function feed(req, env, url) {
   const before = parseInt(url.searchParams.get("before") || "", 10);
   const viewer = url.searchParams.get("viewer");
   const newest = url.searchParams.get("sort") === "new"; // ?sort=new: pure time, no boost ("Newest" in the app)
+  await listsTable(env);
   const rows = (await env.DB.prepare(FEED_SQL).bind(Date.now(), isHex(viewer, 64) ? viewer : null).all()).results;
   for (const r of rows) r.score = newest ? r.created_at : r.created_at + Math.min(BOOST_CAP, r.replies * REPLY_BOOST + (r.redreams + r.quotes) * SHARE_BOOST);
   rows.sort((a, b) => b.score - a.score || (a.id < b.id ? -1 : 1));
@@ -345,13 +359,14 @@ async function forget(req, env, ev) {
   const pk = ev.pubkey, B = (sql) => env.DB.prepare(sql).bind(pk);
   await modTable(env); // so the cleanup line below works on a database that never had a removal
   await circleModTable(env);
+  await listsTable(env);
   await env.DB.batch([
     B("DELETE FROM pins WHERE user_id = ?1"), B("DELETE FROM alerts WHERE user_id = ?1"),
     B("DELETE FROM reposts WHERE user_id = ?1"), B("DELETE FROM reports WHERE reporter_id = ?1"),
     B("DELETE FROM blocks WHERE blocker_id = ?1"), B("DELETE FROM events WHERE pubkey = ?1"),
     B("DELETE FROM reports WHERE dream_id IN (SELECT id FROM dreams WHERE user_id = ?1)"),
     B("DELETE FROM moderations WHERE dream_id IN (SELECT id FROM dreams WHERE user_id = ?1)"),
-    B("DELETE FROM circle_moderations WHERE mod_id = ?1"),
+    B("DELETE FROM circle_moderations WHERE mod_id = ?1"), B("DELETE FROM lists WHERE user_id = ?1"),
     B("DELETE FROM reposts WHERE dream_id IN (SELECT id FROM dreams WHERE user_id = ?1)"),
     B("DELETE FROM pins WHERE dream_id IN (SELECT id FROM dreams WHERE user_id = ?1)"),
     B("DELETE FROM dreams WHERE user_id = ?1"), B("DELETE FROM users WHERE id = ?1"),
@@ -459,6 +474,76 @@ async function modlogScoped(req, env, url, scope) {
 
 /* ---------- router ---------- */
 // "return await" (not just "return") so an error inside a handler is caught below and never leaks.
+/* ---------- your lists on every device (Nov 8 2026) ---------- */
+// Carter: "every single change should be everywhere". Likes, ReDreams, pinned Dreams, mutes ("Not interested" too) and
+// threads you follow follow your LooscidID key to every device. One table, lists: one row per key, list and item.
+//   Public: that a key liked or ReDreamed a Dream. Only counts come out (GET /feed "likes", "redreams"), and a ReDream
+//   of a Dream on Rem is also a row in reposts, so the old ReDream count and the feed boost see it.
+//   Private: pins, liked_other (liked searches and other non-Dream things), muted_dreamors, muted_threads,
+//   not_interested, threads, and the small copy ("data") kept with every item. They only come back through POST /mine:
+//   a read signed by the same key in the last 10 minutes. Every signed list write or read works once (its id is kept
+//   in the rate table for 20 minutes), so a copied request can't be replayed. No other route ever reads them.
+const LISTS = { likes: 1000, liked_other: 500, redreams: 1000, pins: 20, muted_dreamors: 500, muted_threads: 500, not_interested: 500, threads: 200 };
+const LIST_REF = /^[^\u0000-\u001f\u007f]{1,128}$/;
+const LIST_DATA_MAX = 4000;
+let listsReady = null;
+function listsTable(env) {
+  if (!listsReady) listsReady = env.DB.batch([
+    env.DB.prepare("CREATE TABLE IF NOT EXISTS lists (user_id TEXT NOT NULL, list TEXT NOT NULL, ref TEXT NOT NULL, data TEXT, created_at INTEGER NOT NULL, PRIMARY KEY (user_id, list, ref))"),
+    env.DB.prepare("CREATE INDEX IF NOT EXISTS lists_ref ON lists(list, ref)"),
+  ]).catch((e) => { listsReady = null; throw e; });
+  return listsReady;
+}
+async function once(env, ev) {
+  const t = now();
+  await env.DB.prepare("DELETE FROM rate WHERE k LIKE 'once:%' AND window_start < ?1").bind(t - 2 * FRESH_SEC).run();
+  const row = await env.DB.prepare("INSERT INTO rate (k, window_start, n) VALUES (?1, ?2, 1) ON CONFLICT(k) DO UPDATE SET n = n + 1 RETURNING n").bind("once:" + ev.id, t).first();
+  return !!row && row.n === 1;
+}
+// POST /list: a signed kind 21987 event: ["list", name], ["action", "add" | "remove"], ["i", ref, data?] (1 to 200).
+async function listWrite(req, env, ev) {
+  if (ev.kind !== 21987 || !fresh(ev)) return json(req, { ok: false, error: "needs a fresh kind 21987 list event" }, 400);
+  const list = (tag(ev, "list") || [])[1], action = (tag(ev, "action") || [])[1];
+  if (!Object.prototype.hasOwnProperty.call(LISTS, list)) return json(req, { ok: false, error: "unknown list" }, 400);
+  if (action !== "add" && action !== "remove") return json(req, { ok: false, error: 'action must be "add" or "remove"' }, 400);
+  const seen = new Set(), items = [];
+  for (const x of tagsOf(ev, "i")) if (LIST_REF.test(x[1] || "") && !seen.has(x[1])) { seen.add(x[1]); items.push(x); }
+  if (!items.length || items.length > 200) return json(req, { ok: false, error: "needs 1 to 200 items (i tags)" }, 400);
+  if (!(await once(env, ev))) return json(req, { ok: false, error: "this signed event was already used" }, 409);
+  await listsTable(env);
+  const pk = ev.pubkey, t = Date.now(), S = [];
+  if (action === "add") {
+    const have = new Set((await env.DB.prepare("SELECT ref FROM lists WHERE user_id = ?1 AND list = ?2").bind(pk, list).all()).results.map((r) => r.ref));
+    if (have.size + items.filter((x) => !have.has(x[1])).length > LISTS[list]) return json(req, { ok: false, error: "that list is full (" + LISTS[list] + " at most)" }, 400);
+    for (const x of items) {
+      const data = typeof x[2] === "string" && x[2].length <= LIST_DATA_MAX ? x[2] : null;
+      S.push(env.DB.prepare("INSERT INTO lists (user_id, list, ref, data, created_at) VALUES (?1, ?2, ?3, ?4, ?5) ON CONFLICT(user_id, list, ref) DO UPDATE SET data = COALESCE(excluded.data, data)").bind(pk, list, x[1], data, t));
+      if (list === "redreams" && isHex(x[1], 64)) S.push(env.DB.prepare(
+        "INSERT OR IGNORE INTO reposts (id, dream_id, user_id, created_at) SELECT ?1, ?2, ?3, ?4 WHERE EXISTS (SELECT 1 FROM dreams WHERE id = ?2) AND NOT EXISTS (SELECT 1 FROM reposts WHERE dream_id = ?2 AND user_id = ?3)"
+      ).bind(bytesToHex(sha256(new TextEncoder().encode("rem-list-redream|" + pk + "|" + x[1]))), x[1], pk, t));
+    }
+  } else {
+    for (const x of items) {
+      S.push(env.DB.prepare("DELETE FROM lists WHERE user_id = ?1 AND list = ?2 AND ref = ?3").bind(pk, list, x[1]));
+      if (list === "redreams" && isHex(x[1], 64)) {
+        S.push(env.DB.prepare("DELETE FROM events WHERE pubkey = ?1 AND kind IN (6, 16) AND id IN (SELECT id FROM reposts WHERE user_id = ?1 AND dream_id = ?2)").bind(pk, x[1]));
+        S.push(env.DB.prepare("DELETE FROM reposts WHERE user_id = ?1 AND dream_id = ?2").bind(pk, x[1]));
+      }
+    }
+  }
+  await env.DB.batch(S);
+  return json(req, { ok: true, list, action, items: items.length });
+}
+// POST /mine: a signed kind 21988 event: ["action", "read-my-lists"], last 10 minutes, used once -> all your lists.
+async function listsMine(req, env, ev) {
+  if (ev.kind !== 21988 || !fresh(ev) || (tag(ev, "action") || [])[1] !== "read-my-lists") return json(req, { ok: false, error: 'needs a fresh kind 21988 event with ["action", "read-my-lists"]' }, 400);
+  if (!(await once(env, ev))) return json(req, { ok: false, error: "this signed event was already used" }, 409);
+  await listsTable(env);
+  const rows = (await env.DB.prepare("SELECT list, ref, data, created_at FROM lists WHERE user_id = ?1 ORDER BY created_at DESC, ref").bind(ev.pubkey).all()).results;
+  const lists = {}; for (const k of Object.keys(LISTS)) lists[k] = [];
+  for (const r of rows) if (lists[r.list]) lists[r.list].push({ ref: r.ref, data: r.data == null ? undefined : r.data, at: r.created_at });
+  return json(req, { ok: true, pubkey: ev.pubkey, lists });
+}
 export default {
   async fetch(req, env) {
     const url = new URL(req.url), path = url.pathname.replace(/\/+$/, "") || "/";
@@ -479,7 +564,7 @@ export default {
         if (m) return await userDreams(req, env, url, decodeURIComponent(m[1]).toLowerCase());
         return json(req, { ok: false, error: "not found" }, 404);
       }
-      if (req.method === "POST" && ["/ingest", "/report", "/block", "/forget", "/moderate"].includes(path)) {
+      if (req.method === "POST" && ["/ingest", "/report", "/block", "/forget", "/moderate", "/list", "/mine"].includes(path)) {
         if (!(await allowed(env, await ipKey(req), LIMITS.ip))) return json(req, { ok: false, error: "slow down" }, 429);
         const { ev, error } = await readEvent(req);
         if (error) return json(req, { ok: false, error }, error === "too big" ? 413 : 400);
@@ -490,6 +575,8 @@ export default {
         if (path === "/report") return await report(req, env, ev);
         if (path === "/forget") return await forget(req, env, ev);
         if (path === "/moderate") return await moderate(req, env, ev);
+        if (path === "/list") return await listWrite(req, env, ev);
+        if (path === "/mine") return await listsMine(req, env, ev);
         return await block(req, env, ev);
       }
       return json(req, { ok: false, error: req.method === "GET" || req.method === "POST" ? "not found" : "method not allowed" }, req.method === "GET" || req.method === "POST" ? 404 : 405);

@@ -257,8 +257,13 @@ function lcPubDream(r) {
 function lcNetDream(r) {
   let npub = ""; try { npub = window.NostrTools ? window.NostrTools.nip19.npubEncode(r.pk) : ""; } catch (e) {}
   const short = String(npub || r.pk).slice(0, 14), cwT = (r.tags || []).find(function (t) { return t && t[0] === "content-warning"; });
+  // Nov 8 2026 (js/remlists.js): Rem counts likes and ReDreams from every device. Your own like or ReDream comes from this
+  // device (it's the newest), and everyone else's from Rem, so the number is right even before a change has synced.
+  const cnt = function (n, mineOnRem, mineHere) { const others = Math.max(0, (+n || 0) - (mineOnRem ? 1 : 0)); return { n: others + (mineHere ? 1 : 0), on: !!mineHere }; };
+  const lk = cnt(r.likes, r.liked, Looscid.lcLikedHas && Looscid.lcLikedHas("dream", "n:" + r.id));
+  const rd = cnt(r.redreams, r.redreamed, Looscid.lcRedreamHas && Looscid.lcRedreamHas("n:" + r.id));
   return { id: "n:" + r.id, nid: r.nid || r.id, user: { id: "npub:" + r.pk, name: short, handle: "@" + short, net: "looscid" }, text: r.text, time: lcAgo(r.created), created: r.created,
-    likes: 0, comments: r.replies || 0, redreams: r.redreams || 0, quotes: r.quotes || 0, liked: false, redreamed: false, quoted: false, bookmarked: false,
+    likes: lk.n, comments: r.replies || 0, redreams: rd.n, quotes: r.quotes || 0, liked: lk.on, redreamed: rd.on, quoted: false, bookmarked: false,
     cw: r.cw || (cwT ? cwT[1] || "Content warning" : undefined), net: "looscid", fromServer: true, tags: r.tags || [], sigOk: lcRemSigOk(r) };
 }
 /* Nov 7 2026 (Carter): the "Verified" badge. Rem sends each Dream with its original signed event (r.ev). This checks it

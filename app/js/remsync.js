@@ -20,7 +20,8 @@ const lh = React.createElement, useState = React.useState, useEffect = React.use
 const SRV_KEY = "looscid_server";
 const RESTORED_KEY = "looscid_restored_note";
 // Kept out of a backup file's app copy: the key goes in its own field, and sign-in tokens never go in a file.
-const NO_BACKUP = ["looscid_nostr_sk", "looscid_nostr_ncryptsec", "looscid_sessions", "looscid_oauth_pending", "looscid_identity", RESTORED_KEY];
+// Nov 8 2026: looscid_rem_lists (js/remlists.js) is only sync bookkeeping, so a restored file merges with Rem and loses nothing.
+const NO_BACKUP = ["looscid_nostr_sk", "looscid_nostr_ncryptsec", "looscid_sessions", "looscid_oauth_pending", "looscid_identity", RESTORED_KEY, "looscid_rem_lists"];
 const isHex64 = function (s) { return /^[0-9a-f]{64}$/i.test(String(s || "")); };
 const REM_BASE = (function () {
   try { const s = document.currentScript && document.currentScript.src; if (s) return new URL("rem/", s).href; } catch (e) {}

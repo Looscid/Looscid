@@ -155,6 +155,23 @@ async function moderationFor(pk) {
   const r = await call("GET", "/moderation/" + encodeURIComponent(me)); return r.ok && Array.isArray(r.body.items) ? r.body.items : [];
 }
 
+/* --- Your lists on every device (Nov 8 2026, js/remlists.js) --- */
+// Likes, ReDreams, pins, mutes and followed threads. A write is a signed kind 21987 event; reading them back is a signed
+// kind 21988 event (POST /mine), so nobody but your own key can read the private ones. Each signed request works once.
+// items: [[ref, data?], ...]. Answers { ok, status } (404 = a Rem without lists, so nothing changes on this device).
+async function listWrite(list, action, items) {
+  const tags = [["list", String(list)], ["action", action === "remove" ? "remove" : "add"]];
+  (items || []).forEach(function (x) { tags.push(typeof x[1] === "string" ? ["i", String(x[0]), x[1]] : ["i", String(x[0])]); });
+  try { const ev = await signAction({ kind: 21987, tags: tags.concat([PROTOCOL_TAG]) }); const r = await call("POST", "/list", ev); return { ok: r.ok, status: r.status, error: r.body && r.body.error }; }
+  catch (e) { return { ok: false, err: e.message }; }
+}
+// Every list of yours on Rem, { likes: [{ ref, data, at }], pins: [...], ... }, or null (no key, offline or an older Rem).
+async function listsMine() {
+  try { const ev = await signAction({ kind: 21988, tags: [["action", "read-my-lists"], PROTOCOL_TAG] }); const r = await call("POST", "/mine", ev);
+    return r.ok && r.body.lists && typeof r.body.lists === "object" ? r.body.lists : null; }
+  catch (e) { return null; }
+}
+
 /* --- My data --- */
 async function exportMine() {
   const st = Looscid.lcNostr && Looscid.lcNostr.state ? Looscid.lcNostr.state() : {};
@@ -171,7 +188,8 @@ async function exportMine() {
 }
 async function forgetMe() {
   try { const ev = await signAction({ kind: 21985, tags: [["action", "delete-my-data"], PROTOCOL_TAG] }); const r = await call("POST", "/forget", ev);
-    return r.ok ? { ok: true, say: "Deleted. Rem no longer has your Dreams, blocks or reports. Dreams on this device stay." } : { ok: false, say: "Couldn't delete it. Try again in a bit." }; }
+    if (r.ok && Looscid.lcLists) Looscid.lcLists.pause(); // Nov 8 2026: your lists stop syncing here, so they aren't sent right back
+    return r.ok ? { ok: true, say: "Deleted. Rem no longer has your Dreams, blocks, reports, likes, ReDreams, pins, mutes or followed threads. Everything on this device stays, and your lists stop syncing here until you turn it back on." } : { ok: false, say: "Couldn't delete it. Try again in a bit." }; }
   catch (e) { return { ok: false, say: whyText(e) }; }
 }
 async function health() { try { const r = await call("GET", "/health"); return r.ok; } catch (e) { return false; } }
@@ -221,14 +239,18 @@ function LcRemData() {
     lh('p', { className: "lid-help" }, "Download every Dream Rem has for your key, as the original signed file, or delete all of it."),
     lh('button', { type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: function () { run(exportMine()); } }, "Download my Dreams"),
     asking ? lh(React.Fragment, null,
-        lh('p', { className: "lid-help", id: "cb-forget-q" }, "Delete everything Rem has for your key? That's your Dreams, ReDreams, blocks and reports there. Dreams on this device stay, and copies on Nostr relays aren't touched. This can't be undone."),
+        lh('p', { className: "lid-help", id: "cb-forget-q" }, "Delete everything Rem has for your key? That's your Dreams, ReDreams, blocks and reports there, and your synced likes, pins, mutes and followed threads. Dreams on this device stay, and copies on Nostr relays aren't touched. This can't be undone."),
         lh('button', { type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: function () { setAsking(false); run(forgetMe()); } }, "Yes, delete my Rem data"),
         lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { setAsking(false); say("Nothing was deleted."); } }, "Cancel"))
       : lh('button', { type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: function () { setAsking(true); } }, "Delete my Rem data"),
+    // Nov 8 2026: after Delete my Rem data, your lists stop syncing on this device until you turn it back on here.
+    Looscid.lcLists && Looscid.lcLists.paused() ? lh(React.Fragment, null,
+      lh('p', { className: "lid-help" }, "Your likes, ReDreams, pins, mutes and followed threads aren't syncing on this device right now, so they stay only here."),
+      lh('button', { type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: function () { Looscid.lcLists.resume(); say("Your lists sync again. What's on this device is added to Rem, and changes show up on your other devices."); } }, "Sync my lists again")) : null,
     msg ? lh('p', { className: "lid-help", role: "status" }, msg) : null);
 }
 
 Looscid.lcNet = { API: API, PROTOCOL_TAG: PROTOCOL_TAG, BRIDGES: BRIDGES, bridges: bridges, bridgeOn: bridgeOn, setBridge: setBridge, markCrossposted: markCrossposted, wasCrossposted: wasCrossposted,
-  ingest: ingest, flush: flush, feed: feed, userDreams: userDreams, REPORT_REASONS: REPORT_REASONS, report: report, block: block, unblockHandle: unblockHandle, blockedPk: blockedPk, moderate: moderate, modlog: modlog, moderationFor: moderationFor, moderators: moderators,
+  ingest: ingest, flush: flush, feed: feed, userDreams: userDreams, listWrite: listWrite, listsMine: listsMine, REPORT_REASONS: REPORT_REASONS, report: report, block: block, unblockHandle: unblockHandle, blockedPk: blockedPk, moderate: moderate, modlog: modlog, moderationFor: moderationFor, moderators: moderators,
   exportMine: exportMine, forgetMe: forgetMe, health: health, LcConnectionbase: LcConnectionbase, LcRemData: LcRemData };
 })(window.Looscid = window.Looscid || {});

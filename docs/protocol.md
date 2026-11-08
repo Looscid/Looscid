@@ -66,6 +66,8 @@ already on Nostr can be imported. `created_at` is in seconds.
 | 1984 | a report (not stored as an event, not exported) | `["e", <dream id>, <reason>]`, reason is `spam`, `mean`, `unsafe` or `other` |
 | 21984 | block / unblock (not exported) | `["p", <pubkey>]`, `["action", "block" or "unblock"]` |
 | 21985 | delete everything the server has for my key | `["action", "delete-my-data"]` |
+| 21987 | add to or remove from one of your lists (not exported) | `["list", <name>]`, `["action", "add" or "remove"]`, `["i", <item>, <saved copy, optional>]` (1 to 200) |
+| 21988 | read all your lists back (not stored) | `["action", "read-my-lists"]` |
 
 Reports, blocks and "delete my data" must be Rem v1 events signed within the last 10 minutes, so an old one can't be
 replayed. A Dream id is its event id (or its v0 object id), so ids can't clash between people or versions.
@@ -78,13 +80,15 @@ Base: `https://rem.thebntlovver.workers.dev`. JSON in, JSON out. Browsers may ca
 | method | path | does |
 |---|---|---|
 | GET | `/health` | `{ ok, protocol: "rem/1", tables }` |
-| GET | `/feed?limit=30&before=<score>&viewer=<pubkey>&sort=new` | public Dreams (not replies), ranked (below). `sort=new` is pure time, no boost. `viewer` leaves out people that key blocked. `next` is the `before` for the next page. Each Dream carries `ev`, its original signed event, so an app can check the signature itself |
+| GET | `/feed?limit=30&before=<score>&viewer=<pubkey>&sort=new` | public Dreams (not replies), ranked (below). `sort=new` is pure time, no boost. `viewer` leaves out people that key blocked, and says whether that key `liked` or `redreamed` each Dream. Each Dream has `likes`, `redreams`, `replies` and `quotes` counts. `next` is the `before` for the next page. Each Dream carries `ev`, its original signed event, so an app can check the signature itself |
 | GET | `/dreams/<pubkey>?limit=50&before=<ms>` | one person's Dreams and replies, newest first |
 | GET | `/export?after=<seq>&limit=200&author=<pubkey>` | the original signed events and v0 objects, oldest first. `next` is the `after` for the next page. A v0 object is the one with `"rem": 0` |
 | POST | `/ingest` | body: a signed Rem v1 event (kinds 1, 1010, 5, 6, 16) or a signed Rem v0 object (types `dream`, `edit`, `delete`, `redream`) |
 | POST | `/report` | body: a signed kind 1984 event. Reports are weighted (trusted reporters, below); a total of 3 hides the Dream |
 | POST | `/block` | body: a signed kind 21984 event |
-| POST | `/forget` | body: a signed kind 21985 event. Erases that key's Dreams, events, v0 objects, ReDreams, blocks and reports |
+| POST | `/forget` | body: a signed kind 21985 event. Erases that key's Dreams, events, v0 objects, ReDreams, blocks, reports and lists |
+| POST | `/list` | body: a signed kind 21987 event, signed in the last 10 minutes, used once. Lists: `likes` and `redreams` (public: only counts come out), and the private `liked_other`, `pins`, `muted_dreamors`, `muted_threads`, `not_interested` and `threads`. A ReDream of a Dream on Rem also counts as a ReDream |
+| POST | `/mine` | body: a signed kind 21988 event, signed in the last 10 minutes, used once. Answers every list of that key, with each item's saved copy. It's the only way to read the private lists |
 
 **Trusted reporters.** A report counts 1 when the reporter's key is trusted, and 0.25 when it isn't. A key is trusted
 when the server first saw it at least 7 days ago (its own clock, `users.created_at`, never a date inside a signed
@@ -96,7 +100,12 @@ the `weight` it got.
 signature are valid, it is signed by the Dream's key, and its words match. Rem v0 Dreams and edited Dreams aren't
 checked that way, so they show no badge.
 
-**Limits:** 30 Dreams per key per 10 minutes, 20 reports and 60 blocks per key per hour, 200 writes per network
+**Your lists.** Pins, mutes, Not interested, followed threads and liked searches are private: no route shows them, and
+`/mine` only answers a read signed by the same key in the last 10 minutes. Every list write and read is good once (the
+server remembers its id for 20 minutes), so a copied request can't be replayed. That you liked or ReDreamed a Dream is
+public, like on Nostr, but only the counts come out.
+
+**Limits:** 30 Dreams per key per 10 minutes, 20 reports and 60 blocks per key per hour, 300 list writes and 240 list reads per key per hour, 200 writes per network
 address per 10 minutes (the address is only kept as a daily-salted hash). Events up to 64 KB, text up to 20000
 characters. Over a limit: 429. A server error is a plain `{ "ok": false, "error": "server error" }` (details stay in
 the server's own log).

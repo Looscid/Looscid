@@ -172,6 +172,17 @@ Shipped today, for context: a Circle, Dreamor, hashtag, thread or List can be pi
 
 - [ ] A new Cherry design, made by 2three1y.
 
+### On every device
+
+Carter, November 8, 2026: every change should show up everywhere; local first is for backups. These follow your LooscidID key through Rem, and this device keeps its own copy as the backup.
+
+- [x] Likes sync, and each Dream on Rem shows how many people liked it.
+- [x] ReDreams sync, and Rem counts them on each Dream.
+- [x] Pinned Dreams sync. Private: only your own key can read them.
+- [x] Mutes sync: muted Dreamors, muted threads and Not interested. Private: only your own key can read them.
+- [x] Threads you follow sync. Private: only your own key can read them.
+- [ ] Next: blocked words, blocked Circles, Dreamor notes, settings and drafts.
+
 ### Safety and privacy
 
 - [ ] A "Friends of Friends" choice for who can see a Dream.

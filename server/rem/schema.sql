@@ -20,3 +20,6 @@ CREATE INDEX IF NOT EXISTS dreams_quote ON dreams(quote_of);
 CREATE TABLE IF NOT EXISTS moderations (dream_id TEXT PRIMARY KEY, mod_id TEXT NOT NULL, action TEXT NOT NULL, reason TEXT NOT NULL, created_at INTEGER NOT NULL);
 -- Nov 8 2026: Circle mod removals (signed by the remover; a Circle is its mod key + its id; never hides a Dream on Rem).
 CREATE TABLE IF NOT EXISTS circle_moderations (mod_id TEXT NOT NULL, circle_id TEXT NOT NULL, dream_ref TEXT NOT NULL, circle_name TEXT NOT NULL, reason TEXT NOT NULL, created_at INTEGER NOT NULL, PRIMARY KEY (mod_id, circle_id, dream_ref));
+-- Nov 8 2026: your lists on every device (POST /list, POST /mine). likes and redreams are public as counts; every other list and every saved copy is private (only a read signed by the same key). The code also makes it itself.
+CREATE TABLE IF NOT EXISTS lists (user_id TEXT NOT NULL, list TEXT NOT NULL, ref TEXT NOT NULL, data TEXT, created_at INTEGER NOT NULL, PRIMARY KEY (user_id, list, ref));
+CREATE INDEX IF NOT EXISTS lists_ref ON lists(list, ref);
