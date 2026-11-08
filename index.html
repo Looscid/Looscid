@@ -443,7 +443,7 @@ const USERS = [
   {id:3,name:"Priya Nair",handle:"@priyanair",bio:"Product designer · dog mum · making things look nice 🎨",initials:"PN",color:"#be185d",verified:true,location:"London, UK",website:"priyanair.co",joined:"July 2022",dreamCount:6330,followers:91400,following:1240},
   {id:4,name:"Marcus Webb",handle:"@marcuswebb",bio:"Music, food, and trying to keep my plants alive 🌱",initials:"MW",color:"#1d4ed8",verified:false,location:"Chicago, IL",website:null,joined:"October 2022",dreamCount:2180,followers:44300,following:5600},
   {id:5,name:"Sam Rivera",handle:"@samr",bio:"Student · coffee addict · posting whatever I feel like 🤷",initials:"SR",color:"#15803d",verified:false,location:"Miami, FL",website:null,joined:"April 2023",dreamCount:890,followers:7200,following:2900},
-  {id:6,name:"DreamOS",handle:"@DreamBMobile",bio:"The official DreamOS account 🌙 Share what's on your mind.",initials:"DB",color:"#6d28d9",verified:true,location:"Everywhere",website:"dream-os.pages.dev",joined:"January 2023",dreamCount:412,followers:1200000,following:0},
+  {id:6,name:"DreamOS",handle:"@Looscid",bio:"The official DreamOS account 🌙 Share what's on your mind.",initials:"DB",color:"#6d28d9",verified:true,location:"Everywhere",website:"looscid.github.io/Looscid",joined:"January 2023",dreamCount:412,followers:1200000,following:0},
 ];
 const ME = {id:0,name:"Guest",handle:"@guest",initials:"DD",bio:"Just checking out DreamOS 👋",color:"#6d28d9",verified:false,location:"",joined:"March 2026",dreamCount:2,followers:3,following:7,age:25};
 
@@ -4457,40 +4457,40 @@ function AccessibilitySettings({navigate, prefs, setPrefs}) {
 function SocialSettings({navigate}) {
   var links = [
     {
-      href: "https://dream-os.pages.dev",
+      href: "https://looscid.github.io/Looscid/",
       icon: "🌙",
-      label: "DreamOS",
-      handle: "@DreamBMobile",
+      label: "Looscid",
+      handle: "@Looscid",
       desc: "Our official account. On our own platform.",
       bg: "linear-gradient(135deg,rgba(109,40,217,.18),rgba(147,51,234,.1))",
       border: "rgba(168,85,247,.3)",
       labelColor: "var(--ac3)",
     },
     {
-      href: "https://x.com/DreamBMobile",
+      href: "https://x.com/Looscid",
       iconEl: true,
       label: "Twitter",
-      handle: "@DreamBMobile",
+      handle: "@Looscid",
       desc: "App updates and replies.",
       bg: "#000",
       border: "#333",
       labelColor: "#aaa",
     },
     {
-      href: "https://youtube.com/@DreamBMobile",
+      href: "https://youtube.com/@Looscid",
       icon: "▶️",
       label: "YouTube",
-      handle: "@DreamBMobile",
+      handle: "@Looscid",
       desc: "Videos and updates.",
       bg: "rgba(255,0,0,.08)",
       border: "rgba(255,0,0,.25)",
       labelColor: "#ff4444",
     },
     {
-      href: "https://github.com/Shinygold29/dream-os",
+      href: "https://github.com/Looscid/Looscid",
       icon: "🐙",
       label: "GitHub",
-      handle: "Shinygold29/dream-os",
+      handle: "Looscid/Looscid",
       desc: "Open source. Star it if you like it.",
       bg: "#161b22",
       border: "#30363d",
@@ -5329,11 +5329,11 @@ function HourStoryPage({ navigate, back }) {
             , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.85}},
               "The source code is public. Every line. You can read it, fork it, learn from it, or just stare at it and feel better about your own code. It lives at "
               , React.createElement('a', {
-                  href:"https://github.com/Shinygold29/dream-os",
+                  href:"https://github.com/Looscid/Looscid",
                   target:"_blank", rel:"noopener noreferrer",
                   style:{color:"var(--ac3)",fontWeight:600,textDecoration:"none"},
                   'aria-label':"DreamOS source code on GitHub"},
-                "github.com/Shinygold29/dream-os"
+                "github.com/Looscid/Looscid"
               )
               , " and it is released under the DreamOS Public License (DBMPL) — which is our way of saying: use it, improve it, but do not turn it into something extractive"
             )
@@ -5367,8 +5367,8 @@ function HourStoryPage({ navigate, back }) {
             , React.createElement('div', { style: {fontSize:13,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em"}}, "Find us")
             , [
               {icon:"🌙", label:"DreamOS on DBM",      sub:"@originals",                                  href:null,      internal:"dp", data:{name:"DreamOS",handle:"@originals",id:99}},
-              {icon:"𝕏",  label:"DreamOS on Twitter",  sub:"@DreamBMobile",                               href:"https://x.com/DreamBMobile"},
-              {icon:"📂", label:"Source code on GitHub",          sub:"Shinygold29/dream-os",              href:"https://github.com/Shinygold29/dream-os"},
+              {icon:"𝕏",  label:"DreamOS on Twitter",  sub:"@Looscid",                               href:"https://x.com/Looscid"},
+              {icon:"📂", label:"Source code on GitHub",          sub:"Looscid/Looscid",              href:"https://github.com/Looscid/Looscid"},
             ].map(item =>
               React.createElement('button', { key: item.label, className: "snav",
                   onClick: ()=> item.href ? window.open(item.href,"_blank","noopener") : navigate(item.internal, item.data),
@@ -5407,7 +5407,7 @@ function LicensePage({navigate}) {
     {p:"This software is provided as-is without warranty. We are not liable for any damages arising from its use."},
     {h2:"Commercial licensing"},
     {p:"Want to use this code in a way this license doesn't permit? Contact legal@dream-os.pages.dev"},
-    {p:"Full license: github.com/Shinygold29/dream-os/blob/main/LICENSE"},
+    {p:"Full license: github.com/Looscid/Looscid/blob/main/LICENSE"},
   ];
   return (
     React.createElement('div', {className:"pg"}
@@ -7242,10 +7242,10 @@ function MainMenu({ onClose, navigate, goRoot, prefs, unreadNotifs, unreadMsgs, 
       { icon:"🔐", label:"Privacy", sub:"How we protect your data",       action(){onClose();navigate("privacy");} },
     ]},
     { id:"findus", emoji:"📱", label:"Find Us", items:[
-      { icon:"🌙", label:"DreamOS", sub:"@DreamBMobile",                         href:"https://dream-os.pages.dev" },
-      { icon:"\ud835\udd4f", label:"Twitter",         sub:"@DreamBMobile",                href:"https://x.com/DreamBMobile" },
-      { icon:"▶️",  label:"YouTube",          sub:"@DreamBMobile",                         href:"https://youtube.com/@DreamBMobile" },
-      { icon:"🐙", label:"GitHub",            sub:"Shinygold29/dream-os",        href:"https://github.com/Shinygold29/dream-os" },
+      { icon:"🌙", label:"Looscid", sub:"@Looscid",                         href:"https://looscid.github.io/Looscid/" },
+      { icon:"\ud835\udd4f", label:"Twitter",         sub:"@Looscid",                href:"https://x.com/Looscid" },
+      { icon:"▶️",  label:"YouTube",          sub:"@Looscid",                         href:"https://youtube.com/@Looscid" },
+      { icon:"🐙", label:"GitHub",            sub:"Looscid/Looscid",        href:"https://github.com/Looscid/Looscid" },
     ]},
   ];
 
