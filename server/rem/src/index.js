@@ -1,4 +1,4 @@
-// dbm-api: the Rem server on Cloudflare. Rem, the Looscid protocol, version 1 (Nov 7 2026). Spec: docs/protocol.md.
+// rem: the Rem server on Cloudflare (https://rem.thebntlovver.workers.dev). Rem, the Looscid protocol, version 1 (Nov 7 2026). Spec: docs/protocol.md.
 // Nov 7 2026 (Carter: "Merge Rem with the other protocol"): there is ONE Looscid protocol now, Rem. Rem v1 is the
 // Nostr-style signed event below. Older Rem v0 objects ({rem:0, type, by, at, body, id, sig}, from the first Rem server)
 // are still taken at POST /ingest: their own signature is checked exactly like the Rem v0 server does, then they are
@@ -383,7 +383,7 @@ export default {
       return json(req, { ok: false, error: req.method === "GET" || req.method === "POST" ? "not found" : "method not allowed" }, req.method === "GET" || req.method === "POST" ? 404 : 405);
     } catch (e) {
       // The details go to the Worker's own log only, never into the reply.
-      console.error("dbm-api error", req.method, path, (e && e.stack) || e);
+      console.error("rem error", req.method, path, (e && e.stack) || e);
       return json(req, { ok: false, error: "server error" }, 500);
     }
   },

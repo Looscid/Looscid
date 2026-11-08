@@ -2,10 +2,10 @@
    Plain script (not a module). Everything it shares goes on window.Looscid.lcNet; see docs/protocol.md.
 
    Nov 7 2026 (Carter: "Merge Rem with the other protocol"): one protocol, Rem. Rem is the home of public Dreams. Each Dream you
-   post with Audience Everyone is a small JSON event signed with your LooscidID key and sent to the server, which checks
+   make with Audience Everyone is a small JSON event signed with your LooscidID key and sent to the server, which checks
    the signature before it keeps it. Nostr is a bridge you can turn on in Settings, LooscidID, Connectionbase
    ("Also share my Dreams to Nostr"): then the same signed Dream also goes to your Nostr relays. Mastodon and Bluesky are coming soon.
-   "Put your Dreams on Rem" and the older Rem home (Rem v0) are in js/remsync.js, shown in Connectionbase under Rem.
+   "Put your Dreams on Rem" is in js/remsync.js, shown in Connectionbase under Rem. The older Rem v0 home is retired (Nov 7 2026).
 
    localStorage keys:
    - looscid_bridges         which bridges are on, like {"nostr": true}. Missing means: Nostr stays on if you already
@@ -14,7 +14,7 @@
    - looscid_net_blocks      people you blocked on the server: {handle: pubkey}, so Unblock in Privacy reaches it too
    - looscid_nostr_crossposted  Nostr ids of Dreams that really went to Nostr (so deleting one asks relays too) */
 (function (Looscid) {
-const API = "https://dbm-api.thebntlovver.workers.dev";
+const API = "https://rem.thebntlovver.workers.dev"; // Rem, the one Looscid server (Cloudflare Worker "rem" + D1 "looscid-db")
 const PROTOCOL_TAG = ["looscid", "1"]; // Rem v1 (docs/protocol.md)
 const BRIDGES_KEY = "looscid_bridges", QUEUE_KEY = "looscid_net_queue", BLOCKS_KEY = "looscid_net_blocks", XPOST_KEY = "looscid_nostr_crossposted";
 // Bridges: add a row here when a new one is built. "soon" rows show as Coming soon and can't be turned on.
@@ -154,7 +154,7 @@ async function health() { try { const r = await call("GET", "/health"); return r
 
 
 /* --- Settings, LooscidID, Connectionbase (Nov 7 2026, Carter: bridges live in LooscidID under "Connectionbase") ---
-   Only the connections: Rem (the home of your public Dreams: Put your Dreams on Rem and the older Rem home, from
+   Only the connections: Rem (the home of your public Dreams: Put your Dreams on Rem, from
    js/remsync.js), then the bridges Nostr, Mastodon (soon) and Bluesky (soon). Download my Dreams and Delete my Rem data
    are on the LooscidID page itself (LcRemData below, Carter Nov 7 6:10 PM).
    Same markup as the other LooscidID pages: h2.lid-label headings, lid-help text, lid-wide buttons, real checkboxes. */

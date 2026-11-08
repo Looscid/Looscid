@@ -4,7 +4,7 @@ Looscid runs on **Rem**. This is the one public spec for it: any app can be a Re
 server. Version 1, Nov 7 2026.
 
 Rem v1 merges the two Looscid protocols that existed before (Carter, Nov 7 2026: "Merge Rem with the other
-protocol"): the first Rem (version 0, the Rem home at looscidserver.sites.tab.bot) and the Nostr-style
+protocol"): the first Rem (version 0, the Rem home that ran at looscidserver.sites.tab.bot, now retired) and the Nostr-style
 "Looscid Protocol v0" of the Cloudflare server. The name stays **Rem**. The shape is the Nostr-style signed event,
 so a Rem v1 Dream can be cross-posted to Nostr **as is**, with the same signature. The keys are the same as always:
 your **LooscidID**, a secp256k1 key pair (the same kind Nostr uses).
@@ -12,8 +12,10 @@ your **LooscidID**, a secp256k1 key pair (the same kind Nostr uses).
 **Rem v0 still works.** A Rem v1 server takes signed Rem v0 objects too, checks their own signature exactly like the
 v0 home does, and stores them next to v1 events (section 7). Nothing anyone signed before has to be signed again.
 
-The Rem v1 server today is `dbm-api` (code in `server/dbm-api/`), a Cloudflare Worker with a D1 database.
-The first Rem home (v0, `server/server/`) is still running and is described in Appendix A.
+The Rem server is `rem` at https://rem.thebntlovver.workers.dev (code in `server/rem/`), a Cloudflare Worker
+with a D1 database. It was called `dbm-api` until Nov 7 2026. Since Nov 7 2026 (Carter: one product, one
+destination) it is the only Rem server Looscid uses. The first Rem home (v0, `server/server/`) is retired; its spec
+stays in Appendix A for anyone checking old v0 objects.
 
 ## 1. The idea in plain words
 
@@ -70,8 +72,8 @@ replayed. A Dream id is its event id (or its v0 object id), so ids can't clash b
 
 ## 4. API
 
-Base: `https://dbm-api.thebntlovver.workers.dev`. JSON in, JSON out. Browsers may call it only from
-`https://looscid.github.io` and the branch test preview `https://looscid-preview.sites.tab.bot` (CORS).
+Base: `https://rem.thebntlovver.workers.dev`. JSON in, JSON out. Browsers may call it only from
+`https://looscid.github.io` (and the test preview `https://looscid-preview.sites.tab.bot` while it still runs) (CORS).
 
 | method | path | does |
 |---|---|---|
@@ -105,10 +107,10 @@ deleted and blocked Dreams are left out. It only looks at the last 30 days.
 
 ## 5. Running your own Rem server
 
-The server is one file (`server/dbm-api/src/index.js`) plus `server/dbm-api/schema.sql`.
+The server is one file (`server/rem/src/index.js`) plus `server/rem/schema.sql`.
 
 1. Make a Cloudflare D1 database and run `schema.sql` in it.
-2. Make a Worker, bind the database as `DB`, and deploy the bundled code (`npm run build` in `server/dbm-api`, then
+2. Make a Worker, bind the database as `DB`, and deploy the bundled code (`npm run build` in `server/rem`, then
    paste `dist/worker.js` into the dashboard editor or use wrangler).
 3. Copy the data over: page through `GET /export` on the old server and `POST /ingest` every event to the new one.
    Every event and v0 object is signed by its author, so the new server checks them all again and nothing can be
@@ -138,7 +140,7 @@ Rem v0 is the first Rem (Oct 31 2026). A v0 object looks like this:
   then stores it in the same tables as v1 events. The original object is kept as it was signed, so `/export`
   hands it back unchanged and anyone can still check it.
 - A v1 server takes the v0 types that make sense on a public index: `dream` (public only), `edit`, `delete`,
-  `redream`. Everything else (`follow`, `react`, `chat`, `vote`, `profile`, `report`, ...) stays on the v0 home.
+  `redream`. Everything else (`follow`, `react`, `chat`, `vote`, `profile`, `report`, ...) isn't taken.
 
 ### v0 to v1 field mapping
 
@@ -157,8 +159,8 @@ Rem v0 is the first Rem (Oct 31 2026). A v0 object looks like this:
 | `body.cw` | `["content-warning", <text>]` |
 | `body.tags` | `["t", <tag>]` each |
 | `body.audience: "public"` | public (Rem v1 only holds public Dreams) |
-| `body.audience: "followers"` | not taken by a v1 server (stays on the v0 home) |
-| `body.media`, `body.poll`, `body.speak` | not carried yet (images live on the v0 home) |
+| `body.audience: "followers"` | not taken by a v1 server (Rem v1 only holds public Dreams) |
+| `body.media`, `body.poll`, `body.speak` | not carried yet |
 | `id`: sha256 of canonical `[0, by, at, type, body]` | `id`: sha256 of `[0, pubkey, created_at, kind, tags, content]` |
 | `sig`: Schnorr of `id` | `sig`: Schnorr of `id` (same) |
 
@@ -168,7 +170,8 @@ keeps the v0 original. When the app sends a Dream again with Rem v1, it signs a 
 ## Appendix A: the first Rem home (v0)
 
 This is the v0 home's own spec (it was `server/PROTOCOL.md`), kept here so there is one Rem document.
-The v0 home at looscidserver.sites.tab.bot still runs exactly this.
+The v0 home (it ran at looscidserver.sites.tab.bot) was retired on Nov 7 2026. What moved and what
+didn't is in the migration note in `server/rem/README.md`.
 
 Looscid runs on Rem. This is the public spec: any app can be a Rem client, not just the Looscid app.
 Everything here is what the server in this repo actually does.

@@ -13,7 +13,7 @@ Looscid is a social app for everyone, on any phone or computer, with touch, mous
 
 ## Server
 
-The Looscid server (the home that syncs Dreams, LooscidIDs and Chats in server mode) lives in [server/](server/). See [server/README.md](server/README.md) to run your own; the protocol, Rem, is [docs/protocol.md](docs/protocol.md) (Rem v1; the v0 home in server/ is in its Appendix A). The server folder is MIT licensed. It used to be its own repo, now archived at [Looscid/looscidserver](https://github.com/Looscid/looscidserver).
+Looscid's server is **Rem** at https://rem.thebntlovver.workers.dev, a Cloudflare Worker with its own D1 database. Its code is in [server/rem/](server/rem/), and the protocol, Rem, is [docs/protocol.md](docs/protocol.md). Looscid is one product at one address: https://looscid.github.io/Looscid/. The older Rem v0 home server in [server/](server/) is retired (Nov 7 2026); its code stays here for reference. The server folder is MIT licensed. It used to be its own repo, now archived at [Looscid/looscidserver](https://github.com/Looscid/looscidserver).
 
 ## Community
 

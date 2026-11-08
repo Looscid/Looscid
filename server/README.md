@@ -2,6 +2,10 @@
 
 **The Looscid home server. Looscid runs on Rem.**
 
+> **Retired, Nov 7 2026.** This Rem v0 home server (it ran at looscidserver.sites.tab.bot) is no longer used. Looscid's one
+> server is now **rem** at https://rem.thebntlovver.workers.dev (code in [rem/](rem/)). The code below stays for reference
+> and for anyone who wants to run their own v0 home.
+
 This folder is the server, inside the Looscid repo (it used to be its own repo, github.com/Looscid/looscidserver,
 now archived). The app it serves is this repo's `app/` folder, the same app as https://looscid.github.io/Looscid/.
 
@@ -11,7 +15,7 @@ place where Dreamors meet. Looscid is **local-first, syncs through the Looscid s
 spot that keeps copies, so friends get your Dreams and Chats while you are away and a new device gets
 everything back.
 
-Live home: https://looscidserver.sites.tab.bot/
+Live home: none (retired). It was https://looscidserver.sites.tab.bot/
 
 ## What it does
 

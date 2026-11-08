@@ -1,5 +1,5 @@
 {
-  "name": "looscid-dbm-api",
+  "name": "looscid-rem",
   "private": true,
   "type": "module",
   "description": "The Rem server on Cloudflare Workers + D1 (Rem, the Looscid protocol, v1: docs/protocol.md)",
