@@ -165,8 +165,11 @@ Shipped today, for context: a Circle, Dreamor, hashtag, thread or List can be pi
 ### Safety and privacy
 
 - [ ] A "Friends of Friends" choice for who can see a Dream.
-- [ ] Moderators give a reason when they remove a Dream.
-- [ ] Blocklists.
+- [x] Moderators give a reason when they remove a Dream.
+- [x] Blocklists.
+- [x] Removals are public: the line in a removed Dream's place says whether a Circle's mods or a Looscid admin removed it, and why.
+- [x] A public Mod log: every removal with its date, the Dream (never its words), moderator or admin, and the reason. It's in each Circle's About tab and in the Help Center.
+- [x] Deleting your own Dream: with no replies it's just gone; with replies, one "Dream deleted" line stays so the thread still makes sense.
 
 ## Discover: navigation and refine decisions
 

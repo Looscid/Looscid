@@ -16,3 +16,5 @@ CREATE TABLE IF NOT EXISTS rate (k TEXT PRIMARY KEY, window_start INTEGER NOT NU
 CREATE INDEX IF NOT EXISTS dreams_feed ON dreams(status, deleted_at, created_at);
 CREATE INDEX IF NOT EXISTS dreams_reply ON dreams(reply_to);
 CREATE INDEX IF NOT EXISTS dreams_quote ON dreams(quote_of);
+-- Nov 8 2026: moderation (POST /moderate, GET /moderation/<key>, GET /modlog). The code also makes it itself.
+CREATE TABLE IF NOT EXISTS moderations (dream_id TEXT PRIMARY KEY, mod_id TEXT NOT NULL, action TEXT NOT NULL, reason TEXT NOT NULL, created_at INTEGER NOT NULL);

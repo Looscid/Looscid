@@ -34,7 +34,13 @@
    instead of Node classes; "post" is "Dream"; a reason is REQUIRED to remove a Dream (Communities lets it be empty);
    the record is kept on this device (localStorage looscid_moderations) and also sent to Rem (POST /moderate), and a
    Dreamor's own removed Dreams are read back from Rem (GET /moderation/<key>) when Rem has them. Rem answering 404
-   just means Rem doesn't take moderation yet, and everything still works on this device. */
+   just means Rem doesn't take moderation yet, and everything still works on this device.
+   Nov 8 2026 (Carter: "my removal reasons are public with a public mod log, moderator or admin"): a removal is public. Its
+   line ("Removed by the mods of Night Owls. Reason: ..." or "Removed by a Looscid admin. Reason: ...") shows to everyone,
+   and it always says whether a Circle's moderators or a Looscid admin did it. The public mod log lists every removal: the
+   date, the Dream (a short reference, never its words), moderator or admin, and the reason. Looscid admins' removals come
+   from Rem (GET /modlog), so every device sees them; a Circle's removals are kept where its Circle is kept. The log opens
+   from a Circle's About tab (Mod log) and in the Help Center (the Mod log article). Nothing here makes a new page. */
 (function (Looscid) {
 "use strict";
 const KEY = "looscid_moderations";
@@ -69,8 +75,11 @@ function lcModFor(d) { const m = all(), ks = keysOf(d); for (let i = 0; i < ks.l
 function isMine(d) { const ME = Looscid.ME, u = d && d.user; if (!u) return false; if (u === ME) return true;
   const h = function (x) { return Looscid.lcHandle ? Looscid.lcHandle(String(x || "")) : String(x || "").replace(/^@/, "").toLowerCase(); };
   return !!(ME && ME.handle && typeof u === "object" && h(u.handle) === h(ME.handle)); }
-// Who removed it, in words: "the mods of Night Owls", or "a Looscid moderator".
-function byWords(r) { return r && r.circleName ? "the mods of " + r.circleName : "a Looscid moderator"; }
+// Who removed it: "moderator" (a Circle's mods) or "admin" (a Looscid admin, Rem's MODS list). Older records say it by
+// having a Circle or not.
+function roleOf(r) { return r && (r.role === "moderator" || r.role === "admin") ? r.role : (r && (r.circleName || r.circleId) ? "moderator" : "admin"); }
+// Who removed it, in words: "the mods of Night Owls", or "a Looscid admin".
+function byWords(r) { return roleOf(r) === "moderator" ? "the mods of " + ((r && r.circleName) || "this Circle") : "a Looscid admin"; }
 // What a Dream shows in its place. The author reads "Your Dream was removed"; everyone else reads "Removed".
 function lcModText(r, d) {
   if (!r) return "";
@@ -79,7 +88,7 @@ function lcModText(r, d) {
 // Communities' author notification ("Communities moderators removed your post, "{{postIntro}}...""), in Looscid's words.
 function authorAlert(r, d) {
   const intro = String((d && d.text) || "").replace(/\s+/g, " ").trim().slice(0, 40);
-  return (r.circleName ? r.circleName + " mods" : "A Looscid moderator") + " removed your Dream" + (intro ? ", \u201c" + intro + "\u2026\u201d" : "") + ". Reason: " + r.reason;
+  return (roleOf(r) === "moderator" ? (r.circleName || "Circle") + " mods" : "A Looscid admin") + " removed your Dream" + (intro ? ", \u201c" + intro + "\u2026\u201d" : "") + ". Reason: " + r.reason;
 }
 // The reasons offered for a Dream: the Circle's own rules first, then Looscid's list.
 function reasonsFor(circle) {
@@ -90,7 +99,7 @@ function reasonsFor(circle) {
 function lcModRemove(d, reason, circle) {
   const ks = keysOf(d);
   const rec = { dreamId: ks[0] || null, status: "rejected", reason: clean(reason), circleId: circle && circle.id != null ? String(circle.id) : null,
-    circleName: circle && circle.name ? String(circle.name) : null, by: Looscid.ME && Looscid.ME.handle ? String(Looscid.ME.handle) : null, at: Date.now() };
+    circleName: circle && circle.name ? String(circle.name) : null, role: circle ? "moderator" : "admin", by: Looscid.ME && Looscid.ME.handle ? String(Looscid.ME.handle) : null, at: Date.now() };
   const errs = validate(rec); if (errs.length) return { ok: false, say: errs[0].message, errors: errs };
   const m = all(); ks.forEach(function (k) { m[k] = rec; }); save(m);
   if (isMine(d) && Looscid.lcNotify) { try { Looscid.lcNotify("system", authorAlert(rec, d), null); } catch (e) {} }
@@ -115,7 +124,7 @@ async function lcModSync() {
     if (it.status !== "removed") { if (m[id] && m[id].remote) { delete m[id]; changed = true; } return; }
     const reason = clean(String(it.reason || "")); if (!reason) return;
     if (m[id] && m[id].reason === reason) return;
-    m[id] = { dreamId: id, status: "rejected", reason: reason.slice(0, MAX_REASON - 1), circleId: null, circleName: null, by: null, at: +it.at || Date.now(), remote: true }; changed = true;
+    m[id] = { dreamId: id, status: "rejected", reason: reason.slice(0, MAX_REASON - 1), role: "admin", circleId: null, circleName: null, by: null, at: +it.at || Date.now(), remote: true }; changed = true;
     if (Looscid.lcNotify) { try { Looscid.lcNotify("system", authorAlert(m[id], { text: it.text || "" }), null); } catch (e) {} }
   });
   if (changed) save(m);
@@ -130,6 +139,55 @@ async function loadMods() {
 function lcModIsSiteMod() { const st = Looscid.lcNostr && Looscid.lcNostr.state ? Looscid.lcNostr.state() : null; return !!(st && st.pubkey && siteMods.indexOf(String(st.pubkey).toLowerCase()) >= 0); }
 setTimeout(function () { lcModSync(); loadMods(); }, 6000);
 
+/* Nov 8 2026: the public mod log. Rem's GET /modlog lists every Looscid admin's removal (the Dream's id, "admin", the
+   reason, when), for everyone. Read at start and when a log is opened (at most once a minute). Each one is kept like a
+   removal made here (remote, pub), so the Dream shows its public line on every device. A Dream an admin put back leaves
+   Rem's log, and its line goes. A Rem without /modlog (404) changes nothing. */
+const LOG_LIMIT = 200;
+let logAt = 0, logP = null;
+function lcModLoadLog(force) {
+  if (!Looscid.lcNet || !Looscid.lcNet.modlog) return Promise.resolve(false);
+  if (logP && !force && Date.now() - logAt < 60000) return logP;
+  logAt = Date.now();
+  logP = Promise.resolve().then(function () { return Looscid.lcNet.modlog(LOG_LIMIT); }).then(function (items) {
+    if (!Array.isArray(items)) return false;
+    const m = all(), seen = {}; let changed = false;
+    items.forEach(function (it) {
+      const id = String((it && it.dream_id) || "").toLowerCase(); if (!/^[0-9a-f]{64}$/.test(id)) return;
+      const reason = clean(String(it.reason || "")); if (!reason) return;
+      const role = it.by === "moderator" ? "moderator" : "admin", at = +it.at || 0; seen[id] = true;
+      const cur = m[id]; if (cur && !cur.remote && cur.status === "rejected") return; // made on this device: kept as it is
+      if (cur && cur.pub && cur.reason === reason && cur.role === role && cur.at === at) return;
+      m[id] = { dreamId: id, status: "rejected", reason: reason.slice(0, MAX_REASON - 1), role: role, circleId: null, circleName: null, by: null, at: at || Date.now(), remote: true, pub: true };
+      changed = true;
+    });
+    if (items.length < LOG_LIMIT) Object.keys(m).forEach(function (k) { const r = m[k]; if (r && r.pub && !seen[k]) { delete m[k]; changed = true; } });
+    if (changed) save(m);
+    return true;
+  }, function () { return false; });
+  return logP;
+}
+// A short reference to a Dream, never its words: "Dream 3fa2b1c9".
+function refOf(id) { const s = String(id == null ? "" : id); return "Dream " + (/^[0-9a-f]{64}$/i.test(s) ? s.slice(0, 8).toLowerCase() : s.slice(-8)); }
+// The log, newest first. circleId: only that Circle's removals; none: every removal this device knows (Looscid-wide).
+function lcModLog(circleId) {
+  const m = all(), seen = {}, out = [];
+  Object.keys(m).forEach(function (k) {
+    const r = m[k]; if (!r || r.status !== "rejected") return;
+    const id = String(r.dreamId != null ? r.dreamId : k), key = id + "|" + (r.at || 0); if (seen[key]) return; seen[key] = true;
+    if (circleId != null && String(r.circleId) !== String(circleId)) return;
+    out.push({ dreamId: id, ref: refOf(id), role: roleOf(r), circleName: r.circleName || null, reason: r.reason, at: +r.at || 0 });
+  });
+  return out.sort(function (a, b) { return b.at - a.at; });
+}
+// One log entry as one line, read in one swipe: "Nov 8, 2026: Dream 3fa2b1c9 was removed by a Looscid admin. Reason: Spam"
+function lcModLogText(e) {
+  let when = ""; try { when = e.at ? new Date(e.at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""; } catch (x) {}
+  return (when ? when + ": " : "") + e.ref + " was removed by " + (e.role === "moderator" ? "a moderator of " + (e.circleName || "this Circle") : "a Looscid admin") + ". Reason: " + e.reason;
+}
+setTimeout(function () { lcModLoadLog(); }, 7000);
+
 Object.assign(Looscid, { LC_MOD_KEY: KEY, LC_MOD_REASONS: MOD_REASONS, LC_MOD_MAX_REASON: MAX_REASON, lcModValidate: validate, lcModFor: lcModFor, lcModText: lcModText,
-  lcModReasonsFor: reasonsFor, lcModRemove: lcModRemove, lcModRestore: lcModRestore, lcModSync: lcModSync, lcModIsMine: isMine, lcModIsSiteMod: lcModIsSiteMod, lcModLoadMods: loadMods });
+  lcModReasonsFor: reasonsFor, lcModRemove: lcModRemove, lcModRestore: lcModRestore, lcModSync: lcModSync, lcModIsMine: isMine, lcModIsSiteMod: lcModIsSiteMod, lcModLoadMods: loadMods,
+  lcModRole: roleOf, lcModLog: lcModLog, lcModLogText: lcModLogText, lcModLoadLog: lcModLoadLog });
 })(window.Looscid = window.Looscid || {});

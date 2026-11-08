@@ -19,6 +19,7 @@ const OUT = path.join(APP, "help-center");
 const SITE = "https://looscid.github.io/Looscid/";
 const HELP = SITE + "help/";
 const CHECK = process.argv.includes("--check");
+const REM = "https://rem.thebntlovver.workers.dev"; // Nov 8 2026: Looscid's server, for the public mod log (Mod log article)
 
 const sandbox = { window: {} };
 vm.runInNewContext(fs.readFileSync(path.join(APP, "js", "helpdata.js"), "utf8"), sandbox);
@@ -103,7 +104,7 @@ function rich(text, depth) {
     });
 }
 
-function page({ slug, title, desc, body, depth, crumbs }) {
+function page({ slug, title, desc, body, depth, crumbs, connect }) {
   const url = HELP + (slug ? slug + "/" : "");
   const full = slug ? title + " - Looscid Help Center" : "Looscid Help Center";
   const up = "../".repeat(depth);
@@ -135,7 +136,7 @@ function page({ slug, title, desc, body, depth, crumbs }) {
 <link rel="canonical" href="${url}">
 <link rel="icon" type="image/png" sizes="32x32" href="${SITE}assets/icons/favicon-32.png?v=nl1">
 <link rel="apple-touch-icon" href="${SITE}assets/icons/apple-touch-icon.png?v=nl1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'${connect ? " " + connect : ""}; object-src 'none'; base-uri 'self'; form-action 'self'"/>
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <link rel="stylesheet" href="${up}help.css?v=hc6">
@@ -221,11 +222,15 @@ for (const a of H.articles) {
   const c = colById[a.c]; if (!c) problems.push("article " + a.id + " has no collection " + a.c);
   let b = '<div id="course-bar" class="course" hidden></div>\n<h1>' + esc(a.t) + '</h1>\n<p class="lead">' + rich(a.s, 1) + "</p>\n";
   b += '<h2>Steps</h2>\n<ol class="steps">' + a.steps.map(s => "<li>" + rich(s, 1) + "</li>").join("") + "</ol>\n";
+  /* Nov 8 2026 (Carter: a public mod log, moderator or admin): live "modlog" puts Looscid's mod log under the steps.
+     help.js reads it from Rem (GET /modlog, public, no key) and writes one line per removal; without scripts the line
+     below says where else to read it. Only this page may connect to Rem (its connect-src). */
+  if (a.live === "modlog") b += '<section aria-labelledby="h-modlog"><h2 id="h-modlog">Looscid mod log</h2>\n<p id="modlog-status" role="status">The mod log loads here with JavaScript on. It is also in the app: Help Center, Mod log.</p>\n<ol id="modlog-list" class="list" data-rem="' + REM + '" hidden></ol>\n</section>\n';
   if (a.tips && a.tips.length) b += "<h2>Good to know</h2>\n<ul>" + a.tips.map(s => "<li>" + rich(s, 1) + "</li>").join("") + "</ul>\n";
   if (a.sr && a.sr.length) b += '<p><button type="button" class="more" aria-expanded="false" aria-controls="sr-tips" title="Shows tips for screen readers">Screen reader tips (optional)</button></p>\n<div id="sr-tips" class="extra"><ul>' + a.sr.map(s => "<li>" + rich(s, 1) + "</li>").join("") + "</ul></div>\n";
   if (a.rel && a.rel.length) b += "<h2>Related articles</h2>\n<ul>" + a.rel.map(id => { if (!byId[id]) { problems.push("related " + id + " missing in " + a.id); return ""; } return "<li>" + artLink(byId[id], "../") + "</li>"; }).join("") + "</ul>\n";
   b += '<p class="next"><a href="../' + a.c + '/">More in ' + esc(c ? c.t : "") + '</a> <span aria-hidden="true">·</span> <a href="../contact/">Still stuck? Contact Us</a></p>';
-  put(a.id + "/index.html", page({ slug: a.id, title: a.t, desc: a.s.replace(/\{\{[^}]*\}\}|\[\[[^\]]*\]\]/g, ""), body: b, depth: 1, crumbs: [["Help Center", "../"], [c ? c.t : "", "../" + a.c + "/"], [a.t, null]] }));
+  put(a.id + "/index.html", page({ slug: a.id, title: a.t, desc: a.s.replace(/\{\{[^}]*\}\}|\[\[[^\]]*\]\]/g, ""), body: b, depth: 1, connect: a.live === "modlog" ? REM : "", crumbs: [["Help Center", "../"], [c ? c.t : "", "../" + a.c + "/"], [a.t, null]] }));
 }
 // Courses
 for (const co of H.courses) {

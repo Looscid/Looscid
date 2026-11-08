@@ -1,4 +1,5 @@
-/* Looscid Help Center website (build 195). Plain script, no packages, nothing sent anywhere.
+/* Looscid Help Center website (build 195). Plain script, no packages, nothing sent anywhere (the Mod log page only reads
+   Looscid's public mod log from Looscid's server, Rem).
    - Go to menu in the top bar: a button with aria-expanded showing Help Home and Looscid Home (plain links).
    - Collapsible extras (Screen reader tips): a button with aria-expanded, never inside a heading.
    - Courses: Lesson 1, 2, 3 with a Next button. Progress is saved only on this device (localStorage, looscid_help_progress),
@@ -162,4 +163,29 @@
     try { var u = new URL(location.href); if (q.value.trim()) u.searchParams.set("q", q.value.trim()); else u.searchParams.delete("q"); history.replaceState(null, "", u); } catch (x) {} });
   q.addEventListener("keydown", function (e) { if (e.key === "Escape" && q.value) { e.preventDefault(); q.value = ""; show("", false); } });
   try { var start = new URL(location.href).searchParams.get("q"); if (start) { q.value = start; show(start, true); } } catch (x) {}
+})();
+
+/* Nov 8 2026 (Carter: removal reasons are public, with a public mod log that says moderator or admin): the Mod log
+   article. Reads Rem's public log (GET /modlog, no key, nothing sent) and writes one line per removal, newest first,
+   the same words as the app: "Nov 8, 2026: Dream 3fa2b1c9 was removed by a Looscid admin. Reason: Spam". */
+(function () {
+  "use strict";
+  var list = document.getElementById("modlog-list"), status = document.getElementById("modlog-status");
+  if (!list || !status || !window.fetch) return;
+  var rem = list.getAttribute("data-rem") || "";
+  status.textContent = "Loading the mod log\u2026";
+  fetch(rem + "/modlog?limit=200", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (j) {
+    var items = j && j.ok && Array.isArray(j.items) ? j.items : null;
+    if (!items) throw new Error("no log");
+    list.textContent = "";
+    items.forEach(function (it) {
+      var id = String(it.dream_id || ""), when = "";
+      try { when = it.at ? new Date(+it.at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""; } catch (x) {}
+      var li = document.createElement("li");
+      li.textContent = (when ? when + ": " : "") + "Dream " + id.slice(0, 8) + " was removed by " + (it.by === "moderator" ? "a moderator" : "a Looscid admin") + ". Reason: " + String(it.reason || "");
+      list.appendChild(li);
+    });
+    list.hidden = !items.length;
+    status.textContent = items.length ? items.length + (items.length === 1 ? " removal." : " removals.") : "No Dreams have been removed. Nice.";
+  }).catch(function () { status.textContent = "The mod log couldn't load right now. Try again later, or open it in the app: Help Center, Mod log."; });
 })();

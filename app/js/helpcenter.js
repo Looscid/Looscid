@@ -156,6 +156,7 @@ function helpBody(v, act) {
       h('p', { className: "lc-desc" }, lcHelpRich(a.s, act)),
       h('h2', { className: "lc-sub-h" }, "Steps"),
       h('ol', { className: "lc-help-steps", style: LC_HELP_LIST }, a.steps.map(function (t, i) { return h('li', { key: i, className: "lc-desc" }, lcHelpRich(t, act)); })),
+      a.live === "modlog" ? lcHelpModLog(act) : null,
       a.tips && a.tips.length ? h('h2', { className: "lc-sub-h" }, "Good to know") : null,
       a.tips && a.tips.length ? h('ul', { style: LC_HELP_LIST }, a.tips.map(function (t, i) { return h('li', { key: i, className: "lc-desc" }, lcHelpRich(t, act)); })) : null,
       a.sr && a.sr.length ? h('p', null, h('button', { type: "button", id: "lc-help-sr-btn", className: "btn bgb lc-btn", "aria-expanded": act.srOpen ? "true" : "false", "aria-controls": "lc-help-sr", onClick: act.toggleSr }, "Screen reader tips (optional)")) : null,
@@ -231,6 +232,20 @@ function helpBody(v, act) {
       h('button', { type: "button", id: "lc-help-contact", className: "btn bgb lc-btn", onClick: function () { act.open({ kind: "contact" }); } }, "Open Contact Us"),
       h('p', { className: "lc-desc" }, h('a', { id: "lc-help-web", className: "lc-link", href: web, target: "_blank", rel: "noopener noreferrer" }, "The Help Center on the web"))));
 }
+/* Nov 8 2026: the Looscid-wide mod log, in the Mod log article (no new page). One line per removal, newest first (js/
+   modreasons.js lcModLogText), so VoiceOver reads each in one swipe. Rem's public log is read when the article opens (at
+   most once a minute); the list redraws when it arrives. */
+function lcHelpModLog(act) {
+  if (Looscid.lcModLoadLog && !act.logAsked) { act.logAsked = true; Looscid.lcModLoadLog().then(function (ok) { act.logState = ok ? "ok" : "off"; act.redraw(); }); }
+  const list = Looscid.lcModLog ? Looscid.lcModLog() : [];
+  return h('section', { className: "lc-help-modlog", "aria-labelledby": "lc-help-h-modlog" },
+    h('h2', { id: "lc-help-h-modlog", className: "lc-sub-h" }, "Looscid mod log"),
+    !act.logState && !list.length ? h('p', { className: "lc-desc" }, "Loading the mod log\u2026") : null,
+    act.logState === "off" ? h('p', { className: "lc-desc" }, "Looscid's server didn't answer, so this shows only what this device already knows.") : null,
+    list.length
+      ? h('ol', { className: "lc-help-list lc-modlog", style: LC_HELP_LIST }, list.map(function (e) { return h('li', { key: e.dreamId + "-" + e.at, className: "lc-desc" }, Looscid.lcModLogText(e)); }))
+      : (act.logState ? h('p', { className: "lc-desc" }, "No Dreams have been removed. Nice.") : null));
+}
 function helpView(p, act) {
   const v = act.view;
   return h('div', { className: "pg lc-helpcenter" },
@@ -251,7 +266,7 @@ const HelpCenterPage = lcPlainScreen("HelpCenterPage", function (host, props) {
     say: function (t) { if (Looscid.announce) Looscid.announce(t); },
     redraw: function () { draw(); },
     toggleSr: function () { act.srOpen = !act.srOpen; draw(); },
-    open: function (v) { act.trail.push(act.view); act.view = v; act.srOpen = false; draw(); focusHead(); },
+    open: function (v) { act.trail.push(act.view); act.view = v; act.srOpen = false; act.logAsked = false; act.logState = null; draw(); focusHead(); },
     // Back inside the Help Center goes to the part you came from; at the start, it leaves the Help Center.
     up: function () { if (act.trail.length) { act.view = act.trail.pop(); act.srOpen = false; draw(); focusHead(); } else act.back(); },
   };

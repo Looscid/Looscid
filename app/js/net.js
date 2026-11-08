@@ -141,6 +141,10 @@ async function moderators() {
   const me = Looscid.lcNostr && Looscid.lcNostr.state ? Looscid.lcNostr.state().pubkey : null; if (!isHex64(me || "")) return [];
   const r = await call("GET", "/moderators"); return r.ok && Array.isArray(r.body.moderators) ? r.body.moderators : [];
 }
+// Nov 8 2026: the public mod log (GET /modlog, no key needed). null when Rem doesn't have it (404) or can't be reached.
+async function modlog(limit) {
+  const r = await call("GET", "/modlog?limit=" + Math.max(1, Math.min(200, +limit || 100))); return r.ok && Array.isArray(r.body.items) ? r.body.items : null;
+}
 async function moderationFor(pk) {
   const me = pk || (Looscid.lcNostr && Looscid.lcNostr.state ? Looscid.lcNostr.state().pubkey : null); if (!isHex64(me || "")) return [];
   const r = await call("GET", "/moderation/" + encodeURIComponent(me)); return r.ok && Array.isArray(r.body.items) ? r.body.items : [];
@@ -220,6 +224,6 @@ function LcRemData() {
 }
 
 Looscid.lcNet = { API: API, PROTOCOL_TAG: PROTOCOL_TAG, BRIDGES: BRIDGES, bridges: bridges, bridgeOn: bridgeOn, setBridge: setBridge, markCrossposted: markCrossposted, wasCrossposted: wasCrossposted,
-  ingest: ingest, flush: flush, feed: feed, userDreams: userDreams, REPORT_REASONS: REPORT_REASONS, report: report, block: block, unblockHandle: unblockHandle, blockedPk: blockedPk, moderate: moderate, moderationFor: moderationFor, moderators: moderators,
+  ingest: ingest, flush: flush, feed: feed, userDreams: userDreams, REPORT_REASONS: REPORT_REASONS, report: report, block: block, unblockHandle: unblockHandle, blockedPk: blockedPk, moderate: moderate, modlog: modlog, moderationFor: moderationFor, moderators: moderators,
   exportMine: exportMine, forgetMe: forgetMe, health: health, LcConnectionbase: LcConnectionbase, LcRemData: LcRemData };
 })(window.Looscid = window.Looscid || {});

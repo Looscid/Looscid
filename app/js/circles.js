@@ -172,6 +172,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
   }, []);
   const [showAdmin, setShowAdmin] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
+  const [showModLog, setShowModLog] = useState(false); // Nov 8 2026: this Circle's public mod log (js/modreasons.js)
   const {dreams, tl, tr, tur, tq, tuq, tb, tc} = useDreams(DREAMS_INIT.slice(0,3).map(d=>({...d,id:d.id+200})));
   const [activeComment, setActiveComment] = useState(function () { return Looscid.lcCvTake ? Looscid.lcCvTake() : null; }); // round 9: Back from a footer page
 
@@ -271,6 +272,9 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
         , Looscid.lcCircleLink&&React.createElement('button', { type: "button", id: "circ-share-btn", className: "btn bgb", style: {width:"100%",padding:11,fontSize:13,marginTop:8}, onClick: ()=>{ const url = Looscid.lcCircleLink(group);
             Looscid.lcShareLink({ title: group.name, url: url, back: function () { return document.getElementById("circ-share-btn"); },
               copy: function () { const say = Looscid.announce || function () {}; if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { say("Circle link copied."); }, function () { say("Copy is not available here."); }); else say("Copy is not available here."); } }); },}, "Share Circle")
+        /* Nov 8 2026 (Carter: removal reasons are public, with a public mod log that says moderator or admin): Mod log, for
+           everyone, in the same row as Share Circle. It opens in the usual sheet, not a new page. */
+        , Looscid.lcModLog&&React.createElement('button', { type: "button", id: "circ-modlog-btn", className: "btn bgb", style: {width:"100%",padding:11,fontSize:13,marginTop:8}, onClick: ()=>setShowModLog(true),}, "Mod log")
       )
 
       , tab==="rules"&&React.createElement('div', { style: {padding:16},}
@@ -284,6 +288,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
       )
 
       , showAdmin&&React.createElement(GroupAdminModal, { group: group, onClose: ()=>setShowAdmin(false),})
+      , showModLog&&React.createElement(CircleModLog, { group: group, onClose: ()=>{ setShowModLog(false); setTimeout(()=>{ const b = document.getElementById("circ-modlog-btn"); if (b) b.focus(); }, 0); },})
       , showInvite&&(
         React.createElement(Modal, { onClose: ()=>setShowInvite(false), title: "Invite to "+group.name, subtitle: "Share this group with your followers"     ,}
           , USERS.slice(0,4).map(u=>(
@@ -295,6 +300,18 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
         )
       )
     )
+  );
+}
+/* Nov 8 2026: a Circle's mod log, in the usual sheet (Modal). Every Dream this Circle's mods removed, newest first, one
+   line each so VoiceOver reads it in one swipe: the date, the Dream (a short reference, never its words), who removed it
+   and the reason. Public: every Dreamor can open it. Focus goes to the sheet's heading when it opens. */
+function CircleModLog({group, onClose}) {
+  const list = Looscid.lcModLog ? Looscid.lcModLog(group.id) : [];
+  React.useEffect(() => { const t = setTimeout(() => { const h = document.querySelector('[role="dialog"][aria-label="Mod log"] h2'); if (h) { h.setAttribute("tabindex", "-1"); h.focus(); } }, 40); return () => clearTimeout(t); }, []);
+  return React.createElement(Modal, { onClose: onClose, title: "Mod log", subtitle: "Every Dream the mods of " + group.name + " removed, with the date and the reason. Anyone can read it.",}
+    , list.length
+      ? React.createElement('ol', { className: "lc-modlog", style: {listStyle:"none",margin:0,padding:0},}, list.map(e => React.createElement('li', { key: e.dreamId + "-" + e.at, style: {padding:"10px 0",borderBottom:"1px solid var(--bd)",fontSize:13,lineHeight:1.5,color:"var(--tx)"},}, Looscid.lcModLogText(e))))
+      : React.createElement('p', { style: {fontSize:13,color:"var(--tx2)",lineHeight:1.6},}, "No Dreams have been removed in " + group.name + ".")
   );
 }
 function GroupAdminModal({group, onClose}) {

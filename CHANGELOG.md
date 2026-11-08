@@ -3,6 +3,18 @@
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
 
+## Public removals and a Mod log (no new build yet)
+
+Added November 8, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+
+Asked for by Carter: removal reasons are public, with a public mod log that says moderator or admin, and a deleted Dream only leaves a placeholder when the thread needs it.
+
+- Delete your own Dream and nobody replied: it's just gone, no placeholder. If it has replies, one line, "Dream deleted", stays so the thread still makes sense. No name and no words.
+- A removed Dream's line is public: everyone reads "Removed by the mods of Night Owls. Reason: …" or "Removed by a Looscid admin. Reason: …". It always says whether a Circle's mods or a Looscid admin did it.
+- Mod log: every removal with its date, the Dream (a short reference, never its words), moderator or admin, and the reason. Each Circle has one in its About tab, next to Share Circle, and the Looscid-wide one is the Mod log article in the Help Center. No new pages.
+- Rem, Looscid's server, has a new public route, GET /modlog, so a Looscid admin's removals show on every device. Nothing that was there before changed. server/rem/src/index.js now has all of Rem's moderation code.
+- The roadmap's Safety items for mod reasons and Blocklists are ticked, since they shipped.
+
 ## Looscid is AGPL now (no new build yet)
 
 Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.

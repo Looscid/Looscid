@@ -394,7 +394,7 @@ function lcTombstoneOf(d) {
 }
 function lcSaveTombstone(d, index) {
   const t = { id: d.id, deleted: true };
-  ["nid", "pk"].forEach(function (k) { if (d[k]) t[k] = d[k]; });
+  ["nid", "pk", "comments"].forEach(function (k) { if (d[k]) t[k] = d[k]; }); // Nov 8 2026: comments = it had replies
   const before = lcSavedDreamsRaw(), found = before.findIndex(function (s) { return s.id === d.id; });
   const all = before.filter(function (s) { return s.id !== d.id; });
   all.splice(Math.max(0, Math.min(index == null ? found : index, all.length)), 0, t);
@@ -404,9 +404,23 @@ function lcSaveTombstone(d, index) {
     window.dispatchEvent(new CustomEvent("looscid:tombstones", { detail: t })); return true;
   } catch (e) { return false; }
 }
-function DeletedDream({ dream, inThread }) {
-  const name = inThread && dream.user && (dream.user.name || dream.user.handle);
-  return lh('p', { id: "deleted-dream-" + dream.id }, name ? name + "'s Dream was deleted" : "This Dream was deleted");
+/* Nov 8 2026 (Carter: "remove deleted dream placeholder except when the dream is deleted by the original person, but only
+   a thread"): a Dream its own Dreamor deleted leaves no trace when nobody replied to it. When it has replies, one line,
+   "Dream deleted", stays so the thread still makes sense: no name, no words. Mod removals are different (ModRemovedDream). */
+function lcHasReplies(d) {
+  if (!d) return false;
+  const mock = (typeof MOCK_COMMENTS !== "undefined" && MOCK_COMMENTS[d.id]) || [];
+  return (d.comments || 0) > 0 || (d.replies || 0) > 0 || lcRepliesFor(d.id).length > 0 || (d.nid != null && String(d.nid) !== String(d.id) && lcRepliesFor(d.nid).length > 0) || mock.length > 0;
+}
+Looscid.lcHasReplies = lcHasReplies;
+// A tombstone that should show: its Dream had replies (the card's own counts are passed in when the list has them).
+function lcTombstoneShows(t, d) {
+  if (!t) return false;
+  const raw = lcSavedDreamsRaw().find(function (s) { return s.deleted === true && s.id === t.id; }) || {};
+  return lcHasReplies(Object.assign({}, d || {}, t, { comments: (d && d.comments) || t.comments || raw.comments || 0, replies: (d && d.replies) || t.replies || 0 }));
+}
+function DeletedDream({ dream }) {
+  return lh('p', { id: "deleted-dream-" + dream.id }, "Dream deleted");
 }
 /* Nov 8 2026 (moderation reasons, adapted from Communities, see js/modreasons.js): a Dream a mod removed shows the reason in
    its place, one line, read in one swipe. Its author reads "Your Dream was removed by ... Reason: ...". The Circle's mods
@@ -1103,10 +1117,12 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
     const nids = [dream.nid, saved && saved.nid, String(dream.id)];
     const position = lcSavedDreamsRaw().findIndex(function (s) { return s.id === dream.id; });
     if (!lcDeleteOwnDream(dream)) { announce("Dream could not be deleted from this device. Try again."); return; }
-    const tombstoned = lcSaveTombstone({ id: dream.id, nid: dream.nid || (saved && saved.nid), pk: dream.pk || (saved && saved.pk) }, position);
+    // Nov 8 2026: only a Dream with replies keeps the "Dream deleted" line; one nobody replied to is just gone.
+    const hadReplies = lcHasReplies(Object.assign({}, saved || {}, dream));
+    const tombstoned = hadReplies && lcSaveTombstone({ id: dream.id, nid: dream.nid || (saved && saved.nid), pk: dream.pk || (saved && saved.pk), comments: lcReplyCount(dream) || 1 }, position);
     setDeleting(false);
-    if (tombstoned) announce("This Dream was deleted");
-    else announce("Dream deleted from this device. Replies remain readable.");
+    if (tombstoned) announce("Dream deleted. Its replies stay.");
+    else announce("Dream deleted.");
     // Oct 31 2026: the More button is gone with the Dream, so focus lands on the "This Dream was deleted" line in its place
     // (or the page heading), never on nothing.
     if (tombstoned || !onDeleted) setTimeout(function () { const a = document.activeElement;
@@ -1498,6 +1514,7 @@ function DreamCard(props) {
   useIdListTick("looscid:moderations"); // Nov 8 2026: moderation reasons (js/modreasons.js)
   const mod = !t && Looscid.lcModFor ? Looscid.lcModFor(props.dream) : null;
   if (mod) return lh(ModRemovedDream, { dream: props.dream, rec: mod, modCircle: props.modCircle });
+  if (t && !lcTombstoneShows(t, props.dream)) return null; // Nov 8 2026: deleted by its Dreamor with no replies: gone
   return t ? lh('div', { className: "dc" }, lh(DeletedDream, { dream: t }), props.onComment ? lh('button', { type: "button", className: "btn bgb", onClick: function () { props.onComment(t); } }, "Open deleted Dream") : null) : lh(DreamBodyCard, props);
 }
 function DreamBodyCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onComment, navigate, cherryCtx, replyCtx, forYou, pinned, modCircle}) {
@@ -4315,7 +4332,7 @@ function lcTimeParts(time) {
 function lcDreamKind(d) { return d.redreamOf || d.isRedream ? "Redream" : d.replyTo || d.isReply ? "Reply" : "Dream"; }
 // The words a Dream is announced with (speech) or shown with (braille), from the settings.
 function lcDreamWords(d, mode, a) {
-  if (lcTombstoneOf(d)) return "This Dream was deleted";
+  if (lcTombstoneOf(d)) return "Dream deleted";
   a = a || Looscid.A11Y_NOW; const u = d.user || {}, kind = lcDreamKind(d), tp = lcTimeParts(d.time);
   if (mode === "braille") {
     const pre = a.braillePrefix !== false ? ({ Dream: "D:", Reply: "R:", Redream: "RD:" }[kind]) + " " : "";
@@ -4332,7 +4349,8 @@ function lcDreamWords(d, mode, a) {
   return parts.filter(Boolean).join(". ").replace(/\.\./g, ".");
 }
 function lcFiltered(d, a) {
-  if (lcTombstoneOf(d)) return null;
+  const tomb = lcTombstoneOf(d);
+  if (tomb) return lcTombstoneShows(tomb, d) ? null : { hide: true }; // Nov 8 2026: no replies, no trace
   if (d.user === ME && LC_DELETED_DREAMS.has(String(d.id))) return { hide: true };
   a = a || Looscid.A11Y_NOW; const t = " " + lcNorm(d.text) + " ", hit = function (w) { const n = lcNorm(w); return n && t.indexOf(" " + n + " ") >= 0 || (n && n.indexOf(" ") > 0 && t.indexOf(n) >= 0); };
   if (d.user && typeof d.user === "object" && lcBlockedUser(d.user)) return { hide: true, blockedUser: true };

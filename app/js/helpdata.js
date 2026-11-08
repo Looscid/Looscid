@@ -135,6 +135,18 @@
         "Press Close, or Escape on a keyboard, to close a menu without choosing.",
       ],
       rel: ["like-and-redream", "privacy"] },
+    /* Nov 8 2026 (Carter: removal reasons are public, with a public mod log that says moderator or admin). live: "modlog"
+       puts the log itself under the steps: in the app from js/modreasons.js, on the website from Rem by help.js. */
+    { id: "mod-log", c: "dreams", t: "Mod log", live: "modlog",
+      s: "Every Dream a Circle's mods or a Looscid admin removed is listed in public, with the date and the reason.",
+      steps: [
+        "When a Dream is removed, one line takes its place that everyone can read, like \u201cRemoved by the mods of Night Owls. Reason: Spam\u201d or \u201cRemoved by a Looscid admin. Reason: Spam\u201d.",
+        "It always says who removed it, a Circle's mods or a Looscid admin, and why. A Dream can't be removed without a reason.",
+        "The mod log below lists every removal: the date, which Dream (never its words), moderator or admin, and the reason.",
+        "Each Circle has its own mod log too. Open the Circle, go to About, and press Mod log.",
+        "Deleting your own Dream is different. If nobody replied, it's just gone. If it has replies, a line saying \u201cDream deleted\u201d stays so the thread still makes sense, with no name and no words.",
+      ],
+      rel: ["options-menus", "circles", "reply"] },
 
     /* ---- Chats, Circles and Cherry ---- */
     { id: "start-a-chat", c: "chats-circles-cherry", t: "Start a private chat",

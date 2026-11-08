@@ -28,6 +28,11 @@
 //   POST /block    body: a signed kind 21984 event: ["p", <pubkey>], ["action", "block" | "unblock"], last 10 minutes
 //   POST /forget   body: a signed kind 21985 event: ["action", "delete-my-data"], last 10 minutes -> erases everything
 //                  this server holds for that key (Dreams, events, ReDreams, blocks, reports they made, the user row)
+// Moderation (Nov 8 2026; MODS = the Looscid admins' keys, a plain-text Worker variable):
+//   GET  /moderators                     -> { ok, moderators: [hex keys] }
+//   GET  /moderation/:pubkey             -> that Dreamor's removed or report-hidden Dreams, with the reason
+//   GET  /modlog?limit=&before=          -> the public mod log: every removal, newest first (Dream id, "admin", reason, when; never the words)
+//   POST /moderate body: a signed kind 21986 event: ["e", <dream id>], ["action", "remove" | "restore"], ["reason", text]
 // CORS: only https://looscid.github.io (and the test preview https://looscid-preview.sites.tab.bot) get the allow headers.
 
 import { schnorr } from "@noble/curves/secp256k1";
@@ -48,7 +53,7 @@ const HIDE_AT = 3;               // reports with a total weight of 3 or more -> 
 // a signed event, because anyone can sign an event with an old date.
 const TRUST_AGE_MS = 7 * 86400000, TRUST_DREAMS = 3, WEIGHT_TRUSTED = 1, WEIGHT_NEW = 0.25;
 const LIMITS = {                 // simple rate limits: [max actions, per this many seconds]
-  ingest: [30, 600], report: [20, 3600], block: [60, 3600], forget: [5, 3600], ip: [200, 600],
+  ingest: [30, 600], report: [20, 3600], block: [60, 3600], forget: [5, 3600], moderate: [120, 3600], ip: [200, 600],
 };
 
 /* ---------- small helpers ---------- */
@@ -338,16 +343,65 @@ async function block(req, env, ev) {
 async function forget(req, env, ev) {
   if (ev.kind !== 21985 || !fresh(ev) || (tag(ev, "action") || [])[1] !== "delete-my-data") return json(req, { ok: false, error: "needs a fresh kind 21985 event with [\"action\", \"delete-my-data\"]" }, 400);
   const pk = ev.pubkey, B = (sql) => env.DB.prepare(sql).bind(pk);
+  await modTable(env); // so the cleanup line below works on a database that never had a removal
   await env.DB.batch([
     B("DELETE FROM pins WHERE user_id = ?1"), B("DELETE FROM alerts WHERE user_id = ?1"),
     B("DELETE FROM reposts WHERE user_id = ?1"), B("DELETE FROM reports WHERE reporter_id = ?1"),
     B("DELETE FROM blocks WHERE blocker_id = ?1"), B("DELETE FROM events WHERE pubkey = ?1"),
     B("DELETE FROM reports WHERE dream_id IN (SELECT id FROM dreams WHERE user_id = ?1)"),
+    B("DELETE FROM moderations WHERE dream_id IN (SELECT id FROM dreams WHERE user_id = ?1)"),
     B("DELETE FROM reposts WHERE dream_id IN (SELECT id FROM dreams WHERE user_id = ?1)"),
     B("DELETE FROM pins WHERE dream_id IN (SELECT id FROM dreams WHERE user_id = ?1)"),
     B("DELETE FROM dreams WHERE user_id = ?1"), B("DELETE FROM users WHERE id = ?1"),
   ]);
   return json(req, { ok: true, forgot: pk });
+}
+
+/* ---------- moderation (Nov 8 2026) ---------- */
+// Looscid admins remove a Dream with a reason, and the Dreamor who made it sees that reason (app: js/modreasons.js).
+// MODS is a plain-text Worker variable: comma-separated hex public keys of Looscid admins. The moderations table is
+// made by the code itself (CREATE TABLE IF NOT EXISTS), so an older database needs no console step.
+const mods = (env) => String(env.MODS || "").split(",").map((s) => s.trim().toLowerCase()).filter((s) => /^[0-9a-f]{64}$/.test(s));
+async function modTable(env) {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS moderations (dream_id TEXT PRIMARY KEY, mod_id TEXT NOT NULL, action TEXT NOT NULL, reason TEXT NOT NULL, created_at INTEGER NOT NULL)").run();
+}
+// POST /moderate  body: a signed kind 21986 event: ["e", <Dream id>], ["action", "remove" | "restore"], ["reason", text]; fresh (10 min)
+async function moderate(req, env, ev) {
+  if (ev.kind !== 21986 || !fresh(ev)) return json(req, { ok: false, error: "needs a fresh kind 21986 moderation event" }, 400);
+  if (!mods(env).includes(ev.pubkey)) return json(req, { ok: false, error: "not a Looscid moderator" }, 403);
+  const e = tag(ev, "e"), action = (tag(ev, "action") || [])[1] === "restore" ? "restore" : "remove";
+  const reason = String(((tag(ev, "reason") || [])[1]) || ev.content || "").replace(/\s+/g, " ").trim();
+  if (!e || !/^[0-9a-f]{64}$/.test(e[1] || "")) return json(req, { ok: false, error: "no Dream (e tag)" }, 400);
+  if (action === "remove" && (!reason || reason.length >= 1024)) return json(req, { ok: false, error: "a reason (1-1023 characters) is required" }, 400);
+  const d = await env.DB.prepare("SELECT id FROM dreams WHERE id = ?1").bind(e[1]).first();
+  if (!d) return json(req, { ok: false, error: "no such Dream" }, 404);
+  await modTable(env);
+  if (action === "restore") {
+    await env.DB.batch([env.DB.prepare("DELETE FROM moderations WHERE dream_id = ?1").bind(d.id), env.DB.prepare("UPDATE dreams SET status = 'ok' WHERE id = ?1").bind(d.id)]);
+  } else {
+    await env.DB.batch([
+      env.DB.prepare("INSERT INTO moderations (dream_id, mod_id, action, reason, created_at) VALUES (?1, ?2, 'remove', ?3, ?4) ON CONFLICT(dream_id) DO UPDATE SET mod_id = ?2, reason = ?3, created_at = ?4").bind(d.id, ev.pubkey, reason, Date.now()),
+      env.DB.prepare("UPDATE dreams SET status = 'hidden' WHERE id = ?1").bind(d.id),
+    ]);
+  }
+  return json(req, { ok: true, [action === "remove" ? "removed" : "restored"]: d.id });
+}
+// GET /moderation/<pubkey>: that Dreamor's removed or report-hidden Dreams, with the reason, so the author sees why.
+async function moderationOf(req, env, pk) {
+  await modTable(env);
+  const r = await env.DB.prepare("SELECT d.id AS dream_id, substr(d.text, 1, 80) AS text, m.reason, m.created_at AS at FROM dreams d LEFT JOIN moderations m ON m.dream_id = d.id WHERE d.user_id = ?1 AND d.status = 'hidden' AND d.deleted_at IS NULL ORDER BY d.created_at DESC LIMIT 100").bind(pk).all();
+  return json(req, { ok: true, items: r.results.map((x) => x.reason ? { dream_id: x.dream_id, status: "removed", reason: x.reason, at: x.at, text: x.text } : { dream_id: x.dream_id, status: "hidden", reason: "Hidden after reports while it's checked", text: x.text }) });
+}
+// GET /modlog: Looscid's public mod log (Nov 8 2026, Carter: "my removal reasons are public with a public mod log,
+// moderator or admin"). Every removal, newest first: the Dream's id (never its words), who removed it ("admin": the
+// keys in MODS are Looscid admins), the reason and when. Anyone can read it, no key needed. ?limit= (1-200, 100 by
+// default) and ?before=<ms> page through it. A Dream put back (restore) leaves the log.
+async function modlog(req, env, url) {
+  await modTable(env);
+  const limit = Math.max(1, Math.min(200, parseInt(url.searchParams.get("limit") || "100", 10) || 100));
+  const before = parseInt(url.searchParams.get("before") || "", 10);
+  const rows = (await env.DB.prepare("SELECT dream_id, reason, created_at FROM moderations WHERE action = 'remove' AND created_at < ?1 ORDER BY created_at DESC LIMIT ?2").bind(Number.isFinite(before) ? before : 9e15, limit).all()).results;
+  return json(req, { ok: true, items: rows.map((r) => ({ dream_id: r.dream_id, action: "remove", by: "admin", reason: r.reason, at: r.created_at })), next: rows.length === limit ? rows[rows.length - 1].created_at : null });
 }
 
 /* ---------- router ---------- */
@@ -364,11 +418,15 @@ export default {
         }
         if (path === "/feed") return await feed(req, env, url);
         if (path === "/export") return await exportEvents(req, env, url);
+        if (path === "/moderators") return json(req, { ok: true, moderators: mods(env) });
+        if (path === "/modlog") return await modlog(req, env, url);
+        const mm = path.match(/^\/moderation\/([0-9a-f]{64})$/i);
+        if (mm) return await moderationOf(req, env, mm[1].toLowerCase());
         const m = path.match(/^\/dreams\/([^/]+)$/);
         if (m) return await userDreams(req, env, url, decodeURIComponent(m[1]).toLowerCase());
         return json(req, { ok: false, error: "not found" }, 404);
       }
-      if (req.method === "POST" && ["/ingest", "/report", "/block", "/forget"].includes(path)) {
+      if (req.method === "POST" && ["/ingest", "/report", "/block", "/forget", "/moderate"].includes(path)) {
         if (!(await allowed(env, await ipKey(req), LIMITS.ip))) return json(req, { ok: false, error: "slow down" }, 429);
         const { ev, error } = await readEvent(req);
         if (error) return json(req, { ok: false, error }, error === "too big" ? 413 : 400);
@@ -378,6 +436,7 @@ export default {
         if (path === "/ingest") { const r = await ingest(env, ev); return json(req, r, r.ok ? 200 : 400); }
         if (path === "/report") return await report(req, env, ev);
         if (path === "/forget") return await forget(req, env, ev);
+        if (path === "/moderate") return await moderate(req, env, ev);
         return await block(req, env, ev);
       }
       return json(req, { ok: false, error: req.method === "GET" || req.method === "POST" ? "not found" : "method not allowed" }, req.method === "GET" || req.method === "POST" ? 404 : 405);
