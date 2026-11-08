@@ -37,6 +37,8 @@ Builds so far: web 195, Android 1, iOS 0 (196 total).
 
 </details>
 
+Heads up on versions: the 2026.FEATURES.FIXES (BUILD) style is just for the web beta. Till launch, the Android and iOS apps stay at 0.x, and the number in parentheses is each app's own build count. When Looscid launches, web, Android and iOS all hit 1.0 together.
+
 ## License
 
 Looscid is open source under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0-or-later). Anyone can use it, change it and share it, companies too. The one catch: if you share a changed version or run it for other people, your version has to be open source under the AGPL too.
