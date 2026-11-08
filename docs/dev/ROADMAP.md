@@ -150,6 +150,14 @@ Shipped today, for context: a Circle, Dreamor, hashtag, thread or List can be pi
 - [x] One-line descriptions under each item in the profile's More menu (Dreamor Options), read as part of the item's name.
   Completed on November 7, 2026.
 
+### Settings styles
+
+- [ ] Settings styles: let Dreamors pick how Settings is laid out, with the same settings in every style.
+- [ ] Classic: one long list.
+- [ ] Sections: grouped with headings and a search box on top. Build this one first.
+- [ ] Sidebar: Sections on wide screens.
+- [ ] The style you pick never changes unless you change it.
+
 ### Cherry
 
 - [ ] A new Cherry design, made by 2three1y.
