@@ -16,7 +16,10 @@ Asked for by Carter: Looscid is for everyone, on every screen reader, and nothin
 - The old Why Looscid? page (/Why/) and /help/why-looscid/ take you to About Looscid now. The link is gone from the Help Center home.
 - The footer starts with a new Important group with About Looscid in it, so it's one of the first links a screen reader reaches.
 - Help me build it is a call for people with all kinds of disabilities to code, test or tell me what's wrong, with links to GitHub, Contributing and Send Feedback. The page ends with: I care. — Carter
-- The accessibility guide (Help Center, Building Looscid, Accessibility) starts with My commitment now, in Carter's own words.
+- The accessibility guide is part of About Looscid now, so it's one page. What it promises, the screen reader checklist, menus and pop-ups, keyboard, braille, how to test, what's not done yet and how to report an accessibility bug are all on About. The how-to for people building Looscid moved to Contributing, under Building it accessibly.
+- Old accessibility guide links (/help/dev/accessibility/, and parts like #my-commitment) take you to the same part of About Looscid or Contributing. It's gone from the Help Center home and the footer.
+- About Looscid sounds like Carter now, not a company: casual headings like What I promise you, The research (with receipts) and Got a problem? Tell me. Every fact, number and source stayed the same.
+- The footer and About Looscid link to r/Looscid on Reddit.
 - The roadmap has three new items: Flash safety also catches strobe effects (from r/Epilepsy feedback), testing with every major screen reader, and building Looscid with developers and testers who live with the conditions it protects.
 - The roadmap and the up next list say "I" now, not "we", because Looscid is one person for now.
 - A few lines that only named VoiceOver now name screen readers in general: the accessibility checklist, the roadmap's testing line, the audience picker item and the server's classic web client.

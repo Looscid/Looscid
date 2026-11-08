@@ -52,7 +52,10 @@ export function mdToHtml(md, { linkFor = h => h, dropTitle = true } = {}) {
       let lv = m[1].length; const text = m[2];
       if (lv === 1 && !title && dropTitle) { title = plainText(text); i++; continue; }
       if (lv === 1) lv = 2; // one h1 per page
-      out.push("<h" + lv + ' id="' + uid(plainText(text)) + '">' + inline(text, linkFor) + "</h" + lv + ">");
+      // Nov 8 2026: "## Casual heading {#old-id}" keeps an old address working when a heading's words change.
+      const fixed = /^(.*?)\s*\{#([a-z0-9-]+)\}$/.exec(text), words = fixed ? fixed[1] : text;
+      const id = fixed && !ids.has(fixed[2]) ? (ids.add(fixed[2]), fixed[2]) : uid(plainText(words));
+      out.push("<h" + lv + ' id="' + id + '">' + inline(words, linkFor) + "</h" + lv + ">");
       i++; continue;
     }
     if (/^\s{0,3}([-*_])(\s*\1){2,}\s*$/.test(l)) { out.push("<hr>"); i++; continue; }

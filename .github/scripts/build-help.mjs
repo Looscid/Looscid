@@ -69,7 +69,6 @@ const POPULAR = ["make-a-looscidid", "write-a-dream", "start-a-chat", "find-sett
 const DOCS = [
   { slug: "contributing", file: "docs/CONTRIBUTING.md", t: "Contributing", s: "How to help build Looscid, and how we work together." },
   { slug: "terminology", file: "docs/guides/TERMINOLOGY.md", t: "Terminology", s: "Looscid's own words: Dream, ReDream, Circle and Dreamor." },
-  { slug: "accessibility", file: "docs/guides/ACCESSIBILITY.md", t: "Accessibility", s: "Looscid's accessibility commitments and the guide every screen follows." },
   { slug: "roadmap", file: "docs/dev/ROADMAP.md", t: "Developer roadmap", s: "what I'm building, how it's built and what's coming, for devs." },
   { slug: "files", file: "docs/dev/FILES.md", t: "Files", s: "What every file in the app holds, and the order the browser loads them in." },
   { slug: "nostr-architecture", file: "docs/dev/NOSTR_ARCHITECTURE.md", t: "Nostr and Cherry", s: "How Looscid uses Nostr, and how Cherry fits in." },
@@ -385,6 +384,53 @@ ${SITE_FOOTER}
 `;
   whyFiles["Why/index.html"] = moved;
   put("why-looscid/index.html", moved);
+  /* Nov 8 2026 (Carter, 6:36 PM: "The Accessibility page should be merged in the Why Looscid"): the accessibility guide is
+     part of About Looscid now. What it promises people went to /About/; the how-to for people building Looscid went to
+     Contributing (docs/CONTRIBUTING.md, Building it accessibly). /help/dev/accessibility/ takes you there, and an old
+     #part lands on the same part in its new home. The web menu code sample is gone: the component library's Pop-up menu
+     is the real one. Without scripts, the refresh goes to the top of About and the links below say where each part went. */
+  const A = "/Looscid/About/", C = "/Looscid/help/dev/contributing/", M = "/Looscid/help/dev/components/popup-menu/";
+  const A11Y_MAP = {
+    "my-commitment": A + "#my-commitment", "commitments": A + "#my-commitment", "commitment-to-accessibility": A + "#my-commitment",
+    "commitment-to-fairness": A + "#if-you-get-banned", "accessibility": A + "#every-screen-reader", "table-of-contents": A + "#every-screen-reader",
+    "web-accessibility": A + "#every-screen-reader", "screen-reader-testing-checklist": A + "#screen-reader-checklist",
+    "accessibility-checklist": A + "#screen-reader-checklist", "testing-recommendations": A + "#how-to-test",
+    "commitment-to-humor": C + "#writing-funny-from-commitment-to-humor", "button-naming-numbering": C + "#button-naming-and-numbering",
+    "ios-accessibility": C + "#for-the-native-apps-swift", "ios-swiftui-implementation": C + "#for-the-native-apps-swift",
+    "resources": C + "#resources",
+  };
+  for (const id of ["voiceover-support", "voiceover-pitch", "voiceover-accessibility-sounds", "swiftui-menu-button-component", "the-composer-round-6-5",
+    "the-cherry-page-round-6-5-2", "cherry-in-commandbar-and-the-commands-page-round-6-5-3", "menus-sheets-and-dialogs-round-7", "the-profile-round-7",
+    "create-circle-round-7", "hints-round-7"]) A11Y_MAP[id] = C + "#" + id;
+  for (const id of ["html-structure-for-accessible-menu-popups", "aria-attributes-reference", "accessibility-menu", "web-implementation-github-style-menu",
+    "html-structure", "css-styling", "javascript-implementation"]) A11Y_MAP[id] = M;
+  put("dev/accessibility/index.html", `<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8"/>
+<title>Accessibility is part of About Looscid now - Looscid</title>
+<!-- Made by .github/scripts/build-help.mjs. The accessibility guide is part of About Looscid now, at /About/ (Nov 8 2026). -->
+<meta name="description" content="${esc(s)}">
+<link rel="canonical" href="${ABOUT_URL}">
+<script>(function(){var m=${JSON.stringify(A11Y_MAP)};var h=decodeURIComponent((location.hash||"").slice(1));location.replace(m[h]||"${A}");})();</script>
+<meta http-equiv="refresh" content="0; url=${A}">
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style>html,body{margin:0;background:#07050f;color:#ede9fe;font:18px/1.5 system-ui,-apple-system,sans-serif}main{padding:24px}a{color:#d8b4fe;font-weight:700;display:inline-flex;align-items:center;min-height:44px}</style>
+</head>
+<body>
+<main>
+<h1>Accessibility is part of About Looscid now</h1>
+<ul>
+<li><a href="${A}#my-commitment">What I promise you</a></li>
+<li><a href="${A}#every-screen-reader">Works with every screen reader</a></li>
+<li><a href="${A}#accessibility-settings">Settings that help</a></li>
+<li><a href="${A}#report-an-accessibility-bug">Found an accessibility bug?</a></li>
+<li><a href="${C}#building-it-accessibly">Building it accessibly, for devs</a></li>
+</ul>
+</main>
+</body>
+</html>
+`);
 }
 // Nov 8 2026: the component library (.github/scripts/components.mjs): an index and one page per component, with demos.
 buildComponents({ page, put, esc });

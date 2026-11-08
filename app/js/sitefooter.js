@@ -14,11 +14,13 @@ const GROUPS = [
   // so About Looscid is one of the first links a screen reader reaches in the footer. Why Looscid? is part of it now.
   { id: "important", t: "Important", links: [["About Looscid", "/Looscid/About/", "settings_about"]] },
   { id: "help", t: "Get help", links: [["Looscid Home", "/Looscid/", "feed"], ["Help Home", "/Looscid/help/", "helpcenter"], ["Getting Started", "/Looscid/help/getting-started/"],
-    ["Looscid Basics course", "/Looscid/help/looscid-basics/"], ["Accessibility", "/Looscid/help/dev/accessibility/"], ["Report Center", "/Looscid/Report/", "report_center"],
+    ["Looscid Basics course", "/Looscid/help/looscid-basics/"], ["Report Center", "/Looscid/Report/", "report_center"],
     ["Contact Us", "/Looscid/help/contact/"], ["Send Feedback", "/Looscid/Feedback/", "feedback"]] },
   { id: "project", t: "Project", links: [["Roadmap &amp; Changelog", "/Looscid/changelog/"], ["Status", "/Looscid/status.html"], ["Docs", "/Looscid/help/#h-building"],
     ["Contributing", "/Looscid/help/dev/contributing/"], { t: "Source code", href: "https://github.com/Looscid/Looscid", ext: "GitHub" }, { t: "Issues", href: "https://github.com/Looscid/Looscid/issues", ext: "GitHub" }] },
-  { id: "looscid", t: "Looscid", links: [["Our Story", "/Looscid/Our-Story/", "hour_story"], ["Credits", "/Looscid/Credits/", "credits"]] },
+  { id: "looscid", t: "Looscid", links: [["Our Story", "/Looscid/Our-Story/", "hour_story"], ["Credits", "/Looscid/Credits/", "credits"],
+    // Nov 8 2026 (Carter: "Link Reddit yea"): r/Looscid, the community's home. The accessibility guide's footer link is gone: it's part of About Looscid now.
+    { t: "r/Looscid on Reddit", href: "https://www.reddit.com/r/Looscid/", ext: "Reddit" }] },
   { id: "legal", t: "Legal", links: [["Terms", "/Looscid/Terms/", "terms"], ["Privacy", "/Looscid/Privacy/", "privacy"], ["Rules", "/Looscid/Rules/", "guidelines"],
     ["Child Safety", "/Looscid/Child-Safety/", "child_safety"], ["License", "/Looscid/Legal/", "legal"]] },
   { id: "hi", t: "Say hi", links: [{ t: "GitHub", href: "https://github.com/Looscid", ext: "GitHub" }, { t: "X", href: "https://x.com/Looscid", ext: "X" },
