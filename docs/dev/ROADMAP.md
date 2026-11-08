@@ -114,6 +114,52 @@ Next:
 
 Later: move from the Discord into Looscid itself, with Circles for every language and faith. LooscidBOT's holiday code comes along.
 
+## Pins, feeds and the More menu
+
+Planned on November 7, 2026. Checkboxes mark planned work; nothing in this section is shipped yet unless it says so. The public version is in the Next list on the roadmap and changelog page (app/changelog/); keep the two in step.
+
+Design rule: no new pages for new features. A new feature lives where the Dreamor already is (the options menus, the feeds, settings and the Commandbar they already use), not on a page of its own.
+
+Shipped today, for context: a Circle, Dreamor, hashtag, thread or List can be pinned as a feed tab on Home and unpinned from that tab, and a Dreamor's profile can be added to the tab bar. Pins below grows that into one system for everything.
+
+### Pins
+
+- [ ] Pin anything: Dreams, Dreamors, hashtags, apps, Cherry chats and actions (like the Commandbar).
+- [ ] Pin from every item's options button (the way that works with VoiceOver, since a website can't add rotor actions), by long press, or from the Commandbar.
+- [ ] Where a pin goes, chosen when you pin: as a feed tab (Dreamors and hashtags only; Cherry chats are not feeds), in the quick menu, or just saved in your pins.
+- [ ] Quick menu: one menu button, not a row of links, so VoiceOver passes it in one swipe. It shows your top pins (about six) and "See all pins". That list is where you see everything you pinned; it's the menu growing, not a new page.
+- [ ] Rearrange (move left or right) or unpin a feed tab from that feed tab's More menu, and from feed settings.
+- [ ] Pinned Dreams work like bookmarks, to come back to later.
+- [ ] Pin folders: group your pins, like "music" or "games".
+- [ ] Pin suggestions from Cherry, opt-in only: "You open this profile a lot. Pin it?"
+- [ ] Commandbar commands: `pins` goes through all your pins, `pin @name`, `unpin #tag`, and moving feed tabs (`move #tag left`).
+- [ ] Privacy: pins are private by default, and pinned chats are always private. An optional public pin list on your profile, where you choose what's on it; pinning something never puts it there on its own.
+- [ ] Apps: no separate Apps section. Pin an app for quick access.
+
+### Feeds menu
+
+- [ ] One Feeds menu that holds your feeds, Circles and places in one spot. It ties into the Pins quick menu, so a pinned feed is one choice away from either.
+
+### Tabs
+
+- Create always stays the middle tab, whatever else is added. Five or six tabs is fine. Where this differs from the older Navigation notes under Discover below, this wins.
+
+### More menu
+
+- [ ] The classic More layout: a profile card on top, and a one-line description under each item, with the new items and groups added on top of it. Keep the groups (Profile, Looscid, About and account).
+- [x] One-line descriptions under each item in the profile's More menu (Dreamor Options), read as part of the item's name.
+  Completed on November 7, 2026.
+
+### Cherry
+
+- [ ] A new Cherry design, made by 2three1y.
+
+### Safety and privacy
+
+- [ ] A "Friends of Friends" choice for who can see a Dream.
+- [ ] Moderators give a reason when they remove a Dream.
+- [ ] Blocklists.
+
 ## Discover: navigation and refine decisions
 
 These decisions guide the next navigation, Feed, Discover, and catalog changes; checkboxes distinguish shipped work from planned work.
