@@ -189,6 +189,7 @@ already out, for context: u can pin a Circle, Dreamor, hashtag, thread or List a
 - [ ] Calm mode also puts videos w no sound or no description behind a placeholder, w a "show anyway" button.
 - [ ] flash check: when a video is uploaded, looscid counts how fast the brightness flips (the 3-flashes-a-second rule) and adds the flashing lights label on its own. just math, no AI.
 - [ ] upload nudge: before u Dream a video or image, we ask "any flashing lights?" and "add a description".
+- [ ] zero animation mode: one switch that kills all motion, autoplay and transitions. on by default if ur phone has reduce motion on
 - [ ] anyone can suggest a label or write a description for a Dream. once enough people agree it sticks, and mods can add em too.
 
 ### on every device
