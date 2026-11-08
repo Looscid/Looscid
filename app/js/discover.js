@@ -103,6 +103,12 @@ function discoverView(st, p, draw) {
     // Build 152 fix: no second live region here; the result count is said once through #looscid-live (lcAnnounceCount).
     h('div', { id: "disc-panel", role: "tabpanel", "aria-labelledby": activeTabs.indexOf(tab) >= 0 ? "disc-tab-" + tab : undefined },
       // Part 36 (2three1y, Oct 12 4:50 PM): no Ask Cherry on Discover. Discover is search and browsing only.
+      // Nov 7 2026 (Carter said yes, from the May 9 build): one exception, an "Ask Cherry: <your search>" row on top of the
+      // search results. It opens Cherry and asks her your search. Only while Cherry is on, and only when you searched.
+      q.trim() && tab !== "trending" && cherryCtx && cherryCtx.openCherry && (!Looscid.lcAiOn || Looscid.lcAiOn()) &&
+        h('button', { type: "button", id: "disc-ask-cherry", className: "lc-disc-cherry", style: { display: "flex", alignItems: "center", gap: 10, width: "100%", textAlign: "left", background: "none", border: "none", borderBottom: "1px solid var(--bd)", color: "inherit", font: "inherit", cursor: "pointer", padding: "11px 14px", minHeight: 44 },
+            "aria-label": "Ask Cherry: " + q.trim(), onClick: function () { cherryCtx.openCherry(q.trim()); } },
+          h('span', { "aria-hidden": "true", style: { fontSize: 13, color: "var(--tx2)" } }, "Ask Cherry: ", h('span', { style: { color: "var(--tx)", fontWeight: 700 } }, "\u201c", q.trim(), "\u201d"))),
       // Round 5 fixes: an empty Trending says so instead of showing nothing.
       (tab === "trending" || (tab === "all" && !q)) && !TRENDING.length && h('div', { className: "es" }, h('div', { className: "esl" }, "Nothing is trending yet"),
         h('p', { style: { fontSize: 12, color: "var(--tx3)", marginTop: 6, lineHeight: 1.6 } }, "Search above to find Dreamors, Dreams and Circles.")),
@@ -154,13 +160,18 @@ function discoverView(st, p, draw) {
             h('span', null, "Replies: ", fmt(d.comments)))));
       }),
 
+      // Nov 7 2026 (Carter said yes, from the May 9 build): a Circle result is one swipe, like Dream and Dreamor results. The
+      // result is one button that opens the Circle (Back comes here with the search kept), and Join and Like are its siblings.
       (tab === "circles" || tab === "all") && circleResults.map(function (g) {
         const joined = !!(cherryCtx && cherryCtx.groups && (cherryCtx.groups.find(function (x) { return x.id === g.id; }) || {}).joined);
-        return h('div', { key: g.id, className: "ci", "aria-label": g.name + " Circle, " + fmt(g.members) + " Dreamors" },
-          h('div', { style: { width: 44, height: 44, borderRadius: 11, background: "var(--sf2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 } }, g.emoji),
-          h('div', { className: "cif" },
-            h('div', { className: "cnm" }, g.name),
-            h('div', { className: "cpv" }, fmt(g.members), " Dreamors in this Circle")),
+        return h('div', { key: g.id, className: "ci" },
+          h('button', { type: "button", className: "lc-disc-open lc-disc-circle", style: { display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0, background: "none", border: "none", padding: 0, color: "inherit", font: "inherit", textAlign: "left", cursor: "pointer" },
+              "aria-label": g.name + " Circle, " + fmt(g.members) + (g.members === 1 ? " Dreamor" : " Dreamors"),
+              onClick: function () { navigate("groups", { circle: g.id }); } },
+            h('span', { "aria-hidden": "true", style: { width: 44, height: 44, borderRadius: 11, background: "var(--sf2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 } }, g.emoji),
+            h('span', { className: "cif", "aria-hidden": "true" },
+              h('span', { className: "cnm", style: { display: "block" } }, g.name),
+              h('span', { className: "cpv", style: { display: "block" } }, fmt(g.members), " Dreamors in this Circle"))),
           // Round 7.16 (#216): Join works. It joins (or leaves) the Circle the same way Circles does, is a pressed button
           // while you're in it, and says so once. The Circle shows under My Circles.
           cherryCtx && cherryCtx.joinGroup ? h('button', { type: "button", className: "btn " + (joined ? "bgb" : "bp"), style: { fontSize: 12 }, "aria-label": "Join the " + g.name + " Circle", "aria-pressed": joined ? "true" : "false",

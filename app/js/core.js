@@ -3295,14 +3295,18 @@ function LcMenu(props) {
     // Part 18: a disabled item with a reason is its short name, and the reason is its hint.
     const reasonHint = it.disabled && it.note && !it.close ? lcHintReason(it.note) : null;
     const hint = it.close ? null : (it.hint || reasonHint);
-    const nm = it.exactAria ? it.aria : it.close ? "Close " + menuName : (reasonHint ? lcNameJoin(it.aria || it.name, pos) || undefined : (it.note || pos || it.aria ? lcNameJoin(it.aria || it.name, it.note, pos) : undefined));
+    // Nov 7 2026 (Carter said yes, the May 9 More menu): an item can carry a one-line description (it.desc). It shows under
+    // the name and is read as part of the item's name, right after it (never aria-describedby).
+    const dsc = it.close || it.exactAria ? "" : (it.desc || "");
+    const nm = it.exactAria ? it.aria : it.close ? "Close " + menuName : (reasonHint ? lcNameJoin(it.aria || it.name, dsc, pos) || undefined : (it.note || pos || it.aria || dsc ? lcNameJoin(it.aria || it.name, it.note, dsc, pos) : undefined));
     return lh('li', { key: it.id, "data-mi": "1", role: radio ? "menuitemradio" : "menuitem", "aria-checked": radio ? (it.id === value ? "true" : "false") : undefined,
         "aria-disabled": it.disabled ? "true" : undefined, tabIndex: i === active ? 0 : -1,
         "aria-label": nm, "aria-braillelabel": it.close ? "Close" : undefined,
         className: "lmenu-item" + (i === active ? " act" : "") + (it.close ? " lmenu-close" : "") + (it.danger ? " lmenu-danger" : "") + (props.itemClass && !it.close ? " " + props.itemClass : ""),
         onClick: function () { choose(it); }, onMouseMove: function () { if (active !== i) setActive(i); } },
       radio ? lh('span', { className: "lmenu-check", "aria-hidden": "true" }, it.id === value ? "\u2713" : "") : null,
-      lh('span', null, it.name, it.note ? lh('span', { className: "lmenu-note" }, ", " + it.note) : null));
+      lh('span', null, it.name, it.note ? lh('span', { className: "lmenu-note" }, ", " + it.note) : null,
+        dsc ? lh('span', { className: "lmenu-desc", "aria-hidden": "true" }, dsc) : null));
   };
   // Group headings: each group is role=group, named by its heading.
   const body = [];

@@ -677,6 +677,26 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
                : { id: "hiderd", name: "Hide Redreams", a: function () { Looscid.lcPeopleSet("looscid_hide_redreams", user.handle, true); say("Hiding Redreams from " + user.name + "."); } },
        { id: "note", name: note ? "Edit note" : "Add note", a: function () { setNoteText(note); setNoteEdit(true); } },
        { id: "reorder", name: "Reorder profile tabs", a: function () { Looscid.LC_SETTINGS_BACK = null; navigate("settings_profiletabs"); } }]);
+  // Nov 7 2026 (Carter said yes: "I love the old More design"): like the May 9 More menu, each item has a one-line
+  // description under it, read as part of the item. The groups stay. Unavailable items keep their reason instead.
+  const MORE_DESC = isMe ? {
+    edit: "Your name, photo, bio and more", links: "Share or copy your links", viewas: "See your profile the way others do",
+    reorder: "Choose the order of your profile tabs", reordertabbar: "Choose the order of the tabs at the bottom",
+    lists: "Lists of Dreamors you made", drafts: "Dreams you haven't shared yet",
+    cherry: "Your AI companion", circles: "Find, join or start a Circle", create: "Make a new Dream, Circle and more",
+    alerts: "Your Alerts and messages", settings: "Account, privacy, accessibility and more", cmdbar: "Type a command to do things fast",
+    help: "Guides and answers in the Help Center", commands: "Every command you can type",
+    credits: "The people and projects behind Looscid", feedback: "Tell us what to fix or add", logout: "Asks first, then logs you out on this device"
+  } : {
+    message: "Send them a private message", follow: "See their Dreams in Following", unfollow: "Stop seeing their Dreams in Following",
+    addlist: "Put them on one of your Lists", mute: "Hide their Dreams from your feed", unmute: "Show their Dreams in your feed again",
+    block: "Undo it any time here or in Settings, Privacy", unblock: "Let them back in", links: "Share or copy their links",
+    pinfeed: "Their Dreams as a tab on Home", unpinfeed: "Take their tab off Home",
+    tabbar: "Their profile as a tab at the bottom", cherry: "Cherry tells you who they are",
+    showrd: "Show their Redreams in your feed", hiderd: "Hide their Redreams from your feed",
+    note: "A note about them, just for you", reorder: "Choose the order of profile tabs"
+  };
+  moreItems.forEach(function (it) { if (it && !it.disabled && !it.desc && MORE_DESC[it.id]) it.desc = it.id === "tabbar" && /^Remove/.test(it.name) ? "Take them off the tab bar at the bottom" : MORE_DESC[it.id]; });
   // Logout asks first, in the app's own confirm dialog. Cancel (or Escape) puts focus back on More. Round 7.38: the same
   // words and steps as Settings' Logout row (Looscid.LC_LOGOUT_TXT, lcDoLogout in core.js).
   const LT = Looscid.LC_LOGOUT_TXT;
@@ -2173,7 +2193,9 @@ function HourStoryPage({ navigate, back }) {
         // Hero
         , React.createElement('div', { style: {textAlign:"center",marginBottom:32,padding:"0 8px"},}
           , React.createElement('div', { style: {fontSize:56,marginBottom:12,'aria-hidden':"true"},}, "🌙")
-          , React.createElement('h1', { style: {fontFamily:"\"Looscid Unspeakable\",'DM Serif Display',Georgia,serif",fontSize:26,lineHeight:1.3,
+          // Nov 7 2026 (Carter said yes): one h1 per view. BackHeader's "Our Story" is the h1, so the big "Looscid" title is
+          // a paragraph that looks the same.
+          , React.createElement('p', { style: {margin:0,fontWeight:700,fontFamily:"\"Looscid Unspeakable\",'DM Serif Display',Georgia,serif",fontSize:26,lineHeight:1.3,
               background:"linear-gradient(135deg,var(--ac4),var(--ac3))",
               WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text",
               marginBottom:12},}, "Looscid")
@@ -2209,7 +2231,7 @@ function HourStoryPage({ navigate, back }) {
 
           , React.createElement('div', { style: {height:1,background:"var(--bd)",'aria-hidden':"true"},})
 
-          , React.createElement('section', { 'aria-label': "Built with Claude",}
+          , React.createElement('section', { 'aria-label': "Built in the open",}
             , React.createElement('h2', { style: {fontFamily:"\"Looscid Unspeakable\",'DM Serif Display',Georgia,serif",fontSize:20,color:"var(--tx)",marginBottom:10},}, "Built in the open")
             , React.createElement('p', { style: {fontSize:14,color:"var(--tx2)",lineHeight:1.8},},
               "This app was built transparently — with Claude as a development partner, documented in the open, and released as open source. Anyone can read the code, fork it, build on top of it. That is intentional. We want this to belong to everyone."
