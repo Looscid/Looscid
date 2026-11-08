@@ -202,6 +202,12 @@ Carter, November 8, 2026: real Looscid apps, Android first. We build them in the
   - [ ] Enter runs the swipe action you're on, like Like Dream.
   - [ ] All of this works on any braille display.
 - [ ] Works on privacy-focused Android phones with no Google services.
+- [ ] Your Looscid key stays safe in your phone's secure storage.
+- [ ] Real notifications for Alerts.
+- [ ] Share to Looscid from other apps.
+- [ ] A home screen shortcut to start a Dream.
+- [ ] Read aloud with any voice that's already on your phone.
+- [ ] Our own offline voices that are open and shareable.
 
 ### Safety and privacy
 
