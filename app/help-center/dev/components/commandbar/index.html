@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en-US" data-help-root="../../../">
+<head>
+<meta charset="UTF-8"/>
+<title>Commandbar component - Looscid Help Center</title>
+<!-- Made by .github/scripts/build-help.mjs from app/js/helpdata.js. Edit those, not this page. Link previews come first. -->
+<meta name="description" content="type a command, press Enter, get the answer. the fastest way around looscid w a keyboard or braille display.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Looscid">
+<meta property="og:title" content="Commandbar component - Looscid Help Center">
+<meta property="og:description" content="type a command, press Enter, get the answer. the fastest way around looscid w a keyboard or braille display.">
+<meta property="og:url" content="https://looscid.github.io/Looscid/help/dev/components/commandbar/">
+<meta property="og:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:secure_url" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Looscid">
+<meta name="twitter:title" content="Commandbar component - Looscid Help Center">
+<meta name="twitter:description" content="type a command, press Enter, get the answer. the fastest way around looscid w a keyboard or braille display.">
+<meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta name="twitter:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<link rel="canonical" href="https://looscid.github.io/Looscid/help/dev/components/commandbar/">
+<link rel="icon" type="image/png" sizes="32x32" href="https://looscid.github.io/Looscid/assets/icons/favicon-32.png?v=nl1">
+<link rel="apple-touch-icon" href="https://looscid.github.io/Looscid/assets/icons/apple-touch-icon.png?v=nl1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<link rel="stylesheet" href="../../../help.css?v=hc7">
+<link rel="stylesheet" href="../../../../assets/site-footer.css?v=2">
+</head>
+<body>
+<div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<header class="top"><a class="brand" href="../../../" title="Goes back to Help Center" aria-label="Looscid Help Center, logo: a white open ring with a dot in the middle, on blue"><img src="../../../../assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="32" height="32"><span><span aria-hidden="true">Looscid</span> Help Center</span></a><div class="goto"><button type="button" class="goto-btn" aria-expanded="false" aria-controls="goto-list" hidden>Go to<svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><ul class="goto-list" id="goto-list"><li><a href="../../../" title="Goes back to Help Center">Help Home</a></li><li><a href="../../../../" title="Goes to Home">Looscid Home</a></li></ul></div></header>
+<main class="wrap" id="main">
+<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../../../" title="Goes back to Help Center">Help Center</a></li><li><a href="../../../#h-building" title="Goes back to Help Center">Building Looscid</a></li><li><a href="../" title="Opens this article">Components</a></li><li><span aria-current="page">Commandbar</span></li></ol></nav>
+<link rel="stylesheet" href="../components.css?v=1">
+<h1>Commandbar</h1>
+<p class="lead">type a command, press Enter, get the answer. the fastest way around looscid w a keyboard or braille display.</p>
+<h2 id="what">what it is</h2>
+<p>press Ctrl+K (or Cmd+K) anywhere, or open it from Settings. type things like help, status or open feed. answers show in the output above the box.</p>
+<p>it has its own screen with quick command buttons for the common stuff, so u don't have to type.</p>
+<h2 id="states">states</h2>
+<p>live demos, drawn w looscid's real styles. look-only: nothing in them does anything.</p>
+<h3 id="state-empty">empty</h3>
+<p>just opened, no output yet.</p>
+<iframe class="cl-frame" src="empty.html" title="Commandbar demo, empty" loading="lazy" style="height:520px"></iframe>
+<h3 id="state-output">with output</h3>
+<p>after running status.</p>
+<iframe class="cl-frame" src="output.html" title="Commandbar demo, with output" loading="lazy" style="height:550px"></iframe>
+<h3 id="state-focused">focused</h3>
+<p>focus ring on the command box.</p>
+<iframe class="cl-frame" src="focused.html" title="Commandbar demo, focused" loading="lazy" style="height:520px"></iframe>
+<h2 id="code">copy the code</h2>
+<h3 id="code-html">html</h3>
+<pre class="cl-code"><code id="code-commandbar-html">&lt;div class=&quot;lc-term&quot; role=&quot;region&quot; aria-labelledby=&quot;lc-term-h&quot;&gt;
+&lt;div class=&quot;lc-term-hd&quot;&gt;&lt;h1 id=&quot;lc-term-h&quot; class=&quot;lc-term-title&quot; tabindex=&quot;-1&quot;&gt;Commandbar&lt;/h1&gt;&lt;button type=&quot;button&quot; class=&quot;lc-icon-btn lc-term-close&quot; aria-label=&quot;Close Commandbar&quot;&gt;Close&lt;/button&gt;&lt;/div&gt;
+&lt;div class=&quot;lc-term-body&quot; tabindex=&quot;0&quot; role=&quot;region&quot; aria-label=&quot;Commandbar scrollback&quot;&gt;
+&lt;p class=&quot;lc-term-hi&quot;&gt;Welcome to Commandbar. Type help and press Enter. Commands you run in the bar show here too.&lt;/p&gt;
+&lt;div class=&quot;lc-out-h&quot;&gt;&lt;button type=&quot;button&quot; id=&quot;lc-out-toggle&quot; class=&quot;lc-out-tg&quot; aria-expanded=&quot;true&quot; aria-controls=&quot;lc-out&quot;&gt;&lt;span class=&quot;lc-out-ic&quot; aria-hidden=&quot;true&quot;&gt;▾&lt;/span&gt;Commandbar output, 0 lines&lt;/button&gt;&lt;/div&gt;
+&lt;div id=&quot;lc-out&quot; class=&quot;lc-out&quot; role=&quot;log&quot; aria-live=&quot;off&quot; aria-label=&quot;Commandbar output&quot;&gt;&lt;p class=&quot;lc-l lc-l-dimt&quot;&gt;No output yet.&lt;/p&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;lc-term-foot&quot;&gt;
+&lt;h2 id=&quot;lc-chips-h&quot; class=&quot;lc-chips-h&quot;&gt;Quick commands&lt;/h2&gt;
+&lt;ul class=&quot;lc-chips&quot; aria-labelledby=&quot;lc-chips-h&quot;&gt;&lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;lc-chip&quot;&gt;Help&lt;/button&gt;&lt;/li&gt;&lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;lc-chip&quot;&gt;Open feed&lt;/button&gt;&lt;/li&gt;&lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;lc-chip&quot;&gt;Settings&lt;/button&gt;&lt;/li&gt;&lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;lc-chip&quot;&gt;Status&lt;/button&gt;&lt;/li&gt;&lt;/ul&gt;
+&lt;form class=&quot;lc-term-form&quot; autocomplete=&quot;off&quot;&gt;&lt;label for=&quot;lc-term-input&quot; class=&quot;lc-term-label&quot;&gt;&lt;span class=&quot;lc-prompt&quot; aria-hidden=&quot;true&quot;&gt;looscid&amp;gt;&lt;/span&gt;&lt;span class=&quot;sr-pause&quot;&gt;Command&lt;/span&gt;&lt;/label&gt;&lt;input id=&quot;lc-term-input&quot; type=&quot;text&quot; autocomplete=&quot;off&quot; autocapitalize=&quot;none&quot; spellcheck=&quot;false&quot; enterkeyhint=&quot;send&quot;&gt;&lt;button type=&quot;submit&quot; class=&quot;btn bp lc-run&quot;&gt;Run&lt;/button&gt;&lt;/form&gt;
+&lt;p id=&quot;lc-term-hint&quot; class=&quot;lc-desc&quot;&gt;Enter runs. Up and Down arrows recall earlier commands. Escape closes.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<p><button type="button" class="btn cl-copy" data-copy="code-commandbar-html" hidden>Copy code</button></p>
+<h3 id="code-js">js</h3>
+<pre class="cl-code"><code id="code-commandbar-js">// Enter runs, Up and Down recall (js/core.js, cut down)
+const input = document.getElementById(&quot;lc-term-input&quot;), past = []; let at = 0;
+input.form.addEventListener(&quot;submit&quot;, function (e) {
+  e.preventDefault(); const cmd = input.value.trim(); if (!cmd) return;
+  past.push(cmd); at = past.length; input.value = &quot;&quot;;
+  print(run(cmd)); // the answer is said once through the live region
+});
+input.addEventListener(&quot;keydown&quot;, function (e) {
+  if (e.key === &quot;ArrowUp&quot; &amp;&amp; at &gt; 0) { at--; input.value = past[at]; e.preventDefault(); }
+  if (e.key === &quot;ArrowDown&quot; &amp;&amp; at &lt; past.length) { at++; input.value = past[at] || &quot;&quot;; e.preventDefault(); }
+});</code></pre>
+<p><button type="button" class="btn cl-copy" data-copy="code-commandbar-js" hidden>Copy JS code</button></p>
+<p>it uses the classes from css/app.css and css/a11y.css, so it looks right anywhere in looscid.</p>
+<h2 id="voiceover">how it works w voiceover</h2>
+<ul><li>it opens on its h1, &quot;Commandbar, heading level 1&quot;.</li><li>the command box says &quot;Command, text field&quot;. type and press Enter (or double tap Run). the answer is spoken once.</li><li>the output log is quiet on purpose (aria-live off) so old lines aren't re-read. swipe into &quot;Commandbar output&quot; to read them again.</li><li>braille display: this is where it shines. type the command and press Enter on the display to run it. Up and Down arrows bring back old commands. Escape closes.</li></ul>
+<h2 id="related">related</h2>
+<ul><li><a href="../text-field/" title="Opens this article">Text field</a></li><li><a href="../live-region/" title="Opens this article">Live region announcements</a></li><li><a href="../back-header/" title="Opens this article">BackHeader</a></li></ul>
+<p class="next"><a href="../" title="Opens this article">All components</a></p>
+<script src="../components.js?v=1"></script>
+</main>
+<footer class="sf">
+<div class="sf-in">
+<p class="sf-brand"><img src="/Looscid/assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="28" height="28"><span class="sf-name" aria-hidden="true">Looscid</span></p>
+<div class="sf-cols">
+<section class="sf-col" aria-labelledby="sf-h-help"><h2 id="sf-h-help">Get help</h2><ul><li><a href="/Looscid/" title="Goes to Home">Looscid Home</a></li><li><a href="/Looscid/help/" title="Goes back to Help Center">Help Home</a></li><li><a href="/Looscid/help/getting-started/" title="Opens this topic">Getting Started</a></li><li><a href="/Looscid/help/looscid-basics/" title="Opens this course">Looscid Basics course</a></li><li><a href="/Looscid/help/dev/accessibility/" title="Opens this article">Accessibility</a></li><li><a href="/Looscid/help/contact/" title="Goes to Contact Us">Contact Us</a></li><li><a href="/Looscid/Feedback/" title="Goes to Feedback">Send Feedback</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-project"><h2 id="sf-h-project">Project</h2><ul><li><a href="/Looscid/changelog/" title="Goes to the changelog">Roadmap &amp; Changelog</a></li><li><a href="/Looscid/status.html" title="Goes to the status page">Status</a></li><li><a href="/Looscid/help/#h-building" title="Goes back to Help Center">Docs</a></li><li><a href="/Looscid/help/dev/contributing/" title="Opens this article">Contributing</a></li><li><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a></li><li><a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-looscid"><h2 id="sf-h-looscid">Looscid</h2><ul><li><a href="/Looscid/About/" title="Goes to About">About</a></li><li><a href="/Looscid/Our-Story/" title="Goes to Our Story">Our Story</a></li><li><a href="/Looscid/Credits/" title="Goes to Credits">Credits</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-legal"><h2 id="sf-h-legal">Legal</h2><ul><li><a href="/Looscid/Terms/" title="Goes to Terms">Terms</a></li><li><a href="/Looscid/Privacy/" title="Goes to Privacy">Privacy</a></li><li><a href="/Looscid/Rules/" title="Goes to Rules">Rules</a></li><li><a href="/Looscid/Child-Safety/" title="Goes to Child Safety">Child Safety</a></li><li><a href="/Looscid/Legal/" title="Goes to Legal">License</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-hi"><h2 id="sf-h-hi">Say hi</h2><ul><li><a href="https://github.com/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">GitHub</a></li><li><a href="https://x.com/Looscid" title="Go to X" target="_blank" rel="noopener noreferrer">X</a></li><li><a href="https://www.youtube.com/@Looscid" title="Go to YouTube" target="_blank" rel="noopener noreferrer">YouTube</a></li><li><a href="https://discord.gg/M6xrD8EBXU" title="Go to Discord" target="_blank" rel="noopener noreferrer">Discord</a></li></ul></section>
+</div>
+<p class="sf-bottom">© 2025–2026 Looscid <span aria-hidden="true">·</span> Open source under the <a href="/Looscid/help/dev/license/" title="Opens this article">GNU AGPL-3.0</a> <span aria-hidden="true">·</span> Made by Chaotic Carter, co-written with Tab <span aria-hidden="true">·</span> Looscid 2026.138.57 (195)</p>
+</div>
+</footer>
+<script src="../../../help.js?v=hc6"></script>
+</body>
+</html>

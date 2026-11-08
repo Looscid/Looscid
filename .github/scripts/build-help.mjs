@@ -12,6 +12,7 @@ import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 import { hintLinks } from "./link-hints.mjs";
 import { mdToHtml } from "./md-to-html.mjs";
+import { buildComponents, COMPONENTS_INTRO } from "./components.mjs"; // Nov 8 2026: the component library, /help/dev/components/
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const APP = path.join(REPO, "app");
@@ -201,7 +202,7 @@ const course = H.courses[0];
   for (const c of H.courses) b += '<div class="card course-card">' + icon("course") + '<div><h4><a href="' + c.id + '/">' + esc(c.t) + '</a></h4><p>' + esc(c.s) + '</p><p class="progress" data-course="' + c.id + '" data-total="' + c.lessons.length + '">' + c.lessons.length + ' lessons</p></div></div>\n';
   b += '</section>\n</section>\n';
   b += '<section aria-labelledby="h-building"><h2 id="h-building">Building Looscid</h2>\n<p class="lead">For developers and anyone curious: how Looscid is made, its words, its rules for accessibility, and what\'s planned. The code itself is on GitHub.</p>\n';
-  b += '<ul class="list">' + DOCS.map(d => '<li><a href="dev/' + d.slug + '/">' + esc(d.t) + '</a><p>' + esc(d.s) + '</p></li>').join("") + '</ul>\n';
+  b += '<ul class="list">' + DOCS.map(d => '<li><a href="dev/' + d.slug + '/">' + esc(d.t) + '</a><p>' + esc(d.s) + '</p></li>').join("") + '<li><a href="dev/components/">Components</a><p>' + esc(COMPONENTS_INTRO) + '</p></li></ul>\n';
   b += '<p><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a> <span aria-hidden="true">·</span> <a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a> <span aria-hidden="true">·</span> <a href="../changelog/">Roadmap and changelog</a> <span aria-hidden="true">·</span> <a href="../Rules/">Rules</a></p>\n</section>\n';
   b += '<section aria-labelledby="h-contact"><h2 id="h-contact">Still need help?</h2>\n<p class="lead">' + esc(H.contact.s) + '</p>\n<ul class="contact-row" role="list">';
   b += '<li>' + icon("bug") + '<a class="stretch" href="report-a-problem/">Report a problem</a><p>Right in Looscid. Agree or disagree with other reports.</p></li>';
@@ -267,6 +268,8 @@ for (const d of DOCS) {
   const b = "<h1>" + esc(t) + '</h1>\n<p class="lead">' + esc(d.s) + '</p>\n<div class="doc">\n' + r.html + '\n</div>\n<p class="next"><a href="../../#h-building">More in Building Looscid</a> <span aria-hidden="true">·</span> <a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></p>';
   put("dev/" + d.slug + "/index.html", page({ slug: "dev/" + d.slug, title: t, desc: d.s, body: b, depth: 2, crumbs: [["Help Center", "../../"], ["Building Looscid", "../../#h-building"], [t, null]] }));
 }
+// Nov 8 2026: the component library (.github/scripts/components.mjs): an index and one page per component, with demos.
+buildComponents({ page, put, esc });
 // Contact Us (Carter, Oct 28 2026: "GitHub is good enough". No email.)
 {
   const k = H.contact;

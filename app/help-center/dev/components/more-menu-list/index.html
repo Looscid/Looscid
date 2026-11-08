@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en-US" data-help-root="../../../">
+<head>
+<meta charset="UTF-8"/>
+<title>More menu list component - Looscid Help Center</title>
+<!-- Made by .github/scripts/build-help.mjs from app/js/helpdata.js. Edit those, not this page. Link previews come first. -->
+<meta name="description" content="the list of big rows on the More screen, plus the Apps group that opens and closes.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Looscid">
+<meta property="og:title" content="More menu list component - Looscid Help Center">
+<meta property="og:description" content="the list of big rows on the More screen, plus the Apps group that opens and closes.">
+<meta property="og:url" content="https://looscid.github.io/Looscid/help/dev/components/more-menu-list/">
+<meta property="og:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:secure_url" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Looscid">
+<meta name="twitter:title" content="More menu list component - Looscid Help Center">
+<meta name="twitter:description" content="the list of big rows on the More screen, plus the Apps group that opens and closes.">
+<meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta name="twitter:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<link rel="canonical" href="https://looscid.github.io/Looscid/help/dev/components/more-menu-list/">
+<link rel="icon" type="image/png" sizes="32x32" href="https://looscid.github.io/Looscid/assets/icons/favicon-32.png?v=nl1">
+<link rel="apple-touch-icon" href="https://looscid.github.io/Looscid/assets/icons/apple-touch-icon.png?v=nl1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<link rel="stylesheet" href="../../../help.css?v=hc7">
+<link rel="stylesheet" href="../../../../assets/site-footer.css?v=2">
+</head>
+<body>
+<div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<header class="top"><a class="brand" href="../../../" title="Goes back to Help Center" aria-label="Looscid Help Center, logo: a white open ring with a dot in the middle, on blue"><img src="../../../../assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="32" height="32"><span><span aria-hidden="true">Looscid</span> Help Center</span></a><div class="goto"><button type="button" class="goto-btn" aria-expanded="false" aria-controls="goto-list" hidden>Go to<svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><ul class="goto-list" id="goto-list"><li><a href="../../../" title="Goes back to Help Center">Help Home</a></li><li><a href="../../../../" title="Goes to Home">Looscid Home</a></li></ul></div></header>
+<main class="wrap" id="main">
+<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../../../" title="Goes back to Help Center">Help Center</a></li><li><a href="../../../#h-building" title="Goes back to Help Center">Building Looscid</a></li><li><a href="../" title="Opens this article">Components</a></li><li><span aria-current="page">More menu list</span></li></ol></nav>
+<link rel="stylesheet" href="../components.css?v=1">
+<h1>More menu list</h1>
+<p class="lead">the list of big rows on the More screen, plus the Apps group that opens and closes.</p>
+<h2 id="what">what it is</h2>
+<p>the More screen is a list of big rows: Cherry, Drafts, LooscidID, Settings and Send Feedback. each row is one button with a name and a short line under it.</p>
+<p>under it there's an Apps group that opens and closes (it's a disclosure button). no headings inside the rows, on purpose, so VoiceOver reads each row as one thing.</p>
+<h2 id="states">states</h2>
+<p>live demos, drawn w looscid's real styles. look-only: nothing in them does anything.</p>
+<h3 id="state-normal">normal</h3>
+<p>Apps is closed.</p>
+<iframe class="cl-frame" src="normal.html" title="More menu list demo, normal" loading="lazy" style="height:470px"></iframe>
+<h3 id="state-apps-open">Apps open</h3>
+<p>the Apps group is open and its arrow turned.</p>
+<iframe class="cl-frame" src="apps-open.html" title="More menu list demo, Apps open" loading="lazy" style="height:590px"></iframe>
+<h3 id="state-focused">focused</h3>
+<p>focus ring on Settings.</p>
+<iframe class="cl-frame" src="focused.html" title="More menu list demo, focused" loading="lazy" style="height:470px"></iframe>
+<h2 id="code">copy the code</h2>
+<h3 id="code-html">html</h3>
+<pre class="cl-code"><code id="code-more-menu-list-html">&lt;div style=&quot;margin-top: 8px;&quot;&gt;&lt;ul class=&quot;mlist more-items&quot; role=&quot;list&quot; style=&quot;list-style: none; margin: 0; padding: 0;&quot;&gt;
+&lt;li&gt;&lt;button class=&quot;snav&quot; type=&quot;button&quot; aria-label=&quot;Cherry&quot;&gt;&lt;div class=&quot;snav-l&quot;&gt;&lt;div class=&quot;snav-ic&quot; style=&quot;background: #6d28d922; font-size: 17px;&quot; aria-hidden=&quot;true&quot;&gt;Cherry&lt;/div&gt;&lt;div&gt;&lt;div class=&quot;snav-title&quot;&gt;Cherry&lt;/div&gt;&lt;div class=&quot;snav-sub&quot;&gt;Cherry - DO IT YOUR WAY&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.9&quot; width=&quot;13&quot; height=&quot;13&quot;&gt;&lt;polyline points=&quot;9 18 15 12 9 6&quot;&gt;&lt;/polyline&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/li&gt;
+&lt;li&gt;&lt;button class=&quot;snav&quot; type=&quot;button&quot; aria-label=&quot;Drafts&quot;&gt;&lt;div class=&quot;snav-l&quot;&gt;&lt;div class=&quot;snav-ic&quot; style=&quot;background: #37415122; font-size: 17px;&quot; aria-hidden=&quot;true&quot;&gt;Drafts&lt;/div&gt;&lt;div&gt;&lt;div class=&quot;snav-title&quot;&gt;Drafts&lt;/div&gt;&lt;div class=&quot;snav-sub&quot;&gt;Your saved Dream drafts&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.9&quot; width=&quot;13&quot; height=&quot;13&quot;&gt;&lt;polyline points=&quot;9 18 15 12 9 6&quot;&gt;&lt;/polyline&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/li&gt;
+&lt;li&gt;&lt;button class=&quot;snav&quot; type=&quot;button&quot; aria-label=&quot;LooscidID&quot;&gt;&lt;div class=&quot;snav-l&quot;&gt;&lt;div class=&quot;snav-ic&quot; style=&quot;background: #6d28d922; font-size: 17px;&quot; aria-hidden=&quot;true&quot;&gt;LooscidID&lt;/div&gt;&lt;div&gt;&lt;div class=&quot;snav-title&quot;&gt;LooscidID&lt;/div&gt;&lt;div class=&quot;snav-sub&quot;&gt;Profile, login methods and security&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.9&quot; width=&quot;13&quot; height=&quot;13&quot;&gt;&lt;polyline points=&quot;9 18 15 12 9 6&quot;&gt;&lt;/polyline&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/li&gt;
+&lt;li&gt;&lt;button class=&quot;snav&quot; type=&quot;button&quot; aria-label=&quot;Settings&quot;&gt;&lt;div class=&quot;snav-l&quot;&gt;&lt;div class=&quot;snav-ic&quot; style=&quot;background: #37415122; font-size: 17px;&quot; aria-hidden=&quot;true&quot;&gt;Settings&lt;/div&gt;&lt;div&gt;&lt;div class=&quot;snav-title&quot;&gt;Settings&lt;/div&gt;&lt;div class=&quot;snav-sub&quot;&gt;LooscidID, privacy, accessibility&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.9&quot; width=&quot;13&quot; height=&quot;13&quot;&gt;&lt;polyline points=&quot;9 18 15 12 9 6&quot;&gt;&lt;/polyline&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/li&gt;
+&lt;li&gt;&lt;button class=&quot;snav&quot; type=&quot;button&quot; aria-label=&quot;Send Feedback&quot;&gt;&lt;div class=&quot;snav-l&quot;&gt;&lt;div class=&quot;snav-ic&quot; style=&quot;background: #0e749022; font-size: 17px;&quot; aria-hidden=&quot;true&quot;&gt;Send Feedback&lt;/div&gt;&lt;div&gt;&lt;div class=&quot;snav-title&quot;&gt;Send Feedback&lt;/div&gt;&lt;div class=&quot;snav-sub&quot;&gt;Help us improve Looscid&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.9&quot; width=&quot;13&quot; height=&quot;13&quot;&gt;&lt;polyline points=&quot;9 18 15 12 9 6&quot;&gt;&lt;/polyline&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;more-apps&quot; style=&quot;margin-top: 8px;&quot;&gt;&lt;div class=&quot;msec-hdr&quot; style=&quot;padding: 0;&quot;&gt;&lt;button id=&quot;more-apps-toggle&quot; type=&quot;button&quot; class=&quot;msec-toggle&quot; aria-expanded=&quot;false&quot; aria-controls=&quot;more-apps-body&quot;&gt;&lt;span style=&quot;display: flex; align-items: center; gap: 7px;&quot;&gt;&lt;span&gt;Apps&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;msec-toggle-ic&quot; aria-hidden=&quot;true&quot;&gt;›&lt;/span&gt;&lt;/button&gt;&lt;/div&gt;&lt;div id=&quot;more-apps-body&quot; class=&quot;msec-body&quot; hidden&gt;&lt;ul class=&quot;mlist&quot; role=&quot;list&quot;&gt;
+&lt;li class=&quot;mli&quot;&gt;&lt;button id=&quot;more-apps-projects&quot; type=&quot;button&quot; class=&quot;mitem&quot;&gt;&lt;span class=&quot;mitem-lbl&quot;&gt;Projects&lt;/span&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.9&quot; width=&quot;13&quot; height=&quot;13&quot;&gt;&lt;polyline points=&quot;9 18 15 12 9 6&quot;&gt;&lt;/polyline&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/li&gt;
+&lt;li class=&quot;mli&quot;&gt;&lt;button id=&quot;more-apps-music&quot; type=&quot;button&quot; class=&quot;mitem&quot;&gt;&lt;span class=&quot;mitem-lbl&quot;&gt;Music&lt;/span&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.9&quot; width=&quot;13&quot; height=&quot;13&quot;&gt;&lt;polyline points=&quot;9 18 15 12 9 6&quot;&gt;&lt;/polyline&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<p><button type="button" class="btn cl-copy" data-copy="code-more-menu-list-html" hidden>Copy code</button></p>
+<h3 id="code-js">js</h3>
+<pre class="cl-code"><code id="code-more-menu-list-js">// the Apps group (js/more.js, cut down): a plain disclosure button
+const t = document.getElementById(&quot;more-apps-toggle&quot;), body = document.getElementById(&quot;more-apps-body&quot;);
+t.addEventListener(&quot;click&quot;, function () {
+  const open = t.getAttribute(&quot;aria-expanded&quot;) !== &quot;true&quot;;
+  t.setAttribute(&quot;aria-expanded&quot;, open ? &quot;true&quot; : &quot;false&quot;);
+  body.hidden = !open;
+  t.querySelector(&quot;.msec-toggle-ic&quot;).classList.toggle(&quot;open&quot;, open);
+});
+body.addEventListener(&quot;keydown&quot;, function (e) { if (e.key === &quot;Escape&quot;) { t.click(); t.focus(); } });</code></pre>
+<p><button type="button" class="btn cl-copy" data-copy="code-more-menu-list-js" hidden>Copy JS code</button></p>
+<p>it uses the classes from css/app.css and css/a11y.css, so it looks right anywhere in looscid.</p>
+<h2 id="voiceover">how it works w voiceover</h2>
+<ul><li>each row is one swipe: &quot;Settings, button&quot;. the line under it is for eyes, VoiceOver keeps it short.</li><li>VoiceOver says &quot;list, 5 items&quot; when u enter, so u know how long it is.</li><li>the Apps group says &quot;Apps, button, collapsed&quot;. double tap and it says &quot;expanded&quot;, then swipe right into the apps. Escape closes it and puts u back on Apps.</li><li>braille display: Enter on a row opens it, Enter on Apps opens or closes the group.</li></ul>
+<h2 id="related">related</h2>
+<ul><li><a href="../back-header/" title="Opens this article">BackHeader</a></li><li><a href="../bottom-tab-bar/" title="Opens this article">Bottom tab bar</a></li><li><a href="../buttons/" title="Opens this article">Buttons</a></li></ul>
+<p class="next"><a href="../" title="Opens this article">All components</a></p>
+<script src="../components.js?v=1"></script>
+</main>
+<footer class="sf">
+<div class="sf-in">
+<p class="sf-brand"><img src="/Looscid/assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="28" height="28"><span class="sf-name" aria-hidden="true">Looscid</span></p>
+<div class="sf-cols">
+<section class="sf-col" aria-labelledby="sf-h-help"><h2 id="sf-h-help">Get help</h2><ul><li><a href="/Looscid/" title="Goes to Home">Looscid Home</a></li><li><a href="/Looscid/help/" title="Goes back to Help Center">Help Home</a></li><li><a href="/Looscid/help/getting-started/" title="Opens this topic">Getting Started</a></li><li><a href="/Looscid/help/looscid-basics/" title="Opens this course">Looscid Basics course</a></li><li><a href="/Looscid/help/dev/accessibility/" title="Opens this article">Accessibility</a></li><li><a href="/Looscid/help/contact/" title="Goes to Contact Us">Contact Us</a></li><li><a href="/Looscid/Feedback/" title="Goes to Feedback">Send Feedback</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-project"><h2 id="sf-h-project">Project</h2><ul><li><a href="/Looscid/changelog/" title="Goes to the changelog">Roadmap &amp; Changelog</a></li><li><a href="/Looscid/status.html" title="Goes to the status page">Status</a></li><li><a href="/Looscid/help/#h-building" title="Goes back to Help Center">Docs</a></li><li><a href="/Looscid/help/dev/contributing/" title="Opens this article">Contributing</a></li><li><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a></li><li><a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-looscid"><h2 id="sf-h-looscid">Looscid</h2><ul><li><a href="/Looscid/About/" title="Goes to About">About</a></li><li><a href="/Looscid/Our-Story/" title="Goes to Our Story">Our Story</a></li><li><a href="/Looscid/Credits/" title="Goes to Credits">Credits</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-legal"><h2 id="sf-h-legal">Legal</h2><ul><li><a href="/Looscid/Terms/" title="Goes to Terms">Terms</a></li><li><a href="/Looscid/Privacy/" title="Goes to Privacy">Privacy</a></li><li><a href="/Looscid/Rules/" title="Goes to Rules">Rules</a></li><li><a href="/Looscid/Child-Safety/" title="Goes to Child Safety">Child Safety</a></li><li><a href="/Looscid/Legal/" title="Goes to Legal">License</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-hi"><h2 id="sf-h-hi">Say hi</h2><ul><li><a href="https://github.com/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">GitHub</a></li><li><a href="https://x.com/Looscid" title="Go to X" target="_blank" rel="noopener noreferrer">X</a></li><li><a href="https://www.youtube.com/@Looscid" title="Go to YouTube" target="_blank" rel="noopener noreferrer">YouTube</a></li><li><a href="https://discord.gg/M6xrD8EBXU" title="Go to Discord" target="_blank" rel="noopener noreferrer">Discord</a></li></ul></section>
+</div>
+<p class="sf-bottom">© 2025–2026 Looscid <span aria-hidden="true">·</span> Open source under the <a href="/Looscid/help/dev/license/" title="Opens this article">GNU AGPL-3.0</a> <span aria-hidden="true">·</span> Made by Chaotic Carter, co-written with Tab <span aria-hidden="true">·</span> Looscid 2026.138.57 (195)</p>
+</div>
+</footer>
+<script src="../../../help.js?v=hc6"></script>
+</body>
+</html>

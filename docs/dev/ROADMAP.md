@@ -75,6 +75,8 @@ manifests are versioned JSON with `schema`, `id`, `name`, `summary`, `descriptio
 
 every single thing u touch is a real native control. images need Alt text that actually means something. errors are tied to their field and announced. focus moves on purpose after u change pages, finish onboarding, hit an error or close something. we respect reduced motion and bigger text. we test with keyboard only, VoiceOver, braille, TalkBack, offline, limited permissions, broken manifests and providers that are down. secrets never get shown. App Store and AI adapters only do stuff when u mean it, show u what data and actions are involved, and always let u cancel.
 
+- [x] our own component library for devs: every piece of looscid w live demos, the code to copy and how it works w voiceover.
+
 ## our words (never break these)
 
 | say this | never say this |
@@ -172,6 +174,14 @@ already out, for context: u can pin a Circle, Dreamor, hashtag, thread or List a
 ### cherry
 
 - [ ] a fresh new Cherry design, made by 2three1y.
+
+### likes, dislikes + labels
+
+- [ ] dislikes everywhere: Dreams, Cherry replies and bug reports. private by default.
+- [ ] the Liked tab becomes ur like + dislike manager: a Likes / Dislikes switch, filters (Dreams, Cherry replies, bug reports) and tools to sort and clear em.
+- [ ] bug report votes can be private or public, ur choice.
+- [ ] when Cherry makes a Dream, it gets an automatic "AI generated" label that can't be removed. people can add their own content labels too (like AI-made, sensitive or spoilers), and we'll add more over time.
+- [ ] a feed setting (checkbox, off by default): Dreams labeled "flashing lights" get swapped for a placeholder w the creator's description, even from people u follow, so u still get the Dream without the flashing. same idea for videos w no sound or no description, so blind folks get the description instead. it runs on labels + descriptions people write, not AI.
 
 ### on every device
 

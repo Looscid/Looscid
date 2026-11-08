@@ -1,0 +1,4 @@
+/* Looscid component library pages (Nov 8 2026). The demos are frames that load the app's own css/app.css. */
+.cl-frame{display:block;width:100%;min-height:60px;margin:6px 0 18px;border:1px solid var(--bd);border-radius:12px;background:#07050f}
+.cl-code{white-space:pre-wrap;overflow-wrap:anywhere;max-height:480px;overflow-y:auto;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px;font-size:.85em}
+.cl-copy{margin:0 0 8px}

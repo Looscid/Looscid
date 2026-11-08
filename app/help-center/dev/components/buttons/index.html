@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en-US" data-help-root="../../../">
+<head>
+<meta charset="UTF-8"/>
+<title>Buttons component - Looscid Help Center</title>
+<!-- Made by .github/scripts/build-help.mjs from app/js/helpdata.js. Edit those, not this page. Link previews come first. -->
+<meta name="description" content="the main button, the outline button and the round icon button.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Looscid">
+<meta property="og:title" content="Buttons component - Looscid Help Center">
+<meta property="og:description" content="the main button, the outline button and the round icon button.">
+<meta property="og:url" content="https://looscid.github.io/Looscid/help/dev/components/buttons/">
+<meta property="og:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:secure_url" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Looscid">
+<meta name="twitter:title" content="Buttons component - Looscid Help Center">
+<meta name="twitter:description" content="the main button, the outline button and the round icon button.">
+<meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta name="twitter:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<link rel="canonical" href="https://looscid.github.io/Looscid/help/dev/components/buttons/">
+<link rel="icon" type="image/png" sizes="32x32" href="https://looscid.github.io/Looscid/assets/icons/favicon-32.png?v=nl1">
+<link rel="apple-touch-icon" href="https://looscid.github.io/Looscid/assets/icons/apple-touch-icon.png?v=nl1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<link rel="stylesheet" href="../../../help.css?v=hc7">
+<link rel="stylesheet" href="../../../../assets/site-footer.css?v=2">
+</head>
+<body>
+<div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<header class="top"><a class="brand" href="../../../" title="Goes back to Help Center" aria-label="Looscid Help Center, logo: a white open ring with a dot in the middle, on blue"><img src="../../../../assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="32" height="32"><span><span aria-hidden="true">Looscid</span> Help Center</span></a><div class="goto"><button type="button" class="goto-btn" aria-expanded="false" aria-controls="goto-list" hidden>Go to<svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><ul class="goto-list" id="goto-list"><li><a href="../../../" title="Goes back to Help Center">Help Home</a></li><li><a href="../../../../" title="Goes to Home">Looscid Home</a></li></ul></div></header>
+<main class="wrap" id="main">
+<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../../../" title="Goes back to Help Center">Help Center</a></li><li><a href="../../../#h-building" title="Goes back to Help Center">Building Looscid</a></li><li><a href="../" title="Opens this article">Components</a></li><li><span aria-current="page">Buttons</span></li></ol></nav>
+<link rel="stylesheet" href="../components.css?v=1">
+<h1>Buttons</h1>
+<p class="lead">the main button, the outline button and the round icon button.</p>
+<h2 id="what">what it is</h2>
+<p>3 kinds: the purple main button (btn bp) for the one big thing on a screen, the outline button (btn bgb) for everything else, and the round icon button (bi) for Back and friends.</p>
+<p>every button is a real button tag and at least 44px tall. icon buttons always have a name.</p>
+<h2 id="states">states</h2>
+<p>live demos, drawn w looscid's real styles. look-only: nothing in them does anything.</p>
+<h3 id="state-normal">normal</h3>
+<p>main, outline and icon.</p>
+<iframe class="cl-frame" src="normal.html" title="Buttons demo, normal" loading="lazy" style="height:220px"></iframe>
+<h3 id="state-focused">focused</h3>
+<p>focus ring on the main button.</p>
+<iframe class="cl-frame" src="focused.html" title="Buttons demo, focused" loading="lazy" style="height:220px"></iframe>
+<h3 id="state-disabled">disabled</h3>
+<p>one dimmed but still focusable (it says why when pressed), one fully off.</p>
+<iframe class="cl-frame" src="disabled.html" title="Buttons demo, disabled" loading="lazy" style="height:150px"></iframe>
+<h2 id="code">copy the code</h2>
+<h3 id="code-html">html</h3>
+<pre class="cl-code"><code id="code-buttons-html">&lt;div class=&quot;lc-grp&quot; style=&quot;display: flex; flex-direction: column; gap: 10px;&quot;&gt;
+&lt;button type=&quot;button&quot; class=&quot;btn bp lc-big&quot;&gt;Create a LooscidID&lt;/button&gt;
+&lt;button type=&quot;button&quot; class=&quot;btn bgb lc-big&quot;&gt;Login&lt;/button&gt;
+&lt;button class=&quot;bi&quot; aria-label=&quot;Back&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.9&quot; width=&quot;21&quot; height=&quot;21&quot;&gt;&lt;polyline points=&quot;15 18 9 12 15 6&quot;&gt;&lt;/polyline&gt;&lt;/svg&gt;&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+<p><button type="button" class="btn cl-copy" data-copy="code-buttons-html" hidden>Copy code</button></p>
+<p>it uses the classes from css/app.css and css/a11y.css, so it looks right anywhere in looscid.</p>
+<h2 id="voiceover">how it works w voiceover</h2>
+<ul><li>VoiceOver says &quot;Create a LooscidID, button&quot;. icon buttons say their name, like &quot;Back, button&quot;.</li><li>when a button can't do its thing yet, we keep it focusable and say &quot;dimmed&quot; (aria-disabled), and pressing it tells u why. a fully disabled one gets skipped by Tab but VoiceOver still reads it as &quot;dimmed&quot;.</li><li>braille display: Enter (or a routing key) presses the button ur on.</li></ul>
+<h2 id="related">related</h2>
+<ul><li><a href="../checkboxes/" title="Opens this article">Checkboxes</a></li><li><a href="../popup-menu/" title="Opens this article">Pop-up menu</a></li><li><a href="../back-header/" title="Opens this article">BackHeader</a></li></ul>
+<p class="next"><a href="../" title="Opens this article">All components</a></p>
+<script src="../components.js?v=1"></script>
+</main>
+<footer class="sf">
+<div class="sf-in">
+<p class="sf-brand"><img src="/Looscid/assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="28" height="28"><span class="sf-name" aria-hidden="true">Looscid</span></p>
+<div class="sf-cols">
+<section class="sf-col" aria-labelledby="sf-h-help"><h2 id="sf-h-help">Get help</h2><ul><li><a href="/Looscid/" title="Goes to Home">Looscid Home</a></li><li><a href="/Looscid/help/" title="Goes back to Help Center">Help Home</a></li><li><a href="/Looscid/help/getting-started/" title="Opens this topic">Getting Started</a></li><li><a href="/Looscid/help/looscid-basics/" title="Opens this course">Looscid Basics course</a></li><li><a href="/Looscid/help/dev/accessibility/" title="Opens this article">Accessibility</a></li><li><a href="/Looscid/help/contact/" title="Goes to Contact Us">Contact Us</a></li><li><a href="/Looscid/Feedback/" title="Goes to Feedback">Send Feedback</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-project"><h2 id="sf-h-project">Project</h2><ul><li><a href="/Looscid/changelog/" title="Goes to the changelog">Roadmap &amp; Changelog</a></li><li><a href="/Looscid/status.html" title="Goes to the status page">Status</a></li><li><a href="/Looscid/help/#h-building" title="Goes back to Help Center">Docs</a></li><li><a href="/Looscid/help/dev/contributing/" title="Opens this article">Contributing</a></li><li><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a></li><li><a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-looscid"><h2 id="sf-h-looscid">Looscid</h2><ul><li><a href="/Looscid/About/" title="Goes to About">About</a></li><li><a href="/Looscid/Our-Story/" title="Goes to Our Story">Our Story</a></li><li><a href="/Looscid/Credits/" title="Goes to Credits">Credits</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-legal"><h2 id="sf-h-legal">Legal</h2><ul><li><a href="/Looscid/Terms/" title="Goes to Terms">Terms</a></li><li><a href="/Looscid/Privacy/" title="Goes to Privacy">Privacy</a></li><li><a href="/Looscid/Rules/" title="Goes to Rules">Rules</a></li><li><a href="/Looscid/Child-Safety/" title="Goes to Child Safety">Child Safety</a></li><li><a href="/Looscid/Legal/" title="Goes to Legal">License</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-hi"><h2 id="sf-h-hi">Say hi</h2><ul><li><a href="https://github.com/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">GitHub</a></li><li><a href="https://x.com/Looscid" title="Go to X" target="_blank" rel="noopener noreferrer">X</a></li><li><a href="https://www.youtube.com/@Looscid" title="Go to YouTube" target="_blank" rel="noopener noreferrer">YouTube</a></li><li><a href="https://discord.gg/M6xrD8EBXU" title="Go to Discord" target="_blank" rel="noopener noreferrer">Discord</a></li></ul></section>
+</div>
+<p class="sf-bottom">© 2025–2026 Looscid <span aria-hidden="true">·</span> Open source under the <a href="/Looscid/help/dev/license/" title="Opens this article">GNU AGPL-3.0</a> <span aria-hidden="true">·</span> Made by Chaotic Carter, co-written with Tab <span aria-hidden="true">·</span> Looscid 2026.138.57 (195)</p>
+</div>
+</footer>
+<script src="../../../help.js?v=hc6"></script>
+</body>
+</html>

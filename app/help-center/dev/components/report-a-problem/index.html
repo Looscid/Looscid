@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en-US" data-help-root="../../../">
+<head>
+<meta charset="UTF-8"/>
+<title>Report a problem and report rows component - Looscid Help Center</title>
+<!-- Made by .github/scripts/build-help.mjs from app/js/helpdata.js. Edit those, not this page. Link previews come first. -->
+<meta name="description" content="our own issue tracker: the report form and the public list of reports w Agree and Disagree.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Looscid">
+<meta property="og:title" content="Report a problem and report rows component - Looscid Help Center">
+<meta property="og:description" content="our own issue tracker: the report form and the public list of reports w Agree and Disagree.">
+<meta property="og:url" content="https://looscid.github.io/Looscid/help/dev/components/report-a-problem/">
+<meta property="og:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:secure_url" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Looscid">
+<meta name="twitter:title" content="Report a problem and report rows component - Looscid Help Center">
+<meta name="twitter:description" content="our own issue tracker: the report form and the public list of reports w Agree and Disagree.">
+<meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta name="twitter:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<link rel="canonical" href="https://looscid.github.io/Looscid/help/dev/components/report-a-problem/">
+<link rel="icon" type="image/png" sizes="32x32" href="https://looscid.github.io/Looscid/assets/icons/favicon-32.png?v=nl1">
+<link rel="apple-touch-icon" href="https://looscid.github.io/Looscid/assets/icons/apple-touch-icon.png?v=nl1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<link rel="stylesheet" href="../../../help.css?v=hc7">
+<link rel="stylesheet" href="../../../../assets/site-footer.css?v=2">
+</head>
+<body>
+<div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<header class="top"><a class="brand" href="../../../" title="Goes back to Help Center" aria-label="Looscid Help Center, logo: a white open ring with a dot in the middle, on blue"><img src="../../../../assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="32" height="32"><span><span aria-hidden="true">Looscid</span> Help Center</span></a><div class="goto"><button type="button" class="goto-btn" aria-expanded="false" aria-controls="goto-list" hidden>Go to<svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><ul class="goto-list" id="goto-list"><li><a href="../../../" title="Goes back to Help Center">Help Home</a></li><li><a href="../../../../" title="Goes to Home">Looscid Home</a></li></ul></div></header>
+<main class="wrap" id="main">
+<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../../../" title="Goes back to Help Center">Help Center</a></li><li><a href="../../../#h-building" title="Goes back to Help Center">Building Looscid</a></li><li><a href="../" title="Opens this article">Components</a></li><li><span aria-current="page">Report a problem and report rows</span></li></ol></nav>
+<link rel="stylesheet" href="../components.css?v=1">
+<h1>Report a problem and report rows</h1>
+<p class="lead">our own issue tracker: the report form and the public list of reports w Agree and Disagree.</p>
+<h2 id="what">what it is</h2>
+<p>it lives in the Help Center's Report a problem article, so there's no new tab. the form up top: Bug or Idea, a title and what happened. looscid adds the app and its version by itself, and ur report is signed w ur own Looscid key.</p>
+<p>under it is the public list. each report is one row: the title, bug or idea, its status and the agree and disagree counts all in one heading. mod replies show under it as "Looscid mods". anyone can read it, no key needed.</p>
+<h2 id="states">states</h2>
+<p>live demos, drawn w looscid's real styles. look-only: nothing in them does anything.</p>
+<h3 id="state-form-empty">form, empty</h3>
+<p>nothing typed yet.</p>
+<iframe class="cl-frame" src="form-empty.html" title="Report a problem and report rows demo, form, empty" loading="lazy" style="height:520px"></iframe>
+<h3 id="state-form-filled">form, filled in</h3>
+<p>a bug, w a title and what happened.</p>
+<iframe class="cl-frame" src="form-filled.html" title="Report a problem and report rows demo, form, filled in" loading="lazy" style="height:520px"></iframe>
+<h3 id="state-form-error">form, title missing</h3>
+<p>pressing Send early says what's missing in words.</p>
+<iframe class="cl-frame" src="form-error.html" title="Report a problem and report rows demo, form, title missing" loading="lazy" style="height:560px"></iframe>
+<h3 id="state-form-guest">no key</h3>
+<p>guests get one plain sentence and a link to make a key.</p>
+<iframe class="cl-frame" src="form-guest.html" title="Report a problem and report rows demo, no key" loading="lazy" style="height:90px"></iframe>
+<h3 id="state-row">report row</h3>
+<p>a new bug w its counts.</p>
+<iframe class="cl-frame" src="row.html" title="Report a problem and report rows demo, report row" loading="lazy" style="height:260px"></iframe>
+<h3 id="state-row-voted">report row, u agreed</h3>
+<p>the count line says &quot;you + 3 others agree&quot;.</p>
+<iframe class="cl-frame" src="row-voted.html" title="Report a problem and report rows demo, report row, u agreed" loading="lazy" style="height:290px"></iframe>
+<h3 id="state-row-reply">report row w a mod reply</h3>
+<p>the mods' reply sits under the report.</p>
+<iframe class="cl-frame" src="row-reply.html" title="Report a problem and report rows demo, report row w a mod reply" loading="lazy" style="height:300px"></iframe>
+<h3 id="state-row-closed">report row, closed</h3>
+<p>closed, w the reason.</p>
+<iframe class="cl-frame" src="row-closed.html" title="Report a problem and report rows demo, report row, closed" loading="lazy" style="height:320px"></iframe>
+<h3 id="state-form-focused">focused</h3>
+<p>focus ring on the Title box.</p>
+<iframe class="cl-frame" src="form-focused.html" title="Report a problem and report rows demo, focused" loading="lazy" style="height:520px"></iframe>
+<h2 id="code">copy the code</h2>
+<h3 id="code-html">html</h3>
+<pre class="cl-code"><code id="code-report-a-problem-html">&lt;div class=&quot;lc-issue-form&quot;&gt;
+&lt;fieldset class=&quot;lc-fs&quot;&gt;&lt;legend class=&quot;lc-fs-l&quot;&gt;What kind?&lt;/legend&gt;&lt;div class=&quot;lc-radios lc-radios-col&quot;&gt;&lt;label class=&quot;lc-radio&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;lc-issue-type&quot; value=&quot;bug&quot;&gt;&lt;span&gt;Bug, something's broken&lt;/span&gt;&lt;/label&gt;&lt;label class=&quot;lc-radio&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;lc-issue-type&quot; value=&quot;idea&quot;&gt;&lt;span&gt;Idea, something new&lt;/span&gt;&lt;/label&gt;&lt;/div&gt;&lt;/fieldset&gt;
+&lt;label for=&quot;lc-issue-title&quot; class=&quot;lc-fs-l&quot; style=&quot;display: block;&quot;&gt;Title&lt;/label&gt;
+&lt;input id=&quot;lc-issue-title&quot; type=&quot;text&quot; class=&quot;inp lc-issue-in&quot; maxlength=&quot;120&quot; autocomplete=&quot;off&quot;&gt;
+&lt;label for=&quot;lc-issue-body&quot; class=&quot;lc-fs-l&quot; style=&quot;display: block;&quot;&gt;What happened?&lt;/label&gt;
+&lt;textarea id=&quot;lc-issue-body&quot; class=&quot;inp&quot; rows=&quot;5&quot; maxlength=&quot;4000&quot;&gt;&lt;/textarea&gt;
+&lt;p class=&quot;lc-desc&quot;&gt;Looscid adds the app and its version by itself. Your report, its title and your key are public.&lt;/p&gt;
+&lt;button type=&quot;button&quot; id=&quot;lc-issue-send&quot; class=&quot;btn bp lc-big&quot;&gt;Send report&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;ul class=&quot;lc-issue-list&quot;&gt;
+&lt;li class=&quot;lc-issue&quot;&gt;
+&lt;h3 id=&quot;lc-issue-a1b2c3&quot; class=&quot;lc-issue-h&quot;&gt;The Like button double-announces. Bug, new. 4 agree, 1 disagree.&lt;/h3&gt;
+&lt;p class=&quot;lc-desc lc-issue-body&quot;&gt;when i like a Dream VoiceOver says Liked twice.&lt;/p&gt;
+&lt;p class=&quot;lc-desc lc-issue-meta&quot;&gt;Reported 2 hours ago on web 2026.138.57&lt;/p&gt;
+&lt;div class=&quot;lc-inrow lc-issue-votes&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;btn bgb lc-btn lc-issue-btn&quot;&gt;Agree&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;btn bgb lc-btn lc-issue-btn&quot;&gt;Disagree&lt;/button&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+<p><button type="button" class="btn cl-copy" data-copy="code-report-a-problem-html" hidden>Copy code</button></p>
+<h3 id="code-js">js</h3>
+<pre class="cl-code"><code id="code-report-a-problem-js">// a report never gets lost (js/issues.js, cut down): the draft stays until Rem says it's in
+async function send() {
+  if (!draft.title.trim()) { showMsg(&quot;type a title first&quot;); return; }
+  busy = true;
+  const r = await postSignedReport(draft);   // signed w ur own key
+  busy = false;
+  if (r.ok) { draft = { type: &quot;bug&quot;, title: &quot;&quot;, body: &quot;&quot; }; say(&quot;Report sent&quot;); }
+  else say(&quot;can't reach the report list rn, try again in a bit&quot;); // draft is still there
+}</code></pre>
+<p><button type="button" class="btn cl-copy" data-copy="code-report-a-problem-js" hidden>Copy JS code</button></p>
+<p>it uses the classes from css/app.css and css/a11y.css, so it looks right anywhere in looscid.</p>
+<h2 id="voiceover">how it works w voiceover</h2>
+<ul><li>the form is a radio group (&quot;What kind?&quot;), then &quot;Title, text field&quot;, &quot;What happened?, text field&quot; and &quot;Send report, button&quot;. no required attribute: if the title is empty, it tells u in words.</li><li>each report is one heading, so the headings rotor is a list of reports and one swipe reads the whole thing: &quot;The Like button double-announces. Bug, new. 4 agree, 1 disagree. heading level 3&quot;.</li><li>Agree and Disagree are plain buttons that say what they'll do (&quot;Take back agree&quot;, &quot;Disagree instead&quot;), and after u vote the live region says &quot;Agreed. you + 3 others agree&quot;.</li><li>braille display: type the report, Enter on Send report sends it. Enter on Agree votes.</li></ul>
+<h2 id="related">related</h2>
+<ul><li><a href="../native-select/" title="Opens this article">Native select picker</a></li><li><a href="../radio-group/" title="Opens this article">Radio group</a></li><li><a href="../live-region/" title="Opens this article">Live region announcements</a></li></ul>
+<p class="next"><a href="../" title="Opens this article">All components</a></p>
+<script src="../components.js?v=1"></script>
+</main>
+<footer class="sf">
+<div class="sf-in">
+<p class="sf-brand"><img src="/Looscid/assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="28" height="28"><span class="sf-name" aria-hidden="true">Looscid</span></p>
+<div class="sf-cols">
+<section class="sf-col" aria-labelledby="sf-h-help"><h2 id="sf-h-help">Get help</h2><ul><li><a href="/Looscid/" title="Goes to Home">Looscid Home</a></li><li><a href="/Looscid/help/" title="Goes back to Help Center">Help Home</a></li><li><a href="/Looscid/help/getting-started/" title="Opens this topic">Getting Started</a></li><li><a href="/Looscid/help/looscid-basics/" title="Opens this course">Looscid Basics course</a></li><li><a href="/Looscid/help/dev/accessibility/" title="Opens this article">Accessibility</a></li><li><a href="/Looscid/help/contact/" title="Goes to Contact Us">Contact Us</a></li><li><a href="/Looscid/Feedback/" title="Goes to Feedback">Send Feedback</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-project"><h2 id="sf-h-project">Project</h2><ul><li><a href="/Looscid/changelog/" title="Goes to the changelog">Roadmap &amp; Changelog</a></li><li><a href="/Looscid/status.html" title="Goes to the status page">Status</a></li><li><a href="/Looscid/help/#h-building" title="Goes back to Help Center">Docs</a></li><li><a href="/Looscid/help/dev/contributing/" title="Opens this article">Contributing</a></li><li><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a></li><li><a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-looscid"><h2 id="sf-h-looscid">Looscid</h2><ul><li><a href="/Looscid/About/" title="Goes to About">About</a></li><li><a href="/Looscid/Our-Story/" title="Goes to Our Story">Our Story</a></li><li><a href="/Looscid/Credits/" title="Goes to Credits">Credits</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-legal"><h2 id="sf-h-legal">Legal</h2><ul><li><a href="/Looscid/Terms/" title="Goes to Terms">Terms</a></li><li><a href="/Looscid/Privacy/" title="Goes to Privacy">Privacy</a></li><li><a href="/Looscid/Rules/" title="Goes to Rules">Rules</a></li><li><a href="/Looscid/Child-Safety/" title="Goes to Child Safety">Child Safety</a></li><li><a href="/Looscid/Legal/" title="Goes to Legal">License</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-hi"><h2 id="sf-h-hi">Say hi</h2><ul><li><a href="https://github.com/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">GitHub</a></li><li><a href="https://x.com/Looscid" title="Go to X" target="_blank" rel="noopener noreferrer">X</a></li><li><a href="https://www.youtube.com/@Looscid" title="Go to YouTube" target="_blank" rel="noopener noreferrer">YouTube</a></li><li><a href="https://discord.gg/M6xrD8EBXU" title="Go to Discord" target="_blank" rel="noopener noreferrer">Discord</a></li></ul></section>
+</div>
+<p class="sf-bottom">© 2025–2026 Looscid <span aria-hidden="true">·</span> Open source under the <a href="/Looscid/help/dev/license/" title="Opens this article">GNU AGPL-3.0</a> <span aria-hidden="true">·</span> Made by Chaotic Carter, co-written with Tab <span aria-hidden="true">·</span> Looscid 2026.138.57 (195)</p>
+</div>
+</footer>
+<script src="../../../help.js?v=hc6"></script>
+</body>
+</html>

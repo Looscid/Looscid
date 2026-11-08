@@ -3,6 +3,18 @@
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
 
+## Component library (no new build yet)
+
+Added November 8, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+
+Asked for by Carter: Looscid's own component library, in the Help Center's developer part.
+
+- A new Components page lists every piece of Looscid, and each one has its own page: what it is, a live demo of each state (drawn with Looscid's real styles, and look-only: no scripts and no network inside), the code to copy, and how it works with VoiceOver and braille displays.
+- 23 components so far, from the bottom tab bar and the Dream card to the mod reason picker, the new Report a problem rows and the Commandbar.
+- No outside tools or packages. It's made by the same script as the rest of the Help Center.
+- Credits thanks the projects behind the ideas, and the QR code generator Looscid already used.
+- The roadmap has the component library ticked, plus new items for likes, dislikes and content labels.
+
 ## Public removals and a Mod log (no new build yet)
 
 Added November 8, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.

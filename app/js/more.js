@@ -3839,6 +3839,8 @@ const LC_CREDITS = {
     { n: "SeaBIOS and SeaVGABIOS", s: "SeaBIOS", u: "https://www.seabios.org/", site: "seabios.org", l: "LGPL-3.0", lu: "https://github.com/coreboot/seabios/blob/master/COPYING.LESSER", w: "The start-up firmware v86 uses. I didn't change it." },
     { n: "Font Awesome Free 6.7.2 (the robot icon)", s: "Font Awesome", u: "https://fontawesome.com", site: "fontawesome.com", l: "SIL Open Font License 1.1 (font), CC BY 4.0 (icon)", lu: "https://fontawesome.com/license/free", w: "The robot in Unspeakable characters (U+F544). Looscid keeps just that one character, as a tiny font called Looscid Unspeakable in assets/fonts/unspeakable, with its license right next to it." },
     { n: "DM Sans and DM Serif Display", s: "DM Sans", u: "https://fonts.google.com/specimen/DM+Sans", site: "Google Fonts", l: "SIL Open Font License 1.1", lu: "https://openfontlicense.org/open-font-license-official-text/", w: "Looscid's fonts, from Google Fonts." },
+    // Nov 8 2026: it was already in js/vendor, now it's credited too.
+    { n: "QR Code Generator for JavaScript, by Kazuhiko Arase", s: "QR Code Generator", u: "https://github.com/kazuhikoarase/qrcode-generator", l: "MIT", lu: "https://github.com/kazuhikoarase/qrcode-generator/blob/master/LICENSE", w: "Makes the QR code for your profile link. It lives in js/vendor and only loads when you open the QR code." },
   ],
   // Round 6.6: Projects in More. Each project's own LICENSE file is kept next to its copy in projects/ or os/.
   mine: [
@@ -3864,6 +3866,10 @@ const LC_CREDITS = {
     { n: "FastSMRW, by masonasons", s: "FastSMRW", u: "https://github.com/masonasons/FastSMRW", lead: "No license, so I only borrowed the idea.", w: "The FastSM-inspired earcon pack in Settings, Earcons, Soundpack is inspired by FastSMRW. No code or audio was copied: every sound in that pack is made fresh with Web Audio." },
     // Nov 2 2026: the TalkBack test page gave Looscid its approved link, button, heading and edit box format.
     { n: "TalkBack test", s: "TalkBack test", u: "https://2three1y.github.io/github-elements/talkback-test/", site: "GitHub Pages", w: "Where our link, button, heading and edit box format came from." },
+    // Nov 8 2026 (Carter): the ideas behind the component library in the Help Center, and the vibe of our Terms. No code from them.
+    { n: "shadcn/ui, by shadcn", s: "shadcn/ui", u: "https://github.com/shadcn-ui/ui", l: "MIT", lu: "https://github.com/shadcn-ui/ui/blob/main/LICENSE.md", w: "The \"copy the code and own it\" idea behind Looscid's component library in the Help Center. No package and no copied code: every component there is Looscid's own." },
+    { n: "Storybook", s: "Storybook", u: "https://github.com/storybookjs/storybook", l: "MIT", lu: "https://github.com/storybookjs/storybook/blob/next/LICENSE", w: "The \"every component, every state\" idea behind the component library: each piece gets its own page with a live demo of each state. We didn't install it, the library is our own simple pages." },
+    { n: "Audiopub", s: "Audiopub", u: "https://github.com/the-byte-bender/audiopub-sv", l: "AGPL-3.0", lu: "https://github.com/the-byte-bender/audiopub-sv/blob/main/LICENSE", w: "The casual, plain-words vibe we're going for in our Terms. The words are our own." },
   ],
   planned: [
     { n: "MyWEB", w: "feedback sent to me as an encrypted Nostr message, signed with your own key." },

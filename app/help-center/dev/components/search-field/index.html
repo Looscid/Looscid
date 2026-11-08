@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en-US" data-help-root="../../../">
+<head>
+<meta charset="UTF-8"/>
+<title>Search field and results component - Looscid Help Center</title>
+<!-- Made by .github/scripts/build-help.mjs from app/js/helpdata.js. Edit those, not this page. Link previews come first. -->
+<meta name="description" content="the search box on Discover and the Dreamor rows it finds.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Looscid">
+<meta property="og:title" content="Search field and results component - Looscid Help Center">
+<meta property="og:description" content="the search box on Discover and the Dreamor rows it finds.">
+<meta property="og:url" content="https://looscid.github.io/Looscid/help/dev/components/search-field/">
+<meta property="og:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:secure_url" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Looscid">
+<meta name="twitter:title" content="Search field and results component - Looscid Help Center">
+<meta name="twitter:description" content="the search box on Discover and the Dreamor rows it finds.">
+<meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta name="twitter:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<link rel="canonical" href="https://looscid.github.io/Looscid/help/dev/components/search-field/">
+<link rel="icon" type="image/png" sizes="32x32" href="https://looscid.github.io/Looscid/assets/icons/favicon-32.png?v=nl1">
+<link rel="apple-touch-icon" href="https://looscid.github.io/Looscid/assets/icons/apple-touch-icon.png?v=nl1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<link rel="stylesheet" href="../../../help.css?v=hc7">
+<link rel="stylesheet" href="../../../../assets/site-footer.css?v=2">
+</head>
+<body>
+<div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<header class="top"><a class="brand" href="../../../" title="Goes back to Help Center" aria-label="Looscid Help Center, logo: a white open ring with a dot in the middle, on blue"><img src="../../../../assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="32" height="32"><span><span aria-hidden="true">Looscid</span> Help Center</span></a><div class="goto"><button type="button" class="goto-btn" aria-expanded="false" aria-controls="goto-list" hidden>Go to<svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><ul class="goto-list" id="goto-list"><li><a href="../../../" title="Goes back to Help Center">Help Home</a></li><li><a href="../../../../" title="Goes to Home">Looscid Home</a></li></ul></div></header>
+<main class="wrap" id="main">
+<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../../../" title="Goes back to Help Center">Help Center</a></li><li><a href="../../../#h-building" title="Goes back to Help Center">Building Looscid</a></li><li><a href="../" title="Opens this article">Components</a></li><li><span aria-current="page">Search field and results</span></li></ol></nav>
+<link rel="stylesheet" href="../components.css?v=1">
+<h1>Search field and results</h1>
+<p class="lead">the search box on Discover and the Dreamor rows it finds.</p>
+<h2 id="what">what it is</h2>
+<p>top of Discover. type and the results show right under it, no Search button needed. each Dreamor is one row with a Follow button next to it.</p>
+<p>the number of results is said out loud a moment after u stop typing, so VoiceOver doesn't spam u on every letter.</p>
+<h2 id="states">states</h2>
+<p>live demos, drawn w looscid's real styles. look-only: nothing in them does anything.</p>
+<h3 id="state-empty">empty</h3>
+<p>nothing typed, nothing trending.</p>
+<iframe class="cl-frame" src="empty.html" title="Search field and results demo, empty" loading="lazy" style="height:210px"></iframe>
+<h3 id="state-results">results</h3>
+<p>2 Dreamors found for &quot;ava&quot;.</p>
+<iframe class="cl-frame" src="results.html" title="Search field and results demo, results" loading="lazy" style="height:220px"></iframe>
+<h3 id="state-no-results">no results</h3>
+<p>nothing matched.</p>
+<iframe class="cl-frame" src="no-results.html" title="Search field and results demo, no results" loading="lazy" style="height:210px"></iframe>
+<h3 id="state-focused">focused</h3>
+<p>focus ring on the search box.</p>
+<iframe class="cl-frame" src="focused.html" title="Search field and results demo, focused" loading="lazy" style="height:210px"></iframe>
+<h2 id="code">copy the code</h2>
+<h3 id="code-html">html</h3>
+<pre class="cl-code"><code id="code-search-field-html">&lt;div style=&quot;padding: 10px 16px 6px;&quot;&gt;&lt;input class=&quot;inp&quot; placeholder=&quot;Search Dreamors, Dreams, Circles, topics&quot; aria-label=&quot;Search&quot; role=&quot;searchbox&quot; style=&quot;font-size: 14px;&quot; value=&quot;ava&quot;&gt;&lt;/div&gt;
+&lt;div id=&quot;disc-panel&quot; role=&quot;tabpanel&quot; aria-label=&quot;All&quot;&gt;
+&lt;div class=&quot;ci&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;lc-disc-open&quot; style=&quot;display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; background: none; border: none; padding: 0; color: inherit; font: inherit; text-align: left; cursor: pointer;&quot; aria-label=&quot;Ava, verified, @ava, 120 followers&quot;&gt;&lt;div class=&quot;av&quot; aria-hidden=&quot;true&quot; style=&quot;width: 44px; height: 44px; font-size: 15px; background: linear-gradient(135deg, #6d28d9, #9333ea);&quot;&gt;&lt;span&gt;A&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;cif&quot; aria-hidden=&quot;true&quot;&gt;&lt;div class=&quot;cnm&quot;&gt;Ava&lt;span style=&quot;color: var(--ac2); font-size: 11px;&quot;&gt; ✓&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;cpv&quot;&gt;@ava &lt;span aria-hidden=&quot;true&quot;&gt;·&lt;/span&gt; 120 followers&lt;/div&gt;&lt;/div&gt;&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;btn bp&quot; style=&quot;padding: 7px 14px; font-size: 12px;&quot; aria-pressed=&quot;false&quot;&gt;Follow&lt;/button&gt;&lt;/div&gt;
+&lt;div class=&quot;ci&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;lc-disc-open&quot; style=&quot;display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; background: none; border: none; padding: 0; color: inherit; font: inherit; text-align: left; cursor: pointer;&quot; aria-label=&quot;Avery, @avery, 8 followers&quot;&gt;&lt;div class=&quot;av&quot; aria-hidden=&quot;true&quot; style=&quot;width: 44px; height: 44px; font-size: 15px; background: linear-gradient(135deg, #0e7490, #34d399);&quot;&gt;&lt;span&gt;A&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;cif&quot; aria-hidden=&quot;true&quot;&gt;&lt;div class=&quot;cnm&quot;&gt;Avery&lt;/div&gt;&lt;div class=&quot;cpv&quot;&gt;@avery &lt;span aria-hidden=&quot;true&quot;&gt;·&lt;/span&gt; 8 followers&lt;/div&gt;&lt;/div&gt;&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;btn bgb&quot; style=&quot;padding: 7px 14px; font-size: 12px;&quot; aria-pressed=&quot;true&quot;&gt;Following&lt;/button&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<p><button type="button" class="btn cl-copy" data-copy="code-search-field-html" hidden>Copy code</button></p>
+<h3 id="code-js">js</h3>
+<pre class="cl-code"><code id="code-search-field-js">// say the count once, 450 ms after typing stops (js/core.js lcAnnounceCount)
+let countTimer;
+function announceCount(q, n) {
+  clearTimeout(countTimer);
+  if (!q.trim()) return;
+  countTimer = setTimeout(function () { announce(n === 0 ? &quot;No results&quot; : n + (n === 1 ? &quot; result&quot; : &quot; results&quot;)); }, 450);
+}</code></pre>
+<p><button type="button" class="btn cl-copy" data-copy="code-search-field-js" hidden>Copy JS code</button></p>
+<p>it uses the classes from css/app.css and css/a11y.css, so it looks right anywhere in looscid.</p>
+<h2 id="voiceover">how it works w voiceover</h2>
+<ul><li>VoiceOver says &quot;Search, search field&quot;. type, pause, and it says &quot;2 results&quot;.</li><li>each Dreamor row is one swipe: &quot;Ava, verified, @ava, 120 followers, button&quot;, then &quot;Follow, toggle button&quot;.</li><li>the picture and the dot are hidden so the row reads clean.</li><li>braille display: type in the field, then pan down to the rows. Enter opens a profile or follows.</li></ul>
+<h2 id="related">related</h2>
+<ul><li><a href="../tabs/" title="Opens this article">Tabs</a></li><li><a href="../empty-state/" title="Opens this article">Empty state</a></li><li><a href="../live-region/" title="Opens this article">Live region announcements</a></li></ul>
+<p class="next"><a href="../" title="Opens this article">All components</a></p>
+<script src="../components.js?v=1"></script>
+</main>
+<footer class="sf">
+<div class="sf-in">
+<p class="sf-brand"><img src="/Looscid/assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="28" height="28"><span class="sf-name" aria-hidden="true">Looscid</span></p>
+<div class="sf-cols">
+<section class="sf-col" aria-labelledby="sf-h-help"><h2 id="sf-h-help">Get help</h2><ul><li><a href="/Looscid/" title="Goes to Home">Looscid Home</a></li><li><a href="/Looscid/help/" title="Goes back to Help Center">Help Home</a></li><li><a href="/Looscid/help/getting-started/" title="Opens this topic">Getting Started</a></li><li><a href="/Looscid/help/looscid-basics/" title="Opens this course">Looscid Basics course</a></li><li><a href="/Looscid/help/dev/accessibility/" title="Opens this article">Accessibility</a></li><li><a href="/Looscid/help/contact/" title="Goes to Contact Us">Contact Us</a></li><li><a href="/Looscid/Feedback/" title="Goes to Feedback">Send Feedback</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-project"><h2 id="sf-h-project">Project</h2><ul><li><a href="/Looscid/changelog/" title="Goes to the changelog">Roadmap &amp; Changelog</a></li><li><a href="/Looscid/status.html" title="Goes to the status page">Status</a></li><li><a href="/Looscid/help/#h-building" title="Goes back to Help Center">Docs</a></li><li><a href="/Looscid/help/dev/contributing/" title="Opens this article">Contributing</a></li><li><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a></li><li><a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-looscid"><h2 id="sf-h-looscid">Looscid</h2><ul><li><a href="/Looscid/About/" title="Goes to About">About</a></li><li><a href="/Looscid/Our-Story/" title="Goes to Our Story">Our Story</a></li><li><a href="/Looscid/Credits/" title="Goes to Credits">Credits</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-legal"><h2 id="sf-h-legal">Legal</h2><ul><li><a href="/Looscid/Terms/" title="Goes to Terms">Terms</a></li><li><a href="/Looscid/Privacy/" title="Goes to Privacy">Privacy</a></li><li><a href="/Looscid/Rules/" title="Goes to Rules">Rules</a></li><li><a href="/Looscid/Child-Safety/" title="Goes to Child Safety">Child Safety</a></li><li><a href="/Looscid/Legal/" title="Goes to Legal">License</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-hi"><h2 id="sf-h-hi">Say hi</h2><ul><li><a href="https://github.com/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">GitHub</a></li><li><a href="https://x.com/Looscid" title="Go to X" target="_blank" rel="noopener noreferrer">X</a></li><li><a href="https://www.youtube.com/@Looscid" title="Go to YouTube" target="_blank" rel="noopener noreferrer">YouTube</a></li><li><a href="https://discord.gg/M6xrD8EBXU" title="Go to Discord" target="_blank" rel="noopener noreferrer">Discord</a></li></ul></section>
+</div>
+<p class="sf-bottom">© 2025–2026 Looscid <span aria-hidden="true">·</span> Open source under the <a href="/Looscid/help/dev/license/" title="Opens this article">GNU AGPL-3.0</a> <span aria-hidden="true">·</span> Made by Chaotic Carter, co-written with Tab <span aria-hidden="true">·</span> Looscid 2026.138.57 (195)</p>
+</div>
+</footer>
+<script src="../../../help.js?v=hc6"></script>
+</body>
+</html>

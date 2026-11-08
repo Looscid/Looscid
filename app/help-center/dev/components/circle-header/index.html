@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en-US" data-help-root="../../../">
+<head>
+<meta charset="UTF-8"/>
+<title>Circle header component - Looscid Help Center</title>
+<!-- Made by .github/scripts/build-help.mjs from app/js/helpdata.js. Edit those, not this page. Link previews come first. -->
+<meta name="description" content="the top of a Circle: its name, what it's about, member count and the Join button.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Looscid">
+<meta property="og:title" content="Circle header component - Looscid Help Center">
+<meta property="og:description" content="the top of a Circle: its name, what it's about, member count and the Join button.">
+<meta property="og:url" content="https://looscid.github.io/Looscid/help/dev/components/circle-header/">
+<meta property="og:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:secure_url" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Looscid">
+<meta name="twitter:title" content="Circle header component - Looscid Help Center">
+<meta name="twitter:description" content="the top of a Circle: its name, what it's about, member count and the Join button.">
+<meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta name="twitter:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<link rel="canonical" href="https://looscid.github.io/Looscid/help/dev/components/circle-header/">
+<link rel="icon" type="image/png" sizes="32x32" href="https://looscid.github.io/Looscid/assets/icons/favicon-32.png?v=nl1">
+<link rel="apple-touch-icon" href="https://looscid.github.io/Looscid/assets/icons/apple-touch-icon.png?v=nl1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<link rel="stylesheet" href="../../../help.css?v=hc7">
+<link rel="stylesheet" href="../../../../assets/site-footer.css?v=2">
+</head>
+<body>
+<div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<header class="top"><a class="brand" href="../../../" title="Goes back to Help Center" aria-label="Looscid Help Center, logo: a white open ring with a dot in the middle, on blue"><img src="../../../../assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="32" height="32"><span><span aria-hidden="true">Looscid</span> Help Center</span></a><div class="goto"><button type="button" class="goto-btn" aria-expanded="false" aria-controls="goto-list" hidden>Go to<svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><ul class="goto-list" id="goto-list"><li><a href="../../../" title="Goes back to Help Center">Help Home</a></li><li><a href="../../../../" title="Goes to Home">Looscid Home</a></li></ul></div></header>
+<main class="wrap" id="main">
+<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../../../" title="Goes back to Help Center">Help Center</a></li><li><a href="../../../#h-building" title="Goes back to Help Center">Building Looscid</a></li><li><a href="../" title="Opens this article">Components</a></li><li><span aria-current="page">Circle header</span></li></ol></nav>
+<link rel="stylesheet" href="../components.css?v=1">
+<h1>Circle header</h1>
+<p class="lead">the top of a Circle: its name, what it's about, member count and the Join button.</p>
+<h2 id="what">what it is</h2>
+<p>open any Circle and this is the top part: a colored banner w the Circle's emoji and name (its h1), then what it's about, members, category, visibility and Join.</p>
+<p>once u join, Join turns into "Joined" and an Invite button shows up. admins get an extra settings button.</p>
+<h2 id="states">states</h2>
+<p>live demos, drawn w looscid's real styles. look-only: nothing in them does anything.</p>
+<h3 id="state-normal">not joined</h3>
+<p>Join is the main button.</p>
+<iframe class="cl-frame" src="normal.html" title="Circle header demo, not joined" loading="lazy" style="height:250px"></iframe>
+<h3 id="state-joined">joined</h3>
+<p>Joined, plus Invite.</p>
+<iframe class="cl-frame" src="joined.html" title="Circle header demo, joined" loading="lazy" style="height:250px"></iframe>
+<h3 id="state-admin">admin</h3>
+<p>admin badge and the admin settings button.</p>
+<iframe class="cl-frame" src="admin.html" title="Circle header demo, admin" loading="lazy" style="height:250px"></iframe>
+<h3 id="state-focused">focused</h3>
+<p>focus ring on Join.</p>
+<iframe class="cl-frame" src="focused.html" title="Circle header demo, focused" loading="lazy" style="height:250px"></iframe>
+<h2 id="code">copy the code</h2>
+<h3 id="code-html">html</h3>
+<pre class="cl-code"><code id="code-circle-header-html">&lt;div style=&quot;height: 110px; background: linear-gradient(135deg,hsl(280,60%,14%),hsl(295,70%,8%)); position: relative; display: flex; align-items: center; justify-content: center; flex-direction: column; padding-top: 44px;&quot;&gt;
+&lt;button class=&quot;bi&quot; style=&quot;position: absolute; top: 48px; left: 12px; background: rgba(0,0,0,.55);&quot; aria-label=&quot;Back&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.9&quot; width=&quot;21&quot; height=&quot;21&quot;&gt;&lt;polyline points=&quot;15 18 9 12 15 6&quot;&gt;&lt;/polyline&gt;&lt;/svg&gt;&lt;/button&gt;
+&lt;div style=&quot;font-size: 38px; margin-bottom: 4px;&quot; aria-hidden=&quot;true&quot;&gt;🌙&lt;/div&gt;
+&lt;h1 tabindex=&quot;-1&quot; style=&quot;margin: 0; font-weight: 400; font-family: 'Looscid Unspeakable','DM Serif Display',Georgia,serif; font-size: 18px; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.6);&quot;&gt;Night Owls&lt;/h1&gt;
+&lt;/div&gt;
+&lt;div style=&quot;padding: 12px 16px 0; background: var(--sf2); border-bottom: 1px solid var(--bd);&quot;&gt;
+&lt;div style=&quot;display: flex; gap: 10px; align-items: flex-start;&quot;&gt;
+&lt;div style=&quot;flex: 1;&quot;&gt;
+&lt;div class=&quot;lc-md&quot; style=&quot;font-size: 12px; color: var(--tx2); line-height: 1.55; margin-bottom: 8px;&quot;&gt;for people who Dream best after midnight.&lt;/div&gt;
+&lt;div style=&quot;display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px;&quot;&gt;&lt;span style=&quot;font-size: 11px; color: var(--tx3);&quot;&gt;&lt;span&gt;Members: &lt;/span&gt;42&lt;/span&gt;&lt;span style=&quot;font-size: 11px; color: var(--tx3);&quot;&gt;&lt;span&gt;Category: &lt;/span&gt;Chill&lt;/span&gt;&lt;span style=&quot;font-size: 11px; color: var(--tx3);&quot;&gt;&lt;span&gt;Visibility: &lt;/span&gt;Public&lt;/span&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div style=&quot;display: flex; gap: 7px; align-items: center;&quot;&gt;&lt;button class=&quot;btn bp&quot; style=&quot;padding: 7px 14px; font-size: 12px;&quot; aria-label=&quot;Join group&quot;&gt;Join&lt;/button&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<p><button type="button" class="btn cl-copy" data-copy="code-circle-header-html" hidden>Copy code</button></p>
+<p>it uses the classes from css/app.css and css/a11y.css, so it looks right anywhere in looscid.</p>
+<h2 id="voiceover">how it works w voiceover</h2>
+<ul><li>opening a Circle puts focus on its name, &quot;Night Owls, heading level 1&quot;. the emoji is hidden.</li><li>swipe on: what it's about, then &quot;Members: 42&quot;, &quot;Category: Chill&quot;, &quot;Visibility: Public&quot;.</li><li>Join says &quot;Join group, button&quot;. after joining it says &quot;Leave group&quot;, so u always hear what pressing it will do.</li><li>braille display: Enter on Join joins. Back is the first button, swipe left from the name to reach it.</li></ul>
+<h2 id="related">related</h2>
+<ul><li><a href="../back-header/" title="Opens this article">BackHeader</a></li><li><a href="../profile-header/" title="Opens this article">Profile header</a></li><li><a href="../tabs/" title="Opens this article">Tabs</a></li></ul>
+<p class="next"><a href="../" title="Opens this article">All components</a></p>
+<script src="../components.js?v=1"></script>
+</main>
+<footer class="sf">
+<div class="sf-in">
+<p class="sf-brand"><img src="/Looscid/assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="28" height="28"><span class="sf-name" aria-hidden="true">Looscid</span></p>
+<div class="sf-cols">
+<section class="sf-col" aria-labelledby="sf-h-help"><h2 id="sf-h-help">Get help</h2><ul><li><a href="/Looscid/" title="Goes to Home">Looscid Home</a></li><li><a href="/Looscid/help/" title="Goes back to Help Center">Help Home</a></li><li><a href="/Looscid/help/getting-started/" title="Opens this topic">Getting Started</a></li><li><a href="/Looscid/help/looscid-basics/" title="Opens this course">Looscid Basics course</a></li><li><a href="/Looscid/help/dev/accessibility/" title="Opens this article">Accessibility</a></li><li><a href="/Looscid/help/contact/" title="Goes to Contact Us">Contact Us</a></li><li><a href="/Looscid/Feedback/" title="Goes to Feedback">Send Feedback</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-project"><h2 id="sf-h-project">Project</h2><ul><li><a href="/Looscid/changelog/" title="Goes to the changelog">Roadmap &amp; Changelog</a></li><li><a href="/Looscid/status.html" title="Goes to the status page">Status</a></li><li><a href="/Looscid/help/#h-building" title="Goes back to Help Center">Docs</a></li><li><a href="/Looscid/help/dev/contributing/" title="Opens this article">Contributing</a></li><li><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a></li><li><a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-looscid"><h2 id="sf-h-looscid">Looscid</h2><ul><li><a href="/Looscid/About/" title="Goes to About">About</a></li><li><a href="/Looscid/Our-Story/" title="Goes to Our Story">Our Story</a></li><li><a href="/Looscid/Credits/" title="Goes to Credits">Credits</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-legal"><h2 id="sf-h-legal">Legal</h2><ul><li><a href="/Looscid/Terms/" title="Goes to Terms">Terms</a></li><li><a href="/Looscid/Privacy/" title="Goes to Privacy">Privacy</a></li><li><a href="/Looscid/Rules/" title="Goes to Rules">Rules</a></li><li><a href="/Looscid/Child-Safety/" title="Goes to Child Safety">Child Safety</a></li><li><a href="/Looscid/Legal/" title="Goes to Legal">License</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-hi"><h2 id="sf-h-hi">Say hi</h2><ul><li><a href="https://github.com/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">GitHub</a></li><li><a href="https://x.com/Looscid" title="Go to X" target="_blank" rel="noopener noreferrer">X</a></li><li><a href="https://www.youtube.com/@Looscid" title="Go to YouTube" target="_blank" rel="noopener noreferrer">YouTube</a></li><li><a href="https://discord.gg/M6xrD8EBXU" title="Go to Discord" target="_blank" rel="noopener noreferrer">Discord</a></li></ul></section>
+</div>
+<p class="sf-bottom">© 2025–2026 Looscid <span aria-hidden="true">·</span> Open source under the <a href="/Looscid/help/dev/license/" title="Opens this article">GNU AGPL-3.0</a> <span aria-hidden="true">·</span> Made by Chaotic Carter, co-written with Tab <span aria-hidden="true">·</span> Looscid 2026.138.57 (195)</p>
+</div>
+</footer>
+<script src="../../../help.js?v=hc6"></script>
+</body>
+</html>

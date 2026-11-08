@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8"/>
+<title>Report a problem and report rows demo, form, filled in - Looscid components</title>
+<!-- Made by .github/scripts/build-help.mjs from .github/scripts/components.mjs. A look-only demo: no scripts, no network. -->
+<meta name="robots" content="noindex">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; connect-src 'none'; form-action 'none'; object-src 'none'; base-uri 'self'"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="stylesheet" href="../../../../css/app.css?v=cl1">
+<link rel="stylesheet" href="../../../../css/a11y.css?v=cl1">
+<link rel="stylesheet" href="../demo.css?v=1">
+</head>
+<body class="lc-demo">
+<div class="lc-issue-form">
+<fieldset class="lc-fs"><legend class="lc-fs-l">What kind?</legend><div class="lc-radios lc-radios-col"><label class="lc-radio on"><input type="radio" name="lc-issue-type" value="bug" checked><span>Bug, something's broken</span></label><label class="lc-radio"><input type="radio" name="lc-issue-type" value="idea"><span>Idea, something new</span></label></div></fieldset>
+<label for="lc-issue-title" class="lc-fs-l" style="display: block;">Title</label>
+<input id="lc-issue-title" type="text" class="inp lc-issue-in" maxlength="120" autocomplete="off" value="the Like button double-announces">
+<label for="lc-issue-body" class="lc-fs-l" style="display: block;">What happened?</label>
+<textarea id="lc-issue-body" class="inp" rows="5" maxlength="4000">when i like a Dream VoiceOver says Liked twice.</textarea>
+<p class="lc-desc">Looscid adds the app and its version by itself. Your report, its title and your key are public.</p>
+<button type="button" id="lc-issue-send" class="btn bp lc-big">Send report</button>
+</div>
+</body>
+</html>

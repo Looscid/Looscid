@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en-US" data-help-root="../../../">
+<head>
+<meta charset="UTF-8"/>
+<title>Mod reason picker component - Looscid Help Center</title>
+<!-- Made by .github/scripts/build-help.mjs from app/js/helpdata.js. Edit those, not this page. Link previews come first. -->
+<meta name="description" content="what a mod sees when removing a Dream: pick a reason or type one. the reason is always public.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Looscid">
+<meta property="og:title" content="Mod reason picker component - Looscid Help Center">
+<meta property="og:description" content="what a mod sees when removing a Dream: pick a reason or type one. the reason is always public.">
+<meta property="og:url" content="https://looscid.github.io/Looscid/help/dev/components/mod-reason-picker/">
+<meta property="og:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:secure_url" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Looscid">
+<meta name="twitter:title" content="Mod reason picker component - Looscid Help Center">
+<meta name="twitter:description" content="what a mod sees when removing a Dream: pick a reason or type one. the reason is always public.">
+<meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta name="twitter:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<link rel="canonical" href="https://looscid.github.io/Looscid/help/dev/components/mod-reason-picker/">
+<link rel="icon" type="image/png" sizes="32x32" href="https://looscid.github.io/Looscid/assets/icons/favicon-32.png?v=nl1">
+<link rel="apple-touch-icon" href="https://looscid.github.io/Looscid/assets/icons/apple-touch-icon.png?v=nl1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<link rel="stylesheet" href="../../../help.css?v=hc7">
+<link rel="stylesheet" href="../../../../assets/site-footer.css?v=2">
+</head>
+<body>
+<div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<header class="top"><a class="brand" href="../../../" title="Goes back to Help Center" aria-label="Looscid Help Center, logo: a white open ring with a dot in the middle, on blue"><img src="../../../../assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="32" height="32"><span><span aria-hidden="true">Looscid</span> Help Center</span></a><div class="goto"><button type="button" class="goto-btn" aria-expanded="false" aria-controls="goto-list" hidden>Go to<svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><ul class="goto-list" id="goto-list"><li><a href="../../../" title="Goes back to Help Center">Help Home</a></li><li><a href="../../../../" title="Goes to Home">Looscid Home</a></li></ul></div></header>
+<main class="wrap" id="main">
+<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../../../" title="Goes back to Help Center">Help Center</a></li><li><a href="../../../#h-building" title="Goes back to Help Center">Building Looscid</a></li><li><a href="../" title="Opens this article">Components</a></li><li><span aria-current="page">Mod reason picker</span></li></ol></nav>
+<link rel="stylesheet" href="../components.css?v=1">
+<h1>Mod reason picker</h1>
+<p class="lead">what a mod sees when removing a Dream: pick a reason or type one. the reason is always public.</p>
+<h2 id="what">what it is</h2>
+<p>mods open it from a Dream's More menu (Remove from Night Owls, or Remove from Looscid for admins). a reason is a must: pick one (the Circle's own rules come first) or type ur own.</p>
+<p>the Dreamor sees the reason where their Dream was, and it goes in the public mod log. Remove Dream stays dimmed until there's a reason, and says why if u press it early.</p>
+<h2 id="states">states</h2>
+<p>live demos, drawn w looscid's real styles. look-only: nothing in them does anything.</p>
+<h3 id="state-nothing-picked">nothing picked</h3>
+<p>Remove Dream is dimmed.</p>
+<iframe class="cl-frame" src="nothing-picked.html" title="Mod reason picker demo, nothing picked" loading="lazy" style="height:560px"></iframe>
+<h3 id="state-picked">reason picked</h3>
+<p>Spam is picked, Remove Dream works now.</p>
+<iframe class="cl-frame" src="picked.html" title="Mod reason picker demo, reason picked" loading="lazy" style="height:560px"></iframe>
+<h3 id="state-own-reason">own reason</h3>
+<p>Type a reason is picked and a text box shows up.</p>
+<iframe class="cl-frame" src="own-reason.html" title="Mod reason picker demo, own reason" loading="lazy" style="height:640px"></iframe>
+<h3 id="state-error">pressed too early</h3>
+<p>it says what's missing.</p>
+<iframe class="cl-frame" src="error.html" title="Mod reason picker demo, pressed too early" loading="lazy" style="height:600px"></iframe>
+<h3 id="state-focused">focused</h3>
+<p>focus ring on Spam.</p>
+<iframe class="cl-frame" src="focused.html" title="Mod reason picker demo, focused" loading="lazy" style="height:560px"></iframe>
+<h2 id="code">copy the code</h2>
+<h3 id="code-html">html</h3>
+<pre class="cl-code"><code id="code-mod-reason-picker-html">&lt;div class=&quot;lid-alert-bg&quot;&gt;
+&lt;div class=&quot;lid-alert&quot; role=&quot;alertdialog&quot; aria-modal=&quot;true&quot; aria-labelledby=&quot;m1-title&quot;&gt;
+&lt;h2 tabindex=&quot;-1&quot; id=&quot;m1-title&quot; class=&quot;lid-sub&quot;&gt;Remove this Dream from Night Owls?&lt;/h2&gt;
+&lt;p class=&quot;lid-help&quot;&gt;Pick a reason or type your own. Ava sees the reason where the Dream was.&lt;/p&gt;
+&lt;fieldset class=&quot;lc-fs&quot;&gt;&lt;legend class=&quot;lc-fs-l&quot;&gt;Reason&lt;/legend&gt;&lt;div class=&quot;lc-radios lc-radios-col&quot;&gt;
+&lt;label class=&quot;lc-radio&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;m1-reason&quot; value=&quot;rule0&quot;&gt;&lt;span&gt;Breaks a rule: Be kind and respectful&lt;/span&gt;&lt;/label&gt;
+&lt;label class=&quot;lc-radio&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;m1-reason&quot; value=&quot;spam&quot;&gt;&lt;span&gt;Spam&lt;/span&gt;&lt;/label&gt;
+&lt;label class=&quot;lc-radio&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;m1-reason&quot; value=&quot;mean&quot;&gt;&lt;span&gt;Mean or bullying&lt;/span&gt;&lt;/label&gt;
+&lt;label class=&quot;lc-radio&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;m1-reason&quot; value=&quot;unsafe&quot;&gt;&lt;span&gt;Unsafe or harmful&lt;/span&gt;&lt;/label&gt;
+&lt;label class=&quot;lc-radio&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;m1-reason&quot; value=&quot;own&quot;&gt;&lt;span&gt;Type a reason&lt;/span&gt;&lt;/label&gt;
+&lt;/div&gt;&lt;/fieldset&gt;
+&lt;button type=&quot;button&quot; class=&quot;btn bp lid-wide&quot; id=&quot;m1-go&quot; aria-disabled=&quot;true&quot;&gt;Remove Dream&lt;/button&gt;
+&lt;button type=&quot;button&quot; class=&quot;btn bgb lid-wide&quot;&gt;Cancel&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<p><button type="button" class="btn cl-copy" data-copy="code-mod-reason-picker-html" hidden>Copy code</button></p>
+<h3 id="code-js">js</h3>
+<pre class="cl-code"><code id="code-mod-reason-picker-js">// a reason is a must (js/core.js DreamModDialog, cut down)
+goBtn.addEventListener(&quot;click&quot;, function () {
+  const picked = dialog.querySelector(&quot;input[name=m1-reason]:checked&quot;);
+  const reason = !picked ? &quot;&quot; : picked.value === &quot;own&quot; ? ownInput.value.trim() : picked.nextElementSibling.textContent;
+  if (!reason) { showMsg(&quot;Pick a reason or type one first. Ava sees it.&quot;); return; }
+  removeDream(reason);           // public: shows on the Dream and in the mod log
+  announce(&quot;Dream removed&quot;);
+});</code></pre>
+<p><button type="button" class="btn cl-copy" data-copy="code-mod-reason-picker-js" hidden>Copy JS code</button></p>
+<p>it uses the classes from css/app.css and css/a11y.css, so it looks right anywhere in looscid.</p>
+<h2 id="voiceover">how it works w voiceover</h2>
+<ul><li>it opens on the question, &quot;Remove this Dream from Night Owls?, heading level 2&quot;.</li><li>then &quot;Reason&quot; and each choice as a radio button: &quot;Spam, radio button, 2 of 5&quot;. one swipe per reason.</li><li>&quot;Remove Dream, button, dimmed&quot; until u pick one. pressing it early says &quot;Pick a reason or type one first. Ava sees it.&quot;</li><li>picking Type a reason adds &quot;Reason in your words, text field&quot;. braille display: type the reason and press Enter to remove.</li><li>Escape or two finger scrub cancels and puts u back on the Dream's More button.</li></ul>
+<h2 id="related">related</h2>
+<ul><li><a href="../radio-group/" title="Opens this article">Radio group</a></li><li><a href="../report-dialog/" title="Opens this article">Report a Dream dialog</a></li><li><a href="../dream-card/" title="Opens this article">Dream card</a></li></ul>
+<p class="next"><a href="../" title="Opens this article">All components</a></p>
+<script src="../components.js?v=1"></script>
+</main>
+<footer class="sf">
+<div class="sf-in">
+<p class="sf-brand"><img src="/Looscid/assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="28" height="28"><span class="sf-name" aria-hidden="true">Looscid</span></p>
+<div class="sf-cols">
+<section class="sf-col" aria-labelledby="sf-h-help"><h2 id="sf-h-help">Get help</h2><ul><li><a href="/Looscid/" title="Goes to Home">Looscid Home</a></li><li><a href="/Looscid/help/" title="Goes back to Help Center">Help Home</a></li><li><a href="/Looscid/help/getting-started/" title="Opens this topic">Getting Started</a></li><li><a href="/Looscid/help/looscid-basics/" title="Opens this course">Looscid Basics course</a></li><li><a href="/Looscid/help/dev/accessibility/" title="Opens this article">Accessibility</a></li><li><a href="/Looscid/help/contact/" title="Goes to Contact Us">Contact Us</a></li><li><a href="/Looscid/Feedback/" title="Goes to Feedback">Send Feedback</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-project"><h2 id="sf-h-project">Project</h2><ul><li><a href="/Looscid/changelog/" title="Goes to the changelog">Roadmap &amp; Changelog</a></li><li><a href="/Looscid/status.html" title="Goes to the status page">Status</a></li><li><a href="/Looscid/help/#h-building" title="Goes back to Help Center">Docs</a></li><li><a href="/Looscid/help/dev/contributing/" title="Opens this article">Contributing</a></li><li><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a></li><li><a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-looscid"><h2 id="sf-h-looscid">Looscid</h2><ul><li><a href="/Looscid/About/" title="Goes to About">About</a></li><li><a href="/Looscid/Our-Story/" title="Goes to Our Story">Our Story</a></li><li><a href="/Looscid/Credits/" title="Goes to Credits">Credits</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-legal"><h2 id="sf-h-legal">Legal</h2><ul><li><a href="/Looscid/Terms/" title="Goes to Terms">Terms</a></li><li><a href="/Looscid/Privacy/" title="Goes to Privacy">Privacy</a></li><li><a href="/Looscid/Rules/" title="Goes to Rules">Rules</a></li><li><a href="/Looscid/Child-Safety/" title="Goes to Child Safety">Child Safety</a></li><li><a href="/Looscid/Legal/" title="Goes to Legal">License</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-hi"><h2 id="sf-h-hi">Say hi</h2><ul><li><a href="https://github.com/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">GitHub</a></li><li><a href="https://x.com/Looscid" title="Go to X" target="_blank" rel="noopener noreferrer">X</a></li><li><a href="https://www.youtube.com/@Looscid" title="Go to YouTube" target="_blank" rel="noopener noreferrer">YouTube</a></li><li><a href="https://discord.gg/M6xrD8EBXU" title="Go to Discord" target="_blank" rel="noopener noreferrer">Discord</a></li></ul></section>
+</div>
+<p class="sf-bottom">© 2025–2026 Looscid <span aria-hidden="true">·</span> Open source under the <a href="/Looscid/help/dev/license/" title="Opens this article">GNU AGPL-3.0</a> <span aria-hidden="true">·</span> Made by Chaotic Carter, co-written with Tab <span aria-hidden="true">·</span> Looscid 2026.138.57 (195)</p>
+</div>
+</footer>
+<script src="../../../help.js?v=hc6"></script>
+</body>
+</html>

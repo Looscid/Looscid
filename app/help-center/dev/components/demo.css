@@ -1,0 +1,11 @@
+/* Looscid component demos (Nov 8 2026). Only what a demo needs to sit inside a frame: the app's own styles do the rest.
+   Things the app pins to the screen (the tab bar, sheets, dialogs, the Commandbar) sit in the page here instead. */
+html,body.lc-demo{height:auto;min-height:0}
+body.lc-demo{padding:12px 0;overflow-x:hidden}
+.lc-demo .bnav,.lc-demo .ov,.lc-demo .lid-alert-bg,.lc-demo .lc-term,.lc-demo .hdr{position:relative;inset:auto;top:auto;height:auto;z-index:auto;animation:none}
+.lc-demo .ov,.lc-demo .lid-alert-bg{min-height:0;padding-top:12px}
+.lc-demo .msh{animation:none}
+.lc-demo .lmenu-list{position:static;margin-top:6px}
+.lc-demo .skip-link{position:absolute}
+/* the "focused" demos: the same ring the app draws on :focus-visible */
+.lc-demo .demo-focus{outline:3px solid var(--ac3);outline-offset:2px;border-radius:4px}

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8"/>
+<title>Commandbar demo, with output - Looscid components</title>
+<!-- Made by .github/scripts/build-help.mjs from .github/scripts/components.mjs. A look-only demo: no scripts, no network. -->
+<meta name="robots" content="noindex">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; connect-src 'none'; form-action 'none'; object-src 'none'; base-uri 'self'"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="stylesheet" href="../../../../css/app.css?v=cl1">
+<link rel="stylesheet" href="../../../../css/a11y.css?v=cl1">
+<link rel="stylesheet" href="../demo.css?v=1">
+</head>
+<body class="lc-demo">
+<div class="lc-term" role="region" aria-labelledby="lc-term-h">
+<div class="lc-term-hd"><p id="lc-term-h" class="lc-term-title" tabindex="-1">Commandbar</p><button type="button" class="lc-icon-btn lc-term-close" aria-label="Close Commandbar">Close</button></div>
+<div class="lc-term-body" tabindex="0" role="region" aria-label="Commandbar scrollback">
+<p class="lc-term-hi">Welcome to Commandbar. Type help and press Enter. Commands you run in the bar show here too.</p>
+<div class="lc-out-h"><button type="button" id="lc-out-toggle" class="lc-out-tg" aria-expanded="true" aria-controls="lc-out"><span class="lc-out-ic" aria-hidden="true">▾</span>Commandbar output, 2 lines</button></div>
+<div id="lc-out" class="lc-out" role="log" aria-live="off" aria-label="Commandbar output"><p class="lc-l">looscid&gt; status</p><p class="lc-l">Looscid is online. (example answer)</p></div>
+</div>
+<div class="lc-term-foot">
+<p id="lc-chips-h" class="lc-chips-h">Quick commands</p>
+<ul class="lc-chips" aria-labelledby="lc-chips-h"><li><button type="button" class="lc-chip">Help</button></li><li><button type="button" class="lc-chip">Open feed</button></li><li><button type="button" class="lc-chip">Settings</button></li><li><button type="button" class="lc-chip">Status</button></li></ul>
+<form class="lc-term-form" autocomplete="off"><label for="lc-term-input" class="lc-term-label"><span class="lc-prompt" aria-hidden="true">looscid&gt;</span><span class="sr-pause">Command</span></label><input id="lc-term-input" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="send"><button type="submit" class="btn bp lc-run">Run</button></form>
+<p id="lc-term-hint" class="lc-desc">Enter runs. Up and Down arrows recall earlier commands. Escape closes.</p>
+</div>
+</div>
+</body>
+</html>

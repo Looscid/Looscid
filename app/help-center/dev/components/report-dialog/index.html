@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en-US" data-help-root="../../../">
+<head>
+<meta charset="UTF-8"/>
+<title>Report a Dream dialog component - Looscid Help Center</title>
+<!-- Made by .github/scripts/build-help.mjs from app/js/helpdata.js. Edit those, not this page. Link previews come first. -->
+<meta name="description" content="report a Dream in 2 taps: pick what's wrong, done. the person never finds out who reported.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Looscid">
+<meta property="og:title" content="Report a Dream dialog component - Looscid Help Center">
+<meta property="og:description" content="report a Dream in 2 taps: pick what's wrong, done. the person never finds out who reported.">
+<meta property="og:url" content="https://looscid.github.io/Looscid/help/dev/components/report-dialog/">
+<meta property="og:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:secure_url" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Looscid">
+<meta name="twitter:title" content="Report a Dream dialog component - Looscid Help Center">
+<meta name="twitter:description" content="report a Dream in 2 taps: pick what's wrong, done. the person never finds out who reported.">
+<meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta name="twitter:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<link rel="canonical" href="https://looscid.github.io/Looscid/help/dev/components/report-dialog/">
+<link rel="icon" type="image/png" sizes="32x32" href="https://looscid.github.io/Looscid/assets/icons/favicon-32.png?v=nl1">
+<link rel="apple-touch-icon" href="https://looscid.github.io/Looscid/assets/icons/apple-touch-icon.png?v=nl1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<link rel="stylesheet" href="../../../help.css?v=hc7">
+<link rel="stylesheet" href="../../../../assets/site-footer.css?v=2">
+</head>
+<body>
+<div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<header class="top"><a class="brand" href="../../../" title="Goes back to Help Center" aria-label="Looscid Help Center, logo: a white open ring with a dot in the middle, on blue"><img src="../../../../assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="32" height="32"><span><span aria-hidden="true">Looscid</span> Help Center</span></a><div class="goto"><button type="button" class="goto-btn" aria-expanded="false" aria-controls="goto-list" hidden>Go to<svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><ul class="goto-list" id="goto-list"><li><a href="../../../" title="Goes back to Help Center">Help Home</a></li><li><a href="../../../../" title="Goes to Home">Looscid Home</a></li></ul></div></header>
+<main class="wrap" id="main">
+<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../../../" title="Goes back to Help Center">Help Center</a></li><li><a href="../../../#h-building" title="Goes back to Help Center">Building Looscid</a></li><li><a href="../" title="Opens this article">Components</a></li><li><span aria-current="page">Report a Dream dialog</span></li></ol></nav>
+<link rel="stylesheet" href="../components.css?v=1">
+<h1>Report a Dream dialog</h1>
+<p class="lead">report a Dream in 2 taps: pick what's wrong, done. the person never finds out who reported.</p>
+<h2 id="what">what it is</h2>
+<p>it's in every Dream's More menu (Report). each reason is one big button, so it's one tap (or one double tap) to report. there's always Cancel.</p>
+<p>the report is signed w ur LooscidID and goes to Rem. when 3 different people report the same Dream, Rem hides it from the feed until a mod looks.</p>
+<h2 id="states">states</h2>
+<p>live demos, drawn w looscid's real styles. look-only: nothing in them does anything.</p>
+<h3 id="state-normal">normal</h3>
+<p>pick a reason.</p>
+<iframe class="cl-frame" src="normal.html" title="Report a Dream dialog demo, normal" loading="lazy" style="height:470px"></iframe>
+<h3 id="state-sending">sending</h3>
+<p>the buttons are off while it sends.</p>
+<iframe class="cl-frame" src="sending.html" title="Report a Dream dialog demo, sending" loading="lazy" style="height:500px"></iframe>
+<h3 id="state-focused">focused</h3>
+<p>focus ring on Spam.</p>
+<iframe class="cl-frame" src="focused.html" title="Report a Dream dialog demo, focused" loading="lazy" style="height:470px"></iframe>
+<h2 id="code">copy the code</h2>
+<h3 id="code-html">html</h3>
+<pre class="cl-code"><code id="code-report-dialog-html">&lt;div class=&quot;lid-alert-bg&quot;&gt;
+&lt;div class=&quot;lid-alert&quot; role=&quot;alertdialog&quot; aria-modal=&quot;true&quot; aria-labelledby=&quot;r1-title&quot;&gt;
+&lt;h2 tabindex=&quot;-1&quot; id=&quot;r1-title&quot; class=&quot;lid-sub&quot;&gt;Report this Dream?&lt;/h2&gt;
+&lt;p class=&quot;lid-help&quot;&gt;Pick what's wrong. Your report goes to Rem with your LooscidID. The person you report isn't told who reported them.&lt;/p&gt;
+&lt;button type=&quot;button&quot; class=&quot;btn bgb lid-wide&quot;&gt;Spam&lt;/button&gt;
+&lt;button type=&quot;button&quot; class=&quot;btn bgb lid-wide&quot;&gt;Mean or bullying&lt;/button&gt;
+&lt;button type=&quot;button&quot; class=&quot;btn bgb lid-wide&quot;&gt;Unsafe or harmful&lt;/button&gt;
+&lt;button type=&quot;button&quot; class=&quot;btn bgb lid-wide&quot;&gt;Something else&lt;/button&gt;
+&lt;button type=&quot;button&quot; class=&quot;btn bgb lid-wide&quot;&gt;Cancel&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<p><button type="button" class="btn cl-copy" data-copy="code-report-dialog-html" hidden>Copy code</button></p>
+<h3 id="code-js">js</h3>
+<pre class="cl-code"><code id="code-report-dialog-js">// one tap sends it (js/core.js DreamReportDialog, cut down). the demo above never sends anything.
+dialog.querySelectorAll(&quot;.lid-wide&quot;).forEach(function (b) {
+  b.addEventListener(&quot;click&quot;, function () {
+    if (b.textContent === &quot;Cancel&quot;) return close();
+    setBusy(true); showMsg(&quot;Sending the report.&quot;);
+    sendReport(dreamId, b.textContent).then(function (r) { setBusy(false); announce(r.say); if (r.ok) close(); });
+  });
+});</code></pre>
+<p><button type="button" class="btn cl-copy" data-copy="code-report-dialog-js" hidden>Copy JS code</button></p>
+<p>it uses the classes from css/app.css and css/a11y.css, so it looks right anywhere in looscid.</p>
+<h2 id="voiceover">how it works w voiceover</h2>
+<ul><li>it opens on &quot;Report this Dream?, heading level 2&quot;. swipe right to hear the line about privacy, then each reason: &quot;Spam, button&quot;.</li><li>while sending, the buttons say &quot;dimmed&quot; and the status line says &quot;Sending the report.&quot; once.</li><li>when it's done the live region says it was sent and focus goes back to the Dream's More button.</li><li>Escape or two finger scrub cancels. braille display: Enter on a reason sends it.</li></ul>
+<h2 id="related">related</h2>
+<ul><li><a href="../mod-reason-picker/" title="Opens this article">Mod reason picker</a></li><li><a href="../dream-card/" title="Opens this article">Dream card</a></li><li><a href="../live-region/" title="Opens this article">Live region announcements</a></li></ul>
+<p class="next"><a href="../" title="Opens this article">All components</a></p>
+<script src="../components.js?v=1"></script>
+</main>
+<footer class="sf">
+<div class="sf-in">
+<p class="sf-brand"><img src="/Looscid/assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="28" height="28"><span class="sf-name" aria-hidden="true">Looscid</span></p>
+<div class="sf-cols">
+<section class="sf-col" aria-labelledby="sf-h-help"><h2 id="sf-h-help">Get help</h2><ul><li><a href="/Looscid/" title="Goes to Home">Looscid Home</a></li><li><a href="/Looscid/help/" title="Goes back to Help Center">Help Home</a></li><li><a href="/Looscid/help/getting-started/" title="Opens this topic">Getting Started</a></li><li><a href="/Looscid/help/looscid-basics/" title="Opens this course">Looscid Basics course</a></li><li><a href="/Looscid/help/dev/accessibility/" title="Opens this article">Accessibility</a></li><li><a href="/Looscid/help/contact/" title="Goes to Contact Us">Contact Us</a></li><li><a href="/Looscid/Feedback/" title="Goes to Feedback">Send Feedback</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-project"><h2 id="sf-h-project">Project</h2><ul><li><a href="/Looscid/changelog/" title="Goes to the changelog">Roadmap &amp; Changelog</a></li><li><a href="/Looscid/status.html" title="Goes to the status page">Status</a></li><li><a href="/Looscid/help/#h-building" title="Goes back to Help Center">Docs</a></li><li><a href="/Looscid/help/dev/contributing/" title="Opens this article">Contributing</a></li><li><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a></li><li><a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-looscid"><h2 id="sf-h-looscid">Looscid</h2><ul><li><a href="/Looscid/About/" title="Goes to About">About</a></li><li><a href="/Looscid/Our-Story/" title="Goes to Our Story">Our Story</a></li><li><a href="/Looscid/Credits/" title="Goes to Credits">Credits</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-legal"><h2 id="sf-h-legal">Legal</h2><ul><li><a href="/Looscid/Terms/" title="Goes to Terms">Terms</a></li><li><a href="/Looscid/Privacy/" title="Goes to Privacy">Privacy</a></li><li><a href="/Looscid/Rules/" title="Goes to Rules">Rules</a></li><li><a href="/Looscid/Child-Safety/" title="Goes to Child Safety">Child Safety</a></li><li><a href="/Looscid/Legal/" title="Goes to Legal">License</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-hi"><h2 id="sf-h-hi">Say hi</h2><ul><li><a href="https://github.com/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">GitHub</a></li><li><a href="https://x.com/Looscid" title="Go to X" target="_blank" rel="noopener noreferrer">X</a></li><li><a href="https://www.youtube.com/@Looscid" title="Go to YouTube" target="_blank" rel="noopener noreferrer">YouTube</a></li><li><a href="https://discord.gg/M6xrD8EBXU" title="Go to Discord" target="_blank" rel="noopener noreferrer">Discord</a></li></ul></section>
+</div>
+<p class="sf-bottom">© 2025–2026 Looscid <span aria-hidden="true">·</span> Open source under the <a href="/Looscid/help/dev/license/" title="Opens this article">GNU AGPL-3.0</a> <span aria-hidden="true">·</span> Made by Chaotic Carter, co-written with Tab <span aria-hidden="true">·</span> Looscid 2026.138.57 (195)</p>
+</div>
+</footer>
+<script src="../../../help.js?v=hc6"></script>
+</body>
+</html>
