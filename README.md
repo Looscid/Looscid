@@ -32,4 +32,12 @@ The old `main` line (retired October 14, 2026) and combined branch counters are 
 
 </details>
 
+## License
+
+Looscid is open source under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0-or-later). Anyone can use it, change it and share it, companies too. The one catch: if you share a changed version or run it for other people, your version has to be open source under the AGPL too.
+
+Copyright (C) 2025-present Looscid
+
+The [server/](server/) folder (the retired Rem v0 home server) keeps its own MIT license. The names Looscid, LooscidID, Dreamors, Redreams, Cherry and Circles are Looscid's trademarks: the license covers the code, not the names.
+
 Created by [2three1y](https://looscid.github.io/Looscid/).

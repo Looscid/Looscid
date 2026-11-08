@@ -50,7 +50,7 @@ const SITE_FOOTER = "<footer class=\"sf\">\n<div class=\"sf-in\">\n<p class=\"sf
   sfCol("looscid", "Looscid", [sfLi("/Looscid/About/", "About"), sfLi("/Looscid/Our-Story/", "Our Story"), sfLi("/Looscid/Credits/", "Credits")]),
   sfCol("legal", "Legal", [sfLi("/Looscid/Terms/", "Terms"), sfLi("/Looscid/Privacy/", "Privacy"), sfLi("/Looscid/Rules/", "Rules"), sfLi("/Looscid/Child-Safety/", "Child Safety"), sfLi("/Looscid/Legal/", "License")]),
   sfCol("hi", "Say hi", [sfExt("https://github.com/Looscid", "GitHub", "GitHub"), sfExt("https://x.com/Looscid", "X", "X"), sfExt("https://www.youtube.com/@Looscid", "YouTube", "YouTube"), sfExt("https://discord.gg/M6xrD8EBXU", "Discord", "Discord")])
-].join("\n") + "\n</div>\n<p class=\"sf-bottom\">© 2025–" + COPY_END + " Looscid <span aria-hidden=\"true\">·</span> Open source under the <a href=\"/Looscid/Legal/\">Looscid Public License</a> <span aria-hidden=\"true\">·</span> Made by Chaotic Carter, co-written with Tab <span aria-hidden=\"true\">·</span> " + BUILD_TEXT + "</p>\n</div>\n</footer>";
+].join("\n") + "\n</div>\n<p class=\"sf-bottom\">© 2025–" + COPY_END + " Looscid <span aria-hidden=\"true\">·</span> Open source under the <a href=\"/Looscid/help/dev/license/\">GNU AGPL-3.0</a> <span aria-hidden=\"true\">·</span> Made by Chaotic Carter, co-written with Tab <span aria-hidden=\"true\">·</span> " + BUILD_TEXT + "</p>\n</div>\n</footer>";
 // The Help Center home's topic icons (decoration only; the words say everything).
 const ICONS = {
   "getting-started": '<path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/>',
@@ -81,7 +81,7 @@ const DOCS = [
   { slug: "dream-delete", file: "docs/dev/dream-delete.md", t: "Dream delete spec", s: "A proposal for deleting a Dream." },
   { slug: "references", file: "docs/dev/REFERENCES.md", t: "Development references", s: "Projects we learned from, with credit." },
   { slug: "security", file: "docs/SECURITY.md", t: "Security", s: "How to report a security problem, privately." },
-  { slug: "license", file: "LICENSE", t: "Looscid Public License", s: "The Looscid Public License (LPL) v1.0, in full." },
+  { slug: "license", file: "LICENSE", t: "GNU AGPL-3.0", s: "Looscid's license, the GNU Affero General Public License v3.0, in full." },
 ];
 const docByFile = Object.fromEntries(DOCS.map(d => [d.file, d]));
 const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -239,7 +239,10 @@ for (const co of H.courses) {
 // file in the repo goes to that file on GitHub (it's source code). The LICENSE is plain text, so its ALL CAPS lines are its headings.
 for (const d of DOCS) {
   let md = fs.readFileSync(path.join(REPO, d.file), "utf8");
-  if (d.file === "LICENSE") md = md.replace(/^([^\n]+)\n/, "# $1\n").replace(/^([A-Z][A-Z0-9 ,()'’:-]{3,})$/gm, "## $1");
+  /* Nov 7 2026 (Carter: Looscid is AGPL-3.0 now): LICENSE is the GNU text, unmodified, so GitHub can tell what it is. Its lines
+     are indented, so they're trimmed here (only on the page). The title is a heading, its part titles (Preamble, TERMS AND CONDITIONS)
+     are h2s and the numbered sections ("0. Definitions.") are h3s, so VoiceOver can jump section by section. */
+  if (d.file === "LICENSE") md = md.split("\n").map(l => l.trim()).join("\n").replace(/^GNU AFFERO GENERAL PUBLIC LICENSE\n/, "# GNU Affero General Public License\n").replace(/^(Preamble|TERMS AND CONDITIONS|END OF TERMS AND CONDITIONS|How to Apply These Terms to Your New Programs)$/gm, "## $1").replace(/^(\d{1,2})\. ([A-Z][^\n]*\.)$/gm, "### $1. $2");
   const dir = path.posix.dirname(d.file);
   const linkFor = href => {
     if (/^(https?:|mailto:|#)/i.test(href)) return href;

@@ -2031,7 +2031,7 @@ const TERMS_CONTENT = `<p><strong>Last updated: October 26, 2026</strong></p>
 <li>If something doesn't work with your screen reader or braille display, that's a bug. Tell me in Send Feedback.</li>
 </ul>
 <h2>Open source</h2>
-<p>All of Looscid's code is public on <a href="https://github.com/Looscid/Looscid" target="_blank" rel="noopener noreferrer">GitHub</a> under the Looscid Public License.</p>
+<p>All of Looscid's code is public on <a href="https://github.com/Looscid/Looscid" target="_blank" rel="noopener noreferrer">GitHub</a> under the <a href="https://looscid.github.io/Looscid/help/dev/license/">GNU AGPL-3.0</a> license. Anyone can use it, companies too, as long as their version stays open source.</p>
 <h2>No guarantees</h2>
 <p>Looscid is a preview built by one person, and it's offered as it is. Features can change, break or go away, and I can't promise it will always be available.</p>
 <h2>Changes</h2>

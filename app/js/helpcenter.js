@@ -286,8 +286,8 @@ function legalView(p, act) {
       h('p', { key: "p", className: "lc-desc" }, "Short and plain: what you agree to, what stays on your device, and how we treat each other."),
       h('ul', { key: "u", className: "mlist", "aria-label": "Terms, privacy and rules" }, go("terms", "Terms", "legal-terms"), go("privacy", "Privacy", "legal-privacy"), go("guidelines", "Community rules", "legal-rules"))]),
     sec("lc-legal-h-license", "Looscid's license", [
-      h('p', { key: "p1", className: "lc-desc" }, "Looscid is open source under the Looscid Public License (LPL) v1.0. You can read, share and change the code. Two rules: no ads, and no commercial use."),
-      h('p', { key: "p2", className: "lc-desc" }, h('a', { href: "https://looscid.github.io/Looscid/help/dev/license/", target: "_blank", rel: "noopener noreferrer" }, "The Looscid Public License, in full"))]),
+      h('p', { key: "p1", className: "lc-desc" }, "Looscid is open source under the GNU Affero General Public License v3.0 (AGPL-3.0). You can read, share, change and even sell the code. The one rule: if you share a changed version or run it for other people, it has to stay open source under the AGPL too."),
+      h('p', { key: "p2", className: "lc-desc" }, h('a', { href: "https://looscid.github.io/Looscid/help/dev/license/", target: "_blank", rel: "noopener noreferrer" }, "The GNU AGPL-3.0 license, in full"))]),
     sec("lc-legal-h-oss", "Open source credits and licenses", [
       h('p', { key: "p1", className: "lc-desc" }, "Looscid uses and learns from other open source projects. Each one keeps its own license: most are MIT, and their notices stay with their code. My own projects keep their LICENSE files next to them."),
       h('p', { key: "p2", className: "lc-desc" }, "The FastSM-inspired Soundpack is inspired by FastSMRW by masonasons (no code or audio copied). The composer's layout is inspired by Feditext (GPL-3.0); no code was used. Profile design recreated from Feditext by Metabolist (GPL-3.0); no Feditext code is used. The Soundvault Soundpack plays sounds from where Soundvault links them, loaded when they play, under their own terms; nothing is copied into Looscid."),

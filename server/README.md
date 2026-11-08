@@ -85,5 +85,5 @@ and `node test/smoke.mjs <home-url> <secrets.json>` (57 end-to-end checks; it cl
 
 See [CREDITS.md](CREDITS.md): noble-secp256k1 (MIT), better-sqlite3 (MIT), the BIP-39 wordlist (MIT).
 
-The server folder is MIT licensed ([LICENSE](LICENSE)); the rest of the Looscid repo has its own license.
+The server folder is MIT licensed ([LICENSE](LICENSE)); the rest of the Looscid repo is open source under the GNU AGPL-3.0 ([LICENSE](../LICENSE)).
 Made by 2three1y. Co-written with Tab.

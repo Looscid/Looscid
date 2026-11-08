@@ -2,6 +2,17 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
+
+## Looscid is AGPL now (no new build yet)
+
+Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+
+Asked for by Carter: Looscid switched from its own Looscid Public License (LPL) v1.0 to the GNU Affero General Public License v3.0 (AGPL-3.0-or-later). Companies can use Looscid's code now, as long as their version stays open source too, and Looscid can use code from AGPL and GPL-3.0 projects.
+
+- LICENSE is the official GNU AGPL-3.0 text, unchanged, so GitHub shows it as AGPL-3.0. The copyright line and a trademark note are in the README's new License section.
+- About, Credits, Legal, the Help Center's license article and the sitewide footer say AGPL-3.0, and link to the license's page in the Help Center docs.
+- The server/ folder (Rem v0, retired) keeps its MIT license.
+
 ## One Looscid, one server: Rem moved to rem (no new build yet)
 
 Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).

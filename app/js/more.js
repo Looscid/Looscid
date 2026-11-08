@@ -3646,7 +3646,7 @@ const LC_VERSION_HISTORY = [
     "help is now a short list of the top commands. An area and help reads just that area: cherry help (or cherryhelp), projects help, earcons help, braille help. help list reads every command. new dream opens the Dream composer.",
     "Help Center, in More and with the help center command: getting started, commands, Cherry, earcons, accessibility, projects, legal, backup, and Getting help: Send Feedback, GitHub issues, helping build Looscid and quick reminders.",
     "One About Looscid page: More's About is now one button that opens it, with no submenu. Send Feedback, Legal and the Welcome intro are on the page.",
-    "Legal, from About Looscid and the legal command: Terms, Privacy, Community rules, Looscid's license (LPL v1.0: no ads, no commercial use), the open source credits and the MIT notices.",
+    "Legal, from About Looscid and the legal command: Terms, Privacy, Community rules, Looscid's license (Looscid's own license back then; Looscid is GNU AGPL-3.0 now), the open source credits and the MIT notices.",
   ] },
   { version: "2026.113.31", build: 144, released: "2026-10-10T21:10:00Z", title: "Round 6.5.3", codename: "Cherry Soda", notes: [
     "Round 6.5.3: Cherry in Commandbar, and a Commands page.",
@@ -3812,7 +3812,7 @@ function lcAboutInfo() {
       "Braille output sends short labels to a connected braille display through your screen reader.",
     ],
     credits: [
-      "Looscid is open source under the Looscid Public License.",
+      "Looscid is open source under the GNU AGPL-3.0 license.",
       "Commandbar's full-screen view is ported from the Looscid terminal in Looscid OS, which started as the Terminal in NexOS Web.",
       "The composer's layout is inspired by Feditext's composer (GPL-3.0); no code was used.",
       "Every sound is synthesized live with Web Audio. There are no recorded samples.",
@@ -3826,7 +3826,7 @@ function lcAboutInfo() {
    Fields: n name, s short name for link names, u home, site link site name (default GitHub), l license,
    lu license link (none = plain text), w what it is. Planned items are plain text (each repo is linked above). */
 const LC_CREDITS = {
-  intro: ["This page is where I say thanks. Looscid is open source under the ", "Looscid Public License", ". Below is every project Looscid uses and every one I learned from, and each of them keeps its own license. Oh, and every sound you hear is made live with Web Audio. No recorded samples, at all."],
+  intro: ["This page is where I say thanks. Looscid is open source under the ", "GNU AGPL-3.0 license", ". Below is every project Looscid uses and every one I learned from, and each of them keeps its own license. Oh, and every sound you hear is made live with Web Audio. No recorded samples, at all."],
   licenseUrl: "https://looscid.github.io/Looscid/help/dev/license/", // Nov 7 2026: the license's own page in the Help Center docs
   uses: [
     { n: "React and React DOM 18.2.0", s: "React", u: "https://github.com/react/react", l: "MIT", lu: "https://github.com/react/react/blob/main/LICENSE", w: "This draws every single screen of Looscid. Loaded from jsDelivr." },
@@ -3907,9 +3907,9 @@ function CreditsPage({ navigate }) {
         lh('p', { key: "p", className: "lc-roll-what" }, "These projects inspired how parts of Looscid look and work. I didn't copy any of their code, I just learned from them."),
         ul(LC_CREDITS.ideas.map(entry))]),
       sec("credits-uses", "Open-source libraries and licenses", [
-        lh('p', { key: "p", className: "lc-roll-what" }, "Looscid is open source under the ", ext(lic, "Looscid Public License", null, "i"), ". Every project below keeps its own license."),
+        lh('p', { key: "p", className: "lc-roll-what" }, "Looscid is open source under the ", ext(lic, "GNU AGPL-3.0 license", null, "i"), ". Every project below keeps its own license."),
         ul(LC_CREDITS.uses.map(entry)),
-        lh('p', { key: "src", className: "lc-roll-what" }, "Looscid's own source code is all on GitHub: ", ext("https://github.com/Looscid/Looscid", "Looscid on GitHub", null, "g"), ". The full license has its own page: ", ext(lic, "the Looscid Public License", "the Looscid Public License, Looscid's license", "l"), ".")]),
+        lh('p', { key: "src", className: "lc-roll-what" }, "Looscid's own source code is all on GitHub: ", ext("https://github.com/Looscid/Looscid", "Looscid on GitHub", null, "g"), ". The full license has its own page: ", ext(lic, "the GNU AGPL-3.0 license", "the GNU AGPL-3.0 license, Looscid's license", "l"), ".")]),
       sec("credits-sounds", "Voices and sounds", ul([
         plain("wa", "Every earcon", "Made live with Web Audio. No recorded samples, at all."),
         plain("sp", "Soundpacks", "The Looscid OS classic and Insomnia Soundpacks come from my own projects above. The FastSM-inspired pack is inspired by FastSMRW, with every sound made fresh."),

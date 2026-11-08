@@ -34,6 +34,8 @@ While merging, fix verified stale terms: Gabriel to Cherry, Dream Board and Drea
 
 Never merge legal text. If `license.txt` and `LICENSE` differ in substance, keep them separate and let 2three1y decide.
 
+Looscid is open source under the GNU AGPL-3.0 ([LICENSE](../LICENSE)). Anything you contribute is shared under that same license. Code from AGPL, GPL-3.0, MIT, BSD, Apache-2.0 and other compatible licenses can come in, as long as its license and credit come with it.
+
 ---
 
 ## The spirit of this project
