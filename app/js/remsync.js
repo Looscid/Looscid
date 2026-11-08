@@ -1,18 +1,19 @@
-/* Looscid, js/remsync.js: the Looscid server and the backup file (Oct 31 2026, Carter: "where would I find these options?"
-   and "make a file that holds all this information, with the key"). Plain script, loaded after more.js.
+/* Looscid, js/remsync.js: Rem sync and the backup file. Plain script, loaded after more.js.
 
-   1. Settings, LooscidID, Looscid server: sign in to the Looscid server (Rem, https://looscidserver.sites.tab.bot) with the
-      same key as your LooscidID, or join with an invite code. Then a one-time choice, "Put your Dreams on the server?":
-      All my Dreams, Let me pick, or Not now. Nothing uploads without that tap. Your Dreams and replies are signed here
-      with your key and sent to the server's import (original dates kept, never sent twice). After that, new Dreams sync
-      on their own, and signing in on another device brings back everything filed under your LooscidID.
-   2. Settings, LooscidID, Backup file: one .looscid file with your profile, Dreams, replies, chats, likes, follows,
+   Nov 7 2026 (Carter: "Merge Rem with the other protocol"): there is one Looscid protocol now, Rem (docs/protocol.md,
+   Rem v1). This file's Rem page lives inside Settings, LooscidID, Connectionbase, under the heading Rem.
+   1. Put your Dreams on Rem: a one-time choice, All my Dreams, Let me pick, or Not now. Nothing uploads without that tap.
+      Public Dreams and replies (Audience Everyone) are signed here with your key as Rem v1 events, with their original
+      dates, and sent to the Rem v1 server (js/net.js, dbm-api). No sign-in needed. After that, they sync on their own.
+   2. Older Rem home (Rem v0, https://looscidserver.sites.tab.bot, Oct 31 2026): read only now. Sign in there with your key
+      to bring Dreams you put there back to this device (then step 1 can send them to Rem v1). Nothing new is written there.
+   3. Settings, LooscidID, Backup file: one .looscid file with your profile, Dreams, replies, chats, likes, follows,
       settings AND your key, locked with a passcode you choose (PBKDF2 + AES-GCM, js/rem/looscid-backup.js). The same
-      file opens on the Looscid server's website. Restoring brings it all back and locks it to the key in the file.
+      file opens on the older Rem home's website. Restoring brings it all back and locks it to the key in the file.
 
-   Stored on this device (localStorage looscid_server, removed by Delete local data): the server address, your handle
-   there, a sign-in token for that server (never put in a backup file), your choice, and which Dreams are on the server.
-   The crypto files (js/rem/) load only when this is used. No CDN. */
+   Stored on this device (localStorage looscid_server, removed by Delete local data): your choice, when you last synced,
+   and for the older Rem home: its address, your handle there, a sign-in token (never put in a backup file) and which
+   Dreams are there. The crypto files (js/rem/) load only when this is used. No CDN. */
 (function (Looscid) {
 "use strict";
 const lh = React.createElement, useState = React.useState, useEffect = React.useEffect;
@@ -31,7 +32,7 @@ let modsP = null;
 function mods() {
   if (!modsP) modsP = Promise.all([import(REM_BASE + "rem-client.js"), import(REM_BASE + "looscid-backup.js")])
     .then(function (a) { return { RemClient: a[0].RemClient, rem: a[0].rem, backup: a[1] }; })
-    .catch(function (e) { modsP = null; const er = new Error("Couldn't load the Looscid server tools. Check your connection, reload Looscid, and try again."); er.code = "load"; throw er; });
+    .catch(function (e) { modsP = null; const er = new Error("Couldn't load the Rem tools. Check your connection, reload Looscid, and try again."); er.code = "load"; throw er; });
   return modsP;
 }
 function say(t) { try { if (Looscid.announce) Looscid.announce(t); } catch (e) {} }
@@ -54,7 +55,7 @@ async function getSk() {
 async function needSk() {
   const st = keyState();
   if (st.mode === "locked") throw err("locked", "Unlock your key first: type its passcode above.");
-  if (st.mode === "signer") throw err("signer", "Your key is in a signer extension, which can't sign for the Looscid server yet. Add your key to this device in Keys and IDs to use the server.");
+  if (st.mode === "signer") throw err("signer", "Your key is in a signer extension, which can't sign in to the older Rem home. Add your key to this device in Keys and IDs to use it.");
   const sk = await getSk(); if (!sk) throw err("nokey", "This device doesn't have your LooscidID key yet. Make a key or add yours in Keys and IDs, or restore a backup file.");
   return sk;
 }
@@ -138,10 +139,50 @@ async function signOut() {
   saveCfg({ token: null });
 }
 let busyUp = false;
-/* Put Dreams on the server: onlyKeys = the Dreams you picked, or null for every Dream not there yet.
-   Dreams from the last few minutes go out as new (friends see them in their Dreamline); older ones go through the
-   server's import, which keeps their original date and skips anything already there. */
+/* Nov 7 2026 (Carter: "Merge Rem with the other protocol"): Put Dreams on Rem = Rem v1. Each Dream and reply on this
+   device with Audience Everyone is signed now with your key and its original time (js/nostr.js publishToRem) and sent to
+   the Rem v1 server (js/net.js, dbm-api). No sign-in: your key is enough. Followers and Circles Dreams stay on this
+   device (Rem v1 only holds public Dreams). Dreams that already have a signed id (Dreamed to Rem or Nostr before) are
+   left as they are. Edits and deletes of Dreams on Rem already go out from js/nostr.js. onlyKeys = "d:<id>"/"r:<id>"
+   keys you picked, or null for everything. The older Rem v0 upload is uploadV0 below, kept but not used anymore. */
+function isPublic(d) { return !d.aud || d.aud === "everyone" || d.aud === "public"; }
+function remCounts(pk) {
+  const ds = localDreams(pk), rs = localReplies(pk), all = ds.concat(rs);
+  return { dreams: ds.length, replies: rs.length, on: all.filter(function (d) { return isHex64(d.nid); }).length, pub: all.filter(isPublic).length };
+}
 async function upload(onlyKeys, onProgress) {
+  if (busyUp) throw err("busy", "Already sending your Dreams. Try again in a moment.");
+  const N = Looscid.lcNostr; if (!N || !N.publishToRem) throw err("load", "Couldn't load the Rem tools. Reload Looscid and try again.");
+  const st = keyState();
+  if (st.mode === "locked") throw err("locked", "Unlock your key first: type its passcode above.");
+  if (!st.canDream) throw err("nokey", "This device doesn't have your LooscidID key yet. Make a key or add yours in Keys and IDs, or restore a backup file.");
+  busyUp = true;
+  try {
+    const pk = st.pubkey;
+    const res = { sent: 0, already: 0, refused: 0, messages: [], noParent: 0, tooLong: 0, edits: 0, priv: 0, queued: 0 };
+    const items = localDreams(pk).map(function (d) { return { k: "d:" + d.id, d: d }; }).concat(localReplies(pk).map(function (r) { return { k: "r:" + r.id, d: r }; }))
+      .filter(function (it) { return !onlyKeys || onlyKeys.has(it.k); });
+    let i = 0;
+    for (const it of items) {
+      i++;
+      if (!isPublic(it.d)) { res.priv++; continue; }
+      if (isHex64(it.d.nid)) { res.already++; continue; }
+      const fresh = (it.k[0] === "d" ? localDreams(pk) : localReplies(pk)).find(function (x2) { return String(x2.id) === String(it.d.id); }) || it.d;
+      const r = await N.publishToRem(Object.assign({}, fresh, { created: atOf(fresh) }));
+      if (r.already) res.already++;
+      else if (r.wait) res.noParent++;
+      else if (r.ok) res.sent++;
+      else if (r.queued) { res.sent++; res.queued++; }
+      else { res.refused++; const m = r.refused || (r.err === "size" ? "too big (64 KB max)" : ""); if (m && res.messages.indexOf(m) < 0) res.messages.push(m); }
+      if (onProgress && i % 5 === 0) onProgress(i, items.length);
+    }
+    saveCfg({ lastSync: Date.now() });
+    return res;
+  } finally { busyUp = false; }
+}
+/* Rem v0: put Dreams on the older Rem home (needs a sign-in there). Not used since Rem v1 (Nov 7 2026); kept so nothing
+   breaks while the v0 home still runs. See "Migration" in docs and PR #25. */
+async function uploadV0(onlyKeys, onProgress) {
   if (busyUp) throw err("busy", "Already sending your Dreams. Try again in a moment.");
   busyUp = true;
   try {
@@ -243,16 +284,20 @@ window.addEventListener("looscid-dream-deleted", function (e) {
   if (c.map && c.map[k]) { const del = (c.del || []).filter(function (x2) { return x2 !== k; }); del.push(k); saveCfg({ del: del }); setTimeout(tick, 1500); }
 });
 let tickT = null;
-function syncOn() { const c = cfg(), st = keyState(); return !!(c.token && c.pubkey && st.mode === "key" && st.pubkey === c.pubkey && (c.optin === "all" || c.optin === "pick")); }
+// Rem v1 sync needs only your key and your choice (All my Dreams or Let me pick). Reading back from the older Rem v0 home
+// happens only while you're signed in there.
+function syncOn() { const c = cfg(), st = keyState(); return !!(st.canDream && st.mode !== "locked" && (c.optin === "all" || c.optin === "pick")); }
+function v0On() { const c = cfg(), st = keyState(); return !!(c.token && c.pubkey && st.mode === "key" && st.pubkey === c.pubkey); }
 async function tick() {
   clearTimeout(tickT); tickT = setTimeout(tick, 45000);
-  if (!syncOn() || !navigator.onLine) return;
+  if (!navigator.onLine) return;
   const c = cfg();
   try {
+    if (!syncOn()) { if (v0On() && (!c.lastPull || Date.now() - c.lastPull > 5 * 60000)) await pull(); return; }
     if (c.optin === "all") await upload(null);
-    else { const pk = c.pubkey, after = c.optinAt || 0, keys = new Set(); localDreams(pk).forEach(function (d) { if (atOf(d) > after) keys.add("d:" + d.id); }); localReplies(pk).forEach(function (r) { if (atOf(r) > after) keys.add("r:" + r.id); }); if (keys.size || (c.del || []).length) await upload(keys); }
-    if (!c.lastPull || Date.now() - c.lastPull > 5 * 60000) await pull();
-  } catch (e) { /* quiet: the Looscid server page shows the state, and the next tick tries again */ if (e && e.code === "busy") { clearTimeout(tickT); tickT = setTimeout(tick, 3000); } }
+    else { const pk = keyState().pubkey, after = c.optinAt || 0, keys = new Set(); localDreams(pk).forEach(function (d) { if (atOf(d) > after) keys.add("d:" + d.id); }); localReplies(pk).forEach(function (r) { if (atOf(r) > after) keys.add("r:" + r.id); }); if (keys.size || (c.del || []).length) await upload(keys); }
+    if (v0On() && (!c.lastPull || Date.now() - c.lastPull > 5 * 60000)) await pull();
+  } catch (e) { /* quiet: the Rem page shows the state, and the next tick tries again */ if (e && e.code === "busy") { clearTimeout(tickT); tickT = setTimeout(tick, 3000); } }
 }
 window.addEventListener("online", function () { setTimeout(tick, 2000); });
 window.addEventListener("looscid-nostr", function () { setTimeout(tick, 3000); });
@@ -389,35 +434,87 @@ function LcServerPanel({ go }) {
   const done = function (t, focusId) { setEr(""); setMsg(t); say(t); focusSoon(focusId || "srv-msg"); };
   const fail = function (e) { const t = (e && e.message) || String(e); setMsg(""); setEr(t); say(t); focusSoon("srv-msg-err"); };
   const run = async function (fn) { setBusy(true); setEr(""); setMsg(""); try { await fn(); } catch (e) { fail(e); } finally { setBusy(false); } };
-  const gotText = function (g) { const n = (g && g.added || 0) + (g && g.replies || 0); return n ? " Got " + plural(n, "Dream") + " back from the server." : ""; };
+  const gotText = function (g) { const n = (g && g.added || 0) + (g && g.replies || 0); return n ? " Got " + plural(n, "Dream") + " back from the older Rem home." : ""; };
   const upText = function (r) {
-    const bits = [r.sent || !r.already ? plural(r.sent, "Dream") + " put on the server" : "Your Dreams were already on the server"];
+    const bits = [r.sent || !r.already ? plural(r.sent, "Dream") + " put on Rem" : "Your Dreams were already on Rem"];
     if (r.already && r.sent) bits.push(r.already + " already there");
-    if (!r.sent && !r.already && !r.noParent && !r.tooLong && !r.refused) return "All your Dreams are already on the server.";
-    if (r.noParent) bits.push(plural(r.noParent, "reply", "replies") + " stay on this device because they answer Dreams that aren't on the server");
-    if (r.tooLong) bits.push(r.tooLong + " too long for the server (1000 characters) stay on this device");
-    if (r.refused) bits.push(r.refused + " the server didn't take" + (r.messages[0] ? " (" + r.messages[0] + ")" : ""));
+    if (!r.sent && !r.already && !r.noParent && !r.tooLong && !r.refused) return "All your public Dreams are already on Rem.";
+    if (r.noParent) bits.push(plural(r.noParent, "reply", "replies") + " wait on this device until the Dreams they answer are on Rem");
+    if (r.tooLong) bits.push(r.tooLong + " too long stay on this device");
+    if (r.refused) bits.push(r.refused + " Rem didn't take" + (r.messages[0] ? " (" + r.messages[0] + ")" : ""));
+    if (r.priv) bits.push(plural(r.priv, "Followers or Circles Dream") + " stay on this device");
+    if (r.queued) bits.push(r.queued + " wait on this device and go when Rem is reachable");
     return bits.join(", ") + ".";
   };
   const progress = function (n, of) { setMsg("Uploading " + n + " of " + of + "…"); };
-  const intro = lh('p', { className: "lid-help" }, "Put your Dreams on the Looscid server, so they follow you to any device and friends can find you. You sign in with the same key as your LooscidID, and every Dream is signed with it, so nobody can fake yours. Nothing uploads until you choose.");
+  const intro = lh('p', { className: "lid-help" }, "Put your Dreams on Rem so they follow you to any device and friends can find you. Every Dream is signed with your LooscidID key, so nobody can fake yours. Nothing older uploads until you choose.");
   let body;
+  const pk = st.pubkey;
   if (st.mode === "none" || st.mode === "view") body = lh(React.Fragment, null,
     lh('p', { className: "lid-help" }, "This device doesn't have your LooscidID key yet. Make a key or add yours in Keys and IDs, or bring everything back from a backup file."),
     go && lh(Btn, { onClick: function () { go("keys"); } }, "Open Keys and IDs"),
     go && lh(Btn, { onClick: function () { go("backup"); } }, "Open Backup file"));
-  else if (st.mode === "signer") body = lh('p', { className: "lid-help" }, "Your key is in a signer extension, which can't sign for the Looscid server yet. To use the server, add your key to this device in Keys and IDs.");
-  else if (st.mode === "locked") body = lh(UnlockKey, { id: "srv", why: "Your key is locked with a passcode. Unlock it to sign in to the Looscid server." });
-  else if (!connected) body = lh(React.Fragment, null,
-    lh('p', { className: "lid-help", id: "srv-where" }, "Not signed in. Server: " + hostOf(home) + "."),
+  else if (st.mode === "locked") body = lh(UnlockKey, { id: "srv", why: "Your key is locked with a passcode. Unlock it to put your Dreams on Rem." });
+  else {
+    let remPart;
+    if (pick) {
+      const rows = localDreams(pk).map(function (d) { return { k: "d:" + d.id, t: d.text, at: atOf(d), reply: false, d: d }; })
+        .concat(localReplies(pk).map(function (r) { return { k: "r:" + r.id, t: r.text, at: atOf(r), reply: true, d: r }; }))
+        .filter(function (x2) { return !isHex64(x2.d.nid) && isPublic(x2.d); }).sort(function (a, b) { return b.at - a.at; });
+      const when = function (t) { try { return new Date(t).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }); } catch (e) { return ""; } };
+      remPart = lh('fieldset', { className: "lid-panel", style: { border: 0, padding: 0, margin: 0 } },
+        lh('legend', { className: "lid-label", id: "srv-pick-h", tabIndex: -1 }, "Choose Dreams to put on Rem"),
+        rows.length ? null : lh('p', { className: "lid-help" }, "Every public Dream on this device is already on Rem."),
+        lh(Btn, { onClick: function () { const all = rows.length && rows.every(function (r) { return pick.has(r.k); }); setPick(new Set(all ? [] : rows.map(function (r) { return r.k; }))); say(all ? "None selected" : "All " + rows.length + " selected"); } }, rows.length && rows.every(function (r) { return pick.has(r.k); }) ? "Select none" : "Select all"),
+        lh('ul', { className: "lid-links", style: { listStyle: "none", paddingLeft: 0 } }, rows.map(function (r) {
+          const t = r.t.replace(/\s+/g, " ").trim(), short = t.length > 90 ? t.slice(0, 90) + "…" : t;
+          return lh('li', { key: r.k }, lh('label', { className: "lc-radio" + (pick.has(r.k) ? " on" : "") },
+            lh('input', { type: "checkbox", checked: pick.has(r.k), onChange: function () { const n = new Set(pick); if (n.has(r.k)) n.delete(r.k); else n.add(r.k); setPick(n); } }),
+            lh('span', null, (r.reply ? "Reply: " : "") + short + ", " + when(r.at))));
+        })),
+        lh(Btn, { disabled: busy || !pick.size, onClick: function () { run(async function () {
+          const r = await upload(pick, progress);
+          saveCfg({ optin: cfg().optin === "all" ? "all" : "pick", optinAt: cfg().optinAt || Date.now() }); setPick(null);
+          done(upText(r) + " New Dreams you make go to Rem too.", "srv-msg");
+        }); } }, "Put " + plural(pick.size, "chosen Dream") + " on Rem"),
+        lh(Btn, { onClick: function () { setPick(null); focusSoon("srv-status"); } }, "Cancel"));
+    } else {
+      const n = remCounts(pk);
+      const statusText = c.optin === "all" ? "Syncing is on: all your public Dreams, and new ones as you make them."
+        : c.optin === "pick" ? "Syncing is on for the Dreams you picked, and new ones as you make them."
+        : c.optin === "none" ? "Your older Dreams stay on this device. New public Dreams still go to Rem." : null;
+      remPart = lh(React.Fragment, null,
+        lh('p', { className: "lid-help", id: "srv-status", tabIndex: -1 }, n.on ? plural(n.on, "Dream") + " of " + (n.dreams + n.replies) + " on this device " + (n.on === 1 ? "is" : "are") + " on Rem." : "None of the Dreams on this device are on Rem yet."),
+        c.optin == null ? lh('section', { "aria-labelledby": "srv-optin-h" },
+          lh('h3', { className: "lid-label", id: "srv-optin-h", tabIndex: -1 }, "Put your Dreams on Rem?"),
+          lh('p', { className: "lid-help" }, "You have " + plural(n.dreams, "Dream") + " and " + plural(n.replies, "reply", "replies") + " on this device, and " + n.pub + " of them " + (n.pub === 1 ? "is" : "are") + " public (Audience Everyone). Public ones can go on Rem, signed with your key, with their original dates. Followers and Circles Dreams stay on this device. Nothing uploads unless you choose."),
+          lh(Btn, { disabled: busy, onClick: function () { run(async function () { saveCfg({ optin: "all", optinAt: Date.now() }); const r = await upload(null, progress); done(upText(r) + " New Dreams you make go to Rem too.", "srv-msg"); }); } }, "All my Dreams"),
+          lh(Btn, { disabled: busy, onClick: function () { setPick(new Set()); focusSoon("srv-pick-h"); } }, "Let me pick"),
+          lh(Btn, { disabled: busy, onClick: function () { saveCfg({ optin: "none" }); done("OK. Your older Dreams stay on this device. You can change this here any time.", "srv-status"); } }, "Not now"))
+        : lh('p', { className: "lid-help" }, statusText),
+        (c.optin === "all" || c.optin === "pick") && lh(Btn, { disabled: busy, onClick: function () { run(async function () {
+          let r = null; if (c.optin === "all") r = await upload(null, progress); else { const keys = new Set(); localDreams(pk).forEach(function (d) { if (atOf(d) > (c.optinAt || 0)) keys.add("d:" + d.id); }); localReplies(pk).forEach(function (x2) { if (atOf(x2) > (c.optinAt || 0)) keys.add("r:" + x2.id); }); r = await upload(keys, progress); }
+          done("Synced." + (r && r.sent ? " " + plural(r.sent, "Dream") + " sent to Rem." : " Nothing new to send."), "srv-msg");
+        }); } }, "Sync now"),
+        c.optin === "none" && lh(Btn, { disabled: busy, onClick: function () { saveCfg({ optin: null }); focusSoon("srv-optin-h"); } }, "Put my Dreams on Rem"),
+        (c.optin === "all" || c.optin === "pick") && lh(Btn, { disabled: busy, onClick: function () { setPick(new Set()); focusSoon("srv-pick-h"); } }, "Choose more Dreams"),
+        (c.optin === "all" || c.optin === "pick") && lh(Btn, { disabled: busy, onClick: function () { saveCfg({ optin: "none" }); done("Syncing is off. Dreams already on Rem stay there.", "srv-status"); } }, "Stop syncing"));
+    }
+    // Rem v0: the older Rem home. Read only now: sign in there to bring your older Dreams back to this device.
+    const v0Part = lh('section', { "aria-labelledby": "srv-v0-h" },
+      lh('h3', { className: "lid-label", id: "srv-v0-h" }, "Older Rem home"),
+      lh('p', { className: "lid-help" }, "Before Nov 7 2026, Rem had an older home (" + hostOf(DEFAULT_HOME) + "). Dreams you put there are still there. Sign in to bring them back to this device. After that, Put my Dreams on Rem can send them to Rem."),
+      st.mode === "signer" ? lh('p', { className: "lid-help" }, "Your key is in a signer extension, which can't sign in to the older Rem home. Add your key to this device in Keys and IDs to use it.")
+      : !connected ? lh(React.Fragment, null,
+    lh('p', { className: "lid-help", id: "srv-where" }, "Not signed in. Older Rem home: " + hostOf(home) + "."),
     lh(Btn, { id: "srv-signin", disabled: busy, onClick: function () { run(async function () {
       try { const r = await signIn(home); setJoinOpen(false); done("Signed in as @" + r.handle + "." + gotText(r.got), "srv-msg"); }
-      catch (e) { if (e.code === "not_member") { setJoinOpen(true); setEr(""); setMsg("Your key isn't on this server yet. Join with an invite code below."); say("Your key isn't on this server yet. Join with an invite code."); focusSoon("srv-join-h"); } else throw e; }
-    }); } }, "Sign in to the Looscid server"),
+      catch (e) { if (e.code === "not_member") { setJoinOpen(true); setEr(""); setMsg("Your key isn't on the older Rem home yet. Join with an invite code below."); say("Your key isn't on the older Rem home yet. Join with an invite code."); focusSoon("srv-join-h"); } else throw e; }
+    }); } }, "Sign in to the older Rem home"),
     !joinOpen && lh(Btn, { disabled: busy, onClick: function () { setJoinOpen(true); focusSoon("srv-join-h"); } }, "Join with an invite code"),
     joinOpen && lh('section', { "aria-labelledby": "srv-join-h" },
-      lh('h2', { className: "lid-label", id: "srv-join-h", tabIndex: -1 }, "Join with an invite code"),
-      lh('p', { className: "lid-help" }, "The server is invite-only and for people 13 and older. It never asks for your email, phone number or location. Your key stays on this device."),
+      lh('h4', { className: "lid-label", id: "srv-join-h", tabIndex: -1 }, "Join with an invite code"),
+      lh('p', { className: "lid-help" }, "The older Rem home is invite-only and for people 13 and older. It never asks for your email, phone number or location. Your key stays on this device."),
       lh('label', { htmlFor: "srv-inv", className: "lid-label" }, "Invite code"),
       lh('input', { id: "srv-inv", className: "inp", type: "text", autoComplete: "off", autoCapitalize: "characters", spellCheck: false, value: inv, onChange: function (e) { setInv(e.target.value); } }),
       lh('label', { htmlFor: "srv-handle", className: "lid-label" }, "Handle"),
@@ -429,55 +526,16 @@ function LcServerPanel({ go }) {
       lh(Btn, { disabled: busy, onClick: function () {
         if (!age) { fail(new Error("Check the box to confirm you're 13 or older.")); return; }
         run(async function () { const r = await join(inv, handle, name); setJoinOpen(false); done("Joined as @" + r.handle + "." + gotText(r.got), "srv-msg"); });
-      } }, "Join the Looscid server")),
-    lh(Btn, { "aria-expanded": homeOpen ? "true" : "false", "aria-controls": "srv-home-box", onClick: function () { setHomeOpen(!homeOpen); } }, "Change server address"),
+      } }, "Join the older Rem home")),
+    lh(Btn, { "aria-expanded": homeOpen ? "true" : "false", "aria-controls": "srv-home-box", onClick: function () { setHomeOpen(!homeOpen); } }, "Change older Rem home address"),
     homeOpen && lh('div', { id: "srv-home-box" },
-      lh('label', { htmlFor: "srv-home", className: "lid-label" }, "Server address"),
-      lh('input', { id: "srv-home", className: "inp", type: "url", autoComplete: "url", autoCapitalize: "none", spellCheck: false, value: home, onChange: function (e) { setHome(e.target.value); } })));
-  else if (pick) {
-    const pk = c.pubkey, map = c.map || {};
-    const rows = localDreams(pk).map(function (d) { return { k: "d:" + d.id, t: d.text, at: atOf(d), reply: false }; })
-      .concat(localReplies(pk).map(function (r) { return { k: "r:" + r.id, t: r.text, at: atOf(r), reply: true }; }))
-      .filter(function (x2) { return !map[x2.k]; }).sort(function (a, b) { return b.at - a.at; });
-    const when = function (t) { try { return new Date(t).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }); } catch (e) { return ""; } };
-    body = lh('fieldset', { className: "lid-panel", style: { border: 0, padding: 0, margin: 0 } },
-      lh('legend', { className: "lid-label", id: "srv-pick-h", tabIndex: -1 }, "Choose Dreams to put on the server"),
-      rows.length ? null : lh('p', { className: "lid-help" }, "Every Dream on this device is already on the server."),
-      lh(Btn, { onClick: function () { const all = rows.length && rows.every(function (r) { return pick.has(r.k); }); setPick(new Set(all ? [] : rows.map(function (r) { return r.k; }))); say(all ? "None selected" : "All " + rows.length + " selected"); } }, rows.length && rows.every(function (r) { return pick.has(r.k); }) ? "Select none" : "Select all"),
-      lh('ul', { className: "lid-links", style: { listStyle: "none", paddingLeft: 0 } }, rows.map(function (r) {
-        const t = r.t.replace(/\s+/g, " ").trim(), short = t.length > 90 ? t.slice(0, 90) + "…" : t;
-        return lh('li', { key: r.k }, lh('label', { className: "lc-radio" + (pick.has(r.k) ? " on" : "") },
-          lh('input', { type: "checkbox", checked: pick.has(r.k), onChange: function () { const n = new Set(pick); if (n.has(r.k)) n.delete(r.k); else n.add(r.k); setPick(n); } }),
-          lh('span', null, (r.reply ? "Reply: " : "") + short + ", " + when(r.at))));
-      })),
-      lh(Btn, { disabled: busy || !pick.size, onClick: function () { run(async function () {
-        const r = await upload(pick, progress);
-        saveCfg({ optin: cfg().optin === "all" ? "all" : "pick", optinAt: cfg().optinAt || Date.now() }); setPick(null);
-        done(upText(r) + " New Dreams you post will sync too.", "srv-msg");
-      }); } }, "Put " + plural(pick.size, "chosen Dream") + " on the server"),
-      lh(Btn, { onClick: function () { setPick(null); focusSoon("srv-status"); } }, "Cancel"));
-  } else {
-    const n = counts(c.pubkey);
-    const statusText = c.optin === "all" ? "Syncing is on: all your Dreams, and new ones as you post them."
-      : c.optin === "pick" ? "Syncing is on for the Dreams you picked, and new ones as you post them."
-      : c.optin === "none" ? "Your Dreams stay on this device. Nothing uploads." : null;
-    body = lh(React.Fragment, null,
-      lh('p', { className: "lid-help", id: "srv-status", tabIndex: -1 }, "Signed in as @" + c.handle + " on " + hostOf(c.home || DEFAULT_HOME) + ". " + (n.on ? plural(n.on, "Dream") + " of " + (n.dreams + n.replies) + " on this device " + (n.on === 1 ? "is" : "are") + " on the server." : "")),
-      c.optin == null ? lh('section', { "aria-labelledby": "srv-optin-h" },
-        lh('h2', { className: "lid-label", id: "srv-optin-h", tabIndex: -1 }, "Put your Dreams on the server?"),
-        lh('p', { className: "lid-help" }, "You have " + plural(n.dreams, "Dream") + " and " + plural(n.replies, "reply", "replies") + " on this device" + (n.on ? ", and " + (n.on === n.dreams + n.replies ? "all of them are" : n.on + " are") + " already on the server" : "") + ". They're signed with your key and keep their original dates. Nothing uploads unless you choose, and new Dreams you post sync only after you choose All my Dreams or Let me pick."),
-        lh(Btn, { disabled: busy, onClick: function () { run(async function () { saveCfg({ optin: "all", optinAt: Date.now() }); const r = await upload(null, progress); done(upText(r) + " New Dreams you post will sync too.", "srv-msg"); }); } }, "All my Dreams"),
-        lh(Btn, { disabled: busy, onClick: function () { setPick(new Set()); focusSoon("srv-pick-h"); } }, "Let me pick"),
-        lh(Btn, { disabled: busy, onClick: function () { saveCfg({ optin: "none" }); done("OK. Your Dreams stay on this device. You can change this here any time.", "srv-status"); } }, "Not now"))
-      : lh('p', { className: "lid-help" }, statusText),
-      c.optin != null && lh(Btn, { disabled: busy, onClick: function () { run(async function () {
-        let r = null; if (c.optin === "all") r = await upload(null, progress); else if (c.optin === "pick") { const keys = new Set(); localDreams(c.pubkey).forEach(function (d) { if (atOf(d) > (c.optinAt || 0)) keys.add("d:" + d.id); }); localReplies(c.pubkey).forEach(function (x2) { if (atOf(x2) > (c.optinAt || 0)) keys.add("r:" + x2.id); }); r = await upload(keys, progress); }
-        const g = await pull(); done("Synced." + (r && (r.sent || r.edits) ? " " + plural(r.sent, "Dream") + " sent." : "") + gotText(g), "srv-msg");
-      }); } }, "Sync now"),
-      c.optin === "none" && lh(Btn, { disabled: busy, onClick: function () { saveCfg({ optin: null }); focusSoon("srv-optin-h"); } }, "Put my Dreams on the server"),
-      (c.optin === "all" || c.optin === "pick") && lh(Btn, { disabled: busy, onClick: function () { setPick(new Set()); focusSoon("srv-pick-h"); } }, "Choose more Dreams"),
-      (c.optin === "all" || c.optin === "pick") && lh(Btn, { disabled: busy, onClick: function () { saveCfg({ optin: "none" }); done("Syncing is off. Dreams already on the server stay there; new ones stay on this device.", "srv-status"); } }, "Stop syncing"),
-      lh(Btn, { disabled: busy, onClick: function () { run(async function () { await signOut(); done("Signed out of the Looscid server on this device. Your Dreams stay here.", "srv-signin"); }); } }, "Sign out of the server"));
+      lh('label', { htmlFor: "srv-home", className: "lid-label" }, "Older Rem home address"),
+      lh('input', { id: "srv-home", className: "inp", type: "url", autoComplete: "url", autoCapitalize: "none", spellCheck: false, value: home, onChange: function (e) { setHome(e.target.value); } })))
+      : lh(React.Fragment, null,
+        lh('p', { className: "lid-help" }, "Signed in to the older Rem home as @" + c.handle + " on " + hostOf(c.home || DEFAULT_HOME) + "."),
+        lh(Btn, { disabled: busy, onClick: function () { run(async function () { const g = await pull(); done(gotText(g).trim() || "No older Dreams to bring back.", "srv-msg"); }); } }, "Bring back my older Dreams"),
+        lh(Btn, { disabled: busy, onClick: function () { run(async function () { await signOut(); done("Signed out of the older Rem home on this device. Your Dreams stay here.", "srv-signin"); }); } }, "Sign out of the older Rem home")));
+    body = lh(React.Fragment, null, remPart, v0Part);
   }
   return lh('div', { className: "lid-panel" }, intro, body, lh(Note, { msg: msg, err: er, id: "srv-msg" }));
 }
@@ -497,7 +555,7 @@ function LcBackupPanel({ go }) {
   };
   const noKeyHere = st.mode === "none" || st.mode === "view" || st.mode === "signer";
   return lh('div', { className: "lid-panel" },
-    lh('p', { className: "lid-help" }, "One file with everything: your profile, Dreams, replies, chats, likes, follows, settings, and your LooscidID key. It opens in Looscid or on the Looscid server's website, on any device."),
+    lh('p', { className: "lid-help" }, "One file with everything: your profile, Dreams, replies, chats, likes, follows, settings, and your LooscidID key. It opens in Looscid or on the older Rem home's website, on any device."),
     lh('p', { className: "lid-warn", id: "bk-warn" }, "This file contains your key. Anyone who has the file and its passcode can Dream as you, so keep it private. It's locked with a passcode you choose, and nobody can recover a forgotten passcode."),
     lh('h2', { className: "lid-label", id: "bk-save-h" }, "Save backup file"),
     st.mode === "locked" && withKey ? lh(UnlockKey, { id: "bk", why: "Your key is locked with a passcode. Unlock it so it can go in the file." }) : null,
@@ -518,7 +576,7 @@ function LcBackupPanel({ go }) {
       catch (e) { fail(e); } finally { setBusy(false); }
     } }, "Save backup file"),
     lh('h2', { className: "lid-label", id: "bk-restore-h" }, "Restore from backup file"),
-    lh('p', { className: "lid-help", id: "bk-file-d" }, "Bring everything back from a .looscid file, made here or on the Looscid server's website. Your key from the file is saved on this device, locked with the file's passcode."),
+    lh('p', { className: "lid-help", id: "bk-file-d" }, "Bring everything back from a .looscid file, made here or on the older Rem home's website. Your key from the file is saved on this device, locked with the file's passcode."),
     lh('label', { htmlFor: "bk-file", className: "lid-label" }, "Backup file"),
     lh('input', { id: "bk-file", ref: fileRef, className: "inp", type: "file", onChange: function (e) { setFileName(e.target.files && e.target.files[0] ? e.target.files[0].name : ""); } }),
     lh('label', { htmlFor: "bk-rpass", className: "lid-label" }, "Passcode for the file"),
@@ -551,19 +609,20 @@ function agoText(t) {
   return "on " + new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 function modeNow() {
-  const c = cfg(), on = !!(c.token && c.handle);
-  return { on: on, sync: on && (c.optin === "all" || c.optin === "pick"), handle: c.handle || "", host: hostOf(c.home || DEFAULT_HOME), last: Math.max(+c.lastSync || 0, +c.lastPull || 0) };
+  // Nov 7 2026 (Rem v1): "Rem" mode = your Dreams sync to Rem (you chose All my Dreams or Let me pick). Signing in to the
+  // older Rem v0 home is no longer needed for that; it's only for bringing older Dreams back (v0).
+  const c = cfg(), sync = syncOn();
+  return { on: sync, sync: sync, v0: !!(c.token && c.handle), handle: c.handle || "", host: "Rem", last: Math.max(+c.lastSync || 0, +c.lastPull || 0) };
 }
 function modeText(m) {
   m = m || modeNow();
-  if (m.sync) return "Mode: Looscid server. Synced to " + m.host + " as @" + m.handle + ". " + (m.last ? "Last synced " + agoText(m.last) + "." : "Not synced yet.");
-  if (m.on) return "Mode: Local only. Your Dreams live on this device. You're signed in to " + m.host + " as @" + m.handle + ", but syncing is off.";
-  return "Mode: Local only. Your Dreams live on this device.";
+  if (m.sync) return "Mode: Rem. Your public Dreams sync to Rem. " + (m.last ? "Last synced " + agoText(m.last) + "." : "Not synced yet.");
+  return "Mode: Local. Your Dreams live on this device, and new public Dreams also go to Rem.";
 }
 let lastModeKey = modeNow().sync ? "server" : "local", modeSayT = null;
 window.addEventListener("looscid-server", function () {
   const k = modeNow().sync ? "server" : "local"; if (k === lastModeKey) return; lastModeKey = k;
-  clearTimeout(modeSayT); modeSayT = setTimeout(function () { say(k === "server" ? "Mode is now Looscid server." : "Mode is now Local only."); }, 1800);
+  clearTimeout(modeSayT); modeSayT = setTimeout(function () { say(k === "server" ? "Mode is now Rem." : "Mode is now Local."); }, 1800);
 });
 function LcModeLine(props) {
   const [, tick] = useState(0);
@@ -596,8 +655,8 @@ function LcServerAsk(props) {
   const pick = function (v) {
     try { localStorage.setItem(ASK_KEY, v); } catch (e) {}
     setShow(false);
-    if (v === "server") { if (props.navigate) props.navigate("settings_account", { tab: "server" }); }
-    else say("Staying in Local mode. The Looscid server is in Settings, LooscidID, whenever you want it.");
+    if (v === "server") { if (props.navigate) props.navigate("settings_account", { tab: "connectionbase" }); }
+    else say("Staying in Local mode. Rem is in Settings, LooscidID, Connectionbase, whenever you want it.");
   };
   const onKey = function (e) {
     if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); pick("local"); return; }
@@ -607,10 +666,10 @@ function LcServerAsk(props) {
     lh('div', { className: "lc-q", role: "dialog", "aria-modal": "true", "aria-labelledby": "lc-srv-ask-t", ref: boxRef, onKeyDown: onKey },
       lh('h2', { id: "lc-srv-ask-t", tabIndex: -1, ref: hRef, className: "lc-q-h lc-q-t" }, "You're using Looscid in Local mode"),
       lh('div', { className: "lc-q-intro" },
-        lh('p', null, "Want to switch to the Looscid server? It keeps your Dreams synced on all your devices with your LooscidID."),
-        lh('p', null, "Nothing goes on the server until you sign in and choose which Dreams to put there. You can switch any time in Settings, LooscidID, Looscid server.")),
+        lh('p', null, "Want to put your Dreams on Rem? It keeps your public Dreams synced on all your devices with your LooscidID."),
+        lh('p', null, "Your older Dreams go on Rem only after you choose which ones. You can change this any time in Settings, LooscidID, Connectionbase.")),
       lh('div', { className: "lc-q-btns" },
-        lh('button', { type: "button", className: "btn bp lc-big", onClick: function () { pick("server"); } }, "Switch to server"),
+        lh('button', { type: "button", className: "btn bp lc-big", onClick: function () { pick("server"); } }, "Put my Dreams on Rem"),
         lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { pick("local"); } }, "Stay local"))));
 }
 // The overlay makes everything behind the question unreachable while it's open (same as the first-run question).
@@ -619,7 +678,7 @@ function AskOverlay(props) {
   if (Looscid.useInertBehind) Looscid.useInertBehind(ref);
   return lh('div', { className: "lc-q-ov", ref: ref }, props.children);
 }
-Looscid.lcServer = { cfg: cfg, signIn: signIn, join: join, signOut: signOut, upload: upload, pull: pull, tick: tick, makeBackup: makeBackup, openBackup: openBackup, restoreBackup: restoreBackup, mode: modeNow, DEFAULT_HOME: DEFAULT_HOME };
+Looscid.lcServer = { cfg: cfg, uploadV0: uploadV0, remCounts: remCounts, signIn: signIn, join: join, signOut: signOut, upload: upload, pull: pull, tick: tick, makeBackup: makeBackup, openBackup: openBackup, restoreBackup: restoreBackup, mode: modeNow, DEFAULT_HOME: DEFAULT_HOME };
 Looscid.LcServerPanel = LcServerPanel;
 Looscid.LcModeLine = LcModeLine;
 Looscid.LcServerAsk = LcServerAsk;

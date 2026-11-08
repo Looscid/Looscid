@@ -76,6 +76,7 @@
 <!-- Load order: React, then core, then nostr (small; its crypto loads only when used), then one file per tab, then Cherry, then the Commands page, then Projects, then the Help Center, then the mount below (see docs/dev/FILES.md) -->
 <script src="js/core.js?v=7.53-nd11"></script>
 <script src="js/nostr.js"></script>
+<script src="js/net.js"></script>
 <script src="js/discover.js?v=7.53-nd8"></script>
 <script src="js/circles.js?v=7.53-nd8"></script>
 <script src="js/feed.js"></script>
@@ -88,7 +89,7 @@
 <script src="js/helpdata.js"></script>
 <script src="js/helpcenter.js"></script>
 <script src="js/liked.js"></script>
-<!-- The Looscid server and the backup file (Settings, LooscidID); its crypto in js/rem/ loads only when used -->
+<!-- Rem sync (Connectionbase) and the backup file (Settings, LooscidID); its crypto in js/rem/ loads only when used -->
 <script src="js/remsync.js?v=7.53-nd1"></script>
 <script src="js/mount.js"></script>
 </body>

@@ -715,7 +715,9 @@ function DreamEdit({ dream, onClose, headRef }) {
     lcEditSave(dream, t);
     const N = Looscid.lcNostr, nid = dream.nid;
     if (nid && N && N.publishEdit) { setBusy(true); N.publishEdit(nid, t).then(function (r) {
-        announce(r && r.ok ? "Saved. It shows as Edited, and the edit went to " + r.ok + " of " + r.total + " relays." : "Saved here. It shows as Edited. " + (r && r.err === "locked" ? "Enter your passcode to send the edit to Nostr." : r && r.err === "nokey" ? "Add a Nostr key to send edits to Nostr." : "Couldn't send the edit to Nostr.")); onClose(); }); return; }
+        // Nov 7 2026: the edit goes to the Looscid server, and to Nostr relays only with the Nostr bridge on (js/net.js).
+        if (r && r.server && r.total === 1) { announce("Saved. It shows as Edited, and the edit went to Looscid."); onClose(); return; }
+        announce(r && r.ok ? "Saved. It shows as Edited, and the edit went to " + (r.server ? "Looscid and " : "") + r.ok + " of " + r.total + " relays." : "Saved here. It shows as Edited. " + (r && r.err === "locked" ? "Enter your passcode to send the edit to Nostr." : r && r.err === "nokey" ? "Add a Nostr key to send edits to Nostr." : "Couldn't send the edit to Nostr.")); onClose(); }); return; }
     announce("Saved. It shows as Edited."); onClose();
   };
   return lh('section', { className: "lc-extra", "aria-labelledby": "edit-h-" + dream.id },
@@ -789,7 +791,7 @@ function lcShareText(text, what) {
 /* Build 152 prep (#99): Copy link, Open original, Dream info, Liked by and Redreamed by. A Dream's public address is its
    Nostr note on njump.me (a public Nostr web viewer), or its own address when it came from Mastodon or another network
    with one. A Dream that is only on this device has no address yet. */
-function lcDreamNet(d) { if (!d) return "looscid"; if (d.net === "activitypub" || d.net === "mastodon") return "mastodon"; if (d.net === "nostr" || (d.user && d.user.net === "nostr")) return "nostr"; return d.nid ? "looscid+nostr" : "looscid"; }
+function lcDreamNet(d) { if (!d) return "looscid"; if (d.fromServer) return "looscid"; /* Nov 7 2026: from the Looscid server */ if (d.net === "activitypub" || d.net === "mastodon") return "mastodon"; if (d.net === "nostr" || (d.user && d.user.net === "nostr")) return "nostr"; return d.nid ? "looscid+nostr" : "looscid"; }
 function lcDreamUrl(d) {
   if (d && typeof d.url === "string" && /^https:\/\//i.test(d.url)) return d.url;
   const nid = d && d.nid; if (!nid || !/^[0-9a-f]{64}$/i.test(nid)) return "";
@@ -979,6 +981,30 @@ function lcEditSave(d, text) {
 function lcWithEdit(d) { const t = lcTombstoneOf(d); if (t) return t; const e = lcEditOf(d); return e ? Object.assign({}, d, { text: e.text, edits: e.history, editedAt: e.at }) : d; }
 function lcIsMine(d) { return !!d && !!d.user && (d.user === ME || (!!d.user.handle && lcHandle(d.user.handle) === lcHandle(ME.handle || ""))); }
 Object.assign(Looscid, { LC_EDITS_KEY, lcEdits, lcEditOf, lcEditSave, lcWithEdit });
+/* Nov 7 2026: Report Dream. Plain buttons, one per reason, and Cancel. The report is signed with your LooscidID key and
+   goes to the Looscid server (js/net.js). When 3 different people report a Dream, the server hides it from the feed. */
+function DreamReportDialog({ id, dream, authorPk, onDone }) {
+  const headingRef = useRef(null), [busy, setBusy] = useState(false), [msg, setMsg] = useState("");
+  // Focus the heading once the More menu has finished closing (it hands focus back to its button first).
+  useEffect(function () { const f = function () { if (headingRef.current) headingRef.current.focus(); }; f(); const t = setTimeout(f, 120); return function () { clearTimeout(t); }; }, []);
+  useEffect(function () {
+    const onKey = function (e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); onDone(); } };
+    document.addEventListener("keydown", onKey); return function () { document.removeEventListener("keydown", onKey); };
+  }, [onDone]);
+  const send = function (reason) {
+    if (busy) return; setBusy(true); setMsg("Sending the report.");
+    Looscid.lcNet.report(dream.nid, authorPk, reason).then(function (r) { setBusy(false); announce(r.say); if (r.ok) onDone(); else setMsg(r.say); });
+  };
+  return lh('div', { className: "lid-alert-bg" },
+    lh('div', { className: "lid-alert", role: "alertdialog", "aria-modal": "true", "aria-labelledby": id + "-title", "data-lc-no-focus-trap": "" },
+      lh('h2', { ref: headingRef, tabIndex: -1, "data-lc-autofocus": "", id: id + "-title", className: "lid-sub" }, "Report this Dream?"),
+      lh('p', { className: "lid-help" }, "Pick what's wrong. Your report goes to Rem with your LooscidID. The person you report isn't told who reported them."),
+      msg ? lh('p', { className: "lid-help", role: "status" }, msg) : null,
+      Looscid.lcNet.REPORT_REASONS.map(function (r) {
+        return lh('button', { key: r[0], type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: function () { send(r[0]); } }, r[1]);
+      }),
+      lh('button', { type: "button", className: "btn bgb lid-wide", onClick: onDone }, "Cancel")));
+}
 function DreamDeleteDialog({ id, onConfirm, onCancel, onNostr }) {
   const boxRef = useRef(null), headingRef = useRef(null);
   // Oct 31 2026: a Dream on Nostr needs the unlocked key to sign its deletion (NIP-09, kind 5). When the key is locked the
@@ -1016,6 +1042,7 @@ function DreamDeleteDialog({ id, onConfirm, onCancel, onNostr }) {
 function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, cherryCtx, onExtra, forYou, allowDelete, onDeleted }) {
   useThreadSubsTick(); // #148: Follow Thread / Unfollow Thread is always current
   const [deleting, setDeleting] = useState(false);
+  const [reporting, setReporting] = useState(false); // Nov 7 2026: Report Dream (DreamReportDialog)
   const canDelete = allowDelete && dream.user === ME && !dream.isReply && dream.replyTo == null && dream.circleId == null;
   const cancelDelete = function () {
     setDeleting(false);
@@ -1108,18 +1135,23 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
   const mine = !!dream.user && (dream.user === ME || (handle && lcHandle(handle) === lcHandle(ME.handle || "")));
   const muted = !mine && handle && lcPeopleHas("looscid_muted_dreamors", handle), blocked = !mine && handle && lcBlocked("dreamers").indexOf(lcHandle(handle)) >= 0;
   const who = handle ? "@" + handle : "this Dreamor";
+  // Nov 7 2026: the author's key (from a Looscid or Nostr Dream) lets Block and Report reach the Looscid server.
+  const authorPk = (function () { const u = dream.user && typeof dream.user === "object" ? String(dream.user.id || "") : ""; const m = u.match(/^npub:([0-9a-f]{64})$/i); return m ? m[1].toLowerCase() : (/^[0-9a-f]{64}$/i.test(String(dream.pk || "")) ? String(dream.pk).toLowerCase() : null); })();
+  const reportable = !mine && !!Looscid.lcNet && /^[0-9a-f]{64}$/i.test(String(dream.nid || ""));
   const fx = mine || !handle ? [] : [
     muted ? { id: "unmute", name: "Unmute " + who, a: function () { lcPeopleSet("looscid_muted_dreamors", handle, false); announce("Unmuted " + who + "."); } }
           : { id: "mute", name: "Mute " + who, a: function () { lcPeopleSet("looscid_muted_dreamors", handle, true); announce("Muted " + who + ". Their Dreams are hidden from your feed."); } },
     blocked ? { id: "unblock", name: "Unblock " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").filter(function (h) { return h !== lcHandle(handle); })); announce("Unblocked " + who + "."); } }
-            : { id: "block", name: "Block " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").concat([handle])); announce("Blocked " + who + ". Unblock here or in Settings, Privacy."); } },
-    // Round 7.16 (#216): Report is hidden until Looscid has somewhere to send reports (it was a dimmed Coming soon item).
-  ];
+            : { id: "block", name: "Block " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").concat([handle])); if (authorPk && Looscid.lcNet) Looscid.lcNet.block(authorPk, handle); announce("Blocked " + who + ". Unblock here or in Settings, Privacy."); } },
+    // Nov 7 2026: Report is back now that the Looscid server takes reports (js/net.js). It's on Dreams with a Looscid id.
+    reportable ? { id: "report", name: "Report Dream", a: function () { setReporting(true); } } : null,
+  ].filter(Boolean);
   // Oct 31 2026 (Carter): Delete Dream is on your own Dreams everywhere they show (Home, profiles, Liked, Replies page),
   // not only on the Replies page. Its visible name says what it deletes, and it's last so it's never hit by accident.
   const ordered = fx.concat(items).concat(canDelete ? [{ id: "delete", name: "Delete Dream", aria: "Delete Dream", exactAria: true, danger: true, a: function () { setDeleting(true); } }] : []);
   // Round 5 fixes: each Dream's More button says whose Dream it is ("More, Dream by Ava"), so the rotor list isn't a row of "More".
   return lh(React.Fragment, null,
+    reporting && lh(DreamReportDialog, { id: id + "-report", dream: dream, authorPk: authorPk, onDone: function () { setReporting(false); setTimeout(function () { if (btnRef && btnRef.current) btnRef.current.focus(); }, 60); } }),
     deleting && lh(DreamDeleteDialog, { id: id + "-delete", onConfirm: confirmDelete, onCancel: cancelDelete, onNostr: [dream.nid, String(dream.id)].concat((lcSavedDreamsRaw().find(function (s) { return s.id === dream.id; }) || {}).nid || []).some(function (x) { return /^[0-9a-f]{64}$/i.test(String(x || "")); }) }),
     lh(LcMenu, { id: id + "-btn", menuId: id, kind: "action", title: "More", btnLabel: "More, " + (dream && dream.user && dream.user.name ? "Dream by " + dream.user.name : "Dream"), btnHint: "Opens actions for this Dream.", btnClass: "ixn-btn", btnRef: btnRef, noCaret: true, align: "right", up: true,
     className: "lc-dmenu", style: { flex: ".5", display: "flex" }, itemClass: "lc-dopt", btnText: lh(Ic.Dots, { style: { width: 15, height: 15 } }), items: ordered,
@@ -1361,6 +1393,7 @@ function CommentView({dream, backTo, onBack, onLike, onRedream, onUndoRedream, o
               , React.createElement('button', { style: {background:"none",border:"none",cursor:"pointer",padding:0}, onClick: ()=>navigate("dp",dream.user), 'aria-label': "View " + dream.user.name + "'s profile",}
                 , React.createElement('span', { className: "dc-name",}, dream.user.name)
               )
+              , dream.sigOk && lh('span', { className: "dc-verified", style: {color:"var(--ac2)",fontSize:12,fontWeight:600,marginLeft:4} }, "Verified")
               , React.createElement('span', { className: "dc-dot", "aria-hidden": "true"}, "·")
               , React.createElement('span', { className: "dc-handle",}, dream.user.handle)
               , dream.time && React.createElement('span', { className: "dc-dot", "aria-hidden": "true"}, "·")
@@ -1437,6 +1470,7 @@ function DreamBodyCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndo
   const ctxSpeech = ctxWords ? (/[.!?\u2026]$/.test(ctxWords) ? ctxWords + " " : ctxWords + ". ") : "";
   const artProps = { className: "dc", role: "article", tabIndex: -1, "data-dream-id": dream.id, "aria-label": ctxSpeech + lcDreamWords(dream, "speech"), "aria-braillelabel": A.brailleOutput ? (replyCtx ? "Re " + (replyCtx.who || "a Dream") + ": " : "") + lcDreamWords(dream, "braille") : undefined,
     onFocus: function () { Looscid.LC_LAST_DREAM = dream; } };
+  if (dream.sigOk) { artProps["aria-label"] += ". Verified"; if (artProps["aria-braillelabel"]) artProps["aria-braillelabel"] += " (verified)"; } // Nov 7 2026
   if (dream.editedAt) { artProps["aria-label"] += ". Edited"; if (artProps["aria-braillelabel"]) artProps["aria-braillelabel"] += " (edited)"; } // build 152 prep
   if (pinned) { artProps["aria-label"] = "Pinned. " + artProps["aria-label"]; if (artProps["aria-braillelabel"]) artProps["aria-braillelabel"] = "Pinned " + artProps["aria-braillelabel"]; } // build 152 prep
   if (flt && flt.bw && !cwOpen) return lh('div', Object.assign({}, artProps, { "aria-label": "Hidden: contains a blocked word", "aria-braillelabel": A.brailleOutput ? "Hidden: blocked word" : undefined }),
@@ -1462,6 +1496,9 @@ function DreamBodyCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndo
             , React.createElement('button', { style: {background:"none",border:"none",cursor:"pointer",padding:0}, onClick: ()=>navigate("dp",dream.user), 'aria-label': "View "+dream.user.name+"'s profile", "aria-braillelabel": A.brailleOutput ? dream.user.name : undefined,}
               , React.createElement('span', { className: "dc-name",}, dream.user.name, dream.user.verified && React.createElement('span', { style: {color:"var(--ac2)",marginLeft:3,fontSize:11},}, "✓"))
             )
+            /* Nov 7 2026: "Verified" in words, next to the name, when this Dream's signature checked out against the Dreamor's
+               key (js/feed.js lcRemSigOk; Nostr Dreams are checked as they arrive). VoiceOver reads it in the Dream's label too. */
+            , dream.sigOk && lh('span', { className: "dc-verified", style: {color:"var(--ac2)",fontSize:12,fontWeight:600,marginLeft:4} }, "Verified")
             , srMeta && lh('span', { className: "sr-only" }, srMeta)
             , React.createElement('span', { className: "dc-dot", "aria-hidden": "true"}, "·")
             , React.createElement('span', { className: "dc-handle", "aria-hidden": "true"}, dream.user.handle)
@@ -1618,7 +1655,28 @@ function lcResetModel(scope) {
    removes every login method (a Nostr key saved here is deleted) and resets the local profile (Looscid.LC_LOG_OUT).
    Cancel or Escape puts focus back where you were. */
 const LC_LOGOUT_TXT = { title: "Logout of Looscid?", ok: "Logout", done: "Logout complete on this device.",
-  msg: "Logout removes your login methods from this device and deletes any Nostr key saved here. If you haven't saved your key somewhere else, it's gone for good. Your LooscidID starts fresh with the name Dreamor. Your Dreams and settings stay." };
+  msg: "Logout removes your login methods and your LooscidID from this device, and deletes any Nostr key saved here. If you haven't saved your key or a backup file somewhere else, it's gone for good. After that you're a Guest until you create a LooscidID or restore yours. Your Dreams and settings stay on this device." };
+/* Nov 7 2026: after Logout, one plain question (no new LooscidID is made on its own anymore). */
+function LcLoggedOutAsk({ onDone, navigate }) {
+  const hRef = useRef(null), boxRef = useRef(null);
+  if (Looscid.useInertBehind) Looscid.useInertBehind(boxRef);
+  useEffect(function () { const t = setTimeout(function () { if (hRef.current) hRef.current.focus(); }, 200); return function () { clearTimeout(t); }; }, []);
+  const pick = function (v) {
+    onDone();
+    if (v === "create") { lcCreateLooscidID(); return; }
+    if (v === "restore") { navigate("settings_account", { tab: "backup" }); return; }
+    announce("Browsing as a Guest. Create a LooscidID any time in Settings, LooscidID.");
+  };
+  return lh('div', { className: "lc-q-ov", ref: boxRef },
+    lh('div', { className: "lc-q", role: "dialog", "aria-modal": "true", "aria-labelledby": "lc-out-h",
+        onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); pick("guest"); } else if (Looscid.lcTrapTab) Looscid.lcTrapTab(e, e.currentTarget); } },
+      lh('h2', { id: "lc-out-h", tabIndex: -1, ref: hRef, className: "lc-q-h lc-q-t" }, "You're logged out"),
+      lh('div', { className: "lc-q-intro" }, lh('p', null, "You're a Guest now. No new LooscidID was made. What next?")),
+      lh('div', { className: "lc-q-btns" },
+        lh('button', { type: "button", className: "btn bp lc-big", onClick: function () { pick("create"); } }, "Create a LooscidID"),
+        lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { pick("restore"); } }, "Restore from a backup file"),
+        lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { pick("guest"); } }, "Keep browsing as a Guest"))));
+}
 function lcLogoutMessage() { const N = Looscid.lcNostr, w = N && N.forgetWarning ? N.forgetWarning() : ""; return LC_LOGOUT_TXT.msg + (w ? " " + w : ""); }
 function lcDoLogout() { if (Looscid.LC_LOG_OUT) Looscid.LC_LOG_OUT(); setTimeout(function () { announce(LC_LOGOUT_TXT.done); }, 120); }
 function lcOpenLogout() { const from = document.activeElement; try { window.dispatchEvent(new CustomEvent("looscid:logout", { detail: { from: from } })); } catch (e) {} }
@@ -1634,7 +1692,7 @@ function LcLogoutHost() {
   return lh(AlertDialog, { key: st.n, title: LC_LOGOUT_TXT.title, message: lcLogoutMessage(), confirmLabel: LC_LOGOUT_TXT.ok, onCancel: back,
     onConfirm: function () { setSt(null); lcDoLogout(); } });
 }
-Object.assign(Looscid, { LC_LOGOUT_TXT, lcLogoutMessage, lcDoLogout, lcOpenLogout, LcLogoutHost });
+Object.assign(Looscid, { LC_LOGOUT_TXT, lcLogoutMessage, lcDoLogout, lcOpenLogout, LcLogoutHost, LcLoggedOutAsk });
 function lcOpenReset(scope) { const from = document.activeElement; try { window.dispatchEvent(new CustomEvent("looscid:reset", { detail: { scope: scope, from: from } })); } catch (e) {} }
 function LcResetHost() {
   const [st, setSt] = useState(null); // { scope, from }
@@ -2200,7 +2258,7 @@ const LC_CHAR_FIELDS = [
   { id: "website", l: "Website", def: 200 }, { id: "linkName", l: "Link names", def: 40 }, { id: "linkUrl", l: "Link addresses", def: 200 },
   { id: "dream", l: "Dreams and replies", def: null, usual: "the Character limit switch above", note: "Some Nostr relays turn away very long Dreams (many stop around 64 KB)." },
   { id: "listName", l: "List names", def: 60 }, { id: "note", l: "Notes on profiles", def: 500 }, { id: "circleName", l: "Circle names", def: 40 },
-  { id: "serverName", l: "Looscid server name", def: 50 }, { id: "sectionName", l: "Section names (Sense)", def: 30 }];
+  { id: "serverName", l: "Older Rem home name", def: 50 }, { id: "sectionName", l: "Section names (Sense)", def: 30 }];
 function lcCharLimits() { const v = lcJsonLs(LC_CHAR_LIMITS_KEY, null) || {}; return { on: !!v.on, fields: v.fields && typeof v.fields === "object" ? v.fields : {} }; }
 function lcCharLimitsSave(v) { try { localStorage.setItem(LC_CHAR_LIMITS_KEY, JSON.stringify({ on: !!v.on, fields: v.fields || {} })); } catch (e) {} try { window.dispatchEvent(new CustomEvent("looscid:limits")); } catch (e) {} }
 // Is this field using your own limit? (Custom character limits on, and this field's switch on.)
@@ -2265,6 +2323,26 @@ function resetLocalProfile() {
   try { localStorage.removeItem(LOCAL_PROFILE_KEY); } catch (e) {}
   return ensureLocalProfile();
 }
+/* Nov 7 2026 (Carter: "I love YT's guest mode"): Guest mode. Looscid opens without making a LooscidID. A Guest can look
+   around everything; Dreaming and replying ask for a LooscidID first (one tap: ensureLocalProfile, made on this device).
+   Logout goes back to Guest instead of quietly making a new LooscidID (that was the "Logout just creates new LooscidIDs"
+   bug: resetLocalProfile() deleted the profile and ensureLocalProfile() made a fresh one right away). People who already
+   have a LooscidID on this device keep it; nothing changes for them. */
+function makeGuestProfile() {
+  return { uid: "guest", isGuest: true, isLocal: false, displayName: "Guest", name: "Guest", handle: "@guest", initials: "G", color: "#8e8e93", bio: "", photoURL: null };
+}
+function startProfile() { return getLocalProfile() ? ensureLocalProfile() : applyLocalProfileToMe(makeGuestProfile()); }
+function lcIsGuest() { return !getLocalProfile(); }
+Looscid.lcIsGuest = lcIsGuest;
+// Called from the Guest gate, the logged-out question and Settings: makes the LooscidID on this device and tells the app.
+function lcCreateLooscidID() {
+  const had = !!getLocalProfile(), p = ensureLocalProfile();
+  if (Looscid.LC_SET_AUTH_USER) Looscid.LC_SET_AUTH_USER(p);
+  try { window.dispatchEvent(new Event("looscid:identity")); } catch (e) {}
+  if (!had) announce("Your LooscidID is ready: " + p.displayName + ", " + p.handle + ". You can change your name in Settings, LooscidID.");
+  return p;
+}
+Looscid.lcCreateLooscidID = lcCreateLooscidID;
 /* --- ANALYTICS (anonymous, optional crash reporting) --------------------- */
 const ANALYTICS_KEY = "looscid_analytics_consent";
 Looscid.ANALYTICS_KEY = ANALYTICS_KEY;
@@ -2886,7 +2964,7 @@ function LcSettingsHome({ s, navigate, onBack }) {
     lh(LcNpubLine, { np: np, id: "set-npub" })) : null;
   const go = function (it) { return lcSetRowO(it); };
   // Mode and Security sit together under the LooscidID card.
-  const top = [lcModeRow("set-row-mode", function () { navigate("settings_account", { tab: "server", from: "settings" }); })].concat(sec.map(go));
+  const top = [lcModeRow("set-row-mode", function () { navigate("settings_account", { tab: "connectionbase", from: "settings" }); })].concat(sec.map(go));
   let groups;
   if (mode === "default") {
     const by = function (ids) { return ids.map(function (k) { return items.find(function (it) { return it.id === k; }); }).filter(Boolean).map(go); };
@@ -3709,7 +3787,7 @@ const ID_PROVIDERS = [
   { id: "pubky", name: "Pubky", status: "soon", note: "coming soon",
     why: "Pubky login needs the Pubky Ring app and Pubky's WebAssembly SDK talking to a Pubky relay and homeserver. That isn't wired into Looscid yet." },
   { id: "activitypub", name: "Mastodon & fediverse", status: "ready", Panel: MastodonPanel,
-    why: "Logging in with Mastodon or another fediverse server means registering Looscid with your server, which needs a small Looscid server that doesn't exist yet." },
+    why: "Logging in with Mastodon or another fediverse server means registering Looscid with your server, which needs a small Looscid login server that doesn't exist yet." },
   { id: "atproto", name: "Bluesky and AT Protocol", status: "ready", Panel: BlueskyPanel,
     why: "Bluesky login uses AT Protocol OAuth, which needs Looscid's app details published on its website and a connection to your Bluesky server." },
   { id: "funkwhale", name: "Funkwhale", status: "ready", Panel: FunkwhalePanel },
@@ -3761,87 +3839,81 @@ function TopicPicker({ value, onChange }) {
         })));
   }));
 }
+/* Nov 7 2026 (Carter + Grok's copy, "make it FUNNY"): the first-run welcome is a Welcome screen and a short practice
+   tour, not a slideshow. Welcome: Try Looscid (the one main button) or Skip intro. Tour: the Feed, a practice Dream
+   (never Dreamed, never sent, never saved), Alerts and More, then Enter Looscid. Skip tour is on every step, and
+   Escape skips too. New people come in as a Guest (Guest mode, no LooscidID is made until they choose to). The old
+   6-step welcome (login method, terms, topics) was folded in here; terms are in Settings, About Looscid, topics in
+   Settings. Positioning (Carter, Nov 7 6:38 PM): ideas and Dreams first, your data stays yours, open source and no
+   ads, your own protocol Rem with optional Nostr. Accessibility is a perk line, not the headline. */
 function LooscidOnboarding({ onDone }) {
-  const idProfile = getLocalProfile() || {};
-  const idName = idProfile.displayName || "Dreamor";
-  const idHandle = idProfile.handle || "@dreamor";
   const returning = (function () { try { const p = JSON.parse(localStorage.getItem(LID_OAUTH_PENDING) || "null"); return !!(p && p.from === "onboarding" && /[?&](code|error)=/.test(location.search)); } catch (e) { return false; } })();
-  const [step, setStep] = useState(returning ? 2 : 0);
-  const [topics, setTopics] = useState(getTopics());
-  const [idNote, setIdNote] = useState("");
-  const headRef = useRef(null);
-  useOAuthReturn("onboarding", function (r) { setStep(2); setIdNote(r.ok ? "Great! " + r.msg : r.msg); });
+  const TOTAL = 5;
+  const [step, setStep] = useState(returning ? TOTAL - 1 : 0);
+  const [practice, setPractice] = useState(""), [tries, setTries] = useState(0), [ptext, setPtext] = useState("");
+  const headRef = useRef(null), statusRef = useRef(null);
+  useOAuthReturn("onboarding", function (r) { setStep(TOTAL - 1); if (r && r.msg) announce(r.msg); });
   useEffect(function () { if (headRef.current) headRef.current.focus(); const sc = document.getElementById("lid-onb"); if (sc) sc.scrollTop = 0; }, [step]);
-  const finish = function () {
-    try { localStorage.setItem(LID_TOPICS_KEY, JSON.stringify(topics)); } catch (e) {}
-    setWelcomeSeen(); onDone();
-  };
+  const guest = !getLocalProfile();
+  const finish = function () { setWelcomeSeen(); onDone(); };
+  const skip = function () { announce("cool. see you on the other side."); finish(); };
   const next = function () { setStep(step + 1); };
   const H = function (text) { return lh('h1', { id: "lid-onb-h", className: "lid-onb-h", tabIndex: -1, ref: headRef }, text); };
   const P = function (text) { return lh('p', { className: "lid-onb-p" }, text); };
-  const H2 = function (text) { return lh('h2', { className: "lid-onb-h2" }, text); };
   const primary = function (label, fn) { return lh('button', { type: "button", className: "btn bp lid-wide", onClick: fn || next }, label); };
-  const TOTAL = 6;
+  // The practice Dream: it only says so. No Dream is made, sent or saved, and the text box is thrown away.
+  const practiceDream = function () {
+    const n = tries + 1; setTries(n);
+    const say = n === 1 ? "Great job. Nothing was Dreamed. You just tried the move. When you do it for real later, same button, actual Dream."
+      : "Still practice. Still nothing Dreamed. You're safe. The Feed didn't get a thing.";
+    setPractice(say); setPtext(""); announce(say);
+    try { if (Looscid.Earcon) Looscid.Earcon.play("send"); } catch (e) {}
+  };
   let body;
   if (step === 0) body = lh(React.Fragment, null,
     H("Welcome to Looscid"),
     lh('p', { className: "lid-onb-p lid-onb-slogan" }, LOOSCID_SLOGAN),
-    P("The first decentralized everything app that keeps your data private, and lets you control it."),
-    P("Looscid is the first everything app to be accessible, private and open source. That means you can access your data from anywhere, keep it private and use it with no blocks."),
-    H2("Powerful"), P("Looscid's decentralization means that no single service, company or provider can control Looscid."),
-    H2("Your privacy. Our goal"), P("We love privacy. We know you do, too. That's why Looscid keeps your data yours."),
-    H2("Have you heard of accessibility? We have. And we love it"),
-    P("The way you use your devices should apply to Looscid. We work hard to make sure every accessibility feature and every Looscid element have a good time together. Because accessibility, your data and Looscid are all friends. Good friends. We love keeping your stress levels low."),
-    H2("Why Looscid exists"), P("Looscid exists to be the first everything app powered by decentralization."),
-    H2("Our code is open. You can read it. Right now"), P("Looscid is open source. That's not a problem. It's a choice. Looscid is decentralized, and it's already an everything app."),
-    H2("The protocols that power Looscid"), P("Pubky, Nostr, AT Protocol, ActivityPub (the fediverse) and more open source protocols will power Looscid. That means you can use your Nostr key, your Bluesky account and more for Looscid."),
-    P("Are you ready? Because we are ready to help you."),
-    primary("Yes, I'm ready"));
+    P("A place for your ideas, your 2 AM thoughts and your Dreams. Or whatever. We don't judge."),
+    P("Your data stays yours. Download it or delete it any time, no begging required."),
+    P("Looscid runs on its own open protocol, Rem. Want your Dreams on Nostr too? That's one checkbox, and it's off unless you turn it on."),
+    primary("Try Looscid"),
+    lh('p', { className: "lid-onb-p", style: { marginTop: 18, fontWeight: 600 } }, "Open source. No ads. Your Dreams stay yours."),
+    lh('p', { className: "lid-onb-p", style: { fontSize: 14, opacity: 0.85 } }, "Works great with screen readers too."));
   else if (step === 1) body = lh(React.Fragment, null,
-    H("Getting started"),
-    P("We're excited for you to unlock everything we have to offer, and Looscid's decentralization really helps with that."),
-    P("Your LooscidID is ready. We made it on this device the moment you opened Looscid: " + idName + ", " + idHandle + ". You can change your name and @username any time in Settings, LooscidID."),
-    P("Next, you can add a login method like your Nostr key or your Bluesky account. It's optional. Add one now, or later in Settings, LooscidID."),
+    H("Okay. This is the Feed"),
+    P("Short tour, promise. You can skip it any time, there's a Skip tour button on every step. I won't be offended. Much."),
+    P("The Feed is Home. Dreams show up here. If it's empty, that's normal when you're new. It's not you, it's the newness."),
     primary("Next"));
   else if (step === 2) body = lh(React.Fragment, null,
-    H("Add a login method (optional)"),
-    idNote ? lh(React.Fragment, null, lh('p', { className: "lid-saved" }, idNote), primary("Continue to setup"))
-      : lh(LooscidIDChooser, { from: "onboarding", onDone: function (m) { setIdNote("Great! " + m); }, onLocal: function () { announce("Skipped. You can add a login method later in Settings, LooscidID"); next(); } }));
+    H("Practice Dream"),
+    P("See that Dream button down there? Press it. For real. This is practice, so nothing gets Dreamed."),
+    lh('label', { htmlFor: "lid-onb-practice", className: "lid-label" }, "Your practice Dream (optional, it goes nowhere)"),
+    lh('textarea', { id: "lid-onb-practice", className: "inp", rows: 2, value: ptext, onChange: function (e) { setPtext(e.target.value); } }),
+    lh('button', { type: "button", id: "lid-onb-practice-btn", className: "btn bp lid-wide", onClick: practiceDream }, "Dream"),
+    lh('p', { className: "lid-saved", role: "status", ref: statusRef }, practice),
+    tries ? primary("Next") : lh('button', { type: "button", className: "btn bgb lid-wide", onClick: next }, "Next"));
   else if (step === 3) body = lh(React.Fragment, null,
-    H("First, a tour"),
-    P("Now things get a lot easier. We'll show you how to use the app and what to keep in mind, and you'll get to make your own choices."),
-    P("Looscid is built to be accessible, usable and private. Our app, features and goal reflect that, strongly. You have the right to make, and change, your choices."),
-    H2("Feed"), P("The Home feed shows Dreams we think you'll like. You can change your preferences in Settings."),
-    H2("A quick terminology guide"),
-    // Build 150, part 15: plain rows, not a dl (WebKit calls a <dd> "description", and VoiceOver said it after every one).
-    lh('ul', { className: "lid-terms lc-rows", role: "list", "aria-label": "Terminology" },
-      lh('li', null, lh('span', { className: "lc-dt" }, "Dreams", lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, "A Dream is what you share, like how Twitter used \u201Ctweet.\u201D")),
-      lh('li', null, lh('span', { className: "lc-dt" }, "Redreams", lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, "A Redream shares someone else\u2019s Dream with your followers. It\u2019s always written Redream.")),
-      lh('li', null, lh('span', { className: "lc-dt" }, "Replies", lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, "Replies are what you write under a Dream, one or several in a row.")),
-      lh('li', null, lh('span', { className: "lc-dt" }, "Dreamor", lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, "That's you. Instead of \u201Cmember\u201D or \u201Cuser,\u201D you're a Dreamor, spelled D R E A M O R. It's time for a change, and we hope it inspires you to dream up something cool.")),
-      lh('li', null, lh('span', { className: "lc-dt" }, "Circles", lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, "Circles are communities. They should be created with care, so the conversations in them are valuable, memorable and special."))),
-    P("You can reread this guide any time in Settings, About Looscid."),
-    primary("Continue"));
-  else if (step === 4) body = lh(React.Fragment, null,
-    H("What do you want to see?"),
-    P("Choose topics. Each topic opens to show more, like Basketball inside Sports. We'll remember what you like, on this device."),
-    lh(TopicPicker, { value: topics, onChange: setTopics }),
-    primary("Continue"));
+    H("Alerts and More"),
+    P("Alerts is where stuff finds you: replies, mentions, ReDreams."),
+    P("More has Settings, Help and everything else. You don't need to memorize it. Poke around. Nothing in here explodes."),
+    primary("Next"));
   else body = lh(React.Fragment, null,
-    H("Welcome Home"),
-    P("It's time to experience what social media should've been."),
-    primary("Let's go", finish));
+    H("You're in"),
+    P("No quiz. No certificate. Just Dream when you want."),
+    guest ? P("You're a Guest for now, like guest mode on YouTube: look around all you want. To Dream, make a LooscidID. It's one tap, it's made on this device, and it never asks for your email or phone number.") : null,
+    primary("Enter Looscid", finish),
+    lh('p', { className: "lid-onb-p", style: { fontSize: 14, marginTop: 14 } }, "Stuck? ", lh('a', { href: (typeof LOOSCID_BASE === "string" ? LOOSCID_BASE : "/") + "help/" }, "Open the Help Center"), " any time."));
   return lh('div', { id: "lid-onb", className: "lid-onb", role: "dialog", 'aria-modal': "true", 'aria-labelledby': "lid-onb-h",
-      onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); finish(); } } },
+      onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); skip(); } } },
     lh('div', { className: "lid-onb-in" },
       /* Build 194: the Looscid logo, bigger, on every step of the welcome screens. Named "Looscid" on every step, step 1 too
          (Carter, Nov 1 2026, 3:23 PM: "alt tex on the logo"). */
       lh(LcLogo, { size: 88, alt: LC_LOGO_ALT, className: "lid-onb-logo" }),
-      lh('p', { className: "lid-step" }, "Step " + (step + 1) + " of " + TOTAL),
+      step > 0 ? lh('p', { className: "lid-step" }, "Tour step " + step + " of " + (TOTAL - 1)) : null,
       body,
       lh('div', { className: "lid-onb-nav" },
-        step > 0 && lh('button', { type: "button", className: "btn bgb", onClick: function () { setStep(step - 1); } }, "Back"),
-        step < TOTAL - 1 && lh('button', { type: "button", className: "lid-skip", onClick: finish }, "Skip intro"))));
+        step > 1 && lh('button', { type: "button", className: "btn bgb", onClick: function () { setStep(step - 1); } }, "Back"),
+        step < TOTAL - 1 && lh('button', { type: "button", className: "lid-skip", onClick: skip }, step === 0 ? "Skip intro" : "Skip tour"))));
 }
 /* =========================================================================
    COMMAND ENGINE, COMMAND BAR, TERMINAL, EARCONS, ACCESSIBILITY SETTINGS
@@ -5843,6 +5915,8 @@ Looscid.LC_BLOCK_KEYS = LC_BLOCK_KEYS;
 function lcBlocked(kind) { try { const v = JSON.parse(localStorage.getItem(LC_BLOCK_KEYS[kind]) || "[]"); return Array.isArray(v) ? v.map(String) : []; } catch (e) { return []; } }
 function lcBlockedSet(kind, list) {
   const clean = []; list.forEach(function (x) { const v = kind === "words" ? String(x).trim().toLowerCase() : kind === "dreamers" ? lcHandle(x) : String(x); if (v && clean.indexOf(v) < 0) clean.push(v); });
+  // Nov 7 2026: unblocking someone you also blocked on the Looscid server tells the server too (js/net.js).
+  if (kind === "dreamers" && Looscid.lcNet) { try { lcBlocked("dreamers").forEach(function (h) { if (clean.indexOf(h) < 0 && Looscid.lcNet.blockedPk(h)) Looscid.lcNet.unblockHandle(h); }); } catch (e) {} }
   try { if (clean.length) localStorage.setItem(LC_BLOCK_KEYS[kind], JSON.stringify(clean.slice(0, 500))); else localStorage.removeItem(LC_BLOCK_KEYS[kind]); } catch (e) {}
   try { window.dispatchEvent(new CustomEvent("looscid:blocked")); } catch (e) {}
   return clean;
@@ -7881,7 +7955,9 @@ function App() {
   // Local profile — no login gate. The profile is stored on this device only.
   // Login methods attach to it later and are optional; see the LOCAL PROFILE block.
   const [authStage, setAuthStage] = useState("app");
-  const [authUser, setAuthUser]   = useState(() => ensureLocalProfile());
+  const [authUser, setAuthUser]   = useState(() => startProfile()); // Nov 7 2026: a Guest until a LooscidID is made
+  Looscid.LC_SET_AUTH_USER = setAuthUser;
+  const [loggedOutAsk, setLoggedOutAsk] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
 
   // App state
@@ -7965,8 +8041,8 @@ useEffect(() => {
   // Show welcome for first-time users; onboarding is now retired (welcome replaced it)
   useEffect(() => {
     if (authStage === "app") {
-      const isGuest = !authUser || authUser.isGuest || authUser.uid==="guest";
-      if (!isGuest && !getWelcomeSeen()) {
+      // Nov 7 2026: Guests see the welcome too (new people start as Guests now).
+      if (!getWelcomeSeen()) {
         const t = setTimeout(() => setShowWelcome(true), 400);
         return () => clearTimeout(t);
       }
@@ -7980,7 +8056,10 @@ useEffect(() => {
   /* Round 7.14 (Carter, Oct 24 2026): Logout (Round 7.38: one word), from your profile's More button and Settings (it asks first). It is the existing pieces in
      order: every login method is removed the way Remove does it (a Nostr key saved on this device is deleted, and the sign-ins
      sealed to it are released), then the local profile resets like Reset local profile. Dreams and settings stay. */
-  Looscid.LC_LOG_OUT = () => { getMethods().slice().forEach(function (m) { removeMethod(m.id); }); logActivity("Logout on this device"); handleSignOut(); };
+  // Nov 7 2026: Logout = back to Guest (no new LooscidID), then a plain question: create one, restore a backup, or browse.
+  Looscid.LC_LOG_OUT = () => { getMethods().slice().forEach(function (m) { removeMethod(m.id); }); logActivity("Logout on this device");
+    try { localStorage.removeItem(LOCAL_PROFILE_KEY); } catch (e) {}
+    setAuthUser(applyLocalProfileToMe(makeGuestProfile())); setAuthStage("app"); setPage("feed"); setPdata(null); setLoggedOutAsk(true); };
   const handleRenameProfile = useCallback(name => {
     setAuthUser(cur => updateLocalProfile(cur, { displayName: (sanitizeInput(name) || "Dreamor").slice(0, 40) }));
   }, []);
@@ -8774,7 +8853,7 @@ useEffect(() => {
       case "settings_intelligence": case "settings_ai_cherry": case "settings_ai_model": case "settings_ai_cmd": case "settings_ai_memory": case "settings_ai_tools": case "settings_ai_audit":
                                       return React.createElement(Looscid.IntelligenceSettings, { key: page, page: page, navigate: navigate, prefs: prefs, setPrefs: setPrefs, cherryCtx: cherryCtx,});
       case "feedback":                return React.createElement(Looscid.FeedbackPage, { navigate: navigate,});
-      case "drafts":        return React.createElement(Looscid.DraftsPage, { navigate: navigate, onLoadDraft: d=>{ setShowCreate(true); },});
+      case "drafts":        return React.createElement(Looscid.DraftsPage, { navigate: navigate, onLoadDraft: d=>{ Looscid.LC_PENDING_DRAFT = d; setShowCreate("dream"); },}); // Nov 7 2026: opens the draft in New Dream
       case "cherry":        return React.createElement(Looscid.CherryPage, { navigate: navigate, cherryCtx: cherryCtx, data: pdata, onBack: cherryGoBack,});
       case "commands":      return Looscid.CommandsPage ? React.createElement(Looscid.CommandsPage, { exec: execCommand, onBack: commandsGoBack,}) : null;
       case "helpcenter":    return Looscid.HelpCenterPage ? React.createElement(Looscid.HelpCenterPage, { onBack: helpGoBack }) : null;
@@ -8862,6 +8941,7 @@ useEffect(() => {
       , React.createElement('main', {id:"main-content", style:{display:"contents"}}, renderPage())
       , lh(LcResetHost, null)
       , lh(LcLogoutHost, null)
+      , loggedOutAsk && lh(LcLoggedOutAsk, { navigate: navigate, onDone: function () { setLoggedOutAsk(false); } })
       , lh(LcThreadNudge, null)
       , lh(LcFooterHost, { page: page, navigate: navigate }
       , undo && lh(LcUndoBar, { undo: undo })
@@ -8902,7 +8982,7 @@ useEffect(() => {
       , cmdOpen && lh(CommandBar, { onClose: closeCmd, exec: execCommand, onFull: function () { setCmdOpen(false); cmdReturn.current = null; if (page !== "terminal") termBack.current = page; navigate("terminal"); } })
       , askDevice && !showWelcome && getWelcomeSeen() && lh(DeviceQuestion, { onDone: onDeviceDone })
       // Nov 1 2026 (Carter): a one-time "Switch to the Looscid server?" question for Local mode, after first-run setup (js/remsync.js)
-      , !showWelcome && !askDevice && !showBoot && !showAnalytics && !cmdOpen && Looscid.LcServerAsk && lh(Looscid.LcServerAsk, { navigate: navigate })
+      , !showWelcome && !askDevice && !showBoot && !showAnalytics && !cmdOpen && !loggedOutAsk && !(authUser && authUser.isGuest) && Looscid.LcServerAsk && lh(Looscid.LcServerAsk, { navigate: navigate }) /* Nov 7 2026: not for Guests (no Dreams to put anywhere yet) */
       , showBoot && !showWelcome && !askDevice && lh(LcBoot, { onDone: function () { try { sessionStorage.setItem("looscid_booted", "1"); } catch (e) {} setShowBoot(false); focusMainHeading(); } })
       , showSymPicker && React.createElement(Looscid.SymbolPicker, { onInsert: s=>{ if(symTarget)symTarget(s); setShowSymPicker(false); setSymTarget(null); }, onClose:()=>setShowSymPicker(false),})
     )

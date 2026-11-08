@@ -1,5 +1,8 @@
 /* Looscid, js/nostr.js: Dreams on Nostr (Round 6.4). Plain JavaScript, no build step.
-   There is no Looscid server. Your Dreams go straight from this device to Nostr relays you choose,
+   Nov 7 2026: Looscid has its own server and protocol now (js/net.js, docs/protocol.md). Every public Dream is signed
+  here and sent to the Looscid server. Nostr is an optional bridge: it's used only when "Also share my Dreams to Nostr" is on
+  (Settings, LooscidID, Connectionbase). Below is how the Nostr side works when it is on.
+  Before Nov 7 2026: There is no Looscid server. Your Dreams go straight from this device to Nostr relays you choose,
    signed here (or by your signer), and come back from those relays on any device that has your key.
 
    What is stored on this device (localStorage), and never in Settings backup:
@@ -21,7 +24,7 @@ const IDENTITY_KEY = "looscid_identity", IDS_KEY = "looscid_linked_ids", DREAMS_
 const KEEP_TAGS = ["e", "p", "q", "content-warning", "client", "looscid-share"] // + #164; // build 152 prep: "client" names the app in Dream info
 const DEFAULT_RELAYS = ["wss://relay.damus.io", "wss://nos.lol", "wss://relay.primal.net", "wss://relay.nostr.band"];
 const VENDOR_SRC = "js/vendor/nostr-tools-2.25.2-nip17.min.js";
-const TAGS = [["client", "Looscid"], ["t", "looscid"]];
+const TAGS = [["client", "Looscid"], ["t", "looscid"], ["looscid", "1"]]; // Nov 7 2026: ["looscid", "1"] = Rem v1, the Looscid protocol (docs/protocol.md)
 const RETRY_MS = [30000, 120000, 600000, 1800000];
 let memSk = null;          // Uint8Array, the unlocked key for this session only
 let toolsP = null, retryTimer = null, busyQueue = false;
@@ -507,6 +510,9 @@ async function processQueue() {
         let ev = null; try { const r = await signDream(it.draft); ev = r.ev || null; } catch (e) {}
         if (!ev) { out.push(it); continue; }  // still locked (waits for the passcode), or what it answers isn't on Nostr yet
         tagNid(it.draft.dreamRef, ev.id, ev);
+        await netIngest(ev); // Nov 7 2026: the Looscid server first; Nostr only with the bridge on
+        if (!nostrOn()) continue;
+        if (Looscid.lcNet && Looscid.lcNet.markCrossposted) Looscid.lcNet.markCrossposted(ev.id);
         it = { ev: ev, dreamRef: it.draft.dreamRef, todo: relays(), tries: 0 };
       }
       if (!it.ev) continue;
@@ -526,6 +532,9 @@ function sayLater(msg) {
   setTimeout(function () { if (Looscid.announce) Looscid.announce(msg); }, wait);
 }
 /* Publish one Dream you just made with Audience Everyone. Returns a summary; announces once. */
+// Nov 7 2026: is the Nostr bridge on? (Settings, LooscidID, Connectionbase, "Also share my Dreams to Nostr"; js/net.js)
+function nostrOn() { const L = Looscid.lcNet; return L && L.bridgeOn ? L.bridgeOn("nostr") : true; }
+function netIngest(ev) { const L = Looscid.lcNet; return L && L.ingest ? L.ingest(ev).catch(function () { return { ok: false }; }) : Promise.resolve({ ok: false, none: true }); }
 async function publishDream(d, opts) {
   const st = state();
   if (!st.canDream || !d || !String(d.text || "").trim()) return { skipped: true };
@@ -534,21 +543,52 @@ async function publishDream(d, opts) {
     const dr = { dreamRef: d.id, text: d.text, created: d.created || Date.now() };
     DRAFT_KEYS.forEach(function (k) { if (d[k] != null) dr[k] = d[k]; });
     const q = queue(); q.push({ draft: dr, at: Date.now() }); saveQueue(q); emit();
-    if (!quiet) sayLater("Saved on this device. Enter your passcode to send it to relays.");
+    if (!quiet) sayLater("Saved on this device. Enter your passcode to Dream it.");
     return { queued: true, locked: true };
   }
   let ev = null, wait = false;
   try { const r = await signDream(d); ev = r.ev || null; wait = !!r.wait; } catch (e) { ev = null; }
-  if (wait) { if (!quiet) sayLater("Saved on this device. The Dream it answers isn't on Nostr, so it stays here."); return { skipped: true, reason: "parent" }; }
+  if (wait) { if (!quiet) sayLater("Saved on this device. The Dream it answers isn't on Rem or Nostr, so it stays here."); return { skipped: true, reason: "parent" }; }
   if (!ev) { if (!quiet) sayLater("Saved on this device. Your signer didn't sign it, so it wasn't sent."); return { error: "sign" }; }
-  if (!fitsRelays(ev)) { if (!quiet) sayLater("Saved on this device. It's too big for relays: " + Math.ceil(eventBytes(ev) / 1024) + " KB, and relays take up to 64 KB."); return { skipped: true, reason: "size" }; }
+  if (!fitsRelays(ev)) { if (!quiet) sayLater("Saved on this device. This Dream is too big: " + Math.ceil(eventBytes(ev) / 1024) + " KB, and the limit is 64 KB."); return { skipped: true, reason: "size" }; }
   tagNid(d.id, ev.id, ev);
+  // The Looscid server is the home of public Dreams. A failed send waits in js/net.js's queue and is tried again.
+  const srv = await netIngest(ev);
+  if (!nostrOn()) {
+    emit();
+    if (!quiet) sayLater(srv.ok ? "Dreamed to Rem." : "Saved on this device. Couldn't reach Rem, will retry.");
+    return { ev: ev, server: !!srv.ok, ok: 0, total: 0 };
+  }
+  // Bridge: "Also share my Dreams to Nostr" is on, so the same signed Dream goes to your relays too.
+  if (Looscid.lcNet && Looscid.lcNet.markCrossposted) Looscid.lcNet.markCrossposted(ev.id);
   const list = relays();
   const r = await sendToRelays(ev, list);
   if (r.failed.length) { const q = queue(); q.push({ ev: ev, dreamRef: d.id, todo: r.failed, tries: 1, next: Date.now() + RETRY_MS[0] }); saveQueue(q); schedule(); }
   emit();
-  if (!quiet) sayLater(r.ok.length ? "Dreamed to " + r.ok.length + " of " + list.length + " relays." : "Saved on this device. Couldn't reach relays, will retry.");
-  return { ev: ev, ok: r.ok.length, total: list.length };
+  if (!quiet) sayLater((srv.ok ? "Dreamed to Rem" : "Couldn't reach Rem, will retry") + (r.ok.length ? ", and to " + r.ok.length + " of " + list.length + " Nostr relays." : ". Couldn't reach Nostr relays, will retry."));
+  return { ev: ev, server: !!srv.ok, ok: r.ok.length, total: list.length };
+}
+
+/* Nov 7 2026 (Rem v1 merge): puts a Dream that's already on this device on Rem (the Rem v1 server), signed now with
+   your key and its original time. It never goes to Nostr relays, even with the Nostr bridge on: this is for
+   "Put your Dreams on Rem" (js/remsync.js). A Dream that already has a signed id (it was Dreamed to Rem or Nostr) is
+   left alone. A reply waits until the Dream it answers is on Rem. */
+async function publishToRem(d) {
+  const st = state();
+  if (!d || !String(d.text || "").trim()) return { ok: false, skipped: true };
+  if (isHex64(d.nid)) return { ok: true, already: true, id: d.nid };
+  if (!st.canDream) return { ok: false, err: "nokey" };
+  if (st.mode === "locked") return { ok: false, err: "locked" };
+  const ref = d.replyTo != null ? (d.replyToReply != null ? d.replyToReply : d.replyTo) : null;
+  let ev = null, wait = false;
+  try { const r = await signDream(Object.assign({}, d, ref != null ? { parentRef: ref } : {})); ev = r.ev || null; wait = !!r.wait; } catch (e) { ev = null; }
+  if (wait) return { ok: false, wait: true };
+  if (!ev) return { ok: false, err: "sign" };
+  if (!fitsRelays(ev)) return { ok: false, err: "size" };
+  tagNid(d.id, ev.id, ev);
+  const srv = await netIngest(ev); // a failed send waits in js/net.js's queue and is tried again
+  emit();
+  return { ok: !!srv.ok, queued: !srv.ok && !(srv.status >= 400 && srv.status < 500), refused: srv.status >= 400 && srv.status < 500 && srv.status !== 429 ? ((srv.body && srv.body.error) || "refused") : null, id: ev.id };
 }
 
 /* --- Build 151 (#54): the Federated feed reads public Looscid Dreams from your relays ---------------------------
@@ -609,8 +649,11 @@ async function publishEdit(nid, text) {
   let ev = null; try { ev = await sign({ kind: 1010, created_at: Math.floor(Date.now() / 1000), content: String(text), tags: [["e", nid.toLowerCase()], ["alt", "Edit of a Dream"]].concat(TAGS) }); } catch (e) { ev = null; }
   if (!ev) return { err: "sign" };
   if (!fitsRelays(ev)) return { err: "size" };
+  const srv = await netIngest(ev); // Nov 7 2026: the Looscid server gets the edit too
+  const L = Looscid.lcNet, onNostr = nostrOn() || (L && L.wasCrossposted && L.wasCrossposted(nid));
+  if (!onNostr) return { ev: ev, server: !!srv.ok, ok: srv.ok ? 1 : 0, total: 1 };
   const list = relays(), r = await sendToRelays(ev, list);
-  return { ev: ev, ok: r.ok.length, total: list.length };
+  return { ev: ev, server: !!srv.ok, ok: r.ok.length, total: list.length };
 }
 // Edits (kind 1010) by each note's own author, applied to notes just fetched: newest text wins, older ones become history.
 async function applyEdits(NT, out) {
@@ -809,6 +852,13 @@ async function fetchNames(pks) {
 async function publishDeletion(nids) {
   const ids = Array.from(new Set((nids || []).filter(isHex64).map(function (n) { return n.toLowerCase(); })));
   if (!ids.length) return { skipped: true }; // Numeric, unpublished local Dreams have no relay target.
+  // Nov 7 2026: the Looscid server erases the Dream when it gets a signed deletion (kind 5) from its author.
+  const L = Looscid.lcNet;
+  if (L && L.ingest && state().canDream && state().mode !== "locked") {
+    try { const dev = await sign({ kind: 5, created_at: Math.floor(Date.now() / 1000), content: "", tags: ids.map(function (id) { return ["e", id]; }).concat([["looscid", "1"]]) }); if (dev) await netIngest(dev); } catch (e) {}
+  }
+  // Relays are only asked when the Nostr bridge is on, or the Dream really went to Nostr before.
+  if (!nostrOn() && !(L && L.wasCrossposted && ids.some(function (id) { return L.wasCrossposted(id); }))) { emit(); return { server: true, ok: 0, total: 0 }; }
   const fail = function (err) { sayLater("Relay deletion could not be requested. Copies may remain."); return { err: err }; };
   const st = state(), pk = st.pubkey;
   if (!st.canDream || st.mode === "locked") return fail(st.mode === "locked" ? "locked" : "nokey");
@@ -980,7 +1030,7 @@ if (document.readyState === "complete") start(); else window.addEventListener("l
 
 Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, VENDOR_URL: VENDOR_URL, load: load, toolsMsg: toolsMsg, toolsReady: toolsReady, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
   importKey: importKey, isCurrentKey: isCurrentKey, createKey: createKey, passcodeProblem: passcodeProblem, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, dropKey: dropKey, sealedSignins: sealedSignins, forgetWarning: forgetWarning, signedOutText: signedOutText, nsecNow: nsecNow, sealSessions: sealSessions, sealSessionsNow: sealSessionsNow, openSessions: openSessions, dmRelaysOf: dmRelaysOf,
-  publishDream: publishDream, publishDeletion: publishDeletion, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchRootDeletions: fetchRootDeletions, fetchReactions: fetchReactions, fetchLikesOf: fetchLikesOf, myDreamNids: myDreamNids, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide, forget: forget };
+  publishDream: publishDream, publishToRem: publishToRem, publishDeletion: publishDeletion, sign: sign, nostrOn: nostrOn, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchRootDeletions: fetchRootDeletions, fetchReactions: fetchReactions, fetchLikesOf: fetchLikesOf, myDreamNids: myDreamNids, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide, forget: forget };
 // Tokens saved before this update, when the key already has a passcode, are sealed a few seconds after startup.
 setTimeout(function () { sealSessions(); }, 2500);
 })(window.Looscid = window.Looscid || {});

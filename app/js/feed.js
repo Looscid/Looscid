@@ -66,9 +66,22 @@ function FeedPage({navigate, prefs, cherryCtx}) {
       function () { if (live) setPub({ list: [], state: "error", key: pubKey }); });
     return function () { live = false; };
   }, [pubKey]);
+  // Nov 7 2026: Federated, Looscid now also reads public Dreams from the Looscid server (GET /feed, js/net.js).
+  const [srv, setSrv] = useState({ list: [], state: "idle" });
+  const wantSrv = tab === "federated" && nets.indexOf("looscid") >= 0 && !!Looscid.lcNet;
+  const srvSort = lcFeedOrder() === "new" ? "new" : ""; // Newest asks Rem for pure time too (GET /feed?sort=new)
+  useEffect(function () {
+    if (!wantSrv) return; let live = true;
+    setSrv(function (p) { return { list: p.list, state: "loading" }; });
+    // The signature check for "Verified" needs NostrTools, so it's loaded first (a failed load just means no badges).
+    const tools = Looscid.lcNostr && Looscid.lcNostr.load ? Looscid.lcNostr.load().catch(function () { return null; }) : Promise.resolve(null);
+    Promise.all([Looscid.lcNet.feed({ limit: 50, sort: srvSort }), tools]).then(function (r) { const list = r[0]; if (live) setSrv({ list: list.map(lcNetDream), state: "done" }); },
+      function () { if (live) setSrv(function (p) { return { list: p.list, state: "error" }; }); });
+    return function () { live = false; };
+  }, [wantSrv, srvSort]);
   Looscid.useIdListTick("looscid:notinterested"); // build 152 prep: Not interested hides a Dream from For You
   const notInt = tab === "for you" ? Looscid.lcNotInterested() : [];
-  const visible = lcFeedVisible(tab, rawDreams, { following: FOLLOWING, friends: FRIENDS_IDS, showFriends: showFriends, groups: cherryCtx && cherryCtx.groups, pub: pubKey && pub.key === pubKey ? pub.list : [] }).filter(function (d) { return notInt.indexOf(String(d.id)) < 0; });
+  const visible = lcFeedVisible(tab, rawDreams, { following: FOLLOWING, friends: FRIENDS_IDS, showFriends: showFriends, groups: cherryCtx && cherryCtx.groups, pub: pubKey && pub.key === pubKey ? pub.list : [], srv: wantSrv ? srv.list : [] }).filter(function (d) { return notInt.indexOf(String(d.id)) < 0; });
 
 
   if (activeComment) return (
@@ -97,12 +110,16 @@ function FeedPage({navigate, prefs, cherryCtx}) {
         /* Round 7.41 (Carter, Oct 26 2026): one line saying what I'm building right now. Edit LOOSCID_NOW_WORKING_ON in core.js. */
         , Looscid.LOOSCID_NOW_WORKING_ON ? lh('p', { id: "home-now", className: "lc-home-now" }, "Now working on: " + Looscid.LOOSCID_NOW_WORKING_ON) : null
       )
+      , lh(FeedOrder, null)
       , lh('div', { className: "lc-feed-bar" }, lh(FeedTabs, null))
       , lh('div', { className: "lc-feed-ctl" }, lh(FeedControls, { tab: tab, cherryCtx: cherryCtx, dreams: rawDreams, pubState: pubKey && pub.key === pubKey ? pub.state : "idle" }))
       , visible.length===0 && lh('div', { className: "es" },
           lh('p', { className: "esl" }, tab==="following" && showFriends ? "No Dreams from friends yet. Quiet in here." : "No Dreams yet. Kinda peaceful, honestly."), // Round 7.41: playful, still says what to do
           lh('p', { style: {fontSize:14,color:"var(--tx2)",marginTop:6,lineHeight:1.6,maxWidth:260,textAlign:"center"} },
             (tab==="following" && showFriends) ? "Friends are Dreamors who follow each other. Follow someone back and they show up here." : tab==="following" ? "Follow some people and this feed wakes up." : tab==="federated" && !nets.length ? "Pick at least one network in Settings, Customization, Feeds." : /^pin:/.test(tab) ? "Dreams for this tab land here once there are some." : "When someone Dreams, it lands here. Or you could go first."),
+          // Nov 7 2026 (Grok's stranger path): Help is linked right from the empty Feed. Circles only gets its own words.
+          lcFeedOrder()==="circles" && lh('p', { style: {fontSize:14,color:"var(--tx2)",marginTop:6,maxWidth:260,textAlign:"center"} }, "Circles only is on, so only Dreams from Circles you joined show here. Switch Feed mode to For you to see everything."),
+          lh('p', { style: {fontSize:14,marginTop:8,textAlign:"center"} }, "New here? ", lh('a', { href: (Looscid.LOOSCID_BASE || "") + "help/" }, "The Help Center has the basics"), "."),
           // Round 7.16 (#216): Discover, not Cherry, is where you find people.
           tab==="following" && lh('button', { type: "button", id: "feed-find-people", className: "btn bgb lc-btn", style: {margin:"10px auto 0",display:"flex"}, onClick: ()=>navigate("discover") }, "Find people in Discover"))
       , rmOn && lh('div', { className: "lc-rm", onKeyDown: function (e) { if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return; if (e.key === "ArrowRight") { e.preventDefault(); rmGo(rmI + 1); } else if (e.key === "ArrowLeft") { e.preventDefault(); rmGo(rmI - 1); } },
@@ -234,7 +251,25 @@ function lcAgo(ms) { const m = Math.max(0, (Date.now() - ms) / 60000); return m 
 function lcPubDream(r) {
   const short = String(r.npub || r.pk).slice(0, 14);
   return { id: "n:" + r.id, nid: r.nid, user: { id: "npub:" + r.pk, name: short, handle: "@" + short, net: "nostr" }, text: r.text, time: lcAgo(r.created), created: r.created,
-    likes: 0, comments: 0, redreams: 0, quotes: 0, liked: false, redreamed: false, quoted: false, bookmarked: false, cw: r.cw, net: "nostr", g: r.g, tags: r.tags, edits: r.edits, editedAt: r.editedAt };
+    likes: 0, comments: 0, redreams: 0, quotes: 0, liked: false, redreamed: false, quoted: false, bookmarked: false, cw: r.cw, net: "nostr", sigOk: true /* checked with verifyEvent when it came in from the relays (js/nostr.js) */, g: r.g, tags: r.tags, edits: r.edits, editedAt: r.editedAt };
+}
+// Nov 7 2026: a Dream from the Looscid server (js/net.js), shaped like the other Federated Dreams.
+function lcNetDream(r) {
+  let npub = ""; try { npub = window.NostrTools ? window.NostrTools.nip19.npubEncode(r.pk) : ""; } catch (e) {}
+  const short = String(npub || r.pk).slice(0, 14), cwT = (r.tags || []).find(function (t) { return t && t[0] === "content-warning"; });
+  return { id: "n:" + r.id, nid: r.nid || r.id, user: { id: "npub:" + r.pk, name: short, handle: "@" + short, net: "looscid" }, text: r.text, time: lcAgo(r.created), created: r.created,
+    likes: 0, comments: r.replies || 0, redreams: r.redreams || 0, quotes: r.quotes || 0, liked: false, redreamed: false, quoted: false, bookmarked: false,
+    cw: r.cw || (cwT ? cwT[1] || "Content warning" : undefined), net: "looscid", fromServer: true, tags: r.tags || [], sigOk: lcRemSigOk(r) };
+}
+/* Nov 7 2026 (Carter): the "Verified" badge. Rem sends each Dream with its original signed event (r.ev). This checks it
+   right here in the app, not on trust: the event's id and Schnorr signature must check out (NostrTools.verifyEvent), it must
+   be signed by the same key as the Dreamor (r.pk), and it must say the same words. Only then is the Dream "Verified".
+   Older Rem v0 Dreams and edited Dreams (the words changed after signing) aren't checked here, so they show no badge
+   (that means "not checked", not "fake"). */
+function lcRemSigOk(r) {
+  const ev = r && r.ev, NT = window.NostrTools;
+  if (!ev || !NT || typeof NT.verifyEvent !== "function" || ev.rem !== undefined) return false;
+  try { return ev.id === r.id && ev.pubkey === r.pk && ev.content === r.text && NT.verifyEvent(ev); } catch (e) { return false; }
 }
 function lcFeedVisible(tab, raw, o) {
   const pins = Looscid.lcPins(), FOL = o.following || new Set();
@@ -252,7 +287,9 @@ function lcFeedVisible(tab, raw, o) {
   else if (tab === "federated") {
     const nets = Looscid.lcFedNets(), sub = Looscid.lcFedSub();
     const have = new Set(raw.map(function (d) { return d.nid; }).filter(Boolean));
-    const base = (nets.indexOf("looscid") >= 0 ? raw : []).concat(nets.indexOf("nostr") >= 0 ? (o.pub || []).filter(function (d) { return !have.has(d.nid); }) : []);
+    // Nov 7 2026: Looscid = your Dreams here plus the Looscid server's public feed; a Dream on both shows once.
+    const local = nets.indexOf("looscid") >= 0 ? raw.concat((o.srv || []).filter(function (d) { if (have.has(d.nid)) return false; have.add(d.nid); return true; })) : [];
+    const base = local.concat(nets.indexOf("nostr") >= 0 ? (o.pub || []).filter(function (d) { return !have.has(d.nid); }) : []);
     list = lcSortDreams(base, sub === "popular" ? "popular" : "latest");
   } else if (/^pin:/.test(tab)) {
     const f = LC_FEEDS.find(function (x) { return x.id === tab; }), p = f && f.pin;
@@ -273,13 +310,34 @@ function lcFeedVisible(tab, raw, o) {
     const off = LC_FY_SOURCES.map(function (s) { return s[0]; }).filter(function (k) { return !fy.on || !fy[k]; });
     list = lcSortDreams(raw.filter(function (d) { return !off.some(function (k) { return src[k](d); }); }), Looscid.lcFeedSort("for you"));
   }
+  // Nov 7 2026 (Carter): Feed modes, the choice at the top of the feed. For you = the feed as it always was (the boost
+  // for replies and ReDreams). Newest = pure time, newest first, no boost. Circles only = only Dreams from Circles you
+  // joined, newest first (worked out here in the app, from each Dream's Circle).
+  const mode = lcFeedOrder();
+  if (mode === "new") list = lcSortDreams(list, "latest");
+  else if (mode === "circles") list = lcSortDreams(list.filter(src.circles), "latest");
   return list.filter(function (d) { return !(lcFiltered(d) || {}).hide; });
 }
+const LC_FEED_ORDER_KEY = "looscid_feed_order", LC_FEED_ORDERS = [["foryou", "For you"], ["new", "Newest"], ["circles", "Circles only"]];
+function lcFeedOrder() { try { const v = localStorage.getItem(LC_FEED_ORDER_KEY); return v === "new" || v === "circles" ? v : "foryou"; } catch (e) { return "foryou"; } }
+function lcFeedOrderSet(v) { try { localStorage.setItem(LC_FEED_ORDER_KEY, v); } catch (e) {} try { window.dispatchEvent(new Event("looscid:feedorder")); } catch (e) {} }
+// Native radio buttons in a fieldset, so VoiceOver says "Feed mode", the choice, and "1 of 3".
+function FeedOrder() {
+  useFeedTick();
+  const cur = lcFeedOrder();
+  return lh('fieldset', { className: "lc-feed-modes", style: { border: 0, margin: "4px 12px 8px", padding: 0, display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" } },
+    lh('legend', { style: { fontWeight: 600, fontSize: 14, padding: 0, marginRight: 8, float: "left" } }, "Feed mode"),
+    LC_FEED_ORDERS.map(function (m) {
+      return lh('label', { key: m[0], style: { display: "inline-flex", alignItems: "center", gap: 4, fontSize: 14 } },
+        lh('input', { type: "radio", name: "lc-feed-mode", value: m[0], checked: cur === m[0], onChange: function () { lcFeedOrderSet(m[0]); Looscid.announce && Looscid.announce(m[1] === "Newest" ? "Newest first." : m[1] + "."); } }), m[1]);
+    }));
+}
+Object.assign(Looscid, { lcFeedOrder, lcFeedOrderSet, FeedOrder, lcRemSigOk, lcNetDream });
 function useFeedTick() {
   const [, setN] = useState(0);
   useEffect(function () {
     const f = function () { setN(function (n) { return n + 1; }); };
-    const ev = ["looscid:pins", "looscid:fedsub", "looscid:fednets", "looscid:feedsort", "looscid:fyfollow", "looscid:fedlocal", "looscid:threadsubs"]; // + #74
+    const ev = ["looscid:pins", "looscid:fedsub", "looscid:fednets", "looscid:feedsort", "looscid:fyfollow", "looscid:fedlocal", "looscid:threadsubs", "looscid:feedorder"]; // + #74
     ev.forEach(function (e) { window.addEventListener(e, f); });
     return function () { ev.forEach(function (e) { window.removeEventListener(e, f); }); };
   }, []);
