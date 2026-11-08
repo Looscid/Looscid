@@ -33,6 +33,8 @@ Where each Looscid app lives:
 - Android app: [Looscid/Looscid-Android](https://github.com/Looscid/Looscid-Android), branch `DEV`.
 - iOS app: coming later, in its own repo, Looscid/Looscid-iOS.
 
+Builds so far: web 195, Android 1, iOS 0 (196 total).
+
 </details>
 
 ## License
