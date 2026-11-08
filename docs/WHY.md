@@ -20,6 +20,8 @@ Settings, Accessibility has a section for each:
 
 I build Looscid to meet accessibility standards, and I want it tested by real people with disabilities.
 
+Looscid aims to follow WCAG 2.2 and the spirit of the ADA. It hasn't been audited yet. If something doesn't work for you, tell me and I'll fix it.
+
 ## Every screen reader, not just one
 
 Most social apps get tested with one screen reader, if they get tested at all. I build Looscid for every screen reader: VoiceOver, TalkBack, NVDA, JAWS, Orca, and everything in between, plus braille displays. Every screen has one heading level 1, so you can jump straight to the top of any page.
@@ -56,6 +58,10 @@ My full commitment is at the top of the [accessibility guide](guides/ACCESSIBILI
 
 ## Why I'm building this — Carter
 
-[Carter's story goes here]
+I'm Carter, and I'm blind. I'm building Looscid because I believe apps should be for everyone.
+
+If you have a problem, you should be heard. If you get banned, you should be heard. That's why Looscid has a public mod log and a Report Center where you get a real reply.
+
+YOU MATTER. PEOPLE MATTER.
 
 You matter. I care. — Carter
