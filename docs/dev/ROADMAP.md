@@ -183,6 +183,26 @@ Carter, November 8, 2026: every change should show up everywhere; local first is
 - [x] Threads you follow sync. Private: only your own key can read them.
 - [ ] Next: blocked words, blocked Circles, Dreamor notes, settings and drafts.
 
+### Looscid apps
+
+Carter, November 8, 2026: real Looscid apps, Android first. We build them in the open, so anyone can build them too.
+
+- [ ] Android app first, built in Kotlin, open source (AGPL), in its own repo: Looscid/Looscid-Android. It starts as an app that opens Looscid, then we make the screens native one at a time.
+- [ ] iOS app after that, built in Swift, in its own repo: Looscid/Looscid-iOS. You install it by sideloading.
+- Updates:
+  - [ ] Looscid updates itself when you open it. Most updates arrive instantly.
+  - [ ] When the app itself needs an update, a "Looscid needs an update" alert pops up. Just tap to update.
+  - [ ] An update screen with what's new that you can open anytime. It updates apps inside Looscid too.
+- [ ] Get Looscid from open-source Android app stores.
+- [ ] Apps page: each app links to where you can get it.
+- Braille displays:
+  - [ ] Enter submits one-line fields.
+  - [ ] In the message box, Enter sends and Shift+Enter makes a new line. A Settings checkbox, "Enter sends messages", controls this.
+  - [ ] Enter activates buttons, opens menus and checks boxes.
+  - [ ] Enter runs the swipe action you're on, like Like Dream.
+  - [ ] All of this works on any braille display.
+- [ ] Works on privacy-focused Android phones with no Google services.
+
 ### Safety and privacy
 
 - [ ] A "Friends of Friends" choice for who can see a Dream.
