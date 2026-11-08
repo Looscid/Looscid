@@ -344,12 +344,14 @@ async function forget(req, env, ev) {
   if (ev.kind !== 21985 || !fresh(ev) || (tag(ev, "action") || [])[1] !== "delete-my-data") return json(req, { ok: false, error: "needs a fresh kind 21985 event with [\"action\", \"delete-my-data\"]" }, 400);
   const pk = ev.pubkey, B = (sql) => env.DB.prepare(sql).bind(pk);
   await modTable(env); // so the cleanup line below works on a database that never had a removal
+  await circleModTable(env);
   await env.DB.batch([
     B("DELETE FROM pins WHERE user_id = ?1"), B("DELETE FROM alerts WHERE user_id = ?1"),
     B("DELETE FROM reposts WHERE user_id = ?1"), B("DELETE FROM reports WHERE reporter_id = ?1"),
     B("DELETE FROM blocks WHERE blocker_id = ?1"), B("DELETE FROM events WHERE pubkey = ?1"),
     B("DELETE FROM reports WHERE dream_id IN (SELECT id FROM dreams WHERE user_id = ?1)"),
     B("DELETE FROM moderations WHERE dream_id IN (SELECT id FROM dreams WHERE user_id = ?1)"),
+    B("DELETE FROM circle_moderations WHERE mod_id = ?1"),
     B("DELETE FROM reposts WHERE dream_id IN (SELECT id FROM dreams WHERE user_id = ?1)"),
     B("DELETE FROM pins WHERE dream_id IN (SELECT id FROM dreams WHERE user_id = ?1)"),
     B("DELETE FROM dreams WHERE user_id = ?1"), B("DELETE FROM users WHERE id = ?1"),
@@ -368,6 +370,7 @@ async function modTable(env) {
 // POST /moderate  body: a signed kind 21986 event: ["e", <Dream id>], ["action", "remove" | "restore"], ["reason", text]; fresh (10 min)
 async function moderate(req, env, ev) {
   if (ev.kind !== 21986 || !fresh(ev)) return json(req, { ok: false, error: "needs a fresh kind 21986 moderation event" }, 400);
+  if ((tag(ev, "scope") || [])[1] === "circle") return await circleModerate(req, env, ev);
   if (!mods(env).includes(ev.pubkey)) return json(req, { ok: false, error: "not a Looscid moderator" }, 403);
   const e = tag(ev, "e"), action = (tag(ev, "action") || [])[1] === "restore" ? "restore" : "remove";
   const reason = String(((tag(ev, "reason") || [])[1]) || ev.content || "").replace(/\s+/g, " ").trim();
@@ -387,6 +390,33 @@ async function moderate(req, env, ev) {
   return json(req, { ok: true, [action === "remove" ? "removed" : "restored"]: d.id });
 }
 // GET /moderation/<pubkey>: that Dreamor's removed or report-hidden Dreams, with the reason, so the author sees why.
+// Circle mod removals (Nov 8 2026, Carter: "every single change should be everywhere"). Circles live on their owner's
+// devices, so Rem can't check who runs one. A Circle removal is a signed claim by the remover's key about the remover's own
+// Circle: the Circle is (mod key, circle id), so nobody can log a removal in someone else's Circle. It never hides a Dream
+// on Rem (only Looscid admins in MODS do that); it's kept so the remover's other devices and the public log see it.
+// ["scope","circle"], ["circle", id], ["circle_name", name], ["e", dream ref: a Rem id or the app's own id], ["action",
+// "remove"|"restore"], ["reason", why]. Restore takes the row out. The table is made here, the first time it's needed.
+var CIRCLE_REF = /^[A-Za-z0-9_.:-]{1,64}$/;
+async function circleModTable(env) {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS circle_moderations (mod_id TEXT NOT NULL, circle_id TEXT NOT NULL, dream_ref TEXT NOT NULL, circle_name TEXT NOT NULL, reason TEXT NOT NULL, created_at INTEGER NOT NULL, PRIMARY KEY (mod_id, circle_id, dream_ref))").run();
+}
+async function circleModerate(req, env, ev) {
+  const e = tag(ev, "e"), action = (tag(ev, "action") || [])[1] === "restore" ? "restore" : "remove";
+  const circle = String((tag(ev, "circle") || [])[1] || ""), name = String((tag(ev, "circle_name") || [])[1] || "").replace(/\s+/g, " ").trim();
+  const reason = String((tag(ev, "reason") || [])[1] || ev.content || "").replace(/\s+/g, " ").trim();
+  const ref = e ? String(e[1] || "") : "";
+  if (!CIRCLE_REF.test(ref)) return json(req, { ok: false, error: "no Dream (e tag)" }, 400);
+  if (!CIRCLE_REF.test(circle)) return json(req, { ok: false, error: "no Circle (circle tag)" }, 400);
+  await circleModTable(env);
+  if (action === "restore") {
+    await env.DB.prepare("DELETE FROM circle_moderations WHERE mod_id = ?1 AND circle_id = ?2 AND dream_ref = ?3").bind(ev.pubkey, circle, ref).run();
+    return json(req, { ok: true, restored: ref, scope: "circle", circle_id: circle });
+  }
+  if (!name || name.length > 100) return json(req, { ok: false, error: "a Circle name (1-100 characters) is required" }, 400);
+  if (!reason || reason.length >= 1024) return json(req, { ok: false, error: "a reason (1-1023 characters) is required" }, 400);
+  await env.DB.prepare("INSERT INTO circle_moderations (mod_id, circle_id, dream_ref, circle_name, reason, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6) ON CONFLICT(mod_id, circle_id, dream_ref) DO UPDATE SET circle_name = ?4, reason = ?5, created_at = ?6").bind(ev.pubkey, circle, ref, name, reason, Date.now()).run();
+  return json(req, { ok: true, removed: ref, scope: "circle", circle_id: circle });
+}
 async function moderationOf(req, env, pk) {
   await modTable(env);
   const r = await env.DB.prepare("SELECT d.id AS dream_id, substr(d.text, 1, 80) AS text, m.reason, m.created_at AS at FROM dreams d LEFT JOIN moderations m ON m.dream_id = d.id WHERE d.user_id = ?1 AND d.status = 'hidden' AND d.deleted_at IS NULL ORDER BY d.created_at DESC LIMIT 100").bind(pk).all();
@@ -397,11 +427,34 @@ async function moderationOf(req, env, pk) {
 // keys in MODS are Looscid admins), the reason and when. Anyone can read it, no key needed. ?limit= (1-200, 100 by
 // default) and ?before=<ms> page through it. A Dream put back (restore) leaves the log.
 async function modlog(req, env, url) {
+  // Nov 8 2026: ?scope=circle (Circle mods' removals) or ?scope=all (both, newest first); ?circle=<id> and ?mod=<key>
+  // narrow the Circle ones. Each of those items says scope, circle_id, circle_name and mod (the remover's key). With no
+  // scope and no circle, the answer is exactly what it was before: Looscid admins' removals only.
+  const scope = url.searchParams.get("scope") || (url.searchParams.get("circle") || url.searchParams.get("mod") ? "circle" : "");
+  if (scope === "circle" || scope === "all") return await modlogScoped(req, env, url, scope);
   await modTable(env);
   const limit = Math.max(1, Math.min(200, parseInt(url.searchParams.get("limit") || "100", 10) || 100));
   const before = parseInt(url.searchParams.get("before") || "", 10);
   const rows = (await env.DB.prepare("SELECT dream_id, reason, created_at FROM moderations WHERE action = 'remove' AND created_at < ?1 ORDER BY created_at DESC LIMIT ?2").bind(Number.isFinite(before) ? before : 9e15, limit).all()).results;
   return json(req, { ok: true, items: rows.map((r) => ({ dream_id: r.dream_id, action: "remove", by: "admin", reason: r.reason, at: r.created_at })), next: rows.length === limit ? rows[rows.length - 1].created_at : null });
+}
+async function modlogScoped(req, env, url, scope) {
+  await modTable(env);
+  await circleModTable(env);
+  const limit = Math.max(1, Math.min(200, parseInt(url.searchParams.get("limit") || "100", 10) || 100));
+  const b = parseInt(url.searchParams.get("before") || "", 10), before = Number.isFinite(b) ? b : 9e15;
+  const circle = url.searchParams.get("circle"), mod = String(url.searchParams.get("mod") || "").toLowerCase();
+  let sql = "SELECT mod_id, circle_id, dream_ref, circle_name, reason, created_at FROM circle_moderations WHERE created_at < ?1", args = [before];
+  if (circle) { sql += " AND circle_id = ?" + (args.length + 1); args.push(circle); }
+  if (/^[0-9a-f]{64}$/.test(mod)) { sql += " AND mod_id = ?" + (args.length + 1); args.push(mod); }
+  sql += " ORDER BY created_at DESC LIMIT ?" + (args.length + 1); args.push(limit);
+  const cs = (await env.DB.prepare(sql).bind(...args).all()).results.map((r) => ({ dream_id: r.dream_ref, action: "remove", by: "moderator", scope: "circle", circle_id: r.circle_id, circle_name: r.circle_name, mod: r.mod_id, reason: r.reason, at: r.created_at }));
+  let items = cs;
+  if (scope === "all" && !circle && !mod) {
+    const ss = (await env.DB.prepare("SELECT dream_id, reason, created_at FROM moderations WHERE action = 'remove' AND created_at < ?1 ORDER BY created_at DESC LIMIT ?2").bind(before, limit).all()).results.map((r) => ({ dream_id: r.dream_id, action: "remove", by: "admin", scope: "site", reason: r.reason, at: r.created_at }));
+    items = ss.concat(cs).sort((x, y) => y.at - x.at).slice(0, limit);
+  }
+  return json(req, { ok: true, items, next: items.length === limit ? items[items.length - 1].at : null });
 }
 
 /* ---------- router ---------- */

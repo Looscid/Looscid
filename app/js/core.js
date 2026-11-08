@@ -98,6 +98,8 @@ function lcCircleCreate(form) {
     rules: (form.rules || []).map(function (r) { return String(r || "").trim(); }).filter(Boolean),
     members: 1, memberIds: [ME.id], joined: true, mine: true, created: new Date().toISOString()
   };
+  // Nov 8 2026: the key that made it, so this Circle's mod removals from Rem count on your other devices too (modreasons.js).
+  try { const st = Looscid.lcNostr && Looscid.lcNostr.state ? Looscid.lcNostr.state() : null; if (st && /^[0-9a-f]{64}$/i.test(String(st.pubkey || ""))) g.ownerPk = String(st.pubkey).toLowerCase(); } catch (e) {}
   GROUPS.push(g);
   lcCirclesWrite(lcCirclesRead().concat([g]));
   return g;
@@ -2193,7 +2195,8 @@ Looscid.CHILD_SAFETY_CONTENT = CHILD_SAFETY_CONTENT;
    (contentinfo) with a "Footer" heading and one h3 per group: Social, Legal, About (was Values), Download. It is never fixed or
    floating: LcFooterHost moves it to the end of the page's own scrolling area, so it only shows once you reach the
    end and never covers content. Pages without a scrolling .pg (full-screen tools) have no footer.
-   The old app never had a site footer on preview; main's one line, "Looscid is open source and local first.", is kept. */
+   The old app never had a site footer on preview. Nov 8 2026 (Carter: "local first is a good idea for data backups, but a
+   bad idea for syncing and finding things ... that should be erased"): the tagline line under the logo is gone. */
 /* Round 11 fixes (QA round 10): forget which footer page was opened, and from where (its link, its Replies, a second hop),
    once you leave that page some other way than its own Back or another footer link (the tab bar, More, Commandbar...). */
 function lcFooterForget() { Looscid.lcFooterFrom = null; Looscid.lcFooterLink = null; Looscid.lcFooterCv = null; Looscid.lcFooterHop = null; }
@@ -2219,7 +2222,7 @@ function LcSiteFooter({ navigate, cur }) {
   const site = function (href, text, key) { return lh('li', { key: key }, lh('a', { href: base + href, className: "lc-link" }, text)); };
   return lh('footer', { className: "lc-footer", role: "contentinfo", "aria-labelledby": "lc-foot-title" },
     lh('h2', { id: "lc-foot-title", className: "lc-foot-title" }, "Footer"),
-    lh('p', { className: "lc-foot-brand" }, lh(LcLogo, { size: 28, alt: LC_LOGO_ALT }), lh('span', { className: "lc-foot-name", "aria-hidden": "true" }, "Looscid"), lh('span', { className: "lc-foot-tag" }, "Just Dream. Open source and local first.")),
+    lh('p', { className: "lc-foot-brand" }, lh(LcLogo, { size: 28, alt: LC_LOGO_ALT }), lh('span', { className: "lc-foot-name", "aria-hidden": "true" }, "Looscid")),
     lh('div', { className: "lc-foot-grps" },
     grp("lc-foot-looscid", "Looscid", [go("settings_about", "About Looscid", "ab"), go("hour_story", "Our Story", "os"),
       // Round 7.24 (#161): the changelog is its own page on the site (every version, with its own link preview).

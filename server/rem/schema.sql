@@ -18,3 +18,5 @@ CREATE INDEX IF NOT EXISTS dreams_reply ON dreams(reply_to);
 CREATE INDEX IF NOT EXISTS dreams_quote ON dreams(quote_of);
 -- Nov 8 2026: moderation (POST /moderate, GET /moderation/<key>, GET /modlog). The code also makes it itself.
 CREATE TABLE IF NOT EXISTS moderations (dream_id TEXT PRIMARY KEY, mod_id TEXT NOT NULL, action TEXT NOT NULL, reason TEXT NOT NULL, created_at INTEGER NOT NULL);
+-- Nov 8 2026: Circle mod removals (signed by the remover; a Circle is its mod key + its id; never hides a Dream on Rem).
+CREATE TABLE IF NOT EXISTS circle_moderations (mod_id TEXT NOT NULL, circle_id TEXT NOT NULL, dream_ref TEXT NOT NULL, circle_name TEXT NOT NULL, reason TEXT NOT NULL, created_at INTEGER NOT NULL, PRIMARY KEY (mod_id, circle_id, dream_ref));

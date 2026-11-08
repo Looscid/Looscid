@@ -133,8 +133,12 @@ function blockedPk(handle) { return lsJson(BLOCKS_KEY, {})[normH(handle)] || nul
 // Nov 8 2026: moderation reasons (js/modreasons.js). A mod's removal goes to Rem as a signed kind 21986 event with the
 // reason, and your own removed Dreams come back with theirs. A Rem without these answers 404, and that's fine: the
 // removal still shows on this device.
-async function moderate(nid, action, reason) {
-  try { const ev = await signAction({ kind: 21986, content: String(reason || ""), tags: [["e", String(nid).toLowerCase()], ["action", action === "restore" ? "restore" : "remove"], ["reason", String(reason || "")], PROTOCOL_TAG] });
+// Nov 8 2026: circle = { id, name } sends a Circle mod's removal (["scope","circle"]); nid is then the Dream's Rem id or
+// the app's own id for it. Rem keeps it under your key and that Circle; it never hides the Dream on Rem.
+async function moderate(nid, action, reason, circle) {
+  const ref = circle ? String(nid) : String(nid).toLowerCase();
+  const extra = circle ? [["scope", "circle"], ["circle", String(circle.id)], ["circle_name", String(circle.name || "Circle").slice(0, 100)]] : [];
+  try { const ev = await signAction({ kind: 21986, content: String(reason || ""), tags: extra.concat([["e", ref], ["action", action === "restore" ? "restore" : "remove"], ["reason", String(reason || "")], PROTOCOL_TAG]) });
     const r = await call("POST", "/moderate", ev); return { ok: r.ok, status: r.status }; } catch (e) { return { ok: false }; }
 }
 async function moderators() {
@@ -142,8 +146,9 @@ async function moderators() {
   const r = await call("GET", "/moderators"); return r.ok && Array.isArray(r.body.moderators) ? r.body.moderators : [];
 }
 // Nov 8 2026: the public mod log (GET /modlog, no key needed). null when Rem doesn't have it (404) or can't be reached.
-async function modlog(limit) {
-  const r = await call("GET", "/modlog?limit=" + Math.max(1, Math.min(200, +limit || 100))); return r.ok && Array.isArray(r.body.items) ? r.body.items : null;
+// scope "all" (Nov 8 2026) also brings Circle mods' removals (each says scope, circle_id, circle_name and mod).
+async function modlog(limit, scope) {
+  const r = await call("GET", "/modlog?limit=" + Math.max(1, Math.min(200, +limit || 100)) + (scope === "all" || scope === "circle" ? "&scope=" + scope : "")); return r.ok && Array.isArray(r.body.items) ? r.body.items : null;
 }
 async function moderationFor(pk) {
   const me = pk || (Looscid.lcNostr && Looscid.lcNostr.state ? Looscid.lcNostr.state().pubkey : null); if (!isHex64(me || "")) return [];

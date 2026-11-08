@@ -174,7 +174,7 @@
   if (!list || !status || !window.fetch) return;
   var rem = list.getAttribute("data-rem") || "";
   status.textContent = "Loading the mod log\u2026";
-  fetch(rem + "/modlog?limit=200", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (j) {
+  fetch(rem + "/modlog?limit=200&scope=all", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (j) {
     var items = j && j.ok && Array.isArray(j.items) ? j.items : null;
     if (!items) throw new Error("no log");
     list.textContent = "";
@@ -182,7 +182,9 @@
       var id = String(it.dream_id || ""), when = "";
       try { when = it.at ? new Date(+it.at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""; } catch (x) {}
       var li = document.createElement("li");
-      li.textContent = (when ? when + ": " : "") + "Dream " + id.slice(0, 8) + " was removed by " + (it.by === "moderator" ? "a moderator" : "a Looscid admin") + ". Reason: " + String(it.reason || "");
+      // Nov 8 2026: Circle mods' removals come too (scope=all); they name their Circle. A Circle Dream's ref can be the app's own id.
+      var ref = /^[0-9a-f]{64}$/i.test(id) ? id.slice(0, 8) : id.slice(-8);
+      li.textContent = (when ? when + ": " : "") + "Dream " + ref + " was removed by " + (it.by === "moderator" ? "a moderator" + (it.circle_name ? " of " + String(it.circle_name) : "") : "a Looscid admin") + ". Reason: " + String(it.reason || "");
       list.appendChild(li);
     });
     list.hidden = !items.length;

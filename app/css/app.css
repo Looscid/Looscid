@@ -643,7 +643,6 @@ body.acc-text-2 .pg .lc-end-chrome { zoom: 0.769231; }
 .lc-foot-brand { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 4px 0 8px; }
 .lc-foot-brand .lc-logo { width: 28px; height: 28px; border-radius: 22%; }
 .lc-foot-name { font-weight: 800; font-size: 17px; color: var(--tx); }
-.lc-foot-tag { flex-basis: 100%; font-size: 14px; }
 .lc-footer .lc-foot-h { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
 .lc-footer .lc-foot-list li { margin: 0; }
 .lc-footer .lc-link { text-decoration: none; }

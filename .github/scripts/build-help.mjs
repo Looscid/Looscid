@@ -45,7 +45,7 @@ const BUILD_TEXT = "Looscid " + VJ.version + " (" + VJ.build + ")";
 const sfLi = (href, text) => '<li><a href="' + href + '">' + text + "</a></li>";
 const sfExt = (href, text, site) => '<li><a href="' + href + '" title="Go to ' + site + '" target="_blank" rel="noopener noreferrer">' + text + "</a></li>";
 const sfCol = (id, title, items) => '<section class="sf-col" aria-labelledby="sf-h-' + id + '"><h2 id="sf-h-' + id + '">' + title + "</h2><ul>" + items.join("") + "</ul></section>";
-const SITE_FOOTER = "<footer class=\"sf\">\n<div class=\"sf-in\">\n<p class=\"sf-brand\"><img src=\"/Looscid/assets/icons/icon-512.png?v=nl1\" alt=\"Looscid logo: a white open ring with a dot in the middle, on blue\" role=\"img\" aria-label=\"Looscid logo: a white open ring with a dot in the middle, on blue\" width=\"28\" height=\"28\"><span class=\"sf-name\" aria-hidden=\"true\">Looscid</span><span class=\"sf-tag\">Just Dream. Open source and local first.</span></p>\n<div class=\"sf-cols\">\n" + [
+const SITE_FOOTER = "<footer class=\"sf\">\n<div class=\"sf-in\">\n<p class=\"sf-brand\"><img src=\"/Looscid/assets/icons/icon-512.png?v=nl1\" alt=\"Looscid logo: a white open ring with a dot in the middle, on blue\" role=\"img\" aria-label=\"Looscid logo: a white open ring with a dot in the middle, on blue\" width=\"28\" height=\"28\"><span class=\"sf-name\" aria-hidden=\"true\">Looscid</span></p>\n<div class=\"sf-cols\">\n" + [
   sfCol("help", "Get help", [sfLi("/Looscid/", "Looscid Home"), sfLi("/Looscid/help/", "Help Home"), sfLi("/Looscid/help/getting-started/", "Getting Started"), sfLi("/Looscid/help/looscid-basics/", "Looscid Basics course"), sfLi("/Looscid/help/dev/accessibility/", "Accessibility"), sfLi("/Looscid/help/contact/", "Contact Us"), sfLi("/Looscid/Feedback/", "Send Feedback")]),
   sfCol("project", "Project", [sfLi("/Looscid/changelog/", "Roadmap &amp; Changelog"), sfLi("/Looscid/status.html", "Status"), sfLi("/Looscid/help/#h-building", "Docs"), sfLi("/Looscid/help/dev/contributing/", "Contributing"), sfExt("https://github.com/Looscid/Looscid", "Source code", "GitHub"), sfExt("https://github.com/Looscid/Looscid/issues", "Issues", "GitHub")]),
   sfCol("looscid", "Looscid", [sfLi("/Looscid/About/", "About"), sfLi("/Looscid/Our-Story/", "Our Story"), sfLi("/Looscid/Credits/", "Credits")]),
@@ -150,7 +150,7 @@ ${nav}
 ${body}
 </main>
 ${SITE_FOOTER}
-<script src="${up}help.js?v=hc4"></script>
+<script src="${up}help.js?v=hc5"></script>
 </body>
 </html>
 `;
