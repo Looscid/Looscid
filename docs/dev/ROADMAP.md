@@ -158,6 +158,16 @@ Shipped today, for context: a Circle, Dreamor, hashtag, thread or List can be pi
 - [ ] Sidebar: Sections on wide screens.
 - [ ] The style you pick never changes unless you change it.
 
+### Who sees your Dream
+
+- [ ] Pick who sees each Dream: Public, Dreamors you follow, My people, or Only me.
+- [ ] Set your default audience in Settings, so every new Dream starts with it. Change it on any Dream, anytime.
+- [ ] My people: your own close list. The name isn't final, but it can't be "Circles", since Circles are groups. People aren't told when you add or remove them.
+- [ ] Adding to My people: your mutuals are suggested at the top, with tabs for Mutuals, Following and Followers.
+- [ ] Private mode: everything you make stays only with you until you turn it off.
+- [ ] Privacy checkup: a short walk through your privacy settings, one step at a time.
+- [ ] The audience picker reads clearly with VoiceOver: each choice is one swipe, with its name and a one-line description.
+
 ### Cherry
 
 - [ ] A new Cherry design, made by 2three1y.
