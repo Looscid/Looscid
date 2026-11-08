@@ -9024,6 +9024,7 @@ useEffect(() => {
   };
 
   // First run: the onboarding is the whole screen, so nothing behind it is reachable.
+  // (Nov 8 2026: so below this line showWelcome is always false, and the checks under it don't test it again.)
   if (showWelcome) return React.createElement(LooscidOnboarding, { onDone: ()=>{ setShowWelcome(false);
     // Nov 7 2026: leaving the welcome opened from /welcome puts Home's address back.
     if (Looscid.lcWelcomeAt) { Looscid.lcWelcomeAt = false; const H = hist.current; H.mode = "replace"; H.modeUntil = Date.now() + 1200; histSyncSoon(); } },});
@@ -9086,10 +9087,10 @@ useEffect(() => {
       , showAnalytics && React.createElement(AnalyticsBanner, { onDone: () => setShowAnalytics(false),})
       , showHabitCard && React.createElement(HabitInsightCard, { onDismiss: ()=>setShowHabitCard(false),})
       , cmdOpen && lh(CommandBar, { onClose: closeCmd, exec: execCommand, onFull: function () { setCmdOpen(false); cmdReturn.current = null; if (page !== "terminal") termBack.current = page; navigate("terminal"); } })
-      , askDevice && !showWelcome && getWelcomeSeen() && lh(DeviceQuestion, { onDone: onDeviceDone })
+      , askDevice && getWelcomeSeen() && lh(DeviceQuestion, { onDone: onDeviceDone })
       // Nov 1 2026 (Carter): a one-time "Switch to the Looscid server?" question for Local mode, after first-run setup (js/remsync.js)
-      , !showWelcome && !askDevice && !showBoot && !showAnalytics && !cmdOpen && !loggedOutAsk && !(authUser && authUser.isGuest) && Looscid.LcServerAsk && lh(Looscid.LcServerAsk, { navigate: navigate }) /* Nov 7 2026: not for Guests (no Dreams to put anywhere yet) */
-      , showBoot && !showWelcome && !askDevice && lh(LcBoot, { onDone: function () { try { sessionStorage.setItem("looscid_booted", "1"); } catch (e) {} setShowBoot(false); focusMainHeading(); } })
+      , !askDevice && !showBoot && !showAnalytics && !cmdOpen && !loggedOutAsk && !(authUser && authUser.isGuest) && Looscid.LcServerAsk && lh(Looscid.LcServerAsk, { navigate: navigate }) /* Nov 7 2026: not for Guests (no Dreams to put anywhere yet) */
+      , showBoot && !askDevice && lh(LcBoot, { onDone: function () { try { sessionStorage.setItem("looscid_booted", "1"); } catch (e) {} setShowBoot(false); focusMainHeading(); } })
       , showSymPicker && React.createElement(Looscid.SymbolPicker, { onInsert: s=>{ if(symTarget)symTarget(s); setShowSymPicker(false); setSymTarget(null); }, onClose:()=>setShowSymPicker(false),})
     )
   );

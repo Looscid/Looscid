@@ -2,7 +2,7 @@
    Plain script (not a module). Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order. */
 (function (Looscid) {
 const { AlertDialog, Av, BackHeader, CreateGroupFlow, DRAFTS_KEY, Earcon, LC_AUTOSAVE_KEY, LcMenu, ME, Modal, _optionalChain, announce, getDrafts, lcCloseProps, lcSpeechText, lh, recordHabit, useEffect, useEnterSubmit, useInertBehind, useRef, useState } = Looscid;
-Object.assign(Looscid, { lcSaveDraft, LC_CREATE_DESC, LC_CREATE_OPTS, CreateOptions, lcCreatePick, LcComposer, lcReplyDrafts, lcAltSuggest, deleteDraftItem, AttachPanel, CreateMenu, DraftsPage, evalInlineCalc, SymbolPicker, lcSendWithUndo, lcPrepImage });
+Object.assign(Looscid, { lcSaveDraft, CreateOptions, lcCreatePick, LcComposer, lcReplyDrafts, lcAltSuggest, deleteDraftItem, AttachPanel, CreateMenu, DraftsPage, evalInlineCalc, SymbolPicker, lcSendWithUndo, lcPrepImage });
 
 function deleteDraftItem(id) {
   try { localStorage.setItem(DRAFTS_KEY, JSON.stringify(getDrafts().filter(d => d.id !== id))); } catch (e7) {}
@@ -150,6 +150,8 @@ var LC_CREATE_OPTS = [
   { id: "chat", l: "New Chat", chat: true }, // Round 7.30 (Carter, Oct 26 2026): opens Inbox, Chats, Send a message
   { id: "cherry", l: "New Chat with Cherry", cherry: true },
 ];
+/* Nov 8 2026: shared here, after they're set. The export at the top ran before these lines, so it handed out undefined. */
+Object.assign(Looscid, { LC_CREATE_DESC, LC_CREATE_OPTS });
 // ctx: { navigate, close, open(screen) }. open("dream") opens the composer (local save), open("group") the New Circle flow.
 function lcCreatePick(o, ctx) {
   if (o.cherry) {
