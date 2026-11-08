@@ -32,3 +32,11 @@ CREATE TABLE IF NOT EXISTS issue_votes (issue_id TEXT NOT NULL, user_id TEXT NOT
 CREATE INDEX IF NOT EXISTS issue_votes_user ON issue_votes(user_id);
 CREATE TABLE IF NOT EXISTS issue_replies (id TEXT PRIMARY KEY, issue_id TEXT NOT NULL, mod_id TEXT NOT NULL, status TEXT, text TEXT NOT NULL, created_at INTEGER NOT NULL);
 CREATE INDEX IF NOT EXISTS issue_replies_issue ON issue_replies(issue_id, created_at);
+-- Nov 8 2026: the Report Center (POST /reports, /reports/read, /reports/reply). Private: no GET route; only the reporter's
+-- own signed read and Looscid mods (MODS) read a report. Plain text only. The code also makes these itself.
+CREATE TABLE IF NOT EXISTS report_threads (id TEXT PRIMARY KEY, user_id TEXT NOT NULL, type TEXT NOT NULL, target TEXT, label TEXT, circle TEXT, reason TEXT NOT NULL, body TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'new', created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS report_threads_user ON report_threads(user_id, created_at);
+CREATE INDEX IF NOT EXISTS report_threads_status ON report_threads(status, updated_at);
+CREATE TABLE IF NOT EXISTS report_messages (id TEXT PRIMARY KEY, report_id TEXT NOT NULL, from_mod INTEGER NOT NULL, author_id TEXT NOT NULL, status TEXT, text TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS report_messages_report ON report_messages(report_id, created_at);
+CREATE INDEX IF NOT EXISTS report_messages_author ON report_messages(author_id);

@@ -644,6 +644,8 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
        { id: "settings", name: "Settings", a: function () { navigate("settings_open"); } },
        { id: "cmdbar", name: "Commandbar", a: function () { setTimeout(function () { if (Looscid.LC_OPEN_CMD) Looscid.LC_OPEN_CMD(); }, 60); } },
        { id: "help", name: "Help", a: function () { navigate("helpcenter"); } },
+       // Nov 8 2026: the Report Center, ur reports and their status.
+       { id: "reportcenter", name: "Report Center", a: function () { navigate("report_center"); } },
        { id: "commands", name: "Commands", a: function () { navigate("commands"); } }]))
       .concat(g(G3, [
        { id: "credits", name: "Credits", a: function () { navigate("credits"); } },
@@ -661,7 +663,8 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
        blocked ? { id: "unblock", name: "Unblock", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").filter(function (h) { return h !== Looscid.lcHandle(user.handle); })); say("Unblocked " + user.name + "."); } }
                // Nov 8 2026 (blocklists): a block from the profile reaches Rem too when we know their key, like a block from a Dream.
                : { id: "block", name: "Block", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").concat([user.handle])); if (dmPeer && Looscid.lcNet) Looscid.lcNet.block(dmPeer, user.handle); say("Blocked " + user.name + ". Their Dreams, replies and messages are hidden for you. Unblock here or in Settings, Privacy."); } },
-       { id: "report", name: "Report", note: "unavailable: Looscid has nowhere to send reports yet", disabled: true },
+       // Nov 8 2026 (Carter): Report works now. It opens the Report Center with this person filled in (js/reportcenter.js).
+       { id: "report", name: "Report", a: function () { try { if (Looscid.lcOpenReport) Looscid.lcOpenReport({ type: "profile", target: dmPeer || Looscid.lcHandle(handle).replace(/^@/, ""), label: (user.name && user.name !== String(handle).replace(/^@/, "") ? user.name + " " : "") + "@" + String(handle).replace(/^@/, "") }); else navigate("report_center"); } catch (e) { say("the Report Center didn't open, try again"); } } },
        linksItem,
        // Round 7.27 (#152, Carter approved Oct 25 2026, "like Spring"): pin this profile as a Home feed tab, or as its own tab in the tab bar.
        (function () { const L = Looscid, ref = L.lcHandle ? L.lcHandle(handle) : handle, pinned = L.lcPinHas && L.lcPinHas("person", ref), pid = "pin:person:" + ref;
@@ -686,12 +689,12 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
     lists: "Lists of Dreamors you made", drafts: "Dreams you haven't shared yet",
     cherry: "Your AI companion", circles: "Find, join or start a Circle", create: "Make a new Dream, Circle and more",
     alerts: "Your Alerts and messages", settings: "Account, privacy, accessibility and more", cmdbar: "Type a command to do things fast",
-    help: "Guides and answers in the Help Center", commands: "Every command you can type",
+    help: "Guides and answers in the Help Center", reportcenter: "Ur reports and what happened to each one", commands: "Every command you can type",
     credits: "The people and projects behind Looscid", feedback: "Tell us what to fix or add", logout: "Asks first, then logs you out on this device"
   } : {
     message: "Send them a private message", follow: "See their Dreams in Following", unfollow: "Stop seeing their Dreams in Following",
     addlist: "Put them on one of your Lists", mute: "Hide their Dreams from your feed", unmute: "Show their Dreams in your feed again",
-    block: "Undo it any time here or in Settings, Privacy", unblock: "Let them back in", links: "Share or copy their links",
+    block: "Undo it any time here or in Settings, Privacy", unblock: "Let them back in", report: "Tell the Looscid mods, privately", links: "Share or copy their links",
     pinfeed: "Their Dreams as a tab on Home", unpinfeed: "Take their tab off Home",
     tabbar: "Their profile as a tab at the bottom", cherry: "Cherry tells you who they are",
     showrd: "Show their Redreams in your feed", hiderd: "Hide their Redreams from your feed",

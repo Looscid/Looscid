@@ -43,16 +43,11 @@ const VJ = JSON.parse(fs.readFileSync(path.join(APP, "version.json"), "utf8"));
    The end year is the first part of version.json's YEAR.FEATURES.FIXES, so it moves with a new build and --check gives the same answer on any day. */
 const COPY_END = String(VJ.version).split(".")[0];
 const BUILD_TEXT = "Looscid " + VJ.version + " (" + VJ.build + ")";
-const sfLi = (href, text) => '<li><a href="' + href + '">' + text + "</a></li>";
-const sfExt = (href, text, site) => '<li><a href="' + href + '" title="Go to ' + site + '" target="_blank" rel="noopener noreferrer">' + text + "</a></li>";
-const sfCol = (id, title, items) => '<section class="sf-col" aria-labelledby="sf-h-' + id + '"><h2 id="sf-h-' + id + '">' + title + "</h2><ul>" + items.join("") + "</ul></section>";
-const SITE_FOOTER = "<footer class=\"sf\">\n<div class=\"sf-in\">\n<p class=\"sf-brand\"><img src=\"/Looscid/assets/icons/icon-512.png?v=nl1\" alt=\"Looscid logo: a white open ring with a dot in the middle, on blue\" role=\"img\" aria-label=\"Looscid logo: a white open ring with a dot in the middle, on blue\" width=\"28\" height=\"28\"><span class=\"sf-name\" aria-hidden=\"true\">Looscid</span></p>\n<div class=\"sf-cols\">\n" + [
-  sfCol("help", "Get help", [sfLi("/Looscid/", "Looscid Home"), sfLi("/Looscid/help/", "Help Home"), sfLi("/Looscid/help/getting-started/", "Getting Started"), sfLi("/Looscid/help/looscid-basics/", "Looscid Basics course"), sfLi("/Looscid/help/dev/accessibility/", "Accessibility"), sfLi("/Looscid/help/contact/", "Contact Us"), sfLi("/Looscid/Feedback/", "Send Feedback")]),
-  sfCol("project", "Project", [sfLi("/Looscid/changelog/", "Roadmap &amp; Changelog"), sfLi("/Looscid/status.html", "Status"), sfLi("/Looscid/help/#h-building", "Docs"), sfLi("/Looscid/help/dev/contributing/", "Contributing"), sfExt("https://github.com/Looscid/Looscid", "Source code", "GitHub"), sfExt("https://github.com/Looscid/Looscid/issues", "Issues", "GitHub")]),
-  sfCol("looscid", "Looscid", [sfLi("/Looscid/About/", "About"), sfLi("/Looscid/Our-Story/", "Our Story"), sfLi("/Looscid/Credits/", "Credits")]),
-  sfCol("legal", "Legal", [sfLi("/Looscid/Terms/", "Terms"), sfLi("/Looscid/Privacy/", "Privacy"), sfLi("/Looscid/Rules/", "Rules"), sfLi("/Looscid/Child-Safety/", "Child Safety"), sfLi("/Looscid/Legal/", "License")]),
-  sfCol("hi", "Say hi", [sfExt("https://github.com/Looscid", "GitHub", "GitHub"), sfExt("https://x.com/Looscid", "X", "X"), sfExt("https://www.youtube.com/@Looscid", "YouTube", "YouTube"), sfExt("https://discord.gg/M6xrD8EBXU", "Discord", "Discord")])
-].join("\n") + "\n</div>\n<p class=\"sf-bottom\">© 2025–" + COPY_END + " Looscid <span aria-hidden=\"true\">·</span> Open source under the <a href=\"/Looscid/help/dev/license/\">GNU AGPL-3.0</a> <span aria-hidden=\"true\">·</span> Made by Chaotic Carter, co-written with Tab <span aria-hidden=\"true\">·</span> " + BUILD_TEXT + "</p>\n</div>\n</footer>";
+/* Nov 8 2026 (Carter: one footer for the whole app): the footer comes from app/js/sitefooter.js, the same file the app draws
+   it from, so there's one source. This builder only writes it into the website pages. */
+const sfBox = { window: {} };
+vm.runInNewContext(fs.readFileSync(path.join(APP, "js", "sitefooter.js"), "utf8"), sfBox);
+const SITE_FOOTER = sfBox.window.Looscid.LC_FOOTER.html({ endYear: COPY_END, build: BUILD_TEXT });
 // The Help Center home's topic icons (decoration only; the words say everything).
 const ICONS = {
   "getting-started": '<path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/>',
@@ -274,6 +269,8 @@ buildComponents({ page, put, esc });
 {
   const k = H.contact;
   let b = "<h1>" + esc(k.t) + '</h1>\n<p class="lead">' + esc(k.s) + "</p>\n";
+  // Nov 8 2026: the Report Center first; GitHub and Discord below stay as backups (Carter).
+  b += '<h2>Report a Dream, a person, a Circle or child safety</h2>\n<p>The Report Center in Looscid has every kind of report in one place, and My reports shows what happened to each one. Reports are private, only you and the Looscid mods see them.</p>\n<p><a class="btn" id="help-report-center" href="../../Report/">Open the Report Center</a></p>\n';
   b += '<h2>Report a bug</h2>\n<p>Found something broken? This opens a new GitHub issue with your device already filled in, so you just say what happened. GitHub asks you to log in there.</p>\n<p><a class="btn" id="help-report-bug" href="https://github.com/Looscid/Looscid/issues/new?labels=bug&amp;title=Bug%3A%20" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Report a bug</a></p>\n';
   b += '<h2>Send feedback or join the Discord</h2>\n<p>Ideas, questions, or just want to say hi? Join the Looscid Discord. Anything you write in the #feedback channel turns into a GitHub issue by itself, and LooscidBOT answers you there with the link.</p>\n<p><a class="btn" href="' + k.discord + '" title="Go to Discord" target="_blank" rel="noopener noreferrer">Join the Looscid Discord</a></p>\n';
   b += '<p>Already using Looscid? <a class="go" href="../../?p=%2FFeedback">Open Send Feedback</a> (Profile, More, Feedback) writes a GitHub issue for you.</p>\n';
@@ -292,7 +289,7 @@ files["search.js"] = "/* Made by .github/scripts/build-help.mjs from app/js/help
     .concat([{ u: "contact/", t: H.contact.t, s: H.contact.s, c: "Contact", k: "report a bug feedback discord github issue" }])) + ";\n";
 
 // The same footer on the changelog and the status page (Nov 7 2026). Only the footer is replaced; the rest of each page is its own.
-const SITE_PAGES = { "changelog/index.html": SITE + "changelog/", "status.html": SITE + "status.html" };
+const SITE_PAGES = { "changelog/index.html": SITE + "changelog/", "status.html": SITE + "status.html", "404.html": SITE + "404.html" }; // Nov 8 2026: Page not found too
 const siteFiles = {};
 for (const [rel, url] of Object.entries(SITE_PAGES)) {
   const old = fs.readFileSync(path.join(APP, rel), "utf8");

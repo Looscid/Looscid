@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8"/>
+<title>Report Center form demo, child safety - Looscid components</title>
+<!-- Made by .github/scripts/build-help.mjs from .github/scripts/components.mjs. A look-only demo: no scripts, no network. -->
+<meta name="robots" content="noindex">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; connect-src 'none'; form-action 'none'; object-src 'none'; base-uri 'self'"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="stylesheet" href="../../../../css/app.css?v=cl1">
+<link rel="stylesheet" href="../../../../css/a11y.css?v=cl1">
+<link rel="stylesheet" href="../demo.css?v=1">
+</head>
+<body class="lc-demo">
+<div class="lc-issue-form">
+<fieldset class="lc-fs"><legend class="lc-fs-l">What are u reporting?</legend><div class="lc-radios lc-radios-col"><label class="lc-radio"><input type="radio" name="lc-rc-type" value="dream"><span>A Dream</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="profile"><span>A person</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="circle"><span>A Circle</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="bug"><span>A bug or an idea</span></label><label class="lc-radio on"><input type="radio" name="lc-rc-type" value="child" checked><span>Child safety</span></label></div></fieldset>
+<div class="lc-rc-child"><p class="lc-desc">child safety reports go straight to the Looscid mods, never just a Circle's mods.</p><p class="lc-desc">if a kid is in danger rn, call ur local emergency number first.</p></div>
+<label for="lc-rc-body" class="lc-fs-l" style="display: block;">What happened? Who, where, when</label>
+<textarea id="lc-rc-body" class="inp" rows="4" maxlength="2000"></textarea>
+<p class="lc-desc">only u and the Looscid mods see this report. the person or Circle u report never finds out who reported them.</p>
+<button type="button" id="lc-rc-send" class="btn bp lc-big">Send report</button>
+</div>
+</body>
+</html>

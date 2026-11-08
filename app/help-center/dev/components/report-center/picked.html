@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8"/>
+<title>Report Center form demo, reason picked - Looscid components</title>
+<!-- Made by .github/scripts/build-help.mjs from .github/scripts/components.mjs. A look-only demo: no scripts, no network. -->
+<meta name="robots" content="noindex">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; connect-src 'none'; form-action 'none'; object-src 'none'; base-uri 'self'"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="stylesheet" href="../../../../css/app.css?v=cl1">
+<link rel="stylesheet" href="../../../../css/a11y.css?v=cl1">
+<link rel="stylesheet" href="../demo.css?v=1">
+</head>
+<body class="lc-demo">
+<div class="lc-issue-form">
+<fieldset class="lc-fs"><legend class="lc-fs-l">What are u reporting?</legend><div class="lc-radios lc-radios-col"><label class="lc-radio on"><input type="radio" name="lc-rc-type" value="dream" checked><span>A Dream</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="profile"><span>A person</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="circle"><span>A Circle</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="bug"><span>A bug or an idea</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="child"><span>Child safety</span></label></div></fieldset>
+<p class="lc-desc lc-rc-what">Reporting: Ava: free followers, tap this link</p>
+<p><button type="button" class="btn bgb lc-btn">Report something else</button></p>
+<fieldset class="lc-fs"><legend class="lc-fs-l">What's wrong?</legend><div class="lc-radios lc-radios-col"><label class="lc-radio on"><input type="radio" name="lc-rc-reason" value="spam" checked><span>Spam</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="mean"><span>Mean or bullying</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="unsafe"><span>Unsafe or harmful</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="child_safety"><span>Child safety</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="other"><span>Something else</span></label></div></fieldset>
+<label for="lc-rc-body" class="lc-fs-l" style="display: block;">More info (optional)</label>
+<textarea id="lc-rc-body" class="inp" rows="4" maxlength="2000">it's a scam link, they DM'd me too</textarea>
+<p class="lc-desc">only u and the Looscid mods see this report. the person or Circle u report never finds out who reported them.</p>
+<button type="button" id="lc-rc-send" class="btn bp lc-big">Send report</button>
+</div>
+</body>
+</html>

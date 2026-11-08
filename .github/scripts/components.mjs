@@ -1516,6 +1516,153 @@ async function send() {
     rel: ["native-select", "radio-group", "live-region", "like-dislike-buttons"],
   },
   {
+    slug: "report-center",
+    t: "Report Center form",
+    s: "one form for every report: a Dream, a person, a Circle, a bug or an idea, or child safety.",
+    where: [
+      `it's the top of the Report Center (looscid.github.io/Looscid/Report/). Report on a Dream, a profile or a Circle opens it w that thing already filled in, so u just pick what's wrong.`,
+      `bugs and ideas don't get rebuilt here: picking "A bug or an idea" points u to the <a href="../report-a-problem/">Report a problem</a> form. after u send, the page shows and says "ur report's submitted. check it in the Report Center anytime".`
+    ],
+    states: [
+      { id: "prefilled", n: "opened from a Dream", say: "the Dream is filled in, no reason picked yet.", html: `<div class="lc-issue-form">
+<fieldset class="lc-fs"><legend class="lc-fs-l">What are u reporting?</legend><div class="lc-radios lc-radios-col"><label class="lc-radio on"><input type="radio" name="lc-rc-type" value="dream" checked><span>A Dream</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="profile"><span>A person</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="circle"><span>A Circle</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="bug"><span>A bug or an idea</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="child"><span>Child safety</span></label></div></fieldset>
+<p class="lc-desc lc-rc-what">Reporting: Ava: free followers, tap this link</p>
+<p><button type="button" class="btn bgb lc-btn">Report something else</button></p>
+<fieldset class="lc-fs"><legend class="lc-fs-l">What's wrong?</legend><div class="lc-radios lc-radios-col"><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="spam"><span>Spam</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="mean"><span>Mean or bullying</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="unsafe"><span>Unsafe or harmful</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="child_safety"><span>Child safety</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="other"><span>Something else</span></label></div></fieldset>
+<label for="lc-rc-body" class="lc-fs-l" style="display: block;">More info (optional)</label>
+<textarea id="lc-rc-body" class="inp" rows="4" maxlength="2000"></textarea>
+<p class="lc-desc">only u and the Looscid mods see this report. the person or Circle u report never finds out who reported them.</p>
+<button type="button" id="lc-rc-send" class="btn bp lc-big">Send report</button>
+</div>`, h: 640 },
+      { id: "picked", n: "reason picked", say: "Spam is ticked and there's more info.", html: `<div class="lc-issue-form">
+<fieldset class="lc-fs"><legend class="lc-fs-l">What are u reporting?</legend><div class="lc-radios lc-radios-col"><label class="lc-radio on"><input type="radio" name="lc-rc-type" value="dream" checked><span>A Dream</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="profile"><span>A person</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="circle"><span>A Circle</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="bug"><span>A bug or an idea</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="child"><span>Child safety</span></label></div></fieldset>
+<p class="lc-desc lc-rc-what">Reporting: Ava: free followers, tap this link</p>
+<p><button type="button" class="btn bgb lc-btn">Report something else</button></p>
+<fieldset class="lc-fs"><legend class="lc-fs-l">What's wrong?</legend><div class="lc-radios lc-radios-col"><label class="lc-radio on"><input type="radio" name="lc-rc-reason" value="spam" checked><span>Spam</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="mean"><span>Mean or bullying</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="unsafe"><span>Unsafe or harmful</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="child_safety"><span>Child safety</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="other"><span>Something else</span></label></div></fieldset>
+<label for="lc-rc-body" class="lc-fs-l" style="display: block;">More info (optional)</label>
+<textarea id="lc-rc-body" class="inp" rows="4" maxlength="2000">it's a scam link, they DM'd me too</textarea>
+<p class="lc-desc">only u and the Looscid mods see this report. the person or Circle u report never finds out who reported them.</p>
+<button type="button" id="lc-rc-send" class="btn bp lc-big">Send report</button>
+</div>`, h: 640 },
+      { id: "missing", n: "no reason yet", say: "pressing Send early says what's missing in words.", html: `<div class="lc-issue-form">
+<fieldset class="lc-fs"><legend class="lc-fs-l">What are u reporting?</legend><div class="lc-radios lc-radios-col"><label class="lc-radio on"><input type="radio" name="lc-rc-type" value="dream" checked><span>A Dream</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="profile"><span>A person</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="circle"><span>A Circle</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="bug"><span>A bug or an idea</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="child"><span>Child safety</span></label></div></fieldset>
+<p class="lc-desc lc-rc-what">Reporting: Ava: free followers, tap this link</p>
+<p><button type="button" class="btn bgb lc-btn">Report something else</button></p>
+<fieldset class="lc-fs"><legend class="lc-fs-l">What's wrong?</legend><div class="lc-radios lc-radios-col"><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="spam"><span>Spam</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="mean"><span>Mean or bullying</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="unsafe"><span>Unsafe or harmful</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="child_safety"><span>Child safety</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="other"><span>Something else</span></label></div></fieldset>
+<label for="lc-rc-body" class="lc-fs-l" style="display: block;">More info (optional)</label>
+<textarea id="lc-rc-body" class="inp" rows="4" maxlength="2000"></textarea>
+<p class="lc-desc">only u and the Looscid mods see this report. the person or Circle u report never finds out who reported them.</p>
+<button type="button" id="lc-rc-send" class="btn bp lc-big">Send report</button>
+<p class="lc-desc lc-rc-msg">pick a reason first</p>
+</div>`, h: 680 },
+      { id: "child", n: "child safety", say: "child safety has no reason list, it always goes straight to the mods.", html: `<div class="lc-issue-form">
+<fieldset class="lc-fs"><legend class="lc-fs-l">What are u reporting?</legend><div class="lc-radios lc-radios-col"><label class="lc-radio"><input type="radio" name="lc-rc-type" value="dream"><span>A Dream</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="profile"><span>A person</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="circle"><span>A Circle</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="bug"><span>A bug or an idea</span></label><label class="lc-radio on"><input type="radio" name="lc-rc-type" value="child" checked><span>Child safety</span></label></div></fieldset>
+<div class="lc-rc-child"><p class="lc-desc">child safety reports go straight to the Looscid mods, never just a Circle's mods.</p><p class="lc-desc">if a kid is in danger rn, call ur local emergency number first.</p></div>
+<label for="lc-rc-body" class="lc-fs-l" style="display: block;">What happened? Who, where, when</label>
+<textarea id="lc-rc-body" class="inp" rows="4" maxlength="2000"></textarea>
+<p class="lc-desc">only u and the Looscid mods see this report. the person or Circle u report never finds out who reported them.</p>
+<button type="button" id="lc-rc-send" class="btn bp lc-big">Send report</button>
+</div>`, h: 520 },
+      { id: "sent", n: "sent", say: "the line that shows and gets said after u send.", html: `<p id="lc-rc-done" class="lc-desc lc-rc-done" tabindex="-1">ur report's submitted. check it in the Report Center anytime</p>`, h: 80 }
+    ],
+    code: `<div class="lc-issue-form">
+<fieldset class="lc-fs"><legend class="lc-fs-l">What are u reporting?</legend><div class="lc-radios lc-radios-col"><label class="lc-radio on"><input type="radio" name="lc-rc-type" value="dream" checked><span>A Dream</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="profile"><span>A person</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="circle"><span>A Circle</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="bug"><span>A bug or an idea</span></label><label class="lc-radio"><input type="radio" name="lc-rc-type" value="child"><span>Child safety</span></label></div></fieldset>
+<p class="lc-desc lc-rc-what">Reporting: Ava: free followers, tap this link</p>
+<p><button type="button" class="btn bgb lc-btn">Report something else</button></p>
+<fieldset class="lc-fs"><legend class="lc-fs-l">What's wrong?</legend><div class="lc-radios lc-radios-col"><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="spam"><span>Spam</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="mean"><span>Mean or bullying</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="unsafe"><span>Unsafe or harmful</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="child_safety"><span>Child safety</span></label><label class="lc-radio"><input type="radio" name="lc-rc-reason" value="other"><span>Something else</span></label></div></fieldset>
+<label for="lc-rc-body" class="lc-fs-l" style="display: block;">More info (optional)</label>
+<textarea id="lc-rc-body" class="inp" rows="4" maxlength="2000"></textarea>
+<p class="lc-desc">only u and the Looscid mods see this report. the person or Circle u report never finds out who reported them.</p>
+<button type="button" id="lc-rc-send" class="btn bp lc-big">Send report</button>
+</div>`,
+    js: `// js/reportcenter.js, cut down: Report buttons open the Report Center filled in
+Looscid.lcOpenReport({ type: "dream", target: dream.nid, label: who + ": " + dream.text.slice(0, 80) });
+// sending: one signed event (kind 21992), private between u and the mods
+const r = await call("POST", "/reports", await sign(21992, [["type", "dream"], ["reason", "spam"], ["target", id]], moreInfo));
+if (r.ok) say("ur report's submitted. check it in the Report Center anytime"); // the polite announcer`,
+    vo: [
+      `two radio groups: "What are u reporting?" and "What's wrong?". each choice is one radio button, so one swipe reads it: "Spam, radio button, 1 of 5".`,
+      `"More info (optional), text field", then "Send report, button". no required attribute: if no reason is picked, it says "pick a reason first".`,
+      `after sending, the polite live region says "ur report's submitted. check it in the Report Center anytime" and focus moves to that same line, so nothing's missed.`,
+      "braille display: arrow through the radio buttons, Space picks one, Enter on Send report sends it."
+    ],
+    rel: ["report-thread", "radio-group", "live-region", "report-a-problem", "report-dialog"],
+  },
+  {
+    slug: "report-thread",
+    t: "My reports and report threads",
+    s: "every report u made w its status. each one's a thread between u and the Looscid mods.",
+    where: [
+      "it's under Make a report in the Report Center. each report is one row: what it's about and its status in one heading, then the reason, when u sent it and how many messages it has.",
+      `press Thread to open it: every message, then a box to reply to the mods. mods answer as "Looscid mods", never their name. when they reply or change the status, u get an Alert. nobody but u and the mods can ever read it.`
+    ],
+    states: [
+      { id: "closed", n: "a report", say: "one report, thread closed.", html: `<ol class="lc-issue-list">
+<li class="lc-issue">
+<h3 id="lc-rc-a1b2c3" class="lc-issue-h">Report about Ava: free followers, tap this link. the mods are looking at it.</h3>
+<p class="lc-desc lc-issue-meta">Reason: spam. Sent Nov 8, 1:02 PM. 2 messages.</p>
+<p class="lc-desc lc-issue-body">U said: it's a scam link, they DM'd me too</p>
+<p><button type="button" class="btn bgb lc-btn lc-issue-btn" aria-expanded="false">Thread</button></p>
+</li>
+</ol>`, h: 220 },
+      { id: "open", n: "thread open", say: "ur message and the mods' reply, then the reply box.", html: `<ol class="lc-issue-list">
+<li class="lc-issue">
+<h3 id="lc-rc-a1b2c3" class="lc-issue-h">Report about Ava: free followers, tap this link. the mods are looking at it.</h3>
+<p class="lc-desc lc-issue-meta">Reason: spam. Sent Nov 8, 1:02 PM. 2 messages.</p>
+<p class="lc-desc lc-issue-body">U said: it's a scam link, they DM'd me too</p>
+<p><button type="button" class="btn bgb lc-btn lc-issue-btn" aria-expanded="true">Thread</button></p>
+<div class="lc-rc-thread">
+<ul class="lc-issue-replies"><li class="lc-desc lc-rc-msgline">You, Nov 8, 1:05 PM: they did it again on another Dream</li><li class="lc-desc lc-rc-msgline">Looscid mods, Nov 8, 1:20 PM: set it to the mods are looking at it. thx, we're on it</li></ul>
+<label for="lc-rc-a1b2c3-tx" class="lc-fs-l" style="display: block;">Reply to the mods</label>
+<textarea id="lc-rc-a1b2c3-tx" class="inp" rows="3" maxlength="2000"></textarea>
+<button type="button" class="btn bp lc-btn lc-issue-btn">Send reply</button>
+</div>
+</li>
+</ol>`, h: 430 },
+      { id: "mod", n: "mod tools", say: "what Looscid mods see: a native Status select and a reply that shows as Looscid mods.", html: `<ol class="lc-issue-list">
+<li class="lc-issue">
+<h3 id="lc-rc-m-a1b2c3" class="lc-issue-h">Report about Ava: free followers, tap this link. sent, waiting for the mods.</h3>
+<p class="lc-desc lc-issue-meta">Reason: spam. Sent Nov 8, 1:02 PM. no messages yet.</p>
+<p><button type="button" class="btn bgb lc-btn lc-issue-btn" aria-expanded="true">Mod tools</button></p>
+<div class="lc-rc-thread">
+<p class="lc-desc">no messages yet. the mods answer right here.</p>
+<label for="lc-rc-m-a1b2c3-st" class="lc-fs-l" style="display: block;">Status</label>
+<select id="lc-rc-m-a1b2c3-st" class="inp lc-issue-sel"><option value="">Keep it: sent, waiting for the mods</option><option value="new">sent, waiting for the mods</option><option value="looking">the mods are looking at it</option><option value="done">done, the mods took care of it</option><option value="closed">closed</option></select>
+<label for="lc-rc-m-a1b2c3-tx" class="lc-fs-l" style="display: block;">Reply, shows as Looscid mods</label>
+<textarea id="lc-rc-m-a1b2c3-tx" class="inp" rows="3" maxlength="2000"></textarea>
+<button type="button" class="btn bp lc-btn lc-issue-btn">Send as Looscid mods</button>
+</div>
+</li>
+</ol>`, h: 470 },
+      { id: "empty", n: "no reports yet", say: "the plain line before u ever report something.", html: `<p class="lc-desc">no reports yet. when u report something, it shows up here with its status.</p>`, h: 80 }
+    ],
+    code: `<ol class="lc-issue-list">
+<li class="lc-issue">
+<h3 id="lc-rc-a1b2c3" class="lc-issue-h">Report about Ava: free followers, tap this link. the mods are looking at it.</h3>
+<p class="lc-desc lc-issue-meta">Reason: spam. Sent Nov 8, 1:02 PM. 2 messages.</p>
+<p class="lc-desc lc-issue-body">U said: it's a scam link, they DM'd me too</p>
+<p><button type="button" class="btn bgb lc-btn lc-issue-btn" aria-expanded="true">Thread</button></p>
+<div class="lc-rc-thread">
+<ul class="lc-issue-replies"><li class="lc-desc lc-rc-msgline">You, Nov 8, 1:05 PM: they did it again on another Dream</li><li class="lc-desc lc-rc-msgline">Looscid mods, Nov 8, 1:20 PM: set it to the mods are looking at it. thx, we're on it</li></ul>
+<label for="lc-rc-a1b2c3-tx" class="lc-fs-l" style="display: block;">Reply to the mods</label>
+<textarea id="lc-rc-a1b2c3-tx" class="inp" rows="3" maxlength="2000"></textarea>
+<button type="button" class="btn bp lc-btn lc-issue-btn">Send reply</button>
+</div>
+</li>
+</ol>`,
+    js: `// js/reportcenter.js, cut down: only a read signed by ur own key gets ur reports
+const r = await call("POST", "/reports/read", await sign(21993, [["action", "read-my-reports"]]));
+// replying adds a message to the thread (kind 21994); mods add ["status", s]
+await call("POST", "/reports/reply", await sign(21994, [["e", report.id]], text));`,
+    vo: [
+      `each report is one heading, so the headings rotor lists ur reports, and one swipe reads it: "Report about Ava: free followers, tap this link. the mods are looking at it. heading level 3".`,
+      `Thread is a real button that says if it's open: "Thread, button, collapsed". the messages are a list, each one starts w who wrote it: "You" or "Looscid mods".`,
+      `"Reply to the mods, text field", then "Send reply, button". the polite live region says "reply sent to the mods".`,
+      "braille display: Enter on Thread opens it, type ur reply, Enter on Send reply sends it."
+    ],
+    rel: ["report-center", "native-select", "live-region", "report-a-problem"],
+  },
+  {
     slug: "skip-link",
     t: "Skip to content link",
     s: "the first link on every screen. jumps past the top bar straight to the content.",

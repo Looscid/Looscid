@@ -76,6 +76,8 @@ manifests are versioned JSON with `schema`, `id`, `name`, `summary`, `descriptio
 every single thing u touch is a real native control. images need Alt text that actually means something. errors are tied to their field and announced. focus moves on purpose after u change pages, finish onboarding, hit an error or close something. we respect reduced motion and bigger text. we test with keyboard only, VoiceOver, braille, TalkBack, offline, limited permissions, broken manifests and providers that are down. secrets never get shown. App Store and AI adapters only do stuff when u mean it, show u what data and actions are involved, and always let u cancel.
 
 - [x] our own component library for devs: every piece of looscid w live demos, the code to copy and how it works w voiceover.
+- [x] one footer for the whole app, Help Center included, all from one file (app/js/sitefooter.js).
+- [ ] the same footer in the Looscid OS apps and projects too (they're separate apps in a sandbox, so they still have their own).
 
 ## our words (never break these)
 
@@ -245,6 +247,15 @@ we're making real looscid apps, android first (we decided November 8, 2026). we 
 - [x] removals are public: the line where a removed Dream used to be says whether a Circle's mods or a looscid admin took it down, and why.
 - [x] a public Mod log: every removal with its date, the Dream (never its words), the mod or admin, and the reason. it's in each Circle's About tab and in the Help Center.
 - [x] deleting ur own Dream: no replies, it's just gone. with replies, one "Dream deleted" line stays so the thread still makes sense.
+- [x] the Report Center: one place for every report (Dreams, people, Circles, bugs n ideas, child safety), w its own link, /Report. links like /Report/?dream= or ?profile= fill it in.
+- [x] Report on a Dream, a profile or a Circle opens the Report Center already filled in. profile Report finally works.
+- [x] a Child safety reason on every report, plus child safety reports that go straight to the looscid mods.
+- [x] after u report, looscid says "ur report's submitted. check it in the Report Center anytime".
+- [x] My reports: every report u made w its status. each one's a thread, so u can add more info and the mods reply back as Looscid mods.
+- [x] an Alert in Alerts when the mods reply or ur report's status changes.
+- [x] reports are private: only u n the looscid mods see them, and nothing public ever says who reported what.
+- [ ] Circle mods see reports about their own Circle's Dreams (rn every report goes to the looscid mods).
+- [ ] report Alerts even when looscid's closed (rn looscid checks for news while it's open).
 
 ## discover: how we're doing nav + refine
 

@@ -163,6 +163,21 @@
       tips: ["Choose Show above the list to see only new, working on it, fixed or closed reports.", "Delete my Rem data (Settings, LooscidID) also deletes your reports and your votes."],
       rel: ["mod-log", "getting-around"] },
 
+    /* Nov 8 2026 (Carter): the Report Center (js/reportcenter.js), every kind of report in one place, private. */
+    { id: "report-center", c: "getting-started", t: "Report Center",
+      s: "Report a Dream, a person, a Circle or child safety, then follow what happens in My reports and talk to the mods. Reports are private.",
+      steps: [
+        "Press Report on a Dream (its More button) or on someone's profile (More, Report). The Report Center opens with it filled in. You can also open [[Report|Report Center|Profile, More, Report Center]] yourself.",
+        "Pick what you're reporting: a Dream, a person, a Circle, a bug or an idea, or Child safety. Bugs and ideas go to {{report-a-problem}}.",
+        "Pick what's wrong: Spam, Mean or bullying, Unsafe or harmful, Child safety, or Something else. Add more info if you want, then press Send report.",
+        "Looscid says \u201cur report's submitted. check it in the Report Center anytime\u201d. The person or Circle you reported never finds out who reported them.",
+        "My reports lists every report you made with its status: sent, the mods are looking at it, done, or closed. Your bug reports are there too.",
+        "Each report is its own thread. Press Thread to read it, add more info for the mods, and see their answers. They reply as Looscid mods.",
+        "When the status changes or the mods reply, you get an Alert in Inbox, Alerts.",
+      ],
+      tips: ["Only you and the Looscid mods can read your reports. Reading them needs your Looscid key.", "If a child is in danger right now, call your local emergency number first.", "Delete my Rem data (Settings, LooscidID) also deletes your reports and their threads."],
+      rel: ["report-a-problem", "mod-log", "options-menus"] },
+
     /* ---- Chats, Circles and Cherry ---- */
     { id: "start-a-chat", c: "chats-circles-cherry", t: "Start a private chat",
       s: "Chats are private messages between you and one other Dreamor. Only the two of you can read them.",

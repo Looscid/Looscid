@@ -195,6 +195,10 @@ function helpBody(v, act) {
       h('h2', { className: "lc-sub-h" }, "Report a problem in Looscid"),
       P("Report a bug or an idea right here in Looscid, with your Looscid key. Everyone can read the list, agree or disagree, and see what the mods say.", "o"),
       h('p', { className: "lc-desc" }, h('button', { type: "button", id: "lc-help-report-own", className: "btn bp lc-big", onClick: function () { act.open({ kind: "art", id: "report-a-problem" }); } }, "Report a problem")),
+      // Nov 8 2026: the Report Center (js/reportcenter.js): Dreams, people, Circles and child safety, and every report you made.
+      h('h2', { className: "lc-sub-h" }, "Report a Dream, a person or a Circle"),
+      P("The Report Center has every kind of report in one place, plus My reports, where you see what happened to each one and can talk to the mods. Reports are private.", "rc"),
+      h('p', { className: "lc-desc" }, h('button', { type: "button", id: "lc-help-reportcenter", className: "btn bgb lc-big", onClick: function () { if (Looscid.LC_NAV) Looscid.LC_NAV("report_center"); } }, "Open the Report Center")),
       h('h2', { className: "lc-sub-h" }, "Report a bug"),
       P("Found something broken? This opens a new GitHub issue with your build number and device already filled in, so you just say what happened. GitHub asks you to log in there.", "b"),
       h('p', { className: "lc-desc" }, h('a', { id: "lc-help-report-bug", className: "btn bgb lc-big lc-bug-link", href: Looscid.lcBugReportUrl ? Looscid.lcBugReportUrl() : "https://github.com/Looscid/Looscid/issues/new", target: "_blank", rel: "noopener noreferrer",
@@ -235,6 +239,7 @@ function helpBody(v, act) {
       h('h2', { id: "lc-help-h-gethelp", className: "lc-sub-h" }, "Contact Us"),
       P("Something broken, or an idea? Report a bug on GitHub, or tell us on the Looscid Discord. Looscid has no email.", "k"),
       h('button', { type: "button", id: "lc-help-report", className: "btn bgb lc-btn", onClick: function () { act.open({ kind: "art", id: "report-a-problem" }); } }, "Report a problem"),
+      h('button', { type: "button", id: "lc-help-rc", className: "btn bgb lc-btn", onClick: function () { if (Looscid.LC_NAV) Looscid.LC_NAV("report_center"); } }, "Report Center"),
       h('button', { type: "button", id: "lc-help-contact", className: "btn bgb lc-btn", onClick: function () { act.open({ kind: "contact" }); } }, "Open Contact Us"),
       h('p', { className: "lc-desc" }, h('a', { id: "lc-help-web", className: "lc-link", href: web, target: "_blank", rel: "noopener noreferrer" }, "The Help Center on the web"))));
 }

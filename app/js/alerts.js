@@ -116,6 +116,8 @@ function notifRow(st, draw, n) {
       canReply ? ["Reply", function () {
         if (n.nid && n.user) Looscid.lcCompose({ mode: "reply", parent: { id: n.nid, nid: n.nid, user: n.user, text: n.preview || "" }, root: n.ref ? { id: n.ref, nid: n.ref, user: Looscid.ME } : undefined });
         else Looscid.lcCompose({ mode: "new", text: n.user && n.user.handle ? "@" + String(n.user.handle).replace(/^@/, "") + " " : "" }); }] : null,
+      // Nov 8 2026: an Alert about one of ur reports (js/reportcenter.js) opens the Report Center.
+      n.report && Looscid.lcOpenReport ? ["Open Report Center", function () { if (n.unread) lcAlertToggle(n.id); Looscid.lcOpenReport({}); }] : null,
       [n.unread ? "Mark read" : "Mark unread", function () { lcAlertToggle(n.id); announce(n.unread ? "Marked as read." : "Marked as unread."); }],
       // Round 7.18 (#148): an alert from a followed thread can unfollow it right here.
       n.thread && Looscid.lcThreadSubbed && Looscid.lcThreadSubbed(n.thread) ? ["Unfollow Thread", function () { Looscid.lcThreadUnsub(n.thread); announce("Unfollowed this thread."); }] : null,

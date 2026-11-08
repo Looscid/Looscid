@@ -5,5 +5,7 @@
 (function () {
   var go = document.documentElement.getAttribute("data-lc-go");
   if (!go || !/^[A-Za-z0-9\/\-]+$/.test(go)) go = "";
-  location.replace("/Looscid/" + (go ? "?p=" + encodeURIComponent("/" + go) : "") + location.hash);
+  /* Nov 8 2026: the rest of the address comes along (the Report Center's ?dream=<id>, ?profile=<key>). */
+  var q = location.search.replace(/^\?/, "");
+  location.replace("/Looscid/" + (go ? "?p=" + encodeURIComponent("/" + go) + (q ? "&" + q : "") : (q ? "?" + q : "")) + location.hash);
 })();

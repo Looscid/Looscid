@@ -206,6 +206,8 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
           , React.createElement('div', { style: {display:"flex",gap:7,alignItems:"center"},}
             , joined&&React.createElement('button', { className: "btn bgb" , style: {padding:"7px 11px",fontSize:12}, onClick: ()=>setShowInvite(true), 'aria-label': "Invite friends" ,}, "Invite")
             , React.createElement('button', { className: "btn"+(joined?" bgb":" bp"), style: {padding:"7px 14px",fontSize:12}, onClick: ()=>setJoined(j=>!j), 'aria-label': joined?"Leave group":"Join group",}, joined?"Joined ✓":"Join")
+            // Nov 8 2026 (Carter): Report a Circle opens the Report Center with this Circle filled in (js/reportcenter.js).
+            , !group.mine && Looscid.lcOpenReport && React.createElement('button', { type: "button", className: "btn bgb", style: {padding:"7px 11px",fontSize:12,minHeight:44}, onClick: ()=>{ try { Looscid.lcOpenReport({ type: "circle", target: String(group.id), label: String(group.name || "this Circle"), circle: String(group.id) }); } catch (e) {} },}, "Report")
           )
         )
 

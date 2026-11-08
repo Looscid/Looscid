@@ -74,27 +74,31 @@
 <!-- Security pass: the host side of the sandboxed Looscid OS apps and Projects (sandbox flags, their saved data) -->
 <script src="js/apphost.js"></script>
 <!-- Load order: React, then core, then nostr (small; its crypto loads only when used), then one file per tab, then Cherry, then the Commands page, then Projects, then the Help Center, then the mount below (see docs/dev/FILES.md) -->
-<script src="js/core.js?v=7.53-dl1"></script>
+<!-- Nov 8 2026: the one footer (its groups and links), read by core.js LcSiteFooter and by the website builder -->
+<script src="js/sitefooter.js?v=7.53-rc1"></script>
+<script src="js/core.js?v=7.53-rc1"></script>
 <script src="js/nostr.js"></script>
 <script src="js/net.js?v=7.53-iss1"></script>
 <script src="js/modreasons.js?v=7.53-mod3"></script>
 <script src="js/discover.js?v=7.53-pin1"></script>
-<script src="js/circles.js?v=7.53-mod2"></script>
+<script src="js/circles.js?v=7.53-rc1"></script>
 <script src="js/feed.js?v=7.53-sync1"></script>
 <script src="js/create.js?v=7.53-cq1"></script>
-<script src="js/alerts.js"></script>
-<script src="js/more.js?v=7.53-dl1"></script>
+<script src="js/alerts.js?v=7.53-rc1"></script>
+<script src="js/more.js?v=7.53-rc1"></script>
 <script src="js/cherry.js?v=7.53-dl1"></script>
 <script src="js/commands.js"></script>
 <script src="js/projects.js"></script>
-<script src="js/helpdata.js?v=7.53-iss1"></script>
-<script src="js/helpcenter.js?v=7.53-iss1"></script>
+<script src="js/helpdata.js?v=7.53-rc1"></script>
+<script src="js/helpcenter.js?v=7.53-rc1"></script>
 <script src="js/liked.js?v=7.53-dl1"></script>
 <script src="js/dislikes.js?v=7.53-dl1"></script>
 <!-- Rem sync (Connectionbase) and the backup file (Settings, LooscidID); its crypto in js/rem/ loads only when used -->
 <script src="js/remsync.js?v=7.53-sync1"></script>
 <script src="js/remlists.js?v=7.53-dl1"></script>
 <script src="js/issues.js?v=7.53-dl1"></script>
+<!-- Nov 8 2026: the Report Center (every kind of report, My reports, threads with the mods) -->
+<script src="js/reportcenter.js?v=7.53-rc1"></script>
 <script src="js/mount.js"></script>
 </body>
 </html>

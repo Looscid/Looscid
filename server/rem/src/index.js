@@ -47,6 +47,11 @@
 //                         content = what happened. Last 10 minutes, used once, 10 per key per day.
 //   POST /issues/vote     body: a signed kind 21990 event: ["e", id], ["vote", "agree" | "disagree" | "none"], ["visibility"]?
 //   POST /issues/moderate body: a signed kind 21991 event from a MODS key: ["e", id], ["status", s]?, content = reply/reason
+// Report Center (Nov 8 2026; tables report_threads, report_messages, made by the code itself). Private: no GET route.
+//   POST /reports        body: a signed kind 21992 event: ["type", dream|profile|circle|child], ["reason", spam|mean|unsafe|child_safety|other],
+//                        ["target", ref]?, ["label", words]?, ["circle", id]?, content = more info. Last 10 minutes, used once, 20 per key per day.
+//   POST /reports/read   body: a signed kind 21993 event: ["action", "read-my-reports"] -> your reports + messages (MODS: ["scope", "all"]).
+//   POST /reports/reply  body: a signed kind 21994 event: ["e", report id], content = message, ["status", s]? (mods only). Reporter or MODS only.
 // CORS: only https://looscid.github.io (and the test preview https://looscid-preview.sites.tab.bot) get the allow headers.
 
 import { schnorr } from "@noble/curves/secp256k1";
@@ -70,6 +75,7 @@ const LIMITS = {                 // simple rate limits: [max actions, per this m
   ingest: [30, 600], report: [20, 3600], block: [60, 3600], forget: [5, 3600], moderate: [120, 3600], ip: [200, 600],
   list: [300, 3600], mine: [240, 3600], // Nov 8 2026: your lists (POST /list, POST /mine)
   issues: [20, 3600], issue: [10, 86400], issue_vote: [300, 3600], issue_mod: [200, 3600], // Nov 8 2026: issue tracker (issue = reports per key per day)
+  reports: [30, 3600], reports_read: [240, 3600], reports_reply: [120, 3600], reportday: [20, 86400], // Nov 8 2026: Report Center (reportday = reports per key per day)
 };
 
 /* ---------- small helpers ---------- */
@@ -369,6 +375,7 @@ async function forget(req, env, ev) {
   await circleModTable(env);
   await listsTable(env);
   await issuesTable(env);
+  await reportsTable(env);
   await env.DB.batch([
     B("DELETE FROM pins WHERE user_id = ?1"), B("DELETE FROM alerts WHERE user_id = ?1"),
     B("DELETE FROM reposts WHERE user_id = ?1"), B("DELETE FROM reports WHERE reporter_id = ?1"),
@@ -381,6 +388,8 @@ async function forget(req, env, ev) {
     B("DELETE FROM issue_votes WHERE user_id = ?1"), B("DELETE FROM issue_votes WHERE issue_id IN (SELECT id FROM issues WHERE user_id = ?1)"),
     B("DELETE FROM issue_replies WHERE issue_id IN (SELECT id FROM issues WHERE user_id = ?1)"), B("DELETE FROM issue_replies WHERE mod_id = ?1"),
     B("DELETE FROM issues WHERE user_id = ?1"),
+    B("DELETE FROM report_messages WHERE report_id IN (SELECT id FROM report_threads WHERE user_id = ?1)"), B("DELETE FROM report_messages WHERE author_id = ?1"),
+    B("DELETE FROM report_threads WHERE user_id = ?1"),
     B("DELETE FROM dreams WHERE user_id = ?1"), B("DELETE FROM users WHERE id = ?1"),
   ]);
   return json(req, { ok: true, forgot: pk });
@@ -687,6 +696,152 @@ async function issueRoute(req, env, path) {
   return await issueModerate(req, env, ev);
 }
 
+/* ---------- Report Center (Nov 8 2026, Carter: one place for every report, "I kinda like how X does reports, you can
+   respond") ----------
+   Private, always: a report is read only by the key that made it (a signed read) and by Looscid mods (MODS). No GET route
+   lists reports, and nothing public ever says who reported what. The public mod log (GET /modlog) is unchanged.
+   Tables (made by the code itself, on first use): report_threads, report_messages.
+   POST /reports        a signed kind 21992 event: ["type", "dream" | "profile" | "circle" | "child"],
+                        ["reason", "spam" | "mean" | "unsafe" | "child_safety" | "other"], ["target", ref]? (a Dream id, a
+                        person's key or handle, a Circle id), ["label", words]? (what it is, so the list can name it),
+                        ["circle", id]?, content = more info (up to 2000). Last 10 minutes, used once, 20 per key per day.
+                        A "child" report is always reason child_safety. A Dream report on a Dream in the index also counts
+                        exactly like POST /report (same weights, same hiding).
+   POST /reports/read   a signed kind 21993 event: ["action", "read-my-reports"], last 10 minutes, used once -> your reports,
+                        newest first, each with its messages. From a MODS key with ["scope", "all"] (and ["status", s]?):
+                        every report, with the reporter's key (mods only).
+   POST /reports/reply  a signed kind 21994 event: ["e", report id], content = the message (up to 2000), ["status", s]?
+                        The reporter can add to their own report (up to 50 messages); a mod's reply shows as "Looscid mods"
+                        and can set the status: new, looking, done, closed. Nobody else can reply (403). */
+var REPORT_TYPES = ["dream", "profile", "circle", "child"];
+var REPORT_REASONS = ["spam", "mean", "unsafe", "child_safety", "other"];
+var REPORT_STATUS = ["new", "looking", "done", "closed"];
+var REPORT_TEXT_MAX = 2000;
+var reportsReady = null;
+function reportsTable(env) {
+  if (!reportsReady) reportsReady = env.DB.batch([
+    env.DB.prepare("CREATE TABLE IF NOT EXISTS report_threads (id TEXT PRIMARY KEY, user_id TEXT NOT NULL, type TEXT NOT NULL, target TEXT, label TEXT, circle TEXT, reason TEXT NOT NULL, body TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'new', created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)"),
+    env.DB.prepare("CREATE INDEX IF NOT EXISTS report_threads_user ON report_threads(user_id, created_at)"),
+    env.DB.prepare("CREATE INDEX IF NOT EXISTS report_threads_status ON report_threads(status, updated_at)"),
+    env.DB.prepare("CREATE TABLE IF NOT EXISTS report_messages (id TEXT PRIMARY KEY, report_id TEXT NOT NULL, from_mod INTEGER NOT NULL, author_id TEXT NOT NULL, status TEXT, text TEXT NOT NULL, created_at INTEGER NOT NULL)"),
+    env.DB.prepare("CREATE INDEX IF NOT EXISTS report_messages_report ON report_messages(report_id, created_at)"),
+    env.DB.prepare("CREATE INDEX IF NOT EXISTS report_messages_author ON report_messages(author_id)"),
+  ]).catch((e) => { reportsReady = null; throw e; });
+  return reportsReady;
+}
+var reportClean = (s, lines) => String(s == null ? "" : s).replace(lines ? /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g : /[\u0000-\u001f\u007f]+/g, lines ? "" : " ").trim();
+var reportChars = (s) => Array.from(s).length;
+var reportRef = (s) => /^[A-Za-z0-9_.:@-]{1,128}$/.test(String(s || ""));
+async function reportsOut(env, rows, forMod) {
+  const ids = rows.map((r) => r.id), msgs = {};
+  for (let i = 0; i < ids.length; i += 90) {
+    const part = ids.slice(i, i + 90);
+    const res = (await env.DB.prepare("SELECT id, report_id, from_mod, status, text, created_at FROM report_messages WHERE report_id IN (" + part.map((_, j) => "?" + (j + 1)).join(",") + ") ORDER BY created_at").bind(...part).all()).results;
+    for (const m of res) (msgs[m.report_id] = msgs[m.report_id] || []).push(m);
+  }
+  return rows.map((r) => Object.assign({ id: r.id, type: r.type, target: r.target || null, label: r.label || null, circle: r.circle || null,
+    reason: r.reason, body: r.body, status: r.status, created_at: r.created_at, updated_at: r.updated_at,
+    messages: (msgs[r.id] || []).map((m) => ({ id: m.id, from: m.from_mod ? "Looscid mods" : forMod ? "reporter" : "you", text: m.text, status: m.status || null, at: m.created_at })) },
+    forMod ? { by: r.user_id } : {}));
+}
+async function reportDreamWeight(env, ev, dreamId) {
+  // The same as POST /report: one row in reports, then the weighted total decides hiding.
+  await env.DB.prepare("INSERT INTO reports (id, dream_id, reporter_id, reason, created_at) VALUES (?1, ?2, ?3, ?4, ?5) ON CONFLICT DO NOTHING").bind(ev.id, dreamId, ev.pubkey, (tag(ev, "reason") || [])[1] || "other", Date.now()).run();
+  const rows = (await env.DB.prepare(
+    "SELECT r.reporter_id, u.created_at AS first_seen, (SELECT COUNT(*) FROM dreams x WHERE x.user_id = r.reporter_id AND x.deleted_at IS NULL AND x.status = 'ok') AS dreams FROM reports r LEFT JOIN users u ON u.id = r.reporter_id WHERE r.dream_id = ?1 GROUP BY r.reporter_id"
+  ).bind(dreamId).all()).results;
+  const weightOf = (r) => r.first_seen != null && Date.now() - r.first_seen >= TRUST_AGE_MS && r.dreams >= TRUST_DREAMS ? WEIGHT_TRUSTED : WEIGHT_NEW;
+  if (rows.reduce((n, r) => n + weightOf(r), 0) >= HIDE_AT) { await env.DB.prepare("UPDATE dreams SET status = 'hidden' WHERE id = ?1").bind(dreamId).run(); return true; }
+  return false;
+}
+async function reportNew(req, env, ev) {
+  if (ev.kind !== 21992 || !fresh(ev)) return json(req, { ok: false, error: "needs a fresh kind 21992 report event" }, 400);
+  const type = (tag(ev, "type") || [])[1];
+  if (!REPORT_TYPES.includes(type)) return json(req, { ok: false, error: "type is dream, profile, circle or child" }, 400);
+  let reason = (tag(ev, "reason") || [])[1];
+  if (type === "child") reason = "child_safety";
+  if (!REPORT_REASONS.includes(reason)) return json(req, { ok: false, error: "reason is spam, mean, unsafe, child_safety or other" }, 400);
+  let target = String((tag(ev, "target") || [])[1] || "").trim();
+  if (target && /^[0-9A-F]{64}$/i.test(target)) target = target.toLowerCase();
+  if (type !== "child" && !reportRef(target)) return json(req, { ok: false, error: "what are you reporting? (target)" }, 400);
+  if (target && !reportRef(target)) return json(req, { ok: false, error: "bad target" }, 400);
+  const circle = String((tag(ev, "circle") || [])[1] || "").trim();
+  if (circle && !reportRef(circle)) return json(req, { ok: false, error: "bad circle" }, 400);
+  const label = reportClean((tag(ev, "label") || [])[1], false).slice(0, 200) || null;
+  const body = reportClean(ev.content, true);
+  if (reportChars(body) > REPORT_TEXT_MAX) return json(req, { ok: false, error: "more info is up to 2000 characters" }, 400);
+  if (type === "profile" && target === ev.pubkey) return json(req, { ok: false, error: "you can't report yourself" }, 400);
+  let dream = null;
+  if (type === "dream" && isHex(target, 64)) {
+    dream = await env.DB.prepare("SELECT id, user_id FROM dreams WHERE id = ?1").bind(target).first();
+    if (dream && dream.user_id === ev.pubkey) return json(req, { ok: false, error: "you can't report your own Dream" }, 400);
+  }
+  await reportsTable(env);
+  if (!await once(env, ev)) return json(req, { ok: false, error: "that report was already sent" }, 409);
+  if (!await allowed(env, "reportday:" + ev.pubkey, LIMITS.reportday)) return json(req, { ok: false, error: "that's 20 reports today, try again tomorrow" }, 429);
+  const t = Date.now();
+  await env.DB.prepare("INSERT INTO report_threads (id, user_id, type, target, label, circle, reason, body, status, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 'new', ?9, ?9) ON CONFLICT(id) DO NOTHING")
+    .bind(ev.id, ev.pubkey, type, target || null, label, circle || null, reason, body, t).run();
+  let hidden = false;
+  if (dream) hidden = await reportDreamWeight(env, ev, dream.id);
+  const r = await env.DB.prepare("SELECT * FROM report_threads WHERE id = ?1").bind(ev.id).first();
+  return json(req, { ok: true, report: (await reportsOut(env, [r], false))[0], hidden });
+}
+async function reportsRead(req, env, ev) {
+  if (ev.kind !== 21993 || !fresh(ev) || (tag(ev, "action") || [])[1] !== "read-my-reports") return json(req, { ok: false, error: 'needs a fresh kind 21993 event with ["action", "read-my-reports"]' }, 400);
+  await reportsTable(env);
+  if (!await once(env, ev)) return json(req, { ok: false, error: "that read was already used, sign a new one" }, 409);
+  if ((tag(ev, "scope") || [])[1] === "all") {
+    if (!mods(env).includes(ev.pubkey)) return json(req, { ok: false, error: "only Looscid mods can read every report" }, 403);
+    const st = (tag(ev, "status") || [])[1] || "all";
+    if (st !== "all" && st !== "open" && !REPORT_STATUS.includes(st)) return json(req, { ok: false, error: "status is all, open, new, looking, done or closed" }, 400);
+    const where = st === "all" ? "" : st === "open" ? " WHERE status != 'closed' AND status != 'done'" : " WHERE status = ?1";
+    const q = env.DB.prepare("SELECT * FROM report_threads" + where + " ORDER BY updated_at DESC LIMIT 200");
+    const rows = (await (where.includes("?1") ? q.bind(st) : q).all()).results;
+    return json(req, { ok: true, mod: true, statuses: REPORT_STATUS, reports: await reportsOut(env, rows, true) });
+  }
+  const rows = (await env.DB.prepare("SELECT * FROM report_threads WHERE user_id = ?1 ORDER BY created_at DESC LIMIT 200").bind(ev.pubkey).all()).results;
+  return json(req, { ok: true, statuses: REPORT_STATUS, reports: await reportsOut(env, rows, false) });
+}
+async function reportReply(req, env, ev) {
+  if (ev.kind !== 21994 || !fresh(ev)) return json(req, { ok: false, error: "needs a fresh kind 21994 reply event" }, 400);
+  const e = String((tag(ev, "e") || [])[1] || "").toLowerCase();
+  if (!isHex(e, 64)) return json(req, { ok: false, error: "no report (e tag)" }, 400);
+  const st = (tag(ev, "status") || [])[1] || null, text = reportClean(ev.content, true);
+  if (st && !REPORT_STATUS.includes(st)) return json(req, { ok: false, error: "status is new, looking, done or closed" }, 400);
+  if (!text && !st) return json(req, { ok: false, error: "write a message first" }, 400);
+  if (reportChars(text) > REPORT_TEXT_MAX) return json(req, { ok: false, error: "a message is up to 2000 characters" }, 400);
+  await reportsTable(env);
+  const it = await env.DB.prepare("SELECT id, user_id FROM report_threads WHERE id = ?1").bind(e).first();
+  if (!it) return json(req, { ok: false, error: "no such report" }, 404);
+  const isMod = mods(env).includes(ev.pubkey), isOwner = it.user_id === ev.pubkey;
+  if (!isMod && !isOwner) return json(req, { ok: false, error: "only the reporter and Looscid mods can reply" }, 403);
+  const asMod = isMod && !isOwner ? 1 : isMod && (tag(ev, "as") || [])[1] === "mod" ? 1 : 0;
+  if (st && !asMod) return json(req, { ok: false, error: "only Looscid mods can change the status" }, 403);
+  if (!text && !asMod) return json(req, { ok: false, error: "write a message first" }, 400);
+  if (!asMod) {
+    const c = await env.DB.prepare("SELECT COUNT(*) AS n FROM report_messages WHERE report_id = ?1 AND from_mod = 0").bind(e).first();
+    if (c && c.n >= 50) return json(req, { ok: false, error: "that's 50 messages on this report, the mods have it" }, 429);
+  }
+  if (!await once(env, ev)) return json(req, { ok: false, error: "that reply was already sent" }, 409);
+  const t = Date.now(), q = [env.DB.prepare("INSERT INTO report_messages (id, report_id, from_mod, author_id, status, text, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7) ON CONFLICT(id) DO NOTHING").bind(ev.id, e, asMod, ev.pubkey, st, text, t)];
+  q.push(st ? env.DB.prepare("UPDATE report_threads SET status = ?2, updated_at = ?3 WHERE id = ?1").bind(e, st, t) : env.DB.prepare("UPDATE report_threads SET updated_at = ?2 WHERE id = ?1").bind(e, t));
+  await env.DB.batch(q);
+  const r = await env.DB.prepare("SELECT * FROM report_threads WHERE id = ?1").bind(e).first();
+  return json(req, { ok: true, report: (await reportsOut(env, [r], asMod === 1 && !isOwner))[0] });
+}
+async function reportsRoute(req, env, path) {
+  if (!await allowed(env, await ipKey(req), LIMITS.ip)) return json(req, { ok: false, error: "slow down" }, 429);
+  const { ev, error } = await readEvent(req);
+  if (error) return json(req, { ok: false, error }, error === "too big" ? 413 : 400);
+  if (ev._v0) return json(req, { ok: false, error: "reports need a fresh Rem v1 event" }, 400);
+  const k = path === "/reports" ? "reports" : path === "/reports/read" ? "reports_read" : "reports_reply";
+  if (!await allowed(env, k + ":" + ev.pubkey, LIMITS[k])) return json(req, { ok: false, error: "slow down" }, 429);
+  if (path === "/reports") return await reportNew(req, env, ev);
+  if (path === "/reports/read") return await reportsRead(req, env, ev);
+  return await reportReply(req, env, ev);
+}
+
 export default {
   async fetch(req, env) {
     const url = new URL(req.url), path = url.pathname.replace(/\/+$/, "") || "/";
@@ -711,6 +866,7 @@ export default {
         return json(req, { ok: false, error: "not found" }, 404);
       }
       if (req.method === "POST" && ["/issues", "/issues/vote", "/issues/moderate"].includes(path)) return await issueRoute(req, env, path);
+      if (req.method === "POST" && ["/reports", "/reports/read", "/reports/reply"].includes(path)) return await reportsRoute(req, env, path);
       if (req.method === "POST" && ["/ingest", "/report", "/block", "/forget", "/moderate", "/list", "/mine"].includes(path)) {
         if (!(await allowed(env, await ipKey(req), LIMITS.ip))) return json(req, { ok: false, error: "slow down" }, 429);
         const { ev, error } = await readEvent(req);

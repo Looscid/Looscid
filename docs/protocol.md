@@ -71,6 +71,9 @@ already on Nostr can be imported. `created_at` is in seconds.
 | 21989 | a problem report for Looscid's own issue tracker (stored as a report, not exported) | `["type", "bug" or "idea"]`, `["title", <up to 120 characters>]`, `["app", <app name>]`, `["version", <version>]`; `content` is what happened (up to 4000 characters) |
 | 21990 | agree or disagree with a report (not exported) | `["e", <report id>]`, `["vote", "agree", "disagree" or "none"]`, `["visibility", "private" or "public"]` (private when missing) |
 | 21991 | a Looscid mod's status change, reply or close on a report (not exported) | `["e", <report id>]`, `["status", "new", "working", "fixed" or "closed"]` (optional); `content` is the reply, or the reason when closing |
+| 21992 | a private report for the Report Center (stored as a report thread, not exported) | `["type", "dream", "profile", "circle" or "child"]`, `["reason", "spam", "mean", "unsafe", "child_safety" or "other"]` (`child` is always `child_safety`), `["target", <Dream id, person's key or handle, or Circle id>]` (not needed for `child`), `["label", <what it is, in words>]` (optional), `["circle", <Circle id>]` (optional); `content` is more info (up to 2000 characters) |
+| 21993 | read your own reports back (not stored) | `["action", "read-my-reports"]`; a Looscid mod adds `["scope", "all"]` (and `["status", <status>]`, optional) to read every report |
+| 21994 | a message on a report thread (not exported) | `["e", <report id>]`; `content` is the message (up to 2000 characters); a Looscid mod may add `["status", "new", "looking", "done" or "closed"]` and `["as", "mod"]` |
 
 Reports, blocks and "delete my data" must be Rem v1 events signed within the last 10 minutes, so an old one can't be
 replayed. A Dream id is its event id (or its v0 object id), so ids can't clash between people or versions.
@@ -97,6 +100,9 @@ Base: `https://rem.thebntlovver.workers.dev`. JSON in, JSON out. Browsers may ca
 | POST | `/issues` | body: a signed kind 21989 event, signed in the last 10 minutes, used once. Answers the new report. 10 reports per key per day |
 | POST | `/issues/vote` | body: a signed kind 21990 event, signed in the last 10 minutes, used once. One vote per key per report; a new one replaces the old one and `none` takes it back. Answers the new `agree` and `disagree` counts |
 | POST | `/issues/moderate` | body: a signed kind 21991 event from a key in the Looscid mods list (`/moderators`), signed in the last 10 minutes, used once. Anyone else gets 403. Closing needs a reason. Answers the report |
+| POST | `/reports` | the Report Center. body: a signed kind 21992 event, signed in the last 10 minutes, used once. Answers `{ ok, report, hidden }`; a report is `{ id, type, target, label, circle, reason, body, status, created_at, updated_at, messages: [{ id, from: "you" or "Looscid mods", text, status, at }] }`. A Dream report on a Dream in the index also counts like `/report` (same weights, same hiding). You can't report your own Dream or yourself. 20 per key per day |
+| POST | `/reports/read` | body: a signed kind 21993 event, signed in the last 10 minutes, used once. Answers `{ ok, statuses, reports }` with only that key's reports, newest first. With `["scope", "all"]` from a Looscid mod: every report, each with `by` (the reporter's key, for mods only); anyone else gets 403 |
+| POST | `/reports/reply` | body: a signed kind 21994 event, signed in the last 10 minutes, used once. Only the reporter (up to 50 messages per report) and Looscid mods can write; anyone else gets 403. Only mods set the status. A mod's message shows as "Looscid mods". Answers the report |
 
 **Trusted reporters.** A report counts 1 when the reporter's key is trusted, and 0.25 when it isn't. A key is trusted
 when the server first saw it at least 7 days ago (its own clock, `users.created_at`, never a date inside a signed
@@ -121,7 +127,14 @@ changes are public and say "Looscid mods", never which key. `/forget` also erase
 replies on them, its own votes and, for a mod, its replies. Tables: `issues`, `issue_votes`, `issue_replies` (made by
 the code itself).
 
-**Limits:** 30 Dreams per key per 10 minutes, 20 reports and 60 blocks per key per hour, 300 list writes and 240 list reads per key per hour, 10 problem reports per key per day (20 an hour), 300 votes and 200 mod actions on reports per key per hour, 200 writes per network
+**The Report Center** (Nov 8 2026). Reports about Dreams, people, Circles and child safety are private: no GET route
+lists them, a reporter reads only their own (a read signed by their key, good once), and only Looscid mods (the
+`/moderators` keys) read them all. Nothing public says who reported what; the public mod log is unchanged. Each report
+is a thread: the reporter can add to it, and mods answer as "Looscid mods" (never which key) and set the status: `new`,
+`looking`, `done` or `closed`. Everything is plain text. `/forget` also erases that key's reports, every message on
+them, and every message that key wrote. Tables: `report_threads`, `report_messages` (made by the code itself).
+
+**Limits:** 30 Dreams per key per 10 minutes, 20 reports and 60 blocks per key per hour, 300 list writes and 240 list reads per key per hour, 10 problem reports per key per day (20 an hour), 300 votes and 200 mod actions on reports per key per hour, 20 Report Center reports per key per day (30 an hour), 240 report reads and 120 report messages per key per hour, 200 writes per network
 address per 10 minutes (the address is only kept as a daily-salted hash). Events up to 64 KB, text up to 20000
 characters. Over a limit: 429. A server error is a plain `{ "ok": false, "error": "server error" }` (details stay in
 the server's own log).

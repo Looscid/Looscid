@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en-US" data-help-root="../../../">
+<head>
+<meta charset="UTF-8"/>
+<title>My reports and report threads component - Looscid Help Center</title>
+<!-- Made by .github/scripts/build-help.mjs from app/js/helpdata.js. Edit those, not this page. Link previews come first. -->
+<meta name="description" content="every report u made w its status. each one's a thread between u and the Looscid mods.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Looscid">
+<meta property="og:title" content="My reports and report threads component - Looscid Help Center">
+<meta property="og:description" content="every report u made w its status. each one's a thread between u and the Looscid mods.">
+<meta property="og:url" content="https://looscid.github.io/Looscid/help/dev/components/report-thread/">
+<meta property="og:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:secure_url" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Looscid">
+<meta name="twitter:title" content="My reports and report threads component - Looscid Help Center">
+<meta name="twitter:description" content="every report u made w its status. each one's a thread between u and the Looscid mods.">
+<meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta name="twitter:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<link rel="canonical" href="https://looscid.github.io/Looscid/help/dev/components/report-thread/">
+<link rel="icon" type="image/png" sizes="32x32" href="https://looscid.github.io/Looscid/assets/icons/favicon-32.png?v=nl1">
+<link rel="apple-touch-icon" href="https://looscid.github.io/Looscid/assets/icons/apple-touch-icon.png?v=nl1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<link rel="stylesheet" href="../../../help.css?v=hc7">
+<link rel="stylesheet" href="../../../../assets/site-footer.css?v=2">
+</head>
+<body>
+<div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<header class="top"><a class="brand" href="../../../" title="Goes back to Help Center" aria-label="Looscid Help Center, logo: a white open ring with a dot in the middle, on blue"><img src="../../../../assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="32" height="32"><span><span aria-hidden="true">Looscid</span> Help Center</span></a><div class="goto"><button type="button" class="goto-btn" aria-expanded="false" aria-controls="goto-list" hidden>Go to<svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><ul class="goto-list" id="goto-list"><li><a href="../../../" title="Goes back to Help Center">Help Home</a></li><li><a href="../../../../" title="Goes to Home">Looscid Home</a></li></ul></div></header>
+<main class="wrap" id="main">
+<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../../../" title="Goes back to Help Center">Help Center</a></li><li><a href="../../../#h-building" title="Goes back to Help Center">Building Looscid</a></li><li><a href="../" title="Opens this article">Components</a></li><li><span aria-current="page">My reports and report threads</span></li></ol></nav>
+<link rel="stylesheet" href="../components.css?v=1">
+<h1>My reports and report threads</h1>
+<p class="lead">every report u made w its status. each one's a thread between u and the Looscid mods.</p>
+<h2 id="what">what it is</h2>
+<p>it's under Make a report in the Report Center. each report is one row: what it's about and its status in one heading, then the reason, when u sent it and how many messages it has.</p>
+<p>press Thread to open it: every message, then a box to reply to the mods. mods answer as "Looscid mods", never their name. when they reply or change the status, u get an Alert. nobody but u and the mods can ever read it.</p>
+<h2 id="states">states</h2>
+<p>live demos, drawn w looscid's real styles. look-only: nothing in them does anything.</p>
+<h3 id="state-closed">a report</h3>
+<p>one report, thread closed.</p>
+<iframe class="cl-frame" src="closed.html" title="My reports and report threads demo, a report" loading="lazy" style="height:220px"></iframe>
+<h3 id="state-open">thread open</h3>
+<p>ur message and the mods' reply, then the reply box.</p>
+<iframe class="cl-frame" src="open.html" title="My reports and report threads demo, thread open" loading="lazy" style="height:430px"></iframe>
+<h3 id="state-mod">mod tools</h3>
+<p>what Looscid mods see: a native Status select and a reply that shows as Looscid mods.</p>
+<iframe class="cl-frame" src="mod.html" title="My reports and report threads demo, mod tools" loading="lazy" style="height:470px"></iframe>
+<h3 id="state-empty">no reports yet</h3>
+<p>the plain line before u ever report something.</p>
+<iframe class="cl-frame" src="empty.html" title="My reports and report threads demo, no reports yet" loading="lazy" style="height:80px"></iframe>
+<h2 id="code">copy the code</h2>
+<h3 id="code-html">html</h3>
+<pre class="cl-code"><code id="code-report-thread-html">&lt;ol class=&quot;lc-issue-list&quot;&gt;
+&lt;li class=&quot;lc-issue&quot;&gt;
+&lt;h3 id=&quot;lc-rc-a1b2c3&quot; class=&quot;lc-issue-h&quot;&gt;Report about Ava: free followers, tap this link. the mods are looking at it.&lt;/h3&gt;
+&lt;p class=&quot;lc-desc lc-issue-meta&quot;&gt;Reason: spam. Sent Nov 8, 1:02 PM. 2 messages.&lt;/p&gt;
+&lt;p class=&quot;lc-desc lc-issue-body&quot;&gt;U said: it's a scam link, they DM'd me too&lt;/p&gt;
+&lt;p&gt;&lt;button type=&quot;button&quot; class=&quot;btn bgb lc-btn lc-issue-btn&quot; aria-expanded=&quot;true&quot;&gt;Thread&lt;/button&gt;&lt;/p&gt;
+&lt;div class=&quot;lc-rc-thread&quot;&gt;
+&lt;ul class=&quot;lc-issue-replies&quot;&gt;&lt;li class=&quot;lc-desc lc-rc-msgline&quot;&gt;You, Nov 8, 1:05 PM: they did it again on another Dream&lt;/li&gt;&lt;li class=&quot;lc-desc lc-rc-msgline&quot;&gt;Looscid mods, Nov 8, 1:20 PM: set it to the mods are looking at it. thx, we're on it&lt;/li&gt;&lt;/ul&gt;
+&lt;label for=&quot;lc-rc-a1b2c3-tx&quot; class=&quot;lc-fs-l&quot; style=&quot;display: block;&quot;&gt;Reply to the mods&lt;/label&gt;
+&lt;textarea id=&quot;lc-rc-a1b2c3-tx&quot; class=&quot;inp&quot; rows=&quot;3&quot; maxlength=&quot;2000&quot;&gt;&lt;/textarea&gt;
+&lt;button type=&quot;button&quot; class=&quot;btn bp lc-btn lc-issue-btn&quot;&gt;Send reply&lt;/button&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ol&gt;</code></pre>
+<p><button type="button" class="btn cl-copy" data-copy="code-report-thread-html" hidden>Copy code</button></p>
+<h3 id="code-js">js</h3>
+<pre class="cl-code"><code id="code-report-thread-js">// js/reportcenter.js, cut down: only a read signed by ur own key gets ur reports
+const r = await call(&quot;POST&quot;, &quot;/reports/read&quot;, await sign(21993, [[&quot;action&quot;, &quot;read-my-reports&quot;]]));
+// replying adds a message to the thread (kind 21994); mods add [&quot;status&quot;, s]
+await call(&quot;POST&quot;, &quot;/reports/reply&quot;, await sign(21994, [[&quot;e&quot;, report.id]], text));</code></pre>
+<p><button type="button" class="btn cl-copy" data-copy="code-report-thread-js" hidden>Copy JS code</button></p>
+<p>it uses the classes from css/app.css and css/a11y.css, so it looks right anywhere in looscid.</p>
+<h2 id="voiceover">how it works w voiceover</h2>
+<ul><li>each report is one heading, so the headings rotor lists ur reports, and one swipe reads it: &quot;Report about Ava: free followers, tap this link. the mods are looking at it. heading level 3&quot;.</li><li>Thread is a real button that says if it's open: &quot;Thread, button, collapsed&quot;. the messages are a list, each one starts w who wrote it: &quot;You&quot; or &quot;Looscid mods&quot;.</li><li>&quot;Reply to the mods, text field&quot;, then &quot;Send reply, button&quot;. the polite live region says &quot;reply sent to the mods&quot;.</li><li>braille display: Enter on Thread opens it, type ur reply, Enter on Send reply sends it.</li></ul>
+<h2 id="related">related</h2>
+<ul><li><a href="../report-center/" title="Opens this article">Report Center form</a></li><li><a href="../native-select/" title="Opens this article">Native select picker</a></li><li><a href="../live-region/" title="Opens this article">Live region announcements</a></li><li><a href="../report-a-problem/" title="Opens this article">Report a problem and report rows</a></li></ul>
+<p class="next"><a href="../" title="Opens this article">All components</a></p>
+<script src="../components.js?v=1"></script>
+</main>
+<footer class="sf">
+<div class="sf-in">
+<p class="sf-brand"><img src="/Looscid/assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="28" height="28"><span class="sf-name" aria-hidden="true">Looscid</span></p>
+<div class="sf-cols">
+<section class="sf-col" aria-labelledby="sf-h-help"><h2 id="sf-h-help">Get help</h2><ul><li><a href="/Looscid/" title="Goes to Home">Looscid Home</a></li><li><a href="/Looscid/help/" title="Goes back to Help Center">Help Home</a></li><li><a href="/Looscid/help/getting-started/" title="Opens this topic">Getting Started</a></li><li><a href="/Looscid/help/looscid-basics/" title="Opens this course">Looscid Basics course</a></li><li><a href="/Looscid/help/dev/accessibility/" title="Opens this article">Accessibility</a></li><li><a href="/Looscid/Report/" title="Goes to Report">Report Center</a></li><li><a href="/Looscid/help/contact/" title="Goes to Contact Us">Contact Us</a></li><li><a href="/Looscid/Feedback/" title="Goes to Feedback">Send Feedback</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-project"><h2 id="sf-h-project">Project</h2><ul><li><a href="/Looscid/changelog/" title="Goes to the changelog">Roadmap &amp; Changelog</a></li><li><a href="/Looscid/status.html" title="Goes to the status page">Status</a></li><li><a href="/Looscid/help/#h-building" title="Goes back to Help Center">Docs</a></li><li><a href="/Looscid/help/dev/contributing/" title="Opens this article">Contributing</a></li><li><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a></li><li><a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-looscid"><h2 id="sf-h-looscid">Looscid</h2><ul><li><a href="/Looscid/About/" title="Goes to About">About</a></li><li><a href="/Looscid/Our-Story/" title="Goes to Our Story">Our Story</a></li><li><a href="/Looscid/Credits/" title="Goes to Credits">Credits</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-legal"><h2 id="sf-h-legal">Legal</h2><ul><li><a href="/Looscid/Terms/" title="Goes to Terms">Terms</a></li><li><a href="/Looscid/Privacy/" title="Goes to Privacy">Privacy</a></li><li><a href="/Looscid/Rules/" title="Goes to Rules">Rules</a></li><li><a href="/Looscid/Child-Safety/" title="Goes to Child Safety">Child Safety</a></li><li><a href="/Looscid/Legal/" title="Goes to Legal">License</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-hi"><h2 id="sf-h-hi">Say hi</h2><ul><li><a href="https://github.com/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">GitHub</a></li><li><a href="https://x.com/Looscid" title="Go to X" target="_blank" rel="noopener noreferrer">X</a></li><li><a href="https://www.youtube.com/@Looscid" title="Go to YouTube" target="_blank" rel="noopener noreferrer">YouTube</a></li><li><a href="https://discord.gg/M6xrD8EBXU" title="Go to Discord" target="_blank" rel="noopener noreferrer">Discord</a></li></ul></section>
+</div>
+<p class="sf-bottom">© 2025–2026 Looscid <span aria-hidden="true">·</span> Open source under the <a href="/Looscid/help/dev/license/" title="Opens this article">GNU AGPL-3.0</a> <span aria-hidden="true">·</span> Made by Chaotic Carter, co-written with Tab <span aria-hidden="true">·</span> Looscid 2026.138.57 (195)</p>
+</div>
+</footer>
+<script src="../../../help.js?v=hc6"></script>
+</body>
+</html>

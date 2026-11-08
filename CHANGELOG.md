@@ -3,6 +3,25 @@
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
 
+## Report Center and one footer (no new build yet)
+
+Added November 8, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+
+Asked for by Carter: one central place for every kind of report, reports you can follow and talk about with the mods, and one footer for the whole app.
+
+- The Report Center is new, at its own address, looscid.github.io/Looscid/Report/. Report a Dream, a person, a Circle, a bug or an idea, or child safety, all in one place. Links like /Report/?dream=<id> or /Report/?profile=<key> fill it in.
+- Report on a Dream, on someone's profile (More, Report) and on a Circle opens the Report Center already filled in. Report on profiles works now; it used to say it wasn't available.
+- The reasons are radio buttons: Spam, Mean or bullying, Unsafe or harmful, Child safety (new) and Something else. Child safety reports go straight to the Looscid mods.
+- After you send a report, Looscid shows and says "ur report's submitted. check it in the Report Center anytime".
+- My reports lists every report you made with its status, your bug reports included. Each report is a thread: add more info for the mods, and they reply as Looscid mods.
+- When the mods reply or a report's status changes, an Alert lands in Inbox, Alerts (From Looscid), with Open Report Center in its More.
+- Reports are private. Only you and the Looscid mods can read them (reading them needs your key), and nothing public ever says who reported what. The public Mod log works like before.
+- Bugs and ideas still go to Report a problem, the public tracker. Contact Us keeps Report a bug on GitHub and the Discord as backups.
+- The Report Center is in More (Report Center), in Help (Report Center), in the Help Center and in the footer.
+- One footer everywhere: the app, the Help Center, the component library, the changelog, the status page and Page not found all show the same footer, from one file (app/js/sitefooter.js). Nothing was taken out of it; it gained a Report Center link, and links to other sites have a title hint instead of extra hidden words.
+- Rem, Looscid's server, has three new routes for reports (POST /reports, /reports/read and /reports/reply). Everything that was there before works the same.
+- The component library has two new pages: the Report Center form and a My reports thread. A new Help Center article explains the Report Center.
+
 ## Likes, dislikes and the Liked manager (no new build yet)
 
 Added November 8, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.

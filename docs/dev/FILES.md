@@ -34,6 +34,8 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 | `app/js/remsync.js` | Rem sync and the backup file: the Rem part of Connectionbase ("Put your Dreams on Rem?": public Dreams signed as Rem v1 events and sent to Rem, then sync), the Local or Rem mode line, and **Backup file** (one .looscid file with everything and your key, locked with a passcode). |
 | `app/js/remlists.js` | Your lists on every device (Nov 8 2026): likes, ReDreams, pinned Dreams, mutes, Not interested and followed threads sync through Rem (POST /list, POST /mine) by your LooscidID key. Pins, mutes and followed threads are private: only a read signed by your own key gets them. Guest mode stays on the device. |
 | `app/js/issues.js` | Report a problem (Nov 8 2026): Looscid's own issue tracker inside the Help Center's Report a problem article. Bug or Idea, title, What happened, signed with your key (POST /issues); the public list with Agree and Disagree (POST /issues/vote) and the status filter; Mod tools for Looscid mods (POST /issues/moderate). A typed report stays in memory until Rem takes it. |
+| `app/js/reportcenter.js` | The Report Center (Nov 8 2026), at /Report: every kind of report in one place (Dreams, people, Circles, child safety; bugs and ideas link to Report a problem), prefilled by `Looscid.lcOpenReport` or the address (?dream=, ?profile=, ?circle=). Private report threads on Rem (POST /reports, /reports/read, /reports/reply), My reports with statuses, reporter and mod replies, Alerts when something changes, and Mod tools for Looscid mods. |
+| `app/js/sitefooter.js` | The one footer (Nov 8 2026): its groups and links. `app/js/core.js` (`LcSiteFooter`) draws it in the app, and `.github/scripts/build-help.mjs` writes the same footer into the website pages (Help Center, components, changelog, status, Page not found). |
 | `app/projects/` | The ported projects, one folder each with its own `LICENSE`, plus `dream-results.js` (the Dream Results button inside Memeprojects). |
 | `app/os/` | Looscid OS and its apps (it started as NexOS; the old `/Looscid/nexos/` addresses redirect here through `app/404.html`). Memeprojects also loads `app/projects/dream-results.js`. |
 | `app/js/apphost.js`, `app/js/appguard.js`, `app/open.html`, `app/js/open.js` | Security pass (Oct 2026): Looscid OS apps and Projects run in a sandboxed frame without allow-same-origin, so they can't reach Looscid's storage or your Nostr key. `apphost.js` (loaded by `index.html` and `open.html`) has the sandbox flags and keeps the apps' saved data in one key, `looscid_appdata`. `appguard.js` is the first script of every page under `app/os/` and `app/projects/`: opened on its own, the page reopens inside `open.html`; inside the sandbox it gives the page a stand-in localStorage. |
@@ -42,7 +44,7 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 ## Load order
 
 1. React and ReactDOM 18.2.0 (UMD), from `app/js/vendor/` on this site with `integrity=` (no CDN since the security pass). They go once the last React tab is rewritten. Then `app/js/apphost.js` (the sandboxed apps' host side).
-2. `app/js/core.js`
+2. `app/js/sitefooter.js` (Nov 8 2026: right before `app/js/core.js`; plain data, the footer's links), then `app/js/core.js`
 3. `app/js/nostr.js` (small; `app/js/vendor/nostr-tools-2.25.2-nip17.min.js` is added later, only when Nostr is used), then `app/js/net.js` (Nov 7 2026: right after `app/js/nostr.js`)
 4. The tabs: `app/js/discover.js`, `app/js/circles.js`, `app/js/feed.js`, `app/js/create.js`, `app/js/alerts.js`, `app/js/more.js`
 5. `app/js/cherry.js` (Round 6.5.2: same place in the order; the frame shows its page with `case "cherry"` in `app/js/core.js`)
@@ -54,6 +56,7 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 9b. `app/js/remsync.js` (Oct 31 2026: right after `app/js/liked.js`; `app/js/more.js` renders `Looscid.LcServerPanel` and `Looscid.LcBackupPanel` on the LooscidID pages)
 9c. `app/js/remlists.js` (Nov 8 2026: right after `app/js/remsync.js`; needs js/net.js and js/core.js)
 9d. `app/js/issues.js` (Nov 8 2026: right after `app/js/remlists.js`; needs js/net.js and js/core.js; js/helpcenter.js calls it when the Report a problem article opens)
+9e. `app/js/reportcenter.js` (Nov 8 2026: right after `app/js/issues.js`; needs js/net.js and js/core.js; the frame shows its page with `case "report_center"` in `app/js/core.js`)
 10. The mount: `app/js/mount.js` at the end of `app/index.html` starts the app (not inside another website's frame).
 
 ## One namespace

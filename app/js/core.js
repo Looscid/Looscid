@@ -1222,7 +1222,8 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
     blocked ? { id: "unblock", name: "Unblock " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").filter(function (h) { return h !== lcHandle(handle); })); announce("Unblocked " + who + "."); } }
             : { id: "block", name: "Block " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").concat([handle])); if (authorPk && Looscid.lcNet) Looscid.lcNet.block(authorPk, handle); announce("Blocked " + who + ". Unblock here or in Settings, Privacy."); } },
     // Nov 7 2026: Report is back now that the Looscid server takes reports (js/net.js). It's on Dreams with a Looscid id.
-    reportable ? { id: "report", name: "Report Dream", a: function () { setReporting(true); } } : null,
+    // Nov 8 2026 (Carter): Report opens the Report Center with this Dream filled in (js/reportcenter.js); the old dialog stays as the fallback.
+    reportable ? { id: "report", name: "Report Dream", a: function () { try { if (Looscid.lcOpenReport) { Looscid.lcOpenReport({ type: "dream", target: String(dream.nid).toLowerCase(), label: who + ": " + String(dream.text || "").replace(/\s+/g, " ").slice(0, 80) }); return; } } catch (e) {} setReporting(true); } } : null,
   ].filter(Boolean);
   // Oct 31 2026 (Carter): Delete Dream is on your own Dreams everywhere they show (Home, profiles, Liked, Replies page),
   // not only on the Replies page. Its visible name says what it deletes, and it's last so it's never hit by accident.
@@ -2188,7 +2189,7 @@ const GUIDELINES_CONTENT = `<p><strong>Last updated: October 10, 2026</strong></
 <h2>Humor is welcome</h2>
 <p>Looscid likes a good joke. Keep it kind.</p>`;
 Looscid.GUIDELINES_CONTENT = GUIDELINES_CONTENT;
-const CHILD_SAFETY_CONTENT = `<p><strong>Last updated: October 12, 2026</strong></p>
+const CHILD_SAFETY_CONTENT = `<p><strong>Last updated: November 8, 2026</strong></p>
 <p>Looscid has zero tolerance for child sexual abuse material (CSAM) and for anything that sexualizes, grooms or endangers a child.</p>
 <h2>Where reports go</h2>
 <ul>
@@ -2198,7 +2199,8 @@ const CHILD_SAFETY_CONTENT = `<p><strong>Last updated: October 12, 2026</strong>
 </ul>
 <h2>How to report</h2>
 <ul>
-<li>Report in Looscid is coming soon. Until it's here, report child sexual abuse material directly to <a href="https://report.cybertip.org/" target="_blank" rel="noopener noreferrer">NCMEC's CyberTipline</a>.</li>
+<li>Report it in the Report Center: press Report on the Dream or profile, or open Profile, More, Report Center, and pick Child safety. It goes straight to Looscid moderators.</li>
+<li>You can also report child sexual abuse material directly to <a href="https://report.cybertip.org/" target="_blank" rel="noopener noreferrer">NCMEC's CyberTipline</a>.</li>
 <li>If a child is in immediate danger, contact your local emergency services first.</li>
 </ul>
 <p>Read the <a href="#" data-policy-link="guidelines">Community rules</a> too.</p>`;
@@ -2215,41 +2217,31 @@ Looscid.CHILD_SAFETY_CONTENT = CHILD_SAFETY_CONTENT;
 function lcFooterForget() { Looscid.lcFooterFrom = null; Looscid.lcFooterLink = null; Looscid.lcFooterCv = null; Looscid.lcFooterHop = null; }
 Looscid.lcFooterForget = lcFooterForget;
 function LcSiteFooter({ navigate, cur }) {
-  const ext = function (href, text, key) { return lh('li', { key: key }, lh('a', { href: href, target: "_blank", rel: "noopener noreferrer", className: "lc-link", "aria-label": text + " (external)" }, text + " (external)")); };
-  const go = function (page, text, key) { return lh('li', { key: key }, lh('a', { href: (Looscid.lcPathFor ? Looscid.lcPathFor(page) : "#"), className: "lc-link",
+  /* Nov 8 2026 (Carter: "the footer on the Help Center and component library pages becomes the one footer on every page"):
+     the groups and links come from js/sitefooter.js, the one source the website pages are built from too (Get help, Project,
+     Looscid, Legal, Say hi, then the bottom line with the license and the build). Links to Looscid pages open them right here
+     (same as before: Back comes back to the link); links to other sites open a new tab and say where in a title hint, with
+     plain link text (no aria-label). The heading is still "Footer" with one h3 per group. If the list is missing, no footer. */
+  const F = Looscid.LC_FOOTER; if (!F || !F.groups) return null;
+  const go = function (page, text, href, key) { return lh('li', { key: key }, lh('a', { href: (Looscid.lcPathFor ? Looscid.lcPathFor(page) : href) || href, className: "lc-link",
     onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault();
       // Round 10 fixes: a footer page opened from another footer page keeps where the first one came from (its Replies too).
       const hop = !Looscid.LC_CV_NOW && !!cur && Looscid.lcFooterFrom === cur;
       Looscid.lcFooterCv = Looscid.LC_CV_NOW || (hop ? Looscid.lcFooterCv : null); Looscid.lcFooterHop = hop ? cur : null;
       Looscid.lcFooterFrom = page; Looscid.lcFooterLink = text; navigate(page); } }, text)); };
-  const soon = function (text, key) { return lh('li', { key: key }, lh('button', { type: "button", className: "lc-foot-soon", "aria-disabled": "true", onClick: function () { announce(text + " is coming soon."); } }, text, lh('span', { className: "lc-foot-soon-tag" }, " Coming soon"))); };
-  const grp = function (id, title, kids) { return lh('section', { className: "lc-foot-grp", "aria-labelledby": id }, lh('h3', { id: id, className: "lc-foot-h" }, title), lh('ul', { className: "lc-foot-list", role: "list" }, kids)); };
-  /* Round 7.15 (2three1y, Oct 25: "look cleaner and remove items that no longer work"; no Linux edition): four short
-     groups in a grid that falls to one column when narrow or zoomed. Credits moved from Legal to About; Legal and license
-     is just License; Social links are just the site's name. The Linux edition item is gone. The iPhone line and the
-     Android app item stay as they were. */
-  /* Nov 1 2026 (Carter: "steal the most coolist ... footer", "footer is sitewide"): the same footer as the website pages
-     (Help Center, changelog, status; assets/site-footer.css): Looscid, Help, Developers, Legal and Say hi, then one small
-     line. Every link was already somewhere in Looscid; nothing new is sent anywhere. The made-by line has no link now. */
-  const base = typeof LOOSCID_BASE === "string" ? LOOSCID_BASE : "";
-  const site = function (href, text, key) { return lh('li', { key: key }, lh('a', { href: base + href, className: "lc-link" }, text)); };
+  const item = function (x, i) { const l = F.link(x), t = String(l.t).replace(/&amp;/g, "&"), key = l.href + i;
+    if (l.ext) return lh('li', { key: key }, lh('a', { href: l.href, target: "_blank", rel: "noopener noreferrer", className: "lc-link", title: "Go to " + l.ext }, t));
+    if (l.page) return go(l.page, t, l.href, key);
+    return lh('li', { key: key }, lh('a', { href: l.href, className: "lc-link" }, t)); };
+  const grp = function (g) { const id = "lc-foot-" + g.id; return lh('section', { key: g.id, className: "lc-foot-grp", "aria-labelledby": id }, lh('h3', { id: id, className: "lc-foot-h" }, g.t), lh('ul', { className: "lc-foot-list", role: "list" }, g.links.map(item))); };
+  const build = "Looscid " + LOOSCID_VERSION + (Looscid.LOOSCID_BUILD ? " (" + Looscid.LOOSCID_BUILD + ")" : "");
   return lh('footer', { className: "lc-footer", role: "contentinfo", "aria-labelledby": "lc-foot-title" },
     lh('h2', { id: "lc-foot-title", className: "lc-foot-title" }, "Footer"),
     lh('p', { className: "lc-foot-brand" }, lh(LcLogo, { size: 28, alt: LC_LOGO_ALT }), lh('span', { className: "lc-foot-name", "aria-hidden": "true" }, "Looscid")),
-    lh('div', { className: "lc-foot-grps" },
-    grp("lc-foot-looscid", "Looscid", [go("settings_about", "About Looscid", "ab"), go("hour_story", "Our Story", "os"),
-      // Round 7.24 (#161): the changelog is its own page on the site (every version, with its own link preview).
-      site("changelog/", "Changelog", "chg"), go("credits", "Credits", "cr")]),
-    grp("lc-foot-help", "Help", [go("helpcenter", "Help Center", "hc"), site("help/getting-started/", "Getting Started", "gs"), site("help/contact/", "Contact Us", "cu"), go("feedback", "Send Feedback", "fb")]),
-    grp("lc-foot-dev", "Developers", [ext("https://github.com/Looscid/Looscid", "Source code", "src"), site("help/#h-building", "Docs", "docs"),
-      // Nov 7 2026 (Carter): the docs are pages in the Help Center now; only Source code (and Issues on the site) go to GitHub.
-      site("help/dev/contributing/", "Contributing", "con"), site("help/dev/accessibility/", "Accessibility", "a")]),
-    grp("lc-foot-legal", "Legal", [go("terms", "Terms", "t"), go("privacy", "Privacy", "p"), go("guidelines", "Rules", "r"), go("child_safety", "Child Safety", "c"), go("legal", "License", "l")]),
-    grp("lc-foot-social", "Say hi", [ext("https://github.com/Looscid", "GitHub", "gh"), ext("https://x.com/Looscid", "X", "x"), ext("https://www.youtube.com/@Looscid", "YouTube", "yt"),
-      // Round 7.35 (Carter, Oct 26 2026): the Looscid Discord, last in Social.
-      ext("https://discord.gg/M6xrD8EBXU", "Discord", "dc")])),
-    lh('p', { className: "lc-foot-credit" }, "\u00a9 2025\u2013" + String(LOOSCID_VERSION).split(".")[0] + " Looscid \u00b7 Made by Chaotic Carter, co-written with Tab"));
+    lh('div', { className: "lc-foot-grps" }, F.groups.map(grp)),
     // Round 7.41 (Carter: "not corpo shit"): one kid and Tab make this, and the footer says so.
+    lh('p', { className: "lc-foot-credit" }, F.copyLine(String(LOOSCID_VERSION).split(".")[0]), lh('span', { "aria-hidden": "true" }, " \u00b7 "), "Open source under the ",
+      lh('a', { href: F.LICENSE.href, className: "lc-link" }, F.LICENSE.t), lh('span', { "aria-hidden": "true" }, " \u00b7 "), F.MADE_BY, lh('span', { "aria-hidden": "true" }, " \u00b7 "), build));
 }
 /* 2three1y (Oct 12, 5:33 PM): "The footer is on every page at the bottom like GitHub", but in reading and swipe order the
    tab bar (ending with More) comes BEFORE the footer, and the footer is the very last thing. So the end of every scrolling
@@ -2634,6 +2626,8 @@ const LC_ROUTES = [
   ["settings_general", "Settings/General"], ["settings_updates", "Settings/General/Updates"], ["settings_labs", "Settings/Labs"], ["settings_about", "About"], ["terms", "Terms"], ["privacy", "Privacy"], ["guidelines", "Rules"], ["child_safety", "Child-Safety"],
   ["credits", "Credits"], ["legal", "Legal"], ["feedback", "Feedback"], ["settings_dev", "About/Dev"], ["helpcenter", "Help"], ["commands", "Commands"], ["music", "Music"], ["terminal", "Commandbar"],
   ["nexos_apps", "Apps"], ["hour_story", "Our-Story"],
+  // Nov 8 2026 (Carter): the Report Center, every kind of report in one place (js/reportcenter.js). /Report/?dream=<id> and ?profile=<key> fill it in.
+  ["report_center", "Report"],
   ["more_discover", "More/Discover"], ["more_apps", "More/Apps"], ["more_create", "More/Create"], ["more_alerts", "More/Alerts"], ["more_projects", "Projects"],
 ];
 const LOOSCID_BASE = (function () { try { if (window.LOOSCID_BASE) return window.LOOSCID_BASE; const p = location.pathname; return /^\/looscid(\/|$)/i.test(p) ? "/Looscid/" : ("/" + p.replace(/[^\/]*$/, "")).replace(/\\/g, "/").replace(/\/{2,}/g, "/"); } catch (e) { return "/"; } })();
@@ -2744,6 +2738,8 @@ function lcMoreSections(o) {
       { icon:"Help", label:"Help Center", sub:"Getting started, commands, Cherry, earcons, accessibility, backup, and how to get help", action(){onClose();navigate("helpcenter");} },
       // Nov 8 2026: Looscid's own issue tracker lives in the Help Center (js/issues.js); this opens its article.
       { icon:"Help", label:"Report a problem", sub:"Report a bug or an idea, and agree or disagree with other reports", action(){onClose();Looscid.LC_HELP_NEXT = { kind: "art", id: "report-a-problem" };navigate("helpcenter");} },
+      // Nov 8 2026: the Report Center, every report u made and its status.
+      { icon:"Help", label:"Report Center", sub:"Report a Dream, a person, a Circle or child safety, and see ur reports", action(){onClose();navigate("report_center");} },
       { icon:"Commands", label:"Commands", sub:"Every Commandbar command and keyboard shortcut, each one a button that runs it", action(){onClose();navigate("commands");} },
     ]},
   ];
@@ -6087,7 +6083,7 @@ function lcNotify(type, text, user, preview, extra) {
   if (preview && typeof lcWordHit === "function" && lcWordHit(preview, "alerts")) return null;
   const list = lcAlerts(), now = Date.now();
   let a = null;
-  if (P.group) {
+  if (P.group && !(extra && extra.solo)) { // Nov 8 2026: extra.solo (a Report Center Alert) never groups, so its words stay
     // Build 151 (#74): a Reply in a thread you follow only groups with others like it.
     const sub = !!(extra && extra.sub);
     const g = list.find(function (x) { return x.type === type && x.unread && now - x.time < 30 * 60000 && !!x.sub === sub; });
@@ -6096,6 +6092,7 @@ function lcNotify(type, text, user, preview, extra) {
   }
   if (!a) { a = { id: now + "-" + Math.random().toString(36).slice(2, 7), type: type, text: text, user: user ? { id: user.id, name: user.name, handle: user.handle, initials: user.initials, color: user.color } : null, preview: preview || "", time: now, unread: true, count: 1 };
     if (extra && extra.sub) { a.sub = true; a.thread = String(extra.thread || ""); }
+    if (extra && extra.report) a.report = String(extra.report); // Nov 8 2026: an Alert about one of your reports (js/reportcenter.js)
     if (extra && extra.pk) a.pk = String(extra.pk); if (extra && extra.ref) a.ref = String(extra.ref); if (extra && extra.nid) a.nid = String(extra.nid);
     list.unshift(a); }
   lcAlertsSave(list);
@@ -8211,6 +8208,7 @@ useEffect(() => {
   const cherryBack = useRef(null);                              // Round 6.5.2: where Back on the Cherry page goes
   const commandsBack = useRef(null);                            // Round 6.5.3: where Back on the Commands page goes
   const projectBack = useRef(null);                             // Round 6.6: where Back on a project goes
+  const reportBack = useRef(null);                              // Nov 8 2026: where Back on the Report Center goes
   const helpBack = useRef(null);                                // Round 6.6: where Back on the Help Center goes
   const legalBack = useRef(null);                               // Round 6.6: where Back on Legal goes
   const cherryOffMenu = useRef(false);                          // Round 6 fixes: Intelligence opened from More > Cherry (Cherry off)
@@ -8352,6 +8350,7 @@ useEffect(() => {
     if (target === "project" && cur !== "project") projectBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
     // Round 6.6: the Help Center works the same way (the More menu reopens on Help).
     if (target === "helpcenter" && cur !== "helpcenter") helpBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current };
+    if (target === "report_center" && cur !== "report_center") reportBack.current = { page: cur, data: pdataRef.current };
     if (target === "legal" && cur !== "legal") { legalBack.current = { page: cur, data: pdataRef.current, menu: !!showMenuRef.current, footer: Looscid.lcFooterFrom === "legal" ? Looscid.lcFooterLink : null, cv: Looscid.lcFooterFrom === "legal" ? Looscid.lcFooterCv : null };
       if (Looscid.lcFooterFrom === "legal") { Looscid.lcFooterFrom = null; Looscid.lcFooterLink = null; Looscid.lcFooterCv = null; } }
     if (target === "intro") { setShowWelcome(true); return; }
@@ -8419,6 +8418,12 @@ useEffect(() => {
     setPage(to); setPdata(b.data || null);
     if (b.menu) { setMenuInit({ open: "help", focus: "Help Center", n: Date.now() }); setShowMenu(true); }
     else focusMainHeading();
+  };
+  // Nov 8 2026: Back on the Report Center goes back where it was opened (Home when it was opened by its address).
+  const reportGoBack = () => {
+    const b = reportBack.current || { page: "feed", data: null }; reportBack.current = null;
+    const to = b.page && b.page !== "report_center" ? b.page : "feed";
+    setPage(to); setPdata(b.data || null); focusMainHeading();
   };
   // Round 6.6: Back (or Close) on Legal: back where it was opened (About Looscid, the Help Center, Commandbar).
   const legalGoBack = () => {
@@ -8978,6 +8983,7 @@ useEffect(() => {
       case "cherry":        return React.createElement(Looscid.CherryPage, { navigate: navigate, cherryCtx: cherryCtx, data: pdata, onBack: cherryGoBack,});
       case "commands":      return Looscid.CommandsPage ? React.createElement(Looscid.CommandsPage, { exec: execCommand, onBack: commandsGoBack,}) : null;
       case "helpcenter":    return Looscid.HelpCenterPage ? React.createElement(Looscid.HelpCenterPage, { onBack: helpGoBack }) : null;
+      case "report_center": return Looscid.ReportCenterPage ? React.createElement(Looscid.ReportCenterPage, { onBack: reportGoBack }) : null;
       case "legal":         return Looscid.LegalPage ? React.createElement(Looscid.LegalPage, { onBack: legalGoBack }) : null;
       case "project":       return Looscid.ProjectPage ? React.createElement(Looscid.ProjectPage, { key: "pj-" + ((pdata && pdata.id) || "x"), data: pdata, onBack: projectGoBack,}) : null;
       case "more":          return React.createElement(Looscid.MorePage, { navigate: navigate, cherryCtx: cherryCtx, authUser: authUser,});
