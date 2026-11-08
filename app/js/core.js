@@ -3873,6 +3873,8 @@ function LooscidOnboarding({ onDone }) {
   if (step === 0) body = lh(React.Fragment, null,
     H("Welcome to Looscid"),
     lh('p', { className: "lid-onb-p lid-onb-slogan" }, LOOSCID_SLOGAN),
+    // Carter, Nov 7 2026 8:08 PM: the June Dream Board welcome line, copied over.
+    P("The space for your thoughts, Dreams, and everything in between. Ad-free, algorithm-free, just you."),
     P("A place for your ideas, your 2 AM thoughts and your Dreams. Or whatever. We don't judge."),
     P("Your data stays yours. Download it or delete it any time, no begging required."),
     P("Looscid runs on its own open protocol, Rem. Want your Dreams on Nostr too? That's one checkbox, and it's off unless you turn it on."),
@@ -8911,14 +8913,14 @@ useEffect(() => {
     const sel = tbSel(t), ti = navFocus === i ? 0 : -1;
     if (t.id === "create") return React.createElement('button', { key: t.id, className: "nb nb-create", onClick: () => setShowCreate(true), role: "tab", "aria-selected": false, "aria-label": "Create", "aria-haspopup": "dialog", "aria-setsize": tbVis.length + 1, "aria-posinset": i + 1, tabIndex: ti },
       React.createElement(Ic.Pls, {"aria-hidden":"true", style:{width:22,height:22}}), React.createElement('span', {"aria-hidden":"true"}, "Create"));
-    if (t.id === "alerts") return React.createElement('button', { key: t.id, className: "nb" + (sel ? " on" : ""), onClick: () => { headingFocusNext.current = page!=="alerts"; goRoot("alerts"); }, role: "tab", "aria-selected": sel,
+    if (t.id === "alerts") return React.createElement('button', { key: t.id, className: "nb" + (sel ? " on" : ""), onClick: () => { headingFocusNext.current = page!=="alerts"; goRoot("alerts"); }, role: "tab", "aria-selected": sel, "aria-current": sel ? "page" : undefined,
         "aria-label": "Inbox" + ((unreadNotifs+unreadMsgs)>0 ? " (" + (unreadNotifs+unreadMsgs) + ")" : "") /* Round 7.17 (#149, #150): Alerts plus Chats, count in parens */, "aria-controls": "main-content", "aria-setsize": tbVis.length + 1, "aria-posinset": i + 1, tabIndex: ti },
       React.createElement('div', {style:{position:"relative"}}, React.createElement(Ic.Bell, {"aria-hidden":"true", style:{width:22,height:22}}),
         (unreadNotifs+unreadMsgs) > 0 && React.createElement('span', { className: "nbdg", "aria-hidden": "true" }, unreadNotifs+unreadMsgs)),
       React.createElement('span', {"aria-hidden":"true"}, "Inbox"));
     const go = t.custom ? function () { headingFocusNext.current = !sel; goRoot("feed"); if (Looscid.LC_FEED !== t.id) lcSetFeed(t.id, true); }
       : function () { headingFocusNext.current = page !== t.id || tbCustomOn; if (t.id === "feed" && tbCustomOn) lcSetFeed("for you", true); goRoot(t.id); };
-    return React.createElement('button', { key: t.id, className: "nb" + (sel ? " on" : "") + (t.custom ? " nb-custom" : ""), onClick: go, role: "tab", "aria-selected": sel, "aria-label": t.l, "aria-controls": "main-content", "aria-setsize": tbVis.length + 1, "aria-posinset": i + 1, tabIndex: ti },
+    return React.createElement('button', { key: t.id, className: "nb" + (sel ? " on" : "") + (t.custom ? " nb-custom" : ""), onClick: go, role: "tab", "aria-selected": sel, "aria-current": sel ? "page" : undefined, "aria-label": t.l, "aria-controls": "main-content", "aria-setsize": tbVis.length + 1, "aria-posinset": i + 1, tabIndex: ti },
       t.custom ? React.createElement('span', {"aria-hidden":"true", className:"nb-cust-ic"}, t.pin && t.pin.kind === "tag" ? "#" : t.pin && t.pin.kind === "person" ? "@" : t.pin && t.pin.kind === "list" ? "\u2630" : "\u2605") : React.createElement('div', {"aria-hidden":"true", className:"nb-check"}),
       React.createElement('span', {"aria-hidden":"true", className: t.custom ? "nb-cust-l" : undefined}, t.l));
   };
@@ -8963,6 +8965,8 @@ useEffect(() => {
             onClick: () => { setShowMenu(false); headingFocusNext.current = page !== "profile"; goRoot("profile"); },
             role: "tab",
             "aria-selected": page === "profile",
+            // Carter, Nov 7 2026 8:07 PM: like the June Dream Board tabs, VoiceOver says "current page" on the tab you're on.
+            "aria-current": page === "profile" ? "page" : undefined,
             "aria-label": "Profile",
             "aria-controls": "main-content",
             // Round 7.12: position for screen readers ("Profile, tab, 5 of 5"); Profile is always last and always shown.
