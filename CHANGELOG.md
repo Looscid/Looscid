@@ -3,15 +3,19 @@
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
 
-## Why Looscid? and my commitment (no new build yet)
+## About Looscid, all in one page (no new build yet)
 
 Added November 8, 2026 (Eastern Time), during Epilepsy Awareness Month. Not released as a build yet: it goes into the next build's notes.
 
 Asked for by Carter: Looscid is for everyone, on every screen reader, and nothing should keep you out.
 
-- New page: Why Looscid?, at looscid.github.io/Looscid/Why/, its own Looscid page (not part of the Help Center; the old /help/why-looscid/ address takes you there). It says who Looscid is for and what makes it different: every screen reader, Flash safety and Calm mode, open source, a public mod log with private reports, private dislikes and no ads. It links to each Settings, Accessibility section. It's in the footer (Looscid group) and on the Help Center home.
-- The footer starts with a new Important group with Why Looscid? in it, so it's one of the first links a screen reader reaches.
-- Why Looscid? ends with Help me build it: a call for people with all kinds of disabilities to code, test or tell me what's wrong, with links to GitHub, Contributing and Send Feedback.
+- About Looscid is one page now, at looscid.github.io/Looscid/About/, with everything in it, so there's no clicking away: In short, why I'm building this, My commitment, The research, the conditions Looscid is built for, every accessibility setting in plain words, every screen reader, accessibility standards, how to report a problem or appeal a ban, what makes Looscid different, Ideas and suggestions, Help me build it, and Sources.
+- It's written in plain language: short sentences, one idea at a time, and hard words explained.
+- The research and the conditions sections have sources, listed at the end of the page, so you can check every fact.
+- The app's About page (Settings, General, About) shows the same words, from one shared source, then this version of Looscid.
+- The old Why Looscid? page (/Why/) and /help/why-looscid/ take you to About Looscid now. The link is gone from the Help Center home.
+- The footer starts with a new Important group with About Looscid in it, so it's one of the first links a screen reader reaches.
+- Help me build it is a call for people with all kinds of disabilities to code, test or tell me what's wrong, with links to GitHub, Contributing and Send Feedback. The page ends with: I care. — Carter
 - The accessibility guide (Help Center, Building Looscid, Accessibility) starts with My commitment now, in Carter's own words.
 - The roadmap has three new items: Flash safety also catches strobe effects (from r/Epilepsy feedback), testing with every major screen reader, and building Looscid with developers and testers who live with the conditions it protects.
 - The roadmap and the up next list say "I" now, not "we", because Looscid is one person for now.

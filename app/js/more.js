@@ -1963,8 +1963,21 @@ function AboutSettings({navigate}) {
     }
   };
   const rel = lcReleasedText(Looscid.lcReleased ? Looscid.lcReleased() : LOOSCID_RELEASED);
+  const words = Looscid.LC_ABOUT && Looscid.LC_ABOUT.html;
+  const openWord = function (e) {
+    const a = e.target.closest && e.target.closest("a[href]"); if (!a || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    const href = a.getAttribute("href") || "";
+    const page = /\/Report\/?$/.test(href) ? "report_center" : (/\/Feedback\/?$/.test(href) || /[?&]p=%2FFeedback/.test(href)) ? "feedback" : null;
+    if (page) { e.preventDefault(); navigate(page, "settings_about"); }
+  };
   return lh('div', { className: "pg lc-about" },
     lh(BackHeader, { title: "About Looscid", onBack: function () { navigate("settings"); } }),
+    /* Nov 8 2026 (Carter, 5:51 and 5:54 PM: "All necessary things, all in one", "The page IS About Looscid"): the About Looscid
+       words come first, the same words as looscid.github.io/Looscid/About/ (js/aboutdata.js, made from docs/ABOUT.md). His story
+       is right under the h1. Report Center and Send Feedback open here in the app; links to other sites open a new tab. */
+    words ? lh('div', { className: "lc-about-words policy-body", style: { padding: "12px 16px 4px" }, onClick: openWord, dangerouslySetInnerHTML: { __html: words } }) : null,
+    // The app's own parts follow: this version, updates, what's new, known bugs.
+    lh('h2', { id: "about-app", className: "lid-sub", style: { padding: "12px 16px 0" } }, "This version of Looscid"),
     // Round 6: one About page. The version is itself the disclosure button.
     lh('div', { className: "lc-about-top", style: { padding: "12px 16px 4px" } },
       lh('button', { type: "button", id: "about-version", className: "lc-acc-btn", "aria-label": flagsDemo ? lcCodenameLabel() + ", flags on" : undefined, "aria-expanded": vOpen ? "true" : "false", "aria-controls": "about-version-p", onClick: onVersion },
@@ -1985,29 +1998,8 @@ function AboutSettings({navigate}) {
       lh('button', { type: "button", id: "about-check", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { lcCheckUpdate(true); } }, "Check for updates"),
       lh(A11ySwitch, { id: "about-autoupdate", label: "Automatically check for updates", on: auto, onToggle: function () { lcUpdateAutoSet(!auto); tick(function (x) { return x + 1; }); announce("Automatically check for updates: " + (!auto ? "on" : "off") + "."); } }),
       devOn ? lh('button', { type: "button", id: "about-dev", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { navigate("settings_dev"); } }, "Dev menu") : null),
-    lh('section', { "aria-labelledby": "about-lead", style: { padding: "8px 16px 12px" } },
-      lh('h2', { id: "about-lead", className: "lid-sub" }, "About Looscid"),
-      // Nov 7 2026 (Carter, 6:38 PM positioning): ideas and Dreams first, your data, open source and no ads, Rem. Accessibility is a perk line.
-      lh('p', { className: "lid-help" }, "A place for your ideas and your Dreams. Your data stays yours: download it or delete it any time. Open source, no ads. Looscid runs on its own protocol, Rem, and can cross-post to Nostr if you want."),
-      lh('p', { className: "lid-help" }, "Works great with screen readers too."),
-      // Nov 7 2026 (Carter: "our story can go in the About link"): the story, in Carter's own words, under its own heading.
-      lh('h3', { id: "about-story", className: "lid-sub" }, "Our story"),
-      lh('p', { className: "lid-help" }, "Draft placeholder: I'll write this myself."),
-      lh('p', { className: "lid-help" }, "I was on my iPod when I started wanting accessible versions of things. I wanted an accessible email and phone-number thing too, but I couldn't find one. I didn't build that one. My wish list, apparently, had other plans."),
-      lh('p', { className: "lid-help" }, "Later, when I got into social media, I wanted an accessible social platform with Nostr and customization as part of identity. All those ideas kept growing into one thing: Looscid."),
-      lh('p', { className: "lid-help" }, "Looscid is a free, open source browser-based OS experience with a social app. It's built to work the way you do: with a screen reader, a braille display, a keyboard, a switch or just your thumbs. Your data stays on your device, and your LooscidID is yours."),
-      lh('p', { className: "lid-help" }, "Hi, I'm 2three1y. I'm blind, I use VoiceOver and braille every day, and most social apps treat that like an afterthought. Buttons with no labels, feeds that jump around, stuff that flashes. So I'm building my own."),
-      lh('p', { className: "lid-help" }, "Looscid is a side project, not a company. No investors, no ads, no growth team. Just me, and Tab, my digital assistant, who helps me write and test the code."),
-      lh('p', { className: "lid-help" }, "I want Nostr and customization to make identity your own, because your account should belong to you, not to a company that can switch it off. And it's accessibility first: VoiceOver, TalkBack, NVDA, braille displays, keyboards and switches come first, not last."),
-      lh('p', { className: "lid-help" }, "I build it in the open. Every change is on GitHub, every bug I know about is listed below, and you can tell me what's broken any time."),
-      lh('button', { type: "button", id: "about-our-story", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { navigate("hour_story", "settings_about"); } }, "Read the whole story"),
-      // Nov 7 2026 (Carter): Looscid's socials, the same links as the Looscid org profile on GitHub.
-      lh('h3', { id: "about-social", className: "lid-sub" }, "Find Looscid"),
-      lh('ul', { className: "mlist", "aria-labelledby": "about-social" },
-        [["discord", "Discord: join the community", "https://discord.gg/M6xrD8EBXU"], ["youtube", "YouTube: @Looscid", "https://youtube.com/@Looscid"],
-         ["x", "X: @Looscid", "https://x.com/Looscid"], ["github", "GitHub: the source code", "https://github.com/Looscid/Looscid"]].map(function (s) {
-          return lh('li', { key: s[0], className: "mli" }, lh('a', { id: "about-social-" + s[0], className: "lc-link", href: s[2], target: "_blank", rel: "noopener noreferrer", style: { display: "block", padding: "8px 0" } }, s[1]));
-        })),
+    lh('section', { "aria-label": "More about Looscid", style: { padding: "8px 16px 12px" } },
+      // Nov 8 2026: the old About words (the lead, Our story, Find Looscid) are replaced by the About Looscid words at the top.
       // Round 6.6 (2three1y 5:24 and 5:25 PM): everything that was in More's About submenu is on this one page.
       // Terms, Privacy, Community rules and the license are under Legal.
       lh('ul', { className: "mlist", "aria-label": "Feedback, legal and the welcome intro" },
@@ -2034,17 +2026,7 @@ function AboutSettings({navigate}) {
       lh('h2', { id: "about-nexos", className: "lid-sub" }, "Looscid OS"),
       lh('p', { className: "lid-help" }, "Looscid OS is the operating system side of Looscid: Insomnia, Memeprojects, Easyconvert, Desktop, Kernel, the Looscid terminal and the Looscid App Store. It started as NexOS, my operating system project, which keeps its own repository."),
       lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } }, link("https://github.com/2three1y/nexos", "NexOS on GitHub")),
-      lh('button', { type: "button", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { navigate("nexos_apps"); } }, "Apps")),
-    lh('section', { "aria-labelledby": "about-links", style: { padding: "0 16px 24px" } },
-      lh('h2', { id: "about-links", className: "lid-sub" }, "Find Looscid"),
-      /* Round 12 (2three1y, Oct 13 7:45 PM: the app, X, YouTube and GitHub all link to each other): Looscid on GitHub (the
-         Looscid organization), X and YouTube are the footer's Social links, which end this page too, so they are not
-         listed twice here; this list keeps the source code and the commitments. Each link says it opens a new tab. */
-      lh('ul', { className: "lid-help", style: { paddingLeft: 22, margin: "6px 0" } },
-        newTab("https://github.com/Looscid/Looscid", "Looscid's source code on GitHub"),
-        newTab("https://looscid.github.io/Looscid/help/dev/accessibility/", "Looscid's commitments: accessibility, fairness, humor")),
-      lh('p', { className: "lid-help" }, "Looscid on GitHub, X and YouTube are in the footer at the end of this page, under Social."),
-      lh('p', { className: "lid-help" }, "The welcome intro and terminology guide is the Welcome intro button above.")));
+      lh('button', { type: "button", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { navigate("nexos_apps"); } }, "Apps")));
 }
 function MorePage({navigate, cherryCtx, authUser}) {
   const isGuest = !authUser || authUser.isGuest || authUser.uid==="guest";

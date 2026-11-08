@@ -14,7 +14,7 @@ If flashing lights or animations can hurt you, you still belong here. That's why
 
 I build Looscid to meet accessibility standards, and I want it tested by real people with disabilities. The people who live with these conditions should help build this. Their feedback matters most, and I want them at the table.
 
-Settings, Accessibility has a section for each: [Vision settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FVision), [Hearing settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FHearing), [Motor settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FMotor), [Motion settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FMotion) and [Commandbar settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FCommandbar). [Why Looscid?](../WHY.md) says more.
+Settings, Accessibility has a section for each: [Vision settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FVision), [Hearing settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FHearing), [Motor settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FMotor), [Motion settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FMotion) and [Commandbar settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FCommandbar). [About Looscid](../ABOUT.md) says more.
 
 I don't do this to avoid trouble. I do it because I refuse to let anyone get hurt or left out.
 

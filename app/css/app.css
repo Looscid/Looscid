@@ -248,6 +248,11 @@ h2.slbl,div.slbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:
 .policy-body ul{padding-left:18px;margin-bottom:10px}
 .policy-body li{margin-bottom:5px}
 .policy-body a{color:var(--ac3);text-decoration:none;cursor:pointer}
+/* Nov 8 2026: About Looscid's words (js/aboutdata.js), easy to read: bigger text, underlined links, 44px targets. */
+.lc-about-words{font-size:16px;line-height:1.7}
+.lc-about-words h3{font-size:16px;color:var(--tx);margin:18px 0 6px}
+.lc-about-words a{text-decoration:underline;text-underline-offset:3px}
+.lc-about-words li>a{display:inline-flex;align-items:center;min-height:44px}
 /* Accessibility overrides */
 .acc-large-text{font-size:18px!important}
 .acc-large-text .dc-body,.acc-large-text .cm-body{font-size:18px!important}

@@ -24,6 +24,7 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 | `app/js/create.js` | Create, and the composer for New Dream, Reply and Quote (`LcComposer`, Round 6.5), attachments with the alt text helper, symbols and Drafts. Still React. Saved replies (`looscid_replies`), the Replies page and link previews are in `app/js/core.js`. |
 | `app/js/alerts.js` | The Alerts tab and messages. **Plain JavaScript.** |
 | `app/js/more.js` | The More tab and everything it opens: Settings, LooscidID pages, About, Apps, policies. Still React. |
+| `app/js/aboutdata.js` | Nov 8 2026: the About Looscid words as `Looscid.LC_ABOUT`, made from `docs/ABOUT.md` by `.github/scripts/build-help.mjs` (which also makes the website page at `/About/`). The app's About Looscid screen (`more.js`) shows them. Edit `docs/ABOUT.md`, not this file. |
 | `app/js/cherry.js` | Cherry, the assistant, on its own page (Round 6.5.2): the chat, New Chat, Your History (All and Pinned, saved in `looscid_cherry_chats`) and What Cherry did. The page is **plain JavaScript**; the model picker in Settings, Intelligence is still React. Cherry's answers (`cherryRespond`) live here too. |
 | `app/js/commands.js` | The Commands page (Round 6.5.3): every Commandbar command grouped by area, each a button that runs it through Commandbar's own runner. **Plain JavaScript.** The commands themselves (`LC_COMMANDS`, `LC_EXACT`, `lcRun`) stay in `app/js/core.js`. |
 | `app/js/projects.js` | Projects (Round 6.6): 2three1y's own projects (`LC_PROJECTS`), the project page with Back and Close, the Commandbar words (projects, open and a project, lyrics and a song) and Dream Results from Memeprojects. **Plain JavaScript.** |
@@ -46,7 +47,7 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 1. React and ReactDOM 18.2.0 (UMD), from `app/js/vendor/` on this site with `integrity=` (no CDN since the security pass). They go once the last React tab is rewritten. Then `app/js/apphost.js` (the sandboxed apps' host side).
 2. `app/js/sitefooter.js` (Nov 8 2026: right before `app/js/core.js`; plain data, the footer's links), then `app/js/core.js`
 3. `app/js/nostr.js` (small; `app/js/vendor/nostr-tools-2.25.2-nip17.min.js` is added later, only when Nostr is used), then `app/js/net.js` (Nov 7 2026: right after `app/js/nostr.js`)
-4. The tabs: `app/js/discover.js`, `app/js/circles.js`, `app/js/feed.js`, `app/js/create.js`, `app/js/alerts.js`, `app/js/more.js`
+4. The tabs: `app/js/discover.js`, `app/js/circles.js`, `app/js/feed.js`, `app/js/create.js`, `app/js/alerts.js`, `app/js/more.js` (Nov 8 2026: `app/js/aboutdata.js` comes right before `app/js/more.js`; plain data)
 5. `app/js/cherry.js` (Round 6.5.2: same place in the order; the frame shows its page with `case "cherry"` in `app/js/core.js`)
 6. `app/js/commands.js` (Round 6.5.3: new, right after `app/js/cherry.js`; the frame shows its page with `case "commands"` in `app/js/core.js`)
 7. `app/js/projects.js` (Round 6.6: new, right after `app/js/commands.js`; the frame shows a project with `case "project"` in `app/js/core.js`)
