@@ -2258,7 +2258,7 @@ const LC_CHAR_FIELDS = [
   { id: "website", l: "Website", def: 200 }, { id: "linkName", l: "Link names", def: 40 }, { id: "linkUrl", l: "Link addresses", def: 200 },
   { id: "dream", l: "Dreams and replies", def: null, usual: "the Character limit switch above", note: "Some Nostr relays turn away very long Dreams (many stop around 64 KB)." },
   { id: "listName", l: "List names", def: 60 }, { id: "note", l: "Notes on profiles", def: 500 }, { id: "circleName", l: "Circle names", def: 40 },
-  { id: "serverName", l: "Older Rem home name", def: 50 }, { id: "sectionName", l: "Section names (Sense)", def: 30 }];
+  { id: "sectionName", l: "Section names (Sense)", def: 30 }];
 function lcCharLimits() { const v = lcJsonLs(LC_CHAR_LIMITS_KEY, null) || {}; return { on: !!v.on, fields: v.fields && typeof v.fields === "object" ? v.fields : {} }; }
 function lcCharLimitsSave(v) { try { localStorage.setItem(LC_CHAR_LIMITS_KEY, JSON.stringify({ on: !!v.on, fields: v.fields || {} })); } catch (e) {} try { window.dispatchEvent(new CustomEvent("looscid:limits")); } catch (e) {} }
 // Is this field using your own limit? (Custom character limits on, and this field's switch on.)
@@ -8464,6 +8464,8 @@ useEffect(() => {
     if (rel === null) { const lp = location.pathname; if (lp.toLowerCase().indexOf(LOOSCID_BASE.toLowerCase()) === 0) rel = lp.slice(LOOSCID_BASE.length); }
     const r = rel ? lcRouteFor(rel) : null;
     if (r && r.missing) setTimeout(() => announce(r.missing), 800);
+    // Nov 7 2026 (Carter): an address Looscid doesn't know goes to the "Page not found" page (404.html), with Home and Help Center links.
+    if (rel && !r && rel !== "/" && !/^\/?(index\.html?)?$/i.test(rel)) { try { location.replace(LOOSCID_BASE + "404.html?nf=" + encodeURIComponent(rel)); return; } catch (e) {} }
     if (rel && !r) setTimeout(() => announce("That page doesn't exist. Maybe I dreamed it? I opened Home for you."), 800);
     const to = r && r.page !== "feed" ? r : null;
     try { const want = to ? lcPathFor(to.page, to.data) : LOOSCID_BASE; if (to || /[?&]p=/.test(location.search) || (rel && !r)) history.replaceState({ lcPage: to ? to.page : "feed" }, "", want + location.hash); } catch (e) {}

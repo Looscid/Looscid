@@ -3076,7 +3076,7 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
       [{ id: "lid-row-info", g: "person", c: "#8e8e93", label: "Profile", sub: "Name " + name + ", username " + handle, onClick: function () { go("info"); } },
        { id: "lid-row-security", g: "shield", c: "#007aff", label: "Security", sub: "Key, passcode, login methods, backup and Rem. " + checkup, onClick: function () { go("security"); } }],
       // Nov 7 2026 (Carter): Connectionbase holds the connections: Rem (one concept now: the Looscid protocol and its server,
-      // incl. the older Rem home) and the bridges Nostr, Mastodon and Bluesky (coming soon).
+      // rem.thebntlovver.workers.dev) and the bridges Nostr, Mastodon and Bluesky (coming soon).
       [{ id: "lid-row-connectionbase", g: "cloud", c: "#30b0c7", label: "Connectionbase", value: Looscid.lcNet && Looscid.lcNet.bridgeOn("nostr") ? "Rem + Nostr" : "Rem", sub: (srvM.sync ? "Rem is syncing your Dreams" : "Rem") + ". Bridges: Nostr, Mastodon, Bluesky", onClick: function () { go("connectionbase"); } },
        { id: "lid-row-apps", g: "grid", c: "#5856d6", label: "Connected apps", value: methods.length ? String(methods.length) : "None", sub: methods.length ? methods.length + " linked " + (methods.length === 1 ? "identity" : "identities") : "", onClick: function () { go("apps"); } }],
       [{ id: "lid-row-data", g: "data", c: "#8e8e93", label: "Data", sub: summary.length + " kinds of data, stored only on this device", onClick: function () { go("data"); } }]])),

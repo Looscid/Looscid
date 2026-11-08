@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Opening Looscid</title>
+<title>Page not found - Looscid</title>
 <!-- #70: link previews for X, iMessage, Discord and the rest (Open Graph + Twitter card). Absolute addresses, as previewers need. -->
 <meta name="description" content="Just Dream. Looscid is an open source social app for everyone, on any phone or computer, with the customization and freedom other apps took away.">
 <meta property="og:type" content="website">
@@ -24,21 +24,50 @@
 <script>
 /* Part 40 (#69, 2three1y Oct 11): GitHub Pages has no server routing, so every address under /Looscid/ that isn't a file
    lands here. This sends it straight into the app as ?p=<path>; the app opens that page (any letter case) and puts the
-   real address back in the address bar. Nothing is stored and nothing else is loaded. */
+   real address back in the address bar. Nothing is stored and nothing else is loaded.
+   Nov 7 2026 (Carter): this is also Looscid's "Page not found" page. The app sends an address it doesn't know back here
+   as 404.html?nf=<path>, and then the page below shows instead of routing again. */
 (function () {
   var l = window.location, p = l.pathname, m = /^\/looscid(\/|$)/i.exec(p);
   var base = m ? "/Looscid/" : "/", rest = m ? p.slice(m[0].length) : p.replace(/^\//, "");
+  if (/[?&]nf=/.test(l.search) || /^404\.html$/i.test(rest)) return; /* show "Page not found" */
+  document.documentElement.setAttribute("hidden", ""); document.title = "Opening Looscid";
   /* A6 (Oct 12): the NexOS copy became Looscid OS and moved from nexos/ to os/. Old links and bookmarks go straight to the same file there. */
   var nx = /^nexos(\/|$)/i.exec(rest);
   if (nx) { l.replace(base + "os/" + rest.slice(nx[0].length) + l.search + l.hash); return; }
   l.replace(base + "?p=" + encodeURIComponent("/" + rest) + l.hash);
 })();
 </script>
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0; font: 17px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f2f2f7; color: #1c1c1e; }
+  main { max-width: 34rem; margin: 0 auto; padding: 18vh 22px 40px; text-align: center; }
+  .ring { width: 72px; height: 72px; margin: 0 auto 18px; border-radius: 50%; background: #0a6cff; display: grid; place-items: center; }
+  .ring span { width: 34px; height: 34px; border: 6px solid #fff; border-radius: 50%; box-sizing: border-box; display: grid; place-items: center; }
+  .ring span::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+  h1 { font-size: 1.9rem; margin: 0 0 10px; }
+  p { margin: 0 0 22px; color: #3a3a3c; }
+  nav ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  nav a { display: inline-block; min-width: 14rem; padding: 12px 18px; border-radius: 12px; text-decoration: none; font-weight: 600; }
+  .home { background: #0a6cff; color: #fff; }
+  .help { background: #fff; color: #0a6cff; border: 1px solid #c7c7cc; }
+  a:focus-visible { outline: 3px solid #ff9f0a; outline-offset: 3px; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #000; color: #f2f2f7; } p { color: #c7c7cc; } .help { background: #1c1c1e; color: #4da3ff; border-color: #3a3a3c; }
+  }
+</style>
 </head>
 <body>
 <main>
-<h1>Opening Looscid</h1>
-<p><a href="/Looscid/" title="Goes to Home">Home</a></p>
+<div class="ring" aria-hidden="true"><span></span></div>
+<h1>Page not found</h1>
+<p>This page doesn't exist. Maybe someone Dreamed it and forgot to wake up. Happens to the best of us.</p>
+<nav aria-label="Where to go">
+<ul>
+<li><a class="home" href="/Looscid/" title="Goes to Home">Go to Looscid home</a></li>
+<li><a class="help" href="/Looscid/help-center/" title="Goes to Help Center">Help Center</a></li>
+</ul>
+</nav>
 </main>
 </body>
 </html>

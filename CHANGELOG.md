@@ -2,6 +2,17 @@
 
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
+## One Looscid, one server: Rem moved to rem (no new build yet)
+
+Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).
+
+Asked for by Carter: Looscid is one product at one address, https://looscid.github.io/Looscid/, with one server.
+
+- Rem, Looscid's server, has a new address: https://rem.thebntlovver.workers.dev. Same code and the same database as before (it was called dbm-api), so every Dream on Rem is still there and every LooscidID still works. Nobody has to sign anything again.
+- The older Rem home (Rem v0) is retired. Its sign-in, invite code and "Bring back my older Dreams" are gone from Connectionbase, and Looscid forgets any old sign-in to it on this device. Put your Dreams on Rem, Download my Dreams and Delete my Rem data work like before.
+- The Nostr bridge is unchanged.
+- An address Looscid doesn't know now opens a "Page not found" page, with Go to Looscid home and Help Center.
+
 ## Copyright year: 2025–2026 (no new build yet)
 
 Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).

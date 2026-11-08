@@ -4,21 +4,20 @@
    Rem v1). This file's Rem page lives inside Settings, LooscidID, Connectionbase, under the heading Rem.
    1. Put your Dreams on Rem: a one-time choice, All my Dreams, Let me pick, or Not now. Nothing uploads without that tap.
       Public Dreams and replies (Audience Everyone) are signed here with your key as Rem v1 events, with their original
-      dates, and sent to the Rem v1 server (js/net.js, dbm-api). No sign-in needed. After that, they sync on their own.
-   2. Older Rem home (Rem v0, https://looscidserver.sites.tab.bot, Oct 31 2026): read only now. Sign in there with your key
-      to bring Dreams you put there back to this device (then step 1 can send them to Rem v1). Nothing new is written there.
+      dates, and sent to the Rem server (js/net.js, https://rem.thebntlovver.workers.dev). No sign-in needed. After that,
+      they sync on their own.
+   2. Nov 7 2026 (Carter: "one product, one destination"): the older Rem home (Rem v0, Oct 31 2026) is retired. Rem is
+      rem.thebntlovver.workers.dev only. Its sign-in, invite and read-back are gone from the app.
    3. Settings, LooscidID, Backup file: one .looscid file with your profile, Dreams, replies, chats, likes, follows,
       settings AND your key, locked with a passcode you choose (PBKDF2 + AES-GCM, js/rem/looscid-backup.js). The same
-      file opens on the older Rem home's website. Restoring brings it all back and locks it to the key in the file.
+      file opens in Looscid on any device. Restoring brings it all back and locks it to the key in the file.
 
-   Stored on this device (localStorage looscid_server, removed by Delete local data): your choice, when you last synced,
-   and for the older Rem home: its address, your handle there, a sign-in token (never put in a backup file) and which
-   Dreams are there. The crypto files (js/rem/) load only when this is used. No CDN. */
+   Stored on this device (localStorage looscid_server, removed by Delete local data): your choice and when you last
+   synced. Old sign-ins to the retired Rem v0 home are cleared on load. The crypto files (js/rem/) load only when this is used. No CDN. */
 (function (Looscid) {
 "use strict";
 const lh = React.createElement, useState = React.useState, useEffect = React.useEffect;
 const SRV_KEY = "looscid_server";
-const DEFAULT_HOME = "https://looscidserver.sites.tab.bot";
 const RESTORED_KEY = "looscid_restored_note";
 // Kept out of a backup file's app copy: the key goes in its own field, and sign-in tokens never go in a file.
 const NO_BACKUP = ["looscid_nostr_sk", "looscid_nostr_ncryptsec", "looscid_sessions", "looscid_oauth_pending", "looscid_identity", RESTORED_KEY];
@@ -44,6 +43,9 @@ function saveCfg(patch) { const c = Object.assign(cfg(), patch); lsSetJ(SRV_KEY,
 function hostOf(u) { try { return new URL(u).host; } catch (e) { return String(u || ""); } }
 function plural(n, w, many) { return n + " " + (n === 1 ? w : (many || w + "s")); }
 function err(code, t) { const e = new Error(t); e.code = code; return e; }
+// Nov 7 2026 (Carter: one product, one destination): the Rem v0 home is retired. Forget any old sign-in to it on this
+// device (its address, token, handle and Dream map). Your choice for Rem and your Dreams stay.
+(function () { const c = cfg(), old = ["token", "home", "handle", "map", "sig", "cursor", "lastPull"]; if (old.some(function (k) { return k in c; })) { old.forEach(function (k) { delete c[k]; }); lsSetJ(SRV_KEY, c); } })();
 
 /* --- your key --------------------------------------------------------------------- */
 function keyState() { const N = Looscid.lcNostr; return N ? N.state() : { mode: "none" }; }
@@ -55,7 +57,7 @@ async function getSk() {
 async function needSk() {
   const st = keyState();
   if (st.mode === "locked") throw err("locked", "Unlock your key first: type its passcode above.");
-  if (st.mode === "signer") throw err("signer", "Your key is in a signer extension, which can't sign in to the older Rem home. Add your key to this device in Keys and IDs to use it.");
+  if (st.mode === "signer") throw err("signer", "Your key is in a signer extension, which can't do this. Add your key to this device in Keys and IDs to use it.");
   const sk = await getSk(); if (!sk) throw err("nokey", "This device doesn't have your LooscidID key yet. Make a key or add yours in Keys and IDs, or restore a backup file.");
   return sk;
 }
@@ -102,49 +104,13 @@ function counts(pk) {
   return { dreams: ds.length, replies: rs.length, on: on };
 }
 
-/* --- the server ---------------------------------------------------------------------- */
-async function connect() {
-  const m = await mods(), sk = await needSk(), c = cfg();
-  const cl = new m.RemClient({ home: c.home || DEFAULT_HOME, sk: sk, token: c.token || null });
-  if (c.pubkey && c.pubkey !== cl.pubkey) { saveCfg({ token: null, pubkey: null, handle: null, map: {}, sig: {}, cursor: 0, optin: null, optinAt: null, del: [] }); cl.token = null; }
-  return { m: m, sk: sk, cl: cl };
-}
-async function authed() {
-  const x = await connect();
-  if (!x.cl.token) { const r = await x.cl.login(); saveCfg({ token: r.token, pubkey: x.cl.pubkey, handle: r.me.handle }); }
-  return x;
-}
-async function call(x, fn) {
-  try { return await fn(); }
-  catch (e) { if (e.code !== "sign_in") throw e; const r = await x.cl.login(); x.cl.token = r.token; saveCfg({ token: r.token, handle: r.me.handle }); return await fn(); }
-}
-async function signIn(home) {
-  if (home) { const h = String(home).trim().replace(/\/+$/, ""); if (!/^(https:\/\/[^\s/]+|http:\/\/(localhost|127\.0\.0\.1)(:\d+)?)$/i.test(h)) throw err("bad_home", "The server address must start with https:// and have no path, like " + DEFAULT_HOME + "."); if (h !== (cfg().home || DEFAULT_HOME)) saveCfg({ home: h, token: null, cursor: 0, map: {}, sig: {}, optin: null }); }
-  const x = await connect();
-  const r = await x.cl.login();
-  saveCfg({ home: cfg().home || DEFAULT_HOME, token: r.token, pubkey: x.cl.pubkey, handle: r.me.handle });
-  const got = await pull().catch(function () { return { added: 0 }; });
-  return { handle: r.me.handle, got: got };
-}
-async function join(invite, handle, name) {
-  const x = await connect();
-  const r = await x.cl.join({ invite: String(invite || "").trim(), handle: String(handle || "").trim(), name: String(name || "").trim() || undefined });
-  saveCfg({ home: cfg().home || DEFAULT_HOME, token: r.token, pubkey: x.cl.pubkey, handle: r.me.handle });
-  const got = await pull().catch(function () { return { added: 0 }; });
-  return { handle: r.me.handle, got: got };
-}
-async function signOut() {
-  const c = cfg();
-  try { if (c.token) await fetch((c.home || DEFAULT_HOME) + "/rem/v0/auth/logout", { method: "POST", headers: { Authorization: "Bearer " + c.token } }); } catch (e) {}
-  saveCfg({ token: null });
-}
 let busyUp = false;
 /* Nov 7 2026 (Carter: "Merge Rem with the other protocol"): Put Dreams on Rem = Rem v1. Each Dream and reply on this
    device with Audience Everyone is signed now with your key and its original time (js/nostr.js publishToRem) and sent to
-   the Rem v1 server (js/net.js, dbm-api). No sign-in: your key is enough. Followers and Circles Dreams stay on this
+   the Rem server (js/net.js, rem). No sign-in: your key is enough. Followers and Circles Dreams stay on this
    device (Rem v1 only holds public Dreams). Dreams that already have a signed id (Dreamed to Rem or Nostr before) are
    left as they are. Edits and deletes of Dreams on Rem already go out from js/nostr.js. onlyKeys = "d:<id>"/"r:<id>"
-   keys you picked, or null for everything. The older Rem v0 upload is uploadV0 below, kept but not used anymore. */
+   keys you picked, or null for everything. */
 function isPublic(d) { return !d.aud || d.aud === "everyone" || d.aud === "public"; }
 function remCounts(pk) {
   const ds = localDreams(pk), rs = localReplies(pk), all = ds.concat(rs);
@@ -180,123 +146,19 @@ async function upload(onlyKeys, onProgress) {
     return res;
   } finally { busyUp = false; }
 }
-/* Rem v0: put Dreams on the older Rem home (needs a sign-in there). Not used since Rem v1 (Nov 7 2026); kept so nothing
-   breaks while the v0 home still runs. See "Migration" in docs and PR #25. */
-async function uploadV0(onlyKeys, onProgress) {
-  if (busyUp) throw err("busy", "Already sending your Dreams. Try again in a moment.");
-  busyUp = true;
-  try {
-    const x = await authed(), pk = x.cl.pubkey;
-    const plan = await planLocal(x.m, pk, onlyKeys);
-    const c = cfg(), map = Object.assign({}, c.map || {}), sig = Object.assign({}, c.sig || {});
-    const todo = plan.items.filter(function (it) { return !map[it.k]; });
-    const res = { sent: 0, already: 0, refused: 0, messages: [], noParent: plan.noParent, tooLong: plan.tooLong, edits: 0 };
-    // Dreams that were edited on this device after they went to the server: an edit, signed now.
-    for (const it of plan.items) {
-      if (!map[it.k]) continue;
-      const now = await x.m.rem.objectId({ by: pk, at: it.at, type: "dream", body: it.body });
-      if (sig[it.k] && sig[it.k] !== now) { try { await call(x, function () { return x.cl.send("edit", { of: map[it.k], text: it.body.text, cw: it.body.cw }); }); res.edits++; } catch (e) {} }
-      sig[it.k] = now;
-    }
-    const fresh = todo.filter(function (it) { return it.at > Date.now() - 8 * 60000; }), old = todo.filter(function (it) { return it.at <= Date.now() - 8 * 60000; });
-    const done = function (it, id) { map[it.k] = id; sig[it.k] = id; };
-    for (let i = 0; i < old.length; i += 100) {
-      const chunk = old.slice(i, i + 100), objs = [];
-      for (const it of chunk) objs.push(await x.m.rem.signObject("dream", it.body, x.sk, it.at));
-      const r = await call(x, function () { return x.cl.req("POST", "/import", { objects: objs }); });
-      const byId = {}; chunk.forEach(function (it, j) { byId[objs[j].id] = it; });
-      (r.imported || []).forEach(function (id) { if (byId[id]) { done(byId[id], id); res.sent++; } });
-      (r.skipped || []).forEach(function (s) { const id = s.id || s; if (byId[id]) { done(byId[id], id); res.already++; } });
-      (r.refused || []).concat(r.needs_alt || []).forEach(function (f) { res.refused++; if (f.message && res.messages.indexOf(f.message) < 0) res.messages.push(f.message); });
-      saveCfg({ map: map, sig: sig });
-      if (onProgress) onProgress(Math.min(i + chunk.length, todo.length), todo.length);
-    }
-    for (const it of fresh) {
-      // signed with the Dream's own time (within the server's 10 minutes), so the same Dream always has the same id
-      try { const o = await x.m.rem.signObject("dream", it.body, x.sk, it.at); const r = await call(x, function () { return x.cl.req("POST", "/objects", o); }); done(it, r.id); if (r.duplicate) res.already++; else res.sent++; }
-      catch (e) { if (e.code === "offline") throw e; res.refused++; if (e.message && res.messages.indexOf(e.message) < 0) res.messages.push(e.message); }
-    }
-    // Dreams deleted on this device after they went to the server: deleted there too.
-    const del = (cfg().del || []).slice(), keep = [];
-    const tomb = lsJson("looscid_dreams", []).filter(function (d) { return d && d.deleted && map["d:" + d.id]; }).map(function (d) { return "d:" + d.id; });
-    for (const k of del.concat(tomb)) {
-      if (!map[k]) continue;
-      try { await call(x, function () { return x.cl.send("delete", { of: map[k] }); }); delete map[k]; delete sig[k]; }
-      catch (e) { if (e.code === "offline") keep.push(k); else { delete map[k]; delete sig[k]; } }
-    }
-    saveCfg({ map: map, sig: sig, del: keep, lastSync: Date.now() });
-    return res;
-  } finally { busyUp = false; }
-}
-/* Bring back everything filed under your LooscidID on the server (a new device, or Dreams you made somewhere else).
-   Every object is checked against your key before it's kept. */
-async function pull() {
-  const x = await authed(), pk = x.cl.pubkey, rem = x.m.rem;
-  let c = cfg(), cur = Number(c.cursor) || 0, r; const objs = [];
-  do { r = await call(x, function () { return x.cl.get("/sync", { since: cur, limit: 500 }); }); for (const o of r.objects || []) objs.push(o); cur = r.cursor; } while (r.more && objs.length < 20000);
-  const map = Object.assign({}, cfg().map || {}), sig = Object.assign({}, cfg().sig || {});
-  const rev = {}; Object.keys(map).forEach(function (k) { rev[map[k]] = k; });
-  const dreams = lsJson("looscid_dreams", []), replies = lsJson("looscid_replies", []);
-  const D = Array.isArray(dreams) ? dreams : [], R = Array.isArray(replies) ? replies : [];
-  const addD = [], addR = []; let edited = 0, removed = 0;
-  const findLocal = function (k) { const id = k.slice(2); const list = k[0] === "d" ? D : R; return list.find(function (x2) { return String(x2.id) === id; }); };
-  for (const o of objs) {
-    if (!o || o.by !== pk) continue;
-    let ok = false; try { ok = await rem.verifyObject(o); } catch (e) {}
-    if (!ok) continue;
-    const b = o.body || {};
-    if (o.type === "dream") {
-      if (rev[o.id] || typeof b.text !== "string" || b.post_at) continue;
-      const rec = { id: o.id, text: b.text, created: o.at, likes: 0 };
-      if (b.cw) rec.cw = b.cw; if (b.audience === "followers") rec.aud = "followers";
-      if (b.reply_to) {
-        const pkey = rev[b.reply_to]; let replyTo = b.reply_to, rtr;
-        if (pkey && pkey[0] === "r") { const pr = findLocal(pkey) || addR.find(function (x2) { return "r:" + x2.id === pkey; }); if (pr) { replyTo = pr.replyTo; rtr = pr.id; } }
-        else if (pkey) { replyTo = findLocal(pkey) ? findLocal(pkey).id : pkey.slice(2); }
-        rec.replyTo = replyTo; if (rtr != null) rec.replyToReply = rtr;
-        addR.push(rec); map["r:" + o.id] = o.id; rev[o.id] = "r:" + o.id;
-        sig["r:" + o.id] = await rem.objectId({ by: pk, at: o.at, type: "dream", body: remBody(rec, b.reply_to) });
-      } else { rec.redreams = 0; rec.quotes = 0; addD.push(rec); map["d:" + o.id] = o.id; rev[o.id] = "d:" + o.id; sig["d:" + o.id] = await rem.objectId({ by: pk, at: o.at, type: "dream", body: remBody(rec) }); }
-    } else if (o.type === "edit" && rev[b.of] && typeof b.text === "string") {
-      const k = rev[b.of], loc = findLocal(k) || addD.concat(addR).find(function (x2) { return x2.id === b.of; });
-      if (loc && loc.text !== b.text) { loc.text = b.text; if (b.cw) loc.cw = b.cw; else delete loc.cw; edited++;
-        try { sig[k] = await rem.objectId({ by: pk, at: atOf(loc), type: "dream", body: remBody(loc, k[0] === "r" ? ((loc.replyToReply != null && map["r:" + loc.replyToReply]) || map["d:" + loc.replyTo] || (isHex64(loc.replyTo) ? loc.replyTo : null)) : null) }); } catch (e) {} }
-    } else if (o.type === "delete" && rev[b.of]) {
-      const k = rev[b.of], id = k.slice(2), list = k[0] === "d" ? D : R, i = list.findIndex(function (x2) { return String(x2.id) === id; });
-      if (i >= 0) { list.splice(i, 1); removed++; }
-      [addD, addR].forEach(function (a) { const j = a.findIndex(function (x2) { return String(x2.id) === id; }); if (j >= 0) a.splice(j, 1); });
-      delete map[k]; delete sig[k]; delete rev[b.of];
-    }
-  }
-  const byNew = function (a, b) { return (+b.created || 0) - (+a.created || 0); };
-  if (addD.length || edited || removed) lsSetJ("looscid_dreams", D.concat(addD).sort(byNew).slice(0, 1000));
-  if (addR.length || edited || removed) lsSetJ("looscid_replies", R.concat(addR).sort(byNew).slice(0, 2000));
-  saveCfg({ map: map, sig: sig, cursor: cur, lastPull: Date.now() });
-  if (addD.length) try { window.dispatchEvent(new CustomEvent("looscid-dreams-fetched", { detail: { ids: addD.map(function (d) { return d.id; }) } })); } catch (e) {}
-  if (addR.length || edited || removed) try { window.dispatchEvent(new Event("looscid-replies")); } catch (e) {}
-  return { added: addD.length, replies: addR.length, edited: edited, removed: removed };
-}
 
 /* --- keeping it in sync --------------------------------------------------------------- */
-// A Dream you delete here is deleted on the server too (the next time Looscid syncs).
-window.addEventListener("looscid-dream-deleted", function (e) {
-  const id = e && e.detail && e.detail.id; if (id == null) return; const c = cfg(), k = "d:" + id;
-  if (c.map && c.map[k]) { const del = (c.del || []).filter(function (x2) { return x2 !== k; }); del.push(k); saveCfg({ del: del }); setTimeout(tick, 1500); }
-});
 let tickT = null;
-// Rem v1 sync needs only your key and your choice (All my Dreams or Let me pick). Reading back from the older Rem v0 home
-// happens only while you're signed in there.
+// Rem sync needs only your key and your choice (All my Dreams or Let me pick).
 function syncOn() { const c = cfg(), st = keyState(); return !!(st.canDream && st.mode !== "locked" && (c.optin === "all" || c.optin === "pick")); }
-function v0On() { const c = cfg(), st = keyState(); return !!(c.token && c.pubkey && st.mode === "key" && st.pubkey === c.pubkey); }
 async function tick() {
   clearTimeout(tickT); tickT = setTimeout(tick, 45000);
   if (!navigator.onLine) return;
   const c = cfg();
   try {
-    if (!syncOn()) { if (v0On() && (!c.lastPull || Date.now() - c.lastPull > 5 * 60000)) await pull(); return; }
+    if (!syncOn()) return;
     if (c.optin === "all") await upload(null);
     else { const pk = keyState().pubkey, after = c.optinAt || 0, keys = new Set(); localDreams(pk).forEach(function (d) { if (atOf(d) > after) keys.add("d:" + d.id); }); localReplies(pk).forEach(function (r) { if (atOf(r) > after) keys.add("r:" + r.id); }); if (keys.size || (c.del || []).length) await upload(keys); }
-    if (v0On() && (!c.lastPull || Date.now() - c.lastPull > 5 * 60000)) await pull();
   } catch (e) { /* quiet: the Rem page shows the state, and the next tick tries again */ if (e && e.code === "busy") { clearTimeout(tickT); tickT = setTimeout(tick, 3000); } }
 }
 window.addEventListener("online", function () { setTimeout(tick, 2000); });
@@ -426,15 +288,11 @@ function UnlockKey({ id, why }) {
 function LcServerPanel({ go }) {
   useBump();
   const [busy, setBusy] = useState(false), [msg, setMsg] = useState(""), [er, setEr] = useState("");
-  const [joinOpen, setJoinOpen] = useState(false), [inv, setInv] = useState(""), [handle, setHandle] = useState(""), [name, setName] = useState(""), [age, setAge] = useState(false);
-  const [homeOpen, setHomeOpen] = useState(false), [home, setHome] = useState(cfg().home || DEFAULT_HOME);
   const [pick, setPick] = useState(null);
   const st = keyState(), c = cfg();
-  const connected = !!(c.token && c.pubkey && st.pubkey && c.pubkey === st.pubkey);
   const done = function (t, focusId) { setEr(""); setMsg(t); say(t); focusSoon(focusId || "srv-msg"); };
   const fail = function (e) { const t = (e && e.message) || String(e); setMsg(""); setEr(t); say(t); focusSoon("srv-msg-err"); };
   const run = async function (fn) { setBusy(true); setEr(""); setMsg(""); try { await fn(); } catch (e) { fail(e); } finally { setBusy(false); } };
-  const gotText = function (g) { const n = (g && g.added || 0) + (g && g.replies || 0); return n ? " Got " + plural(n, "Dream") + " back from the older Rem home." : ""; };
   const upText = function (r) {
     const bits = [r.sent || !r.already ? plural(r.sent, "Dream") + " put on Rem" : "Your Dreams were already on Rem"];
     if (r.already && r.sent) bits.push(r.already + " already there");
@@ -500,42 +358,7 @@ function LcServerPanel({ go }) {
         (c.optin === "all" || c.optin === "pick") && lh(Btn, { disabled: busy, onClick: function () { setPick(new Set()); focusSoon("srv-pick-h"); } }, "Choose more Dreams"),
         (c.optin === "all" || c.optin === "pick") && lh(Btn, { disabled: busy, onClick: function () { saveCfg({ optin: "none" }); done("Syncing is off. Dreams already on Rem stay there.", "srv-status"); } }, "Stop syncing"));
     }
-    // Rem v0: the older Rem home. Read only now: sign in there to bring your older Dreams back to this device.
-    const v0Part = lh('section', { "aria-labelledby": "srv-v0-h" },
-      lh('h3', { className: "lid-label", id: "srv-v0-h" }, "Older Rem home"),
-      lh('p', { className: "lid-help" }, "Before Nov 7 2026, Rem had an older home (" + hostOf(DEFAULT_HOME) + "). Dreams you put there are still there. Sign in to bring them back to this device. After that, Put my Dreams on Rem can send them to Rem."),
-      st.mode === "signer" ? lh('p', { className: "lid-help" }, "Your key is in a signer extension, which can't sign in to the older Rem home. Add your key to this device in Keys and IDs to use it.")
-      : !connected ? lh(React.Fragment, null,
-    lh('p', { className: "lid-help", id: "srv-where" }, "Not signed in. Older Rem home: " + hostOf(home) + "."),
-    lh(Btn, { id: "srv-signin", disabled: busy, onClick: function () { run(async function () {
-      try { const r = await signIn(home); setJoinOpen(false); done("Signed in as @" + r.handle + "." + gotText(r.got), "srv-msg"); }
-      catch (e) { if (e.code === "not_member") { setJoinOpen(true); setEr(""); setMsg("Your key isn't on the older Rem home yet. Join with an invite code below."); say("Your key isn't on the older Rem home yet. Join with an invite code."); focusSoon("srv-join-h"); } else throw e; }
-    }); } }, "Sign in to the older Rem home"),
-    !joinOpen && lh(Btn, { disabled: busy, onClick: function () { setJoinOpen(true); focusSoon("srv-join-h"); } }, "Join with an invite code"),
-    joinOpen && lh('section', { "aria-labelledby": "srv-join-h" },
-      lh('h4', { className: "lid-label", id: "srv-join-h", tabIndex: -1 }, "Join with an invite code"),
-      lh('p', { className: "lid-help" }, "The older Rem home is invite-only and for people 13 and older. It never asks for your email, phone number or location. Your key stays on this device."),
-      lh('label', { htmlFor: "srv-inv", className: "lid-label" }, "Invite code"),
-      lh('input', { id: "srv-inv", className: "inp", type: "text", autoComplete: "off", autoCapitalize: "characters", spellCheck: false, value: inv, onChange: function (e) { setInv(e.target.value); } }),
-      lh('label', { htmlFor: "srv-handle", className: "lid-label" }, "Handle"),
-      lh('input', { id: "srv-handle", className: "inp", type: "text", autoComplete: "username", autoCapitalize: "none", spellCheck: false, value: handle, onChange: function (e) { setHandle(e.target.value); } }),
-      lh('p', { className: "lid-help", id: "srv-handle-d" }, "2 to 20 letters, numbers or underscores. People find you by it."),
-      lh('label', { htmlFor: "srv-name", className: "lid-label" }, "Display name (optional)"),
-      lh('input', { id: "srv-name", className: "inp", type: "text", maxLength: Looscid.lcMax ? Looscid.lcMax("serverName") : 50, value: name, onChange: function (e) { setName(e.target.value); } }),
-      lh('label', { className: "lc-radio" + (age ? " on" : "") }, lh('input', { type: "checkbox", id: "srv-age", checked: age, onChange: function () { setAge(!age); } }), lh('span', null, "I'm 13 or older")),
-      lh(Btn, { disabled: busy, onClick: function () {
-        if (!age) { fail(new Error("Check the box to confirm you're 13 or older.")); return; }
-        run(async function () { const r = await join(inv, handle, name); setJoinOpen(false); done("Joined as @" + r.handle + "." + gotText(r.got), "srv-msg"); });
-      } }, "Join the older Rem home")),
-    lh(Btn, { "aria-expanded": homeOpen ? "true" : "false", "aria-controls": "srv-home-box", onClick: function () { setHomeOpen(!homeOpen); } }, "Change older Rem home address"),
-    homeOpen && lh('div', { id: "srv-home-box" },
-      lh('label', { htmlFor: "srv-home", className: "lid-label" }, "Older Rem home address"),
-      lh('input', { id: "srv-home", className: "inp", type: "url", autoComplete: "url", autoCapitalize: "none", spellCheck: false, value: home, onChange: function (e) { setHome(e.target.value); } })))
-      : lh(React.Fragment, null,
-        lh('p', { className: "lid-help" }, "Signed in to the older Rem home as @" + c.handle + " on " + hostOf(c.home || DEFAULT_HOME) + "."),
-        lh(Btn, { disabled: busy, onClick: function () { run(async function () { const g = await pull(); done(gotText(g).trim() || "No older Dreams to bring back.", "srv-msg"); }); } }, "Bring back my older Dreams"),
-        lh(Btn, { disabled: busy, onClick: function () { run(async function () { await signOut(); done("Signed out of the older Rem home on this device. Your Dreams stay here.", "srv-signin"); }); } }, "Sign out of the older Rem home")));
-    body = lh(React.Fragment, null, remPart, v0Part);
+    body = remPart;
   }
   return lh('div', { className: "lid-panel" }, intro, body, lh(Note, { msg: msg, err: er, id: "srv-msg" }));
 }
@@ -555,7 +378,7 @@ function LcBackupPanel({ go }) {
   };
   const noKeyHere = st.mode === "none" || st.mode === "view" || st.mode === "signer";
   return lh('div', { className: "lid-panel" },
-    lh('p', { className: "lid-help" }, "One file with everything: your profile, Dreams, replies, chats, likes, follows, settings, and your LooscidID key. It opens in Looscid or on the older Rem home's website, on any device."),
+    lh('p', { className: "lid-help" }, "One file with everything: your profile, Dreams, replies, chats, likes, follows, settings, and your LooscidID key. It opens in Looscid on any device."),
     lh('p', { className: "lid-warn", id: "bk-warn" }, "This file contains your key. Anyone who has the file and its passcode can Dream as you, so keep it private. It's locked with a passcode you choose, and nobody can recover a forgotten passcode."),
     lh('h2', { className: "lid-label", id: "bk-save-h" }, "Save backup file"),
     st.mode === "locked" && withKey ? lh(UnlockKey, { id: "bk", why: "Your key is locked with a passcode. Unlock it so it can go in the file." }) : null,
@@ -576,7 +399,7 @@ function LcBackupPanel({ go }) {
       catch (e) { fail(e); } finally { setBusy(false); }
     } }, "Save backup file"),
     lh('h2', { className: "lid-label", id: "bk-restore-h" }, "Restore from backup file"),
-    lh('p', { className: "lid-help", id: "bk-file-d" }, "Bring everything back from a .looscid file, made here or on the older Rem home's website. Your key from the file is saved on this device, locked with the file's passcode."),
+    lh('p', { className: "lid-help", id: "bk-file-d" }, "Bring everything back from a .looscid file made in Looscid. Your key from the file is saved on this device, locked with the file's passcode."),
     lh('label', { htmlFor: "bk-file", className: "lid-label" }, "Backup file"),
     lh('input', { id: "bk-file", ref: fileRef, className: "inp", type: "file", onChange: function (e) { setFileName(e.target.files && e.target.files[0] ? e.target.files[0].name : ""); } }),
     lh('label', { htmlFor: "bk-rpass", className: "lid-label" }, "Passcode for the file"),
@@ -609,10 +432,9 @@ function agoText(t) {
   return "on " + new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 function modeNow() {
-  // Nov 7 2026 (Rem v1): "Rem" mode = your Dreams sync to Rem (you chose All my Dreams or Let me pick). Signing in to the
-  // older Rem v0 home is no longer needed for that; it's only for bringing older Dreams back (v0).
+  // Nov 7 2026: "Rem" mode = your Dreams sync to Rem (you chose All my Dreams or Let me pick).
   const c = cfg(), sync = syncOn();
-  return { on: sync, sync: sync, v0: !!(c.token && c.handle), handle: c.handle || "", host: "Rem", last: Math.max(+c.lastSync || 0, +c.lastPull || 0) };
+  return { on: sync, sync: sync, handle: "", host: "Rem", last: +c.lastSync || 0 };
 }
 function modeText(m) {
   m = m || modeNow();
@@ -678,7 +500,7 @@ function AskOverlay(props) {
   if (Looscid.useInertBehind) Looscid.useInertBehind(ref);
   return lh('div', { className: "lc-q-ov", ref: ref }, props.children);
 }
-Looscid.lcServer = { cfg: cfg, uploadV0: uploadV0, remCounts: remCounts, signIn: signIn, join: join, signOut: signOut, upload: upload, pull: pull, tick: tick, makeBackup: makeBackup, openBackup: openBackup, restoreBackup: restoreBackup, mode: modeNow, DEFAULT_HOME: DEFAULT_HOME };
+Looscid.lcServer = { cfg: cfg, remCounts: remCounts, upload: upload, tick: tick, makeBackup: makeBackup, openBackup: openBackup, restoreBackup: restoreBackup, mode: modeNow };
 Looscid.LcServerPanel = LcServerPanel;
 Looscid.LcModeLine = LcModeLine;
 Looscid.LcServerAsk = LcServerAsk;
