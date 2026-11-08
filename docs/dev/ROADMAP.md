@@ -190,18 +190,25 @@ we're making real looscid apps, android first (we decided November 8, 2026). we 
 - [ ] android app is coming first, built in kotlin, open source (AGPL), in its own repo: Looscid/Looscid-Android. it opens looscid first, then we make screens native one by one.
 - [ ] ios app comes after, in swift, works all the way back to ios 15 (where looscid started), in its own repo: Looscid/Looscid-iOS. u install it by sideloading.
 - [ ] on ios 15, the app tells u once which features don't work there, and a Help Center page lists em.
-- Updates:
-  - [ ] looscid updates itself when u open it. most updates land instantly.
-  - [ ] when the app itself needs an update, a "Looscid needs an update" alert pops up. tap it n ur done.
-  - [ ] an update screen with what's new that u can open whenever. it updates the apps inside looscid too.
+
+#### updates
+
+- [ ] looscid updates itself when u open it. most updates land instantly.
+- [ ] when the app itself needs an update, a "Looscid needs an update" alert pops up. tap it n ur done.
+- [ ] an update screen with what's new that u can open whenever. it updates the apps inside looscid too.
+
+#### braille displays
+
+- [ ] Enter submits one-line fields.
+- [ ] in the message box, Enter sends and Shift+Enter makes a new line. a Settings checkbox, "Enter sends messages", controls it.
+- [ ] Enter hits buttons, opens menus and checks boxes.
+- [ ] Enter runs the swipe action ur on, like Like Dream.
+- [ ] all of it works on any braille display, not just the fancy ones.
+
+#### more app stuff
+
 - [ ] get looscid from open-source android app stores.
 - [ ] apps page: every app links to where u can get it.
-- Braille displays:
-  - [ ] Enter submits one-line fields.
-  - [ ] in the message box, Enter sends and Shift+Enter makes a new line. a Settings checkbox, "Enter sends messages", controls it.
-  - [ ] Enter hits buttons, opens menus and checks boxes.
-  - [ ] Enter runs the swipe action ur on, like Like Dream.
-  - [ ] all of it works on any braille display, not just the fancy ones.
 - [ ] works on privacy-focused android phones with no Google services.
 - [ ] ur looscid key stays locked up safe in ur phone's secure storage.
 - [ ] real notifications for Alerts.
