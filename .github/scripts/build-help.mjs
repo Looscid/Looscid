@@ -186,8 +186,6 @@ const course = H.courses[0];
   b += '<section aria-labelledby="h-using"><h2 id="h-using">Using Looscid</h2>\n<p class="lead">Step-by-step guides for everyone: make your LooscidID, write Dreams, chat, and set things up.</p>\n';
   // Nov 7 2026 (Carter): the welcome screen and tour again, any time, at its one official spot (/welcome). Nothing is reset.
   b += '<p><a href="../welcome/" title="Opens the welcome screen again">Replay the welcome tour</a></p>\n';
-  // Nov 8 2026 (Carter): Why Looscid?, the page for anyone deciding whether Looscid is for them (it is).
-  b += '<p><a href="why-looscid/">Why Looscid?</a></p>\n';
   b += '<section aria-labelledby="h-topics"><h3 id="h-topics">Browse by topic</h3>\n<ul class="topics" role="list">\n';
   for (const c of H.collections) {
     const arts = H.articles.filter(a => a.c === c.id);
@@ -258,7 +256,7 @@ for (const d of DOCS) {
     const doc = docByFile[target];
     if (doc) return (doc.slug === d.slug ? "" : "../" + doc.slug + "/") + (frag ? "#" + frag : "");
     if (target === "CHANGELOG.md") return "../../../changelog/";
-    if (target === "docs/WHY.md") return "../../why-looscid/" + (frag ? "#" + frag : ""); // Nov 8 2026: Why Looscid?
+    if (target === "docs/WHY.md") return "../../../Why/" + (frag ? "#" + frag : ""); // Nov 8 2026: Why Looscid? (its own page at /Why/ now)
     return "https://github.com/Looscid/Looscid/" + (/\.[a-z0-9]+$/i.test(target) ? "blob" : "tree") + "/main/" + target + (frag ? "#" + frag : "");
   };
   const r = mdToHtml(md, { linkFor });
@@ -266,21 +264,122 @@ for (const d of DOCS) {
   const b = "<h1>" + esc(t) + '</h1>\n<p class="lead">' + esc(d.s) + '</p>\n<div class="doc">\n' + r.html + '\n</div>\n<p class="next"><a href="../../#h-building">More in Building Looscid</a> <span aria-hidden="true">·</span> <a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></p>';
   put("dev/" + d.slug + "/index.html", page({ slug: "dev/" + d.slug, title: t, desc: d.s, body: b, depth: 2, crumbs: [["Help Center", "../../"], ["Building Looscid", "../../#h-building"], [t, null]] }));
 }
-/* Nov 8 2026 (Carter: a public "Why Looscid?" page, in his "I" voice, that never names other companies or apps): made from
-   docs/WHY.md like the docs above, but at /help/why-looscid/ for everyone. The footer and the Help Center home link to it. */
+/* Nov 8 2026 (Carter, 5:47 PM: "Not part of the Help Center. Part of Looscid", and Important in the footer): Why Looscid? is
+   its own Looscid page at /Why/ (app/Why/index.html), made from docs/WHY.md, the way /Report/ is its own address. It has the
+   site's page shell (like the changelog and the status page) and the one footer, not the Help Center's template. The old
+   address, /help/why-looscid/, stays as a small page that takes you to /Why/, so no link breaks. */
+const WHY_URL = SITE + "Why/";
+const whyFiles = {};
 {
   const md = fs.readFileSync(path.join(REPO, "docs/WHY.md"), "utf8");
   const linkFor = href => {
     if (/^(https?:|mailto:|#)/i.test(href)) return href;
     const [p, frag] = href.split("#"), target = path.posix.normalize(path.posix.join("docs", p)).replace(/\/$/, "");
     const doc = docByFile[target];
-    if (doc) return "../dev/" + doc.slug + "/" + (frag ? "#" + frag : "");
+    if (doc) return "/Looscid/help/dev/" + doc.slug + "/" + (frag ? "#" + frag : "");
     return "https://github.com/Looscid/Looscid/" + (/\.[a-z0-9]+$/i.test(target) ? "blob" : "tree") + "/main/" + target + (frag ? "#" + frag : "");
   };
   const r = mdToHtml(md, { linkFor });
   const t = r.title || "Why Looscid?", s = "Looscid is for everyone. Why I'm building it, and what makes it different.";
-  const b = "<h1>" + esc(t) + '</h1>\n<p class="lead">' + esc(s) + '</p>\n<div class="doc">\n' + r.html + '\n</div>\n<p class="next"><a href="../">Help Center</a> <span aria-hidden="true">·</span> <a href="../dev/accessibility/">Accessibility guide</a></p>';
-  put("why-looscid/index.html", page({ slug: "why-looscid", title: t, desc: s, body: b, depth: 1, crumbs: [["Help Center", "../"], [t, null]] }));
+  const full = t + " - Looscid";
+  const og = SITE + "assets/looscid-og.png?v=nl1", ogAlt = "Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Looscid - Just Dream”";
+  let h = `<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8"/>
+<title>${esc(full)}</title>
+<!-- Made by .github/scripts/build-help.mjs from docs/WHY.md. Edit that, not this page. -->
+<meta name="description" content="${esc(s)}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Looscid">
+<meta property="og:title" content="${esc(full)}">
+<meta property="og:description" content="${esc(s)}">
+<meta property="og:url" content="${WHY_URL}">
+<meta property="og:image" content="${og}">
+<meta property="og:image:secure_url" content="${og}">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="${ogAlt}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Looscid">
+<meta name="twitter:title" content="${esc(full)}">
+<meta name="twitter:description" content="${esc(s)}">
+<meta name="twitter:image" content="${og}">
+<meta name="twitter:image:alt" content="${ogAlt}">
+<link rel="canonical" href="${WHY_URL}">
+<link rel="icon" type="image/png" sizes="32x32" href="${SITE}assets/icons/favicon-32.png?v=nl1">
+<link rel="apple-touch-icon" href="${SITE}assets/icons/apple-touch-icon.png?v=nl1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'none'"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="stylesheet" href="/Looscid/assets/site-footer.css?v=2">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{--bg:#07050f;--sf:#100d1e;--bd:rgba(255,255,255,.1);--tx:#ede9fe;--tx2:#c9bde3;--ac:#6d28d9;--ac3:#d8b4fe}
+html{background:var(--bg)}
+body{margin:0;font-family:'DM Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--tx);font-size:18px;line-height:1.65}
+a{color:var(--ac3);text-decoration:underline;text-underline-offset:3px}
+a:focus-visible{outline:3px solid #fff;outline-offset:3px;border-radius:4px}
+.skip{position:absolute;left:-9999px;top:0;background:var(--ac);color:#fff;padding:12px 16px;font-weight:700;z-index:10}
+.skip:focus{left:0}
+header{border-bottom:1px solid var(--bd)}
+.hd{max-width:720px;margin:0 auto;padding:8px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:inline-flex;align-items:center;gap:10px;font-weight:700;font-size:20px}
+.brand img{display:block;width:32px;height:32px;border-radius:22%}
+.hd a{display:inline-flex;align-items:center;min-height:44px;min-width:44px;padding:0 8px}
+main{max-width:720px;margin:0 auto;padding:28px 20px 48px}
+h1{font-family:'DM Serif Display',Georgia,serif;font-size:40px;line-height:1.2;margin:0 0 12px}
+.lead{font-size:20px;color:var(--tx2);margin:0 0 24px}
+h2{font-family:'DM Serif Display',Georgia,serif;font-size:26px;line-height:1.3;margin:36px 0 10px}
+p,ul{margin:0 0 14px}
+ul{padding-left:24px}
+li{margin:4px 0}
+li>a{display:inline-flex;align-items:center;min-height:44px}
+main p a{padding:10px 0}
+.next{margin-top:36px;padding-top:16px;border-top:1px solid var(--bd)}
+.next a{display:inline-flex;align-items:center;min-height:44px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<header>
+<div class="hd"><span class="brand"><img src="/Looscid/assets/icons/icon-512.png?v=nl1" alt="Looscid logo" width="32" height="32"><span aria-hidden="true">Looscid</span></span><a href="/Looscid/">Open Looscid</a></div>
+</header>
+<main id="main">
+<h1>${esc(t)}</h1>
+<p class="lead">${esc(s)}</p>
+${r.html}
+<p class="next"><a href="/Looscid/">Open Looscid</a> <span aria-hidden="true">·</span> <a href="/Looscid/help/dev/accessibility/">Accessibility guide</a> <span aria-hidden="true">·</span> <a href="/Looscid/help/">Help Center</a></p>
+</main>
+${SITE_FOOTER}
+</body>
+</html>
+`;
+  whyFiles["Why/index.html"] = hintLinks(h, WHY_URL, { help: HINT_HELP });
+  // The old address: one small page that takes you to /Why/ (the link works with nothing loaded; the refresh is right away).
+  const old = `<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8"/>
+<title>Why Looscid? has moved - Looscid</title>
+<!-- Made by .github/scripts/build-help.mjs. Why Looscid? lives at /Why/ now (Nov 8 2026). -->
+<meta name="description" content="${esc(s)}">
+<link rel="canonical" href="${WHY_URL}">
+<meta http-equiv="refresh" content="0; url=/Looscid/Why/">
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style>html,body{margin:0;background:#07050f;color:#ede9fe;font:18px/1.5 system-ui,-apple-system,sans-serif}main{padding:24px}a{color:#d8b4fe;font-weight:700;display:inline-flex;align-items:center;min-height:44px}</style>
+</head>
+<body>
+<main>
+<h1>Why Looscid? has moved</h1>
+<p><a href="/Looscid/Why/">Go to Why Looscid?</a></p>
+</main>
+</body>
+</html>
+`;
+  put("why-looscid/index.html", old);
 }
 // Nov 8 2026: the component library (.github/scripts/components.mjs): an index and one page per component, with demos.
 buildComponents({ page, put, esc });
@@ -329,6 +428,12 @@ for (const [rel, html] of Object.entries(files)) {
   if (/opens in a new tab/i.test(html)) problems.push("hidden \"(opens in a new tab)\" link text in " + rel + " (banned: links stay plain)");
   if ((!isDoc && />\s*Description\s*(:\s*)?</i.test(html)) || /(aria-label|placeholder|title)="Description\b/i.test(html) || /<d[dt][\s>]/i.test(html)) problems.push("a Description label in " + rel + " (banned)");
 }
+// Nov 8 2026: the same rules for Why Looscid? at /Why/ (no "post", no accessible descriptions, no hidden link text, one h1).
+for (const [rel, html] of Object.entries(whyFiles)) {
+  if (/\bpost(s|ed|ing)?\b/i.test(html.replace(/method="post"/gi, ""))) problems.push("the word post in app/" + rel);
+  if (/aria-describedby|aria-description|opens in a new tab/i.test(html)) problems.push("a banned description or hidden link text in app/" + rel);
+  if ((html.match(/<h1[\s>]/g) || []).length !== 1) problems.push("app/" + rel + " needs exactly one h1");
+}
 if (problems.length) { console.error("Help Center problems:\n- " + [...new Set(problems)].join("\n- ")); process.exit(1); }
 
 let stale = [];
@@ -344,6 +449,12 @@ for (const [rel, html] of Object.entries(siteFiles)) {
   if (fs.readFileSync(f, "utf8") === html) continue;
   if (CHECK) { stale.push("../" + rel); continue; }
   fs.writeFileSync(f, html);
+}
+for (const [rel, html] of Object.entries(whyFiles)) {
+  const f = path.join(APP, rel);
+  if (fs.existsSync(f) && fs.readFileSync(f, "utf8") === html) continue;
+  if (CHECK) { stale.push("../" + rel); continue; }
+  fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, html);
 }
 if (CHECK && stale.length) { console.error("Help Center pages are out of date. Run node .github/scripts/build-help.mjs\n- " + stale.join("\n- ")); process.exit(1); }
 console.log((CHECK ? "Help Center is up to date: " : "Help Center written: ") + Object.keys(files).length + " files in app/help-center/");

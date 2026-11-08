@@ -64,4 +64,12 @@ If you have a problem, you should be heard. If you get banned, you should be hea
 
 YOU MATTER. PEOPLE MATTER.
 
-You matter. I care. — Carter
+## Help me build it
+
+I don't want to guess what you need. I want people with all kinds of disabilities helping build Looscid: blind and low vision, Deaf and hard of hearing, motor, cognitive and learning, seizure and vestibular, and more. Code, test, or just tell me what's wrong. Looscid is free and open source.
+
+- [Looscid on GitHub](https://github.com/Looscid/Looscid)
+- [Contributing](CONTRIBUTING.md)
+- [Send Feedback](https://looscid.github.io/Looscid/Feedback/)
+
+I care. — Carter

@@ -9,7 +9,9 @@ Added November 8, 2026 (Eastern Time), during Epilepsy Awareness Month. Not rele
 
 Asked for by Carter: Looscid is for everyone, on every screen reader, and nothing should keep you out.
 
-- New page: Why Looscid?, at looscid.github.io/Looscid/help/why-looscid/. It says who Looscid is for and what makes it different: every screen reader, Flash safety and Calm mode, open source, a public mod log with private reports, private dislikes and no ads. It links to each Settings, Accessibility section. It's in the footer (Looscid group) and on the Help Center home.
+- New page: Why Looscid?, at looscid.github.io/Looscid/Why/, its own Looscid page (not part of the Help Center; the old /help/why-looscid/ address takes you there). It says who Looscid is for and what makes it different: every screen reader, Flash safety and Calm mode, open source, a public mod log with private reports, private dislikes and no ads. It links to each Settings, Accessibility section. It's in the footer (Looscid group) and on the Help Center home.
+- The footer starts with a new Important group with Why Looscid? in it, so it's one of the first links a screen reader reaches.
+- Why Looscid? ends with Help me build it: a call for people with all kinds of disabilities to code, test or tell me what's wrong, with links to GitHub, Contributing and Send Feedback.
 - The accessibility guide (Help Center, Building Looscid, Accessibility) starts with My commitment now, in Carter's own words.
 - The roadmap has three new items: Flash safety also catches strobe effects (from r/Epilepsy feedback), testing with every major screen reader, and building Looscid with developers and testers who live with the conditions it protects.
 - The roadmap and the up next list say "I" now, not "we", because Looscid is one person for now.

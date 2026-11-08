@@ -4,18 +4,21 @@
    - The website pages (Help Center, the component library, the changelog, the status page, Page not found) get the same
      markup written in by .github/scripts/build-help.mjs, which reads this file. Run it again after a change here
      (node .github/scripts/build-help.mjs); the Validate check fails when a page is out of date.
-   Five groups, each with its own heading: Get help, Project, Looscid, Legal and Say hi. Links to other sites carry a
+   Six groups, each with its own heading: Important (Why Looscid?, first), Get help, Project, Looscid, Legal and Say hi. Links to other sites carry a
    title hint ("Go to GitHub"). Every link is in one group only. Plain script, no framework; nothing is sent anywhere. */
 (function (Looscid) {
 "use strict";
 // Each link: [words, address, the app page it opens inside Looscid (optional)]. ext: the other site's name.
 const GROUPS = [
+  // Nov 8 2026 (Carter, 5:47 PM: Why Looscid? is Important, and part of Looscid): its own group, first, so it's one of the
+  // first links a screen reader reaches in the footer.
+  { id: "important", t: "Important", links: [["Why Looscid?", "/Looscid/Why/"]] },
   { id: "help", t: "Get help", links: [["Looscid Home", "/Looscid/", "feed"], ["Help Home", "/Looscid/help/", "helpcenter"], ["Getting Started", "/Looscid/help/getting-started/"],
     ["Looscid Basics course", "/Looscid/help/looscid-basics/"], ["Accessibility", "/Looscid/help/dev/accessibility/"], ["Report Center", "/Looscid/Report/", "report_center"],
     ["Contact Us", "/Looscid/help/contact/"], ["Send Feedback", "/Looscid/Feedback/", "feedback"]] },
   { id: "project", t: "Project", links: [["Roadmap &amp; Changelog", "/Looscid/changelog/"], ["Status", "/Looscid/status.html"], ["Docs", "/Looscid/help/#h-building"],
     ["Contributing", "/Looscid/help/dev/contributing/"], { t: "Source code", href: "https://github.com/Looscid/Looscid", ext: "GitHub" }, { t: "Issues", href: "https://github.com/Looscid/Looscid/issues", ext: "GitHub" }] },
-  { id: "looscid", t: "Looscid", links: [["Why Looscid?", "/Looscid/help/why-looscid/"], ["About", "/Looscid/About/", "settings_about"], ["Our Story", "/Looscid/Our-Story/", "hour_story"], ["Credits", "/Looscid/Credits/", "credits"]] },
+  { id: "looscid", t: "Looscid", links: [["About", "/Looscid/About/", "settings_about"], ["Our Story", "/Looscid/Our-Story/", "hour_story"], ["Credits", "/Looscid/Credits/", "credits"]] },
   { id: "legal", t: "Legal", links: [["Terms", "/Looscid/Terms/", "terms"], ["Privacy", "/Looscid/Privacy/", "privacy"], ["Rules", "/Looscid/Rules/", "guidelines"],
     ["Child Safety", "/Looscid/Child-Safety/", "child_safety"], ["License", "/Looscid/Legal/", "legal"]] },
   { id: "hi", t: "Say hi", links: [{ t: "GitHub", href: "https://github.com/Looscid", ext: "GitHub" }, { t: "X", href: "https://x.com/Looscid", ext: "X" },
