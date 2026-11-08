@@ -30,7 +30,7 @@ The old `main` line (retired October 14, 2026) and combined branch counters are 
 Where each Looscid app lives:
 
 - Web app: [Looscid/Looscid](https://github.com/Looscid/Looscid), branch `main`. GitHub Pages publishes its `app/` folder.
-- Android app: [Looscid/Looscid-Android](https://github.com/Looscid/Looscid-Android), branch `DEV`.
+- Android app: [Looscid/Looscid-Android](https://github.com/Looscid/Looscid-Android), branch `main`.
 - iOS app: coming later, in its own repo, Looscid/Looscid-iOS.
 
 Builds so far: web 195, Android 1, iOS 0 (196 total).
