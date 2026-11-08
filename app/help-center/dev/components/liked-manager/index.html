@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en-US" data-help-root="../../../">
+<head>
+<meta charset="UTF-8"/>
+<title>Liked manager component - Looscid Help Center</title>
+<!-- Made by .github/scripts/build-help.mjs from app/js/helpdata.js. Edit those, not this page. Link previews come first. -->
+<meta name="description" content="the Liked tab's tools: Likes or Dislikes, a Filter, Unlike / Remove dislike on each line and Clear all shown.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Looscid">
+<meta property="og:title" content="Liked manager component - Looscid Help Center">
+<meta property="og:description" content="the Liked tab's tools: Likes or Dislikes, a Filter, Unlike / Remove dislike on each line and Clear all shown.">
+<meta property="og:url" content="https://looscid.github.io/Looscid/help/dev/components/liked-manager/">
+<meta property="og:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:secure_url" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Looscid">
+<meta name="twitter:title" content="Liked manager component - Looscid Help Center">
+<meta name="twitter:description" content="the Liked tab's tools: Likes or Dislikes, a Filter, Unlike / Remove dislike on each line and Clear all shown.">
+<meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
+<meta name="twitter:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
+<link rel="canonical" href="https://looscid.github.io/Looscid/help/dev/components/liked-manager/">
+<link rel="icon" type="image/png" sizes="32x32" href="https://looscid.github.io/Looscid/assets/icons/favicon-32.png?v=nl1">
+<link rel="apple-touch-icon" href="https://looscid.github.io/Looscid/assets/icons/apple-touch-icon.png?v=nl1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<link rel="stylesheet" href="../../../help.css?v=hc7">
+<link rel="stylesheet" href="../../../../assets/site-footer.css?v=2">
+</head>
+<body>
+<div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<header class="top"><a class="brand" href="../../../" title="Goes back to Help Center" aria-label="Looscid Help Center, logo: a white open ring with a dot in the middle, on blue"><img src="../../../../assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="32" height="32"><span><span aria-hidden="true">Looscid</span> Help Center</span></a><div class="goto"><button type="button" class="goto-btn" aria-expanded="false" aria-controls="goto-list" hidden>Go to<svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><ul class="goto-list" id="goto-list"><li><a href="../../../" title="Goes back to Help Center">Help Home</a></li><li><a href="../../../../" title="Goes to Home">Looscid Home</a></li></ul></div></header>
+<main class="wrap" id="main">
+<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../../../" title="Goes back to Help Center">Help Center</a></li><li><a href="../../../#h-building" title="Goes back to Help Center">Building Looscid</a></li><li><a href="../" title="Opens this article">Components</a></li><li><span aria-current="page">Liked manager</span></li></ol></nav>
+<link rel="stylesheet" href="../components.css?v=1">
+<h1>Liked manager</h1>
+<p class="lead">the Liked tab's tools: Likes or Dislikes, a Filter, Unlike / Remove dislike on each line and Clear all shown.</p>
+<h2 id="what">what it is</h2>
+<p>it's the top of the Liked tab on ur profile, and the Liked page in More. no new page: Liked just got the tools.</p>
+<p>Show is two radio buttons, Likes and Dislikes. Filter is a native picker (like the <a href="../native-select/" title="Opens this article">select picker</a>): Everything, Dreams, Cherry replies, Bug reports. w Likes it also has Media, Circles, Apps, Marketplace, Chats and Searches, so nothing u could get to before is gone.</p>
+<p>each thing is one line u read in one swipe, w its own Unlike or Remove dislike button. Clear all shown removes everything the filter shows, but only after a real "are u sure" dialog.</p>
+<h2 id="states">states</h2>
+<p>live demos, drawn w looscid's real styles. look-only: nothing in them does anything.</p>
+<h3 id="state-likes">likes</h3>
+<p>Likes, Everything: a bug report, a Cherry reply and a Dream.</p>
+<iframe class="cl-frame" src="likes.html" title="Liked manager demo, likes" loading="lazy" style="height:470px"></iframe>
+<h3 id="state-dislikes">dislikes</h3>
+<p>Dislikes picked. the filter drops the like-only choices.</p>
+<iframe class="cl-frame" src="dislikes.html" title="Liked manager demo, dislikes" loading="lazy" style="height:360px"></iframe>
+<h3 id="state-filtered">filtered + focused</h3>
+<p>Filter is on Cherry replies, w the focus ring on it.</p>
+<iframe class="cl-frame" src="filtered.html" title="Liked manager demo, filtered + focused" loading="lazy" style="height:360px"></iframe>
+<h3 id="state-empty">empty</h3>
+<p>nothing there yet, so no Clear all shown button.</p>
+<iframe class="cl-frame" src="empty.html" title="Liked manager demo, empty" loading="lazy" style="height:300px"></iframe>
+<h3 id="state-clear-dialog">Clear all shown dialog</h3>
+<p>the are-u-sure. Cancel gets focus first.</p>
+<iframe class="cl-frame" src="clear-dialog.html" title="Liked manager demo, Clear all shown dialog" loading="lazy" style="height:230px"></iframe>
+<h2 id="code">copy the code</h2>
+<h3 id="code-html">html</h3>
+<pre class="cl-code"><code id="code-liked-manager-html">&lt;div class=&quot;lc-liked&quot;&gt;
+&lt;p class=&quot;lc-liked-intro&quot;&gt;Everything you liked or disliked, in one place. Only you can see this page.&lt;/p&gt;
+&lt;div class=&quot;lc-lm-tools&quot;&gt;
+&lt;fieldset class=&quot;lc-fs lc-lm-mode&quot; id=&quot;lk-lm-mode&quot;&gt;&lt;legend class=&quot;lc-fs-l&quot;&gt;Show&lt;/legend&gt;&lt;div class=&quot;lc-radios&quot;&gt;
+&lt;label class=&quot;lc-radio on&quot; for=&quot;lk-lm-likes&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;lk-lm-mode&quot; id=&quot;lk-lm-likes&quot; value=&quot;likes&quot; checked&gt;&lt;span&gt;Likes&lt;/span&gt;&lt;/label&gt;
+&lt;label class=&quot;lc-radio&quot; for=&quot;lk-lm-dislikes&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;lk-lm-mode&quot; id=&quot;lk-lm-dislikes&quot; value=&quot;dislikes&quot;&gt;&lt;span&gt;Dislikes&lt;/span&gt;&lt;/label&gt;
+&lt;/div&gt;&lt;/fieldset&gt;
+&lt;label for=&quot;lk-lm-filter&quot; class=&quot;lc-fs-l lc-lm-fl&quot;&gt;Filter&lt;/label&gt;
+&lt;select id=&quot;lk-lm-filter&quot; class=&quot;inp lc-select lc-lm-sel&quot;&gt;&lt;option value=&quot;everything&quot; selected&gt;Everything&lt;/option&gt;&lt;option value=&quot;dreams&quot;&gt;Dreams&lt;/option&gt;&lt;option value=&quot;cherry&quot;&gt;Cherry replies&lt;/option&gt;&lt;option value=&quot;bugs&quot;&gt;Bug reports&lt;/option&gt;&lt;option value=&quot;media&quot;&gt;Media&lt;/option&gt;&lt;option value=&quot;circles&quot;&gt;Circles&lt;/option&gt;&lt;option value=&quot;apps&quot;&gt;Apps&lt;/option&gt;&lt;option value=&quot;marketplace&quot;&gt;Marketplace&lt;/option&gt;&lt;option value=&quot;chats&quot;&gt;Chats&lt;/option&gt;&lt;option value=&quot;searches&quot;&gt;Searches&lt;/option&gt;&lt;/select&gt;
+&lt;button type=&quot;button&quot; id=&quot;lk-lm-clear&quot; class=&quot;btn bgb lc-btn lc-lm-clear&quot;&gt;Clear all shown&lt;/button&gt;
+&lt;/div&gt;
+&lt;ul class=&quot;lc-liked-list lc-lm-list&quot; role=&quot;list&quot;&gt;
+&lt;li class=&quot;lc-liked-row&quot;&gt;&lt;span class=&quot;lc-liked-name&quot;&gt;Bug report: Dark mode flashes white on launch. u agree&lt;/span&gt;&lt;span class=&quot;lc-liked-acts&quot;&gt;&lt;button type=&quot;button&quot; id=&quot;lk-lm-rm-0&quot; class=&quot;btn bgb lc-btn&quot; aria-label=&quot;Unlike, Bug report: Dark mode flashes white on launch. u agree&quot;&gt;Unlike&lt;/button&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;li class=&quot;lc-liked-row&quot;&gt;&lt;span class=&quot;lc-liked-name&quot;&gt;Cherry reply in Pizza night: try the margherita, it&amp;#x27;s the move&lt;/span&gt;&lt;span class=&quot;lc-liked-acts&quot;&gt;&lt;button type=&quot;button&quot; id=&quot;lk-lm-rm-1&quot; class=&quot;btn bgb lc-btn&quot; aria-label=&quot;Unlike, Cherry reply in Pizza night: try the margherita, it&amp;#x27;s the move&quot;&gt;Unlike&lt;/button&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;li class=&quot;lc-liked-row&quot;&gt;&lt;span class=&quot;lc-liked-name&quot;&gt;Dream by Ava: first snow of the year, the whole street went quiet. liked Nov 8&lt;/span&gt;&lt;span class=&quot;lc-liked-acts&quot;&gt;&lt;button type=&quot;button&quot; id=&quot;lk-lm-rm-2&quot; class=&quot;btn bgb lc-btn&quot; aria-label=&quot;Unlike, Dream by Ava: first snow of the year, the whole street went quiet. liked Nov 8&quot;&gt;Unlike&lt;/button&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+<p><button type="button" class="btn cl-copy" data-copy="code-liked-manager-html" hidden>Copy code</button></p>
+<h3 id="code-js">js</h3>
+<pre class="cl-code"><code id="code-liked-manager-js">// The Liked manager (js/liked.js, cut down). Each line's button removes it, then says &quot;Removed&quot; politely.
+removeBtn.addEventListener(&quot;click&quot;, async function () {
+  const ok = await item.remove(); // a like, a dislike, a Cherry reply vote, or a bug report vote (signed, through Rem)
+  if (!ok) { announce(&quot;couldn't remove that one rn&quot;); return; }
+  announce(&quot;Removed&quot;, &quot;state&quot;);
+  focusNextRowOrFilter(); // focus never gets lost
+});
+// Clear all shown: a real alert dialog first, then &quot;Cleared 3&quot;.
+clearBtn.addEventListener(&quot;click&quot;, function () { openAlertDialog({ title: &quot;Clear all shown?&quot;, confirmLabel: &quot;Clear &quot; + shown.length, onConfirm: clearAll }); });</code></pre>
+<p><button type="button" class="btn cl-copy" data-copy="code-liked-manager-js" hidden>Copy JS code</button></p>
+<p>it uses the classes from css/app.css and css/a11y.css, so it looks right anywhere in looscid.</p>
+<h2 id="voiceover">how it works w voiceover</h2>
+<ul><li>Show reads &quot;Likes, radio button, 1 of 2, Show&quot;. swipe right for Dislikes, double tap to switch.</li><li>Filter reads &quot;Filter, Everything, pop up button&quot;. double tap, then swipe through the choices.</li><li>each line is one swipe: &quot;Dream by Ava: first snow of the year… liked Nov 8&quot;. the next swipe is its button: &quot;Unlike, Dream by Ava…&quot;.</li><li>after u remove one, the live region says &quot;Removed&quot; and focus jumps to the next line's button, never to the top of the page.</li><li>Clear all shown opens an alert dialog. VoiceOver reads its title and message, focus lands on Cancel. confirm and it says &quot;Cleared 3&quot;.</li><li>braille display: Enter picks a radio button, opens the Filter and presses Unlike or Clear all shown.</li></ul>
+<h2 id="related">related</h2>
+<ul><li><a href="../like-dislike-buttons/" title="Opens this article">Like and Dislike buttons</a></li><li><a href="../radio-group/" title="Opens this article">Radio group</a></li><li><a href="../native-select/" title="Opens this article">Native select picker</a></li><li><a href="../live-region/" title="Opens this article">Live region announcements</a></li><li><a href="../empty-state/" title="Opens this article">Empty state</a></li><li><a href="../buttons/" title="Opens this article">Buttons</a></li></ul>
+<p class="next"><a href="../" title="Opens this article">All components</a></p>
+<script src="../components.js?v=1"></script>
+</main>
+<footer class="sf">
+<div class="sf-in">
+<p class="sf-brand"><img src="/Looscid/assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="28" height="28"><span class="sf-name" aria-hidden="true">Looscid</span></p>
+<div class="sf-cols">
+<section class="sf-col" aria-labelledby="sf-h-help"><h2 id="sf-h-help">Get help</h2><ul><li><a href="/Looscid/" title="Goes to Home">Looscid Home</a></li><li><a href="/Looscid/help/" title="Goes back to Help Center">Help Home</a></li><li><a href="/Looscid/help/getting-started/" title="Opens this topic">Getting Started</a></li><li><a href="/Looscid/help/looscid-basics/" title="Opens this course">Looscid Basics course</a></li><li><a href="/Looscid/help/dev/accessibility/" title="Opens this article">Accessibility</a></li><li><a href="/Looscid/help/contact/" title="Goes to Contact Us">Contact Us</a></li><li><a href="/Looscid/Feedback/" title="Goes to Feedback">Send Feedback</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-project"><h2 id="sf-h-project">Project</h2><ul><li><a href="/Looscid/changelog/" title="Goes to the changelog">Roadmap &amp; Changelog</a></li><li><a href="/Looscid/status.html" title="Goes to the status page">Status</a></li><li><a href="/Looscid/help/#h-building" title="Goes back to Help Center">Docs</a></li><li><a href="/Looscid/help/dev/contributing/" title="Opens this article">Contributing</a></li><li><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a></li><li><a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-looscid"><h2 id="sf-h-looscid">Looscid</h2><ul><li><a href="/Looscid/About/" title="Goes to About">About</a></li><li><a href="/Looscid/Our-Story/" title="Goes to Our Story">Our Story</a></li><li><a href="/Looscid/Credits/" title="Goes to Credits">Credits</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-legal"><h2 id="sf-h-legal">Legal</h2><ul><li><a href="/Looscid/Terms/" title="Goes to Terms">Terms</a></li><li><a href="/Looscid/Privacy/" title="Goes to Privacy">Privacy</a></li><li><a href="/Looscid/Rules/" title="Goes to Rules">Rules</a></li><li><a href="/Looscid/Child-Safety/" title="Goes to Child Safety">Child Safety</a></li><li><a href="/Looscid/Legal/" title="Goes to Legal">License</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-hi"><h2 id="sf-h-hi">Say hi</h2><ul><li><a href="https://github.com/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">GitHub</a></li><li><a href="https://x.com/Looscid" title="Go to X" target="_blank" rel="noopener noreferrer">X</a></li><li><a href="https://www.youtube.com/@Looscid" title="Go to YouTube" target="_blank" rel="noopener noreferrer">YouTube</a></li><li><a href="https://discord.gg/M6xrD8EBXU" title="Go to Discord" target="_blank" rel="noopener noreferrer">Discord</a></li></ul></section>
+</div>
+<p class="sf-bottom">© 2025–2026 Looscid <span aria-hidden="true">·</span> Open source under the <a href="/Looscid/help/dev/license/" title="Opens this article">GNU AGPL-3.0</a> <span aria-hidden="true">·</span> Made by Chaotic Carter, co-written with Tab <span aria-hidden="true">·</span> Looscid 2026.138.57 (195)</p>
+</div>
+</footer>
+<script src="../../../help.js?v=hc6"></script>
+</body>
+</html>

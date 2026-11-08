@@ -60,7 +60,7 @@
 <p>a new bug w its counts.</p>
 <iframe class="cl-frame" src="row.html" title="Report a problem and report rows demo, report row" loading="lazy" style="height:260px"></iframe>
 <h3 id="state-row-voted">report row, u agreed</h3>
-<p>the count line says &quot;you + 3 others agree&quot;.</p>
+<p>ur Agree is ticked and says &quot;you + 3 others agree&quot;.</p>
 <iframe class="cl-frame" src="row-voted.html" title="Report a problem and report rows demo, report row, u agreed" loading="lazy" style="height:290px"></iframe>
 <h3 id="state-row-reply">report row w a mod reply</h3>
 <p>the mods' reply sits under the report.</p>
@@ -88,7 +88,7 @@
 &lt;h3 id=&quot;lc-issue-a1b2c3&quot; class=&quot;lc-issue-h&quot;&gt;The Like button double-announces. Bug, new. 4 agree, 1 disagree.&lt;/h3&gt;
 &lt;p class=&quot;lc-desc lc-issue-body&quot;&gt;when i like a Dream VoiceOver says Liked twice.&lt;/p&gt;
 &lt;p class=&quot;lc-desc lc-issue-meta&quot;&gt;Reported 2 hours ago on web 2026.138.57&lt;/p&gt;
-&lt;div class=&quot;lc-inrow lc-issue-votes&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;btn bgb lc-btn lc-issue-btn&quot;&gt;Agree&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;btn bgb lc-btn lc-issue-btn&quot;&gt;Disagree&lt;/button&gt;&lt;/div&gt;
+&lt;div class=&quot;lc-inrow lc-issue-votes&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;cbx-wrap lc-count lc-issue-btn&quot; aria-pressed=&quot;false&quot; aria-label=&quot;4 agree&quot;&gt;&lt;div class=&quot;cbx-box&quot;&gt;&lt;/div&gt;&lt;span&gt;4 agree&lt;/span&gt;&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;cbx-wrap lc-count lc-issue-btn&quot; aria-pressed=&quot;false&quot; aria-label=&quot;1 disagrees&quot;&gt;&lt;div class=&quot;cbx-box&quot;&gt;&lt;/div&gt;&lt;span&gt;1 disagrees&lt;/span&gt;&lt;/button&gt;&lt;/div&gt;
 &lt;/li&gt;
 &lt;/ul&gt;</code></pre>
 <p><button type="button" class="btn cl-copy" data-copy="code-report-a-problem-html" hidden>Copy code</button></p>
@@ -105,9 +105,9 @@ async function send() {
 <p><button type="button" class="btn cl-copy" data-copy="code-report-a-problem-js" hidden>Copy JS code</button></p>
 <p>it uses the classes from css/app.css and css/a11y.css, so it looks right anywhere in looscid.</p>
 <h2 id="voiceover">how it works w voiceover</h2>
-<ul><li>the form is a radio group (&quot;What kind?&quot;), then &quot;Title, text field&quot;, &quot;What happened?, text field&quot; and &quot;Send report, button&quot;. no required attribute: if the title is empty, it tells u in words.</li><li>each report is one heading, so the headings rotor is a list of reports and one swipe reads the whole thing: &quot;The Like button double-announces. Bug, new. 4 agree, 1 disagree. heading level 3&quot;.</li><li>Agree and Disagree are plain buttons that say what they'll do (&quot;Take back agree&quot;, &quot;Disagree instead&quot;), and after u vote the live region says &quot;Agreed. you + 3 others agree&quot;.</li><li>braille display: type the report, Enter on Send report sends it. Enter on Agree votes.</li></ul>
+<ul><li>the form is a radio group (&quot;What kind?&quot;), then &quot;Title, text field&quot;, &quot;What happened?, text field&quot; and &quot;Send report, button&quot;. no required attribute: if the title is empty, it tells u in words.</li><li>each report is one heading, so the headings rotor is a list of reports and one swipe reads the whole thing: &quot;The Like button double-announces. Bug, new. 4 agree, 1 disagree. heading level 3&quot;.</li><li>Agree and Disagree are the same counter as Like on a Dream (the Like and Dislike buttons page has it): &quot;4 agree, toggle button&quot;. after u vote the live region says &quot;Agreed. you + 3 others agree&quot;, and the button reads &quot;you + 3 others agree, selected&quot;. double tap it again to take it back.</li><li>braille display: type the report, Enter on Send report sends it. Enter on Agree votes.</li></ul>
 <h2 id="related">related</h2>
-<ul><li><a href="../native-select/" title="Opens this article">Native select picker</a></li><li><a href="../radio-group/" title="Opens this article">Radio group</a></li><li><a href="../live-region/" title="Opens this article">Live region announcements</a></li></ul>
+<ul><li><a href="../native-select/" title="Opens this article">Native select picker</a></li><li><a href="../radio-group/" title="Opens this article">Radio group</a></li><li><a href="../live-region/" title="Opens this article">Live region announcements</a></li><li><a href="../like-dislike-buttons/" title="Opens this article">Like and Dislike buttons</a></li></ul>
 <p class="next"><a href="../" title="Opens this article">All components</a></p>
 <script src="../components.js?v=1"></script>
 </main>

@@ -20,7 +20,7 @@
 (function (Looscid) {
 "use strict";
 const h = Looscid.lcEl;
-const VOTES_KEY = "looscid_issue_votes";
+const VOTES_KEY = "looscid_issue_votes", VINFO_KEY = "looscid_issue_vote_info";
 const STATUS = [["all", "Everything"], ["open", "Still open"], ["new", "New"], ["working", "Working on it"], ["fixed", "Fixed"], ["closed", "Closed"]];
 const STATUS_WORDS = { new: "new", working: "working on it", fixed: "fixed", closed: "closed" };
 const TITLE_MAX = 120, BODY_MAX = 4000;
@@ -63,8 +63,16 @@ function appInfo() {
 }
 
 function votes() { const pk = myPk(), all = lsJson(VOTES_KEY, {}); return pk && all && typeof all === "object" && all[pk] && typeof all[pk] === "object" ? all[pk] : {}; }
-function setVote(id, v) { const pk = myPk(); if (!pk) return; const all = lsJson(VOTES_KEY, {}) || {}; const mine = all[pk] && typeof all[pk] === "object" ? all[pk] : {};
-  if (v && v !== "none") mine[id] = v; else delete mine[id]; all[pk] = mine; try { localStorage.setItem(VOTES_KEY, JSON.stringify(all)); } catch (e) {} }
+function setVote(id, v, it) { const pk = myPk(); if (!pk) return; const all = lsJson(VOTES_KEY, {}) || {}; const mine = all[pk] && typeof all[pk] === "object" ? all[pk] : {};
+  if (v && v !== "none") mine[id] = v; else delete mine[id]; all[pk] = mine; try { localStorage.setItem(VOTES_KEY, JSON.stringify(all)); } catch (e) {}
+  // Nov 8 2026: the report's title too, so the Liked manager (js/liked.js) can name it without loading the list.
+  try { const vi = lsJson(VINFO_KEY, {}) || {}; const m = vi[pk] && typeof vi[pk] === "object" ? vi[pk] : {};
+    if (v && v !== "none" && it) m[id] = { title: String(it.title || "").slice(0, 120), type: it.type === "idea" ? "idea" : "bug", at: Date.now() }; else if (!v || v === "none") delete m[id];
+    vi[pk] = m; localStorage.setItem(VINFO_KEY, JSON.stringify(vi)); } catch (e) {}
+  try { window.dispatchEvent(new CustomEvent("looscid-issue-votes")); } catch (e) {} }
+function voteInfo() { const pk = myPk(), all = lsJson(VINFO_KEY, {}); return pk && all && typeof all === "object" && all[pk] && typeof all[pk] === "object" ? all[pk] : {}; }
+// Settings, Privacy: "Show my bug report votes publicly" (js/dislikes.js). Off: private, like before.
+function visibility() { try { return Looscid.lcIssueVotesPublic && Looscid.lcIssueVotesPublic() ? "public" : "private"; } catch (e) { return "private"; } }
 
 function load(force) {
   if (S.loading || (!force && S.items && Date.now() - S.loadedAt < 60000)) return;
@@ -107,9 +115,9 @@ async function vote(it, v) {
   const was = votes()[it.id] || "none", want = was === v ? "none" : v;
   S.voting[it.id] = true; redraw();
   try {
-    const ev = await sign(21990, [["e", it.id], ["vote", want], ["visibility", "private"]]);
+    const ev = await sign(21990, [["e", it.id], ["vote", want], ["visibility", visibility()]]);
     const r = await call("POST", "/issues/vote", ev);
-    if (r.ok) { it.agree = r.body.agree; it.disagree = r.body.disagree; setVote(it.id, want);
+    if (r.ok) { it.agree = r.body.agree; it.disagree = r.body.disagree; setVote(it.id, want, it);
       say(want === "agree" ? "Agreed. " + countLine(it, "agree") : want === "disagree" ? "Disagreed. " + countLine(it, "disagree") : "Vote taken back. " + countLine(it, "none")); }
     else say(r.status >= 500 || !r.status ? OFFLINE : "that vote didn't go through, try again");
   } catch (e) { say(OFFLINE); }
@@ -129,6 +137,17 @@ async function moderate(it) {
   S.voting[it.id] = false; redraw();
 }
 
+// One Agree or Disagree counter. Yours: "you + 3 others agree" (or "agree, just you so far"). Not yours: "3 agree".
+function voteText(it, v, mine) {
+  const n = +(v === "agree" ? it.agree : it.disagree) || 0;
+  if (mine === v) { const c = countLine(it, v); return c === "just you so far" ? v + ", just you so far" : c; }
+  return n + " " + (v === "agree" ? (n === 1 ? "agrees" : "agree") : (n === 1 ? "disagrees" : "disagree"));
+}
+function voteBtn(it, v, mine, vb) {
+  const t = voteText(it, v, mine);
+  if (!Looscid.lcCountBtn) return h('button', { type: "button", className: "btn bgb lc-btn lc-issue-btn", "aria-pressed": mine === v ? "true" : "false", disabled: !!vb, onClick: function () { vote(it, v); } }, t);
+  return Looscid.lcCountBtn(h, { on: mine === v, cls: v === "agree" ? "liked" : "disliked", label: t, text: t, disabled: !!vb, className: "lc-issue-btn", onClick: function () { vote(it, v); } });
+}
 function when(ms) { try { return new Date(+ms).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); } catch (e) { return ""; } }
 function reportEl(it, mine) {
   const type = it.type === "idea" ? "Idea" : "Bug", status = STATUS_WORDS[it.status] || it.status;
@@ -141,11 +160,11 @@ function reportEl(it, mine) {
     h('p', { className: "lc-desc lc-issue-meta" }, "Reported " + when(it.created_at) + (it.app ? " on " + it.app + (it.version ? " " + it.version : "") : "") + (it.status === "closed" && it.close_reason ? ". Closed because: " + it.close_reason : "")),
     (it.replies || []).length ? h('ul', { className: "lc-issue-replies" }, it.replies.map(function (rp, i) {
       return h('li', { key: i, className: "lc-desc" }, "Looscid mods, " + when(rp.at) + ": " + (rp.status ? "set it to " + (STATUS_WORDS[rp.status] || rp.status) + (rp.text ? ". " : ".") : "") + (rp.text || "")); })) : null,
-    // The button area says how your vote stands (Carter, 12:10 PM): "you + 3 others agree", or "just you so far".
-    mine ? h('p', { className: "lc-desc lc-issue-count" }, countLine(it, mine)) : null,
+    /* The buttons say how your vote stands (Carter, 12:10 PM): "you + 3 others agree", or "just you so far".
+       Nov 8 2026 (Carter, 12:51 PM): they're the same counter as Like on a Dream (Looscid.lcCountBtn in js/core.js): a tick
+       box, the count in the words, and pressed when it's your vote. Pressing your vote again takes it back. */
     h('div', { className: "lc-inrow lc-issue-votes" },
-      h('button', { type: "button", className: "btn bgb lc-btn lc-issue-btn", disabled: !!vb, onClick: function () { vote(it, "agree"); } }, mine === "agree" ? "Take back agree" : mine === "disagree" ? "Agree instead" : "Agree"),
-      h('button', { type: "button", className: "btn bgb lc-btn lc-issue-btn", disabled: !!vb, onClick: function () { vote(it, "disagree"); } }, mine === "disagree" ? "Take back disagree" : mine === "agree" ? "Disagree instead" : "Disagree")),
+      voteBtn(it, "agree", mine, vb), voteBtn(it, "disagree", mine, vb)),
     mod ? h('p', null, h('button', { type: "button", className: "btn bgb lc-btn lc-issue-btn", "aria-expanded": open ? "true" : "false", onClick: function () { S.modOpen[it.id] = !open; redraw(); } }, "Mod tools")) : null,
     mod && open ? h('div', { className: "lc-issue-mod" },
       h('label', { htmlFor: hid + "-st", className: "lc-fs-l", style: { display: "block" } }, "Status"),
@@ -201,5 +220,12 @@ function lcIssuesSection(act) {
 }
 window.addEventListener("online", function () { if (S.state === "off") load(true); });
 Looscid.lcIssuesSection = lcIssuesSection;
-Looscid.lcIssues = { load: function () { load(true); }, state: function () { return S; } };
+// Nov 8 2026: for the Liked manager (js/liked.js): your votes, their titles, and taking one back from there.
+async function unvote(id) {
+  if (keyMode() !== "key" || !isHex64(id)) return false;
+  try { const r = await call("POST", "/issues/vote", await sign(21990, [["e", id], ["vote", "none"], ["visibility", visibility()]]));
+    if (r.ok) { setVote(id, "none"); const it = (S.items || []).find(function (x) { return x.id === id; }); if (it) { it.agree = r.body.agree; it.disagree = r.body.disagree; } redraw(); return true; } } catch (e) {}
+  return false;
+}
+Looscid.lcIssues = { load: function () { load(true); }, state: function () { return S; }, votes: votes, info: voteInfo, unvote: unvote, canVote: function () { return keyMode() === "key"; } };
 })(window.Looscid = window.Looscid || {});

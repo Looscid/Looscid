@@ -36,7 +36,7 @@
 // Your lists on every device (Nov 8 2026; table lists, made by the code itself):
 //   POST /list     body: a signed kind 21987 event: ["list", name], ["action", "add" | "remove"], ["i", ref, data?] x 1-200,
 //                  last 10 minutes, used once. Lists: likes, redreams (public: only counts come out, in /feed), and the
-//                  private ones: liked_other, pins, muted_dreamors, muted_threads, not_interested, threads.
+//                  private ones: liked_other, pins, muted_dreamors, muted_threads, not_interested, threads, dislikes.
 //   POST /mine     body: a signed kind 21988 event: ["action", "read-my-lists"], last 10 minutes, used once -> every list of
 //                  that key with each item's saved copy. This is the only way to read the private lists.
 //   GET  /feed     each Dream also says "likes", and with ?viewer= whether that key "liked" or "redreamed" it.
@@ -492,10 +492,11 @@ async function modlogScoped(req, env, url, scope) {
 //   Public: that a key liked or ReDreamed a Dream. Only counts come out (GET /feed "likes", "redreams"), and a ReDream
 //   of a Dream on Rem is also a row in reposts, so the old ReDream count and the feed boost see it.
 //   Private: pins, liked_other (liked searches and other non-Dream things), muted_dreamors, muted_threads,
-//   not_interested, threads, and the small copy ("data") kept with every item. They only come back through POST /mine:
+//   not_interested, threads, dislikes (Nov 8 2026: only you ever see what you disliked), and the small copy ("data")
+//   kept with every item. They only come back through POST /mine:
 //   a read signed by the same key in the last 10 minutes. Every signed list write or read works once (its id is kept
 //   in the rate table for 20 minutes), so a copied request can't be replayed. No other route ever reads them.
-const LISTS = { likes: 1000, liked_other: 500, redreams: 1000, pins: 20, muted_dreamors: 500, muted_threads: 500, not_interested: 500, threads: 200 };
+const LISTS = { likes: 1000, liked_other: 500, redreams: 1000, pins: 20, muted_dreamors: 500, muted_threads: 500, not_interested: 500, threads: 200, dislikes: 1000 };
 const LIST_REF = /^[^\u0000-\u001f\u007f]{1,128}$/;
 const LIST_DATA_MAX = 4000;
 let listsReady = null;

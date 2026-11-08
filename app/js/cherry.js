@@ -195,7 +195,9 @@ function cherryView(st, p, act) {
                     h('button', { type: "button", id: did + "-b", className: "btn bgb lc-btn lc-cherry-out-b", onClick: function () { act.outToggle(i, k); } }, o.sum + ", " + (o.open ? "Collapse" : "Expand")),
                     o.open ? h('ul', { id: did, className: "lc-cherry-out-d" }, o.items.map(function (t, z) { return h('li', { key: z }, t); })) : null);
                 })) : null,
-                m.confirm && !m.done ? h('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { act.confirm(i); } }, m.confirm) : null);
+                m.confirm && !m.done ? h('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { act.confirm(i); } }, m.confirm) : null,
+                // Nov 8 2026 (Carter): Like and Dislike on each Cherry reply. This device only; they show in Liked (js/dislikes.js).
+                !m.me && Looscid.lcCherryVoteEl ? Looscid.lcCherryVoteEl(cur, m, i, act.draw) : null);
             }))
         : h('p', { key: "empty", className: "lc-muted lc-cherry-empty" }, "No messages yet."),
       LC_CHERRY.busy ? h('p', { key: "busy", className: "lc-muted" }, "Cherry is thinking\u2026") : null),

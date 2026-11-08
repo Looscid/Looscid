@@ -603,3 +603,17 @@ html[data-lc-theme="light"] .lc-prof-linksrow-u{color:#5b21b6}
 .lc-issue-replies{padding-left:1.2em;margin:4px 0}
 .lc-issue-votes{gap:8px;flex-wrap:wrap}
 .lc-issue-mod{margin:6px 0 10px}
+/* Nov 8 2026: the shared counter (Looscid.lcCountBtn in js/core.js): Like and Dislike on Dreams and Cherry replies, and the
+   issue tracker's Agree / Disagree. Same tick box and words everywhere; 44px tall at least. */
+.cbx-wrap.lc-count{min-height:44px;min-width:44px}
+.cbx-wrap.disliked{color:var(--tx)}
+.cbx-wrap.disliked .cbx-box{background:var(--tx2);border-color:var(--tx2)}
+.cbx-wrap.lc-count:disabled{opacity:.6;cursor:default}
+.lc-issue-votes .cbx-wrap.lc-count,.lc-cr-votes .cbx-wrap.lc-count{flex:0 1 auto;padding:9px 12px;font-size:14px;border:1px solid var(--bd2);border-radius:12px;background:var(--sf2)}
+.lc-cr-votes{gap:8px;margin-top:6px;flex-wrap:wrap}
+/* The Liked manager: Show (Likes / Dislikes), Filter, Clear all shown. */
+.lc-lm-tools{padding:8px 16px 4px;display:flex;flex-direction:column;gap:6px}
+.lc-lm-fl{display:block;margin:6px 0 0}
+.lc-lm-sel{min-height:44px;max-width:320px}
+.lc-lm-clear{align-self:flex-start;min-height:44px}
+.lc-lm-note{margin:0}

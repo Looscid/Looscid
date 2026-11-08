@@ -276,7 +276,185 @@ likeBtn.addEventListener("click", function () {
       "the tick box picture is hidden. the state comes from the button itself, so VoiceOver never says it twice.",
       "braille display: Enter on Like likes it. Enter on ReDream opens the menu, then Enter on Redream."
     ],
-    rel: ["dream-card", "popup-menu", "live-region", "checkboxes"],
+    rel: ["dream-card", "like-dislike-buttons", "popup-menu", "live-region", "checkboxes"],
+  },
+  {
+    slug: "like-dislike-buttons",
+    t: "Like and Dislike buttons",
+    s: "the shared counter: Like and Dislike on Dreams and Cherry replies, and Agree / Disagree on bug reports.",
+    where: [
+      `Dislike sits right next to Like under every <a href="../dream-card/">Dream card</a>. Cherry replies get Like and Dislike too, and bug reports in <a href="../report-a-problem/">Report a problem</a> use the same counter for Agree and Disagree.`,
+      "it's one shared piece (lcCountBtn in js/core.js), so they all look the same, feel the same and VoiceOver reads em the same way. a ticked box means it's urs.",
+      "ur dislikes are private, always. only u see em, so Dislike never shows a number. Cherry reply votes stay on ur device. everything u like or dislike shows up in the <a href=\"../liked-manager/\">Liked manager</a>."
+    ],
+    states: [
+      { id: "normal", n: "normal", say: "not liked, not disliked.", html: `<div class="ixn-row">
+<button type="button" class="cbx-wrap lc-count" aria-pressed="false" aria-label="12 likes"><div class="cbx-box"></div><span>12 Likes</span></button>
+<button type="button" class="cbx-wrap lc-count lc-dislike" aria-pressed="false" aria-label="Dislike"><div class="cbx-box"></div><span>Dislike</span></button>
+</div>`, h: 70 },
+      { id: "liked", n: "liked", say: "Like is ticked and the count went up.", html: `<div class="ixn-row">
+<button type="button" class="cbx-wrap lc-count liked" aria-pressed="true" aria-label="13 likes"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>13 Likes</span></button>
+<button type="button" class="cbx-wrap lc-count lc-dislike" aria-pressed="false" aria-label="Dislike"><div class="cbx-box"></div><span>Dislike</span></button>
+</div>`, h: 70 },
+      { id: "disliked", n: "disliked", say: "Dislike is ticked. disliking takes ur like off, liking takes ur dislike off.", html: `<div class="ixn-row">
+<button type="button" class="cbx-wrap lc-count" aria-pressed="false" aria-label="12 likes"><div class="cbx-box"></div><span>12 Likes</span></button>
+<button type="button" class="cbx-wrap lc-count disliked lc-dislike" aria-pressed="true" aria-label="Dislike"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>Dislike</span></button>
+</div>`, h: 70 },
+      { id: "focused", n: "focused", say: "focus ring on Dislike.", html: `<div class="ixn-row">
+<button type="button" class="cbx-wrap lc-count" aria-pressed="false" aria-label="12 likes"><div class="cbx-box"></div><span>12 Likes</span></button>
+<button type="button" class="cbx-wrap lc-count lc-dislike demo-focus" aria-pressed="false" aria-label="Dislike"><div class="cbx-box"></div><span>Dislike</span></button>
+</div>`, h: 70 },
+      { id: "cherry-reply", n: "on a Cherry reply", say: "under each Cherry reply. this one's disliked.", html: `<div class="lc-inrow lc-cr-votes">
+<button type="button" class="cbx-wrap lc-count" aria-pressed="false" aria-label="Like reply"><div class="cbx-box"></div><span>Like</span></button>
+<button type="button" class="cbx-wrap lc-count disliked" aria-pressed="true" aria-label="Dislike reply"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>Dislike</span></button>
+</div>`, h: 70 },
+      { id: "agree", n: "Agree / Disagree", say: "a bug report u agree with. same counter, w the tracker's words.", html: `<div class="lc-issues"><div class="lc-inrow lc-issue-votes">
+<button type="button" class="cbx-wrap lc-count liked lc-issue-btn" aria-pressed="true" aria-label="you + 3 others agree"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>you + 3 others agree</span></button>
+<button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="1 disagrees"><div class="cbx-box"></div><span>1 disagrees</span></button>
+</div></div>`, h: 70 },
+      { id: "disabled", n: "disabled", say: "while a vote is sending, the counter is dimmed for a sec.", html: `<div class="lc-issues"><div class="lc-inrow lc-issue-votes">
+<button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="3 agree" disabled><div class="cbx-box"></div><span>3 agree</span></button>
+<button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="1 disagrees" disabled><div class="cbx-box"></div><span>1 disagrees</span></button>
+</div></div>`, h: 70 }
+    ],
+    code: `<div class="ixn-row">
+<button type="button" class="cbx-wrap lc-count" aria-pressed="false" aria-label="12 likes"><div class="cbx-box"></div><span>12 Likes</span></button>
+<button type="button" class="cbx-wrap lc-count lc-dislike" aria-pressed="false" aria-label="Dislike"><div class="cbx-box"></div><span>Dislike</span></button>
+</div>`,
+    js: `// One shared counter for Like, Dislike, Cherry reply votes and Agree / Disagree (js/core.js, Looscid.lcCountBtn).
+// h is React.createElement or Looscid.lcEl. o: { on, cls, label, text, onClick, disabled }
+function lcCountBtn(h, o) {
+  const box = h("div", { className: "cbx-box" }, o.on ? CHECK_SVG : null);
+  return h("button", { type: "button", className: "cbx-wrap lc-count" + (o.on ? " " + (o.cls || "liked") : ""),
+    "aria-pressed": o.on ? "true" : "false", "aria-label": o.label, disabled: o.disabled || undefined, onClick: o.onClick },
+    box, h("span", null, o.text == null ? o.label : o.text));
+}
+// Dislike under a Dream: no number, because dislikes are private.
+lcCountBtn(h, { on: disliked, cls: "disliked", label: "Dislike", onClick: function () { toggleDislike(); announce(disliked ? "Dislike removed" : "Disliked", "state"); } });`,
+    vo: [
+      `Like says the count: "12 likes, toggle button". double tap it and the polite live region says "Liked", and the button reads as selected.`,
+      `Dislike says "Dislike, toggle button". double tap: "Disliked". again: "Dislike removed". there's never a number, bc dislikes are private.`,
+      `on a Cherry reply: "Like reply, toggle button" and "Dislike reply, toggle button".`,
+      `Agree says "3 agree", and once it's urs "you + 3 others agree, selected". double tap ur vote again to take it back.`,
+      "the tick box picture is hidden. the state comes from the button itself, so VoiceOver never says it twice.",
+      "braille display: Enter on any of em presses it, same as a double tap."
+    ],
+    rel: ["like-redream-buttons", "liked-manager", "dream-card", "report-a-problem", "live-region"],
+  },
+  {
+    slug: "liked-manager",
+    t: "Liked manager",
+    s: "the Liked tab's tools: Likes or Dislikes, a Filter, Unlike / Remove dislike on each line and Clear all shown.",
+    where: [
+      "it's the top of the Liked tab on ur profile, and the Liked page in More. no new page: Liked just got the tools.",
+      `Show is two radio buttons, Likes and Dislikes. Filter is a native picker (like the <a href="../native-select/">select picker</a>): Everything, Dreams, Cherry replies, Bug reports. w Likes it also has Media, Circles, Apps, Marketplace, Chats and Searches, so nothing u could get to before is gone.`,
+      `each thing is one line u read in one swipe, w its own Unlike or Remove dislike button. Clear all shown removes everything the filter shows, but only after a real "are u sure" dialog.`
+    ],
+    states: [
+      { id: "likes", n: "likes", say: "Likes, Everything: a bug report, a Cherry reply and a Dream.", html: `<div class="lc-liked">
+<p class="lc-liked-intro">Everything you liked or disliked, in one place. Only you can see this page.</p>
+<div class="lc-lm-tools">
+<fieldset class="lc-fs lc-lm-mode" id="lk-lm-mode"><legend class="lc-fs-l">Show</legend><div class="lc-radios">
+<label class="lc-radio on" for="lk-lm-likes"><input type="radio" name="lk-lm-mode" id="lk-lm-likes" value="likes" checked><span>Likes</span></label>
+<label class="lc-radio" for="lk-lm-dislikes"><input type="radio" name="lk-lm-mode" id="lk-lm-dislikes" value="dislikes"><span>Dislikes</span></label>
+</div></fieldset>
+<label for="lk-lm-filter" class="lc-fs-l lc-lm-fl">Filter</label>
+<select id="lk-lm-filter" class="inp lc-select lc-lm-sel"><option value="everything" selected>Everything</option><option value="dreams">Dreams</option><option value="cherry">Cherry replies</option><option value="bugs">Bug reports</option><option value="media">Media</option><option value="circles">Circles</option><option value="apps">Apps</option><option value="marketplace">Marketplace</option><option value="chats">Chats</option><option value="searches">Searches</option></select>
+<button type="button" id="lk-lm-clear" class="btn bgb lc-btn lc-lm-clear">Clear all shown</button>
+</div>
+<ul class="lc-liked-list lc-lm-list" role="list">
+<li class="lc-liked-row"><span class="lc-liked-name">Bug report: Dark mode flashes white on launch. u agree</span><span class="lc-liked-acts"><button type="button" id="lk-lm-rm-0" class="btn bgb lc-btn" aria-label="Unlike, Bug report: Dark mode flashes white on launch. u agree">Unlike</button></span></li>
+<li class="lc-liked-row"><span class="lc-liked-name">Cherry reply in Pizza night: try the margherita, it&#x27;s the move</span><span class="lc-liked-acts"><button type="button" id="lk-lm-rm-1" class="btn bgb lc-btn" aria-label="Unlike, Cherry reply in Pizza night: try the margherita, it&#x27;s the move">Unlike</button></span></li>
+<li class="lc-liked-row"><span class="lc-liked-name">Dream by Ava: first snow of the year, the whole street went quiet. liked Nov 8</span><span class="lc-liked-acts"><button type="button" id="lk-lm-rm-2" class="btn bgb lc-btn" aria-label="Unlike, Dream by Ava: first snow of the year, the whole street went quiet. liked Nov 8">Unlike</button></span></li>
+</ul>
+</div>`, h: 470 },
+      { id: "dislikes", n: "dislikes", say: "Dislikes picked. the filter drops the like-only choices.", html: `<div class="lc-liked">
+<p class="lc-liked-intro">Everything you liked or disliked, in one place. Only you can see this page.</p>
+<div class="lc-lm-tools">
+<fieldset class="lc-fs lc-lm-mode" id="lk-lm-mode"><legend class="lc-fs-l">Show</legend><div class="lc-radios">
+<label class="lc-radio" for="lk-lm-likes"><input type="radio" name="lk-lm-mode" id="lk-lm-likes" value="likes"><span>Likes</span></label>
+<label class="lc-radio on" for="lk-lm-dislikes"><input type="radio" name="lk-lm-mode" id="lk-lm-dislikes" value="dislikes" checked><span>Dislikes</span></label>
+</div></fieldset>
+<label for="lk-lm-filter" class="lc-fs-l lc-lm-fl">Filter</label>
+<select id="lk-lm-filter" class="inp lc-select lc-lm-sel"><option value="everything" selected>Everything</option><option value="dreams">Dreams</option><option value="cherry">Cherry replies</option><option value="bugs">Bug reports</option></select>
+<p class="lc-muted lc-lm-note">only u see ur dislikes. nobody else, ever.</p>
+<button type="button" id="lk-lm-clear" class="btn bgb lc-btn lc-lm-clear">Clear all shown</button>
+</div>
+<ul class="lc-liked-list lc-lm-list" role="list">
+<li class="lc-liked-row"><span class="lc-liked-name">Dream by Sam: hot take, cereal is a soup. disliked Nov 8</span><span class="lc-liked-acts"><button type="button" id="lk-lm-rm-0" class="btn bgb lc-btn" aria-label="Remove dislike, Dream by Sam: hot take, cereal is a soup. disliked Nov 8">Remove dislike</button></span></li>
+</ul>
+</div>`, h: 360 },
+      { id: "filtered", n: "filtered + focused", say: "Filter is on Cherry replies, w the focus ring on it.", html: `<div class="lc-liked">
+<p class="lc-liked-intro">Everything you liked or disliked, in one place. Only you can see this page.</p>
+<div class="lc-lm-tools">
+<fieldset class="lc-fs lc-lm-mode" id="lk-lm-mode"><legend class="lc-fs-l">Show</legend><div class="lc-radios">
+<label class="lc-radio on" for="lk-lm-likes"><input type="radio" name="lk-lm-mode" id="lk-lm-likes" value="likes" checked><span>Likes</span></label>
+<label class="lc-radio" for="lk-lm-dislikes"><input type="radio" name="lk-lm-mode" id="lk-lm-dislikes" value="dislikes"><span>Dislikes</span></label>
+</div></fieldset>
+<label for="lk-lm-filter" class="lc-fs-l lc-lm-fl">Filter</label>
+<select id="lk-lm-filter" class="inp lc-select lc-lm-sel demo-focus"><option value="everything">Everything</option><option value="dreams">Dreams</option><option value="cherry" selected>Cherry replies</option><option value="bugs">Bug reports</option><option value="media">Media</option><option value="circles">Circles</option><option value="apps">Apps</option><option value="marketplace">Marketplace</option><option value="chats">Chats</option><option value="searches">Searches</option></select>
+<button type="button" id="lk-lm-clear" class="btn bgb lc-btn lc-lm-clear">Clear all shown</button>
+</div>
+<ul class="lc-liked-list lc-lm-list" role="list">
+<li class="lc-liked-row"><span class="lc-liked-name">Cherry reply in Pizza night: try the margherita, it&#x27;s the move</span><span class="lc-liked-acts"><button type="button" id="lk-lm-rm-0" class="btn bgb lc-btn" aria-label="Unlike, Cherry reply in Pizza night: try the margherita, it&#x27;s the move">Unlike</button></span></li>
+</ul>
+</div>`, h: 360 },
+      { id: "empty", n: "empty", say: "nothing there yet, so no Clear all shown button.", html: `<div class="lc-liked">
+<p class="lc-liked-intro">Everything you liked or disliked, in one place. Only you can see this page.</p>
+<div class="lc-lm-tools">
+<fieldset class="lc-fs lc-lm-mode" id="lk-lm-mode"><legend class="lc-fs-l">Show</legend><div class="lc-radios">
+<label class="lc-radio" for="lk-lm-likes"><input type="radio" name="lk-lm-mode" id="lk-lm-likes" value="likes"><span>Likes</span></label>
+<label class="lc-radio on" for="lk-lm-dislikes"><input type="radio" name="lk-lm-mode" id="lk-lm-dislikes" value="dislikes" checked><span>Dislikes</span></label>
+</div></fieldset>
+<label for="lk-lm-filter" class="lc-fs-l lc-lm-fl">Filter</label>
+<select id="lk-lm-filter" class="inp lc-select lc-lm-sel"><option value="everything">Everything</option><option value="dreams">Dreams</option><option value="cherry" selected>Cherry replies</option><option value="bugs">Bug reports</option></select>
+<p class="lc-muted lc-lm-note">only u see ur dislikes. nobody else, ever.</p>
+</div>
+<p class="lc-muted lc-liked-none">no disliked Cherry replies yet. use Dislike under a Cherry reply.</p>
+</div>`, h: 300 },
+      { id: "clear-dialog", n: "Clear all shown dialog", say: "the are-u-sure. Cancel gets focus first.", html: `<div class="lid-alert-bg">
+<div class="lid-alert" role="alertdialog" aria-modal="true" aria-labelledby="lid-alert-t lid-alert-m">
+<h2 id="lid-alert-t" class="lid-sub">Clear all shown?</h2>
+<p id="lid-alert-m" class="lid-help">This removes 3 things from ur likes. U can't undo it.</p>
+<div class="lid-actions"><button type="button" class="btn bgb">Cancel</button><button type="button" class="btn bp">Clear 3</button></div>
+</div>
+</div>`, h: 230 }
+    ],
+    code: `<div class="lc-liked">
+<p class="lc-liked-intro">Everything you liked or disliked, in one place. Only you can see this page.</p>
+<div class="lc-lm-tools">
+<fieldset class="lc-fs lc-lm-mode" id="lk-lm-mode"><legend class="lc-fs-l">Show</legend><div class="lc-radios">
+<label class="lc-radio on" for="lk-lm-likes"><input type="radio" name="lk-lm-mode" id="lk-lm-likes" value="likes" checked><span>Likes</span></label>
+<label class="lc-radio" for="lk-lm-dislikes"><input type="radio" name="lk-lm-mode" id="lk-lm-dislikes" value="dislikes"><span>Dislikes</span></label>
+</div></fieldset>
+<label for="lk-lm-filter" class="lc-fs-l lc-lm-fl">Filter</label>
+<select id="lk-lm-filter" class="inp lc-select lc-lm-sel"><option value="everything" selected>Everything</option><option value="dreams">Dreams</option><option value="cherry">Cherry replies</option><option value="bugs">Bug reports</option><option value="media">Media</option><option value="circles">Circles</option><option value="apps">Apps</option><option value="marketplace">Marketplace</option><option value="chats">Chats</option><option value="searches">Searches</option></select>
+<button type="button" id="lk-lm-clear" class="btn bgb lc-btn lc-lm-clear">Clear all shown</button>
+</div>
+<ul class="lc-liked-list lc-lm-list" role="list">
+<li class="lc-liked-row"><span class="lc-liked-name">Bug report: Dark mode flashes white on launch. u agree</span><span class="lc-liked-acts"><button type="button" id="lk-lm-rm-0" class="btn bgb lc-btn" aria-label="Unlike, Bug report: Dark mode flashes white on launch. u agree">Unlike</button></span></li>
+<li class="lc-liked-row"><span class="lc-liked-name">Cherry reply in Pizza night: try the margherita, it&#x27;s the move</span><span class="lc-liked-acts"><button type="button" id="lk-lm-rm-1" class="btn bgb lc-btn" aria-label="Unlike, Cherry reply in Pizza night: try the margherita, it&#x27;s the move">Unlike</button></span></li>
+<li class="lc-liked-row"><span class="lc-liked-name">Dream by Ava: first snow of the year, the whole street went quiet. liked Nov 8</span><span class="lc-liked-acts"><button type="button" id="lk-lm-rm-2" class="btn bgb lc-btn" aria-label="Unlike, Dream by Ava: first snow of the year, the whole street went quiet. liked Nov 8">Unlike</button></span></li>
+</ul>
+</div>`,
+    js: `// The Liked manager (js/liked.js, cut down). Each line's button removes it, then says "Removed" politely.
+removeBtn.addEventListener("click", async function () {
+  const ok = await item.remove(); // a like, a dislike, a Cherry reply vote, or a bug report vote (signed, through Rem)
+  if (!ok) { announce("couldn't remove that one rn"); return; }
+  announce("Removed", "state");
+  focusNextRowOrFilter(); // focus never gets lost
+});
+// Clear all shown: a real alert dialog first, then "Cleared 3".
+clearBtn.addEventListener("click", function () { openAlertDialog({ title: "Clear all shown?", confirmLabel: "Clear " + shown.length, onConfirm: clearAll }); });`,
+    vo: [
+      `Show reads "Likes, radio button, 1 of 2, Show". swipe right for Dislikes, double tap to switch.`,
+      `Filter reads "Filter, Everything, pop up button". double tap, then swipe through the choices.`,
+      `each line is one swipe: "Dream by Ava: first snow of the year… liked Nov 8". the next swipe is its button: "Unlike, Dream by Ava…".`,
+      `after u remove one, the live region says "Removed" and focus jumps to the next line's button, never to the top of the page.`,
+      `Clear all shown opens an alert dialog. VoiceOver reads its title and message, focus lands on Cancel. confirm and it says "Cleared 3".`,
+      "braille display: Enter picks a radio button, opens the Filter and presses Unlike or Clear all shown."
+    ],
+    rel: ["like-dislike-buttons", "radio-group", "native-select", "live-region", "empty-state", "buttons"],
   },
   {
     slug: "more-menu-list",
@@ -1263,16 +1441,15 @@ dialog.querySelectorAll(".lid-wide").forEach(function (b) {
 <h3 id="lc-issue-a1b2c3" class="lc-issue-h">The Like button double-announces. Bug, new. 4 agree, 1 disagree.</h3>
 <p class="lc-desc lc-issue-body">when i like a Dream VoiceOver says Liked twice.</p>
 <p class="lc-desc lc-issue-meta">Reported 2 hours ago on web 2026.138.57</p>
-<div class="lc-inrow lc-issue-votes"><button type="button" class="btn bgb lc-btn lc-issue-btn">Agree</button><button type="button" class="btn bgb lc-btn lc-issue-btn">Disagree</button></div>
+<div class="lc-inrow lc-issue-votes"><button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="4 agree"><div class="cbx-box"></div><span>4 agree</span></button><button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="1 disagrees"><div class="cbx-box"></div><span>1 disagrees</span></button></div>
 </li>
 </ul>`, h: 260 },
-      { id: "row-voted", n: "report row, u agreed", say: `the count line says "you + 3 others agree".`, html: `<ul class="lc-issue-list">
+      { id: "row-voted", n: "report row, u agreed", say: `ur Agree is ticked and says "you + 3 others agree".`, html: `<ul class="lc-issue-list">
 <li class="lc-issue">
 <h3 id="lc-issue-a1b2c3" class="lc-issue-h">The Like button double-announces. Bug, working on it. 4 agree, 1 disagree.</h3>
 <p class="lc-desc lc-issue-body">when i like a Dream VoiceOver says Liked twice.</p>
 <p class="lc-desc lc-issue-meta">Reported 2 hours ago on web 2026.138.57</p>
-<p class="lc-desc lc-issue-count">you + 3 others agree</p>
-<div class="lc-inrow lc-issue-votes"><button type="button" class="btn bgb lc-btn lc-issue-btn">Take back agree</button><button type="button" class="btn bgb lc-btn lc-issue-btn">Disagree instead</button></div>
+<div class="lc-inrow lc-issue-votes"><button type="button" class="cbx-wrap lc-count liked lc-issue-btn" aria-pressed="true" aria-label="you + 3 others agree"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>you + 3 others agree</span></button><button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="1 disagrees"><div class="cbx-box"></div><span>1 disagrees</span></button></div>
 </li>
 </ul>`, h: 290 },
       { id: "row-reply", n: "report row w a mod reply", say: "the mods' reply sits under the report.", html: `<ul class="lc-issue-list">
@@ -1281,7 +1458,7 @@ dialog.querySelectorAll(".lid-wide").forEach(function (b) {
 <p class="lc-desc lc-issue-body">when i like a Dream VoiceOver says Liked twice.</p>
 <p class="lc-desc lc-issue-meta">Reported 2 hours ago on web 2026.138.57</p>
 <ul class="lc-issue-replies"><li class="lc-desc">Looscid mods, 1 hour ago: set it to working on it. on it, thx for the report</li></ul>
-<div class="lc-inrow lc-issue-votes"><button type="button" class="btn bgb lc-btn lc-issue-btn">Agree</button><button type="button" class="btn bgb lc-btn lc-issue-btn">Disagree</button></div>
+<div class="lc-inrow lc-issue-votes"><button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="4 agree"><div class="cbx-box"></div><span>4 agree</span></button><button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="1 disagrees"><div class="cbx-box"></div><span>1 disagrees</span></button></div>
 </li>
 </ul>`, h: 300 },
       { id: "row-closed", n: "report row, closed", say: "closed, w the reason.", html: `<ul class="lc-issue-list">
@@ -1290,7 +1467,7 @@ dialog.querySelectorAll(".lid-wide").forEach(function (b) {
 <p class="lc-desc lc-issue-body">when i like a Dream VoiceOver says Liked twice.</p>
 <p class="lc-desc lc-issue-meta">Reported 2 hours ago on web 2026.138.57. Closed because: fixed in the next build</p>
 <ul class="lc-issue-replies"><li class="lc-desc">Looscid mods, 1 hour ago: set it to working on it. on it, thx for the report</li></ul>
-<div class="lc-inrow lc-issue-votes"><button type="button" class="btn bgb lc-btn lc-issue-btn">Agree</button><button type="button" class="btn bgb lc-btn lc-issue-btn">Disagree</button></div>
+<div class="lc-inrow lc-issue-votes"><button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="4 agree"><div class="cbx-box"></div><span>4 agree</span></button><button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="1 disagrees"><div class="cbx-box"></div><span>1 disagrees</span></button></div>
 </li>
 </ul>`, h: 320 },
       { id: "form-focused", n: "focused", say: "focus ring on the Title box.", html: `<div class="lc-issue-form">
@@ -1318,7 +1495,7 @@ dialog.querySelectorAll(".lid-wide").forEach(function (b) {
 <h3 id="lc-issue-a1b2c3" class="lc-issue-h">The Like button double-announces. Bug, new. 4 agree, 1 disagree.</h3>
 <p class="lc-desc lc-issue-body">when i like a Dream VoiceOver says Liked twice.</p>
 <p class="lc-desc lc-issue-meta">Reported 2 hours ago on web 2026.138.57</p>
-<div class="lc-inrow lc-issue-votes"><button type="button" class="btn bgb lc-btn lc-issue-btn">Agree</button><button type="button" class="btn bgb lc-btn lc-issue-btn">Disagree</button></div>
+<div class="lc-inrow lc-issue-votes"><button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="4 agree"><div class="cbx-box"></div><span>4 agree</span></button><button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="1 disagrees"><div class="cbx-box"></div><span>1 disagrees</span></button></div>
 </li>
 </ul>`,
     js: `// a report never gets lost (js/issues.js, cut down): the draft stays until Rem says it's in
@@ -1333,10 +1510,10 @@ async function send() {
     vo: [
       `the form is a radio group ("What kind?"), then "Title, text field", "What happened?, text field" and "Send report, button". no required attribute: if the title is empty, it tells u in words.`,
       `each report is one heading, so the headings rotor is a list of reports and one swipe reads the whole thing: "The Like button double-announces. Bug, new. 4 agree, 1 disagree. heading level 3".`,
-      `Agree and Disagree are plain buttons that say what they'll do ("Take back agree", "Disagree instead"), and after u vote the live region says "Agreed. you + 3 others agree".`,
+      `Agree and Disagree are the same counter as Like on a Dream (the Like and Dislike buttons page has it): "4 agree, toggle button". after u vote the live region says "Agreed. you + 3 others agree", and the button reads "you + 3 others agree, selected". double tap it again to take it back.`,
       "braille display: type the report, Enter on Send report sends it. Enter on Agree votes."
     ],
-    rel: ["native-select", "radio-group", "live-region"],
+    rel: ["native-select", "radio-group", "live-region", "like-dislike-buttons"],
   },
   {
     slug: "skip-link",

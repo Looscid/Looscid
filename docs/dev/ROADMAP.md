@@ -177,11 +177,17 @@ already out, for context: u can pin a Circle, Dreamor, hashtag, thread or List a
 
 ### likes, dislikes + labels
 
-- [ ] dislikes everywhere: Dreams, Cherry replies and bug reports. private by default.
-- [ ] the Liked tab becomes ur like + dislike manager: a Likes / Dislikes switch, filters (Dreams, Cherry replies, bug reports) and tools to sort and clear em.
-- [ ] bug report votes can be private or public, ur choice.
+- [x] dislikes everywhere: Dreams, Cherry replies and bug reports (that's Disagree). only u ever see ur dislikes, and Rem never shows a dislike count.
+- [x] the Liked tab is ur like + dislike manager: a Likes / Dislikes switch, a filter (Dreams, Cherry replies, bug reports) and tools to remove one or clear all shown.
+- [ ] sort ur likes + dislikes (newest, oldest, by kind).
+- [x] bug report votes can be private or public, ur choice: "Show my bug report votes publicly" in Settings, Privacy. off by default.
+- [ ] a spot that shows public bug report votes by name (rn looscid only shows the counts).
 - [ ] when Cherry makes a Dream, it gets an automatic "AI generated" label that can't be removed. people can add their own content labels too (like AI-made, sensitive or spoilers), and we'll add more over time.
-- [ ] a feed setting (checkbox, off by default): Dreams labeled "flashing lights" get swapped for a placeholder w the creator's description, even from people u follow, so u still get the Dream without the flashing. same idea for videos w no sound or no description, so blind folks get the description instead. it runs on labels + descriptions people write, not AI.
+- [ ] Calm mode (a Settings checkbox, off by default): Dreams w flashing lights get swapped for a placeholder w the description, even from people u follow. for flashing lights there's no "show anyway" button, period.
+- [ ] Calm mode also puts videos w no sound or no description behind a placeholder, w a "show anyway" button.
+- [ ] flash check: when a video is uploaded, looscid counts how fast the brightness flips (the 3-flashes-a-second rule) and adds the flashing lights label on its own. just math, no AI.
+- [ ] upload nudge: before u Dream a video or image, we ask "any flashing lights?" and "add a description".
+- [ ] anyone can suggest a label or write a description for a Dream. once enough people agree it sticks, and mods can add em too.
 
 ### on every device
 

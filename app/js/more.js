@@ -1360,7 +1360,9 @@ function PrivacySettings({navigate, authUser, onUpdateProfile}) {
     lh('p', { className: "lc-intro", id: "priv-care" }, "We care about your privacy. Your Dreams, settings and chats stay on this device until you choose to send or share them. We don't sell your data, track you or show ads."),
     lh('p', { className: "lc-intro" }, lh('a', { id: "priv-policy-link", className: "lc-link", href: (Looscid.lcPathFor ? Looscid.lcPathFor("privacy") : "#"),
       onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("privacy"); } }, "Privacy Policy")),
-    lh('div', { className: "lc-ios-card", id: "priv-main" }, privSwitch, lh(LcShareMineSwitch, null)),
+    lh('div', { className: "lc-ios-card", id: "priv-main" }, privSwitch, lh(LcShareMineSwitch, null),
+      // Nov 8 2026 (Carter): Show my bug report votes publicly, a native checkbox, off by default (js/dislikes.js).
+      Looscid.LcIssueVotesPublicBox && Looscid.LcSafe ? lh(Looscid.LcSafe, null, lh(Looscid.LcIssueVotesPublicBox, null)) : null),
     lh('ul', { className: "mlist lc-catlist lc-ios-list", role: "list", id: "priv-rows" }, SECS.map(function (s) {
       return lh('li', { key: s[0], className: "mli" },
         lh('button', { type: "button", id: "priv-acc-" + s[0], className: "mitem lc-cat lc-ios-row", onClick: function () { setOpen(s[0]); } },

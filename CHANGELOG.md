@@ -3,6 +3,21 @@
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
 
+## Likes, dislikes and the Liked manager (no new build yet)
+
+Added November 8, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+
+Asked for by Carter: dislikes across the app, and the Liked tab as the one place to manage likes and dislikes.
+
+- Dislike sits right next to Like on every Dream. Only you ever see your dislikes: they follow your LooscidID key through Rem in a private list that only your own key can read, and Rem never shows a dislike count. Liking a Dream you disliked takes the dislike off, and the other way round.
+- Cherry replies have Like and Dislike too. They stay on this device, like Cherry chats.
+- Liked is now the like + dislike manager. Show: Likes or Dislikes (radio buttons). Filter: Everything, Dreams, Cherry replies or Bug reports (with Likes, the old Media, Circles, Apps, Marketplace, Chats and Searches views are in the filter too). Each thing is one line with Unlike or Remove dislike, and Clear all shown asks first.
+- Bug report Agree and Disagree show up in Liked as likes and dislikes, and you can take a vote back from there.
+- Like, Dislike and the issue tracker's Agree and Disagree are now one shared counter: the same tick box, and VoiceOver reads them the same way ("12 likes", "you + 3 others agree").
+- Settings, Privacy has a new checkbox, Show my bug report votes publicly, off by default. Right now Looscid only ever shows vote counts, so names aren't listed anywhere yet.
+- Rem, Looscid's server, learned one new private list name, dislikes. Nothing that was there before changed.
+- The component library has two new pages: Like and Dislike buttons, and the Liked manager. The roadmap has the Calm mode plans.
+
 ## Component library (no new build yet)
 
 Added November 8, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.

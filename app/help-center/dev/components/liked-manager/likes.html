@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8"/>
+<title>Liked manager demo, likes - Looscid components</title>
+<!-- Made by .github/scripts/build-help.mjs from .github/scripts/components.mjs. A look-only demo: no scripts, no network. -->
+<meta name="robots" content="noindex">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; connect-src 'none'; form-action 'none'; object-src 'none'; base-uri 'self'"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="stylesheet" href="../../../../css/app.css?v=cl1">
+<link rel="stylesheet" href="../../../../css/a11y.css?v=cl1">
+<link rel="stylesheet" href="../demo.css?v=1">
+</head>
+<body class="lc-demo">
+<div class="lc-liked">
+<p class="lc-liked-intro">Everything you liked or disliked, in one place. Only you can see this page.</p>
+<div class="lc-lm-tools">
+<fieldset class="lc-fs lc-lm-mode" id="lk-lm-mode"><legend class="lc-fs-l">Show</legend><div class="lc-radios">
+<label class="lc-radio on" for="lk-lm-likes"><input type="radio" name="lk-lm-mode" id="lk-lm-likes" value="likes" checked><span>Likes</span></label>
+<label class="lc-radio" for="lk-lm-dislikes"><input type="radio" name="lk-lm-mode" id="lk-lm-dislikes" value="dislikes"><span>Dislikes</span></label>
+</div></fieldset>
+<label for="lk-lm-filter" class="lc-fs-l lc-lm-fl">Filter</label>
+<select id="lk-lm-filter" class="inp lc-select lc-lm-sel"><option value="everything" selected>Everything</option><option value="dreams">Dreams</option><option value="cherry">Cherry replies</option><option value="bugs">Bug reports</option><option value="media">Media</option><option value="circles">Circles</option><option value="apps">Apps</option><option value="marketplace">Marketplace</option><option value="chats">Chats</option><option value="searches">Searches</option></select>
+<button type="button" id="lk-lm-clear" class="btn bgb lc-btn lc-lm-clear">Clear all shown</button>
+</div>
+<ul class="lc-liked-list lc-lm-list" role="list">
+<li class="lc-liked-row"><span class="lc-liked-name">Bug report: Dark mode flashes white on launch. u agree</span><span class="lc-liked-acts"><button type="button" id="lk-lm-rm-0" class="btn bgb lc-btn" aria-label="Unlike, Bug report: Dark mode flashes white on launch. u agree">Unlike</button></span></li>
+<li class="lc-liked-row"><span class="lc-liked-name">Cherry reply in Pizza night: try the margherita, it&#x27;s the move</span><span class="lc-liked-acts"><button type="button" id="lk-lm-rm-1" class="btn bgb lc-btn" aria-label="Unlike, Cherry reply in Pizza night: try the margherita, it&#x27;s the move">Unlike</button></span></li>
+<li class="lc-liked-row"><span class="lc-liked-name">Dream by Ava: first snow of the year, the whole street went quiet. liked Nov 8</span><span class="lc-liked-acts"><button type="button" id="lk-lm-rm-2" class="btn bgb lc-btn" aria-label="Unlike, Dream by Ava: first snow of the year, the whole street went quiet. liked Nov 8">Unlike</button></span></li>
+</ul>
+</div>
+</body>
+</html>
