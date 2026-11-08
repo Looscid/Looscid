@@ -187,6 +187,8 @@ const course = H.courses[0];
   b += '<section id="results" class="results" aria-labelledby="h-results" hidden><h2 id="h-results" tabindex="-1">Search results</h2><p id="results-n" role="status"></p><ol class="list" id="results-list"></ol></section>\n';
   // Nov 7 2026: the home page has two parts, Using Looscid (the guides) and Building Looscid (the repo's docs).
   b += '<section aria-labelledby="h-using"><h2 id="h-using">Using Looscid</h2>\n<p class="lead">Step-by-step guides for everyone: make your LooscidID, write Dreams, chat, and set things up.</p>\n';
+  // Nov 7 2026 (Carter): the welcome screen and tour again, any time, at its one official spot (/welcome). Nothing is reset.
+  b += '<p><a href="../welcome/" title="Opens the welcome screen again">Replay the welcome tour</a></p>\n';
   b += '<section aria-labelledby="h-topics"><h3 id="h-topics">Browse by topic</h3>\n<ul class="topics" role="list">\n';
   for (const c of H.collections) {
     const arts = H.articles.filter(a => a.c === c.id);

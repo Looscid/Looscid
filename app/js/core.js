@@ -2572,6 +2572,14 @@ function lcRouteFor(rel) {
   return r ? { page: r[0], data: null } : null;
 }
 Object.assign(Looscid, { LC_ROUTES, LOOSCID_BASE, lcSlug, lcPathFor, lcRouteFor });
+/* Nov 7 2026 (Carter): the addresses that open the welcome screen again: /welcome (the official one) and /help/tour.
+   Any letter case, with or without a slash or index.html at the end. */
+function lcWelcomeFor(rel) {
+  let p = String(rel || ""); try { p = decodeURIComponent(p); } catch (e) {}
+  p = p.replace(/[?#].*$/, "").replace(/\/index\.html?$/i, "").replace(/^\/+|\/+$/g, "").toLowerCase();
+  return p === "welcome" || p === "help/tour" || p === "help-center/tour";
+}
+Looscid.lcWelcomeFor = lcWelcomeFor;
 /* Part 40 (#67, #69; 2three1y Oct 12: "add the link ideas"): every More item is a link to its own page, titled
    "<Name> - <SLOGAN>" like "Cherry - DO IT YOUR WAY". Settings is "Settings - Adjust your life". Items without a decided
    slogan use the name alone. Help stays the pop-up menu 2three1y asked for on Oct 11 (#71). The sections are built
@@ -8367,6 +8375,7 @@ useEffect(() => {
     const H = hist.current, pg = pageRef.current, pd = pdataRef.current;
     let path = lcPathFor(pg, pd);
     if (path === LOOSCID_BASE + "index.html") path = LOOSCID_BASE;
+    if (Looscid.lcWelcomeAt && pg === "feed") path = LOOSCID_BASE + "welcome"; // Nov 7 2026: the welcome opened from /welcome keeps its address
     let L = path;
     if (!L) { const k = pd && typeof pd === "object" ? (pd.id != null ? pd.id : pd.circle != null ? pd.circle : pd.list != null ? pd.list : pd.handle || pd.name || pd.tab || "") : ""; L = LOOSCID_BASE + "#pg:" + pg + (k !== "" ? ":" + k : ""); }
     const cv = Looscid.LC_CV_NOW; if (cv && cv.dream) L += "#cv:" + cv.dream.id;
@@ -8464,6 +8473,11 @@ useEffect(() => {
     let rel = null;
     try { const sp = new URLSearchParams(location.search); if (sp.has("p")) rel = sp.get("p"); } catch (e) {}
     if (rel === null) { const lp = location.pathname; if (lp.toLowerCase().indexOf(LOOSCID_BASE.toLowerCase()) === 0) rel = lp.slice(LOOSCID_BASE.length); }
+    // Nov 7 2026 (Carter): /welcome is the one official spot for the welcome screen (and /help/tour sends people there).
+    // It opens the first-run welcome over Home any time, even after it's done. Try Looscid goes straight into the tour,
+    // same as first run. Nothing is reset: no Dreams, no settings, no LooscidID.
+    const wel = rel ? lcWelcomeFor(rel) : false;
+    if (wel) { rel = "/"; Looscid.lcWelcomeAt = true; setShowWelcome(true); }
     const r = rel ? lcRouteFor(rel) : null;
     if (r && r.missing) setTimeout(() => announce(r.missing), 800);
     // Nov 7 2026 (Carter): an address Looscid doesn't know goes to the "Page not found" page (404.html), with Home and Help Center links.
@@ -8471,6 +8485,7 @@ useEffect(() => {
     if (rel && !r) setTimeout(() => announce("That page doesn't exist. Maybe I dreamed it? I opened Home for you."), 800);
     const to = r && r.page !== "feed" ? r : null;
     try { const want = to ? lcPathFor(to.page, to.data) : LOOSCID_BASE; if (to || /[?&]p=/.test(location.search) || (rel && !r)) history.replaceState({ lcPage: to ? to.page : "feed" }, "", want + location.hash); } catch (e) {}
+    if (wel) { try { history.replaceState({ lcPage: "feed" }, "", LOOSCID_BASE + "welcome" + location.hash); } catch (e) {} }
     if (to) { routeInit.current = to.page; setPage(to.page); setPdata(to.data); } else routeInit.current = null;
     // A reload keeps its place in the list; the pages before it are known again once you pass them.
     try { const s0 = history.state; if (s0 && typeof s0.lcN === "number") hist.current.idx = s0.lcN; } catch (e) {}
@@ -8926,7 +8941,9 @@ useEffect(() => {
   };
 
   // First run: the onboarding is the whole screen, so nothing behind it is reachable.
-  if (showWelcome) return React.createElement(LooscidOnboarding, { onDone: ()=>setShowWelcome(false),});
+  if (showWelcome) return React.createElement(LooscidOnboarding, { onDone: ()=>{ setShowWelcome(false);
+    // Nov 7 2026: leaving the welcome opened from /welcome puts Home's address back.
+    if (Looscid.lcWelcomeAt) { Looscid.lcWelcomeAt = false; const H = hist.current; H.mode = "replace"; H.modeUntil = Date.now() + 1200; histSyncSoon(); } },});
 
   return (
     React.createElement('div', { className: "app",}
