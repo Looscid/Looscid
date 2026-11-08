@@ -15,7 +15,7 @@ const GROUPS = [
     ["Contact Us", "/Looscid/help/contact/"], ["Send Feedback", "/Looscid/Feedback/", "feedback"]] },
   { id: "project", t: "Project", links: [["Roadmap &amp; Changelog", "/Looscid/changelog/"], ["Status", "/Looscid/status.html"], ["Docs", "/Looscid/help/#h-building"],
     ["Contributing", "/Looscid/help/dev/contributing/"], { t: "Source code", href: "https://github.com/Looscid/Looscid", ext: "GitHub" }, { t: "Issues", href: "https://github.com/Looscid/Looscid/issues", ext: "GitHub" }] },
-  { id: "looscid", t: "Looscid", links: [["About", "/Looscid/About/", "settings_about"], ["Our Story", "/Looscid/Our-Story/", "hour_story"], ["Credits", "/Looscid/Credits/", "credits"]] },
+  { id: "looscid", t: "Looscid", links: [["Why Looscid?", "/Looscid/help/why-looscid/"], ["About", "/Looscid/About/", "settings_about"], ["Our Story", "/Looscid/Our-Story/", "hour_story"], ["Credits", "/Looscid/Credits/", "credits"]] },
   { id: "legal", t: "Legal", links: [["Terms", "/Looscid/Terms/", "terms"], ["Privacy", "/Looscid/Privacy/", "privacy"], ["Rules", "/Looscid/Rules/", "guidelines"],
     ["Child Safety", "/Looscid/Child-Safety/", "child_safety"], ["License", "/Looscid/Legal/", "legal"]] },
   { id: "hi", t: "Say hi", links: [{ t: "GitHub", href: "https://github.com/Looscid", ext: "GitHub" }, { t: "X", href: "https://x.com/Looscid", ext: "X" },

@@ -3,6 +3,18 @@
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
 
+## Why Looscid? and my commitment (no new build yet)
+
+Added November 8, 2026 (Eastern Time), during Epilepsy Awareness Month. Not released as a build yet: it goes into the next build's notes.
+
+Asked for by Carter: Looscid is for everyone, on every screen reader, and nothing should keep you out.
+
+- New page: Why Looscid?, at looscid.github.io/Looscid/help/why-looscid/. It says who Looscid is for and what makes it different: every screen reader, Flash safety and Calm mode, open source, a public mod log with private reports, private dislikes and no ads. It links to each Settings, Accessibility section. It's in the footer (Looscid group) and on the Help Center home.
+- The accessibility guide (Help Center, Building Looscid, Accessibility) starts with My commitment now, in Carter's own words.
+- The roadmap has three new items: Flash safety also catches strobe effects (from r/Epilepsy feedback), testing with every major screen reader, and building Looscid with developers and testers who live with the conditions it protects.
+- The roadmap and the up next list say "I" now, not "we", because Looscid is one person for now.
+- A few lines that only named VoiceOver now name screen readers in general: the accessibility checklist, the roadmap's testing line, the audience picker item and the server's classic web client.
+
 ## Report Center and one footer (no new build yet)
 
 Added November 8, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.

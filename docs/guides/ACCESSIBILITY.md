@@ -1,5 +1,25 @@
 # Looscid Accessibility
 
+## My commitment
+
+Looscid is for everyone. No exceptions.
+
+I'm not building this to be nice. I'm building it because I care, and caring means doing the work.
+
+Blind or low vision. Deaf or hard of hearing. A motor disability. A cognitive or learning disability. A seizure or vestibular condition. Looscid is for you. Vision doesn't matter. Looscid is for everyone.
+
+Every screen reader, not just one: VoiceOver, TalkBack, NVDA, JAWS, Orca, and everything in between.
+
+If flashing lights or animations can hurt you, you still belong here. That's why Looscid has Flash safety and Calm mode, and why zero animation mode is coming.
+
+I build Looscid to meet accessibility standards, and I want it tested by real people with disabilities. The people who live with these conditions should help build this. Their feedback matters most, and I want them at the table.
+
+Settings, Accessibility has a section for each: [Vision settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FVision), [Hearing settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FHearing), [Motor settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FMotor), [Motion settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FMotion) and [Commandbar settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FCommandbar). [Why Looscid?](../WHY.md) says more.
+
+I don't do this to avoid trouble. I do it because I refuse to let anyone get hurt or left out.
+
+You matter. I care. — Carter
+
 Combined from `COMMITMENTS.md` (commitments), `ACCESSIBILITY.md` (guide) and `ACCESSIBILITY_MENU_BUTTON.md` (menu implementation).
 
 ## Commitments
@@ -131,7 +151,7 @@ button.accessibilityIdentifier = "moreButton"
 - [ ] Live regions use `aria-live`
 - [ ] Focus is managed properly
 - [ ] Color is not the only indicator
-- [ ] Tested with VoiceOver, BrailleNote Touch Plus, TalkBack
+- [ ] Tested with screen readers (VoiceOver, TalkBack, NVDA, JAWS, Orca) and braille displays like the BrailleNote Touch Plus
 
 ---
 

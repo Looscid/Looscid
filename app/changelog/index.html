@@ -90,12 +90,12 @@ code{font-size:.92em;background:var(--sf);border:1px solid var(--bd);border-radi
 <h3>circles + the discord</h3>
 <ul>
 <li>LooscidID profiles: sign up, log in, and add ur language and what u celebrate. both are optional.</li>
-<li>we're looking into it: ur Nostr key as ur LooscidID, so there's no password to remember or leak.</li>
+<li>I'm looking into it: ur Nostr key as ur LooscidID, so there's no password to remember or leak.</li>
 <li>connect LooscidID to Discord: Linked Roles sync ur language and faith roles automatically. change em in looscid once, and Discord follows.</li>
 <li>Looscid Circle as a Discord requirement: a server can ask for a Looscid Circle in its Linked Roles settings.</li>
 <li>import from Discord: a button in Settings that takes ur Discord data download and brings it into looscid.</li>
 <li>server copy: LooscidBOT saves a server's channels, roles, permissions and join questions, so u can import em into a Looscid Circle.</li>
-<li>friend suggestions: u can always add a friend urself, and that never depends on anyone else. on top of that, if u and another Dreamor were in the same server, we can suggest u add each other. it's opt-in, both of u need to link ur LooscidID, and it only ever suggests. we never add anyone for u.</li>
+<li>friend suggestions: u can always add a friend urself, and that never depends on anyone else. on top of that, if u and another Dreamor were in the same server, looscid can suggest u add each other. it's opt-in, both of u need to link ur LooscidID, and it only ever suggests. looscid never adds anyone for u.</li>
 </ul>
 <h3>pins, feeds + the more menu</h3>
 <ul>
@@ -120,11 +120,11 @@ code{font-size:.92em;background:var(--sf);border:1px solid var(--bd);border-radi
 <li>My people: ur own close list (the name isn't final). nobody gets told when u add or remove them. when u add ppl, ur mutuals show up first, with tabs for Mutuals, Following and Followers.</li>
 <li>private mode: everything u make stays just with u til u turn it off.</li>
 <li>privacy checkup in Settings → Privacy: a quick walk through ur privacy settings, one step at a time.</li>
-<li>the audience picker reads clean with VoiceOver: each choice is one swipe, with its name and a one-line explanation.</li>
+<li>the audience picker reads clean with screen readers like VoiceOver and TalkBack: each choice is one swipe, with its name and a one-line explanation.</li>
 </ul>
 <h3>looscid apps (real ones)</h3>
 <ul>
-<li>android app is coming first, built in kotlin, open source (AGPL), in its own repo, Looscid/Looscid-Android. it opens looscid first, then we make screens native one by one.</li>
+<li>android app is coming first, built in kotlin, open source (AGPL), in its own repo, Looscid/Looscid-Android. it opens looscid first, then I make screens native one by one.</li>
 <li>ios app comes after, in swift, works all the way back to ios 15 (where looscid started), in its own repo, Looscid/Looscid-iOS. u install it by sideloading.</li>
 <li>on ios 15, the app tells u once which features don't work there, and a Help Center page lists em.</li>
 <li>updates: looscid updates itself when u open it, and most updates land instantly. when the app itself needs an update, a "Looscid needs an update" alert pops up. tap it n ur done.</li>
@@ -141,7 +141,7 @@ code{font-size:.92em;background:var(--sf);border:1px solid var(--bd);border-radi
 <li>read-aloud built in: the app can read Dreams out loud with its own voice. it's a Settings checkbox, off by default, so it never talks over ur screen reader.</li>
 <li>a "Read Dream aloud" swipe action on every Dream, so if u use a screen reader u can hear a Dream in one swipe.</li>
 <li>a voice shop inside looscid where u download as many voices as u want. voices from other makers are labeled with who made em. using these voices across ur whole phone needs ios 16+, so that one goes on the "doesn't work on ios 15" list.</li>
-<li>our own offline voices, open n shareable.</li>
+<li>looscid's own offline voices, open n shareable.</li>
 </ul>
 <h3>safety + privacy</h3>
 <ul>
@@ -150,21 +150,27 @@ code{font-size:.92em;background:var(--sf);border:1px solid var(--bd);border-radi
 <li>report Alerts even when looscid's closed (rn looscid checks for news while it's open).</li>
 <li>the same footer in the Looscid OS apps and projects too (they're separate apps in a sandbox, so they still have their own).</li>
 </ul>
+<h3>accessibility</h3>
+<ul>
+<li>test with every major screen reader: VoiceOver, TalkBack, NVDA, JAWS and Orca. not just VoiceOver.</li>
+<li>find developers and testers who live with epilepsy, low vision, blindness and the other conditions looscid protects, and build looscid with them.</li>
+</ul>
 <h3>likes, dislikes + labels</h3>
 <ul>
 <li>sort ur likes + dislikes (newest, oldest, by kind).</li>
 <li>a spot that shows public bug report votes by name (rn looscid only shows the counts).</li>
-<li>when Cherry makes a Dream, it gets an automatic "AI generated" label that can't be removed. people can add their own content labels too (like AI-made, sensitive or spoilers), and we'll add more over time.</li>
+<li>when Cherry makes a Dream, it gets an automatic "AI generated" label that can't be removed. people can add their own content labels too (like AI-made, sensitive or spoilers), and I'll add more over time.</li>
 <li>Calm mode (a Settings checkbox, off by default): Dreams w flashing lights get swapped for a placeholder w the description, even from people u follow. for flashing lights there's no "show anyway" button, period.</li>
 <li>Calm mode also puts videos w no sound or no description behind a placeholder, w a "show anyway" button.</li>
 <li>flash check: when a video is uploaded, looscid counts how fast the brightness flips (the 3-flashes-a-second rule) and adds the flashing lights label on its own. just math, no AI.</li>
-<li>upload nudge: before u Dream a video or image, we ask "any flashing lights?" and "add a description".</li>
+<li>Flash safety also catches strobe effects, not just flashing lights (thanks to feedback from r/Epilepsy).</li>
+<li>upload nudge: before u Dream a video or image, looscid asks "any flashing lights?" and "add a description".</li>
 <li>zero animation mode: one switch that kills all motion, autoplay and transitions. on by default if ur phone has reduce motion on</li>
 <li>anyone can suggest a label or write a description for a Dream. once enough people agree it sticks, and mods can add em too.</li>
 </ul>
 <h2 id="later">someday</h2>
 <ul>
-<li>moving everyone from the Looscid Discord into looscid itself, with Circles for every language and faith. LooscidBOT's holiday code comes with us.</li>
+<li>moving everyone from the Looscid Discord into looscid itself, with Circles for every language and faith. LooscidBOT's holiday code comes too.</li>
 </ul>
 </div>
 <h2 id="done">Done</h2>
@@ -178,7 +184,7 @@ code{font-size:.92em;background:var(--sf);border:1px solid var(--bd);border-radi
 <div class="sf-cols">
 <section class="sf-col" aria-labelledby="sf-h-help"><h2 id="sf-h-help">Get help</h2><ul><li><a href="/Looscid/" title="Goes to Home">Looscid Home</a></li><li><a href="/Looscid/help/" title="Goes to Help Center">Help Home</a></li><li><a href="/Looscid/help/getting-started/" title="Opens this topic">Getting Started</a></li><li><a href="/Looscid/help/looscid-basics/" title="Opens this course">Looscid Basics course</a></li><li><a href="/Looscid/help/dev/accessibility/" title="Opens this article">Accessibility</a></li><li><a href="/Looscid/Report/" title="Goes to Report">Report Center</a></li><li><a href="/Looscid/help/contact/" title="Goes to Contact Us">Contact Us</a></li><li><a href="/Looscid/Feedback/" title="Goes to Feedback">Send Feedback</a></li></ul></section>
 <section class="sf-col" aria-labelledby="sf-h-project"><h2 id="sf-h-project">Project</h2><ul><li><a href="/Looscid/changelog/" title="Goes to the changelog">Roadmap &amp; Changelog</a></li><li><a href="/Looscid/status.html" title="Goes to the status page">Status</a></li><li><a href="/Looscid/help/#h-building" title="Goes to Help Center">Docs</a></li><li><a href="/Looscid/help/dev/contributing/" title="Opens this article">Contributing</a></li><li><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a></li><li><a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></li></ul></section>
-<section class="sf-col" aria-labelledby="sf-h-looscid"><h2 id="sf-h-looscid">Looscid</h2><ul><li><a href="/Looscid/About/" title="Goes to About">About</a></li><li><a href="/Looscid/Our-Story/" title="Goes to Our Story">Our Story</a></li><li><a href="/Looscid/Credits/" title="Goes to Credits">Credits</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-looscid"><h2 id="sf-h-looscid">Looscid</h2><ul><li><a href="/Looscid/help/why-looscid/" title="Opens this article">Why Looscid?</a></li><li><a href="/Looscid/About/" title="Goes to About">About</a></li><li><a href="/Looscid/Our-Story/" title="Goes to Our Story">Our Story</a></li><li><a href="/Looscid/Credits/" title="Goes to Credits">Credits</a></li></ul></section>
 <section class="sf-col" aria-labelledby="sf-h-legal"><h2 id="sf-h-legal">Legal</h2><ul><li><a href="/Looscid/Terms/" title="Goes to Terms">Terms</a></li><li><a href="/Looscid/Privacy/" title="Goes to Privacy">Privacy</a></li><li><a href="/Looscid/Rules/" title="Goes to Rules">Rules</a></li><li><a href="/Looscid/Child-Safety/" title="Goes to Child Safety">Child Safety</a></li><li><a href="/Looscid/Legal/" title="Goes to Legal">License</a></li></ul></section>
 <section class="sf-col" aria-labelledby="sf-h-hi"><h2 id="sf-h-hi">Say hi</h2><ul><li><a href="https://github.com/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">GitHub</a></li><li><a href="https://x.com/Looscid" title="Go to X" target="_blank" rel="noopener noreferrer">X</a></li><li><a href="https://www.youtube.com/@Looscid" title="Go to YouTube" target="_blank" rel="noopener noreferrer">YouTube</a></li><li><a href="https://discord.gg/M6xrD8EBXU" title="Go to Discord" target="_blank" rel="noopener noreferrer">Discord</a></li></ul></section>
 </div>

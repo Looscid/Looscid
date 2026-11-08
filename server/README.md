@@ -36,7 +36,7 @@ Live home: none (retired). It was https://looscidserver.sites.tab.bot/
 - Backups: an owner-only download of the database and media, plus a safety copy every 6 hours.
 - The real Looscid app at `/`, the same app as https://looscid.github.io/Looscid/ (bottom tabs and all). It starts
   in Local mode; Settings, LooscidID, Looscid server signs in to this server and turns on sync.
-- The classic web client at `/classic/` (VoiceOver first: one heading per Dream, real buttons, one polite live
+- The classic web client at `/classic/` (screen reader first, for VoiceOver, TalkBack, NVDA, JAWS and Orca: one heading per Dream, real buttons, one polite live
   region, dark and light), with the owner's Mod page at `/classic/mod`.
 
 ## Run your own home

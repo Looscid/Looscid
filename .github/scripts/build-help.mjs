@@ -70,7 +70,7 @@ const DOCS = [
   { slug: "contributing", file: "docs/CONTRIBUTING.md", t: "Contributing", s: "How to help build Looscid, and how we work together." },
   { slug: "terminology", file: "docs/guides/TERMINOLOGY.md", t: "Terminology", s: "Looscid's own words: Dream, ReDream, Circle and Dreamor." },
   { slug: "accessibility", file: "docs/guides/ACCESSIBILITY.md", t: "Accessibility", s: "Looscid's accessibility commitments and the guide every screen follows." },
-  { slug: "roadmap", file: "docs/dev/ROADMAP.md", t: "Developer roadmap", s: "what we're building, how it's built and what's coming, for devs." },
+  { slug: "roadmap", file: "docs/dev/ROADMAP.md", t: "Developer roadmap", s: "what I'm building, how it's built and what's coming, for devs." },
   { slug: "files", file: "docs/dev/FILES.md", t: "Files", s: "What every file in the app holds, and the order the browser loads them in." },
   { slug: "nostr-architecture", file: "docs/dev/NOSTR_ARCHITECTURE.md", t: "Nostr and Cherry", s: "How Looscid uses Nostr, and how Cherry fits in." },
   { slug: "announcements", file: "docs/dev/ANNOUNCEMENTS.md", t: "Discord announcements", s: "How the Looscid Discord's #announcements channel gets its messages." },
@@ -186,6 +186,8 @@ const course = H.courses[0];
   b += '<section aria-labelledby="h-using"><h2 id="h-using">Using Looscid</h2>\n<p class="lead">Step-by-step guides for everyone: make your LooscidID, write Dreams, chat, and set things up.</p>\n';
   // Nov 7 2026 (Carter): the welcome screen and tour again, any time, at its one official spot (/welcome). Nothing is reset.
   b += '<p><a href="../welcome/" title="Opens the welcome screen again">Replay the welcome tour</a></p>\n';
+  // Nov 8 2026 (Carter): Why Looscid?, the page for anyone deciding whether Looscid is for them (it is).
+  b += '<p><a href="why-looscid/">Why Looscid?</a></p>\n';
   b += '<section aria-labelledby="h-topics"><h3 id="h-topics">Browse by topic</h3>\n<ul class="topics" role="list">\n';
   for (const c of H.collections) {
     const arts = H.articles.filter(a => a.c === c.id);
@@ -256,12 +258,29 @@ for (const d of DOCS) {
     const doc = docByFile[target];
     if (doc) return (doc.slug === d.slug ? "" : "../" + doc.slug + "/") + (frag ? "#" + frag : "");
     if (target === "CHANGELOG.md") return "../../../changelog/";
+    if (target === "docs/WHY.md") return "../../why-looscid/" + (frag ? "#" + frag : ""); // Nov 8 2026: Why Looscid?
     return "https://github.com/Looscid/Looscid/" + (/\.[a-z0-9]+$/i.test(target) ? "blob" : "tree") + "/main/" + target + (frag ? "#" + frag : "");
   };
   const r = mdToHtml(md, { linkFor });
   const t = r.title || d.t;
   const b = "<h1>" + esc(t) + '</h1>\n<p class="lead">' + esc(d.s) + '</p>\n<div class="doc">\n' + r.html + '\n</div>\n<p class="next"><a href="../../#h-building">More in Building Looscid</a> <span aria-hidden="true">·</span> <a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></p>';
   put("dev/" + d.slug + "/index.html", page({ slug: "dev/" + d.slug, title: t, desc: d.s, body: b, depth: 2, crumbs: [["Help Center", "../../"], ["Building Looscid", "../../#h-building"], [t, null]] }));
+}
+/* Nov 8 2026 (Carter: a public "Why Looscid?" page, in his "I" voice, that never names other companies or apps): made from
+   docs/WHY.md like the docs above, but at /help/why-looscid/ for everyone. The footer and the Help Center home link to it. */
+{
+  const md = fs.readFileSync(path.join(REPO, "docs/WHY.md"), "utf8");
+  const linkFor = href => {
+    if (/^(https?:|mailto:|#)/i.test(href)) return href;
+    const [p, frag] = href.split("#"), target = path.posix.normalize(path.posix.join("docs", p)).replace(/\/$/, "");
+    const doc = docByFile[target];
+    if (doc) return "../dev/" + doc.slug + "/" + (frag ? "#" + frag : "");
+    return "https://github.com/Looscid/Looscid/" + (/\.[a-z0-9]+$/i.test(target) ? "blob" : "tree") + "/main/" + target + (frag ? "#" + frag : "");
+  };
+  const r = mdToHtml(md, { linkFor });
+  const t = r.title || "Why Looscid?", s = "Looscid is for everyone. Why I'm building it, and what makes it different.";
+  const b = "<h1>" + esc(t) + '</h1>\n<p class="lead">' + esc(s) + '</p>\n<div class="doc">\n' + r.html + '\n</div>\n<p class="next"><a href="../">Help Center</a> <span aria-hidden="true">·</span> <a href="../dev/accessibility/">Accessibility guide</a></p>';
+  put("why-looscid/index.html", page({ slug: "why-looscid", title: t, desc: s, body: b, depth: 1, crumbs: [["Help Center", "../"], [t, null]] }));
 }
 // Nov 8 2026: the component library (.github/scripts/components.mjs): an index and one page per component, with demos.
 buildComponents({ page, put, esc });
