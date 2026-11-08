@@ -165,7 +165,7 @@ Shipped today, for context: a Circle, Dreamor, hashtag, thread or List can be pi
 - [ ] My people: your own close list. The name isn't final, but it can't be "Circles", since Circles are groups. People aren't told when you add or remove them.
 - [ ] Adding to My people: your mutuals are suggested at the top, with tabs for Mutuals, Following and Followers.
 - [ ] Private mode: everything you make stays only with you until you turn it off.
-- [ ] Privacy checkup: a short walk through your privacy settings, one step at a time.
+- [ ] Privacy checkup in Settings → Privacy: a short walk through your privacy settings, one step at a time.
 - [ ] The audience picker reads clearly with VoiceOver: each choice is one swipe, with its name and a one-line description.
 
 ### Cherry
