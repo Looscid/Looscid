@@ -74,7 +74,7 @@ const DOCS = [
   { slug: "contributing", file: "docs/CONTRIBUTING.md", t: "Contributing", s: "How to help build Looscid, and how we work together." },
   { slug: "terminology", file: "docs/guides/TERMINOLOGY.md", t: "Terminology", s: "Looscid's own words: Dream, ReDream, Circle and Dreamor." },
   { slug: "accessibility", file: "docs/guides/ACCESSIBILITY.md", t: "Accessibility", s: "Looscid's accessibility commitments and the guide every screen follows." },
-  { slug: "roadmap", file: "docs/dev/ROADMAP.md", t: "Developer roadmap", s: "Looscid's vision, architecture and what's planned, for developers." },
+  { slug: "roadmap", file: "docs/dev/ROADMAP.md", t: "Developer roadmap", s: "what we're building, how it's built and what's coming, for devs." },
   { slug: "files", file: "docs/dev/FILES.md", t: "Files", s: "What every file in the app holds, and the order the browser loads them in." },
   { slug: "nostr-architecture", file: "docs/dev/NOSTR_ARCHITECTURE.md", t: "Nostr and Cherry", s: "How Looscid uses Nostr, and how Cherry fits in." },
   { slug: "announcements", file: "docs/dev/ANNOUNCEMENTS.md", t: "Discord announcements", s: "How the Looscid Discord's #announcements channel gets its messages." },
