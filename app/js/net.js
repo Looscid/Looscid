@@ -130,6 +130,21 @@ function unblockHandle(handle) {
   return sendBlock(pk, true);
 }
 function blockedPk(handle) { return lsJson(BLOCKS_KEY, {})[normH(handle)] || null; }
+// Nov 8 2026: moderation reasons (js/modreasons.js). A mod's removal goes to Rem as a signed kind 21986 event with the
+// reason, and your own removed Dreams come back with theirs. A Rem without these answers 404, and that's fine: the
+// removal still shows on this device.
+async function moderate(nid, action, reason) {
+  try { const ev = await signAction({ kind: 21986, content: String(reason || ""), tags: [["e", String(nid).toLowerCase()], ["action", action === "restore" ? "restore" : "remove"], ["reason", String(reason || "")], PROTOCOL_TAG] });
+    const r = await call("POST", "/moderate", ev); return { ok: r.ok, status: r.status }; } catch (e) { return { ok: false }; }
+}
+async function moderators() {
+  const me = Looscid.lcNostr && Looscid.lcNostr.state ? Looscid.lcNostr.state().pubkey : null; if (!isHex64(me || "")) return [];
+  const r = await call("GET", "/moderators"); return r.ok && Array.isArray(r.body.moderators) ? r.body.moderators : [];
+}
+async function moderationFor(pk) {
+  const me = pk || (Looscid.lcNostr && Looscid.lcNostr.state ? Looscid.lcNostr.state().pubkey : null); if (!isHex64(me || "")) return [];
+  const r = await call("GET", "/moderation/" + encodeURIComponent(me)); return r.ok && Array.isArray(r.body.items) ? r.body.items : [];
+}
 
 /* --- My data --- */
 async function exportMine() {
@@ -205,6 +220,6 @@ function LcRemData() {
 }
 
 Looscid.lcNet = { API: API, PROTOCOL_TAG: PROTOCOL_TAG, BRIDGES: BRIDGES, bridges: bridges, bridgeOn: bridgeOn, setBridge: setBridge, markCrossposted: markCrossposted, wasCrossposted: wasCrossposted,
-  ingest: ingest, flush: flush, feed: feed, userDreams: userDreams, REPORT_REASONS: REPORT_REASONS, report: report, block: block, unblockHandle: unblockHandle, blockedPk: blockedPk,
+  ingest: ingest, flush: flush, feed: feed, userDreams: userDreams, REPORT_REASONS: REPORT_REASONS, report: report, block: block, unblockHandle: unblockHandle, blockedPk: blockedPk, moderate: moderate, moderationFor: moderationFor, moderators: moderators,
   exportMine: exportMine, forgetMe: forgetMe, health: health, LcConnectionbase: LcConnectionbase, LcRemData: LcRemData };
 })(window.Looscid = window.Looscid || {});

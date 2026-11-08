@@ -659,7 +659,8 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
        muted ? { id: "unmute", name: "Unmute", a: function () { Looscid.lcPeopleSet("looscid_muted_dreamors", user.handle, false); say("Unmuted " + user.name + "."); } }
              : { id: "mute", name: "Mute", a: function () { Looscid.lcPeopleSet("looscid_muted_dreamors", user.handle, true); say("Muted " + user.name + ". Their Dreams are hidden from your feed."); } },
        blocked ? { id: "unblock", name: "Unblock", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").filter(function (h) { return h !== Looscid.lcHandle(user.handle); })); say("Unblocked " + user.name + "."); } }
-               : { id: "block", name: "Block", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").concat([user.handle])); say("Blocked " + user.name + ". Unblock here or in Settings, Privacy."); } },
+               // Nov 8 2026 (blocklists): a block from the profile reaches Rem too when we know their key, like a block from a Dream.
+               : { id: "block", name: "Block", a: function () { Looscid.lcBlockedSet("dreamers", Looscid.lcBlocked("dreamers").concat([user.handle])); if (dmPeer && Looscid.lcNet) Looscid.lcNet.block(dmPeer, user.handle); say("Blocked " + user.name + ". Their Dreams, replies and messages are hidden for you. Unblock here or in Settings, Privacy."); } },
        { id: "report", name: "Report", note: "unavailable: Looscid has nowhere to send reports yet", disabled: true },
        linksItem,
        // Round 7.27 (#152, Carter approved Oct 25 2026, "like Spring"): pin this profile as a Home feed tab, or as its own tab in the tab bar.
@@ -1441,7 +1442,7 @@ function LcBlockedPanel() {
           lh('button', { type: "button", className: "btn bp lc-btn", id: "priv-bl-dreamers-add", onClick: function () { addList("dreamers", hIn, setHIn, at); } }, "Block")),
         listOf("dreamers", "Blocked Dreamors", at),
         // Nov 7 2026: blocks reach the Looscid server (js/net.js).
-        lh('p', { className: "lc-desc" }, "When you block someone from one of their Dreams, Rem gets it too, so their Dreams stay out of your Looscid feed on every device. Unblock tells Rem as well.")); }],
+        lh('p', { className: "lc-desc" }, "When you block someone from one of their Dreams or their profile, Rem gets it too, so their Dreams stay out of your Looscid feed on every device. Unblock tells Rem as well.")); }],
       ["circles", "Circles", function () { return circles.length ? lh('fieldset', { className: "lc-fs", id: "priv-bl-circles" },
         lh('legend', { className: "lc-fs-l" }, "Blocked Circles"),
         lh('div', { className: "lc-radios lc-radios-col" }, circles.map(function (g) {
@@ -3829,6 +3830,8 @@ const LC_CREDITS = {
   intro: ["This page is where I say thanks. Looscid is open source under the ", "GNU AGPL-3.0 license", ". Below is every project Looscid uses and every one I learned from, and each of them keeps its own license. Oh, and every sound you hear is made live with Web Audio. No recorded samples, at all."],
   licenseUrl: "https://looscid.github.io/Looscid/help/dev/license/", // Nov 7 2026: the license's own page in the Help Center docs
   uses: [
+    // Nov 8 2026: the first code Looscid took from another app, once Looscid itself was AGPL-3.0.
+    { n: "Communities, by Daniel Bingham", s: "Communities", u: "https://github.com/danielbingham/communities", l: "AGPL-3.0", lu: "https://github.com/danielbingham/communities/blob/staging/LICENSE", w: "Moderation reasons are adapted from its code: a mod who removes a Dream has to say why, and the Dreamor sees it. Its copyright and license notice are at the top of js/modreasons.js." },
     { n: "React and React DOM 18.2.0", s: "React", u: "https://github.com/react/react", l: "MIT", lu: "https://github.com/react/react/blob/main/LICENSE", w: "This draws every single screen of Looscid. Loaded from jsDelivr." },
     { n: "nostr-tools 2.25.2", s: "nostr-tools", u: "https://github.com/nbd-wtf/nostr-tools", l: "Unlicense", lu: "https://github.com/nbd-wtf/nostr-tools/blob/master/LICENSE", w: "Nostr keys, signing and checking notes, npub and nsec, and passcode-locked keys. It lives in js/vendor with its license right next to it." },
     { n: "noble curves, hashes and ciphers, and scure base, by Paul Miller", s: "noble curves", u: "https://github.com/paulmillr/noble-curves", l: "MIT", lu: "https://github.com/paulmillr/noble-curves/blob/main/LICENSE", w: "The audited cryptography inside nostr-tools. The math that keeps your keys safe." },

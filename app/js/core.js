@@ -36,7 +36,7 @@ function lcRenameOld(store) {
   try { if (ls && ls.getItem("looscid_migrated_v1") === null) ls.setItem("looscid_migrated_v1", new Date().toISOString()); } catch (e) {}
 })();
 Object.assign(Looscid, { LC_OLD_PREFIX, lcNewKey, lcRenameOld });
-Object.assign(Looscid, { lcNpub, lcShareLink, lcProfileLink, lcProfileOriginals, lcDreamUrl, lcDreamNet, lcDreamInfoLines, lcHint, lcHintReason, lcModalSync, lcModalState, lcReplyObj, lcRedreamsRaw, lcRedreamHas, lcPeopleList, lcPeopleSet, lcPeopleHas, lcIsMuted, lcNoteFor, lcSetNote, useUntagTick, lcLikedRaw, lcLikedHas, lcLikedItems, lcLikedSet, lcLikedPatch, lcDreamSnap, lcWithLiked, lcLikedDreams, useLikedTick, lcIsUntagged, lcSetUntagged, lcTagsMe, lcUntaggedText, lcNewId, lcRepliesRaw, lcRepliesFor, lcAddReply, lcRepliesChanged, useRepliesTick, lcCompose, lcLinkCard, LinkCard, ReplyItem, lcLoadDreams, lcMergeDreams, lcSyncOwnDreams, useSavedDreams, _optionalChain, getDrafts, saveDraftItem, getSavedTheme, saveTheme, applyTheme, getOnboardingSeen, setOnboardingSeen, resetOnboarding, getLinkInfo, useDreams, Av, ChkMark, Cbx, Modal, lcThreadOf, lcHearThread, DreamExtra, lcTranslate, lcShareText, DreamOptionsMenu, BackHeader, DreamText, SiteEmbed, CommentItem, CommentView, DreamCard, lcCatState, useCats, lcAlertCats, lcResetKeyItems, lcLsDel, lcResetModel, lcOpenReset, LcResetHost, lcAiOn, lcSettingIndex, lcFindSettings, lcGoSetting, LcSettingFind, sanitizeInput, makeLocalProfile, saveLocalProfile, getLocalProfile, applyLocalProfileToMe, ensureLocalProfile, renameLocalProfile, resetLocalProfile, getAnalyticsConsent, setAnalyticsConsent, AnalyticsBanner, getWelcomeSeen, setWelcomeSeen, getAIPrefs, setAIPrefs, getActiveAI, getHabits, recordHabit, getPredictions, spellCheck, applySpellFix, detectAutoLinks, getAttribPref, HabitInsightCard, MainMenu, lcVerb, lcHints, announce, useEnterSubmit, updateLocalProfile, LcMenu, lcViewLimits, lcAnnounceCount, MenuPopupButton, getIdentity, setIdentity, getMethods, saveMethods, addMethod, getActivity, logActivity, getSessions, setSession, removeMethod, setStoredNostrSk, signOutIdentity, loadNostrTools, bytesToHex, hexToBytes, shortNpub, identityLabel, SecretField, NostrPanel, b64url, randomToken, pkceChallenge, appRedirectUri, normalizeHost, startMastodonLogin, startFunkwhaleLogin, startHubzillaLogin, lidOAuthIdentity, finishOAuthIfReturning, useOAuthReturn, MastodonPanel, LidOAuthPanel, FunkwhalePanel, HubzillaPanel, resolvePds, BlueskyPanel, AlertDialog, LooscidIDChooser, getTopics, TopicPicker, LooscidOnboarding, lcSectionKeys, lcSectionDefaults, lcSrName, lcSectionTitle, lcSet, lcValueText, lcTimeSpoken, lcWords, lcQuietNow, lcAutoplayAllowed, lcHapticsSupported, lcBuzz, lcEmojiName, lcSpeechText, lcBrailleText, lcTimeParts, lcDreamKind, lcDreamWords, lcFiltered, lcDreamSpeechParts, lcIdb, lcIdbDo, lcCurrentDream, lcLoadCustomPack, lcUpdateAuto, lcFetchVersion, lcCheckUpdate, lcApplyUpdate, LcUpdateBanner, lcVersionLabel, lcBuildName, lcOldVersion, lcCodenamed, lcCodenameLabel, lcReleasedText, loadA11y, saveA11y, a11yAsked, setA11yAsked, systemReducedMotion, motionReduced, a11yEnterSends, lcCloseProps, lcPcOn, lcPackChime, lcPitchCue, lcPcKindOf, areaOfPage, musicFind, lcLev, lcSectionReport, lcFindSection, lcParseTime, lcRegistryIntent, lcTranslateOk, lcA11yReport, lcA11yIntent, lcFeedFind, lcFeedMode, lcFeedLabel, lcSetFeed, lcStepFeed, lcAudCustom, lcHandle, lcAudienceOk, lcBlocked, lcBlockedSet, lcBlockedUser, lcWordHit, LcBlockedHidden, lcAlertPrefs, lcAlerts, lcAlertsSave, lcNotify, lcAlertsMarkAll, useAlerts, lcVersionAlert, lcSetAlertsTab, lcSetShowFriends, lcFeedIntent, lcApplyFeedIntent, lcAppItems, lcNorm, lcClosestPlace, lcHistory, lcPushHistory, lcSpoken, lcExtraIntent, lcRun, lcTrapTab, useCmdHistory, useKeyboardInset, LcCmdLog, CommandBar, lcLogSave, lcLogAdd, lcLogClear, useCmdLog, lcBrowserName, lcStorageKB, lcNexosSettings, lcNexosSend, lcNexosBroadcast, lcBootLines, LcBoot, useInertBehind, DeviceQuestion, useA11yNow, lcResetSection, lcBrList, lcBrSave, lcBrWord, lcBrStyleLabel, lcBrDate, lcBrFind, lcBrCheck, lcBrNotice, lcBrSelect, lcBrCreate, lcBrRename, lcBrDelete, lcBrUndo, lcBrUsePast, lcBrForget, lcBrStamp, lcBrWatch, lcBrIntent, lcKeyName, lcExportSettings, lcDownloadSettings, LcFindMeSwitch, LcUndoBar, A11ySwitch, App });
+Object.assign(Looscid, { lcNpub, lcShareLink, lcProfileLink, lcProfileOriginals, lcDreamUrl, lcDreamNet, lcDreamInfoLines, lcHint, lcHintReason, lcModalSync, lcModalState, lcReplyObj, lcRedreamsRaw, lcRedreamHas, lcPeopleList, lcPeopleSet, lcPeopleHas, lcIsMuted, lcNoteFor, lcSetNote, useUntagTick, lcLikedRaw, lcLikedHas, lcLikedItems, lcLikedSet, lcLikedPatch, lcDreamSnap, lcWithLiked, lcLikedDreams, useLikedTick, lcIsUntagged, lcSetUntagged, lcTagsMe, lcUntaggedText, lcNewId, lcRepliesRaw, lcRepliesFor, lcAddReply, lcRepliesChanged, useRepliesTick, lcCompose, lcLinkCard, LinkCard, ReplyItem, lcLoadDreams, lcMergeDreams, lcSyncOwnDreams, useSavedDreams, _optionalChain, getDrafts, saveDraftItem, getSavedTheme, saveTheme, applyTheme, getOnboardingSeen, setOnboardingSeen, resetOnboarding, getLinkInfo, useDreams, Av, ChkMark, Cbx, Modal, lcThreadOf, lcHearThread, DreamExtra, lcTranslate, lcShareText, DreamOptionsMenu, BackHeader, DreamText, SiteEmbed, CommentItem, CommentView, DreamCard, ModRemovedDream, DreamModDialog, lcCatState, useCats, lcAlertCats, lcResetKeyItems, lcLsDel, lcResetModel, lcOpenReset, LcResetHost, lcAiOn, lcSettingIndex, lcFindSettings, lcGoSetting, LcSettingFind, sanitizeInput, makeLocalProfile, saveLocalProfile, getLocalProfile, applyLocalProfileToMe, ensureLocalProfile, renameLocalProfile, resetLocalProfile, getAnalyticsConsent, setAnalyticsConsent, AnalyticsBanner, getWelcomeSeen, setWelcomeSeen, getAIPrefs, setAIPrefs, getActiveAI, getHabits, recordHabit, getPredictions, spellCheck, applySpellFix, detectAutoLinks, getAttribPref, HabitInsightCard, MainMenu, lcVerb, lcHints, announce, useEnterSubmit, updateLocalProfile, LcMenu, lcViewLimits, lcAnnounceCount, MenuPopupButton, getIdentity, setIdentity, getMethods, saveMethods, addMethod, getActivity, logActivity, getSessions, setSession, removeMethod, setStoredNostrSk, signOutIdentity, loadNostrTools, bytesToHex, hexToBytes, shortNpub, identityLabel, SecretField, NostrPanel, b64url, randomToken, pkceChallenge, appRedirectUri, normalizeHost, startMastodonLogin, startFunkwhaleLogin, startHubzillaLogin, lidOAuthIdentity, finishOAuthIfReturning, useOAuthReturn, MastodonPanel, LidOAuthPanel, FunkwhalePanel, HubzillaPanel, resolvePds, BlueskyPanel, AlertDialog, LooscidIDChooser, getTopics, TopicPicker, LooscidOnboarding, lcSectionKeys, lcSectionDefaults, lcSrName, lcSectionTitle, lcSet, lcValueText, lcTimeSpoken, lcWords, lcQuietNow, lcAutoplayAllowed, lcHapticsSupported, lcBuzz, lcEmojiName, lcSpeechText, lcBrailleText, lcTimeParts, lcDreamKind, lcDreamWords, lcFiltered, lcDreamSpeechParts, lcIdb, lcIdbDo, lcCurrentDream, lcLoadCustomPack, lcUpdateAuto, lcFetchVersion, lcCheckUpdate, lcApplyUpdate, LcUpdateBanner, lcVersionLabel, lcBuildName, lcOldVersion, lcCodenamed, lcCodenameLabel, lcReleasedText, loadA11y, saveA11y, a11yAsked, setA11yAsked, systemReducedMotion, motionReduced, a11yEnterSends, lcCloseProps, lcPcOn, lcPackChime, lcPitchCue, lcPcKindOf, areaOfPage, musicFind, lcLev, lcSectionReport, lcFindSection, lcParseTime, lcRegistryIntent, lcTranslateOk, lcA11yReport, lcA11yIntent, lcFeedFind, lcFeedMode, lcFeedLabel, lcSetFeed, lcStepFeed, lcAudCustom, lcHandle, lcAudienceOk, lcBlocked, lcBlockedSet, lcBlockedUser, lcWordHit, LcBlockedHidden, lcAlertPrefs, lcAlerts, lcAlertsSave, lcNotify, lcAlertsMarkAll, useAlerts, lcVersionAlert, lcSetAlertsTab, lcSetShowFriends, lcFeedIntent, lcApplyFeedIntent, lcAppItems, lcNorm, lcClosestPlace, lcHistory, lcPushHistory, lcSpoken, lcExtraIntent, lcRun, lcTrapTab, useCmdHistory, useKeyboardInset, LcCmdLog, CommandBar, lcLogSave, lcLogAdd, lcLogClear, useCmdLog, lcBrowserName, lcStorageKB, lcNexosSettings, lcNexosSend, lcNexosBroadcast, lcBootLines, LcBoot, useInertBehind, DeviceQuestion, useA11yNow, lcResetSection, lcBrList, lcBrSave, lcBrWord, lcBrStyleLabel, lcBrDate, lcBrFind, lcBrCheck, lcBrNotice, lcBrSelect, lcBrCreate, lcBrRename, lcBrDelete, lcBrUndo, lcBrUsePast, lcBrForget, lcBrStamp, lcBrWatch, lcBrIntent, lcKeyName, lcExportSettings, lcDownloadSettings, LcFindMeSwitch, LcUndoBar, A11ySwitch, App });
 
  function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 const {useState, useEffect, useRef, useCallback} = React;
@@ -407,6 +407,15 @@ function lcSaveTombstone(d, index) {
 function DeletedDream({ dream, inThread }) {
   const name = inThread && dream.user && (dream.user.name || dream.user.handle);
   return lh('p', { id: "deleted-dream-" + dream.id }, name ? name + "'s Dream was deleted" : "This Dream was deleted");
+}
+/* Nov 8 2026 (moderation reasons, adapted from Communities, see js/modreasons.js): a Dream a mod removed shows the reason in
+   its place, one line, read in one swipe. Its author reads "Your Dream was removed by ... Reason: ...". The Circle's mods
+   also get a Restore Dream button right under it. */
+function ModRemovedDream({ dream, rec, modCircle }) {
+  const id = "mod-removed-" + String(dream.id).replace(/[^A-Za-z0-9_-]/g, "");
+  return lh('div', { className: "dc lc-mod-removed", "data-dream-id": dream.id },
+    lh('p', { id: id, tabIndex: -1 }, Looscid.lcModText(rec, dream)),
+    modCircle ? lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { announce(Looscid.lcModRestore(dream)); } }, "Restore Dream") : null);
 }
 // Slice 1: local own-root removal, with session suppression for cached cards.
 const LC_DELETED_DREAMS = new Set();
@@ -1005,6 +1014,44 @@ function DreamReportDialog({ id, dream, authorPk, onDone }) {
       }),
       lh('button', { type: "button", className: "btn bgb lid-wide", onClick: onDone }, "Cancel")));
 }
+/* Nov 8 2026: Remove a Dream as a mod (moderation reasons, adapted from Communities, see js/modreasons.js). A reason is
+   required: pick one (the Circle's rules come first) or type your own. Each choice is one radio button, so VoiceOver
+   reads each in one swipe. Remove Dream stays dimmed until there's a reason, and says why if pressed early. */
+function DreamModDialog({ id, dream, circle, onDone }) {
+  const headingRef = useRef(null), [pick, setPick] = useState(""), [own, setOwn] = useState(""), [msg, setMsg] = useState("");
+  useEffect(function () { const f = function () { if (headingRef.current) headingRef.current.focus(); }; f(); const t = setTimeout(f, 120); return function () { clearTimeout(t); }; }, []);
+  useEffect(function () {
+    const onKey = function (e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); onDone(); } };
+    document.addEventListener("keydown", onKey); return function () { document.removeEventListener("keydown", onKey); };
+  }, [onDone]);
+  const reasons = Looscid.lcModReasonsFor(circle);
+  const chosen = pick === "own" ? own : ((reasons.find(function (r) { return r[0] === pick; }) || [])[1] || "");
+  const ready = !!String(chosen || "").trim();
+  const who = (dream.user && dream.user.name) || "The Dreamor";
+  const go = function () {
+    if (!ready) { setMsg("Pick a reason or type one first. " + who + " sees it."); return; }
+    const r = Looscid.lcModRemove(dream, chosen, circle); announce(r.say); if (r.ok) onDone(); else setMsg(r.say);
+  };
+  return lh('div', { className: "lid-alert-bg" },
+    lh('div', { className: "lid-alert", role: "alertdialog", "aria-modal": "true", "aria-labelledby": id + "-title", "data-lc-no-focus-trap": "" },
+      lh('h2', { ref: headingRef, tabIndex: -1, "data-lc-autofocus": "", id: id + "-title", className: "lid-sub" }, "Remove this Dream from " + (circle ? circle.name || "this Circle" : "Looscid") + "?"),
+      lh('p', { className: "lid-help" }, "Pick a reason or type your own. " + who + " sees the reason where the Dream was."),
+      msg ? lh('p', { className: "lid-help", role: "status" }, msg) : null,
+      lh('fieldset', { className: "lc-fs" },
+        lh('legend', { className: "lc-fs-l" }, "Reason"),
+        lh('div', { className: "lc-radios lc-radios-col" },
+          reasons.concat([["own", "Type a reason"]]).map(function (r) {
+            return lh('label', { key: r[0], className: "lc-radio" + (pick === r[0] ? " on" : "") },
+              lh('input', { type: "radio", name: id + "-reason", value: r[0], checked: pick === r[0], onChange: function () { setPick(r[0]); setMsg(""); } }),
+              lh('span', null, r[1]));
+          }))),
+      pick === "own" ? lh(React.Fragment, null,
+        lh('label', { htmlFor: id + "-own", className: "lc-fs-l", style: { display: "block" } }, "Reason in your words"),
+        lh('input', { id: id + "-own", type: "text", className: "lc-text", value: own, maxLength: Looscid.LC_MOD_MAX_REASON - 1, onChange: function (e) { setOwn(e.target.value); setMsg(""); },
+          onKeyDown: function (e) { if (e.key === "Enter") { e.preventDefault(); go(); } } })) : null,
+      lh('button', { type: "button", className: "btn bp lid-wide", id: id + "-go", "aria-disabled": ready ? "false" : "true", onClick: go }, "Remove Dream"),
+      lh('button', { type: "button", className: "btn bgb lid-wide", onClick: onDone }, "Cancel")));
+}
 function DreamDeleteDialog({ id, onConfirm, onCancel, onNostr }) {
   const boxRef = useRef(null), headingRef = useRef(null);
   // Oct 31 2026: a Dream on Nostr needs the unlocked key to sign its deletion (NIP-09, kind 5). When the key is locked the
@@ -1039,10 +1086,11 @@ function DreamDeleteDialog({ id, onConfirm, onCancel, onNostr }) {
         lh('button', { type: "button", className: "btn bgb", "aria-label": "Cancel", onClick: onCancel }, "Cancel"),
         lh('button', { type: "button", className: "btn bp", "aria-label": "Delete Dream", disabled: busy, onClick: confirm }, "Delete Dream"))));
 }
-function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, cherryCtx, onExtra, forYou, allowDelete, onDeleted }) {
+function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, cherryCtx, onExtra, forYou, allowDelete, onDeleted, modCircle }) {
   useThreadSubsTick(); // #148: Follow Thread / Unfollow Thread is always current
   const [deleting, setDeleting] = useState(false);
   const [reporting, setReporting] = useState(false); // Nov 7 2026: Report Dream (DreamReportDialog)
+  const [modding, setModding] = useState(false); // Nov 8 2026: Remove as a mod, with a reason (DreamModDialog)
   const canDelete = allowDelete && dream.user === ME && !dream.isReply && dream.replyTo == null && dream.circleId == null;
   const cancelDelete = function () {
     setDeleting(false);
@@ -1148,9 +1196,15 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
   ].filter(Boolean);
   // Oct 31 2026 (Carter): Delete Dream is on your own Dreams everywhere they show (Home, profiles, Liked, Replies page),
   // not only on the Replies page. Its visible name says what it deletes, and it's last so it's never hit by accident.
-  const ordered = fx.concat(items).concat(canDelete ? [{ id: "delete", name: "Delete Dream", aria: "Delete Dream", exactAria: true, danger: true, a: function () { setDeleting(true); } }] : []);
+  // Nov 8 2026 (moderation reasons, from Communities): in a Circle you run, someone else's Dream has Remove from <Circle>.
+  // It asks for a reason first, and the Dreamor sees that reason. Last, next to Delete, so it's never hit by accident.
+  // A Looscid moderator (Rem's list) gets Remove from Looscid on Dreams that are on Rem.
+  const siteMod = !modCircle && !mine && Looscid.lcModIsSiteMod && Looscid.lcModIsSiteMod() && /^[0-9a-f]{64}$/i.test(String(dream.nid || ""));
+  const modItem = (modCircle || siteMod) && !mine && Looscid.lcModRemove ? [{ id: "modremove", name: "Remove from " + (modCircle ? modCircle.name || "this Circle" : "Looscid"), danger: true, a: function () { setModding(true); } }] : [];
+  const ordered = fx.concat(items).concat(modItem).concat(canDelete ? [{ id: "delete", name: "Delete Dream", aria: "Delete Dream", exactAria: true, danger: true, a: function () { setDeleting(true); } }] : []);
   // Round 5 fixes: each Dream's More button says whose Dream it is ("More, Dream by Ava"), so the rotor list isn't a row of "More".
   return lh(React.Fragment, null,
+    modding && lh(DreamModDialog, { id: id + "-mod", dream: dream, circle: modCircle, onDone: function () { setModding(false); setTimeout(function () { const el = document.getElementById("mod-removed-" + String(dream.id).replace(/[^A-Za-z0-9_-]/g, "")); if (el) el.focus(); else if (btnRef && btnRef.current) btnRef.current.focus(); }, 80); } }),
     reporting && lh(DreamReportDialog, { id: id + "-report", dream: dream, authorPk: authorPk, onDone: function () { setReporting(false); setTimeout(function () { if (btnRef && btnRef.current) btnRef.current.focus(); }, 60); } }),
     deleting && lh(DreamDeleteDialog, { id: id + "-delete", onConfirm: confirmDelete, onCancel: cancelDelete, onNostr: [dream.nid, String(dream.id)].concat((lcSavedDreamsRaw().find(function (s) { return s.id === dream.id; }) || {}).nid || []).some(function (x) { return /^[0-9a-f]{64}$/i.test(String(x || "")); }) }),
     lh(LcMenu, { id: id + "-btn", menuId: id, kind: "action", title: "More", btnLabel: "More, " + (dream && dream.user && dream.user.name ? "Dream by " + dream.user.name : "Dream"), btnHint: "Opens actions for this Dream.", btnClass: "ixn-btn", btnRef: btnRef, noCaret: true, align: "right", up: true,
@@ -1334,7 +1388,8 @@ function lcRdState(d) { return d.redreamed ? ", Redreamed" : d.quoted ? ", Quote
 function CommentView({dream, backTo, onBack, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onCommentPosted, navigate}) {
   useIdListTick("looscid:tombstones"); dream = lcTombstoneOf(dream) || dream;
   const tick = useRepliesTick();
-  const comments = React.useMemo(function () { return lcRepliesFor(dream.id).concat(MOCK_COMMENTS[dream.id] || []); }, [dream.id, tick]);
+  useIdListTick("looscid:blocked"); // Nov 8 2026: replies from a Dreamor you blocked disappear for you
+  const comments = React.useMemo(function () { return lcRepliesFor(dream.id).concat(MOCK_COMMENTS[dream.id] || []); }, [dream.id, tick]).filter(function (c) { return !(c && c.user && typeof c.user === "object" && lcBlockedUser(c.user)); });
   const [sort, setSort] = useState("newest");
   const dreamOptsBtn = useRef(null);
   const endRef = useRef(null);
@@ -1367,7 +1422,7 @@ function CommentView({dream, backTo, onBack, onLike, onRedream, onUndoRedream, o
       const e = (c && o.cls ? c.querySelector("." + o.cls) : null) || lcFindOpener(o.desc) || c;
       if (e) { if (e === c && !e.hasAttribute("tabindex")) e.setAttribute("tabindex", "-1"); e.focus(); } else lcFocusHeading(); }, 60); };
   }, []);
-  const above = React.useMemo(function () { return lcThreadAbove(dream); }, [dream.id, tick]);
+  const above = React.useMemo(function () { return lcThreadAbove(dream); }, [dream.id, tick]).filter(function (c) { return !(c && c.user && typeof c.user === "object" && c.user !== ME && lcBlockedUser(c.user)); });
   const threadBtn = lh('button', { type: "button", id: "cv-thread-btn", className: "btn bgb lc-btn lc-thread-btn", "aria-controls": "cv-thread",
     onClick: function () { setExpanded(!expanded); } }, expanded ? "Collapse thread" : "Expand thread");
   return (
@@ -1440,9 +1495,12 @@ function CommentView({dream, backTo, onBack, onLike, onRedream, onUndoRedream, o
 /* --- DREAM CARD -------------------------- */
 function DreamCard(props) {
   useIdListTick("looscid:tombstones"); const t = lcTombstoneOf(props.dream);
+  useIdListTick("looscid:moderations"); // Nov 8 2026: moderation reasons (js/modreasons.js)
+  const mod = !t && Looscid.lcModFor ? Looscid.lcModFor(props.dream) : null;
+  if (mod) return lh(ModRemovedDream, { dream: props.dream, rec: mod, modCircle: props.modCircle });
   return t ? lh('div', { className: "dc" }, lh(DeletedDream, { dream: t }), props.onComment ? lh('button', { type: "button", className: "btn bgb", onClick: function () { props.onComment(t); } }, "Open deleted Dream") : null) : lh(DreamBodyCard, props);
 }
-function DreamBodyCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onComment, navigate, cherryCtx, replyCtx, forYou, pinned}) {
+function DreamBodyCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onComment, navigate, cherryCtx, replyCtx, forYou, pinned, modCircle}) {
   const [showRD, setShowRD] = useState(false);
   const [showOpts, setShowOpts] = useState(false);
   const optsBtn = useRef(null);
@@ -1535,7 +1593,7 @@ function DreamBodyCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndo
             , React.createElement('div', { className: "cbx-box",}, dream.liked && React.createElement(ChkMark, null))
             , React.createElement('span', null, calm ? "" : fmt(dream.likes), calm ? "Likes" : dream.likes === 1 ? " Like" : " Likes" )
           )
-          , lh(DreamOptionsMenu, { id: "dopts-" + dream.id, dream: dream, btnRef: optsBtn, onBookmark: onBookmark, onLike: onLike, navigate: navigate, cherryCtx: cherryCtx, onExtra: setExtra, forYou: !!forYou, allowDelete: true })
+          , lh(DreamOptionsMenu, { id: "dopts-" + dream.id, dream: dream, btnRef: optsBtn, onBookmark: onBookmark, onLike: onLike, navigate: navigate, cherryCtx: cherryCtx, onExtra: setExtra, forYou: !!forYou, allowDelete: true, modCircle: modCircle || null })
         )
         )
 

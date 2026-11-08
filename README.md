@@ -40,4 +40,6 @@ Copyright (C) 2025-present Looscid
 
 The [server/](server/) folder (the retired Rem v0 home server) keeps its own MIT license. The names Looscid, LooscidID, Dreamors, Redreams, Cherry and Circles are Looscid's trademarks: the license covers the code, not the names.
 
+Moderation reasons (a mod who removes a Dream has to say why, and the Dreamor sees it) are adapted from [Communities](https://github.com/danielbingham/communities) by Daniel Bingham, under the AGPL-3.0. Its copyright and license notice stay at the top of [app/js/modreasons.js](app/js/modreasons.js), and it's in the in-app Credits too.
+
 Created by [2three1y](https://looscid.github.io/Looscid/).

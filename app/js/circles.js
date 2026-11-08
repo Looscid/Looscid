@@ -230,7 +230,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
           , React.createElement(Av, { user: ME, size: 34,})
           , React.createElement('div', { style: {flex:1,background:"var(--sf2)",borderRadius:100,padding:"9px 14px",fontSize:13,color:"var(--tx3)"},}, "Dream something in "   , group.name, "…")
         )
-        , dreams.map(d=>React.createElement(DreamCard, { key: d.id, dream: d, onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onComment: d=>setActiveComment(d), navigate: navigate,}))
+        , dreams.filter(d=>!((Looscid.lcFiltered&&Looscid.lcFiltered(d))||{}).blockedUser).map(d=>React.createElement(DreamCard, { key: d.id, dream: d, onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onComment: d=>setActiveComment(d), navigate: navigate, modCircle: isAdmin ? { id: group.id, name: group.name, rules: RULES } : null,})) // Nov 8 2026: mods remove with a reason (js/modreasons.js)
       )
 
       , tab==="members"&&React.createElement(React.Fragment, null
