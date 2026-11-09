@@ -17,6 +17,7 @@ Asked for by Carter in the Dreamor Council, the first batch from the master list
 - Calm mode starts out matching your device's Reduce Motion setting now: on if your device asks for less motion, off if it doesn't, and it follows your device if that changes. Once you tick or untick Calm mode yourself, your choice sticks. Match my device again (in Settings, Accessibility, Motion) goes back to following your device, and so does resetting Motion. Flash safety is its own setting and didn't change: it's still on from the start.
 - The roadmap has a new backlog list: ideas I'm saving for later and not building yet.
 - Privacy and Security are one screen now, Privacy & Security, like on iPhone lol. Security was in 2 places, so I merged it: privacy stuff first, then your key, passcode, backup file, login methods, devices, Rem and Security checkup. Nothing changed how it works, it just lives in one spot. Old Privacy links still open it. [Check out Privacy & Security](https://looscid.github.io/Looscid/More/Settings/Privacy-and-Security/)
+- Motion is one switch now lol: Calm motion. It's Calm mode and Reduce Motion together, it still starts out matching your device, and Match my device again still works. Flash safety is called Block flashing and strobes now and sits right under it. It's on from the start, and turning Calm motion off never turns it off. Your saved choices stayed the same. [Turn on Calm motion](https://looscid.github.io/Looscid/More/Settings/Accessibility/Motion/)
 
 ## About Looscid, all in one page (no new build yet)
 

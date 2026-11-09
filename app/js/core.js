@@ -1664,7 +1664,7 @@ function lcAlertCats() { return LC_INBOX_TABS.slice(); }
    Keys and IDs need one more confirm. Focus goes back to the Reset button. */
 Looscid.LC_SET_PREFS = null; Looscid.LC_SET_THEME = null;
 const LC_RESET_LABELS = { textSize: "Text size", highContrast: "High contrast", boldText: "Bold text", dyslexiaFont: "Dyslexia-friendly spacing", captions: "Captions for audio", visualCue: "Visual cue instead of sounds",
-  calmMode: "Calm mode", flashSafety: "Flash safety", reduceMotion: "Reduce Motion", termOutput: "Commandbar output", termHeadings: "Heading per command", largeBtns: "Larger buttons", switchAccess: "Strong focus outline",
+  calmMode: "Calm motion", flashSafety: "Block flashing and strobes", reduceMotion: "Reduce Motion (part of Calm motion)", termOutput: "Commandbar output", termHeadings: "Heading per command", largeBtns: "Larger buttons", switchAccess: "Strong focus outline",
   feedSwitch: "Feed switching", shortcuts: "Your shortcuts", earcons: "Earcons", earconVolume: "Volume", pitchCues: "Pitch cues" };
 Looscid.LC_RESET_LABELS = LC_RESET_LABELS;
 function lcResetKeyItems(sec, only, extra) {
@@ -1849,7 +1849,7 @@ function LcResetHost() {
       lh('button', { type: "button", id: "lc-reset-keys-yes", className: "btn bp lc-big lc-danger", onClick: function () { doReset(confirm, true); } }, "Yes, remove my keys too"),
       lh('button', { type: "button", id: "lc-reset-keys-no", className: "btn bgb lc-big", onClick: function () { const rest = confirm.filter(function (x) { return !x[1].danger; }); if (rest.length) doReset(rest, true); else setConfirm(null); } }, "Keep my keys")) :
     lh('div', { className: "lc-dlg-body" },
-      lh('p', null, st.scope === "all" ? "Choose what to reset, or reset the whole app. Settings come back to their defaults; Flash safety comes back on, and Calm mode matches your device again." : "Choose what to reset. Each setting comes back to its default."),
+      lh('p', null, st.scope === "all" ? "Choose what to reset, or reset the whole app. Settings come back to their defaults; flash blocking comes back on, and Calm motion matches your device again." : "Choose what to reset. Each setting comes back to its default."),
       m.groups.map(function (g) {
         const on = open === g.id, n = g.items.filter(function (it) { return sel[key(g, it)]; }).length;
         const setAll = function (v) { setSel(function (s) { const o = Object.assign({}, s); g.items.forEach(function (it) { o[key(g, it)] = v; }); return o; }); };
@@ -1879,7 +1879,7 @@ const LC_A11Y_CATS = [
   { id: "sr", page: "settings_a11y_sr", l: "Sense", grp: "sense", sub: "General, Speech, Verbosity and Braille, button style on braille" },
   { id: "vision", page: "settings_a11y_vision", l: "Vision", grp: "body", sub: "Text size, high contrast, bold text, spacing" },
   { id: "hearing", page: "settings_a11y_hearing", l: "Hearing", grp: "body", sub: "Captions and visual cues for sounds" },
-  { id: "motion", page: "settings_a11y_motion", l: "Motion", old: "motion and seizure flashing", grp: "body", sub: "Calm mode, Flash safety, Reduce Motion" },
+  { id: "motion", page: "settings_a11y_motion", l: "Motion", old: "motion and seizure flashing", grp: "body", sub: "Calm motion, Block flashing and strobes" },
   { id: "motor", page: "settings_a11y_motor", l: "Motor", old: "motor and switch", grp: "body", sub: "Larger buttons, strong focus outline" },
   // Round 7.37 (Carter, Oct 26 1:47 AM: Commandbar settings go in General): same page and id, listed in General now.
   { id: "terminal", page: "settings_a11y_terminal", l: "Commandbar", hide: true, sub: "How Commandbar output is laid out and read" },
@@ -1903,9 +1903,9 @@ const LC_FIND_STATIC = [
   { l: "Dyslexia-friendly spacing", w: "dyslexia spacing", page: "settings_a11y_vision", focus: "a11y-dyslexiaFont" },
   { l: "Captions for audio", w: "captions deaf", page: "settings_a11y_hearing", focus: "a11y-captions" },
   { l: "Visual cue instead of sounds", w: "glow visual", page: "settings_a11y_hearing", focus: "a11y-visualCue" },
-  { l: "Calm mode", w: "calm quiet", page: "settings_a11y_motion", focus: "a11y-calmMode" },
-  { l: "Flash safety", w: "flash seizure epilepsy", page: "settings_a11y_motion", focus: "a11y-flashSafety" },
-  { l: "Reduce Motion", w: "motion animation", page: "settings_a11y_motion", focus: "a11y-reduceMotion" },
+  { l: "Calm motion", w: "calm mode calm quiet reduce motion reduced animation", page: "settings_a11y_motion", focus: "a11y-calmMotion" },
+  { l: "Block flashing and strobes", w: "flash safety flash flashing strobe strobes seizure epilepsy", page: "settings_a11y_motion", focus: "a11y-flashSafety" },
+  { l: "Reduce Motion", w: "motion animation calm motion", page: "settings_a11y_motion", focus: "a11y-calmMotion" },
   { l: "Larger buttons", w: "motor targets big", page: "settings_a11y_motor", focus: "a11y-largeBtns" },
   { l: "Strong focus outline", w: "switch keyboard focus outline", page: "settings_a11y_motor", focus: "a11y-switchAccess" },
   { l: "Commandbar", w: "commandbar command bar terminal console run commands output history", page: "terminal", where: "Apps" },
@@ -2633,7 +2633,11 @@ const LC_ROUTES = [
   ["settings_customizability", "Settings/Customization"], ["settings_customizability", "Settings/Customizability"], ["settings_cz_order", "Settings/Customization/Settings-Order"], ["settings_cz_theme", "Settings/Customizability/Theme"], ["settings_cz_feeds", "Settings/Customizability/Feeds"],
   ["settings_cz_menu", "Settings/Customizability/Menu"], ["settings_cz_posting", "Settings/Customizability/Dreaming"], ["settings_cz_media", "Settings/Customizability/Media"],
   ["settings_accessibility", "Settings/Accessibility"], ["settings_a11y_sr", "Settings/Sense"], ["settings_a11y_vision", "Settings/Accessibility/Vision"],
-  ["settings_a11y_hearing", "Settings/Accessibility/Hearing"], ["settings_a11y_motion", "Settings/Accessibility/Motion"], ["settings_a11y_motor", "Settings/Accessibility/Motor"],
+  ["settings_a11y_hearing", "Settings/Accessibility/Hearing"], ["settings_a11y_motion", "Settings/Accessibility/Motion"],
+  // Nov 8 2026 (Carter: "One mode for motion"): Calm mode, Reduce Motion and Flash safety live on Motion, as Calm motion and
+  // Block flashing and strobes. Addresses named after any of them open Motion.
+  ["settings_a11y_motion", "Settings/Accessibility/Calm-Motion"], ["settings_a11y_motion", "Settings/Accessibility/Calm-Mode"], ["settings_a11y_motion", "Settings/Accessibility/Reduce-Motion"],
+  ["settings_a11y_motion", "Settings/Accessibility/Flash-Safety"], ["settings_a11y_motion", "Settings/Accessibility/Motion-and-Seizure"], ["settings_a11y_motion", "Settings/Calm-Mode"], ["settings_a11y_motion", "Settings/Flash-Safety"], ["settings_a11y_motor", "Settings/Accessibility/Motor"],
   ["settings_a11y_terminal", "Settings/Accessibility/Commandbar"], ["settings_audio", "Settings/Earcons"], ["settings_audio_volume", "Settings/Earcons/Volume"],
   ["settings_audio_pack", "Settings/Earcons/Soundpacks"], ["settings_audio_events", "Settings/Earcons/Events"], ["settings_audio_haptics", "Settings/Earcons/Haptics"],
   ["settings_apps", "Settings/Apps"], ["settings_keyboard", "Settings/Keyboard"], ["settings_tabbar", "Settings/Tab-Bar"], ["settings_profiletabs", "Settings/Profile-Tabs"], ["settings_backup", "Settings/Backup"], ["settings_intelligence", "Settings/Cherry"], ["settings_intelligence", "Settings/Intelligence"],
@@ -4245,10 +4249,10 @@ const LC_SET = [
     desc: "A short beep each time focus moves. On by default when you choose \u201cWith a screen reader\u201d at setup." },
   { k: "linkPitch", s: "verbosity", l: "Links", t: "bool", d: true, pc: true, al: ["link pitch cue", "link pitch", "link cue", "link sound", "link earcon", "links pitch"] },
   { k: "keyClicks", s: "audio", l: "Keyboard earcons", t: "bool", d: true, al: ["keyboard clicks", "key clicks", "keyboard click", "typing sounds", "typing clicks", "key sounds", "keyboard sounds"],
-    desc: "On by default. A short click for each key you type in a text field. Follows the Earcons switch and the master volume, still plays in Calm mode, and never changes pitch." },
+    desc: "On by default. A short click for each key you type in a text field. Follows the Earcons switch and the master volume, still plays in Calm motion, and never changes pitch." },
   // Round 6.6 (2three1y): every Commandbar command has its own short sound. Additive: no earcon or pitch cue changed.
   { k: "cmdSounds", s: "audio", l: "Command earcons", t: "bool", d: true, al: ["command sounds", "command sound", "commandbar sounds", "sounds for commands", "command earcons"],
-    desc: "On by default. Each Commandbar command plays its own short sound when it runs; commands in the same area sound related. A command that fails plays the error sound. Follows the Earcons switch and the master volume, and still plays in Calm mode. Off: commands play the one run sound, as before." },
+    desc: "On by default. Each Commandbar command plays its own short sound when it runs; commands in the same area sound related. A command that fails plays the error sound. Follows the Earcons switch and the master volume, and still plays in Calm motion. Off: commands play the one run sound, as before." },
   // Build 146: iPhone mutes web sounds on silent; this asks iOS to play Earcons anyway (off by default: it can stop music in other apps).
   { k: "earconsOnSilent", s: "audio", l: "Earcons when iPhone is on silent", t: "bool", d: false, al: ["earcons on silent", "silent mode earcons", "play on silent", "ignore silent switch", "sounds on silent"],
     desc: "Off by default. iPhone mutes sounds from web pages when it's on silent, so Earcons go quiet too. On: Earcons play even on silent, like VoiceOver does. Music playing in another app may stop when an earcon plays." },
@@ -5175,7 +5179,7 @@ const DEVICE_PRESETS = [
   { id: "braille", label: "With a braille display", sub: "Braille output, and Enter sends", set: { screenReader: true, brailleOutput: true, enterSend: true } },
   { id: "lowvision", label: "With low vision", sub: "Larger text, high contrast and bold text", set: { textSize: 2, highContrast: true, boldText: true } },
   { id: "hearing", label: "Deaf or hard of hearing", sub: "Captions, and a gentle visual cue instead of sounds", set: { captions: true, visualCue: true } },
-  { id: "motion", label: "Sensitive to motion or flashing", sub: "Reduce Motion, Calm mode and quieter sounds", set: { reduceMotion: true, calmMode: true, earconVolume: 25 } },
+  { id: "motion", label: "Sensitive to motion or flashing", sub: "Calm motion, flash blocking and quieter sounds", set: { reduceMotion: true, calmMode: true, earconVolume: 25 } },
 ];
 Looscid.DEVICE_PRESETS = DEVICE_PRESETS;
 /* --- Earcons: short (150 ms or less), quiet Web Audio sounds ------------- */
@@ -5728,9 +5732,9 @@ const Music = (function () {
 Looscid.Music = Music;
 /* --- Accessibility settings in plain words (Cherry, Commandbar) ------ */
 const A11Y_NAMES = [
-  ["flashSafety", "Flash safety", ["flash safety", "flash safe", "no flashing", "flashing"]],
-  ["calmMode", "Calm mode", ["calm mode", "calm"]],
-  ["reduceMotion", "Reduce Motion", ["reduce motion", "reduced motion", "motion"]],
+  ["flashSafety", "Block flashing and strobes", ["block flashing and strobes", "block flashing", "flash blocking", "flash safety", "flash safe", "no flashing", "flashing", "strobes"]],
+  // Nov 8 2026 (Carter: "One mode for motion"): Calm mode and Reduce Motion are one switch, Calm motion (see below).
+  ["calmMode", "Calm motion", ["calm motion", "calm mode", "reduce motion", "reduced motion", "calm", "motion"]],
   ["highContrast", "High contrast", ["high contrast", "contrast"]],
   ["boldText", "Bold text", ["bold text", "bold"]],
   ["dyslexiaFont", "Dyslexia-friendly spacing", ["dyslexia friendly spacing", "dyslexia spacing", "dyslexia", "dyslexic"]],
@@ -5835,7 +5839,7 @@ function lcA11yReport() {
   return [
     "Text size: " + TEXT_SIZES[a.textSize || 0] + ". High contrast: " + o(a.highContrast) + ". Bold text: " + o(a.boldText) + ". Dyslexia-friendly spacing: " + o(a.dyslexiaFont) + ".",
     "Captions: " + o(a.captions) + ". Visual cue instead of sounds: " + o(a.visualCue) + ".",
-    "Calm mode: " + o(a.calmMode) + ". Flash safety: " + o(a.flashSafety) + ". Reduce Motion: " + o(motionReduced()) + (systemReducedMotion() ? ", set by your device" : "") + ". Three-flash limit: always enforced.",
+    "Calm motion: " + o(!!a.calmMode || motionReduced()) + (systemReducedMotion() ? ", your device asks for reduced motion" : "") + ". Block flashing and strobes: " + o(a.flashSafety) + ". Three-flash limit: always enforced.",
     "Commandbar output: " + TERM_MODES[a.termOutput || "collapsible"] + ". Heading per command: " + o(a.termHeadings !== false) + ".",
     "Customizability: Feed switching: " + LC_FEED_MODES.find(function (x) { return x[0] === lcFeedMode(a.feedSwitch); })[1] + ".",
   ].concat(["sr_general", "verbosity", "sr_speech", "sr_braille", "audio", "quiet", "feeds", "posting", "media", "filters", "perm"].map(lcSectionReport).filter(Boolean))
@@ -5853,7 +5857,7 @@ function lcA11yIntent(raw) {
   }
   const OFF = /\b(off|disable|disabled|deactivate|stop|no more|mute|kill)\b/, ON = /\b(on|enable|enabled|activate|start|unmute)\b/;
   const isOff = OFF.test(n), isOn = !isOff && ON.test(n);
-  if (/\b(three|3) flash|flash limit|flash rule|wcag\b/.test(n)) return { say: "The three-flash limit is a hard rule, not a setting, so it can't be turned off: nothing in Looscid flashes more than three times a second. Flash safety is a separate setting: say turn off flash safety to change it." };
+  if (/\b(three|3) flash|flash limit|flash rule|wcag\b/.test(n)) return { say: "The three-flash limit is a hard rule, not a setting, so it can't be turned off: nothing in Looscid flashes more than three times a second. Block flashing and strobes is a separate setting: say turn off block flashing to change it." };
   let m;
   if (/\bfeed (switching|switcher|switch mode|mode|control)\b/.test(n)) {
     const v = /\b(menu|pop ?up|popup|button)\b/.test(n) ? "menu" : /\btabs?\b/.test(n) ? "tabs" : null;
@@ -5885,12 +5889,16 @@ function lcA11yIntent(raw) {
     hits.forEach(function (row) {
       const k = row[0], v = isOn;
       if (k === "reduceMotion" && !v && systemReducedMotion()) { says.push("Reduce Motion stays on, because your device asks for reduced motion."); return; }
+      // Nov 8 2026 (Carter: "One mode for motion"): Calm motion is Calm mode and Reduce Motion together. On also turns flash
+      // blocking on; off never turns it off.
+      if (k === "calmMode") { patch.calmMode = v; patch.reduceMotion = v; if (v) patch.flashSafety = true;
+        says.push("Calm motion is now " + (v ? "on" : "off") + "." + (!v && systemReducedMotion() ? " Your device still asks for reduced motion, so animations stay off." : "") + (!v ? " Flashing is still blocked." : "")); return; }
       patch[k] = v; says.push(row[1] + (k === "earcons" ? " are" : " is") + " now " + (v ? "on" : "off") + "." + (k === "flashSafety" && !v ? " The three-flash limit still applies." : ""));
     });
     return Object.keys(patch).length ? { patch: patch, say: says.join(" ") } : { say: says.join(" ") };
   }
   if (hits.length && (verb || words.length <= 3)) {
-    const row = hits[0], v = row[0] === "reduceMotion" ? motionReduced() : !!a[row[0]];
+    const row = hits[0], v = row[0] === "reduceMotion" ? motionReduced() : row[0] === "calmMode" ? (!!a.calmMode || motionReduced()) : !!a[row[0]];
     return { say: row[1] + " is " + (v ? "on" : "off") + ". Say turn " + row[2][0] + " " + (v ? "off" : "on") + " to change it." };
   }
   if ((verb || isOn || isOff) && (isOn || isOff || verb) && words.length <= 6) {
@@ -6854,7 +6862,7 @@ function lcRun(raw, api) {
       L((navigator.onLine === false ? "Offline" : "Online") + ". Looscid " + LOOSCID_VERSION + " is local-first, so your data stays on this device." + (Looscid.lcNostr && Looscid.lcNostr.state().canDream ? " Your Dreams with Audience Everyone also go to your Nostr relays." : ""), "ok");
       L("LooscidID: " + (p.displayName || "Dreamor") + (p.handle ? " (" + p.handle + ")" : "") + ", saved on this device.");
       L("Earcons: " + (a.visualCue ? "replaced by the visual cue" : a.earcons ? "on, volume " + a.earconVolume + " percent" : "off") + ". Captions: " + (a.captions ? "on" : "off") + ".");
-      L("Calm mode: " + (a.calmMode ? "on" : "off") + ". Flash safety: " + (a.flashSafety ? "on" : "off") + ". Reduce Motion: " + (motionReduced() ? "on" + (systemReducedMotion() ? ", set by your device" : "") : "off") + ". Three-flash limit: always enforced.");
+      L("Calm motion: " + (a.calmMode || motionReduced() ? "on" : "off") + (systemReducedMotion() ? ", your device asks for reduced motion" : "") + ". Block flashing and strobes: " + (a.flashSafety ? "on" : "off") + ". Three-flash limit: always enforced.");
       if (Music.playing()) L("Music: " + Music.current().label + ", playing.");
       L("Sense: Screen reader hints " + (a.screenReader ? "on" : "off") + ", Braille output " + (a.brailleOutput ? "on" : "off") + ", Enter = Send " + (a.enterSend ? "on" : "off") + ", Short labels on braille " + (a.closeLabels !== false ? "on" : "off") + ".");
       L("Feed switching: " + LC_FEED_MODES.find(function (x) { return x[0] === lcFeedMode(a.feedSwitch); })[1] + ", in Settings, Customization.");
@@ -8820,7 +8828,7 @@ useEffect(() => {
   const onDeviceDone = (patch, picked) => {
     setA11yAsked(); setAskDevice(false);
     if (patch) { if ("calmMode" in patch) lcSetCalmChosen(true); setA11yPatch(patch); announce("Set up for: " + picked.join(", ") + ". You can change each option in Settings, Accessibility."); }
-    else announce("Skipped. Looscid keeps its defaults. Calm mode matches your device's Reduce Motion setting. You can set this up any time in Settings, Accessibility.");
+    else announce("Skipped. Looscid keeps its defaults. Calm motion matches your device's Reduce Motion setting, and flashing stays blocked. You can set this up any time in Settings, Accessibility.");
     focusMainHeading();
   };
 

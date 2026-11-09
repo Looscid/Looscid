@@ -44,7 +44,7 @@ Here's what I promise:
 - I follow the rules for accessible apps. But they're where I start, not where I stop.
 - If an update breaks something for you, that's a bug. I fix it.
 - Every screen reader gets the same love, not just one.
-- If flashing lights or animations can hurt you, you still belong here. That's why there's Flash safety and Calm mode. Zero animation mode is coming too.
+- If flashing lights or animations can hurt you, you still belong here. That's why there's Calm motion and flash blocking. Zero animation mode is coming too.
 
 I don't do this to stay out of trouble. I do it because I won't let anyone get hurt or left out.
 
@@ -97,7 +97,7 @@ How it can affect apps: Flashing on a screen can cause seizures, migraines, dizz
 
 History: On December 16, 1997, many children in Japan had seizures while watching a cartoon on TV. Doctors studied what happened.
 
-What Looscid does: Flash safety is on from the start. Nothing in Looscid flashes more than three times a second. Calm mode starts out matching your device's Reduce Motion setting, and you can flip it yourself. Coming next: Flash safety will also catch strobe effects, and Zero animation mode will stop all motion with one switch.
+What Looscid does: Block flashing and strobes is on from the start. Nothing in Looscid flashes more than three times a second. Calm motion starts out matching your device's Reduce Motion setting, and you can flip it yourself. Coming next: flash blocking will also catch strobe effects in Dreams, and Zero animation mode will stop all motion with one switch.
 
 ### Vestibular disorders (motion sensitivity)
 
@@ -109,7 +109,7 @@ How it can affect apps: Motion on a screen can cause dizziness, nausea and heada
 
 History: In 1861, Prosper Ménière described patients with spells of vertigo and hearing loss. Vertigo is a spinning feeling. Back then, doctors thought vertigo came from the brain. Ménière pointed to the inner ear.
 
-What Looscid does: Reduce Motion stops things from sliding and moving. It follows your device's setting. Calm mode means less movement. Zero animation mode is coming.
+What Looscid does: Calm motion stops things from sliding and moving. It follows your device's setting until you flip it. Zero animation mode is coming.
 
 ### Motor and mobility disabilities
 
@@ -131,7 +131,7 @@ How it can affect apps: Apps get hard to use when they have long forms or confus
 
 History: In 1896, Dr. W. Pringle Morgan wrote about Percy. Percy was a bright boy who had a hard time learning to read. He was one of the first children described with what's now called dyslexia. In 1902, Dr. George Still described 43 children with serious attention problems. That's seen as an early description of ADHD.
 
-What Looscid does: This page is written in plain words. Vision settings have dyslexia-friendly spacing. Calm mode cuts down on movement. Zero animation mode is coming.
+What Looscid does: This page is written in plain words. Vision settings have dyslexia-friendly spacing. Calm motion cuts down on movement. Zero animation mode is coming.
 
 ## Settings that help {#accessibility-settings}
 
@@ -167,13 +167,12 @@ For you if small buttons are hard to press, or you use a keyboard or a switch.
 
 ### Motion
 
-For you if movement or flashing can hurt you. It has three switches.
+For you if movement or flashing can hurt you. It's one switch for motion, plus flash blocking that stays on.
 
-- Flash safety is on from the start. Nothing in Looscid flashes more than three times a second. That limit is always on.
-- Calm mode starts out matching your device's Reduce Motion setting. Flip it yourself and your choice sticks. It means less movement, softer sounds and gentler vibration.
-- Reduce Motion stops things from sliding and moving. If your device already asks for less motion, Looscid does it for you.
+- Calm motion is one switch for all of it: no sliding or moving, softer sounds and gentler vibration. It starts out matching your device's Reduce Motion setting. Flip it yourself and your choice sticks. If your device already asks for less motion, Looscid does it for you.
+- Block flashing and strobes is on from the start, and turning Calm motion off never turns it off. Nothing in Looscid flashes more than three times a second. That limit is always on.
 
-[Open Motion settings](https://looscid.github.io/Looscid/More/Settings/Accessibility/Motion/)
+[Turn on Calm motion](https://looscid.github.io/Looscid/More/Settings/Accessibility/Motion/)
 
 ### Sense
 
@@ -235,7 +234,7 @@ I want real people with disabilities testing Looscid. Here's how I test, and you
 2. Put the mouse away and use only the keyboard.
 3. Zoom in to 200%.
 4. Turn on high contrast and see if you can still read everything.
-5. Turn on Reduce Motion and check that nothing slides around.
+5. Turn on Calm motion and check that nothing slides around.
 
 If anything trips you up, that's a bug. Tell me about it (here's how, down below).
 
@@ -244,7 +243,7 @@ If anything trips you up, that's a bug. Tell me about it (here's how, down below
 I'd rather be honest than act like it's perfect lol. Here's what isn't ready yet:
 
 - Zero animation mode, one switch that stops all motion. It's coming.
-- Flash safety catching strobe effects. Coming next.
+- Flash blocking catching strobe effects in Dreams. Coming next.
 - An appeal button for bans. For now, use Send Feedback.
 - A check by an outside accessibility expert. Hasn't happened yet.
 
@@ -308,7 +307,7 @@ Looscid has no ads. It doesn't sell your data.
 
 I want to hear it, big or small.
 
-Some of the best ideas on the roadmap came from people in the epilepsy community. Zero animation mode came from them. So did strobe checks in Flash safety. 💜
+Some of the best ideas on the roadmap came from people in the epilepsy community. Zero animation mode came from them. So did strobe checks in flash blocking. 💜
 
 - [Send Feedback](https://looscid.github.io/Looscid/Feedback/)
 - [GitHub issues](https://github.com/Looscid/Looscid/issues)

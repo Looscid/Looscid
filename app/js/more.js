@@ -1812,6 +1812,8 @@ function A11yCategory({ page, navigate, prefs, setPrefs }) {
   const cat = LC_A11Y_PAGE[page];
   const a = Object.assign({}, A11Y_DEFAULTS, prefs.accessibility || {});
   const set = function (k, v) { setPrefs(function (p) { const acc = Object.assign({}, A11Y_DEFAULTS, p.accessibility || {}); acc[k] = v; Looscid.A11Y_NOW = acc; return Object.assign({}, p, { accessibility: acc }); }); };
+  // Nov 8 2026: a few settings at once (Calm motion sets Calm mode and Reduce Motion together).
+  const setMany = function (o) { setPrefs(function (p) { const acc = Object.assign({}, A11Y_DEFAULTS, p.accessibility || {}, o); Looscid.A11Y_NOW = acc; return Object.assign({}, p, { accessibility: acc }); }); };
   const sysRM = systemReducedMotion();
   const sw = function (k, label, desc) { return lh(A11ySwitch, { key: k, id: "a11y-" + k, label: label, desc: desc, on: !!a[k], onToggle: function () { set(k, !a[k]); } }); };
   const reset = function (sec) { return LC_SECTIONS[sec] ? lh(LcResetBtn, { key: "reset", sec: sec, label: LC_SECTIONS[sec].t }) : null; };
@@ -1831,24 +1833,29 @@ function A11yCategory({ page, navigate, prefs, setPrefs }) {
     reset("vision")];
   else if (cat.id === "hearing") body = [
     sw("captions", "Captions for audio", "Shows a short text caption, like [Alerts sound], at the top of the screen whenever Looscid plays a sound."),
-    sw("visualCue", "Visual cue instead of sounds", "Swaps sounds for a soft glow around the edge of the screen, one gentle fade at most once a second. While Flash safety is on, a text caption is shown instead of the glow."),
+    sw("visualCue", "Visual cue instead of sounds", "Swaps sounds for a soft glow around the edge of the screen, one gentle fade at most once a second. While Block flashing and strobes is on, a text caption is shown instead of the glow."),
     reset("hearing")];
   else if (cat.id === "motion") body = [
-    // Nov 8 2026 (Carter, 7:01 PM): Calm mode starts out matching the device's Reduce Motion setting. Ticking or unticking
-    // it is your choice and it's saved; "Match my device again" goes back to following the device.
-    lh(A11ySwitch, { key: "calmMode", id: "a11y-calmMode", label: "Calm mode", on: !!a.calmMode,
-      onToggle: function () { Looscid.lcSetCalmChosen(true); set("calmMode", !a.calmMode); },
-      desc: "Starts out matching your device's Reduce Motion setting. Stops looping animations, makes sounds a little softer, and keeps visual cues gentle. Earcons keep their beeps and boops." }),
+    // Nov 8 2026 (Carter, 8:02 PM: "Calm mode etc get connected. One mode for motion lol" + "flash safety in that shit as
+    // well"): Calm mode and Reduce Motion are ONE switch now, Calm motion. On, it's Calm mode and Reduce Motion together, and
+    // it turns flash blocking on too. Off, it turns both off, and NEVER turns flash blocking off: that one only changes when
+    // you untick it yourself (epilepsy safety first). Calm motion still starts out matching the device's Reduce Motion, and
+    // "Match my device again" goes back to that. Saved choices stay as they were: the switch reads on if either was on.
+    lh('p', { key: "intro", className: "lc-intro", id: "a11y-motion-intro" }, "One switch for calmer motion. Blocking flashing and strobes is right under it, and it stays on unless you turn it off yourself."),
+    lh(A11ySwitch, { key: "calmMotion", id: "a11y-calmMotion", label: "Calm motion", on: !!a.calmMode || !!a.reduceMotion,
+      onToggle: function () { const v = !(a.calmMode || a.reduceMotion); Looscid.lcSetCalmChosen(true);
+        setMany(v ? { calmMode: true, reduceMotion: true, flashSafety: true } : { calmMode: false, reduceMotion: false });
+        if (!v) announce(sysRM ? "Your device still asks for reduced motion, so animations stay off. Flashing is still blocked." : "Flashing is still blocked."); } }),
+    lh('p', { key: "calmwhat", className: "lc-desc", id: "a11y-calmMotion-what" }, "Turns off animations, transitions and looping effects, makes sounds a little softer, and keeps visual cues gentle. Earcons keep their beeps and boops."),
     lh('p', { key: "calmsrc", className: "lc-desc lc-calm-src" }, Looscid.lcCalmChosen()
-      ? "You chose this, so it stays the way you set it."
-      : "Right now it matches your device: Reduce Motion is " + (sysRM ? "on" : "off") + " there, so Calm mode is " + (a.calmMode ? "on" : "off") + "."),
+      ? "You chose this, so it stays the way you set it." + (sysRM ? " Your device asks for reduced motion, so animations stay off either way." : "")
+      : "Right now it matches your device: Reduce Motion is " + (sysRM ? "on" : "off") + " there, so Calm motion is " + (a.calmMode || sysRM ? "on" : "off") + "."),
     Looscid.lcCalmChosen() ? lh('button', { key: "calmdev", type: "button", id: "a11y-calm-device", className: "btn bgb lc-btn",
-      onClick: function () { Looscid.lcSetCalmChosen(false); const v = Looscid.lcCalmDevice(); set("calmMode", v); announce("Calm mode matches your device again. It's " + (v ? "on" : "off") + " now."); } }, "Match my device again") : null,
-    sw("flashSafety", "Flash safety", "On by default. Nothing on Looscid flashes, blinks or pulses: no glow cue (a text caption is shown instead) and no looping effects."),
-    lh(A11ySwitch, { key: "reduceMotion", id: "a11y-reduceMotion", label: "Reduce Motion", on: !!a.reduceMotion || sysRM, locked: sysRM,
-      onToggle: function () { set("reduceMotion", !a.reduceMotion); },
-      desc: sysRM ? "Your device asks for reduced motion, so this stays on. Reduce Motion always wins." : "Turns off animations and transitions everywhere. Reduce Motion always wins over every other setting, Calm mode included." }),
-    lh('p', { key: "flash", className: "lc-rule" }, lh('strong', null, "Three-flash limit: a hard rule, not a setting. "), "Even with Flash safety off, nothing in Looscid flashes more than three times in any one second (WCAG 2.3.1)."),
+      onClick: function () { Looscid.lcSetCalmChosen(false); const v = Looscid.lcCalmDevice(); setMany({ calmMode: v, reduceMotion: false }); announce("Calm motion matches your device again. It's " + (v ? "on" : "off") + " now."); } }, "Match my device again") : null,
+    // The same setting as before (flashSafety), only its name changed. On by default; nothing else turns it off.
+    sw("flashSafety", "Block flashing and strobes", "On by default. Nothing on Looscid flashes, blinks or pulses: no glow cue (a text caption is shown instead) and no looping effects."),
+    lh('p', { key: "flashwhat", className: "lc-desc", id: "a11y-flashSafety-what" }, "On from the start. Looscid itself never flashes, blinks or pulses: no glow cue (you get a text caption instead) and no looping effects. Calm motion and your device's settings never turn this off. Catching strobes in videos in Dreams is coming next."),
+    lh('p', { key: "flash", className: "lc-rule" }, lh('strong', null, "Three-flash limit: a hard rule, not a setting. "), "Even with flash blocking off, nothing in Looscid flashes more than three times in any one second (WCAG 2.3.1)."),
     reset("motion")];
   else if (cat.id === "motor") body = [
     sw("largeBtns", "Larger buttons", "Bigger tap targets across the app."),
@@ -3873,8 +3880,8 @@ function lcAboutInfo() {
       ["Network", navigator.onLine === false ? "offline" : "online"],
     ],
     access: [
-      "Calm mode starts out matching your device's Reduce Motion setting, until you choose. Reduce Motion always wins, and it follows your device's setting too.",
-      "Flash safety is on by default: nothing flashes, blinks or pulses. The three-flash limit is a hard rule on top: even with Flash safety off, nothing flashes more than three times in any one second.",
+      "Calm motion is one switch for calmer motion. It starts out matching your device's Reduce Motion setting, until you choose, and your device asking for reduced motion always wins.",
+      "Block flashing and strobes is on by default: nothing flashes, blinks or pulses, and Calm motion never turns it off. The three-flash limit is a hard rule on top: even with flash blocking off, nothing flashes more than three times in any one second.",
       "Results from Commandbar are read out through one polite live region.",
       "Braille output sends short labels to a connected braille display through your screen reader.",
     ],

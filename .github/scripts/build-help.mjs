@@ -26,7 +26,7 @@ const sandbox = { window: {} };
 vm.runInNewContext(fs.readFileSync(path.join(APP, "js", "helpdata.js"), "utf8"), sandbox);
 const H = sandbox.window.Looscid.LC_HELP;
 const coreSrc = fs.readFileSync(path.join(APP, "js", "core.js"), "utf8");
-const routes = new Set([...coreSrc.slice(coreSrc.indexOf("const LC_ROUTES = ["), coreSrc.indexOf("];", coreSrc.indexOf("const LC_ROUTES = ["))).matchAll(/\["[a-z_]+", "([^"]*)"\]/g)].map(m => m[1].toLowerCase()));
+const routes = new Set([...coreSrc.slice(coreSrc.indexOf("const LC_ROUTES = ["), coreSrc.indexOf("];", coreSrc.indexOf("const LC_ROUTES = ["))).matchAll(/\["[a-z0-9_]+", "([^"]*)"\]/g)].map(m => m[1].toLowerCase()));
 // Nov 8 2026 (Carter: "/more/settings links"): core.js also gives every settings screen an address under More, like
 // More/Settings/General (built from the Settings/... routes, so it isn't written out in the list above).
 [...routes].filter(r => /^settings(\/|$)/.test(r)).forEach(r => routes.add("more/" + r));
