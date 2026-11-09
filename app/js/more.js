@@ -1004,7 +1004,11 @@ function ProfilePage({navigate, authUser, cherryCtx, onUpdateProfile}) {
 /* Nov 8 2026 (Carter approved in Dreamor Council: "Website preview on profile"): a profile's website as a preview card.
    It's one normal link, with the page's own title, its description and the address as text, so a screen reader reads it
    as a link with words. No picture (so nothing to describe, and no other site gets your visit). Rem reads the page for us
-   (Looscid.lcNet.preview, js/net.js). While it loads, or if there's no preview, it's a plain link to the website. */
+   (Looscid.lcNet.preview, js/net.js). While it loads, or if there's no preview, it's a plain link to the website.
+   Nov 8 2026, 7:34 PM (Carter: "Can we copy [that] style?"): it looks like a chat app's link card now. A colored bar on the
+   left, the site's name small on top, the title bold like a link, up to 3 lines of description, then the address. Still one
+   link with no label, read in the order it shows: site name, title, description, address, with a short pause between. The
+   site name only shows when the page names itself and it isn't just the address again. */
 function LcSitePreview({ url }) {
   const [p, setP] = useState(null);
   useEffect(function () { let live = true; setP(null);
@@ -1012,10 +1016,14 @@ function LcSitePreview({ url }) {
     return function () { live = false; }; }, [url]);
   const host = lcLinkHost(url);
   if (!p) return lh('p', { className: "lc-site-prev-plain" }, "Website: ", lh('a', { className: "lc-link", href: url, target: "_blank", rel: "noopener noreferrer me" }, lcLinkShow(url)));
-  return lh('a', { className: "lc-site-prev", href: url, target: "_blank", rel: "noopener noreferrer me" },
-    lh('span', { className: "lc-site-prev-t" }, p.title), lh('span', { className: "sr-only" }, ". "), // a pause between the parts for screen readers
-    p.description ? lh('span', { className: "lc-site-prev-d" }, p.description) : null, p.description ? lh('span', { className: "sr-only" }, ". ") : null,
-    lh('span', { className: "lc-site-prev-u" }, p.site && p.site.toLowerCase() !== host.toLowerCase() ? p.site + ", " + host : host));
+  const site = p.site && p.site.toLowerCase() !== host.toLowerCase() ? p.site : "";
+  const pause = function (k) { return lh('span', { key: k, className: "sr-only" }, ". "); }; // a pause between the parts for screen readers
+  const parts = [];
+  if (site) parts.push(lh('span', { key: "s", className: "lc-site-prev-s" }, site), pause("ps"));
+  parts.push(lh('span', { key: "t", className: "lc-site-prev-t" }, p.title), pause("pt"));
+  if (p.description) parts.push(lh('span', { key: "d", className: "lc-site-prev-d" }, p.description), pause("pd"));
+  parts.push(lh('span', { key: "u", className: "lc-site-prev-u" }, host));
+  return lh('a', { className: "lc-site-prev", href: url, target: "_blank", rel: "noopener noreferrer me" }, parts);
 }
 function lcLinkHost(u) { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return String(u || ""); } }
 function lcLinkShow(u) { return String(u || "").replace(/^https?:\/\/(www\.)?/i, "").replace(/\/$/, ""); }
