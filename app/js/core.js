@@ -6274,6 +6274,19 @@ function lcAlertPrefs() {
 }
 function lcAlerts() { try { const v = JSON.parse(localStorage.getItem(LC_ALERTS_KEY) || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
 function lcAlertsSave(list) { try { localStorage.setItem(LC_ALERTS_KEY, JSON.stringify(list.slice(0, 100))); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:alerts")); }
+/* Nov 9 2026 (Carter: "in the Alerts tab, when clicking on an item, I don't go to that item"): every alert keeps what it's
+   about in a.go, so tapping it in the Alerts tab (js/alerts.js, lcAlertOpen) opens that thing: the Dream (dream: its id
+   here; nid, ref and pk: its Nostr or Rem ids), the person (who), a Circle (circle) or a page (page, data). A grouped alert
+   ("Jeff and 2 others liked...") keeps the newest one's target, and refs counts how many different Dreams it's about. */
+function lcAlertKeep(a, user, extra, grouped) {
+  const go = {};
+  if (user && (user.id || user.pk)) go.who = { id: user.id != null ? String(user.id) : "", pk: user.pk ? String(user.pk) : "", name: user.name ? String(user.name) : "", handle: user.handle ? String(user.handle) : "" };
+  ["pk", "ref", "nid", "thread", "dream", "circle", "page"].forEach(function (k) { if (extra && extra[k] != null && extra[k] !== "") go[k] = String(extra[k]); });
+  if (extra && extra.data && typeof extra.data === "object") go.data = extra.data;
+  a.go = go;
+  const what = go.ref || go.dream || go.nid || go.thread;
+  if (what) { const was = grouped && Array.isArray(a.refs) ? a.refs : grouped ? [a.ref || a.nid || a.thread || ""].filter(Boolean) : []; a.refs = was.filter(function (x) { return x !== what; }).concat([what]).slice(-20); }
+}
 // The one door every alert goes through. Returns the stored alert, or null when settings say no.
 function lcNotify(type, text, user, preview, extra) {
   const T = LC_ALERT_TYPES.find(function (x) { return x.id === type; }); if (!T) return null;
@@ -6290,12 +6303,13 @@ function lcNotify(type, text, user, preview, extra) {
     const sub = !!(extra && extra.sub);
     const g = list.find(function (x) { return x.type === type && x.unread && now - x.time < 30 * 60000 && !!x.sub === sub; });
     if (g) { const nm = user && user.name ? String(user.name) : ""; g.names = (nm ? [nm] : []).concat((g.names || (g.user && g.user.name ? [g.user.name] : [])).filter(function (x) { return x !== nm; })).slice(0, 10);
-      g.count = (g.count || 1) + 1; g.time = now; g.user = null; g.text = g.count + " " + (sub ? "new replies in threads you follow" : T.many); g.preview = preview || g.preview; a = g; list.splice(list.indexOf(g), 1); list.unshift(g); }
+      g.count = (g.count || 1) + 1; g.time = now; g.user = null; g.text = g.count + " " + (sub ? "new replies in threads you follow" : T.many); g.preview = preview || g.preview; lcAlertKeep(g, user, extra, true); a = g; list.splice(list.indexOf(g), 1); list.unshift(g); }
   }
   if (!a) { a = { id: now + "-" + Math.random().toString(36).slice(2, 7), type: type, text: text, user: user ? { id: user.id, name: user.name, handle: user.handle, initials: user.initials, color: user.color } : null, preview: preview || "", time: now, unread: true, count: 1 };
     if (extra && extra.sub) { a.sub = true; a.thread = String(extra.thread || ""); }
     if (extra && extra.report) a.report = String(extra.report); // Nov 8 2026: an Alert about one of your reports (js/reportcenter.js)
     if (extra && extra.pk) a.pk = String(extra.pk); if (extra && extra.ref) a.ref = String(extra.ref); if (extra && extra.nid) a.nid = String(extra.nid);
+    lcAlertKeep(a, user, extra, false);
     list.unshift(a); }
   lcAlertsSave(list);
   if (tp.sound && !lcQuietNow()) Earcon.play(T.earcon);
@@ -6375,9 +6389,9 @@ function lcThreadUnsub(root) { lcThreadSubsSave(lcThreadSubs().filter(function (
 const LC_SHOW_THREADS_KEY = "looscid_show_threads";
 function lcShowThreadsOn() { try { return localStorage.getItem(LC_SHOW_THREADS_KEY) === "1"; } catch (e) { return false; } }
 function lcShowThreadsSet(on) { try { if (on) localStorage.setItem(LC_SHOW_THREADS_KEY, "1"); else localStorage.removeItem(LC_SHOW_THREADS_KEY); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:threadsubs")); }
-function lcThreadAlert(root, user, text) {
+function lcThreadAlert(root, user, text, nid) {
   if (user && typeof lcAudienceOk === "function" && !lcAudienceOk((Looscid.A11Y_NOW || {}).whoReply || "everyone", user, "perm_whoReply")) return null;
-  return lcNotify("reply", "New reply in a thread you follow", user, String(text || "").slice(0, 140), { sub: true, thread: root });
+  return lcNotify("reply", "New reply in a thread you follow", user, String(text || "").slice(0, 140), { sub: true, thread: root, nid: nid || "", pk: user && user.id ? user.id : "" });
 }
 let lcThreadTimer = null, lcThreadBusy = false;
 async function lcThreadCheck() {
@@ -6393,7 +6407,7 @@ async function lcThreadCheck() {
     const now = lcThreadSubs();
     fresh.sort(function (a, b) { return a.created - b.created; }).forEach(function (r) {
       const s = now.find(function (x) { return x.nid && r.roots.indexOf(x.nid) >= 0; }); if (!s || r.created / 1000 < (s.since || 0)) return;
-      seen.push(r.id); if (lcThreadAlert(s.root, { id: r.pk, name: lcNostrName(r.pk, r.npub), handle: r.npub || "" }, r.text)) n++;
+      seen.push(r.id); if (lcThreadAlert(s.root, { id: r.pk, name: lcNostrName(r.pk, r.npub), handle: r.npub || "" }, r.text, r.id)) n++;
     });
     try { localStorage.setItem(seenK, JSON.stringify(seen.slice(-1000))); } catch (e) {}
   } catch (e) {}
@@ -6514,7 +6528,7 @@ async function lcInboxCheck() {
     (got || []).sort(function (a, b) { return a.created - b.created; }).forEach(function (r) {
       if (!r || !r.id || seen.indexOf(r.id) >= 0) return; seen.push(r.id);
       const T = LC_ALERT_TYPES.find(function (x) { return x.id === r.type; }); if (!T) return;
-      if (r.type === "reply" && r.ref && lcThreadSubs().some(function (s) { return s.nid === r.ref; })) { if (lcThreadAlert(lcThreadSubs().find(function (s) { return s.nid === r.ref; }).root, { id: r.pk, name: lcNostrName(r.pk, r.npub), handle: r.npub }, r.text)) n++; return; }
+      if (r.type === "reply" && r.ref && lcThreadSubs().some(function (s) { return s.nid === r.ref; })) { if (lcThreadAlert(lcThreadSubs().find(function (s) { return s.nid === r.ref; }).root, { id: r.pk, name: lcNostrName(r.pk, r.npub), handle: r.npub }, r.text, r.id)) n++; return; }
       if (lcNotify(r.type, T.one, { id: r.pk, name: lcNostrName(r.pk, r.npub), handle: r.npub || "" }, r.text, { pk: r.pk, ref: r.ref, nid: r.id })) n++;
     });
     try { localStorage.setItem(seenK, JSON.stringify(seen.slice(-1000))); localStorage.setItem(sk, String(now)); } catch (e) {}
@@ -6619,7 +6633,7 @@ function useAlerts() {
 function lcVersionAlert() {
   try {
     const k = "looscid_seen_version", was = localStorage.getItem(k);
-    if (was !== LOOSCID_VERSION) { localStorage.setItem(k, LOOSCID_VERSION); if (was) lcNotify("system", "Looscid updated to " + lcCodenamed(LOOSCID_CODENAME, LOOSCID_VERSION) + ". What's new is in About.", null); }
+    if (was !== LOOSCID_VERSION) { localStorage.setItem(k, LOOSCID_VERSION); if (was) lcNotify("system", "Looscid updated to " + lcCodenamed(LOOSCID_CODENAME, LOOSCID_VERSION) + ". What's new is in About.", null, "", { page: "settings_about" }); }
   } catch (e) {}
 }
 // Security pass (Oct 2026): a Nostr key saved without a passcode (from before passcodes were the default) gets one gentle
@@ -6629,7 +6643,7 @@ function lcKeyLockAlert() {
     const k = "looscid_nostr_lock_noted", plain = localStorage.getItem(LID_NOSTR_SK_KEY);
     if (localStorage.getItem(k) || !plain || !/^[0-9a-f]{64}$/i.test(plain) || localStorage.getItem("looscid_nostr_ncryptsec")) return;
     localStorage.setItem(k, "1");
-    lcNotify("system", "Your Nostr key is saved without a passcode. Lock it with a passcode in Settings, LooscidID, Keys and IDs, so nothing else on this site can copy it.", null);
+    lcNotify("system", "Your Nostr key is saved without a passcode. Lock it with a passcode in Settings, LooscidID, Keys and IDs, so nothing else on this site can copy it.", null, "", { page: "nostr_key" });
   } catch (e) {}
 }
 Looscid.lcKeyLockAlert = lcKeyLockAlert;

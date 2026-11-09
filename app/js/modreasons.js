@@ -103,7 +103,7 @@ function lcModRemove(d, reason, circle) {
   if (circle && myPk()) rec.mod = myPk();
   const errs = validate(rec); if (errs.length) return { ok: false, say: errs[0].message, errors: errs };
   const m = all(); ks.forEach(function (k) { m[k] = rec; }); save(m);
-  if (isMine(d) && Looscid.lcNotify) { try { Looscid.lcNotify("system", authorAlert(rec, d), null); } catch (e) {} }
+  if (isMine(d) && Looscid.lcNotify) { try { Looscid.lcNotify("system", authorAlert(rec, d), null, "", { dream: d.id != null ? String(d.id) : "", nid: /^[0-9a-f]{64}$/i.test(String(d.nid || "")) ? String(d.nid).toLowerCase() : "", circle: rec.circleId || "" }); } catch (e) {} } // Nov 9 2026: tapping it opens the Dream
   // Nov 8 2026: a Circle removal goes to Rem too (signed with your key), so your other devices and the public log see it.
   // Without a key it stays on this device, like before. A Looscid admin's removal needs the Dream's Rem id.
   if (circle && rec.circleId && REF_OK.test(rec.circleId) && Looscid.lcNet && Looscid.lcNet.moderate) { const ref = /^[0-9a-f]{64}$/i.test(String(d.nid || "")) ? String(d.nid).toLowerCase() : String(d.id);
@@ -132,7 +132,7 @@ async function lcModSync() {
     const reason = clean(String(it.reason || "")); if (!reason) return;
     if (m[id] && m[id].reason === reason) return;
     m[id] = { dreamId: id, status: "rejected", reason: reason.slice(0, MAX_REASON - 1), role: "admin", circleId: null, circleName: null, by: null, at: +it.at || Date.now(), remote: true }; changed = true;
-    if (Looscid.lcNotify) { try { Looscid.lcNotify("system", authorAlert(m[id], { text: it.text || "" }), null); } catch (e) {} }
+    if (Looscid.lcNotify) { try { Looscid.lcNotify("system", authorAlert(m[id], { text: it.text || "" }), null, "", { nid: id }); } catch (e) {} } // Nov 9 2026: tapping it opens the Dream
   });
   if (changed) save(m);
 }

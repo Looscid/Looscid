@@ -71,8 +71,6 @@ function alertWhat(n) {
   if (c > 1 && T.by && n.names && n.names.length) return T.by + " " + n.names[0] + (c > 1 ? " and " + (c - 1) + (c - 1 === 1 ? " other" : " others") : "");
   return (n.user ? n.user.name + " " : "") + n.text;
 }
-// Round 8 fixes (QA round 7): a preview that already ends in a period read ".." before the time.
-function alertLabel(n) { const s = alertWhat(n) + (n.preview ? ". " + n.preview : ""); return s + (/[.!?\u2026]$/.test(s) ? " " : ". ") + lcAlertTime(n.time) + (n.unread ? ". Unread." : ""); }
 function pmStateNote() {
   const N = Looscid.lcNostr, mode = N && N.pmMode ? N.pmMode() : "none";
   if (mode === "key" || mode === "signer") return null;
@@ -101,17 +99,158 @@ function alertMuteItem(n) {
     if (on) { const l = Looscid.lcThreadMuted; refs.concat(n.nid ? [String(n.nid)] : []).forEach(function (r) { if (l(r)) Looscid.lcThreadMuteToggle({ id: r }); }); announce("Unmuted this conversation. Its alerts come back."); }
     else announce(Looscid.lcThreadMuteToggle({ _root: refs[0], nid: n.nid && n.nid !== refs[0] ? n.nid : undefined })); }];
 }
+/* Nov 9 2026 (Carter, 4:08 PM: "in the Alerts tab, when clicking on an item, I don't go to that item"). The bug: the row
+   was a button that only marked the alert read, and most alerts didn't even keep what they were about. Now every alert
+   keeps its target (lcAlertKeep in core.js) and each row is one real link:
+   - Its words are one sentence, who, what and when ("Jeff liked your Dream “just dreaming”, 2 hours ago."). The same words
+     are on screen and in VoiceOver, with no label on top of them, so nothing is read twice. Unread ones start with "New:".
+   - Tapping it (VoiceOver double-tap, Enter or a click) marks it read and opens what it's about, with focus on that
+     page's heading: a like, Redream, reply, quote or mention opens the Dream in Replies (a reply opens the reply itself,
+     with Expand thread for the rest), a new Dreamor opens their profile, a Circle opens the Circle, a mod alert opens the
+     Dream, a report opens the Report Center.
+   - Back comes back to Alerts with focus on the same alert.
+   An alert that isn't about anything you can open stays a button that marks it read, like before. */
+const ALERT_HEX = /^[0-9a-f]{64}$/i;
+function alertHex(k) { const s = String(k || "").replace(/^n:/, ""); return ALERT_HEX.test(s) ? s.toLowerCase() : ""; }
+function alertPool() {
+  let reps = []; try { reps = Looscid.lcRepliesRaw && Looscid.lcReplyObj ? Looscid.lcRepliesRaw().map(Looscid.lcReplyObj) : []; } catch (e) {}
+  return (Looscid.LC_APP_DREAMS || []).concat(reps);
+}
+// A Dream on this device by its id, its Rem or Nostr id, or "n:" + that id.
+function alertFindLocal(key) {
+  if (key == null || key === "") return null;
+  const k = String(key), hx = alertHex(k);
+  return alertPool().find(function (x) { if (!x) return false; const id = String(x.id), nid = String(x.nid || "").toLowerCase();
+    return id === k || (hx && (nid === hx || id === "n:" + hx || id.toLowerCase() === hx)); }) || null;
+}
+function alertGo(n) { return Object.assign({ pk: n.pk, ref: n.ref, nid: n.nid, thread: n.thread }, n.go || {}); }
+// What tapping this alert opens, or null when it isn't about anything you can open.
+function alertTarget(n) {
+  const g = alertGo(n);
+  if (n.report) return { kind: "report" };
+  if (g.page) return { kind: "page", page: g.page, data: g.data || null };
+  if (n.type === "follow") { const w = g.who || n.user; return w && (w.pk || w.id || g.pk) ? { kind: "person", who: w, pk: g.pk || w.pk || w.id } : null; }
+  if (n.type === "deletedDream") return null; // that Dream is gone; there's nothing left to open
+  let key = null, alt = null;
+  const myPk = Looscid.lcNostr && Looscid.lcNostr.state ? Looscid.lcNostr.state().pubkey : "";
+  if (n.type === "like" || n.type === "redream") { key = g.ref || g.dream || g.nid; if (key) return { kind: "dream", key: String(key), alt: null, pk: myPk || "", mine: true }; }
+  else { key = g.dream || g.nid; alt = g.thread || g.ref; if (!key) { key = alt; alt = null; } }
+  if (key) return { kind: "dream", key: String(key), alt: alt ? String(alt) : null, pk: g.pk || (g.who && (g.who.pk || g.who.id)) || "" };
+  if (g.circle) return { kind: "circle", circle: g.circle };
+  return null;
+}
+function alertWhen(t) {
+  const s = Math.max(0, Math.round((Date.now() - t) / 1000)), many = function (n, w) { return n + " " + w + (n === 1 ? "" : "s") + " ago"; };
+  if (s < 60) return "just now";
+  if (s < 3600) return many(Math.floor(s / 60), "minute");
+  if (s < 86400) return many(Math.floor(s / 3600), "hour");
+  if (s < 2 * 86400) return "yesterday";
+  if (s < 7 * 86400) return many(Math.floor(s / 86400), "day");
+  const d = new Date(t), o = { month: "long", day: "numeric" }; if (d.getFullYear() !== new Date().getFullYear()) o.year = "numeric";
+  try { return "on " + d.toLocaleDateString("en-US", o); } catch (e) { return "on " + d.toDateString(); }
+}
+function alertCut(t, n) { const s = String(t || "").replace(/\s+/g, " ").trim(); return Looscid.lcCutWords ? Looscid.lcCutWords(s, n) : s.slice(0, n); }
+function alertQuote(t, n) { const s = alertCut(t, n || 80); return s ? "\u201c" + s + "\u201d" : ""; }
+// The name of your Dream an alert is about, from this device: "your Dream “just dreaming”".
+function alertYourDream(key) { const d = alertFindLocal(key), q = d && !d.cw ? alertQuote(d.text, 40) : ""; return "your Dream" + (q ? " " + q : ""); }
+function alertSentence(n) {
+  const T = alertType(n.type), c = n.count || 1, g = alertGo(n);
+  const names = n.names && n.names.length ? n.names : n.user && n.user.name ? [n.user.name] : [];
+  const who = (names[0] || (n.user && n.user.handle) || "Someone") + (c > 1 ? " and " + (c - 1) + (c - 1 === 1 ? " other" : " others") : "");
+  const refs = Array.isArray(n.refs) ? n.refs.length : 1, one = c === 1, p = one ? alertQuote(n.preview) : "";
+  const when = alertWhen(n.time);
+  let s;
+  if (n.type === "system" || n.type === "deletedDream" || !T.id) {
+    let t = String(n.text || "").trim(); if (n.preview && n.type === "system") t = t.replace(/[.!?]$/, "") + ": " + alertQuote(n.preview);
+    if (!/[.!?\u2026]$/.test(t)) t += ".";
+    s = (n.type === "deletedDream" ? "" : "From Looscid, ") + (n.type === "deletedDream" ? t.replace(/[.]$/, "") + ", " + when + "." : when + ": " + t);
+    return (n.unread ? "New: " : "") + s;
+  }
+  const yours = refs > 1 ? refs + " of your Dreams" : alertYourDream(n.type === "like" || n.type === "redream" ? (g.ref || g.dream || g.nid) : (g.ref || g.thread));
+  if (n.type === "like") s = who + " liked " + yours;
+  else if (n.type === "redream") s = who + " redreamed " + yours;
+  else if (n.type === "quote") s = who + " quoted " + yours + (p ? " and said " + p : "");
+  else if (n.type === "reply" && n.sub) s = who + " replied" + (p ? " " + p : "") + " in " + (one ? "a thread" : "threads") + " you follow";
+  else if (n.type === "reply") s = who + " replied" + (p ? " " + p : "") + " to " + yours;
+  else if (n.type === "mention") s = who + " mentioned you" + (p ? " in " + p : "");
+  else if (n.type === "newDream") s = who + (p ? " dreamed " + p : " dreamed new Dreams");
+  else if (n.type === "follow") s = who + " followed you";
+  else s = who + " " + (T.one || n.text || "");
+  return (n.unread ? "New: " : "") + s + ", " + when + ".";
+}
+// The person a follow alert is about, shaped like every other profile.
+function alertPerson(t) {
+  const w = t.who || {}, pk = alertHex(t.pk) || alertHex(w.pk) || alertHex(w.id), ME = Looscid.ME || {};
+  if (pk && Looscid.lcNostr && Looscid.lcNostr.state && Looscid.lcNostr.state().pubkey === pk) return ME;
+  const known = (Looscid.USERS || []).find(function (u) { return u && ((pk && (String(u.pk || "").toLowerCase() === pk || u.id === "npub:" + pk || u.id === "nostr:" + pk)) || (!pk && w.id && u.id === w.id)); });
+  if (known) return known;
+  let np = ""; try { np = Looscid.lcNpub && pk ? Looscid.lcNpub(pk) : ""; } catch (e) {}
+  const short = String(np || pk || w.handle || "dreamor").slice(0, 14);
+  return { id: pk ? "npub:" + pk : String(w.id || short), pk: pk || undefined, name: w.name || short, handle: "@" + short, net: "looscid" };
+}
+// A Dream that isn't on this device: ask Rem first (the author's public Dreams), then Nostr. Nothing found in about
+// 5 seconds: what the alert itself knows (who and the words it showed).
+function alertFetchDream(n, t) {
+  const hx = alertHex(t.key) || alertHex(t.alt), pk = alertHex(t.pk), NetD = Looscid.lcNetDream, PubD = Looscid.lcPubDream;
+  // Your own Dream shows as yours; someone else's keeps the name the alert already knows.
+  const mine = function (d) { if (!d) return d; if (t.mine) d.user = Looscid.ME; else if (d.user && n.user && n.user.name) d.user = Object.assign({}, d.user, { name: n.user.name }); return d; };
+  const viaRem = function () { if (!hx || !pk || !Looscid.lcNet || !Looscid.lcNet.userDreams || !NetD) return Promise.resolve(null);
+    return Looscid.lcNet.userDreams(pk).then(function (l) { const r = (l || []).find(function (x) { return x && (String(x.id).toLowerCase() === hx || String(x.nid || "").toLowerCase() === hx); }); return r ? mine(NetD(r)) : null; }, function () { return null; }); };
+  const viaNostr = function () { const N = Looscid.lcNostr; if (!hx || !N || !N.fetchByIds || !PubD) return Promise.resolve(null);
+    return N.fetchByIds([hx]).then(function (m) { const ev = m && m[hx]; if (!ev) return null; let np = ""; try { np = Looscid.lcNpub ? Looscid.lcNpub(ev.pubkey) : ""; } catch (e) {}
+      return mine(PubD({ id: ev.id, nid: ev.id, pk: ev.pubkey, npub: np, text: ev.content, created: ev.created_at * 1000, tags: ev.tags })); }, function () { return null; }); };
+  const fallback = function () {
+    const u = !t.mine && n.user ? alertPerson({ who: n.user, pk: t.pk }) : null;
+    const base = PubD ? PubD({ id: hx || t.key, nid: hx || undefined, pk: pk || "", npub: "", text: n.preview || "", created: n.time }) : { id: t.key, text: n.preview || "", created: n.time, likes: 0, comments: 0, redreams: 0, quotes: 0 };
+    if (!hx) base.id = t.key; if (u) base.user = u; base.sigOk = false; return mine(base); // nothing was checked, so no Verified badge
+  };
+  const timeout = new Promise(function (ok) { setTimeout(function () { ok(null); }, 5000); });
+  return Promise.race([viaRem().then(function (d) { return d || viaNostr(); }), timeout]).then(function (d) { return d || fallback(); }, fallback);
+}
+let alertOpenSeq = 0;
+function alertOpen(n, t, elId) {
+  const nav = Looscid.LC_NAV; if (!nav) return;
+  const seq = ++alertOpenSeq; // the newest tap wins
+  if (n.unread) lcAlertToggle(n.id);
+  Looscid.LC_ALERTS_RETURN = { el: elId, at: Date.now() }; // Back lands on this alert again (AlertsPage)
+  const back = function () { Looscid.LC_ALERTS_RETURN = { el: elId, at: Date.now() }; nav("alerts"); };
+  if (t.kind === "report") { if (Looscid.lcOpenReport) Looscid.lcOpenReport({}); return; }
+  // A page (About, your key): its Back works like a footer link's, back to the tab you were on (here, Alerts).
+  if (t.kind === "page") { Looscid.lcFooterCv = null; Looscid.lcFooterHop = null; Looscid.lcFooterLink = null; Looscid.lcFooterFrom = t.page === "nostr_key" ? "settings_account" : t.page;
+    if (t.page === "nostr_key" && Looscid.lcOpenNostrKey) Looscid.lcOpenNostrKey(nav); else nav(t.page, t.data || undefined); return; }
+  if (t.kind === "circle") { nav("groups", { circle: t.circle }); return; }
+  if (t.kind === "person") { const u = alertPerson(t); if (u === Looscid.ME) { nav("profile"); return; } Looscid.LC_DP_BACK_NEXT = { user: u, back: back }; nav("dp", u); return; }
+  const go = function (d) { if (seq !== alertOpenSeq || !document.getElementById(elId)) return; // you tapped something else, or left Alerts
+    Looscid.LC_FEED_OPEN = { dream: d, back: back }; nav("feed"); };
+  const local = alertFindLocal(t.key), parent = t.alt ? alertFindLocal(t.alt) : null;
+  if (local) { go(local); return; }
+  // Not on this device (a reply, a quote or a mention from someone else): load it. A reply keeps its thread, so Expand
+  // thread shows the Dream it answers.
+  if (!alertHex(t.key) && parent) { go(parent); return; }
+  announce("Opening the Dream\u2026");
+  alertFetchDream(n, t).then(function (d) { if (d && parent && d.replyTo == null && String(d.id) !== String(parent.id)) d.replyTo = parent.id; go(d); },
+    function () { if (parent) go(parent); else announce("I couldn't open that Dream. Try again in a bit."); });
+}
+// The hint after the sentence (the app's tips, a title): where it goes, said in a few words.
+function alertTip(t) { return t.kind === "person" ? "Opens their profile" : t.kind === "report" ? "Opens the Report Center" : t.kind === "circle" ? "Opens the Circle" : t.kind === "page" ? (t.page === "settings_about" ? "Opens About Looscid" : "Opens Settings") : "Opens the Dream"; }
+function alertHref(t) {
+  if (t && t.kind === "person" && Looscid.lcPathFor) { const p = Looscid.lcPathFor("dp", alertPerson(t)); if (p) return p; }
+  if (t && t.kind === "report" && Looscid.lcPathFor) { const p = Looscid.lcPathFor("report_center"); if (p) return p; }
+  return null;
+}
 function notifRow(st, draw, n) {
-  const key = "n-" + String(n.id).replace(/[^a-z0-9-]/gi, "");
+  const key = "n-" + String(n.id).replace(/[^a-z0-9-]/gi, ""), elId = "alert-" + key;
   const canReply = n.type === "reply" || n.type === "mention" || n.type === "quote";
+  const t = alertTarget(n), words = alertSentence(n);
+  const main = t
+    ? h('a', { id: elId, className: "lc-ni-main", title: alertTip(t), href: alertHref(t) || ((Looscid.lcPathFor && Looscid.lcPathFor("alerts")) || "") + "#" + elId,
+        onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button === 1) return; e.preventDefault(); alertOpen(n, t, elId); } }, words)
+    : h('button', { type: "button", id: elId, className: "lc-ni-main", title: n.unread ? "Marks it read" : "Already read", onClick: function () { if (n.unread) { lcAlertToggle(n.id); announce("Marked as read."); } } }, words);
   return h('li', { key: key, className: "ni" + (n.unread ? " unr" : "") },
-    h('button', { type: "button", className: "lc-ni-main", "aria-label": alertLabel(n), onClick: function () { if (n.unread) { lcAlertToggle(n.id); announce("Marked as read."); } } },
-      n.user ? lcAvEl(n.user, 40) : h('div', { className: "lc-ni-ic", "aria-hidden": "true" }, "!"),
-      h('div', { style: { flex: 1 }, "aria-hidden": "true" },
-        h('div', { className: "ntx" }, alertWhat(n)),
-        n.preview && h('div', { className: "npv" }, n.preview),
-        h('div', { className: "ntm" }, lcAlertTime(n.time))),
-      n.unread && h('div', { className: "lc-ni-dot", "aria-hidden": "true" })),
+    // The picture is for eyes only; a tap on it does what tapping the sentence does.
+    h('div', { className: "lc-ni-av", "aria-hidden": "true", onClick: function () { const m = document.getElementById(elId); if (m) m.click(); } }, n.user ? lcAvEl(n.user, 40) : h('div', { className: "lc-ni-ic" }, "!")),
+    main,
+    n.unread && h('div', { className: "lc-ni-dot", "aria-hidden": "true" }),
     rowMore(st, draw, key, alertWhat(n), [
       canReply ? ["Reply", function () {
         if (n.nid && n.user) Looscid.lcCompose({ mode: "reply", parent: { id: n.nid, nid: n.nid, user: n.user, text: n.preview || "" }, root: n.ref ? { id: n.ref, nid: n.ref, user: Looscid.ME } : undefined });
@@ -432,7 +571,14 @@ const AlertsPage = lcPlainScreen("AlertsPage", function (host) {
   const evs = ["looscid:alerts", "looscid:cats", "looscid:pms", "looscid:blocked", "looscid:threadsubs", "looscid-nostr"]; // Oct 31 2026: looscid-nostr, so "Unlock your key" goes away the moment it's unlocked
   window.addEventListener("looscid:alertstab", onTab);
   evs.forEach(function (e) { window.addEventListener(e, draw); });
+  // Nov 9 2026: coming back from something an alert opened, focus goes back to that same alert (not the heading).
+  const ret = Looscid.LC_ALERTS_RETURN; Looscid.LC_ALERTS_RETURN = null;
+  if (ret && ret.el && Date.now() - ret.at < 30 * 60000) { st.box = "alerts"; st.more = null; }
   draw();
+  if (ret && ret.el && Date.now() - ret.at < 30 * 60000) { let k = 0; const back = function () {
+    const el = document.getElementById(ret.el), ae = document.activeElement;
+    if (el && el !== ae && (!ae || ae === document.body || !ae.isConnected || ae.tagName === "H1")) { el.focus(); try { el.scrollIntoView({ block: "center" }); } catch (e) {} }
+    if (++k < 30) setTimeout(back, 50); }; setTimeout(back, 30); }
   if (Looscid.lcPmCheck) setTimeout(function () { Looscid.lcPmCheck(); if (Looscid.lcInboxCheck) Looscid.lcInboxCheck(); }, 400);
   return {
     update: draw,

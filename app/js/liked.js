@@ -280,7 +280,7 @@ function lcLikedSearchCheck(dreams) {
     let stored = 0;
     // One alert per new Dream, up to 3; more than that is one alert that counts them. Each names the network.
     if (fresh.length <= 3) fresh.forEach(function (d) {
-      if (Looscid.lcNotify && Looscid.lcNotify("system", "New Dream for your Liked Search \u201c" + s.q + "\u201d, from " + lcDreamNetwork(d), d.user && typeof d.user === "object" ? d.user : null, String(d.text || "").slice(0, 140))) stored++;
+      if (Looscid.lcNotify && Looscid.lcNotify("system", "New Dream for your Liked Search \u201c" + s.q + "\u201d, from " + lcDreamNetwork(d), d.user && typeof d.user === "object" ? d.user : null, String(d.text || "").slice(0, 140), { dream: String(d.id) })) stored++;
     });
     else {
       const fromN = []; fresh.forEach(function (d) { const n = lcDreamNetwork(d); if (fromN.indexOf(n) < 0) fromN.push(n); });

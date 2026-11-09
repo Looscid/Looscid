@@ -3,6 +3,17 @@
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
 
+## Tapping an alert opens it now (no new build yet)
+
+Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+
+Asked for by Carter: "in the Alerts tab, when clicking on an item, I don't go to that item".
+
+- Tapping an alert finally opens the thing it's about. Before, it just marked the alert read and sat there doing nothing, which, rude. A like, Redream, reply, quote or mention opens that Dream (a reply opens the reply, and Expand thread shows what it answers). A new Dreamor opens their profile. A report alert opens the Report Center, a mod alert opens your Dream, and "Looscid updated" opens About.
+- It works with a VoiceOver double-tap, Enter or a click, because each alert is a real link now. Focus lands on the heading of whatever opens, and Back takes you right back to the same alert.
+- Each alert reads as one sentence: who, what and when. Like "Jeff liked your Dream “just dreaming”, 2 hours ago." No more pieces read one after another, and no name said twice. New ones start with "New:".
+- If the Dream isn't on your device, I ask Rem for it first, then Nostr. If neither answers, it opens with what the alert already knew.
+
 ## Modlog is one word, and the footer got smaller (no new build yet)
 
 Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.

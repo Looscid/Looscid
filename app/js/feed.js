@@ -2,7 +2,7 @@
    Plain script (not a module). Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order. */
 (function (Looscid) {
 const { CommentView, DREAMS_INIT, DreamCard, LC_FEEDS, LC_FED_SUBS, LC_FED_NETS, LC_FY_SOURCES, LcMenu, ME, SHOW_FRIENDS_KEY, USERS, announce, lcAiOn, lcAudienceOk, lcDreamWords, lcFeedMode, lcFiltered, lcHandle, lcNotify, lcQuietNow, lcSetFeed, lcSetShowFriends, lcStepFeed, lh, useDreams, useEffect, useRef, useState } = Looscid;
-Object.assign(Looscid, { FeedPage, lcNotifyDreams, lcShowFriends, useFeedMode, FeedTabs, FeedMenuButton, ShowFriendsBox, useFeedState, FeedControls, lcFeedVisible, PinForm, FyFollowSettings, FedNetsSettings, FyTopicsSettings, lcFyTopics, lcSetFyTopics, lcDreamTopics });
+Object.assign(Looscid, { FeedPage, lcNotifyDreams, lcNetDream, lcPubDream, lcShowFriends, useFeedMode, FeedTabs, FeedMenuButton, ShowFriendsBox, useFeedState, FeedControls, lcFeedVisible, PinForm, FyFollowSettings, FedNetsSettings, FyTopicsSettings, lcFyTopics, lcSetFyTopics, lcDreamTopics });
 Looscid.LC_FY_TOPICS_LIST = function () { return LC_FY_TOPICS; };
 
 /* --- FEED PAGE --------------------------- */
@@ -151,11 +151,12 @@ function lcNotifyDreams(others, mine) {
   const me = lcHandle((typeof ME !== "undefined" && ME && ME.handle) || "");
   others.forEach(function (d) {
     const u = d.user && typeof d.user === "object" ? d.user : null, txt = String(d.text || "");
-    if (me && new RegExp("(^|\\W)@" + me.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b", "i").test(txt)) { if (lcAudienceOk((Looscid.A11Y_NOW || {}).whoMention || "everyone", u, "perm_whoMention")) lcNotify("mention", "mentioned you", u, txt.slice(0, 140), { thread: String(d._root || d.replyTo || d.id) }); }
-    else if (d.replyTo && mine && mine.has(d.replyTo)) { if (lcAudienceOk((Looscid.A11Y_NOW || {}).whoReply || "everyone", u, "perm_whoReply")) lcNotify("reply", "replied to your Dream", u, txt.slice(0, 140), { thread: String(d.replyTo) }); }
+    if (me && new RegExp("(^|\\W)@" + me.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b", "i").test(txt)) { if (lcAudienceOk((Looscid.A11Y_NOW || {}).whoMention || "everyone", u, "perm_whoMention")) lcNotify("mention", "mentioned you", u, txt.slice(0, 140), { thread: String(d._root || d.replyTo || d.id), dream: String(d.id) }); }
+    else if (d.replyTo && mine && mine.has(d.replyTo)) { if (lcAudienceOk((Looscid.A11Y_NOW || {}).whoReply || "everyone", u, "perm_whoReply")) lcNotify("reply", "replied to your Dream", u, txt.slice(0, 140), { thread: String(d.replyTo), dream: String(d.id) }); }
     // Build 151 (#74): a Reply in a thread you follow.
-    else if ((d.replyTo || d._root) && Looscid.lcThreadSubbed && Looscid.lcThreadSubbed(lcRootOf(d))) Looscid.lcThreadAlert(lcRootOf(d), u, txt);
-    else lcNotify("newDream", "dreamed a new Dream", u, txt.slice(0, 140));
+    else if ((d.replyTo || d._root) && Looscid.lcThreadSubbed && Looscid.lcThreadSubbed(lcRootOf(d))) Looscid.lcThreadAlert(lcRootOf(d), u, txt, /^[0-9a-f]{64}$/i.test(String(d.nid || "")) ? String(d.nid).toLowerCase() : "");
+    // Nov 9 2026: each alert keeps the Dream it's about (dream), so tapping it in Alerts opens that Dream.
+    else lcNotify("newDream", "dreamed a new Dream", u, txt.slice(0, 140), { dream: String(d.id) });
   });
 }
 function lcShowFriends() { try { return localStorage.getItem(SHOW_FRIENDS_KEY) === "1"; } catch (e) { return false; } }
