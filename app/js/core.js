@@ -1675,6 +1675,7 @@ function lcResetKeyItems(sec, only, extra) {
   });
 }
 function lcLsDel(keys, ev) { return function () { keys.forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} }); if (ev) try { window.dispatchEvent(new CustomEvent(ev)); } catch (e) {} }; }
+function lcAudioCat(id) { return LC_AUDIO_CATS.find(function (c) { return c.id === id; }); }
 const LC_RESET_G = {
   vision: { l: "Vision", items: function () { return lcResetKeyItems("vision"); } },
   sr_general: { l: "Screen reader, General", items: function () { return lcResetKeyItems("sr_general"); } },
@@ -1685,10 +1686,12 @@ const LC_RESET_G = {
   motion: { l: "Motion", items: function () { return lcResetKeyItems("motion"); } },
   terminal: { l: "Commandbar output", items: function () { return lcResetKeyItems("terminal"); } },
   motor: { l: "Motor", items: function () { return lcResetKeyItems("motor"); } },
-  snd_volume: { l: "Volume, focus sounds and keyboard clicks", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[0].keys, LC_AUDIO_CATS[0].keys); } },
-  snd_pack: { l: "Soundpacks", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[1].keys, LC_AUDIO_CATS[1].keys); } },
-  snd_events: { l: "Event earcons", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[2].keys, LC_AUDIO_CATS[2].keys); } },
-  snd_haptics: { l: "Music and haptics", items: function () { return lcResetKeyItems("audio", LC_AUDIO_CATS[3].keys, LC_AUDIO_CATS[3].keys); } },
+  snd_volume: { l: "Volume, focus sounds and keyboard clicks", items: function () { return lcResetKeyItems("audio", lcAudioCat("volume").keys, lcAudioCat("volume").keys); } },
+  snd_pack: { l: "Soundpacks", items: function () { return lcResetKeyItems("audio", lcAudioCat("pack").keys, lcAudioCat("pack").keys); } },
+  snd_events: { l: "Event earcons", items: function () { return lcResetKeyItems("audio", lcAudioCat("events").keys, lcAudioCat("events").keys); } },
+  snd_haptics: { l: "Music and haptics", items: function () { return lcResetKeyItems("audio", lcAudioCat("haptics").keys, lcAudioCat("haptics").keys); } },
+  // Nov 9 2026: the Alert sound (Earcons, Alerts). Each kind of alert's own sound resets with Alerts.
+  snd_alerts: { l: "Alert sound", items: function () { return lcResetKeyItems("audio", lcAudioCat("alerts").keys, lcAudioCat("alerts").keys); } },
   // Round 7.42 (b191 QA): Appearance's Reset includes the Heading character: back to the Robot (LC_US_DEFAULT), Surround, on
   // everything, and turned back on even after None.
   theme: { l: "Appearance", items: function () { return [{ id: "theme", l: "Light or dark mode", run: function () { saveTheme("dark"); if (Looscid.LC_SET_THEME) Looscid.LC_SET_THEME("dark"); } },
@@ -1725,7 +1728,7 @@ function lcResetNostrKey() {
 }
 const LC_RESET_SECTIONS = [
   ["accessibility", "Accessibility", ["vision", "sr_general", "sr_speech", "verbosity", "sr_braille", "hearing", "motion", "terminal", "motor"]],
-  ["sounds", "Earcons", ["snd_volume", "snd_pack", "snd_events", "snd_haptics"]],
+  ["sounds", "Earcons", ["snd_volume", "snd_pack", "snd_events", "snd_alerts", "snd_haptics"]],
   ["customizability", "Customization", ["theme", "feeds", "menu", "posting", "media"]],
   ["alerts", "Alerts", ["alertTypes", "quiet", "cats"]],
   ["privacy", "Privacy", ["perm", "pchats", "pcherry", "pmedia", "blocked", "filters"]],
@@ -1950,7 +1953,13 @@ const LC_FIND_STATIC = [
   // Nov 8 2026: For You topics
   { l: "Topics for For You", w: "topics for you topic picker interests what i like only my topics music art gaming technology accessibility", page: "settings_cz_feeds", focus: "fy-topic-accessibility", where: "Settings, Customization, Feeds" },
   { l: "Earcons", w: "audio earcons earcon sounds sound pack soundpack soundpacks looscid os classic nexos volume haptics beeps keyboard clicks keyboard earcons command earcons", page: "settings_audio", where: "Settings" },
-  { l: "Inbox earcons", w: "inbox earcons inbox earcon inbox sounds inbox sound alert earcons message reply mention like redream quote new dreamor preview", page: "settings_audio_events", focus: "lca-inbox-h", where: "Settings, Earcons, Event earcons" },
+  { l: "Inbox earcons", w: "inbox earcons inbox earcon inbox sounds inbox sound alert earcons message reply mention like redream quote new dreamor preview", page: "settings_audio_alerts", focus: "lca-inbox-h", where: "Settings, Earcons, Alerts" },
+  // Nov 9 2026 (Carter, 9:36 PM): the alert sounds are in Alerts AND in Earcons, the same switches, so Search lists both.
+  { l: "Alert sounds", w: "alert sounds alert sound sound for new dreams mentions replies likes redreams quotes new dreamors from looscid deleted", page: "settings_notifications", focus: "al-sounds-h", where: "Settings, Alerts" },
+  { l: "Alert sounds", w: "alert sounds alert sound sound for new dreams mentions replies likes redreams quotes new dreamors earcons", page: "settings_audio_alerts", focus: "lca-al-h", where: "Settings, Earcons, Alerts" },
+  { l: "Alert sound", w: "alert sound alerts sound all alert sounds", page: "settings_notifications", focus: "set-ev_alert", where: "Settings, Alerts, Alert sounds" },
+  { l: "Inbox filters order", w: "customize alerts filters inbox filters order filter tabs categories order hide show alerts tabs", page: "settings_alert_filters", where: "Settings, Alerts" },
+  { l: "Visual cue instead of sounds", w: "glow visual earcons", page: "settings_audio", focus: "lca-visualCue", where: "Settings, Earcons" },
   { l: "Event earcons", w: "event earcons event earcon event sounds event sound send like new dream error alert feed switch previews", page: "settings_audio_events", where: "Settings, Earcons" },
   { l: "Keyboard", w: "keyboard shortcuts keys shortcuts", page: "settings_keyboard", where: "Settings, General" },
   { l: "Tab Bar", w: "tab bar tabbar bottom tabs order reorder hide show custom tab pinned tab move up move down", page: "settings_tabbar", where: "Settings, Customization" },
@@ -2694,6 +2703,8 @@ const LC_ROUTES = [
   ["settings_a11y_motion", "Settings/Accessibility/Flash-Safety"], ["settings_a11y_motion", "Settings/Accessibility/Motion-and-Seizure"], ["settings_a11y_motion", "Settings/Calm-Mode"], ["settings_a11y_motion", "Settings/Flash-Safety"], ["settings_a11y_motor", "Settings/Accessibility/Motor"],
   ["settings_a11y_terminal", "Settings/Accessibility/Commandbar"], ["settings_audio", "Settings/Earcons"], ["settings_audio_volume", "Settings/Earcons/Volume"],
   ["settings_audio_pack", "Settings/Earcons/Soundpacks"], ["settings_audio_events", "Settings/Earcons/Events"], ["settings_audio_haptics", "Settings/Earcons/Haptics"],
+  // Nov 9 2026: Earcons, Alerts (the alert sounds), and Alerts' Inbox filters order on its own page.
+  ["settings_audio_alerts", "Settings/Earcons/Alerts"], ["settings_alert_filters", "Settings/Alerts/Inbox-Filters"], ["settings_alert_filters", "Settings/Alerts/Customize-Alerts-Filters"],
   ["settings_apps", "Settings/Apps"], ["settings_keyboard", "Settings/Keyboard"], ["settings_tabbar", "Settings/Tab-Bar"], ["settings_profiletabs", "Settings/Profile-Tabs"], ["settings_backup", "Settings/Backup"], ["settings_intelligence", "Settings/Cherry"], ["settings_intelligence", "Settings/Intelligence"],
   ["settings_ai_cherry", "Settings/Intelligence/Cherry"], ["settings_ai_model", "Settings/Intelligence/Model"], ["settings_ai_cmd", "Settings/Intelligence/Commandbar"],
   ["settings_ai_memory", "Settings/Intelligence/Memory"], ["settings_ai_tools", "Settings/Intelligence/Tools"], ["settings_ai_audit", "Settings/Intelligence/What-Cherry-did"],
@@ -6703,6 +6714,8 @@ const LC_PLACES = {
   profiletabs: { label: "Profile Tabs settings", page: "settings_profiletabs" }, // build 152 prep (#98)
   backup: { label: "Download and back up", page: "settings_backup" },
   alertsettings: { label: "Alerts settings", page: "settings_notifications" },
+  alertsounds: { label: "Alert sounds, in Earcons", page: "settings_audio_alerts" }, // Nov 9 2026: the same switches are in Alerts too
+  inboxfilters: { label: "Inbox filters order, in Alerts", page: "settings_alert_filters" }, // Nov 9 2026: its own page now
   intelligence: { label: "Cherry settings", page: "settings_intelligence" },
   cherrysettings: { label: "Cherry settings, Cherry", page: "settings_ai_cherry" },
   keys: { label: "LooscidID, Keys and IDs", page: "settings_account", data: { tab: "keys" } },
@@ -6731,7 +6744,7 @@ const LC_EXACT = { "open commandbar": "terminal", "commandbar": "terminal", "ope
   // Round 7.37 (#176): the new Settings names; the old words above stay as aliases.
   "open general": "general", "open general settings": "general", "open updates": "updates", "open software update": "updates", "check updates settings": "updates",
   "open customization": "customization", "open customization settings": "customization", "open settings order": "settingsorder", "settings order": "settingsorder",
-  "open chats settings": "chatsettings", "open chat settings": "chatsettings", "open keyboard": "keyboard", "open earcons": "audio", "open privacy": "privacy", "open who can message me": "chatsettings", "open rem": "rem", "open bridges": "bridges", "open connectionbase": "bridges", "open download and back up": "backup", "open rem settings": "rem", "open server": "rem", "open looscid server": "rem", "open permissions": "permissions", "open what cherry can see": "cherryprivacy", "open cherry privacy": "cherryprivacy", "open whats on my profile": "profileprivacy", "open what's on my profile": "profileprivacy", "open profile privacy": "profileprivacy", "open blocked and muted": "blockedmuted", "open quiet hours": "alertsettings", "open alerts settings": "alertsettings", "import settings": "backup",
+  "open chats settings": "chatsettings", "open chat settings": "chatsettings", "open keyboard": "keyboard", "open earcons": "audio", "open privacy": "privacy", "open who can message me": "chatsettings", "open rem": "rem", "open bridges": "bridges", "open connectionbase": "bridges", "open download and back up": "backup", "open rem settings": "rem", "open server": "rem", "open looscid server": "rem", "open permissions": "permissions", "open what cherry can see": "cherryprivacy", "open cherry privacy": "cherryprivacy", "open whats on my profile": "profileprivacy", "open what's on my profile": "profileprivacy", "open profile privacy": "profileprivacy", "open blocked and muted": "blockedmuted", "open quiet hours": "alertsettings", "open alert sounds": "alertsounds", "open alerts sounds": "alertsounds", "open inbox filters": "inboxfilters", "open inbox filters order": "inboxfilters", "open alerts filters": "inboxfilters", "open alerts settings": "alertsettings", "import settings": "backup",
   "open braille": "braille", "open braille settings": "braille", "open screen reader": "screenreader", "open screen reader settings": "screenreader", "open screen reader and braille": "screenreader", "open sense": "screenreader", "sense": "screenreader", "sense settings": "screenreader",
   "open credits": "credits", "credits": "credits", "open source": "credits", "licenses": "credits",
   "open vision": "vision", "open hearing": "hearing", "open motion": "motion", "open motion and seizure": "motion", "open motor": "motor", "open motor and switch": "motor", "open terminal settings": "terminalsettings",
@@ -7918,7 +7931,11 @@ function lcBrIntent(raw) {
 const LC_AUDIO_CATS = [
   { id: "volume", page: "settings_audio_volume", l: "Volume, focus, keyboard and command earcons", sub: "Earcons on or off, master volume, a sound on every swipe, a click per key, a sound per command", keys: ["earcons", "earconVolume", "earconFocus", "keyClicks", "cmdSounds", "earconsOnSilent"] },
   { id: "pack", page: "settings_audio_pack", l: "Soundpacks", sub: "Looscid, Looscid OS classic, Insomnia, Hyper Synth, FastSM-inspired, Soundvault or your own", keys: ["soundPack", "nexosBoot"] },
-  { id: "events", page: "settings_audio_events", l: "Event earcons", sub: "Send, like, new Dream, error, alert, feed switch, with previews", keys: ["ev_send", "ev_like", "ev_newDream", "ev_error", "ev_alert", "ev_feed"] },
+  { id: "events", page: "settings_audio_events", l: "Event earcons", sub: "Send, like, new Dream, error, feed switch, with previews", keys: ["ev_send", "ev_like", "ev_newDream", "ev_error", "ev_feed"] },
+  // Nov 9 2026 (Carter, 9:36 PM: "alerts should also have their own settings and alert ear cons ... you should also be able to
+  // manage them from another screen too"): Alerts, the alert sound and each kind of alert's sound. It's the same switches as
+  // Alerts' own Alert sounds section (LcAlertSounds), so a change on one screen shows on the other.
+  { id: "alerts", page: "settings_audio_alerts", l: "Alerts", sub: "The alert sound and a sound for each kind of alert, the same switches as in Alerts", keys: ["ev_alert"] },
   { id: "haptics", page: "settings_audio_haptics", l: "Music and haptics", sub: "Ducking, haptics", keys: ["ducking", "haptics"] },
 ];
 Looscid.LC_AUDIO_CATS = LC_AUDIO_CATS;
@@ -8195,6 +8212,7 @@ const SETTINGS_PARENT = {
   settings_ai_cherry: ["settings_intelligence", "lc-ai-cats-cherry"], settings_ai_model: ["settings_intelligence", "lc-ai-cats-model"], settings_ai_cmd: ["settings_intelligence", "lc-ai-cats-cmd"],
   settings_ai_memory: ["settings_intelligence", "lc-ai-cats-memory"], settings_ai_tools: ["settings_intelligence", "lc-ai-cats-tools"], settings_ai_audit: ["settings_intelligence", "lc-ai-cats-audit"],
   settings_audio_volume: ["settings_audio", "lc-audio-cats-volume"], settings_audio_pack: ["settings_audio", "lc-audio-cats-pack"], settings_audio_events: ["settings_audio", "lc-audio-cats-events"], settings_audio_haptics: ["settings_audio", "lc-audio-cats-haptics"],
+  settings_audio_alerts: ["settings_audio", "lc-audio-cats-alerts"], settings_alert_filters: ["settings_notifications", "al-rows-filters"],
 };
 Looscid.SETTINGS_PARENT = SETTINGS_PARENT;
 /* Round 5 fixes (QA "as 2three1y", Oct 13): after opening a page, focus fell to <body> (only the tab bar moved it to the
@@ -9069,7 +9087,7 @@ useEffect(() => {
       settings_rem: "Rem",
       settings_customizability: "Customization", settings_cz_order: "Settings Order", settings_general: "General", settings_updates: "Updates",
       settings_cz_theme: "Appearance", settings_cz_feeds: "Feeds", settings_cz_menu: "Menu", settings_cz_posting: "Dreaming", settings_cz_media: "Media",
-      settings_audio_volume: "Volume and focus sounds", settings_audio_pack: "Soundpacks", settings_audio_events: "Event earcons", settings_audio_haptics: "Music and haptics",
+      settings_audio_volume: "Volume and focus sounds", settings_audio_pack: "Soundpacks", settings_audio_events: "Event earcons", settings_audio_haptics: "Music and haptics", settings_audio_alerts: "Alerts", settings_alert_filters: "Inbox filters order",
       settings_intelligence: "Cherry", settings_ai_model: "Cherry model", settings_ai_cmd: "Commandbar Answers", settings_ai_memory: "Memory", settings_ai_tools: "Tools", settings_ai_audit: "What Cherry did",
       settings_accessibility: "Accessibility",
       settings_a11y_sr: "Sense",
@@ -9133,9 +9151,10 @@ useEffect(() => {
       case "dp":            return pdata ? React.createElement(Looscid.DreamorProfilePage, { key: "dp" + pageNonce, user: pdata, navigate: navigate, cherryCtx: cherryCtx,}) : React.createElement(Looscid.FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
       case "settings_account":        return React.createElement(Looscid.AccountSettings, { key: "acct-" + ((pdata && pdata.tab) || "home"), navigate: navigate, authUser: authUser, onSignOut: handleSignOut, onRenameProfile: handleRenameProfile, onUpdateProfile: handleUpdateProfile, initialTab: pdata && pdata.tab, fromSettings: !!(pdata && pdata.from === "settings"), fromPrivSec: !!(pdata && pdata.from === "privsec"), fromRem: !!(pdata && pdata.from === "rem"), initialFocus: pdata && pdata.focus,});
       case "settings_notifications":  return React.createElement(Looscid.NotificationsSettings, { navigate: navigate, prefs: prefs, setPrefs: setPrefs,});
+      case "settings_alert_filters":  return Looscid.AlertFiltersSettings ? React.createElement(Looscid.AlertFiltersSettings, { navigate: navigate,}) : null; // Nov 9 2026
       case "settings_privacy":        return React.createElement(Looscid.PrivacySettings, { navigate: navigate, authUser: authUser, onUpdateProfile: handleUpdateProfile,});
       case "settings_rem":            return React.createElement(Looscid.RemSettings, { navigate: navigate, from: pdata && pdata.from,}); // Nov 8 2026 (js/more.js)
-      case "settings_audio": case "settings_audio_volume": case "settings_audio_pack": case "settings_audio_events": case "settings_audio_haptics":
+      case "settings_audio": case "settings_audio_volume": case "settings_audio_pack": case "settings_audio_events": case "settings_audio_haptics": case "settings_audio_alerts":
                                       return React.createElement(Looscid.AudioSettings, { key: page, page: page, navigate: navigate,});
       case "settings_keyboard":       return React.createElement(Looscid.KeyboardSettings, { navigate: navigate,});
       case "settings_tabbar":         return Looscid.TabBarSettings ? React.createElement(Looscid.TabBarSettings, { navigate: navigate,}) : null;

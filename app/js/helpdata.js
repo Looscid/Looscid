@@ -217,7 +217,9 @@
         "Press All, Unread, Replies, Mentions, Likes and the rest to see one kind of alert.",
         "Press Mark all read when you're caught up.",
         "Each alert has Alert Options.",
-        "Choose which alerts you get in [[More/Settings/Alerts|Alerts|Profile, More, Settings]].",
+        "[[More/Settings/Alerts|Choose which alerts you get]].",
+        "[[More/Settings/Earcons/Alerts|Change how alerts sound]]. They're the same switches as Alert sounds in Alerts, so you can change them from either one.",
+        "[[More/Settings/Alerts/Inbox-Filters|Change the order of the Inbox filters]], or hide the ones you don't use.",
       ],
       rel: ["start-a-chat", "follow-a-thread"] },
 
@@ -281,6 +283,7 @@
         "[[More/Settings/Customizability/Theme|Change colors, text and the heading character]].",
         "[[More/Settings/Customization|See your Mode and Cherry's settings]]. They're in Customization too, with Settings Order and the tab bar.",
         "[[More/Settings/Earcons|Change Looscid's short sounds and their volume]].",
+        "[[More/Settings/Accessibility/Hearing|Swap sounds for a visual cue]]. The same switch is in Earcons too.",
         "[[More/Settings/Accessibility|Change vision, hearing, motion and more]].",
         "[[More/Settings/Accessibility/Motion|Turn Calm motion on or off]]. It's one switch for calmer motion, and it starts out matching your device's Reduce Motion setting. Blocking flashing and strobes stays on unless you turn it off yourself.",
         "[[More/Settings/Keyboard|Change keys and make your own shortcuts]].",

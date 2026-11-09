@@ -1290,36 +1290,79 @@ function MessageSettings({ navigate }) {
   useEffect(function () { Looscid.LC_SETTINGS_BACK = null; navigate("settings_privacy"); if (Looscid.lcWhoMessagePrep) Looscid.lcWhoMessagePrep(); }, []);
   return null;
 }
+/* Nov 9 2026 (Carter, 9:36 PM: "alerts should also have their own settings and alert ear cons, but generalized ear cons can
+   also be a part ... you should also be able to manage them from another screen too"): the alert sounds, in ONE component
+   that shows in Alerts (as Alert sounds) and in Earcons (as Alerts). Alert sound is the Earcons switch that turns every alert
+   sound on or off (ev_alert); each kind of alert also has its own Sound for switch (looscid_alert_prefs). Both screens save
+   to the same settings, so a change on one shows on the other. */
+function LcAlertSounds({ navigate, where }) {
+  useA11yNow();
+  const [P, setP] = useState(lcAlertPrefs());
+  useEffect(function () { const f = function () { setP(lcAlertPrefs()); }; window.addEventListener("looscid:alerts", f); return function () { window.removeEventListener("looscid:alerts", f); }; }, []);
+  const setT = function (type, set) { setP(lcAlertPrefsSet({ type: type, set: set })); };
+  const evOn = Looscid.A11Y_NOW.ev_alert !== false;
+  const other = where === "earcons"
+    ? lh('a', { className: "lc-link", id: "als-other", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings_notifications") : "#"), onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); Looscid.LC_SETTINGS_BACK = "settings_audio_alerts"; navigate("settings_notifications"); setTimeout(function () { const h = document.getElementById("al-sounds-h"); if (h) { h.setAttribute("tabindex", "-1"); h.focus(); } }, 450); } }, "See all of Alerts")
+    : lh('a', { className: "lc-link", id: "als-other", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings_audio_alerts") : "#"), onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("settings_audio_alerts"); } }, "Change how alerts sound in Earcons");
+  return lh(React.Fragment, null,
+    lh('div', { className: "lc-evrow" }, lh(LcSetRow, { def: LC_SET_BY.ev_alert }),
+      lh('button', { type: "button", className: "btn bgb lc-btn lc-prev", id: "als-prev-alert", onClick: function () { Earcon.play("alerts", { test: true }); } }, "Preview the alert sound")),
+    LC_ALERT_TYPES.map(function (t) {
+      const tp = P.types[t.id] || {};
+      return lh('div', { key: t.id, className: "lc-evrow" },
+        lh(A11ySwitch, { id: "al-" + t.id + "-sound", label: "Sound for " + t.l + (!tp.on ? ", turn on " + t.l + " alerts first" : !evOn ? ", Alert sound is off" : ""), on: !!tp.sound && !!tp.on, locked: !tp.on,
+          onToggle: function () { setT(t.id, { sound: !tp.sound }); announce("Sound for " + t.l + " " + (!tp.sound ? "on" : "off") + "."); } }),
+        t.earcon ? lh('button', { type: "button", className: "btn bgb lc-btn lc-prev", onClick: function () { Earcon.play(t.earcon, { test: true }); } }, "Preview the " + t.l + " sound") : null);
+    }),
+    lh('p', { className: "lc-ios-foot", id: "als-foot" }, "Alert sound turns every alert sound on or off. Each kind of alert has its own sound too. These are the same switches " + (where === "earcons" ? "as in Alerts" : "as in Earcons") + ", so a change here shows there too. ", other));
+}
+Looscid.LcAlertSounds = LcAlertSounds;
 function NotificationsSettings({navigate}) {
   // Round 6: only alert types that really fire, each with on/off, sound and who can trigger it.
   // Stored in looscid_alert_prefs. Quiet hours are the real ones (Sounds and announcements obey them).
+  // Nov 9 2026: the sounds are one Alert sounds section now (LcAlertSounds), and Inbox filters order has its own page.
   useA11yNow();
   const [P, setP] = useState(lcAlertPrefs());
   useEffect(function () { const f = function () { setP(lcAlertPrefs()); }; window.addEventListener("looscid:alerts", f); return function () { window.removeEventListener("looscid:alerts", f); }; }, []);
   const setT = function (type, set) { setP(lcAlertPrefsSet({ type: type, set: set })); };
   const unread = lcAlerts().filter(function (x) { return x.unread; }).length;
   return (
-    React.createElement('div', { className: "pg lc-a11y", "aria-live": "off" }
+    React.createElement('div', { className: "pg lc-a11y lc-ios-page", "aria-live": "off" }
       , React.createElement(BackHeader, { title: "Alerts", onBack: ()=>{ const b = Looscid.LC_SETTINGS_BACK; Looscid.LC_SETTINGS_BACK = null; navigate(b || "settings"); },})
-      , lh('p', { className: "lc-desc", style: { padding: "0 16px" } }, "Which alerts you get, whether they make a sound, and who can trigger them. Saved on this device.")
+      , lh('p', { className: "lc-desc", style: { padding: "0 16px" } }, "Which alerts you get, how they sound, and who can trigger them. Saved on this device.")
       , LC_ALERT_TYPES.map(function (t) {
           const tp = P.types[t.id];
           return lh('section', { key: t.id, className: "lc-grp", "aria-labelledby": "al-" + t.id + "-h", id: "al-" + t.id },
             lh('h2', { id: "al-" + t.id + "-h", className: "lc-grp-h", tabIndex: -1 }, t.l),
             lh(A11ySwitch, { id: "al-" + t.id + "-on", label: t.l + " alerts", on: !!tp.on, onToggle: function () { setT(t.id, { on: !tp.on }); announce(t.l + " alerts " + (!tp.on ? "on" : "off") + "."); } }),
-            lh(A11ySwitch, { id: "al-" + t.id + "-sound", label: "Sound for " + t.l, on: !!tp.sound, locked: !tp.on, onToggle: function () { setT(t.id, { sound: !tp.sound }); announce("Sound for " + t.l + " " + (!tp.sound ? "on" : "off") + "."); } }),
             t.aud ? lh(LcAudience, { id: "al-" + t.id + "-who", legend: "Who can trigger " + t.l + " alerts", value: tp.who, customKey: "alert_" + t.id, onChange: function (v) { setT(t.id, { who: v }); } }) : null);
         })
+      , lh('section', { className: "lc-grp", "aria-labelledby": "al-sounds-h", id: "al-sounds" },
+          lh('h2', { id: "al-sounds-h", className: "lc-grp-h", tabIndex: -1 }, "Alert sounds"),
+          lh(LcAlertSounds, { navigate: navigate, where: "alerts" }))
       , lh('section', { className: "lc-grp", "aria-labelledby": "al-more-h" },
           lh('h2', { id: "al-more-h", className: "lc-grp-h" }, "All alerts"),
           lh(A11ySwitch, { id: "al-group", label: "Group similar alerts", on: !!P.group, onToggle: function () { setP(lcAlertPrefsSet({ group: !P.group })); announce("Group similar alerts " + (!P.group ? "on" : "off") + "."); } }),
           lh('div', { className: "lc-row" }, lh('button', { type: "button", id: "al-markall", className: "btn bgb lc-big", onClick: function () { const n = lcAlertsMarkAll(); announce(n ? "All alerts marked as read." : "No alerts to mark."); setP(lcAlertPrefs()); } }, "Mark all as read" + (unread ? " (" + unread + ")" : "")))) // Round 7.20 (#150): count in parens
       , lh(LcSection, { sec: "quiet", intro: lcQuietNow() ? "Quiet hours are on right now." : null, noReset: true })
-      , lh(LcCatCustomize, { kind: "alert", defs: lcAlertCats(), title: "Customize Alerts filters" })
+      // Nov 9 2026 (Carter approved item 15): the Inbox filters order was at the very bottom of a long screen. It's its own page.
+      , lh('h2', { className: "lc-grp-h", id: "al-h-filters" }, "Inbox filters")
+      , lh('ul', { className: "mlist lc-catlist lc-ios-list", role: "list", id: "al-rows" },
+          lh('li', { className: "mli" }, lh('button', { type: "button", id: "al-rows-filters", className: "mitem lc-cat lc-ios-row", onClick: function () { navigate("settings_alert_filters"); } },
+            lh('span', { className: "mitem-lbl" }, "Inbox filters order"), lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" }))))
+      , lh('p', { className: "lc-ios-foot" }, "The order of the filter tabs in Inbox, like All, Unread and Mentions, and which ones show.")
       , lh(LcResetLast, { scope: "alerts" })
     )
   );
 }
+// Nov 9 2026 (item 15): Inbox filters order, its own page in Alerts. The same list and saved order as before.
+function AlertFiltersSettings({ navigate }) {
+  return lh('div', { className: "pg lc-a11y lc-ios-page", "aria-live": "off" },
+    lh(BackHeader, { title: "Inbox filters order", onBack: function () { navigate("settings"); } }),
+    lh(LcCatCustomize, { kind: "alert", defs: lcAlertCats(), title: "Inbox filters" }),
+    lh(LcResetLast, { scope: "g:cats" }));
+}
+Looscid.AlertFiltersSettings = AlertFiltersSettings;
 /* Build 152, B2 and B3: Settings, Privacy, Circles on my profile. Each of your Circles has Show on my profile (all off,
    so only you see them, until you turn one on) and Highlight on my profile, which puts a shown Circle first. Highlight
    is unavailable (aria-disabled, and pressing it says why) until the Circle is shown, and for a Circle you are a member
@@ -4705,9 +4748,19 @@ function AudioSettings({ navigate, page }) {
         Earcon.selfTest(); announce("Earcons playing.", "essential");
         setTimeout(function () { const st = Earcon.state(); if (st !== "running") announce("Earcons couldn't start, the sound engine is " + st + ". Check the volume, and Earcons when iPhone is on silent, then try Test earcons again.", "essential"); }, 1500);
       } }, "Test earcons"),
-      lh(LcResetBtn, { sec: "audio" }),
-      lh('p', { className: "lc-desc" }, "Quiet hours are in Settings, Alerts. Captions and the visual cue for sounds are in Accessibility, Hearing.")) });
-  const evDefs = LC_SET.filter(function (d) { return d.s === "audio" && d.ev; });
+      // Nov 9 2026 (Carter approved item 11, and "we could put the same item in two places"): Visual cue instead of sounds
+      // lives in Accessibility, Hearing, and it's right here too. Same setting, so it changes in both places.
+      lh('h2', { className: "lc-grp-h", id: "lca-h-cue" }, "Hearing"),
+      lh(A11ySwitch, { id: "lca-visualCue", label: "Visual cue instead of sounds", on: !!Looscid.A11Y_NOW.visualCue, onToggle: function () { const v = !Looscid.A11Y_NOW.visualCue; lcSet({ visualCue: v }); announce("Visual cue instead of sounds " + (v ? "on" : "off") + "."); },
+        desc: "Swaps sounds for a soft glow around the edge of the screen. It's the same switch as in Accessibility, Hearing." }),
+      lh('p', { className: "lc-ios-foot", id: "lca-foot-links" },
+        lh('a', { className: "lc-link", id: "lca-link-hearing", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings_a11y_hearing") : "#"), onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("settings_a11y_hearing"); } }, "Turn on captions for sounds"),
+        ". ",
+        lh('a', { className: "lc-link", id: "lca-link-quiet", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings_notifications") : "#"), onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); Looscid.LC_SETTINGS_BACK = "settings_audio"; navigate("settings_notifications"); setTimeout(function () { const h = document.getElementById("lcs-h-quiet"); if (h) { h.setAttribute("tabindex", "-1"); h.focus(); } }, 450); } }, "Set quiet hours"),
+        "."),
+      lh(LcResetBtn, { sec: "audio" })) });
+  // Nov 9 2026: the Alert sound moved to its own Alerts page here (and Alerts' Alert sounds section), with each alert's sound.
+  const evDefs = LC_SET.filter(function (d) { return d.s === "audio" && d.ev && d.k !== "ev_alert"; });
   let body;
   if (cat.id === "volume") body = lh(LcSection, { sec: "audio", title: "Earcons", only: cat.keys, noReset: true,
       intro: "Command earcons: every Commandbar command plays its own short sound, and commands in the same area sound related. A command that fails plays the error sound. Keyboard earcons: a click for each key you type in a text field, with their own sounds for Space, Delete and Enter. Both are on by default, follow the Earcons switch and the master volume, and still play in Calm mode.",
@@ -4737,15 +4790,20 @@ function AudioSettings({ navigate, page }) {
         return lh('div', { key: d.k, className: "lc-evrow" }, lh(LcSetRow, { def: d }),
           lh('button', { type: "button", className: "btn bgb lc-btn lc-prev", onClick: function () { Earcon.play(d.ev, { test: true }); }, "aria-label": "Preview " + lcLowerFirst(d.l) }, "Preview"));
       }),
-      // Build 152: each Inbox type's own earcon (they follow the Alert switch above).
-      lh('h3', { className: "lc-sub-h", id: "lca-inbox-h" }, "Inbox earcons"),
-      lh('p', { className: "lc-desc" }, "Each kind of Inbox alert has its own earcon. They play when Alert is on, and each type can be silenced in Alerts settings."),
-      lh('ul', { className: "lc-plain", role: "list", "aria-labelledby": "lca-inbox-h" }, [["inboxMessage", "message earcon"], ["inboxReply", "reply earcon"], ["inboxMention", "mention earcon"], ["inboxLike", "like earcon"], ["inboxRedream", "Redream earcon"], ["inboxQuote", "quote earcon"], ["inboxFollow", "new Dreamor earcon"]].map(function (x) {
-        return lh('li', { key: x[0] }, lh('button', { type: "button", id: "lc-prev-" + x[0], className: "btn bgb lc-btn lc-prev", onClick: function () { Earcon.play(x[0], { test: true }); } }, "Preview " + x[1]));
-      })),
+      // Build 152: each Inbox type's own earcon. Nov 9 2026: they live on Earcons, Alerts now, with the Alert sound.
+      lh('p', { className: "lc-desc" }, "The alert sound and each kind of alert's sound are in ",
+        lh('a', { className: "lc-link", id: "lca-ev-alerts", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings_audio_alerts") : "#"), onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("settings_audio_alerts"); } }, "Alert sounds"), "."),
       lh('h3', { className: "lc-sub-h" }, "Other sounds"),
       lh('ul', { className: "lc-plain", role: "list" }, [["focus", "Focus move sound"], ["open", "Open sound"], ["close", "Close sound"]].map(function (x) {
         return lh('li', { key: x[0] }, lh('button', { type: "button", className: "btn bgb lc-btn lc-prev", onClick: function () { Earcon.play(x[0], { test: true }); } }, "Preview " + lcLowerFirst(x[1])));
+      })));
+  else if (cat.id === "alerts") body = lh('section', { className: "lc-grp", "aria-labelledby": "lca-al-h" },
+      lh('h2', { id: "lca-al-h", className: "lc-grp-h", tabIndex: -1 }, "Alert sounds"),
+      lh(LcAlertSounds, { navigate: navigate, where: "earcons" }),
+      // The Inbox earcons that aren't a kind of alert (messages), to preview.
+      lh('h3', { className: "lc-sub-h", id: "lca-inbox-h" }, "Inbox earcons"),
+      lh('ul', { className: "lc-plain", role: "list", "aria-labelledby": "lca-inbox-h" }, [["inboxMessage", "message earcon"], ["inboxReply", "reply earcon"], ["inboxMention", "mention earcon"], ["inboxLike", "like earcon"], ["inboxRedream", "Redream earcon"], ["inboxQuote", "quote earcon"], ["inboxFollow", "new Dreamor earcon"]].map(function (x) {
+        return lh('li', { key: x[0] }, lh('button', { type: "button", id: "lc-prev-" + x[0], className: "btn bgb lc-btn lc-prev", onClick: function () { Earcon.play(x[0], { test: true }); } }, "Preview " + x[1]));
       })));
   else body = lh(LcSection, { sec: "audio", title: "Music and haptics", only: cat.keys, noReset: true });
   return lh(LcCatPage, { title: cat.l, navigate: navigate, reset: "g:snd_" + cat.id }, body);
