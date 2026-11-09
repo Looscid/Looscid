@@ -4755,7 +4755,7 @@ function AudioSettings({ navigate, page }) {
       // Build 146: Test earcons plays a short sequence and says whether the sound engine started.
       lh('button', { type: "button", id: "lc-test-earcons", className: "btn bgb lc-big", onClick: function () {
         Earcon.selfTest(); announce("Earcons playing.", "essential");
-        setTimeout(function () { const st = Earcon.state(); if (st !== "running") announce("Earcons couldn't start, the sound engine is " + st + ". Check the volume, and Earcons when iPhone is on silent, then try Test earcons again.", "essential"); }, 1500);
+        setTimeout(function () { const st = Earcon.state(); if (st !== "running") announce("Earcons couldn't start, the sound engine is " + st + ". Check the volume, and Earcons when your phone is on silent, then try Test earcons again.", "essential"); }, 1500);
       } }, "Test earcons"),
       // Nov 9 2026 (Carter approved item 11, and "we could put the same item in two places"): Visual cue instead of sounds
       // lives in Accessibility, Hearing, and it's right here too. Same setting, so it changes in both places.
@@ -5011,7 +5011,7 @@ function SettingsOrderSettings({ navigate }) {
     announce(it.label + ", moved to (" + (j + 1) + " of " + ids.length + ").");
     keep("ord-" + (d < 0 ? "up-" : "down-") + it.id);
   };
-  const opts = [["default", "Default", "Grouped like iOS"], ["alpha", "Alphabetical", "A to Z"], ["custom", "Custom", "Your own order"]];
+  const opts = [["default", "Default", "Grouped by kind"], ["alpha", "Alphabetical", "A to Z"], ["custom", "Custom", "Your own order"]];
   return lh('div', { className: "pg lc-a11y lc-ios-page", "aria-live": "off" },
     lh(BackHeader, { title: "Settings Order", onBack: function () { navigate("settings"); } }),
     lh('fieldset', { className: "lc-fs lc-ios-card", id: "cz-order-mode" },

@@ -56,7 +56,7 @@ const TOOLS_MSG = {
   notfound: "Couldn't load the Nostr tools: the file wasn't found on the Looscid site. This page is probably an older copy of Looscid. Reload Looscid, then try again.",
   server: "Couldn't load the Nostr tools: the Looscid site didn't answer properly. Try again in a minute.",
   blocked: "The Nostr tools downloaded, but this browser wouldn't run them. Reload Looscid, then try again.",
-  start: "The Nostr tools couldn't start in this browser. Updating the browser or iOS may help.",
+  start: "The Nostr tools couldn't start in this browser. Updating your browser or your phone's system may help.",
   old: "This device kept an older copy of the Nostr tools, without private messages. Reload Looscid, then try again."
 };
 function toolsErr(code) { const e = new Error("Nostr tools: " + code); e.code = code; e.lcText = TOOLS_MSG[code] || TOOLS_MSG.server; return e; }

@@ -2179,7 +2179,7 @@ const PRIVACY_CONTENT = `<p><strong>Last updated: October 26, 2026</strong></p>
 <li>Your profile, settings, drafts, Dreams and Soundpacks are saved on this device only, in your browser's storage (the keys start with <code>looscid_</code>).</li>
 <li>Replies you write are saved on this device too. Like Dreams, they're not in Settings backup.</li>
 <li>Your chats with Cherry (Your History, and which ones you pinned) stay on this device only. They are in Settings backup, so a backup file can bring them to another device.</li>
-<li>There are no Looscid sign-up servers. Supabase and Cloudflare are gone.</li>
+<li>There's no sign-up server. Your LooscidID is made on your device.</li>
 <li>You never need a phone number or an email address, and Looscid never uses them to find you or suggest you to other people.</li>
 </ul>
 <h2>When Looscid talks to the internet</h2>
@@ -4365,8 +4365,8 @@ const LC_SET = [
   { k: "cmdSounds", s: "audio", l: "Command earcons", t: "bool", d: true, al: ["command sounds", "command sound", "commandbar sounds", "sounds for commands", "command earcons"],
     desc: "On by default. Each Commandbar command plays its own short sound when it runs; commands in the same area sound related. A command that fails plays the error sound. Follows the Earcons switch and the master volume, and still plays in Calm motion. Off: commands play the one run sound, as before." },
   // Build 146: iPhone mutes web sounds on silent; this asks iOS to play Earcons anyway (off by default: it can stop music in other apps).
-  { k: "earconsOnSilent", s: "audio", l: "Earcons when iPhone is on silent", t: "bool", d: false, al: ["earcons on silent", "silent mode earcons", "play on silent", "ignore silent switch", "sounds on silent"],
-    desc: "Off by default. iPhone mutes sounds from web pages when it's on silent, so Earcons go quiet too. On: Earcons play even on silent, like VoiceOver does. Music playing in another app may stop when an earcon plays." },
+  { k: "earconsOnSilent", s: "audio", l: "Earcons when your phone is on silent", t: "bool", d: false, al: ["earcons on silent", "silent mode earcons", "play on silent", "ignore silent switch", "sounds on silent"],
+    desc: "Off by default. Your phone may mute sounds from web pages when it's on silent, so Earcons go quiet too. On: Earcons play even on silent, like VoiceOver does. Music playing in another app may stop when an earcon plays." },
   { k: "nexosBoot", s: "audio", l: "Looscid OS boot text", t: "bool", d: true, al: ["looscid os boot text", "looscid os boot", "nexos boot text", "boot text", "boot screen", "nexos boot", "startup text"],
     desc: "With the Looscid OS classic Soundpack, Looscid starts with the Looscid OS boot text and its boot chime, once per visit. Text only, nothing flashes, and Skip or Escape ends it." },
   { k: "soundPack", s: "audio", l: "Soundpack", t: "choice", d: "looscid", al: ["sound pack", "soundpack", "sound theme", "insomnia sounds", "synth", "hyper synth", "fastsm", "fastsm inspired", "soundvault", "soundpack", "soundpacks", "sound packs", "looscid os sounds", "nexos sounds", "good morning", "good night"], o: [["looscid", "Looscid", ["looscid", "default"]], ["nexos", "Looscid OS classic", ["looscid os classic", "looscid os", "nexos classic", "nexos"]], ["insomnia", "Insomnia", ["insomnia", "insomnia os", "insomnia sounds"]], ["synth", "Hyper Synth", ["hyper synth", "synth", "hyper", "synth pack"]], ["fastsm", "FastSM-inspired", ["fastsm inspired", "fastsm", "fast sm", "fastsmrw", "fastsm sounds"]], ["soundvault", "Soundvault", ["soundvault", "sound vault", "soundvault pack", "soundvault sounds"]], ["custom", "Your imported pack", ["custom", "imported", "my pack", "mine"]]] },
