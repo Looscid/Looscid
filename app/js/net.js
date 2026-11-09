@@ -6,7 +6,7 @@
    the signature before it keeps it. Nostr is a bridge you can turn on in Settings, LooscidID, Connectionbase
    ("Also share my Dreams to Nostr"): then the same signed Dream also goes to your Nostr relays. Mastodon and Bluesky are coming soon.
    "Put your Dreams on Rem" is in js/remsync.js. Nov 8 2026 (Carter: "Rem should get it's own settings section"): everything
-   about Rem is on its own Settings screen, Rem (RemSettings in js/more.js, using LcRemStatus, LcRemLists and LcRemData below).
+   about Rem is on its own screen, Rem, a row in LooscidID (RemSettings in js/more.js, using LcRemStatus, LcRemLists and LcRemData below).
    Connectionbase keeps only the bridges. The older Rem v0 home is retired (Nov 7 2026).
 
    localStorage keys:

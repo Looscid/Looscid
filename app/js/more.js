@@ -2152,7 +2152,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
           {icon:"Drafts",l:"Drafts",sub:"Your saved Dream drafts",a:()=>navigate("drafts"),color:"#374151"},
           authUser && (authUser.isGuest || authUser.uid==="guest")
             ? {icon:"Login",l:"Login or create a LooscidID",sub:"Get a LooscidID",a:()=>navigate("login"),color:"#6d28d9"}
-            : {icon:"LooscidID",l:"LooscidID",sub:"Profile, Connectionbase and your data",a:()=>navigate("settings_account"),color:"#6d28d9"},
+            : {icon:"LooscidID",l:"LooscidID",sub:"Profile, Rem, Connectionbase and your data",a:()=>navigate("settings_account"),color:"#6d28d9"},
           {icon:"Settings",l:"Settings",sub:"LooscidID, privacy, accessibility",a:()=>navigate("settings"),color:"#374151"},
           {icon:"Send Feedback",l:"Send Feedback",sub:"Help us improve Looscid",a:()=>navigate("feedback"),color:"#0e7490"},
         ].map(item => (
@@ -3144,7 +3144,9 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
       // Nov 7 2026 (Carter): Connectionbase holds the connections, the bridges Nostr, Mastodon and Bluesky (coming soon).
       // Nov 8 2026 (Carter: "Rem should get it's own settings section ... the thing by LooscidID should get removed"): Rem
       // isn't here anymore; it has its own Settings screen (RemSettings), so this row only says which bridges are on.
-      [{ id: "lid-row-connectionbase", g: "cloud", c: "#30b0c7", label: "Connectionbase", value: Looscid.lcNet && Looscid.lcNet.bridgeOn("nostr") ? "Nostr" : "Off", sub: "Bridges: Nostr, Mastodon, Bluesky", onClick: function () { go("connectionbase"); } },
+      // Nov 8 2026 (Carter, 8:47 PM: "Yes for both"): Rem's own screen lives here, as a row of LooscidID, not in Settings.
+      [{ id: "lid-row-rem", g: "mode", c: "#34c759", label: "Rem", value: srvM.sync ? "Syncing" : "Local", sub: srvWords, onClick: function () { navigate("settings_rem"); } },
+       { id: "lid-row-connectionbase", g: "cloud", c: "#30b0c7", label: "Connectionbase", value: Looscid.lcNet && Looscid.lcNet.bridgeOn("nostr") ? "Nostr" : "Off", sub: "Bridges: Nostr, Mastodon, Bluesky", onClick: function () { go("connectionbase"); } },
        { id: "lid-row-apps", g: "grid", c: "#5856d6", label: "Connected apps", value: methods.length ? String(methods.length) : "None", sub: methods.length ? methods.length + " linked " + (methods.length === 1 ? "identity" : "identities") : "", onClick: function () { go("apps"); } }],
       [{ id: "lid-row-data", g: "data", c: "#8e8e93", label: "Data", sub: summary.length + " kinds of data, stored only on this device", onClick: function () { go("data"); } }]])));
     // Nov 7 2026 (Carter, 6:10 PM) Download my Dreams and Delete my Rem data were here. Nov 8 2026: they're on the Rem screen now.
@@ -3244,7 +3246,7 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
       Looscid.LcNpubLine ? lh(Looscid.LcNpubLine, { np: np, id: "lid-npub" }) : null),
     panel,
     // Nov 8 2026: Security moved to Privacy & Security; one real link goes there (Carter: "give links", not where to look).
-    lh('p', { className: "lc-i27-foot" }, "Your profile, Connectionbase, connected apps and your data on this device. ",
+    lh('p', { className: "lc-i27-foot" }, "Your profile, Rem, Connectionbase, connected apps and your data on this device. ",
       lh('a', { className: "lc-link", id: "lid-privsec-link", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings_privacy") : "#"), style: { display: "inline-flex", alignItems: "center", minHeight: 44 },
         onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("settings_privacy"); } }, "Keep your key and logins safe")));
 }
@@ -3287,13 +3289,14 @@ function LcPrivSecRows({ navigate }) {
 Looscid.LcPrivSecRows = LcPrivSecRows;
 
 /* Nov 8 2026 (Carter, 8:10 PM: "Rem should get it's own settings section or already Imbeddedd. So the thing by LooscidID
-   should get removed"): Rem, its own Settings screen, right after Privacy & Security. Everything about Rem is here now, in
+   should get removed"): Rem, its own screen. At 8:47 PM Carter put its row inside LooscidID (the Rem row on LooscidID's
+   home page), so Back goes to LooscidID, onto that row. Everything about Rem is here now, in
    this order: what Rem is and if it's online, the Mode line, Put your Dreams on Rem (js/remsync.js), your synced lists
    (js/remlists.js), a placeholder for the per-device sync switches (not built yet), and Download my Dreams / Delete my Rem
    data. It all used to be split up: the Mode row under the LooscidID card, LooscidID's Connectionbase page and home page,
    and a Rem row in Privacy & Security. Those are gone, and their old ways in open this screen. Only the place changed: every
    control is the same component as before, with the same saved choices (looscid_server, looscid_rem_lists) and behavior.
-   Bridges stay in LooscidID, Connectionbase. Address: /More/Settings/Rem (old: /Settings/Server, /Settings/Mode and more). */
+   Bridges stay in LooscidID, Connectionbase. Address: /More/Settings/LooscidID/Rem (old: /Settings/Rem, /Settings/Server and more). */
 function RemSettings({ navigate }) {
   if (Looscid.useServerTick) Looscid.useServerTick(); else useState(0);
   const N = Looscid.lcNet || {};
@@ -3304,7 +3307,7 @@ function RemSettings({ navigate }) {
   const link = function (id, page, data, words) { return lh('a', { className: "lc-link", id: id, href: Looscid.lcPathFor ? Looscid.lcPathFor(page, data) : "#", style: { display: "inline-flex", alignItems: "center", minHeight: 44 },
     onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate(page, data); } }, words); };
   return lh('div', { className: "pg lc-ios-page lc-i27 lid-i27", id: "rem-page" },
-    lh(Looscid.LcI27Header, { title: "Rem", onBack: function () { navigate("settings"); }, backLabel: "Back to Settings" }),
+    lh(Looscid.LcI27Header, { title: "Rem", onBack: function () { navigate("settings_account", { focus: "lid-row-rem" }); }, backLabel: "Back to LooscidID" }),
     lh('div', { id: "rem-body", className: "lid-body" },
       lh('p', { className: "lid-help lid-i27-help", id: "rem-intro" }, "Rem is the Looscid protocol and its server: the home of your public Dreams. Each Dream with Audience Everyone is signed with your LooscidID key and saved on Rem, which checks the signature first. It's open source, so your Dreams can be downloaded and moved anytime."),
       N.LcRemStatus ? lh(N.LcRemStatus, null) : null,

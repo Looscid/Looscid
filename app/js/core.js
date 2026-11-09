@@ -1919,12 +1919,12 @@ const LC_FIND_STATIC = [
   { l: "Alerts", w: "alerts settings notification settings notifications push quiet hours alert types sound who can trigger categories order inbox tabs", page: "settings_notifications", where: "Settings" },
   { l: "Privacy & Security", w: "privacy security permissions muted words blocked keys passcode backup login methods devices", page: "settings_privacy", where: "Settings" },
   // Nov 8 2026 (Carter: "Rem should get it's own settings section"): Rem's own screen and what's on it.
-  { l: "Rem", w: "rem server looscid server mode local sync syncing online status protocol", page: "settings_rem", where: "Settings" },
-  { l: "Put your Dreams on Rem", w: "put my dreams on rem upload sync all my dreams let me pick stop syncing sync now server", page: "settings_rem", focus: "rem-h-dreams", where: "Settings, Rem" },
-  { l: "Mode", w: "mode local server rem local mode server mode", page: "settings_rem", where: "Settings, Rem" },
-  { l: "Sync my lists", w: "lists likes redreams pins mutes followed threads sync my lists again devices", page: "settings_rem", focus: "rem-h-lists", where: "Settings, Rem" },
-  { l: "Download my Dreams", w: "download my dreams export rem signed file", page: "settings_rem", focus: "rem-download", where: "Settings, Rem" },
-  { l: "Delete my Rem data", w: "delete my rem data forget me erase server", page: "settings_rem", focus: "rem-forget", where: "Settings, Rem" },
+  { l: "Rem", w: "rem server looscid server mode local sync syncing online status protocol", page: "settings_rem", where: "Settings, LooscidID" },
+  { l: "Put your Dreams on Rem", w: "put my dreams on rem upload sync all my dreams let me pick stop syncing sync now server", page: "settings_rem", focus: "rem-h-dreams", where: "Settings, LooscidID, Rem" },
+  { l: "Mode", w: "mode local server rem local mode server mode", page: "settings_rem", where: "Settings, LooscidID, Rem" },
+  { l: "Sync my lists", w: "lists likes redreams pins mutes followed threads sync my lists again devices", page: "settings_rem", focus: "rem-h-lists", where: "Settings, LooscidID, Rem" },
+  { l: "Download my Dreams", w: "download my dreams export rem signed file", page: "settings_rem", focus: "rem-download", where: "Settings, LooscidID, Rem" },
+  { l: "Delete my Rem data", w: "delete my rem data forget me erase server", page: "settings_rem", focus: "rem-forget", where: "Settings, LooscidID, Rem" },
   { l: "Private account", w: "private account approve followers lock", page: "settings_privacy", focus: "set-privateAccount", where: "Settings, Privacy & Security" },
   { l: "Let others share my Dreams", w: "allow sharing share my dreams reshare", page: "settings_privacy", focus: "set-shareMine", where: "Settings, Privacy & Security" },
   { l: "Privacy Policy", w: "privacy policy we care data", page: "settings_privacy", focus: "priv-policy-link", where: "Settings, Privacy & Security" },
@@ -2634,10 +2634,11 @@ const LC_ROUTES = [
   // screen now, Privacy & Security. /Settings/Privacy and /Settings/Security still open it. Its Security pages each have
   // their own address too (LC_SUB_ROUTES below says which LooscidID page each one opens), so help can link right to them.
   ["settings_privacy", "Settings/Security"], ["settings_privacy", "Settings/Privacy-Security"],
-  // Nov 8 2026 (Carter: "Rem should get it's own settings section"): Rem's own screen. The other addresses are names it
-  // went by (the Looscid server, Mode, sync), so old links and guesses open it too.
-  ["settings_rem", "Settings/Rem"], ["settings_rem", "Settings/Server"], ["settings_rem", "Settings/Looscid-Server"], ["settings_rem", "Settings/Mode"], ["settings_rem", "Settings/Sync"],
-  ["settings_rem", "Settings/LooscidID/Rem"], ["settings_rem", "Settings/LooscidID/Server"], ["settings_rem", "Settings/Privacy-and-Security/Rem"],
+  // Nov 8 2026 (Carter: "Rem should get it's own settings section", then 8:47 PM: inside LooscidID): Rem's own screen, at
+  // /More/Settings/LooscidID/Rem. The other addresses are where it was for a bit (/Settings/Rem) and names it went by (the
+  // Looscid server, sync), so old links and guesses open it too.
+  ["settings_rem", "Settings/LooscidID/Rem"], ["settings_rem", "Settings/Rem"], ["settings_rem", "Settings/Server"], ["settings_rem", "Settings/Looscid-Server"], ["settings_rem", "Settings/Sync"],
+  ["settings_rem", "Settings/LooscidID/Server"], ["settings_rem", "Settings/Privacy-and-Security/Rem"],
   ["settings_account", "Settings/Privacy-and-Security/Keys"], ["settings_account", "Settings/Privacy-and-Security/Passcode"], ["settings_account", "Settings/Privacy-and-Security/Backup-File"],
   ["settings_account", "Settings/Privacy-and-Security/Login-Methods"], ["settings_account", "Settings/Privacy-and-Security/Devices"], ["settings_account", "Settings/Privacy-and-Security/Security-Checkup"],
   ["settings_account", "Settings/LooscidID/Data"], ["settings_account", "Settings/LooscidID/Connectionbase"],
@@ -2772,12 +2773,10 @@ function lcMoreSections(o) {
       // Nov 8 2026 (Carter: "Privacy is in security like iOS"): one Privacy & Security row, like iOS. Its id stays "privacy",
       // so a custom Settings Order keeps its place.
       { id:"privacy", grp:"you", icon:"Privacy", label:"Privacy & Security", action(){onClose();try { sessionStorage.removeItem("looscid_priv_open"); } catch (e) {} navigate("settings_privacy");} },
-      // Nov 8 2026 (Carter: "Rem should get it's own settings section"): Rem, its own row, right after Privacy & Security. Its
-      // value is the old Mode row's (Local, or Syncing when your Dreams sync to Rem); that row by the LooscidID card is gone.
-      { id:"rem", grp:"you", icon:"Rem", label:"Rem", value(){ const m = Looscid.lcServer && Looscid.lcServer.mode ? Looscid.lcServer.mode() : { sync: false }; return m.sync ? "Syncing" : "Local"; }, action(){onClose();navigate("settings_rem");} },
+      // Nov 8 2026 (Carter, 8:47 PM: "Yes for both"): Rem's own screen is a row inside LooscidID (js/more.js), not here.
       { id:"customization", grp:"you", icon:"Customizability", label:"Customization", action(){onClose();navigate("settings_customizability");} },
       { id:"cherry", grp:"you", icon:"Intelligence", label:"Cherry", action(){onClose();navigate("settings_intelligence");} },
-      { id:"looscidid", grp:"id", icon:"LooscidID", label:"LooscidID", sub:"Profile, Connectionbase, connected apps and data", action(){onClose();navigate("settings_account");} },
+      { id:"looscidid", grp:"id", icon:"LooscidID", label:"LooscidID", sub:"Profile, Rem, Connectionbase, connected apps and data", action(){onClose();navigate("settings_account");} },
       // Oct 31 2026 (Carter, 11:28 PM) Security had its own row under the LooscidID card, and LooscidID had a Security row
       // too. Nov 8 2026 (Carter: "We have a security in 2 place"): both are gone; your key, passcode, login methods, backup
       // file, Rem, devices and Security checkup are in Privacy & Security now (the row above).
@@ -3100,7 +3099,7 @@ Object.assign(Looscid, { LcI27Row, LcI27Glyph, LcI27Header, lcI27Cards, lcMyNpub
 function lcSetRowO(it) { return { id: lcSetRowId(it.label), k: it.id, label: it.label, onClick: it.action, value: typeof it.value === "function" ? it.value() : it.value }; }
 /* Round 7.38 / Oct 31 2026: the LooscidID card reads like iOS's Apple Account card: your name, your @handle, your npub
    (with its own Copy button), then "LooscidID, Connectionbase, and more" (Security moved into Privacy & Security, Nov 8 2026). */
-const LC_SET_ID_SUB = "LooscidID, Connectionbase, and more";
+const LC_SET_ID_SUB = "LooscidID, Rem, Connectionbase, and more";
 function LcSettingsHome({ s, navigate, onBack }) {
   useSetOrderTick(); useServerTick();
   const [q, setQ0] = useState(function () { return Looscid.LC_SETFIND_Q || ""; });
@@ -3114,7 +3113,7 @@ function LcSettingsHome({ s, navigate, onBack }) {
   const name = me.name || me.displayName || "Dreamor";
   const np = lcMyNpub();
   const idLi = idItem ? lh('li', { key: "looscidid", className: "mli lc-i27-li lc-g-first lc-g-last lc-i27-idli" },
-    // Its name, from its own words: "Carter, @2three1y, npub1…, LooscidID, Connectionbase, and more".
+    // Its name, from its own words: "Carter, @2three1y, npub1…, LooscidID, Rem, Connectionbase, and more".
     lh('button', { type: "button", id: lcSetRowId(idItem.label), className: "mitem lc-i27-row lc-i27-id", onClick: idItem.action, "aria-label": lcJoinName(name, handle, np ? lcNpubShort(np) : "", LC_SET_ID_SUB) || undefined },
       lh('span', { className: "lc-i27-av", "aria-hidden": "true" }, String(me.initials || name.charAt(0) || "D").slice(0, 2)),
       lh('span', { className: "lc-i27-txt" },
@@ -3125,14 +3124,14 @@ function LcSettingsHome({ s, navigate, onBack }) {
     lh(LcNpubLine, { np: np, id: "set-npub" })) : null;
   const go = function (it) { return lcSetRowO(it); };
   // Nov 8 2026 (Carter, 8:10 PM: "the thing by LooscidID should get removed"): the Mode row (Local or Server) that sat under
-  // the LooscidID card is gone; Rem has its own row and screen now, and the Rem row says Local or Syncing.
+  // the LooscidID card is gone; Rem has its own screen in LooscidID now, and its row there says Local or Syncing.
   const top = sec.map(go);
   let groups;
   if (mode === "default") {
     const by = function (ids) { return ids.map(function (k) { return items.find(function (it) { return it.id === k; }); }).filter(Boolean).map(go); };
-    const placed = ["accessibility", "earcons", "alerts", "chats", "privacy", "rem", "customization", "cherry", "general", "helpcenter"];
+    const placed = ["accessibility", "earcons", "alerts", "chats", "privacy", "customization", "cherry", "general", "helpcenter"];
     const rest = items.filter(function (it) { return placed.indexOf(it.id) < 0 && ["id", "logout", "sec"].indexOf(it.grp) < 0; }).map(go);
-    groups = [top, by(["accessibility", "earcons", "alerts", "chats"]), by(["privacy", "rem", "customization", "cherry"]), by(["general", "helpcenter"]).concat(rest)];
+    groups = [top, by(["accessibility", "earcons", "alerts", "chats"]), by(["privacy", "customization", "cherry"]), by(["general", "helpcenter"]).concat(rest)];
   } else {
     groups = [top, lcSetOrdered(items, mode).map(go), help.map(go)];
   }
@@ -8097,7 +8096,7 @@ if (!Looscid.LC_SETNAV_ON) { Looscid.LC_SETNAV_ON = true; document.addEventListe
 Object.assign(Looscid, { lcSetNavRows, lcSetNavName, lcSetNavKey });
 // Which More-menu item each Settings screen belongs to (Back returns there, focus on that item).
 const SETTINGS_MENU_ITEM = {
-  settings_account: ["settings", "LooscidID"], settings_notifications: ["settings", "Alerts"], settings_privacy: ["settings", "Privacy & Security"], settings_rem: ["settings", "Rem"],
+  settings_account: ["settings", "LooscidID"], settings_notifications: ["settings", "Alerts"], settings_privacy: ["settings", "Privacy & Security"], settings_rem: ["settings", "LooscidID"],
   settings_customizability: ["settings", "Customization"], settings_accessibility: ["settings", "Accessibility"], settings_intelligence: ["settings", "Cherry"], settings_about: ["about", "About Looscid"],
   settings_audio: ["settings", "Earcons"], settings_apps: ["settings", "General"], settings_messages: ["settings", "Chats"], settings_general: ["settings", "General"],
   settings_a11y_sr: ["settings", "Accessibility"], settings_a11y_vision: ["settings", "Accessibility"], settings_a11y_hearing: ["settings", "Accessibility"],

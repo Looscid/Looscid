@@ -159,7 +159,7 @@
         "Press Agree or Disagree on any report. You get one vote per report, and you can change it or take it back. Nobody sees who voted, only the counts.",
         "Looscid mods set the status, reply as Looscid mods, and close a report with a reason. All of it is public.",
       ],
-      tips: ["Choose Show above the list to see only new, working on it, fixed or closed reports.", "[[More/Settings/Rem|Delete my Rem data]] also deletes your reports and your votes."],
+      tips: ["Choose Show above the list to see only new, working on it, fixed or closed reports.", "[[More/Settings/LooscidID/Rem|Delete my Rem data]] also deletes your reports and your votes."],
       rel: ["mod-log", "getting-around"] },
 
     /* Nov 8 2026 (Carter): the Report Center (js/reportcenter.js), every kind of report in one place, private. */
@@ -174,7 +174,7 @@
         "Each report is its own thread. Press Thread to read it, add more info for the mods, and see their answers. They reply as Looscid mods.",
         "When the status changes or the mods reply, you get an Alert in Inbox, Alerts.",
       ],
-      tips: ["Only you and the Looscid mods can read your reports. Reading them needs your Looscid key.", "If a child is in danger right now, call your local emergency number first.", "[[More/Settings/Rem|Delete my Rem data]] also deletes your reports and their threads."],
+      tips: ["Only you and the Looscid mods can read your reports. Reading them needs your Looscid key.", "If a child is in danger right now, call your local emergency number first.", "[[More/Settings/LooscidID/Rem|Delete my Rem data]] also deletes your reports and their threads."],
       rel: ["report-a-problem", "mod-log", "options-menus"] },
 
     /* ---- Chats, Circles and Cherry ---- */
@@ -262,12 +262,12 @@
       rel: ["backup", "log-in", "privacy", "rem"] },
     // Nov 8 2026 (Carter: "Rem should get it's own settings section"): Rem's own screen, and its own article.
     { id: "rem", c: "settings-privacy-backup", t: "Rem: your Dreams on every device",
-      s: "Rem is Looscid's own server, the home of your public Dreams. Everything about it is on one screen.",
+      s: "Rem is Looscid's own server, the home of your public Dreams. Everything about it is on one screen, in LooscidID.",
       steps: [
-        "[[More/Settings/Rem|See if Rem is online and which mode you're in]]. Local means your Dreams live on this device; Rem means your public Dreams sync to Rem.",
-        "[[More/Settings/Rem|Put your Dreams on Rem]]. Choose All my Dreams, Let me pick, or Not now. Nothing older uploads until you choose.",
+        "[[More/Settings/LooscidID/Rem|See if Rem is online and which mode you're in]]. Local means your Dreams live on this device; Rem means your public Dreams sync to Rem.",
+        "[[More/Settings/LooscidID/Rem|Put your Dreams on Rem]]. Choose All my Dreams, Let me pick, or Not now. Nothing older uploads until you choose.",
         "Your likes, ReDreams, pins, mutes and the threads you follow sync through Rem with your key, so they're the same on all your devices.",
-        "[[More/Settings/Rem|Download or delete your Dreams on Rem]]. Delete my Rem data asks first, and Dreams on this device stay.",
+        "[[More/Settings/LooscidID/Rem|Download or delete your Dreams on Rem]]. Delete my Rem data asks first, and Dreams on this device stay.",
         "[[More/Settings/LooscidID/Connectionbase|Share your public Dreams to other networks too]], with bridges.",
       ],
       tips: ["I'm working on Sync to my other devices and Just this device switches for your settings. They aren't here yet."],
