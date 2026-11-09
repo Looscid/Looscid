@@ -27,6 +27,9 @@ vm.runInNewContext(fs.readFileSync(path.join(APP, "js", "helpdata.js"), "utf8"),
 const H = sandbox.window.Looscid.LC_HELP;
 const coreSrc = fs.readFileSync(path.join(APP, "js", "core.js"), "utf8");
 const routes = new Set([...coreSrc.slice(coreSrc.indexOf("const LC_ROUTES = ["), coreSrc.indexOf("];", coreSrc.indexOf("const LC_ROUTES = ["))).matchAll(/\["[a-z_]+", "([^"]*)"\]/g)].map(m => m[1].toLowerCase()));
+// Nov 8 2026 (Carter: "/more/settings links"): core.js also gives every settings screen an address under More, like
+// More/Settings/General (built from the Settings/... routes, so it isn't written out in the list above).
+[...routes].filter(r => /^settings(\/|$)/.test(r)).forEach(r => routes.add("more/" + r));
 
 /* Nov 1 2026 (Carter: "steal the most coolist Help center UI and footer", "footer is sitewide"): the sitewide footer.
    The same markup is in app/changelog/index.html and app/status.html, and the app draws it too (core.js LcSiteFooter).
@@ -91,7 +94,9 @@ function rich(text, depth) {
   return esc(text)
     .replace(/\[\[([^|\]]*)\|([^|\]]+)\|([^\]]+)\]\]/g, (m, route, label, where) => {
       if (!routes.has(route.toLowerCase())) problems.push("unknown screen: " + route);
-      return '<a class="go" href="' + root + "?p=" + encodeURIComponent("/" + route) + '">Open ' + label + "</a> (" + where + ")";
+      // Nov 8 2026: a screen with its own page (like More/Settings/General/) gets that real address; any other goes in as ?p=.
+      const real = route && fs.existsSync(path.join(APP, ...route.split("/"), "index.html"));
+      return '<a class="go" href="' + root + (real ? route + "/" : "?p=" + encodeURIComponent("/" + route)) + '">Open ' + label + "</a> (" + where + ")";
     })
     .replace(/\{\{([a-z0-9-]+)(?:\|([^}]+))?\}\}/g, (m, id, words) => {
       if (!byId[id]) problems.push("unknown article: " + id);

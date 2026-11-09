@@ -57,6 +57,7 @@
 import { schnorr } from "@noble/curves/secp256k1";
 import { sha256 } from "@noble/hashes/sha256";
 import { bytesToHex } from "@noble/hashes/utils";
+import { preview } from "./preview.js"; // Nov 8 2026: GET /preview, website previews
 
 // The live app, plus the test preview of the d1-feed branch (Nov 7 2026, so Carter can try it on his iPhone).
 const ORIGINS = ["https://looscid.github.io", "https://looscid-preview.sites.tab.bot"];
@@ -75,7 +76,7 @@ const LIMITS = {                 // simple rate limits: [max actions, per this m
   ingest: [30, 600], report: [20, 3600], block: [60, 3600], forget: [5, 3600], moderate: [120, 3600], ip: [200, 600],
   list: [300, 3600], mine: [240, 3600], // Nov 8 2026: your lists (POST /list, POST /mine)
   issues: [20, 3600], issue: [10, 86400], issue_vote: [300, 3600], issue_mod: [200, 3600], // Nov 8 2026: issue tracker (issue = reports per key per day)
-  reports: [30, 3600], reports_read: [240, 3600], reports_reply: [120, 3600], reportday: [20, 86400], // Nov 8 2026: Report Center (reportday = reports per key per day)
+  reports: [30, 3600], reports_read: [240, 3600], reports_reply: [120, 3600], reportday: [20, 86400], preview: [120, 3600], // Nov 8 2026: website previews per IP // Nov 8 2026: Report Center (reportday = reports per key per day)
 };
 
 /* ---------- small helpers ---------- */
@@ -851,6 +852,14 @@ export default {
         if (path === "/health") {
           const r = await env.DB.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name").all();
           return json(req, { ok: true, protocol: PROTOCOL, tables: r.results.map((t) => t.name), issues: true });
+        }
+        // Nov 8 2026: website previews for profiles (src/preview.js has the safety rules). Rate limited per IP.
+        if (path === "/preview") {
+          if (!(await allowed(env, "preview:" + (await ipKey(req)), LIMITS.preview))) return json(req, { ok: false, error: "slow down" }, 429);
+          const r = await preview(url.searchParams.get("url") || "");
+          const res = json(req, r.body, r.status);
+          if (r.cache) res.headers.set("Cache-Control", "public, max-age=3600"); // only the page's words, never anything private
+          return res;
         }
         if (path === "/feed") return await feed(req, env, url);
         if (path === "/export") return await exportEvents(req, env, url);

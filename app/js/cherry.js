@@ -114,7 +114,7 @@ function cherryDialogEl(act) {
   return h('div', { key: "dlg-delete", className: "lid-alert-bg" },
     h('div', { className: "lid-alert", role: "alertdialog", "aria-modal": "true", "aria-labelledby": "cherry-dlg-t", onKeyDown: onKey },
       h('h2', { id: "cherry-dlg-t", className: "lid-sub" }, "Delete " + c.title + "?"),
-      h('p', { className: "lid-help" }, "This deletes the chat and its " + n + (n === 1 ? " message" : " messages") + " from this device. It can't be undone."),
+      h('p', { className: "lid-help" }, "This deletes the chat and its " + Looscid.fmt(n) + (n === 1 ? " message" : " messages") + " from this device. It can't be undone."),
       h('div', { className: "lid-actions" },
         h('button', { type: "button", className: "btn bgb", "data-lc-autofocus": "1", onClick: act.dlgCancel }, "Cancel"),
         h('button', { type: "button", className: "btn bp", onClick: act.deleteNow }, "Delete"))));
@@ -170,7 +170,7 @@ function cherryView(st, p, act) {
                 return h('li', { key: c.id, className: "lc-cherry-item" },
                   h('button', { type: "button", className: "lc-cherry-open", "data-chat": c.id, onClick: function () { act.open(c.id); } },
                     c.title, open ? h('span', { className: "lc-cherry-now" }, ", open now") : null),
-                  h('p', { className: "lc-muted" }, lcCherryWhen(c.updated) + ", " + n + (n === 1 ? " message" : " messages") + (c.pinned ? ", pinned" : "")),
+                  h('p', { className: "lc-muted" }, lcCherryWhen(c.updated) + ", " + Looscid.fmt(n) + (n === 1 ? " message" : " messages") + (c.pinned ? ", pinned" : "")),
                   h('div', { className: "lc-cherry-row" },
                     cherryMenuEl(c, "list", act),
                     // Build 148: like a Cherry chat and it's in Liked, Chats.
@@ -319,7 +319,7 @@ const CherryPage = lcPlainScreen("CherryPage", function (host, props) {
       saveCur();
       const c = lcCherryChats().find(function (x) { return x.id === id; }); if (!c) return;
       LC_CHERRY.cur = c; draw();
-      announce("Opened " + c.title + ", " + c.msgs.length + (c.msgs.length === 1 ? " message." : " messages."));
+      announce("Opened " + c.title + ", " + Looscid.fmt(c.msgs.length) + (c.msgs.length === 1 ? " message." : " messages."));
       setTimeout(function () { const hd = document.getElementById("cherry-chat-h"); if (hd) hd.focus(); }, 0);
     },
     pin: function (id) {
@@ -732,7 +732,7 @@ Want me to join any of these?`,
       // Part 37 (2three1y, Oct 12 4:52 PM): numbers are never abbreviated, and Cherry only reports real trending tags.
       { const tr = (Looscid.TRENDING || []).slice(0, 3);
         return {action:"Checking what's trending…", agentLabel:"Checking trends",
-          result: tr.length ? "Right now on Looscid:\n\n" + tr.map(function (t) { return " #" + t.tag + (t.count != null && t.count !== "" ? " — " + (typeof t.count === "number" ? Number(t.count).toLocaleString() + " Dreams" : t.count) : ""); }).join("\n") + "\n\nWant me to draft a Dream around one of these?"
+          result: tr.length ? "Right now on Looscid:\n\n" + tr.map(function (t) { return " #" + t.tag + (t.count != null && t.count !== "" ? " — " + (typeof t.count === "number" ? Number(t.count).toLocaleString("en-US") + " Dreams" : t.count) : ""); }).join("\n") + "\n\nWant me to draft a Dream around one of these?"
             : "Nothing is trending on Looscid yet. Want me to help you start something?"}; }
 
     if (lo.includes("summarize") || lo.includes("summary") || lo.includes("what's happening") || lo.includes("catch me up")) {

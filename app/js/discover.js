@@ -18,7 +18,7 @@ function lcTabCount(st) {
   if (!String(st.q || "").trim()) return;
   clearTimeout(Looscid.LC_COUNT_T);
   const n = st.count || 0;
-  Looscid.announce(tabLabel(st.tab) + ", " + n + (n === 1 ? " result" : " results"));
+  Looscid.announce(tabLabel(st.tab) + ", " + fmt(n) + (n === 1 ? " result" : " results"));
 }
 /* st: { q, tab, filters, filtersOpen }; p: the frame's props (navigate, cherryCtx). */
 function discoverView(st, p, draw) {

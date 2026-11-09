@@ -230,7 +230,10 @@ function getOnboardingSeen() { try { return localStorage.getItem(ONBOARDING_KEY)
 function setOnboardingSeen() { try { localStorage.setItem(ONBOARDING_KEY, "true"); } catch (e11) {} }
 function resetOnboarding() { try { localStorage.removeItem(ONBOARDING_KEY); } catch (e12) {} }
 /* --- HELPERS ----------------------------- */
-const fmt = n => n == null ? "0" : Number(n).toLocaleString();
+// Nov 8 2026 (Carter approved in Dreamor Council: full numbers, not K or M): every count in Looscid is written out in
+// full with commas, like 1,234 or 1,250,000, never 1.2K or 1.3M. Always en-US, so it reads the same on every device.
+const fmt = n => n == null || !isFinite(+n) ? "0" : Number(n).toLocaleString("en-US");
+
 Looscid.fmt = fmt;
 function getLinkInfo(text) {
   if (/youtube\.com/i.test(text)) return {type:"youtube",domain:"youtube.com"};
@@ -731,7 +734,7 @@ function DreamExtra({ extra, dream, onClose }) {
   if (extra.kind === "thread") {
     const t = lcThreadOf(dream);
     return lh('section', { className: "lc-extra", "aria-labelledby": "thr-h-" + dream.id },
-      lh('h3', { id: "thr-h-" + dream.id, className: "lc-sub-h", tabIndex: -1, ref: ref }, "Thread (" + t.length + (t.length === 1 ? " Dream)" : " Dreams)")), // Round 7.20 (#150): counts in parens
+      lh('h3', { id: "thr-h-" + dream.id, className: "lc-sub-h", tabIndex: -1, ref: ref }, "Thread (" + fmt(t.length) + (t.length === 1 ? " Dream)" : " Dreams)")), // Round 7.20 (#150): counts in parens
       lh('ol', { className: "lc-thread" }, t.map(function (x, i) { return lh('li', { key: x.id || i }, lh('span', { className: "lc-thread-who" }, (i ? "Reply from " : "") + ((x.user && x.user.name) || "Someone") + ": "), lcSpeechText(x.text)); })),
       lh('div', { className: "lc-inrow" },
         lh('button', { type: "button", className: "btn bgb lc-btn", "aria-disabled": LcSpeech.ok ? undefined : "true", onClick: function () { if (!LcSpeech.ok) { announce("Hear thread isn't available: this browser can't read aloud."); return; } lcHearThread(dream); } }, "Hear thread"),
@@ -791,7 +794,7 @@ function DreamPeople({ extra, dream, close, headRef }) {
   const said = useRef("");
   useEffect(function () {
     if (st.state === "loading" || said.current === extra.which) return; said.current = extra.which;
-    announce(title + ", " + shown.toLocaleString() + (shown === 1 ? " Dreamor" : " Dreamors") + (note ? ". " + note : "."));
+    announce(title + ", " + shown.toLocaleString("en-US") + (shown === 1 ? " Dreamor" : " Dreamors") + (note ? ". " + note : "."));
   }, [st.state, extra.which]);
   return lh('section', { className: "lc-extra", "aria-labelledby": "ppl-h-" + dream.id },
     lh('h3', { id: "ppl-h-" + dream.id, className: "lc-sub-h", tabIndex: -1, ref: headRef }, title),
@@ -1394,7 +1397,7 @@ function ReplyItem({cm, navigate, onReply}) {
       lh('button', { type: "button", className: "btn bgb lc-btn", "aria-expanded": open, onClick: function () { setOpen(!open); } }, open ? "Hide reply" : "Show reply"),
       open && body) : body,
     lh('div', { className: "cm-actions" },
-      lh('button', { type: "button", className: "cm-act" + (liked ? " liked" : ""), "aria-pressed": liked, onClick: toggle }, lh('span', { style: {fontSize:11} }, likes ? likes + " Likes" : "Like")),
+      lh('button', { type: "button", className: "cm-act" + (liked ? " liked" : ""), "aria-pressed": liked, onClick: toggle }, lh('span', { style: {fontSize:11} }, likes ? fmt(likes) + (likes === 1 ? " Like" : " Likes") : "Like")),
       onReply ? lh('button', { className: "cm-act", type: "button", onClick: function (e) { onReply(cm, e.currentTarget); } }, lh('span', { style: {fontSize:11} }, "Reply to " + name)) : null));
 }
 function CommentItem(props) { return lh(ReplyItem, props); } // the old name, kept for anything that still uses it
@@ -1823,6 +1826,8 @@ function LcResetHost() {
     // Build 152 fix: match groups by id. The keys confirmation hands back a list from an earlier render, whose group objects
     // aren't the same objects as this render's, so the announcement used to be a blank "Reset: .".
     m.groups.forEach(function (g) { const n = list.filter(function (x) { return x[0].id === g.id; }); if (!n.length) return; if (n.length === g.items.length || m.groups.length > 1 && st.scope !== "all") names.push(g.l); else n.forEach(function (x) { names.push(x[1].l); }); });
+    // Nov 8 2026: resetting Calm mode means it matches your device again.
+    if ("calmMode" in patch) { patch.calmMode = lcCalmDevice(); lcSetCalmChosen(false); }
     if (Object.keys(patch).length) lcSet(patch);
     runs.forEach(function (r) { try { const said = r(); if (typeof said === "string" && said) extra.push(said); } catch (e) {} });
     close("Reset: " + (st.scope === "all" && list.length === all.length ? "all Looscid settings" : names.join(", ")) + "." + (extra.length ? " " + extra.join(" ") : ""));
@@ -1844,7 +1849,7 @@ function LcResetHost() {
       lh('button', { type: "button", id: "lc-reset-keys-yes", className: "btn bp lc-big lc-danger", onClick: function () { doReset(confirm, true); } }, "Yes, remove my keys too"),
       lh('button', { type: "button", id: "lc-reset-keys-no", className: "btn bgb lc-big", onClick: function () { const rest = confirm.filter(function (x) { return !x[1].danger; }); if (rest.length) doReset(rest, true); else setConfirm(null); } }, "Keep my keys")) :
     lh('div', { className: "lc-dlg-body" },
-      lh('p', null, st.scope === "all" ? "Choose what to reset, or reset the whole app. Settings come back to their defaults; Flash safety and Calm mode come back on." : "Choose what to reset. Each setting comes back to its default."),
+      lh('p', null, st.scope === "all" ? "Choose what to reset, or reset the whole app. Settings come back to their defaults; Flash safety comes back on, and Calm mode matches your device again." : "Choose what to reset. Each setting comes back to its default."),
       m.groups.map(function (g) {
         const on = open === g.id, n = g.items.filter(function (it) { return sel[key(g, it)]; }).length;
         const setAll = function (v) { setSel(function (s) { const o = Object.assign({}, s); g.items.forEach(function (it) { o[key(g, it)] = v; }); return o; }); };
@@ -1929,6 +1934,8 @@ const LC_FIND_STATIC = [
   { l: "Customization", w: "customizability themes feeds dreaming posting media tabs", page: "settings_customizability", where: "Settings" },
   // Round 7.16 (#216): what moved here from above the feeds
   { l: "Show following, Networks and Feed tabs", w: "show following for you networks federated nostr pin a tab feed tabs pinned tabs", page: "settings_cz_feeds", focus: "fy-show-following", where: "Settings, Customization, Feeds" },
+  // Nov 8 2026: For You topics
+  { l: "Topics for For You", w: "topics for you topic picker interests what i like only my topics music art gaming technology accessibility", page: "settings_cz_feeds", focus: "fy-topic-accessibility", where: "Settings, Customization, Feeds" },
   { l: "Earcons", w: "audio earcons earcon sounds sound pack soundpack soundpacks looscid os classic nexos volume haptics beeps keyboard clicks keyboard earcons command earcons", page: "settings_audio", where: "Settings" },
   { l: "Inbox earcons", w: "inbox earcons inbox earcon inbox sounds inbox sound alert earcons message reply mention like redream quote new dreamor preview", page: "settings_audio_events", focus: "lca-inbox-h", where: "Settings, Earcons, Event earcons" },
   { l: "Event earcons", w: "event earcons event earcon event sounds event sound send like new dream error alert feed switch previews", page: "settings_audio_events", where: "Settings, Earcons" },
@@ -2630,6 +2637,11 @@ const LC_ROUTES = [
   ["report_center", "Report"],
   ["more_discover", "More/Discover"], ["more_apps", "More/Apps"], ["more_create", "More/Create"], ["more_alerts", "More/Alerts"], ["more_projects", "Projects"],
 ];
+/* Nov 8 2026 (Carter approved in Dreamor Council: "/more/settings links"): Settings lives in the More tab, so every
+   settings screen's real address is under More now, like /Looscid/More/Settings/General or /more/settings/general (case
+   doesn't matter). These go first, so they're the address the app shows and shares. The old /Settings/... addresses stay
+   in the list above, so old links and bookmarks still open the same screen, and the app then shows the new address. */
+LC_ROUTES.unshift.apply(LC_ROUTES, LC_ROUTES.filter(function (x) { return /^Settings(\/|$)/.test(x[1]); }).map(function (x) { return [x[0], "More/" + x[1]]; }));
 const LOOSCID_BASE = (function () { try { if (window.LOOSCID_BASE) return window.LOOSCID_BASE; const p = location.pathname; return /^\/looscid(\/|$)/i.test(p) ? "/Looscid/" : ("/" + p.replace(/[^\/]*$/, "")).replace(/\\/g, "/").replace(/\/{2,}/g, "/"); } catch (e) { return "/"; } })();
 function lcSlug(t) { return String(t || "").trim().replace(/[^A-Za-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); }
 // The address of a page (with its data, for profiles and projects), always under the app's own folder.
@@ -3641,7 +3653,7 @@ function NostrPanel({ onDone }) {
     onDone((noPass ? "Logged in with your Nostr key. It's saved only on this device, without a passcode." : "Logged in with your Nostr key. It's saved only on this device, locked with your passcode.") + so);
     // Oct 31 2026: on a new device, bring your Dreams and replies back from Nostr right away (it waited for the next reload).
     if (Looscid.lcNostr.fetchOwn) Looscid.lcNostr.fetchOwn().then(function (f) { const n = f ? (f.added || 0) + (f.replies || 0) : 0;
-      if (n) setTimeout(function () { announce("Found " + n + (n === 1 ? " of your Dreams" : " of your Dreams and replies") + " on Nostr."); }, 2500); }, function () {});
+      if (n) setTimeout(function () { announce("Found " + fmt(n) + (n === 1 ? " of your Dreams" : " of your Dreams and replies") + " on Nostr."); }, 2500); }, function () {});
   };
   const pasteRef = useEnterSubmit(usePasted);
 
@@ -4042,6 +4054,16 @@ const A11Y_DEFAULTS = {
   flashSafety: true,
 };
 Looscid.A11Y_DEFAULTS = A11Y_DEFAULTS;
+/* Nov 8 2026 (Carter, 7:01 PM): Calm mode's default follows the device. Until you tick or untick Calm mode yourself, it's on
+   when your device asks for reduced motion (prefers-reduced-motion: reduce) and off when it doesn't, and it changes when your
+   device's setting changes. Once you choose, your choice is saved (looscid_calm_chosen) and wins from then on, until you
+   press "Match my device again" or reset Motion. Flash safety is its own setting and doesn't change with this. */
+const LC_CALM_CHOSEN_KEY = "looscid_calm_chosen";
+function lcCalmDevice() { try { return !!window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } }
+function lcCalmChosen() { try { return localStorage.getItem(LC_CALM_CHOSEN_KEY) === "1"; } catch (e) { return false; } }
+function lcSetCalmChosen(on) { try { if (on) localStorage.setItem(LC_CALM_CHOSEN_KEY, "1"); else localStorage.removeItem(LC_CALM_CHOSEN_KEY); } catch (e) {} }
+A11Y_DEFAULTS.calmMode = lcCalmDevice();
+Object.assign(Looscid, { LC_CALM_CHOSEN_KEY, lcCalmDevice, lcCalmChosen, lcSetCalmChosen });
 /* --- Round 4: one settings registry ---------------------------------------
    Every round-4 setting is one row here: its section, label, kind, options and
    the words Commandbar and Cherry accept. The Settings screens, commands,
@@ -4359,7 +4381,7 @@ function lcDreamWords(d, mode, a) {
   const tm = v !== "short" && tp && a.speakTime !== "off" ? (a.speakTime === "short" ? tp.short : tp.full) : "";
   if (a.readOrder === "text") { parts.push(text); parts.push(name); } else { parts.push(name); parts.push(text); }
   if (tm) parts.push(tm);
-  if (v === "detailed" && !a.calmFeed) parts.push((d.likes || 0) + ((d.likes || 0) === 1 ? " like" : " likes") + ", " + lcReplyCount(d) + (lcReplyCount(d) === 1 ? " reply" : " replies") + ", " + (d.redreams || 0) + ((d.redreams || 0) === 1 ? " Redream" : " Redreams"));
+  if (v === "detailed" && !a.calmFeed) parts.push(fmt(d.likes || 0) + ((d.likes || 0) === 1 ? " like" : " likes") + ", " + fmt(lcReplyCount(d)) + (lcReplyCount(d) === 1 ? " reply" : " replies") + ", " + fmt(d.redreams || 0) + ((d.redreams || 0) === 1 ? " Redream" : " Redreams"));
   return parts.filter(Boolean).join(". ").replace(/\.\./g, ".");
 }
 function lcFiltered(d, a) {
@@ -4895,6 +4917,16 @@ function loadA11y() {
   const o = Object.assign({}, A11Y_DEFAULTS, rd(A11Y_KEY), rd(LC_SETTINGS_KEY));
   o.srNames = Object.assign({}, LC_SR_NAMES_DEF, o.srNames && typeof o.srNames === "object" ? o.srNames : {});
   if (!Array.isArray(o.shortcuts)) o.shortcuts = [];
+  // Nov 8 2026: Calm mode follows the device until you choose. Once per device, an older saved choice is kept as yours:
+  // Calm mode off (it used to start on, so off was picked), or on together with Reduce Motion (the motion setup choice).
+  try {
+    if (!localStorage.getItem("looscid_calm_dev_migrated")) {
+      localStorage.setItem("looscid_calm_dev_migrated", "1");
+      const old = rd(A11Y_KEY);
+      if (old.calmMode === false || (old.calmMode === true && old.reduceMotion === true)) lcSetCalmChosen(true);
+    }
+  } catch (e) {}
+  if (!lcCalmChosen()) o.calmMode = lcCalmDevice();
   // Round 6, once per device: anyone still on the old default volume (40) moves to the new, louder default.
   try {
     if (!localStorage.getItem("looscid_r6_migrated")) {
@@ -4919,6 +4951,15 @@ function saveA11y(a) {
 function a11yAsked() { try { return localStorage.getItem(A11Y_ASKED_KEY) === "1"; } catch (e) { return true; } }
 function setA11yAsked() { try { localStorage.setItem(A11Y_ASKED_KEY, "1"); } catch (e) {} }
 Looscid.A11Y_NOW = loadA11y(); // read outside React by earcons and Enter = Send
+// Nov 8 2026: while you haven't chosen, Calm mode changes when your device's Reduce Motion setting changes.
+try {
+  const lcCalmMq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const lcCalmFollow = function () {
+    if (lcCalmChosen()) return; const v = !!lcCalmMq.matches; A11Y_DEFAULTS.calmMode = v;
+    if (Looscid.LC_SET_A11Y) Looscid.LC_SET_A11Y({ calmMode: v }); else Looscid.A11Y_NOW = Object.assign({}, Looscid.A11Y_NOW, { calmMode: v });
+  };
+  if (lcCalmMq.addEventListener) lcCalmMq.addEventListener("change", lcCalmFollow); else if (lcCalmMq.addListener) lcCalmMq.addListener(lcCalmFollow);
+} catch (e) {}
 
 /* --- Round 7.36 (#179, Carter, Oct 26 2026): Unspeakable characters. Carter loves the Font Awesome robot (U+F544, a
    private-use character with no name) that VoiceOver reads as "unspeakable". With the switch on (Settings, Accessibility,
@@ -6661,7 +6702,7 @@ function lcHistory() { try { const h = JSON.parse(localStorage.getItem(LC_HISTOR
 function lcPushHistory(cmd) { try { const h = lcHistory().filter(function (x) { return x !== cmd; }); h.push(cmd); localStorage.setItem(LC_HISTORY_KEY, JSON.stringify(h.slice(-50))); } catch (e) {} }
 const LC_BOOT = Date.now();
 Looscid.LC_BOOT = LC_BOOT;
-function lcSpoken(ms) { const m = Math.floor(ms / 60000), s = Math.floor(ms / 1000) % 60; return m ? m + (m === 1 ? " minute" : " minutes") : s + (s === 1 ? " second" : " seconds"); }
+function lcSpoken(ms) { const m = Math.floor(ms / 60000), s = Math.floor(ms / 1000) % 60; return m ? fmt(m) + (m === 1 ? " minute" : " minutes") : fmt(s) + (s === 1 ? " second" : " seconds"); }
 // lcRun(raw, api) -> { lines:[{text,kind}], say, earcon, go, cherry, clear, output }
 // api: { cherryCtx, setA11y(patch), profile }
 // Round-5 commands, shared by Commandbar and Cherry: braille styles,
@@ -6672,7 +6713,7 @@ function lcExtraIntent(raw) {
   if ((m = /^(?:find|search)(?: a| the)? settings? (?:for )?(.+)$|^(?:where is|where's) the (.+?) setting$/.exec(n))) {
     const q = m[1] || m[2], r = lcFindSettings(q);
     if (!r.length) return { err: "No settings match \u201c" + q + "\u201d." };
-    return { say: r.length + (r.length === 1 ? " setting" : " settings") + " found. Opened " + r[0].l + ", in " + r[0].where + "." + (r.length > 1 ? " Also: " + r.slice(1, 5).map(function (x) { return x.l; }).join(", ") + "." : ""), fn: function () { if (Looscid.LC_NAV) lcGoSetting(r[0], Looscid.LC_NAV); } };
+    return { say: fmt(r.length) + (r.length === 1 ? " setting" : " settings") + " found. Opened " + r[0].l + ", in " + r[0].where + "." + (r.length > 1 ? " Also: " + r.slice(1, 5).map(function (x) { return x.l; }).join(", ") + "." : ""), fn: function () { if (Looscid.LC_NAV) lcGoSetting(r[0], Looscid.LC_NAV); } };
   }
   // Round 7.38: logout (and the two-word, sign-out and log-off forms) asks first, then runs the same Logout as Settings and your profile's More.
   if (/^(?:logout|log out|logoff|log off|sign out|signout|logout of looscid|log out of looscid|sign out of looscid)$/.test(n)) return { say: "Logout asks first.", fn: function () { setTimeout(function () { lcOpenLogout(); }, 150); } };
@@ -6793,7 +6834,7 @@ function lcRun(raw, api) {
     case "history": {
       const h = lcHistory().slice(-10);
       if (!h.length) { L("No commands yet."); return out; }
-      L("Last " + h.length + (h.length === 1 ? " command" : " commands") + ", oldest first: " + h.join(", ") + ".");
+      L("Last " + fmt(h.length) + (h.length === 1 ? " command" : " commands") + ", oldest first: " + h.join(", ") + ".");
       return out;
     }
     case "clear": case "cls": out.clear = true; out.earcon = "clear"; out.say = "Output cleared."; return out;
@@ -6848,7 +6889,7 @@ function lcRun(raw, api) {
   const it = lcA11yIntent(text);
   if (it) {
     if (it.report) { L("Your accessibility settings:", "hi"); it.report.forEach(function (t) { L(t); }); return out; }
-    if (it.patch) { api.setA11y(it.patch); L(it.say, "ok"); return out; }
+    if (it.patch) { if ("calmMode" in it.patch) lcSetCalmChosen(true); api.setA11y(it.patch); L(it.say, "ok"); return out; }
     L(it.say, "info"); return out;
   }
   // Not an exact command: Cherry answers, or opens the closest match.
@@ -7868,7 +7909,9 @@ const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "looscid_braille_styles", "lo
   // Round 7.37 (#176): Settings Order (Default, Alphabetical or Custom) and your own order. Added at the end, so older backups still import.
   "looscid_settings_order_mode", "looscid_settings_order",
   // Nov 1 2026: Custom character limits (Customization, Dreaming). Added at the end, so older backups still import.
-  "looscid_char_limits"];
+  "looscid_char_limits",
+  // Nov 8 2026: For You topics (and Only my topics). Added at the end, so older backups still import.
+  "looscid_foryou_topics"];
 Looscid.LC_EXPORT_KEYS = LC_EXPORT_KEYS;
 function lcExportSettings() {
   const o = { app: "Looscid", kind: "settings", version: LOOSCID_VERSION, exported: new Date().toISOString(), settings: {} };
@@ -8239,7 +8282,7 @@ useEffect(() => {
     postDream:   (text, extra) => { const id=lcNewId(); (Looscid.LC_LOCAL_PUB = Looscid.LC_LOCAL_PUB || new Set()).add(String(id)); /* Round 6 fixes: published here */ setAppDreams(ds => [Object.assign({id,user:ME,time:"just now",created:id,text,likes:0,comments:0,redreams:0,quotes:0,liked:false,redreamed:false,quoted:false,bookmarked:false}, extra || {}),...ds]); addLog("✏️","Dreamed: "+text.slice(0,40)+"…", ()=>setAppDreams(ds=>ds.filter(d=>d.id!==id))); lcCherryDid("Published", "Dream", "Dreams", "your Dream", String(text).slice(0, 140)); return id; },
     followUser:  id => { const was = appFollowing.has(id); setAppFollowing(s => { const n=new Set(s); n.has(id)?n.delete(id):n.add(id); return n; }); const u=USERS.find(x=>x.id===id); if(u) { addLog("👥",(was?"Unfollowed ":"Followed ")+u.name, ()=>setAppFollowing(s=>{const n=new Set(s);was?n.add(id):n.delete(id);return n;})); lcCherryDid(was ? "Unfollowed" : "Followed", "Dreamor", "Dreamors", u.name, u.name + (u.handle ? " (" + u.handle + ")" : "")); } },
     joinGroup:   id => { const was = !!(appGroups.find(x=>x.id===id)||{}).joined; setAppGroups(gs => gs.map(g => g.id===id ? {...g,joined:!g.joined} : g)); const g=GROUPS.find(x=>x.id===id); if(g) { addLog("🏘️",(was?"Left ":"Joined ")+g.name, ()=>setAppGroups(gs=>gs.map(x=>x.id===id?{...x,joined:was}:x))); lcCherryDid(was ? "Left" : "Joined", "Circle", "Circles", g.name, g.name); } },
-    markNotifsRead: () => { const n = lcAlerts().filter(x=>x.unread).length; lcAlertsMarkAll(); addLog("🔔","Marked all notifications read"); lcCherryDid("Marked", "notification", "notifications", "all your notifications as read", n + (n === 1 ? " notification" : " notifications") + " marked read", "Marked all notifications read"); },
+    markNotifsRead: () => { const n = lcAlerts().filter(x=>x.unread).length; lcAlertsMarkAll(); addLog("🔔","Marked all notifications read"); lcCherryDid("Marked", "notification", "notifications", "all your notifications as read", fmt(n) + (n === 1 ? " notification" : " notifications") + " marked read", "Marked all notifications read"); },
     fillCompose: null, // set by CreateMenu when compose is open
     // Round 6.5.2: Cherry is its own page. "Ask Cherry about this" opens it and asks in a new chat.
     openCherry:  msg => { if (!lcAiOn()) { navigate("cherry"); return; } navigate("cherry", msg ? { ask: msg, n: Date.now() } : null); },
@@ -8743,8 +8786,8 @@ useEffect(() => {
   };
   const onDeviceDone = (patch, picked) => {
     setA11yAsked(); setAskDevice(false);
-    if (patch) { setA11yPatch(patch); announce("Set up for: " + picked.join(", ") + ". You can change each option in Settings, Accessibility."); }
-    else announce("Skipped. Looscid keeps its defaults, with Calm mode on. You can set this up any time in Settings, Accessibility.");
+    if (patch) { if ("calmMode" in patch) lcSetCalmChosen(true); setA11yPatch(patch); announce("Set up for: " + picked.join(", ") + ". You can change each option in Settings, Accessibility."); }
+    else announce("Skipped. Looscid keeps its defaults. Calm mode matches your device's Reduce Motion setting. You can set this up any time in Settings, Accessibility.");
     focusMainHeading();
   };
 

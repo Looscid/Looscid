@@ -275,7 +275,7 @@ function reportItem(rep, forMod) {
   const n = (rep.messages || []).length, dr = (forMod ? S.modDraft : S.reply)[rep.id] || ((forMod ? S.modDraft : S.reply)[rep.id] = {});
   return h('li', { key: rep.id, className: "lc-issue" },
     h('h3', { id: hid, className: "lc-issue-h" }, what + ". " + (STATUS_WORDS[rep.status] || rep.status) + "."),
-    h('p', { className: "lc-desc lc-issue-meta" }, "Reason: " + (REASON_WORDS[rep.reason] || rep.reason) + ". Sent " + when(rep.created_at) + ". " + (n ? n + (n === 1 ? " message" : " messages") : "no messages yet") + "." + (forMod && rep.by ? " Reporter key " + short(rep.by) + "." : "") + (forMod && rep.target ? " Target " + rep.target + "." : "")),
+    h('p', { className: "lc-desc lc-issue-meta" }, "Reason: " + (REASON_WORDS[rep.reason] || rep.reason) + ". Sent " + when(rep.created_at) + ". " + (n ? Looscid.fmt(n) + (n === 1 ? " message" : " messages") : "no messages yet") + "." + (forMod && rep.by ? " Reporter key " + short(rep.by) + "." : "") + (forMod && rep.target ? " Target " + rep.target + "." : "")),
     rep.body ? h('p', { className: "lc-desc lc-issue-body" }, (forMod ? "Reporter said: " : "U said: ") + rep.body) : null,
     h('p', null, h('button', { type: "button", className: "btn bgb lc-btn lc-issue-btn", "aria-expanded": open ? "true" : "false", onClick: function () { (forMod ? S.modOpen : S.open)[rep.id] = !open; redraw(); } }, forMod ? "Mod tools" : "Thread")),
     open ? h('div', { className: "lc-rc-thread" },

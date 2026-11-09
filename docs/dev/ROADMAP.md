@@ -71,6 +71,49 @@ manifests are versioned JSON with `schema`, `id`, `name`, `summary`, `descriptio
 - [ ] an iOS companion app in Swift, tested with VoiceOver and the BrailleNote Touch Plus.
 - [x] looscid's own issue tracker: report bugs or ideas right in looscid, agree or disagree, mods reply. no outside companies.
 
+## the backlog (ideas I'm saving for later)
+
+these came out of the Dreamor Council on Nov 8, 2026. I'm not building any of it yet, I'm just writing it down so it doesn't get lost. if u wanna help with one, tell me.
+
+### features I want to add
+
+- [ ] Looscid Lite: a lighter Looscid for slow phones and slow internet.
+- [ ] DB Journal: a private journal that lives in Looscid.
+- [ ] work mode: a calmer Looscid for when I need to get stuff done.
+- [ ] Cherry outing planner: Cherry helps u plan a day out.
+- [ ] Cherry agent: Cherry does small jobs for u, and asks before she does anything.
+- [ ] Google and X sign-in, as extra ways to make or get into a LooscidID.
+- [ ] SMS Cherry: text Cherry from any phone. this one needs a server first.
+- [ ] Siri: talk to Looscid with Siri. this one needs a native app first.
+- [ ] Cherry's voice in the screen reader voice list, so u can pick her as ur reading voice.
+- [ ] live audio rooms in Circles, where people can talk and listen together.
+- [ ] build ur own mini app, right inside Looscid.
+- [ ] achievements, for fun stuff u do in Looscid (never anything that pushes u to scroll more).
+- [ ] a math mini app.
+- [ ] share ur Dreams to Mastodon and Bluesky too.
+- [ ] sign in with a Nostr signer, so ur key never has to touch Looscid.
+- [ ] NIP-05 addresses, so ur LooscidID gets a short address that's easy to share.
+- [ ] DMs and calls over Nostr.
+
+### already on the roadmap above (still coming)
+
+- [ ] moving the Apps tab over (phase 2).
+- [ ] a relay pool plus encryption (phase 2).
+- [ ] the App Store that lives in GitHub manifests (phase 2A).
+- [ ] Nostr-first login (phase 3).
+- [ ] the iOS companion app (phase 3).
+
+### site ideas (their own projects)
+
+- [ ] a music-making app (a DAW) that's built for screen readers first.
+- [ ] Dream Radio: Dreams read out loud like a radio station.
+- [ ] Cherry with a real AI model behind her.
+
+### someday (big dreams)
+
+- [ ] my own AI models.
+- [ ] my own phone carrier.
+
 ## accessibility + security (no shortcuts)
 
 every single thing u touch is a real native control. images need Alt text that actually means something. errors are tied to their field and announced. focus moves on purpose after u change pages, finish onboarding, hit an error or close something. looscid respects reduced motion and bigger text. I test with keyboard only, screen readers (VoiceOver, TalkBack, NVDA, JAWS, Orca), braille, offline, limited permissions, broken manifests and providers that are down. secrets never get shown. App Store and AI adapters only do stuff when u mean it, show u what data and actions are involved, and always let u cancel.

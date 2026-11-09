@@ -3,6 +3,19 @@
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
 
+## Settings links, full numbers, For You topics and website previews (no new build yet)
+
+Added November 8, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+
+Asked for by Carter in the Dreamor Council, the first batch from the master list.
+
+- Every settings screen has its own real address under More now, like looscid.github.io/Looscid/More/Settings/General/ (any letter case works, so /more/settings/general does too). The app shows and shares the new address. Old /Settings/... links and bookmarks still work: they open the same screen, and the address changes to the new one. The Help Center links straight to these screens.
+- Full numbers everywhere: likes, ReDreams, Replies, followers, members and every other count show the whole number with commas, like 1,234, never 1.2K. It reads the same on every device.
+- For You topics: pick the topics you're into (Accessibility, Art, Creative, Discussion, Gaming, Music, News, Philosophy, Science, Sports, Technology and Wellness). Dreams about them come first in For You, or turn on Only show Dreams from my topics. It's a list of checkboxes in Settings, Customization, Feeds, under Topics for For You, saved on this device and in Backup. For You has a Pick topics for For You link (Change topics once you've picked some) that takes you right there.
+- Website previews: a profile's website shows a preview card with the page's title and description. It's one normal link, with words only and no picture. Looscid's server reads the page safely (http and https only, never private or internal addresses, a timeout and a size limit). If there's no preview, it's a plain link to the website.
+- Calm mode starts out matching your device's Reduce Motion setting now: on if your device asks for less motion, off if it doesn't, and it follows your device if that changes. Once you tick or untick Calm mode yourself, your choice sticks. Match my device again (in Settings, Accessibility, Motion) goes back to following your device, and so does resetting Motion. Flash safety is its own setting and didn't change: it's still on from the start.
+- The roadmap has a new backlog list: ideas I'm saving for later and not building yet.
+
 ## About Looscid, all in one page (no new build yet)
 
 Added November 8, 2026 (Eastern Time), during Epilepsy Awareness Month. Not released as a build yet: it goes into the next build's notes.

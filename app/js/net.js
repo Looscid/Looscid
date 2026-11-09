@@ -184,7 +184,7 @@ async function exportMine() {
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(file, null, 2)], { type: "application/json" }));
   a.download = "looscid-dreams-" + new Date().toISOString().slice(0, 10) + ".json"; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(function () { URL.revokeObjectURL(a.href); }, 5000);
-  return { ok: true, say: "Downloaded " + all.length + (all.length === 1 ? " signed event" : " signed events") + " from Rem." };
+  return { ok: true, say: "Downloaded " + Looscid.fmt(all.length) + (all.length === 1 ? " signed event" : " signed events") + " from Rem." };
 }
 async function forgetMe() {
   try { const ev = await signAction({ kind: 21985, tags: [["action", "delete-my-data"], PROTOCOL_TAG] }); const r = await call("POST", "/forget", ev);
@@ -250,7 +250,40 @@ function LcRemData() {
     msg ? lh('p', { className: "lid-help", role: "status" }, msg) : null);
 }
 
-Looscid.lcNet = { API: API, PROTOCOL_TAG: PROTOCOL_TAG, BRIDGES: BRIDGES, bridges: bridges, bridgeOn: bridgeOn, setBridge: setBridge, markCrossposted: markCrossposted, wasCrossposted: wasCrossposted,
+/* --- Website previews (Nov 8 2026, Carter approved in Dreamor Council) ---
+   A profile's website shows a preview card with the page's title and description. The site is static and a browser can't
+   read other websites, so Rem fetches the page for us: GET /preview?url=<address> answers only { title, description, site }
+   (server/rem/src/preview.js: http and https only, private and internal addresses refused, a timeout and a size cap).
+   Answers are kept on this device for a day (localStorage looscid_link_previews, the newest 40). If Rem can't answer
+   (offline, not deployed yet, the site has no title), this gives null and the profile shows a plain link instead. */
+const PREVIEW_KEY = "looscid_link_previews", PREVIEW_DAY = 86400000, previewWait = {};
+function preview(url) {
+  url = String(url || "").trim();
+  if (!/^https?:\/\/[^\s"<>]+$/i.test(url) || url.length > 2000) return Promise.resolve(null);
+  const all = lsJson(PREVIEW_KEY, {}) || {}, had = all[url];
+  if (had && Date.now() - (+had.at || 0) < PREVIEW_DAY) return Promise.resolve(had.title ? had : null);
+  if (previewWait[url]) return previewWait[url];
+  const ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
+  const timer = setTimeout(function () { if (ctl) ctl.abort(); }, 8000);
+  const clean = function (s, n) { return String(s || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, n); };
+  previewWait[url] = fetch(API + "/preview?url=" + encodeURIComponent(url), { signal: ctl ? ctl.signal : undefined, credentials: "omit" })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) {
+      const p = j && j.ok ? { title: clean(j.title, 200), description: clean(j.description, 300), site: clean(j.site, 80), at: Date.now() } : null;
+      // Only a real answer is kept (a page with no title is kept as "no preview" so it isn't asked again all day).
+      if (j && (j.ok || j.error === "no title" || j.error === "not a web page")) {
+        const keep = lsJson(PREVIEW_KEY, {}) || {}; keep[url] = p || { at: Date.now() };
+        const keys = Object.keys(keep).sort(function (a, b) { return (+keep[b].at || 0) - (+keep[a].at || 0); });
+        const out = {}; keys.slice(0, 40).forEach(function (k) { out[k] = keep[k]; }); lsSave(PREVIEW_KEY, out);
+      }
+      return p && p.title ? p : null;
+    })
+    .catch(function () { return null; })
+    .then(function (p) { clearTimeout(timer); delete previewWait[url]; return p; });
+  return previewWait[url];
+}
+
+Looscid.lcNet = { API: API, preview: preview, PROTOCOL_TAG: PROTOCOL_TAG, BRIDGES: BRIDGES, bridges: bridges, bridgeOn: bridgeOn, setBridge: setBridge, markCrossposted: markCrossposted, wasCrossposted: wasCrossposted,
   ingest: ingest, flush: flush, feed: feed, userDreams: userDreams, listWrite: listWrite, listsMine: listsMine, REPORT_REASONS: REPORT_REASONS, report: report, block: block, unblockHandle: unblockHandle, blockedPk: blockedPk, moderate: moderate, modlog: modlog, moderationFor: moderationFor, moderators: moderators,
   exportMine: exportMine, forgetMe: forgetMe, health: health, LcConnectionbase: LcConnectionbase, LcRemData: LcRemData };
 })(window.Looscid = window.Looscid || {});

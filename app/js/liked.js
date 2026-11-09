@@ -169,7 +169,7 @@ function LikedView({ navigate, cherryCtx, idp, intro, onComment, extraPanels, on
           lh('input', { type: "checkbox", id: idp + "-mf-" + o[0], checked: !!mf[o[0]], onChange: function (e) {
             const next = Object.assign({}, mf); next[o[0]] = e.target.checked; setMf(next);
             const n = dreams.filter(function (d) { const k = lcLikedMediaKinds(d); return (next.photos && k.photos) || (next.gifs && k.gifs) || (next.videos && k.videos); }).length;
-            announce(o[1] + (e.target.checked ? " on. " : " off. ") + n + (n === 1 ? " liked Dream." : " liked Dreams."));
+            announce(o[1] + (e.target.checked ? " on. " : " off. ") + Looscid.fmt(n) + (n === 1 ? " liked Dream." : " liked Dreams."));
           } }), lh('span', null, o[1]));
       }))) : null;
     return lh('div', { key: t.id, id: idp + "-panel-" + t.id, className: "lc-liked-panel" }, mfs, body);
@@ -219,7 +219,7 @@ function LikedView({ navigate, cherryCtx, idp, intro, onComment, extraPanels, on
       shownCount ? lh('button', { type: "button", id: idp + "-lm-clear", className: "btn bgb lc-btn lc-lm-clear", "aria-disabled": busy ? "true" : undefined,
         onClick: function () { if (!busy) setAsk({ n: shownCount }); } }, busy ? "Clearing\u2026" : "Clear all shown") : null),
     oldTab ? panel(oldTab) : rowsEl,
-    ask ? lh(Looscid.AlertDialog, { title: "Clear all shown?", message: "This removes " + ask.n + (ask.n === 1 ? " thing" : " things") + " from ur " + (mode === "likes" ? "likes" : "dislikes") + ". U can't undo it.",
+    ask ? lh(Looscid.AlertDialog, { title: "Clear all shown?", message: "This removes " + Looscid.fmt(ask.n) + (ask.n === 1 ? " thing" : " things") + " from ur " + (mode === "likes" ? "likes" : "dislikes") + ". U can't undo it.",
       confirmLabel: "Clear " + ask.n, onConfirm: clearAll, onCancel: function () { setAsk(null); focusSoon(idp + "-lm-clear"); } }) : null);
 }
 Object.assign(Looscid, { LikedView });
@@ -286,7 +286,7 @@ function lcLikedSearchCheck(dreams) {
       const fromN = []; fresh.forEach(function (d) { const n = lcDreamNetwork(d); if (fromN.indexOf(n) < 0) fromN.push(n); });
       if (Looscid.lcNotify && Looscid.lcNotify("system", fresh.length + " new Dreams for your Liked Search \u201c" + s.q + "\u201d, from " + fromN.join(", "), null, String(fresh[0].text || "").slice(0, 140))) stored = fresh.length;
     }
-    if (stored) announce("Liked Search \u201c" + s.q + "\u201d: " + fresh.length + (fresh.length === 1 ? " new Dream" : " new Dreams") + " in Alerts, From Looscid.");
+    if (stored) announce("Liked Search \u201c" + s.q + "\u201d: " + Looscid.fmt(fresh.length) + (fresh.length === 1 ? " new Dream" : " new Dreams") + " in Alerts, From Looscid.");
   });
 }
 // The From Looscid filter in Alerts: if you hid it, a Liked Search alert brings it back (so the alert has somewhere to show).

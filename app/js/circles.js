@@ -197,7 +197,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
           , React.createElement('div', { style: {flex:1},}
             , React.createElement('div', { className: "lc-md", style: {fontSize:12,color:"var(--tx2)",lineHeight:1.55,marginBottom:8},}, Looscid.lcMarkdown ? Looscid.lcMarkdown(group.description, navigate, "gd", { hBase: 3 }) : group.description)
             , React.createElement('div', { style: {display:"flex",gap:12,flexWrap:"wrap",marginBottom:10},}
-              , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "Members: "), group.members.toLocaleString() )
+              , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "Members: "), group.members.toLocaleString("en-US") )
               , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "Category: "), group.category)
               , React.createElement('span', { style: {fontSize:11,color:"var(--tx3)",display:"flex",alignItems:"center",gap:4},}, React.createElement('span', null, "Visibility: "), group.mine?({public:"Public",private:"Private",restricted:"Restricted"}[group.privacy]||"Public"):group.id===1||group.id===4?"Public":"Private")
               , isAdmin&&React.createElement('span', { style: {fontSize:10,background:"rgba(245,158,11,.15)",color:"#f59e0b",padding:"1px 7px",borderRadius:100,fontWeight:700},}, "★ Admin" )
@@ -263,7 +263,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
         , React.createElement('div', { style: {background:"var(--sf2)",borderRadius:13,padding:16,marginBottom:12},}
           , React.createElement('div', { style: {fontSize:12,fontWeight:700,color:"var(--tx3)",textTransform:"uppercase",letterSpacing:".07em",marginBottom:10},}, "Stats")
           , React.createElement('div', { style: {display:"grid",gridTemplateColumns:"1fr 1fr",gap:8},}
-            , [{l:"Members",v:group.members.toLocaleString()},{l:"Dreams",v:group.mine?"0":"4,218"},{l:"Category",v:group.category},{l:"Created",v:group.created?new Date(group.created).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}):"Jan 2024"}].map(s=>(
+            , [{l:"Members",v:group.members.toLocaleString("en-US")},{l:"Dreams",v:group.mine?"0":"4,218"},{l:"Category",v:group.category},{l:"Created",v:group.created?new Date(group.created).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}):"Jan 2024"}].map(s=>(
               React.createElement('div', { key: s.l, style: {background:"var(--sf3)",borderRadius:9,padding:"9px 11px"},}, React.createElement('div', { style: {fontSize:10,color:"var(--tx3)"},}, s.l), React.createElement('div', { style: {fontSize:14,fontWeight:700,marginTop:2},}, s.v))
             ))
           )
@@ -495,7 +495,7 @@ function GroupsPage({navigate, cherryCtx, data}) {
             , React.createElement('div', { style: {display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8},}
               , React.createElement('div', null
                 , React.createElement('div', { className: "gnm",}, g.name, g.joined&&(g.id===1||g.mine)&&React.createElement('span', { style: {marginLeft:6,fontSize:9,background:"rgba(245,158,11,.2)",color:"#f59e0b",padding:"1px 5px",borderRadius:4,fontWeight:700},}, "★ ADMIN" ))
-                , React.createElement('div', { className: "gmt",}, g.members.toLocaleString(), " Dreamors, "   , g.category)
+                , React.createElement('div', { className: "gmt",}, g.members.toLocaleString("en-US"), " Dreamors, "   , g.category)
               )
               , g.joined&&React.createElement('button', { className: "btn bgb" , style: {fontSize:11,padding:"5px 10px",flexShrink:0}, onClick: e=>{e.stopPropagation();tj(g.id);}, 'aria-label': "Leave "+g.name,}, "Joined ✓" )
               , !g.joined&&React.createElement('button', { className: "btn bp" , style: {fontSize:11,padding:"5px 10px",flexShrink:0}, onClick: e=>{e.stopPropagation();tj(g.id);}, 'aria-label': "Join "+g.name,}, "Join")

@@ -97,7 +97,7 @@ How it can affect apps: Flashing on a screen can cause seizures, migraines, dizz
 
 History: On December 16, 1997, many children in Japan had seizures while watching a cartoon on TV. Doctors studied what happened.
 
-What Looscid does: Flash safety is on from the start. Nothing in Looscid flashes more than three times a second. Calm mode is on from the start too. Coming next: Flash safety will also catch strobe effects, and Zero animation mode will stop all motion with one switch.
+What Looscid does: Flash safety is on from the start. Nothing in Looscid flashes more than three times a second. Calm mode starts out matching your device's Reduce Motion setting, and you can flip it yourself. Coming next: Flash safety will also catch strobe effects, and Zero animation mode will stop all motion with one switch.
 
 ### Vestibular disorders (motion sensitivity)
 
@@ -145,7 +145,7 @@ For you if you're blind, have low vision, or just want things easier to see.
 - Turn on high contrast and bold text.
 - Turn on dyslexia-friendly spacing.
 
-[Open Vision settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FVision)
+[Open Vision settings](https://looscid.github.io/Looscid/More/Settings/Accessibility/Vision/)
 
 ### Hearing
 
@@ -154,7 +154,7 @@ For you if you're Deaf or hard of hearing.
 - Turn on captions for audio.
 - Get a visual cue instead of a sound.
 
-[Open Hearing settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FHearing)
+[Open Hearing settings](https://looscid.github.io/Looscid/More/Settings/Accessibility/Hearing/)
 
 ### Motor
 
@@ -163,29 +163,29 @@ For you if small buttons are hard to press, or you use a keyboard or a switch.
 - Make buttons bigger.
 - Turn on a strong outline that shows where you are.
 
-[Open Motor settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FMotor)
+[Open Motor settings](https://looscid.github.io/Looscid/More/Settings/Accessibility/Motor/)
 
 ### Motion
 
 For you if movement or flashing can hurt you. It has three switches.
 
 - Flash safety is on from the start. Nothing in Looscid flashes more than three times a second. That limit is always on.
-- Calm mode is on from the start too. It means less movement, softer sounds and gentler vibration.
+- Calm mode starts out matching your device's Reduce Motion setting. Flip it yourself and your choice sticks. It means less movement, softer sounds and gentler vibration.
 - Reduce Motion stops things from sliding and moving. If your device already asks for less motion, Looscid does it for you.
 
-[Open Motion settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FMotion)
+[Open Motion settings](https://looscid.github.io/Looscid/More/Settings/Accessibility/Motion/)
 
 ### Sense
 
 Sense has the screen reader settings: speech, how much gets said, and braille.
 
-[Open Sense settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FSense)
+[Open Sense settings](https://looscid.github.io/Looscid/More/Settings/Sense/)
 
 ### Commandbar
 
 Commandbar settings change how Commandbar answers are shown and read. For example, each command can get its own heading, so a screen reader can jump between them.
 
-[Open Commandbar settings](https://looscid.github.io/Looscid/?p=%2FSettings%2FAccessibility%2FCommandbar)
+[Open Commandbar settings](https://looscid.github.io/Looscid/More/Settings/Accessibility/Commandbar/)
 
 ## Works with every screen reader {#every-screen-reader}
 

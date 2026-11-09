@@ -2,7 +2,8 @@
    Plain script (not a module). Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order. */
 (function (Looscid) {
 const { CommentView, DREAMS_INIT, DreamCard, LC_FEEDS, LC_FED_SUBS, LC_FED_NETS, LC_FY_SOURCES, LcMenu, ME, SHOW_FRIENDS_KEY, USERS, announce, lcAiOn, lcAudienceOk, lcDreamWords, lcFeedMode, lcFiltered, lcHandle, lcNotify, lcQuietNow, lcSetFeed, lcSetShowFriends, lcStepFeed, lh, useDreams, useEffect, useRef, useState } = Looscid;
-Object.assign(Looscid, { FeedPage, lcNotifyDreams, lcShowFriends, useFeedMode, FeedTabs, FeedMenuButton, ShowFriendsBox, useFeedState, FeedControls, lcFeedVisible, PinForm, FyFollowSettings, FedNetsSettings });
+Object.assign(Looscid, { FeedPage, lcNotifyDreams, lcShowFriends, useFeedMode, FeedTabs, FeedMenuButton, ShowFriendsBox, useFeedState, FeedControls, lcFeedVisible, PinForm, FyFollowSettings, FedNetsSettings, FyTopicsSettings, lcFyTopics, lcSetFyTopics, lcDreamTopics });
+Looscid.LC_FY_TOPICS_LIST = function () { return LC_FY_TOPICS; };
 
 /* --- FEED PAGE --------------------------- */
 function FeedPage({navigate, prefs, cherryCtx}) {
@@ -118,6 +119,8 @@ function FeedPage({navigate, prefs, cherryCtx}) {
           lh('p', { style: {fontSize:14,color:"var(--tx2)",marginTop:6,lineHeight:1.6,maxWidth:260,textAlign:"center"} },
             (tab==="following" && showFriends) ? "Friends are Dreamors who follow each other. Follow someone back and they show up here." : tab==="following" ? "Follow some people and this feed wakes up." : tab==="federated" && !nets.length ? "Pick at least one network in Settings, Customization, Feeds." : /^pin:/.test(tab) ? "Dreams for this tab land here once there are some." : "When someone Dreams, it lands here. Or you could go first."),
           // Nov 7 2026 (Grok's stranger path): Help is linked right from the empty Feed. Circles only gets its own words.
+          // Nov 8 2026: Only my topics can leave For You empty, so it says why and where to change it.
+          tab==="for you" && lcFyTopics().only && lcFyTopics().topics.length > 0 && lh('p', { style: {fontSize:14,color:"var(--tx2)",marginTop:6,maxWidth:260,textAlign:"center"} }, "Only my topics is on, so For You only shows Dreams about your topics. Pick more topics or turn it off with Change topics."),
           lcFeedOrder()==="circles" && lh('p', { style: {fontSize:14,color:"var(--tx2)",marginTop:6,maxWidth:260,textAlign:"center"} }, "Circles only is on, so only Dreams from Circles you joined show here. Switch Feed mode to For you to see everything."),
           lh('p', { style: {fontSize:14,marginTop:8,textAlign:"center"} }, "New here? ", lh('a', { href: (Looscid.LOOSCID_BASE || "") + "help/" }, "The Help Center has the basics"), "."),
           // Round 7.16 (#216): Discover, not Cherry, is where you find people.
@@ -276,6 +279,46 @@ function lcRemSigOk(r) {
   if (!ev || !NT || typeof NT.verifyEvent !== "function" || ev.rem !== undefined) return false;
   try { return ev.id === r.id && ev.pubkey === r.pk && ev.content === r.text && NT.verifyEvent(ev); } catch (e) { return false; }
 }
+/* Nov 8 2026 (Carter approved in Dreamor Council: "For You topic picker"): pick the topics you're into, and For You puts
+   Dreams about them first. "Only my topics" shows just those. Saved on this device like the other feed settings
+   (localStorage looscid_foryou_topics, in Backup too). A Dream is about a topic when its Circle has that category, or when
+   it has one of the topic's words as a hashtag or a whole word (#music, "music"). Nothing is sent anywhere. */
+const LC_FY_TOPICS_KEY = "looscid_foryou_topics";
+const LC_FY_TOPICS = [
+  ["accessibility", "Accessibility", ["accessibility", "a11y", "blind", "deaf", "disability", "disabled", "screenreader", "voiceover", "talkback", "nvda", "jaws", "braille", "captions"]],
+  ["art", "Art", ["art", "drawing", "painting", "sketch", "design"]],
+  ["creative", "Creative", ["creative", "writing", "poem", "poetry", "story", "stories"]],
+  ["discussion", "Discussion", ["discussion", "debate", "question", "thoughts"]],
+  ["gaming", "Gaming", ["gaming", "gamer", "games", "videogames"]],
+  ["music", "Music", ["music", "song", "songs", "album", "beat", "beats", "playlist"]],
+  ["news", "News", ["news", "update", "updates", "announcement"]],
+  ["philosophy", "Philosophy", ["philosophy", "ethics", "meaning"]],
+  ["science", "Science", ["science", "space", "physics", "biology", "chemistry", "math"]],
+  ["sports", "Sports", ["sports", "sport", "football", "soccer", "basketball", "baseball"]],
+  ["technology", "Technology", ["technology", "tech", "coding", "code", "programming", "developer", "opensource", "linux", "app", "apps"]],
+  ["wellness", "Wellness", ["wellness", "health", "mentalhealth", "selfcare", "sleep", "meditation"]],
+];
+function lcFyTopics() {
+  let v = null; try { v = JSON.parse(localStorage.getItem(LC_FY_TOPICS_KEY) || "null"); } catch (e) {}
+  const ids = LC_FY_TOPICS.map(function (t) { return t[0]; });
+  const list = v && Array.isArray(v.topics) ? v.topics.filter(function (t) { return ids.indexOf(t) >= 0; }) : [];
+  return { topics: list, only: !!(v && v.only) };
+}
+function lcSetFyTopics(patch) {
+  const v = Object.assign(lcFyTopics(), patch);
+  try { if (!v.topics.length && !v.only) localStorage.removeItem(LC_FY_TOPICS_KEY); else localStorage.setItem(LC_FY_TOPICS_KEY, JSON.stringify(v)); } catch (e) {}
+  window.dispatchEvent(new CustomEvent("looscid:fytopics"));
+}
+function lcFyTopicNames(ids) { return ids.map(function (id) { const t = LC_FY_TOPICS.find(function (x) { return x[0] === id; }); return t ? t[1] : id; }); }
+// The topics a Dream is about (ids), from its Circle's category and its words.
+function lcDreamTopics(d, groups) {
+  const out = [], text = String((d && d.text) || "").toLowerCase();
+  const words = new Set((text.match(/[\p{L}\p{N}_]+/gu) || []));
+  const g = d && d.circleId != null ? (groups || []).find(function (x) { return String(x.id) === String(d.circleId); }) : null;
+  const cat = g && g.category ? String(g.category).toLowerCase() : "";
+  LC_FY_TOPICS.forEach(function (t) { if (cat === t[0] || t[2].some(function (w) { return words.has(w); })) out.push(t[0]); });
+  return out;
+}
 function lcFeedVisible(tab, raw, o) {
   const pins = Looscid.lcPins(), FOL = o.following || new Set();
   const joined = new Set((o.groups || []).filter(function (g) { return g.joined; }).map(function (g) { return String(g.id); }));
@@ -314,6 +357,13 @@ function lcFeedVisible(tab, raw, o) {
     const fy = Looscid.lcFyFollow();
     const off = LC_FY_SOURCES.map(function (s) { return s[0]; }).filter(function (k) { return !fy.on || !fy[k]; });
     list = lcSortDreams(raw.filter(function (d) { return !off.some(function (k) { return src[k](d); }); }), Looscid.lcFeedSort("for you"));
+    // Nov 8 2026: your topics. Dreams about them come first (in the same order as before); with Only my topics, only those.
+    const tp = lcFyTopics();
+    if (tp.topics.length) {
+      const yes = [], no = [];
+      list.forEach(function (d) { (lcDreamTopics(d, o.groups).some(function (t) { return tp.topics.indexOf(t) >= 0; }) ? yes : no).push(d); });
+      list = tp.only ? yes : yes.concat(no);
+    }
   }
   // Nov 7 2026 (Carter): Feed modes, the choice at the top of the feed. For you = the feed as it always was (the boost
   // for replies and ReDreams). Newest = pure time, newest first, no boost. Circles only = only Dreams from Circles you
@@ -342,7 +392,7 @@ function useFeedTick() {
   const [, setN] = useState(0);
   useEffect(function () {
     const f = function () { setN(function (n) { return n + 1; }); };
-    const ev = ["looscid:pins", "looscid:fedsub", "looscid:fednets", "looscid:feedsort", "looscid:fyfollow", "looscid:fedlocal", "looscid:threadsubs", "looscid:feedorder"]; // + #74
+    const ev = ["looscid:pins", "looscid:fedsub", "looscid:fednets", "looscid:feedsort", "looscid:fyfollow", "looscid:fedlocal", "looscid:threadsubs", "looscid:feedorder", "looscid:fytopics"]; // + #74, + Nov 8 topics
     ev.forEach(function (e) { window.addEventListener(e, f); });
     return function () { ev.forEach(function (e) { window.removeEventListener(e, f); }); };
   }, []);
@@ -360,7 +410,8 @@ function FeedControls({ tab, cherryCtx, dreams, pubState }) {
       value: fed ? Looscid.lcFedSub() : Looscid.lcFeedSort(feed), items: [{ id: "latest", name: "Latest" }, { id: "popular", name: "Popular" }],
       onSelect: function (id) { if (fed) Looscid.lcSetFedSub(id, true); else Looscid.lcSetFeedSort(feed, id); } }));
   };
-  if (tab === "for you") return lh('div', { className: "lc-feed-ctl" }, sortPick("for you"));
+  // Nov 8 2026: For You offers the topic picker (it lives in Settings, Customizability, Feeds). A real link to that screen.
+  if (tab === "for you") return lh('div', { className: "lc-feed-ctl" }, sortPick("for you"), lh(FyTopicsLine, null));
   if (tab === "following") return lh('div', { className: "lc-feed-ctl" }, sortPick("following"));
   if (tab === "federated") return lh(FederatedControls, { pubState: pubState, sortPick: sortPick });
   const f = LC_FEEDS.find(function (x) { return x.id === tab; });
@@ -368,6 +419,19 @@ function FeedControls({ tab, cherryCtx, dreams, pubState }) {
     lh('p', { className: "lc-muted" }, "A tab you pinned: " + (f.pin.kind === "tag" ? "the hashtag " : f.pin.kind === "circle" ? "the Circle " : f.pin.kind === "person" ? "Dreams from " : f.pin.kind === "list" ? "your list " : "") + (f.pin.kind === "thread" ? "a thread." : f.label + ".")),
     lh('button', { type: "button", id: "feed-unpin", className: "btn bgb lc-btn", onClick: function () { Looscid.lcPinRemove(tab); setTimeout(function () { const b = document.getElementById("feed-tab-following"); if (b) b.focus(); }, 0); } }, "Unpin this tab"));
   return null;
+}
+function FyTopicsLine() {
+  const tp = lcFyTopics(), names = lcFyTopicNames(tp.topics);
+  const href = (Looscid.lcPathFor && Looscid.lcPathFor("settings_cz_feeds")) || "#";
+  const go = function (e) {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault();
+    if (Looscid.LC_NAV) Looscid.LC_NAV("settings_cz_feeds");
+    // Land on the topics, not the top of the screen (after the screen has moved focus to its heading).
+    setTimeout(function () { const hd = document.getElementById("set-fy-topics-h"); if (hd) { hd.focus(); if (hd.scrollIntoView) hd.scrollIntoView({ block: "start" }); } }, 350);
+  };
+  return lh('p', { className: "lc-fy-topics-line" },
+    names.length ? lh('span', null, (tp.only ? "Only your topics: " : "Your topics first: ") + (names.length > 1 ? names.slice(0, -1).join(", ") + " and " + names[names.length - 1] : names[0]) + ". ") : null,
+    lh('a', { href: href, className: "btn bgb lc-btn lc-fy-topics-go", onClick: go }, names.length ? "Change topics" : "Pick topics for For You"));
 }
 // Federated: the same Sort button as the other feeds (Latest or Popular; it was Popular, Latest and Local tabs), then the
 // relay status lines. Round 7.16 (#216): Local is gone, and Networks is in Settings, Customization, Feeds.
@@ -388,6 +452,27 @@ function FyFollowSettings() {
     lcSwitch("fy-show-following", "Show following", fy.on, function (v) { Looscid.lcSetFyFollow({ on: v }); }),
     fy.on ? lh('fieldset', { className: "lc-fy-src" }, lh('legend', null, "Following in For You"),
       LC_FY_SOURCES.map(function (s) { return lcSwitch("fy-src-" + s[0], s[1], fy[s[0]], function (v) { const pt = {}; pt[s[0]] = v; Looscid.lcSetFyFollow(pt); }); })) : null);
+}
+// Nov 8 2026: For You's topics, a real fieldset of checkboxes with a visible legend, then Only my topics.
+function FyTopicsSettings() {
+  useFeedTick();
+  const tp = lcFyTopics();
+  const toggle = function (id, on) {
+    const cur = lcFyTopics().topics.filter(function (t) { return t !== id; });
+    lcSetFyTopics({ topics: on ? LC_FY_TOPICS.map(function (t) { return t[0]; }).filter(function (t) { return t === id || cur.indexOf(t) >= 0; }) : cur });
+  };
+  return lh('section', { className: "lc-grp", "aria-labelledby": "set-fy-topics-h" },
+    lh('h3', { id: "set-fy-topics-h", className: "lc-sub-h", tabIndex: -1 }, "Topics for For You"),
+    lh('p', { className: "lc-desc" }, "Pick what you're into. Dreams about those topics come first in For You. Nothing picked: For You stays as it is."),
+    lh('fieldset', { className: "lc-fs lc-fy-topics" }, lh('legend', { className: "lc-fs-l" }, "Topics"),
+      LC_FY_TOPICS.map(function (t) {
+        return lh('div', { key: t[0], className: "lc-chk-row" },
+          lh('input', { type: "checkbox", id: "fy-topic-" + t[0], checked: tp.topics.indexOf(t[0]) >= 0, onChange: function (e) { toggle(t[0], e.target.checked); } }),
+          lh('label', { htmlFor: "fy-topic-" + t[0] }, t[1]));
+      })),
+    lh('div', { className: "lc-chk-row lc-fy-only" },
+      lh('input', { type: "checkbox", id: "fy-topics-only", checked: tp.only, onChange: function (e) { lcSetFyTopics({ only: e.target.checked }); } }),
+      lh('label', { htmlFor: "fy-topics-only" }, "Only show Dreams from my topics")));
 }
 // Federated: which networks it reads. Only networks Looscid really reads are shown (no Coming soon items).
 function FedNetsSettings() {

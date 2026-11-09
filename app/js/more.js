@@ -297,7 +297,7 @@ function ProfileLists({ user, navigate, onClose }) {
       lh('button', { type: "button", id: "pf-lists-manage", className: "btn bgb lc-btn", onClick: function () { navigate("lists"); } }, "Manage lists"),
       lh('button', Object.assign({ type: "button", id: "pf-lists-close", className: "btn bgb lc-btn", onClick: onClose }, lcCloseProps("Add to list")), "Close")));
 }
-function lcListCount(n) { return n.toLocaleString() + (n === 1 ? " Dreamor" : " Dreamors"); }
+function lcListCount(n) { return n.toLocaleString("en-US") + (n === 1 ? " Dreamor" : " Dreamors"); }
 function ListsPage({ navigate, cherryCtx, data }) {
   Looscid.useListsTick();
   const id = data && data.list;
@@ -330,7 +330,7 @@ function ListsIndex({ navigate, gone, newList }) {
         lh('input', { id: "lists-new", className: "inp", type: "text", maxLength: lcMax("listName"), autoComplete: "off", value: name, "aria-invalid": msg ? "true" : undefined, onChange: function (e) { setName(e.target.value); if (msg) setMsg(""); } }),
         msg ? lh('p', { className: "lc-muted lc-list-err" }, msg) : null,
         lh('button', { type: "submit", id: "lists-make", className: "btn bp lc-big" }, "Make list")),
-      lh('h2', { className: "lc-sub-h", id: "lists-yours-h" }, "Your lists (" + lists.length.toLocaleString() + ")"),
+      lh('h2', { className: "lc-sub-h", id: "lists-yours-h" }, "Your lists (" + lists.length.toLocaleString("en-US") + ")"),
       lists.length ? lh('ul', { className: "lc-people lc-lists", role: "list", "aria-labelledby": "lists-yours-h" }, lists.slice().reverse().map(function (l) {
           return lh('li', { key: l.id },
             lh('button', { type: "button", className: "lc-person lc-list-row", id: "lists-open-" + l.id, "aria-label": l.name + ", " + lcListCount(l.members.length) + (Looscid.lcPinHas("list", l.id) ? ", pinned to Home" : ""), onClick: function () { navigate("lists", { list: l.id }); } },
@@ -390,12 +390,12 @@ function ListView({ list, navigate, cherryCtx }) {
           lh('div', { className: "lc-q-btns" },
             lh('button', { type: "button", id: "list-del-yes", className: "btn bp lc-big lc-danger", onClick: del }, "Delete list"),
             lh('button', { type: "button", id: "list-del-no", className: "btn bgb lc-big", onClick: function () { setMode(null); focusId("list-delete"); } }, "Keep list"))) : null,
-      lh('h2', { className: "lc-sub-h", id: "list-dreams-h" }, "Dreams (" + dreams.length.toLocaleString() + ")"),
+      lh('h2', { className: "lc-sub-h", id: "list-dreams-h" }, "Dreams (" + dreams.length.toLocaleString("en-US") + ")"),
       dreams.length ? lh('div', { className: "lc-list-dreams" }, dreams.map(function (d) {
           return lh(DreamCard, { key: d.id, dream: d, onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onComment: function (x) { setActiveComment(x); }, navigate: navigate, cherryCtx: cherryCtx });
         }))
         : lh('p', { className: "lc-muted" }, members.length ? "No Dreams from this list on your device yet." : "No Dreamors in this list yet. Add someone from their profile: More, Add to list."),
-      lh('h2', { className: "lc-sub-h", id: "list-members-h" }, "Dreamors (" + members.length.toLocaleString() + ")"),
+      lh('h2', { className: "lc-sub-h", id: "list-members-h" }, "Dreamors (" + members.length.toLocaleString("en-US") + ")"),
       members.length ? lh('ul', { className: "lc-people lc-list-members", role: "list", "aria-labelledby": "list-members-h" }, members.map(function (m, i) {
           const nm = m.name || (m.handle ? "@" + String(m.handle).replace(/^@/, "") : "Dreamor");
           return lh('li', { key: Looscid.lcListMemberKey(m) || i, className: "lc-list-member" },
@@ -815,7 +815,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       case "circles": return lh(LcProfileCircles, { circ: circ, isMe: isMe, name: user.name || "Dreamor", navigate: navigate, uid: user.id, f0: restore.current && restore.current.f });
       case "lists": {
         if (!visLists.length) return empty(isMe ? "No Lists yet" : "No Lists", isMe ? "Make one with More, Lists, or with More, Add to list on someone's profile." : null);
-        const cnt = function (l) { const n = Array.isArray(l.members) ? l.members.length : (+l.count || 0); return n.toLocaleString() + (n === 1 ? " Dreamor" : " Dreamors"); };
+        const cnt = function (l) { const n = Array.isArray(l.members) ? l.members.length : (+l.count || 0); return n.toLocaleString("en-US") + (n === 1 ? " Dreamor" : " Dreamors"); };
         return lh('section', { className: "lc-prof-lists", "aria-labelledby": "pf-lists-tab-h" },
           lh('h2', { id: "pf-lists-tab-h", className: "lc-sub-h" }, isMe ? "Your Lists" : (user.name || "Dreamor") + "'s Lists"),
           lh('ul', { className: "lc-people", role: "list" }, visLists.map(function (l, i) {
@@ -934,6 +934,8 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
           onClick: function () { linksFrom.current = "pf-links-row"; setLinksOpen(true); } },
         lh(Looscid.LcI27Glyph || "span", { g: "link", size: 15 }),
         lh('span', { className: "lc-prof-linksrow-t", "aria-hidden": "true" }, lh('span', { className: "lc-prof-linksrow-u" }, linksRowFirst), pfLinks.length > 1 ? " and " + (pfLinks.length - 1) + " more" : null)) : null,
+      // Nov 8 2026 (Carter approved in Dreamor Council): the website shows a preview card, its title and description.
+      (function () { const w = pfLinks.find(function (l) { return l.name === "Website"; }); return w ? lh(LcSitePreview, { key: w.url, url: w.url }) : null; })(),
       fields.length ? lh('ul', { className: "lc-prof-fields lc-rows", role: "list" }, fields.map(function (f, i) {
         const vAt = f.verifiedAt ? lcJoinedText(f.verifiedAt).replace(/ at .*$/, "") : "";
         return lh('li', { key: i, className: "lc-prof-field" + (f.verified || f.verifiedAt ? " lc-verified" : "") },
@@ -946,14 +948,14 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
       // Feditext's bio: rich text, its paragraphs and line breaks kept, links, mentions and hashtags as real links.
       user.bio ? lh('div', { className: "lc-prof-bio" }, lcBioParas(user.bio, navigate)) : (isMe ? lh('p', { className: "lc-prof-bio lc-muted" }, "No bio yet.") : null),
       lh('div', { className: "lc-prof-counts" },
-        lh('button', { type: "button", id: "pf-count-following", className: "btn bgb lc-big", onClick: function () { setPeople("following"); } }, nFollowing.toLocaleString() + " Following"),
-        lh('button', { type: "button", id: "pf-count-followers", className: "btn bgb lc-big", onClick: function () { setPeople("followers"); } }, nFollowers.toLocaleString() + " " + (nFollowers === 1 ? "Follower" : "Followers")))),
+        lh('button', { type: "button", id: "pf-count-following", className: "btn bgb lc-big", onClick: function () { setPeople("following"); } }, nFollowing.toLocaleString("en-US") + " Following"),
+        lh('button', { type: "button", id: "pf-count-followers", className: "btn bgb lc-big", onClick: function () { setPeople("followers"); } }, nFollowers.toLocaleString("en-US") + " " + (nFollowers === 1 ? "Follower" : "Followers")))),
     lh('div', { className: "ftabs lc-prof-tabs", role: "tablist", "aria-label": "Profile sections", onKeyDown: onTabKey },
       // Build 149 (2three1y: iOS already says "tab, 1 of 4"): no position in the names, ever. Each tab's name is its
       // visible text, with how many it holds in parentheses, like "Dreams (106)". Round 7.12: the position is
       // aria-setsize/aria-posinset, counted from the tabs this profile shows.
       TABS.map(function (t, i) { const on = cur === t[0]; const n = tabCount(t[0]);
-        return lh('button', { key: t[0], id: "pf-tab-" + t[0], type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", "aria-setsize": TABS.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1, "aria-controls": "pf-panel", onClick: function () { if (t[0] === "circles" && cur !== "circles") Looscid.LC_CIRCLES_FOCUS = true; setTab(t[0]); } }, n == null ? t[1] : t[1] + " (" + n.toLocaleString() + ")"); })),
+        return lh('button', { key: t[0], id: "pf-tab-" + t[0], type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", "aria-setsize": TABS.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1, "aria-controls": "pf-panel", onClick: function () { if (t[0] === "circles" && cur !== "circles") Looscid.LC_CIRCLES_FOCUS = true; setTab(t[0]); } }, n == null ? t[1] : t[1] + " (" + n.toLocaleString("en-US") + ")"); })),
     lh('div', { id: "pf-panel", role: "tabpanel", "aria-labelledby": "pf-tab-" + cur }, panel()));
 }
 /* Build 152 (2three1y via Tomo, Oct 13 4:02 and 4:04 PM PT): a profile's Circles tab. Two filters, Member and Owner, are
@@ -965,7 +967,7 @@ function LcProfileCircles({ circ, isMe, name, navigate, uid, f0 }) {
   const headRef = React.useRef(null);
   useEffect(function () { if (!Looscid.LC_CIRCLES_FOCUS) return; Looscid.LC_CIRCLES_FOCUS = false;
     const t = setTimeout(function () { if (headRef.current) headRef.current.focus(); }, 40); return function () { clearTimeout(t); }; }, []);
-  const words = function (n) { return n.toLocaleString() + (n === 1 ? " circle" : " circles"); };
+  const words = function (n) { return n.toLocaleString("en-US") + (n === 1 ? " circle" : " circles"); };
   const ids = ["member", "owner"], label = { member: "Member", owner: "Owner" };
   const onKey = function (e) { let n = null; const i = ids.indexOf(f);
     if (e.key === "ArrowRight") n = (i + 1) % 2; else if (e.key === "ArrowLeft") n = (i + 1) % 2; else if (e.key === "Home") n = 0; else if (e.key === "End") n = 1;
@@ -988,7 +990,7 @@ function LcProfileCircles({ circ, isMe, name, navigate, uid, f0 }) {
     lh('div', { className: "ftabs lc-circ-filters", role: "tablist", "aria-label": "Circle filters", onKeyDown: onKey },
       ids.map(function (id, i) { const on = f === id, n = (circ[id] || []).length;
         return lh('button', { key: id, id: "pf-circ-f-" + id, type: "button", role: "tab", className: "ftab" + (on ? " on" : ""), "aria-selected": on ? "true" : "false", "aria-setsize": ids.length, "aria-posinset": i + 1, tabIndex: on ? 0 : -1,
-          "aria-controls": "pf-circ-list", "aria-label": label[id] + " (" + n.toLocaleString() + ")", onClick: function () { setF(id); } }, label[id], lh('span', { "aria-hidden": "true" }, " (" + n.toLocaleString() + ")")); })), // Round 7.20 (#150): "Member (3)", one count, no repeated word
+          "aria-controls": "pf-circ-list", "aria-label": label[id] + " (" + n.toLocaleString("en-US") + ")", onClick: function () { setF(id); } }, label[id], lh('span', { "aria-hidden": "true" }, " (" + n.toLocaleString("en-US") + ")")); })), // Round 7.20 (#150): "Member (3)", one count, no repeated word
     lh('div', { id: "pf-circ-list", role: "tabpanel", "aria-labelledby": "pf-circ-f-" + f },
       list.length ? lh('ul', { className: "lc-people", role: "list" }, list.map(row)) : lh('p', { className: "lc-muted", style: { padding: "12px 16px" } }, emptyText)));
 }
@@ -999,6 +1001,22 @@ function ProfilePage({navigate, authUser, cherryCtx, onUpdateProfile}) {
    A proper dialog: heading "Links" (focus lands on it), each link as a row (a tile with the site's first letter, the
    site's name, and the address under it; it opens in a new tab), then Share profile, QR code, Copy link and Copy username.
    Escape or Close closes it and focus goes back to the button that opened it. Nothing is fetched from the linked sites. */
+/* Nov 8 2026 (Carter approved in Dreamor Council: "Website preview on profile"): a profile's website as a preview card.
+   It's one normal link, with the page's own title, its description and the address as text, so a screen reader reads it
+   as a link with words. No picture (so nothing to describe, and no other site gets your visit). Rem reads the page for us
+   (Looscid.lcNet.preview, js/net.js). While it loads, or if there's no preview, it's a plain link to the website. */
+function LcSitePreview({ url }) {
+  const [p, setP] = useState(null);
+  useEffect(function () { let live = true; setP(null);
+    if (Looscid.lcNet && Looscid.lcNet.preview) Looscid.lcNet.preview(url).then(function (r) { if (live) setP(r); });
+    return function () { live = false; }; }, [url]);
+  const host = lcLinkHost(url);
+  if (!p) return lh('p', { className: "lc-site-prev-plain" }, "Website: ", lh('a', { className: "lc-link", href: url, target: "_blank", rel: "noopener noreferrer me" }, lcLinkShow(url)));
+  return lh('a', { className: "lc-site-prev", href: url, target: "_blank", rel: "noopener noreferrer me" },
+    lh('span', { className: "lc-site-prev-t" }, p.title), lh('span', { className: "sr-only" }, ". "), // a pause between the parts for screen readers
+    p.description ? lh('span', { className: "lc-site-prev-d" }, p.description) : null, p.description ? lh('span', { className: "sr-only" }, ". ") : null,
+    lh('span', { className: "lc-site-prev-u" }, p.site && p.site.toLowerCase() !== host.toLowerCase() ? p.site + ", " + host : host));
+}
 function lcLinkHost(u) { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return String(u || ""); } }
 function lcLinkShow(u) { return String(u || "").replace(/^https?:\/\/(www\.)?/i, "").replace(/\/$/, ""); }
 /* Nov 1 2026 (Carter, 8:47 AM: "In link Options we should have settings and edit"): Link settings. Your website and
@@ -1588,6 +1606,7 @@ function CustomizabilitySettings({navigate, prefs, setPrefs, theme, setTheme, pa
   // moved here from above the feeds, so they're set once instead of read before the feed on every visit.
   else if (cat.id === "feeds") body = lh(React.Fragment, null, lh(FeedSwitchSetting, { prefs: prefs, setPrefs: setPrefs }), lh(LcSetRow, { def: LC_SET_BY.calmFeed }),
     Looscid.FyFollowSettings ? lh(Looscid.FyFollowSettings, null) : null,
+    Looscid.FyTopicsSettings ? lh(Looscid.FyTopicsSettings, null) : null, // Nov 8 2026: For You topics
     Looscid.FedNetsSettings ? lh(Looscid.FedNetsSettings, null) : null,
     Looscid.PinForm ? lh('section', { className: "lc-grp", "aria-labelledby": "set-feedtabs-h" },
       lh('h3', { id: "set-feedtabs-h", className: "lc-sub-h" }, "Feed tabs"),
@@ -1681,17 +1700,17 @@ function IntelligenceSettings({ navigate, page, prefs, setPrefs, cherryCtx }) {
     body = lh(React.Fragment, null,
       lh(A11ySwitch, { id: "ai-keep", label: "Save chats in Your History", desc: "On: your chats with Cherry are kept on this device, in Your History and in Settings backup. Off: new chats are not kept after you leave them.", on: keep,
         onToggle: function () { const v = !(getAIPrefs().keepChats !== false); lcSetAiPref({ keepChats: v }); announce("Save chats in Your History: " + (v ? "on" : "off") + "."); } }),
-      lh('p', { className: "lc-desc", id: "ai-mem-count" }, chats.length ? chats.length + (chats.length === 1 ? " chat" : " chats") + " saved on this device" + (pins ? ", " + pins + " pinned." : ".") : "No chats saved on this device."),
+      lh('p', { className: "lc-desc", id: "ai-mem-count" }, chats.length ? Looscid.fmt(chats.length) + (chats.length === 1 ? " chat" : " chats") + " saved on this device" + (pins ? ", " + pins + " pinned." : ".") : "No chats saved on this device."),
       lh('button', { type: "button", id: "ai-mem-del", className: "btn bgb lc-big", "aria-disabled": chats.length ? undefined : "true", onClick: function () { if (!chats.length) { announce("There are no chats to delete."); return; } setAskDel(true); } }, "Delete all chats"),
       lh('p', { className: "lc-desc" }, "Cherry keeps nothing else about you. Learned habits are in Settings, Cherry, and media memory is in Privacy, Media and content."),
-      askDel ? lh(AlertDialog, { title: "Delete all chats?", message: "This deletes all " + chats.length + (chats.length === 1 ? " chat" : " chats") + " with Cherry from this device, pinned ones too. It can't be undone.", confirmLabel: "Delete all",
+      askDel ? lh(AlertDialog, { title: "Delete all chats?", message: "This deletes all " + Looscid.fmt(chats.length) + (chats.length === 1 ? " chat" : " chats") + " with Cherry from this device, pinned ones too. It can't be undone.", confirmLabel: "Delete all",
         onCancel: function () { setAskDel(false); },
         onConfirm: function () {
           const n = chats.length;
           try { localStorage.removeItem(Looscid.LC_CHERRY_CHATS_KEY); } catch (e) {}
           if (Looscid.lcCherryStartNew) Looscid.lcCherryStartNew();
           setAskDel(false); tick(function (x) { return x + 1; });
-          announce("Deleted " + n + (n === 1 ? " chat." : " chats."));
+          announce("Deleted " + Looscid.fmt(n) + (n === 1 ? " chat." : " chats."));
           setTimeout(function () { const b = document.getElementById("ai-keep"); if (b) b.focus(); }, 0);
         } }) : null);
   } else if (cat.id === "tools") {
@@ -1801,7 +1820,16 @@ function A11yCategory({ page, navigate, prefs, setPrefs }) {
     sw("visualCue", "Visual cue instead of sounds", "Swaps sounds for a soft glow around the edge of the screen, one gentle fade at most once a second. While Flash safety is on, a text caption is shown instead of the glow."),
     reset("hearing")];
   else if (cat.id === "motion") body = [
-    sw("calmMode", "Calm mode", "On by default. Stops looping animations, makes sounds a little softer, and keeps visual cues gentle. Earcons keep their beeps and boops."),
+    // Nov 8 2026 (Carter, 7:01 PM): Calm mode starts out matching the device's Reduce Motion setting. Ticking or unticking
+    // it is your choice and it's saved; "Match my device again" goes back to following the device.
+    lh(A11ySwitch, { key: "calmMode", id: "a11y-calmMode", label: "Calm mode", on: !!a.calmMode,
+      onToggle: function () { Looscid.lcSetCalmChosen(true); set("calmMode", !a.calmMode); },
+      desc: "Starts out matching your device's Reduce Motion setting. Stops looping animations, makes sounds a little softer, and keeps visual cues gentle. Earcons keep their beeps and boops." }),
+    lh('p', { key: "calmsrc", className: "lc-desc lc-calm-src" }, Looscid.lcCalmChosen()
+      ? "You chose this, so it stays the way you set it."
+      : "Right now it matches your device: Reduce Motion is " + (sysRM ? "on" : "off") + " there, so Calm mode is " + (a.calmMode ? "on" : "off") + "."),
+    Looscid.lcCalmChosen() ? lh('button', { key: "calmdev", type: "button", id: "a11y-calm-device", className: "btn bgb lc-btn",
+      onClick: function () { Looscid.lcSetCalmChosen(false); const v = Looscid.lcCalmDevice(); set("calmMode", v); announce("Calm mode matches your device again. It's " + (v ? "on" : "off") + " now."); } }, "Match my device again") : null,
     sw("flashSafety", "Flash safety", "On by default. Nothing on Looscid flashes, blinks or pulses: no glow cue (a text caption is shown instead) and no looping effects."),
     lh(A11ySwitch, { key: "reduceMotion", id: "a11y-reduceMotion", label: "Reduce Motion", on: !!a.reduceMotion || sysRM, locked: sysRM,
       onToggle: function () { set("reduceMotion", !a.reduceMotion); },
@@ -2299,7 +2327,7 @@ const PROFILE_FIELDS = [
     get: function (p) { return p.website || ""; }, max: 200, type: "url", autoComplete: "url",
     toPatch: function (v) { const u = normalizeUrl(v); if (u === null) return { error: "That doesn't look like a web address. Try something like example.com." }; return { patch: { website: u } }; } },
   { key: "links", label: "Social links", heading: "Change social links", help: "Add your Mastodon, Bluesky, Nostr, GitHub, YouTube or any other profile.",
-    get: function (p) { return p.links || []; }, show: function (p) { const n = (p.links || []).length; return n ? n + (n === 1 ? " link" : " links") : ""; } },
+    get: function (p) { return p.links || []; }, show: function (p) { const n = (p.links || []).length; return n ? Looscid.fmt(n) + (n === 1 ? " link" : " links") : ""; } },
 ];
 Looscid.PROFILE_FIELDS = PROFILE_FIELDS;
 function fieldValueText(f, p) { const v = f.show ? f.show(p) : f.get(p); return v ? String(v) : "Not set"; }
@@ -2775,7 +2803,7 @@ function NostrKeySection() {
     setBusy(true); const r = await N.unlock(unl); setBusy(false);
     if (r.err) { say(r.err, true); lcFocusId("nostr-unlock"); return; }
     setUnl(""); setWeak(!!r.weak);
-    say((r.waiting ? "Unlocked. Sending " + r.waiting + (r.waiting === 1 ? " waiting Dream." : " waiting Dreams.") : "Unlocked until you close Looscid.") + (r.weak ? " Your passcode is short and easy to guess. You can change it below." : ""));
+    say((r.waiting ? "Unlocked. Sending " + Looscid.fmt(r.waiting) + (r.waiting === 1 ? " waiting Dream." : " waiting Dreams.") : "Unlocked until you close Looscid.") + (r.weak ? " Your passcode is short and easy to guess. You can change it below." : ""));
     lcFocusId("nostr-key-h");
   };
   const unlockRef = useEnterSubmit(unlock);
@@ -3062,7 +3090,7 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   if (!methods.length) suggestions.push("Add a login method so you can log in on other devices");
   if (idn && idn.method === "local" && sk) suggestions.push("Keep a copy of your Nostr secret key somewhere safe");
   if (idn && idn.method === "local" && sk) suggestions.push("Lock your Nostr key with a passcode, in Keys and IDs, so nothing else on this site can copy it");
-  const checkup = suggestions.length ? suggestions.length + (suggestions.length === 1 ? " suggestion" : " suggestions") + ": " + suggestions[0] : "No issues found";
+  const checkup = suggestions.length ? Looscid.fmt(suggestions.length) + (suggestions.length === 1 ? " suggestion" : " suggestions") + ": " + suggestions[0] : "No issues found";
   const methodsText = methods.length ? methods.map(function (m) { return PROVIDER_NAMES[m.provider]; }).join(", ") : "None yet. Add one any time";
   const summary = localDataSummary();
   // Each page's name is its h1 (iOS 27 header), so the section heading isn't repeated; its short help line stays.
@@ -3794,7 +3822,7 @@ function lcAboutInfo() {
       ["Network", navigator.onLine === false ? "offline" : "online"],
     ],
     access: [
-      "Calm mode is on by default. Reduce Motion always wins, and it follows your device's setting.",
+      "Calm mode starts out matching your device's Reduce Motion setting, until you choose. Reduce Motion always wins, and it follows your device's setting too.",
       "Flash safety is on by default: nothing flashes, blinks or pulses. The three-flash limit is a hard rule on top: even with Flash safety off, nothing flashes more than three times in any one second.",
       "Results from Commandbar are read out through one polite live region.",
       "Braille output sends short labels to a connected braille display through your screen reader.",
@@ -3964,7 +3992,7 @@ function TerminalPage({ exec, onClose, a11y }) {
   const lineCount = entries.reduce(function (n, e) { return n + e.lines.length; }, 0);
   const shown = mode === "collapsible" ? (open ? entries : []) : mode === "expanded" ? (sess === "collapse" ? [] : entries) : (sess === "expand" ? entries : entries.slice(-1));
   const hiddenNote = mode === "expanded" && sess === "collapse" ? "Output hidden for now. Type output expand to show it." : null;
-  const countText = "Commandbar output, " + lineCount + (lineCount === 1 ? " line" : " lines");
+  const countText = "Commandbar output, " + Looscid.fmt(lineCount) + (lineCount === 1 ? " line" : " lines");
   const onKey = function (e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); onClose(); } };
   return lh('div', { className: "lc-term", ref: boxRef, onKeyDown: onKey, role: "region", "aria-labelledby": "lc-term-h", "aria-live": "off" },
     lh('div', { className: "lc-term-hd" },

@@ -419,7 +419,7 @@ function lcNotifyPeople(parent, root) {
 // One line VoiceOver reads in one swipe: who, when, what, and how many replies it has.
 function lcParentLine(d) {
   const n = (d.isReply ? 0 : (d.comments || 0) + ((Looscid.lcRepliesFor && Looscid.lcRepliesFor(d.id).length) || 0));
-  return lcWhoName(d.user) + (d.user && d.user.handle ? " (" + d.user.handle + ")" : "") + ", " + (d.time || "just now") + ": " + String(d.text || "") + (n ? " " + n + (n === 1 ? " reply." : " replies.") : "");
+  return lcWhoName(d.user) + (d.user && d.user.handle ? " (" + d.user.handle + ")" : "") + ", " + (d.time || "just now") + ": " + String(d.text || "") + (n ? " " + Looscid.fmt(n) + (n === 1 ? " reply." : " replies.") : "");
 }
 // Alt text helper: a starting point made on this device from the photo's shape, colours and file name.
 // Cherry can't see what's in the photo, so the person checks and edits it. Nothing is sent anywhere.
@@ -504,7 +504,7 @@ function LcComposerInner(props) {
   const unlockKey = async function () {
     const r = await Looscid.lcNostr.unlock(pass);
     if (r.err) { setPassMsg(r.err); announce(r.err); return; }
-    setPass(""); setPassMsg(""); announce(r.waiting ? "Unlocked. Sending " + r.waiting + (r.waiting === 1 ? " waiting Dream." : " waiting Dreams.") : "Unlocked.");
+    setPass(""); setPassMsg(""); announce(r.waiting ? "Unlocked. Sending " + Looscid.fmt(r.waiting) + (r.waiting === 1 ? " waiting Dream." : " waiting Dreams.") : "Unlocked.");
     focusBox(0);
   };
   const passRef = useEnterSubmit(unlockKey);
