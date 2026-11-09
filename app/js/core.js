@@ -1928,10 +1928,10 @@ const LC_FIND_STATIC = [
   { l: "Put your Dreams on Rem", w: "put my dreams on rem upload sync all my dreams let me pick stop syncing sync now server", page: "settings_rem", focus: "rem-h-dreams", where: "Settings, LooscidID, Rem" },
   { l: "Mode", w: "mode local server rem local mode server mode", page: "settings_customizability", focus: "lc-cz-cats-mode", where: "Settings, Customization" },
   { l: "Sync my lists", w: "lists likes redreams pins mutes followed threads sync my lists again devices", page: "settings_rem", focus: "rem-h-lists", where: "Settings, LooscidID, Rem" },
-  { l: "Download my Dreams", w: "download my dreams export rem signed file", page: "settings_backup", focus: "bk-d-h", where: "Settings, LooscidID, Download and back up" },
+  { l: "Download my Dreams", w: "download my dreams export rem signed file", page: "settings_backup", focus: "bk-d-h", where: "Settings, LooscidID, Your data" },
   // Nov 8 2026 (LooscidID cleanup): Download and back up, one screen for every way to save your stuff.
-  { l: "Export my data", w: "export my data download json copy", page: "settings_backup", focus: "bk-x-h", where: "Settings, LooscidID, Download and back up" },
-  { l: "Backup file", w: "backup file locked passcode key restore bring back", page: "settings_backup", focus: "bk-f-h", where: "Settings, LooscidID, Download and back up" },
+  { l: "Export my data", w: "export my data download json copy", page: "settings_backup", focus: "bk-x-h", where: "Settings, LooscidID, Your data" },
+  { l: "Backup file", w: "backup file locked passcode key restore bring back", page: "settings_backup", focus: "bk-f-h", where: "Settings, LooscidID, Your data" },
   { l: "Delete my Rem data", w: "delete my rem data forget me erase server", page: "settings_rem", focus: "rem-forget", where: "Settings, LooscidID, Rem" },
   { l: "Private account", w: "private account approve followers lock", page: "settings_privacy", focus: "set-privateAccount", where: "Settings, Privacy & Security" },
   { l: "Let others share my Dreams", w: "allow sharing share my dreams reshare", page: "settings_privacy", focus: "set-shareMine", where: "Settings, Privacy & Security" },
@@ -1962,11 +1962,14 @@ const LC_FIND_STATIC = [
   { l: "Visual cue instead of sounds", w: "glow visual earcons", page: "settings_audio", focus: "lca-visualCue", where: "Settings, Earcons" },
   { l: "Event earcons", w: "event earcons event earcon event sounds event sound send like new dream error alert feed switch previews", page: "settings_audio_events", where: "Settings, Earcons" },
   { l: "Keyboard", w: "keyboard shortcuts keys shortcuts", page: "settings_keyboard", where: "Settings, General" },
-  { l: "Tab Bar", w: "tab bar tabbar bottom tabs order reorder hide show custom tab pinned tab move up move down", page: "settings_tabbar", where: "Settings, Customization" },
-  { l: "Profile Tabs", w: "profile tabs order reorder dreams replies circles redreams media liked lists followed threads about move up move down", page: "settings_profiletabs", where: "Settings, Customization" },
+  { l: "Tabs", w: "tabs tab bar profile tabs order reorder", page: "settings_tabs", where: "Settings, Customization" },
+  { l: "Tab bar", w: "tab bar tabbar bottom tabs order reorder hide show custom tab pinned tab move up move down", page: "settings_tabs", focus: "tabs-bar-h", where: "Settings, Customization, Tabs" },
+  { l: "Profile tabs", w: "profile tabs order reorder dreams replies circles redreams media liked lists followed threads about move up move down", page: "settings_tabs", focus: "tabs-profile-h", where: "Settings, Customization, Tabs" },
   // Round 7.33
   { l: "Show followed threads on my profile", w: "followed threads follow thread profile show hide privacy", page: "settings_privacy", priv: "pprofile", focus: "set-showThreads", where: "Settings, Privacy & Security, What's on my profile" },
-  { l: "Download and back up", w: "backup back up my settings export import reset download", page: "settings_backup", where: "Settings, LooscidID" },
+  { l: "Your data", w: "your data download and back up backup back up my settings export import download data stored delete", page: "settings_backup", where: "Settings, LooscidID" },
+  { l: "What's stored on this device", w: "data stored local storage this device what kinds", page: "settings_backup", focus: "bk-store-h", where: "Settings, LooscidID, Your data" },
+  { l: "Delete local data", w: "delete erase wipe local data start fresh", page: "settings_backup", focus: "bk-del-h", where: "Settings, LooscidID, Your data" },
   { l: "Cherry", w: "intelligence ai cherry assistant artificial intelligence", page: "settings_intelligence", where: "Settings, Customization" },
   { l: "Cherry on or off", w: "ai cherry turn on off enable disable assistant opt in", page: "settings_ai_cherry", focus: "ai-on", where: "Settings, Cherry, Cherry" },
   { l: "Learn from my habits", w: "ai cherry habits habit learning tips clear", page: "settings_ai_cherry", focus: "ai-habits", where: "Settings, Cherry, Cherry" },
@@ -2059,7 +2062,7 @@ function lcIosWhere(w) {
     .replace(/^Settings, Customization, Media(?! and translation)/, "Settings, Customization, Media and translation")
     .replace(/^Settings, Accessibility, Motion and seizure/, "Settings, Accessibility, Motion").replace(/^Settings, Accessibility, Motor and switch/, "Settings, Accessibility, Motor")
     .replace(/^Settings, Accessibility, Commandbar/, "Settings, General, Commandbar").replace(/^Settings, Keyboard shortcuts/, "Settings, General, Keyboard")
-    .replace(/^Settings, Settings backup/, "Settings, LooscidID, Download and back up").replace(/^Settings, Looscid Labs/, "Settings, General, Labs")
+    .replace(/^Settings, Settings backup/, "Settings, LooscidID, Your data").replace(/^Settings, Looscid Labs/, "Settings, General, Labs")
     .replace(/^Settings, Tab Bar/, "Settings, Customization, Tab Bar").replace(/^Settings, Profile Tabs/, "Settings, Customization, Profile Tabs")
     .replace(/^About Looscid/, "Settings, General, About").replace(/^Alerts tab, Messages/, "Settings, Chats").replace(/^Alerts tab, Alerts settings/, "Settings, Alerts").replace(/^Alerts tab$/, "Settings")
     // Nov 8 2026 (Carter): Cherry's settings moved into Customization, and Chats' one setting lives in Privacy & Security.
@@ -2198,7 +2201,7 @@ const PRIVACY_CONTENT = `<p><strong>Last updated: October 26, 2026</strong></p>
 <p>No ads, no ad trackers, and I never sell or share your data. Looscid sends no crash reports or usage data, so it doesn't ask you about them either.</p>
 <h2>Your choices</h2>
 <ul>
-<li>Export or import all your settings in Settings, LooscidID, Download and back up.</li>
+<li>Export or import all your settings in Settings, LooscidID, Your data.</li>
 <li>Delete everything Looscid saved on this device in Settings, LooscidID, Data.</li>
 <li>Remove a linked login method, key or handle any time in Settings, LooscidID, Keys and IDs.</li>
 </ul>
@@ -2691,11 +2694,12 @@ const LC_ROUTES = [
   // Nov 8 2026 (Carter, 8:55 PM, the LooscidID cleanup): Connected apps joined Login methods (its old addresses open Login
   // methods), and Devices is hidden until it's real (its address opens Privacy & Security).
   ["settings_account", "Settings/LooscidID/Connected-Apps"], ["settings_privacy", "Settings/Privacy-and-Security/Devices"], ["settings_privacy", "Settings/LooscidID/Devices"],
-  // Download and back up: one screen for every way to save your stuff. /Settings/Backup and the Backup file address open it.
-  ["settings_backup", "Settings/LooscidID/Download-and-Back-Up"], ["settings_backup", "Settings/Privacy-and-Security/Backup-File"], ["settings_backup", "Settings/LooscidID/Backup-File"],
+  // Your data (Nov 9 2026, item 13: it was Download and back up, and the Data page joined it): one screen for what's stored,
+  // every way to save it, and Delete local data. Download and back up, /Settings/Backup and the Backup file address open it.
+  ["settings_backup", "Settings/LooscidID/Your-Data"], ["settings_backup", "Settings/LooscidID/Download-and-Back-Up"], ["settings_backup", "Settings/Privacy-and-Security/Backup-File"], ["settings_backup", "Settings/LooscidID/Backup-File"],
   ["settings_customizability", "Settings/Customization"], ["settings_customizability", "Settings/Customizability"],
   // Nov 8 2026 (Carter): Mode (Local or Rem) is a row in Customization; /Settings/Mode opens Customization on that row.
-  ["settings_customizability", "Settings/Mode"], ["settings_customizability", "Settings/Customization/Mode"], ["settings_cz_order", "Settings/Customization/Settings-Order"], ["settings_cz_theme", "Settings/Customizability/Theme"], ["settings_cz_feeds", "Settings/Customizability/Feeds"],
+  ["settings_customizability", "Settings/Mode"], ["settings_customizability", "Settings/Customization/Mode"], ["settings_cz_order", "Settings/Customization/Settings-Order"], ["settings_tabs", "Settings/Customizability/Tabs"], ["settings_cz_theme", "Settings/Customizability/Theme"], ["settings_cz_feeds", "Settings/Customizability/Feeds"],
   ["settings_cz_menu", "Settings/Customizability/Menu"], ["settings_cz_posting", "Settings/Customizability/Dreaming"], ["settings_cz_media", "Settings/Customizability/Media"],
   ["settings_accessibility", "Settings/Accessibility"], ["settings_a11y_sr", "Settings/Sense"], ["settings_a11y_vision", "Settings/Accessibility/Vision"],
   ["settings_a11y_hearing", "Settings/Accessibility/Hearing"], ["settings_a11y_motion", "Settings/Accessibility/Motion"],
@@ -3014,7 +3018,7 @@ Looscid.LcMorePage = LcMorePage;
 const LC_SET_GRP_FOOT = {
   talk: "How Looscid tells you about new Dreams, replies and chats, and the earcons it plays.",
   you: "How Looscid works with your screen reader, how it looks, who can reach you, and Cherry, your assistant on this device.",
-  gen: "About, Updates, Keyboard, Download and back up, Labs, Commandbar and Reset.",
+  gen: "About, Updates, Keyboard, Your data, Labs, Commandbar and Reset.",
   help: "Guides for getting started, commands, Cherry, earcons and accessibility, and how to get help.",
 };
 // Our own line icons (the Ic set) on small colored tiles, iOS-style. Decoration only (aria-hidden).
@@ -5886,7 +5890,7 @@ function lcRegistryIntent(n, isOn, isOff) {
   const a = Looscid.A11Y_NOW, t = " " + n + " "; let m;
   // reset
   if ((m = /^(reset|restore)( all)? (.+?)( settings| section)?( to defaults?| defaults?)?$/.exec(n)) || /^reset( all)?( settings)?$/.test(n)) {
-    if (/^reset( all)?( settings)?$/.test(n) || (m && /^(all|everything|all settings)$/.test(m[3]))) return { say: "To reset every setting, open Settings, LooscidID, Download and back up, and choose Reset. To reset one section, say reset and its name, like reset audio or reset speech." };
+    if (/^reset( all)?( settings)?$/.test(n) || (m && /^(all|everything|all settings)$/.test(m[3]))) return { say: "To reset every setting, open Settings, General, and choose Reset. To reset one section, say reset and its name, like reset audio or reset speech." };
     const sec = lcFindSection(m[3]); if (!sec) return null;
     return { patch: lcSectionDefaults(sec), say: lcSectionTitle(sec) + " is back to its defaults." };
   }
@@ -6723,9 +6727,10 @@ const LC_PLACES = {
   profileprivacy: { label: "What's on my profile, in Privacy & Security", page: "settings_privacy", privSec: "pprofile" },
   cherryprivacy: { label: "What Cherry can see, in Privacy & Security", page: "settings_privacy", privSec: "pcherry" },
   blockedmuted: { label: "Blocked and muted, in Privacy & Security", page: "settings_privacy", privSec: "blocked" },
-  tabbar: { label: "Tab Bar settings", page: "settings_tabbar" }, // build 151 (#75)
-  profiletabs: { label: "Profile Tabs settings", page: "settings_profiletabs" }, // build 152 prep (#98)
-  backup: { label: "Download and back up", page: "settings_backup" },
+  tabs: { label: "Tabs settings", page: "settings_tabs" }, // Nov 9 2026: the tab bar and profile tabs, one screen
+  tabbar: { label: "Tab bar settings", page: "settings_tabbar" }, // build 151 (#75)
+  profiletabs: { label: "Profile tabs settings", page: "settings_profiletabs" }, // build 152 prep (#98)
+  backup: { label: "Your data", page: "settings_backup" },
   alertsettings: { label: "Alerts settings", page: "settings_notifications" },
   alertsounds: { label: "Alert sounds, in Earcons", page: "settings_audio_alerts" }, // Nov 9 2026: the same switches are in Alerts too
   inboxfilters: { label: "Inbox filters order, in Alerts", page: "settings_alert_filters" }, // Nov 9 2026: its own page now
@@ -8229,7 +8234,7 @@ const SETTINGS_PARENT = {
   settings_updates: ["settings_general", "set-gen-updates"], settings_a11y_terminal: ["settings_general", "set-gen-commandbar"],
   // Nov 8 2026: Cherry's settings live in Customization now, so Back from them goes there, onto the Cherry row.
   settings_intelligence: ["settings_customizability", "lc-cz-cats-cherry"],
-  settings_tabbar: ["settings_customizability", "lc-cz-cats-tabbar"], settings_profiletabs: ["settings_customizability", "lc-cz-cats-profiletabs"], settings_cz_order: ["settings_customizability", "lc-cz-cats-order"],
+  settings_tabs: ["settings_customizability", "lc-cz-cats-tabs"], settings_tabbar: ["settings_customizability", "lc-cz-cats-tabs"], settings_profiletabs: ["settings_customizability", "lc-cz-cats-tabs"], settings_cz_order: ["settings_customizability", "lc-cz-cats-order"],
   settings_cz_theme: ["settings_customizability", "lc-cz-cats-theme"], settings_cz_feeds: ["settings_customizability", "lc-cz-cats-feeds"], settings_cz_menu: ["settings_customizability", "lc-cz-cats-menu"],
   settings_cz_posting: ["settings_customizability", "lc-cz-cats-posting"], settings_cz_media: ["settings_customizability", "lc-cz-cats-media"],
   settings_a11y_sr: ["settings_accessibility", "lc-a11y-cats-sr"], settings_a11y_vision: ["settings_accessibility", "lc-a11y-cats-vision"], settings_a11y_hearing: ["settings_accessibility", "lc-a11y-cats-hearing"],
@@ -9127,11 +9132,11 @@ useEffect(() => {
       settings_dev: "Dev menu",
       settings_audio: "Earcons",
       settings_keyboard: "Keyboard",
-      settings_tabbar: "Tab Bar",
-      settings_profiletabs: "Profile Tabs",
+      settings_tabs: "Tabs", settings_tabbar: "Tabs",
+      settings_profiletabs: "Tabs",
       settings_apps: "Apps",
       settings_messages: "Chats",
-      settings_backup: "Download and back up",
+      settings_backup: "Your data",
       settings_cherry: "Cherry",
       settings_about: "About",
       settings_social: "Social",
@@ -9182,6 +9187,7 @@ useEffect(() => {
       case "settings_audio": case "settings_audio_volume": case "settings_audio_pack": case "settings_audio_events": case "settings_audio_haptics": case "settings_audio_alerts":
                                       return React.createElement(Looscid.AudioSettings, { key: page, page: page, navigate: navigate,});
       case "settings_keyboard":       return React.createElement(Looscid.KeyboardSettings, { navigate: navigate,});
+      case "settings_tabs":           return Looscid.TabsSettings ? React.createElement(Looscid.TabsSettings, { navigate: navigate,}) : null;
       case "settings_tabbar":         return Looscid.TabBarSettings ? React.createElement(Looscid.TabBarSettings, { navigate: navigate,}) : null;
       case "settings_profiletabs":    return Looscid.ProfileTabsSettings ? React.createElement(Looscid.ProfileTabsSettings, { navigate: navigate,}) : null;
       case "settings_apps":           return React.createElement(Looscid.AppsSettings, { navigate: navigate,});

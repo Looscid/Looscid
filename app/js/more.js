@@ -1203,6 +1203,7 @@ function AccountSettings({navigate, authUser, onSignOut, onRenameProfile, onUpda
   // Nov 8 2026 (Carter, 8:55 PM: "Like all ideas", the LooscidID cleanup): Backup file is part of Download and back up now,
   // and Devices is hidden until it's real (it opens Privacy & Security).
   if (initialTab === "backup") return React.createElement(LcGoRem, { navigate: navigate, to: "settings_backup", focus: "bk-save-h" });
+  if (initialTab === "data") return React.createElement(LcGoRem, { navigate: navigate, to: "settings_backup", focus: "bk-store-h" });
   if (initialTab === "devices") return React.createElement(LcGoRem, { navigate: navigate, to: "settings_privacy" });
   // Settings > Account IS LooscidID management (2three1y, Oct 8 2026), laid out like the
   // Google Account page. Alerts live only in Settings > Alerts, never here.
@@ -1680,8 +1681,8 @@ const LC_CZ_CATS = [
   { id: "posting", page: "settings_cz_posting", l: "Dreaming", grp: "look", sub: "Character limit, undo send, alt text reminder, drafts" },
   // Nov 9 2026 (item 10): "Media and translation", so it doesn't read like Privacy & Security's Media and content.
   { id: "media", page: "settings_cz_media", l: "Media and translation", old: "media", grp: "look", sub: "Auto-play, translate Dreams" },
-  { id: "tabbar", page: "settings_tabbar", l: "Tab Bar", grp: "tabs", sub: "Which tabs show at the bottom, and their order" },
-  { id: "profiletabs", page: "settings_profiletabs", l: "Profile Tabs", grp: "tabs", sub: "The order of the tabs on profiles" },
+  // Nov 9 2026 (item 14): Tab Bar and Profile Tabs are one Tabs screen, with a section for each.
+  { id: "tabs", page: "settings_tabs", l: "Tabs", old: "tab bar profile tabs", grp: "tabs", sub: "Which tabs show at the bottom, and the order of the tabs on profiles" },
   { id: "order", page: "settings_cz_order", l: "Settings Order", grp: "tabs", sub: "Default, Alphabetical or your own order of Settings" },
   // Nov 8 2026 (Carter, 8:44 PM: "Customization. ... Cherry also live there"): Mode (Local or Rem, it was the row under the
   // LooscidID card) and Cherry's settings (they were a top-level row) live here now. Same screens: Mode opens Rem, where the
@@ -3204,7 +3205,6 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   const [, bump] = useState(0);
   useEffect(function () { const f = function () { setIdn(getIdentity()); bump(function (n) { return n + 1; }); }; window.addEventListener("looscid-methods", f); return function () { window.removeEventListener("looscid-methods", f); }; }, []);
   const [note, setNote] = useState("");
-  const [confirmDel, setConfirmDel] = useState(false);
   const ed = useProfileEditor(authUser, onUpdateProfile, navigate);
   const wrapRef = useRef(null);
   // Round 6 fixes: Back from a section opened with a Home card goes back to Home, on that card (it left LooscidID).
@@ -3284,34 +3284,15 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
       // page opens Login methods. Download and back up is one screen for every way to save your stuff (BackupSettings).
       [{ id: "lid-row-rem", g: "mode", c: "#34c759", label: "Rem", value: srvM.sync ? "Syncing" : "Local", sub: srvWords, onClick: function () { navigate("settings_rem"); } },
        { id: "lid-row-connectionbase", g: "cloud", c: "#30b0c7", label: "Bridges", value: Looscid.lcNet && Looscid.lcNet.bridgeOn("nostr") ? "Nostr" : "Off", sub: "Share your public Dreams to Nostr, Mastodon and Bluesky too", onClick: function () { go("connectionbase"); } }],
-      [{ id: "lid-row-data", g: "data", c: "#8e8e93", label: "Data", sub: summary.length + " kinds of data, stored only on this device", onClick: function () { go("data"); } },
-       { id: "lid-row-backup", g: "doc", c: "#ff9500", label: "Download and back up", sub: "Export my data, Backup file, Download my Dreams, Back up my settings", onClick: function () { navigate("settings_backup"); } }]])));
+      // Nov 9 2026 (Carter approved item 13): Data and Download and back up are one row and one screen, Your data.
+      [{ id: "lid-row-backup", g: "data", c: "#8e8e93", label: "Your data", sub: summary.length + " kinds of data on this device. Download, back up or delete it", onClick: function () { navigate("settings_backup"); } }]])));
     // Nov 7 2026 (Carter, 6:10 PM) Download my Dreams and Delete my Rem data were here. Nov 8 2026: they're on the Rem screen now.
   else if (tab === "info") panel = lh(React.Fragment, null,
     PH("Profile", "Your name, username, avatar and bio. Choose a field to change it."),
     ed.list);
-  else if (tab === "data") panel = lh(React.Fragment, null,
-    PH("Data", "Your data stays on this device. Only public Dreams (Audience Everyone) also go to Rem."),
-    lh('h2', { className: "lid-label" }, "What's stored on this device"),
-    lh('ul', { className: "lid-dl lc-rows", role: "list" }, summary.map(function (r) { return lh('li', { key: r.k }, lh('span', { className: "lc-dt" }, r.k, lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, r.v)); })),
-    lh('h2', { className: "lid-label" }, "Download your data"),
-    // Nov 8 2026 (LooscidID cleanup): Export my data lives on Download and back up now, with the other ways to save your stuff.
-    lh('p', { className: "lid-help", id: "lid-export-help" }, "Export my data, your Backup file, your Dreams on Rem and your settings are all in one spot."),
-    lh('a', { className: "btn bgb lid-wide", id: "lid-dl-link", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings_backup") : "#"), style: { textDecoration: "none" },
-      onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("settings_backup"); } }, "Download and back up my data"),
-    note && lh('p', { className: "lid-saved" }, note),
-    lh('h2', { className: "lid-label" }, "Delete your data"),
-    lh('p', { className: "lid-help", id: "lid-delete-help" }, "Erase your LooscidID, logins, keys, drafts and settings from this device. Looscid then starts fresh with a new LooscidID."),
-    lh('button', { type: "button", id: "lid-delete-data", className: "btn bgb lid-wide", onClick: function () { setConfirmDel(true); } }, "Delete local data"),
-    lh('h2', { className: "lid-label" }, "Settings and privacy"),
-    // Nov 8 2026 (Carter: "don't give people where to change things help them and give links"): real links, named for what they do.
-    lh('p', { className: "lid-help" }, "Choose who can see and reach you."),
-    lh('a', { className: "btn bgb lid-wide", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings_privacy") : "#"), style: { textDecoration: "none" },
-      onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("settings_privacy"); } }, "Choose who can see and reach me"),
-    confirmDel && lh(AlertDialog, { title: "Delete all Looscid data on this device?",
-      message: "This erases your LooscidID, login methods, any Nostr key saved here, drafts and settings. It can't be undone. Export your data first if you want a copy.",
-      confirmLabel: "Delete", onCancel: function () { setConfirmDel(false); setTimeout(function () { const b = document.getElementById("lid-delete-data"); if (b) b.focus(); }, 0); },
-      onConfirm: function () { setConfirmDel(false); deleteLocalData(); location.reload(); } }));
+  // Nov 9 2026 (item 13): the Data page is part of Your data now (BackupSettings): what's stored, every way to download or
+  // back it up, and Delete local data. Anything that still opens the Data page lands there.
+  else if (tab === "data") panel = lh(LcGoRem, { navigate: navigate, to: "settings_backup", focus: "bk-store-h" });
   // Oct 31 2026 (Carter: "the key and login should be in Security"): Security was its own page here, with rows for the key,
   // passcode, login methods, backup file, Rem and devices. Nov 8 2026 (Carter: "Privacy is in security like iOS"): those
   // rows are in Privacy & Security now (LcPrivSecRows), and this page is Security checkup: the suggestions, your secret key,
@@ -4895,7 +4876,7 @@ function lcShortcutOk(keys) { const p = keys.split("+"); return p.length > 1 && 
    One row per tab: a switch to show or hide it, then Move up and Move down buttons (plain buttons, so VoiceOver, a
    keyboard and a braille display all reach them; no drag needed). Tabs pinned on the feed are listed as custom tabs,
    off until switched on. More is always last. */
-function TabBarSettings({ navigate }) {
+function LcTabBarList() {
   Looscid.useTabBarTick();
   const list = Looscid.lcTabBarAll();
   const sid = function (id) { return String(id).replace(/[^a-z0-9]+/gi, "-").toLowerCase(); };
@@ -4905,8 +4886,8 @@ function TabBarSettings({ navigate }) {
     if (!n) { announce(d < 0 ? t.l + " is already first." : t.l + " is already last before More."); return; }
     keep("tb-" + (d < 0 ? "up-" : "down-") + sid(t.id)); announce(t.l + ", moved to (" + n + " of " + list.length + ")."); // Round 7.37: the same words as Settings Order
   };
-  return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
-    lh(BackHeader, { title: "Tab Bar", onBack: function () { const b = Looscid.LC_SETTINGS_BACK; Looscid.LC_SETTINGS_BACK = null; navigate(b || "settings"); } }), // #151: Back to your profile when opened from its More
+  return lh('section', { className: "lc-grp", "aria-labelledby": "tabs-bar-h", id: "tabs-bar" },
+    lh('h2', { id: "tabs-bar-h", className: "lc-grp-h", tabIndex: -1 }, "Tab bar"),
     lh('p', { className: "lc-desc", style: { padding: "8px 16px", margin: 0 } }, "Choose which tabs show at the bottom, and their order. Profile is always last."),
     lh('ul', { className: "lc-tb-list", role: "list" }, list.map(function (t, i) {
       return lh('li', { key: t.id, className: "lc-tb-row" },
@@ -4921,7 +4902,7 @@ function TabBarSettings({ navigate }) {
 }
 /* Build 152 prep (#98): Settings, Profile Tabs. The same plain pattern as the Tab Bar: one row per tab with Move up and
    Move down buttons (no drag, no rotor actions). Focus stays on the button you pressed; the new position is said once. */
-function ProfileTabsSettings({ navigate }) {
+function LcProfileTabsList() {
   Looscid.useProfileTabsTick();
   const list = Looscid.lcProfileTabsAll();
   const keep = function (elId) { setTimeout(function () { const el = document.getElementById(elId); if (el) el.focus(); }, 0); };
@@ -4930,9 +4911,8 @@ function ProfileTabsSettings({ navigate }) {
     if (!n) { announce(d < 0 ? t.l + " is already first." : t.l + " is already last."); return; }
     keep("ptab-" + (d < 0 ? "up-" : "down-") + t.id); announce(t.l + ", moved to (" + n + " of " + list.length + ")."); // Round 7.37: the same words as Settings Order
   };
-  const back = function () { const b = Looscid.LC_SETTINGS_BACK; Looscid.LC_SETTINGS_BACK = null; navigate(b || "settings"); };
-  return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
-    lh(BackHeader, { title: "Profile Tabs", onBack: back }),
+  return lh('section', { className: "lc-grp", "aria-labelledby": "tabs-profile-h", id: "tabs-profile" },
+    lh('h2', { id: "tabs-profile-h", className: "lc-grp-h", tabIndex: -1 }, "Profile tabs"),
     lh('p', { className: "lc-desc", style: { padding: "8px 16px", margin: 0 } }, "The order of the tabs on profiles, yours and everyone's. Saved on this device and in your settings backup."),
     lh('ul', { className: "lc-tb-list", role: "list" }, list.map(function (t, i) {
       return lh('li', { key: t.id, className: "lc-tb-row" },
@@ -4945,6 +4925,19 @@ function ProfileTabsSettings({ navigate }) {
     lh('div', { style: { padding: "12px 16px" } },
       lh('button', { type: "button", id: "ptab-reset", className: "btn bgb lc-btn", onClick: function () { Looscid.lcProfileTabsReset(); announce("Profile tabs are back in the usual order: " + Looscid.lcProfileTabsAll().map(function (t) { return t.l; }).join(", ") + "."); keep("ptab-reset"); } }, "Back to the usual order")));
 }
+/* Nov 9 2026 (Carter approved item 14): one Tabs screen in Customization. The tab bar and the tabs on profiles were 2 screens
+   with the same Move up and Move down rows; now they're 2 sections on one page. Same saved order, same ids. The old
+   addresses (/Settings/Tab-Bar, /Settings/Profile-Tabs) and anything that opened them land here, on their section. */
+function TabsSettings({ navigate }) {
+  const back = function () { const b = Looscid.LC_SETTINGS_BACK; Looscid.LC_SETTINGS_BACK = null; navigate(b || "settings"); }; // #151: Back to your profile when opened from its More
+  return lh('div', { className: "pg lc-a11y lc-ios-page", "aria-live": "off" },
+    lh(BackHeader, { title: "Tabs", onBack: back }),
+    lh(LcTabBarList, null),
+    lh(LcProfileTabsList, null));
+}
+function TabBarSettings({ navigate }) { return lh(LcGoRem, { navigate: navigate, to: "settings_tabs", focus: "tabs-bar-h" }); }
+function ProfileTabsSettings({ navigate }) { return lh(LcGoRem, { navigate: navigate, to: "settings_tabs", focus: "tabs-profile-h" }); }
+Looscid.TabsSettings = TabsSettings;
 /* Round 7.37 (#176, Carter Oct 26 2026: "full Apple Mode"): Settings, General, like iOS General. About, Updates, Keyboard,
    Backup, Labs and Commandbar each open their own page (Back comes back to the row), and Reset opens the same Reset dialog
    as before. Keyboard shortcuts, Settings backup, Looscid Labs and Reset were rows at the top of Settings; Commandbar was in
@@ -4952,7 +4945,7 @@ function ProfileTabsSettings({ navigate }) {
 const LC_GEN_ROWS = [
   { id: "about", l: "About", grp: "info", page: "settings_about" }, { id: "updates", l: "Updates", grp: "info", page: "settings_updates" },
   { id: "keyboard", l: "Keyboard", grp: "use", page: "settings_keyboard" }, { id: "commandbar", l: "Commandbar", grp: "use", page: "settings_a11y_terminal" },
-  { id: "backup", l: "Download and back up", grp: "data", page: "settings_backup" }, { id: "labs", l: "Labs", grp: "data", page: "settings_labs" },
+  { id: "backup", l: "Your data", grp: "data", page: "settings_backup" }, { id: "labs", l: "Labs", grp: "data", page: "settings_labs" },
   { id: "reset", l: "Reset", grp: "reset", reset: "all" },
 ];
 Looscid.LC_GEN_ROWS = LC_GEN_ROWS;
@@ -5102,7 +5095,8 @@ function lcImportSettings(text) {
    Backup file row, and Rem's Download my Dreams link open it too). Its main address is /More/Settings/LooscidID/Download-and-Back-Up; /Settings/Backup and
    /Settings/Privacy-and-Security/Backup-File open it. Back goes to where you came from: General, Privacy & Security, Rem or LooscidID. */
 function BackupSettings({ navigate, onImported }) {
-  const [msg, setMsg] = useState(""), [dl, setDl] = useState(""), [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(""), [dl, setDl] = useState(""), [busy, setBusy] = useState(false), [confirmDel, setConfirmDel] = useState(false);
+  const summary = localDataSummary();
   const [from] = useState(function () { const f = Looscid.LC_BK_FROM; Looscid.LC_BK_FROM = null; return f || "lid"; });
   const say = function (m) { setMsg(m); announce(m); };
   const onFile = function (e) {
@@ -5120,8 +5114,14 @@ function BackupSettings({ navigate, onImported }) {
   };
   const N = Looscid.lcNet || {};
   return lh('div', { className: "pg lc-a11y", "aria-live": "off", id: "bk-page" },
-    lh(Looscid.LcI27Header, { title: "Download and back up", onBack: back, backLabel: from === "general" ? "Back to General" : from === "privsec" ? "Back to Privacy & Security" : from === "rem" ? "Back to Rem" : "Back to LooscidID" }),
-    lh('p', { className: "lc-desc", style: { padding: "0 16px" } }, "Every way to save your stuff, in one spot. None of these files have your passwords."),
+    lh(Looscid.LcI27Header, { title: "Your data", onBack: back, backLabel: from === "general" ? "Back to General" : from === "privsec" ? "Back to Privacy & Security" : from === "rem" ? "Back to Rem" : "Back to LooscidID" }),
+    lh('p', { className: "lc-desc", style: { padding: "0 16px" } }, "What's on this device, and every way to save it or delete it. None of these files have your passwords."),
+    // Nov 9 2026 (Carter approved item 13): the Data page's parts are here now, so it's one screen: Your data.
+    lh('section', { className: "lc-grp", "aria-labelledby": "bk-store-h" },
+      lh('h2', { id: "bk-store-h", className: "lc-grp-h", tabIndex: -1 }, "What's stored on this device"),
+      lh('ul', { className: "lid-dl lc-rows", role: "list" }, summary.map(function (r) { return lh('li', { key: r.k }, lh('span', { className: "lc-dt" }, r.k, lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, r.v)); })),
+      lh('p', { className: "lc-desc" }, "It stays on this device. Only public Dreams (Audience Everyone) also go to Rem. ",
+        lh('a', { className: "lc-link", id: "bk-privacy-link", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings_privacy") : "#"), onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("settings_privacy"); } }, "Choose who can see and reach me"), ".")),
     lh('section', { className: "lc-grp", "aria-labelledby": "bk-x-h" },
       lh('h2', { id: "bk-x-h", className: "lc-grp-h", tabIndex: -1 }, "Export my data"),
       lh('p', { className: "lc-desc" }, "A copy of your Dreams, replies, chats, likes, follows, profile and drafts as a JSON file, without your keys."),
@@ -5144,6 +5144,14 @@ function BackupSettings({ navigate, onImported }) {
       lh('input', { id: "bk-file", type: "file", className: "lc-file", accept: ".json,application/json", onChange: onFile })),
     // Nov 9 2026 (Carter approved item 5): the whole-app Reset was here AND in General. Its one home is General, Reset (the last
     // row there), so it's gone from here.
-    msg ? lh('p', { className: "lc-desc lc-grp" }, msg) : null);
+    lh('section', { className: "lc-grp", "aria-labelledby": "bk-del-h" },
+      lh('h2', { id: "bk-del-h", className: "lc-grp-h", tabIndex: -1 }, "Delete my data"),
+      lh('p', { className: "lc-desc", id: "lid-delete-help" }, "Erase your LooscidID, logins, keys, drafts and settings from this device. Looscid then starts fresh with a new LooscidID."),
+      lh('button', { type: "button", id: "lid-delete-data", className: "btn bgb lc-big", onClick: function () { setConfirmDel(true); } }, "Delete local data")),
+    msg ? lh('p', { className: "lc-desc lc-grp" }, msg) : null,
+    confirmDel && lh(AlertDialog, { title: "Delete all Looscid data on this device?",
+      message: "This erases your LooscidID, login methods, any Nostr key saved here, drafts and settings. It can't be undone. Export your data first if you want a copy.",
+      confirmLabel: "Delete", onCancel: function () { setConfirmDel(false); setTimeout(function () { const b = document.getElementById("lid-delete-data"); if (b) b.focus(); }, 0); },
+      onConfirm: function () { setConfirmDel(false); deleteLocalData(); location.reload(); } }));
 }
 })(window.Looscid = window.Looscid || {});
