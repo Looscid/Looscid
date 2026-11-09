@@ -3,6 +3,22 @@
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
 
+## Follows live on Rem now (no new build yet)
+
+Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+
+Asked for by Carter: "nothing on this app should save to device. Everything should depend on Rem."
+
+- Follows go to Rem now, signed with your own key. Before, a follow stayed on your phone, so the person you followed never saw it. Now they do, and so does everyone else.
+- Follower and Following counts come from Rem. They still move the second you press Follow or Unfollow: 10 turns into 11 right away, and it stays 11 when Rem answers. You're never counted twice.
+- If you followed people before today, Looscid moves those follows up to Rem once, the next time your key is unlocked. Nothing to do.
+- Log in on another device and your follows are there. Follow or unfollow on one device and the other one catches up.
+- No connection? You still see the change, and Looscid keeps trying. If it still can't reach Rem after a few tries, it says so, once.
+- Your Followers list on your own profile is everyone on Rem who follows you. Other people's lists show the people whose "Who can see my followers and following" setting says Everyone. Counts are always public.
+- If someone blocks you, your follow on them ends. Deleting your Rem data deletes your follows from Rem too.
+- Rem can show every public reply in a thread now, so replies from other people show up on every device.
+- New Help Center article: Follow Dreamors.
+
 ## Follow counts move right away, a new About Looscid, and profile About like X's (no new build yet)
 
 Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.

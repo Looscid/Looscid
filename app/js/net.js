@@ -184,6 +184,30 @@ async function listsMine() {
   catch (e) { return null; }
 }
 
+/* --- Follows on Rem (Nov 9 2026, Carter: "nothing on this app should save to device. Everything should depend on Rem.") ---
+   Who you follow lives on Rem now, so the person you follow (and everyone else) sees the new count. Writes are signed
+   with your key (kind 21995) and work once; counts are public; the lists follow "Who can see my followers and following".
+   js/remlists.js keeps this device in step. pks: hex public keys (up to 500). who: "everyone" | "followers" | "me". */
+async function followWrite(action, pks, who) {
+  const tags = [["action", action === "unfollow" ? "unfollow" : action === "who" ? "who" : "follow"]];
+  (pks || []).forEach(function (p) { if (isHex64(p)) tags.push(["p", String(p).toLowerCase()]); });
+  if (who) tags.push(["who", String(who)]);
+  try { const ev = await signAction({ kind: 21995, tags: tags.concat([PROTOCOL_TAG]) }); const r = await call("POST", "/follow", ev); return { ok: r.ok, status: r.status, body: r.body, error: r.body && r.body.error }; }
+  catch (e) { return { ok: false, err: e.message }; }
+}
+// Everyone you follow and everyone who follows you, from Rem (a read signed by your key), or null.
+async function followsMine() {
+  try { const ev = await signAction({ kind: 21996, tags: [["action", "read-my-follows"], PROTOCOL_TAG] }); const r = await call("POST", "/follows/mine", ev);
+    return r.ok && Array.isArray(r.body.following) ? r.body : null; }
+  catch (e) { return null; }
+}
+// Anyone's counts ({ followers, following }) or their public lists (kind "followers" | "following"), or null.
+async function followInfo(pk, kind) {
+  if (!isHex64(pk)) return null;
+  try { const r = await call("GET", "/" + (kind === "followers" || kind === "following" ? kind : "follows") + "/" + String(pk).toLowerCase()); return r.ok ? r.body : null; }
+  catch (e) { return null; }
+}
+
 /* --- My data --- */
 async function exportMine() {
   const st = Looscid.lcNostr && Looscid.lcNostr.state ? Looscid.lcNostr.state() : {};
@@ -357,6 +381,6 @@ async function threadReplies(id) {
 function forgetReplies() { exportCache = null; }
 
 Looscid.lcNet = { API: API, threadReplies: threadReplies, forgetReplies: forgetReplies, queued: queued, preview: preview, PROTOCOL_TAG: PROTOCOL_TAG, BRIDGES: BRIDGES, bridges: bridges, bridgeOn: bridgeOn, setBridge: setBridge, markCrossposted: markCrossposted, wasCrossposted: wasCrossposted,
-  ingest: ingest, flush: flush, feed: feed, userDreams: userDreams, listWrite: listWrite, listsMine: listsMine, REPORT_REASONS: REPORT_REASONS, report: report, block: block, unblockHandle: unblockHandle, blockedPk: blockedPk, moderate: moderate, modlog: modlog, moderationFor: moderationFor, moderators: moderators,
+  ingest: ingest, flush: flush, feed: feed, userDreams: userDreams, listWrite: listWrite, listsMine: listsMine, followWrite: followWrite, followsMine: followsMine, followInfo: followInfo, REPORT_REASONS: REPORT_REASONS, report: report, block: block, unblockHandle: unblockHandle, blockedPk: blockedPk, moderate: moderate, modlog: modlog, moderationFor: moderationFor, moderators: moderators,
   exportMine: exportMine, forgetMe: forgetMe, health: health, LcConnectionbase: LcConnectionbase, LcRemStatus: LcRemStatus, LcRemLists: LcRemLists, LcRemData: LcRemData };
 })(window.Looscid = window.Looscid || {});

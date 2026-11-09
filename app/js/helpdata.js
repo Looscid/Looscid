@@ -157,10 +157,28 @@
         "[[More/Settings/Privacy-and-Security/Not-Interested|See the Dreams you marked Not interested]]. You can bring one back with Show again, or press Clear all to start fresh.",
         "## The More button on a profile",
         "On someone's profile, press More. It has Share profile, Copy link, Add to list, Mute and Block. Use them whenever you need to. Your feed, your rules.",
+        "Following someone has its own article: {{follow-people|Follow Dreamors}}.",
         "Changed your mind? Press Close, or Escape on a keyboard, to close a menu without choosing anything.",
       ],
       rel: ["write-a-dream", "reply", "report-center"] },
 
+    // Nov 9 2026 (Carter: "nothing on this app should save to device. Everything should depend on Rem."): follows live on Rem.
+    { id: "follow-people", c: "dreams", t: "Follow Dreamors",
+      s: "Follow someone to see their Dreams in Following. Your follows live on Rem, so the person you follow sees it too.",
+      p: [
+        "Like someone's Dreams? Follow them. Press Follow on their profile, or press More on one of their Dreams and pick Follow. The button turns into Unfollow, so you always know where you stand. Their Dreams show up in your Following feed now.",
+        "## The counts move right away",
+        "Say they have 10 followers. Press Follow and it says 11, right then. Press Unfollow and it's back to 10. Your own Following count moves too. No reload, no waiting.",
+        "## Your follows live on Rem",
+        "Your follows used to stay on your phone, so nobody else ever saw them. Not anymore. Each follow goes to Rem, signed with your own key, so the person you follow gets the real count, and so does everyone else. Log in on another device and your follows are already there.",
+        "If you followed people before this, I moved them up to Rem for you, once, the next time your key was unlocked. You didn't have to do anything.",
+        "No connection? You still see the change. Looscid keeps trying in the background. If it still can't reach Rem after a few tries, it tells you, so nothing gets lost quietly.",
+        "## Who can see who you follow",
+        "Your counts are public, like on any social app. The list of names is up to you. [[More/Settings/Privacy-and-Security/Permissions|Choose who can see my followers and following]]. If you pick Everyone, your name shows up on the lists. Pick anything else, and Rem keeps your name off them. Only you can read your own full list.",
+        "If someone blocks you, your follow on them ends, and you can't follow them again. Blocking works both ways like that.",
+        "Deleting your Rem data deletes your follows from Rem too. {{backup|Back up, download or delete your data}} has the details.",
+      ],
+      rel: ["like-and-redream", "privacy", "rem"] },
     /* ---- Chats, Circles and Cherry ---- */
     { id: "inbox", c: "chats-circles-cherry", t: "Your Inbox and alerts",
       s: "Inbox has your alerts, like replies, mentions and likes, and your private chats.",

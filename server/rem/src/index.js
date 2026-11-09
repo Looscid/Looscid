@@ -52,6 +52,19 @@
 //                        ["target", ref]?, ["label", words]?, ["circle", id]?, content = more info. Last 10 minutes, used once, 20 per key per day.
 //   POST /reports/read   body: a signed kind 21993 event: ["action", "read-my-reports"] -> your reports + messages (MODS: ["scope", "all"]).
 //   POST /reports/reply  body: a signed kind 21994 event: ["e", report id], content = message, ["status", s]? (mods only). Reporter or MODS only.
+// Replies (Nov 9 2026):
+//   GET  /replies/:id?after=&limit=      -> the public replies in one Dream's thread, oldest first (signed events)
+// Follows (Nov 9 2026, Carter: "nothing on this app should save to device. Everything should depend on Rem."; tables
+// follows and follow_prefs, made by the code itself, never touching older tables):
+//   POST /follow   body: a signed kind 21995 event: ["action", "follow" | "unfollow" | "who"], ["p", <pubkey>] x 0-500,
+//                  ["who", "everyone" | "followers" | "me"]? (who may see your lists), last 10 minutes, used once.
+//                  You can't follow yourself, or someone who blocked you. Up to 5000 follows per key.
+//   POST /follows/mine body: a signed kind 21996 event: ["action", "read-my-follows"], used once -> everyone you follow,
+//                  everyone who follows you, and your "who" setting. The only way to read lists that aren't public.
+//   GET  /follows/:pubkey                -> { followers, following } counts for anyone (counts are always public)
+//   GET  /followers/:pubkey?limit=&before= and GET /following/:pubkey?limit=&before= -> the counts plus the people, newest
+//                  first. A follow is listed only when the follower's "who" is "everyone" (no setting yet = not listed);
+//                  "hidden" says how many weren't listed. A /following list is empty unless that person's "who" is "everyone".
 // CORS: only https://looscid.github.io (and the test preview https://looscid-preview.sites.tab.bot) get the allow headers.
 
 import { schnorr } from "@noble/curves/secp256k1";
@@ -76,7 +89,7 @@ const LIMITS = {                 // simple rate limits: [max actions, per this m
   ingest: [30, 600], report: [20, 3600], block: [60, 3600], forget: [5, 3600], moderate: [120, 3600], ip: [200, 600],
   list: [300, 3600], mine: [240, 3600], // Nov 8 2026: your lists (POST /list, POST /mine)
   issues: [20, 3600], issue: [10, 86400], issue_vote: [300, 3600], issue_mod: [200, 3600], // Nov 8 2026: issue tracker (issue = reports per key per day)
-  reports: [30, 3600], reports_read: [240, 3600], reports_reply: [120, 3600], reportday: [20, 86400], preview: [120, 3600], // Nov 8 2026: website previews per IP // Nov 8 2026: Report Center (reportday = reports per key per day)
+  reports: [30, 3600], reports_read: [240, 3600], reports_reply: [120, 3600], reportday: [20, 86400], preview: [120, 3600], follow: [300, 3600], follows_mine: [240, 3600], follows_read: [600, 600], // Nov 9 2026: follows (follows_read = GETs per IP) // Nov 8 2026: website previews per IP // Nov 8 2026: Report Center (reportday = reports per key per day)
 };
 
 /* ---------- small helpers ---------- */
@@ -293,6 +306,108 @@ async function feed(req, env, url) {
   return json(req, { ok: true, algo: newest ? "newest first" : "newest first, small boost for replies/redreams/quotes (max 6h)", dreams: page.map(out), next });
 }
 
+
+/* ---------- replies (Nov 9 2026) ----------
+   GET /replies/:id -> the public replies in one Dream's thread (direct replies, and replies further down that name it as
+   the root), oldest first, as their original signed events, so every device can show them. Hidden, removed and deleted
+   replies are left out. ?after=<seq>&limit= (1-500, 200 by default). Read only, no key needed.
+   D1 caps LIKE patterns at 50 bytes, so the tag check uses instr(). */
+async function repliesOf(req, env, url, id) {
+  const limit = Math.max(1, Math.min(500, parseInt(url.searchParams.get("limit") || "200", 10) || 200));
+  const after = parseInt(url.searchParams.get("after") || "0", 10) || 0;
+  const rows = (await env.DB.prepare(
+    "SELECT e.seq, e.json FROM dreams d JOIN events e ON e.id = d.id " +
+    "WHERE (d.reply_to = ?1 OR instr(d.tags, ?2) > 0) AND d.deleted_at IS NULL AND d.status = 'ok' AND e.seq > ?3 " +
+    "ORDER BY e.seq LIMIT ?4"
+  ).bind(id, '["e","' + id + '"', after, limit).all()).results;
+  return json(req, { ok: true, events: rows.map((r) => JSON.parse(r.json)), next: rows.length === limit ? rows[rows.length - 1].seq : null });
+}
+
+/* ---------- follows (Nov 9 2026) ----------
+   Who follows whom lives here now, not on one phone, so the person you follow (and everyone else) sees the new count.
+   Counts are public. The lists follow each person's own "Who can see my followers and following" setting (who):
+   "everyone" lists them; "followers" and "me" keep them off the public lists (only POST /follows/mine reads them).
+   New tables only (CREATE TABLE IF NOT EXISTS); nothing older is changed. */
+const FOLLOW_MAX = 5000, FOLLOW_WHO = ["everyone", "followers", "me"];
+let followsReady = null;
+function followsTable(env) {
+  if (!followsReady) followsReady = env.DB.batch([
+    env.DB.prepare("CREATE TABLE IF NOT EXISTS follows (follower_id TEXT NOT NULL, followed_id TEXT NOT NULL, created_at INTEGER NOT NULL, PRIMARY KEY (follower_id, followed_id))"),
+    env.DB.prepare("CREATE INDEX IF NOT EXISTS follows_followed ON follows(followed_id, created_at)"),
+    env.DB.prepare("CREATE TABLE IF NOT EXISTS follow_prefs (user_id TEXT PRIMARY KEY, who TEXT NOT NULL, updated_at INTEGER NOT NULL)")
+  ]).catch((e) => { followsReady = null; throw e; });
+  return followsReady;
+}
+async function followCounts(env, pk) {
+  const r = await env.DB.prepare("SELECT (SELECT COUNT(*) FROM follows WHERE followed_id = ?1) AS followers, (SELECT COUNT(*) FROM follows WHERE follower_id = ?1) AS following").bind(pk).first();
+  return { followers: r ? r.followers : 0, following: r ? r.following : 0 };
+}
+async function followWrite(req, env, ev) {
+  if (ev.kind !== 21995 || !fresh(ev)) return json(req, { ok: false, error: 'needs a fresh kind 21995 event with ["action", "follow" | "unfollow" | "who"]' }, 400);
+  const action = (tag(ev, "action") || [])[1];
+  if (!["follow", "unfollow", "who"].includes(action)) return json(req, { ok: false, error: 'action is "follow", "unfollow" or "who"' }, 400);
+  const whoT = (tag(ev, "who") || [])[1];
+  if (whoT != null && !FOLLOW_WHO.includes(whoT)) return json(req, { ok: false, error: 'who is "everyone", "followers" or "me"' }, 400);
+  if (action === "who" && whoT == null) return json(req, { ok: false, error: "no who tag" }, 400);
+  const ps = [...new Set(tagsOf(ev, "p").map((x) => String(x[1] || "").toLowerCase()).filter((x) => isHex(x, 64) && x !== ev.pubkey))];
+  if (action !== "who" && !ps.length) return json(req, { ok: false, error: "no one to follow (p tag, not yourself)" }, 400);
+  if (ps.length > 500) return json(req, { ok: false, error: "up to 500 people at a time" }, 400);
+  if (!await once(env, ev)) return json(req, { ok: false, error: "this signed event was already used" }, 409);
+  await followsTable(env);
+  const t = Date.now(), me = ev.pubkey, q = [];
+  if (whoT != null) q.push(env.DB.prepare("INSERT INTO follow_prefs (user_id, who, updated_at) VALUES (?1, ?2, ?3) ON CONFLICT(user_id) DO UPDATE SET who = ?2, updated_at = ?3").bind(me, whoT, t));
+  let skipped = [];
+  if (action === "unfollow") for (const p of ps) q.push(env.DB.prepare("DELETE FROM follows WHERE follower_id = ?1 AND followed_id = ?2").bind(me, p));
+  if (action === "follow") {
+    const have = await env.DB.prepare("SELECT COUNT(*) AS n FROM follows WHERE follower_id = ?1").bind(me).first();
+    if ((have ? have.n : 0) + ps.length > FOLLOW_MAX) return json(req, { ok: false, error: "that's more than 5000 follows" }, 400);
+    const blockedBy = new Set();
+    for (let i = 0; i < ps.length; i += 90) {
+      const part = ps.slice(i, i + 90);
+      const rows = (await env.DB.prepare("SELECT blocker_id FROM blocks WHERE blocked_id = ?1 AND blocker_id IN (" + part.map((_, j) => "?" + (j + 2)).join(", ") + ")").bind(me, ...part).all()).results;
+      rows.forEach((r) => blockedBy.add(r.blocker_id));
+    }
+    skipped = ps.filter((p) => blockedBy.has(p));
+    for (const p of ps) if (!blockedBy.has(p)) q.push(env.DB.prepare("INSERT INTO follows (follower_id, followed_id, created_at) VALUES (?1, ?2, ?3) ON CONFLICT DO NOTHING").bind(me, p, t));
+  }
+  if (q.length) await env.DB.batch(q);
+  const out = { ok: true, action, following: (await followCounts(env, me)).following };
+  if (ps.length === 1) out.them = Object.assign({ pubkey: ps[0] }, await followCounts(env, ps[0]));
+  if (skipped.length) out.skipped = skipped;
+  if (whoT != null) out.who = whoT;
+  if (skipped.length && skipped.length === ps.length) { out.ok = false; out.error = "you can't follow someone who blocked you"; return json(req, out, 403); }
+  return json(req, out);
+}
+async function followsMine(req, env, ev) {
+  if (ev.kind !== 21996 || !fresh(ev) || (tag(ev, "action") || [])[1] !== "read-my-follows") return json(req, { ok: false, error: 'needs a fresh kind 21996 event with ["action", "read-my-follows"]' }, 400);
+  if (!await once(env, ev)) return json(req, { ok: false, error: "this signed event was already used" }, 409);
+  await followsTable(env);
+  const me = ev.pubkey;
+  const following = (await env.DB.prepare("SELECT followed_id AS pk, created_at AS at FROM follows WHERE follower_id = ?1 ORDER BY created_at DESC LIMIT 5000").bind(me).all()).results;
+  const followers = (await env.DB.prepare("SELECT follower_id AS pk, created_at AS at FROM follows WHERE followed_id = ?1 ORDER BY created_at DESC LIMIT 5000").bind(me).all()).results;
+  const pref = await env.DB.prepare("SELECT who FROM follow_prefs WHERE user_id = ?1").bind(me).first();
+  return json(req, { ok: true, pubkey: me, who: pref ? pref.who : null, following, followers });
+}
+async function followsRead(req, env, url, which, pk) {
+  if (!isHex(pk, 64)) return json(req, { ok: false, error: "use the 64-character hex public key" }, 400);
+  if (!await allowed(env, "follows_read:" + await ipKey(req), LIMITS.follows_read)) return json(req, { ok: false, error: "slow down" }, 429);
+  await followsTable(env);
+  const counts = await followCounts(env, pk);
+  if (which === "counts") return json(req, Object.assign({ ok: true, pubkey: pk }, counts));
+  const limit = Math.max(1, Math.min(200, parseInt(url.searchParams.get("limit") || "100", 10) || 100));
+  const before = parseInt(url.searchParams.get("before") || "", 10), b = Number.isFinite(before) ? before : 9e15;
+  let rows = [], total = which === "followers" ? counts.followers : counts.following, open = true;
+  if (which === "followers") {
+    rows = (await env.DB.prepare("SELECT f.follower_id AS pk, f.created_at AS at FROM follows f JOIN follow_prefs p ON p.user_id = f.follower_id AND p.who = 'everyone' WHERE f.followed_id = ?1 AND f.created_at < ?2 ORDER BY f.created_at DESC LIMIT ?3").bind(pk, b, limit).all()).results;
+    const shown = await env.DB.prepare("SELECT COUNT(*) AS n FROM follows f JOIN follow_prefs p ON p.user_id = f.follower_id AND p.who = 'everyone' WHERE f.followed_id = ?1").bind(pk).first();
+    return json(req, Object.assign({ ok: true, pubkey: pk }, counts, { people: rows, hidden: Math.max(0, total - (shown ? shown.n : 0)), next: rows.length === limit ? rows[rows.length - 1].at : null }));
+  }
+  const pref = await env.DB.prepare("SELECT who FROM follow_prefs WHERE user_id = ?1").bind(pk).first();
+  open = !!pref && pref.who === "everyone";
+  if (open) rows = (await env.DB.prepare("SELECT followed_id AS pk, created_at AS at FROM follows WHERE follower_id = ?1 AND created_at < ?2 ORDER BY created_at DESC LIMIT ?3").bind(pk, b, limit).all()).results;
+  return json(req, Object.assign({ ok: true, pubkey: pk }, counts, { people: rows, hidden: open ? 0 : total, next: rows.length === limit ? rows[rows.length - 1].at : null }));
+}
+
 async function userDreams(req, env, url, pk) {
   if (!isHex(pk, 64)) return json(req, { ok: false, error: "use the 64-character hex public key" }, 400);
   const limit = Math.max(1, Math.min(100, parseInt(url.searchParams.get("limit") || "50", 10) || 50));
@@ -365,7 +480,11 @@ async function block(req, env, ev) {
   if (!p || p[1] === ev.pubkey) return json(req, { ok: false, error: "no person to block (p tag)" }, 400);
   const action = (tag(ev, "action") || [])[1] === "unblock" ? "unblock" : "block";
   if (action === "unblock") await env.DB.prepare("DELETE FROM blocks WHERE blocker_id = ?1 AND blocked_id = ?2").bind(ev.pubkey, p[1]).run();
-  else await env.DB.prepare("INSERT INTO blocks (blocker_id, blocked_id, created_at) VALUES (?1, ?2, ?3) ON CONFLICT DO NOTHING").bind(ev.pubkey, p[1], Date.now()).run();
+  else {
+    await env.DB.prepare("INSERT INTO blocks (blocker_id, blocked_id, created_at) VALUES (?1, ?2, ?3) ON CONFLICT DO NOTHING").bind(ev.pubkey, p[1], Date.now()).run();
+    await followsTable(env); // Nov 9 2026: a block ends the follow both ways
+    await env.DB.prepare("DELETE FROM follows WHERE (follower_id = ?1 AND followed_id = ?2) OR (follower_id = ?2 AND followed_id = ?1)").bind(ev.pubkey, p[1]).run();
+  }
   return json(req, { ok: true, [action === "block" ? "blocked" : "unblocked"]: p[1] });
 }
 
@@ -377,7 +496,9 @@ async function forget(req, env, ev) {
   await listsTable(env);
   await issuesTable(env);
   await reportsTable(env);
+  await followsTable(env); // Nov 9 2026: follows go too, both ways, and the follow setting
   await env.DB.batch([
+    B("DELETE FROM follows WHERE follower_id = ?1"), B("DELETE FROM follows WHERE followed_id = ?1"), B("DELETE FROM follow_prefs WHERE user_id = ?1"),
     B("DELETE FROM pins WHERE user_id = ?1"), B("DELETE FROM alerts WHERE user_id = ?1"),
     B("DELETE FROM reposts WHERE user_id = ?1"), B("DELETE FROM reports WHERE reporter_id = ?1"),
     B("DELETE FROM blocks WHERE blocker_id = ?1"), B("DELETE FROM events WHERE pubkey = ?1"),
@@ -868,6 +989,10 @@ export default {
         if (path === "/issues") return await issuesList(req, env, url);
         const im = path.match(/^\/issues\/([0-9a-f]{64})$/i);
         if (im) return await issueOne(req, env, im[1].toLowerCase());
+        const rp = path.match(/^\/replies\/([0-9a-f]{64})$/i);
+        if (rp) return await repliesOf(req, env, url, rp[1].toLowerCase());
+        const fm = path.match(/^\/(follows|followers|following)\/([0-9a-f]{64})$/i);
+        if (fm) return await followsRead(req, env, url, fm[1] === "follows" ? "counts" : fm[1], fm[2].toLowerCase());
         const mm = path.match(/^\/moderation\/([0-9a-f]{64})$/i);
         if (mm) return await moderationOf(req, env, mm[1].toLowerCase());
         const m = path.match(/^\/dreams\/([^/]+)$/);
@@ -876,11 +1001,11 @@ export default {
       }
       if (req.method === "POST" && ["/issues", "/issues/vote", "/issues/moderate"].includes(path)) return await issueRoute(req, env, path);
       if (req.method === "POST" && ["/reports", "/reports/read", "/reports/reply"].includes(path)) return await reportsRoute(req, env, path);
-      if (req.method === "POST" && ["/ingest", "/report", "/block", "/forget", "/moderate", "/list", "/mine"].includes(path)) {
+      if (req.method === "POST" && ["/ingest", "/report", "/block", "/forget", "/moderate", "/list", "/mine", "/follow", "/follows/mine"].includes(path)) {
         if (!(await allowed(env, await ipKey(req), LIMITS.ip))) return json(req, { ok: false, error: "slow down" }, 429);
         const { ev, error } = await readEvent(req);
         if (error) return json(req, { ok: false, error }, error === "too big" ? 413 : 400);
-        const kind = path.slice(1);
+        const kind = path === "/follows/mine" ? "follows_mine" : path.slice(1);
         if (ev._v0 && path !== "/ingest") return json(req, { ok: false, error: "reports, blocks and delete-my-data need a fresh Rem v1 event" }, 400);
         if (!(await allowed(env, kind + ":" + ev.pubkey, LIMITS[kind]))) return json(req, { ok: false, error: "slow down" }, 429);
         if (path === "/ingest") { const r = await ingest(env, ev); return json(req, r, r.ok ? 200 : 400); }
@@ -889,6 +1014,8 @@ export default {
         if (path === "/moderate") return await moderate(req, env, ev);
         if (path === "/list") return await listWrite(req, env, ev);
         if (path === "/mine") return await listsMine(req, env, ev);
+        if (path === "/follow") return await followWrite(req, env, ev);
+        if (path === "/follows/mine") return await followsMine(req, env, ev);
         return await block(req, env, ev);
       }
       return json(req, { ok: false, error: req.method === "GET" || req.method === "POST" ? "not found" : "method not allowed" }, req.method === "GET" || req.method === "POST" ? 404 : 405);

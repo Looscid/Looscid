@@ -6459,12 +6459,26 @@ function lcFollowNoteTap(user, wasFollowing) {
 }
 function lcFollowerCount(user) {
   if (!user) return 0;
-  const base = lcFollowBase(user), now = Looscid.LC_FOLLOWING_NOW ? lcFollowingHas(user.id) : false;
+  const now = Looscid.LC_FOLLOWING_NOW ? lcFollowingHas(user.id) : false;
+  // Nov 9 2026: follows live on Rem (js/remlists.js). Rem's count says whether you were in it, so: Rem's count, plus you
+  // if you follow them now, minus you if Rem already had you. A Nostr-only person keeps the count Nostr gave.
+  const rc = lcRemCountFor(user);
+  if (rc) return Math.max(0, rc.followers + (now ? 1 : 0) - (rc.mine ? 1 : 0));
+  const base = lcFollowBase(user);
   if (user.you && typeof user.you.following === "boolean") return Math.max(0, base + (now ? 1 : 0) - (user.you.following ? 1 : 0));
   const e = lcFollowBases()[lcFollowKey(user.id)];
   if (!e || e.b !== base) return base;
   return Math.max(0, base + (now ? 1 : 0) - (e.w ? 1 : 0));
 }
+function lcRemCountFor(user) {
+  const RF = Looscid.lcRemFollows; if (!RF || !user || user.id === 0) return null;
+  if (user.net !== "looscid" && lcFollowBase(user) > 0) return null;
+  return RF.count(user);
+}
+// Their Following count: Rem's when it has one.
+function lcTheirFollowingCount(user) { const rc = lcRemCountFor(user); return rc ? rc.following : (user && user.following) || 0; }
+// Your own Followers: Rem's count when your key is on Rem, else the Dreamors on this device who follow you.
+function lcMyFollowerCount() { const RF = Looscid.lcRemFollows, n = RF ? RF.myFollowers() : null; return typeof n === "number" ? n : USERS.filter(function (u) { return u.followsYou; }).length; }
 // Who you follow, as people: Dreamors on this device, plus a small note (name and @handle) for anyone you followed from
 // Rem or Nostr, so your own Following list matches your Following count.
 const LC_FOL_PEOPLE_KEY = "looscid_following_people";
@@ -6504,7 +6518,7 @@ function lcFollowingCount() { const seen = new Set(); (Looscid.LC_FOLLOWING_NOW 
 function lcFollowToggle(user) { const c = Looscid.LC_CHERRY_CTX; if (c && c.followUser && user && user.id != null) c.followUser(user.id, user); }
 // Re-draws a component whenever anyone follows or unfollows anyone, so its label and counts are never stale.
 function useFollowTick() { const st = useState(0); useEffect(function () { const f = function () { st[1](function (n) { return n + 1; }); }; window.addEventListener("looscid:follow", f); return function () { window.removeEventListener("looscid:follow", f); }; }, []); return st[0]; }
-Object.assign(Looscid, { lcNameSeen, lcNameChanges, lcFollowingHas, lcFollowingPeople, lcFollowAliases, lcFollowerCount, lcFollowingCount, lcFollowToggle, useFollowTick });
+Object.assign(Looscid, { lcTheirFollowingCount, lcMyFollowerCount, lcNameSeen, lcNameChanges, lcFollowingHas, lcFollowingPeople, lcFollowAliases, lcFollowerCount, lcFollowingCount, lcFollowToggle, useFollowTick });
 // Is this person inside the audience? user = a USERS entry (or null for Looscid itself).
 function lcAudienceOk(who, user, key) {
   if (!user) return who !== "nobody";
@@ -8756,6 +8770,9 @@ useEffect(() => {
   // Oct 31 2026: who you follow is kept on this device (looscid_following). It lived only in memory, so every follow was
   // gone after a reload or on the next visit.
   const [appFollowing, setAppFollowing] = useState(function () { const v = lcJsonLs("looscid_following", null); return new Set(Array.isArray(v) ? v : (LC_FIX.following || [])); }); // IDs we follow
+  // Nov 9 2026: follows live on Rem now (js/remlists.js). This device's list is a cache; when Rem brings a follow or
+  // unfollow from another device, the cache changes and this picks it up.
+  useEffect(function () { const f = function () { const v = lcJsonLs("looscid_following", []); setAppFollowing(new Set(Array.isArray(v) ? v : [])); }; window.addEventListener("looscid-following-synced", f); return function () { window.removeEventListener("looscid-following-synced", f); }; }, []);
   useEffect(function () { try { localStorage.setItem("looscid_following", JSON.stringify(Array.from(appFollowing))); } catch (e) {} try { window.dispatchEvent(new CustomEvent("looscid:follow")); } catch (e) {} }, [appFollowing]); // Nov 9 2026: every Follow button and count hears it
   const [appGroups, setAppGroups] = useState(GROUPS);                                     // joined state
   const [appNotifs, setAppNotifs] = useState(NOTIFS_INIT);

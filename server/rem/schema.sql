@@ -40,3 +40,8 @@ CREATE INDEX IF NOT EXISTS report_threads_status ON report_threads(status, updat
 CREATE TABLE IF NOT EXISTS report_messages (id TEXT PRIMARY KEY, report_id TEXT NOT NULL, from_mod INTEGER NOT NULL, author_id TEXT NOT NULL, status TEXT, text TEXT NOT NULL, created_at INTEGER NOT NULL);
 CREATE INDEX IF NOT EXISTS report_messages_report ON report_messages(report_id, created_at);
 CREATE INDEX IF NOT EXISTS report_messages_author ON report_messages(author_id);
+-- Nov 9 2026: follows (POST /follow, POST /follows/mine, GET /follows/:pk, /followers/:pk, /following/:pk). New tables only.
+-- follow_prefs.who is the person's "Who can see my followers and following" (everyone | followers | me). The code also makes these itself.
+CREATE TABLE IF NOT EXISTS follows (follower_id TEXT NOT NULL, followed_id TEXT NOT NULL, created_at INTEGER NOT NULL, PRIMARY KEY (follower_id, followed_id));
+CREATE INDEX IF NOT EXISTS follows_followed ON follows(followed_id, created_at);
+CREATE TABLE IF NOT EXISTS follow_prefs (user_id TEXT PRIMARY KEY, who TEXT NOT NULL, updated_at INTEGER NOT NULL);

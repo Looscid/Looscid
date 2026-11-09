@@ -74,6 +74,8 @@ already on Nostr can be imported. `created_at` is in seconds.
 | 21992 | a private report for the Report Center (stored as a report thread, not exported) | `["type", "dream", "profile", "circle" or "child"]`, `["reason", "spam", "mean", "unsafe", "child_safety" or "other"]` (`child` is always `child_safety`), `["target", <Dream id, person's key or handle, or Circle id>]` (not needed for `child`), `["label", <what it is, in words>]` (optional), `["circle", <Circle id>]` (optional); `content` is more info (up to 2000 characters) |
 | 21993 | read your own reports back (not stored) | `["action", "read-my-reports"]`; a Looscid mod adds `["scope", "all"]` (and `["status", <status>]`, optional) to read every report |
 | 21994 | a message on a report thread (not exported) | `["e", <report id>]`; `content` is the message (up to 2000 characters); a Looscid mod may add `["status", "new", "looking", "done" or "closed"]` and `["as", "mod"]` |
+| 21995 | follow, unfollow, or set who sees your follow lists (not exported) | `["action", "follow" \| "unfollow" \| "who"]`, `["p", <pubkey>]` (0 to 500), `["who", "everyone" \| "followers" \| "me"]` optional |
+| 21996 | read your follows back (not stored) | `["action", "read-my-follows"]` |
 
 Reports, blocks and "delete my data" must be Rem v1 events signed within the last 10 minutes, so an old one can't be
 replayed. A Dream id is its event id (or its v0 object id), so ids can't clash between people or versions.
@@ -142,6 +144,18 @@ the server's own log).
 **The feed algorithm, in plain words:** newest first, plus a small boost for conversation. Each reply counts as if
 the Dream were 20 minutes newer, each ReDream or Quote as if 40 minutes newer, with at most 6 hours of boost. Hidden,
 deleted and blocked Dreams are left out. It only looks at the last 30 days.
+
+### Follows (Nov 9 2026)
+
+- `POST /follow` a kind 21995 event, signed in the last 10 minutes, used once. Follows or unfollows up to 500 people at a time. You can't follow yourself or someone who blocked you (they come back in `skipped`). Up to 5000 follows per key. Answers `{ ok, action, following }`, and `them: { pubkey, followers, following }` when it was one person.
+- `POST /follows/mine` a kind 21996 event, signed in the last 10 minutes, used once. Answers `{ who, following: [{ pk, at }], followers: [{ pk, at }] }`. It's the only way to read lists that aren't public.
+- `GET /follows/:pubkey` → `{ followers, following }`. Counts are always public.
+- `GET /followers/:pubkey?limit=&before=` and `GET /following/:pubkey?limit=&before=` → the counts plus `people: [{ pk, at }]`, newest first, and `hidden` (how many aren't listed). A follow is listed only when the follower's `who` is `everyone`; a key that never set `who` isn't listed.
+- A block ends the follow both ways. `POST /forget` deletes your follows, your followers' follows of you, and your `who`.
+
+### Replies (Nov 9 2026)
+
+- `GET /replies/:id?after=&limit=` → the public replies in one Dream's thread (direct replies, and replies further down that name it as the root), oldest first, as their original signed events. Hidden, removed and deleted replies are left out.
 
 ## 5. Running your own Rem server
 

@@ -227,6 +227,7 @@ function lcCopy(text, what) {
 function lcDreamHasMedia(d) { return !!(d && ((Array.isArray(d.media) && d.media.length) || (Array.isArray(d.images) && d.images.length) || /\.(jpe?g|png|gif|webp|avif|mp4|mov)(\?|#|\s|$)/i.test(String(d.text || "")))); }
 // The Following / Followers page Feditext opens from its count buttons.
 function ProfilePeoplePage({ kind, user, isMe, people, onBack, navigate, followingSet }) {
+  Looscid.useFollowTick(); // Nov 9 2026: the list from Rem joins when it arrives
   const head = useRef(null);
   useEffect(function () { if (head.current) head.current.focus(); }, []);
   const title = kind === "following" ? "Following" : "Followers";
@@ -415,6 +416,7 @@ function ListView({ list, navigate, cherryCtx }) {
         : lh('p', { className: "lc-muted" }, "None yet.")));
 }
 function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUser, preview, onExitPreview, dpRoute }) {
+  Looscid.useFollowTick(); // Nov 9 2026: a count from Rem draws the new number (js/remlists.js)
   // Round 13: Back from a Circle opened in this profile's Circles tab reopens that tab and filter, so focus returns to its row.
   const restore = useRef(null);
   const [tab, setTab] = useState(function () { const r = Looscid.LC_PROF_RESTORE;
@@ -580,8 +582,12 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
     onExitPreview: function () { setViewAs(false); announce("Back to your profile."); setTimeout(function () { const b = document.getElementById("pf-more-btn"); if (b) b.focus(); }, 30); } });
   if (people) {
     const fol = people === "following";
-    const list = self ? (fol ? Looscid.lcFollowingPeople() : USERS.filter(function (u) { return u.followsYou; }))
-      : (fol ? (Array.isArray(user.followingList) ? user.followingList : null) : (Array.isArray(user.followersList) ? user.followersList : null));
+    // Nov 9 2026: lists come from Rem too. Your own Followers is everyone on Rem who follows you; someone else's lists
+    // are the people Rem shows (only people whose setting says Everyone).
+    const RF = Looscid.lcRemFollows;
+    const remMine = self && !fol && RF ? RF.myFollowerPeople() : null;
+    const list = self ? (fol ? Looscid.lcFollowingPeople() : (remMine || USERS.filter(function (u) { return u.followsYou; })))
+      : (fol ? (Array.isArray(user.followingList) ? user.followingList : RF ? RF.people(user, "following") : null) : (Array.isArray(user.followersList) ? user.followersList : RF ? RF.people(user, "followers") : null));
     return lh(ProfilePeoplePage, { kind: people, user: user, isMe: self, people: list, navigate: navigate, followingSet: cherryCtx && cherryCtx.following,
       onBack: function () { const k = people; setPeople(null); setTimeout(function () { const b = document.getElementById("pf-count-" + k); if (b) b.focus(); }, 0); } });
   }
@@ -735,8 +741,9 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const card = function (d, ctx) { return lh(DreamCard, { key: d.id, dream: d, replyCtx: ctx || null, onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onComment: function (x) { setActiveComment(x); }, navigate: navigate, cherryCtx: cherryCtx }); };
   const empty = function (title, sub) { return lh('div', { className: "es" }, lh('p', { className: "esl" }, title), sub ? lh('p', { className: "lc-muted", style: { textAlign: "center", marginTop: 6 } }, sub) : null); };
   // Nov 9 2026 (Carter, 5:43 PM): counts change the moment you press Follow or Unfollow (core.js lcFollowerCount).
-  const nFollowing = self ? Looscid.lcFollowingCount() : (user.following || 0);
-  const nFollowers = self ? USERS.filter(function (u) { return u.followsYou; }).length : Looscid.lcFollowerCount(user);
+  // Nov 9 2026: the counts come from Rem (js/remlists.js), and still move the moment you press.
+  const nFollowing = self ? Looscid.lcFollowingCount() : Looscid.lcTheirFollowingCount(user);
+  const nFollowers = self ? Looscid.lcMyFollowerCount() : Looscid.lcFollowerCount(user);
   // Build 150 (#53): your own Joined is the exact moment your LooscidID was made. Older profiles only kept "October 2026",
   // so the moment comes from the "LooscidID created" activity line, or from the time stamped into the LooscidID's own id.
   const joined = lcJoinedText(self ? lcOwnCreatedAt(lp) : (user.createdAt || user.joined || ""));

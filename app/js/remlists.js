@@ -137,11 +137,149 @@ document.addEventListener("visibilitychange", function () { if (document.visibil
 setInterval(function () { if (document.visibilityState === "visible") { if (Date.now() - lastPull > 120000) sync(true); else sync(false); } }, 15000);
 // First sync as soon as your key is ready (it can load a moment after the app).
 let tries = 0; (function start() { if (ready()) { sync(true); return; } if (++tries < 40) setTimeout(start, 3000); })();
+/* --- Follows on Rem (Nov 9 2026) ---
+   Carter: "nothing on this app should save to device. Everything should depend on Rem." Who you follow lives on Rem now
+   (js/net.js followWrite / followsMine / followInfo), so the person you follow and everyone else sees the new count.
+   - Press Follow: the button and the counts change right away, from this device's copy (looscid_following, now only a
+     cache). Then the follow goes to Rem, signed with your key. If Rem can't be reached, it's tried again (3, 10 and 30
+     seconds, then every 15 seconds). After 3 misses in a row, Looscid says so once: "I couldn't save your follows on Rem yet."
+   - The first sync with your key (it runs the next time your key is unlocked) moves follows that were only on this
+     device up to Rem, once. After that, Rem is the truth: a follow or unfollow from another device shows up here too.
+   - Counts come from Rem. Rem's count either has you in it or not, and this device knows which (what Rem had for you
+     when the count came), so the count is never off by one and you're never counted twice: 10 -> 11 the moment you
+     press Follow, and 11 stays 11 when Rem answers.
+   - Your "Who can see my followers and following" setting goes with each follow, so Rem only lists you when it says Everyone.
+   - Only people with a LooscidID or Nostr key can be followed on Rem. No key (guest mode), a locked key or a signer
+     extension: follows stay on this device until a key is ready.
+   Stored on this device: looscid_rem_follows { pk, snap: [hex keys Rem had at the last sync], who }. */
+const FOL_KEY = "looscid_rem_follows", FOLLOW_LS = "looscid_following", WHO_OK = ["everyone", "followers", "me"];
+const B32 = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
+// An npub (bech32, NIP-19) as its hex key, or "".
+function npubHex(s) {
+  s = String(s || "").toLowerCase(); if (s.indexOf("npub1") !== 0) return "";
+  const d = []; for (const ch of s.slice(5)) { const v = B32.indexOf(ch); if (v < 0) return ""; d.push(v); }
+  const w = d.slice(0, -6); let acc = 0, bits = 0; const out = [];
+  for (const v of w) { acc = (acc << 5) | v; bits += 5; while (bits >= 8) { bits -= 8; out.push((acc >> bits) & 255); } acc &= (1 << bits) - 1; }
+  return out.length === 32 ? out.map(function (b) { return (b < 16 ? "0" : "") + b.toString(16); }).join("") : "";
+}
+// A follow id ("npub:<hex>", "nostr:<hex>", "nostr:npub1...") or a person as a hex key, or "" (not on Rem).
+function folHex(x) {
+  if (x && typeof x === "object") { if (isHex64(x.pk)) return String(x.pk).toLowerCase(); x = x.id; }
+  const s = String(x == null ? "" : x), m = /^(?:npub|nostr):(.+)$/.exec(s), v = m ? m[1] : "";
+  return isHex64(v) ? v.toLowerCase() : npubHex(v);
+}
+function folLocal() { const a = lsJson(FOLLOW_LS, []), m = new Map(); (Array.isArray(a) ? a : []).forEach(function (id) { const h = folHex(id); if (h && !m.has(h)) m.set(h, id); }); return m; }
+function folCfg(pk) { const c = lsJson(FOL_KEY, null); return c && typeof c === "object" && c.pk === pk ? c : { pk: pk, snap: null }; }
+function whoNow() { const w = (Looscid.A11Y_NOW || {}).whoLists; return WHO_OK.indexOf(w) >= 0 ? w : "everyone"; }
+const CNT = new Map(), PEOPLE = new Map(), WANT = new Map(), PENDING = new Set(), GEN = new Map();
+let mine = null; // { followers: [{ pk, at }], following: [...] } from the last signed read
+function tick() { try { window.dispatchEvent(new CustomEvent("looscid:follow", { detail: { rem: true } })); } catch (e) {} }
+function confirmedHas(h) { const s = st(); if (!isHex64(s.pubkey)) return false; const c = folCfg(String(s.pubkey).toLowerCase()); return Array.isArray(c.snap) && c.snap.indexOf(h) >= 0; }
+function setCount(h, b) { if (!b || typeof b.followers !== "number") return; CNT.set(h, { followers: b.followers, following: b.following || 0, mine: confirmedHas(h), at: Date.now() }); }
+let fBusy = false, fAgain = false, fFails = 0, fTold = false, fTmr = null;
+async function folSend(action, list, who, me) {
+  const done = [], skipped = [];
+  for (let i = 0; i < list.length; i += 500) {
+    const part = list.slice(i, i + 500); part.forEach(function (h) { PENDING.add(h); GEN.set(h, (GEN.get(h) || 0) + 1); });
+    const r = await Looscid.lcNet.followWrite(action, part, who);
+    if (!r.ok && !(r.status === 403 && r.body && r.body.skipped)) return { ok: false, done: done, skipped: skipped };
+    const skip = new Set((r.body && r.body.skipped) || []);
+    if (r.body && r.body.them) { setCount(r.body.them.pubkey, r.body.them); const e = CNT.get(r.body.them.pubkey); if (e) e.mine = action === "follow" && !skip.has(r.body.them.pubkey); }
+    if (me && r.body && typeof r.body.following === "number") { const e = CNT.get(me); if (e) e.following = r.body.following; }
+    part.forEach(function (h) { if (skip.has(h)) skipped.push(h); else done.push(h); });
+  }
+  return { ok: true, done: done, skipped: skipped };
+}
+async function folSync(pull) {
+  if (!ready() || !Looscid.lcNet.followWrite) return;
+  if (fBusy) { fAgain = fAgain || (pull ? "pull" : "push"); return; }
+  fBusy = true; let ok = true, dirty = false;
+  try {
+    const me = st().pubkey.toLowerCase(), c = folCfg(me), first = !Array.isArray(c.snap), who = whoNow();
+    if (c.paused) return; // after "Delete my Rem data": follows stay on this device until "Sync my lists again"
+    const snap0 = new Set(first ? [] : c.snap), loc0 = folLocal();
+    dirty = c.who !== who && !first; loc0.forEach(function (id, h) { if (!snap0.has(h)) dirty = true; }); snap0.forEach(function (h) { if (!loc0.has(h)) dirty = true; });
+    let srv = null;
+    if (pull || first) { srv = await Looscid.lcNet.followsMine(); if (!srv) { ok = false; return; } mine = { followers: srv.followers || [], following: srv.following || [] };
+      CNT.set(me, { followers: mine.followers.length, following: mine.following.length, mine: false, at: Date.now() }); }
+    // Rem suddenly has none of your follows while this device remembers some: your Rem data was probably deleted from
+    // another device. Keep them here and stop syncing follows here, the same as your lists.
+    if (srv && !first && !(srv.following || []).length && c.snap.length) { lsSet(FOL_KEY, { pk: me, snap: null, paused: true }); return; }
+    const before = new Set(first ? [] : c.snap), loc = folLocal();
+    const have = srv ? new Set((srv.following || []).map(function (x) { return x.pk; })) : new Set(before);
+    const add = [], del = [];
+    loc.forEach(function (id, h) { if (h !== me && !before.has(h) && !have.has(h)) add.push(h); }); // first sync: everything only on this device goes up, once
+    before.forEach(function (h) { if (!loc.has(h) && have.has(h)) del.push(h); });
+    let sentWho = c.who || null, blockedMe = [];
+    if (add.length) { const r = await folSend("follow", add, who, me); if (r.ok) { r.done.forEach(function (h) { have.add(h); }); blockedMe = r.skipped || []; sentWho = who; } else ok = false; }
+    if (del.length && ok) { const r = await folSend("unfollow", del, who, me); if (r.ok) { r.done.forEach(function (h) { have.delete(h); }); sentWho = who; } else ok = false; }
+    if (ok && sentWho !== who) { const r = await Looscid.lcNet.followWrite("who", [], who); if (r.ok) sentWho = who; else ok = false; }
+    // What changed on your other devices (on the first sync: everything Rem has that this device doesn't).
+    const gain = [], lose = new Set(blockedMe);
+    have.forEach(function (h) { if (!loc.has(h) && !before.has(h)) gain.push(h); });
+    before.forEach(function (h) { if (loc.has(h) && !have.has(h) && del.indexOf(h) < 0) lose.add(h); });
+    lsSet(FOL_KEY, { pk: me, snap: Array.from(have), who: sentWho, at: Date.now() });
+    if (gain.length || lose.size) {
+      let arr = lsJson(FOLLOW_LS, []); if (!Array.isArray(arr)) arr = [];
+      const now = new Set(arr.map(folHex).filter(Boolean));
+      arr = arr.filter(function (id) { const h = folHex(id); return !h || !lose.has(h); });
+      gain.forEach(function (h) { if (!now.has(h)) arr.push("npub:" + h); });
+      lsSet(FOLLOW_LS, arr);
+      try { window.dispatchEvent(new CustomEvent("looscid-following-synced")); } catch (e) {}
+    }
+    add.concat(del).forEach(function (h) { PENDING.delete(h); });
+  } catch (e) { ok = false; }
+  finally {
+    fBusy = false; PENDING.clear();
+    if (ok) { fTold = false; fFails = 0; tick(); }
+    else if (ready() && dirty) { fFails++;
+      if (fFails >= 3 && !fTold) { fTold = true; try { (Looscid.announce || function () {})("I couldn't save your follows on Rem yet. Looscid will keep trying."); } catch (e) {} }
+      if (fFails <= 3) { clearTimeout(fTmr); fTmr = setTimeout(function () { folSync(false); }, [3000, 10000, 30000][fFails - 1]); } }
+    if (fAgain) { const p = fAgain === "pull"; fAgain = false; setTimeout(function () { folSync(p); }, 400); }
+  }
+}
+let folT = null;
+window.addEventListener("looscid:follow", function (e) { if (e && e.detail && e.detail.rem) return; clearTimeout(folT); folT = setTimeout(function () { folSync(false); }, 300); });
+window.addEventListener("online", function () { folSync(true); });
+document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") folSync(true); });
+setInterval(function () { if (document.visibilityState === "visible") folSync(Date.now() % 120000 < 15000); }, 15000);
+let fTries = 0; (function folStart() { if (ready()) { folSync(true); return; } if (++fTries < 40) setTimeout(folStart, 3000); })();
+// Counts and lists from Rem, fetched in the background (at most once a minute per person). A count that comes back
+// while a follow of theirs is on its way is thrown away and asked for again after, so it can't count you twice.
+function want(h, kind) {
+  const k = kind + ":" + h, last = WANT.get(k) || 0; if (Date.now() - last < 60000) return; WANT.set(k, Date.now());
+  const g = GEN.get(h) || 0;
+  Looscid.lcNet.followInfo(h, kind === "counts" ? null : kind).then(function (b) {
+    if (!b) { WANT.delete(k); return; }
+    if (PENDING.has(h) || (GEN.get(h) || 0) !== g) { WANT.delete(k); return; }
+    setCount(h, b);
+    if (kind !== "counts") PEOPLE.set(k, { people: (b.people || []).map(function (x) { return x.pk; }), hidden: b.hidden || 0 });
+    tick();
+  });
+}
+function person(h) {
+  const U = Looscid.USERS || [], u = U.find(function (x) { return folHex(x) === h; }); if (u) return u;
+  let np = ""; try { np = Looscid.lcNpub ? Looscid.lcNpub(h) : ""; } catch (e) {}
+  const short = String(np || h).slice(0, 14), name = Looscid.lcNostrName ? Looscid.lcNostrName(h, np) : "";
+  return { id: "npub:" + h, pk: h, npub: np || undefined, name: name || short, handle: "@" + short, net: "looscid" };
+}
+Looscid.lcRemFollows = {
+  hex: folHex,
+  sync: function () { return folSync(true); },
+  // { followers, following, mine } for a person, or null (not on Rem, or no count yet).
+  count: function (user) { const h = folHex(user); if (!h || !Looscid.lcNet || !Looscid.lcNet.followInfo) return null; want(h, "counts"); return CNT.get(h) || null; },
+  // Your own followers count on Rem, or null.
+  myFollowers: function () { const s = st(); if (!isHex64(s.pubkey)) return null; const h = String(s.pubkey).toLowerCase(); if (!mine) want(h, "counts"); const e = CNT.get(h); return e ? e.followers : null; },
+  myFollowerPeople: function () { return mine ? mine.followers.map(function (x) { return person(x.pk); }) : null; },
+  // The people Rem lists for someone (kind "followers" | "following"), or null while it loads.
+  people: function (user, kind) { const h = folHex(user); if (!h) return null; want(h, kind); const p = PEOPLE.get(kind + ":" + h); return p ? p.people.map(person) : null; },
+  hidden: function (user, kind) { const h = folHex(user), p = h && PEOPLE.get(kind + ":" + h); return p ? p.hidden : 0; },
+};
 Looscid.lcLists = {
   LISTS: LISTS.map(function (L) { return L.name; }),
   sync: function () { return sync(true); },
   paused: function () { const s = st(); return isHex64(s.pubkey) && !!cfg(String(s.pubkey).toLowerCase()).paused; },
-  pause: function () { const s = st(); if (isHex64(s.pubkey)) lsSet(SYNC_KEY, { pk: String(s.pubkey).toLowerCase(), snap: null, paused: true }); },
-  resume: function () { const s = st(); if (isHex64(s.pubkey)) { lsSet(SYNC_KEY, { pk: String(s.pubkey).toLowerCase(), snap: null }); sync(true); } },
+  pause: function () { const s = st(); if (isHex64(s.pubkey)) { lsSet(SYNC_KEY, { pk: String(s.pubkey).toLowerCase(), snap: null, paused: true }); lsSet(FOL_KEY, { pk: String(s.pubkey).toLowerCase(), snap: null, paused: true }); } },
+  resume: function () { const s = st(); if (isHex64(s.pubkey)) { lsSet(SYNC_KEY, { pk: String(s.pubkey).toLowerCase(), snap: null }); lsSet(FOL_KEY, { pk: String(s.pubkey).toLowerCase(), snap: null }); sync(true); folSync(true); } },
 };
 })(window.Looscid = window.Looscid || {});
