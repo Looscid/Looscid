@@ -1684,10 +1684,9 @@ const LC_CZ_CATS = [
   // Nov 9 2026 (item 14): Tab Bar and Profile Tabs are one Tabs screen, with a section for each.
   { id: "tabs", page: "settings_tabs", l: "Tabs", old: "tab bar profile tabs", grp: "tabs", sub: "Which tabs show at the bottom, and the order of the tabs on profiles" },
   { id: "order", page: "settings_cz_order", l: "Settings Order", grp: "tabs", sub: "Default, Alphabetical or your own order of Settings" },
-  // Nov 8 2026 (Carter, 8:44 PM: "Customization. ... Cherry also live there"): Mode (Local or Rem, it was the row under the
-  // LooscidID card) and Cherry's settings (they were a top-level row) live here now. Same screens: Mode opens Rem, where the
-  // Mode line and Put your Dreams on Rem are, and Cherry opens the same Cherry settings. Back from either comes back here.
-  { id: "mode", page: "settings_rem", data: { from: "cz" }, l: "Mode", grp: "more", sub: "Local or Rem: where your Dreams live" },
+  // Nov 8 2026 (Carter, 8:44 PM: "Customization. ... Cherry also live there"): Cherry's settings (they were a top-level row)
+  // live here, and Back from them comes back here. Nov 9 2026 (Carter: "local mode should be discontinued immediately"):
+  // the Mode row (Local or Rem) that was here is gone. Cooked Dreams always go on Rem; the Rem screen is in LooscidID.
   { id: "cherry", page: "settings_intelligence", l: "Cherry", grp: "more", sub: "Turn Cherry on or off, its model, Memory, Tools and What Cherry did" },
 ];
 const LC_CZ_FOOT = { look: "How Looscid looks, how you move between feeds, the menu, writing Dreams and media.", tabs: "Choose and reorder the tab bar, the tabs on profiles and the rows of Settings. Each has Move up and Move down.", more: "Mode says if your Dreams live only on this device or also sync to Rem. Cherry is the assistant built into Looscid.", reset: "Puts Customization back to how it was when you started." };
@@ -1729,9 +1728,7 @@ function CustomizabilitySettings({navigate, prefs, setPrefs, theme, setTheme, pa
   const hideBotClose = !!mp.hideBotClose;
   const setMenu = (k,v) => setPrefs(p=>({...p,menu:{...(p.menu||{}),pos:mp.pos||"bottom",hideTopClose:!!mp.hideTopClose,hideBotClose:!!mp.hideBotClose,[k]:v}}));
   const cat = LC_CZ_CATS.find(function (c) { return c.page === page; });
-  // Nov 8 2026: the Mode row says the mode you're in now (Local or Rem), like the old Mode row did.
-  const czCats = LC_CZ_CATS.map(function (c) { if (c.id !== "mode") return c; const m = Looscid.lcServer && Looscid.lcServer.mode ? Looscid.lcServer.mode() : { sync: false };
-    return Object.assign({}, c, { v: m.sync ? "Rem" : "Local" }); });
+  const czCats = LC_CZ_CATS;
   if (!cat) return lh(LcCatMenu, { id: "lc-cz-cats", title: "Customization", cats: czCats, foots: LC_CZ_FOOT, navigate: navigate });
   const radios = function (name, legend, opts, cur, onPick, fid) {
     return lh('fieldset', { className: "lc-fs", id: fid },
@@ -2224,7 +2221,6 @@ function MorePage({navigate, cherryCtx, authUser}) {
           React.createElement('h1', {className:"htit", tabIndex:-1}, "More")
         )
       ),
-      Looscid.LcModeLine ? React.createElement(Looscid.LcModeLine, { style: { margin: "12px 16px 0" } }) : null,
       React.createElement('div', {style:{padding:"24px 16px",display:"flex",flexDirection:"column",gap:12}},
         React.createElement('div', {style:{padding:"20px",background:"linear-gradient(135deg,rgba(109,40,217,.1),rgba(147,51,234,.05))",border:"1px solid rgba(168,85,247,.2)",borderRadius:16,textAlign:"center"}},
           React.createElement('div', {style:{fontSize:44,marginBottom:12}}, "Guest Mode"),
@@ -2262,7 +2258,6 @@ function MorePage({navigate, cherryCtx, authUser}) {
       , React.createElement('div', { className: "hdr",}
         , React.createElement('div', { style: {padding:"48px 16px 12px"},}, React.createElement('h1', { className: "htit", tabIndex:-1,}, "More"))
       )
-      , Looscid.LcModeLine ? React.createElement(Looscid.LcModeLine, { style: { margin: "12px 16px 0" } }) : null
       , React.createElement('div', { style: {padding:"12px 16px 0"},}
         , React.createElement('div', { style: {display:"flex",alignItems:"center",gap:12,padding:"14px 0",borderBottom:"1px solid var(--bd)",cursor:"pointer"}, role: "button", tabIndex: 0, onClick: ()=>navigate("profile"), 'aria-label': "View your profile"  ,}
           , React.createElement('div', { style: {position:"relative"},}
@@ -3282,7 +3277,7 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
       // Nov 8 2026 (Carter, 8:55 PM: "Like all ideas"): Connectionbase is called Bridges (same page, same checkboxes), and
       // Connected apps is gone: it showed your login methods again, plus a list of apps that was always empty. Its old
       // page opens Login methods. Download and back up is one screen for every way to save your stuff (BackupSettings).
-      [{ id: "lid-row-rem", g: "mode", c: "#34c759", label: "Rem", value: srvM.sync ? "Syncing" : "Local", sub: srvWords, onClick: function () { navigate("settings_rem"); } },
+      [{ id: "lid-row-rem", g: "mode", c: "#34c759", label: "Rem", value: srvM.sync ? "Syncing" : srvM.why === "locked" ? "Locked" : "Needs a key", sub: srvWords, onClick: function () { navigate("settings_rem"); } },
        { id: "lid-row-connectionbase", g: "cloud", c: "#30b0c7", label: "Bridges", value: Looscid.lcNet && Looscid.lcNet.bridgeOn("nostr") ? "Nostr" : "Off", sub: "Share your public Dreams to Nostr, Mastodon and Bluesky too", onClick: function () { go("connectionbase"); } }],
       // Nov 9 2026 (Carter approved item 13): Data and Download and back up are one row and one screen, Your data.
       [{ id: "lid-row-backup", g: "data", c: "#8e8e93", label: "Your data", sub: summary.length + " kinds of data on this device. Download, back up or delete it", onClick: function () { navigate("settings_backup"); } }]])));
@@ -3426,10 +3421,14 @@ function RemSettings({ navigate, from }) {
   return lh('div', { className: "pg lc-ios-page lc-i27 lid-i27", id: "rem-page" },
     lh(Looscid.LcI27Header, { title: "Rem", onBack: function () { if (fromCz) navigate("settings_customizability"); else navigate("settings_account", { focus: "lid-row-rem" }); }, backLabel: fromCz ? "Back to Customization" : "Back to LooscidID" }),
     lh('div', { id: "rem-body", className: "lid-body" },
-      lh('p', { className: "lid-help lid-i27-help", id: "rem-intro" }, "Rem is the Looscid protocol and its server: the home of your public Dreams. Each Dream with Audience Everyone is signed with your LooscidID key and saved on Rem, which checks the signature first. It's open source, so your Dreams can be downloaded and moved anytime."),
+      lh('p', { className: "lid-help lid-i27-help", id: "rem-intro" }, "Rem is the Looscid protocol and its server: the home of cooked Dreams. Each Dream with Audience Everyone is signed with your LooscidID key and saved on Rem, which checks the signature first. It's open source, so your Dreams can be downloaded and moved anytime."),
       N.LcRemStatus ? lh(N.LcRemStatus, null) : null,
       Looscid.LcModeLine ? lh(Looscid.LcModeLine, null) : null,
-      sec("dreams", "Put your Dreams on Rem", Looscid.LcServerPanel ? lh(Looscid.LcServerPanel, { go: toLid }) : lh('p', { className: "lid-help" }, "This part didn't load. Reload Looscid and try again.")),
+      // Nov 9 2026 (Carter: "they could revisit the RAM thing at a later date"): About Rem, the same words as the "Your Dreams
+      // were synced to Rem" notice's Learn more, plus what the first sync put on Rem. The notice links here.
+      sec("about", "About Rem", Looscid.LcAboutRem ? lh(Looscid.LcAboutRem, { synced: Looscid.lcRemSynced ? Looscid.lcRemSynced() : null, idp: "rem-about" },
+        lh('p', { className: "lid-help" }, link("rem-help-link", "helpcenter", null, "About Rem in the Help Center", function () { Looscid.LC_HELP_NEXT = { kind: "art", id: "rem" }; }))) : null),
+      sec("dreams", "Syncing your Dreams", Looscid.LcServerPanel ? lh(Looscid.LcServerPanel, { go: toLid }) : lh('p', { className: "lid-help" }, "This part didn't load. Reload Looscid and try again.")),
       sec("lists", "Your lists", N.LcRemLists ? lh(N.LcRemLists, null) : null),
       // Carter asked for "Sync to my other devices / just this device" switches (Nov 8 2026). Not built yet, so just a line.
       sec("devices", "Sync to my other devices",

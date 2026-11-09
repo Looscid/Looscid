@@ -191,7 +191,10 @@ async function exportMine() {
 async function forgetMe() {
   try { const ev = await signAction({ kind: 21985, tags: [["action", "delete-my-data"], PROTOCOL_TAG] }); const r = await call("POST", "/forget", ev);
     if (r.ok && Looscid.lcLists) Looscid.lcLists.pause(); // Nov 8 2026: your lists stop syncing here, so they aren't sent right back
-    return r.ok ? { ok: true, say: "Deleted. Rem no longer has your Dreams, blocks, reports, likes, ReDreams, pins, mutes, followed threads, problem reports or votes on them. Everything on this device stays, and your lists stop syncing here until you turn it back on." } : { ok: false, say: "Couldn't delete it. Try again in a bit." }; }
+    // Nov 9 2026 (Local mode retired): older Dreams sync to Rem by themselves now, so the ones on this device from before
+    // this moment are never sent back up (js/remsync.js forgotAt). New Dreams you make after this still go to Rem.
+    if (r.ok && Looscid.lcServer && Looscid.lcServer.markForgot) Looscid.lcServer.markForgot();
+    return r.ok ? { ok: true, say: "Deleted. Rem no longer has your Dreams, blocks, reports, likes, ReDreams, pins, mutes, followed threads, problem reports or votes on them. Everything on this device stays, and I won't put those Dreams back on Rem. Your lists stop syncing here until you turn it back on. New Dreams you make still go on Rem." } : { ok: false, say: "Couldn't delete it. Try again in a bit." }; }
   catch (e) { return { ok: false, say: whyText(e) }; }
 }
 async function health() { try { const r = await call("GET", "/health"); return r.ok; } catch (e) { return false; } }
@@ -225,7 +228,7 @@ function LcConnectionbase() {
       }))),
     BRIDGES.filter(function (b) { return !b.soon && b.note; }).map(function (b) { return lh('p', { key: b.id, className: "lid-help" }, b.label + ": " + b.note); }),
     msg ? lh('p', { className: "lid-help", role: "status" }, msg) : null,
-    lh('p', { className: "lid-help" }, "Rem is the home of your public Dreams. ", lcRemLink("cb-rem-link", "Put your Dreams on Rem and see if it's online")));
+    lh('p', { className: "lid-help" }, "Rem is the home of your public Dreams. ", lcRemLink("cb-rem-link", "See if Rem is online and sync your Dreams")));
 }
 
 /* --- On the Rem screen (Nov 8 2026; these were on Connectionbase and LooscidID's home page, Carter Nov 7 6:10 PM) ---
@@ -264,7 +267,7 @@ function LcRemData(props) {
     // Nov 8 2026: on the Rem screen this is a link to Download and back up, where Download my Dreams lives now.
     props && props.downloadLink ? props.downloadLink : lh('button', { type: "button", id: "rem-download", className: "btn bgb lid-wide", disabled: busy, onClick: function () { run(exportMine()); } }, "Download my Dreams"),
     asking ? lh(React.Fragment, null,
-        lh('p', { className: "lid-help", id: "cb-forget-q" }, "Delete everything Rem has for your key? That's your Dreams, ReDreams, blocks and reports there, and your synced likes, pins, mutes and followed threads. Dreams on this device stay, and copies on Nostr relays aren't touched. This can't be undone."),
+        lh('p', { className: "lid-help", id: "cb-forget-q" }, "Delete everything Rem has for your key? That's your Dreams, ReDreams, blocks and reports there, and your synced likes, pins, mutes and followed threads. Dreams on this device stay, and I won't put them back on Rem. New Dreams you make after this still go on Rem. Copies on Nostr relays aren't touched. This can't be undone."),
         lh('button', { type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: function () { setAsking(false); run(forgetMe()); } }, "Yes, delete my Rem data"),
         lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { setAsking(false); say("Nothing was deleted."); } }, "Cancel"))
       : lh('button', { type: "button", id: "rem-forget", className: "btn bgb lid-wide", disabled: busy, onClick: function () { setAsking(true); } }, "Delete my Rem data"),

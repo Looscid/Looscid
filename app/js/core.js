@@ -1924,9 +1924,11 @@ const LC_FIND_STATIC = [
   { l: "Alerts", w: "alerts settings notification settings notifications push quiet hours alert types sound who can trigger categories order inbox tabs", page: "settings_notifications", where: "Settings" },
   { l: "Privacy & Security", w: "privacy security permissions muted words blocked keys passcode backup login methods", page: "settings_privacy", where: "Settings" },
   // Nov 8 2026 (Carter: "Rem should get it's own settings section"): Rem's own screen and what's on it.
-  { l: "Rem", w: "rem server looscid server mode local sync syncing online status protocol", page: "settings_rem", where: "Settings, LooscidID" },
-  { l: "Put your Dreams on Rem", w: "put my dreams on rem upload sync all my dreams let me pick stop syncing sync now server", page: "settings_rem", focus: "rem-h-dreams", where: "Settings, LooscidID, Rem" },
-  { l: "Mode", w: "mode local server rem local mode server mode", page: "settings_customizability", focus: "lc-cz-cats-mode", where: "Settings, Customization" },
+  // Nov 9 2026 (Carter: "local mode should be discontinued immediately"): the Mode row is gone. Searching mode or local
+  // finds the Rem screen, which says what happens to your Dreams now.
+  { l: "Rem", w: "rem server looscid server mode local mode local sync syncing online status protocol", page: "settings_rem", where: "Settings, LooscidID" },
+  { l: "About Rem", w: "about rem what is rem learn more about rem synced to rem my dreams were synced", page: "settings_rem", focus: "rem-h-about", where: "Settings, LooscidID, Rem" },
+  { l: "Sync my Dreams to Rem", w: "put my dreams on rem upload sync now syncing server", page: "settings_rem", focus: "rem-h-dreams", where: "Settings, LooscidID, Rem" },
   { l: "Sync my lists", w: "lists likes redreams pins mutes followed threads sync my lists again devices", page: "settings_rem", focus: "rem-h-lists", where: "Settings, LooscidID, Rem" },
   { l: "Download my Dreams", w: "download my dreams export rem signed file", page: "settings_backup", focus: "bk-d-h", where: "Settings, LooscidID, Your data" },
   // Nov 8 2026 (LooscidID cleanup): Download and back up, one screen for every way to save your stuff.
@@ -2172,24 +2174,33 @@ const TERMS_CONTENT = `<p><strong>Last updated: October 26, 2026</strong></p>
 <h2>Questions?</h2>
 <p>Use Send Feedback in the menu, or find me on <a href="https://x.com/Looscid" target="_blank" rel="noopener noreferrer">X as @Looscid</a>.</p>`;
 Looscid.TERMS_CONTENT = TERMS_CONTENT;
-const PRIVACY_CONTENT = `<p><strong>Last updated: October 26, 2026</strong></p>
-<p>The short version: your data stays on your device. I don't sell it, I don't track you, and there are no ads.</p>
+const PRIVACY_CONTENT = `<p><strong>Last updated: November 9, 2026</strong></p>
+<p>The short version: your cooked Dreams are stored on Rem, Looscid's own server, and they're public. Your drafts stay on your device. I don't sell your data, I don't track you, and there are no ads.</p>
 <h2>What Looscid saves, and where</h2>
 <ul>
-<li>Your profile, settings, drafts, Dreams and Soundpacks are saved on this device only, in your browser's storage (the keys start with <code>looscid_</code>).</li>
-<li>Replies you write are saved on this device too. Like Dreams, they're not in Settings backup.</li>
+<li>Cooked Dreams and replies set to Everyone are stored on Rem, Looscid's own server. They're public: anyone can read them, and they show up in the feed. Each one is signed with your LooscidID key, so nobody can fake yours.</li>
+<li>Dreams you made before Rem existed, or back when Looscid had a Local mode, go on Rem too, the next time you open Looscid. Only the ones set to Everyone. Looscid tells you when that happens.</li>
+<li>Dreams set to Followers only, My Circles or Only this device stay on this device. Sharing is up to each Dream, and changing it on one never changes the others.</li>
+<li>Uncooked Dreams (drafts) stay on this device only. They never go to Rem or anywhere else.</li>
+<li>Your likes, ReDreams, pins, dislikes, mutes, Not interested and the threads you follow sync through Rem with your key, so they're the same on all your devices. Only like and ReDream counts are public.</li>
+<li>Rem also keeps your public key and when it first saw it. It never gets your secret key, an email or a phone number.</li>
+<li>Your profile, settings and Soundpacks are saved on this device, in your browser's storage (the keys start with <code>looscid_</code>). This device keeps its own copy of your Dreams and replies too. They're not in Settings backup; the Backup file has them.</li>
 <li>Your chats with Cherry (Your History, and which ones you pinned) stay on this device only. They are in Settings backup, so a backup file can bring them to another device.</li>
 <li>There's no sign-up server. Your LooscidID is made on your device.</li>
 <li>You never need a phone number or an email address, and Looscid never uses them to find you or suggest you to other people.</li>
 </ul>
 <h2>When Looscid talks to the internet</h2>
 <ul>
+<li>Rem: when you Dream to Everyone, your device sends the signed Dream to Rem (rem.thebntlovver.workers.dev, which runs on Cloudflare). Looscid also asks Rem for the feed and for your own Dreams, and keeps your lists in sync there.</li>
+<li>Older Dreams that went to Nostr before Rem existed are read back from your Nostr relays once, so they can be copied to Rem exactly as they were signed.</li>
+<li>Deleting a Dream deletes it on Rem too. Delete my Rem data, on the Rem screen, deletes everything Rem has for your key, and Looscid won't put those Dreams back.</li>
 <li>Linking a login method (Nostr, Mastodon and the fediverse, Bluesky, Funkwhale or Hubzilla): Looscid talks straight to that network from your device. Your server might have your email; Looscid never asks for it.</li>
-<li>Dreams on Nostr: once you set up a Nostr key in Settings, LooscidID, a Dream with Audience Everyone goes from your device straight to the Nostr relays in your list, and it's public there. Looscid also reads your own Dreams back from those relays, so they show up on any device with your key.</li>
-<li>Your Nostr secret key never leaves this device, and it's never in Settings backup.</li>
-<li>With Audience "Only this device", or with no key, nothing is sent.</li>
-<li>A reply to a Dream that's on Nostr goes out as a Nostr reply (threaded under it), and only with Audience Everyone. Followers only, My Circles and Only this device never leave your device.</li>
-<li>Link previews are made on your device from the link alone. Looscid never fetches the linked page. A YouTube, Vimeo or Spotify player loads from that site only when you press Play.</li>
+<li>Dreams on Nostr: only if you turn on Also share my Dreams to Nostr in Bridges, a Dream set to Everyone goes to the Nostr relays in your list too, and it's public there. Copies on Nostr can't be fully deleted.</li>
+<li>Your secret key never leaves this device, and it's never in Settings backup.</li>
+<li>With Audience "Only this device", nothing is sent. Without a LooscidID key, your Dreams wait on this device and go on Rem once you make one.</li>
+<li>A reply set to Everyone goes on Rem, threaded under the Dream it answers. Followers only, My Circles and Only this device never leave your device.</li>
+<li>Link previews in Dreams are made on your device from the link alone. Looscid never fetches the linked page. A YouTube, Vimeo or Spotify player loads from that site only when you press Play.</li>
+<li>A website on a profile shows a preview card: Rem reads that page's title and description for it, so your device doesn't visit the site.</li>
 <li>Music and the apps load only when you open them.</li>
 <li>Cherry is off until you turn it on. Its on-device model downloads only after you say yes, and after that it runs on your device, offline.</li>
 <li>When you link a Bluesky or fediverse handle in Keys and IDs, Looscid looks it up once on that network to check it exists. A Nostr public key is checked on your device.</li>
@@ -2204,6 +2215,7 @@ const PRIVACY_CONTENT = `<p><strong>Last updated: October 26, 2026</strong></p>
 <li>Export or import all your settings in Settings, LooscidID, Your data.</li>
 <li>Delete everything Looscid saved on this device in Settings, LooscidID, Data.</li>
 <li>Remove a linked login method, key or handle any time in Settings, LooscidID, Keys and IDs.</li>
+<li>Download or delete everything Rem has for you on the Rem screen, in LooscidID.</li>
 </ul>
 <h2>Accessibility</h2>
 <p>Looscid is built for screen readers and braille displays, with captions for sounds, Flash safety on by default, and a hard limit of three flashes a second.</p>`;
@@ -2698,8 +2710,9 @@ const LC_ROUTES = [
   // every way to save it, and Delete local data. Download and back up, /Settings/Backup and the Backup file address open it.
   ["settings_backup", "Settings/LooscidID/Your-Data"], ["settings_backup", "Settings/LooscidID/Download-and-Back-Up"], ["settings_backup", "Settings/Privacy-and-Security/Backup-File"], ["settings_backup", "Settings/LooscidID/Backup-File"],
   ["settings_customizability", "Settings/Customization"], ["settings_customizability", "Settings/Customizability"],
-  // Nov 8 2026 (Carter): Mode (Local or Rem) is a row in Customization; /Settings/Mode opens Customization on that row.
-  ["settings_customizability", "Settings/Mode"], ["settings_customizability", "Settings/Customization/Mode"], ["settings_cz_order", "Settings/Customization/Settings-Order"], ["settings_tabs", "Settings/Customizability/Tabs"], ["settings_cz_theme", "Settings/Customizability/Theme"], ["settings_cz_feeds", "Settings/Customizability/Feeds"],
+  // Nov 8 2026 (Carter): Mode (Local or Rem) was a row in Customization. Nov 9 2026: Local mode is gone, so the old Mode
+  // addresses open the Rem screen.
+  ["settings_rem", "Settings/Mode"], ["settings_rem", "Settings/Customization/Mode"], ["settings_cz_order", "Settings/Customization/Settings-Order"], ["settings_tabs", "Settings/Customizability/Tabs"], ["settings_cz_theme", "Settings/Customizability/Theme"], ["settings_cz_feeds", "Settings/Customizability/Feeds"],
   ["settings_cz_menu", "Settings/Customizability/Menu"], ["settings_cz_posting", "Settings/Customizability/Dreaming"], ["settings_cz_media", "Settings/Customizability/Media"],
   ["settings_accessibility", "Settings/Accessibility"], ["settings_a11y_sr", "Settings/Sense"], ["settings_a11y_vision", "Settings/Accessibility/Vision"],
   ["settings_a11y_hearing", "Settings/Accessibility/Hearing"], ["settings_a11y_motion", "Settings/Accessibility/Motion"],
@@ -3167,18 +3180,14 @@ function LcNpubLine({ np, id }) {
     lh('button', { type: "button", className: "lc-i27-copy", onClick: function () { lcCopyNpub(np); }, "aria-label": "Copy npub" }, lh(LcI27Glyph, { g: "copy", size: 16 }), lh('span', { "aria-hidden": "true" }, "Copy")));
 }
 function useServerTick() { const [, t] = useState(0); useEffect(function () { const f = function () { t(function (x) { return x + 1; }); }; window.addEventListener("looscid-server", f); window.addEventListener("looscid-methods", f); const iv = setInterval(f, 60000); return function () { window.removeEventListener("looscid-server", f); window.removeEventListener("looscid-methods", f); clearInterval(iv); }; }, []); }
-// The Mode row (it was the Mode line, Oct 31): "Mode", value Local or Server, and the same words the line said under it.
-function lcModeRow(id, onClick) {
-  const m = Looscid.lcServer && Looscid.lcServer.mode ? Looscid.lcServer.mode() : { sync: false };
-  return { id: id, k: "mode", label: "Mode", value: m.sync ? "Server" : "Local", sub: lcModeSub(m), onClick: onClick };
-}
+// Nov 9 2026: the Mode row (lcModeRow, value Local or Server) is gone with Local mode.
 // Nov 9 2026 (Carter: "Local" showed twice on the Rem row): the row's value already says Local or Syncing, so the line under it
 // skips the mode word ("Local." / "Rem.") and keeps the rest.
 function lcModeSub(m) {
   const w = Looscid.lcModeText ? String(Looscid.lcModeText(m)).replace(/^Mode:\s*/, "") : "";
   return w.replace(/^(Local|Rem|Server|Syncing)\.\s*/, "");
 }
-Object.assign(Looscid, { LcI27Row, LcI27Glyph, LcI27Header, lcI27Cards, lcMyNpub, lcNpubShort, lcCopyNpub, LcNpubLine, useServerTick, lcModeRow, lcModeSub, LC_I27_ROW });
+Object.assign(Looscid, { LcI27Row, LcI27Glyph, LcI27Header, lcI27Cards, lcMyNpub, lcNpubShort, lcCopyNpub, LcNpubLine, useServerTick, lcModeSub, LC_I27_ROW });
 function lcSetRowO(it) { return { id: lcSetRowId(it.label), k: it.id, label: it.label, onClick: it.action, value: typeof it.value === "function" ? it.value() : it.value }; }
 /* Round 7.38 / Oct 31 2026: the LooscidID card reads like iOS's Apple Account card: your name, your @handle, your npub
    (with its own Copy button), then "Profile, Bridges, Rem and your data" (Security moved into Privacy & Security, Nov 8 2026). */
@@ -6840,7 +6849,7 @@ const LC_COMMANDS = [
   ["verbosity", "verbosity low, medium or high"], ["read order", "read order name first or text first"], ["announce new dreams", "off, count or read"],
   ["speak timestamps", "off, short or full"], ["speak emoji", "name, skip or word"], ["hashtags", "hashtags read or skip"], ["typing echo", "characters, words, both or off"], ["read aloud rate", "read aloud rate and a number from 50 to 200; read aloud pitch 50 to 150; voice and a name"],
   ["braille emoji", "braille emoji name or strip; braille timestamps on or off; braille prefix on or off"],
-  ["soundpack", "soundpack looscid, nexos, insomnia, synth, fastsm, soundvault or custom (sound pack works too)"], ["send sound", "send sound, like sound, new dream sound, error sound, alert sound or feed switch sound, on or off"], ["earcon on swipe", "earcon on swipe on or off"], ["ducking", "ducking on or off; haptics on or off"],
+  ["soundpack", "soundpack looscid, nexos, insomnia, synth, soft blips, soundvault or custom (sound pack works too)"], ["send sound", "send sound, like sound, new dream sound, error sound, alert sound or feed switch sound, on or off"], ["earcon on swipe", "earcon on swipe on or off"], ["ducking", "ducking on or off; haptics on or off"],
   // Round 10 fixes: the example times follow Settings, Time format (22:00 and 07:00 in 24-hour).
   Object.defineProperty(["quiet hours"], 1, { enumerable: true, get: function () { return lcHour24() ? "quiet hours on or off; quiet from 22:00; quiet until 07:00" : "quiet hours on or off; quiet from 10 pm; quiet until 7 am"; } }), ["calm feed", "calm feed on or off, hides like and Redream counts"],
   ["mute word", "mute word and a word; unmute word and a word"], ["add content warning", "add content warning and a topic; remove content warning and a topic"],
@@ -7723,7 +7732,7 @@ const LC_TIP_NAMES = {
   "create a looscidid": "Starts making your LooscidID", "login to your looscidid": "Signs you in", "log in": "Signs you in",
   "login with my nostr signer extension": "Signs in with your extension", "use my nostr signer extension": "Signs in with your extension",
   "use my signer": "Signs in with your signer", "logout": "Signs you out of Looscid", "log out": "Signs you out of Looscid",
-  "stay local": "Keeps your Dreams on this device", "switch to server": "Moves your Dreams to a server",
+  "learn more about rem": "Shows what Rem is and what got synced",
   "set up looscid": "Starts the setup", "continue to setup": "Goes on to setup", "skip intro": "Goes straight to setup",
   "skip, i'm just browsing": "Looks around without signing in", "welcome intro": "Plays the welcome again",
   "change passcode": "Picks a new passcode", "remove passcode": "Turns the passcode off", "lock with passcode": "Locks Looscid with a passcode",
@@ -9349,8 +9358,9 @@ useEffect(() => {
       , showHabitCard && React.createElement(HabitInsightCard, { onDismiss: ()=>setShowHabitCard(false),})
       , cmdOpen && lh(CommandBar, { onClose: closeCmd, exec: execCommand, onFull: function () { setCmdOpen(false); cmdReturn.current = null; if (page !== "terminal") termBack.current = page; navigate("terminal"); } })
       , askDevice && getWelcomeSeen() && lh(DeviceQuestion, { onDone: onDeviceDone })
-      // Nov 1 2026 (Carter): a one-time "Switch to the Looscid server?" question for Local mode, after first-run setup (js/remsync.js)
-      , !askDevice && !showBoot && !showAnalytics && !cmdOpen && !loggedOutAsk && !(authUser && authUser.isGuest) && Looscid.LcServerAsk && lh(Looscid.LcServerAsk, { navigate: navigate }) /* Nov 7 2026: not for Guests (no Dreams to put anywhere yet) */
+      // Nov 9 2026 (Carter): Local mode is gone, and so is its "Switch to the Looscid server?" question. In its place: "Your
+      // Dreams were synced to Rem", once, when older Dreams go up (js/remsync.js). Always on the page so its live region is ready.
+      , Looscid.LcRemSynced && lh(Looscid.LcRemSynced, { navigate: navigate })
       , showBoot && !askDevice && lh(LcBoot, { onDone: function () { try { sessionStorage.setItem("looscid_booted", "1"); } catch (e) {} setShowBoot(false); focusMainHeading(); } })
       , showSymPicker && React.createElement(Looscid.SymbolPicker, { onInsert: s=>{ if(symTarget)symTarget(s); setShowSymPicker(false); setSymTarget(null); }, onClose:()=>setShowSymPicker(false),})
     )

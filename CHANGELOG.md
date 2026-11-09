@@ -3,6 +3,19 @@
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
 
+## Local mode is gone, and your Dreams sync to Rem (no new build yet)
+
+Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+
+Asked for by Carter: "local mode should be discontinued immediately".
+
+- Local mode is gone lol. No more Mode row in Customization, no more Mode line on More, no more "You're using Looscid in Local mode" question, and no more All my Dreams, Let me pick, Not now or Stop syncing. Cooked Dreams always go on Rem. Uncooked Dreams (drafts) stay on your device, like always. Old /Settings/Mode links open the Rem screen.
+- Older Dreams sync to Rem by themselves now 🌙 The next time you open Looscid, every Dream and reply set to Everyone that isn't on Rem yet goes up, with its first date, signed with your key. Dreams that went to Nostr before Rem existed are copied over exactly as they were signed, so they keep their id. Dreams set to Followers only, My Circles or Only this device stay on your device, since sharing is up to each Dream. After Delete my Rem data, nothing from before that goes back up.
+- The first time that happens, Looscid says "Your Dreams were synced to Rem." It's a card above the tab bar, read out politely, and it never moves your focus. Learn more about Rem opens a short explainer (it starts closed), with a link to About Rem, which is a new part of the Rem screen you can come back to anytime. The Help Center's Rem article is called About Rem now too.
+- The Rem screen got simpler: About Rem, then Syncing your Dreams, which says what's syncing and has Sync now. The Rem row in LooscidID says Syncing, Locked or Needs a key.
+- Privacy tells the truth now lol. It says cooked Dreams are stored on Rem and public, drafts stay on your device, what Rem keeps, when Looscid talks to Rem, and that a profile's website preview is read by Rem.
+- The command list says "soundpack soft blips" now, not fastsm. Typing fastsm still works.
+
 ## Settings links, full numbers, For You topics and website previews (no new build yet)
 
 Added November 8, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.

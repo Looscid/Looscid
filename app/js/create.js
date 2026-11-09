@@ -553,7 +553,8 @@ function LcComposerInner(props) {
     // Nov 7 2026: public Dreams go to the Looscid server; Nostr only with "Also share my Dreams to Nostr" on (Settings, LooscidID, Connectionbase).
     : audience === "everyone" ? (isReply && !parentNostr ? who + "\u2019s Dream isn\u2019t on Rem or Nostr, so this reply is saved on this device only."
       : Looscid.lcNet && !Looscid.lcNet.bridgeOn("nostr") ? "Everyone: your " + noun + " is public on Looscid." : "Everyone: your " + noun + " is public on Looscid and Nostr. Copies on Nostr can't be fully deleted.")
-    : "Followers and Circles aren't on Nostr yet, so this " + noun + " is saved only on this device.";
+    // Nov 9 2026 (Local mode retired): Rem only holds Dreams for Everyone for now, so these stay here. It said Nostr before.
+    : "Followers only and My Circles aren't on Rem yet, so this " + noun + " stays on this device for now.";
   const widenNote = isReply && audience !== pAud ? who + "\u2019s Dream is for " + LC_AUD_NAMES[pAud] + ". Your reply is for " + LC_AUD_NAMES[audience] + "." : "";
   const what = isReply ? "Reply" : isQuote ? "Quote" : "Dream";
   const doPost = function () {

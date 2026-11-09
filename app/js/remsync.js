@@ -2,18 +2,22 @@
 
    Nov 7 2026 (Carter: "Merge Rem with the other protocol"): there is one Looscid protocol now, Rem (docs/protocol.md,
    Rem v1). This file's Rem part lives on the Rem screen in LooscidID (Nov 8 2026, its own screen: RemSettings in js/more.js).
-   1. Put your Dreams on Rem: a one-time choice, All my Dreams, Let me pick, or Not now. Nothing uploads without that tap.
-      Public Dreams and replies (Audience Everyone) are signed here with your key as Rem v1 events, with their original
-      dates, and sent to the Rem server (js/net.js, https://rem.thebntlovver.workers.dev). No sign-in needed. After that,
-      they sync on their own.
+   1. Nov 9 2026 (Carter: "local mode should be discontinued immediately"): Local mode and the one-time choice (All my
+      Dreams, Let me pick, Not now) are gone. Cooked Dreams always go on Rem. With your key on this device, every Dream and
+      reply with Audience Everyone that isn't on Rem yet, older ones too, is signed here with your key as a Rem v1 event,
+      with its original date, and sent to the Rem server (js/net.js, https://rem.thebntlovver.workers.dev) on the next open.
+      Older Dreams that went to Nostr before Rem existed are copied to Rem exactly as they were signed (read back from your
+      relays). Sharing is per Dream: Followers only, My Circles and Only this device Dreams stay on this device, and
+      Uncooked Dreams (drafts, looscid_drafts) are never read here at all. After Delete my Rem data, nothing older than
+      that goes back up. The first time older Dreams go up, a notice says so, with Learn more about Rem (LcRemSynced).
    2. Nov 7 2026 (Carter: "one product, one destination"): the older Rem home (Rem v0, Oct 31 2026) is retired. Rem is
       rem.thebntlovver.workers.dev only. Its sign-in, invite and read-back are gone from the app.
    3. Settings, LooscidID, Backup file: one .looscid file with your profile, Dreams, replies, chats, likes, follows,
       settings AND your key, locked with a passcode you choose (PBKDF2 + AES-GCM, js/rem/looscid-backup.js). The same
       file opens in Looscid on any device. Restoring brings it all back and locks it to the key in the file.
 
-   Stored on this device (localStorage looscid_server, removed by Delete local data): your choice and when you last
-   synced. Old sign-ins to the retired Rem v0 home are cleared on load. The crypto files (js/rem/) load only when this is used. No CDN. */
+   Stored on this device (localStorage looscid_server, removed by Delete local data): when you last synced, which older
+   Dreams are confirmed on Rem (remOk), what the first sync put there (synced), and when you deleted your Rem data (forgotAt). Old sign-ins to the retired Rem v0 home are cleared on load. The crypto files (js/rem/) load only when this is used. No CDN. */
 (function (Looscid) {
 "use strict";
 const lh = React.createElement, useState = React.useState, useEffect = React.useEffect;
@@ -117,6 +121,14 @@ function remCounts(pk) {
   const ds = localDreams(pk), rs = localReplies(pk), all = ds.concat(rs);
   return { dreams: ds.length, replies: rs.length, on: all.filter(function (d) { return isHex64(d.nid); }).length, pub: all.filter(isPublic).length };
 }
+// Nov 9 2026: after Delete my Rem data (or when Rem had nothing for you anymore and your lists stopped syncing here), Dreams
+// from before that moment are never sent back up. New Dreams after it go up like always.
+function forgotAt() {
+  const c = cfg(); if (+c.forgotAt) return +c.forgotAt;
+  try { if (Looscid.lcLists && Looscid.lcLists.paused && Looscid.lcLists.paused()) { const t = Date.now(); saveCfg({ forgotAt: t }); return t; } } catch (e) {}
+  return 0;
+}
+function markForgot() { saveCfg({ forgotAt: Date.now(), remOk: [] }); }
 async function upload(onlyKeys, onProgress) {
   if (busyUp) throw err("busy", "Already sending your Dreams. Try again in a moment.");
   const N = Looscid.lcNostr; if (!N || !N.publishToRem) throw err("load", "Couldn't load the Rem tools. Reload Looscid and try again.");
@@ -126,7 +138,8 @@ async function upload(onlyKeys, onProgress) {
   busyUp = true;
   try {
     const pk = st.pubkey;
-    const res = { sent: 0, already: 0, refused: 0, messages: [], noParent: 0, tooLong: 0, edits: 0, priv: 0, queued: 0 };
+    const res = { sent: 0, already: 0, refused: 0, messages: [], noParent: 0, tooLong: 0, edits: 0, priv: 0, queued: 0, okD: 0, okR: 0, old: 0, okKeys: [] };
+    const fa = forgotAt();
     const items = localDreams(pk).map(function (d) { return { k: "d:" + d.id, d: d }; }).concat(localReplies(pk).map(function (r) { return { k: "r:" + r.id, d: r }; }))
       .filter(function (it) { return !onlyKeys || onlyKeys.has(it.k); });
     let i = 0;
@@ -134,11 +147,13 @@ async function upload(onlyKeys, onProgress) {
       i++;
       if (!isPublic(it.d)) { res.priv++; continue; }
       if (isHex64(it.d.nid)) { res.already++; continue; }
+      if (fa && atOf(it.d) <= fa) { res.old++; continue; } // you deleted your Rem data after this one: it stays here
+      if (N.isPending && N.isPending(it.d.id)) continue; // waiting for your passcode in js/nostr.js's queue: it goes from there
       const fresh = (it.k[0] === "d" ? localDreams(pk) : localReplies(pk)).find(function (x2) { return String(x2.id) === String(it.d.id); }) || it.d;
       const r = await N.publishToRem(Object.assign({}, fresh, { created: atOf(fresh) }));
       if (r.already) res.already++;
       else if (r.wait) res.noParent++;
-      else if (r.ok) res.sent++;
+      else if (r.ok) { res.sent++; if (it.k[0] === "d") res.okD++; else res.okR++; res.okKeys.push(it.k); }
       else if (r.queued) { res.sent++; res.queued++; }
       else { res.refused++; const m = r.refused || (r.err === "size" ? "too big (64 KB max)" : ""); if (m && res.messages.indexOf(m) < 0) res.messages.push(m); }
       if (onProgress && i % 5 === 0) onProgress(i, items.length);
@@ -150,16 +165,82 @@ async function upload(onlyKeys, onProgress) {
 
 /* --- keeping it in sync --------------------------------------------------------------- */
 let tickT = null;
-// Rem sync needs only your key and your choice (All my Dreams or Let me pick).
-function syncOn() { const c = cfg(), st = keyState(); return !!(st.canDream && st.mode !== "locked" && (c.optin === "all" || c.optin === "pick")); }
+// Nov 9 2026 (Carter: "local mode should be discontinued immediately"): no choice to make anymore. Your key on this device
+// (unlocked) is all Rem sync needs.
+function syncOn() { const st = keyState(); return !!(st.canDream && st.mode !== "locked"); }
+// Your own Dreams and replies on this device, as { k: "d:<id>" or "r:<id>", d }.
+function mineItems(pk) { return localDreams(pk).map(function (d) { return { k: "d:" + d.id, d: d }; }).concat(localReplies(pk).map(function (r) { return { k: "r:" + r.id, d: r }; })); }
+/* Older Dreams that already have a signed id: they went to Nostr (before Rem existed) or to Rem, but this device doesn't know
+   which. Once per open: ask Rem which of yours it has (GET /dreams/<your key>, read only). The ones it doesn't have are read
+   back from your Nostr relays (the original signed Dream, checked) and sent to Rem exactly as they were signed, so their id
+   doesn't change. One that isn't on any relay either, two opens in a row, is signed again for Rem with its first date. */
+let nidDone = false;
+async function backfillNid(pk) {
+  const res = { okD: 0, okR: 0, missing: 0 };
+  if (nidDone) return res;
+  const L = Looscid.lcNet, N = Looscid.lcNostr; if (!L || !L.API || !L.ingest || !N) return res;
+  const c = cfg(), ok = new Set(Array.isArray(c.remOk) ? c.remOk : []), fa = forgotAt();
+  const cand = mineItems(pk).filter(function (it) { return isHex64(it.d.nid) && isPublic(it.d) && !ok.has(it.k) && !(fa && atOf(it.d) <= fa); });
+  if (!cand.length) { nidDone = true; return res; }
+  const onRem = new Set(); let before = "", pages = 0;
+  while (pages++ < 30) {
+    let b = null;
+    try { const r = await fetch(L.API + "/dreams/" + pk + "?limit=100" + (before ? "&before=" + before : ""), { cache: "no-store", credentials: "omit" }); if (r.ok) b = await r.json(); } catch (e) {}
+    if (!b || !Array.isArray(b.dreams)) return res; // Rem didn't answer: try again on the next tick
+    b.dreams.forEach(function (x2) { if (x2 && x2.id) onRem.add(String(x2.id).toLowerCase()); });
+    if (!b.next) break; before = String(b.next);
+  }
+  // Dreams a Looscid admin removed, or that are hidden after reports, are on Rem too: they're left exactly as they are.
+  let modOk = false;
+  try { const r = await fetch(L.API + "/moderation/" + pk, { cache: "no-store", credentials: "omit" }); if (r.ok) { const b = await r.json(); (b.items || []).forEach(function (x2) { if (x2 && x2.dream_id) onRem.add(String(x2.dream_id).toLowerCase()); }); modOk = true; } } catch (e) {}
+  const todo = [];
+  cand.forEach(function (it) { if (onRem.has(String(it.d.nid).toLowerCase())) ok.add(it.k); else todo.push(it); });
+  const miss = Object.assign({}, c.nidMiss || {});
+  if (todo.length) {
+    let evs = {}; try { if (N.fetchByIds) evs = await N.fetchByIds(todo.map(function (it) { return it.d.nid; })); } catch (e) {}
+    for (const it of todo) {
+      const ev = evs[String(it.d.nid).toLowerCase()];
+      let sent = false;
+      if (ev) { const s = await L.ingest(ev); sent = !!(s && s.ok); } // a busy Rem keeps it in js/net.js's queue
+      else if (modOk && (miss[it.k] = (miss[it.k] || 0) + 1) >= 2) {
+        const p = await N.publishToRem(Object.assign({}, it.d, { nid: undefined, created: atOf(it.d) }));
+        sent = !!(p && p.ok);
+      }
+      if (sent) { ok.add(it.k); delete miss[it.k]; if (it.k[0] === "d") res.okD++; else res.okR++; } else res.missing++;
+    }
+  }
+  saveCfg({ remOk: Array.from(ok).slice(-5000), nidMiss: miss });
+  nidDone = true;
+  return res;
+}
+// The first time older Dreams go up, Looscid says so once (LcRemSynced). What went up is kept for About Rem.
+const NOTE_EVT = "looscid-rem-synced";
+function noteSync(a, b) {
+  const d = (a.okD || 0) + (b.okD || 0), r = (a.okR || 0) + (b.okR || 0);
+  if (!(d + r)) return;
+  const c = cfg(), was = c.synced && typeof c.synced === "object" ? c.synced : null;
+  const s = { at: was ? was.at : Date.now(), dreams: (was ? +was.dreams || 0 : 0) + d, replies: (was ? +was.replies || 0 : 0) + r };
+  saveCfg({ synced: s });
+  if (c.noteShown) return;
+  saveCfg({ noteShown: Date.now() });
+  try { window.dispatchEvent(new CustomEvent(NOTE_EVT, { detail: s })); } catch (e) {}
+}
+async function syncAll() {
+  const pk = keyState().pubkey;
+  const a = await upload(null);
+  // What Rem just took is on Rem: backfillNid doesn't need to look for it again.
+  if (a.okKeys.length) { const ok = new Set(Array.isArray(cfg().remOk) ? cfg().remOk : []); a.okKeys.forEach(function (k) { ok.add(k); }); saveCfg({ remOk: Array.from(ok).slice(-5000) }); }
+  let b = { okD: 0, okR: 0, missing: 0 };
+  try { b = await backfillNid(pk); } catch (e) {}
+  noteSync(a, b);
+  return { a: a, b: b };
+}
 async function tick() {
   clearTimeout(tickT); tickT = setTimeout(tick, 45000);
   if (!navigator.onLine) return;
-  const c = cfg();
   try {
     if (!syncOn()) return;
-    if (c.optin === "all") await upload(null);
-    else { const pk = keyState().pubkey, after = c.optinAt || 0, keys = new Set(); localDreams(pk).forEach(function (d) { if (atOf(d) > after) keys.add("d:" + d.id); }); localReplies(pk).forEach(function (r) { if (atOf(r) > after) keys.add("r:" + r.id); }); if (keys.size || (c.del || []).length) await upload(keys); }
+    await syncAll();
   } catch (e) { /* quiet: the Rem page shows the state, and the next tick tries again */ if (e && e.code === "busy") { clearTimeout(tickT); tickT = setTimeout(tick, 3000); } }
 }
 window.addEventListener("online", function () { setTimeout(tick, 2000); });
@@ -289,83 +370,45 @@ function UnlockKey({ id, why }) {
 function LcServerPanel({ go }) {
   useBump();
   const [busy, setBusy] = useState(false), [msg, setMsg] = useState(""), [er, setEr] = useState("");
-  const [pick, setPick] = useState(null);
   const st = keyState(), c = cfg();
   const done = function (t, focusId) { setEr(""); setMsg(t); say(t); focusSoon(focusId || "srv-msg"); };
   const fail = function (e) { const t = (e && e.message) || String(e); setMsg(""); setEr(t); say(t); focusSoon("srv-msg-err"); };
   const run = async function (fn) { setBusy(true); setEr(""); setMsg(""); try { await fn(); } catch (e) { fail(e); } finally { setBusy(false); } };
-  const upText = function (r) {
-    const bits = [r.sent || !r.already ? plural(r.sent, "Dream") + " put on Rem" : "Your Dreams were already on Rem"];
-    if (r.already && r.sent) bits.push(r.already + " already there");
-    if (!r.sent && !r.already && !r.noParent && !r.tooLong && !r.refused) return "All your public Dreams are already on Rem.";
+  const upText = function (r, more) {
+    const sent = r.sent + more;
+    const bits = [sent ? plural(sent, "Dream") + " put on Rem" : "Everything set to Everyone is already on Rem"];
     if (r.noParent) bits.push(plural(r.noParent, "reply", "replies") + " wait on this device until the Dreams they answer are on Rem");
     if (r.tooLong) bits.push(r.tooLong + " too long stay on this device");
     if (r.refused) bits.push(r.refused + " Rem didn't take" + (r.messages[0] ? " (" + r.messages[0] + ")" : ""));
-    if (r.priv) bits.push(plural(r.priv, "Followers or Circles Dream") + " stay on this device");
+    if (r.priv) bits.push(plural(r.priv, "Dream") + " set to Followers only, My Circles or Only this device stay on this device");
+    if (r.old) bits.push(r.old + " from before you deleted your Rem data stay on this device");
     if (r.queued) bits.push(r.queued + " wait on this device and go when Rem is reachable");
     return bits.join(", ") + ".";
   };
-  const progress = function (n, of) { setMsg("Uploading " + n + " of " + of + "…"); };
-  const intro = lh('p', { className: "lid-help" }, "Put your Dreams on Rem so they follow you to any device and friends can find you. Every Dream is signed with your LooscidID key, so nobody can fake yours. Nothing older uploads until you choose.");
+  // Nov 9 2026 (Carter: "local mode should be discontinued immediately"): no Local mode, no choice to make. This says what
+  // happens and has Sync now for when you don't want to wait.
+  const intro = lh('p', { className: "lid-help" }, "Cooked Dreams always go on Rem, so they follow you to any device and other Dreamors can find them. Each one is signed with your LooscidID key, so nobody can fake yours. Uncooked Dreams (drafts) stay on this device.");
   let body;
   const pk = st.pubkey;
   if (st.mode === "none" || st.mode === "view") body = lh(React.Fragment, null,
-    lh('p', { className: "lid-help" }, "This device doesn't have your LooscidID key yet. Make a key or add yours in Keys and IDs, or bring everything back from a backup file."),
+    lh('p', { className: "lid-help" }, "This device doesn't have your LooscidID key yet, so your Dreams can't go on Rem yet. Make a key or add yours in Keys and IDs, or bring everything back from a backup file."),
     go && lh(Btn, { onClick: function () { go("keys"); } }, "Open Keys and IDs"),
     go && lh(Btn, { onClick: function () { go("backup"); } }, "Open Backup file"));
-  else if (st.mode === "locked") body = lh(UnlockKey, { id: "srv", why: "Your key is locked with a passcode. Unlock it to put your Dreams on Rem." });
+  else if (st.mode === "locked") body = lh(UnlockKey, { id: "srv", why: "Your key is locked with a passcode. Unlock it so your Dreams can go on Rem." });
   else {
-    let remPart;
-    if (pick) {
-      const rows = localDreams(pk).map(function (d) { return { k: "d:" + d.id, t: d.text, at: atOf(d), reply: false, d: d }; })
-        .concat(localReplies(pk).map(function (r) { return { k: "r:" + r.id, t: r.text, at: atOf(r), reply: true, d: r }; }))
-        .filter(function (x2) { return !isHex64(x2.d.nid) && isPublic(x2.d); }).sort(function (a, b) { return b.at - a.at; });
-      const when = function (t) { try { return new Date(t).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }); } catch (e) { return ""; } };
-      remPart = lh('fieldset', { className: "lid-panel", style: { border: 0, padding: 0, margin: 0 } },
-        lh('legend', { className: "lid-label", id: "srv-pick-h", tabIndex: -1 }, "Choose Dreams to put on Rem"),
-        rows.length ? null : lh('p', { className: "lid-help" }, "Every public Dream on this device is already on Rem."),
-        lh(Btn, { onClick: function () { const all = rows.length && rows.every(function (r) { return pick.has(r.k); }); setPick(new Set(all ? [] : rows.map(function (r) { return r.k; }))); say(all ? "None selected" : "All " + rows.length + " selected"); } }, rows.length && rows.every(function (r) { return pick.has(r.k); }) ? "Select none" : "Select all"),
-        lh('ul', { className: "lid-links", style: { listStyle: "none", paddingLeft: 0 } }, rows.map(function (r) {
-          const t = r.t.replace(/\s+/g, " ").trim(), short = t.length > 90 ? t.slice(0, 90) + "…" : t;
-          return lh('li', { key: r.k }, lh('label', { className: "lc-radio" + (pick.has(r.k) ? " on" : "") },
-            lh('input', { type: "checkbox", checked: pick.has(r.k), onChange: function () { const n = new Set(pick); if (n.has(r.k)) n.delete(r.k); else n.add(r.k); setPick(n); } }),
-            lh('span', null, (r.reply ? "Reply: " : "") + short + ", " + when(r.at))));
-        })),
-        lh(Btn, { disabled: busy || !pick.size, onClick: function () { run(async function () {
-          const r = await upload(pick, progress);
-          saveCfg({ optin: cfg().optin === "all" ? "all" : "pick", optinAt: cfg().optinAt || Date.now() }); setPick(null);
-          done(upText(r) + " New Dreams you make go to Rem too.", "srv-msg");
-        }); } }, "Put " + plural(pick.size, "chosen Dream") + " on Rem"),
-        lh(Btn, { onClick: function () { setPick(null); focusSoon("srv-status"); } }, "Cancel"));
-    } else {
-      const n = remCounts(pk);
-      const statusText = c.optin === "all" ? "Syncing is on: all your public Dreams, and new ones as you make them."
-        : c.optin === "pick" ? "Syncing is on for the Dreams you picked, and new ones as you make them."
-        : c.optin === "none" ? "Your older Dreams stay on this device. New public Dreams still go to Rem." : null;
-      remPart = lh(React.Fragment, null,
-        lh('p', { className: "lid-help", id: "srv-status", tabIndex: -1 }, n.on ? plural(n.on, "Dream") + " of " + (n.dreams + n.replies) + " on this device " + (n.on === 1 ? "is" : "are") + " on Rem." : "None of the Dreams on this device are on Rem yet."),
-        c.optin == null ? lh('section', { "aria-labelledby": "srv-optin-h" },
-          lh('h3', { className: "lid-label", id: "srv-optin-h", tabIndex: -1 }, "Put your Dreams on Rem?"),
-          lh('p', { className: "lid-help" }, "You have " + plural(n.dreams, "Dream") + " and " + plural(n.replies, "reply", "replies") + " on this device, and " + n.pub + " of them " + (n.pub === 1 ? "is" : "are") + " public (Audience Everyone). Public ones can go on Rem, signed with your key, with their original dates. Followers and Circles Dreams stay on this device. Nothing uploads unless you choose."),
-          lh(Btn, { disabled: busy, onClick: function () { run(async function () { saveCfg({ optin: "all", optinAt: Date.now() }); const r = await upload(null, progress); done(upText(r) + " New Dreams you make go to Rem too.", "srv-msg"); }); } }, "All my Dreams"),
-          lh(Btn, { disabled: busy, onClick: function () { setPick(new Set()); focusSoon("srv-pick-h"); } }, "Let me pick"),
-          lh(Btn, { disabled: busy, onClick: function () { saveCfg({ optin: "none" }); done("OK. Your older Dreams stay on this device. You can change this here any time.", "srv-status"); } }, "Not now"))
-        : lh('p', { className: "lid-help" }, statusText),
-        (c.optin === "all" || c.optin === "pick") && lh(Btn, { disabled: busy, onClick: function () { run(async function () {
-          let r = null; if (c.optin === "all") r = await upload(null, progress); else { const keys = new Set(); localDreams(pk).forEach(function (d) { if (atOf(d) > (c.optinAt || 0)) keys.add("d:" + d.id); }); localReplies(pk).forEach(function (x2) { if (atOf(x2) > (c.optinAt || 0)) keys.add("r:" + x2.id); }); r = await upload(keys, progress); }
-          done("Synced." + (r && r.sent ? " " + plural(r.sent, "Dream") + " sent to Rem." : " Nothing new to send."), "srv-msg");
-        }); } }, "Sync now"),
-        c.optin === "none" && lh(Btn, { disabled: busy, onClick: function () { saveCfg({ optin: null }); focusSoon("srv-optin-h"); } }, "Put my Dreams on Rem"),
-        (c.optin === "all" || c.optin === "pick") && lh(Btn, { disabled: busy, onClick: function () { setPick(new Set()); focusSoon("srv-pick-h"); } }, "Choose more Dreams"),
-        (c.optin === "all" || c.optin === "pick") && lh(Btn, { disabled: busy, onClick: function () { saveCfg({ optin: "none" }); done("Syncing is off. Dreams already on Rem stay there.", "srv-status"); } }, "Stop syncing"));
-    }
-    body = remPart;
+    const n = remCounts(pk), kept = n.dreams + n.replies - n.pub;
+    body = lh(React.Fragment, null,
+      lh('p', { className: "lid-help", id: "srv-status", tabIndex: -1 }, "Syncing is on. " + (n.pub ? plural(n.pub, "Dream") + " on this device " + (n.pub === 1 ? "is" : "are") + " set to Everyone, so " + (n.pub === 1 ? "it goes" : "they go") + " on Rem by themselves, older ones too." : "When you Dream to Everyone, it goes on Rem by itself.")),
+      kept > 0 ? lh('p', { className: "lid-help" }, plural(kept, "Dream") + " set to Followers only, My Circles or Only this device stay on this device. That's each Dream's own choice.") : null,
+      lh(Btn, { disabled: busy, onClick: function () { run(async function () {
+        nidDone = false;
+        const r = await syncAll();
+        done(upText(r.a, (r.b.okD || 0) + (r.b.okR || 0)), "srv-msg");
+      }); } }, "Sync now"));
   }
   return lh('div', { className: "lid-panel" }, intro, body, lh(Note, { msg: msg, err: er, id: "srv-msg" }));
 }
 
-// Nov 8 2026 (LooscidID cleanup): shown on Download and back up (BackupSettings in js/more.js) under its own "Backup file"
-// heading and one-line description, so there (inDl) its intro line is skipped and its parts are h3s under that heading.
 function LcBackupPanel({ go, inDl }) {
   useBump();
   const [p1, setP1] = useState(""), [p2, setP2] = useState(""), [withKey, setWithKey] = useState(true);
@@ -425,9 +468,8 @@ function LcBackupPanel({ go, inDl }) {
     lh(Note, { msg: msg, err: er, id: "bk-msg" }));
 }
 
-/* --- Mode: Local only or Looscid server (Oct 31 2026, Carter: "how would you know if you're using the local version or
-   the server based version"). One plain line at the top of More, the LooscidID home page, Looscid server and Settings.
-   A change of mode is announced once, politely, a moment after the change so it doesn't cut off the other message. */
+/* --- The Rem line (Oct 31 2026, it was the Mode line). Nov 9 2026: Local mode is gone, so there's no mode to say anymore;
+   the line on the Rem screen says if your Dreams are syncing and when they last did. */
 function agoText(t) {
   const s = Math.round((Date.now() - t) / 1000); if (s < 45) return "just now";
   const m = Math.round(s / 60); if (m < 60) return plural(m, "minute") + " ago";
@@ -436,78 +478,82 @@ function agoText(t) {
   return "on " + new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 function modeNow() {
-  // Nov 7 2026: "Rem" mode = your Dreams sync to Rem (you chose All my Dreams or Let me pick).
-  const c = cfg(), sync = syncOn();
-  return { on: sync, sync: sync, handle: "", host: "Rem", last: +c.lastSync || 0 };
+  // Nov 9 2026: Local mode is gone. This only says if your Dreams can sync right now (they need your key, unlocked).
+  const c = cfg(), st = keyState(), sync = syncOn();
+  return { on: sync, sync: sync, why: sync ? "" : st.mode === "locked" ? "locked" : "nokey", handle: "", host: "Rem", last: +c.lastSync || 0 };
 }
 function modeText(m) {
   m = m || modeNow();
-  if (m.sync) return "Mode: Rem. Your public Dreams sync to Rem. " + (m.last ? "Last synced " + agoText(m.last) + "." : "Not synced yet.");
-  return "Mode: Local. Your Dreams live on this device, and new public Dreams also go to Rem.";
+  if (m.sync) return "Your cooked Dreams sync to Rem. " + (m.last ? "Last synced " + agoText(m.last) + "." : "Not synced yet.");
+  if (m.why === "locked") return "Your key is locked. Unlock it so your Dreams can sync to Rem.";
+  return "Make a LooscidID key so your Dreams can go on Rem.";
 }
-let lastModeKey = modeNow().sync ? "server" : "local", modeSayT = null;
-window.addEventListener("looscid-server", function () {
-  const k = modeNow().sync ? "server" : "local"; if (k === lastModeKey) return; lastModeKey = k;
-  clearTimeout(modeSayT); modeSayT = setTimeout(function () { say(k === "server" ? "Mode is now Rem." : "Mode is now Local."); }, 1800);
-});
 function LcModeLine(props) {
   const [, tick] = useState(0);
   useEffect(function () { const f = function () { tick(function (n) { return n + 1; }); }; window.addEventListener("looscid-server", f); const iv = setInterval(f, 60000);
     return function () { window.removeEventListener("looscid-server", f); clearInterval(iv); }; }, []);
   const m = modeNow();
-  return lh('p', { className: "lc-mode-line " + (m.sync ? "lc-mode-server" : "lc-mode-local"), style: Object.assign({ margin: "8px 16px", padding: "10px 12px", borderRadius: 12, borderLeft: "4px solid " + (m.sync ? "#10b981" : "#a78bfa"), background: "rgba(127,127,127,.12)", fontSize: 14, lineHeight: 1.45, fontWeight: 600 }, props && props.style) }, modeText(m));
+  return lh('p', { className: "lc-mode-line " + (m.sync ? "lc-mode-server" : "lc-mode-off"), style: Object.assign({ margin: "8px 16px", padding: "10px 12px", borderRadius: 12, borderLeft: "4px solid " + (m.sync ? "#10b981" : "#a78bfa"), background: "rgba(127,127,127,.12)", fontSize: 14, lineHeight: 1.45, fontWeight: 600 }, props && props.style) }, modeText(m));
 }
-/* --- "Switch to the Looscid server?" (Nov 1 2026, Carter: "a prompt appears that you are using the local version of
-   Looscid. Do you want to upgrade to server?"). Shown once, to people in Local mode who aren't signed in to a server, after
-   first-run setup and never on top of another dialog. Switch to server opens Settings, Rem (since Nov 8 2026) (nothing
-   syncs until you sign in and choose your Dreams there); Stay local, or Escape, keeps Local mode. Either way it's remembered
-   (localStorage looscid_server_ask) and never shown again on its own; the option stays in Settings. */
-const ASK_KEY = "looscid_server_ask";
-function askDone() { try { return !!localStorage.getItem(ASK_KEY); } catch (e) { return true; } }
-function LcServerAsk(props) {
-  const [show, setShow] = useState(false);
-  const hRef = React.useRef(null), boxRef = React.useRef(null);
+/* --- "Your Dreams were synced to Rem" (Nov 9 2026, Carter: "people get a notification that their dreams were synced to
+   ram. They get to learn more about RAM with a learn more about RAM button that's collapsed and they could revisit the RAM
+   thing at a later date"). It replaces the old "You're using Looscid in Local mode" question.
+   - Shown once, the first time older Dreams go up (noteSync). It's a card above the tab bar, not a dialog: focus never moves.
+   - The words are in a polite live region (role status) that's on the page from the start, so screen readers read them
+     when they arrive without cutting anything off.
+   - Learn more about Rem is a real button with aria-expanded, collapsed at first. It opens LcAboutRem: what Rem is and
+     what got synced, in plain words. The same words are on the Rem screen's About Rem section, linked from here, so you
+     can come back to it anytime. Got it closes the card. */
+function aboutRemBits(s) {
+  const out = [];
+  if (s && (s.dreams || s.replies)) {
+    const what = [s.dreams ? plural(s.dreams, "Dream") : "", s.replies ? plural(s.replies, "reply", "replies") : ""].filter(Boolean).join(" and ");
+    let when = ""; try { when = new Date(s.at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }); } catch (e) {}
+    out.push((when ? "On " + when + ", I" : "I") + " put " + what + " from this device on Rem. They're the older ones set to Everyone that weren't there yet. Each one kept its first date and is signed with your LooscidID key, so nobody can fake it.");
+  }
+  return out;
+}
+function LcAboutRem(props) {
+  const s = props.synced || null, idp = props.idp || "rem-about";
+  return lh('div', { className: "lc-about-rem" },
+    lh('p', { className: "lid-help", id: idp + "-what" }, "Rem is Looscid's own server. It's where cooked Dreams live, so your Dreams show up on all your devices and other Dreamors can find them in the feed. It's open source, and you can download your Dreams from it anytime."),
+    aboutRemBits(s).map(function (t, i) { return lh('p', { key: i, className: "lid-help" }, t); }),
+    lh('p', { className: "lid-help" }, "What stays on this device: your Uncooked Dreams (drafts), and any Dream set to Followers only, My Circles or Only this device. Sharing is up to each Dream. Changing it on one never changes your other Dreams."),
+    lh('p', { className: "lid-help" }, "Want a Dream off Rem? Delete it, and it's deleted on Rem too. You can also delete everything Rem has for you on the Rem screen."),
+    props.children || null);
+}
+function LcRemSynced(props) {
+  const [note, setNote] = useState(null), [msg, setMsg] = useState(""), [open, setOpen] = useState(false);
   useEffect(function () {
-    if (askDone() || modeNow().on) return;
-    const t = setTimeout(function () {
-      if (askDone() || modeNow().on) return;
-      if (document.querySelector('[role="dialog"],[role="alertdialog"],[aria-modal="true"]')) return; // another dialog is open: ask on the next visit
-      setShow(true);
-    }, 2500);
-    return function () { clearTimeout(t); };
+    let t = null, tries = 0;
+    const f = function (e) { const s = e && e.detail; if (!s) return;
+      // Another dialog is open (setup, a question): everything behind it is hidden from screen readers, so wait until it closes.
+      if (document.querySelector('[role="dialog"],[role="alertdialog"],[aria-modal="true"]') && tries++ < 150) { t = setTimeout(function () { f(e); }, 2000); return; }
+      setOpen(false); setNote(s);
+      // A short wait after the card shows, so the live region's new words are read once, not skipped.
+      t = setTimeout(function () { setMsg("Your Dreams were synced to Rem."); }, 300); };
+    window.addEventListener(NOTE_EVT, f);
+    return function () { window.removeEventListener(NOTE_EVT, f); clearTimeout(t); };
   }, []);
-  useEffect(function () { if (show && hRef.current) hRef.current.focus(); }, [show]);
-  if (!show) return null;
-  const pick = function (v) {
-    try { localStorage.setItem(ASK_KEY, v); } catch (e) {}
-    setShow(false);
-    if (v === "server") { if (props.navigate) props.navigate("settings_rem"); } // Nov 8 2026: Rem's own Settings screen
-    else say("Staying in Local mode. Rem is in LooscidID whenever you want it.");
-  };
-  const onKey = function (e) {
-    if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); pick("local"); return; }
-    if (Looscid.lcTrapTab) Looscid.lcTrapTab(e, boxRef.current);
-  };
-  return lh(AskOverlay, null,
-    lh('div', { className: "lc-q", role: "dialog", "aria-modal": "true", "aria-labelledby": "lc-srv-ask-t", ref: boxRef, onKeyDown: onKey },
-      lh('h2', { id: "lc-srv-ask-t", tabIndex: -1, ref: hRef, className: "lc-q-h lc-q-t" }, "You're using Looscid in Local mode"),
-      lh('div', { className: "lc-q-intro" },
-        lh('p', null, "Want to put your Dreams on Rem? It keeps your public Dreams synced on all your devices with your LooscidID."),
-        lh('p', null, "Your older Dreams go on Rem only after you choose which ones. You can change this any time on the Rem screen in LooscidID.")),
-      lh('div', { className: "lc-q-btns" },
-        lh('button', { type: "button", className: "btn bp lc-big", onClick: function () { pick("server"); } }, "Put my Dreams on Rem"),
-        lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { pick("local"); } }, "Stay local"))));
+  const close = function () { setNote(null); setMsg(""); setOpen(false); };
+  const big = { minHeight: 44, minWidth: 44 };
+  const toRem = lh('a', { className: "lc-link", id: "lc-remnote-about", href: Looscid.lcPathFor ? Looscid.lcPathFor("settings_rem") : "#", style: { display: "inline-flex", alignItems: "center", minHeight: 44 },
+    onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); close(); if (props.navigate) props.navigate("settings_rem");
+      setTimeout(function () { const h = document.getElementById("rem-h-about"); if (h) h.focus(); }, 500); } }, "About Rem, anytime");
+  return lh('div', { id: "lc-remnote", className: note ? "lc-remnote" : undefined, style: note ? { position: "fixed", left: 12, right: 12, bottom: "calc(80px + env(safe-area-inset-bottom, 0px))", zIndex: 60, maxWidth: 560, margin: "0 auto", maxHeight: "60vh", overflowY: "auto", padding: "12px 14px", borderRadius: 14, background: "var(--sf, var(--bg, #1c1c1e))", color: "var(--tx, #fff)", border: "2px solid #34c759", boxShadow: "0 6px 24px rgba(0,0,0,.35)" } : undefined },
+    // On the page from the start, empty, so its words are read when they arrive (role status is a polite live region).
+    lh('p', { role: "status", id: "lc-remnote-msg", className: note ? undefined : "sr-only", style: note ? { margin: "0 0 6px", fontWeight: 700, fontSize: 16 } : undefined }, msg),
+    note ? lh(React.Fragment, null,
+      lh('button', { type: "button", id: "lc-remnote-more-btn", className: "btn bgb", style: big, "aria-expanded": open ? "true" : "false", "aria-controls": "lc-remnote-more", onClick: function () { setOpen(!open); } }, "Learn more about Rem"),
+      lh('div', { id: "lc-remnote-more", hidden: !open, style: { marginTop: 8 } }, open ? lh(LcAboutRem, { synced: note, idp: "lc-remnote" }, lh('p', { className: "lid-help", style: { margin: 0 } }, toRem)) : null),
+      lh('div', { style: { marginTop: 8 } }, lh('button', { type: "button", id: "lc-remnote-ok", className: "btn bp", style: big, onClick: close }, "Got it"))) : null);
 }
-// The overlay makes everything behind the question unreachable while it's open (same as the first-run question).
-function AskOverlay(props) {
-  const ref = React.useRef(null);
-  if (Looscid.useInertBehind) Looscid.useInertBehind(ref);
-  return lh('div', { className: "lc-q-ov", ref: ref }, props.children);
-}
-Looscid.lcServer = { cfg: cfg, remCounts: remCounts, upload: upload, tick: tick, makeBackup: makeBackup, openBackup: openBackup, restoreBackup: restoreBackup, mode: modeNow };
+Looscid.lcServer = { cfg: cfg, remCounts: remCounts, upload: upload, tick: tick, syncAll: syncAll, markForgot: markForgot, makeBackup: makeBackup, openBackup: openBackup, restoreBackup: restoreBackup, mode: modeNow };
 Looscid.LcServerPanel = LcServerPanel;
 Looscid.LcModeLine = LcModeLine;
-Looscid.LcServerAsk = LcServerAsk;
+Looscid.LcRemSynced = LcRemSynced;
+Looscid.LcAboutRem = LcAboutRem;
+Looscid.lcRemSynced = function () { const s = cfg().synced; return s && typeof s === "object" ? s : null; };
 Looscid.lcModeText = modeText;
 Looscid.LcBackupPanel = LcBackupPanel;
 })(window.Looscid = window.Looscid || {});

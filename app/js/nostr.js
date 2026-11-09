@@ -591,6 +591,23 @@ async function publishToRem(d) {
   return { ok: !!srv.ok, queued: !srv.ok && !(srv.status >= 400 && srv.status < 500), refused: srv.status >= 400 && srv.status < 500 && srv.status !== 429 ? ((srv.body && srv.body.error) || "refused") : null, id: ev.id };
 }
 
+/* Nov 9 2026 (Local mode retired): your own older Dreams that went to Nostr before Rem existed, read back by their ids from
+   your relays, so js/remsync.js can copy them to Rem exactly as they were signed (same id). Each one is checked first.
+   Returns { id: event }. Reading only: nothing is sent to the relays but the request. */
+async function fetchByIds(ids) {
+  ids = (ids || []).filter(isHex64).map(function (x) { return x.toLowerCase(); }); const out = {}; if (!ids.length) return out;
+  let NT; try { NT = await load(); } catch (e) { return out; }
+  for (let i = 0; i < ids.length; i += 100) {
+    const want = ids.slice(i, i + 100), all = await Promise.all(relays().map(function (u) { return relayReq(u, { ids: want, limit: want.length }, 7000); }));
+    all.forEach(function (evs) { evs.forEach(function (ev) {
+      if (!ev || typeof ev.id !== "string" || out[ev.id] || want.indexOf(ev.id.toLowerCase()) < 0 || ev.kind !== 1) return;
+      let ok = false; try { ok = NT.verifyEvent(ev); } catch (e) {} if (!ok) return;
+      out[ev.id.toLowerCase()] = { id: ev.id, pubkey: ev.pubkey, created_at: ev.created_at, kind: ev.kind, tags: ev.tags, content: ev.content, sig: ev.sig };
+    }); });
+  }
+  return out;
+}
+
 /* --- Build 151 (#54): the Federated feed reads public Looscid Dreams from your relays ---------------------------
    Kind 1 notes tagged "looscid" from anyone, newest first, checked with their signatures. Replies are left out of the
    feed. With Dreams from around you on, it also asks for notes tagged with your rough area ("g", a 5-letter geohash).
@@ -1030,7 +1047,7 @@ if (document.readyState === "complete") start(); else window.addEventListener("l
 
 Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, VENDOR_URL: VENDOR_URL, load: load, toolsMsg: toolsMsg, toolsReady: toolsReady, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
   importKey: importKey, isCurrentKey: isCurrentKey, createKey: createKey, passcodeProblem: passcodeProblem, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, dropKey: dropKey, sealedSignins: sealedSignins, forgetWarning: forgetWarning, signedOutText: signedOutText, nsecNow: nsecNow, sealSessions: sealSessions, sealSessionsNow: sealSessionsNow, openSessions: openSessions, dmRelaysOf: dmRelaysOf,
-  publishDream: publishDream, publishToRem: publishToRem, publishDeletion: publishDeletion, sign: sign, nostrOn: nostrOn, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchRootDeletions: fetchRootDeletions, fetchReactions: fetchReactions, fetchLikesOf: fetchLikesOf, myDreamNids: myDreamNids, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide, forget: forget };
+  publishDream: publishDream, publishToRem: publishToRem, publishDeletion: publishDeletion, sign: sign, nostrOn: nostrOn, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchRootDeletions: fetchRootDeletions, fetchReactions: fetchReactions, fetchLikesOf: fetchLikesOf, myDreamNids: myDreamNids, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, fetchByIds: fetchByIds, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide, forget: forget };
 // Tokens saved before this update, when the key already has a passcode, are sealed a few seconds after startup.
 setTimeout(function () { sealSessions(); }, 2500);
 })(window.Looscid = window.Looscid || {});
