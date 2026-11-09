@@ -154,7 +154,7 @@ function cherryView(st, p, act) {
     /* Your History: All and Pinned */
     h('section', { className: "lc-cherry-hist", "aria-labelledby": "cherry-hist-h" },
       h('h2', { id: "cherry-hist-h", className: "lc-sub-h", tabIndex: -1 }, "Your History"),
-      h('p', { className: "lc-desc" }, keep ? "Your chats with Cherry, newest first. Chat Options has Pin, Edit name and Delete." : "Saving chats is off, so new chats aren't kept. Turn it on in Settings, Cherry, Memory."),
+      h('p', { className: "lc-desc" }, keep ? "Your chats with Cherry, newest first. Chat Options has Pin, Edit name and Delete." : "Saving chats is off, so new chats aren't kept. Turn it on in Customization, Cherry, Memory."),
       h('div', { className: "ftabs lc-cherry-tabs", role: "tablist", "aria-label": "Your History", onKeyDown: onTabKey },
         TABS.map(function (t, i) {
           const on = tab === t[0];
@@ -566,7 +566,7 @@ function cherryRespond(text, cherryCtx) {
   const r = cherryRespond0(text, cherryCtx);
   if (r && r.tool && (r.autoFn || r.confirm) && !lcCherryToolOn(r.tool)) {
     const t = LC_CHERRY_TOOLS.find(function (x) { return x[0] === r.tool; });
-    return { action: null, result: (t ? t[2] : "That") + " is off for Cherry, so nothing was changed. You can turn it on in Settings, Cherry, Tools." };
+    return { action: null, result: (t ? t[2] : "That") + " is off for Cherry, so nothing was changed. You can turn it on in Customization, Cherry, Tools." };
   }
   return r;
 }

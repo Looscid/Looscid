@@ -1921,7 +1921,7 @@ const LC_FIND_STATIC = [
   // Nov 8 2026 (Carter: "Rem should get it's own settings section"): Rem's own screen and what's on it.
   { l: "Rem", w: "rem server looscid server mode local sync syncing online status protocol", page: "settings_rem", where: "Settings, LooscidID" },
   { l: "Put your Dreams on Rem", w: "put my dreams on rem upload sync all my dreams let me pick stop syncing sync now server", page: "settings_rem", focus: "rem-h-dreams", where: "Settings, LooscidID, Rem" },
-  { l: "Mode", w: "mode local server rem local mode server mode", page: "settings_rem", where: "Settings, LooscidID, Rem" },
+  { l: "Mode", w: "mode local server rem local mode server mode", page: "settings_customizability", focus: "lc-cz-cats-mode", where: "Settings, Customization" },
   { l: "Sync my lists", w: "lists likes redreams pins mutes followed threads sync my lists again devices", page: "settings_rem", focus: "rem-h-lists", where: "Settings, LooscidID, Rem" },
   { l: "Download my Dreams", w: "download my dreams export rem signed file", page: "settings_rem", focus: "rem-download", where: "Settings, LooscidID, Rem" },
   { l: "Delete my Rem data", w: "delete my rem data forget me erase server", page: "settings_rem", focus: "rem-forget", where: "Settings, LooscidID, Rem" },
@@ -1952,7 +1952,7 @@ const LC_FIND_STATIC = [
   // Round 7.33
   { l: "Show followed threads on my profile", w: "followed threads follow thread profile show hide privacy", page: "settings_privacy", priv: "pthreads", focus: "set-showThreads", where: "Settings, Privacy & Security, Followed Threads" },
   { l: "Backup", w: "settings backup export import reset", page: "settings_backup", where: "Settings, General" },
-  { l: "Cherry", w: "intelligence ai cherry assistant artificial intelligence", page: "settings_intelligence", where: "Settings" },
+  { l: "Cherry", w: "intelligence ai cherry assistant artificial intelligence", page: "settings_intelligence", where: "Settings, Customization" },
   { l: "Cherry on or off", w: "ai cherry turn on off enable disable assistant opt in", page: "settings_ai_cherry", focus: "ai-on", where: "Settings, Cherry, Cherry" },
   { l: "Learn from my habits", w: "ai cherry habits habit learning tips clear", page: "settings_ai_cherry", focus: "ai-habits", where: "Settings, Cherry, Cherry" },
   { l: "Cherry model", w: "ai model on-device download qwen gemma phi webllm llm", page: "settings_ai_model", focus: "cherry-model", where: "Settings, Cherry, Cherry model" },
@@ -1973,7 +1973,8 @@ const LC_FIND_STATIC = [
   { l: "Insomnia Soundpack", w: "insomnia sounds sound pack soundpack chimes", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Earcons, Soundpacks", pri: true },
   { l: "Hyper Synth Soundpack", w: "synth hyper synth sounds sound pack soundpack", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Earcons, Soundpacks", pri: true },
   { l: "FastSM-inspired Soundpack", w: "fastsm fast sm fastsmrw fastsm inspired earcons sounds sound pack soundpack mastodon bluesky client", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Earcons, Soundpacks", pri: true },
-  { l: "Chats", w: "message settings messages who can message me categories order starred dms", page: "settings_messages", where: "Settings" },
+  // Nov 8 2026: the Chats screen's one setting is in Privacy & Security, Permissions now.
+  { l: "Who can message me", w: "chats chat settings message settings messages who can message me who can dm me dms", page: "settings_privacy", priv: "perm", focus: "set-whoMessage", where: "Settings, Privacy & Security, Permissions" },
   // Round 7.37 (#176): the new pages.
   { l: "General", w: "general about updates keyboard backup labs reset commandbar", page: "settings_general", where: "Settings" },
   { l: "Updates", w: "software update updates check automatic version", page: "settings_updates", where: "Settings, General" },
@@ -2040,7 +2041,9 @@ function lcIosWhere(w) {
     .replace(/^Settings, Accessibility, Commandbar/, "Settings, General, Commandbar").replace(/^Settings, Keyboard shortcuts/, "Settings, General, Keyboard")
     .replace(/^Settings, Settings backup/, "Settings, General, Backup").replace(/^Settings, Looscid Labs/, "Settings, General, Labs")
     .replace(/^Settings, Tab Bar/, "Settings, Customization, Tab Bar").replace(/^Settings, Profile Tabs/, "Settings, Customization, Profile Tabs")
-    .replace(/^About Looscid/, "Settings, General, About").replace(/^Alerts tab, Messages/, "Settings, Chats").replace(/^Alerts tab, Alerts settings/, "Settings, Alerts").replace(/^Alerts tab$/, "Settings");
+    .replace(/^About Looscid/, "Settings, General, About").replace(/^Alerts tab, Messages/, "Settings, Chats").replace(/^Alerts tab, Alerts settings/, "Settings, Alerts").replace(/^Alerts tab$/, "Settings")
+    // Nov 8 2026 (Carter): Cherry's settings moved into Customization, and Chats' one setting lives in Privacy & Security.
+    .replace(/^Settings, Cherry/, "Settings, Customization, Cherry").replace(/^Settings, Chats/, "Settings, Privacy & Security, Permissions");
   return s;
 }
 Looscid.lcIosWhere = lcIosWhere;
@@ -2621,6 +2624,24 @@ class ErrorBoundary extends React.Component {
   }
 }
 Looscid.ErrorBoundary = ErrorBoundary;
+/* Nov 8 2026 (Carter, 8:45 PM: Chats goes into Privacy & Security): opening Chats' settings opens Privacy & Security on its
+   Permissions page, where Who can message me already was (the same saved choice), with focus on that setting. */
+function lcWhoMessagePrep() {
+  Looscid.LC_SETTINGS_BACK = null; // Back goes up through Privacy & Security, like any of its pages
+  try { sessionStorage.setItem("looscid_priv_open", "perm"); } catch (e) {}
+  try { window.dispatchEvent(new CustomEvent("looscid:privopen", { detail: "perm" })); } catch (e) {}
+  // The page puts focus on its heading when it opens, so this waits a moment and then moves it to the setting (twice, in
+  // case the heading focus lands late).
+  const find = function () { let el = document.getElementById("set-whoMessage"); if (el && el.tagName === "FIELDSET") el = el.querySelector("input:checked") || el.querySelector("input,button"); return el && el.offsetParent !== null ? el : null; };
+  let tries = 0;
+  setTimeout(function () {
+    const t = setInterval(function () { tries++; const el = find();
+      if (el) { clearInterval(t); try { el.scrollIntoView({ block: "center" }); } catch (x) {} el.focus();
+        setTimeout(function () { const e2 = find(); if (e2 && document.activeElement !== e2) e2.focus(); }, 400); }
+      else if (tries > 40) clearInterval(t); }, 60);
+  }, 450);
+}
+Looscid.lcWhoMessagePrep = lcWhoMessagePrep;
 /* --- MAIN MENU ------------------------------------------------------------ */
 /* Part 40 (#69, 2three1y Oct 11 4:02 PM): real page addresses, like looscid.github.io/Looscid/Settings/Sense. Every page has
    one; matching ignores case (/settings/sense works too), and so do usernames (/@AvaTest). GitHub Pages has no server
@@ -2642,7 +2663,9 @@ const LC_ROUTES = [
   ["settings_account", "Settings/Privacy-and-Security/Keys"], ["settings_account", "Settings/Privacy-and-Security/Passcode"], ["settings_account", "Settings/Privacy-and-Security/Backup-File"],
   ["settings_account", "Settings/Privacy-and-Security/Login-Methods"], ["settings_account", "Settings/Privacy-and-Security/Devices"], ["settings_account", "Settings/Privacy-and-Security/Security-Checkup"],
   ["settings_account", "Settings/LooscidID/Data"], ["settings_account", "Settings/LooscidID/Connectionbase"],
-  ["settings_customizability", "Settings/Customization"], ["settings_customizability", "Settings/Customizability"], ["settings_cz_order", "Settings/Customization/Settings-Order"], ["settings_cz_theme", "Settings/Customizability/Theme"], ["settings_cz_feeds", "Settings/Customizability/Feeds"],
+  ["settings_customizability", "Settings/Customization"], ["settings_customizability", "Settings/Customizability"],
+  // Nov 8 2026 (Carter): Mode (Local or Rem) is a row in Customization; /Settings/Mode opens Customization on that row.
+  ["settings_customizability", "Settings/Mode"], ["settings_customizability", "Settings/Customization/Mode"], ["settings_cz_order", "Settings/Customization/Settings-Order"], ["settings_cz_theme", "Settings/Customizability/Theme"], ["settings_cz_feeds", "Settings/Customizability/Feeds"],
   ["settings_cz_menu", "Settings/Customizability/Menu"], ["settings_cz_posting", "Settings/Customizability/Dreaming"], ["settings_cz_media", "Settings/Customizability/Media"],
   ["settings_accessibility", "Settings/Accessibility"], ["settings_a11y_sr", "Settings/Sense"], ["settings_a11y_vision", "Settings/Accessibility/Vision"],
   ["settings_a11y_hearing", "Settings/Accessibility/Hearing"], ["settings_a11y_motion", "Settings/Accessibility/Motion"],
@@ -2739,7 +2762,7 @@ function lcMoreSections(o) {
     { id:"cherry", emoji:"Cherry", label:"Cherry", items:[
       lcAiOn()
         ? { icon:"Cherry", label:"Open Cherry",     sub:"Cherry - DO IT YOUR WAY", special:"cherry", action(){onClose();goRoot("cherry");} }
-        : { icon:"Cherry", label:"Turn on Cherry",  sub:"Cherry is off. Opens Settings, Cherry", action(){onClose();navigate("settings_ai_cherry");} },
+        : { icon:"Cherry", label:"Turn on Cherry",  sub:"Cherry is off. Opens Cherry settings, in Customization", action(){onClose();navigate("settings_ai_cherry");} },
     ]},
     // Round 7.16 (#216, Carter said yes Oct 25 2026): the Discover page (Discover, Circles, Lists) is gone. Discover is its tab,
     // Lists is in your profile's More, and Circles is its own item, opening Circles directly.
@@ -2769,13 +2792,15 @@ function lcMoreSections(o) {
       { id:"accessibility", grp:"you", icon:"Accessibility", label:"Accessibility", action(){onClose();navigate("settings_accessibility");} },
       { id:"earcons", grp:"talk", icon:"Audio", label:"Earcons", action(){onClose();navigate("settings_audio");} },
       { id:"alerts", grp:"talk", icon:"Alerts", label:"Alerts", action(){onClose();navigate("settings_notifications");} },
-      { id:"chats", grp:"talk", icon:"Messages", label:"Chats", action(){onClose();Looscid.LC_SETTINGS_BACK = null;navigate("settings_messages");} },
+      // Nov 8 2026 (Carter, 8:44 and 8:45 PM): the Chats row is gone. Its one setting, Who can message me, was already in
+      // Privacy & Security, Permissions (the same saved choice), and Chats' old ways in open it there (MessageSettings).
       // Nov 8 2026 (Carter: "Privacy is in security like iOS"): one Privacy & Security row, like iOS. Its id stays "privacy",
       // so a custom Settings Order keeps its place.
       { id:"privacy", grp:"you", icon:"Privacy", label:"Privacy & Security", action(){onClose();try { sessionStorage.removeItem("looscid_priv_open"); } catch (e) {} navigate("settings_privacy");} },
       // Nov 8 2026 (Carter, 8:47 PM: "Yes for both"): Rem's own screen is a row inside LooscidID (js/more.js), not here.
       { id:"customization", grp:"you", icon:"Customizability", label:"Customization", action(){onClose();navigate("settings_customizability");} },
-      { id:"cherry", grp:"you", icon:"Intelligence", label:"Cherry", action(){onClose();navigate("settings_intelligence");} },
+      // Nov 8 2026 (Carter, 8:44 PM: "Customization. ... Cherry also live there"): Cherry's settings are a row in Customization
+      // now (LC_CZ_CATS), not a top-level row; the same screen, and Back from it goes to Customization.
       { id:"looscidid", grp:"id", icon:"LooscidID", label:"LooscidID", sub:"Profile, Rem, Connectionbase, connected apps and data", action(){onClose();navigate("settings_account");} },
       // Oct 31 2026 (Carter, 11:28 PM) Security had its own row under the LooscidID card, and LooscidID had a Security row
       // too. Nov 8 2026 (Carter: "We have a security in 2 place"): both are gone; your key, passcode, login methods, backup
@@ -3129,9 +3154,9 @@ function LcSettingsHome({ s, navigate, onBack }) {
   let groups;
   if (mode === "default") {
     const by = function (ids) { return ids.map(function (k) { return items.find(function (it) { return it.id === k; }); }).filter(Boolean).map(go); };
-    const placed = ["accessibility", "earcons", "alerts", "chats", "privacy", "customization", "cherry", "general", "helpcenter"];
+    const placed = ["accessibility", "earcons", "alerts", "privacy", "customization", "general", "helpcenter"];
     const rest = items.filter(function (it) { return placed.indexOf(it.id) < 0 && ["id", "logout", "sec"].indexOf(it.grp) < 0; }).map(go);
-    groups = [top, by(["accessibility", "earcons", "alerts", "chats"]), by(["privacy", "customization", "cherry"]), by(["general", "helpcenter"]).concat(rest)];
+    groups = [top, by(["accessibility", "earcons", "alerts"]), by(["privacy", "customization"]), by(["general", "helpcenter"]).concat(rest)];
   } else {
     groups = [top, lcSetOrdered(items, mode).map(go), help.map(go)];
   }
@@ -6624,7 +6649,7 @@ const LC_PLACES = {
   updates: { label: "Updates", page: "settings_updates" },
   customization: { label: "Customization settings", page: "settings_customizability" },
   settingsorder: { label: "Settings Order", page: "settings_cz_order" },
-  chatsettings: { label: "Chats settings", page: "settings_messages" },
+  chatsettings: { label: "Who can message me, in Privacy & Security", page: "settings_messages" }, // Nov 8 2026: opens Permissions there
   tabbar: { label: "Tab Bar settings", page: "settings_tabbar" }, // build 151 (#75)
   profiletabs: { label: "Profile Tabs settings", page: "settings_profiletabs" }, // build 152 prep (#98)
   backup: { label: "Backup settings", page: "settings_backup" },
@@ -6657,7 +6682,7 @@ const LC_EXACT = { "open commandbar": "terminal", "commandbar": "terminal", "ope
   // Round 7.37 (#176): the new Settings names; the old words above stay as aliases.
   "open general": "general", "open general settings": "general", "open updates": "updates", "open software update": "updates", "check updates settings": "updates",
   "open customization": "customization", "open customization settings": "customization", "open settings order": "settingsorder", "settings order": "settingsorder",
-  "open chats settings": "chatsettings", "open chat settings": "chatsettings", "open keyboard": "keyboard", "open earcons": "audio", "open privacy": "privacy", "open rem": "rem", "open rem settings": "rem", "open server": "rem", "open looscid server": "rem", "open permissions": "privacy", "open quiet hours": "alertsettings", "open alerts settings": "alertsettings", "import settings": "backup",
+  "open chats settings": "chatsettings", "open chat settings": "chatsettings", "open keyboard": "keyboard", "open earcons": "audio", "open privacy": "privacy", "open who can message me": "chatsettings", "open rem": "rem", "open rem settings": "rem", "open server": "rem", "open looscid server": "rem", "open permissions": "privacy", "open quiet hours": "alertsettings", "open alerts settings": "alertsettings", "import settings": "backup",
   "open braille": "braille", "open braille settings": "braille", "open screen reader": "screenreader", "open screen reader settings": "screenreader", "open screen reader and braille": "screenreader", "open sense": "screenreader", "sense": "screenreader", "sense settings": "screenreader",
   "open credits": "credits", "credits": "credits", "open source": "credits", "licenses": "credits",
   "open vision": "vision", "open hearing": "hearing", "open motion": "motion", "open motion and seizure": "motion", "open motor": "motor", "open motor and switch": "motor", "open terminal settings": "terminalsettings",
@@ -6832,7 +6857,7 @@ function lcRun(raw, api) {
   const goTo = function (id, prefix) {
     // Round 6.5.3: the Cherry commands. Cherry off: open Intelligence, Cherry, where it is turned on, and say so.
     if (LC_PLACES[id].page === "cherry") {
-      if (!lcAiOn()) { out.go = "cherrysettings"; L((prefix || "") + "Cherry is off. Opened Settings, Cherry, where you can turn it on.", "ok"); out.earcon = null; return out; }
+      if (!lcAiOn()) { out.go = "cherrysettings"; L((prefix || "") + "Cherry is off. Opened Cherry settings, where you can turn it on.", "ok"); out.earcon = null; return out; }
       const cmd = LC_PLACES[id].data && LC_PLACES[id].data.cmd;
       if (cmd === "pinned" || cmd === "all") {
         const cs = Looscid.lcCherryChats ? Looscid.lcCherryChats() : [], k = cmd === "pinned" ? cs.filter(function (c) { return c.pinned; }).length : cs.length;
@@ -8098,7 +8123,7 @@ Object.assign(Looscid, { lcSetNavRows, lcSetNavName, lcSetNavKey });
 const SETTINGS_MENU_ITEM = {
   settings_account: ["settings", "LooscidID"], settings_notifications: ["settings", "Alerts"], settings_privacy: ["settings", "Privacy & Security"], settings_rem: ["settings", "LooscidID"],
   settings_customizability: ["settings", "Customization"], settings_accessibility: ["settings", "Accessibility"], settings_intelligence: ["settings", "Cherry"], settings_about: ["about", "About Looscid"],
-  settings_audio: ["settings", "Earcons"], settings_apps: ["settings", "General"], settings_messages: ["settings", "Chats"], settings_general: ["settings", "General"],
+  settings_audio: ["settings", "Earcons"], settings_apps: ["settings", "General"], settings_messages: ["settings", "Privacy & Security"], settings_general: ["settings", "General"],
   settings_a11y_sr: ["settings", "Accessibility"], settings_a11y_vision: ["settings", "Accessibility"], settings_a11y_hearing: ["settings", "Accessibility"],
   settings_a11y_motion: ["settings", "Accessibility"], settings_a11y_motor: ["settings", "Accessibility"], settings_a11y_terminal: ["settings", "Accessibility"],
   terms: ["about", "Terms"], privacy: ["about", "Privacy"], guidelines: ["about", "Community rules"], feedback: ["about", "Send Feedback"],
@@ -8111,6 +8136,8 @@ Looscid.SETTINGS_MENU_ITEM = SETTINGS_MENU_ITEM;
 const SETTINGS_PARENT = {
   settings_keyboard: ["settings_general", "set-gen-keyboard"], settings_backup: ["settings_general", "set-gen-backup"], settings_labs: ["settings_general", "set-gen-labs"],
   settings_updates: ["settings_general", "set-gen-updates"], settings_a11y_terminal: ["settings_general", "set-gen-commandbar"],
+  // Nov 8 2026: Cherry's settings live in Customization now, so Back from them goes there, onto the Cherry row.
+  settings_intelligence: ["settings_customizability", "lc-cz-cats-cherry"],
   settings_tabbar: ["settings_customizability", "lc-cz-cats-tabbar"], settings_profiletabs: ["settings_customizability", "lc-cz-cats-profiletabs"], settings_cz_order: ["settings_customizability", "lc-cz-cats-order"],
   settings_cz_theme: ["settings_customizability", "lc-cz-cats-theme"], settings_cz_feeds: ["settings_customizability", "lc-cz-cats-feeds"], settings_cz_menu: ["settings_customizability", "lc-cz-cats-menu"],
   settings_cz_posting: ["settings_customizability", "lc-cz-cats-posting"], settings_cz_media: ["settings_customizability", "lc-cz-cats-media"],
@@ -8366,6 +8393,8 @@ useEffect(() => {
     if (target === "dp") { Looscid.LC_DP_BACK = Looscid.LC_DP_BACK_NEXT || null; Looscid.LC_DP_BACK_NEXT = null; } // the old separate About page is gone: one About Looscid
     if (target === "settings_a11y_verbosity") { try { sessionStorage.setItem("looscid_sr_tab", "verbosity"); window.dispatchEvent(new CustomEvent("looscid:srtab", { detail: "verbosity" })); } catch (e) {} target = "settings_a11y_sr"; } // round 6: Verbosity is a tab
     if (target === "settings_cherry") target = "settings_ai_cherry"; // round 5: Cherry lives in Settings, Cherry
+    // Nov 8 2026 (Carter): Chats' one setting, Who can message me, lives in Privacy & Security, Permissions now.
+    if (target === "settings_messages") { lcWhoMessagePrep(); target = "settings_privacy"; data = null; }
     if (target === "settings_cherry_algo") target = "settings_labs";
     // Round 6 fixes: More > Cherry while Cherry is off opens Intelligence; Back from there returns to the More menu on Cherry.
     if (target !== "cherry" && (target !== "settings" || openSettings)) cherryOffMenu.current = false;
@@ -8686,7 +8715,10 @@ useEffect(() => {
     // same as first run. Nothing is reset: no Dreams, no settings, no LooscidID.
     const wel = rel ? lcWelcomeFor(rel) : false;
     if (wel) { rel = "/"; Looscid.lcWelcomeAt = true; setShowWelcome(true); }
-    const r = rel ? lcRouteFor(rel) : null;
+    let r = rel ? lcRouteFor(rel) : null;
+    // Nov 8 2026: /Settings/Chats opens Privacy & Security, Permissions, on Who can message me (the Chats row is gone).
+    if (r && r.page === "settings_messages") { lcWhoMessagePrep(); r = { page: "settings_privacy", data: null }; }
+    if (r && r.page === "settings_customizability" && /(^|\/)(settings\/mode|settings\/customization\/mode)\/?$/i.test(rel || "")) { try { sessionStorage.setItem("looscid_cat_from_lc-cz-cats", "mode"); } catch (e) {} }
     if (r && r.missing) setTimeout(() => announce(r.missing), 800);
     // Nov 7 2026 (Carter): an address Looscid doesn't know goes to the "Page not found" page (404.html), with Home and Help Center links.
     if (rel && !r && rel !== "/" && !/^\/?(index\.html?)?$/i.test(rel)) { try { location.replace(LOOSCID_BASE + "404.html?nf=" + encodeURIComponent(rel)); return; } catch (e) {} }
@@ -9051,7 +9083,7 @@ useEffect(() => {
       case "settings_account":        return React.createElement(Looscid.AccountSettings, { key: "acct-" + ((pdata && pdata.tab) || "home"), navigate: navigate, authUser: authUser, onSignOut: handleSignOut, onRenameProfile: handleRenameProfile, onUpdateProfile: handleUpdateProfile, initialTab: pdata && pdata.tab, fromSettings: !!(pdata && pdata.from === "settings"), fromPrivSec: !!(pdata && pdata.from === "privsec"), fromRem: !!(pdata && pdata.from === "rem"), initialFocus: pdata && pdata.focus,});
       case "settings_notifications":  return React.createElement(Looscid.NotificationsSettings, { navigate: navigate, prefs: prefs, setPrefs: setPrefs,});
       case "settings_privacy":        return React.createElement(Looscid.PrivacySettings, { navigate: navigate, authUser: authUser, onUpdateProfile: handleUpdateProfile,});
-      case "settings_rem":            return React.createElement(Looscid.RemSettings, { navigate: navigate,}); // Nov 8 2026 (js/more.js)
+      case "settings_rem":            return React.createElement(Looscid.RemSettings, { navigate: navigate, from: pdata && pdata.from,}); // Nov 8 2026 (js/more.js)
       case "settings_audio": case "settings_audio_volume": case "settings_audio_pack": case "settings_audio_events": case "settings_audio_haptics":
                                       return React.createElement(Looscid.AudioSettings, { key: page, page: page, navigate: navigate,});
       case "settings_keyboard":       return React.createElement(Looscid.KeyboardSettings, { navigate: navigate,});

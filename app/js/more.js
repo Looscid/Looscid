@@ -1277,15 +1277,14 @@ function LcCatCustomize({ kind, defs, title }) {
             lh('input', { type: "checkbox", id: "cat-" + kind + "-" + id + "-show", checked: st.hidden.indexOf(id) < 0, onChange: function () { toggle(id); } }), lh('span', null, "Show " + n))));
     })));
 }
+/* Nov 8 2026 (Carter, 8:45 PM: Chats goes into Privacy & Security): the Chats screen only had Who can message me, and that
+   same setting (the same saved choice, whoMessage) was already in Privacy & Security, Permissions. So the Chats row is gone,
+   and anything that still opens Chats (/Settings/Chats, Commandbar "open chats settings", the Inbox's Message settings
+   buttons) opens Permissions in Privacy & Security, with focus on Who can message me (navigate does it: lcWhoMessagePrep
+   in core.js). This stays only in case something renders it straight. */
 function MessageSettings({ navigate }) {
-  useA11yNow();
-  return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
-    lh(BackHeader, { title: "Chats", onBack: function () { const b = Looscid.LC_SETTINGS_BACK; Looscid.LC_SETTINGS_BACK = null; navigate(b || "settings"); } }),
-    lh('p', { className: "lc-desc", style: { padding: "0 16px" } }, "Who can message you. Private messages use Nostr (NIP-17): end-to-end encrypted, and only you and the person you write to can read them."),
-    lh('section', { className: "lc-grp", "aria-labelledby": "ms-who-h" },
-      lh('h2', { id: "ms-who-h", className: "lc-grp-h" }, "Who can message me"),
-      lh(LcSetRow, { def: LC_SET_BY.whoMessage })),
-    lh(LcResetLast, { scope: "g:cats" }));
+  useEffect(function () { Looscid.LC_SETTINGS_BACK = null; navigate("settings_privacy"); if (Looscid.lcWhoMessagePrep) Looscid.lcWhoMessagePrep(); }, []);
+  return null;
 }
 function NotificationsSettings({navigate}) {
   // Round 6: only alert types that really fire, each with on/off, sound and who can trigger it.
@@ -1553,7 +1552,7 @@ function LcCatMenu({ id, title, intro, cats, navigate, after, reset, foots }) {
   return lh('div', { className: "pg lc-a11y" },
     lh(BackHeader, { title: title, onBack: function () { navigate("settings"); } }),
     lcMenuList(id, title + " categories", cats.map(function (c) {
-      return { id: c.id, l: c.l, sub: c.sub, grp: c.grp, a: function () { try { sessionStorage.setItem("looscid_cat_from_" + id, c.id); } catch (e) {} navigate(c.page); } };
+      return { id: c.id, l: c.l, v: c.v, sub: c.sub, grp: c.grp, a: function () { try { sessionStorage.setItem("looscid_cat_from_" + id, c.id); } catch (e) {} navigate(c.page, c.data || null); } };
     }).concat(reset !== false && (reset || LC_CATMENU_RESET[id]) ? [{ id: "reset", l: "Reset", grp: cats.some(function (c) { return c.grp; }) ? "reset" : undefined, a: function () { lcOpenReset(reset || LC_CATMENU_RESET[id]); } }] : []), foots),
     after || null,
     intro ? lh('p', { className: "lc-intro" }, intro) : null); // Touch-style settings: the intro is the footer, after the list
@@ -1577,8 +1576,13 @@ const LC_CZ_CATS = [
   { id: "tabbar", page: "settings_tabbar", l: "Tab Bar", grp: "tabs", sub: "Which tabs show at the bottom, and their order" },
   { id: "profiletabs", page: "settings_profiletabs", l: "Profile Tabs", grp: "tabs", sub: "The order of the tabs on profiles" },
   { id: "order", page: "settings_cz_order", l: "Settings Order", grp: "tabs", sub: "Default, Alphabetical or your own order of Settings" },
+  // Nov 8 2026 (Carter, 8:44 PM: "Customization. ... Cherry also live there"): Mode (Local or Rem, it was the row under the
+  // LooscidID card) and Cherry's settings (they were a top-level row) live here now. Same screens: Mode opens Rem, where the
+  // Mode line and Put your Dreams on Rem are, and Cherry opens the same Cherry settings. Back from either comes back here.
+  { id: "mode", page: "settings_rem", data: { from: "cz" }, l: "Mode", grp: "more", sub: "Local or Rem: where your Dreams live" },
+  { id: "cherry", page: "settings_intelligence", l: "Cherry", grp: "more", sub: "Turn Cherry on or off, its model, Memory, Tools and What Cherry did" },
 ];
-const LC_CZ_FOOT = { look: "How Looscid looks, how you move between feeds, the menu, writing Dreams and media.", tabs: "Choose and reorder the tab bar, the tabs on profiles and the rows of Settings. Each has Move up and Move down.", reset: "Puts Customization back to how it was when you started." };
+const LC_CZ_FOOT = { look: "How Looscid looks, how you move between feeds, the menu, writing Dreams and media.", tabs: "Choose and reorder the tab bar, the tabs on profiles and the rows of Settings. Each has Move up and Move down.", more: "Mode says if your Dreams live only on this device or also sync to Rem. Cherry is the assistant built into Looscid.", reset: "Puts Customization back to how it was when you started." };
 Looscid.LC_CZ_CATS = LC_CZ_CATS;
 /* Round 7.41 (Carter, Oct 26 2026 6:59 PM): Heading character, in Customization, Appearance. Which character (real radios),
    where it goes (Before, After, Surround) and what it shows on (checkboxes). One space between the character and the label,
@@ -1606,7 +1610,10 @@ function CustomizabilitySettings({navigate, prefs, setPrefs, theme, setTheme, pa
   const hideBotClose = !!mp.hideBotClose;
   const setMenu = (k,v) => setPrefs(p=>({...p,menu:{...(p.menu||{}),pos:mp.pos||"bottom",hideTopClose:!!mp.hideTopClose,hideBotClose:!!mp.hideBotClose,[k]:v}}));
   const cat = LC_CZ_CATS.find(function (c) { return c.page === page; });
-  if (!cat) return lh(LcCatMenu, { id: "lc-cz-cats", title: "Customization", cats: LC_CZ_CATS, foots: LC_CZ_FOOT, navigate: navigate });
+  // Nov 8 2026: the Mode row says the mode you're in now (Local or Rem), like the old Mode row did.
+  const czCats = LC_CZ_CATS.map(function (c) { if (c.id !== "mode") return c; const m = Looscid.lcServer && Looscid.lcServer.mode ? Looscid.lcServer.mode() : { sync: false };
+    return Object.assign({}, c, { v: m.sync ? "Rem" : "Local" }); });
+  if (!cat) return lh(LcCatMenu, { id: "lc-cz-cats", title: "Customization", cats: czCats, foots: LC_CZ_FOOT, navigate: navigate });
   const radios = function (name, legend, opts, cur, onPick, fid) {
     return lh('fieldset', { className: "lc-fs", id: fid },
       lh('legend', { className: "lc-fs-l" }, legend),
@@ -1710,7 +1717,7 @@ function IntelligenceSettings({ navigate, page, prefs, setPrefs, cherryCtx }) {
     body = lh(React.Fragment, null,
       lh(Looscid.CherryModelPicker, null),
       lh('p', { className: "lc-desc" }, "On-device models need WebGPU: Safari 26 on iPhone, or a recent Chrome or Edge. Sizes are the download size. Cherry built-in needs no download."),
-      lcAiOn() ? null : lh('p', { className: "lc-desc" }, "Cherry is off, so the model is only used after you turn Cherry on in Settings, Cherry."));
+      lcAiOn() ? null : lh('p', { className: "lc-desc" }, "Cherry is off, so the model is only used after you turn Cherry on in Customization, Cherry."));
   } else if (cat.id === "memory") {
     const chats = Looscid.lcCherryChats(), pins = chats.filter(function (c) { return c.pinned; }).length;
     const keep = getAIPrefs().keepChats !== false;
@@ -1719,7 +1726,7 @@ function IntelligenceSettings({ navigate, page, prefs, setPrefs, cherryCtx }) {
         onToggle: function () { const v = !(getAIPrefs().keepChats !== false); lcSetAiPref({ keepChats: v }); announce("Save chats in Your History: " + (v ? "on" : "off") + "."); } }),
       lh('p', { className: "lc-desc", id: "ai-mem-count" }, chats.length ? Looscid.fmt(chats.length) + (chats.length === 1 ? " chat" : " chats") + " saved on this device" + (pins ? ", " + pins + " pinned." : ".") : "No chats saved on this device."),
       lh('button', { type: "button", id: "ai-mem-del", className: "btn bgb lc-big", "aria-disabled": chats.length ? undefined : "true", onClick: function () { if (!chats.length) { announce("There are no chats to delete."); return; } setAskDel(true); } }, "Delete all chats"),
-      lh('p', { className: "lc-desc" }, "Cherry keeps nothing else about you. Learned habits are in Settings, Cherry, and media memory is in Privacy, Media and content."),
+      lh('p', { className: "lc-desc" }, "Cherry keeps nothing else about you. Learned habits are in Customization, Cherry, and media memory is in Privacy, Media and content."),
       askDel ? lh(AlertDialog, { title: "Delete all chats?", message: "This deletes all " + Looscid.fmt(chats.length) + (chats.length === 1 ? " chat" : " chats") + " with Cherry from this device, pinned ones too. It can't be undone.", confirmLabel: "Delete all",
         onCancel: function () { setAskDel(false); },
         onConfirm: function () {
@@ -1785,7 +1792,9 @@ function lcMenuList(id, label, items, foots) {
         return lh('li', { key: it.id, className: "mli" + (r.start ? " lc-grp-start" : "") },
           lh('button', { type: "button", id: id + "-" + it.id, className: "mitem lc-cat lc-ios-row" + (it.id === "reset" ? " lc-ios-danger-row" : ""), onClick: it.a },
             // Round 6 (2three1y): VoiceOver says just "Privacy, button": the label only.
-            lh('span', { className: "mitem-lbl" }, it.l),
+            lh('span', { className: "mitem-lbl" }, it.l, it.v ? lh('span', { className: "sr-only" }, ", ") : null),
+            // Nov 8 2026: a row can say its value after its name, like Privacy & Security's rows ("Mode, Local").
+            it.v ? lh('span', { className: "mitem-val" }, it.v) : null,
             lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })));
       })),
     foots ? groups.map(function (g) { return foots[g.k] ? lh('p', { key: g.k, className: "lc-ios-foot", id: id + "-f-" + g.k }, foots[g.k]) : null; }) : null);
@@ -1802,7 +1811,7 @@ function AccessibilitySettings({ navigate, onAskDevice }) {
     // Round 7.37 (#176): grouped like iOS Accessibility, each group with a short footer. Commandbar moved to General and
     // Earcons is a top-level row, so neither is listed here (their pages and ids are unchanged).
     lcMenuList("lc-a11y-cats", "Accessibility categories", LC_A11Y_CATS.filter(function (c) { return !c.hide; }).map(function (c) {
-      return { id: c.id, l: c.l, sub: c.sub, grp: c.grp, a: function () { try { sessionStorage.setItem("looscid_a11y_from", c.id); if (c.id === "sr") sessionStorage.removeItem("looscid_sr_tab"); } catch (e) {} navigate(c.page); } };
+      return { id: c.id, l: c.l, v: c.v, sub: c.sub, grp: c.grp, a: function () { try { sessionStorage.setItem("looscid_a11y_from", c.id); if (c.id === "sr") sessionStorage.removeItem("looscid_sr_tab"); } catch (e) {} navigate(c.page); } };
     }).concat([{ id: "reset", l: "Reset", grp: "reset", a: function () { lcOpenReset("accessibility"); } }]), {
       sense: "Sense is how Looscid works with VoiceOver, TalkBack, NVDA and braille displays: what it says, how it reads and how controls show in braille.",
       body: "Text size and contrast, captions for sounds, calmer motion with flash safety, and larger buttons.",
@@ -3297,8 +3306,10 @@ Looscid.LcPrivSecRows = LcPrivSecRows;
    and a Rem row in Privacy & Security. Those are gone, and their old ways in open this screen. Only the place changed: every
    control is the same component as before, with the same saved choices (looscid_server, looscid_rem_lists) and behavior.
    Bridges stay in LooscidID, Connectionbase. Address: /More/Settings/LooscidID/Rem (old: /Settings/Rem, /Settings/Server and more). */
-function RemSettings({ navigate }) {
+function RemSettings({ navigate, from }) {
   if (Looscid.useServerTick) Looscid.useServerTick(); else useState(0);
+  // Opened from Customization's Mode row, Back goes back there (onto that row); otherwise to LooscidID.
+  const fromCz = from === "cz";
   const N = Looscid.lcNet || {};
   // Keys and IDs and Backup file (from Put your Dreams on Rem) are LooscidID pages; Back from them comes back here.
   const toLid = function (t) { navigate("settings_account", { tab: t, from: "rem" }); };
@@ -3307,7 +3318,7 @@ function RemSettings({ navigate }) {
   const link = function (id, page, data, words) { return lh('a', { className: "lc-link", id: id, href: Looscid.lcPathFor ? Looscid.lcPathFor(page, data) : "#", style: { display: "inline-flex", alignItems: "center", minHeight: 44 },
     onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate(page, data); } }, words); };
   return lh('div', { className: "pg lc-ios-page lc-i27 lid-i27", id: "rem-page" },
-    lh(Looscid.LcI27Header, { title: "Rem", onBack: function () { navigate("settings_account", { focus: "lid-row-rem" }); }, backLabel: "Back to LooscidID" }),
+    lh(Looscid.LcI27Header, { title: "Rem", onBack: function () { if (fromCz) navigate("settings_customizability"); else navigate("settings_account", { focus: "lid-row-rem" }); }, backLabel: fromCz ? "Back to Customization" : "Back to LooscidID" }),
     lh('div', { id: "rem-body", className: "lid-body" },
       lh('p', { className: "lid-help lid-i27-help", id: "rem-intro" }, "Rem is the Looscid protocol and its server: the home of your public Dreams. Each Dream with Audience Everyone is signed with your LooscidID key and saved on Rem, which checks the signature first. It's open source, so your Dreams can be downloaded and moved anytime."),
       N.LcRemStatus ? lh(N.LcRemStatus, null) : null,
@@ -4299,7 +4310,7 @@ function LcSetRow({ def, onChange }) {
   }
   if (def.t === "bool") {
     if (def.k === "haptics" && !lcHapticsSupported()) return lh(A11ySwitch, { id: id, label: def.l + ", not supported on this device", desc: "This device or browser has no vibration support, so Haptics stays off. " + (def.desc || ""), on: false, locked: true });
-    if (def.cherry && !lcAiOn()) return lh(A11ySwitch, { id: id, label: def.l + ", turn on Cherry first", desc: "Cherry is off. Turn it on in Settings, Cherry, Cherry.", on: false, locked: true });
+    if (def.cherry && !lcAiOn()) return lh(A11ySwitch, { id: id, label: def.l + ", turn on Cherry first", desc: "Cherry is off. Turn it on in Customization, Cherry, Cherry.", on: false, locked: true });
     if (def.id && def.id !== "local" && !lcLinkedProviders()[def.id]) return lh(A11ySwitch, { id: id, label: def.l + ", link it in LooscidID first", desc: "Link this identity in Settings, LooscidID, Login methods. Then you can turn this on.", on: false, locked: true });
     return lh(A11ySwitch, { id: id, label: def.l, desc: def.desc, on: !!v, onToggle: function () { put(!v, false); } });
   }
