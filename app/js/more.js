@@ -1,7 +1,7 @@
 /* Looscid more.js: the More tab: Settings, LooscidID pages, About, Apps and the other pages it opens.
    Plain script (not a module). Everything it shares goes on window.Looscid; see docs/dev/FILES.md for the load order. */
 (function (Looscid) {
-const { A11Y_DEFAULTS, A11Y_KEY, A11ySwitch, AlertDialog, Av, BackHeader, Cbx, CommentView, DREAMS_INIT, DreamCard, Earcon, GROUPS, ID_PROVIDERS, Ic, LC_A11Y_CATS, LC_A11Y_PAGE, LC_ALERT_PREFS_KEY, LC_ALERT_TYPES, LC_AUDIO_CATS, LC_BOOT, LC_BR_BUILTIN, LC_BR_MAX, LC_BUILTIN_KEYS, LC_EXPORT_KEYS, LC_FEED_MODES, LC_FIND_KEY, LC_MSG_CATS, LC_NEXOS_APPS, LC_NEXOS_SHELL, LC_SECTIONS, LC_SET, LC_SETTINGS_KEY, LC_SET_BY, LC_SR_NAMES_DEF, LC_UPDATE_AUTO_KEY, LID_NOSTR_SK_KEY, LOOSCID_BUILD, LOOSCID_RELEASED, LOOSCID_SLOGAN, LOOSCID_VERSION, LcCmdLog, LcFindMeSwitch, LcMenu, LcSpeech, ME, MUSIC_GENRES, MenuPopupButton, Music, PROVIDER_NAMES, SecretField, TRENDING, USERS, announce, getAIPrefs, getActivity, getDrafts, getIdentity, getLocalProfile, getMethods, getTopics, hexToBytes, lcAiOn, lcAlertCats, lcAlertPrefs, lcAlerts, lcAlertsMarkAll, lcAppItems, lcAudCustom, lcBlocked, lcBlockedSet, lcBrCreate, lcBrDate, lcBrDelete, lcBrForget, lcBrList, lcBrNotice, lcBrRename, lcBrSelect, lcBrStamp, lcBrUndo, lcBrUsePast, lcBrowserName, lcCatState, lcCheckUpdate, lcCloseProps, lcDownloadSettings, lcFeedMode, lcHandle, lcHapticsSupported, lcHints, lcIdbDo, lcKeyName, lcLoadCustomPack, lcNexosSend, lcOpenReset, lcPitchCue, lcQuietNow, lcReleasedText, lcSectionTitle, lcSet, lcSpoken, lcSrName, lcStorageKB, lcTranslateOk, lcUpdateAuto, lcValueText, lcVerb, lcVersionLabel, lcBuildName, lcOldVersion, lcCodenamed, lcCodenameLabel, lcWords, lh, logActivity, removeMethod, sanitizeInput, setAIPrefs, shortNpub, systemReducedMotion, updateLocalProfile, useA11yNow, useCats, useCmdHistory, useCmdLog, useDreams, useEffect, useEnterSubmit, useKeyboardInset, useOAuthReturn, useRef, useState } = Looscid;
+const { A11Y_DEFAULTS, A11Y_KEY, A11ySwitch, AlertDialog, Av, BackHeader, Cbx, CommentView, DREAMS_INIT, DreamCard, Earcon, GROUPS, ID_PROVIDERS, Ic, LC_A11Y_CATS, LC_A11Y_PAGE, LC_ALERT_PREFS_KEY, LC_ALERT_TYPES, LC_AUDIO_CATS, LC_BOOT, LC_BR_BUILTIN, LC_BR_MAX, LC_BUILTIN_KEYS, LC_EXPORT_KEYS, LC_FEED_MODES, LC_FIND_KEY, LC_MSG_CATS, LC_NEXOS_APPS, LC_NEXOS_SHELL, LC_SECTIONS, LC_SET, LC_SETTINGS_KEY, LC_SET_BY, LC_SR_NAMES_DEF, LC_UPDATE_AUTO_KEY, LID_NOSTR_SK_KEY, LOOSCID_BUILD, LOOSCID_RELEASED, LOOSCID_SLOGAN, LOOSCID_VERSION, LcCmdLog, LcFindMeSwitch, LcFindMeLine, LcMenu, LcSpeech, ME, MUSIC_GENRES, MenuPopupButton, Music, PROVIDER_NAMES, SecretField, TRENDING, USERS, announce, getAIPrefs, getActivity, getDrafts, getIdentity, getLocalProfile, getMethods, getTopics, hexToBytes, lcAiOn, lcAlertCats, lcAlertPrefs, lcAlerts, lcAlertsMarkAll, lcAppItems, lcAudCustom, lcBlocked, lcBlockedSet, lcBrCreate, lcBrDate, lcBrDelete, lcBrForget, lcBrList, lcBrNotice, lcBrRename, lcBrSelect, lcBrStamp, lcBrUndo, lcBrUsePast, lcBrowserName, lcCatState, lcCheckUpdate, lcCloseProps, lcDownloadSettings, lcFeedMode, lcHandle, lcHapticsSupported, lcHints, lcIdbDo, lcKeyName, lcLoadCustomPack, lcNexosSend, lcOpenReset, lcPitchCue, lcQuietNow, lcReleasedText, lcSectionTitle, lcSet, lcSpoken, lcSrName, lcStorageKB, lcTranslateOk, lcUpdateAuto, lcValueText, lcVerb, lcVersionLabel, lcBuildName, lcOldVersion, lcCodenamed, lcCodenameLabel, lcWords, lh, logActivity, removeMethod, sanitizeInput, setAIPrefs, shortNpub, systemReducedMotion, updateLocalProfile, useA11yNow, useCats, useCmdHistory, useCmdLog, useDreams, useEffect, useEnterSubmit, useKeyboardInset, useOAuthReturn, useRef, useState } = Looscid;
 const { lcMax, lcCap, lcLimit } = Looscid; // Nov 1 2026: Custom character limits (core.js)
 Object.assign(Looscid, { ListsPage, ProfileLists, ProfileTabsSettings, CreditsPage, ProfileView, ProfilePage, DreamorProfilePage, AccountSettings, LcAudience, lcCatSave, LcCatCustomize, MessageSettings, NotificationsSettings, PrivacySettings, LcResetLast, LcTabs, LcBlockedPanel, LcPrivacyMedia, FeedSwitchSetting, LcCatMenu, LcCatPage, CustomizabilitySettings, lcSetAiPref, IntelligenceSettings, lcMenuList, lcSubLine, AccessibilitySettings, A11yCategory, AboutSettings, MorePage, MoreAppsGroup, FeedbackPage, PolicyPage, HourStoryPage, normalizeUrl, fieldValueText, ProfileInfoList, ChangeInfoScreen, LcProfileEditor, useProfileEditor, lcJoin, methodLabel, getStoredNostrSk, ComingSoonPanel, LoginMethods, lcGetIds, lcSaveIds, lcBech32Polymod, lcDecodeBech32Key, lcCheckId, lcVerifyId, LcKeysPanel, lcIdLabel, lidWhen, thisDeviceLabel, localDataSummary, exportLocalData, deleteLocalData, LooscidIDManager, lcUnzip, lcCheckPackFiles, lcAutoMap, lcUpdateAutoSet, lcPitchPreview, MusicPage, lcAudCustomSet, useBlocked, lcAlertPrefsSet, termOutputOpen, setTermOutputOpen, lcOsName, lcAboutInfo, AboutLooscidMore, TerminalPage, LabsSettings, lcAppGet, lcAppPut, LcAppRange, AppsSettings, NexosAppsPage, NexosAppFrame, lcLinkedProviders, LcSetRow, LcWordsRow, LcVoiceRow, LcResetBtn, LcSection, BrailleStyle, LcVerbosityPanel, SrTabs, LcSpeechTest, LcSrRename, AudioSettings, LcPackImport, lcShortcutOk, KeyboardSettings, TabBarSettings, lcImportSettings, BackupSettings });
 
@@ -1208,8 +1208,12 @@ function AccountSettings({navigate, authUser, onSignOut, onRenameProfile, onUpda
   // Google Account page. Alerts live only in Settings > Alerts, never here.
   const securityExtra = React.createElement(React.Fragment, null
     , React.createElement('h2', { className: "lid-label", id: "lid-local-h",}, "Local profile")
-    , React.createElement('p', { className: "lid-help",}, "Your LooscidID is saved only on this device. Resetting it starts fresh with the name Dreamor.")
-    , React.createElement('button', { className: "btn bgb lid-wide", onClick: ()=>{ if (window.confirm("Reset your local profile on this device?")) onSignOut(); },}, "Reset local profile")
+    // Nov 9 2026 (Carter approved item 6): Reset local profile did the same thing as Logout, at the bottom of Settings. It's
+    // one real link to Logout now (Logout still asks first). Erasing everything is Delete local data, in LooscidID's data.
+    , React.createElement('p', { className: "lid-help",}, "Your LooscidID is saved only on this device. ",
+        lh('a', { className: "lc-link", id: "lid-local-logout", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings") : "#"),
+          onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); Looscid.LC_SETTINGS_BACK = null; navigate("settings");
+            let n = 0; const t = setInterval(function () { n++; const b = document.getElementById("set-row-logout"); if (b && b.offsetParent !== null) { clearInterval(t); b.focus(); } else if (n > 30) clearInterval(t); }, 80); } }, "Logout to start fresh"), ".")
   );
   return React.createElement(LooscidIDManager, { navigate: navigate, authUser: authUser, onUpdateProfile: onUpdateProfile || (()=>{}), initialTab: initialTab, fromSettings: fromSettings, fromPrivSec: fromPrivSec, fromRem: fromRem, initialFocus: initialFocus,
     title: "LooscidID", onBack: ()=>{ const r = Looscid.LC_LID_RETURN; Looscid.LC_LID_RETURN = null; if (r) { Looscid.LC_PM_OPEN = r; navigate("alerts"); return; } navigate("settings"); }, securityExtra: securityExtra,});
@@ -2162,8 +2166,10 @@ function AboutSettings({navigate}) {
             lh('ul', { style: { paddingLeft: 18 } }, v.notes.map(function (n, i) { return lh('li', { key: i }, n); })));
         }))) : null),
       lh('p', { className: "lid-help lc-slogan" }, LOOSCID_SLOGAN), // Round 7.39: "Just Dream", no period
-      lh('button', { type: "button", id: "about-check", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { lcCheckUpdate(true); } }, "Check for updates"),
-      lh(A11ySwitch, { id: "about-autoupdate", label: "Automatically check for updates", on: auto, onToggle: function () { lcUpdateAutoSet(!auto); tick(function (x) { return x + 1; }); announce("Automatically check for updates: " + (!auto ? "on" : "off") + "."); } }),
+      // Nov 9 2026 (Carter approved item 2): Check for updates and its automatic switch live in General, Updates. About keeps
+      // the version and one real link there, so they're never 2 copies.
+      lh('p', { className: "lid-help", id: "about-upd-line" }, lh('a', { className: "lc-link", id: "about-check", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings_updates") : "#"),
+        onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("settings_updates"); setTimeout(function () { const b = document.getElementById("upd-check"); if (b) b.focus(); }, 450); } }, "Check for updates"), auto ? ". Looscid checks on its own when it opens." : "."),
       devOn ? lh('button', { type: "button", id: "about-dev", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { navigate("settings_dev"); } }, "Dev menu") : null),
     lh('section', { "aria-label": "More about Looscid", style: { padding: "8px 16px 12px" } },
       // Nov 8 2026: the old About words (the lead, Our story, Find Looscid) are replaced by the About Looscid words at the top.
@@ -2798,13 +2804,13 @@ function LoginMethods() {
     note && lh('p', { className: "lid-saved" }, note),
     lh('ul', { className: "lid-links", 'aria-label': "Login methods" },
       methods.map(function (m) {
-        return lh('li', { key: m.id }, lh('span', null, methodLabel(m) + ", linked"),
+        return lh('li', { key: m.id }, lh('span', null, methodLabel(m) + ", linked"), LC_FIND_KEY[m.provider] ? lh(LcFindMeLine, { provider: m.provider }) : null,
           lh('button', { type: "button", className: "btn bgb", 'aria-label': "Remove " + PROVIDER_NAMES[m.provider] + " login", onClick: function () { setConfirmRm(m); } }, "Remove"));
       }),
       lh('li', { key: "local" }, lh('span', null, "Local profile, this device"), lh('span', { className: "lid-field-v", style: { flex: "none" } }, "always on"))),
     lh(MenuPopupButton, { id: "lid-add-method", label: "Add login method", value: adding || "", items: items, placeholder: "Choose a network",
       onSelect: function (v) { setNote(""); setAdding(v); } }),
-    prov && prov.status === "ready" ? lh(LcFindMeSwitch, { provider: prov.id }) : null,
+    prov && prov.status === "ready" ? lh(LcFindMeLine, { provider: prov.id }) : null,
     prov && prov.status === "ready" ? lh(prov.Panel, { onDone: done, from: "account" }) : null,
     confirmRm && lh(AlertDialog, { title: "Remove " + PROVIDER_NAMES[confirmRm.provider] + " login?",
       message: lcRemoveMethodMsg(confirmRm),
@@ -3047,7 +3053,7 @@ function NostrKeySection() {
       confirmLabel: "Remove", onCancel: function () { setConfirmRm(false); lcFocusId("nostr-remove"); },
       onConfirm: function () { setConfirmRm(false); const r = N.forget(); say("Your Nostr key was removed from this device." + (r && r.signedOut ? " " + r.signedOut : "")); lcFocusId("nostr-key-h"); } }));
 }
-function LcKeysPanel({ goMethods }) {
+function LcKeysPanel({ goMethods, inMethods }) {
   const [kind, setKind] = useState("nostr");
   const [val, setVal] = useState("");
   const [msg, setMsg] = useState(null); // {t, err}
@@ -3088,18 +3094,20 @@ function LcKeysPanel({ goMethods }) {
   };
   const ref = useEnterSubmit(add);
   return lh('div', { className: "lid-panel" },
-    lh('h2', { id: "lc-keys-list-h", className: "lid-label", tabIndex: -1 }, "Linked to your LooscidID"),
-    (ids.length || methods.length) ? lh('ul', { className: "lid-links", role: "list", "aria-labelledby": "lc-keys-list-h" },
+    // Nov 9 2026 (Carter approved item 3): linking an ID lives in Login methods, next to the login methods themselves, so
+    // there's one place to add one. This list shows the linked IDs there (the login methods are right above it).
+    lh('h2', { id: "lc-keys-list-h", className: "lid-label", tabIndex: -1 }, inMethods ? "Linked IDs" : "Linked to your LooscidID"),
+    (ids.length || (!inMethods && methods.length)) ? lh('ul', { className: "lid-links", role: "list", "aria-labelledby": "lc-keys-list-h" },
       ids.map(function (x) {
         return lh('li', { key: x.kind + x.id }, lh('span', null, lcIdLabel(x) + ", " + (x.verified ? "verified" : "not verified yet")),
           lh('button', { type: "button", className: "btn bgb", "aria-label": "Remove " + lcIdLabel(x), onClick: function () { remove(x); } }, "Remove"));
       }),
-      methods.map(function (m) {
+      (inMethods ? [] : methods).map(function (m) {
         return lh('li', { key: "m" + m.id }, lh('span', null, lcJoin(methodLabel(m), "login method")),
           lh('button', { type: "button", id: "lc-keys-rm-" + m.provider, className: "btn bgb", "aria-label": "Remove " + PROVIDER_NAMES[m.provider] + " login", onClick: function () { setConfirmM(m); } }, "Remove"));
       }))
-      : lh('p', { className: "lid-help" }, "Nothing linked yet."),
-    lh('h2', { className: "lid-label" }, "Link an ID"),
+      : lh('p', { className: "lid-help" }, inMethods ? "No IDs linked yet." : "Nothing linked yet."),
+    lh('h2', { className: "lid-label", id: "lc-link-id-h" }, "Link an ID"),
     lh('fieldset', { className: "lc-fs", id: "lc-id-kind" },
       lh('legend', { className: "lc-fs-l" }, "What are you linking?"),
       lh('div', { className: "lc-radios lc-radios-col" }, LC_ID_KINDS.map(function (x) {
@@ -3113,8 +3121,8 @@ function LcKeysPanel({ goMethods }) {
     lh('button', { type: "button", className: "btn bp lid-wide", "aria-disabled": busy ? "true" : undefined, onClick: busy ? undefined : add }, busy ? "Checking\u2026" : "Link " + k.short + " ID"),
     kind === "nostr" && hasExt ? lh('button', { type: "button", className: "btn bgb lid-wide", onClick: fromExt }, "Use my Nostr signer extension") : null,
     msg && lh('p', { className: msg.err ? "lid-err" : "lid-saved" }, msg.t),
-    lh('p', { className: "lid-help" }, "Linking shows these IDs on your LooscidID. To log in or Dream with a network, add it in Login methods."),
-    lh('button', { type: "button", className: "btn bgb lid-wide", onClick: goMethods }, "Open Login methods"),
+    lh('p', { className: "lid-help" }, inMethods ? "Linking shows these IDs on your LooscidID. To log in or Dream with a network, add it as a login method above." : "Linking shows these IDs on your LooscidID. To log in or Dream with a network, add it in Login methods."),
+    inMethods ? null : lh('button', { type: "button", className: "btn bgb lid-wide", onClick: goMethods }, "Open Login methods"),
     confirmM && lh(AlertDialog, { title: "Remove " + PROVIDER_NAMES[confirmM.provider] + " login?", message: lcRemoveMethodMsg(confirmM),
       confirmLabel: "Remove", onCancel: function () { const p = confirmM.provider; setConfirmM(null); setTimeout(function () { const b = document.getElementById("lc-keys-rm-" + p); if (b) b.focus(); }, 0); },
       onConfirm: function () { const m = confirmM, so = lcSignedOutBy(m); setConfirmM(null); removeMethod(m.id); bump(function (n) { return n + 1; }); say(PROVIDER_NAMES[m.provider] + " login removed." + so);
@@ -3314,12 +3322,17 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
           : lh('p', { className: "lid-help" }, "No security activity yet."); })()),
       securityExtra ? lh('section', { className: "lid-panel lid-i27-card", 'aria-labelledby': "lid-local-h" }, securityExtra) : null);
   else if (tab === "methods") panel = lh(React.Fragment, null,
-    PH("Login methods", "Optional ways to log in with your LooscidID. When you link one, you choose whether people can find you by it."),
-    lh(LoginMethods, null));
+    PH("Login methods", "Optional ways to log in with your LooscidID, and the IDs you link to it. Link one by pasting it: no password, nothing shared."),
+    lh(LoginMethods, null),
+    lh('section', { className: "lid-panel", "aria-labelledby": "lc-keys-list-h", id: "lid-ids" }, lh(LcKeysPanel, { inMethods: true })));
   else if (tab === "keys") panel = lh(React.Fragment, null,
-    PH("Keys and IDs", "Your Nostr key and your fediverse and Bluesky handles. Link one by pasting it: no password, nothing shared."),
+    PH("Keys and IDs", "Your Nostr key, its passcode and your relays. The IDs you link are in Login methods."),
     lh(NostrKeySection, null),
-    lh(LcKeysPanel, { goMethods: function () { go("methods"); } }));
+    // Nov 9 2026 (item 3): one place to link an ID, Login methods. This is a real link there, with how many are linked.
+    lh('section', { className: "lid-panel", "aria-labelledby": "lc-keys-ids-h" },
+      lh('h2', { id: "lc-keys-ids-h", className: "lid-label" }, "Linked IDs"),
+      lh('p', { className: "lid-help", id: "lc-keys-ids-n" }, (function () { const n = lcGetIds().length; return n ? Looscid.fmt(n) + (n === 1 ? " ID is" : " IDs are") + " linked to your LooscidID." : "No IDs linked yet."; })()),
+      lh('button', { type: "button", id: "lc-keys-open-methods", className: "btn bgb lid-wide", onClick: function () { go("methods"); setTimeout(function () { const h = document.getElementById("lc-link-id-h"); if (h) { h.setAttribute("tabindex", "-1"); h.focus(); } }, 450); } }, "Link an ID in Login methods")));
   // Oct 31 2026 (Carter): the Looscid server (sign in with your key, put your Dreams on it) and the backup file (everything
   // plus your key, locked with a passcode) each have their own page here. They live in js/remsync.js.
   // Nov 7 2026 (Rem v1 merge): the old "Looscid server" page (tab "server") became Rem in Connectionbase. Nov 8 2026: Rem has
@@ -3330,8 +3343,9 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   // Nov 8 2026 (LooscidID cleanup): Backup file is part of Download and back up (BackupSettings), and Devices is hidden until
   // it's real; both open their new place (go and AccountSettings). Connected apps joined Login methods: anything else lands there.
   else panel = lh(React.Fragment, null,
-    PH("Login methods", "Optional ways to log in with your LooscidID. When you link one, you choose whether people can find you by it."),
-    lh(LoginMethods, null));
+    PH("Login methods", "Optional ways to log in with your LooscidID, and the IDs you link to it. Link one by pasting it: no password, nothing shared."),
+    lh(LoginMethods, null),
+    lh('section', { className: "lid-panel", "aria-labelledby": "lc-keys-list-h", id: "lid-ids" }, lh(LcKeysPanel, { inMethods: true })));
   // Round 7.37 (#176) / Oct 31 2026 (iOS 27): every section is its own page with the round Back button and its name as the
   // h1. Back returns to the page and row you came from (Security's pages come back to Security). Escape is Back too (the
   // Touch-style keys press the header's Back button).
@@ -3364,7 +3378,9 @@ const LID_PARENT = Looscid.LID_PARENT = { keys: "privsec", methods: "privsec", s
    that row. The rows look and read like the Privacy rows above them: the name, then its value ("Passcode, Off"). */
 // Nov 8 2026 (Carter: "Rem should get it's own settings section"): the Rem row moved out to its own Settings screen, Rem.
 // Nov 8 2026 (LooscidID cleanup): Devices is hidden until it's real, and Backup file opens Download and back up, on its part.
-const LC_PRIVSEC_ROWS = [["keys", "Keys and IDs"], ["passcode", "Passcode"], ["backup", "Backup file"], ["methods", "Login methods"], ["security", "Security checkup"]];
+// Nov 9 2026 (Carter approved item 4): the Passcode row opened the same Keys and IDs page as the Keys row, so it's gone; the
+// Keys row says the passcode's state ("Keys and IDs, Passcode Off"), and /Privacy-and-Security/Passcode still opens it there.
+const LC_PRIVSEC_ROWS = [["keys", "Keys and IDs"], ["backup", "Backup file"], ["methods", "Login methods"], ["security", "Security checkup"]];
 Looscid.LC_PRIVSEC_ROWS = LC_PRIVSEC_ROWS;
 function lcSecSuggestions() {
   const methods = getMethods(), sk = getStoredNostrSk(), idn = getIdentity(), out = [];
@@ -3378,8 +3394,8 @@ function LcPrivSecRows({ navigate }) {
   const nst = Looscid.useNostrState ? Looscid.useNostrState() : null;
   const methods = getMethods(), linkedN = lcGetIds().length, sug = lcSecSuggestions();
   const val = {
-    keys: linkedN ? String(linkedN) : "", passcode: nst && nst.encrypted ? "On" : "Off", backup: "",
-    methods: methods.length ? String(methods.length) : "None",
+    keys: nst && nst.encrypted ? "Passcode On" : "Passcode Off", backup: "",
+    methods: methods.length + linkedN ? String(methods.length + linkedN) : "None",
     security: sug.length ? Looscid.fmt(sug.length) + (sug.length === 1 ? " suggestion" : " suggestions") : "No issues" };
   const open = { keys: { tab: "keys" }, passcode: { tab: "keys", focus: "nostr-lock-h" }, backup: { tab: "backup" }, methods: { tab: "methods" },
     security: { tab: "security" } };
@@ -4410,7 +4426,7 @@ function LcSetRow({ def, onChange }) {
   if (def.t === "bool") {
     if (def.k === "haptics" && !lcHapticsSupported()) return lh(A11ySwitch, { id: id, label: def.l + ", not supported on this device", desc: "This device or browser has no vibration support, so Haptics stays off. " + (def.desc || ""), on: false, locked: true });
     if (def.cherry && !lcAiOn()) return lh(A11ySwitch, { id: id, label: def.l + ", turn on Cherry first", desc: "Cherry is off. Turn it on in Customization, Cherry, Cherry.", on: false, locked: true });
-    if (def.id && def.id !== "local" && !lcLinkedProviders()[def.id]) return lh(A11ySwitch, { id: id, label: def.l + ", link it in LooscidID first", desc: "Link this identity in Settings, LooscidID, Login methods. Then you can turn this on.", on: false, locked: true });
+    if (def.id && def.id !== "local" && !lcLinkedProviders()[def.id]) return lh(A11ySwitch, { id: id, label: def.l + ", link it in Login methods first", desc: "Link this identity in Privacy & Security, Login methods. Then you can turn this on.", on: false, locked: true });
     return lh(A11ySwitch, { id: id, label: def.l, desc: def.desc, on: !!v, onToggle: function () { put(!v, false); } });
   }
   if (def.t === "choice" && def.menu) {
@@ -4950,8 +4966,8 @@ function GeneralSettings({ navigate }) {
       reset: "Reset the whole app, or just some settings. You choose what goes back to how it was before anything changes.",
     }, function (r) { if (r.reset) { lcOpenReset(r.reset); return; } if (r.id === "backup") Looscid.LC_BK_FROM = "general"; navigate(r.page); }));
 }
-// Round 7.37 (#176): General, Updates. The same Check for updates and automatic check as About (About keeps them too),
-// with the same storage and the same update prompt.
+// Round 7.37 (#176): General, Updates: Check for updates and the automatic check. Nov 9 2026: this is their one home; About
+// links here.
 function UpdatesSettings({ navigate }) {
   const [, tick] = useState(0);
   const auto = lcUpdateAuto();
@@ -4964,7 +4980,8 @@ function UpdatesSettings({ navigate }) {
       lh('button', { type: "button", id: "upd-check", className: "btn bgb lc-big", style: { width: "100%", marginTop: 8 }, onClick: function () { lcCheckUpdate(true); } }, "Check for updates")),
     lh('div', { className: "lc-ios-card" },
       lh(A11ySwitch, { id: "upd-auto", label: "Automatically check for updates", on: auto, onToggle: function () { lcUpdateAutoSet(!auto); tick(function (x) { return x + 1; }); announce("Automatically check for updates: " + (!auto ? "on" : "off") + "."); } })),
-    lh('p', { className: "lc-ios-foot" }, "Looscid checks for a newer version when it opens and asks before it updates. What changed in each version is in General, About."));
+    lh('p', { className: "lc-ios-foot" }, "Looscid checks for a newer version when it opens and asks before it updates. ",
+      lh('a', { className: "lc-link", id: "upd-about-link", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings_about") : "#"), onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("settings_about"); } }, "See what changed in each version"), "."));
 }
 /* Round 7.37 (#176, Carter Oct 26 1:38 AM): Customization, Settings Order. Default keeps the iOS groups; Alphabetical sorts
    the rows A to Z; Custom is your own order, starting from the current one, with Move up and Move down on each row (no
@@ -5113,10 +5130,8 @@ function BackupSettings({ navigate, onImported }) {
       lh('button', { type: "button", className: "btn bp lc-big", onClick: function () { lcDownloadSettings(); say("Exported looscid-settings.json."); } }, "Export all settings"),
       lh('label', { htmlFor: "bk-file", className: "btn bgb lc-big lc-filebtn" }, "Import settings from a file"),
       lh('input', { id: "bk-file", type: "file", className: "lc-file", accept: ".json,application/json", onChange: onFile })),
-    lh('section', { className: "lc-grp", "aria-labelledby": "bk-r-h" },
-      lh('h2', { id: "bk-r-h", className: "lc-grp-h" }, "Reset"),
-      lh('p', { className: "lc-desc" }, "Reset is the last item in every Settings list. This one opens the whole-app Reset, where you can also pick just some settings."),
-      lh('button', { type: "button", id: "lc-reset-btn", className: "btn bgb lc-big lc-reset", onClick: function () { lcOpenReset("all"); } }, "Reset")),
+    // Nov 9 2026 (Carter approved item 5): the whole-app Reset was here AND in General. Its one home is General, Reset (the last
+    // row there), so it's gone from here.
     msg ? lh('p', { className: "lc-desc lc-grp" }, msg) : null);
 }
 })(window.Looscid = window.Looscid || {});
