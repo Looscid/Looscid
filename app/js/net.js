@@ -67,7 +67,17 @@ async function ingest(ev, noQueue) {
     if (!noQueue) enqueue(ev); return r;
   } catch (e) { if (!noQueue) enqueue(ev); return { ok: false, offline: true }; }
 }
-function enqueue(ev) { const q = lsJson(QUEUE_KEY, []); if (!q.some(function (x) { return x.id === ev.id; })) { q.push(ev); lsSave(QUEUE_KEY, q.slice(-200)); } }
+function enqueue(ev) { const q = lsJson(QUEUE_KEY, []); if (!q.some(function (x) { return x.id === ev.id; })) { q.push(ev); lsSave(QUEUE_KEY, q.slice(-200)); } retrySoon(); }
+// Nov 9 2026 (Carter: "Your reply does not appear"): a reply or Dream that hit a busy Rem (the 30 per 10 minutes limit, or a
+// server hiccup) used to wait for the next time the app opened. Now it's tried again in 1, 2, then 5 minutes while the app is open.
+let retryTimer = null, retryN = 0;
+function retrySoon() {
+  if (retryTimer) return;
+  const wait = [60000, 120000, 300000][Math.min(retryN, 2)];
+  retryTimer = setTimeout(function () { retryTimer = null; retryN++; flush().then(function () { if (lsJson(QUEUE_KEY, []).length) retrySoon(); else retryN = 0; }); }, wait);
+}
+// Is this signed event still waiting in the queue (so Rem hasn't counted it yet)?
+function queued(id) { id = String(id || "").toLowerCase(); return !!id && lsJson(QUEUE_KEY, []).some(function (x) { return x && x.id === id; }); }
 let flushing = false;
 async function flush() {
   if (flushing) return; flushing = true;
@@ -307,7 +317,46 @@ function preview(url) {
   return previewWait[url];
 }
 
-Looscid.lcNet = { API: API, preview: preview, PROTOCOL_TAG: PROTOCOL_TAG, BRIDGES: BRIDGES, bridges: bridges, bridgeOn: bridgeOn, setBridge: setBridge, markCrossposted: markCrossposted, wasCrossposted: wasCrossposted,
+/* Nov 9 2026 (Carter: "Your reply does not appear in the feed"): the replies to one Dream, from Rem, so everyone sees them in
+   the thread (before, a thread only showed replies saved on this device). It asks GET /replies/<id> first. Until Rem has
+   that route, it reads Rem's public export (GET /export, the same signed events anyone can back up; removed and hidden
+   Dreams are never in it) and keeps the ones that answer this Dream. One read is shared by every thread for 60 seconds.
+   Each reply's signature is checked here before it's shown. Gives [] when Rem can't be reached. */
+let exportCache = null;
+function exportAll() {
+  if (exportCache && Date.now() - exportCache.at < 60000) return exportCache.p;
+  const p = (async function () {
+    const all = []; let after = 0;
+    for (let page = 0; page < 6; page++) {
+      const r = await fetch(API + "/export?limit=500" + (after ? "&after=" + after : ""), { cache: "no-store", credentials: "omit" });
+      const j = r.ok ? await r.json() : null; if (!j || !Array.isArray(j.events)) throw new Error("export");
+      j.events.forEach(function (e) { if (e && e.kind === 1) all.push(e); });
+      if (!j.next) break; after = j.next;
+    }
+    return all;
+  })();
+  exportCache = { at: Date.now(), p: p };
+  p.catch(function () { if (exportCache && exportCache.p === p) exportCache = null; });
+  return p;
+}
+function answers(ev, id) { return (ev.tags || []).some(function (t) { return t && t[0] === "e" && t[3] !== "mention" && String(t[1] || "").toLowerCase() === id; }); }
+async function threadReplies(id) {
+  id = String(id || "").replace(/^n:/, "").toLowerCase(); if (!isHex64(id)) return [];
+  let evs = null;
+  try {
+    const r = await fetch(API + "/replies/" + id, { cache: "no-store", credentials: "omit" });
+    if (r.ok) { const j = await r.json(); if (j && j.ok && Array.isArray(j.events)) evs = j.events; }
+  } catch (e) {}
+  if (!evs) { try { evs = (await exportAll()).filter(function (e) { return answers(e, id); }); } catch (e) { return []; } }
+  const NT = window.NostrTools;
+  return evs.filter(function (e) {
+    if (!e || e.kind !== 1 || !isHex64(e.id) || !isHex64(e.pubkey) || typeof e.content !== "string" || !answers(e, id)) return false;
+    try { return !NT || typeof NT.verifyEvent !== "function" || NT.verifyEvent(e); } catch (er) { return false; }
+  });
+}
+function forgetReplies() { exportCache = null; }
+
+Looscid.lcNet = { API: API, threadReplies: threadReplies, forgetReplies: forgetReplies, queued: queued, preview: preview, PROTOCOL_TAG: PROTOCOL_TAG, BRIDGES: BRIDGES, bridges: bridges, bridgeOn: bridgeOn, setBridge: setBridge, markCrossposted: markCrossposted, wasCrossposted: wasCrossposted,
   ingest: ingest, flush: flush, feed: feed, userDreams: userDreams, listWrite: listWrite, listsMine: listsMine, REPORT_REASONS: REPORT_REASONS, report: report, block: block, unblockHandle: unblockHandle, blockedPk: blockedPk, moderate: moderate, modlog: modlog, moderationFor: moderationFor, moderators: moderators,
   exportMine: exportMine, forgetMe: forgetMe, health: health, LcConnectionbase: LcConnectionbase, LcRemStatus: LcRemStatus, LcRemLists: LcRemLists, LcRemData: LcRemData };
 })(window.Looscid = window.Looscid || {});

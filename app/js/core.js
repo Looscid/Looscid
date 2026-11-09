@@ -312,9 +312,22 @@ function lcReplyContextWords(c) {
 }
 Looscid.lcReplyContext = lcReplyContext; Looscid.lcReplyContextWords = lcReplyContextWords;
 // Your saved replies to one Dream, newest first.
-function lcRepliesFor(parentId) {
-  const k = String(parentId);
-  return lcRepliesRaw().filter(function (r) { return String(r.replyTo) === k; }).sort(function (a, b) { return (+b.created || 0) - (+a.created || 0); }).map(lcReplyObj);
+/* Nov 9 2026 (Carter: "Your reply does not appear"): the same Dream can have a few ids. A Dream from Rem or Nostr is
+   "n:<id>" in the app, the Reply on an alert saved its reply under the bare <id>, and your own Dream is saved under a
+   number but has its Rem id too. So a reply only showed under the one id it was saved with: one written from Alerts never
+   showed in its Dream's thread. Now all the ids of one Dream count as that Dream. */
+function lcHexOf(x) { const s = String(x == null ? "" : x).replace(/^n:/, ""); return /^[0-9a-f]{64}$/i.test(s) ? s.toLowerCase() : ""; }
+function lcReplyKeys(parentId, alt) {
+  const keys = {}, add = function (x) { if (x == null || x === "") return; keys[String(x)] = 1; const h = lcHexOf(x); if (h) { keys[h] = 1; keys["n:" + h] = 1; } };
+  add(parentId); add(alt);
+  // Your own Dream saved under a number: its Rem id points back to it (and the other way round).
+  const hx = Object.keys(keys).filter(lcHexOf);
+  (Looscid.LC_APP_DREAMS || []).forEach(function (d) { if (!d || d.id == null) return; const n = lcHexOf(d.nid); if (keys[String(d.id)] && n) { keys[n] = 1; keys["n:" + n] = 1; } else if (n && hx.indexOf(n) >= 0) keys[String(d.id)] = 1; });
+  return keys;
+}
+function lcRepliesFor(parentId, alt) {
+  const keys = lcReplyKeys(parentId, alt);
+  return lcRepliesRaw().filter(function (r) { return keys[String(r.replyTo)] === 1; }).sort(function (a, b) { return (+b.created || 0) - (+a.created || 0); }).map(lcReplyObj);
 }
 function lcAddReply(r) {
   const id = r.id != null ? r.id : lcNewId();
@@ -329,7 +342,15 @@ function lcAddReply(r) {
 // When something was written: its time, or its id when that is a time (Nostr ids are not).
 function lcWhen(x) { return +x.created || (typeof x.id === "number" ? x.id : 0) || 0; }
 // How many replies a Dream has: its count plus the replies saved on this device.
-function lcReplyCount(d) { return (d.comments || 0) + (d.isReply ? 0 : lcRepliesFor(d.id).length); }
+function lcReplyCount(d) {
+  if (d.isReply) return d.comments || 0;
+  const mine = lcRepliesFor(d.id, d.nid);
+  // Nov 9 2026: a Dream from Rem already counts your replies that reached Rem before the feed was read (remAt). Only the
+  // ones Rem hasn't counted yet are added here, so your reply isn't counted twice.
+  if (d.fromServer) { const L = Looscid.lcNet; return (d.comments || 0) + mine.filter(function (r) { return !lcHexOf(r.nid) || !(+r.created < (d.remAt || 0)) || (L && L.queued && L.queued(r.nid)); }).length; }
+  return (d.comments || 0) + mine.length;
+}
+Looscid.lcReplyCount = lcReplyCount;
 function lcRepliesChanged() { try { window.dispatchEvent(new Event("looscid-replies")); } catch (e) {} }
 // Redraws a card when your replies change (a new reply, or replies read back from Nostr).
 function useRepliesTick() {
@@ -415,7 +436,7 @@ function lcSaveTombstone(d, index) {
 function lcHasReplies(d) {
   if (!d) return false;
   const mock = (typeof MOCK_COMMENTS !== "undefined" && MOCK_COMMENTS[d.id]) || [];
-  return (d.comments || 0) > 0 || (d.replies || 0) > 0 || lcRepliesFor(d.id).length > 0 || (d.nid != null && String(d.nid) !== String(d.id) && lcRepliesFor(d.nid).length > 0) || mock.length > 0;
+  return (d.comments || 0) > 0 || (d.replies || 0) > 0 || lcRepliesFor(d.id, d.nid).length > 0 || mock.length > 0;
 }
 Looscid.lcHasReplies = lcHasReplies;
 // A tombstone that should show: its Dream had replies (the card's own counts are passed in when the list has them).
@@ -707,7 +728,7 @@ function Modal({onClose, title, subtitle, children}) {
 /* Bottom-anchored pop-up menu — matches Base44 design */
 
 /* --- Dream options: an inline disclosure under each Dream (no modal, no focus trap) --- */
-function lcThreadOf(d) { const reps = lcRepliesFor(d.id).concat((typeof MOCK_COMMENTS !== "undefined" && MOCK_COMMENTS[d.id]) || []).slice().sort(function (x, y) { return lcWhen(x) - lcWhen(y); }); return [d].concat(reps.map(function (r) { return Object.assign({ isReply: true }, r); })); }
+function lcThreadOf(d) { const reps = lcRepliesFor(d.id, d.nid).concat((typeof MOCK_COMMENTS !== "undefined" && MOCK_COMMENTS[d.id]) || []).slice().sort(function (x, y) { return lcWhen(x) - lcWhen(y); }); return [d].concat(reps.map(function (r) { return Object.assign({ isReply: true }, r); })); }
 function lcHearThread(d) {
   const parts = []; lcThreadOf(d).forEach(function (x, i) { const p = lcDreamSpeechParts(x); if (i > 0) p.forEach(function (q) { q.secondary = true; }); parts.push.apply(parts, p); });
   return LcSpeech.speak(parts);
@@ -1419,11 +1440,41 @@ function lcCutWords(t, n) { t = String(t || "").replace(/\s+/g, " ").trim(); if 
 Looscid.lcCutWords = lcCutWords;
 function lcCountWord(n, one, many) { return fmt(n) + " " + (n === 1 ? one : many); }
 function lcRdState(d) { return d.redreamed ? ", Redreamed" : d.quoted ? ", Quoted" : ""; }
+/* Nov 9 2026 (Carter: "Your reply does not appear in the feed"): a thread only showed the replies saved on this device, so
+   nobody else ever saw a reply, and you didn't see yours on another device. Now the thread also reads its replies from Rem
+   (js/net.js threadReplies) in the background. The replies on this device show right away; the ones from Rem join the
+   list quietly when they arrive (nothing is announced and focus doesn't move). Your own replies show as yours. */
+function lcRemReplyObj(ev, parentId) {
+  const N = Looscid.lcNostr, mePk = N && N.state ? N.state().pubkey : null, mine = mePk && ev.pubkey === mePk;
+  let np = ""; try { np = Looscid.lcNpub ? Looscid.lcNpub(ev.pubkey) : ""; } catch (e) {}
+  const short = String(np || ev.pubkey).slice(0, 14), cwT = (ev.tags || []).find(function (t) { return t && t[0] === "content-warning"; });
+  const name = Looscid.lcNostrName ? Looscid.lcNostrName(ev.pubkey, np) : short, created = ev.created_at * 1000;
+  return { id: "n:" + ev.id, nid: ev.id, isReply: true, replyTo: parentId, text: ev.content, created: created, time: lcSavedAgo({ created: created }),
+    user: mine ? ME : { id: "npub:" + ev.pubkey, pk: ev.pubkey, name: name || short, handle: "@" + short, net: "looscid" },
+    likes: 0, liked: false, comments: 0, cw: cwT ? cwT[1] || "Content warning" : undefined, tags: ev.tags || [], fromServer: true, net: "looscid", sigOk: !!window.NostrTools };
+}
+function useRemReplies(dream) {
+  const hx = lcHexOf(dream && dream.nid) || lcHexOf(dream && dream.id);
+  const [list, setList] = useState([]);
+  useEffect(function () {
+    setList([]); const L = Looscid.lcNet; if (!hx || !L || !L.threadReplies) return;
+    let live = true;
+    const tools = Looscid.lcNostr && Looscid.lcNostr.load ? Looscid.lcNostr.load().catch(function () { return null; }) : Promise.resolve(null); // signature checks need NostrTools
+    tools.then(function () { return L.threadReplies(hx); }).then(function (evs) { if (live && evs && evs.length) setList(evs.map(function (e) { return lcRemReplyObj(e, dream.id); })); }, function () {});
+    return function () { live = false; };
+  }, [hx]);
+  return list;
+}
 function CommentView({dream, backTo, onBack, onLike, onRedream, onUndoRedream, onQuote, onUndoQuote, onBookmark, onCommentPosted, navigate}) {
   useIdListTick("looscid:tombstones"); dream = lcTombstoneOf(dream) || dream;
   const tick = useRepliesTick();
   useIdListTick("looscid:blocked"); // Nov 8 2026: replies from a Dreamor you blocked disappear for you
-  const comments = React.useMemo(function () { return lcRepliesFor(dream.id).concat(MOCK_COMMENTS[dream.id] || []); }, [dream.id, tick]).filter(function (c) { return !(c && c.user && typeof c.user === "object" && lcBlockedUser(c.user)); });
+  const remReplies = useRemReplies(dream);
+  const comments = React.useMemo(function () {
+    const local = lcRepliesFor(dream.id, dream.nid), have = {};
+    local.forEach(function (r) { const h = lcHexOf(r.nid); if (h) have[h] = 1; });
+    return local.concat(remReplies.filter(function (r) { return !have[r.nid]; })).concat(MOCK_COMMENTS[dream.id] || []);
+  }, [dream.id, dream.nid, tick, remReplies]).filter(function (c) { return !(c && c.user && typeof c.user === "object" && lcBlockedUser(c.user)); });
   const [sort, setSort] = useState("newest");
   const dreamOptsBtn = useRef(null);
   const endRef = useRef(null);

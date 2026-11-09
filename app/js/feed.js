@@ -12,6 +12,14 @@ function FeedPage({navigate, prefs, cherryCtx}) {
   // Round 5 fixes: a Dream opened from Discover's results shows here; Back returns to Discover (Looscid.LC_FEED_OPEN, read once).
   const openFrom = useRef(null);
   const [activeComment, setActiveComment] = useState(function () { const o = Looscid.LC_FEED_OPEN; Looscid.LC_FEED_OPEN = null; if (!o || !o.dream) { const rb = Looscid.LC_CV_REOPEN && Looscid.LC_CV_REOPEN.back; const d = Looscid.lcCvTake ? Looscid.lcCvTake() : null; if (d && rb) openFrom.current = rb; return d; } openFrom.current = o.back || null; return o.dream; }); // round 10: reopened after a footer page, it still knows its Back
+  // Nov 9 2026: a Dream opened from Alerts opens at once with what the alert knew; the full Dream (words, counts, Verified)
+  // replaces it here when it arrives (js/alerts.js). Same Dream, same place: focus stays where it is.
+  useEffect(function () {
+    const fill = function (e) { const x = e.detail; if (!x || !x.dream) return;
+      setActiveComment(function (cur) { return cur && String(cur.id) === String(x.id) ? Object.assign({}, cur, x.dream, { id: cur.id }) : cur; }); };
+    window.addEventListener("looscid:dreamfill", fill);
+    return function () { window.removeEventListener("looscid:dreamfill", fill); };
+  }, []);
   const A = Looscid.A11Y_NOW;
   // New Dreams that reach the app (yours, or from the network) join the feed; others are announced.
   const known = useRef(null);
@@ -268,7 +276,7 @@ function lcNetDream(r) {
   const rd = cnt(r.redreams, r.redreamed, Looscid.lcRedreamHas && Looscid.lcRedreamHas("n:" + r.id));
   return { id: "n:" + r.id, nid: r.nid || r.id, user: { id: "npub:" + r.pk, name: short, handle: "@" + short, net: "looscid" }, text: r.text, time: lcAgo(r.created), created: r.created,
     likes: lk.n, comments: r.replies || 0, redreams: rd.n, quotes: r.quotes || 0, liked: lk.on, redreamed: rd.on, quoted: false, bookmarked: false,
-    cw: r.cw || (cwT ? cwT[1] || "Content warning" : undefined), net: "looscid", fromServer: true, tags: r.tags || [], sigOk: lcRemSigOk(r) };
+    cw: r.cw || (cwT ? cwT[1] || "Content warning" : undefined), net: "looscid", fromServer: true, remAt: Date.now() /* when Rem counted its replies (lcReplyCount) */, tags: r.tags || [], sigOk: lcRemSigOk(r) };
 }
 /* Nov 7 2026 (Carter): the "Verified" badge. Rem sends each Dream with its original signed event (r.ev). This checks it
    right here in the app, not on trust: the event's id and Schnorr signature must check out (NostrTools.verifyEvent), it must

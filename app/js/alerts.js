@@ -112,16 +112,30 @@ function alertMuteItem(n) {
    An alert that isn't about anything you can open stays a button that marks it read, like before. */
 const ALERT_HEX = /^[0-9a-f]{64}$/i;
 function alertHex(k) { const s = String(k || "").replace(/^n:/, ""); return ALERT_HEX.test(s) ? s.toLowerCase() : ""; }
-function alertPool() {
+/* Nov 9 2026 (Carter: "it takes long for the Alert to load"): every alert used to read all your saved replies from storage
+   and look through all your Dreams one by one, so a long Alerts list did that work hundreds of times on every redraw.
+   Now the list of your Dreams and replies, and an index by id, is built once and reused for a second (or until your
+   replies change). */
+let alertPoolCache = null;
+window.addEventListener("looscid-replies", function () { alertPoolCache = null; });
+function alertPoolIndex() {
+  const src = Looscid.LC_APP_DREAMS || [];
+  if (alertPoolCache && alertPoolCache.src === src && Date.now() - alertPoolCache.at < 1000) return alertPoolCache;
   let reps = []; try { reps = Looscid.lcRepliesRaw && Looscid.lcReplyObj ? Looscid.lcRepliesRaw().map(Looscid.lcReplyObj) : []; } catch (e) {}
-  return (Looscid.LC_APP_DREAMS || []).concat(reps);
+  const list = src.concat(reps), byId = {};
+  list.forEach(function (x) { if (!x || x.id == null) return; const id = String(x.id), nid = alertHex(x.nid), h = alertHex(id);
+    [id, h && "h:" + h, nid && "h:" + nid].forEach(function (k) { if (k && !byId[k]) byId[k] = x; }); });
+  alertPoolCache = { src: src, at: Date.now(), list: list, byId: byId };
+  return alertPoolCache;
 }
+function alertPool() { return alertPoolIndex().list; }
+let alertPkCache = null;
+function alertMyPk() { if (alertPkCache && Date.now() - alertPkCache.at < 1000) return alertPkCache.pk; const pk = Looscid.lcNostr && Looscid.lcNostr.state ? Looscid.lcNostr.state().pubkey : ""; alertPkCache = { at: Date.now(), pk: pk }; return pk; }
 // A Dream on this device by its id, its Rem or Nostr id, or "n:" + that id.
 function alertFindLocal(key) {
   if (key == null || key === "") return null;
-  const k = String(key), hx = alertHex(k);
-  return alertPool().find(function (x) { if (!x) return false; const id = String(x.id), nid = String(x.nid || "").toLowerCase();
-    return id === k || (hx && (nid === hx || id === "n:" + hx || id.toLowerCase() === hx)); }) || null;
+  const k = String(key), hx = alertHex(k), ix = alertPoolIndex().byId;
+  return ix[k] || (hx && ix["h:" + hx]) || null;
 }
 function alertGo(n) { return Object.assign({ pk: n.pk, ref: n.ref, nid: n.nid, thread: n.thread }, n.go || {}); }
 // What tapping this alert opens, or null when it isn't about anything you can open.
@@ -132,7 +146,7 @@ function alertTarget(n) {
   if (n.type === "follow") { const w = g.who || n.user; return w && (w.pk || w.id || g.pk) ? { kind: "person", who: w, pk: g.pk || w.pk || w.id } : null; }
   if (n.type === "deletedDream") return null; // that Dream is gone; there's nothing left to open
   let key = null, alt = null;
-  const myPk = Looscid.lcNostr && Looscid.lcNostr.state ? Looscid.lcNostr.state().pubkey : "";
+  const myPk = alertMyPk();
   if (n.type === "like" || n.type === "redream") { key = g.ref || g.dream || g.nid; if (key) return { kind: "dream", key: String(key), alt: null, pk: myPk || "", mine: true }; }
   else { key = g.dream || g.nid; alt = g.thread || g.ref; if (!key) { key = alt; alt = null; } }
   if (key) return { kind: "dream", key: String(key), alt: alt ? String(alt) : null, pk: g.pk || (g.who && (g.who.pk || g.who.id)) || "" };
@@ -181,31 +195,37 @@ function alertSentence(n) {
 // The person a follow alert is about, shaped like every other profile.
 function alertPerson(t) {
   const w = t.who || {}, pk = alertHex(t.pk) || alertHex(w.pk) || alertHex(w.id), ME = Looscid.ME || {};
-  if (pk && Looscid.lcNostr && Looscid.lcNostr.state && Looscid.lcNostr.state().pubkey === pk) return ME;
+  if (pk && alertMyPk() === pk) return ME;
   const known = (Looscid.USERS || []).find(function (u) { return u && ((pk && (String(u.pk || "").toLowerCase() === pk || u.id === "npub:" + pk || u.id === "nostr:" + pk)) || (!pk && w.id && u.id === w.id)); });
   if (known) return known;
   let np = ""; try { np = Looscid.lcNpub && pk ? Looscid.lcNpub(pk) : ""; } catch (e) {}
   const short = String(np || pk || w.handle || "dreamor").slice(0, 14);
   return { id: pk ? "npub:" + pk : String(w.id || short), pk: pk || undefined, name: w.name || short, handle: "@" + short, net: "looscid" };
 }
-// A Dream that isn't on this device: ask Rem first (the author's public Dreams), then Nostr. Nothing found in about
-// 5 seconds: what the alert itself knows (who and the words it showed).
-function alertFetchDream(n, t) {
+/* A Dream that isn't on this device. Nov 9 2026 (Carter: "it takes long for the Alert to load"): tapping one used to wait
+   for Rem, then the Nostr relays, for up to 5 seconds before anything opened. Now the Dream opens right away with what
+   the alert already knows (who and the words it showed), and the full Dream is looked up in the background: Rem first
+   (the author's public Dreams), then Nostr. When it arrives it quietly replaces the quick copy in the open Dream (same
+   place, same focus, nothing announced). A Dream found once is kept for the rest of the visit, so it opens complete next time. */
+const alertDreamCache = {};
+function alertMine(n, t, d) { if (!d) return d; if (t.mine) d.user = Looscid.ME; else if (d.user && n.user && n.user.name) d.user = Object.assign({}, d.user, { name: n.user.name }); return d; }
+function alertQuickDream(n, t) {
+  const hx = alertHex(t.key) || alertHex(t.alt), pk = alertHex(t.pk), PubD = Looscid.lcPubDream;
+  const u = !t.mine && n.user ? alertPerson({ who: n.user, pk: t.pk }) : null;
+  const base = PubD ? PubD({ id: hx || t.key, nid: hx || undefined, pk: pk || "", npub: "", text: n.preview || "", created: n.time }) : { id: t.key, text: n.preview || "", created: n.time, likes: 0, comments: 0, redreams: 0, quotes: 0 };
+  if (!hx) base.id = t.key; if (u) base.user = u; base.sigOk = false; base.quick = true; return alertMine(n, t, base); // nothing was checked, so no Verified badge
+}
+function alertLookup(n, t) {
   const hx = alertHex(t.key) || alertHex(t.alt), pk = alertHex(t.pk), NetD = Looscid.lcNetDream, PubD = Looscid.lcPubDream;
-  // Your own Dream shows as yours; someone else's keeps the name the alert already knows.
-  const mine = function (d) { if (!d) return d; if (t.mine) d.user = Looscid.ME; else if (d.user && n.user && n.user.name) d.user = Object.assign({}, d.user, { name: n.user.name }); return d; };
-  const viaRem = function () { if (!hx || !pk || !Looscid.lcNet || !Looscid.lcNet.userDreams || !NetD) return Promise.resolve(null);
-    return Looscid.lcNet.userDreams(pk).then(function (l) { const r = (l || []).find(function (x) { return x && (String(x.id).toLowerCase() === hx || String(x.nid || "").toLowerCase() === hx); }); return r ? mine(NetD(r)) : null; }, function () { return null; }); };
-  const viaNostr = function () { const N = Looscid.lcNostr; if (!hx || !N || !N.fetchByIds || !PubD) return Promise.resolve(null);
+  if (!hx) return Promise.resolve(null);
+  if (alertDreamCache[hx]) return Promise.resolve(alertDreamCache[hx]);
+  const viaRem = function () { if (!pk || !Looscid.lcNet || !Looscid.lcNet.userDreams || !NetD) return Promise.resolve(null);
+    return Looscid.lcNet.userDreams(pk).then(function (l) { const r = (l || []).find(function (x) { return x && (String(x.id).toLowerCase() === hx || String(x.nid || "").toLowerCase() === hx); }); return r ? alertMine(n, t, NetD(r)) : null; }, function () { return null; }); };
+  const viaNostr = function () { const N = Looscid.lcNostr; if (!N || !N.fetchByIds || !PubD) return Promise.resolve(null);
     return N.fetchByIds([hx]).then(function (m) { const ev = m && m[hx]; if (!ev) return null; let np = ""; try { np = Looscid.lcNpub ? Looscid.lcNpub(ev.pubkey) : ""; } catch (e) {}
-      return mine(PubD({ id: ev.id, nid: ev.id, pk: ev.pubkey, npub: np, text: ev.content, created: ev.created_at * 1000, tags: ev.tags })); }, function () { return null; }); };
-  const fallback = function () {
-    const u = !t.mine && n.user ? alertPerson({ who: n.user, pk: t.pk }) : null;
-    const base = PubD ? PubD({ id: hx || t.key, nid: hx || undefined, pk: pk || "", npub: "", text: n.preview || "", created: n.time }) : { id: t.key, text: n.preview || "", created: n.time, likes: 0, comments: 0, redreams: 0, quotes: 0 };
-    if (!hx) base.id = t.key; if (u) base.user = u; base.sigOk = false; return mine(base); // nothing was checked, so no Verified badge
-  };
-  const timeout = new Promise(function (ok) { setTimeout(function () { ok(null); }, 5000); });
-  return Promise.race([viaRem().then(function (d) { return d || viaNostr(); }), timeout]).then(function (d) { return d || fallback(); }, fallback);
+      return alertMine(n, t, PubD({ id: ev.id, nid: ev.id, pk: ev.pubkey, npub: np, text: ev.content, created: ev.created_at * 1000, tags: ev.tags })); }, function () { return null; }); };
+  const timeout = new Promise(function (ok) { setTimeout(function () { ok(null); }, 15000); }); // slow relays: give up quietly
+  return Promise.race([viaRem().then(function (d) { return d || viaNostr(); }), timeout]).then(function (d) { if (d) alertDreamCache[hx] = d; return d || null; }, function () { return null; });
 }
 let alertOpenSeq = 0;
 function alertOpen(n, t, elId) {
@@ -224,12 +244,19 @@ function alertOpen(n, t, elId) {
     Looscid.LC_FEED_OPEN = { dream: d, back: back }; nav("feed"); };
   const local = alertFindLocal(t.key), parent = t.alt ? alertFindLocal(t.alt) : null;
   if (local) { go(local); return; }
-  // Not on this device (a reply, a quote or a mention from someone else): load it. A reply keeps its thread, so Expand
-  // thread shows the Dream it answers.
+  // Not on this device (a reply, a quote or a mention from someone else). A reply keeps its thread, so Expand thread
+  // shows the Dream it answers.
   if (!alertHex(t.key) && parent) { go(parent); return; }
-  announce("Opening the Dream\u2026");
-  alertFetchDream(n, t).then(function (d) { if (d && parent && d.replyTo == null && String(d.id) !== String(parent.id)) d.replyTo = parent.id; go(d); },
-    function () { if (parent) go(parent); else announce("I couldn't open that Dream. Try again in a bit."); });
+  const thread = function (d) { if (d && parent && d.replyTo == null && String(d.id) !== String(parent.id)) d.replyTo = parent.id; return d; };
+  const hx = alertHex(t.key) || alertHex(t.alt), have = hx && alertDreamCache[hx];
+  const first = thread(Object.assign({}, have || alertQuickDream(n, t)));
+  go(first);
+  if (have || !hx) return;
+  alertLookup(n, t).then(function (d) {
+    if (!d) return; // not found anywhere: the quick copy stays
+    const full = thread(Object.assign({}, d)); full.id = first.id; // same id, so the open Dream updates in place
+    try { window.dispatchEvent(new CustomEvent("looscid:dreamfill", { detail: { id: first.id, dream: full } })); } catch (e) {}
+  });
 }
 // The hint after the sentence (the app's tips, a title): where it goes, said in a few words.
 function alertTip(t) { return t.kind === "person" ? "Opens their profile" : t.kind === "report" ? "Opens the Report Center" : t.kind === "circle" ? "Opens the Circle" : t.kind === "page" ? (t.page === "settings_about" ? "Opens About Looscid" : "Opens Settings") : "Opens the Dream"; }

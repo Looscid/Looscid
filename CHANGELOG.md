@@ -3,6 +3,20 @@
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
 
+## Replies show up for real now, and alerts open fast (no new build yet)
+
+Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+
+Asked for by Carter: "Your reply does not appear in the feed. Also it takes long for the Alert to load."
+
+- A reply you write from an alert's Reply button now shows in that Dream's thread. Before, it got saved under a slightly different name for the Dream than the one the thread looked for, so it went up to Rem but hid from you. The same Dream can have a few ids, and now they all count as one.
+- Threads read their replies from Rem now, so everyone sees everyone's replies, not just the ones saved on their own phone. Your replies show right away, and the rest slide in quietly a second later. No announcement, and focus stays put. Each one's signature is checked first.
+- A Dream from Rem doesn't count your reply twice anymore (it said 2 replies when there was 1, which, math).
+- If Rem is busy (it takes 30 Dreams and replies per 10 minutes), a waiting reply is tried again after 1, 2 and 5 minutes while Looscid is open, instead of waiting until you open the app again.
+- Tapping an alert opens the Dream right away with what the alert already knows. The full Dream (all its words, its counts, Verified) fills in a moment later in the same spot. Before, it could sit on "Opening the Dream…" for 5 whole seconds while it asked Rem and every Nostr relay. Slow relays don't hold you up anymore.
+- The Alerts list draws a lot faster when you have tons of alerts, Dreams and replies. It was reading all your replies from storage once per alert, every time the list redrew. Now it reads them once.
+- A reply to a Dream that only lives on Nostr is saved on Rem, but it can't bump that Dream in the Rem feed, since that Dream isn't on Rem. Replies never show as their own posts in the feed; they make the Dream they answer move up a little instead.
+
 ## Tapping an alert opens it now (no new build yet)
 
 Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
