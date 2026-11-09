@@ -130,7 +130,7 @@ function lcHelpRich(text, act) {
 function lcHelpTitle(v) {
   const D = lcHelpData();
   if (v.kind === "col") { const c = D.collections.find(function (x) { return x.id === v.id; }); return c ? c.t : "Help Center"; }
-  if (v.kind === "art") { const a = D.articles.find(function (x) { return x.id === v.id; }); return a ? a.t : "Help Center"; }
+  if (v.kind === "art") { const id = D.moved && D.moved[v.id] ? D.moved[v.id] : v.id, a = D.articles.find(function (x) { return x.id === id; }); return a ? a.t : "Help Center"; }
   if (v.kind === "course") { const c = D.courses.find(function (x) { return x.id === v.id; }); return c ? c.t : "Help Center"; }
   if (v.kind === "contact") return D.contact.t || "Contact Us";
   return "Help Center";
@@ -149,15 +149,20 @@ function helpBody(v, act) {
       h('ol', { className: "lc-help-list", style: LC_HELP_LIST }, arts.map(function (a) { return h('li', { key: a.id }, lcHelpArtLink(a, act), h('p', { className: "lc-muted" }, a.s)); })));
   }
   if (v.kind === "art") {
-    const a = D.articles.find(function (x) { return x.id === v.id; });
+    // Nov 9 2026 (Help Center cleanup): an old article id opens the article it was merged into (LC_HELP.moved).
+    const vid = D.moved && D.moved[v.id] ? D.moved[v.id] : v.id;
+    const a = D.articles.find(function (x) { return x.id === vid; });
     if (!a) return P("That article isn't here anymore.", "x");
     const co = v.course ? D.courses.find(function (x) { return x.id === v.course; }) : null, idx = co ? co.lessons.indexOf(a.id) : -1;
     const col = D.collections.find(function (x) { return x.id === a.c; });
     return h('div', { className: "lc-grp lc-help-sec", style: pad },
       co && idx >= 0 ? h('p', { className: "lc-desc lc-help-lesson" }, co.t + ": Lesson " + (idx + 1) + " of " + co.lessons.length) : null,
       h('p', { className: "lc-desc" }, lcHelpRich(a.s, act)),
-      h('h2', { className: "lc-sub-h" }, "Steps"),
-      h('ol', { className: "lc-help-steps", style: LC_HELP_LIST }, a.steps.map(function (t, i) { return h('li', { key: i, className: "lc-desc" }, lcHelpRich(t, act)); })),
+      // Nov 9 2026 (Carter: "a nice long paragraph page"): real paragraphs; a line starting with "## " is a heading.
+      a.p && a.p.length ? a.p.map(function (t, i) { return /^## /.test(t) ? h('h2', { key: "p" + i, className: "lc-sub-h" }, t.slice(3)) : h('p', { key: "p" + i, className: "lc-desc" }, lcHelpRich(t, act)); }) : null,
+      a.steps && a.steps.length ? h('h2', { className: "lc-sub-h" }, "Steps") : null,
+      a.steps && a.steps.length ? h('ol', { className: "lc-help-steps", style: LC_HELP_LIST }, a.steps.map(function (t, i) { return h('li', { key: i, className: "lc-desc" }, lcHelpRich(t, act)); })) : null,
+      a.sig ? h('p', { className: "lc-desc lc-help-sig" }, "\u2014 " + a.sig) : null,
       a.live === "modlog" ? lcHelpModLog(act) : null,
       // Nov 8 2026: Looscid's own issue tracker (js/issues.js): the Report form and the public list, right in this article.
       a.live === "issues" && Looscid.lcIssuesSection ? Looscid.lcIssuesSection(act) : null,

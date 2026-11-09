@@ -56,6 +56,7 @@ const ICONS = {
   "getting-started": '<path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/>',
   "dreams": '<path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/>',
   "chats-circles-cherry": '<circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M3 19c.6-3 2.6-5 5-5s4.4 2 5 5M11 19c.6-3 2.6-5 5-5s4.4 2 5 5"/>',
+  "safety-and-reports": '<path d="M12 3l8 3v6c0 4.6-3.4 8.3-8 9-4.6-.7-8-4.4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
   "settings-privacy-backup": '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',
   "course": '<path d="M3 7l9-4 9 4-9 4z"/><path d="M7 9v5c0 1.7 2.2 3 5 3s5-1.3 5-3V9"/>',
   "bug": '<path d="M9 7a3 3 0 016 0"/><rect x="7" y="7" width="10" height="12" rx="5"/><path d="M12 11v8M3 13h4M17 13h4M4 7l3 2M20 7l-3 2M4 19l3-2M20 19l-3-2"/>',
@@ -65,7 +66,7 @@ const ICONS = {
 };
 const icon = k => '<svg class="ic" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + ICONS[k] + "</svg>";
 // Popular articles on the home page (chosen by hand; nothing is tracked).
-const POPULAR = ["make-a-looscidid", "write-a-dream", "start-a-chat", "find-settings", "backup", "privacy"];
+const POPULAR = ["make-a-looscidid", "write-a-dream", "rem", "start-a-chat", "find-settings", "backup"]; // Nov 9 2026: About Rem in, after the cleanup
 /* Nov 7 2026 (Carter: one place for docs, the Help Center, "Using Looscid" and "Building Looscid"): the repo's own docs,
    each made into a page at /help/dev/<slug>/ from its Markdown file. Edit the .md file, then run this script again (the
    Validate check fails if a page is out of date). Only Source code and Issues still go to GitHub. */
@@ -191,7 +192,7 @@ const course = H.courses[0];
   b += '<p id="help-q-hint" class="hint">Searches all ' + nArt + ' articles, right on this device.</p>\n</form>\n</div>\n';
   b += '<section id="results" class="results" aria-labelledby="h-results" hidden><h2 id="h-results" tabindex="-1">Search results</h2><p id="results-n" role="status"></p><ol class="list" id="results-list"></ol></section>\n';
   // Nov 7 2026: the home page has two parts, Using Looscid (the guides) and Building Looscid (the repo's docs).
-  b += '<section aria-labelledby="h-using"><h2 id="h-using">Using Looscid</h2>\n<p class="lead">Step-by-step guides for everyone: make your LooscidID, write Dreams, chat, and set things up.</p>\n';
+  b += '<section aria-labelledby="h-using"><h2 id="h-using">Using Looscid</h2>\n<p class="lead">Real guides for everyone, with a joke or two: make your LooscidID, write Dreams, chat, and set things up.</p>\n';
   // Nov 7 2026 (Carter): the welcome screen and tour again, any time, at its one official spot (/welcome). Nothing is reset.
   b += '<p><a href="../welcome/" title="Opens the welcome screen again">Replay the welcome tour</a></p>\n';
   b += '<section aria-labelledby="h-topics"><h3 id="h-topics">Browse by topic</h3>\n<ul class="topics" role="list">\n';
@@ -211,7 +212,7 @@ const course = H.courses[0];
   b += '<li>' + icon("bug") + '<a class="stretch" href="report-a-problem/">Report a problem</a><p>Right in Looscid. Agree or disagree with other reports.</p></li>';
   b += '<li>' + icon("bug") + '<a class="stretch" href="contact/">Report a bug</a><p>On GitHub, with your device filled in.</p></li>';
   b += '<li>' + icon("chat") + '<a class="stretch" href="' + esc(H.contact.discord) + '" title="Go to Discord" target="_blank" rel="noopener noreferrer">Join the Discord</a><p>Ideas, questions, or just say hi.</p></li>';
-  b += '<li>' + icon("heart") + '<a class="stretch" href="../?p=%2FFeedback">Send Feedback in Looscid</a><p>Profile, More, Feedback.</p></li>';
+  b += '<li>' + icon("heart") + '<a class="stretch" href="../?p=%2FFeedback">Send Feedback in Looscid</a><p>Tell me what you think, right in Looscid.</p></li>';
   b += '</ul>\n</section>';
   put("index.html", page({ slug: "", title: "Looscid Help Center", desc: "Step-by-step help for Looscid: make your LooscidID, write Dreams, chat, and set things up. Search, topics, courses and Contact Us.", body: b, depth: 0 }));
 }
@@ -226,7 +227,11 @@ for (const c of H.collections) {
 for (const a of H.articles) {
   const c = colById[a.c]; if (!c) problems.push("article " + a.id + " has no collection " + a.c);
   let b = '<div id="course-bar" class="course" hidden></div>\n<h1>' + esc(a.t) + '</h1>\n<p class="lead">' + rich(a.s, 1) + "</p>\n";
-  b += '<h2>Steps</h2>\n<ol class="steps">' + a.steps.map(s => "<li>" + rich(s, 1) + "</li>").join("") + "</ol>\n";
+  /* Nov 9 2026 (Carter: "a nice long paragraph page", "some humor"): an article is real paragraphs (p). A line that starts
+     with "## " is a heading level 2, so VoiceOver can jump by heading. Steps still show if an article has them. */
+  if (a.p && a.p.length) b += a.p.map(s => /^## /.test(s) ? "<h2>" + esc(s.slice(3)) + "</h2>\n" : "<p>" + rich(s, 1) + "</p>\n").join("");
+  if (a.steps && a.steps.length) b += '<h2>Steps</h2>\n<ol class="steps">' + a.steps.map(s => "<li>" + rich(s, 1) + "</li>").join("") + "</ol>\n";
+  if (a.sig) b += '<p class="sig">\u2014 ' + esc(a.sig) + "</p>\n";
   /* Nov 8 2026 (Carter: a public mod log, moderator or admin): live "modlog" puts Looscid's mod log under the steps.
      help.js reads it from Rem (GET /modlog, public, no key) and writes one line per removal; without scripts the line
      below says where else to read it. Only this page may connect to Rem (its connect-src). */
@@ -240,6 +245,17 @@ for (const a of H.articles) {
   if (a.rel && a.rel.length) b += "<h2>Related articles</h2>\n<ul>" + a.rel.map(id => { if (!byId[id]) { problems.push("related " + id + " missing in " + a.id); return ""; } return "<li>" + artLink(byId[id], "../") + "</li>"; }).join("") + "</ul>\n";
   b += '<p class="next"><a href="../' + a.c + '/">More in ' + esc(c ? c.t : "") + '</a> <span aria-hidden="true">·</span> <a href="../contact/">Still stuck? Contact Us</a></p>';
   put(a.id + "/index.html", page({ slug: a.id, title: a.t, desc: a.s.replace(/\{\{[^}]*\}\}|\[\[[^\]]*\]\]/g, ""), body: b, depth: 1, connect: a.live === "modlog" || a.live === "issues" ? REM : "", crumbs: [["Help Center", "../"], [c ? c.t : "", "../" + a.c + "/"], [a.t, null]] }));
+}
+/* Nov 9 2026 (Carter: "the help center needs a massive cleanup"): merged articles keep their old address. Each one is a tiny
+   page that says where the article went, links to it, and sends you there right away. */
+for (const [old, to] of Object.entries(H.moved || {})) {
+  const a = byId[to]; if (!a) { problems.push("moved " + old + " goes to a missing article " + to); continue; }
+  if (byId[old]) { problems.push("moved " + old + " is still an article"); continue; }
+  const b = "<h1>This article moved</h1>\n<p class=\"lead\">It's part of " + artLink(a, "../") + " now. Taking you there.</p>\n";
+  const html = page({ slug: old, title: "This article moved", desc: "This article is part of " + a.t + " now.", body: b, depth: 1, crumbs: [["Help Center", "../"], ["This article moved", null]] })
+    .replace('<meta charset="UTF-8"/>', '<meta charset="UTF-8"/>\n<meta http-equiv="refresh" content="0; url=../' + to + '/">')
+    .replace('<link rel="canonical" href="' + HELP + old + '/">', '<link rel="canonical" href="' + HELP + to + '/">');
+  put(old + "/index.html", html);
 }
 // Courses
 for (const co of H.courses) {
@@ -461,7 +477,7 @@ files["courses.js"] = meta;
 // What the home page's search reads (Nov 1 2026): every article, collection and course, its words only. Nothing is sent anywhere.
 const plain = t => String(t || "").replace(/\{\{([a-z0-9-]+)(?:\|([^}]+))?\}\}/g, (m, id, w) => w || (byId[id] ? byId[id].t : "")).replace(/\[\[[^|\]]*\|([^|\]]+)(?:\|([^\]]+))?\]\]/g, (m, l, w) => w === undefined ? l : l + " (" + w + ")");
 files["search.js"] = "/* Made by .github/scripts/build-help.mjs from app/js/helpdata.js. */\nwindow.LC_HELP_INDEX = " + JSON.stringify(
-  H.articles.map(a => ({ u: a.id + "/", t: a.t, s: plain(a.s), c: colById[a.c] ? colById[a.c].t : "", k: [].concat(a.steps || [], a.tips || []).map(plain).join(" ") }))
+  H.articles.map(a => ({ u: a.id + "/", t: a.t, s: plain(a.s), c: colById[a.c] ? colById[a.c].t : "", k: [].concat(a.p || [], a.steps || [], a.tips || []).map(s => plain(s.replace(/^## /, ""))).join(" ") }))
     .concat(H.collections.map(c => ({ u: c.id + "/", t: c.t, s: c.s, c: "Topic", k: "" })))
     .concat(H.courses.map(c => ({ u: c.id + "/", t: c.t, s: c.s, c: "Course", k: "" })))
     .concat([{ u: "contact/", t: H.contact.t, s: H.contact.s, c: "Contact", k: "report a bug feedback discord github issue" }])) + ";\n";

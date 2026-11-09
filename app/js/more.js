@@ -3425,8 +3425,9 @@ function RemSettings({ navigate, from }) {
       N.LcRemStatus ? lh(N.LcRemStatus, null) : null,
       Looscid.LcModeLine ? lh(Looscid.LcModeLine, null) : null,
       // Nov 9 2026 (Carter: "they could revisit the RAM thing at a later date"): About Rem, the same words as the "Your Dreams
-      // were synced to Rem" notice's Learn more, plus what the first sync put on Rem. The notice links here.
-      sec("about", "About Rem", Looscid.LcAboutRem ? lh(Looscid.LcAboutRem, { synced: Looscid.lcRemSynced ? Looscid.lcRemSynced() : null, idp: "rem-about" },
+      // were synced to Rem" notice's Learn more, plus what the first sync put on Rem. The notice links here. Nov 9 2026: the long,
+      // funny version (long: true); the notice keeps the short one.
+      sec("about", "About Rem", Looscid.LcAboutRem ? lh(Looscid.LcAboutRem, { long: true, synced: Looscid.lcRemSynced ? Looscid.lcRemSynced() : null, idp: "rem-about" },
         lh('p', { className: "lid-help" }, link("rem-help-link", "helpcenter", null, "About Rem in the Help Center", function () { Looscid.LC_HELP_NEXT = { kind: "art", id: "rem" }; }))) : null),
       sec("dreams", "Syncing your Dreams", Looscid.LcServerPanel ? lh(Looscid.LcServerPanel, { go: toLid }) : lh('p', { className: "lid-help" }, "This part didn't load. Reload Looscid and try again.")),
       sec("lists", "Your lists", N.LcRemLists ? lh(N.LcRemLists, null) : null),

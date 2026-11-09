@@ -3,6 +3,20 @@
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
 
+## The Help Center got a massive cleanup, and About Rem got funny (no new build yet)
+
+Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+
+Asked for by Carter: "the help center needs a massive cleanup", "some humor" and "a nice long paragraph page".
+
+- Every Help Center article is real paragraphs now, in my voice, with headings so VoiceOver can jump around, and a few jokes. No more bullet soup lol.
+- Merged the articles that overlapped: Follow a thread went into Reply to Dreams and follow threads, Dream Options and Dreamor Options went into Like, Redream, Quote and the More button, Your data on this device went into Back up, download or delete your data, and Make Looscid fit you went into Find settings and make Looscid yours. Their old addresses still work and send you to the new article, in the app too.
+- Clearer titles, like Send a private chat, Report a bug or share an idea, and The mod log: why Dreams get removed.
+- New collection: Reports, safety and the mod log. The three report articles moved there from Getting Started, where they made zero sense.
+- Fixed wrong stuff: Write and cook a Dream doesn't say your Dreams are saved only on this device anymore (cooked Dreams go on Rem, and without a key they wait and go up once you make one).
+- About Rem is a full long page now, in the Help Center and on the Rem screen, with jokes. Same facts: cooked Dreams set to Everyone go on Rem, drafts and Followers only, My Circles and Only this device Dreams stay on your device, old Dreams sync once, and Delete my Rem data is there when you want out. The "Your Dreams were synced to Rem" card keeps the short version.
+- Page not found didn't change. It's perfect.
+
 ## Local mode is gone, and your Dreams sync to Rem (no new build yet)
 
 Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.

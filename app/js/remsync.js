@@ -513,8 +513,33 @@ function aboutRemBits(s) {
   }
   return out;
 }
+/* Nov 9 2026 (Carter: About Rem should be "a nice long paragraph page" with "some humor"): the Rem screen shows the long
+   version (long: true), with h3 headings under its About Rem heading. The "Your Dreams were synced to Rem" card keeps the
+   short one. Same facts as the About Rem article in the Help Center (helpdata.js, id rem). */
+function aboutRemLong(idp) {
+  return [
+    lh('h3', { key: "h0", className: "lid-label", id: idp + "-h0" }, "What even is Rem?"),
+    lh('p', { key: "p1", className: "lid-help" }, "Rem is Looscid's protocol and its own server, and it's the home of cooked Dreams. When you finish a Dream, press Dream, and its Audience is Everyone, it goes on Rem. That's how your Dreams show up on all your devices and how other Dreamors find them in the feed. Without Rem, your Dreams would just sit on your phone like a diary with a lock on it. Great for a diary. Not so great for a social app."),
+    lh('p', { key: "p2", className: "lid-help" }, "Fun fact: REM is also the part of sleep when you dream. Looscid is full of Dreams. Coincidence? I'll let you decide."),
+    lh('h3', { key: "h3", className: "lid-label", id: idp + "-h3" }, "How Rem knows it's really you"),
+    lh('p', { key: "p4", className: "lid-help" }, "Every Dream that goes on Rem is signed with your LooscidID key, like a signature nobody can copy. Rem checks it before saving anything, so nobody can fake a Dream from you. Rem keeps your public key and when it first saw it. It never gets your secret key, your email or your phone number. It doesn't even know your birthday. Rude, but private."),
+    lh('h3', { key: "h5", className: "lid-label", id: idp + "-h5" }, "What goes on Rem, and what doesn't"),
+    lh('p', { key: "p6", className: "lid-help" }, "Cooked Dreams and replies set to Everyone go on Rem. Your likes, Redreams, pins, mutes and the threads you follow sync through Rem too, so they match on all your devices. Only like and Redream counts are public, so your secret love for frog Dreams stays secret."),
+    lh('p', { key: "p7", className: "lid-help" }, "Your Uncooked Dreams (drafts) never leave this device. Dreams set to Followers only, My Circles or Only this device stay here too. Sharing is up to each Dream: turning it off on one only changes that one, and it doesn't matter when you turned it off. If it's off, it's off."),
+    lh('h3', { key: "h8", className: "lid-label", id: idp + "-h8" }, "Your old Dreams"),
+    lh('p', { key: "p9", className: "lid-help" }, "Dreams you made before Rem existed, or back in Local mode, go on Rem once, by themselves, the next time you open Looscid. Only the ones set to Everyone. Each one keeps its first date. Then Looscid says “Your Dreams were synced to Rem.” No buttons, no homework."),
+    lh('p', { key: "p10", className: "lid-help" }, "No key yet? Your cooked Dreams wait on this device and go on Rem the moment you make one. Key locked? Unlock it and syncing picks right back up. Rem is patient. It's fine. Totally fine."),
+    lh('h3', { key: "h11", className: "lid-label", id: idp + "-h11" }, "Leaving Rem"),
+    lh('p', { key: "p12", className: "lid-help" }, "Delete a Dream and it's deleted on Rem too. Delete my Rem data, further down this screen, deletes everything Rem has for your key, including your reports and votes. It asks first. Dreams on this device stay here, and Looscid won't put them back on Rem. Want a copy first? Download my Dreams is down there too. Rem never holds your Dreams hostage.")
+  ];
+}
 function LcAboutRem(props) {
   const s = props.synced || null, idp = props.idp || "rem-about";
+  if (props.long) return lh('div', { className: "lc-about-rem" },
+    aboutRemLong(idp).slice(0, 3),
+    aboutRemBits(s).map(function (t, i) { return lh('p', { key: "s" + i, className: "lid-help" }, t); }),
+    aboutRemLong(idp).slice(3),
+    props.children || null);
   return lh('div', { className: "lc-about-rem" },
     lh('p', { className: "lid-help", id: idp + "-what" }, "Rem is Looscid's own server. It's where cooked Dreams live, so your Dreams show up on all your devices and other Dreamors can find them in the feed. It's open source, and you can download your Dreams from it anytime."),
     aboutRemBits(s).map(function (t, i) { return lh('p', { key: i, className: "lid-help" }, t); }),
