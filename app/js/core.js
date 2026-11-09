@@ -1918,6 +1918,13 @@ const LC_FIND_STATIC = [
   { l: "LooscidID", w: "account profile login methods security nostr mastodon bluesky funkwhale hubzilla friendica", page: "settings_account", where: "Settings" },
   { l: "Alerts", w: "alerts settings notification settings notifications push quiet hours alert types sound who can trigger categories order inbox tabs", page: "settings_notifications", where: "Settings" },
   { l: "Privacy & Security", w: "privacy security permissions muted words blocked keys passcode backup login methods devices", page: "settings_privacy", where: "Settings" },
+  // Nov 8 2026 (Carter: "Rem should get it's own settings section"): Rem's own screen and what's on it.
+  { l: "Rem", w: "rem server looscid server mode local sync syncing online status protocol", page: "settings_rem", where: "Settings" },
+  { l: "Put your Dreams on Rem", w: "put my dreams on rem upload sync all my dreams let me pick stop syncing sync now server", page: "settings_rem", focus: "rem-h-dreams", where: "Settings, Rem" },
+  { l: "Mode", w: "mode local server rem local mode server mode", page: "settings_rem", where: "Settings, Rem" },
+  { l: "Sync my lists", w: "lists likes redreams pins mutes followed threads sync my lists again devices", page: "settings_rem", focus: "rem-h-lists", where: "Settings, Rem" },
+  { l: "Download my Dreams", w: "download my dreams export rem signed file", page: "settings_rem", focus: "rem-download", where: "Settings, Rem" },
+  { l: "Delete my Rem data", w: "delete my rem data forget me erase server", page: "settings_rem", focus: "rem-forget", where: "Settings, Rem" },
   { l: "Private account", w: "private account approve followers lock", page: "settings_privacy", focus: "set-privateAccount", where: "Settings, Privacy & Security" },
   { l: "Let others share my Dreams", w: "allow sharing share my dreams reshare", page: "settings_privacy", focus: "set-shareMine", where: "Settings, Privacy & Security" },
   { l: "Privacy Policy", w: "privacy policy we care data", page: "settings_privacy", focus: "priv-policy-link", where: "Settings, Privacy & Security" },
@@ -2627,9 +2634,13 @@ const LC_ROUTES = [
   // screen now, Privacy & Security. /Settings/Privacy and /Settings/Security still open it. Its Security pages each have
   // their own address too (LC_SUB_ROUTES below says which LooscidID page each one opens), so help can link right to them.
   ["settings_privacy", "Settings/Security"], ["settings_privacy", "Settings/Privacy-Security"],
+  // Nov 8 2026 (Carter: "Rem should get it's own settings section"): Rem's own screen. The other addresses are names it
+  // went by (the Looscid server, Mode, sync), so old links and guesses open it too.
+  ["settings_rem", "Settings/Rem"], ["settings_rem", "Settings/Server"], ["settings_rem", "Settings/Looscid-Server"], ["settings_rem", "Settings/Mode"], ["settings_rem", "Settings/Sync"],
+  ["settings_rem", "Settings/LooscidID/Rem"], ["settings_rem", "Settings/LooscidID/Server"], ["settings_rem", "Settings/Privacy-and-Security/Rem"],
   ["settings_account", "Settings/Privacy-and-Security/Keys"], ["settings_account", "Settings/Privacy-and-Security/Passcode"], ["settings_account", "Settings/Privacy-and-Security/Backup-File"],
   ["settings_account", "Settings/Privacy-and-Security/Login-Methods"], ["settings_account", "Settings/Privacy-and-Security/Devices"], ["settings_account", "Settings/Privacy-and-Security/Security-Checkup"],
-  ["settings_account", "Settings/LooscidID/Data"],
+  ["settings_account", "Settings/LooscidID/Data"], ["settings_account", "Settings/LooscidID/Connectionbase"],
   ["settings_customizability", "Settings/Customization"], ["settings_customizability", "Settings/Customizability"], ["settings_cz_order", "Settings/Customization/Settings-Order"], ["settings_cz_theme", "Settings/Customizability/Theme"], ["settings_cz_feeds", "Settings/Customizability/Feeds"],
   ["settings_cz_menu", "Settings/Customizability/Menu"], ["settings_cz_posting", "Settings/Customizability/Dreaming"], ["settings_cz_media", "Settings/Customizability/Media"],
   ["settings_accessibility", "Settings/Accessibility"], ["settings_a11y_sr", "Settings/Sense"], ["settings_a11y_vision", "Settings/Accessibility/Vision"],
@@ -2665,6 +2676,7 @@ const LC_SUB_ROUTES = [
   ["Settings/Privacy-and-Security/Devices", { tab: "devices", from: "privsec" }],
   ["Settings/Privacy-and-Security/Security-Checkup", { tab: "security", from: "privsec" }],
   ["Settings/LooscidID/Data", { tab: "data" }],
+  ["Settings/LooscidID/Connectionbase", { tab: "connectionbase" }], // Nov 8 2026: the bridges, linked from the Rem screen
 ];
 function lcSubRouteFor(data) {
   if (!data || !data.tab) return null;
@@ -2760,6 +2772,9 @@ function lcMoreSections(o) {
       // Nov 8 2026 (Carter: "Privacy is in security like iOS"): one Privacy & Security row, like iOS. Its id stays "privacy",
       // so a custom Settings Order keeps its place.
       { id:"privacy", grp:"you", icon:"Privacy", label:"Privacy & Security", action(){onClose();try { sessionStorage.removeItem("looscid_priv_open"); } catch (e) {} navigate("settings_privacy");} },
+      // Nov 8 2026 (Carter: "Rem should get it's own settings section"): Rem, its own row, right after Privacy & Security. Its
+      // value is the old Mode row's (Local, or Syncing when your Dreams sync to Rem); that row by the LooscidID card is gone.
+      { id:"rem", grp:"you", icon:"Rem", label:"Rem", value(){ const m = Looscid.lcServer && Looscid.lcServer.mode ? Looscid.lcServer.mode() : { sync: false }; return m.sync ? "Syncing" : "Local"; }, action(){onClose();navigate("settings_rem");} },
       { id:"customization", grp:"you", icon:"Customizability", label:"Customization", action(){onClose();navigate("settings_customizability");} },
       { id:"cherry", grp:"you", icon:"Intelligence", label:"Cherry", action(){onClose();navigate("settings_intelligence");} },
       { id:"looscidid", grp:"id", icon:"LooscidID", label:"LooscidID", sub:"Profile, Connectionbase, connected apps and data", action(){onClose();navigate("settings_account");} },
@@ -2995,7 +3010,7 @@ function LcI27Glyph({ g, size, cls }) {
 const LC_I27_ROW = {
   looscidid: ["person", "#8e8e93"], mode: ["mode", "#34c759"], security: ["shield", "#007aff"],
   accessibility: ["a11y", "#0a84ff"], earcons: ["speaker", "#ff2d55"], alerts: ["bell", "#ff3b30"], chats: ["bubble", "#34c759"],
-  privacy: ["hand", "#5856d6"], customization: ["sliders", "#af52de"], cherry: ["sparkle", "#ff375f"],
+  privacy: ["hand", "#5856d6"], rem: ["cloud", "#30b0c7"], customization: ["sliders", "#af52de"], cherry: ["sparkle", "#ff375f"],
   general: ["gear", "#8e8e93"], helpcenter: ["help", "#30b0c7"],
 };
 /* One row. o: { id, k (LC_I27_ROW key) or g + c (glyph, color), label, value, sub, onClick, first, last, extra (name
@@ -3109,14 +3124,15 @@ function LcSettingsHome({ s, navigate, onBack }) {
       lh(LcI27Glyph, { g: "chev", size: 14, cls: "lc-i27-chev" })),
     lh(LcNpubLine, { np: np, id: "set-npub" })) : null;
   const go = function (it) { return lcSetRowO(it); };
-  // Mode sits under the LooscidID card (Security moved into Privacy & Security, Nov 8 2026).
-  const top = [lcModeRow("set-row-mode", function () { navigate("settings_account", { tab: "connectionbase", from: "settings" }); })].concat(sec.map(go));
+  // Nov 8 2026 (Carter, 8:10 PM: "the thing by LooscidID should get removed"): the Mode row (Local or Server) that sat under
+  // the LooscidID card is gone; Rem has its own row and screen now, and the Rem row says Local or Syncing.
+  const top = sec.map(go);
   let groups;
   if (mode === "default") {
     const by = function (ids) { return ids.map(function (k) { return items.find(function (it) { return it.id === k; }); }).filter(Boolean).map(go); };
-    const placed = ["accessibility", "earcons", "alerts", "chats", "privacy", "customization", "cherry", "general", "helpcenter"];
+    const placed = ["accessibility", "earcons", "alerts", "chats", "privacy", "rem", "customization", "cherry", "general", "helpcenter"];
     const rest = items.filter(function (it) { return placed.indexOf(it.id) < 0 && ["id", "logout", "sec"].indexOf(it.grp) < 0; }).map(go);
-    groups = [top, by(["accessibility", "earcons", "alerts", "chats"]), by(["privacy", "customization", "cherry"]), by(["general", "helpcenter"]).concat(rest)];
+    groups = [top, by(["accessibility", "earcons", "alerts", "chats"]), by(["privacy", "rem", "customization", "cherry"]), by(["general", "helpcenter"]).concat(rest)];
   } else {
     groups = [top, lcSetOrdered(items, mode).map(go), help.map(go)];
   }
@@ -6594,6 +6610,7 @@ const LC_PLACES = {
   customizability: { label: "Customization settings", page: "settings_customizability" },
   account: { label: "LooscidID", page: "settings_account" },
   privacy: { label: "Privacy & Security", page: "settings_privacy" },
+  rem: { label: "Rem settings", page: "settings_rem" }, // Nov 8 2026: Rem's own Settings screen
   profile: { label: "your profile", page: "profile" },
   terminal: { label: "Commandbar", page: "terminal" },
   about: { label: "About Looscid", page: "settings_about" },
@@ -6641,7 +6658,7 @@ const LC_EXACT = { "open commandbar": "terminal", "commandbar": "terminal", "ope
   // Round 7.37 (#176): the new Settings names; the old words above stay as aliases.
   "open general": "general", "open general settings": "general", "open updates": "updates", "open software update": "updates", "check updates settings": "updates",
   "open customization": "customization", "open customization settings": "customization", "open settings order": "settingsorder", "settings order": "settingsorder",
-  "open chats settings": "chatsettings", "open chat settings": "chatsettings", "open keyboard": "keyboard", "open earcons": "audio", "open privacy": "privacy", "open permissions": "privacy", "open quiet hours": "alertsettings", "open alerts settings": "alertsettings", "import settings": "backup",
+  "open chats settings": "chatsettings", "open chat settings": "chatsettings", "open keyboard": "keyboard", "open earcons": "audio", "open privacy": "privacy", "open rem": "rem", "open rem settings": "rem", "open server": "rem", "open looscid server": "rem", "open permissions": "privacy", "open quiet hours": "alertsettings", "open alerts settings": "alertsettings", "import settings": "backup",
   "open braille": "braille", "open braille settings": "braille", "open screen reader": "screenreader", "open screen reader settings": "screenreader", "open screen reader and braille": "screenreader", "open sense": "screenreader", "sense": "screenreader", "sense settings": "screenreader",
   "open credits": "credits", "credits": "credits", "open source": "credits", "licenses": "credits",
   "open vision": "vision", "open hearing": "hearing", "open motion": "motion", "open motion and seizure": "motion", "open motor": "motor", "open motor and switch": "motor", "open terminal settings": "terminalsettings",
@@ -6676,6 +6693,7 @@ const LC_PLACE_WORDS = [
   ["keyboard", ["keyboard", "shortcuts", "keyboard shortcuts"]],
   ["backup", ["backup", "export settings", "import settings"]],
   ["privacy", ["privacy", "privacy and security", "privacy & security", "security", "blocked", "permissions", "muted words", "content warnings"]],
+  ["rem", ["rem", "rem settings", "server", "looscid server", "put my dreams on rem", "download my dreams", "delete my rem data"]],
   ["customizability", ["customizability", "customize", "customise", "theme", "themes"]],
   ["account", ["account", "looscidid", "looscid id", "login"]],
   ["alerts", ["alerts", "alert"]],
@@ -8079,7 +8097,7 @@ if (!Looscid.LC_SETNAV_ON) { Looscid.LC_SETNAV_ON = true; document.addEventListe
 Object.assign(Looscid, { lcSetNavRows, lcSetNavName, lcSetNavKey });
 // Which More-menu item each Settings screen belongs to (Back returns there, focus on that item).
 const SETTINGS_MENU_ITEM = {
-  settings_account: ["settings", "LooscidID"], settings_notifications: ["settings", "Alerts"], settings_privacy: ["settings", "Privacy & Security"],
+  settings_account: ["settings", "LooscidID"], settings_notifications: ["settings", "Alerts"], settings_privacy: ["settings", "Privacy & Security"], settings_rem: ["settings", "Rem"],
   settings_customizability: ["settings", "Customization"], settings_accessibility: ["settings", "Accessibility"], settings_intelligence: ["settings", "Cherry"], settings_about: ["about", "About Looscid"],
   settings_audio: ["settings", "Earcons"], settings_apps: ["settings", "General"], settings_messages: ["settings", "Chats"], settings_general: ["settings", "General"],
   settings_a11y_sr: ["settings", "Accessibility"], settings_a11y_vision: ["settings", "Accessibility"], settings_a11y_hearing: ["settings", "Accessibility"],
@@ -8966,6 +8984,7 @@ useEffect(() => {
       settings_labs: "Labs",
       settings_notifications: "Alerts",
       settings_privacy: "Privacy & Security",
+      settings_rem: "Rem",
       settings_customizability: "Customization", settings_cz_order: "Settings Order", settings_general: "General", settings_updates: "Updates",
       settings_cz_theme: "Appearance", settings_cz_feeds: "Feeds", settings_cz_menu: "Menu", settings_cz_posting: "Dreaming", settings_cz_media: "Media",
       settings_audio_volume: "Volume and focus sounds", settings_audio_pack: "Soundpacks", settings_audio_events: "Event earcons", settings_audio_haptics: "Music and haptics",
@@ -9030,9 +9049,10 @@ useEffect(() => {
       case "liked":         return React.createElement(Looscid.LikedPage, { key: "liked" + pageNonce, navigate: navigate, cherryCtx: cherryCtx,}); // build 148: Liked, in More
       case "lists":         return React.createElement(Looscid.ListsPage, { key: "lists-" + ((pdata && pdata.list) || ""), data: pdata, navigate: navigate, cherryCtx: cherryCtx,}); // build 152 prep (#99, part 4b)
       case "dp":            return pdata ? React.createElement(Looscid.DreamorProfilePage, { key: "dp" + pageNonce, user: pdata, navigate: navigate, cherryCtx: cherryCtx,}) : React.createElement(Looscid.FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
-      case "settings_account":        return React.createElement(Looscid.AccountSettings, { key: "acct-" + ((pdata && pdata.tab) || "home"), navigate: navigate, authUser: authUser, onSignOut: handleSignOut, onRenameProfile: handleRenameProfile, onUpdateProfile: handleUpdateProfile, initialTab: pdata && pdata.tab, fromSettings: !!(pdata && pdata.from === "settings"), fromPrivSec: !!(pdata && pdata.from === "privsec"), initialFocus: pdata && pdata.focus,});
+      case "settings_account":        return React.createElement(Looscid.AccountSettings, { key: "acct-" + ((pdata && pdata.tab) || "home"), navigate: navigate, authUser: authUser, onSignOut: handleSignOut, onRenameProfile: handleRenameProfile, onUpdateProfile: handleUpdateProfile, initialTab: pdata && pdata.tab, fromSettings: !!(pdata && pdata.from === "settings"), fromPrivSec: !!(pdata && pdata.from === "privsec"), fromRem: !!(pdata && pdata.from === "rem"), initialFocus: pdata && pdata.focus,});
       case "settings_notifications":  return React.createElement(Looscid.NotificationsSettings, { navigate: navigate, prefs: prefs, setPrefs: setPrefs,});
       case "settings_privacy":        return React.createElement(Looscid.PrivacySettings, { navigate: navigate, authUser: authUser, onUpdateProfile: handleUpdateProfile,});
+      case "settings_rem":            return React.createElement(Looscid.RemSettings, { navigate: navigate,}); // Nov 8 2026 (js/more.js)
       case "settings_audio": case "settings_audio_volume": case "settings_audio_pack": case "settings_audio_events": case "settings_audio_haptics":
                                       return React.createElement(Looscid.AudioSettings, { key: page, page: page, navigate: navigate,});
       case "settings_keyboard":       return React.createElement(Looscid.KeyboardSettings, { navigate: navigate,});

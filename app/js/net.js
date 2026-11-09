@@ -5,7 +5,9 @@
    make with Audience Everyone is a small JSON event signed with your LooscidID key and sent to the server, which checks
    the signature before it keeps it. Nostr is a bridge you can turn on in Settings, LooscidID, Connectionbase
    ("Also share my Dreams to Nostr"): then the same signed Dream also goes to your Nostr relays. Mastodon and Bluesky are coming soon.
-   "Put your Dreams on Rem" is in js/remsync.js, shown in Connectionbase under Rem. The older Rem v0 home is retired (Nov 7 2026).
+   "Put your Dreams on Rem" is in js/remsync.js. Nov 8 2026 (Carter: "Rem should get it's own settings section"): everything
+   about Rem is on its own Settings screen, Rem (RemSettings in js/more.js, using LcRemStatus, LcRemLists and LcRemData below).
+   Connectionbase keeps only the bridges. The older Rem v0 home is retired (Nov 7 2026).
 
    localStorage keys:
    - looscid_bridges         which bridges are on, like {"nostr": true}. Missing means: Nostr stays on if you already
@@ -196,23 +198,21 @@ async function health() { try { const r = await call("GET", "/health"); return r
 
 
 /* --- Settings, LooscidID, Connectionbase (Nov 7 2026, Carter: bridges live in LooscidID under "Connectionbase") ---
-   Only the connections: Rem (the home of your public Dreams: Put your Dreams on Rem, from
-   js/remsync.js), then the bridges Nostr, Mastodon (soon) and Bluesky (soon). Download my Dreams and Delete my Rem data
-   are on the LooscidID page itself (LcRemData below, Carter Nov 7 6:10 PM).
-   Same markup as the other LooscidID pages: h2.lid-label headings, lid-help text, lid-wide buttons, real checkboxes. */
-function LcConnectionbase({ go }) {
+   Nov 8 2026 (Carter, 8:10 PM: "Rem should get it's own settings section"): Rem moved out to its own Settings screen, Rem,
+   so Connectionbase is only the bridges now: Nostr, Mastodon (soon) and Bluesky (soon), plus one link to the Rem screen.
+   The checkboxes, their saved choice (looscid_bridges) and what they do are the same as before.
+   Same markup as the other LooscidID pages: h2.lid-label headings, lid-help text, real checkboxes. */
+function lcRemLink(id, words) {
+  const lh = React.createElement, href = Looscid.lcPathFor ? Looscid.lcPathFor("settings_rem") : "#";
+  return lh('a', { className: "lc-link", id: id, href: href, style: { display: "inline-flex", alignItems: "center", minHeight: 44 },
+    onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); if (Looscid.LC_NAV) Looscid.LC_NAV("settings_rem"); } }, words);
+}
+function LcConnectionbase() {
   const lh = React.createElement, useState = React.useState, useEffect = React.useEffect;
-  const [, setTick] = useState(0), [up, setUp] = useState(null), [msg, setMsg] = useState("");
-  useEffect(function () { let live = true; health().then(function (ok) { if (live) setUp(ok); }); return function () { live = false; }; }, []);
+  const [, setTick] = useState(0), [msg, setMsg] = useState("");
   useEffect(function () { const f = function () { setTick(function (n) { return n + 1; }); }; window.addEventListener("looscid:bridges", f); return function () { window.removeEventListener("looscid:bridges", f); }; }, []);
   const say = function (t) { setMsg(t); if (Looscid.announce) Looscid.announce(t); };
-  const st = Looscid.lcNostr && Looscid.lcNostr.state ? Looscid.lcNostr.state() : { canDream: false };
   return lh(React.Fragment, null,
-    lh('h2', { className: "lid-label", id: "cb-server-h" }, "Rem"),
-    lh('p', { className: "lid-help" }, "Rem is the Looscid protocol and its server: the home of your public Dreams. Each Dream with Audience Everyone is signed with your LooscidID key and saved on Rem, which checks the signature first. It's open source, so your Dreams can be downloaded and moved anytime."),
-    lh('p', { className: "lid-help", role: "status" }, up === null ? "Checking Rem." : up ? "Rem is online." : "Couldn't reach Rem right now. Dreams wait on this device and go when it's back."),
-    !st.canDream ? lh('p', { className: "lid-help" }, "Make a LooscidID key to Dream to Rem.") : null,
-    Looscid.LcServerPanel ? lh(Looscid.LcServerPanel, { go: go }) : null,
     lh('h2', { className: "lid-label", id: "cb-bridges-h" }, "Bridges"),
     lh('p', { className: "lid-help" }, "Bridges also share your public Dreams to other networks. They're off unless you turn them on."),
     lh('fieldset', { className: "lc-fs", id: "cb-bridges" },
@@ -225,28 +225,49 @@ function LcConnectionbase({ go }) {
           lh('span', null, b.soon ? b.label + ": Coming soon" : "Also share my Dreams to " + b.label));
       }))),
     BRIDGES.filter(function (b) { return !b.soon && b.note; }).map(function (b) { return lh('p', { key: b.id, className: "lid-help" }, b.label + ": " + b.note); }),
-    msg ? lh('p', { className: "lid-help", role: "status" }, msg) : null);
+    msg ? lh('p', { className: "lid-help", role: "status" }, msg) : null,
+    lh('p', { className: "lid-help" }, "Rem is the home of your public Dreams. ", lcRemLink("cb-rem-link", "Put your Dreams on Rem and see if it's online")));
 }
 
-/* --- On the LooscidID page itself: Download my Dreams, Delete my Rem data (Carter, Nov 7 6:10 PM) --- */
+/* --- On the Rem screen (Nov 8 2026; these were on Connectionbase and LooscidID's home page, Carter Nov 7 6:10 PM) ---
+   LcRemStatus: what Rem is and whether it's online right now (it asks GET /health once when it opens).
+   LcRemLists: your synced lists (js/remlists.js), and Sync my lists again after Delete my Rem data paused them.
+   LcRemData: Download my Dreams and Delete my Rem data. Same buttons, same words and same behavior as before. */
+function LcRemStatus() {
+  const lh = React.createElement, useState = React.useState, useEffect = React.useEffect;
+  const [up, setUp] = useState(null);
+  useEffect(function () { let live = true; health().then(function (ok) { if (live) setUp(ok); }); return function () { live = false; }; }, []);
+  const st = Looscid.lcNostr && Looscid.lcNostr.state ? Looscid.lcNostr.state() : { canDream: false };
+  return lh(React.Fragment, null,
+    lh('p', { className: "lid-help", role: "status", id: "rem-online" }, up === null ? "Checking Rem." : up ? "Rem is online." : "Couldn't reach Rem right now. Dreams wait on this device and go when it's back."),
+    !st.canDream ? lh('p', { className: "lid-help" }, "Make a LooscidID key to Dream to Rem.") : null);
+}
+function LcRemLists() {
+  const lh = React.createElement, useState = React.useState;
+  const [msg, setMsg] = useState(""), [, bump] = useState(0);
+  const say = function (t) { setMsg(t); if (Looscid.announce) Looscid.announce(t); };
+  const paused = Looscid.lcLists && Looscid.lcLists.paused();
+  return lh(React.Fragment, null,
+    lh('p', { className: "lid-help" }, "Your likes, ReDreams, pins, dislikes, mutes, Not interested and the threads you follow sync through Rem with your key, so a change on one device shows up on the others. Only like and ReDream counts are public. This device keeps its own copy too."),
+    // Nov 8 2026: after Delete my Rem data, your lists stop syncing on this device until you turn it back on here.
+    paused ? lh(React.Fragment, null,
+      lh('p', { className: "lid-help" }, "Your likes, ReDreams, pins, mutes and followed threads aren't syncing on this device right now, so they stay only here."),
+      lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { Looscid.lcLists.resume(); bump(function (n) { return n + 1; }); say("Your lists sync again. What's on this device is added to Rem, and changes show up on your other devices."); } }, "Sync my lists again")) : null,
+    msg ? lh('p', { className: "lid-help", role: "status" }, msg) : null);
+}
 function LcRemData() {
   const lh = React.createElement, useState = React.useState;
   const [msg, setMsg] = useState(""), [busy, setBusy] = useState(false), [asking, setAsking] = useState(false);
   const say = function (t) { setMsg(t); if (Looscid.announce) Looscid.announce(t); };
   const run = function (p) { setBusy(true); p.then(function (r) { setBusy(false); say(r.say); }, function () { setBusy(false); say("Something went wrong. Try again."); }); };
-  return lh('section', { className: "lid-panel lid-i27-card", "aria-labelledby": "lid-remdata-h" },
-    lh('h2', { className: "lid-label", id: "lid-remdata-h" }, "Your Dreams on Rem"),
+  return lh(React.Fragment, null,
     lh('p', { className: "lid-help" }, "Download every Dream Rem has for your key, as the original signed file, or delete all of it."),
-    lh('button', { type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: function () { run(exportMine()); } }, "Download my Dreams"),
+    lh('button', { type: "button", id: "rem-download", className: "btn bgb lid-wide", disabled: busy, onClick: function () { run(exportMine()); } }, "Download my Dreams"),
     asking ? lh(React.Fragment, null,
         lh('p', { className: "lid-help", id: "cb-forget-q" }, "Delete everything Rem has for your key? That's your Dreams, ReDreams, blocks and reports there, and your synced likes, pins, mutes and followed threads. Dreams on this device stay, and copies on Nostr relays aren't touched. This can't be undone."),
         lh('button', { type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: function () { setAsking(false); run(forgetMe()); } }, "Yes, delete my Rem data"),
         lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { setAsking(false); say("Nothing was deleted."); } }, "Cancel"))
-      : lh('button', { type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: function () { setAsking(true); } }, "Delete my Rem data"),
-    // Nov 8 2026: after Delete my Rem data, your lists stop syncing on this device until you turn it back on here.
-    Looscid.lcLists && Looscid.lcLists.paused() ? lh(React.Fragment, null,
-      lh('p', { className: "lid-help" }, "Your likes, ReDreams, pins, mutes and followed threads aren't syncing on this device right now, so they stay only here."),
-      lh('button', { type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: function () { Looscid.lcLists.resume(); say("Your lists sync again. What's on this device is added to Rem, and changes show up on your other devices."); } }, "Sync my lists again")) : null,
+      : lh('button', { type: "button", id: "rem-forget", className: "btn bgb lid-wide", disabled: busy, onClick: function () { setAsking(true); } }, "Delete my Rem data"),
     msg ? lh('p', { className: "lid-help", role: "status" }, msg) : null);
 }
 
@@ -285,5 +306,5 @@ function preview(url) {
 
 Looscid.lcNet = { API: API, preview: preview, PROTOCOL_TAG: PROTOCOL_TAG, BRIDGES: BRIDGES, bridges: bridges, bridgeOn: bridgeOn, setBridge: setBridge, markCrossposted: markCrossposted, wasCrossposted: wasCrossposted,
   ingest: ingest, flush: flush, feed: feed, userDreams: userDreams, listWrite: listWrite, listsMine: listsMine, REPORT_REASONS: REPORT_REASONS, report: report, block: block, unblockHandle: unblockHandle, blockedPk: blockedPk, moderate: moderate, modlog: modlog, moderationFor: moderationFor, moderators: moderators,
-  exportMine: exportMine, forgetMe: forgetMe, health: health, LcConnectionbase: LcConnectionbase, LcRemData: LcRemData };
+  exportMine: exportMine, forgetMe: forgetMe, health: health, LcConnectionbase: LcConnectionbase, LcRemStatus: LcRemStatus, LcRemLists: LcRemLists, LcRemData: LcRemData };
 })(window.Looscid = window.Looscid || {});

@@ -92,7 +92,7 @@ async function sync(pull) {
     if (pull || first) { srv = await Looscid.lcNet.listsMine(); if (!srv) return; lastPull = Date.now(); }
     const snap = first ? {} : c.snap;
     // Rem suddenly has nothing while this device remembers some: the Rem data was probably deleted from another
-    // device. Keep everything here and stop syncing lists here (Settings, LooscidID, Rem: "Sync my lists again").
+    // device. Keep everything here and stop syncing lists here (Settings, Rem, Your lists: "Sync my lists again").
     if (srv && !first && LISTS.every(function (L) { return !(srv[L.name] || []).length; }) && LISTS.some(function (L) { return (snap[L.name] || []).length; })) {
       lsSet(SYNC_KEY, { pk: pk, snap: null, paused: true }); return;
     }

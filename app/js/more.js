@@ -1196,7 +1196,10 @@ function DreamorProfilePage({user, navigate, cherryCtx}) {
 }
 /* --- SETTINGS ---------------------------- */
 /* --- ACCOUNT SETTINGS ---------------------------------------------------- */
-function AccountSettings({navigate, authUser, onSignOut, onRenameProfile, onUpdateProfile, initialTab, fromSettings, fromPrivSec, initialFocus}) {
+function AccountSettings({navigate, authUser, onSignOut, onRenameProfile, onUpdateProfile, initialTab, fromSettings, fromPrivSec, fromRem, initialFocus}) {
+  // Nov 8 2026 (Carter: "Rem should get it's own settings section"): LooscidID's old Rem page (tab "server") is the Rem
+  // screen in Settings now; anything that still opens it lands there.
+  if (initialTab === "server") return React.createElement(LcGoRem, { navigate: navigate });
   // Settings > Account IS LooscidID management (2three1y, Oct 8 2026), laid out like the
   // Google Account page. Alerts live only in Settings > Alerts, never here.
   const securityExtra = React.createElement(React.Fragment, null
@@ -1204,7 +1207,7 @@ function AccountSettings({navigate, authUser, onSignOut, onRenameProfile, onUpda
     , React.createElement('p', { className: "lid-help",}, "Your LooscidID is saved only on this device. Resetting it starts fresh with the name Dreamor.")
     , React.createElement('button', { className: "btn bgb lid-wide", onClick: ()=>{ if (window.confirm("Reset your local profile on this device?")) onSignOut(); },}, "Reset local profile")
   );
-  return React.createElement(LooscidIDManager, { navigate: navigate, authUser: authUser, onUpdateProfile: onUpdateProfile || (()=>{}), initialTab: initialTab, fromSettings: fromSettings, fromPrivSec: fromPrivSec, initialFocus: initialFocus,
+  return React.createElement(LooscidIDManager, { navigate: navigate, authUser: authUser, onUpdateProfile: onUpdateProfile || (()=>{}), initialTab: initialTab, fromSettings: fromSettings, fromPrivSec: fromPrivSec, fromRem: fromRem, initialFocus: initialFocus,
     title: "LooscidID", onBack: ()=>{ const r = Looscid.LC_LID_RETURN; Looscid.LC_LID_RETURN = null; if (r) { Looscid.LC_PM_OPEN = r; navigate("alerts"); return; } navigate("settings"); }, securityExtra: securityExtra,});
 }
 // Round 6: one audience radio set (fieldset + legend, native radios) with the Custom picker.
@@ -1384,7 +1387,7 @@ function PrivacySettings({navigate, authUser, onUpdateProfile}) {
     lh(BackHeader, { title: sec[1], hid: "priv-drill-h", onBack: function () { setOpen("", sec[0]); } }),
     lh('div', { id: "priv-acc-p-" + sec[0], className: "lc-acc-p lc-drill" }, sec[2]()));
   // Nov 8 2026 (Carter: "Privacy is in security like iOS"): this is Privacy & Security now, like iOS. Privacy first (as
-  // before), then Security: the key, passcode, backup file, login methods, devices, Rem and Security checkup.
+  // before), then Security: the key, passcode, backup file, login methods, devices and Security checkup. Rem has its own screen.
   return lh('div', { className: "pg lc-a11y lc-ios-page", "aria-live": "off" },
     lh(BackHeader, { title: "Privacy & Security", onBack: function () { navigate("settings"); } }),
     // Round 7.29 (Carter, Oct 26 2026): the "we care" paragraph and a real link to the Privacy Policy page (Back returns here).
@@ -1403,7 +1406,7 @@ function PrivacySettings({navigate, authUser, onUpdateProfile}) {
     lh('p', { className: "lc-ios-foot" }, "Who can see and reach you, who you blocked or muted, and how your media and profile are shared. Everything here is saved on this device."),
     lh('h2', { className: "lc-grp-h", id: "priv-h-security" }, "Security"),
     lh(LcPrivSecRows, { navigate: navigate }),
-    lh('p', { className: "lc-ios-foot" }, "Your Nostr key and its passcode, your backup file, how you log in, where you're signed in and Rem. Your key never leaves this device unless you back it up."),
+    lh('p', { className: "lc-ios-foot" }, "Your Nostr key and its passcode, your backup file, how you log in and where you're signed in. Your key never leaves this device unless you back it up."),
     lh(LcResetLast, { scope: "privacy" }));
 }
 /* Round 7.25 (#164, Carter Oct 25 2026): Let others share my Dreams. On by default. Off, each Dream you send to Nostr from then
@@ -3012,7 +3015,7 @@ function lcIdLabel(x) {
    Makes it"): a header with your avatar, name and @username, then real tabs:
    Home, Personal info, Data & privacy, Security, People & sharing. No payments.
    Alerts are not here; they have their own section. */
-const LID_TABS = Looscid.LID_TABS = [["home", "Home"], ["info", "Profile"], ["methods", "Login methods"], ["keys", "Keys and IDs"], ["security", "Security checkup"], ["devices", "Devices"], ["data", "Data"], ["server", "Rem"], ["backup", "Backup file"], ["apps", "Connected apps"], ["connectionbase", "Connectionbase"]]; // Nov 7 2026: + Connectionbase (js/net.js)
+const LID_TABS = Looscid.LID_TABS = [["home", "Home"], ["info", "Profile"], ["methods", "Login methods"], ["keys", "Keys and IDs"], ["security", "Security checkup"], ["devices", "Devices"], ["data", "Data"], ["backup", "Backup file"], ["apps", "Connected apps"], ["connectionbase", "Connectionbase"]]; // Nov 7 2026: + Connectionbase (js/net.js). Nov 8 2026: "server" (Rem) is its own Settings screen now (RemSettings)
 Looscid.LID_TABS = LID_TABS;
 function lidWhen(t) { try { return new Date(t).toLocaleString(undefined, Looscid.lcTimeOpts({ month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })); } catch (e) { return ""; } }
 function thisDeviceLabel() {
@@ -3059,7 +3062,7 @@ function exportLocalData() {
 function deleteLocalData() {
   try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf("looscid_") === 0 || k.indexOf(Looscid.LC_OLD_PREFIX) === 0) localStorage.removeItem(k); /* and any old-prefix key left from before build 150 */ }); } catch (e) {}
 }
-function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onBack, title, securityExtra, fromSettings, fromPrivSec, initialFocus }) {
+function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onBack, title, securityExtra, fromSettings, fromPrivSec, fromRem, initialFocus }) {
   const [tab, setTab] = useState(initialTab || "home");
   const [idn, setIdn] = useState(getIdentity());
   const [, bump] = useState(0);
@@ -3099,12 +3102,15 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   // Nov 8 2026 (Carter: one Privacy & Security, like iOS): the Security pages (Keys and IDs, Login methods, Backup file,
   // Devices, Security checkup) belong to Privacy & Security, and so does any page opened from there. Opened straight
   // (from there, Search or a link), Back goes to Privacy & Security, onto the row that opened it.
-  const toPrivSec = !stack.current.length && tab !== "home" && !Looscid.LC_LID_RETURN && (fromPrivSec || LID_PARENT[tab] === "privsec");
-  const leaves = !toPrivSec && !stack.current.length && (tab === "home" || ((fromSettings || Looscid.LC_LID_RETURN) && initialTab && tab === initialTab));
+  // Nov 8 2026: a page opened from the Rem screen (Keys and IDs, Backup file) goes Back to Rem.
+  const toRem = !stack.current.length && tab !== "home" && !Looscid.LC_LID_RETURN && !!fromRem;
+  const toPrivSec = !toRem && !stack.current.length && tab !== "home" && !Looscid.LC_LID_RETURN && (fromPrivSec || LID_PARENT[tab] === "privsec");
+  const leaves = !toRem && !toPrivSec && !stack.current.length && (tab === "home" || ((fromSettings || Looscid.LC_LID_RETURN) && initialTab && tab === initialTab));
   const backTo = stack.current.length ? stack.current[stack.current.length - 1].tab : (LID_PARENT[tab] && LID_PARENT[tab] !== "privsec" ? LID_PARENT[tab] : "home");
-  const backLabel = toPrivSec ? "Back to Privacy & Security" : leaves ? (Looscid.LC_LID_RETURN ? "Back" : "Back to Settings") : "Back to " + tabLabel(backTo);
+  const backLabel = toRem ? "Back to Rem" : toPrivSec ? "Back to Privacy & Security" : leaves ? (Looscid.LC_LID_RETURN ? "Back" : "Back to Settings") : "Back to " + tabLabel(backTo);
   const back = function () {
     setNote("");
+    if (toRem) { navigate("settings_rem"); return; }
     if (toPrivSec) { navigate("settings_privacy"); return; }
     if (leaves) { if (onBack) onBack(); else navigate("settings"); return; }
     const prev = stack.current.pop(), was = tab;
@@ -3135,13 +3141,13 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
     lh('ul', { className: "mlist lc-i27-list", role: "list", id: "lid-rows" }, R([
       // Nov 8 2026 (Carter: "We have a security in 2 place"): the Security row moved out; it's in Privacy & Security now.
       [{ id: "lid-row-info", g: "person", c: "#8e8e93", label: "Profile", sub: "Name " + name + ", username " + handle, onClick: function () { go("info"); } }],
-      // Nov 7 2026 (Carter): Connectionbase holds the connections: Rem (one concept now: the Looscid protocol and its server,
-      // rem.thebntlovver.workers.dev) and the bridges Nostr, Mastodon and Bluesky (coming soon).
-      [{ id: "lid-row-connectionbase", g: "cloud", c: "#30b0c7", label: "Connectionbase", value: Looscid.lcNet && Looscid.lcNet.bridgeOn("nostr") ? "Rem + Nostr" : "Rem", sub: (srvM.sync ? "Rem is syncing your Dreams" : "Rem") + ". Bridges: Nostr, Mastodon, Bluesky", onClick: function () { go("connectionbase"); } },
+      // Nov 7 2026 (Carter): Connectionbase holds the connections, the bridges Nostr, Mastodon and Bluesky (coming soon).
+      // Nov 8 2026 (Carter: "Rem should get it's own settings section ... the thing by LooscidID should get removed"): Rem
+      // isn't here anymore; it has its own Settings screen (RemSettings), so this row only says which bridges are on.
+      [{ id: "lid-row-connectionbase", g: "cloud", c: "#30b0c7", label: "Connectionbase", value: Looscid.lcNet && Looscid.lcNet.bridgeOn("nostr") ? "Nostr" : "Off", sub: "Bridges: Nostr, Mastodon, Bluesky", onClick: function () { go("connectionbase"); } },
        { id: "lid-row-apps", g: "grid", c: "#5856d6", label: "Connected apps", value: methods.length ? String(methods.length) : "None", sub: methods.length ? methods.length + " linked " + (methods.length === 1 ? "identity" : "identities") : "", onClick: function () { go("apps"); } }],
-      [{ id: "lid-row-data", g: "data", c: "#8e8e93", label: "Data", sub: summary.length + " kinds of data, stored only on this device", onClick: function () { go("data"); } }]])),
-    // Nov 7 2026 (Carter, 6:10 PM): Download my Dreams and Delete my Rem data live on the LooscidID page itself (js/net.js).
-    Looscid.lcNet && Looscid.lcNet.LcRemData ? lh(Looscid.lcNet.LcRemData, null) : null);
+      [{ id: "lid-row-data", g: "data", c: "#8e8e93", label: "Data", sub: summary.length + " kinds of data, stored only on this device", onClick: function () { go("data"); } }]])));
+    // Nov 7 2026 (Carter, 6:10 PM) Download my Dreams and Delete my Rem data were here. Nov 8 2026: they're on the Rem screen now.
   else if (tab === "info") panel = lh(React.Fragment, null,
     PH("Profile", "Your name, username, avatar and bio. Choose a field to change it."),
     ed.list);
@@ -3197,11 +3203,11 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
     lh(LcKeysPanel, { goMethods: function () { go("methods"); } }));
   // Oct 31 2026 (Carter): the Looscid server (sign in with your key, put your Dreams on it) and the backup file (everything
   // plus your key, locked with a passcode) each have their own page here. They live in js/remsync.js.
-  // Nov 7 2026 (Rem v1 merge): the old "Looscid server" page (tab "server") is Rem in Connectionbase now; old links land there.
-  else if (tab === "connectionbase" || tab === "server") panel = lh(React.Fragment, null,
-    PH("Connectionbase", "Where your public Dreams go: Rem is their home, and bridges can also share them to other networks."),
-    Looscid.LcModeLine ? lh(Looscid.LcModeLine, null) : null,
-    Looscid.lcNet && Looscid.lcNet.LcConnectionbase ? lh(Looscid.lcNet.LcConnectionbase, { go: function (t) { go(t); } }) : lh('p', { className: "lid-help" }, "The Connectionbase page didn't load. Reload Looscid and try again."));
+  // Nov 7 2026 (Rem v1 merge): the old "Looscid server" page (tab "server") became Rem in Connectionbase. Nov 8 2026: Rem has
+  // its own Settings screen (RemSettings below), and the "server" tab opens it (AccountSettings). Connectionbase is the bridges.
+  else if (tab === "connectionbase") panel = lh(React.Fragment, null,
+    PH("Connectionbase", "Bridges share your public Dreams to other networks too."),
+    Looscid.lcNet && Looscid.lcNet.LcConnectionbase ? lh(Looscid.lcNet.LcConnectionbase, null) : lh('p', { className: "lid-help" }, "The Connectionbase page didn't load. Reload Looscid and try again."));
   else if (tab === "backup") panel = lh(React.Fragment, null,
     PH("Backup file", "Save everything, your key included, in one file locked with a passcode. Or bring it all back from one."),
     Looscid.LcBackupPanel ? lh(Looscid.LcBackupPanel, { go: function (t) { go(t); } }) : lh('p', { className: "lid-help" }, "The Backup file page didn't load. Reload Looscid and try again."));
@@ -3244,12 +3250,13 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
 }
 // Which page each LooscidID page comes back to when it was opened straight (from Search, a link or another screen).
 // Nov 8 2026: "privsec" is Privacy & Security (a Settings screen, not a LooscidID page), where the Security pages live now.
-const LID_PARENT = Looscid.LID_PARENT = { keys: "privsec", methods: "privsec", backup: "privsec", devices: "privsec", security: "privsec", server: "privsec" };
+const LID_PARENT = Looscid.LID_PARENT = { keys: "privsec", methods: "privsec", backup: "privsec", devices: "privsec", security: "privsec" };
 /* Nov 8 2026 (Carter, 7:57 PM: "We have a security in 2 place and Privacy is in security like iOS"): the Security half of
    Privacy & Security. Security used to be a Settings row AND a LooscidID row; now its pages are rows here, under Privacy,
    like iOS. Each row opens the same LooscidID page as before (same settings, same behavior), and Back comes back here, on
    that row. The rows look and read like the Privacy rows above them: the name, then its value ("Passcode, Off"). */
-const LC_PRIVSEC_ROWS = [["keys", "Keys and IDs"], ["passcode", "Passcode"], ["backup", "Backup file"], ["methods", "Login methods"], ["devices", "Devices"], ["rem", "Rem"], ["security", "Security checkup"]];
+// Nov 8 2026 (Carter: "Rem should get it's own settings section"): the Rem row moved out to its own Settings screen, Rem.
+const LC_PRIVSEC_ROWS = [["keys", "Keys and IDs"], ["passcode", "Passcode"], ["backup", "Backup file"], ["methods", "Login methods"], ["devices", "Devices"], ["security", "Security checkup"]];
 Looscid.LC_PRIVSEC_ROWS = LC_PRIVSEC_ROWS;
 function lcSecSuggestions() {
   const methods = getMethods(), sk = getStoredNostrSk(), idn = getIdentity(), out = [];
@@ -3262,13 +3269,12 @@ function LcPrivSecRows({ navigate }) {
   if (Looscid.useServerTick) Looscid.useServerTick(); else useState(0);
   const nst = Looscid.useNostrState ? Looscid.useNostrState() : null;
   const methods = getMethods(), linkedN = lcGetIds().length, sug = lcSecSuggestions();
-  const srvM = Looscid.lcServer && Looscid.lcServer.mode ? Looscid.lcServer.mode() : { sync: false };
   const val = {
     keys: linkedN ? String(linkedN) : "", passcode: nst && nst.encrypted ? "On" : "Off", backup: "",
-    methods: methods.length ? String(methods.length) : "None", devices: "1", rem: srvM.sync ? "Syncing" : "Local",
+    methods: methods.length ? String(methods.length) : "None", devices: "1",
     security: sug.length ? Looscid.fmt(sug.length) + (sug.length === 1 ? " suggestion" : " suggestions") : "No issues" };
   const open = { keys: { tab: "keys" }, passcode: { tab: "keys", focus: "nostr-lock-h" }, backup: { tab: "backup" }, methods: { tab: "methods" },
-    devices: { tab: "devices" }, rem: { tab: "connectionbase" }, security: { tab: "security" } };
+    devices: { tab: "devices" }, security: { tab: "security" } };
   return lh('ul', { className: "mlist lc-catlist lc-ios-list", role: "list", id: "priv-sec-rows" }, LC_PRIVSEC_ROWS.map(function (r) {
     const v = val[r[0]];
     return lh('li', { key: r[0], className: "mli" },
@@ -3279,6 +3285,44 @@ function LcPrivSecRows({ navigate }) {
   }));
 }
 Looscid.LcPrivSecRows = LcPrivSecRows;
+
+/* Nov 8 2026 (Carter, 8:10 PM: "Rem should get it's own settings section or already Imbeddedd. So the thing by LooscidID
+   should get removed"): Rem, its own Settings screen, right after Privacy & Security. Everything about Rem is here now, in
+   this order: what Rem is and if it's online, the Mode line, Put your Dreams on Rem (js/remsync.js), your synced lists
+   (js/remlists.js), a placeholder for the per-device sync switches (not built yet), and Download my Dreams / Delete my Rem
+   data. It all used to be split up: the Mode row under the LooscidID card, LooscidID's Connectionbase page and home page,
+   and a Rem row in Privacy & Security. Those are gone, and their old ways in open this screen. Only the place changed: every
+   control is the same component as before, with the same saved choices (looscid_server, looscid_rem_lists) and behavior.
+   Bridges stay in LooscidID, Connectionbase. Address: /More/Settings/Rem (old: /Settings/Server, /Settings/Mode and more). */
+function RemSettings({ navigate }) {
+  if (Looscid.useServerTick) Looscid.useServerTick(); else useState(0);
+  const N = Looscid.lcNet || {};
+  // Keys and IDs and Backup file (from Put your Dreams on Rem) are LooscidID pages; Back from them comes back here.
+  const toLid = function (t) { navigate("settings_account", { tab: t, from: "rem" }); };
+  const sec = function (id, title, kids) { return lh('section', { className: "lid-panel", id: "rem-" + id, "aria-labelledby": "rem-h-" + id },
+    lh('h2', { className: "lid-label", id: "rem-h-" + id, tabIndex: -1 }, title), kids); };
+  const link = function (id, page, data, words) { return lh('a', { className: "lc-link", id: id, href: Looscid.lcPathFor ? Looscid.lcPathFor(page, data) : "#", style: { display: "inline-flex", alignItems: "center", minHeight: 44 },
+    onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate(page, data); } }, words); };
+  return lh('div', { className: "pg lc-ios-page lc-i27 lid-i27", id: "rem-page" },
+    lh(Looscid.LcI27Header, { title: "Rem", onBack: function () { navigate("settings"); }, backLabel: "Back to Settings" }),
+    lh('div', { id: "rem-body", className: "lid-body" },
+      lh('p', { className: "lid-help lid-i27-help", id: "rem-intro" }, "Rem is the Looscid protocol and its server: the home of your public Dreams. Each Dream with Audience Everyone is signed with your LooscidID key and saved on Rem, which checks the signature first. It's open source, so your Dreams can be downloaded and moved anytime."),
+      N.LcRemStatus ? lh(N.LcRemStatus, null) : null,
+      Looscid.LcModeLine ? lh(Looscid.LcModeLine, null) : null,
+      sec("dreams", "Put your Dreams on Rem", Looscid.LcServerPanel ? lh(Looscid.LcServerPanel, { go: toLid }) : lh('p', { className: "lid-help" }, "This part didn't load. Reload Looscid and try again.")),
+      sec("lists", "Your lists", N.LcRemLists ? lh(N.LcRemLists, null) : null),
+      // Carter asked for "Sync to my other devices / just this device" switches (Nov 8 2026). Not built yet, so just a line.
+      sec("devices", "Sync to my other devices",
+        lh('p', { className: "lid-help", id: "rem-soon" }, "Coming soon: I'm working on switches so you can pick Sync to my other devices or Just this device for your settings. Nothing's switched yet, so everything above works like it always did.")),
+      sec("data", "Your Dreams on Rem", N.LcRemData ? lh(N.LcRemData, null) : null),
+      lh('p', { className: "lc-i27-foot" }, "Want your public Dreams on other networks too? ", link("rem-bridges-link", "settings_account", { tab: "connectionbase", from: "rem" }, "Turn on bridges in Connectionbase"))));
+}
+Looscid.RemSettings = RemSettings;
+// Opens the Rem screen in place of LooscidID's old Rem page.
+function LcGoRem({ navigate }) {
+  useEffect(function () { navigate("settings_rem"); }, []);
+  return null;
+}
 Looscid.LC_FORCED = {}; // Private account forces two Permissions
 // What each event is called, for previews, mapping and captions.
 // Preview button names in sentence case without losing proper terms: "Preview new Dream sound", never "new dream".

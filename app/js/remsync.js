@@ -1,7 +1,7 @@
 /* Looscid, js/remsync.js: Rem sync and the backup file. Plain script, loaded after more.js.
 
    Nov 7 2026 (Carter: "Merge Rem with the other protocol"): there is one Looscid protocol now, Rem (docs/protocol.md,
-   Rem v1). This file's Rem page lives inside Settings, LooscidID, Connectionbase, under the heading Rem.
+   Rem v1). This file's Rem part lives on the Rem screen in Settings (Nov 8 2026, its own screen: RemSettings in js/more.js).
    1. Put your Dreams on Rem: a one-time choice, All my Dreams, Let me pick, or Not now. Nothing uploads without that tap.
       Public Dreams and replies (Audience Everyone) are signed here with your key as Rem v1 events, with their original
       dates, and sent to the Rem server (js/net.js, https://rem.thebntlovver.workers.dev). No sign-in needed. After that,
@@ -456,7 +456,7 @@ function LcModeLine(props) {
 }
 /* --- "Switch to the Looscid server?" (Nov 1 2026, Carter: "a prompt appears that you are using the local version of
    Looscid. Do you want to upgrade to server?"). Shown once, to people in Local mode who aren't signed in to a server, after
-   first-run setup and never on top of another dialog. Switch to server opens Settings, LooscidID, Looscid server (nothing
+   first-run setup and never on top of another dialog. Switch to server opens Settings, Rem (since Nov 8 2026) (nothing
    syncs until you sign in and choose your Dreams there); Stay local, or Escape, keeps Local mode. Either way it's remembered
    (localStorage looscid_server_ask) and never shown again on its own; the option stays in Settings. */
 const ASK_KEY = "looscid_server_ask";
@@ -478,8 +478,8 @@ function LcServerAsk(props) {
   const pick = function (v) {
     try { localStorage.setItem(ASK_KEY, v); } catch (e) {}
     setShow(false);
-    if (v === "server") { if (props.navigate) props.navigate("settings_account", { tab: "connectionbase" }); }
-    else say("Staying in Local mode. Rem is in Settings, LooscidID, Connectionbase, whenever you want it.");
+    if (v === "server") { if (props.navigate) props.navigate("settings_rem"); } // Nov 8 2026: Rem's own Settings screen
+    else say("Staying in Local mode. Rem has its own screen in Settings whenever you want it.");
   };
   const onKey = function (e) {
     if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); pick("local"); return; }
@@ -490,7 +490,7 @@ function LcServerAsk(props) {
       lh('h2', { id: "lc-srv-ask-t", tabIndex: -1, ref: hRef, className: "lc-q-h lc-q-t" }, "You're using Looscid in Local mode"),
       lh('div', { className: "lc-q-intro" },
         lh('p', null, "Want to put your Dreams on Rem? It keeps your public Dreams synced on all your devices with your LooscidID."),
-        lh('p', null, "Your older Dreams go on Rem only after you choose which ones. You can change this any time in Settings, LooscidID, Connectionbase.")),
+        lh('p', null, "Your older Dreams go on Rem only after you choose which ones. You can change this any time on the Rem screen in Settings.")),
       lh('div', { className: "lc-q-btns" },
         lh('button', { type: "button", className: "btn bp lc-big", onClick: function () { pick("server"); } }, "Put my Dreams on Rem"),
         lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { pick("local"); } }, "Stay local"))));
