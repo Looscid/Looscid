@@ -1990,7 +1990,7 @@ const LC_FIND_STATIC = [
   { l: "Looscid App Store", w: "app store nexos app store store apps install", page: "nexos_apps", focus: "lc-nx-shell-store", where: "Apps, Desktop" },
   { l: "Insomnia Soundpack", w: "insomnia sounds sound pack soundpack chimes", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Earcons, Soundpacks", pri: true },
   { l: "Hyper Synth Soundpack", w: "synth hyper synth sounds sound pack soundpack", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Earcons, Soundpacks", pri: true },
-  { l: "FastSM-inspired Soundpack", w: "fastsm fast sm fastsmrw fastsm inspired earcons sounds sound pack soundpack mastodon bluesky client", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Earcons, Soundpacks", pri: true },
+  { l: "Soft Blips Soundpack", w: "soft blips blips fastsm fast sm fastsmrw fastsm inspired earcons sounds sound pack soundpack mastodon bluesky client", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Earcons, Soundpacks", pri: true },
   // Nov 8 2026: the Chats screen's one setting is in Privacy & Security. Nov 9 2026: right on that screen, under Chats.
   { l: "Who can message me", w: "chats chat settings message settings messages who can message me who can dm me dms", page: "settings_privacy", focus: "set-whoMessage", where: "Settings, Privacy & Security, Chats" },
   // Round 7.37 (#176): the new pages.
@@ -4369,7 +4369,7 @@ const LC_SET = [
     desc: "Off by default. Your phone may mute sounds from web pages when it's on silent, so Earcons go quiet too. On: Earcons play even on silent, like VoiceOver does. Music playing in another app may stop when an earcon plays." },
   { k: "nexosBoot", s: "audio", l: "Looscid OS boot text", t: "bool", d: true, al: ["looscid os boot text", "looscid os boot", "nexos boot text", "boot text", "boot screen", "nexos boot", "startup text"],
     desc: "With the Looscid OS classic Soundpack, Looscid starts with the Looscid OS boot text and its boot chime, once per visit. Text only, nothing flashes, and Skip or Escape ends it." },
-  { k: "soundPack", s: "audio", l: "Soundpack", t: "choice", d: "looscid", al: ["sound pack", "soundpack", "sound theme", "insomnia sounds", "synth", "hyper synth", "fastsm", "fastsm inspired", "soundvault", "soundpack", "soundpacks", "sound packs", "looscid os sounds", "nexos sounds", "good morning", "good night"], o: [["looscid", "Looscid", ["looscid", "default"]], ["nexos", "Looscid OS classic", ["looscid os classic", "looscid os", "nexos classic", "nexos"]], ["insomnia", "Insomnia", ["insomnia", "insomnia os", "insomnia sounds"]], ["synth", "Hyper Synth", ["hyper synth", "synth", "hyper", "synth pack"]], ["fastsm", "FastSM-inspired", ["fastsm inspired", "fastsm", "fast sm", "fastsmrw", "fastsm sounds"]], ["soundvault", "Soundvault", ["soundvault", "sound vault", "soundvault pack", "soundvault sounds"]], ["custom", "Your imported pack", ["custom", "imported", "my pack", "mine"]]] },
+  { k: "soundPack", s: "audio", l: "Soundpack", t: "choice", d: "looscid", al: ["sound pack", "soundpack", "sound theme", "insomnia sounds", "synth", "hyper synth", "soft blips", "blips", "fastsm", "fastsm inspired", "soundvault", "soundpack", "soundpacks", "sound packs", "looscid os sounds", "nexos sounds", "good morning", "good night"], o: [["looscid", "Looscid", ["looscid", "default"]], ["nexos", "Looscid OS classic", ["looscid os classic", "looscid os", "nexos classic", "nexos"]], ["insomnia", "Insomnia", ["insomnia", "insomnia os", "insomnia sounds"]], ["synth", "Hyper Synth", ["hyper synth", "synth", "hyper", "synth pack"]], ["fastsm", "Soft Blips", ["soft blips", "blips", "fastsm inspired", "fastsm", "fast sm", "fastsmrw", "fastsm sounds"]], ["soundvault", "Soundvault", ["soundvault", "sound vault", "soundvault pack", "soundvault sounds"]], ["custom", "Your imported pack", ["custom", "imported", "my pack", "mine"]]] },
   { k: "ev_send", s: "audio", l: "Send sound", t: "bool", d: true, ev: "send", al: ["send sound", "sent sound"] },
   { k: "ev_like", s: "audio", l: "Like sound", t: "bool", d: true, ev: "like", al: ["like sound"] },
   { k: "ev_newDream", s: "audio", l: "New Dream sound", t: "bool", d: true, ev: "newDream", al: ["new dream sound"] },
@@ -4754,7 +4754,7 @@ const LC_PACKS = {
   // (an accessible Mastodon and Bluesky client): short, soft, round blips with quick glides and airy swooshes.
   // FastSMRW has no license, so no code or audio from it is copied. Opt-in in Settings, Earcons, Sound pack.
   fastsm: {
-    label: "FastSM-inspired", echo: false, gain: 1.3, cmdVoice: "sine",
+    label: "Soft Blips", echo: false, gain: 1.3, cmdVoice: "sine",
     sounds: {
       boot:     { label: "Soft rise", ops: [67, 71, 74, 79].map(function (m, i) { return LcT(N_(m), i * 0.06, 0.16, "sine", 0.26, 0, 0.004, 0.08); }) },
       send:     { label: "Swoosh and pop", ops: [LcC(900, 0, 0.12, 0.22, 0.7, 3200), LcT(N_(84), 0.1, 0.09, "sine", 0.28, N_(91), 0.003, 0.05)] },
@@ -7948,7 +7948,7 @@ function lcBrIntent(raw) {
 // Settings > Sounds (was Audio; storage keys and page ids unchanged). Pitch cues live in Verbosity.
 const LC_AUDIO_CATS = [
   { id: "volume", page: "settings_audio_volume", l: "Volume, focus, keyboard and command earcons", sub: "Earcons on or off, master volume, a sound on every swipe, a click per key, a sound per command", keys: ["earcons", "earconVolume", "earconFocus", "keyClicks", "cmdSounds", "earconsOnSilent"] },
-  { id: "pack", page: "settings_audio_pack", l: "Soundpacks", sub: "Looscid, Looscid OS classic, Insomnia, Hyper Synth, FastSM-inspired, Soundvault or your own", keys: ["soundPack", "nexosBoot"] },
+  { id: "pack", page: "settings_audio_pack", l: "Soundpacks", sub: "Looscid, Looscid OS classic, Insomnia, Hyper Synth, Soft Blips, Soundvault or your own", keys: ["soundPack", "nexosBoot"] },
   { id: "events", page: "settings_audio_events", l: "Event earcons", sub: "Send, like, new Dream, error, feed switch, with previews", keys: ["ev_send", "ev_like", "ev_newDream", "ev_error", "ev_feed"] },
   // Nov 9 2026 (Carter, 9:36 PM: "alerts should also have their own settings and alert ear cons ... you should also be able to
   // manage them from another screen too"): Alerts, the alert sound and each kind of alert's sound. It's the same switches as

@@ -4102,7 +4102,7 @@ const LC_CREDITS = {
   ideas: [
     { n: "Feditext, by Metabolist", s: "Feditext", u: "https://github.com/feditext/feditext", l: "GPL-3.0", lu: "https://github.com/feditext/feditext/blob/develop/LICENSE", w: "Design inspiration only, no Feditext code is used anywhere in Looscid. The composer follows Feditext's layout: the Dream you're answering above your text, the toolbar order, and writing a whole thread in one go. The profile design, the More button and the Preferences-style settings are recreated from Feditext by Metabolist, again with zero code copied. Feditext is honestly one of the best accessible apps out there, go check it out." },
     // Round 6.6: FastSMRW has no license, so only the idea is borrowed.
-    { n: "FastSMRW, by masonasons", s: "FastSMRW", u: "https://github.com/masonasons/FastSMRW", lead: "No license, so I only borrowed the idea.", w: "The FastSM-inspired earcon pack in Settings, Earcons, Soundpack is inspired by FastSMRW. No code or audio was copied: every sound in that pack is made fresh with Web Audio." },
+    { n: "FastSMRW, by masonasons", s: "FastSMRW", u: "https://github.com/masonasons/FastSMRW", lead: "No license, so I only borrowed the idea.", w: "The Soft Blips earcon pack in Settings, Earcons, Soundpack is based on FastSMRW. No code or audio was copied: every sound in that pack is made fresh with Web Audio." },
     // Nov 2 2026: the TalkBack test page gave Looscid its approved link, button, heading and edit box format.
     { n: "TalkBack test", s: "TalkBack test", u: "https://2three1y.github.io/github-elements/talkback-test/", site: "GitHub Pages", w: "Where our link, button, heading and edit box format came from." },
     // Nov 8 2026 (Carter): the ideas behind the component library in the Help Center, and the vibe of our Terms. No code from them.
@@ -4160,7 +4160,7 @@ function CreditsPage({ navigate }) {
         lh('p', { key: "src", className: "lc-roll-what" }, "Looscid's own source code is all on GitHub: ", ext("https://github.com/Looscid/Looscid", "Looscid on GitHub", null, "g"), ". The full license has its own page: ", ext(lic, "the GNU AGPL-3.0 license", "the GNU AGPL-3.0 license, Looscid's license", "l"), ".")]),
       sec("credits-sounds", "Voices and sounds", ul([
         plain("wa", "Every earcon", "Made live with Web Audio. No recorded samples, at all."),
-        plain("sp", "Soundpacks", "The Looscid OS classic and Insomnia Soundpacks come from my own projects above. The FastSM-inspired pack is inspired by FastSMRW, with every sound made fresh."),
+        plain("sp", "Soundpacks", "The Looscid OS classic and Insomnia Soundpacks come from my own projects above. The Soft Blips pack is based on FastSMRW, with every sound made fresh."),
         plain("vo", "Spoken feedback", "Uses the voices already on your device, through your browser's speech.")])),
       // Round 7.41 (Carter): the people who actually test this thing.
       sec("credits-testers", "Testers and the Discord", [
@@ -4780,10 +4780,10 @@ function AudioSettings({ navigate, page }) {
         lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { Earcon.key({ test: true, kind: "enter" }); } }, "Preview the Enter key"),
         lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { Earcon.cmd("help", "Commandbar", { test: true }); } }, "Preview a command earcon")) });
   else if (cat.id === "pack") body = lh(LcSection, { sec: "audio", title: "Soundpacks", only: cat.keys, noReset: true,
-      intro: "Choose a Soundpack and every earcon switches to it right away, all over Looscid, and stays after a restart. Moving to a choice plays a short preview of it. Looscid has its own loud, classic beeps and boops. Looscid OS classic is the original NexOS sound set, with the Good Morning chime when something opens and Good Night on Back. Insomnia is Insomnia's own clicks, chimes and dings. Hyper Synth is bright synth arps and stabs. FastSM-inspired is soft, round blips and airy swooshes, inspired by FastSMRW by masonasons (no code or audio copied). Soundvault plays sounds from the Soundvault catalog, loaded from there when they play, and anything it doesn't have plays Looscid's own.",
+      intro: "Choose a Soundpack and every earcon switches to it right away, all over Looscid, and stays after a restart. Moving to a choice plays a short preview of it. Looscid has its own loud, classic beeps and boops. Looscid OS classic is the original NexOS sound set, with the Good Morning chime when something opens and Good Night on Back. Insomnia is Insomnia's own clicks, chimes and dings. Hyper Synth is bright synth arps and stabs. Soft Blips is soft, round blips and airy swooshes, based on FastSMRW by masonasons (no code or audio copied). Soundvault plays sounds from the Soundvault catalog, loaded from there when they play, and anything it doesn't have plays Looscid's own.",
       after: lh(React.Fragment, null,
         lh('div', { className: "lc-packprev" }, ["looscid", "nexos", "insomnia", "synth", "fastsm", "soundvault"].map(function (p) {
-          const lab = { looscid: "Looscid", nexos: "Looscid OS classic", insomnia: "Insomnia", synth: "Hyper Synth", fastsm: "FastSM-inspired", soundvault: "Soundvault" }[p];
+          const lab = { looscid: "Looscid", nexos: "Looscid OS classic", insomnia: "Insomnia", synth: "Hyper Synth", fastsm: "Soft Blips", soundvault: "Soundvault" }[p];
           return lh('button', { key: p, type: "button", className: "btn bgb lc-btn", onClick: function () { Earcon.play("send", { test: true, pack: p }); }, "aria-label": "Preview the " + lab + " pack" }, "Preview " + lab);
         })),
         lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { Earcon.play("boot", { test: true }); } }, "Preview boot chime"),

@@ -27,6 +27,7 @@ Asked for by Carter in the Dreamor Council, the first batch from the master list
 - More small fixes. Unspeakable characters lives with the heading character in Appearance now (pick None to turn it off), and Sense has a link there that says what it's set to. Customization's Media is called Media and translation again, so it doesn't get mixed up with Media and content. The Rem row doesn't say Local twice anymore, and /More/Settings/Help-Center opens the Help Center instead of a 404.
 - Data and Download and back up are one screen now, Your data: what's stored on this device, every way to save it, and Delete local data at the bottom (it still asks first). Tab Bar and Profile Tabs are one Tabs screen in Customization too, with a section for each. Your saved order didn't change and old links still open the right spot.
 - Some wording fixes lol. The silent switch in Earcons says "your phone" now, since it's not only iPhones. Privacy doesn't say Cloudflare is gone anymore, because Rem runs there now: it just says there's no sign-up server and your LooscidID is made on your device. The Nostr tools error says to update your browser or your phone's system, and the Default choice in Settings Order is Grouped by kind. Your saved choice stays the same.
+- The FastSM-inspired Soundpack is called Soft Blips now 🔊 same sounds, and if you picked it before it's still picked. Searching "fastsm" still finds it, and Credits still says it's based on FastSMRW by masonasons.
 
 ## About Looscid, all in one page (no new build yet)
 
