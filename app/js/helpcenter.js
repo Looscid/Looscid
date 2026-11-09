@@ -106,16 +106,18 @@ function lcHelpMark(course, id, clear) {
     localStorage.setItem(LC_HELP_KEY, JSON.stringify(o)); } catch (e) {}
 }
 // Turns [[Route|Label|Path]] and {{article}} into links. Screen links open that screen in Looscid; article links open the article here.
+// Nov 8 2026 (Carter: "don't give people where to change things help them and give links"): [[Route|Words]] is a link with
+// just those words, like "Turn on passcode lock", with no "Open" in front and no path after it.
 function lcHelpRich(text, act) {
-  const out = [], re = /\[\[([^|\]]*)\|([^|\]]+)\|([^\]]+)\]\]|\{\{([a-z0-9-]+)(?:\|([^}]+))?\}\}/g, D = lcHelpData();
+  const out = [], re = /\[\[([^|\]]*)\|([^|\]]+)(?:\|([^\]]+))?\]\]|\{\{([a-z0-9-]+)(?:\|([^}]+))?\}\}/g, D = lcHelpData();
   let last = 0, m, k = 0;
   while ((m = re.exec(text))) {
     if (m.index > last) out.push(text.slice(last, m.index));
     if (m[1] !== undefined) {
-      const r = Looscid.lcRouteFor ? Looscid.lcRouteFor(m[1]) : null, page = r ? r.page : null;
-      const href = page && Looscid.lcPathFor ? (Looscid.lcPathFor(page) || "#") : "#";
-      out.push(h('a', { key: "g" + (k++), className: "lc-link lc-help-go", href: href, onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); if (page && Looscid.LC_NAV) Looscid.LC_NAV(page); } }, "Open " + m[2]));
-      out.push(" (" + m[3] + ")");
+      const r = Looscid.lcRouteFor ? Looscid.lcRouteFor(m[1]) : null, page = r ? r.page : null, pd = r ? r.data || null : null;
+      const href = page && Looscid.lcPathFor ? (Looscid.lcPathFor(page, pd) || "#") : "#";
+      out.push(h('a', { key: "g" + (k++), className: "lc-link lc-help-go", href: href, onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); if (page && Looscid.LC_NAV) Looscid.LC_NAV(page, pd); } }, m[3] === undefined ? m[2] : "Open " + m[2]));
+      if (m[3] !== undefined) out.push(" (" + m[3] + ")");
     } else {
       const a = D.articles.find(function (x) { return x.id === m[4]; });
       out.push(h('a', { key: "a" + (k++), className: "lc-link", href: (D.home || "help/") + m[4] + "/", onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); act.open({ kind: "art", id: m[4] }); } }, m[5] || (a ? a.t : m[4])));

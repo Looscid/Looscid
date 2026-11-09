@@ -1223,7 +1223,7 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
     muted ? { id: "unmute", name: "Unmute " + who, a: function () { lcPeopleSet("looscid_muted_dreamors", handle, false); announce("Unmuted " + who + "."); } }
           : { id: "mute", name: "Mute " + who, a: function () { lcPeopleSet("looscid_muted_dreamors", handle, true); announce("Muted " + who + ". Their Dreams are hidden from your feed."); } },
     blocked ? { id: "unblock", name: "Unblock " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").filter(function (h) { return h !== lcHandle(handle); })); announce("Unblocked " + who + "."); } }
-            : { id: "block", name: "Block " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").concat([handle])); if (authorPk && Looscid.lcNet) Looscid.lcNet.block(authorPk, handle); announce("Blocked " + who + ". Unblock here or in Settings, Privacy."); } },
+            : { id: "block", name: "Block " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").concat([handle])); if (authorPk && Looscid.lcNet) Looscid.lcNet.block(authorPk, handle); announce("Blocked " + who + ". Unblock here or in Settings, Privacy & Security."); } },
     // Nov 7 2026: Report is back now that the Looscid server takes reports (js/net.js). It's on Dreams with a Looscid id.
     // Nov 8 2026 (Carter): Report opens the Report Center with this Dream filled in (js/reportcenter.js); the old dialog stays as the fallback.
     reportable ? { id: "report", name: "Report Dream", a: function () { try { if (Looscid.lcOpenReport) { Looscid.lcOpenReport({ type: "dream", target: String(dream.nid).toLowerCase(), label: who + ": " + String(dream.text || "").replace(/\s+/g, " ").slice(0, 80) }); return; } } catch (e) {} setReporting(true); } } : null,
@@ -1917,20 +1917,20 @@ const LC_FIND_STATIC = [
   { l: "Sense", w: "sense screen reader and braille voiceover talkback nvda speech braille", page: "settings_a11y_sr", where: "Settings, Accessibility" },
   { l: "LooscidID", w: "account profile login methods security nostr mastodon bluesky funkwhale hubzilla friendica", page: "settings_account", where: "Settings" },
   { l: "Alerts", w: "alerts settings notification settings notifications push quiet hours alert types sound who can trigger categories order inbox tabs", page: "settings_notifications", where: "Settings" },
-  { l: "Privacy", w: "permissions muted words blocked", page: "settings_privacy", where: "Settings" },
-  { l: "Private account", w: "private account approve followers lock", page: "settings_privacy", focus: "set-privateAccount", where: "Settings, Privacy" },
-  { l: "Let others share my Dreams", w: "allow sharing share my dreams reshare", page: "settings_privacy", focus: "set-shareMine", where: "Settings, Privacy" },
-  { l: "Privacy Policy", w: "privacy policy we care data", page: "settings_privacy", focus: "priv-policy-link", where: "Settings, Privacy" },
+  { l: "Privacy & Security", w: "privacy security permissions muted words blocked keys passcode backup login methods devices", page: "settings_privacy", where: "Settings" },
+  { l: "Private account", w: "private account approve followers lock", page: "settings_privacy", focus: "set-privateAccount", where: "Settings, Privacy & Security" },
+  { l: "Let others share my Dreams", w: "allow sharing share my dreams reshare", page: "settings_privacy", focus: "set-shareMine", where: "Settings, Privacy & Security" },
+  { l: "Privacy Policy", w: "privacy policy we care data", page: "settings_privacy", focus: "priv-policy-link", where: "Settings, Privacy & Security" },
   { l: "Reset", pri: true, w: "reset defaults factory reset start over clear settings", reset: "all", where: "Settings, General" },
   { l: "Check for updates", w: "update updates new version upgrade refresh", page: "settings_updates", focus: "upd-check", where: "Settings, General, Updates" },
   { l: "Automatically check for updates", w: "auto update updates automatic", page: "settings_updates", focus: "upd-auto", where: "Settings, General, Updates" },
   { l: "Version and version history", w: "version build history changelog release what's new", page: "settings_about", focus: "about-version", where: "About Looscid" },
   { l: "System info", w: "system info device browser storage", page: "settings_about", focus: "about-sys", where: "About Looscid" },
   { l: "Credits and open source", w: "credits open source licenses license thanks third party react nostr-tools noble nexos looscid os insomnia feditext v86 fonts repos", page: "credits", where: "Menu, About" },
-  { l: "Blocked Dreamors", w: "block dreamor block user blocked list unblock", page: "settings_privacy", priv: "blocked", privTab: "dreamers", focus: "priv-bl-dreamers-in", where: "Settings, Privacy, Blocked and muted" },
-  { l: "Blocked Circles", w: "block circle blocked circles", page: "settings_privacy", priv: "blocked", privTab: "circles", focus: "priv-bl-tab-circles", where: "Settings, Privacy, Blocked and muted" },
-  { l: "Blocked words", w: "block word blocked words hide words everywhere", page: "settings_privacy", priv: "blocked", privTab: "words", focus: "priv-bl-words-in", where: "Settings, Privacy, Blocked and muted" },
-  { l: "Forget what Cherry knows about my media", w: "cherry forget media", page: "settings_privacy", priv: "pmedia", focus: "priv-cherry-forget", where: "Settings, Privacy, Media and content" },
+  { l: "Blocked Dreamors", w: "block dreamor block user blocked list unblock", page: "settings_privacy", priv: "blocked", privTab: "dreamers", focus: "priv-bl-dreamers-in", where: "Settings, Privacy & Security, Blocked and muted" },
+  { l: "Blocked Circles", w: "block circle blocked circles", page: "settings_privacy", priv: "blocked", privTab: "circles", focus: "priv-bl-tab-circles", where: "Settings, Privacy & Security, Blocked and muted" },
+  { l: "Blocked words", w: "block word blocked words hide words everywhere", page: "settings_privacy", priv: "blocked", privTab: "words", focus: "priv-bl-words-in", where: "Settings, Privacy & Security, Blocked and muted" },
+  { l: "Forget what Cherry knows about my media", w: "cherry forget media", page: "settings_privacy", priv: "pmedia", focus: "priv-cherry-forget", where: "Settings, Privacy & Security, Media and content" },
   { l: "Customization", w: "customizability themes feeds dreaming posting media tabs", page: "settings_customizability", where: "Settings" },
   // Round 7.16 (#216): what moved here from above the feeds
   { l: "Show following, Networks and Feed tabs", w: "show following for you networks federated nostr pin a tab feed tabs pinned tabs", page: "settings_cz_feeds", focus: "fy-show-following", where: "Settings, Customization, Feeds" },
@@ -1943,7 +1943,7 @@ const LC_FIND_STATIC = [
   { l: "Tab Bar", w: "tab bar tabbar bottom tabs order reorder hide show custom tab pinned tab move up move down", page: "settings_tabbar", where: "Settings, Customization" },
   { l: "Profile Tabs", w: "profile tabs order reorder dreams replies circles redreams media liked lists followed threads about move up move down", page: "settings_profiletabs", where: "Settings, Customization" },
   // Round 7.33
-  { l: "Show followed threads on my profile", w: "followed threads follow thread profile show hide privacy", page: "settings_privacy", priv: "pthreads", focus: "set-showThreads", where: "Settings, Privacy, Followed Threads" },
+  { l: "Show followed threads on my profile", w: "followed threads follow thread profile show hide privacy", page: "settings_privacy", priv: "pthreads", focus: "set-showThreads", where: "Settings, Privacy & Security, Followed Threads" },
   { l: "Backup", w: "settings backup export import reset", page: "settings_backup", where: "Settings, General" },
   { l: "Cherry", w: "intelligence ai cherry assistant artificial intelligence", page: "settings_intelligence", where: "Settings" },
   { l: "Cherry on or off", w: "ai cherry turn on off enable disable assistant opt in", page: "settings_ai_cherry", focus: "ai-on", where: "Settings, Cherry, Cherry" },
@@ -1958,8 +1958,8 @@ const LC_FIND_STATIC = [
   { l: "Menu Close buttons", w: "menu close button top bottom", page: "settings_cz_menu", focus: "cz-topclose", where: "Settings, Customization, Menu" },
   { l: "Character limit", w: "character limit length dream posting", page: "settings_cz_posting", focus: "cz-charlimit", where: "Settings, Customization, Dreaming" },
   { l: "Custom character limits", w: "custom character limits no limit length max maximum long name bio links lists text fields", page: "settings_cz_posting", focus: "cz-charlimits", where: "Settings, Customization, Dreaming" },
-  { l: "Keys and IDs", w: "nostr npub key fediverse mastodon bluesky handle link id keys login", page: "settings_account", data: { tab: "keys" }, where: "Settings, Security" },
-  { l: "Nostr key", w: "nostr key nsec npub passcode signer relays create key secret key dream on nostr", page: "settings_account", data: { tab: "keys" }, focus: "nostr-key-h", where: "Settings, Security, Keys and IDs" },
+  { l: "Keys and IDs", w: "nostr npub key fediverse mastodon bluesky handle link id keys login", page: "settings_account", data: { tab: "keys", from: "privsec" }, where: "Settings, Privacy & Security" },
+  { l: "Nostr key", w: "nostr key nsec npub passcode signer relays create key secret key dream on nostr", page: "settings_account", data: { tab: "keys", from: "privsec" }, focus: "nostr-key-h", where: "Settings, Privacy & Security, Keys and IDs" },
   { l: "Labs", w: "looscid labs and coming soon planned roadmap", page: "settings_labs", where: "Settings, General" },
   { l: "Apps", w: "apps nexos insomnia memeprojects meme projects easyconvert desktop kernel app store", page: "nexos_apps", where: "Menu, Apps" },
   { l: "Looscid App Store", w: "app store nexos app store store apps install", page: "nexos_apps", focus: "lc-nx-shell-store", where: "Apps, Desktop" },
@@ -2008,9 +2008,10 @@ function lcSettingIndex() {
     if (out.some(function (e) { return e.page === c.page && !e.focus && !e.tab && e.l === c.l; })) return;
     out.push({ l: c.l, w: (c.sub || "") + " " + (c.old || ""), where: g[0], page: c.page }); }); });
   (Looscid.LC_SR_TABS || []).forEach(function (t) { out.push({ l: lcSrName(t[0]), w: "sense screen reader " + t[0], where: "Settings, Accessibility, Sense", page: "settings_a11y_sr", tab: t[0], isPage: true }); });
-  (Looscid.LC_PRIV_SECS || []).forEach(function (p) { out.push({ l: p[1], w: "privacy " + (p[2] || ""), where: "Settings, Privacy", page: "settings_privacy", priv: p[0], isPage: true }); });
-  // Oct 31 2026: the key and login pages live in Security now; the search says so ("Login methods, Security").
-  (Looscid.LID_TABS || []).forEach(function (t) { if (t[0] === "keys" || t[0] === "home") return; const par = (Looscid.LID_PARENT || {})[t[0]]; out.push({ l: t[1], w: "looscidid account " + t[0] + (t[0] === "security" ? " key passcode password login secret nsec backup sign in sign out server session" : ""), where: t[0] === "security" ? "Settings" : par === "security" ? "Settings, Security" : "Settings, LooscidID", page: "settings_account", data: { tab: t[0] }, isPage: true }); });
+  (Looscid.LC_PRIV_SECS || []).forEach(function (p) { out.push({ l: p[1], w: "privacy " + (p[2] || ""), where: "Settings, Privacy & Security", page: "settings_privacy", priv: p[0], isPage: true }); });
+  // Oct 31 2026: the key and login pages lived in Security. Nov 8 2026: they live in Privacy & Security now, and the search
+  // says so ("Login methods, Settings, Privacy & Security"); Back from them goes there too (from: "privsec").
+  (Looscid.LID_TABS || []).forEach(function (t) { if (t[0] === "keys" || t[0] === "home") return; const par = (Looscid.LID_PARENT || {})[t[0]]; out.push({ l: t[1], w: "looscidid account " + t[0] + (t[0] === "security" ? " security key passcode password login secret nsec backup sign in sign out server session" : ""), where: par === "privsec" ? "Settings, Privacy & Security" : "Settings, LooscidID", page: "settings_account", data: par === "privsec" ? { tab: t[0], from: "privsec" } : { tab: t[0] }, isPage: true }); });
   out.forEach(function (e) { e.where = lcIosWhere(e.where); if (e.page && !e.focus && !e.reset) e.isPage = true; });
   return out;
 }
@@ -2024,7 +2025,8 @@ const LC_SET_SYN = { notification: "alerts", notifications: "alerts", push: "ale
 // Old names, so paths match where things live now (they are the same pages and keys; only the names and places changed).
 function lcIosWhere(w) {
   let s = String(w || "");
-  s = s.replace(/^Settings, Customizability/, "Settings, Customization").replace(/^Settings, Intelligence/, "Settings, Cherry")
+  s = s.replace(/^Settings, (Privacy|Security)(?! &)/, "Settings, Privacy & Security") // Nov 8 2026: one Privacy & Security screen
+    .replace(/^Settings, Customizability/, "Settings, Customization").replace(/^Settings, Intelligence/, "Settings, Cherry")
     .replace(/^Settings, Customization, Theme and colors/, "Settings, Customization, Appearance").replace(/^Settings, Customization, Feeds and home/, "Settings, Customization, Feeds")
     .replace(/^Settings, Customization, Media and translation/, "Settings, Customization, Media")
     .replace(/^Settings, Accessibility, Motion and seizure/, "Settings, Accessibility, Motion").replace(/^Settings, Accessibility, Motor and switch/, "Settings, Accessibility, Motor")
@@ -2620,7 +2622,14 @@ Looscid.ErrorBoundary = ErrorBoundary;
 const LC_ROUTES = [
   ["feed", ""], ["discover", "Discover"], ["alerts", "Inbox"], ["alerts", "Alerts"], ["groups", "Circles"], ["liked", "Liked"], ["lists", "Lists"], ["profile", "Profile"], ["drafts", "Drafts"],
   ["cherry", "Cherry"], ["more", "More"], ["settings", "Settings"],
-  ["settings_account", "Settings/LooscidID"], ["settings_notifications", "Settings/Alerts"], ["settings_messages", "Settings/Chats"], ["settings_messages", "Settings/Messages"], ["settings_privacy", "Settings/Privacy"],
+  ["settings_account", "Settings/LooscidID"], ["settings_notifications", "Settings/Alerts"], ["settings_messages", "Settings/Chats"], ["settings_messages", "Settings/Messages"], ["settings_privacy", "Settings/Privacy-and-Security"], ["settings_privacy", "Settings/Privacy"],
+  // Nov 8 2026 (Carter: "We have a security in 2 place and Privacy is in security like iOS"): Privacy and Security are one
+  // screen now, Privacy & Security. /Settings/Privacy and /Settings/Security still open it. Its Security pages each have
+  // their own address too (LC_SUB_ROUTES below says which LooscidID page each one opens), so help can link right to them.
+  ["settings_privacy", "Settings/Security"], ["settings_privacy", "Settings/Privacy-Security"],
+  ["settings_account", "Settings/Privacy-and-Security/Keys"], ["settings_account", "Settings/Privacy-and-Security/Passcode"], ["settings_account", "Settings/Privacy-and-Security/Backup-File"],
+  ["settings_account", "Settings/Privacy-and-Security/Login-Methods"], ["settings_account", "Settings/Privacy-and-Security/Devices"], ["settings_account", "Settings/Privacy-and-Security/Security-Checkup"],
+  ["settings_account", "Settings/LooscidID/Data"],
   ["settings_customizability", "Settings/Customization"], ["settings_customizability", "Settings/Customizability"], ["settings_cz_order", "Settings/Customization/Settings-Order"], ["settings_cz_theme", "Settings/Customizability/Theme"], ["settings_cz_feeds", "Settings/Customizability/Feeds"],
   ["settings_cz_menu", "Settings/Customizability/Menu"], ["settings_cz_posting", "Settings/Customizability/Dreaming"], ["settings_cz_media", "Settings/Customizability/Media"],
   ["settings_accessibility", "Settings/Accessibility"], ["settings_a11y_sr", "Settings/Sense"], ["settings_a11y_vision", "Settings/Accessibility/Vision"],
@@ -2642,6 +2651,22 @@ const LC_ROUTES = [
    doesn't matter). These go first, so they're the address the app shows and shares. The old /Settings/... addresses stay
    in the list above, so old links and bookmarks still open the same screen, and the app then shows the new address. */
 LC_ROUTES.unshift.apply(LC_ROUTES, LC_ROUTES.filter(function (x) { return /^Settings(\/|$)/.test(x[1]); }).map(function (x) { return [x[0], "More/" + x[1]]; }));
+// Nov 8 2026: which LooscidID page each sub address opens (data for settings_account). The first match for a page's data
+// is its address. "privsec" means Back goes to Privacy & Security.
+const LC_SUB_ROUTES = [
+  ["Settings/Privacy-and-Security/Passcode", { tab: "keys", focus: "nostr-lock-h", from: "privsec" }],
+  ["Settings/Privacy-and-Security/Keys", { tab: "keys", from: "privsec" }],
+  ["Settings/Privacy-and-Security/Backup-File", { tab: "backup", from: "privsec" }],
+  ["Settings/Privacy-and-Security/Login-Methods", { tab: "methods", from: "privsec" }],
+  ["Settings/Privacy-and-Security/Devices", { tab: "devices", from: "privsec" }],
+  ["Settings/Privacy-and-Security/Security-Checkup", { tab: "security", from: "privsec" }],
+  ["Settings/LooscidID/Data", { tab: "data" }],
+];
+function lcSubRouteFor(data) {
+  if (!data || !data.tab) return null;
+  const m = LC_SUB_ROUTES.filter(function (x) { return x[1].tab === data.tab && (x[1].focus ? data.focus === x[1].focus : true); })[0];
+  return m ? m[0] : null;
+}
 const LOOSCID_BASE = (function () { try { if (window.LOOSCID_BASE) return window.LOOSCID_BASE; const p = location.pathname; return /^\/looscid(\/|$)/i.test(p) ? "/Looscid/" : ("/" + p.replace(/[^\/]*$/, "")).replace(/\\/g, "/").replace(/\/{2,}/g, "/"); } catch (e) { return "/"; } })();
 function lcSlug(t) { return String(t || "").trim().replace(/[^A-Za-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); }
 // The address of a page (with its data, for profiles and projects), always under the app's own folder.
@@ -2649,6 +2674,7 @@ function lcPathFor(page, data) {
   let rel = null;
   if (page === "dp" && data && data.handle) rel = "@" + lcHandle(data.handle).replace(/^@/, "");
   else if (page === "project" && data && (data.id || data.name)) rel = "Projects/" + lcSlug(data.id || data.name);
+  else if (page === "settings_account" && lcSubRouteFor(data)) rel = "More/" + lcSubRouteFor(data);
   else { const r = LC_ROUTES.filter(function (x) { return x[0] === page; })[0]; rel = r ? r[1] : null; }
   return rel === null ? null : LOOSCID_BASE + rel.split("/").map(function (s) { return encodeURIComponent(s).replace(/%40/g, "@"); }).join("/");
 }
@@ -2663,12 +2689,14 @@ function lcRouteFor(rel) {
   const pj = /^projects\/(.+)$/.exec(lo);
   if (pj) { const pr = (Looscid.LC_PROJECTS || []).filter(function (x) { return lcSlug(x.id || x.name).toLowerCase() === pj[1] || lcSlug(x.name).toLowerCase() === pj[1]; })[0];
     if (pr) return { page: "project", data: pr, project: pr }; }
+  const sub = LC_SUB_ROUTES.filter(function (x) { return x[0].toLowerCase() === lo || "more/" + x[0].toLowerCase() === lo; })[0];
+  if (sub) return { page: "settings_account", data: Object.assign({}, sub[1]) };
   const r = LC_ROUTES.filter(function (x) { return x[1].toLowerCase() === lo; })[0];
   // Round 7.14: the Liked address (/Liked) opens your profile on its Liked tab.
   if (r && r[0] === "liked") { Looscid.LC_PROF_RESTORE = { uid: ME.id, tab: "liked", at: Date.now() }; return { page: "profile", data: null }; }
   return r ? { page: r[0], data: null } : null;
 }
-Object.assign(Looscid, { LC_ROUTES, LOOSCID_BASE, lcSlug, lcPathFor, lcRouteFor });
+Object.assign(Looscid, { LC_ROUTES, LC_SUB_ROUTES, LOOSCID_BASE, lcSlug, lcPathFor, lcRouteFor });
 /* Nov 7 2026 (Carter): the addresses that open the welcome screen again: /welcome (the official one) and /help/tour.
    Any letter case, with or without a slash or index.html at the end. */
 function lcWelcomeFor(rel) {
@@ -2725,13 +2753,15 @@ function lcMoreSections(o) {
       { id:"earcons", grp:"talk", icon:"Audio", label:"Earcons", action(){onClose();navigate("settings_audio");} },
       { id:"alerts", grp:"talk", icon:"Alerts", label:"Alerts", action(){onClose();navigate("settings_notifications");} },
       { id:"chats", grp:"talk", icon:"Messages", label:"Chats", action(){onClose();Looscid.LC_SETTINGS_BACK = null;navigate("settings_messages");} },
-      { id:"privacy", grp:"you", icon:"Privacy", label:"Privacy", action(){onClose();try { sessionStorage.removeItem("looscid_priv_open"); } catch (e) {} navigate("settings_privacy");} },
+      // Nov 8 2026 (Carter: "Privacy is in security like iOS"): one Privacy & Security row, like iOS. Its id stays "privacy",
+      // so a custom Settings Order keeps its place.
+      { id:"privacy", grp:"you", icon:"Privacy", label:"Privacy & Security", action(){onClose();try { sessionStorage.removeItem("looscid_priv_open"); } catch (e) {} navigate("settings_privacy");} },
       { id:"customization", grp:"you", icon:"Customizability", label:"Customization", action(){onClose();navigate("settings_customizability");} },
       { id:"cherry", grp:"you", icon:"Intelligence", label:"Cherry", action(){onClose();navigate("settings_intelligence");} },
-      { id:"looscidid", grp:"id", icon:"LooscidID", label:"LooscidID", sub:"Keys, logins and devices", action(){onClose();navigate("settings_account");} },
-      // Oct 31 2026 (Carter, 11:28 PM: "the settings for LooscidID, the key and login should be in Security"): Security has
-      // its own row, under the LooscidID card: your key, passcode, login methods, backup file, the Looscid server and devices.
-      { id:"security", grp:"sec", icon:"Privacy", label:"Security", action(){onClose();navigate("settings_account", { tab: "security", from: "settings" });} },
+      { id:"looscidid", grp:"id", icon:"LooscidID", label:"LooscidID", sub:"Profile, Connectionbase, connected apps and data", action(){onClose();navigate("settings_account");} },
+      // Oct 31 2026 (Carter, 11:28 PM) Security had its own row under the LooscidID card, and LooscidID had a Security row
+      // too. Nov 8 2026 (Carter: "We have a security in 2 place"): both are gone; your key, passcode, login methods, backup
+      // file, Rem, devices and Security checkup are in Privacy & Security now (the row above).
       { id:"general", grp:"gen", icon:"Settings", label:"General", action(){onClose();navigate("settings_general");} },
       { id:"helpcenter", grp:"help", icon:"Help", label:"Help Center", action(){onClose();navigate("helpcenter");} },
       // Round 7.38 (Carter, Oct 26 2026 5:21 PM: "Logout should also be in the Settings menu", one word, like Login): the
@@ -3031,7 +3061,10 @@ function lcCopyNpub(np) {
 }
 // The npub line with its Copy button: shown on the Settings LooscidID card and the LooscidID page.
 function LcNpubLine({ np, id }) {
-  if (!np) return lh('p', { className: "lc-i27-np lc-i27-np-none", id: id }, "No Nostr key yet. Add one in Security, Keys and IDs.");
+  // Nov 8 2026 (Carter: "give links"): a real link to Keys and IDs, not where to find it.
+  if (!np) return lh('p', { className: "lc-i27-np lc-i27-np-none", id: id }, "No Nostr key yet. ",
+    lh('a', { className: "lc-link lc-i27-np-add", href: lcPathFor("settings_account", { tab: "keys" }) || "#", style: { display: "inline-flex", alignItems: "center", minHeight: 44 },
+      onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); if (Looscid.LC_NAV) Looscid.LC_NAV("settings_account", { tab: "keys", from: "privsec" }); } }, "Add a Nostr key"));
   return lh('div', { className: "lc-i27-np", id: id },
     lh('p', { className: "lc-i27-np-t" }, lh('span', { className: "sr-only" }, "Your npub: "),
       lh('span', { className: "lc-i27-np-v", "aria-hidden": "true" }, lcNpubShort(np)), lh('span', { className: "sr-only" }, np)),
@@ -3047,8 +3080,8 @@ function lcModeRow(id, onClick) {
 Object.assign(Looscid, { LcI27Row, LcI27Glyph, LcI27Header, lcI27Cards, lcMyNpub, lcNpubShort, lcCopyNpub, LcNpubLine, useServerTick, lcModeRow, LC_I27_ROW });
 function lcSetRowO(it) { return { id: lcSetRowId(it.label), k: it.id, label: it.label, onClick: it.action, value: typeof it.value === "function" ? it.value() : it.value }; }
 /* Round 7.38 / Oct 31 2026: the LooscidID card reads like iOS's Apple Account card: your name, your @handle, your npub
-   (with its own Copy button), then "LooscidID, Security, and more". */
-const LC_SET_ID_SUB = "LooscidID, Security, and more";
+   (with its own Copy button), then "LooscidID, Connectionbase, and more" (Security moved into Privacy & Security, Nov 8 2026). */
+const LC_SET_ID_SUB = "LooscidID, Connectionbase, and more";
 function LcSettingsHome({ s, navigate, onBack }) {
   useSetOrderTick(); useServerTick();
   const [q, setQ0] = useState(function () { return Looscid.LC_SETFIND_Q || ""; });
@@ -3062,7 +3095,7 @@ function LcSettingsHome({ s, navigate, onBack }) {
   const name = me.name || me.displayName || "Dreamor";
   const np = lcMyNpub();
   const idLi = idItem ? lh('li', { key: "looscidid", className: "mli lc-i27-li lc-g-first lc-g-last lc-i27-idli" },
-    // Its name, from its own words: "Carter, @2three1y, npub1…, LooscidID, Security, and more".
+    // Its name, from its own words: "Carter, @2three1y, npub1…, LooscidID, Connectionbase, and more".
     lh('button', { type: "button", id: lcSetRowId(idItem.label), className: "mitem lc-i27-row lc-i27-id", onClick: idItem.action, "aria-label": lcJoinName(name, handle, np ? lcNpubShort(np) : "", LC_SET_ID_SUB) || undefined },
       lh('span', { className: "lc-i27-av", "aria-hidden": "true" }, String(me.initials || name.charAt(0) || "D").slice(0, 2)),
       lh('span', { className: "lc-i27-txt" },
@@ -3072,7 +3105,7 @@ function LcSettingsHome({ s, navigate, onBack }) {
       lh(LcI27Glyph, { g: "chev", size: 14, cls: "lc-i27-chev" })),
     lh(LcNpubLine, { np: np, id: "set-npub" })) : null;
   const go = function (it) { return lcSetRowO(it); };
-  // Mode and Security sit together under the LooscidID card.
+  // Mode sits under the LooscidID card (Security moved into Privacy & Security, Nov 8 2026).
   const top = [lcModeRow("set-row-mode", function () { navigate("settings_account", { tab: "connectionbase", from: "settings" }); })].concat(sec.map(go));
   let groups;
   if (mode === "default") {
@@ -4100,9 +4133,9 @@ const LC_SECTIONS = {
   feeds: { t: "Feeds", d: "Which feeds you see and how you switch between them.", where: "Settings, Customization, Feeds", al: ["feeds", "feed"] },
   posting: { t: "Dreaming", d: "How writing and sending a Dream works.", where: "Settings, Customization, Dreaming", al: ["dreaming", "posting", "composer", "compose"] },
   media: { t: "Media", d: "Images, video and translation.", where: "Settings, Customization, Media", al: ["media", "translation"] },
-  filters: { t: "Muted words and content warnings", d: "Words you don't want to see, and content warnings.", where: "Settings, Privacy", al: ["muted words", "content warnings", "filters"] },
-  perm: { t: "Permissions", d: "Who can see, reply to and message you.", where: "Settings, Privacy", al: ["permissions", "privacy"] },
-  pmedia: { t: "Media and content", d: "Who can save and reshare your media, screenshots, blur, photo details and Cherry.", where: "Settings, Privacy", al: ["media and content", "media privacy", "exif", "screenshots"] },
+  filters: { t: "Muted words and content warnings", d: "Words you don't want to see, and content warnings.", where: "Settings, Privacy & Security", al: ["muted words", "content warnings", "filters"] },
+  perm: { t: "Permissions", d: "Who can see, reply to and message you.", where: "Settings, Privacy & Security", al: ["permissions", "privacy"] },
+  pmedia: { t: "Media and content", d: "Who can save and reshare your media, screenshots, blur, photo details and Cherry.", where: "Settings, Privacy & Security", al: ["media and content", "media privacy", "exif", "screenshots"] },
   keyboard: { t: "Keyboard", d: "Built-in keys and your own shortcuts.", where: "Settings, General, Keyboard", al: ["keyboard", "shortcuts", "keyboard shortcuts"] },
   ai: { t: "Cherry", d: "Cherry, Looscid's on-device assistant.", where: "Settings, Cherry, Cherry", al: ["cherry", "ai", "intelligence"] },
   clock: { t: "Time format", d: "Clock times as 12-hour or 24-hour.", where: "Settings, Customization, Appearance", al: ["time format", "clock", "clock format"] },
@@ -6552,7 +6585,7 @@ const LC_PLACES = {
   comingsoon: { label: "Labs, Coming soon", page: "settings_labs" },
   customizability: { label: "Customization settings", page: "settings_customizability" },
   account: { label: "LooscidID", page: "settings_account" },
-  privacy: { label: "Privacy settings", page: "settings_privacy" },
+  privacy: { label: "Privacy & Security", page: "settings_privacy" },
   profile: { label: "your profile", page: "profile" },
   terminal: { label: "Commandbar", page: "terminal" },
   about: { label: "About Looscid", page: "settings_about" },
@@ -6634,9 +6667,9 @@ const LC_PLACE_WORDS = [
   ["audio", ["sounds", "audio", "earcons", "sound pack", "haptics", "keyboard clicks"]],
   ["keyboard", ["keyboard", "shortcuts", "keyboard shortcuts"]],
   ["backup", ["backup", "export settings", "import settings"]],
-  ["privacy", ["privacy", "blocked", "permissions", "muted words", "content warnings"]],
+  ["privacy", ["privacy", "privacy and security", "privacy & security", "security", "blocked", "permissions", "muted words", "content warnings"]],
   ["customizability", ["customizability", "customize", "customise", "theme", "themes"]],
-  ["account", ["account", "looscidid", "looscid id", "login", "security"]],
+  ["account", ["account", "looscidid", "looscid id", "login"]],
   ["alerts", ["alerts", "alert"]],
   ["inbox", ["inbox"]],
   ["notifications", ["notifications", "notification"]],
@@ -6673,7 +6706,7 @@ const LC_COMMANDS = [
   ["music", "the beat styles; music and a style plays one, like music hyperpop; music pause, music stop. beat works too"],
   ["set", "change an accessibility setting, like set calm on, set sounds off, set volume 50, braille output on, braille short labels off or pitch cues off"],
   ["about", "About Looscid: version, what's new and system info"], ["version", "the Looscid version"],
-  ["settings", "read out every setting"], ["open sounds", "Settings, Earcons (open earcons works too)"], ["open insomnia", "an app, inside Looscid: insomnia, memes, easyconvert, desktop or kernel"], ["open verbosity", "Verbosity and pitch cues"], ["open keyboard shortcuts", "Settings, General, Keyboard"], ["open privacy", "Settings, Privacy, with Permissions"],
+  ["settings", "read out every setting"], ["open sounds", "Settings, Earcons (open earcons works too)"], ["open insomnia", "an app, inside Looscid: insomnia, memes, easyconvert, desktop or kernel"], ["open verbosity", "Verbosity and pitch cues"], ["open keyboard shortcuts", "Settings, General, Keyboard"], ["open privacy", "Settings, Privacy & Security, with Permissions (open security works too)"],
   ["verbosity", "verbosity low, medium or high"], ["read order", "read order name first or text first"], ["announce new dreams", "off, count or read"],
   ["speak timestamps", "off, short or full"], ["speak emoji", "name, skip or word"], ["hashtags", "hashtags read or skip"], ["typing echo", "characters, words, both or off"], ["read aloud rate", "read aloud rate and a number from 50 to 200; read aloud pitch 50 to 150; voice and a name"],
   ["braille emoji", "braille emoji name or strip; braille timestamps on or off; braille prefix on or off"],
@@ -7932,7 +7965,7 @@ function LcFindMeSwitch({ provider }) {
   const what = { nostr: "this npub", activitypub: "this fediverse username", atproto: "this Bluesky handle", pubky: "this Pubky key" }[provider];
   return lh('div', { className: "lc-findme" },
     lh(A11ySwitch, { id: "findme-" + provider, label: "Let people find me by this", on: !!Looscid.A11Y_NOW[k], onToggle: function () { const p = {}; p[k] = !Looscid.A11Y_NOW[k]; lcSet(p); announce("Find me by " + what + ": " + (p[k] ? "on" : "off") + "."); },
-      desc: "People can find your Looscid profile by searching " + what + ". Off by default. You can change this anytime in Settings, Privacy, Permissions." }));
+      desc: "People can find your Looscid profile by searching " + what + ". Off by default. You can change this anytime in Settings, Privacy & Security, Permissions." }));
 }
 function LcUndoBar({ undo }) {
   const ref = useRef(null);
@@ -8038,7 +8071,7 @@ if (!Looscid.LC_SETNAV_ON) { Looscid.LC_SETNAV_ON = true; document.addEventListe
 Object.assign(Looscid, { lcSetNavRows, lcSetNavName, lcSetNavKey });
 // Which More-menu item each Settings screen belongs to (Back returns there, focus on that item).
 const SETTINGS_MENU_ITEM = {
-  settings_account: ["settings", "LooscidID"], settings_notifications: ["settings", "Alerts"], settings_privacy: ["settings", "Privacy"],
+  settings_account: ["settings", "LooscidID"], settings_notifications: ["settings", "Alerts"], settings_privacy: ["settings", "Privacy & Security"],
   settings_customizability: ["settings", "Customization"], settings_accessibility: ["settings", "Accessibility"], settings_intelligence: ["settings", "Cherry"], settings_about: ["about", "About Looscid"],
   settings_audio: ["settings", "Earcons"], settings_apps: ["settings", "General"], settings_messages: ["settings", "Chats"], settings_general: ["settings", "General"],
   settings_a11y_sr: ["settings", "Accessibility"], settings_a11y_vision: ["settings", "Accessibility"], settings_a11y_hearing: ["settings", "Accessibility"],
@@ -8216,7 +8249,7 @@ useEffect(() => {
     setAuthUser(cur => updateLocalProfile(cur, { displayName: (sanitizeInput(name) || "Dreamor").slice(0, 40) }));
   }, []);
   // Coming back from a Mastodon login started in Settings > Account: open Security.
-  useEffect(() => { if (Looscid.oauthReturn) Looscid.oauthReturn.then(r => { if (r && r.from === "account") { setPage("settings_account"); setPdata({ tab: "security" }); } }); }, []);
+  useEffect(() => { if (Looscid.oauthReturn) Looscid.oauthReturn.then(r => { if (r && r.from === "account") { setPage("settings_account"); setPdata({ tab: "methods", from: "privsec" }); } }); }, []);
   const handleUpdateProfile = useCallback(patch => {
     setAuthUser(cur => updateLocalProfile(cur, patch));
   }, []);
@@ -8924,7 +8957,7 @@ useEffect(() => {
       settings_account: "LooscidID",
       settings_labs: "Labs",
       settings_notifications: "Alerts",
-      settings_privacy: "Privacy",
+      settings_privacy: "Privacy & Security",
       settings_customizability: "Customization", settings_cz_order: "Settings Order", settings_general: "General", settings_updates: "Updates",
       settings_cz_theme: "Appearance", settings_cz_feeds: "Feeds", settings_cz_menu: "Menu", settings_cz_posting: "Dreaming", settings_cz_media: "Media",
       settings_audio_volume: "Volume and focus sounds", settings_audio_pack: "Soundpacks", settings_audio_events: "Event earcons", settings_audio_haptics: "Music and haptics",
@@ -8989,7 +9022,7 @@ useEffect(() => {
       case "liked":         return React.createElement(Looscid.LikedPage, { key: "liked" + pageNonce, navigate: navigate, cherryCtx: cherryCtx,}); // build 148: Liked, in More
       case "lists":         return React.createElement(Looscid.ListsPage, { key: "lists-" + ((pdata && pdata.list) || ""), data: pdata, navigate: navigate, cherryCtx: cherryCtx,}); // build 152 prep (#99, part 4b)
       case "dp":            return pdata ? React.createElement(Looscid.DreamorProfilePage, { key: "dp" + pageNonce, user: pdata, navigate: navigate, cherryCtx: cherryCtx,}) : React.createElement(Looscid.FeedPage, { navigate: navigate, prefs: prefs, cherryCtx: cherryCtx,});
-      case "settings_account":        return React.createElement(Looscid.AccountSettings, { key: "acct-" + ((pdata && pdata.tab) || "home"), navigate: navigate, authUser: authUser, onSignOut: handleSignOut, onRenameProfile: handleRenameProfile, onUpdateProfile: handleUpdateProfile, initialTab: pdata && pdata.tab, fromSettings: !!(pdata && pdata.from === "settings"),});
+      case "settings_account":        return React.createElement(Looscid.AccountSettings, { key: "acct-" + ((pdata && pdata.tab) || "home"), navigate: navigate, authUser: authUser, onSignOut: handleSignOut, onRenameProfile: handleRenameProfile, onUpdateProfile: handleUpdateProfile, initialTab: pdata && pdata.tab, fromSettings: !!(pdata && pdata.from === "settings"), fromPrivSec: !!(pdata && pdata.from === "privsec"), initialFocus: pdata && pdata.focus,});
       case "settings_notifications":  return React.createElement(Looscid.NotificationsSettings, { navigate: navigate, prefs: prefs, setPrefs: setPrefs,});
       case "settings_privacy":        return React.createElement(Looscid.PrivacySettings, { navigate: navigate, authUser: authUser, onUpdateProfile: handleUpdateProfile,});
       case "settings_audio": case "settings_audio_volume": case "settings_audio_pack": case "settings_audio_events": case "settings_audio_haptics":

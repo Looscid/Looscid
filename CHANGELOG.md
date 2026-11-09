@@ -16,6 +16,7 @@ Asked for by Carter in the Dreamor Council, the first batch from the master list
 - I made website previews look like a chat app's link card lol. A thick colored bar on the left, the site's name small on top, a bold title, then up to 3 lines of description and the address. Still one link, no picture, and it reads site name, title, description, address.
 - Calm mode starts out matching your device's Reduce Motion setting now: on if your device asks for less motion, off if it doesn't, and it follows your device if that changes. Once you tick or untick Calm mode yourself, your choice sticks. Match my device again (in Settings, Accessibility, Motion) goes back to following your device, and so does resetting Motion. Flash safety is its own setting and didn't change: it's still on from the start.
 - The roadmap has a new backlog list: ideas I'm saving for later and not building yet.
+- Privacy and Security are one screen now, Privacy & Security, like on iPhone lol. Security was in 2 places, so I merged it: privacy stuff first, then your key, passcode, backup file, login methods, devices, Rem and Security checkup. Nothing changed how it works, it just lives in one spot. Old Privacy links still open it. [Check out Privacy & Security](https://looscid.github.io/Looscid/More/Settings/Privacy-and-Security/)
 
 ## About Looscid, all in one page (no new build yet)
 

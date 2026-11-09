@@ -92,11 +92,15 @@ const problems = [];
 function rich(text, depth) {
   const root = "../".repeat(depth + 1), hroot = "../".repeat(depth);
   return esc(text)
-    .replace(/\[\[([^|\]]*)\|([^|\]]+)\|([^\]]+)\]\]/g, (m, route, label, where) => {
+    // Nov 8 2026 (Carter: "don't give people where to change things help them and give links"): [[Route|Words]], with no
+    // path, is a link with just those words ("Turn on passcode lock"); [[Route|Label|Path]] still reads "Open Label (Path)".
+    .replace(/\[\[([^|\]]*)\|([^|\]]+)(?:\|([^\]]+))?\]\]/g, (m, route, label, where) => {
       if (!routes.has(route.toLowerCase())) problems.push("unknown screen: " + route);
       // Nov 8 2026: a screen with its own page (like More/Settings/General/) gets that real address; any other goes in as ?p=.
       const real = route && fs.existsSync(path.join(APP, ...route.split("/"), "index.html"));
-      return '<a class="go" href="' + root + (real ? route + "/" : "?p=" + encodeURIComponent("/" + route)) + '">Open ' + label + "</a> (" + where + ")";
+      const href = root + (real ? route + "/" : "?p=" + encodeURIComponent("/" + route));
+      return where === undefined ? '<a class="go" href="' + href + '">' + label + "</a>"
+        : '<a class="go" href="' + href + '">Open ' + label + "</a> (" + where + ")";
     })
     .replace(/\{\{([a-z0-9-]+)(?:\|([^}]+))?\}\}/g, (m, id, words) => {
       if (!byId[id]) problems.push("unknown article: " + id);
@@ -455,7 +459,7 @@ buildComponents({ page, put, esc });
 const meta = "/* Made by .github/scripts/build-help.mjs from app/js/helpdata.js. */\nwindow.LC_HELP_COURSES = " + JSON.stringify(Object.fromEntries(H.courses.map(c => [c.id, { t: c.t, lessons: c.lessons.map(id => [id, byId[id] ? byId[id].t : id]) }]))) + ";\n";
 files["courses.js"] = meta;
 // What the home page's search reads (Nov 1 2026): every article, collection and course, its words only. Nothing is sent anywhere.
-const plain = t => String(t || "").replace(/\{\{([a-z0-9-]+)(?:\|([^}]+))?\}\}/g, (m, id, w) => w || (byId[id] ? byId[id].t : "")).replace(/\[\[[^|\]]*\|([^|\]]+)\|([^\]]+)\]\]/g, "$1 ($2)");
+const plain = t => String(t || "").replace(/\{\{([a-z0-9-]+)(?:\|([^}]+))?\}\}/g, (m, id, w) => w || (byId[id] ? byId[id].t : "")).replace(/\[\[[^|\]]*\|([^|\]]+)(?:\|([^\]]+))?\]\]/g, (m, l, w) => w === undefined ? l : l + " (" + w + ")");
 files["search.js"] = "/* Made by .github/scripts/build-help.mjs from app/js/helpdata.js. */\nwindow.LC_HELP_INDEX = " + JSON.stringify(
   H.articles.map(a => ({ u: a.id + "/", t: a.t, s: plain(a.s), c: colById[a.c] ? colById[a.c].t : "", k: [].concat(a.steps || [], a.tips || []).map(plain).join(" ") }))
     .concat(H.collections.map(c => ({ u: c.id + "/", t: c.t, s: c.s, c: "Topic", k: "" })))
