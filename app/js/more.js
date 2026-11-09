@@ -1200,6 +1200,10 @@ function AccountSettings({navigate, authUser, onSignOut, onRenameProfile, onUpda
   // Nov 8 2026 (Carter: "Rem should get it's own settings section"): LooscidID's old Rem page (tab "server") is the Rem
   // screen in Settings now; anything that still opens it lands there.
   if (initialTab === "server") return React.createElement(LcGoRem, { navigate: navigate });
+  // Nov 8 2026 (Carter, 8:55 PM: "Like all ideas", the LooscidID cleanup): Backup file is part of Download and back up now,
+  // and Devices is hidden until it's real (it opens Privacy & Security).
+  if (initialTab === "backup") return React.createElement(LcGoRem, { navigate: navigate, to: "settings_backup", focus: "bk-save-h" });
+  if (initialTab === "devices") return React.createElement(LcGoRem, { navigate: navigate, to: "settings_privacy" });
   // Settings > Account IS LooscidID management (2three1y, Oct 8 2026), laid out like the
   // Google Account page. Alerts live only in Settings > Alerts, never here.
   const securityExtra = React.createElement(React.Fragment, null
@@ -1405,7 +1409,7 @@ function PrivacySettings({navigate, authUser, onUpdateProfile}) {
     lh('p', { className: "lc-ios-foot" }, "Who can see and reach you, who you blocked or muted, and how your media and profile are shared. Everything here is saved on this device."),
     lh('h2', { className: "lc-grp-h", id: "priv-h-security" }, "Security"),
     lh(LcPrivSecRows, { navigate: navigate }),
-    lh('p', { className: "lc-ios-foot" }, "Your Nostr key and its passcode, your backup file, how you log in and where you're signed in. Your key never leaves this device unless you back it up."),
+    lh('p', { className: "lc-ios-foot" }, "Your Nostr key and its passcode, your backup file and how you log in. Your key never leaves this device unless you back it up."),
     lh(LcResetLast, { scope: "privacy" }));
 }
 /* Round 7.25 (#164, Carter Oct 25 2026): Let others share my Dreams. On by default. Off, each Dream you send to Nostr from then
@@ -2161,7 +2165,7 @@ function MorePage({navigate, cherryCtx, authUser}) {
           {icon:"Drafts",l:"Drafts",sub:"Your saved Dream drafts",a:()=>navigate("drafts"),color:"#374151"},
           authUser && (authUser.isGuest || authUser.uid==="guest")
             ? {icon:"Login",l:"Login or create a LooscidID",sub:"Get a LooscidID",a:()=>navigate("login"),color:"#6d28d9"}
-            : {icon:"LooscidID",l:"LooscidID",sub:"Profile, Rem, Connectionbase and your data",a:()=>navigate("settings_account"),color:"#6d28d9"},
+            : {icon:"LooscidID",l:"LooscidID",sub:(Looscid.LC_LID_DESC || "Profile, Bridges, Rem and your data"),a:()=>navigate("settings_account"),color:"#6d28d9"},
           {icon:"Settings",l:"Settings",sub:"LooscidID, privacy, accessibility",a:()=>navigate("settings"),color:"#374151"},
           {icon:"Send Feedback",l:"Send Feedback",sub:"Help us improve Looscid",a:()=>navigate("feedback"),color:"#0e7490"},
         ].map(item => (
@@ -3024,7 +3028,7 @@ function lcIdLabel(x) {
    Makes it"): a header with your avatar, name and @username, then real tabs:
    Home, Personal info, Data & privacy, Security, People & sharing. No payments.
    Alerts are not here; they have their own section. */
-const LID_TABS = Looscid.LID_TABS = [["home", "Home"], ["info", "Profile"], ["methods", "Login methods"], ["keys", "Keys and IDs"], ["security", "Security checkup"], ["devices", "Devices"], ["data", "Data"], ["backup", "Backup file"], ["apps", "Connected apps"], ["connectionbase", "Connectionbase"]]; // Nov 7 2026: + Connectionbase (js/net.js). Nov 8 2026: "server" (Rem) is its own Settings screen now (RemSettings)
+const LID_TABS = Looscid.LID_TABS = [["home", "Home"], ["info", "Profile"], ["methods", "Login methods"], ["keys", "Keys and IDs"], ["security", "Security checkup"], ["data", "Data"], ["connectionbase", "Bridges"]]; // Nov 7 2026: + Connectionbase (js/net.js). Nov 8 2026: "server" (Rem) is its own screen (RemSettings); Connectionbase is called Bridges; Connected apps joined Login methods; Backup file is part of Download and back up (BackupSettings); Devices is hidden until it's real
 Looscid.LID_TABS = LID_TABS;
 function lidWhen(t) { try { return new Date(t).toLocaleString(undefined, Looscid.lcTimeOpts({ month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })); } catch (e) { return ""; } }
 function thisDeviceLabel() {
@@ -3072,7 +3076,8 @@ function deleteLocalData() {
   try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf("looscid_") === 0 || k.indexOf(Looscid.LC_OLD_PREFIX) === 0) localStorage.removeItem(k); /* and any old-prefix key left from before build 150 */ }); } catch (e) {}
 }
 function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onBack, title, securityExtra, fromSettings, fromPrivSec, fromRem, initialFocus }) {
-  const [tab, setTab] = useState(initialTab || "home");
+  // Nov 8 2026: Connected apps joined Login methods, so its old page opens Login methods.
+  const [tab, setTab] = useState(initialTab === "apps" ? "methods" : (initialTab || "home"));
   const [idn, setIdn] = useState(getIdentity());
   const [, bump] = useState(0);
   useEffect(function () { const f = function () { setIdn(getIdentity()); bump(function (n) { return n + 1; }); }; window.addEventListener("looscid-methods", f); return function () { window.removeEventListener("looscid-methods", f); }; }, []);
@@ -3092,17 +3097,15 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   const u = authUser || {};
   const name = u.displayName || "Dreamor";
   const handle = u.handle || "@dreamor";
-  const N = LID_TABS.length;
-  const idx = LID_TABS.findIndex(function (t) { return t[0] === tab; });
-  const onTabKey = function (e) {
-    let n = null;
-    if (e.key === "ArrowRight") n = (idx + 1) % N; else if (e.key === "ArrowLeft") n = (idx + N - 1) % N; else if (e.key === "Home") n = 0; else if (e.key === "End") n = N - 1;
-    if (n === null) return; e.preventDefault(); fromCard.current = null; setTab(LID_TABS[n][0]);
-    setTimeout(function () { const b = document.getElementById("lid-tab-" + LID_TABS[n][0]); if (b) { b.focus(); b.scrollIntoView({ block: "nearest", inline: "nearest" }); } }, 0);
-  };
+  const isGuest = !!(Looscid.lcIsGuest && Looscid.lcIsGuest());
+  // Nov 8 2026: the arrow-key tab switching (onTabKey) is gone; LooscidID has had no tab bar since the iOS 27 rows.
   // A row opens its page and focus lands on the page's heading (or on focusId, like Passcode's own heading).
   const focusH1 = function () { const h = wrapRef.current && wrapRef.current.querySelector("h1"); if (h) h.focus(); };
   const go = function (t, focusId) {
+    // Nov 8 2026 (LooscidID cleanup): these pages moved out of LooscidID; going to one opens its new home.
+    if (t === "backup") { navigate("settings_backup"); return; }
+    if (t === "devices") { navigate("settings_privacy"); return; }
+    if (t === "apps") t = "methods";
     const a = document.activeElement; stack.current.push({ tab: tab, focus: a && a.id ? a.id : null });
     fromCard.current = null; setNote(""); setTab(t);
     setTimeout(function () { const el = focusId && document.getElementById(focusId); if (el) el.focus(); else focusH1(); }, 0);
@@ -3146,18 +3149,21 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
       lh('p', null, "No LooscidID on this device yet. Guests can look around everything; to Dream, reply or quote, make a LooscidID. It's made on this device, no email or phone number."),
       lh('div', { style: { display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 } },
         lh('button', { type: "button", id: "lid-guest-create", className: "btn bp", onClick: function () { if (Looscid.lcCreateLooscidID) Looscid.lcCreateLooscidID(); } }, "Create a LooscidID"),
-        lh('button', { type: "button", className: "btn bgb", onClick: function () { go("backup"); } }, "Restore from a backup file"))) : null,
+        lh('button', { type: "button", className: "btn bgb", onClick: function () { navigate("settings_backup"); setTimeout(function () { const h = document.getElementById("bk-restore-h"); if (h) { h.setAttribute("tabindex", "-1"); h.focus(); } }, 500); } }, "Restore from a backup file"))) : null,
     lh('ul', { className: "mlist lc-i27-list", role: "list", id: "lid-rows" }, R([
       // Nov 8 2026 (Carter: "We have a security in 2 place"): the Security row moved out; it's in Privacy & Security now.
-      [{ id: "lid-row-info", g: "person", c: "#8e8e93", label: "Profile", sub: "Name " + name + ", username " + handle, onClick: function () { go("info"); } }],
+      [{ id: "lid-row-info", g: "person", c: "#8e8e93", label: "Profile", sub: isGuest ? "Name Guest" : "Name " + name + ", username " + handle, onClick: function () { go("info"); } }],
       // Nov 7 2026 (Carter): Connectionbase holds the connections, the bridges Nostr, Mastodon and Bluesky (coming soon).
       // Nov 8 2026 (Carter: "Rem should get it's own settings section ... the thing by LooscidID should get removed"): Rem
       // isn't here anymore; it has its own Settings screen (RemSettings), so this row only says which bridges are on.
       // Nov 8 2026 (Carter, 8:47 PM: "Yes for both"): Rem's own screen lives here, as a row of LooscidID, not in Settings.
+      // Nov 8 2026 (Carter, 8:55 PM: "Like all ideas"): Connectionbase is called Bridges (same page, same checkboxes), and
+      // Connected apps is gone: it showed your login methods again, plus a list of apps that was always empty. Its old
+      // page opens Login methods. Download and back up is one screen for every way to save your stuff (BackupSettings).
       [{ id: "lid-row-rem", g: "mode", c: "#34c759", label: "Rem", value: srvM.sync ? "Syncing" : "Local", sub: srvWords, onClick: function () { navigate("settings_rem"); } },
-       { id: "lid-row-connectionbase", g: "cloud", c: "#30b0c7", label: "Connectionbase", value: Looscid.lcNet && Looscid.lcNet.bridgeOn("nostr") ? "Nostr" : "Off", sub: "Bridges: Nostr, Mastodon, Bluesky", onClick: function () { go("connectionbase"); } },
-       { id: "lid-row-apps", g: "grid", c: "#5856d6", label: "Connected apps", value: methods.length ? String(methods.length) : "None", sub: methods.length ? methods.length + " linked " + (methods.length === 1 ? "identity" : "identities") : "", onClick: function () { go("apps"); } }],
-      [{ id: "lid-row-data", g: "data", c: "#8e8e93", label: "Data", sub: summary.length + " kinds of data, stored only on this device", onClick: function () { go("data"); } }]])));
+       { id: "lid-row-connectionbase", g: "cloud", c: "#30b0c7", label: "Bridges", value: Looscid.lcNet && Looscid.lcNet.bridgeOn("nostr") ? "Nostr" : "Off", sub: "Share your public Dreams to Nostr, Mastodon and Bluesky too", onClick: function () { go("connectionbase"); } }],
+      [{ id: "lid-row-data", g: "data", c: "#8e8e93", label: "Data", sub: summary.length + " kinds of data, stored only on this device", onClick: function () { go("data"); } },
+       { id: "lid-row-backup", g: "doc", c: "#ff9500", label: "Download and back up", sub: "Export my data, Backup file, Download my Dreams, Back up my settings", onClick: function () { navigate("settings_backup"); } }]])));
     // Nov 7 2026 (Carter, 6:10 PM) Download my Dreams and Delete my Rem data were here. Nov 8 2026: they're on the Rem screen now.
   else if (tab === "info") panel = lh(React.Fragment, null,
     PH("Profile", "Your name, username, avatar and bio. Choose a field to change it."),
@@ -3167,19 +3173,19 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
     lh('h2', { className: "lid-label" }, "What's stored on this device"),
     lh('ul', { className: "lid-dl lc-rows", role: "list" }, summary.map(function (r) { return lh('li', { key: r.k }, lh('span', { className: "lc-dt" }, r.k, lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, r.v)); })),
     lh('h2', { className: "lid-label" }, "Download your data"),
-    lh('p', { className: "lid-help", id: "lid-export-help" }, "Get a copy of your Dreams, replies, chats, likes, follows, profile, login methods, topics, drafts and security activity as a JSON file. Secret keys and login tokens are left out."),
-    lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { exportLocalData(); setNote("Your data was downloaded as looscid-my-data.json."); announce("Data downloaded"); } }, "Export my data"),
+    // Nov 8 2026 (LooscidID cleanup): Export my data lives on Download and back up now, with the other ways to save your stuff.
+    lh('p', { className: "lid-help", id: "lid-export-help" }, "Export my data, your Backup file, your Dreams on Rem and your settings are all in one spot."),
+    lh('a', { className: "btn bgb lid-wide", id: "lid-dl-link", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings_backup") : "#"), style: { textDecoration: "none" },
+      onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("settings_backup"); } }, "Download and back up my data"),
     note && lh('p', { className: "lid-saved" }, note),
     lh('h2', { className: "lid-label" }, "Delete your data"),
     lh('p', { className: "lid-help", id: "lid-delete-help" }, "Erase your LooscidID, logins, keys, drafts and settings from this device. Looscid then starts fresh with a new LooscidID."),
     lh('button', { type: "button", id: "lid-delete-data", className: "btn bgb lid-wide", onClick: function () { setConfirmDel(true); } }, "Delete local data"),
     lh('h2', { className: "lid-label" }, "Settings and privacy"),
     // Nov 8 2026 (Carter: "don't give people where to change things help them and give links"): real links, named for what they do.
-    lh('p', { className: "lid-help" }, "Choose who can see and reach you, or save a file with just your settings."),
+    lh('p', { className: "lid-help" }, "Choose who can see and reach you."),
     lh('a', { className: "btn bgb lid-wide", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings_privacy") : "#"), style: { textDecoration: "none" },
       onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("settings_privacy"); } }, "Choose who can see and reach me"),
-    lh('a', { className: "btn bgb lid-wide", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings_backup") : "#"), style: { textDecoration: "none" },
-      onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("settings_backup"); } }, "Back up my settings"),
     confirmDel && lh(AlertDialog, { title: "Delete all Looscid data on this device?",
       message: "This erases your LooscidID, login methods, any Nostr key saved here, drafts and settings. It can't be undone. Export your data first if you want a copy.",
       confirmLabel: "Delete", onCancel: function () { setConfirmDel(false); setTimeout(function () { const b = document.getElementById("lid-delete-data"); if (b) b.focus(); }, 0); },
@@ -3217,27 +3223,13 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   // Nov 7 2026 (Rem v1 merge): the old "Looscid server" page (tab "server") became Rem in Connectionbase. Nov 8 2026: Rem has
   // its own Settings screen (RemSettings below), and the "server" tab opens it (AccountSettings). Connectionbase is the bridges.
   else if (tab === "connectionbase") panel = lh(React.Fragment, null,
-    PH("Connectionbase", "Bridges share your public Dreams to other networks too."),
-    Looscid.lcNet && Looscid.lcNet.LcConnectionbase ? lh(Looscid.lcNet.LcConnectionbase, null) : lh('p', { className: "lid-help" }, "The Connectionbase page didn't load. Reload Looscid and try again."));
-  else if (tab === "backup") panel = lh(React.Fragment, null,
-    PH("Backup file", "Save everything, your key included, in one file locked with a passcode. Or bring it all back from one."),
-    Looscid.LcBackupPanel ? lh(Looscid.LcBackupPanel, { go: function (t) { go(t); } }) : lh('p', { className: "lid-help" }, "The Backup file page didn't load. Reload Looscid and try again."));
-  else if (tab === "devices") panel = lh(React.Fragment, null,
-    PH("Devices", "Where your LooscidID is signed in."),
-    lh('h2', { className: "lid-label" }, "This device"),
-    lh('ul', { className: "lid-links", 'aria-label': "Your devices" }, lh('li', null, lh('span', null, "This device, " + thisDeviceLabel() + ", active now"))),
-    lh('h2', { className: "lid-label" }, "Other devices"),
-    lh('p', { className: "lid-help" }, "None. Your LooscidID lives only on this device for now."));
+    PH("Bridges", "Bridges share your public Dreams to other networks too. They're off unless you turn them on."),
+    Looscid.lcNet && Looscid.lcNet.LcConnectionbase ? lh(Looscid.lcNet.LcConnectionbase, null) : lh('p', { className: "lid-help" }, "The Bridges page didn't load. Reload Looscid and try again."));
+  // Nov 8 2026 (LooscidID cleanup): Backup file is part of Download and back up (BackupSettings), and Devices is hidden until
+  // it's real; both open their new place (go and AccountSettings). Connected apps joined Login methods: anything else lands there.
   else panel = lh(React.Fragment, null,
-    PH("Connected apps", "Networks and apps linked to your LooscidID."),
-    lh('h2', { className: "lid-label" }, "Linked identities"),
-    methods.length ? lh('ul', { className: "lid-links", 'aria-label': "Linked identities" }, methods.map(function (m) {
-      const fk = LC_FIND_KEY[m.provider];
-      return lh('li', { key: m.id }, lh('span', null, methodLabel(m) + (fk ? (Looscid.A11Y_NOW[fk] ? ", people can find you by it" : ", hidden from search") : "")));
-    })) : lh('p', { className: "lid-help" }, "None yet. Link Nostr, Mastodon, Bluesky or Pubky in Login methods."),
-    lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { go("methods"); } }, "Open Login methods"),
-    lh('h2', { className: "lid-label" }, "Apps using your LooscidID"),
-    lh('p', { className: "lid-help" }, "No apps use your LooscidID yet."));
+    PH("Login methods", "Optional ways to log in with your LooscidID. When you link one, you choose whether people can find you by it."),
+    lh(LoginMethods, null));
   // Round 7.37 (#176) / Oct 31 2026 (iOS 27): every section is its own page with the round Back button and its name as the
   // h1. Back returns to the page and row you came from (Security's pages come back to Security). Escape is Back too (the
   // Touch-style keys press the header's Back button).
@@ -3250,24 +3242,27 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
     lh(Looscid.LcI27Header, { title: title || "LooscidID", onBack: back, backLabel: backLabel }),
     lh('div', { className: "lid-ghead lid-i27-head" },
       lh('div', { className: "lid-gavatar lc-i27-bigav", 'aria-hidden': "true" }, u.initials || "D"),
-      lh('p', { className: "lid-gname lid-i27-name" }, name),
-      lh('p', { className: "lid-ghandle lid-i27-handle" }, handle + ", LooscidID"),
-      Looscid.LcNpubLine ? lh(Looscid.LcNpubLine, { np: np, id: "lid-npub" }) : null),
+      lh('p', { className: "lid-gname lid-i27-name" }, isGuest ? "Guest" : name),
+      // Nov 8 2026 (Carter, 8:55 PM: "Guest get no ID"): a Guest has no LooscidID, so no handle and no npub line here.
+      isGuest ? null : lh('p', { className: "lid-ghandle lid-i27-handle" }, handle + ", LooscidID"),
+      !isGuest && Looscid.LcNpubLine ? lh(Looscid.LcNpubLine, { np: np, id: "lid-npub" }) : null),
     panel,
     // Nov 8 2026: Security moved to Privacy & Security; one real link goes there (Carter: "give links", not where to look).
-    lh('p', { className: "lc-i27-foot" }, "Your profile, Rem, Connectionbase, connected apps and your data on this device. ",
+    // Nov 8 2026 (LooscidID cleanup): the same words describe LooscidID everywhere (LC_LID_DESC in core.js).
+    lh('p', { className: "lc-i27-foot" }, (Looscid.LC_LID_DESC || "Profile, Bridges, Rem and your data") + ". ",
       lh('a', { className: "lc-link", id: "lid-privsec-link", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings_privacy") : "#"), style: { display: "inline-flex", alignItems: "center", minHeight: 44 },
         onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("settings_privacy"); } }, "Keep your key and logins safe")));
 }
 // Which page each LooscidID page comes back to when it was opened straight (from Search, a link or another screen).
 // Nov 8 2026: "privsec" is Privacy & Security (a Settings screen, not a LooscidID page), where the Security pages live now.
-const LID_PARENT = Looscid.LID_PARENT = { keys: "privsec", methods: "privsec", backup: "privsec", devices: "privsec", security: "privsec" };
+const LID_PARENT = Looscid.LID_PARENT = { keys: "privsec", methods: "privsec", security: "privsec" };
 /* Nov 8 2026 (Carter, 7:57 PM: "We have a security in 2 place and Privacy is in security like iOS"): the Security half of
    Privacy & Security. Security used to be a Settings row AND a LooscidID row; now its pages are rows here, under Privacy,
    like iOS. Each row opens the same LooscidID page as before (same settings, same behavior), and Back comes back here, on
    that row. The rows look and read like the Privacy rows above them: the name, then its value ("Passcode, Off"). */
 // Nov 8 2026 (Carter: "Rem should get it's own settings section"): the Rem row moved out to its own Settings screen, Rem.
-const LC_PRIVSEC_ROWS = [["keys", "Keys and IDs"], ["passcode", "Passcode"], ["backup", "Backup file"], ["methods", "Login methods"], ["devices", "Devices"], ["security", "Security checkup"]];
+// Nov 8 2026 (LooscidID cleanup): Devices is hidden until it's real, and Backup file opens Download and back up, on its part.
+const LC_PRIVSEC_ROWS = [["keys", "Keys and IDs"], ["passcode", "Passcode"], ["backup", "Backup file"], ["methods", "Login methods"], ["security", "Security checkup"]];
 Looscid.LC_PRIVSEC_ROWS = LC_PRIVSEC_ROWS;
 function lcSecSuggestions() {
   const methods = getMethods(), sk = getStoredNostrSk(), idn = getIdentity(), out = [];
@@ -3282,14 +3277,14 @@ function LcPrivSecRows({ navigate }) {
   const methods = getMethods(), linkedN = lcGetIds().length, sug = lcSecSuggestions();
   const val = {
     keys: linkedN ? String(linkedN) : "", passcode: nst && nst.encrypted ? "On" : "Off", backup: "",
-    methods: methods.length ? String(methods.length) : "None", devices: "1",
+    methods: methods.length ? String(methods.length) : "None",
     security: sug.length ? Looscid.fmt(sug.length) + (sug.length === 1 ? " suggestion" : " suggestions") : "No issues" };
   const open = { keys: { tab: "keys" }, passcode: { tab: "keys", focus: "nostr-lock-h" }, backup: { tab: "backup" }, methods: { tab: "methods" },
-    devices: { tab: "devices" }, security: { tab: "security" } };
+    security: { tab: "security" } };
   return lh('ul', { className: "mlist lc-catlist lc-ios-list", role: "list", id: "priv-sec-rows" }, LC_PRIVSEC_ROWS.map(function (r) {
     const v = val[r[0]];
     return lh('li', { key: r[0], className: "mli" },
-      lh('button', { type: "button", id: "priv-sec-" + r[0], className: "mitem lc-cat lc-ios-row", onClick: function () { navigate("settings_account", Object.assign({ from: "privsec" }, open[r[0]])); } },
+      lh('button', { type: "button", id: "priv-sec-" + r[0], className: "mitem lc-cat lc-ios-row", onClick: function () { if (r[0] === "backup") { Looscid.LC_BK_FROM = "privsec"; navigate("settings_backup"); setTimeout(function () { const h = document.getElementById("bk-save-h"); if (h) { h.setAttribute("tabindex", "-1"); h.focus(); } }, 450); return; } navigate("settings_account", Object.assign({ from: "privsec" }, open[r[0]])); } },
         lh('span', { className: "mitem-lbl" }, r[1], v ? lh('span', { className: "sr-only" }, ", ") : null),
         v ? lh('span', { className: "mitem-val" }, v) : null,
         lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })));
@@ -3305,7 +3300,7 @@ Looscid.LcPrivSecRows = LcPrivSecRows;
    data. It all used to be split up: the Mode row under the LooscidID card, LooscidID's Connectionbase page and home page,
    and a Rem row in Privacy & Security. Those are gone, and their old ways in open this screen. Only the place changed: every
    control is the same component as before, with the same saved choices (looscid_server, looscid_rem_lists) and behavior.
-   Bridges stay in LooscidID, Connectionbase. Address: /More/Settings/LooscidID/Rem (old: /Settings/Rem, /Settings/Server and more). */
+   Bridges stay in LooscidID, Bridges (it was Connectionbase). Address: /More/Settings/LooscidID/Rem (old: /Settings/Rem, /Settings/Server and more). */
 function RemSettings({ navigate, from }) {
   if (Looscid.useServerTick) Looscid.useServerTick(); else useState(0);
   // Opened from Customization's Mode row, Back goes back there (onto that row); otherwise to LooscidID.
@@ -3315,8 +3310,8 @@ function RemSettings({ navigate, from }) {
   const toLid = function (t) { navigate("settings_account", { tab: t, from: "rem" }); };
   const sec = function (id, title, kids) { return lh('section', { className: "lid-panel", id: "rem-" + id, "aria-labelledby": "rem-h-" + id },
     lh('h2', { className: "lid-label", id: "rem-h-" + id, tabIndex: -1 }, title), kids); };
-  const link = function (id, page, data, words) { return lh('a', { className: "lc-link", id: id, href: Looscid.lcPathFor ? Looscid.lcPathFor(page, data) : "#", style: { display: "inline-flex", alignItems: "center", minHeight: 44 },
-    onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate(page, data); } }, words); };
+  const link = function (id, page, data, words, before) { return lh('a', { className: "lc-link", id: id, href: Looscid.lcPathFor ? Looscid.lcPathFor(page, data) : "#", style: { display: "inline-flex", alignItems: "center", minHeight: 44 },
+    onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); if (before) before(); navigate(page, data); } }, words); };
   return lh('div', { className: "pg lc-ios-page lc-i27 lid-i27", id: "rem-page" },
     lh(Looscid.LcI27Header, { title: "Rem", onBack: function () { if (fromCz) navigate("settings_customizability"); else navigate("settings_account", { focus: "lid-row-rem" }); }, backLabel: fromCz ? "Back to Customization" : "Back to LooscidID" }),
     lh('div', { id: "rem-body", className: "lid-body" },
@@ -3328,13 +3323,15 @@ function RemSettings({ navigate, from }) {
       // Carter asked for "Sync to my other devices / just this device" switches (Nov 8 2026). Not built yet, so just a line.
       sec("devices", "Sync to my other devices",
         lh('p', { className: "lid-help", id: "rem-soon" }, "Coming soon: I'm working on switches so you can pick Sync to my other devices or Just this device for your settings. Nothing's switched yet, so everything above works like it always did.")),
-      sec("data", "Your Dreams on Rem", N.LcRemData ? lh(N.LcRemData, null) : null),
-      lh('p', { className: "lc-i27-foot" }, "Want your public Dreams on other networks too? ", link("rem-bridges-link", "settings_account", { tab: "connectionbase", from: "rem" }, "Turn on bridges in Connectionbase"))));
+      // Nov 8 2026 (LooscidID cleanup): Download my Dreams lives on Download and back up now; this links there.
+      sec("data", "Your Dreams on Rem", N.LcRemData ? lh(N.LcRemData, { downloadLink: link("rem-download", "settings_backup", null, "Download my Dreams, with your other backups", function () { Looscid.LC_BK_FROM = "rem"; setTimeout(function () { const h = document.getElementById("bk-d-h"); if (h) h.focus(); }, 450); }) }) : null),
+      lh('p', { className: "lc-i27-foot" }, "Want your public Dreams on other networks too? ", link("rem-bridges-link", "settings_account", { tab: "connectionbase", from: "rem" }, "Turn on Bridges"))));
 }
 Looscid.RemSettings = RemSettings;
-// Opens the Rem screen in place of LooscidID's old Rem page.
-function LcGoRem({ navigate }) {
-  useEffect(function () { navigate("settings_rem"); }, []);
+// Opens the Rem screen (or another screen, "to") in place of a LooscidID page that moved.
+function LcGoRem({ navigate, to, focus }) {
+  useEffect(function () { navigate(to || "settings_rem");
+    if (focus) setTimeout(function () { const el = document.getElementById(focus); if (el) { if (!el.hasAttribute("tabindex")) el.setAttribute("tabindex", "-1"); el.focus(); } }, 500); }, []);
   return null;
 }
 Looscid.LC_FORCED = {}; // Private account forces two Permissions
@@ -4154,7 +4151,7 @@ const LC_COMING_SOON = [
   { name: "Pubky login", where: "LooscidID", desc: "Log in with the Pubky Ring app. No email or phone number." },
   { name: "Plume", where: "LooscidID", desc: "Its login needs your password, so Looscid will follow Plume blogs over ActivityPub instead." },
   { name: "Other devices", where: "LooscidID, Devices", desc: "See and sign out other devices that use your LooscidID." },
-  { name: "Log in with LooscidID", where: "LooscidID, Connected apps", desc: "Let other apps log in with your LooscidID." },
+  { name: "Log in with LooscidID", where: "LooscidID, Login methods", desc: "Let other apps log in with your LooscidID." },
   { name: "Joining Looscid Labs", where: "Looscid Labs", desc: "Sign up for early access." },
   { name: "Marketplace", where: "Labs, beta", desc: "Buy and sell inside Looscid. Early testers shape how it works before launch." },
   { name: "Store", where: "Labs, alpha", desc: "Apps, tools and add-ons for Dreamors." },
@@ -4810,7 +4807,7 @@ function ProfileTabsSettings({ navigate }) {
 const LC_GEN_ROWS = [
   { id: "about", l: "About", grp: "info", page: "settings_about" }, { id: "updates", l: "Updates", grp: "info", page: "settings_updates" },
   { id: "keyboard", l: "Keyboard", grp: "use", page: "settings_keyboard" }, { id: "commandbar", l: "Commandbar", grp: "use", page: "settings_a11y_terminal" },
-  { id: "backup", l: "Backup", grp: "data", page: "settings_backup" }, { id: "labs", l: "Labs", grp: "data", page: "settings_labs" },
+  { id: "backup", l: "Download and back up", grp: "data", page: "settings_backup" }, { id: "labs", l: "Labs", grp: "data", page: "settings_labs" },
   { id: "reset", l: "Reset", grp: "reset", reset: "all" },
 ];
 Looscid.LC_GEN_ROWS = LC_GEN_ROWS;
@@ -4832,9 +4829,9 @@ function GeneralSettings({ navigate }) {
     lcIosRows("set-gen", LC_GEN_ROWS, {
       info: "Your version of Looscid and its history, and checking for a newer one.",
       use: "Built-in keys and your own shortcuts, and how Commandbar shows and reads its output.",
-      data: "Export or import all your settings in one file, and early features we're still building.",
+      data: "Download or back up your data, Dreams and settings, and early features we're still building.",
       reset: "Reset the whole app, or just some settings. You choose what goes back to how it was before anything changes.",
-    }, function (r) { if (r.reset) { lcOpenReset(r.reset); return; } navigate(r.page); }));
+    }, function (r) { if (r.reset) { lcOpenReset(r.reset); return; } if (r.id === "backup") Looscid.LC_BK_FROM = "general"; navigate(r.page); }));
 }
 // Round 7.37 (#176): General, Updates. The same Check for updates and automatic check as About (About keeps them too),
 // with the same storage and the same update prompt.
@@ -4951,8 +4948,16 @@ function lcImportSettings(text) {
     if (k === A11Y_KEY || k === LC_SETTINGS_KEY) JSON.parse(o.settings[k]); localStorage.setItem(k, o.settings[k]); n++; } catch (e) {} } });
   return { n: n };
 }
+/* Nov 8 2026 (Carter, 8:55 PM: "Like all ideas", the LooscidID cleanup): Download and back up, one screen for every way to
+   save your stuff, each with one plain line: Export my data (the JSON file, js/more.js exportLocalData), Backup file (the
+   locked .looscid file with your key, js/remsync.js LcBackupPanel: save and restore), Download my Dreams (Rem's signed
+   copy, js/net.js exportMine) and Back up my settings (Export all settings, Import, and Reset, as before). Each button is
+   the same one as before and works the same. It's a row in LooscidID (and General's Backup row and Privacy & Security's
+   Backup file row, and Rem's Download my Dreams link open it too). Its main address is /More/Settings/LooscidID/Download-and-Back-Up; /Settings/Backup and
+   /Settings/Privacy-and-Security/Backup-File open it. Back goes to where you came from: General, Privacy & Security, Rem or LooscidID. */
 function BackupSettings({ navigate, onImported }) {
-  const [msg, setMsg] = useState("");
+  const [msg, setMsg] = useState(""), [dl, setDl] = useState(""), [busy, setBusy] = useState(false);
+  const [from] = useState(function () { const f = Looscid.LC_BK_FROM; Looscid.LC_BK_FROM = null; return f || "lid"; });
   const say = function (m) { setMsg(m); announce(m); };
   const onFile = function (e) {
     const f = e.target.files && e.target.files[0]; e.target.value = ""; if (!f) return;
@@ -4961,10 +4966,32 @@ function BackupSettings({ navigate, onImported }) {
     const land = function () { setTimeout(function () { const hd = document.getElementById("bk-e-h"); if (hd) { if (!hd.hasAttribute("tabindex")) hd.setAttribute("tabindex", "-1"); hd.focus(); } }, 150); };
     f.text().then(function (t) { const r = lcImportSettings(t); land(); if (r.err) return say(r.err); if (onImported) onImported(); say("Settings imported: " + r.n + " groups of settings restored."); });
   };
-  return lh('div', { className: "pg lc-a11y", "aria-live": "off" },
-    lh(BackHeader, { title: "Backup", onBack: function () { navigate("settings"); } }),
+  const back = function () {
+    if (from === "general") { navigate("settings_general"); setTimeout(function () { const b = document.getElementById("set-gen-backup"); if (b) b.focus(); }, 120); return; }
+    if (from === "rem") { navigate("settings_rem"); setTimeout(function () { const b = document.getElementById("rem-download"); if (b) b.focus(); }, 120); return; }
+    if (from === "privsec") { navigate("settings_privacy"); setTimeout(function () { const b = document.getElementById("priv-sec-backup"); if (b) b.focus(); }, 120); return; }
+    navigate("settings_account", { focus: "lid-row-backup" });
+  };
+  const N = Looscid.lcNet || {};
+  return lh('div', { className: "pg lc-a11y", "aria-live": "off", id: "bk-page" },
+    lh(Looscid.LcI27Header, { title: "Download and back up", onBack: back, backLabel: from === "general" ? "Back to General" : from === "privsec" ? "Back to Privacy & Security" : from === "rem" ? "Back to Rem" : "Back to LooscidID" }),
+    lh('p', { className: "lc-desc", style: { padding: "0 16px" } }, "Every way to save your stuff, in one spot. None of these files have your passwords."),
+    lh('section', { className: "lc-grp", "aria-labelledby": "bk-x-h" },
+      lh('h2', { id: "bk-x-h", className: "lc-grp-h", tabIndex: -1 }, "Export my data"),
+      lh('p', { className: "lc-desc" }, "A copy of your Dreams, replies, chats, likes, follows, profile and drafts as a JSON file, without your keys."),
+      lh('button', { type: "button", id: "bk-export-data", className: "btn bgb lc-big", onClick: function () { exportLocalData(); say("Your data was downloaded as looscid-my-data.json."); } }, "Export my data")),
+    lh('section', { className: "lc-grp", "aria-labelledby": "bk-f-h" },
+      lh('h2', { id: "bk-f-h", className: "lc-grp-h", tabIndex: -1 }, "Backup file"),
+      lh('p', { className: "lc-desc" }, "Everything, your key included, in one file locked with a passcode. Use it to bring it all back on any device."),
+      Looscid.LcBackupPanel ? lh(Looscid.LcBackupPanel, { inDl: true, go: function (t) { navigate("settings_account", { tab: t }); } }) : lh('p', { className: "lc-desc" }, "The Backup file part didn't load. Reload Looscid and try again.")),
+    lh('section', { className: "lc-grp", "aria-labelledby": "bk-d-h" },
+      lh('h2', { id: "bk-d-h", className: "lc-grp-h", tabIndex: -1 }, "Download my Dreams"),
+      lh('p', { className: "lc-desc" }, "Every Dream Rem has for your key, as the original signed file."),
+      lh('button', { type: "button", id: "bk-dl-dreams", className: "btn bgb lc-big", disabled: busy || !N.exportMine, onClick: function () { setBusy(true);
+        N.exportMine().then(function (r) { setBusy(false); setDl(r.say); announce(r.say); }, function () { setBusy(false); setDl("Something went wrong. Try again."); announce("Something went wrong. Try again."); }); } }, "Download my Dreams"),
+      dl ? lh('p', { className: "lc-desc", role: "status" }, dl) : null),
     lh('section', { className: "lc-grp", "aria-labelledby": "bk-e-h" },
-      lh('h2', { id: "bk-e-h", className: "lc-grp-h" }, "Export and import"),
+      lh('h2', { id: "bk-e-h", className: "lc-grp-h" }, "Back up my settings"),
       lh('p', { className: "lc-desc" }, "One JSON file with all your settings: accessibility, audio, Sense, permissions, muted words, shortcuts, theme, music and Cherry. Your Cherry chats and the Circles you made are in it too. No keys, passwords or Dreams are in it. Imported Soundpacks stay on this device."),
       lh('button', { type: "button", className: "btn bp lc-big", onClick: function () { lcDownloadSettings(); say("Exported looscid-settings.json."); } }, "Export all settings"),
       lh('label', { htmlFor: "bk-file", className: "btn bgb lc-big lc-filebtn" }, "Import settings from a file"),

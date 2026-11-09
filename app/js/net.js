@@ -3,11 +3,11 @@
 
    Nov 7 2026 (Carter: "Merge Rem with the other protocol"): one protocol, Rem. Rem is the home of public Dreams. Each Dream you
    make with Audience Everyone is a small JSON event signed with your LooscidID key and sent to the server, which checks
-   the signature before it keeps it. Nostr is a bridge you can turn on in Settings, LooscidID, Connectionbase
+   the signature before it keeps it. Nostr is a bridge you can turn on in Settings, LooscidID, Bridges
    ("Also share my Dreams to Nostr"): then the same signed Dream also goes to your Nostr relays. Mastodon and Bluesky are coming soon.
    "Put your Dreams on Rem" is in js/remsync.js. Nov 8 2026 (Carter: "Rem should get it's own settings section"): everything
    about Rem is on its own screen, Rem, a row in LooscidID (RemSettings in js/more.js, using LcRemStatus, LcRemLists and LcRemData below).
-   Connectionbase keeps only the bridges. The older Rem v0 home is retired (Nov 7 2026).
+   Bridges (it was Connectionbase) keeps only the bridges. The older Rem v0 home is retired (Nov 7 2026).
 
    localStorage keys:
    - looscid_bridges         which bridges are on, like {"nostr": true}. Missing means: Nostr stays on if you already
@@ -198,8 +198,8 @@ async function health() { try { const r = await call("GET", "/health"); return r
 
 
 /* --- Settings, LooscidID, Connectionbase (Nov 7 2026, Carter: bridges live in LooscidID under "Connectionbase") ---
-   Nov 8 2026 (Carter, 8:10 PM: "Rem should get it's own settings section"): Rem moved out to its own Settings screen, Rem,
-   so Connectionbase is only the bridges now: Nostr, Mastodon (soon) and Bluesky (soon), plus one link to the Rem screen.
+   Nov 8 2026 (Carter, 8:10 PM: "Rem should get it's own settings section"): Rem moved out to its own screen, Rem, so
+   Connectionbase is only the bridges now, and at 8:55 PM it was renamed Bridges: Nostr, Mastodon (soon) and Bluesky (soon), plus one link to the Rem screen.
    The checkboxes, their saved choice (looscid_bridges) and what they do are the same as before.
    Same markup as the other LooscidID pages: h2.lid-label headings, lid-help text, real checkboxes. */
 function lcRemLink(id, words) {
@@ -213,8 +213,7 @@ function LcConnectionbase() {
   useEffect(function () { const f = function () { setTick(function (n) { return n + 1; }); }; window.addEventListener("looscid:bridges", f); return function () { window.removeEventListener("looscid:bridges", f); }; }, []);
   const say = function (t) { setMsg(t); if (Looscid.announce) Looscid.announce(t); };
   return lh(React.Fragment, null,
-    lh('h2', { className: "lid-label", id: "cb-bridges-h" }, "Bridges"),
-    lh('p', { className: "lid-help" }, "Bridges also share your public Dreams to other networks. They're off unless you turn them on."),
+    // Nov 8 2026 (Carter, 8:55 PM): Connectionbase is called Bridges now; the page's own heading says Bridges, so no second one.
     lh('fieldset', { className: "lc-fs", id: "cb-bridges" },
       lh('legend', { className: "lc-fs-l" }, "Share my Dreams to"),
       lh('div', { className: "lc-radios lc-radios-col" }, BRIDGES.map(function (b) {
@@ -255,14 +254,15 @@ function LcRemLists() {
       lh('button', { type: "button", className: "btn bgb lid-wide", onClick: function () { Looscid.lcLists.resume(); bump(function (n) { return n + 1; }); say("Your lists sync again. What's on this device is added to Rem, and changes show up on your other devices."); } }, "Sync my lists again")) : null,
     msg ? lh('p', { className: "lid-help", role: "status" }, msg) : null);
 }
-function LcRemData() {
+function LcRemData(props) {
   const lh = React.createElement, useState = React.useState;
   const [msg, setMsg] = useState(""), [busy, setBusy] = useState(false), [asking, setAsking] = useState(false);
   const say = function (t) { setMsg(t); if (Looscid.announce) Looscid.announce(t); };
   const run = function (p) { setBusy(true); p.then(function (r) { setBusy(false); say(r.say); }, function () { setBusy(false); say("Something went wrong. Try again."); }); };
   return lh(React.Fragment, null,
     lh('p', { className: "lid-help" }, "Download every Dream Rem has for your key, as the original signed file, or delete all of it."),
-    lh('button', { type: "button", id: "rem-download", className: "btn bgb lid-wide", disabled: busy, onClick: function () { run(exportMine()); } }, "Download my Dreams"),
+    // Nov 8 2026: on the Rem screen this is a link to Download and back up, where Download my Dreams lives now.
+    props && props.downloadLink ? props.downloadLink : lh('button', { type: "button", id: "rem-download", className: "btn bgb lid-wide", disabled: busy, onClick: function () { run(exportMine()); } }, "Download my Dreams"),
     asking ? lh(React.Fragment, null,
         lh('p', { className: "lid-help", id: "cb-forget-q" }, "Delete everything Rem has for your key? That's your Dreams, ReDreams, blocks and reports there, and your synced likes, pins, mutes and followed threads. Dreams on this device stay, and copies on Nostr relays aren't touched. This can't be undone."),
         lh('button', { type: "button", className: "btn bgb lid-wide", disabled: busy, onClick: function () { setAsking(false); run(forgetMe()); } }, "Yes, delete my Rem data"),

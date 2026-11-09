@@ -364,7 +364,9 @@ function LcServerPanel({ go }) {
   return lh('div', { className: "lid-panel" }, intro, body, lh(Note, { msg: msg, err: er, id: "srv-msg" }));
 }
 
-function LcBackupPanel({ go }) {
+// Nov 8 2026 (LooscidID cleanup): shown on Download and back up (BackupSettings in js/more.js) under its own "Backup file"
+// heading and one-line description, so there (inDl) its intro line is skipped and its parts are h3s under that heading.
+function LcBackupPanel({ go, inDl }) {
   useBump();
   const [p1, setP1] = useState(""), [p2, setP2] = useState(""), [withKey, setWithKey] = useState(true);
   const [rp, setRp] = useState(""), [fileName, setFileName] = useState(""); const fileRef = React.useRef(null);
@@ -378,10 +380,11 @@ function LcBackupPanel({ go }) {
     catch (e) { fail(e); } finally { setBusy(false); }
   };
   const noKeyHere = st.mode === "none" || st.mode === "view" || st.mode === "signer";
+  const H = inDl ? 'h3' : 'h2';
   return lh('div', { className: "lid-panel" },
-    lh('p', { className: "lid-help" }, "One file with everything: your profile, Dreams, replies, chats, likes, follows, settings, and your LooscidID key. It opens in Looscid on any device."),
+    inDl ? null : lh('p', { className: "lid-help" }, "One file with everything: your profile, Dreams, replies, chats, likes, follows, settings, and your LooscidID key. It opens in Looscid on any device."),
     lh('p', { className: "lid-warn", id: "bk-warn" }, "This file contains your key. Anyone who has the file and its passcode can Dream as you, so keep it private. It's locked with a passcode you choose, and nobody can recover a forgotten passcode."),
-    lh('h2', { className: "lid-label", id: "bk-save-h" }, "Save backup file"),
+    lh(H, { className: "lid-label", id: "bk-save-h" }, "Save backup file"),
     st.mode === "locked" && withKey ? lh(UnlockKey, { id: "bk", why: "Your key is locked with a passcode. Unlock it so it can go in the file." }) : null,
     noKeyHere ? lh('p', { className: "lid-help" }, st.mode === "signer" ? "Your key is in a signer extension, so it can't go in the file. Everything else can." : "This device doesn't have a key yet, so the file won't have one.") :
       lh('label', { className: "lc-radio" + (withKey ? " on" : "") }, lh('input', { type: "checkbox", id: "bk-withkey", checked: withKey, onChange: function () { setWithKey(!withKey); } }), lh('span', null, "Put my key in the file (recommended)")),
@@ -399,7 +402,7 @@ function LcBackupPanel({ go }) {
       try { const r = await makeBackup(p1, withKey && !noKeyHere); setP1(""); setP2(""); done("Backup file saved as " + r.name + ", with " + plural(r.dreams, "Dream") + (r.withKey ? " and your key" : ", without your key") + ". Keep it private."); }
       catch (e) { fail(e); } finally { setBusy(false); }
     } }, "Save backup file"),
-    lh('h2', { className: "lid-label", id: "bk-restore-h" }, "Restore from backup file"),
+    lh(H, { className: "lid-label", id: "bk-restore-h" }, "Restore from backup file"),
     lh('p', { className: "lid-help", id: "bk-file-d" }, "Bring everything back from a .looscid file made in Looscid. Your key from the file is saved on this device, locked with the file's passcode."),
     lh('label', { htmlFor: "bk-file", className: "lid-label" }, "Backup file"),
     lh('input', { id: "bk-file", ref: fileRef, className: "inp", type: "file", onChange: function (e) { setFileName(e.target.files && e.target.files[0] ? e.target.files[0].name : ""); } }),

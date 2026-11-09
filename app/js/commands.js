@@ -7,7 +7,7 @@ const { lcEl: h, lcPatch, lcPlainScreen, lcIconEl } = Looscid;
 
 /* Areas, in page order. A command not listed here still shows, under "More commands". */
 const LC_CMD_GROUPS = [
-  ["Go to a place", ["open feed", "open alerts", "open notifications", "open messages", "open circles", "open settings", "open accessibility", "open braille", "open verbosity", "open sounds", "open keyboard shortcuts", "open privacy", "open rem", "open music", "open terminal", "about", "apps", "open insomnia", "coming soon", "import settings"]],
+  ["Go to a place", ["open feed", "open alerts", "open notifications", "open messages", "open circles", "open settings", "open accessibility", "open braille", "open verbosity", "open sounds", "open keyboard shortcuts", "open privacy", "open rem", "open bridges", "open music", "open terminal", "about", "apps", "open insomnia", "coming soon", "import settings"]],
   ["Cherry", ["open cherry", "new cherry chat", "cherry pinned chats", "cherry history"]],
   ["Commandbar", ["help", "commands", "status", "version", "history", "clear", "output collapse", "output expand", "shortcuts"]],
   ["Feeds and Dreams", ["feed and a name", "feed switching", "show friends on", "calm feed", "announce new dreams", "read this dream"]],

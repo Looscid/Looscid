@@ -1758,7 +1758,7 @@ function LcLoggedOutAsk({ onDone, navigate }) {
   const pick = function (v) {
     onDone();
     if (v === "create") { lcCreateLooscidID(); return; }
-    if (v === "restore") { navigate("settings_account", { tab: "backup" }); return; }
+    if (v === "restore") { navigate("settings_backup"); setTimeout(function () { const h = document.getElementById("bk-restore-h"); if (h) { h.setAttribute("tabindex", "-1"); h.focus(); } }, 500); return; }
     announce("Browsing as a Guest. Create a LooscidID any time in Settings, LooscidID.");
   };
   return lh('div', { className: "lc-q-ov", ref: boxRef },
@@ -1915,15 +1915,18 @@ const LC_FIND_STATIC = [
   { l: "Import a Soundpack", w: "soundpack custom sounds zip import earcons", page: "settings_audio", focus: "lc-imp-h" },
   { l: "Accessibility", w: "a11y categories", page: "settings_accessibility", where: "Settings" },
   { l: "Sense", w: "sense screen reader and braille voiceover talkback nvda speech braille", page: "settings_a11y_sr", where: "Settings, Accessibility" },
-  { l: "LooscidID", w: "account profile login methods security nostr mastodon bluesky funkwhale hubzilla friendica", page: "settings_account", where: "Settings" },
+  { l: "LooscidID", w: "account profile login methods security nostr mastodon bluesky funkwhale hubzilla friendica rem bridges data", page: "settings_account", where: "Settings" },
   { l: "Alerts", w: "alerts settings notification settings notifications push quiet hours alert types sound who can trigger categories order inbox tabs", page: "settings_notifications", where: "Settings" },
-  { l: "Privacy & Security", w: "privacy security permissions muted words blocked keys passcode backup login methods devices", page: "settings_privacy", where: "Settings" },
+  { l: "Privacy & Security", w: "privacy security permissions muted words blocked keys passcode backup login methods", page: "settings_privacy", where: "Settings" },
   // Nov 8 2026 (Carter: "Rem should get it's own settings section"): Rem's own screen and what's on it.
   { l: "Rem", w: "rem server looscid server mode local sync syncing online status protocol", page: "settings_rem", where: "Settings, LooscidID" },
   { l: "Put your Dreams on Rem", w: "put my dreams on rem upload sync all my dreams let me pick stop syncing sync now server", page: "settings_rem", focus: "rem-h-dreams", where: "Settings, LooscidID, Rem" },
   { l: "Mode", w: "mode local server rem local mode server mode", page: "settings_customizability", focus: "lc-cz-cats-mode", where: "Settings, Customization" },
   { l: "Sync my lists", w: "lists likes redreams pins mutes followed threads sync my lists again devices", page: "settings_rem", focus: "rem-h-lists", where: "Settings, LooscidID, Rem" },
-  { l: "Download my Dreams", w: "download my dreams export rem signed file", page: "settings_rem", focus: "rem-download", where: "Settings, LooscidID, Rem" },
+  { l: "Download my Dreams", w: "download my dreams export rem signed file", page: "settings_backup", focus: "bk-d-h", where: "Settings, LooscidID, Download and back up" },
+  // Nov 8 2026 (LooscidID cleanup): Download and back up, one screen for every way to save your stuff.
+  { l: "Export my data", w: "export my data download json copy", page: "settings_backup", focus: "bk-x-h", where: "Settings, LooscidID, Download and back up" },
+  { l: "Backup file", w: "backup file locked passcode key restore bring back", page: "settings_backup", focus: "bk-f-h", where: "Settings, LooscidID, Download and back up" },
   { l: "Delete my Rem data", w: "delete my rem data forget me erase server", page: "settings_rem", focus: "rem-forget", where: "Settings, LooscidID, Rem" },
   { l: "Private account", w: "private account approve followers lock", page: "settings_privacy", focus: "set-privateAccount", where: "Settings, Privacy & Security" },
   { l: "Let others share my Dreams", w: "allow sharing share my dreams reshare", page: "settings_privacy", focus: "set-shareMine", where: "Settings, Privacy & Security" },
@@ -1951,7 +1954,7 @@ const LC_FIND_STATIC = [
   { l: "Profile Tabs", w: "profile tabs order reorder dreams replies circles redreams media liked lists followed threads about move up move down", page: "settings_profiletabs", where: "Settings, Customization" },
   // Round 7.33
   { l: "Show followed threads on my profile", w: "followed threads follow thread profile show hide privacy", page: "settings_privacy", priv: "pthreads", focus: "set-showThreads", where: "Settings, Privacy & Security, Followed Threads" },
-  { l: "Backup", w: "settings backup export import reset", page: "settings_backup", where: "Settings, General" },
+  { l: "Download and back up", w: "backup back up my settings export import reset download", page: "settings_backup", where: "Settings, LooscidID" },
   { l: "Cherry", w: "intelligence ai cherry assistant artificial intelligence", page: "settings_intelligence", where: "Settings, Customization" },
   { l: "Cherry on or off", w: "ai cherry turn on off enable disable assistant opt in", page: "settings_ai_cherry", focus: "ai-on", where: "Settings, Cherry, Cherry" },
   { l: "Learn from my habits", w: "ai cherry habits habit learning tips clear", page: "settings_ai_cherry", focus: "ai-habits", where: "Settings, Cherry, Cherry" },
@@ -2019,7 +2022,7 @@ function lcSettingIndex() {
   (Looscid.LC_PRIV_SECS || []).forEach(function (p) { out.push({ l: p[1], w: "privacy " + (p[2] || ""), where: "Settings, Privacy & Security", page: "settings_privacy", priv: p[0], isPage: true }); });
   // Oct 31 2026: the key and login pages lived in Security. Nov 8 2026: they live in Privacy & Security now, and the search
   // says so ("Login methods, Settings, Privacy & Security"); Back from them goes there too (from: "privsec").
-  (Looscid.LID_TABS || []).forEach(function (t) { if (t[0] === "keys" || t[0] === "home") return; const par = (Looscid.LID_PARENT || {})[t[0]]; out.push({ l: t[1], w: "looscidid account " + t[0] + (t[0] === "security" ? " security key passcode password login secret nsec backup sign in sign out server session" : ""), where: par === "privsec" ? "Settings, Privacy & Security" : "Settings, LooscidID", page: "settings_account", data: par === "privsec" ? { tab: t[0], from: "privsec" } : { tab: t[0] }, isPage: true }); });
+  (Looscid.LID_TABS || []).forEach(function (t) { if (t[0] === "keys" || t[0] === "home") return; const par = (Looscid.LID_PARENT || {})[t[0]]; out.push({ l: t[1], w: "looscidid account " + t[0] + (t[0] === "methods" ? " connected apps" : "") + (t[0] === "security" ? " security key passcode password login secret nsec backup sign in sign out server session" : ""), where: par === "privsec" ? "Settings, Privacy & Security" : "Settings, LooscidID", page: "settings_account", data: par === "privsec" ? { tab: t[0], from: "privsec" } : { tab: t[0] }, isPage: true }); });
   out.forEach(function (e) { e.where = lcIosWhere(e.where); if (e.page && !e.focus && !e.reset) e.isPage = true; });
   return out;
 }
@@ -2039,7 +2042,7 @@ function lcIosWhere(w) {
     .replace(/^Settings, Customization, Media and translation/, "Settings, Customization, Media")
     .replace(/^Settings, Accessibility, Motion and seizure/, "Settings, Accessibility, Motion").replace(/^Settings, Accessibility, Motor and switch/, "Settings, Accessibility, Motor")
     .replace(/^Settings, Accessibility, Commandbar/, "Settings, General, Commandbar").replace(/^Settings, Keyboard shortcuts/, "Settings, General, Keyboard")
-    .replace(/^Settings, Settings backup/, "Settings, General, Backup").replace(/^Settings, Looscid Labs/, "Settings, General, Labs")
+    .replace(/^Settings, Settings backup/, "Settings, LooscidID, Download and back up").replace(/^Settings, Looscid Labs/, "Settings, General, Labs")
     .replace(/^Settings, Tab Bar/, "Settings, Customization, Tab Bar").replace(/^Settings, Profile Tabs/, "Settings, Customization, Profile Tabs")
     .replace(/^About Looscid/, "Settings, General, About").replace(/^Alerts tab, Messages/, "Settings, Chats").replace(/^Alerts tab, Alerts settings/, "Settings, Alerts").replace(/^Alerts tab$/, "Settings")
     // Nov 8 2026 (Carter): Cherry's settings moved into Customization, and Chats' one setting lives in Privacy & Security.
@@ -2178,7 +2181,7 @@ const PRIVACY_CONTENT = `<p><strong>Last updated: October 26, 2026</strong></p>
 <p>No ads, no ad trackers, and I never sell or share your data. Looscid sends no crash reports or usage data, so it doesn't ask you about them either.</p>
 <h2>Your choices</h2>
 <ul>
-<li>Export or import all your settings in Settings, General, Backup.</li>
+<li>Export or import all your settings in Settings, LooscidID, Download and back up.</li>
 <li>Delete everything Looscid saved on this device in Settings, LooscidID, Data.</li>
 <li>Remove a linked login method, key or handle any time in Settings, LooscidID, Keys and IDs.</li>
 </ul>
@@ -2660,9 +2663,14 @@ const LC_ROUTES = [
   // Looscid server, sync), so old links and guesses open it too.
   ["settings_rem", "Settings/LooscidID/Rem"], ["settings_rem", "Settings/Rem"], ["settings_rem", "Settings/Server"], ["settings_rem", "Settings/Looscid-Server"], ["settings_rem", "Settings/Sync"],
   ["settings_rem", "Settings/LooscidID/Server"], ["settings_rem", "Settings/Privacy-and-Security/Rem"],
-  ["settings_account", "Settings/Privacy-and-Security/Keys"], ["settings_account", "Settings/Privacy-and-Security/Passcode"], ["settings_account", "Settings/Privacy-and-Security/Backup-File"],
-  ["settings_account", "Settings/Privacy-and-Security/Login-Methods"], ["settings_account", "Settings/Privacy-and-Security/Devices"], ["settings_account", "Settings/Privacy-and-Security/Security-Checkup"],
-  ["settings_account", "Settings/LooscidID/Data"], ["settings_account", "Settings/LooscidID/Connectionbase"],
+  ["settings_account", "Settings/Privacy-and-Security/Keys"], ["settings_account", "Settings/Privacy-and-Security/Passcode"],
+  ["settings_account", "Settings/Privacy-and-Security/Login-Methods"], ["settings_account", "Settings/Privacy-and-Security/Security-Checkup"],
+  ["settings_account", "Settings/LooscidID/Data"], ["settings_account", "Settings/LooscidID/Bridges"], ["settings_account", "Settings/LooscidID/Connectionbase"],
+  // Nov 8 2026 (Carter, 8:55 PM, the LooscidID cleanup): Connected apps joined Login methods (its old addresses open Login
+  // methods), and Devices is hidden until it's real (its address opens Privacy & Security).
+  ["settings_account", "Settings/LooscidID/Connected-Apps"], ["settings_privacy", "Settings/Privacy-and-Security/Devices"], ["settings_privacy", "Settings/LooscidID/Devices"],
+  // Download and back up: one screen for every way to save your stuff. /Settings/Backup and the Backup file address open it.
+  ["settings_backup", "Settings/LooscidID/Download-and-Back-Up"], ["settings_backup", "Settings/Privacy-and-Security/Backup-File"], ["settings_backup", "Settings/LooscidID/Backup-File"],
   ["settings_customizability", "Settings/Customization"], ["settings_customizability", "Settings/Customizability"],
   // Nov 8 2026 (Carter): Mode (Local or Rem) is a row in Customization; /Settings/Mode opens Customization on that row.
   ["settings_customizability", "Settings/Mode"], ["settings_customizability", "Settings/Customization/Mode"], ["settings_cz_order", "Settings/Customization/Settings-Order"], ["settings_cz_theme", "Settings/Customizability/Theme"], ["settings_cz_feeds", "Settings/Customizability/Feeds"],
@@ -2695,12 +2703,12 @@ LC_ROUTES.unshift.apply(LC_ROUTES, LC_ROUTES.filter(function (x) { return /^Sett
 const LC_SUB_ROUTES = [
   ["Settings/Privacy-and-Security/Passcode", { tab: "keys", focus: "nostr-lock-h", from: "privsec" }],
   ["Settings/Privacy-and-Security/Keys", { tab: "keys", from: "privsec" }],
-  ["Settings/Privacy-and-Security/Backup-File", { tab: "backup", from: "privsec" }],
   ["Settings/Privacy-and-Security/Login-Methods", { tab: "methods", from: "privsec" }],
-  ["Settings/Privacy-and-Security/Devices", { tab: "devices", from: "privsec" }],
   ["Settings/Privacy-and-Security/Security-Checkup", { tab: "security", from: "privsec" }],
   ["Settings/LooscidID/Data", { tab: "data" }],
-  ["Settings/LooscidID/Connectionbase", { tab: "connectionbase" }], // Nov 8 2026: the bridges, linked from the Rem screen
+  ["Settings/LooscidID/Bridges", { tab: "connectionbase" }], // Nov 8 2026: Bridges (it was Connectionbase), linked from the Rem screen
+  ["Settings/LooscidID/Connectionbase", { tab: "connectionbase" }],
+  ["Settings/LooscidID/Connected-Apps", { tab: "methods" }],
 ];
 function lcSubRouteFor(data) {
   if (!data || !data.tab) return null;
@@ -2801,7 +2809,7 @@ function lcMoreSections(o) {
       { id:"customization", grp:"you", icon:"Customizability", label:"Customization", action(){onClose();navigate("settings_customizability");} },
       // Nov 8 2026 (Carter, 8:44 PM: "Customization. ... Cherry also live there"): Cherry's settings are a row in Customization
       // now (LC_CZ_CATS), not a top-level row; the same screen, and Back from it goes to Customization.
-      { id:"looscidid", grp:"id", icon:"LooscidID", label:"LooscidID", sub:"Profile, Rem, Connectionbase, connected apps and data", action(){onClose();navigate("settings_account");} },
+      { id:"looscidid", grp:"id", icon:"LooscidID", label:"LooscidID", sub:"Profile, Bridges, Rem and your data", action(){onClose();navigate("settings_account");} },
       // Oct 31 2026 (Carter, 11:28 PM) Security had its own row under the LooscidID card, and LooscidID had a Security row
       // too. Nov 8 2026 (Carter: "We have a security in 2 place"): both are gone; your key, passcode, login methods, backup
       // file, Rem, devices and Security checkup are in Privacy & Security now (the row above).
@@ -2965,7 +2973,7 @@ Looscid.LcMorePage = LcMorePage;
 const LC_SET_GRP_FOOT = {
   talk: "How Looscid tells you about new Dreams, replies and chats, and the earcons it plays.",
   you: "How Looscid works with your screen reader, how it looks, who can reach you, and Cherry, your assistant on this device.",
-  gen: "About, Updates, Keyboard, Backup, Labs, Commandbar and Reset.",
+  gen: "About, Updates, Keyboard, Download and back up, Labs, Commandbar and Reset.",
   help: "Guides for getting started, commands, Cherry, earcons and accessibility, and how to get help.",
 };
 // Our own line icons (the Ic set) on small colored tiles, iOS-style. Decoration only (aria-hidden).
@@ -3123,8 +3131,12 @@ function lcModeRow(id, onClick) {
 Object.assign(Looscid, { LcI27Row, LcI27Glyph, LcI27Header, lcI27Cards, lcMyNpub, lcNpubShort, lcCopyNpub, LcNpubLine, useServerTick, lcModeRow, LC_I27_ROW });
 function lcSetRowO(it) { return { id: lcSetRowId(it.label), k: it.id, label: it.label, onClick: it.action, value: typeof it.value === "function" ? it.value() : it.value }; }
 /* Round 7.38 / Oct 31 2026: the LooscidID card reads like iOS's Apple Account card: your name, your @handle, your npub
-   (with its own Copy button), then "LooscidID, Connectionbase, and more" (Security moved into Privacy & Security, Nov 8 2026). */
-const LC_SET_ID_SUB = "LooscidID, Rem, Connectionbase, and more";
+   (with its own Copy button), then "Profile, Bridges, Rem and your data" (Security moved into Privacy & Security, Nov 8 2026). */
+// Nov 8 2026 (Carter, 8:55 PM: the LooscidID cleanup): one description for LooscidID everywhere (this card, the Settings
+// row's line, the More menu and LooscidID's own footer).
+const LC_LID_DESC = "Profile, Bridges, Rem and your data";
+Looscid.LC_LID_DESC = LC_LID_DESC;
+const LC_SET_ID_SUB = LC_LID_DESC;
 function LcSettingsHome({ s, navigate, onBack }) {
   useSetOrderTick(); useServerTick();
   const [q, setQ0] = useState(function () { return Looscid.LC_SETFIND_Q || ""; });
@@ -3134,11 +3146,13 @@ function LcSettingsHome({ s, navigate, onBack }) {
   const idItem = items.find(function (it) { return it.grp === "id"; }), help = items.filter(function (it) { return it.grp === "help"; });
   const logout = items.filter(function (it) { return it.grp === "logout"; });
   const sec = items.filter(function (it) { return it.grp === "sec"; });
-  const handle = me.handle ? "@" + String(me.handle).replace(/^@/, "") : "";
-  const name = me.name || me.displayName || "Dreamor";
-  const np = lcMyNpub();
+  const guest = !!(Looscid.lcIsGuest && Looscid.lcIsGuest());
+  const handle = !guest && me.handle ? "@" + String(me.handle).replace(/^@/, "") : "";
+  const name = guest ? "Guest" : (me.name || me.displayName || "Dreamor");
+  const np = guest ? "" : lcMyNpub();
   const idLi = idItem ? lh('li', { key: "looscidid", className: "mli lc-i27-li lc-g-first lc-g-last lc-i27-idli" },
-    // Its name, from its own words: "Carter, @2three1y, npub1…, LooscidID, Rem, Connectionbase, and more".
+    // Its name, from its own words: "Carter, @2three1y, npub1…, Profile, Bridges, Rem and your data". A Guest has no
+    // LooscidID (Carter, Nov 8 2026: "Guest get no ID"), so a Guest's card has no handle and no npub: "Guest, Profile, ...".
     lh('button', { type: "button", id: lcSetRowId(idItem.label), className: "mitem lc-i27-row lc-i27-id", onClick: idItem.action, "aria-label": lcJoinName(name, handle, np ? lcNpubShort(np) : "", LC_SET_ID_SUB) || undefined },
       lh('span', { className: "lc-i27-av", "aria-hidden": "true" }, String(me.initials || name.charAt(0) || "D").slice(0, 2)),
       lh('span', { className: "lc-i27-txt" },
@@ -3146,7 +3160,7 @@ function LcSettingsHome({ s, navigate, onBack }) {
         handle ? lh('span', { className: "lc-i27-sub" }, handle) : null,
         lh('span', { className: "lc-i27-sub" }, LC_SET_ID_SUB)),
       lh(LcI27Glyph, { g: "chev", size: 14, cls: "lc-i27-chev" })),
-    lh(LcNpubLine, { np: np, id: "set-npub" })) : null;
+    guest ? null : lh(LcNpubLine, { np: np, id: "set-npub" })) : null;
   const go = function (it) { return lcSetRowO(it); };
   // Nov 8 2026 (Carter, 8:10 PM: "the thing by LooscidID should get removed"): the Mode row (Local or Server) that sat under
   // the LooscidID card is gone; Rem has its own screen in LooscidID now, and its row there says Local or Syncing.
@@ -5819,7 +5833,7 @@ function lcRegistryIntent(n, isOn, isOff) {
   const a = Looscid.A11Y_NOW, t = " " + n + " "; let m;
   // reset
   if ((m = /^(reset|restore)( all)? (.+?)( settings| section)?( to defaults?| defaults?)?$/.exec(n)) || /^reset( all)?( settings)?$/.test(n)) {
-    if (/^reset( all)?( settings)?$/.test(n) || (m && /^(all|everything|all settings)$/.test(m[3]))) return { say: "To reset every setting, open Settings, General, Backup, and choose Reset all settings. To reset one section, say reset and its name, like reset audio or reset speech." };
+    if (/^reset( all)?( settings)?$/.test(n) || (m && /^(all|everything|all settings)$/.test(m[3]))) return { say: "To reset every setting, open Settings, LooscidID, Download and back up, and choose Reset. To reset one section, say reset and its name, like reset audio or reset speech." };
     const sec = lcFindSection(m[3]); if (!sec) return null;
     return { patch: lcSectionDefaults(sec), say: lcSectionTitle(sec) + " is back to its defaults." };
   }
@@ -6634,7 +6648,8 @@ const LC_PLACES = {
   customizability: { label: "Customization settings", page: "settings_customizability" },
   account: { label: "LooscidID", page: "settings_account" },
   privacy: { label: "Privacy & Security", page: "settings_privacy" },
-  rem: { label: "Rem settings", page: "settings_rem" }, // Nov 8 2026: Rem's own Settings screen
+  rem: { label: "Rem settings", page: "settings_rem" }, // Nov 8 2026: Rem's own screen, in LooscidID
+  bridges: { label: "Bridges", page: "settings_account", data: { tab: "connectionbase" } }, // Nov 8 2026: it was Connectionbase
   profile: { label: "your profile", page: "profile" },
   terminal: { label: "Commandbar", page: "terminal" },
   about: { label: "About Looscid", page: "settings_about" },
@@ -6652,7 +6667,7 @@ const LC_PLACES = {
   chatsettings: { label: "Who can message me, in Privacy & Security", page: "settings_messages" }, // Nov 8 2026: opens Permissions there
   tabbar: { label: "Tab Bar settings", page: "settings_tabbar" }, // build 151 (#75)
   profiletabs: { label: "Profile Tabs settings", page: "settings_profiletabs" }, // build 152 prep (#98)
-  backup: { label: "Backup settings", page: "settings_backup" },
+  backup: { label: "Download and back up", page: "settings_backup" },
   alertsettings: { label: "Alerts settings", page: "settings_notifications" },
   intelligence: { label: "Cherry settings", page: "settings_intelligence" },
   cherrysettings: { label: "Cherry settings, Cherry", page: "settings_ai_cherry" },
@@ -6682,7 +6697,7 @@ const LC_EXACT = { "open commandbar": "terminal", "commandbar": "terminal", "ope
   // Round 7.37 (#176): the new Settings names; the old words above stay as aliases.
   "open general": "general", "open general settings": "general", "open updates": "updates", "open software update": "updates", "check updates settings": "updates",
   "open customization": "customization", "open customization settings": "customization", "open settings order": "settingsorder", "settings order": "settingsorder",
-  "open chats settings": "chatsettings", "open chat settings": "chatsettings", "open keyboard": "keyboard", "open earcons": "audio", "open privacy": "privacy", "open who can message me": "chatsettings", "open rem": "rem", "open rem settings": "rem", "open server": "rem", "open looscid server": "rem", "open permissions": "privacy", "open quiet hours": "alertsettings", "open alerts settings": "alertsettings", "import settings": "backup",
+  "open chats settings": "chatsettings", "open chat settings": "chatsettings", "open keyboard": "keyboard", "open earcons": "audio", "open privacy": "privacy", "open who can message me": "chatsettings", "open rem": "rem", "open bridges": "bridges", "open connectionbase": "bridges", "open download and back up": "backup", "open rem settings": "rem", "open server": "rem", "open looscid server": "rem", "open permissions": "privacy", "open quiet hours": "alertsettings", "open alerts settings": "alertsettings", "import settings": "backup",
   "open braille": "braille", "open braille settings": "braille", "open screen reader": "screenreader", "open screen reader settings": "screenreader", "open screen reader and braille": "screenreader", "open sense": "screenreader", "sense": "screenreader", "sense settings": "screenreader",
   "open credits": "credits", "credits": "credits", "open source": "credits", "licenses": "credits",
   "open vision": "vision", "open hearing": "hearing", "open motion": "motion", "open motion and seizure": "motion", "open motor": "motor", "open motor and switch": "motor", "open terminal settings": "terminalsettings",
@@ -8134,7 +8149,7 @@ Looscid.SETTINGS_MENU_ITEM = SETTINGS_MENU_ITEM;
 /* Round 7.37 (#176): a page one level down (General, Keyboard; Customization, Tab Bar; Accessibility, Vision...) opened
    straight from Search, Commandbar or a link goes Back up one level, like iOS: to its parent page, on the row for it. */
 const SETTINGS_PARENT = {
-  settings_keyboard: ["settings_general", "set-gen-keyboard"], settings_backup: ["settings_general", "set-gen-backup"], settings_labs: ["settings_general", "set-gen-labs"],
+  settings_keyboard: ["settings_general", "set-gen-keyboard"], settings_backup: ["settings_account", "lid-row-backup"], settings_labs: ["settings_general", "set-gen-labs"],
   settings_updates: ["settings_general", "set-gen-updates"], settings_a11y_terminal: ["settings_general", "set-gen-commandbar"],
   // Nov 8 2026: Cherry's settings live in Customization now, so Back from them goes there, onto the Cherry row.
   settings_intelligence: ["settings_customizability", "lc-cz-cats-cherry"],
@@ -9037,7 +9052,7 @@ useEffect(() => {
       settings_profiletabs: "Profile Tabs",
       settings_apps: "Apps",
       settings_messages: "Chats",
-      settings_backup: "Backup",
+      settings_backup: "Download and back up",
       settings_cherry: "Cherry",
       settings_about: "About",
       settings_social: "Social",
