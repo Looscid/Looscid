@@ -1701,6 +1701,8 @@ const LC_RESET_G = {
   quiet: { l: "Quiet hours", items: function () { return lcResetKeyItems("quiet"); } },
   cats: { l: "Category order", items: function () { return [{ id: "catOrder", l: "Category order and hidden categories on Messages and Alerts", run: lcLsDel(["looscid_msg_cat_order", "looscid_msg_cat_hidden", "looscid_alert_cat_order", "looscid_alert_cat_hidden"], "looscid:cats") }]; } },
   perm: { l: "Permissions", items: function () { return lcResetKeyItems("perm").concat([{ id: "audCustom", l: "Custom audience lists", run: function () { try { Object.keys(localStorage).filter(function (k) { return k.indexOf("looscid_aud_custom_perm_") === 0; }).forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {} window.dispatchEvent(new CustomEvent("looscid:aud")); } }]); } },
+  pchats: { l: "Chats", items: function () { return lcResetKeyItems("pchats"); } },
+  pcherry: { l: "What Cherry can see", items: function () { return lcResetKeyItems("pcherry"); } },
   pmedia: { l: "Media and content", items: function () { return lcResetKeyItems("pmedia"); } },
   blocked: { l: "Blocked", items: function () { return [["dreamers", "Blocked Dreamors"], ["circles", "Blocked Circles"], ["words", "Blocked words"]].map(function (x) { return { id: "bl_" + x[0], l: x[1], run: function () { lcBlockedSet(x[0], []); } }; }); } },
   filters: { l: "Muted words and content warnings", items: function () { return lcResetKeyItems("filters"); } },
@@ -1726,7 +1728,7 @@ const LC_RESET_SECTIONS = [
   ["sounds", "Earcons", ["snd_volume", "snd_pack", "snd_events", "snd_haptics"]],
   ["customizability", "Customization", ["theme", "feeds", "menu", "posting", "media"]],
   ["alerts", "Alerts", ["alertTypes", "quiet", "cats"]],
-  ["privacy", "Privacy", ["perm", "pmedia", "blocked", "filters"]],
+  ["privacy", "Privacy", ["perm", "pchats", "pcherry", "pmedia", "blocked", "filters"]],
   ["intelligence", "Intelligence", ["ai", "cherry"]],
   ["apps", "Apps", ["apps"]],
   ["keyboard", "Keyboard", ["keyboard"]],
@@ -1940,7 +1942,8 @@ const LC_FIND_STATIC = [
   { l: "Blocked Dreamors", w: "block dreamor block user blocked list unblock", page: "settings_privacy", priv: "blocked", privTab: "dreamers", focus: "priv-bl-dreamers-in", where: "Settings, Privacy & Security, Blocked and muted" },
   { l: "Blocked Circles", w: "block circle blocked circles", page: "settings_privacy", priv: "blocked", privTab: "circles", focus: "priv-bl-tab-circles", where: "Settings, Privacy & Security, Blocked and muted" },
   { l: "Blocked words", w: "block word blocked words hide words everywhere", page: "settings_privacy", priv: "blocked", privTab: "words", focus: "priv-bl-words-in", where: "Settings, Privacy & Security, Blocked and muted" },
-  { l: "Forget what Cherry knows about my media", w: "cherry forget media", page: "settings_privacy", priv: "pmedia", focus: "priv-cherry-forget", where: "Settings, Privacy & Security, Media and content" },
+  { l: "Forget what Cherry knows about my media", w: "cherry forget media", page: "settings_privacy", priv: "pcherry", focus: "priv-cherry-forget", where: "Settings, Privacy & Security, What Cherry can see" },
+  { l: "Forget what Cherry knows about my media", w: "cherry forget media", page: "settings_ai_cherry", focus: "priv-cherry-forget", where: "Settings, Customization, Cherry, Cherry" },
   { l: "Customization", w: "customizability themes feeds dreaming posting media tabs", page: "settings_customizability", where: "Settings" },
   // Round 7.16 (#216): what moved here from above the feeds
   { l: "Show following, Networks and Feed tabs", w: "show following for you networks federated nostr pin a tab feed tabs pinned tabs", page: "settings_cz_feeds", focus: "fy-show-following", where: "Settings, Customization, Feeds" },
@@ -1953,7 +1956,7 @@ const LC_FIND_STATIC = [
   { l: "Tab Bar", w: "tab bar tabbar bottom tabs order reorder hide show custom tab pinned tab move up move down", page: "settings_tabbar", where: "Settings, Customization" },
   { l: "Profile Tabs", w: "profile tabs order reorder dreams replies circles redreams media liked lists followed threads about move up move down", page: "settings_profiletabs", where: "Settings, Customization" },
   // Round 7.33
-  { l: "Show followed threads on my profile", w: "followed threads follow thread profile show hide privacy", page: "settings_privacy", priv: "pthreads", focus: "set-showThreads", where: "Settings, Privacy & Security, Followed Threads" },
+  { l: "Show followed threads on my profile", w: "followed threads follow thread profile show hide privacy", page: "settings_privacy", priv: "pprofile", focus: "set-showThreads", where: "Settings, Privacy & Security, What's on my profile" },
   { l: "Download and back up", w: "backup back up my settings export import reset download", page: "settings_backup", where: "Settings, LooscidID" },
   { l: "Cherry", w: "intelligence ai cherry assistant artificial intelligence", page: "settings_intelligence", where: "Settings, Customization" },
   { l: "Cherry on or off", w: "ai cherry turn on off enable disable assistant opt in", page: "settings_ai_cherry", focus: "ai-on", where: "Settings, Cherry, Cherry" },
@@ -1976,8 +1979,8 @@ const LC_FIND_STATIC = [
   { l: "Insomnia Soundpack", w: "insomnia sounds sound pack soundpack chimes", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Earcons, Soundpacks", pri: true },
   { l: "Hyper Synth Soundpack", w: "synth hyper synth sounds sound pack soundpack", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Earcons, Soundpacks", pri: true },
   { l: "FastSM-inspired Soundpack", w: "fastsm fast sm fastsmrw fastsm inspired earcons sounds sound pack soundpack mastodon bluesky client", page: "settings_audio_pack", focus: "set-soundPack", where: "Settings, Earcons, Soundpacks", pri: true },
-  // Nov 8 2026: the Chats screen's one setting is in Privacy & Security, Permissions now.
-  { l: "Who can message me", w: "chats chat settings message settings messages who can message me who can dm me dms", page: "settings_privacy", priv: "perm", focus: "set-whoMessage", where: "Settings, Privacy & Security, Permissions" },
+  // Nov 8 2026: the Chats screen's one setting is in Privacy & Security. Nov 9 2026: right on that screen, under Chats.
+  { l: "Who can message me", w: "chats chat settings message settings messages who can message me who can dm me dms", page: "settings_privacy", focus: "set-whoMessage", where: "Settings, Privacy & Security, Chats" },
   // Round 7.37 (#176): the new pages.
   { l: "General", w: "general about updates keyboard backup labs reset commandbar", page: "settings_general", where: "Settings" },
   { l: "Updates", w: "software update updates check automatic version", page: "settings_updates", where: "Settings, General" },
@@ -2003,7 +2006,10 @@ function lcSettingIndex() {
     if (d.pc) { out.push({ l: d.l + " pitch cue", w: (d.al || []).join(" ") + " pitch cue cues", where: "Settings, Accessibility, Sense, " + lcSrName("speech"), page: "settings_a11y_sr", tab: "speech", focus: id }); return; }
     if (d.k === "pitchCues") { out.push({ l: d.l, w: (d.al || []).join(" ") + " " + (d.g || ""), where: "Settings, Accessibility, Sense, " + lcSrName("speech"), page: "settings_a11y_sr", tab: "speech", focus: id }); return; }
     out.push({ l: d.l, w: (d.al || []).join(" ") + " " + (d.g || ""), where: sec.where + (sp[1] ? ", " + lcSrName(sp[1]) : (sec.t && sec.where.indexOf(sec.t) < 0 ? ", " + sec.t : "")), page: sp[0], tab: sp[1], focus: id,
-      priv: sp[0] === "settings_privacy" ? (d.s === "filters" ? "blocked" : d.s) : undefined, privTab: d.s === "filters" ? "words" : undefined });
+      priv: sp[0] === "settings_privacy" ? (d.s === "filters" ? "blocked" : d.s === "pchats" ? undefined : d.s) : undefined, privTab: d.s === "filters" ? "words" : undefined });
+    // Nov 9 2026 (Carter: the same setting can live in 2 places): What Cherry can see is also on Cherry's own screen. Same
+    // switch, same saved choice, so Search lists both places.
+    if (d.s === "pcherry") out.push({ l: d.l, w: (d.al || []).join(" ") + " cherry privacy", where: "Settings, Customization, Cherry, Cherry", page: "settings_ai_cherry", focus: id });
   });
   // NexOS apps (round 5): each opens inside Looscid.
   LC_NEXOS_APPS.forEach(function (a) { out.push({ l: a.name, w: "app apps nexos " + a.id + " " + a.sub, where: "Apps", page: "nexos_app", data: a }); });
@@ -2046,7 +2052,7 @@ function lcIosWhere(w) {
     .replace(/^Settings, Tab Bar/, "Settings, Customization, Tab Bar").replace(/^Settings, Profile Tabs/, "Settings, Customization, Profile Tabs")
     .replace(/^About Looscid/, "Settings, General, About").replace(/^Alerts tab, Messages/, "Settings, Chats").replace(/^Alerts tab, Alerts settings/, "Settings, Alerts").replace(/^Alerts tab$/, "Settings")
     // Nov 8 2026 (Carter): Cherry's settings moved into Customization, and Chats' one setting lives in Privacy & Security.
-    .replace(/^Settings, Cherry/, "Settings, Customization, Cherry").replace(/^Settings, Chats/, "Settings, Privacy & Security, Permissions");
+    .replace(/^Settings, Cherry/, "Settings, Customization, Cherry").replace(/^Settings, Chats/, "Settings, Privacy & Security, Chats");
   return s;
 }
 Looscid.lcIosWhere = lcIosWhere;
@@ -2627,12 +2633,12 @@ class ErrorBoundary extends React.Component {
   }
 }
 Looscid.ErrorBoundary = ErrorBoundary;
-/* Nov 8 2026 (Carter, 8:45 PM: Chats goes into Privacy & Security): opening Chats' settings opens Privacy & Security on its
-   Permissions page, where Who can message me already was (the same saved choice), with focus on that setting. */
+/* Nov 8 2026 (Carter, 8:45 PM: Chats goes into Privacy & Security): opening Chats' settings opens Privacy & Security with
+   focus on Who can message me (the same saved choice). Nov 9 2026: it sits right on Privacy & Security now, under Chats. */
 function lcWhoMessagePrep() {
   Looscid.LC_SETTINGS_BACK = null; // Back goes up through Privacy & Security, like any of its pages
-  try { sessionStorage.setItem("looscid_priv_open", "perm"); } catch (e) {}
-  try { window.dispatchEvent(new CustomEvent("looscid:privopen", { detail: "perm" })); } catch (e) {}
+  try { sessionStorage.setItem("looscid_priv_open", "none"); } catch (e) {}
+  try { window.dispatchEvent(new CustomEvent("looscid:privopen", { detail: "" })); } catch (e) {}
   // The page puts focus on its heading when it opens, so this waits a moment and then moves it to the setting (twice, in
   // case the heading focus lands late).
   const find = function () { let el = document.getElementById("set-whoMessage"); if (el && el.tagName === "FIELDSET") el = el.querySelector("input:checked") || el.querySelector("input,button"); return el && el.offsetParent !== null ? el : null; };
@@ -2658,6 +2664,11 @@ const LC_ROUTES = [
   // screen now, Privacy & Security. /Settings/Privacy and /Settings/Security still open it. Its Security pages each have
   // their own address too (LC_SUB_ROUTES below says which LooscidID page each one opens), so help can link right to them.
   ["settings_privacy", "Settings/Security"], ["settings_privacy", "Settings/Privacy-Security"],
+  // Nov 9 2026: Privacy & Security's own pages (LC_PRIV_ROUTES below says which page each opens).
+  ["settings_privacy", "Settings/Privacy-and-Security/Permissions"], ["settings_privacy", "Settings/Privacy-and-Security/My-Profile"], ["settings_privacy", "Settings/Privacy-and-Security/Whats-On-My-Profile"],
+  ["settings_privacy", "Settings/Privacy-and-Security/Circles-on-My-Profile"], ["settings_privacy", "Settings/Privacy-and-Security/Followed-Threads"], ["settings_privacy", "Settings/Privacy-and-Security/Chats"],
+  ["settings_privacy", "Settings/Privacy-and-Security/Blocked-and-Muted"], ["settings_privacy", "Settings/Privacy-and-Security/What-Cherry-Can-See"], ["settings_privacy", "Settings/Privacy-and-Security/Cherry"],
+  ["settings_privacy", "Settings/Privacy-and-Security/Media-and-Content"],
   // Nov 8 2026 (Carter: "Rem should get it's own settings section", then 8:47 PM: inside LooscidID): Rem's own screen, at
   // /More/Settings/LooscidID/Rem. The other addresses are where it was for a bit (/Settings/Rem) and names it went by (the
   // Looscid server, sync), so old links and guesses open it too.
@@ -2710,6 +2721,15 @@ const LC_SUB_ROUTES = [
   ["Settings/LooscidID/Connectionbase", { tab: "connectionbase" }],
   ["Settings/LooscidID/Connected-Apps", { tab: "methods" }],
 ];
+/* Nov 9 2026 (Carter, 9:36 PM): Privacy & Security's own pages. "" is the main screen (Chats sits right on it). The old
+   Circles on my profile and Followed Threads pages open What's on my profile. */
+const LC_PRIV_ROUTES = [
+  ["Settings/Privacy-and-Security/Permissions", "perm"], ["Settings/Privacy-and-Security/My-Profile", "pprofile"], ["Settings/Privacy-and-Security/Whats-On-My-Profile", "pprofile"],
+  ["Settings/Privacy-and-Security/Circles-on-My-Profile", "pprofile"], ["Settings/Privacy-and-Security/Followed-Threads", "pprofile"],
+  ["Settings/Privacy-and-Security/Chats", ""], ["Settings/Privacy-and-Security/Blocked-and-Muted", "blocked"],
+  ["Settings/Privacy-and-Security/What-Cherry-Can-See", "pcherry"], ["Settings/Privacy-and-Security/Cherry", "pcherry"], ["Settings/Privacy-and-Security/Media-and-Content", "pmedia"],
+];
+Looscid.LC_PRIV_ROUTES = LC_PRIV_ROUTES;
 function lcSubRouteFor(data) {
   if (!data || !data.tab) return null;
   const m = LC_SUB_ROUTES.filter(function (x) { return x[1].tab === data.tab && (x[1].focus ? data.focus === x[1].focus : true); })[0];
@@ -2737,6 +2757,11 @@ function lcRouteFor(rel) {
   const pj = /^projects\/(.+)$/.exec(lo);
   if (pj) { const pr = (Looscid.LC_PROJECTS || []).filter(function (x) { return lcSlug(x.id || x.name).toLowerCase() === pj[1] || lcSlug(x.name).toLowerCase() === pj[1]; })[0];
     if (pr) return { page: "project", data: pr, project: pr }; }
+  // Nov 9 2026: each page of Privacy & Security has an address too, so help can link right to it (it opens that page).
+  const pv = LC_PRIV_ROUTES.filter(function (x) { return x[0].toLowerCase() === lo || "more/" + x[0].toLowerCase() === lo; })[0];
+  if (pv) { try { sessionStorage.setItem("looscid_priv_open", pv[1] || "none"); window.dispatchEvent(new CustomEvent("looscid:privopen", { detail: pv[1] })); } catch (e) {}
+    if (pv[1] === "" && Looscid.lcWhoMessagePrep && /chats$/.test(lo)) Looscid.lcWhoMessagePrep();
+    return { page: "settings_privacy", data: null }; }
   const sub = LC_SUB_ROUTES.filter(function (x) { return x[0].toLowerCase() === lo || "more/" + x[0].toLowerCase() === lo; })[0];
   if (sub) return { page: "settings_account", data: Object.assign({}, sub[1]) };
   const r = LC_ROUTES.filter(function (x) { return x[1].toLowerCase() === lo; })[0];
@@ -4192,8 +4217,12 @@ const LC_SECTIONS = {
   posting: { t: "Dreaming", d: "How writing and sending a Dream works.", where: "Settings, Customization, Dreaming", al: ["dreaming", "posting", "composer", "compose"] },
   media: { t: "Media", d: "Images, video and translation.", where: "Settings, Customization, Media", al: ["media", "translation"] },
   filters: { t: "Muted words and content warnings", d: "Words you don't want to see, and content warnings.", where: "Settings, Privacy & Security", al: ["muted words", "content warnings", "filters"] },
-  perm: { t: "Permissions", d: "Who can see, reply to and message you.", where: "Settings, Privacy & Security", al: ["permissions", "privacy"] },
-  pmedia: { t: "Media and content", d: "Who can save and reshare your media, screenshots, blur, photo details and Cherry.", where: "Settings, Privacy & Security", al: ["media and content", "media privacy", "exif", "screenshots"] },
+  perm: { t: "Permissions", d: "Who can see, reply to, follow and find you.", where: "Settings, Privacy & Security", al: ["permissions", "privacy"] },
+  // Nov 9 2026 (Carter, 9:36 PM: Privacy split into My profile, Chats and Cherry and my stuff): Chats is right on the
+  // Privacy & Security screen, and What Cherry can see is its own page there AND a section on Cherry's screen (same switches).
+  pchats: { t: "Chats", d: "Who can message you, and what they see when you're chatting.", where: "Settings, Privacy & Security", al: ["chats", "chat privacy", "messages", "dms"] },
+  pcherry: { t: "What Cherry can see", d: "Cherry runs on this device and never sends anything anywhere. Everything here is off until you turn it on.", where: "Settings, Privacy & Security", al: ["what cherry can see", "cherry privacy", "cherry and my privacy", "cherry media"] },
+  pmedia: { t: "Media and content", d: "Who can save and reshare your media, screenshots, blur and photo details.", where: "Settings, Privacy & Security", al: ["media and content", "media privacy", "exif", "screenshots"] },
   keyboard: { t: "Keyboard", d: "Built-in keys and your own shortcuts.", where: "Settings, General, Keyboard", al: ["keyboard", "shortcuts", "keyboard shortcuts"] },
   ai: { t: "Cherry", d: "Cherry, Looscid's on-device assistant.", where: "Settings, Cherry, Cherry", al: ["cherry", "ai", "intelligence"] },
   clock: { t: "Time format", d: "Clock times as 12-hour or 24-hour.", where: "Settings, Customization, Appearance", al: ["time format", "clock", "clock format"] },
@@ -4207,7 +4236,7 @@ Object.keys(LC_SECTIONS).forEach(function (k) { if (LC_SECTIONS[k].where) LC_SEC
 const LC_SECTION_PAGE = { vision: ["settings_a11y_vision"], sr_general: ["settings_a11y_sr", "general"], sr_speech: ["settings_a11y_sr", "speech"], sr_braille: ["settings_a11y_sr", "braille"],
   hearing: ["settings_a11y_hearing"], motion: ["settings_a11y_motion"], terminal: ["settings_a11y_terminal"], motor: ["settings_a11y_motor"], audio: ["settings_audio"], verbosity: ["settings_a11y_sr", "verbosity"],
   quiet: ["settings_notifications"], feeds: ["settings_cz_feeds"], posting: ["settings_cz_posting"], media: ["settings_cz_media"],
-  filters: ["settings_privacy"], perm: ["settings_privacy"], pmedia: ["settings_privacy"], keyboard: ["settings_keyboard"], ai: ["settings_ai_cherry"], clock: ["settings_cz_theme"], uschar: ["settings_cz_theme"] };
+  filters: ["settings_privacy"], perm: ["settings_privacy"], pchats: ["settings_privacy"], pcherry: ["settings_privacy"], pmedia: ["settings_privacy"], keyboard: ["settings_keyboard"], ai: ["settings_ai_cherry"], clock: ["settings_cz_theme"], uschar: ["settings_cz_theme"] };
 Looscid.LC_SECTION_PAGE = LC_SECTION_PAGE;
 /* Round 7.41 (Carter, Oct 26 2026 6:59 PM): pick the heading character, in Settings, Customization, Appearance: "Heading
    character". The same pattern everywhere (character, one space, label, one space, character). None is the same as turning
@@ -4362,10 +4391,10 @@ const LC_SET = [
   { k: "findMastodon", s: "perm", g: "Discoverability", l: "Find me by my Mastodon or fediverse username", t: "bool", d: false, id: "activitypub", al: ["find me by mastodon", "find me by fediverse"] },
   { k: "findBluesky", s: "perm", g: "Discoverability", l: "Find me by my Bluesky handle", t: "bool", d: false, id: "atproto", al: ["find me by bluesky"] },
   { k: "findPubky", s: "perm", g: "Discoverability", l: "Find me by my Pubky public key", t: "bool", d: false, id: "pubky", al: ["find me by pubky"] },
-  { k: "cherryUse", s: "perm", g: "Discoverability", l: "Let Cherry use my Dreams for suggestions", t: "bool", d: false, al: ["cherry use my dreams", "cherry suggestions from my dreams"] },
-  { k: "whoMessage", s: "perm", g: "Messages", l: "Who can message me", t: "choice", d: "following", al: ["who can message me", "who can message", "who can dm me"], o: LC_AUD_O, aud: true },
-  { k: "showOnline", s: "perm", g: "Messages", l: "Show when I'm online", t: "bool", d: false, al: ["show when i'm online", "show online", "online status"] },
-  { k: "readReceipts", s: "perm", g: "Messages", l: "Read receipts", t: "bool", d: false, al: ["read receipts"] },
+  { k: "cherryUse", s: "pcherry", g: "Your Dreams", l: "Let Cherry use my Dreams for suggestions", t: "bool", d: false, al: ["cherry use my dreams", "cherry suggestions from my dreams"] },
+  { k: "whoMessage", s: "pchats", l: "Who can message me", t: "choice", d: "following", al: ["who can message me", "who can message", "who can dm me"], o: LC_AUD_O, aud: true },
+  { k: "showOnline", s: "pchats", l: "Show when I'm online", t: "bool", d: false, al: ["show when i'm online", "show online", "online status"] },
+  { k: "readReceipts", s: "pchats", l: "Read receipts", t: "bool", d: false, al: ["read receipts"] },
   // Privacy > Media and content (round 6). Saved on this device; the photo details switch really strips them when you add a photo.
   { k: "mediaSave", s: "pmedia", g: "Saving and resharing", l: "Who can save or download my media", t: "choice", d: "nobody", o: LC_AUD_O, aud: true, al: ["who can save my media", "who can download my media", "download my media", "save my media", "media downloads"] },
   { k: "whoRedream", s: "pmedia", g: "Saving and resharing", l: "Who can Redream my Dreams", t: "choice", d: "everyone", al: ["who can redream", "redreams from"], o: LC_AUD_O, aud: true },
@@ -4373,9 +4402,9 @@ const LC_SET = [
   { k: "screenshotAsk", s: "pmedia", g: "Screenshots and blur", l: "Ask people not to screenshot my media", t: "bool", d: false, al: ["screenshot request", "ask not to screenshot", "screenshots"] },
   { k: "blurOutside", s: "pmedia", g: "Screenshots and blur", l: "Blur my images for people outside the audience", t: "bool", d: false, al: ["blur images", "blur my images", "blur outside audience"] },
   { k: "stripExif", s: "pmedia", g: "Photo details", l: "Remove location and camera details from photos", t: "bool", d: true, al: ["strip exif", "exif", "photo location", "remove location from photos", "photo details", "metadata"] },
-  { k: "cherryMediaLook", s: "pmedia", g: "Cherry and your media", l: "Let Cherry look at images in Dreams", t: "bool", d: false, cherry: true, al: ["cherry look at images", "cherry images"] },
-  { k: "cherryMediaAlt", s: "pmedia", g: "Cherry and your media", l: "Let Cherry suggest alt text for my photos", t: "bool", d: false, cherry: true, al: ["cherry alt text", "cherry suggest alt text"] },
-  { k: "cherryMediaRemember", s: "pmedia", g: "Cherry and your media", l: "Let Cherry remember media I've looked at", t: "bool", d: false, cherry: true, al: ["cherry remember media", "cherry media memory"] },
+  { k: "cherryMediaLook", s: "pcherry", g: "Your media", l: "Let Cherry look at images in Dreams", t: "bool", d: false, cherry: true, al: ["cherry look at images", "cherry images"] },
+  { k: "cherryMediaAlt", s: "pcherry", g: "Your media", l: "Let Cherry suggest alt text for my photos", t: "bool", d: false, cherry: true, al: ["cherry alt text", "cherry suggest alt text"] },
+  { k: "cherryMediaRemember", s: "pcherry", g: "Your media", l: "Let Cherry remember media I've looked at", t: "bool", d: false, cherry: true, al: ["cherry remember media", "cherry media memory"] },
 ];
 Looscid.LC_SET = LC_SET;
 const LC_SET_BY = {};
@@ -5896,7 +5925,7 @@ function lcA11yReport() {
     "Calm motion: " + o(!!a.calmMode || motionReduced()) + (systemReducedMotion() ? ", your device asks for reduced motion" : "") + ". Block flashing and strobes: " + o(a.flashSafety) + ". Three-flash limit: always enforced.",
     "Commandbar output: " + TERM_MODES[a.termOutput || "collapsible"] + ". Heading per command: " + o(a.termHeadings !== false) + ".",
     "Customizability: Feed switching: " + LC_FEED_MODES.find(function (x) { return x[0] === lcFeedMode(a.feedSwitch); })[1] + ".",
-  ].concat(["sr_general", "verbosity", "sr_speech", "sr_braille", "audio", "quiet", "feeds", "posting", "media", "filters", "perm"].map(lcSectionReport).filter(Boolean))
+  ].concat(["sr_general", "verbosity", "sr_speech", "sr_braille", "audio", "quiet", "feeds", "posting", "media", "filters", "perm", "pchats", "pcherry"].map(lcSectionReport).filter(Boolean))
    .concat([(a.shortcuts || []).length ? "Your shortcuts: " + a.shortcuts.map(function (s) { return s.keys + " runs " + s.cmd; }).join("; ") + "." : "Your shortcuts: none yet. Add them in Settings, General, Keyboard."]);
 }
 // Returns null (not a settings request), or { patch, say } / { say } / { report: lines }.
@@ -6664,7 +6693,12 @@ const LC_PLACES = {
   updates: { label: "Updates", page: "settings_updates" },
   customization: { label: "Customization settings", page: "settings_customizability" },
   settingsorder: { label: "Settings Order", page: "settings_cz_order" },
-  chatsettings: { label: "Who can message me, in Privacy & Security", page: "settings_messages" }, // Nov 8 2026: opens Permissions there
+  chatsettings: { label: "Who can message me, in Privacy & Security", page: "settings_messages" }, // Nov 9 2026: opens Privacy & Security on it, under Chats
+  // Nov 9 2026 (Carter, 9:36 PM): Privacy & Security's pages, each one command away.
+  permissions: { label: "Permissions, in Privacy & Security", page: "settings_privacy", privSec: "perm" },
+  profileprivacy: { label: "What's on my profile, in Privacy & Security", page: "settings_privacy", privSec: "pprofile" },
+  cherryprivacy: { label: "What Cherry can see, in Privacy & Security", page: "settings_privacy", privSec: "pcherry" },
+  blockedmuted: { label: "Blocked and muted, in Privacy & Security", page: "settings_privacy", privSec: "blocked" },
   tabbar: { label: "Tab Bar settings", page: "settings_tabbar" }, // build 151 (#75)
   profiletabs: { label: "Profile Tabs settings", page: "settings_profiletabs" }, // build 152 prep (#98)
   backup: { label: "Download and back up", page: "settings_backup" },
@@ -6697,7 +6731,7 @@ const LC_EXACT = { "open commandbar": "terminal", "commandbar": "terminal", "ope
   // Round 7.37 (#176): the new Settings names; the old words above stay as aliases.
   "open general": "general", "open general settings": "general", "open updates": "updates", "open software update": "updates", "check updates settings": "updates",
   "open customization": "customization", "open customization settings": "customization", "open settings order": "settingsorder", "settings order": "settingsorder",
-  "open chats settings": "chatsettings", "open chat settings": "chatsettings", "open keyboard": "keyboard", "open earcons": "audio", "open privacy": "privacy", "open who can message me": "chatsettings", "open rem": "rem", "open bridges": "bridges", "open connectionbase": "bridges", "open download and back up": "backup", "open rem settings": "rem", "open server": "rem", "open looscid server": "rem", "open permissions": "privacy", "open quiet hours": "alertsettings", "open alerts settings": "alertsettings", "import settings": "backup",
+  "open chats settings": "chatsettings", "open chat settings": "chatsettings", "open keyboard": "keyboard", "open earcons": "audio", "open privacy": "privacy", "open who can message me": "chatsettings", "open rem": "rem", "open bridges": "bridges", "open connectionbase": "bridges", "open download and back up": "backup", "open rem settings": "rem", "open server": "rem", "open looscid server": "rem", "open permissions": "permissions", "open what cherry can see": "cherryprivacy", "open cherry privacy": "cherryprivacy", "open whats on my profile": "profileprivacy", "open what's on my profile": "profileprivacy", "open profile privacy": "profileprivacy", "open blocked and muted": "blockedmuted", "open quiet hours": "alertsettings", "open alerts settings": "alertsettings", "import settings": "backup",
   "open braille": "braille", "open braille settings": "braille", "open screen reader": "screenreader", "open screen reader settings": "screenreader", "open screen reader and braille": "screenreader", "open sense": "screenreader", "sense": "screenreader", "sense settings": "screenreader",
   "open credits": "credits", "credits": "credits", "open source": "credits", "licenses": "credits",
   "open vision": "vision", "open hearing": "hearing", "open motion": "motion", "open motion and seizure": "motion", "open motor": "motor", "open motor and switch": "motor", "open terminal settings": "terminalsettings",
@@ -7951,7 +7985,7 @@ const LC_PROFILE_TABS = [{ id: "dreams", l: "Dreams" }, { id: "replies", l: "Rep
   { id: "liked", l: "Liked", sub: "On your profile everything you liked; on others' only the Dreams of yours they liked" },
   { id: "lists", l: "Lists", sub: "Your Lists on your profile; on others' only the ones they show" },
   // Round 7.33: Followed Threads, after Lists.
-  { id: "threads", l: "Followed Threads", sub: "The threads you follow; others see them only when Show followed threads on my profile is on, in Privacy" }, { id: "about", l: "About" }];
+  { id: "threads", l: "Followed Threads", sub: "The threads you follow; others see them only when Show followed threads on my profile is on, in Privacy & Security, What's on my profile" }, { id: "about", l: "About" }];
 function lcProfileTabsAll() {
   const v = lcJsonLs(LC_PROFILE_TABS_KEY, {}) || {}, order = Array.isArray(v.order) ? v.order.map(String) : [], out = [];
   order.forEach(function (id) { const t = LC_PROFILE_TABS.find(function (x) { return x.id === id; }); if (t && out.indexOf(t) < 0) out.push(t); });
@@ -8408,12 +8442,12 @@ useEffect(() => {
     if (target === "dp") { Looscid.LC_DP_BACK = Looscid.LC_DP_BACK_NEXT || null; Looscid.LC_DP_BACK_NEXT = null; } // the old separate About page is gone: one About Looscid
     if (target === "settings_a11y_verbosity") { try { sessionStorage.setItem("looscid_sr_tab", "verbosity"); window.dispatchEvent(new CustomEvent("looscid:srtab", { detail: "verbosity" })); } catch (e) {} target = "settings_a11y_sr"; } // round 6: Verbosity is a tab
     if (target === "settings_cherry") target = "settings_ai_cherry"; // round 5: Cherry lives in Settings, Cherry
-    // Nov 8 2026 (Carter): Chats' one setting, Who can message me, lives in Privacy & Security, Permissions now.
+    // Nov 8 2026 (Carter): Chats' one setting, Who can message me, lives in Privacy & Security now (under Chats).
     if (target === "settings_messages") { lcWhoMessagePrep(); target = "settings_privacy"; data = null; }
     if (target === "settings_cherry_algo") target = "settings_labs";
     // Round 6 fixes: More > Cherry while Cherry is off opens Intelligence; Back from there returns to the More menu on Cherry.
     if (target !== "cherry" && (target !== "settings" || openSettings)) cherryOffMenu.current = false;
-    if (target === "cherry" && !lcAiOn()) { cherryOffMenu.current = !!showMenuRef.current; target = "settings_ai_cherry"; setTimeout(function () { announce("Cherry is off. Turn it on here, in Intelligence."); }, 400); }
+    if (target === "cherry" && !lcAiOn()) { cherryOffMenu.current = !!showMenuRef.current; target = "settings_ai_cherry"; setTimeout(function () { announce("Cherry is off. Turn it on here."); }, 400); }
     const cur = pageRef.current;
     // Round 12 (QA round 11): leaving Discover keeps what you typed there, so Back to Discover brings it back.
     if (cur === "discover" && target !== "discover") { const ds = Looscid.LC_DISCOVER_ST; Looscid.lcDiscLeft = ds ? { q: ds.q || "", tab: ds.tab, filters: (ds.filters || []).slice() } : null; }
@@ -8731,7 +8765,7 @@ useEffect(() => {
     const wel = rel ? lcWelcomeFor(rel) : false;
     if (wel) { rel = "/"; Looscid.lcWelcomeAt = true; setShowWelcome(true); }
     let r = rel ? lcRouteFor(rel) : null;
-    // Nov 8 2026: /Settings/Chats opens Privacy & Security, Permissions, on Who can message me (the Chats row is gone).
+    // Nov 8 2026: /Settings/Chats opens Privacy & Security on Who can message me (the Chats row is gone; it's under Chats).
     if (r && r.page === "settings_messages") { lcWhoMessagePrep(); r = { page: "settings_privacy", data: null }; }
     if (r && r.page === "settings_customizability" && /(^|\/)(settings\/mode|settings\/customization\/mode)\/?$/i.test(rel || "")) { try { sessionStorage.setItem("looscid_cat_from_lc-cz-cats", "mode"); } catch (e) {} }
     if (r && r.missing) setTimeout(() => announce(r.missing), 800);
@@ -8856,6 +8890,8 @@ useEffect(() => {
       if (LC_PLACES[r.go].alertsTab) lcSetAlertsTab(LC_PLACES[r.go].alertsTab, true);
       if (LC_PLACES[r.go].srTab) { try { sessionStorage.setItem("looscid_sr_tab", LC_PLACES[r.go].srTab); window.dispatchEvent(new CustomEvent("looscid:srtab", { detail: LC_PLACES[r.go].srTab })); } catch (e) {} } else if (LC_PLACES[r.go].page === "settings_a11y_sr") { try { sessionStorage.removeItem("looscid_sr_tab"); window.dispatchEvent(new CustomEvent("looscid:srtab", { detail: "" })); } catch (e) {} }
       const pl = LC_PLACES[r.go], target = pl.root ? (pl.root === "circles" ? "groups" : pl.root) : pl.page;
+      if (pl.privSec !== undefined && Looscid.lcOpenPrivSec) Looscid.lcOpenPrivSec(pl.privSec); // Nov 9 2026: one page of Privacy & Security
+      else if (pl.page === "settings_privacy" && Looscid.lcOpenPrivSec) Looscid.lcOpenPrivSec("");
       if (target !== page || pl.data) {
         const ta = areaOfPage(target);
         if (!cmdSound() && (!ta || ta === areaOfPage(page))) Earcon.play("run");

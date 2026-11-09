@@ -1356,19 +1356,22 @@ function LcCirclesPrivacy() {
 // Round 7.37 (#176, Carter Oct 26 2026: every section drills into its own page, like iOS): Privacy's sections are rows now,
 // not an accordion. Each opens its own page with Back (focus comes back to its row). Search, Commandbar and Inbox still open
 // a section straight away through looscid_priv_open and the looscid:privopen event, as before.
-const LC_PRIV_SECS = [["perm", "Permissions", "who can see reply follow mention tag message online read receipts find me discoverability"], ["blocked", "Blocked and muted", "block mute words filters"],
-  ["pmedia", "Media and content", "save download screenshots blur photo details exif cherry"], ["pcircles", "Circles on my profile", "circles profile"], ["pthreads", "Followed Threads", "followed threads profile"]];
+const LC_PRIV_SECS = [["perm", "Permissions", "who can see reply follow mention tag find me discoverability my profile"], ["pprofile", "What's on my profile", "circles on my profile followed threads profile what people see"],
+  ["blocked", "Blocked and muted", "block mute words filters chats"], ["pcherry", "What Cherry can see", "cherry privacy media alt text remember suggestions my stuff"],
+  ["pmedia", "Media and content", "save download screenshots blur photo details exif my stuff"]];
 Looscid.LC_PRIV_SECS = LC_PRIV_SECS;
 function PrivacySettings({navigate, authUser, onUpdateProfile}) {
   useA11yNow(); useBlocked();
   const priv = !!(authUser && authUser.private);
   Looscid.LC_FORCED = priv ? { whoSee: "followers", whoFollow: "approve" } : {};
   const rd = function (k, d) { try { return sessionStorage.getItem(k) || d; } catch (e) { return d; } };
-  const [open, setOpen0] = useState(function () { const v = rd("looscid_priv_open", ""); return v === "none" ? "" : v; });
+  // Nov 9 2026: the old Circles on my profile and Followed Threads pages open What's on my profile now.
+  const oldSec = function (v) { return v === "pcircles" || v === "pthreads" ? "pprofile" : v; };
+  const [open, setOpen0] = useState(function () { const v = rd("looscid_priv_open", ""); return v === "none" ? "" : oldSec(v); });
   const focusTo = useRef(null);
   const setOpen = function (v, back) { focusTo.current = back ? "priv-acc-" + back : (v ? "h1" : null); setOpen0(v); try { sessionStorage.setItem("looscid_priv_open", v || "none"); } catch (e) {} };
   useEffect(function () {
-    const f = function (e) { focusTo.current = null; setOpen0(e.detail || ""); };
+    const f = function (e) { focusTo.current = null; setOpen0(oldSec(e.detail || "")); };
     window.addEventListener("looscid:privopen", f); return function () { window.removeEventListener("looscid:privopen", f); };
   }, []);
   useEffect(function () { const t = focusTo.current; focusTo.current = null; if (!t) return;
@@ -1378,35 +1381,51 @@ function PrivacySettings({navigate, authUser, onUpdateProfile}) {
     onToggle: function () { if (onUpdateProfile) onUpdateProfile({ private: !priv }); announce(priv ? "Private account off." : "Private account on."); } }));
   const SECS = [
     ["perm", "Permissions", function () { return lh(LcSection, { sec: "perm", bare: true, labelledBy: "priv-drill-h", noReset: true,
-      intro: priv ? "Private account is on, so Who can see my Dreams counts as Followers and Who can follow me as Approve requests." : "Who can see, reply to and message you. Saved on this device and sent with your Dreams as your preferences. Looscid is decentralized, so other apps on the same networks decide whether they follow them." }); }],
+      intro: priv ? "Private account is on, so Who can see my Dreams counts as Followers and Who can follow me as Approve requests." : "Who can see, reply to, follow and find you. Saved on this device and sent with your Dreams as your preferences. Looscid is decentralized, so other apps on the same networks decide whether they follow them." }); }],
+    // Nov 9 2026 (Carter, 9:36 PM: "number 12 ... what people see"): Circles on my profile and Followed Threads were 2 tiny
+    // rows. Now they're one page, What's on my profile, in the My profile section. Same switches, same saved choices.
+    ["pprofile", "What's on my profile", function () { return lh(LcProfileShown, null); }],
     ["blocked", "Blocked and muted", function () { return lh(LcBlockedPanel, null); }],
+    // Nov 9 2026 (Carter: "you should also be able to manage them from another screen too"): What Cherry can see is here AND
+    // on Cherry's own screen. It's the same component and the same saved switches, so a change on one shows on the other.
+    ["pcherry", "What Cherry can see", function () { return lh(LcCherryPrivacy, { navigate: navigate, from: "privsec" }); }],
     ["pmedia", "Media and content", function () { return lh(LcPrivacyMedia, { navigate: navigate }); }],
-    ["pcircles", "Circles on my profile", function () { return lh(LcCirclesPrivacy, null); }],
-    // Round 7.33 (Carter, Oct 26 2026): whether others see your Followed Threads tab.
-    ["pthreads", "Followed Threads", function () { return lh(LcShowThreadsSwitch, null); }],
   ];
+  // Which section each row of the main page is in (My profile, Chats, Cherry and my stuff).
+  const ROWS_IN = { profile: ["perm", "pprofile"], chats: ["blocked"], stuff: ["pcherry", "pmedia"] };
+  const rowsOf = function (grp, lid) { return lh('ul', { className: "mlist lc-catlist lc-ios-list", role: "list", id: lid }, ROWS_IN[grp].map(function (k) {
+      const s = SECS.find(function (x) { return x[0] === k; });
+      return lh('li', { key: s[0], className: "mli" },
+        lh('button', { type: "button", id: "priv-acc-" + s[0], className: "mitem lc-cat lc-ios-row", onClick: function () { setOpen(s[0]); } },
+          lh('span', { className: "mitem-lbl" }, s[1]), lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })));
+    })); };
   const sec = open ? SECS.find(function (s) { return s[0] === open; }) : null;
   if (sec) return lh('div', { className: "pg lc-a11y lc-ios-page", "aria-live": "off" },
     lh(BackHeader, { title: sec[1], hid: "priv-drill-h", onBack: function () { setOpen("", sec[0]); } }),
     lh('div', { id: "priv-acc-p-" + sec[0], className: "lc-acc-p lc-drill" }, sec[2]()));
-  // Nov 8 2026 (Carter: "Privacy is in security like iOS"): this is Privacy & Security now, like iOS. Privacy first (as
-  // before), then Security: the key, passcode, backup file, login methods, devices and Security checkup. Rem has its own screen.
+  // Nov 8 2026: this is Privacy & Security now. Privacy first (My profile, Chats, Cherry and my stuff), then Security: the
+  // key, passcode, backup file, login methods and Security checkup. Rem has its own screen, in LooscidID.
   return lh('div', { className: "pg lc-a11y lc-ios-page", "aria-live": "off" },
     lh(BackHeader, { title: "Privacy & Security", onBack: function () { navigate("settings"); } }),
     // Round 7.29 (Carter, Oct 26 2026): the "we care" paragraph and a real link to the Privacy Policy page (Back returns here).
     lh('p', { className: "lc-intro", id: "priv-care" }, "We care about your privacy. Your Dreams, settings and chats stay on this device until you choose to send or share them. We don't sell your data, track you or show ads."),
     lh('p', { className: "lc-intro" }, lh('a', { id: "priv-policy-link", className: "lc-link", href: (Looscid.lcPathFor ? Looscid.lcPathFor("privacy") : "#"),
       onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("privacy"); } }, "Privacy Policy")),
-    lh('h2', { className: "lc-grp-h", id: "priv-h-privacy" }, "Privacy"),
+    // Nov 9 2026 (Carter, 9:36 PM: "privacy and security should be divided like privacy sections like my profile what people
+    // see me chat whatever"): Privacy is 3 sections now, each a heading, a group and a short footer. Security stays below.
+    lh('h2', { className: "lc-grp-h", id: "priv-h-profile" }, "My profile"),
     lh('div', { className: "lc-ios-card", id: "priv-main" }, privSwitch, lh(LcShareMineSwitch, null),
       // Nov 8 2026 (Carter): Show my bug report votes publicly, a native checkbox, off by default (js/dislikes.js).
       Looscid.LcIssueVotesPublicBox && Looscid.LcSafe ? lh(Looscid.LcSafe, null, lh(Looscid.LcIssueVotesPublicBox, null)) : null),
-    lh('ul', { className: "mlist lc-catlist lc-ios-list", role: "list", id: "priv-rows" }, SECS.map(function (s) {
-      return lh('li', { key: s[0], className: "mli" },
-        lh('button', { type: "button", id: "priv-acc-" + s[0], className: "mitem lc-cat lc-ios-row", onClick: function () { setOpen(s[0]); } },
-          lh('span', { className: "mitem-lbl" }, s[1]), lh(Ic.Chv, { style: { width: 13, height: 13, color: "var(--tx3)", flexShrink: 0 }, "aria-hidden": "true" })));
-    })),
-    lh('p', { className: "lc-ios-foot" }, "Who can see and reach you, who you blocked or muted, and how your media and profile are shared. Everything here is saved on this device."),
+    rowsOf("profile", "priv-rows"),
+    lh('p', { className: "lc-ios-foot", id: "priv-f-profile" }, "What people see on your profile and who can find you. Private account means only followers you approve see your Dreams."),
+    lh('h2', { className: "lc-grp-h", id: "priv-h-chats" }, "Chats"),
+    lh('div', { className: "lc-ios-card", id: "priv-chats" }, lh(LcSection, { sec: "pchats", bare: true, labelledBy: "priv-h-chats", noReset: true, noFoot: true })),
+    rowsOf("chats", "priv-rows-chats"),
+    lh('p', { className: "lc-ios-foot", id: "priv-f-chats" }, "Who can message you, and who and what you blocked or muted everywhere in Looscid."),
+    lh('h2', { className: "lc-grp-h", id: "priv-h-stuff" }, "Cherry and my stuff"),
+    rowsOf("stuff", "priv-rows-stuff"),
+    lh('p', { className: "lc-ios-foot", id: "priv-f-stuff" }, "What Cherry can see and remember, and who can save or reshare your photos and videos. Everything here is saved on this device."),
     lh('h2', { className: "lc-grp-h", id: "priv-h-security" }, "Security"),
     lh(LcPrivSecRows, { navigate: navigate }),
     lh('p', { className: "lc-ios-foot" }, "Your Nostr key and its passcode, your backup file and how you log in. Your key never leaves this device unless you back it up."),
@@ -1506,7 +1525,7 @@ function LcBlockedPanel() {
         lh(LcSection, { sec: "filters", level: 3, noReset: true, intro: "Muted words hide Dreams from your feeds and alerts. Content warnings fold a Dream behind a Show button." })); }],
     ] }));
 }
-// Privacy > Media and content.
+// Privacy > Media and content. Nov 9 2026: Cherry's media switches moved to What Cherry can see (LcCherryPrivacy).
 function LcPrivacyMedia({ navigate }) {
   const row = function (k) { return lh(LcSetRow, { key: k, def: LC_SET_BY[k] }); };
   return lh('section', { className: "lc-grp", id: "lcs-pmedia", "aria-labelledby": "priv-acc-pmedia" },
@@ -1520,16 +1539,52 @@ function LcPrivacyMedia({ navigate }) {
     lh('h3', { className: "lc-sub-h" }, "Photo details"),
     lh('p', { className: "lc-desc" }, "Photos can carry where they were taken and which camera took them. On by default: when you add a photo, Looscid redraws it without those details before it is attached."),
     row("stripExif"),
-    lh('h3', { className: "lc-sub-h" }, "Cherry and your media"),
-    lcAiOn() ? lh('p', { className: "lc-desc" }, "All off until you turn them on. Cherry runs on this device and never sends your media anywhere.")
-      : lh(React.Fragment, null, lh('p', { className: "lc-desc" }, "Cherry is off, so these stay off."),
-        lh('button', { type: "button", className: "btn bgb lc-big", onClick: function () { navigate("settings_ai_cherry"); } }, "Turn on Cherry in Intelligence")),
+    lh('p', { className: "lc-ios-foot" }, "What Cherry can see in your media has its own page now. ",
+      lh('a', { className: "lc-link", id: "pmedia-cherry-link", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings_privacy") : "#"),
+        onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); lcOpenPrivSec("pcherry"); navigate("settings_privacy"); } }, "Choose what Cherry can see")));
+}
+// Open one page of Privacy & Security (Permissions, What Cherry can see...) the same way Search does.
+function lcOpenPrivSec(k) {
+  try { sessionStorage.setItem("looscid_priv_open", k || "none"); } catch (e) {}
+  try { window.dispatchEvent(new CustomEvent("looscid:privopen", { detail: k || "" })); } catch (e) {}
+}
+Looscid.lcOpenPrivSec = lcOpenPrivSec;
+/* Nov 9 2026 (Carter, 9:36 PM, item 12): What's on my profile. Circles on my profile and Followed Threads used to be 2 rows
+   of their own. Same switches and saved choices, one page, in Privacy & Security's My profile section. */
+function LcProfileShown() {
+  return lh('section', { className: "lc-grp", id: "lcs-pprofile", "aria-labelledby": "priv-drill-h" },
+    lh('h2', { className: "lc-grp-h", id: "pprofile-h-threads" }, "Followed Threads"),
+    lh(LcShowThreadsSwitch, null),
+    lh('h2', { className: "lc-grp-h", id: "pprofile-h-circles" }, "Circles on my profile"),
+    lh(LcCirclesPrivacy, null));
+}
+/* Nov 9 2026 (Carter, 9:36 PM + 9:38 PM: "we could put the same item in two places"): What Cherry can see. Every Cherry
+   privacy switch in one spot: using your Dreams for suggestions (it was in Permissions) and the 3 media switches plus Forget
+   (they were in Media and content). This one component shows on Privacy & Security AND on Cherry's own screen. The switches
+   save to the same settings (lcSet), so turning one off on either screen turns it off on both. */
+function LcCherryPrivacy({ navigate, from, level }) {
+  useA11yNow();
+  const [, tick] = useState(0);
+  useEffect(function () { const f = function () { tick(function (x) { return x + 1; }); }; window.addEventListener("looscid:llm", f); return function () { window.removeEventListener("looscid:llm", f); }; }, []);
+  const row = function (k) { return lh(LcSetRow, { key: k, def: LC_SET_BY[k] }); };
+  const H = level === 3 ? 'h3' : 'h2';
+  return lh('section', { className: "lc-grp", id: "lcs-pcherry", "aria-labelledby": from === "cherry" ? "pcherry-h" : "priv-drill-h" },
+    from === "cherry" ? lh(H, { className: "lc-grp-h", id: "pcherry-h" }, "What Cherry can see") : null,
+    lcAiOn() ? null : lh(React.Fragment, null, lh('p', { className: "lc-desc" }, "Cherry is off, so these stay off."),
+      // Nov 9 2026: it said "Turn on Cherry in Intelligence", the old name. Cherry's screen is in Customization now.
+      from === "cherry" ? null : lh('button', { type: "button", id: "pcherry-on", className: "btn bgb lc-big", onClick: function () { Looscid.LC_SETTINGS_BACK = null; navigate("settings_ai_cherry"); setTimeout(function () { const b = document.getElementById("ai-on"); if (b) b.focus(); }, 450); } }, "Turn on Cherry")),
+    lh('h3', { className: "lc-sub-h" }, "Your Dreams"),
+    row("cherryUse"),
+    lh('h3', { className: "lc-sub-h" }, "Your media"),
     row("cherryMediaLook"), row("cherryMediaAlt"), row("cherryMediaRemember"),
     lh('button', { type: "button", id: "priv-cherry-forget", className: "btn bgb lc-big", onClick: function () {
       try { localStorage.removeItem("looscid_cherry_media"); } catch (e) {}
       lcSet({ cherryMediaLook: false, cherryMediaAlt: false, cherryMediaRemember: false });
-      announce("Cherry forgot your media, and its media permissions are off."); } }, "Forget what Cherry knows about my media"));
+      announce("Cherry forgot your media, and its media permissions are off."); } }, "Forget what Cherry knows about my media"),
+    lh('p', { className: "lc-ios-foot" }, from === "cherry" ? "Cherry runs on this device and never sends anything anywhere. These are the same switches as What Cherry can see in Privacy & Security, so a change here shows there too."
+      : "Cherry runs on this device and never sends anything anywhere. These are the same switches as on Cherry's own screen, so a change here shows there too."));
 }
+Looscid.LcCherryPrivacy = LcCherryPrivacy;
 // Settings > Customizability > Feeds > Feed switching (Tabs / Pop-up button; Swipe was removed in Round 7.16). Stored with the accessibility prefs.
 function FeedSwitchSetting({ prefs, setPrefs }) {
   const cur = lcFeedMode(((prefs && prefs.accessibility) || {}).feedSwitch);
@@ -1685,7 +1740,7 @@ function LcCharLimits() {
 }
 function lcSetAiPref(patch) { setAIPrefs(Object.assign({}, getAIPrefs(), patch)); try { window.dispatchEvent(new CustomEvent("looscid:llm")); } catch (e) {} }
 const LC_AI_CATS = [
-  { id: "cherry", page: "settings_ai_cherry", l: "Cherry", sub: "Turn Cherry on or off, learning from your habits, privacy" },
+  { id: "cherry", page: "settings_ai_cherry", l: "Cherry", sub: "Turn Cherry on or off, learning from your habits, what Cherry can see" },
   { id: "model", page: "settings_ai_model", l: "Cherry model", sub: "Built-in, or an on-device model you download once" },
   { id: "cmd", page: "settings_ai_cmd", l: "Commandbar Answers", old: "commandbar", sub: "Cherry's answers when a command doesn't match" },
   // Build 150 (#66): Cherry's memory, tools and audit. Feed algorithm settings are not here: they are in Feeds.
@@ -1715,8 +1770,10 @@ function IntelligenceSettings({ navigate, page, prefs, setPrefs, cherryCtx }) {
       lh('h2', { className: "lc-grp-h" }, "Privacy"),
       lh('ul', { className: "lc-desc", role: "list" },
         lh('li', null, "Cherry runs in this browser. Your Dreams, messages and questions are never sent to an AI company or to Rem."),
-        lh('li', null, "An on-device model is downloaded only after you say yes, once, from Hugging Face. After that Cherry works offline."),
-        lh('li', null, "Turning Cherry off hides it everywhere. Your downloaded model stays in the browser until you clear site data.")));
+        lh('li', null, "An on-device model is downloaded only after you say yes, once. After that Cherry works offline."),
+        lh('li', null, "Turning Cherry off hides it everywhere. Your downloaded model stays in the browser until you clear site data.")),
+      // Nov 9 2026 (Carter: the same item can live in 2 places): What Cherry can see, the same switches as in Privacy & Security.
+      lh(LcCherryPrivacy, { navigate: navigate, from: "cherry" }));
   } else if (cat.id === "model") {
     body = lh(React.Fragment, null,
       lh(Looscid.CherryModelPicker, null),
@@ -1730,7 +1787,9 @@ function IntelligenceSettings({ navigate, page, prefs, setPrefs, cherryCtx }) {
         onToggle: function () { const v = !(getAIPrefs().keepChats !== false); lcSetAiPref({ keepChats: v }); announce("Save chats in Your History: " + (v ? "on" : "off") + "."); } }),
       lh('p', { className: "lc-desc", id: "ai-mem-count" }, chats.length ? Looscid.fmt(chats.length) + (chats.length === 1 ? " chat" : " chats") + " saved on this device" + (pins ? ", " + pins + " pinned." : ".") : "No chats saved on this device."),
       lh('button', { type: "button", id: "ai-mem-del", className: "btn bgb lc-big", "aria-disabled": chats.length ? undefined : "true", onClick: function () { if (!chats.length) { announce("There are no chats to delete."); return; } setAskDel(true); } }, "Delete all chats"),
-      lh('p', { className: "lc-desc" }, "Cherry keeps nothing else about you. Learned habits are in Customization, Cherry, and media memory is in Privacy, Media and content."),
+      lh('p', { className: "lc-desc" }, "Cherry keeps nothing else about you. ",
+        lh('a', { className: "lc-link", id: "ai-mem-see", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings_ai_cherry") : "#"),
+          onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("settings_ai_cherry"); setTimeout(function () { const h = document.getElementById("pcherry-h"); if (h) { h.setAttribute("tabindex", "-1"); h.focus(); } }, 450); } }, "See what Cherry can see and remember")),
       askDel ? lh(AlertDialog, { title: "Delete all chats?", message: "This deletes all " + Looscid.fmt(chats.length) + (chats.length === 1 ? " chat" : " chats") + " with Cherry from this device, pinned ones too. It can't be undone.", confirmLabel: "Delete all",
         onCancel: function () { setAskDel(false); },
         onConfirm: function () {
@@ -4446,7 +4505,7 @@ function LcVoiceRow({ def }) {
 // Round 6: no per-section Reset buttons. Each settings page has one Reset, its last item (LcResetLast).
 function LcResetBtn() { return null; }
 // A settings section: heading, its rows (optionally grouped by g with h3 subheadings), extras, Reset.
-function LcSection({ sec, level, title, intro, before, after, noReset, only, bare, labelledBy }) {
+function LcSection({ sec, level, title, intro, before, after, noReset, only, bare, labelledBy, noFoot }) {
   const defs = LC_SET.filter(function (d) { return d.s === sec && !d.hide && (!only || only.indexOf(d.k) >= 0); });
   const sfx = title && title !== LC_SECTIONS[sec].t ? "-" + String(title).toLowerCase().replace(/[^a-z0-9]+/g, "-") : "";
   const H = level === 3 ? 'h3' : 'h2', SubH = level === 3 ? 'h4' : 'h3', hid = "lcs-h-" + sec + sfx;
@@ -4459,7 +4518,7 @@ function LcSection({ sec, level, title, intro, before, after, noReset, only, bar
     after || null,
     // Touch-style settings (Oct 30 2026): the page's short line of plain text is its footer, after the rows, so moving
     // through the settings isn't broken up by a paragraph.
-    (intro || LC_SECTIONS[sec].d) ? lh('p', { className: "lc-desc lc-sec-d" }, intro || LC_SECTIONS[sec].d) : null,
+    !noFoot && (intro || LC_SECTIONS[sec].d) ? lh('p', { className: "lc-desc lc-sec-d" }, intro || LC_SECTIONS[sec].d) : null,
     noReset ? null : lh(LcResetBtn, { sec: sec, label: title }));
 }
 function BrailleStyle() {
