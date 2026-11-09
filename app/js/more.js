@@ -1678,7 +1678,8 @@ const LC_CZ_CATS = [
   { id: "feeds", page: "settings_cz_feeds", l: "Feeds", old: "feeds and home", grp: "look", sub: "How you switch feeds, For You, networks, feed tabs, calm feed" },
   { id: "menu", page: "settings_cz_menu", l: "Menu", grp: "look", sub: "Where the menu button sits, its Close buttons" },
   { id: "posting", page: "settings_cz_posting", l: "Dreaming", grp: "look", sub: "Character limit, undo send, alt text reminder, drafts" },
-  { id: "media", page: "settings_cz_media", l: "Media", old: "media and translation", grp: "look", sub: "Auto-play, translate Dreams" },
+  // Nov 9 2026 (item 10): "Media and translation", so it doesn't read like Privacy & Security's Media and content.
+  { id: "media", page: "settings_cz_media", l: "Media and translation", old: "media", grp: "look", sub: "Auto-play, translate Dreams" },
   { id: "tabbar", page: "settings_tabbar", l: "Tab Bar", grp: "tabs", sub: "Which tabs show at the bottom, and their order" },
   { id: "profiletabs", page: "settings_profiletabs", l: "Profile Tabs", grp: "tabs", sub: "The order of the tabs on profiles" },
   { id: "order", page: "settings_cz_order", l: "Settings Order", grp: "tabs", sub: "Default, Alphabetical or your own order of Settings" },
@@ -1694,6 +1695,17 @@ Looscid.LC_CZ_CATS = LC_CZ_CATS;
    where it goes (Before, After, Surround) and what it shows on (checkboxes). One space between the character and the label,
    always. None is the same as turning off Unspeakable characters in Sense. Defaults: LC_US_DEFAULT, LC_US_POS_DEFAULT and
    LC_US_ON_DEFAULT in core.js. */
+// Nov 9 2026 (item 8): Sense's link to the Heading character (it was the Unspeakable characters switch). Says what it's set to.
+function LcHeadingCharLink() {
+  useA11yNow();
+  const a = Looscid.A11Y_NOW, def = LC_SET_BY.headingChar;
+  const v = a.unspeakable === false ? "none" : (a.headingChar || (def.dflt ? def.dflt() : ""));
+  const o = (def.o || []).find(function (x) { return x[0] === v; });
+  return lh('p', { className: "lc-desc", id: "sr-uschar-line" }, "Unspeakable characters: " + (v === "none" ? "Off" : "On, " + (o ? o[1] : v)) + ". ",
+    lh('a', { className: "lc-link", id: "sr-uschar-link", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings_cz_theme") : "#"),
+      onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); if (Looscid.LC_NAV) Looscid.LC_NAV("settings_cz_theme");
+        let n = 0; const t = setInterval(function () { n++; const h = document.getElementById("set-uschar-h"); if (h && h.offsetParent !== null) { clearInterval(t); h.focus(); } else if (n > 30) clearInterval(t); }, 80); } }, "Change the heading character"));
+}
 function LcHeadingCharSettings() {
   useA11yNow();
   const off = Looscid.A11Y_NOW.unspeakable === false || Looscid.A11Y_NOW.headingChar === "none";
@@ -3250,7 +3262,7 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   const PH = function (text, help) { return help ? lh('p', { className: "lid-help lid-i27-help", id: "lid-panel-h", tabIndex: -1 }, help) : null; };
   const R = Looscid.lcI27Cards;
   const srvM = Looscid.lcServer && Looscid.lcServer.mode ? Looscid.lcServer.mode() : { on: false, sync: false, host: "", handle: "" };
-  const srvWords = Looscid.lcModeText ? String(Looscid.lcModeText(srvM)).replace(/^Mode:\s*/, "") : "";
+  const srvWords = Looscid.lcModeSub ? Looscid.lcModeSub(srvM) : "";
   let panel;
   if (tab === "home") panel = lh(React.Fragment, null,
     // Nov 7 2026 (Guest mode): a Guest has no LooscidID yet; one plain button makes it, and Restore brings one back.
@@ -4711,7 +4723,7 @@ function SrTabs({ onBack }) {
       lh(BackHeader, { title: lcSrName(cur), hid: "srtab-h", onBack: function () { setCur("", cur); } }),
       lh('div', { id: "srpanel-" + cur, className: "lc-stpanel lc-drill" },
         cur === "verbosity" ? lh(LcVerbosityPanel, null) : lh(LcSection, { sec: sec, bare: true, labelledBy: "srtab-h",
-          before: sec === "sr_braille" ? lh(React.Fragment, null, lh(BrailleStyle, null), lh('p', { className: "lc-desc" }, "Your display\u2019s own settings, like contracted braille, cells and cursor, are set in VoiceOver, TalkBack or NVDA on your device.")) : null,
+          before: sec === "sr_braille" ? lh(React.Fragment, null, lh(BrailleStyle, null), lh('p', { className: "lc-desc" }, "Your display\u2019s own settings, like contracted braille, cells and cursor, are set in VoiceOver, TalkBack or NVDA on your device.")) : sec === "sr_general" ? lh(LcHeadingCharLink, null) : null,
           after: lh(React.Fragment, null,
             sec === "sr_speech" ? lh(LcSpeechTest, null) : null,
             sec === "sr_speech" ? lh(LcPitchCuesPanel, null) : null,

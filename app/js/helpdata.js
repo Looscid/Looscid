@@ -281,7 +281,8 @@
     { id: "customize", c: "settings-privacy-backup", t: "Make Looscid fit you",
       s: "Change how Looscid looks, sounds and moves.",
       steps: [
-        "[[More/Settings/Customizability/Theme|Change colors, text and the heading character]].",
+        "[[More/Settings/Customizability/Theme|Change colors, text and the heading character]]. The heading character is the robot around headings and buttons, also called Unspeakable characters. Pick None to turn it off.",
+        "[[More/Settings/Customizability/Media|Change how media plays and how Dreams get translated]], in Media and translation.",
         "[[More/Settings/Customization|See your Mode and Cherry's settings]]. They're in Customization too, with Settings Order and the tab bar.",
         "[[More/Settings/Earcons|Change Looscid's short sounds and their volume]].",
         "[[More/Settings/Accessibility/Hearing|Swap sounds for a visual cue]]. The same switch is in Earcons too.",

@@ -2006,6 +2006,7 @@ function lcSettingIndex() {
   const out = [];
   LC_SET.forEach(function (d) {
     if (d.k === "findPubky" || d.k === "brailleStyle") return;
+    if (d.k === "unspeakable") { out.push({ l: "Unspeakable characters", w: (d.al || []).join(" ") + " heading character", where: "Settings, Customization, Appearance, Heading character", page: "settings_cz_theme", focus: "set-uschar-h" }); return; }
     const sp = LC_AUDIO_KEYPAGE[d.k] ? [LC_AUDIO_KEYPAGE[d.k]] : LC_SECTION_PAGE[d.s]; if (!sp) return;
     const sec = LC_SECTIONS[d.s];
     const id = d.k === "earconVolume" ? "a11y-volume" : (d.old ? "a11y-" : "set-") + d.k;
@@ -2054,7 +2055,8 @@ function lcIosWhere(w) {
   s = s.replace(/^Settings, (Privacy|Security)(?! &)/, "Settings, Privacy & Security") // Nov 8 2026: one Privacy & Security screen
     .replace(/^Settings, Customizability/, "Settings, Customization").replace(/^Settings, Intelligence/, "Settings, Cherry")
     .replace(/^Settings, Customization, Theme and colors/, "Settings, Customization, Appearance").replace(/^Settings, Customization, Feeds and home/, "Settings, Customization, Feeds")
-    .replace(/^Settings, Customization, Media and translation/, "Settings, Customization, Media")
+    // Nov 9 2026 (Carter approved item 10): Media is "Media and translation" again, so it doesn't read like Privacy & Security's Media and content.
+    .replace(/^Settings, Customization, Media(?! and translation)/, "Settings, Customization, Media and translation")
     .replace(/^Settings, Accessibility, Motion and seizure/, "Settings, Accessibility, Motion").replace(/^Settings, Accessibility, Motor and switch/, "Settings, Accessibility, Motor")
     .replace(/^Settings, Accessibility, Commandbar/, "Settings, General, Commandbar").replace(/^Settings, Keyboard shortcuts/, "Settings, General, Keyboard")
     .replace(/^Settings, Settings backup/, "Settings, LooscidID, Download and back up").replace(/^Settings, Looscid Labs/, "Settings, General, Labs")
@@ -2720,6 +2722,9 @@ const LC_ROUTES = [
    doesn't matter). These go first, so they're the address the app shows and shares. The old /Settings/... addresses stay
    in the list above, so old links and bookmarks still open the same screen, and the app then shows the new address. */
 LC_ROUTES.unshift.apply(LC_ROUTES, LC_ROUTES.filter(function (x) { return /^Settings(\/|$)/.test(x[1]); }).map(function (x) { return [x[0], "More/" + x[1]]; }));
+// Nov 9 2026 (Carter: /More/Settings/Help-Center was a 404): Help Center is a Settings row, so its Settings address opens it too.
+// Pushed after the More/ list, so Help Center's own address (/Help) stays the one the app shows.
+LC_ROUTES.push(["helpcenter", "More/Settings/Help-Center"], ["helpcenter", "Settings/Help-Center"]);
 // Nov 8 2026: which LooscidID page each sub address opens (data for settings_account). The first match for a page's data
 // is its address. "privsec" means Back goes to Privacy & Security.
 const LC_SUB_ROUTES = [
@@ -3161,10 +3166,15 @@ function useServerTick() { const [, t] = useState(0); useEffect(function () { co
 // The Mode row (it was the Mode line, Oct 31): "Mode", value Local or Server, and the same words the line said under it.
 function lcModeRow(id, onClick) {
   const m = Looscid.lcServer && Looscid.lcServer.mode ? Looscid.lcServer.mode() : { sync: false };
-  const words = Looscid.lcModeText ? String(Looscid.lcModeText(m)).replace(/^Mode:\s*/, "") : "";
-  return { id: id, k: "mode", label: "Mode", value: m.sync ? "Server" : "Local", sub: words, onClick: onClick };
+  return { id: id, k: "mode", label: "Mode", value: m.sync ? "Server" : "Local", sub: lcModeSub(m), onClick: onClick };
 }
-Object.assign(Looscid, { LcI27Row, LcI27Glyph, LcI27Header, lcI27Cards, lcMyNpub, lcNpubShort, lcCopyNpub, LcNpubLine, useServerTick, lcModeRow, LC_I27_ROW });
+// Nov 9 2026 (Carter: "Local" showed twice on the Rem row): the row's value already says Local or Syncing, so the line under it
+// skips the mode word ("Local." / "Rem.") and keeps the rest.
+function lcModeSub(m) {
+  const w = Looscid.lcModeText ? String(Looscid.lcModeText(m)).replace(/^Mode:\s*/, "") : "";
+  return w.replace(/^(Local|Rem|Server|Syncing)\.\s*/, "");
+}
+Object.assign(Looscid, { LcI27Row, LcI27Glyph, LcI27Header, lcI27Cards, lcMyNpub, lcNpubShort, lcCopyNpub, LcNpubLine, useServerTick, lcModeRow, lcModeSub, LC_I27_ROW });
 function lcSetRowO(it) { return { id: lcSetRowId(it.label), k: it.id, label: it.label, onClick: it.action, value: typeof it.value === "function" ? it.value() : it.value }; }
 /* Round 7.38 / Oct 31 2026: the LooscidID card reads like iOS's Apple Account card: your name, your @handle, your npub
    (with its own Copy button), then "Profile, Bridges, Rem and your data" (Security moved into Privacy & Security, Nov 8 2026). */
@@ -4226,7 +4236,7 @@ const LC_SECTIONS = {
   quiet: { t: "Quiet hours", d: "Times when Looscid stays silent.", where: "Settings, Alerts", al: ["quiet hours", "quiet"] },
   feeds: { t: "Feeds", d: "Which feeds you see and how you switch between them.", where: "Settings, Customization, Feeds", al: ["feeds", "feed"] },
   posting: { t: "Dreaming", d: "How writing and sending a Dream works.", where: "Settings, Customization, Dreaming", al: ["dreaming", "posting", "composer", "compose"] },
-  media: { t: "Media", d: "Images, video and translation.", where: "Settings, Customization, Media", al: ["media", "translation"] },
+  media: { t: "Media and translation", d: "Images, video and translation.", where: "Settings, Customization, Media and translation", al: ["media", "translation", "media and translation"] },
   filters: { t: "Muted words and content warnings", d: "Words you don't want to see, and content warnings.", where: "Settings, Privacy & Security", al: ["muted words", "content warnings", "filters"] },
   perm: { t: "Permissions", d: "Who can see, reply to, follow and find you.", where: "Settings, Privacy & Security", al: ["permissions", "privacy"] },
   // Nov 9 2026 (Carter, 9:36 PM: Privacy split into My profile, Chats and Cherry and my stuff): Chats is right on the
@@ -4295,7 +4305,10 @@ const LC_SET = [
   { k: "readingMode", s: "sr_general", l: "Reading mode", t: "bool", d: false, al: ["reading mode", "one dream at a time"],
     desc: "Shows one Dream at a time, read top to bottom. Next and Previous buttons, the left and right arrow keys, a swipe or braille Enter move between Dreams." },
   // Round 7.36 (#179, Carter): the robot character VoiceOver reads as "unspeakable", around headings, buttons, tabs, links and menus.
-  { k: "unspeakable", s: "sr_general", l: "Unspeakable characters", t: "bool", d: true, al: ["unspeakable characters", "unspeakable character", "unspeakable", "robot character", "robot icon", "robot"],
+  // Nov 9 2026 (Carter approved item 8): Unspeakable characters and Heading character were the same thing (None = off). Its
+  // home is Customization, Appearance, Heading character; Sense has a link there that says what it's set to. The saved setting
+  // and how it works didn't change (hide only takes the switch off Sense's list).
+  { k: "unspeakable", s: "sr_general", hide: true, l: "Unspeakable characters", t: "bool", d: true, al: ["unspeakable characters", "unspeakable character", "unspeakable", "robot character", "robot icon", "robot"],
     desc: "On by default. A character before and after the text of headings, buttons, tabs, links, menu buttons and menu items. It's the robot unless you pick another in Customization, Appearance, Heading character: VoiceOver reads the robot as \u201cunspeakable\u201d, braille shows a dot pattern, and on screen it's a small robot. Turn it off to remove it everywhere." },
   // Speech
   { k: "pitchCues", s: "verbosity", l: "Pitch cues", t: "bool", d: true, old: true, al: ["pitch cues", "pitch cue", "pitch changes", "pitch"],
@@ -9098,7 +9111,7 @@ useEffect(() => {
       settings_privacy: "Privacy & Security",
       settings_rem: "Rem",
       settings_customizability: "Customization", settings_cz_order: "Settings Order", settings_general: "General", settings_updates: "Updates",
-      settings_cz_theme: "Appearance", settings_cz_feeds: "Feeds", settings_cz_menu: "Menu", settings_cz_posting: "Dreaming", settings_cz_media: "Media",
+      settings_cz_theme: "Appearance", settings_cz_feeds: "Feeds", settings_cz_menu: "Menu", settings_cz_posting: "Dreaming", settings_cz_media: "Media and translation",
       settings_audio_volume: "Volume and focus sounds", settings_audio_pack: "Soundpacks", settings_audio_events: "Event earcons", settings_audio_haptics: "Music and haptics", settings_audio_alerts: "Alerts", settings_alert_filters: "Inbox filters order",
       settings_intelligence: "Cherry", settings_ai_model: "Cherry model", settings_ai_cmd: "Commandbar Answers", settings_ai_memory: "Memory", settings_ai_tools: "Tools", settings_ai_audit: "What Cherry did",
       settings_accessibility: "Accessibility",
