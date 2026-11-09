@@ -196,7 +196,7 @@ function cherryView(st, p, act) {
                     o.open ? h('ul', { id: did, className: "lc-cherry-out-d" }, o.items.map(function (t, z) { return h('li', { key: z }, t); })) : null);
                 })) : null,
                 m.confirm && !m.done ? h('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { act.confirm(i); } }, m.confirm) : null,
-                // Nov 8 2026 (Carter): Like and Dislike on each Cherry reply. This device only; they show in Liked (js/dislikes.js).
+                // Nov 8 2026 (Carter): Like on each Cherry reply (Dislike is gone, Nov 9). This device only; it shows in Liked (js/votes.js).
                 !m.me && Looscid.lcCherryVoteEl ? Looscid.lcCherryVoteEl(cur, m, i, act.draw) : null);
             }))
         : h('p', { key: "empty", className: "lc-muted lc-cherry-empty" }, "No messages yet."),

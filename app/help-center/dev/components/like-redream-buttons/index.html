@@ -64,25 +64,25 @@
 <pre class="cl-code"><code id="code-like-redream-buttons-html">&lt;div class=&quot;ixn-row&quot;&gt;
 &lt;button class=&quot;ixn-btn&quot; aria-label=&quot;4 replies&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.9&quot; width=&quot;15&quot; height=&quot;15&quot;&gt;&lt;path d=&quot;M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;span&gt;4 Replies&lt;/span&gt;&lt;/button&gt;
 &lt;div class=&quot;lmenu lc-rdmenu&quot;&gt;&lt;button id=&quot;rd-d1-btn&quot; type=&quot;button&quot; class=&quot;cbx-wrap&quot; aria-haspopup=&quot;menu&quot; aria-expanded=&quot;false&quot; aria-label=&quot;3 Redreams&quot;&gt;&lt;div class=&quot;cbx-box&quot;&gt;&lt;/div&gt;&lt;span&gt;3 Redreams&lt;/span&gt;&lt;/button&gt;&lt;/div&gt;
-&lt;button class=&quot;cbx-wrap&quot; aria-pressed=&quot;false&quot; aria-label=&quot;12 likes&quot;&gt;&lt;div class=&quot;cbx-box&quot;&gt;&lt;/div&gt;&lt;span&gt;12 Likes&lt;/span&gt;&lt;/button&gt;
+&lt;button class=&quot;cbx-wrap&quot; aria-label=&quot;Like, 12 likes&quot;&gt;&lt;div class=&quot;cbx-box&quot;&gt;&lt;/div&gt;&lt;span&gt;Like 12&lt;/span&gt;&lt;/button&gt;
 &lt;div class=&quot;lmenu lc-dmenu&quot; style=&quot;flex: .5; display: flex;&quot;&gt;&lt;button id=&quot;dopts-d1-btn&quot; type=&quot;button&quot; class=&quot;ixn-btn&quot; aria-haspopup=&quot;menu&quot; aria-expanded=&quot;false&quot; aria-label=&quot;More, Dream by Ava&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.9&quot; width=&quot;15&quot; height=&quot;15&quot;&gt;&lt;circle cx=&quot;5&quot; cy=&quot;12&quot; r=&quot;1.2&quot;&gt;&lt;/circle&gt;&lt;circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;1.2&quot;&gt;&lt;/circle&gt;&lt;circle cx=&quot;19&quot; cy=&quot;12&quot; r=&quot;1.2&quot;&gt;&lt;/circle&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/div&gt;
 &lt;/div&gt;</code></pre>
 <p><button type="button" class="btn cl-copy" data-copy="code-like-redream-buttons-html" hidden>Copy code</button></p>
 <h3 id="code-js">js</h3>
 <pre class="cl-code"><code id="code-like-redream-buttons-js">// Like (js/core.js, cut down). ReDream opens the pop-up menu instead, see the pop-up menu page.
 likeBtn.addEventListener(&quot;click&quot;, function () {
-  const on = likeBtn.getAttribute(&quot;aria-pressed&quot;) !== &quot;true&quot;;
-  likeBtn.setAttribute(&quot;aria-pressed&quot;, on ? &quot;true&quot; : &quot;false&quot;);
+  const on = !likeBtn.classList.contains(&quot;liked&quot;); // the words carry the state: Like or Unlike (no aria-pressed)
   likeBtn.classList.toggle(&quot;liked&quot;, on);
+  likeBtn.querySelector(&quot;span&quot;).textContent = on ? &quot;Unlike&quot; : &quot;Like&quot;;
   likeBtn.querySelector(&quot;.cbx-box&quot;).innerHTML = on ? CHECK_SVG : &quot;&quot;;
   announce(on ? &quot;Liked&quot; : &quot;Like removed&quot;);
 });</code></pre>
 <p><button type="button" class="btn cl-copy" data-copy="code-like-redream-buttons-js" hidden>Copy JS code</button></p>
 <p>it uses the classes from css/app.css and css/a11y.css, so it looks right anywhere in looscid.</p>
 <h2 id="voiceover">how it works w voiceover</h2>
-<ul><li>Like says the count first: &quot;12 likes, toggle button&quot;. after u double tap it, the live region says &quot;Liked&quot; and the button reads as selected.</li><li>ReDream says &quot;3 Redreams, pop up button&quot;, and &quot;, Redreamed&quot; when u already did. double tap opens Redream and Quote Dream.</li><li>the tick box picture is hidden. the state comes from the button itself, so VoiceOver never says it twice.</li><li>braille display: Enter on Like likes it. Enter on ReDream opens the menu, then Enter on Redream.</li></ul>
+<ul><li>Like says what it does, then the count: &quot;Like, 12 likes, button&quot;. after u double tap it, the live region says &quot;Liked&quot; and the button now reads &quot;Unlike, 13 likes&quot;. no toggle, the words change (Carter's rule).</li><li>ReDream says &quot;3 Redreams, pop up button&quot;, and &quot;, Redreamed&quot; when u already did. double tap opens Redream and Quote Dream.</li><li>the tick box picture is hidden. the state comes from the button itself, so VoiceOver never says it twice.</li><li>braille display: Enter on Like likes it. Enter on ReDream opens the menu, then Enter on Redream.</li></ul>
 <h2 id="related">related</h2>
-<ul><li><a href="../dream-card/" title="Opens this article">Dream card</a></li><li><a href="../like-dislike-buttons/" title="Opens this article">Like and Dislike buttons</a></li><li><a href="../popup-menu/" title="Opens this article">Pop-up menu</a></li><li><a href="../live-region/" title="Opens this article">Live region announcements</a></li><li><a href="../checkboxes/" title="Opens this article">Checkboxes</a></li></ul>
+<ul><li><a href="../dream-card/" title="Opens this article">Dream card</a></li><li><a href="../like-buttons/" title="Opens this article">Like buttons</a></li><li><a href="../popup-menu/" title="Opens this article">Pop-up menu</a></li><li><a href="../live-region/" title="Opens this article">Live region announcements</a></li><li><a href="../checkboxes/" title="Opens this article">Checkboxes</a></li></ul>
 <p class="next"><a href="../" title="Opens this article">All components</a></p>
 <script src="../components.js?v=1"></script>
 </main>

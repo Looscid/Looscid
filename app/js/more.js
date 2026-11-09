@@ -1406,7 +1406,8 @@ function LcCirclesPrivacy() {
 // a section straight away through looscid_priv_open and the looscid:privopen event, as before.
 const LC_PRIV_SECS = [["perm", "Permissions", "who can see reply follow mention tag find me discoverability my profile"], ["pprofile", "What's on my profile", "circles on my profile followed threads profile what people see"],
   ["blocked", "Blocked and muted", "block mute words filters chats"], ["pcherry", "What Cherry can see", "cherry privacy media alt text remember suggestions my stuff"],
-  ["pmedia", "Media and content", "save download screenshots blur photo details exif my stuff"]];
+  ["pmedia", "Media and content", "save download screenshots blur photo details exif my stuff"],
+  ["notint", "Not interested", "not interested hidden dreams see less show less feed for you"]]; // Nov 9 2026
 Looscid.LC_PRIV_SECS = LC_PRIV_SECS;
 function PrivacySettings({navigate, authUser, onUpdateProfile}) {
   useA11yNow(); useBlocked();
@@ -1438,9 +1439,11 @@ function PrivacySettings({navigate, authUser, onUpdateProfile}) {
     // on Cherry's own screen. It's the same component and the same saved switches, so a change on one shows on the other.
     ["pcherry", "What Cherry can see", function () { return lh(LcCherryPrivacy, { navigate: navigate, from: "privsec" }); }],
     ["pmedia", "Media and content", function () { return lh(LcPrivacyMedia, { navigate: navigate }); }],
+    // Nov 9 2026 (Carter said yes to Not interested): review the Dreams you marked, bring one back, or clear them all.
+    ["notint", "Not interested", function () { return Looscid.LcNotIntPanel ? lh(Looscid.LcNotIntPanel, null) : null; }],
   ];
   // Which section each row of the main page is in (My profile, Chats, Cherry and my stuff).
-  const ROWS_IN = { profile: ["perm", "pprofile"], chats: ["blocked"], stuff: ["pcherry", "pmedia"] };
+  const ROWS_IN = { profile: ["perm", "pprofile"], chats: ["blocked", "notint"], stuff: ["pcherry", "pmedia"] };
   const rowsOf = function (grp, lid) { return lh('ul', { className: "mlist lc-catlist lc-ios-list", role: "list", id: lid }, ROWS_IN[grp].map(function (k) {
       const s = SECS.find(function (x) { return x[0] === k; });
       return lh('li', { key: s[0], className: "mli" },
@@ -1463,14 +1466,14 @@ function PrivacySettings({navigate, authUser, onUpdateProfile}) {
     // see me chat whatever"): Privacy is 3 sections now, each a heading, a group and a short footer. Security stays below.
     lh('h2', { className: "lc-grp-h", id: "priv-h-profile" }, "My profile"),
     lh('div', { className: "lc-ios-card", id: "priv-main" }, privSwitch, lh(LcShareMineSwitch, null),
-      // Nov 8 2026 (Carter): Show my bug report votes publicly, a native checkbox, off by default (js/dislikes.js).
+      // Nov 8 2026 (Carter): Show my bug report votes publicly, a native checkbox, off by default (js/votes.js).
       Looscid.LcIssueVotesPublicBox && Looscid.LcSafe ? lh(Looscid.LcSafe, null, lh(Looscid.LcIssueVotesPublicBox, null)) : null),
     rowsOf("profile", "priv-rows"),
     lh('p', { className: "lc-ios-foot", id: "priv-f-profile" }, "What people see on your profile and who can find you. Private account means only followers you approve see your Dreams."),
     lh('h2', { className: "lc-grp-h", id: "priv-h-chats" }, "Chats"),
     lh('div', { className: "lc-ios-card", id: "priv-chats" }, lh(LcSection, { sec: "pchats", bare: true, labelledBy: "priv-h-chats", noReset: true, noFoot: true })),
     rowsOf("chats", "priv-rows-chats"),
-    lh('p', { className: "lc-ios-foot", id: "priv-f-chats" }, "Who can message you, and who and what you blocked or muted everywhere in Looscid."),
+    lh('p', { className: "lc-ios-foot", id: "priv-f-chats" }, "Who can message you, who and what you blocked or muted everywhere in Looscid, and the Dreams you marked Not interested."),
     lh('h2', { className: "lc-grp-h", id: "priv-h-stuff" }, "Cherry and my stuff"),
     rowsOf("stuff", "priv-rows-stuff"),
     lh('p', { className: "lc-ios-foot", id: "priv-f-stuff" }, "What Cherry can see and remember, and who can save or reshare your photos and videos. Everything here is saved on this device."),

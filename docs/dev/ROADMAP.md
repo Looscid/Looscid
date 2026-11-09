@@ -223,11 +223,12 @@ already out, for context: u can pin a Circle, Dreamor, hashtag, thread or List a
 
 - [ ] a fresh new Cherry design, made by 2three1y.
 
-### likes, dislikes + labels
+### likes, Not interested + labels
 
-- [x] dislikes everywhere: Dreams, Cherry replies and bug reports (that's Disagree). only u ever see ur dislikes, and Rem never shows a dislike count.
-- [x] the Liked tab is ur like + dislike manager: a Likes / Dislikes switch, a filter (Dreams, Cherry replies, bug reports) and tools to remove one or clear all shown.
-- [ ] sort ur likes + dislikes (newest, oldest, by kind).
+- [x] Not interested on every Dream that isn't urs (More menu): hides it from ur Home feed and shows u less like it in For You. private, only u see it, w Undo. review or clear it in Settings, Privacy & Security, Not interested. (it replaced Dislike, Nov 9 2026.)
+- [x] every Dream has the same full controls everywhere, replies too: Reply, Redream, Like, Share and More.
+- [x] the Liked tab is ur like manager: a filter (Dreams, Cherry replies, bug reports and more) and tools to unlike one or clear all shown.
+- [ ] sort ur likes (newest, oldest, by kind).
 - [x] bug report votes can be private or public, ur choice: "Show my bug report votes publicly" in Settings, Privacy. off by default.
 - [ ] a spot that shows public bug report votes by name (rn looscid only shows the counts).
 - [ ] when Cherry makes a Dream, it gets an automatic "AI generated" label that can't be removed. people can add their own content labels too (like AI-made, sensitive or spoilers), and I'll add more over time.

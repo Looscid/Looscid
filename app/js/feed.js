@@ -89,8 +89,12 @@ function FeedPage({navigate, prefs, cherryCtx}) {
     return function () { live = false; };
   }, [wantSrv, srvSort]);
   Looscid.useIdListTick("looscid:notinterested"); // build 152 prep: Not interested hides a Dream from For You
-  const notInt = tab === "for you" ? Looscid.lcNotInterested() : [];
-  const visible = lcFeedVisible(tab, rawDreams, { following: FOLLOWING, friends: FRIENDS_IDS, showFriends: showFriends, groups: cherryCtx && cherryCtx.groups, pub: pubKey && pub.key === pubKey ? pub.list : [], srv: wantSrv ? srv.list : [] }).filter(function (d) { return notInt.indexOf(String(d.id)) < 0; });
+  /* Nov 9 2026 (Carter said yes: Not interested instead of Dislike): a Dream you marked is hidden from every Home feed tab,
+     not just For You. One you marked this visit stays as a short "Not interested" line with Undo (core.js DreamBodyCard)
+     until you leave. For You also moves Dreams like it a few places down (core.js lcNiRank): same Dreamor, hashtags, words. */
+  const notInt = Looscid.lcNotInterested(), niJust = Looscid.LC_NI_JUST || new Set();
+  const shown = lcFeedVisible(tab, rawDreams, { following: FOLLOWING, friends: FRIENDS_IDS, showFriends: showFriends, groups: cherryCtx && cherryCtx.groups, pub: pubKey && pub.key === pubKey ? pub.list : [], srv: wantSrv ? srv.list : [] }).filter(function (d) { return notInt.indexOf(String(d.id)) < 0 || niJust.has(String(d.id)); });
+  const visible = tab === "for you" && Looscid.lcNiRank ? Looscid.lcNiRank(shown) : shown;
 
 
   if (activeComment) return (

@@ -5,10 +5,10 @@
    POST /mine), so a change on one device shows up on the others:
      Likes (looscid_liked), ReDreams (looscid_redreams), pinned Dreams (looscid_pinned_dreams), muted Dreamors
      (looscid_muted_dreamors), muted threads (looscid_muted_threads), Not interested (looscid_not_interested),
-     threads you follow (looscid_thread_subs) and, since Nov 8 2026, disliked Dreams (looscid_disliked, private).
+     threads you follow (looscid_thread_subs). (Disliked Dreams synced here for one day, Nov 8 2026; dislikes are gone.)
    Who can see what:
      - Public: that your key liked or ReDreamed a Dream. Rem only shows the counts on each Dream.
-     - Private: dislikes, pins, mutes, Not interested, followed threads, liked searches, and the small copy kept with each like and
+     - Private: pins, mutes, Not interested, followed threads, liked searches, and the small copy kept with each like and
        ReDream. Rem gives them back only to a read signed by your own key in the last 10 minutes, and each signed read
        works once. Nobody else can read them, not even with your public key.
    This device still keeps its own copy (that's the backup). The first sync with a key adds what's on this device to
@@ -36,10 +36,7 @@ const LISTS = [
     pick: function (x) { return x.id != null; }, ref: function (x) { return dreamRef(x.id, x.nid); },
     stub: function (r, at) { return { id: dreamId(r), at: at }; } },
   { name: "pins", key: "looscid_pinned_dreams", max: 20, ev: "looscid:pinned" },
-  // Nov 8 2026: disliked Dreams (js/dislikes.js). Private, like pins: only a read signed by your own key gets them back.
-  { name: "dislikes", key: "looscid_disliked", obj: true, max: 1000, ev: "looscid-disliked", order: "at",
-    pick: function (x) { return x.k === "dream" && x.id != null; }, ref: function (x) { return dreamRef(x.id, x.nid); },
-    stub: function (r, at) { return { k: "dream", id: dreamId(r), at: at }; } },
+  // Nov 9 2026 (Carter: "Dislikes should be removed"): the private "dislikes" list is gone. It isn't read or sent any more.
 
   { name: "muted_dreamors", key: "looscid_muted_dreamors", max: 500, ev: "looscid:blocked" },
   { name: "muted_threads", key: "looscid_muted_threads", max: 500, ev: "looscid:mutedthreads" },
@@ -96,6 +93,9 @@ async function sync(pull) {
     if (srv && !first && LISTS.every(function (L) { return !(srv[L.name] || []).length; }) && LISTS.some(function (L) { return (snap[L.name] || []).length; })) {
       lsSet(SYNC_KEY, { pk: pk, snap: null, paused: true }); return;
     }
+    // Nov 9 2026 (Carter: "Dislikes should be removed"): old dislikes quietly disappear. If Rem still has your private
+    // "dislikes" list from Nov 8, this takes them off Rem too (a normal signed remove, the same as any list change).
+    if (srv && Array.isArray(srv.dislikes) && srv.dislikes.length) { try { await send("dislikes", "remove", srv.dislikes.filter(function (it) { return it && okRef(it.ref); }).map(function (it) { return [it.ref]; })); } catch (e) {} }
     const next = {}, keys = {};
     for (const L of LISTS) {
       const loc = localOf(L), before = new Set(snap[L.name] || []);

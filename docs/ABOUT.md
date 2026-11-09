@@ -291,9 +291,9 @@ There's no appeal button yet. For now, tell me with Send Feedback. Send Feedback
 
 Open source means anyone can read the code. Looscid uses the GNU AGPL-3.0 license. You can check what it does and help build it.
 
-### Likes and dislikes
+### Likes and Not interested
 
-Like what you like. Dislike what you don't. Only you can see your dislikes. Looscid never shows a dislike count. The Liked tab keeps both in one place.
+Like what you like. The Liked tab keeps every like in one place. Not into something? Pick Not interested in the Dream's More menu and you'll see less like it. Only you ever see that, and Looscid never shows a count for it.
 
 ### Dreams and Circles
 

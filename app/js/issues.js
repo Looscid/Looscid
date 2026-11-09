@@ -71,7 +71,7 @@ function setVote(id, v, it) { const pk = myPk(); if (!pk) return; const all = ls
     vi[pk] = m; localStorage.setItem(VINFO_KEY, JSON.stringify(vi)); } catch (e) {}
   try { window.dispatchEvent(new CustomEvent("looscid-issue-votes")); } catch (e) {} }
 function voteInfo() { const pk = myPk(), all = lsJson(VINFO_KEY, {}); return pk && all && typeof all === "object" && all[pk] && typeof all[pk] === "object" ? all[pk] : {}; }
-// Settings, Privacy: "Show my bug report votes publicly" (js/dislikes.js). Off: private, like before.
+// Settings, Privacy: "Show my bug report votes publicly" (js/votes.js). Off: private, like before.
 function visibility() { try { return Looscid.lcIssueVotesPublic && Looscid.lcIssueVotesPublic() ? "public" : "private"; } catch (e) { return "private"; } }
 
 function load(force) {
@@ -145,8 +145,8 @@ function voteText(it, v, mine) {
 }
 function voteBtn(it, v, mine, vb) {
   const t = voteText(it, v, mine);
-  if (!Looscid.lcCountBtn) return h('button', { type: "button", className: "btn bgb lc-btn lc-issue-btn", "aria-pressed": mine === v ? "true" : "false", disabled: !!vb, onClick: function () { vote(it, v); } }, t);
-  return Looscid.lcCountBtn(h, { on: mine === v, cls: v === "agree" ? "liked" : "disliked", label: t, text: t, disabled: !!vb, className: "lc-issue-btn", onClick: function () { vote(it, v); } });
+  if (!Looscid.lcCountBtn) return h('button', { type: "button", className: "btn bgb lc-btn lc-issue-btn", disabled: !!vb, onClick: function () { vote(it, v); } }, t);
+  return Looscid.lcCountBtn(h, { on: mine === v, cls: v === "agree" ? "liked" : "disagreed", label: t, text: t, disabled: !!vb, className: "lc-issue-btn", onClick: function () { vote(it, v); } });
 }
 function when(ms) { try { return new Date(+ms).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); } catch (e) { return ""; } }
 function reportEl(it, mine) {

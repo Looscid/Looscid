@@ -4,11 +4,11 @@
 <meta charset="UTF-8"/>
 <title>Liked manager component - Looscid Help Center</title>
 <!-- Made by .github/scripts/build-help.mjs from app/js/helpdata.js. Edit those, not this page. Link previews come first. -->
-<meta name="description" content="the Liked tab's tools: Likes or Dislikes, a Filter, Unlike / Remove dislike on each line and Clear all shown.">
+<meta name="description" content="the Liked tab's tools: a Filter, Unlike on each line and Clear all shown.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Looscid">
 <meta property="og:title" content="Liked manager component - Looscid Help Center">
-<meta property="og:description" content="the Liked tab's tools: Likes or Dislikes, a Filter, Unlike / Remove dislike on each line and Clear all shown.">
+<meta property="og:description" content="the Liked tab's tools: a Filter, Unlike on each line and Clear all shown.">
 <meta property="og:url" content="https://looscid.github.io/Looscid/help/dev/components/liked-manager/">
 <meta property="og:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
 <meta property="og:image:secure_url" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
@@ -19,7 +19,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@Looscid">
 <meta name="twitter:title" content="Liked manager component - Looscid Help Center">
-<meta name="twitter:description" content="the Liked tab's tools: Likes or Dislikes, a Filter, Unlike / Remove dislike on each line and Clear all shown.">
+<meta name="twitter:description" content="the Liked tab's tools: a Filter, Unlike on each line and Clear all shown.">
 <meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
 <meta name="twitter:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
 <link rel="canonical" href="https://looscid.github.io/Looscid/help/dev/components/liked-manager/">
@@ -38,19 +38,16 @@
 <nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../../../" title="Goes back to Help Center">Help Center</a></li><li><a href="../../../#h-building" title="Goes back to Help Center">Building Looscid</a></li><li><a href="../" title="Opens this article">Components</a></li><li><span aria-current="page">Liked manager</span></li></ol></nav>
 <link rel="stylesheet" href="../components.css?v=1">
 <h1>Liked manager</h1>
-<p class="lead">the Liked tab's tools: Likes or Dislikes, a Filter, Unlike / Remove dislike on each line and Clear all shown.</p>
+<p class="lead">the Liked tab's tools: a Filter, Unlike on each line and Clear all shown.</p>
 <h2 id="what">what it is</h2>
 <p>it's the top of the Liked tab on ur profile, and the Liked page in More. no new page: Liked just got the tools.</p>
-<p>Show is two radio buttons, Likes and Dislikes. Filter is a native picker (like the <a href="../native-select/" title="Opens this article">select picker</a>): Everything, Dreams, Cherry replies, Bug reports. w Likes it also has Media, Circles, Apps, Marketplace, Chats and Searches, so nothing u could get to before is gone.</p>
-<p>each thing is one line u read in one swipe, w its own Unlike or Remove dislike button. Clear all shown removes everything the filter shows, but only after a real "are u sure" dialog.</p>
+<p>Filter is a native picker (like the <a href="../native-select/" title="Opens this article">select picker</a>): Everything, Dreams, Cherry replies, Bug reports, Media, Circles, Apps, Marketplace, Chats and Searches, so nothing u could get to before is gone.</p>
+<p>each thing is one line u read in one swipe, w its own Unlike button. Clear all shown removes everything the filter shows, but only after a real "are u sure" dialog.</p>
 <h2 id="states">states</h2>
 <p>live demos, drawn w looscid's real styles. look-only: nothing in them does anything.</p>
 <h3 id="state-likes">likes</h3>
-<p>Likes, Everything: a bug report, a Cherry reply and a Dream.</p>
+<p>Everything: a bug report, a Cherry reply and a Dream.</p>
 <iframe class="cl-frame" src="likes.html" title="Liked manager demo, likes" loading="lazy" style="height:470px"></iframe>
-<h3 id="state-dislikes">dislikes</h3>
-<p>Dislikes picked. the filter drops the like-only choices.</p>
-<iframe class="cl-frame" src="dislikes.html" title="Liked manager demo, dislikes" loading="lazy" style="height:360px"></iframe>
 <h3 id="state-filtered">filtered + focused</h3>
 <p>Filter is on Cherry replies, w the focus ring on it.</p>
 <iframe class="cl-frame" src="filtered.html" title="Liked manager demo, filtered + focused" loading="lazy" style="height:360px"></iframe>
@@ -63,12 +60,8 @@
 <h2 id="code">copy the code</h2>
 <h3 id="code-html">html</h3>
 <pre class="cl-code"><code id="code-liked-manager-html">&lt;div class=&quot;lc-liked&quot;&gt;
-&lt;p class=&quot;lc-liked-intro&quot;&gt;Everything you liked or disliked, in one place. Only you can see this page.&lt;/p&gt;
+&lt;p class=&quot;lc-liked-intro&quot;&gt;Everything you liked, in one place. Only you can see this page.&lt;/p&gt;
 &lt;div class=&quot;lc-lm-tools&quot;&gt;
-&lt;fieldset class=&quot;lc-fs lc-lm-mode&quot; id=&quot;lk-lm-mode&quot;&gt;&lt;legend class=&quot;lc-fs-l&quot;&gt;Show&lt;/legend&gt;&lt;div class=&quot;lc-radios&quot;&gt;
-&lt;label class=&quot;lc-radio on&quot; for=&quot;lk-lm-likes&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;lk-lm-mode&quot; id=&quot;lk-lm-likes&quot; value=&quot;likes&quot; checked&gt;&lt;span&gt;Likes&lt;/span&gt;&lt;/label&gt;
-&lt;label class=&quot;lc-radio&quot; for=&quot;lk-lm-dislikes&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;lk-lm-mode&quot; id=&quot;lk-lm-dislikes&quot; value=&quot;dislikes&quot;&gt;&lt;span&gt;Dislikes&lt;/span&gt;&lt;/label&gt;
-&lt;/div&gt;&lt;/fieldset&gt;
 &lt;label for=&quot;lk-lm-filter&quot; class=&quot;lc-fs-l lc-lm-fl&quot;&gt;Filter&lt;/label&gt;
 &lt;select id=&quot;lk-lm-filter&quot; class=&quot;inp lc-select lc-lm-sel&quot;&gt;&lt;option value=&quot;everything&quot; selected&gt;Everything&lt;/option&gt;&lt;option value=&quot;dreams&quot;&gt;Dreams&lt;/option&gt;&lt;option value=&quot;cherry&quot;&gt;Cherry replies&lt;/option&gt;&lt;option value=&quot;bugs&quot;&gt;Bug reports&lt;/option&gt;&lt;option value=&quot;media&quot;&gt;Media&lt;/option&gt;&lt;option value=&quot;circles&quot;&gt;Circles&lt;/option&gt;&lt;option value=&quot;apps&quot;&gt;Apps&lt;/option&gt;&lt;option value=&quot;marketplace&quot;&gt;Marketplace&lt;/option&gt;&lt;option value=&quot;chats&quot;&gt;Chats&lt;/option&gt;&lt;option value=&quot;searches&quot;&gt;Searches&lt;/option&gt;&lt;/select&gt;
 &lt;button type=&quot;button&quot; id=&quot;lk-lm-clear&quot; class=&quot;btn bgb lc-btn lc-lm-clear&quot;&gt;Clear all shown&lt;/button&gt;
@@ -83,7 +76,7 @@
 <h3 id="code-js">js</h3>
 <pre class="cl-code"><code id="code-liked-manager-js">// The Liked manager (js/liked.js, cut down). Each line's button removes it, then says &quot;Removed&quot; politely.
 removeBtn.addEventListener(&quot;click&quot;, async function () {
-  const ok = await item.remove(); // a like, a dislike, a Cherry reply vote, or a bug report vote (signed, through Rem)
+  const ok = await item.remove(); // a like, a Cherry reply like, or a bug report Agree (signed, through Rem)
   if (!ok) { announce(&quot;couldn't remove that one rn&quot;); return; }
   announce(&quot;Removed&quot;, &quot;state&quot;);
   focusNextRowOrFilter(); // focus never gets lost
@@ -93,9 +86,9 @@ clearBtn.addEventListener(&quot;click&quot;, function () { openAlertDialog({ tit
 <p><button type="button" class="btn cl-copy" data-copy="code-liked-manager-js" hidden>Copy JS code</button></p>
 <p>it uses the classes from css/app.css and css/a11y.css, so it looks right anywhere in looscid.</p>
 <h2 id="voiceover">how it works w voiceover</h2>
-<ul><li>Show reads &quot;Likes, radio button, 1 of 2, Show&quot;. swipe right for Dislikes, double tap to switch.</li><li>Filter reads &quot;Filter, Everything, pop up button&quot;. double tap, then swipe through the choices.</li><li>each line is one swipe: &quot;Dream by Ava: first snow of the year… liked Nov 8&quot;. the next swipe is its button: &quot;Unlike, Dream by Ava…&quot;.</li><li>after u remove one, the live region says &quot;Removed&quot; and focus jumps to the next line's button, never to the top of the page.</li><li>Clear all shown opens an alert dialog. VoiceOver reads its title and message, focus lands on Cancel. confirm and it says &quot;Cleared 3&quot;.</li><li>braille display: Enter picks a radio button, opens the Filter and presses Unlike or Clear all shown.</li></ul>
+<ul><li>Filter reads &quot;Filter, Everything, pop up button&quot;. double tap, then swipe through the choices.</li><li>each line is one swipe: &quot;Dream by Ava: first snow of the year… liked Nov 8&quot;. the next swipe is its button: &quot;Unlike, Dream by Ava…&quot;.</li><li>after u remove one, the live region says &quot;Removed&quot; and focus jumps to the next line's button, never to the top of the page.</li><li>Clear all shown opens an alert dialog. VoiceOver reads its title and message, focus lands on Cancel. confirm and it says &quot;Cleared 3&quot;.</li><li>braille display: Enter opens the Filter and presses Unlike or Clear all shown.</li></ul>
 <h2 id="related">related</h2>
-<ul><li><a href="../like-dislike-buttons/" title="Opens this article">Like and Dislike buttons</a></li><li><a href="../radio-group/" title="Opens this article">Radio group</a></li><li><a href="../native-select/" title="Opens this article">Native select picker</a></li><li><a href="../live-region/" title="Opens this article">Live region announcements</a></li><li><a href="../empty-state/" title="Opens this article">Empty state</a></li><li><a href="../buttons/" title="Opens this article">Buttons</a></li></ul>
+<ul><li><a href="../like-buttons/" title="Opens this article">Like buttons</a></li><li><a href="../native-select/" title="Opens this article">Native select picker</a></li><li><a href="../live-region/" title="Opens this article">Live region announcements</a></li><li><a href="../empty-state/" title="Opens this article">Empty state</a></li><li><a href="../buttons/" title="Opens this article">Buttons</a></li></ul>
 <p class="next"><a href="../" title="Opens this article">All components</a></p>
 <script src="../components.js?v=1"></script>
 </main>

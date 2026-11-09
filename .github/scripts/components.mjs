@@ -133,7 +133,7 @@ document.addEventListener("keydown", function (e) {
 <div class="ixn-row">
 <button class="ixn-btn" aria-label="4 replies"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg><span>4 Replies</span></button>
 <div class="lmenu lc-rdmenu"><button id="rd-d1-btn" type="button" class="cbx-wrap" aria-haspopup="menu" aria-expanded="false" aria-label="3 Redreams"><div class="cbx-box"></div><span>3 Redreams</span></button></div>
-<button class="cbx-wrap" aria-pressed="false" aria-label="12 likes"><div class="cbx-box"></div><span>12 Likes</span></button>
+<button class="cbx-wrap" aria-label="Like, 12 likes"><div class="cbx-box"></div><span>Like 12</span></button>
 <div class="lmenu lc-dmenu" style="flex: .5; display: flex;"><button id="dopts-d1-btn" type="button" class="ixn-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More, Dream by Ava"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><circle cx="5" cy="12" r="1.2"></circle><circle cx="12" cy="12" r="1.2"></circle><circle cx="19" cy="12" r="1.2"></circle></svg></button></div>
 </div>
 </div>`, h: 230 },
@@ -145,7 +145,7 @@ document.addEventListener("keydown", function (e) {
 <div class="ixn-row">
 <button class="ixn-btn" aria-label="4 replies"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg><span>4 Replies</span></button>
 <div class="lmenu lc-rdmenu"><button id="rd-d1-btn" type="button" class="cbx-wrap redd" aria-haspopup="menu" aria-expanded="false" aria-label="3 Redreams, Redreamed"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>3 Redreams</span></button></div>
-<button class="cbx-wrap liked" aria-pressed="true" aria-label="12 likes"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>12 Likes</span></button>
+<button class="cbx-wrap liked" aria-label="Unlike, 12 likes"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>Unlike 12</span></button>
 <div class="lmenu lc-dmenu" style="flex: .5; display: flex;"><button id="dopts-d1-btn" type="button" class="ixn-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More, Dream by Ava"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><circle cx="5" cy="12" r="1.2"></circle><circle cx="12" cy="12" r="1.2"></circle><circle cx="19" cy="12" r="1.2"></circle></svg></button></div>
 </div>
 </div>`, h: 230 },
@@ -158,7 +158,7 @@ document.addEventListener("keydown", function (e) {
 <div class="ixn-row">
 <button class="ixn-btn" aria-label="4 replies"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg><span>4 Replies</span></button>
 <div class="lmenu lc-rdmenu"><button id="rd-d1-btn" type="button" class="cbx-wrap" aria-haspopup="menu" aria-expanded="false" aria-label="3 Redreams"><div class="cbx-box"></div><span>3 Redreams</span></button></div>
-<button class="cbx-wrap" aria-pressed="false" aria-label="12 likes"><div class="cbx-box"></div><span>12 Likes</span></button>
+<button class="cbx-wrap" aria-label="Like, 12 likes"><div class="cbx-box"></div><span>Like 12</span></button>
 <div class="lmenu lc-dmenu" style="flex: .5; display: flex;"><button id="dopts-d1-btn" type="button" class="ixn-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More, Dream by Ava"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><circle cx="5" cy="12" r="1.2"></circle><circle cx="12" cy="12" r="1.2"></circle><circle cx="19" cy="12" r="1.2"></circle></svg></button></div>
 </div>
 </div>`, h: 260 },
@@ -170,7 +170,7 @@ document.addEventListener("keydown", function (e) {
 <div class="ixn-row">
 <button class="ixn-btn" aria-label="4 replies"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg><span>4 Replies</span></button>
 <div class="lmenu lc-rdmenu"><button id="rd-d1-btn" type="button" class="cbx-wrap" aria-haspopup="menu" aria-expanded="false" aria-label="3 Redreams"><div class="cbx-box"></div><span>3 Redreams</span></button></div>
-<button class="cbx-wrap" aria-pressed="false" aria-label="12 likes"><div class="cbx-box"></div><span>12 Likes</span></button>
+<button class="cbx-wrap" aria-label="Like, 12 likes"><div class="cbx-box"></div><span>Like 12</span></button>
 <div class="lmenu lc-dmenu" style="flex: .5; display: flex;"><button id="dopts-d1-btn" type="button" class="ixn-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More, Dream by Ava"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><circle cx="5" cy="12" r="1.2"></circle><circle cx="12" cy="12" r="1.2"></circle><circle cx="19" cy="12" r="1.2"></circle></svg></button></div>
 </div>
 </div>`, h: 230 },
@@ -183,7 +183,7 @@ document.addEventListener("keydown", function (e) {
 <div class="ixn-row">
 <button class="ixn-btn" aria-label="4 replies"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg><span>4 Replies</span></button>
 <div class="lmenu lc-rdmenu"><button id="rd-d1-btn" type="button" class="cbx-wrap" aria-haspopup="menu" aria-expanded="false" aria-label="3 Redreams"><div class="cbx-box"></div><span>3 Redreams</span></button></div>
-<button class="cbx-wrap" aria-pressed="false" aria-label="12 likes"><div class="cbx-box"></div><span>12 Likes</span></button>
+<button class="cbx-wrap" aria-label="Like, 12 likes"><div class="cbx-box"></div><span>Like 12</span></button>
 <div class="lmenu lc-dmenu" style="flex: .5; display: flex;"><button id="dopts-d1-btn" type="button" class="ixn-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More, Dream by Ava"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><circle cx="5" cy="12" r="1.2"></circle><circle cx="12" cy="12" r="1.2"></circle><circle cx="19" cy="12" r="1.2"></circle></svg></button></div>
 </div>
 </div>`, h: 230 }
@@ -196,20 +196,20 @@ document.addEventListener("keydown", function (e) {
 <div class="ixn-row">
 <button class="ixn-btn" aria-label="4 replies"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg><span>4 Replies</span></button>
 <div class="lmenu lc-rdmenu"><button id="rd-d1-btn" type="button" class="cbx-wrap" aria-haspopup="menu" aria-expanded="false" aria-label="3 Redreams"><div class="cbx-box"></div><span>3 Redreams</span></button></div>
-<button class="cbx-wrap" aria-pressed="false" aria-label="12 likes"><div class="cbx-box"></div><span>12 Likes</span></button>
+<button class="cbx-wrap" aria-label="Like, 12 likes"><div class="cbx-box"></div><span>Like 12</span></button>
 <div class="lmenu lc-dmenu" style="flex: .5; display: flex;"><button id="dopts-d1-btn" type="button" class="ixn-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More, Dream by Ava"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><circle cx="5" cy="12" r="1.2"></circle><circle cx="12" cy="12" r="1.2"></circle><circle cx="19" cy="12" r="1.2"></circle></svg></button></div>
 </div>
 </div>`,
     js: `// liking is one press, and the app says the new state out loud (js/core.js, cut down)
 likeBtn.addEventListener("click", function () {
-  const liked = likeBtn.getAttribute("aria-pressed") === "true";
-  likeBtn.setAttribute("aria-pressed", liked ? "false" : "true");
+  const liked = likeBtn.classList.contains("liked"); // the words carry the state: Like or Unlike (no aria-pressed)
   likeBtn.classList.toggle("liked", !liked);
+  likeBtn.querySelector("span").textContent = liked ? "Like" : "Unlike";
   announce(liked ? "Like removed" : "Liked"); // see the live region page
 });`,
     vo: [
       `swipe to the card and VoiceOver reads it all in one go: "Ava. 3 AM thought: what if clouds are just the sky's drafts. 2 hours ago". the dots and the handle are hidden so it doesn't read junk.`,
-      `keep swiping for the buttons: "4 replies, button", "3 Redreams, pop up button", "12 likes, toggle button", then "More, Dream by Ava, pop up button".`,
+      `keep swiping for the buttons: "4 replies, button", "3 Redreams, pop up button", "Like, 12 likes, button", "Share, button", then "More, Dream by Ava, pop up button". after u like it, Like reads "Unlike, 13 likes".`,
       `every More button says whose Dream it is, so the rotor list isn't just a row of "More".`,
       `"Verified" and "Edited" are added at the end of the card's label.`,
       `braille display: the card shows as a short line ("D: Ava 2h: the words") when braille output is on in Settings, Accessibility, Sense. Enter on a button presses it.`
@@ -228,115 +228,106 @@ likeBtn.addEventListener("click", function () {
       { id: "normal", n: "normal", say: "not liked, not Redreamed.", html: `<div class="ixn-row">
 <button class="ixn-btn" aria-label="4 replies"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg><span>4 Replies</span></button>
 <div class="lmenu lc-rdmenu"><button id="rd-d1-btn" type="button" class="cbx-wrap" aria-haspopup="menu" aria-expanded="false" aria-label="3 Redreams"><div class="cbx-box"></div><span>3 Redreams</span></button></div>
-<button class="cbx-wrap" aria-pressed="false" aria-label="12 likes"><div class="cbx-box"></div><span>12 Likes</span></button>
+<button class="cbx-wrap" aria-label="Like, 12 likes"><div class="cbx-box"></div><span>Like 12</span></button>
 <div class="lmenu lc-dmenu" style="flex: .5; display: flex;"><button id="dopts-d1-btn" type="button" class="ixn-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More, Dream by Ava"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><circle cx="5" cy="12" r="1.2"></circle><circle cx="12" cy="12" r="1.2"></circle><circle cx="19" cy="12" r="1.2"></circle></svg></button></div>
 </div>`, h: 80 },
       { id: "liked", n: "liked", say: "Like is ticked.", html: `<div class="ixn-row">
 <button class="ixn-btn" aria-label="4 replies"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg><span>4 Replies</span></button>
 <div class="lmenu lc-rdmenu"><button id="rd-d1-btn" type="button" class="cbx-wrap" aria-haspopup="menu" aria-expanded="false" aria-label="3 Redreams"><div class="cbx-box"></div><span>3 Redreams</span></button></div>
-<button class="cbx-wrap liked" aria-pressed="true" aria-label="13 likes"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>13 Likes</span></button>
+<button class="cbx-wrap liked" aria-label="Unlike, 13 likes"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>Unlike 13</span></button>
 <div class="lmenu lc-dmenu" style="flex: .5; display: flex;"><button id="dopts-d1-btn" type="button" class="ixn-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More, Dream by Ava"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><circle cx="5" cy="12" r="1.2"></circle><circle cx="12" cy="12" r="1.2"></circle><circle cx="19" cy="12" r="1.2"></circle></svg></button></div>
 </div>`, h: 80 },
       { id: "redreamed", n: "Redreamed", say: "Redream is ticked too.", html: `<div class="ixn-row">
 <button class="ixn-btn" aria-label="4 replies"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg><span>4 Replies</span></button>
 <div class="lmenu lc-rdmenu"><button id="rd-d1-btn" type="button" class="cbx-wrap redd" aria-haspopup="menu" aria-expanded="false" aria-label="4 Redreams, Redreamed"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>4 Redreams</span></button></div>
-<button class="cbx-wrap liked" aria-pressed="true" aria-label="13 likes"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>13 Likes</span></button>
+<button class="cbx-wrap liked" aria-label="Unlike, 13 likes"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>Unlike 13</span></button>
 <div class="lmenu lc-dmenu" style="flex: .5; display: flex;"><button id="dopts-d1-btn" type="button" class="ixn-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More, Dream by Ava"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><circle cx="5" cy="12" r="1.2"></circle><circle cx="12" cy="12" r="1.2"></circle><circle cx="19" cy="12" r="1.2"></circle></svg></button></div>
 </div>`, h: 80 },
       { id: "calm", n: "calm mode", say: "no numbers, just the words.", html: `<div class="ixn-row">
 <button class="ixn-btn" aria-label="4 replies"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg><span>4 Replies</span></button>
 <div class="lmenu lc-rdmenu"><button id="rd-d1-btn" type="button" class="cbx-wrap" aria-haspopup="menu" aria-expanded="false" aria-label="Redreams"><div class="cbx-box"></div><span>Redreams</span></button></div>
-<button class="cbx-wrap" aria-pressed="false" aria-label="Likes"><div class="cbx-box"></div><span>Likes</span></button>
+<button class="cbx-wrap" aria-label="Like"><div class="cbx-box"></div><span>Like</span></button>
 <div class="lmenu lc-dmenu" style="flex: .5; display: flex;"><button id="dopts-d1-btn" type="button" class="ixn-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More, Dream by Ava"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><circle cx="5" cy="12" r="1.2"></circle><circle cx="12" cy="12" r="1.2"></circle><circle cx="19" cy="12" r="1.2"></circle></svg></button></div>
 </div>`, h: 80 },
       { id: "focused", n: "focused", say: "focus ring on Like.", html: `<div class="ixn-row">
 <button class="ixn-btn" aria-label="4 replies"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg><span>4 Replies</span></button>
 <div class="lmenu lc-rdmenu"><button id="rd-d1-btn" type="button" class="cbx-wrap" aria-haspopup="menu" aria-expanded="false" aria-label="3 Redreams"><div class="cbx-box"></div><span>3 Redreams</span></button></div>
-<button class="cbx-wrap demo-focus" aria-pressed="false" aria-label="12 likes"><div class="cbx-box"></div><span>12 Likes</span></button>
+<button class="cbx-wrap demo-focus" aria-label="Like, 12 likes"><div class="cbx-box"></div><span>Like 12</span></button>
 <div class="lmenu lc-dmenu" style="flex: .5; display: flex;"><button id="dopts-d1-btn" type="button" class="ixn-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More, Dream by Ava"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><circle cx="5" cy="12" r="1.2"></circle><circle cx="12" cy="12" r="1.2"></circle><circle cx="19" cy="12" r="1.2"></circle></svg></button></div>
 </div>`, h: 80 }
     ],
     code: `<div class="ixn-row">
 <button class="ixn-btn" aria-label="4 replies"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg><span>4 Replies</span></button>
 <div class="lmenu lc-rdmenu"><button id="rd-d1-btn" type="button" class="cbx-wrap" aria-haspopup="menu" aria-expanded="false" aria-label="3 Redreams"><div class="cbx-box"></div><span>3 Redreams</span></button></div>
-<button class="cbx-wrap" aria-pressed="false" aria-label="12 likes"><div class="cbx-box"></div><span>12 Likes</span></button>
+<button class="cbx-wrap" aria-label="Like, 12 likes"><div class="cbx-box"></div><span>Like 12</span></button>
 <div class="lmenu lc-dmenu" style="flex: .5; display: flex;"><button id="dopts-d1-btn" type="button" class="ixn-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More, Dream by Ava"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="15" height="15"><circle cx="5" cy="12" r="1.2"></circle><circle cx="12" cy="12" r="1.2"></circle><circle cx="19" cy="12" r="1.2"></circle></svg></button></div>
 </div>`,
     js: `// Like (js/core.js, cut down). ReDream opens the pop-up menu instead, see the pop-up menu page.
 likeBtn.addEventListener("click", function () {
-  const on = likeBtn.getAttribute("aria-pressed") !== "true";
-  likeBtn.setAttribute("aria-pressed", on ? "true" : "false");
+  const on = !likeBtn.classList.contains("liked"); // the words carry the state: Like or Unlike (no aria-pressed)
   likeBtn.classList.toggle("liked", on);
+  likeBtn.querySelector("span").textContent = on ? "Unlike" : "Like";
   likeBtn.querySelector(".cbx-box").innerHTML = on ? CHECK_SVG : "";
   announce(on ? "Liked" : "Like removed");
 });`,
     vo: [
-      `Like says the count first: "12 likes, toggle button". after u double tap it, the live region says "Liked" and the button reads as selected.`,
+      `Like says what it does, then the count: "Like, 12 likes, button". after u double tap it, the live region says "Liked" and the button now reads "Unlike, 13 likes". no toggle, the words change (Carter's rule).`,
       `ReDream says "3 Redreams, pop up button", and ", Redreamed" when u already did. double tap opens Redream and Quote Dream.`,
       "the tick box picture is hidden. the state comes from the button itself, so VoiceOver never says it twice.",
       "braille display: Enter on Like likes it. Enter on ReDream opens the menu, then Enter on Redream."
     ],
-    rel: ["dream-card", "like-dislike-buttons", "popup-menu", "live-region", "checkboxes"],
+    rel: ["dream-card", "like-buttons", "popup-menu", "live-region", "checkboxes"],
   },
   {
-    slug: "like-dislike-buttons",
-    t: "Like and Dislike buttons",
-    s: "the shared counter: Like and Dislike on Dreams and Cherry replies, and Agree / Disagree on bug reports.",
+    slug: "like-buttons",
+    t: "Like buttons",
+    s: "the shared counter: Like on Dreams and Cherry replies, and Agree / Disagree on bug reports. the words say the state.",
     where: [
-      `Dislike sits right next to Like under every <a href="../dream-card/">Dream card</a>. Cherry replies get Like and Dislike too, and bug reports in <a href="../report-a-problem/">Report a problem</a> use the same counter for Agree and Disagree.`,
-      "it's one shared piece (lcCountBtn in js/core.js), so they all look the same, feel the same and VoiceOver reads em the same way. a ticked box means it's urs.",
-      "ur dislikes are private, always. only u see em, so Dislike never shows a number. Cherry reply votes stay on ur device. everything u like or dislike shows up in the <a href=\"../liked-manager/\">Liked manager</a>."
+      `Like sits under every <a href="../dream-card/">Dream card</a>, every reply and every Dream u open from Alerts. Cherry replies get Like too, and bug reports in <a href="../report-a-problem/">Report a problem</a> use the same counter for Agree and Disagree.`,
+      "it's one shared piece (lcCountBtn in js/core.js), so they all look the same, feel the same and VoiceOver reads em the same way. a ticked box means it's urs, and the words change: Like becomes Unlike.",
+      "everything u like shows up in the <a href=\"../liked-manager/\">Liked manager</a>. To see less of something, Not interested in a Dream's More menu is the private way."
     ],
     states: [
-      { id: "normal", n: "normal", say: "not liked, not disliked.", html: `<div class="ixn-row">
-<button type="button" class="cbx-wrap lc-count" aria-pressed="false" aria-label="12 likes"><div class="cbx-box"></div><span>12 Likes</span></button>
-<button type="button" class="cbx-wrap lc-count lc-dislike" aria-pressed="false" aria-label="Dislike"><div class="cbx-box"></div><span>Dislike</span></button>
+      { id: "normal", n: "normal", say: "not liked yet.", html: `<div class="ixn-row">
+<button type="button" class="cbx-wrap lc-count" aria-label="Like, 12 likes"><div class="cbx-box"></div><span>Like 12</span></button>
 </div>`, h: 70 },
-      { id: "liked", n: "liked", say: "Like is ticked and the count went up.", html: `<div class="ixn-row">
-<button type="button" class="cbx-wrap lc-count liked" aria-pressed="true" aria-label="13 likes"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>13 Likes</span></button>
-<button type="button" class="cbx-wrap lc-count lc-dislike" aria-pressed="false" aria-label="Dislike"><div class="cbx-box"></div><span>Dislike</span></button>
+      { id: "liked", n: "liked", say: "ticked, the count went up, and it says Unlike now.", html: `<div class="ixn-row">
+<button type="button" class="cbx-wrap lc-count liked" aria-label="Unlike, 13 likes"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>Unlike 13</span></button>
 </div>`, h: 70 },
-      { id: "disliked", n: "disliked", say: "Dislike is ticked. disliking takes ur like off, liking takes ur dislike off.", html: `<div class="ixn-row">
-<button type="button" class="cbx-wrap lc-count" aria-pressed="false" aria-label="12 likes"><div class="cbx-box"></div><span>12 Likes</span></button>
-<button type="button" class="cbx-wrap lc-count disliked lc-dislike" aria-pressed="true" aria-label="Dislike"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>Dislike</span></button>
+      { id: "focused", n: "focused", say: "focus ring on Like.", html: `<div class="ixn-row">
+<button type="button" class="cbx-wrap lc-count demo-focus" aria-label="Like, 12 likes"><div class="cbx-box"></div><span>Like 12</span></button>
 </div>`, h: 70 },
-      { id: "focused", n: "focused", say: "focus ring on Dislike.", html: `<div class="ixn-row">
-<button type="button" class="cbx-wrap lc-count" aria-pressed="false" aria-label="12 likes"><div class="cbx-box"></div><span>12 Likes</span></button>
-<button type="button" class="cbx-wrap lc-count lc-dislike demo-focus" aria-pressed="false" aria-label="Dislike"><div class="cbx-box"></div><span>Dislike</span></button>
-</div>`, h: 70 },
-      { id: "cherry-reply", n: "on a Cherry reply", say: "under each Cherry reply. this one's disliked.", html: `<div class="lc-inrow lc-cr-votes">
-<button type="button" class="cbx-wrap lc-count" aria-pressed="false" aria-label="Like reply"><div class="cbx-box"></div><span>Like</span></button>
-<button type="button" class="cbx-wrap lc-count disliked" aria-pressed="true" aria-label="Dislike reply"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>Dislike</span></button>
+      { id: "cherry-reply", n: "on a Cherry reply", say: "under each Cherry reply. this one's liked.", html: `<div class="lc-inrow lc-cr-votes">
+<button type="button" class="cbx-wrap lc-count liked" aria-label="Unlike reply"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>Unlike</span></button>
 </div>`, h: 70 },
       { id: "agree", n: "Agree / Disagree", say: "a bug report u agree with. same counter, w the tracker's words.", html: `<div class="lc-issues"><div class="lc-inrow lc-issue-votes">
-<button type="button" class="cbx-wrap lc-count liked lc-issue-btn" aria-pressed="true" aria-label="you + 3 others agree"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>you + 3 others agree</span></button>
-<button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="1 disagrees"><div class="cbx-box"></div><span>1 disagrees</span></button>
+<button type="button" class="cbx-wrap lc-count liked lc-issue-btn" aria-label="you + 3 others agree"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>you + 3 others agree</span></button>
+<button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-label="1 disagrees"><div class="cbx-box"></div><span>1 disagrees</span></button>
 </div></div>`, h: 70 },
       { id: "disabled", n: "disabled", say: "while a vote is sending, the counter is dimmed for a sec.", html: `<div class="lc-issues"><div class="lc-inrow lc-issue-votes">
-<button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="3 agree" disabled><div class="cbx-box"></div><span>3 agree</span></button>
-<button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="1 disagrees" disabled><div class="cbx-box"></div><span>1 disagrees</span></button>
+<button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-label="3 agree" disabled><div class="cbx-box"></div><span>3 agree</span></button>
+<button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-label="1 disagrees" disabled><div class="cbx-box"></div><span>1 disagrees</span></button>
 </div></div>`, h: 70 }
     ],
     code: `<div class="ixn-row">
-<button type="button" class="cbx-wrap lc-count" aria-pressed="false" aria-label="12 likes"><div class="cbx-box"></div><span>12 Likes</span></button>
-<button type="button" class="cbx-wrap lc-count lc-dislike" aria-pressed="false" aria-label="Dislike"><div class="cbx-box"></div><span>Dislike</span></button>
+<button type="button" class="cbx-wrap lc-count" aria-label="Like, 12 likes"><div class="cbx-box"></div><span>Like 12</span></button>
 </div>`,
-    js: `// One shared counter for Like, Dislike, Cherry reply votes and Agree / Disagree (js/core.js, Looscid.lcCountBtn).
+    js: `// One shared counter for Like, Cherry reply Like and Agree / Disagree (js/core.js, Looscid.lcCountBtn).
 // h is React.createElement or Looscid.lcEl. o: { on, cls, label, text, onClick, disabled }
+// No aria-pressed: the label says the state (Like / Unlike).
 function lcCountBtn(h, o) {
   const box = h("div", { className: "cbx-box" }, o.on ? CHECK_SVG : null);
   return h("button", { type: "button", className: "cbx-wrap lc-count" + (o.on ? " " + (o.cls || "liked") : ""),
-    "aria-pressed": o.on ? "true" : "false", "aria-label": o.label, disabled: o.disabled || undefined, onClick: o.onClick },
+    "aria-label": o.label, disabled: o.disabled || undefined, onClick: o.onClick },
     box, h("span", null, o.text == null ? o.label : o.text));
 }
-// Dislike under a Dream: no number, because dislikes are private.
-lcCountBtn(h, { on: disliked, cls: "disliked", label: "Dislike", onClick: function () { toggleDislike(); announce(disliked ? "Dislike removed" : "Disliked", "state"); } });`,
+// Like under a Dream (js/core.js LcDreamActions): the words change, Like to Unlike.
+lcCountBtn(h, { on: liked, cls: "liked", label: (liked ? "Unlike" : "Like") + ", " + count + " likes", text: (liked ? "Unlike " : "Like ") + count, onClick: toggleLike });`,
     vo: [
-      `Like says the count: "12 likes, toggle button". double tap it and the polite live region says "Liked", and the button reads as selected.`,
-      `Dislike says "Dislike, toggle button". double tap: "Disliked". again: "Dislike removed". there's never a number, bc dislikes are private.`,
-      `on a Cherry reply: "Like reply, toggle button" and "Dislike reply, toggle button".`,
-      `Agree says "3 agree", and once it's urs "you + 3 others agree, selected". double tap ur vote again to take it back.`,
-      "the tick box picture is hidden. the state comes from the button itself, so VoiceOver never says it twice.",
+      `Like says what it does, then the count: "Like, 12 likes, button". double tap it and the polite live region says "Liked", and the button now reads "Unlike, 13 likes".`,
+      `on a Cherry reply: "Like reply, button", then "Unlike reply, button".`,
+      `Agree says "3 agree", and once it's urs "you + 3 others agree". double tap ur vote again to take it back.`,
+      "the tick box picture is hidden. the state is in the words, so VoiceOver never says it twice and never says \"toggle\".",
       "braille display: Enter on any of em presses it, same as a double tap."
     ],
     rel: ["like-redream-buttons", "liked-manager", "dream-card", "report-a-problem", "live-region"],
@@ -344,20 +335,16 @@ lcCountBtn(h, { on: disliked, cls: "disliked", label: "Dislike", onClick: functi
   {
     slug: "liked-manager",
     t: "Liked manager",
-    s: "the Liked tab's tools: Likes or Dislikes, a Filter, Unlike / Remove dislike on each line and Clear all shown.",
+    s: "the Liked tab's tools: a Filter, Unlike on each line and Clear all shown.",
     where: [
       "it's the top of the Liked tab on ur profile, and the Liked page in More. no new page: Liked just got the tools.",
-      `Show is two radio buttons, Likes and Dislikes. Filter is a native picker (like the <a href="../native-select/">select picker</a>): Everything, Dreams, Cherry replies, Bug reports. w Likes it also has Media, Circles, Apps, Marketplace, Chats and Searches, so nothing u could get to before is gone.`,
-      `each thing is one line u read in one swipe, w its own Unlike or Remove dislike button. Clear all shown removes everything the filter shows, but only after a real "are u sure" dialog.`
+      `Filter is a native picker (like the <a href="../native-select/">select picker</a>): Everything, Dreams, Cherry replies, Bug reports, Media, Circles, Apps, Marketplace, Chats and Searches, so nothing u could get to before is gone.`,
+      `each thing is one line u read in one swipe, w its own Unlike button. Clear all shown removes everything the filter shows, but only after a real "are u sure" dialog.`
     ],
     states: [
-      { id: "likes", n: "likes", say: "Likes, Everything: a bug report, a Cherry reply and a Dream.", html: `<div class="lc-liked">
-<p class="lc-liked-intro">Everything you liked or disliked, in one place. Only you can see this page.</p>
+      { id: "likes", n: "likes", say: "Everything: a bug report, a Cherry reply and a Dream.", html: `<div class="lc-liked">
+<p class="lc-liked-intro">Everything you liked, in one place. Only you can see this page.</p>
 <div class="lc-lm-tools">
-<fieldset class="lc-fs lc-lm-mode" id="lk-lm-mode"><legend class="lc-fs-l">Show</legend><div class="lc-radios">
-<label class="lc-radio on" for="lk-lm-likes"><input type="radio" name="lk-lm-mode" id="lk-lm-likes" value="likes" checked><span>Likes</span></label>
-<label class="lc-radio" for="lk-lm-dislikes"><input type="radio" name="lk-lm-mode" id="lk-lm-dislikes" value="dislikes"><span>Dislikes</span></label>
-</div></fieldset>
 <label for="lk-lm-filter" class="lc-fs-l lc-lm-fl">Filter</label>
 <select id="lk-lm-filter" class="inp lc-select lc-lm-sel"><option value="everything" selected>Everything</option><option value="dreams">Dreams</option><option value="cherry">Cherry replies</option><option value="bugs">Bug reports</option><option value="media">Media</option><option value="circles">Circles</option><option value="apps">Apps</option><option value="marketplace">Marketplace</option><option value="chats">Chats</option><option value="searches">Searches</option></select>
 <button type="button" id="lk-lm-clear" class="btn bgb lc-btn lc-lm-clear">Clear all shown</button>
@@ -368,29 +355,9 @@ lcCountBtn(h, { on: disliked, cls: "disliked", label: "Dislike", onClick: functi
 <li class="lc-liked-row"><span class="lc-liked-name">Dream by Ava: first snow of the year, the whole street went quiet. liked Nov 8</span><span class="lc-liked-acts"><button type="button" id="lk-lm-rm-2" class="btn bgb lc-btn" aria-label="Unlike, Dream by Ava: first snow of the year, the whole street went quiet. liked Nov 8">Unlike</button></span></li>
 </ul>
 </div>`, h: 470 },
-      { id: "dislikes", n: "dislikes", say: "Dislikes picked. the filter drops the like-only choices.", html: `<div class="lc-liked">
-<p class="lc-liked-intro">Everything you liked or disliked, in one place. Only you can see this page.</p>
-<div class="lc-lm-tools">
-<fieldset class="lc-fs lc-lm-mode" id="lk-lm-mode"><legend class="lc-fs-l">Show</legend><div class="lc-radios">
-<label class="lc-radio" for="lk-lm-likes"><input type="radio" name="lk-lm-mode" id="lk-lm-likes" value="likes"><span>Likes</span></label>
-<label class="lc-radio on" for="lk-lm-dislikes"><input type="radio" name="lk-lm-mode" id="lk-lm-dislikes" value="dislikes" checked><span>Dislikes</span></label>
-</div></fieldset>
-<label for="lk-lm-filter" class="lc-fs-l lc-lm-fl">Filter</label>
-<select id="lk-lm-filter" class="inp lc-select lc-lm-sel"><option value="everything" selected>Everything</option><option value="dreams">Dreams</option><option value="cherry">Cherry replies</option><option value="bugs">Bug reports</option></select>
-<p class="lc-muted lc-lm-note">only u see ur dislikes. nobody else, ever.</p>
-<button type="button" id="lk-lm-clear" class="btn bgb lc-btn lc-lm-clear">Clear all shown</button>
-</div>
-<ul class="lc-liked-list lc-lm-list" role="list">
-<li class="lc-liked-row"><span class="lc-liked-name">Dream by Sam: hot take, cereal is a soup. disliked Nov 8</span><span class="lc-liked-acts"><button type="button" id="lk-lm-rm-0" class="btn bgb lc-btn" aria-label="Remove dislike, Dream by Sam: hot take, cereal is a soup. disliked Nov 8">Remove dislike</button></span></li>
-</ul>
-</div>`, h: 360 },
       { id: "filtered", n: "filtered + focused", say: "Filter is on Cherry replies, w the focus ring on it.", html: `<div class="lc-liked">
-<p class="lc-liked-intro">Everything you liked or disliked, in one place. Only you can see this page.</p>
+<p class="lc-liked-intro">Everything you liked, in one place. Only you can see this page.</p>
 <div class="lc-lm-tools">
-<fieldset class="lc-fs lc-lm-mode" id="lk-lm-mode"><legend class="lc-fs-l">Show</legend><div class="lc-radios">
-<label class="lc-radio on" for="lk-lm-likes"><input type="radio" name="lk-lm-mode" id="lk-lm-likes" value="likes" checked><span>Likes</span></label>
-<label class="lc-radio" for="lk-lm-dislikes"><input type="radio" name="lk-lm-mode" id="lk-lm-dislikes" value="dislikes"><span>Dislikes</span></label>
-</div></fieldset>
 <label for="lk-lm-filter" class="lc-fs-l lc-lm-fl">Filter</label>
 <select id="lk-lm-filter" class="inp lc-select lc-lm-sel demo-focus"><option value="everything">Everything</option><option value="dreams">Dreams</option><option value="cherry" selected>Cherry replies</option><option value="bugs">Bug reports</option><option value="media">Media</option><option value="circles">Circles</option><option value="apps">Apps</option><option value="marketplace">Marketplace</option><option value="chats">Chats</option><option value="searches">Searches</option></select>
 <button type="button" id="lk-lm-clear" class="btn bgb lc-btn lc-lm-clear">Clear all shown</button>
@@ -400,17 +367,12 @@ lcCountBtn(h, { on: disliked, cls: "disliked", label: "Dislike", onClick: functi
 </ul>
 </div>`, h: 360 },
       { id: "empty", n: "empty", say: "nothing there yet, so no Clear all shown button.", html: `<div class="lc-liked">
-<p class="lc-liked-intro">Everything you liked or disliked, in one place. Only you can see this page.</p>
+<p class="lc-liked-intro">Everything you liked, in one place. Only you can see this page.</p>
 <div class="lc-lm-tools">
-<fieldset class="lc-fs lc-lm-mode" id="lk-lm-mode"><legend class="lc-fs-l">Show</legend><div class="lc-radios">
-<label class="lc-radio" for="lk-lm-likes"><input type="radio" name="lk-lm-mode" id="lk-lm-likes" value="likes"><span>Likes</span></label>
-<label class="lc-radio on" for="lk-lm-dislikes"><input type="radio" name="lk-lm-mode" id="lk-lm-dislikes" value="dislikes" checked><span>Dislikes</span></label>
-</div></fieldset>
 <label for="lk-lm-filter" class="lc-fs-l lc-lm-fl">Filter</label>
-<select id="lk-lm-filter" class="inp lc-select lc-lm-sel"><option value="everything">Everything</option><option value="dreams">Dreams</option><option value="cherry" selected>Cherry replies</option><option value="bugs">Bug reports</option></select>
-<p class="lc-muted lc-lm-note">only u see ur dislikes. nobody else, ever.</p>
+<select id="lk-lm-filter" class="inp lc-select lc-lm-sel"><option value="everything">Everything</option><option value="dreams">Dreams</option><option value="cherry" selected>Cherry replies</option><option value="bugs">Bug reports</option><option value="media">Media</option><option value="circles">Circles</option><option value="apps">Apps</option><option value="marketplace">Marketplace</option><option value="chats">Chats</option><option value="searches">Searches</option></select>
 </div>
-<p class="lc-muted lc-liked-none">no disliked Cherry replies yet. use Dislike under a Cherry reply.</p>
+<p class="lc-muted lc-liked-none">no liked Cherry replies yet. use Like under a Cherry reply.</p>
 </div>`, h: 300 },
       { id: "clear-dialog", n: "Clear all shown dialog", say: "the are-u-sure. Cancel gets focus first.", html: `<div class="lid-alert-bg">
 <div class="lid-alert" role="alertdialog" aria-modal="true" aria-labelledby="lid-alert-t lid-alert-m">
@@ -421,12 +383,8 @@ lcCountBtn(h, { on: disliked, cls: "disliked", label: "Dislike", onClick: functi
 </div>`, h: 230 }
     ],
     code: `<div class="lc-liked">
-<p class="lc-liked-intro">Everything you liked or disliked, in one place. Only you can see this page.</p>
+<p class="lc-liked-intro">Everything you liked, in one place. Only you can see this page.</p>
 <div class="lc-lm-tools">
-<fieldset class="lc-fs lc-lm-mode" id="lk-lm-mode"><legend class="lc-fs-l">Show</legend><div class="lc-radios">
-<label class="lc-radio on" for="lk-lm-likes"><input type="radio" name="lk-lm-mode" id="lk-lm-likes" value="likes" checked><span>Likes</span></label>
-<label class="lc-radio" for="lk-lm-dislikes"><input type="radio" name="lk-lm-mode" id="lk-lm-dislikes" value="dislikes"><span>Dislikes</span></label>
-</div></fieldset>
 <label for="lk-lm-filter" class="lc-fs-l lc-lm-fl">Filter</label>
 <select id="lk-lm-filter" class="inp lc-select lc-lm-sel"><option value="everything" selected>Everything</option><option value="dreams">Dreams</option><option value="cherry">Cherry replies</option><option value="bugs">Bug reports</option><option value="media">Media</option><option value="circles">Circles</option><option value="apps">Apps</option><option value="marketplace">Marketplace</option><option value="chats">Chats</option><option value="searches">Searches</option></select>
 <button type="button" id="lk-lm-clear" class="btn bgb lc-btn lc-lm-clear">Clear all shown</button>
@@ -439,7 +397,7 @@ lcCountBtn(h, { on: disliked, cls: "disliked", label: "Dislike", onClick: functi
 </div>`,
     js: `// The Liked manager (js/liked.js, cut down). Each line's button removes it, then says "Removed" politely.
 removeBtn.addEventListener("click", async function () {
-  const ok = await item.remove(); // a like, a dislike, a Cherry reply vote, or a bug report vote (signed, through Rem)
+  const ok = await item.remove(); // a like, a Cherry reply like, or a bug report Agree (signed, through Rem)
   if (!ok) { announce("couldn't remove that one rn"); return; }
   announce("Removed", "state");
   focusNextRowOrFilter(); // focus never gets lost
@@ -447,14 +405,13 @@ removeBtn.addEventListener("click", async function () {
 // Clear all shown: a real alert dialog first, then "Cleared 3".
 clearBtn.addEventListener("click", function () { openAlertDialog({ title: "Clear all shown?", confirmLabel: "Clear " + shown.length, onConfirm: clearAll }); });`,
     vo: [
-      `Show reads "Likes, radio button, 1 of 2, Show". swipe right for Dislikes, double tap to switch.`,
       `Filter reads "Filter, Everything, pop up button". double tap, then swipe through the choices.`,
       `each line is one swipe: "Dream by Ava: first snow of the year… liked Nov 8". the next swipe is its button: "Unlike, Dream by Ava…".`,
       `after u remove one, the live region says "Removed" and focus jumps to the next line's button, never to the top of the page.`,
       `Clear all shown opens an alert dialog. VoiceOver reads its title and message, focus lands on Cancel. confirm and it says "Cleared 3".`,
-      "braille display: Enter picks a radio button, opens the Filter and presses Unlike or Clear all shown."
+      "braille display: Enter opens the Filter and presses Unlike or Clear all shown."
     ],
-    rel: ["like-dislike-buttons", "radio-group", "native-select", "live-region", "empty-state", "buttons"],
+    rel: ["like-buttons", "native-select", "live-region", "empty-state", "buttons"],
   },
   {
     slug: "more-menu-list",
@@ -1510,10 +1467,10 @@ async function send() {
     vo: [
       `the form is a radio group ("What kind?"), then "Title, text field", "What happened?, text field" and "Send report, button". no required attribute: if the title is empty, it tells u in words.`,
       `each report is one heading, so the headings rotor is a list of reports and one swipe reads the whole thing: "The Like button double-announces. Bug, new. 4 agree, 1 disagree. heading level 3".`,
-      `Agree and Disagree are the same counter as Like on a Dream (the Like and Dislike buttons page has it): "4 agree, toggle button". after u vote the live region says "Agreed. you + 3 others agree", and the button reads "you + 3 others agree, selected". double tap it again to take it back.`,
+      `Agree and Disagree are the same counter as Like on a Dream (the Like buttons page has it): "4 agree, button". after u vote the live region says "Agreed. you + 3 others agree", and the button reads "you + 3 others agree, selected". double tap it again to take it back.`,
       "braille display: type the report, Enter on Send report sends it. Enter on Agree votes."
     ],
-    rel: ["native-select", "radio-group", "live-region", "like-dislike-buttons"],
+    rel: ["native-select", "radio-group", "live-region", "like-buttons"],
   },
   {
     slug: "report-center",

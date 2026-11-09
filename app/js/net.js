@@ -260,7 +260,7 @@ function LcRemLists() {
   const say = function (t) { setMsg(t); if (Looscid.announce) Looscid.announce(t); };
   const paused = Looscid.lcLists && Looscid.lcLists.paused();
   return lh(React.Fragment, null,
-    lh('p', { className: "lid-help" }, "Your likes, ReDreams, pins, dislikes, mutes, Not interested and the threads you follow sync through Rem with your key, so a change on one device shows up on the others. Only like and ReDream counts are public. This device keeps its own copy too."),
+    lh('p', { className: "lid-help" }, "Your likes, ReDreams, pins, mutes, Not interested and the threads you follow sync through Rem with your key, so a change on one device shows up on the others. Only like and ReDream counts are public. Not interested is private: only you ever see it. This device keeps its own copy too."),
     // Nov 8 2026: after Delete my Rem data, your lists stop syncing on this device until you turn it back on here.
     paused ? lh(React.Fragment, null,
       lh('p', { className: "lid-help" }, "Your likes, ReDreams, pins, mutes and followed threads aren't syncing on this device right now, so they stay only here."),

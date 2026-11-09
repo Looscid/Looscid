@@ -3,6 +3,23 @@
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
 
+## Every Dream gets the full controls, Dislike is gone, and Not interested is here (no new build yet)
+
+Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+
+Asked for by Carter: "I don't see the full dream Controls." "Dislikes should be removed." Then yes to Not interested instead, and "Keep Like Manager."
+
+- Every Dream has the same five buttons now, everywhere it shows up: Replies (or Reply in a thread), Redream, Like, Share and More. That's your feed, a thread, every reply in a thread, profiles, Liked, Lists, Circles, and a Dream you opened from Alerts or Discover.
+- Replies were missing the most. A reply only had a Like that was never saved (it forgot it the second you left) and a tiny menu. Now each reply has Redream, Quote, Share, Report, Mute, Block, Copy link, and Edit reply and Delete reply on your own.
+- A Dream opened from an alert had a Like and a Redream that did nothing, because that Dream wasn't in the screen's list. Now Like and Redream read and write one shared spot, so liking a Dream anywhere shows everywhere at once.
+- The thread's own Dream got Share in its row, and its More got Edit, Dream info, Liked by and Redreamed by, like everywhere else. Reply is the first button there, so the big separate Reply button is gone (it was said twice).
+- Like says Unlike once you've liked it, and Redream says Unredream. No more "toggle button, selected". The words tell you.
+- More has Copy link and Copy text now. The Help Center already said Copy link was there. It wasn't. Now it is.
+- Dislike is gone, for good. The button, the Dislikes switch in Liked, the Dislike under Cherry replies and the component pages are all gone. Old dislikes quietly disappear from your phone, and from Rem too the next time your lists sync. Bug report Agree and Disagree stay, since those are votes on a report.
+- New: Not interested, in the More menu of every Dream that isn't yours. It hides that Dream from your Home feed and shows you a little less from the same Dreamor and about the same stuff in For You. Only you see it. In the feed the Dream turns into one short line with Undo right there. Anywhere else, More says Undo Not interested.
+- New: Settings, Privacy & Security, Not interested. See what you marked, bring one back with Show again, or Clear all.
+- The Like manager in Liked stays, minus its Dislikes half.
+
 ## Replies show up for real now, and alerts open fast (no new build yet)
 
 Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.

@@ -2,14 +2,14 @@
 <html lang="en-US" data-help-root="../../../">
 <head>
 <meta charset="UTF-8"/>
-<title>Like and Dislike buttons component - Looscid Help Center</title>
+<title>Like buttons component - Looscid Help Center</title>
 <!-- Made by .github/scripts/build-help.mjs from app/js/helpdata.js. Edit those, not this page. Link previews come first. -->
-<meta name="description" content="the shared counter: Like and Dislike on Dreams and Cherry replies, and Agree / Disagree on bug reports.">
+<meta name="description" content="the shared counter: Like on Dreams and Cherry replies, and Agree / Disagree on bug reports. the words say the state.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Looscid">
-<meta property="og:title" content="Like and Dislike buttons component - Looscid Help Center">
-<meta property="og:description" content="the shared counter: Like and Dislike on Dreams and Cherry replies, and Agree / Disagree on bug reports.">
-<meta property="og:url" content="https://looscid.github.io/Looscid/help/dev/components/like-dislike-buttons/">
+<meta property="og:title" content="Like buttons component - Looscid Help Center">
+<meta property="og:description" content="the shared counter: Like on Dreams and Cherry replies, and Agree / Disagree on bug reports. the words say the state.">
+<meta property="og:url" content="https://looscid.github.io/Looscid/help/dev/components/like-buttons/">
 <meta property="og:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
 <meta property="og:image:secure_url" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
 <meta property="og:image:type" content="image/png">
@@ -18,11 +18,11 @@
 <meta property="og:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@Looscid">
-<meta name="twitter:title" content="Like and Dislike buttons component - Looscid Help Center">
-<meta name="twitter:description" content="the shared counter: Like and Dislike on Dreams and Cherry replies, and Agree / Disagree on bug reports.">
+<meta name="twitter:title" content="Like buttons component - Looscid Help Center">
+<meta name="twitter:description" content="the shared counter: Like on Dreams and Cherry replies, and Agree / Disagree on bug reports. the words say the state.">
 <meta name="twitter:image" content="https://looscid.github.io/Looscid/assets/cards/help.png?v=nl1">
 <meta name="twitter:image:alt" content="Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Help - Looscid”">
-<link rel="canonical" href="https://looscid.github.io/Looscid/help/dev/components/like-dislike-buttons/">
+<link rel="canonical" href="https://looscid.github.io/Looscid/help/dev/components/like-buttons/">
 <link rel="icon" type="image/png" sizes="32x32" href="https://looscid.github.io/Looscid/assets/icons/favicon-32.png?v=nl1">
 <link rel="apple-touch-icon" href="https://looscid.github.io/Looscid/assets/icons/apple-touch-icon.png?v=nl1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
@@ -35,59 +35,56 @@
 <div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <header class="top"><a class="brand" href="../../../" title="Goes back to Help Center" aria-label="Looscid Help Center, logo: a white open ring with a dot in the middle, on blue"><img src="../../../../assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="32" height="32"><span><span aria-hidden="true">Looscid</span> Help Center</span></a><div class="goto"><button type="button" class="goto-btn" aria-expanded="false" aria-controls="goto-list" hidden>Go to<svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><ul class="goto-list" id="goto-list"><li><a href="../../../" title="Goes back to Help Center">Help Home</a></li><li><a href="../../../../" title="Goes to Home">Looscid Home</a></li></ul></div></header>
 <main class="wrap" id="main">
-<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../../../" title="Goes back to Help Center">Help Center</a></li><li><a href="../../../#h-building" title="Goes back to Help Center">Building Looscid</a></li><li><a href="../" title="Opens this article">Components</a></li><li><span aria-current="page">Like and Dislike buttons</span></li></ol></nav>
+<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../../../" title="Goes back to Help Center">Help Center</a></li><li><a href="../../../#h-building" title="Goes back to Help Center">Building Looscid</a></li><li><a href="../" title="Opens this article">Components</a></li><li><span aria-current="page">Like buttons</span></li></ol></nav>
 <link rel="stylesheet" href="../components.css?v=1">
-<h1>Like and Dislike buttons</h1>
-<p class="lead">the shared counter: Like and Dislike on Dreams and Cherry replies, and Agree / Disagree on bug reports.</p>
+<h1>Like buttons</h1>
+<p class="lead">the shared counter: Like on Dreams and Cherry replies, and Agree / Disagree on bug reports. the words say the state.</p>
 <h2 id="what">what it is</h2>
-<p>Dislike sits right next to Like under every <a href="../dream-card/" title="Opens this article">Dream card</a>. Cherry replies get Like and Dislike too, and bug reports in <a href="../report-a-problem/" title="Opens this article">Report a problem</a> use the same counter for Agree and Disagree.</p>
-<p>it's one shared piece (lcCountBtn in js/core.js), so they all look the same, feel the same and VoiceOver reads em the same way. a ticked box means it's urs.</p>
-<p>ur dislikes are private, always. only u see em, so Dislike never shows a number. Cherry reply votes stay on ur device. everything u like or dislike shows up in the <a href="../liked-manager/" title="Opens this article">Liked manager</a>.</p>
+<p>Like sits under every <a href="../dream-card/" title="Opens this article">Dream card</a>, every reply and every Dream u open from Alerts. Cherry replies get Like too, and bug reports in <a href="../report-a-problem/" title="Opens this article">Report a problem</a> use the same counter for Agree and Disagree.</p>
+<p>it's one shared piece (lcCountBtn in js/core.js), so they all look the same, feel the same and VoiceOver reads em the same way. a ticked box means it's urs, and the words change: Like becomes Unlike.</p>
+<p>everything u like shows up in the <a href="../liked-manager/" title="Opens this article">Liked manager</a>. To see less of something, Not interested in a Dream's More menu is the private way.</p>
 <h2 id="states">states</h2>
 <p>live demos, drawn w looscid's real styles. look-only: nothing in them does anything.</p>
 <h3 id="state-normal">normal</h3>
-<p>not liked, not disliked.</p>
-<iframe class="cl-frame" src="normal.html" title="Like and Dislike buttons demo, normal" loading="lazy" style="height:70px"></iframe>
+<p>not liked yet.</p>
+<iframe class="cl-frame" src="normal.html" title="Like buttons demo, normal" loading="lazy" style="height:70px"></iframe>
 <h3 id="state-liked">liked</h3>
-<p>Like is ticked and the count went up.</p>
-<iframe class="cl-frame" src="liked.html" title="Like and Dislike buttons demo, liked" loading="lazy" style="height:70px"></iframe>
-<h3 id="state-disliked">disliked</h3>
-<p>Dislike is ticked. disliking takes ur like off, liking takes ur dislike off.</p>
-<iframe class="cl-frame" src="disliked.html" title="Like and Dislike buttons demo, disliked" loading="lazy" style="height:70px"></iframe>
+<p>ticked, the count went up, and it says Unlike now.</p>
+<iframe class="cl-frame" src="liked.html" title="Like buttons demo, liked" loading="lazy" style="height:70px"></iframe>
 <h3 id="state-focused">focused</h3>
-<p>focus ring on Dislike.</p>
-<iframe class="cl-frame" src="focused.html" title="Like and Dislike buttons demo, focused" loading="lazy" style="height:70px"></iframe>
+<p>focus ring on Like.</p>
+<iframe class="cl-frame" src="focused.html" title="Like buttons demo, focused" loading="lazy" style="height:70px"></iframe>
 <h3 id="state-cherry-reply">on a Cherry reply</h3>
-<p>under each Cherry reply. this one's disliked.</p>
-<iframe class="cl-frame" src="cherry-reply.html" title="Like and Dislike buttons demo, on a Cherry reply" loading="lazy" style="height:70px"></iframe>
+<p>under each Cherry reply. this one's liked.</p>
+<iframe class="cl-frame" src="cherry-reply.html" title="Like buttons demo, on a Cherry reply" loading="lazy" style="height:70px"></iframe>
 <h3 id="state-agree">Agree / Disagree</h3>
 <p>a bug report u agree with. same counter, w the tracker's words.</p>
-<iframe class="cl-frame" src="agree.html" title="Like and Dislike buttons demo, Agree / Disagree" loading="lazy" style="height:70px"></iframe>
+<iframe class="cl-frame" src="agree.html" title="Like buttons demo, Agree / Disagree" loading="lazy" style="height:70px"></iframe>
 <h3 id="state-disabled">disabled</h3>
 <p>while a vote is sending, the counter is dimmed for a sec.</p>
-<iframe class="cl-frame" src="disabled.html" title="Like and Dislike buttons demo, disabled" loading="lazy" style="height:70px"></iframe>
+<iframe class="cl-frame" src="disabled.html" title="Like buttons demo, disabled" loading="lazy" style="height:70px"></iframe>
 <h2 id="code">copy the code</h2>
 <h3 id="code-html">html</h3>
-<pre class="cl-code"><code id="code-like-dislike-buttons-html">&lt;div class=&quot;ixn-row&quot;&gt;
-&lt;button type=&quot;button&quot; class=&quot;cbx-wrap lc-count&quot; aria-pressed=&quot;false&quot; aria-label=&quot;12 likes&quot;&gt;&lt;div class=&quot;cbx-box&quot;&gt;&lt;/div&gt;&lt;span&gt;12 Likes&lt;/span&gt;&lt;/button&gt;
-&lt;button type=&quot;button&quot; class=&quot;cbx-wrap lc-count lc-dislike&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Dislike&quot;&gt;&lt;div class=&quot;cbx-box&quot;&gt;&lt;/div&gt;&lt;span&gt;Dislike&lt;/span&gt;&lt;/button&gt;
+<pre class="cl-code"><code id="code-like-buttons-html">&lt;div class=&quot;ixn-row&quot;&gt;
+&lt;button type=&quot;button&quot; class=&quot;cbx-wrap lc-count&quot; aria-label=&quot;Like, 12 likes&quot;&gt;&lt;div class=&quot;cbx-box&quot;&gt;&lt;/div&gt;&lt;span&gt;Like 12&lt;/span&gt;&lt;/button&gt;
 &lt;/div&gt;</code></pre>
-<p><button type="button" class="btn cl-copy" data-copy="code-like-dislike-buttons-html" hidden>Copy code</button></p>
+<p><button type="button" class="btn cl-copy" data-copy="code-like-buttons-html" hidden>Copy code</button></p>
 <h3 id="code-js">js</h3>
-<pre class="cl-code"><code id="code-like-dislike-buttons-js">// One shared counter for Like, Dislike, Cherry reply votes and Agree / Disagree (js/core.js, Looscid.lcCountBtn).
+<pre class="cl-code"><code id="code-like-buttons-js">// One shared counter for Like, Cherry reply Like and Agree / Disagree (js/core.js, Looscid.lcCountBtn).
 // h is React.createElement or Looscid.lcEl. o: { on, cls, label, text, onClick, disabled }
+// No aria-pressed: the label says the state (Like / Unlike).
 function lcCountBtn(h, o) {
   const box = h(&quot;div&quot;, { className: &quot;cbx-box&quot; }, o.on ? CHECK_SVG : null);
   return h(&quot;button&quot;, { type: &quot;button&quot;, className: &quot;cbx-wrap lc-count&quot; + (o.on ? &quot; &quot; + (o.cls || &quot;liked&quot;) : &quot;&quot;),
-    &quot;aria-pressed&quot;: o.on ? &quot;true&quot; : &quot;false&quot;, &quot;aria-label&quot;: o.label, disabled: o.disabled || undefined, onClick: o.onClick },
+    &quot;aria-label&quot;: o.label, disabled: o.disabled || undefined, onClick: o.onClick },
     box, h(&quot;span&quot;, null, o.text == null ? o.label : o.text));
 }
-// Dislike under a Dream: no number, because dislikes are private.
-lcCountBtn(h, { on: disliked, cls: &quot;disliked&quot;, label: &quot;Dislike&quot;, onClick: function () { toggleDislike(); announce(disliked ? &quot;Dislike removed&quot; : &quot;Disliked&quot;, &quot;state&quot;); } });</code></pre>
-<p><button type="button" class="btn cl-copy" data-copy="code-like-dislike-buttons-js" hidden>Copy JS code</button></p>
+// Like under a Dream (js/core.js LcDreamActions): the words change, Like to Unlike.
+lcCountBtn(h, { on: liked, cls: &quot;liked&quot;, label: (liked ? &quot;Unlike&quot; : &quot;Like&quot;) + &quot;, &quot; + count + &quot; likes&quot;, text: (liked ? &quot;Unlike &quot; : &quot;Like &quot;) + count, onClick: toggleLike });</code></pre>
+<p><button type="button" class="btn cl-copy" data-copy="code-like-buttons-js" hidden>Copy JS code</button></p>
 <p>it uses the classes from css/app.css and css/a11y.css, so it looks right anywhere in looscid.</p>
 <h2 id="voiceover">how it works w voiceover</h2>
-<ul><li>Like says the count: &quot;12 likes, toggle button&quot;. double tap it and the polite live region says &quot;Liked&quot;, and the button reads as selected.</li><li>Dislike says &quot;Dislike, toggle button&quot;. double tap: &quot;Disliked&quot;. again: &quot;Dislike removed&quot;. there's never a number, bc dislikes are private.</li><li>on a Cherry reply: &quot;Like reply, toggle button&quot; and &quot;Dislike reply, toggle button&quot;.</li><li>Agree says &quot;3 agree&quot;, and once it's urs &quot;you + 3 others agree, selected&quot;. double tap ur vote again to take it back.</li><li>the tick box picture is hidden. the state comes from the button itself, so VoiceOver never says it twice.</li><li>braille display: Enter on any of em presses it, same as a double tap.</li></ul>
+<ul><li>Like says what it does, then the count: &quot;Like, 12 likes, button&quot;. double tap it and the polite live region says &quot;Liked&quot;, and the button now reads &quot;Unlike, 13 likes&quot;.</li><li>on a Cherry reply: &quot;Like reply, button&quot;, then &quot;Unlike reply, button&quot;.</li><li>Agree says &quot;3 agree&quot;, and once it's urs &quot;you + 3 others agree&quot;. double tap ur vote again to take it back.</li><li>the tick box picture is hidden. the state is in the words, so VoiceOver never says it twice and never says &quot;toggle&quot;.</li><li>braille display: Enter on any of em presses it, same as a double tap.</li></ul>
 <h2 id="related">related</h2>
 <ul><li><a href="../like-redream-buttons/" title="Opens this article">Like and ReDream buttons</a></li><li><a href="../liked-manager/" title="Opens this article">Liked manager</a></li><li><a href="../dream-card/" title="Opens this article">Dream card</a></li><li><a href="../report-a-problem/" title="Opens this article">Report a problem and report rows</a></li><li><a href="../live-region/" title="Opens this article">Live region announcements</a></li></ul>
 <p class="next"><a href="../" title="Opens this article">All components</a></p>

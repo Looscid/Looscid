@@ -53,14 +53,15 @@ function LikedRow({ item, label, onOpen, openLabel }) {
       onOpen ? lh('button', { type: "button", className: "btn bgb lc-btn", onClick: onOpen }, openLabel || "Open") : null,
       lh('button', { type: "button", className: "btn bgb lc-btn", "aria-label": lcNameJoin("Unlike", label), onClick: function () { lcLikedSet(item.k, item.id, false); announce("Unliked " + label + ". Removed from Liked."); } }, "Unlike")));
 }
-/* Nov 8 2026 (Carter, 12:08-12:10 PM): Liked is the one place for everything you like AND dislike. No new page.
-   - Show: Likes or Dislikes, two native radio buttons in a fieldset.
+/* Nov 8 2026 (Carter, 12:08-12:10 PM): Liked is the one place for everything you like (the Like manager). No new page.
+   Nov 9 2026 (Carter: "Dislikes should be removed", then "Keep Like Manager"): the manager stays exactly as it was, minus
+   its Dislike half. The Show: Likes / Dislikes switch is gone, because there's only Likes now.
    - Filter: a native select (Fork Lab style): Everything, Dreams, Cherry replies, Bug reports. With Likes it also has the
      old tabs (Media, Circles, Apps, Marketplace, Chats, Searches), so nothing you could reach before is gone.
-   - Each thing is one line, read in one swipe, with its own Unlike or Remove dislike button. Clear all shown removes
-     everything the filter shows, after a real "are u sure" dialog.
-   Dislikes and Cherry reply votes live in js/dislikes.js; bug report Agree / Disagree in js/issues.js (agree = like,
-   disagree = dislike). Changes are said in the polite live region: "Removed", "Cleared 4". */
+   - Each thing is one line, read in one swipe, with its own Unlike button. Clear all shown removes everything the filter
+     shows, after a real "are u sure" dialog.
+   Cherry reply likes live in js/votes.js; bug report Agree in js/issues.js (agree counts as a like here; Disagree is a
+   vote on the report, so it isn't listed). Changes are said in the polite live region: "Removed", "Cleared 4". */
 const LC_LM_FILTERS = [["everything", "Everything"], ["dreams", "Dreams"], ["cherry", "Cherry replies"], ["bugs", "Bug reports"]];
 const LC_LM_LIKE_ONLY = [["media", "Media"], ["circles", "Circles"], ["apps", "Apps"], ["marketplace", "Marketplace"], ["chats", "Chats"], ["searches", "Searches"]];
 const LC_LM_KIND = { circle: "Circle", app: "App", listing: "Listing", chat: "Chat", search: "Search" };
@@ -68,21 +69,21 @@ function lcLmShort(t, n) { t = String(t || "").replace(/\s+/g, " ").trim(); retu
 function lcLmWhen(ms) { try { return ms ? new Date(+ms).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""; } catch (e) { return ""; } }
 // Everything one Show + Filter pick holds, as rows: { key, label, remove } (remove may be async; it returns false if it couldn't).
 function lcLmEntries(mode, flt) {
-  const out = [], like = mode === "likes", all = flt === "everything";
-  const D = Looscid.lcDislikes, CV = Looscid.lcCherryVotes, IS = Looscid.lcIssues;
+  const out = [], like = true, all = flt === "everything"; // Nov 9 2026: likes only (Dislike is gone)
+  const CV = Looscid.lcCherryVotes, IS = Looscid.lcIssues;
   try {
-    if (all || flt === "dreams") (like ? lcLikedItems("dream") : (D ? D.raw() : [])).forEach(function (x) {
+    if (all || flt === "dreams") lcLikedItems("dream").forEach(function (x) {
       const u = x.user || {}, who = u.name || u.handle || "a Dreamor";
-      out.push({ key: "d:" + x.id, at: x.at, label: "Dream by " + who + ": " + (lcLmShort(x.text, 140) || "no words") + (x.at ? ". " + (like ? "liked " : "disliked ") + lcLmWhen(x.at) : ""),
-        remove: function () { if (like) lcLikedSet("dream", x.id, false); else D.set({ id: x.id }, false, true); return true; } });
+      out.push({ key: "d:" + x.id, at: x.at, label: "Dream by " + who + ": " + (lcLmShort(x.text, 140) || "no words") + (x.at ? ". liked " + lcLmWhen(x.at) : ""),
+        remove: function () { lcLikedSet("dream", x.id, false); return true; } });
     });
-    if ((all || flt === "cherry") && CV) CV.list(like ? "like" : "dislike").forEach(function (x) {
+    if ((all || flt === "cherry") && CV) CV.list("like").forEach(function (x) {
       out.push({ key: "c:" + x.key, at: x.at, label: "Cherry reply in " + (x.title || "a Cherry chat") + ": " + (lcLmShort(x.text, 140) || "no words"), remove: function () { CV.set(x.key, null); return true; } });
     });
     if ((all || flt === "bugs") && IS && IS.votes) { const v = IS.votes(), info = IS.info ? IS.info() : {};
-      Object.keys(v).filter(function (id) { return v[id] === (like ? "agree" : "disagree"); }).forEach(function (id) {
+      Object.keys(v).filter(function (id) { return v[id] === "agree"; }).forEach(function (id) {
         const i = info[id] || {};
-        out.push({ key: "b:" + id, at: i.at || 0, label: (i.type === "idea" ? "Idea: " : "Bug report: ") + (i.title || "report " + id.slice(0, 8)) + (like ? ". u agree" : ". u disagree"),
+        out.push({ key: "b:" + id, at: i.at || 0, label: (i.type === "idea" ? "Idea: " : "Bug report: ") + (i.title || "report " + id.slice(0, 8)) + ". u agree",
           remove: function () { return IS.unvote(id); } });
       }); }
     if (all && like) lcLikedItems().filter(function (x) { return x.k && x.k !== "dream"; }).forEach(function (x) {
@@ -94,22 +95,20 @@ function lcLmEntries(mode, flt) {
 }
 const LC_LM_NONE = {
   likes: { everything: "nothing liked yet. like a Dream, a Cherry reply or a bug report and it shows up here.", dreams: "no liked Dreams yet. like a Dream and it shows up here.",
-    cherry: "no liked Cherry replies yet. use Like under a Cherry reply.", bugs: "no bug reports u agree with yet. Agree on one in Help Center, Report a problem." },
-  dislikes: { everything: "nothing disliked yet. only u ever see ur dislikes.", dreams: "no disliked Dreams yet. use Dislike next to Like on a Dream. only u see it.",
-    cherry: "no disliked Cherry replies yet. use Dislike under a Cherry reply.", bugs: "no bug reports u disagree with yet." } };
+    cherry: "no liked Cherry replies yet. use Like under a Cherry reply.", bugs: "no bug reports u agree with yet. Agree on one in Help Center, Report a problem." } };
 function LikedView({ navigate, cherryCtx, idp, intro, onComment, extraPanels, onReplies }) {
   idp = idp || "lk";
   useLikedTick();
   const mem = lcLikedTabMem[idp] || {};
-  const [mode, setModeS] = useState(mem.mode || "likes");
+  const mode = "likes"; // Nov 9 2026: Dislike is gone, so Liked only ever shows likes
   const [flt, setFltS] = useState(mem.flt || "everything");
   const [ask, setAsk] = useState(null); // the "Clear all shown?" dialog: { n }
   const [busy, setBusy] = useState(false);
   const [mf, setMf] = useState({ photos: true, gifs: true, videos: true }); // build 150 (#59): Media filters
   const [activeComment, setActiveComment] = useState(function () { return Looscid.lcCvTake ? Looscid.lcCvTake() : null; });
   const [, bump] = useState(0);
-  // Re-draw when dislikes, Cherry reply votes or bug report votes change.
-  useEffect(function () { const f = function () { bump(function (n) { return n + 1; }); }; const evs = ["looscid-disliked", "looscid-cherry-votes", "looscid-issue-votes"];
+  // Re-draw when Cherry reply likes or bug report votes change.
+  useEffect(function () { const f = function () { bump(function (n) { return n + 1; }); }; const evs = ["looscid-cherry-votes", "looscid-issue-votes"];
     evs.forEach(function (ev) { window.addEventListener(ev, f); }); return function () { evs.forEach(function (ev) { window.removeEventListener(ev, f); }); }; }, []);
   // Round 9 fixes (QA round 8): the Liked page hides its own header (and its Back) while a Dream's Replies are open here.
   useEffect(function () { if (onReplies) onReplies(!!(activeComment && !onComment)); }, [activeComment]);
@@ -129,10 +128,8 @@ function LikedView({ navigate, cherryCtx, idp, intro, onComment, extraPanels, on
     lcLikedSet("dream", d.id, !d.liked, lcDreamSnap(d));
   }
   const remember = function (m, f) { lcLikedTabMem[idp] = { mode: m, flt: f }; };
-  const setMode = function (m) { let f = flt; if (m === "dislikes" && !LC_LM_FILTERS.some(function (x) { return x[0] === f; })) f = "everything";
-    setModeS(m); setFltS(f); remember(m, f); };
   const setFlt = function (f) { setFltS(f); remember(mode, f); };
-  const filters = mode === "likes" ? LC_LM_FILTERS.concat(LC_LM_LIKE_ONLY) : LC_LM_FILTERS;
+  const filters = LC_LM_FILTERS.concat(LC_LM_LIKE_ONLY);
   const ai = lcAiOn();
   const mediaOf = function (list) { return list.filter(function (d) { const k = lcLikedMediaKinds(d); return (mf.photos && k.photos) || (mf.gifs && k.gifs) || (mf.videos && k.videos); }); };
   const listFor = function (t) {
@@ -194,32 +191,24 @@ function LikedView({ navigate, cherryCtx, idp, intro, onComment, extraPanels, on
     return lh('li', { key: x.key, className: "lc-liked-row" },
       lh('span', { className: "lc-liked-name" }, x.label),
       lh('span', { className: "lc-liked-acts" },
-        lh('button', { type: "button", id: bid, className: "btn bgb lc-btn", "aria-label": lcNameJoin(mode === "likes" ? "Unlike" : "Remove dislike", x.label),
+        lh('button', { type: "button", id: bid, className: "btn bgb lc-btn", "aria-label": lcNameJoin("Unlike", x.label),
           onClick: async function () { let ok = false; try { ok = await x.remove(); } catch (e) {}
             if (!ok) { announce("couldn't remove that one rn, bug report votes need ur Looscid key and a connection."); return; }
             bump(function (n) { return n + 1; }); announce("Removed", "state");
             // Focus stays in the list: the next row's button, or the filter when the list is empty.
-            focusSoon(i < rows.length - 1 ? bid : i > 0 ? idp + "-lm-rm-" + (i - 1) : idp + "-lm-filter"); } }, mode === "likes" ? "Unlike" : "Remove dislike")));
+            focusSoon(i < rows.length - 1 ? bid : i > 0 ? idp + "-lm-rm-" + (i - 1) : idp + "-lm-filter"); } }, "Unlike")));
   })) : lh('p', { className: "lc-muted lc-liked-none" }, (LC_LM_NONE[mode] || {})[flt] || "nothing here yet.")) : null;
   const shownCount = oldTab ? shownRemovers().length : rows.length;
   return lh('div', { className: "lc-liked" },
     intro ? lh('p', { className: "lc-liked-intro" }, intro) : null,
     lh('div', { className: "lc-lm-tools" },
-      lh('fieldset', { className: "lc-fs lc-lm-mode", id: idp + "-lm-mode" },
-        lh('legend', { className: "lc-fs-l" }, "Show"),
-        lh('div', { className: "lc-radios" }, [["likes", "Likes"], ["dislikes", "Dislikes"]].map(function (o) {
-          return lh('label', { key: o[0], className: "lc-radio" + (mode === o[0] ? " on" : ""), htmlFor: idp + "-lm-" + o[0] },
-            lh('input', { type: "radio", name: idp + "-lm-mode", id: idp + "-lm-" + o[0], value: o[0], checked: mode === o[0], onChange: function () { setMode(o[0]); } }),
-            lh('span', null, o[1]));
-        }))),
       lh('label', { htmlFor: idp + "-lm-filter", className: "lc-fs-l lc-lm-fl" }, "Filter"),
       lh('select', { id: idp + "-lm-filter", className: "inp lc-select lc-lm-sel", value: flt, onChange: function (e) { setFlt(e.target.value); } },
         filters.map(function (f) { return lh('option', { key: f[0], value: f[0] }, f[1]); })),
-      mode === "dislikes" ? lh('p', { className: "lc-muted lc-lm-note" }, "only u see ur dislikes. nobody else, ever.") : null,
       shownCount ? lh('button', { type: "button", id: idp + "-lm-clear", className: "btn bgb lc-btn lc-lm-clear", "aria-disabled": busy ? "true" : undefined,
         onClick: function () { if (!busy) setAsk({ n: shownCount }); } }, busy ? "Clearing\u2026" : "Clear all shown") : null),
     oldTab ? panel(oldTab) : rowsEl,
-    ask ? lh(Looscid.AlertDialog, { title: "Clear all shown?", message: "This removes " + Looscid.fmt(ask.n) + (ask.n === 1 ? " thing" : " things") + " from ur " + (mode === "likes" ? "likes" : "dislikes") + ". U can't undo it.",
+    ask ? lh(Looscid.AlertDialog, { title: "Clear all shown?", message: "This removes " + Looscid.fmt(ask.n) + (ask.n === 1 ? " thing" : " things") + " from ur likes. U can't undo it.",
       confirmLabel: "Clear " + ask.n, onConfirm: clearAll, onCancel: function () { setAsk(null); focusSoon(idp + "-lm-clear"); } }) : null);
 }
 Object.assign(Looscid, { LikedView });
@@ -329,7 +318,7 @@ function LikedPage({ navigate, cherryCtx }) {
     inReplies ? null : lh('div', { className: "hdr" }, lh('div', { className: "hdr-row" },
       lh('button', { type: "button", className: "bi", onClick: function () { navigate("settings"); }, "aria-label": "Back" }, lh(Looscid.Ic.Bck, { style: { width: 21, height: 21 } })),
       lh('h1', { className: "hdr-title", tabIndex: -1, ref: head }, "Liked"))),
-    lh(LikedView, { navigate: navigate, cherryCtx: cherryCtx, idp: "lk", intro: "Everything you liked or disliked, in one place. Only you can see this page.", onReplies: setInReplies }));
+    lh(LikedView, { navigate: navigate, cherryCtx: cherryCtx, idp: "lk", intro: "Everything you liked, in one place. Only you can see this page.", onReplies: setInReplies }));
 }
 // Commandbar: liked, like search [words], unlike search <words>.
 function lcLikedIntent(raw) {

@@ -610,8 +610,8 @@ html[data-lc-theme="light"] .lc-prof-linksrow-u{color:#5b21b6}
 /* Nov 8 2026: the shared counter (Looscid.lcCountBtn in js/core.js): Like and Dislike on Dreams and Cherry replies, and the
    issue tracker's Agree / Disagree. Same tick box and words everywhere; 44px tall at least. */
 .cbx-wrap.lc-count{min-height:44px;min-width:44px}
-.cbx-wrap.disliked{color:var(--tx)}
-.cbx-wrap.disliked .cbx-box{background:var(--tx2);border-color:var(--tx2)}
+.cbx-wrap.disagreed{color:var(--tx)} /* Nov 9 2026: bug report Disagree (it was .disliked; Dislike is gone) */
+.cbx-wrap.disagreed .cbx-box{background:var(--tx2);border-color:var(--tx2)}
 .cbx-wrap.lc-count:disabled{opacity:.6;cursor:default}
 .lc-issue-votes .cbx-wrap.lc-count,.lc-cr-votes .cbx-wrap.lc-count{flex:0 1 auto;padding:9px 12px;font-size:14px;border:1px solid var(--bd2);border-radius:12px;background:var(--sf2)}
 .lc-cr-votes{gap:8px;margin-top:6px;flex-wrap:wrap}
@@ -621,3 +621,22 @@ html[data-lc-theme="light"] .lc-prof-linksrow-u{color:#5b21b6}
 .lc-lm-sel{min-height:44px;max-width:320px}
 .lc-lm-clear{align-self:flex-start;min-height:44px}
 .lc-lm-note{margin:0}
+
+/* Nov 9 2026: the shared Dream row (core.js LcDreamActions), Not interested with Undo, and its Settings page. */
+.lc-acts > .ixn-btn,.lc-acts > .cbx-wrap,.lc-acts > .lmenu > button{min-height:44px}
+.lc-acts > .ixn-btn,.lc-acts > .cbx-wrap,.lc-acts > .lmenu{flex:1 1 0;min-width:0}
+.lc-acts > .lc-dmenu{flex:.6 1 0;min-width:44px}
+.lc-acts > .lc-dmenu > button{min-width:44px}
+.lc-acts .ixn-btn span,.lc-acts .cbx-wrap span{white-space:nowrap}
+.lc-acts .cbx-wrap{gap:5px;padding-left:2px;padding-right:2px}
+.lc-acts .ixn-btn[aria-disabled="true"]{opacity:.55}
+.cm-item .lc-acts{margin:6px -4px 0;border-top:none}
+.lc-cm-name{min-height:44px;display:inline-flex;align-items:center}
+.lc-ni-ph{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;min-height:56px}
+.lc-ni-t{margin:0;font-size:14px;color:var(--tx2);outline-offset:2px}
+.lc-ni-undo{min-height:44px;min-width:64px}
+.lc-ni-list{list-style:none;margin:8px 0;padding:0}
+.lc-ni-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--bd)}
+.lc-ni-label{margin:0;font-size:14px;line-height:1.5;flex:1;min-width:0;overflow-wrap:anywhere}
+.lc-ni-row .btn{min-height:44px;flex-shrink:0}
+#ni-clear{margin-top:12px}

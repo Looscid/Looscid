@@ -685,16 +685,17 @@ function ChkMark() {
     )
   );
 }
-/* Nov 8 2026 (Carter, 12:51 PM): one shared counter for Like on Dreams, Dislike, Cherry reply Like/Dislike and the issue
-   tracker's Agree/Disagree. Same markup, same CSS (cbx-wrap + lc-count in css/a11y.css), same VoiceOver read: the button's
-   name is its words ("12 likes", "you + 3 others agree"), and aria-pressed says whether it's yours. h is React.createElement
+/* Nov 8 2026 (Carter, 12:51 PM): one shared counter for Like on Dreams, Cherry reply Like and the issue tracker's
+   Agree/Disagree. Same markup, same CSS (cbx-wrap + lc-count in css/a11y.css), same VoiceOver read: the button's name is
+   its words ("Unlike, 12 likes", "you + 3 others agree"). Nov 9 2026: no aria-pressed any more (STANDING, Carter Nov 8
+   9:43 PM: a button changes its words when it's on, Like to Unlike, never a pressed toggle). Dislike is gone. h is React.createElement
    or Looscid.lcEl, both work. o: { on, cls (the "on" class, e.g. liked), label, text, onClick, disabled, id, extra } */
 function lcCountBtn(h, o) {
   o = o || {};
   const box = h('div', { className: "cbx-box" }, o.on ? h('svg', { viewBox: "0 0 12 10", width: "9", height: "9", "aria-hidden": "true", focusable: "false" },
     h('polyline', { points: "1,5 4.5,8.5 11,1", stroke: "#fff", strokeWidth: "2.5", fill: "none", strokeLinecap: "round", strokeLinejoin: "round" })) : null);
   return h('button', Object.assign({ type: "button", className: "cbx-wrap lc-count" + (o.on ? " " + (o.cls || "liked") : "") + (o.className ? " " + o.className : ""),
-    "aria-pressed": o.on ? "true" : "false", "aria-label": o.label, disabled: o.disabled || undefined, onClick: o.onClick }, o.id ? { id: o.id } : {}, o.extra || {}),
+    "aria-label": o.label, /* Nov 9 2026: no aria-pressed. STANDING (Carter, Nov 8): the words say the state (Like, Unlike) */ disabled: o.disabled || undefined, onClick: o.onClick }, o.id ? { id: o.id } : {}, o.extra || {}),
     box, h('span', null, o.text == null ? o.label : o.text));
 }
 function Cbx({on, onToggle, label}) {
@@ -1020,10 +1021,56 @@ function lcThreadMuteToggle(d) { const k0 = lcThreadKeys(d).slice(0, 1), rn = lc
   lcIdListSet(LC_MUTED_THREADS_KEY, on ? l.filter(function (x) { return keys.indexOf(x) < 0; }) : keys.concat(l.filter(function (x) { return keys.indexOf(x) < 0; })), "looscid:mutedthreads", 500);
   return on ? "Unmuted this conversation. Its alerts come back." : "Muted this conversation. You won't get alerts from it."; }
 function lcNotInterested() { return lcIdList(LC_NOT_INT_KEY); }
-function lcNotInterestedAdd(d) { const id = String(d.id), l = lcNotInterested(); if (l.indexOf(id) < 0) lcIdListSet(LC_NOT_INT_KEY, [id].concat(l), "looscid:notinterested", 500); }
-function lcNotInterestedUndo(d) { const id = String(d.id); lcIdListSet(LC_NOT_INT_KEY, lcNotInterested().filter(function (x) { return x !== id; }), "looscid:notinterested", 500); }
+/* Nov 9 2026 (Carter said yes: "Not interested" instead of Dislike). It's in the More menu of every Dream that isn't yours.
+   It's private: nobody else sees it, Rem shows no count, and the Dreamor is never told. It hides that Dream from your Home
+   feed and gently moves Dreams like it (same Dreamor, same hashtags, same words) further down For You. Only your feed.
+   looscid_not_interested keeps the ids (synced through Rem as a private list, like mutes), and
+   looscid_not_interested_info keeps what "like it" means, on this device only: { id: { who, h, text, tags, words, at } }.
+   Review or clear it in Settings, Privacy & Security, Not interested. */
+const LC_NOT_INT_INFO_KEY = "looscid_not_interested_info";
+const LC_NI_STOP = new Set("also been does done each even ever from gets give goes good have here into just keep kind know less like look made make many more most much must need next only over real said same says some such sure take than that them then they this time very want well went were what when will with yeah your okay dont cant didnt isnt wont about after again also because been before being between could doing don't every going gonna great having here into just know like literally little looking looscid made make maybe might more most much never only other people pretty really right should since some something still than that their them then there these they thing things think this those through today very wanna want what when where which while will with would your yours dream dreams".split(" "));
+function lcNiWords(text) {
+  const seen = {}, out = [];
+  String(text || "").toLowerCase().replace(/https?:\/\/\S+/g, " ").split(/[^a-z0-9\u00c0-\u024f']+/).forEach(function (w) {
+    w = w.replace(/^'+|'+$/g, ""); if (w.length < 4 || LC_NI_STOP.has(w) || seen[w]) return; seen[w] = 1; out.push(w); });
+  return out.slice(0, 8);
+}
+function lcNiTags(d) { const out = []; String((d && d.text) || "").replace(/#([a-z0-9_]+)/gi, function (m, t) { t = t.toLowerCase(); if (out.indexOf(t) < 0) out.push(t); return m; });
+  ((d && d.tags) || []).forEach(function (t) { if (Array.isArray(t) && t[0] === "t" && t[1]) { const v = String(t[1]).toLowerCase(); if (out.indexOf(v) < 0) out.push(v); } }); return out.slice(0, 8); }
+function lcNotIntInfo() { const o = lcJsonLs(LC_NOT_INT_INFO_KEY, {}); return o && typeof o === "object" && !Array.isArray(o) ? o : {}; }
+function lcNotIntInfoSet(o) { try { const ks = Object.keys(o); if (ks.length > 500) ks.sort(function (a, b) { return (o[a].at || 0) - (o[b].at || 0); }).slice(0, ks.length - 500).forEach(function (k) { delete o[k]; });
+  if (Object.keys(o).length) localStorage.setItem(LC_NOT_INT_INFO_KEY, JSON.stringify(o)); else localStorage.removeItem(LC_NOT_INT_INFO_KEY); } catch (e) {} }
+function lcNotInterestedHas(d) { return !!d && d.id != null && lcNotInterested().indexOf(String(d.id)) >= 0; }
+function lcNotInterestedAdd(d) {
+  const id = String(d.id), l = lcNotInterested();
+  const u = d.user && typeof d.user === "object" ? d.user : {}, o = lcNotIntInfo();
+  o[id] = { who: u.name || "", h: lcHandle(u.handle || ""), text: lcReplySnippet(d.text, 140), tags: lcNiTags(d), words: lcNiWords(d.text), at: Date.now() };
+  lcNotIntInfoSet(o);
+  if (l.indexOf(id) < 0) lcIdListSet(LC_NOT_INT_KEY, [id].concat(l), "looscid:notinterested", 500);
+  else { try { window.dispatchEvent(new CustomEvent("looscid:notinterested")); } catch (e) {} }
+}
+function lcNotInterestedUndo(d) { const id = String(d.id), o = lcNotIntInfo(); if (o[id]) { delete o[id]; lcNotIntInfoSet(o); }
+  lcIdListSet(LC_NOT_INT_KEY, lcNotInterested().filter(function (x) { return x !== id; }), "looscid:notinterested", 500); }
+function lcNotInterestedClear() { lcNotIntInfoSet({}); lcIdListSet(LC_NOT_INT_KEY, [], "looscid:notinterested", 500); }
+// How much a Dream looks like the ones you marked Not interested: 0 (not at all) to 4. Same Dreamor counts most.
+function lcNiPenalty(d, sig) {
+  if (!d || !sig || !sig.n) return 0; let p = 0;
+  const h = lcHandle((d.user && d.user.handle) || ""); if (h && sig.h[h]) p += 2;
+  const tg = lcNiTags(d).filter(function (t) { return sig.t[t]; }).length; p += Math.min(2, tg);
+  const ws = lcNiWords(d.text).filter(function (w) { return sig.w[w]; }).length; if (ws >= 2) p += 1;
+  return Math.min(4, p);
+}
+function lcNiSignals() { const o = lcNotIntInfo(), s = { h: {}, t: {}, w: {}, n: 0 };
+  Object.keys(o).forEach(function (k) { const v = o[k] || {}; s.n++; if (v.h) s.h[v.h] = 1; (v.tags || []).forEach(function (t) { s.t[t] = 1; }); (v.words || []).forEach(function (w) { s.w[w] = 1; }); }); return s; }
+// For You only: each Dream moves down 3 places per point, so it's a nudge, not a wall. Nothing is hidden by this.
+function lcNiRank(list) {
+  const sig = lcNiSignals(); if (!sig.n || !list.length) return list;
+  return list.map(function (d, i) { return { d: d, k: i + (LC_NI_JUST.has(String(d.id)) ? 0 : 3 * lcNiPenalty(d, sig)), i: i }; }).sort(function (a, b) { return a.k - b.k || a.i - b.i; }).map(function (x) { return x.d; });
+}
+// Dreams you just marked this visit keep a small "Not interested" line with Undo where they were, until you leave.
+const LC_NI_JUST = new Set();
 function useIdListTick(ev) { const [, f] = useState(0); useEffect(function () { const h = function () { f(function (x) { return x + 1; }); }; window.addEventListener(ev, h); return function () { window.removeEventListener(ev, h); }; }, [ev]); }
-Object.assign(Looscid, { LC_PINNED_KEY, LC_MUTED_THREADS_KEY, LC_NOT_INT_KEY, lcPinnedIds, lcPinnedHas, lcPinnedToggle, lcThreadMuted, lcThreadMuteToggle, lcThreadKeys, lcNotInterested, lcNotInterestedAdd, lcNotInterestedUndo, useIdListTick });
+Object.assign(Looscid, { LC_PINNED_KEY, LC_MUTED_THREADS_KEY, LC_NOT_INT_KEY, LC_NOT_INT_INFO_KEY, LC_NI_JUST, lcPinnedIds, lcPinnedHas, lcPinnedToggle, lcThreadMuted, lcThreadMuteToggle, lcThreadKeys, lcNotInterested, lcNotInterestedAdd, lcNotInterestedUndo, lcNotInterestedHas, lcNotInterestedClear, lcNotIntInfo, lcNiRank, useIdListTick });
 /* Build 152 prep (#99, part 3): Edit Dream and Edit history. Your edits are kept on this device as looscid_dream_edits
    { id: { text, at, history: [{ text, at }] } } and shown everywhere the Dream shows, marked "Edited". A Dream on Nostr
    also gets its edit published (kind 1010, see nostr.js publishEdit). Earlier versions stay readable in Edit history. */
@@ -1104,7 +1151,8 @@ function DreamModDialog({ id, dream, circle, onDone }) {
       lh('button', { type: "button", className: "btn bp lid-wide", id: id + "-go", "aria-disabled": ready ? "false" : "true", onClick: go }, "Remove Dream"),
       lh('button', { type: "button", className: "btn bgb lid-wide", onClick: onDone }, "Cancel")));
 }
-function DreamDeleteDialog({ id, onConfirm, onCancel, onNostr }) {
+function DreamDeleteDialog({ id, onConfirm, onCancel, onNostr, reply }) {
+  const W = reply ? "reply" : "Dream"; // Nov 9 2026: your own replies can be deleted too
   const boxRef = useRef(null), headingRef = useRef(null);
   // Oct 31 2026: a Dream on Nostr needs the unlocked key to sign its deletion (NIP-09, kind 5). When the key is locked the
   // dialog asks for the passcode right here, so Delete Dream really asks relays to delete it instead of failing quietly.
@@ -1126,8 +1174,8 @@ function DreamDeleteDialog({ id, onConfirm, onCancel, onNostr }) {
   }, [onCancel]);
   return lh('div', { className: "lid-alert-bg" },
     lh('div', { ref: boxRef, className: "lid-alert", role: "alertdialog", "aria-modal": "true", "aria-labelledby": id + "-title " + id + "-message", "data-lc-no-focus-trap": "", onKeyDown: onKey },
-      lh('h2', { ref: headingRef, tabIndex: -1, "data-lc-autofocus": "", id: id + "-title", className: "lid-sub" }, "Delete this Dream?"),
-      lh('p', { id: id + "-message", className: "lid-help" }, "Confirming removes this Dream from this device. Replies stay readable. This cannot be undone. Copies on relays may remain. Cancel makes no changes."),
+      lh('h2', { ref: headingRef, tabIndex: -1, "data-lc-autofocus": "", id: id + "-title", className: "lid-sub" }, "Delete this " + W + "?"),
+      lh('p', { id: id + "-message", className: "lid-help" }, "Confirming removes this " + W + " from this device." + (reply ? "" : " Replies stay readable.") + " This cannot be undone. Copies on relays may remain. Cancel makes no changes."),
       locked && lh('div', { className: "lc-cr-unlock" },
         lh('p', { id: id + "-locked", className: "lid-help" }, "Your Nostr key is locked. Enter your passcode so Nostr relays are asked to delete it too. Leave it empty to delete it from this device only."),
         lh('label', { htmlFor: id + "-pass", className: "lc-fs-l" }, "Passcode"),
@@ -1136,7 +1184,7 @@ function DreamDeleteDialog({ id, onConfirm, onCancel, onNostr }) {
         passMsg && lh('p', { className: "lid-err", role: "alert" }, passMsg)),
       lh('div', { className: "lid-actions" },
         lh('button', { type: "button", className: "btn bgb", "aria-label": "Cancel", onClick: onCancel }, "Cancel"),
-        lh('button', { type: "button", className: "btn bp", "aria-label": "Delete Dream", disabled: busy, onClick: confirm }, "Delete Dream"))));
+        lh('button', { type: "button", className: "btn bp", disabled: busy, onClick: confirm }, reply ? "Delete reply" : "Delete Dream"))));
 }
 function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, cherryCtx, onExtra, forYou, allowDelete, onDeleted, modCircle }) {
   useThreadSubsTick(); // #148: Follow Thread / Unfollow Thread is always current
@@ -1144,11 +1192,25 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
   const [reporting, setReporting] = useState(false); // Nov 7 2026: Report Dream (DreamReportDialog)
   const [modding, setModding] = useState(false); // Nov 8 2026: Remove as a mod, with a reason (DreamModDialog)
   const canDelete = allowDelete && dream.user === ME && !dream.isReply && dream.replyTo == null && dream.circleId == null;
+  // Nov 9 2026: your own replies have Delete reply too (they only had Edit before).
+  const canDeleteReply = allowDelete && !canDelete && lcIsMine(dream) && (dream.isReply || dream.replyTo != null) && dream.circleId == null;
   const cancelDelete = function () {
     setDeleting(false);
     setTimeout(function () { const b = (btnRef && btnRef.current) || document.getElementById(id + "-btn"); if (b) b.focus(); }, 0);
   };
   const confirmDelete = function () {
+    if (canDeleteReply) {
+      const rn = [dream.nid, String(dream.id)];
+      if (!lcDeleteOwnReply(dream)) { announce("Reply could not be deleted. Try again."); return; }
+      setDeleting(false); announce("Reply deleted.");
+      setTimeout(function () { const a = document.activeElement; if (a && a !== document.body && a.isConnected) return;
+        const el = document.getElementById("cv-h1") || document.querySelector("#main-content h1"); if (el) el.focus(); }, 120);
+      const RN = Looscid.lcNostr, rforget = function (draftsOnly) { if (RN && RN.forget) { try { RN.forget(dream.id, rn, draftsOnly); } catch (e) {} } };
+      rforget(true);
+      if (RN && RN.publishDeletion) RN.publishDeletion(rn).then(function () { rforget(false); }, function () { rforget(false); });
+      else rforget(false);
+      return;
+    }
     if (!canDelete || dream.user !== ME) { cancelDelete(); return; }
     // Capture relay identity before the unchanged local removal discards the saved record.
     const saved = lcSavedDreamsRaw().find(function (s) { return s.id === dream.id; });
@@ -1197,6 +1259,9 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
           copy: function () { lcCopyLine(url, "Link"); }, back: function () { return (btnRef && btnRef.current) || document.getElementById(id + "-btn"); } });
       } }
       : { id: "share", name: "Share Dream", note: "unavailable: this Dream is only on this device", hint: "Not available yet: this Dream has no public address until it's on Nostr.", disabled: true },
+    // Nov 9 2026 (Carter: "I don't see the full dream Controls"): Copy link and Copy text, right after Share.
+    !lcShareOff(dream) && lcDreamUrl(dream) ? { id: "copylink", name: "Copy link", a: function () { lcCopyLine(lcDreamUrl(dream), "Link"); } } : null,
+    { id: "copytext", name: "Copy text", a: function () { lcCopyLine(String(dream.text || ""), "Text"); } },
     lcDreamUrl(dream) && lcDreamNet(dream) !== "looscid" ? { id: "original", name: lcDreamNet(dream) === "mastodon" ? "Open original on Mastodon" : "Open original on Nostr", a: function () { const w = window.open(lcDreamUrl(dream), "_blank", "noopener,noreferrer"); if (w) w.opener = null; } } : null,
     onExtra ? { id: "likedby", name: "Liked by", a: function () { onExtra({ kind: "people", which: "likes" }); } } : null,
     onExtra ? { id: "redreamedby", name: "Redreamed by", a: function () { onExtra({ kind: "people", which: "redreams" }); } } : null,
@@ -1208,12 +1273,17 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
     dream.user && (dream.user === ME || lcHandle((dream.user && dream.user.handle) || "") === lcHandle(ME.handle || "")) && !dream.replyTo
       ? { id: "pinprofile", name: lcPinnedHas(dream) ? "Unpin from profile" : "Pin to profile", a: function () { announce(lcPinnedToggle(dream)); } } : null,
     { id: "mutethread", name: lcThreadMuted(lcThreadKeys(dream).slice(0, 1)) ? "Unmute this conversation" : "Mute this conversation", a: function () { announce(lcThreadMuteToggle(dream)); } },
-    forYou ? { id: "notinterested", name: "Not interested in this Dream", a: function () {
-      const art = document.querySelector('[data-dream-id="' + String(dream.id).replace(/"/g, "") + '"]');
-      let next = null; if (art) { const all = Array.prototype.slice.call(document.querySelectorAll("#feed-list [role=article]")); const i = all.indexOf(art); next = all[i + 1] || all[i - 1] || null; }
-      const nextId = next ? next.getAttribute("data-dream-id") : null;
-      lcNotInterestedAdd(dream); announce("Hidden from For You. You'll see it in Following and on profiles.");
-      setTimeout(function () { const el = nextId ? document.querySelector('[data-dream-id="' + nextId + '"]') : document.getElementById("feed-tab-for-you"); if (el) el.focus(); }, 60); } } : null,
+    // Nov 9 2026 (Carter said yes: Not interested instead of Dislike): on every Dream that isn't yours, wherever it shows.
+    // In the Home feed the Dream turns into one short line with Undo, right where it was, and focus goes to that line.
+    // Anywhere else (a thread, a profile) the Dream stays put and this item reads Undo Not interested.
+    !lcIsMine(dream) ? (lcNotInterestedHas(dream)
+      ? { id: "notinterested", name: "Undo Not interested", a: function () { LC_NI_JUST.delete(String(dream.id)); lcNotInterestedUndo(dream); announce("Okay. Dreams like this can show up again."); } }
+      : { id: "notinterested", name: "Not interested", hint: "Hides this Dream from your Home feed and shows you less like it. Only you see this.", a: function () {
+          const inFeed = !!document.querySelector('#feed-list [data-dream-id="' + String(dream.id).replace(/"/g, "") + '"]');
+          if (inFeed) LC_NI_JUST.add(String(dream.id));
+          lcNotInterestedAdd(dream);
+          if (inFeed) setTimeout(function () { const el = document.getElementById("ni-ph-" + lcSafeId(dream.id)); if (el) el.focus(); else announce("Not interested. I'll show you less like this."); }, 60);
+          else announce("Got it. I'll show you less like this in your feed. Undo is in this menu."); } }) : null,
     // Round 7.16 (#216): no View profile item; the Dreamor's name on the Dream opens their profile.
     // Build 147 (2three1y): when a Dream tags you, you can remove yourself from it (on this device).
     lcTagsMe(dream) ? (lcIsUntagged(dream)
@@ -1256,16 +1326,124 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
   // A Looscid moderator (Rem's list) gets Remove from Looscid on Dreams that are on Rem.
   const siteMod = !modCircle && !mine && Looscid.lcModIsSiteMod && Looscid.lcModIsSiteMod() && /^[0-9a-f]{64}$/i.test(String(dream.nid || ""));
   const modItem = (modCircle || siteMod) && !mine && Looscid.lcModRemove ? [{ id: "modremove", name: "Remove from " + (modCircle ? modCircle.name || "this Circle" : "Looscid"), danger: true, a: function () { setModding(true); } }] : [];
-  const ordered = fx.concat(items).concat(modItem).concat(canDelete ? [{ id: "delete", name: "Delete Dream", aria: "Delete Dream", exactAria: true, danger: true, a: function () { setDeleting(true); } }] : []);
+  const ordered = fx.concat(items).concat(modItem).concat(canDelete ? [{ id: "delete", name: "Delete Dream", aria: "Delete Dream", exactAria: true, danger: true, a: function () { setDeleting(true); } }] : [])
+    .concat(canDeleteReply ? [{ id: "delete", name: "Delete reply", aria: "Delete reply", exactAria: true, danger: true, a: function () { setDeleting(true); } }] : []);
   // Round 5 fixes: each Dream's More button says whose Dream it is ("More, Dream by Ava"), so the rotor list isn't a row of "More".
   return lh(React.Fragment, null,
     modding && lh(DreamModDialog, { id: id + "-mod", dream: dream, circle: modCircle, onDone: function () { setModding(false); setTimeout(function () { const el = document.getElementById("mod-removed-" + String(dream.id).replace(/[^A-Za-z0-9_-]/g, "")); if (el) el.focus(); else if (btnRef && btnRef.current) btnRef.current.focus(); }, 80); } }),
     reporting && lh(DreamReportDialog, { id: id + "-report", dream: dream, authorPk: authorPk, onDone: function () { setReporting(false); setTimeout(function () { if (btnRef && btnRef.current) btnRef.current.focus(); }, 60); } }),
-    deleting && lh(DreamDeleteDialog, { id: id + "-delete", onConfirm: confirmDelete, onCancel: cancelDelete, onNostr: [dream.nid, String(dream.id)].concat((lcSavedDreamsRaw().find(function (s) { return s.id === dream.id; }) || {}).nid || []).some(function (x) { return /^[0-9a-f]{64}$/i.test(String(x || "")); }) }),
+    deleting && lh(DreamDeleteDialog, { id: id + "-delete", reply: canDeleteReply, onConfirm: confirmDelete, onCancel: cancelDelete, onNostr: [dream.nid, String(dream.id)].concat((lcSavedDreamsRaw().find(function (s) { return s.id === dream.id; }) || {}).nid || []).some(function (x) { return /^[0-9a-f]{64}$/i.test(String(x || "")); }) }),
     lh(LcMenu, { id: id + "-btn", menuId: id, kind: "action", title: "More", btnLabel: "More, " + (dream && dream.user && dream.user.name ? "Dream by " + dream.user.name : "Dream"), btnHint: "Opens actions for this Dream.", btnClass: "ixn-btn", btnRef: btnRef, noCaret: true, align: "right", up: true,
     className: "lc-dmenu", style: { flex: ".5", display: "flex" }, itemClass: "lc-dopt", btnText: lh(Ic.Dots, { style: { width: 15, height: 15 } }), items: ordered,
     onSelect: function (k, it) { if (it.a) it.a(); } }));
 }
+/* Nov 9 2026 (Carter: "I don't see the full dream Controls"). One row of Dream controls, the same everywhere a Dream
+   shows: Home, profiles, Liked, Lists, Circles, a thread (the Dream you opened AND every reply), and a Dream opened from
+   Alerts or Discover. Before this, each place drew its own row, so some places had less:
+     - replies in a thread had only a Like that was never saved, and a small menu with no Redream, Quote, Report, Mute,
+       Block, Edit or Delete;
+     - a Dream opened from an alert (the quick copy) had Like and Redream buttons that did nothing, because that Dream wasn't
+       in the screen's own list, so the screen's handler never found it;
+     - the thread's Dream had no Share in its row and its More had no Edit, Dream info, Liked by or Redreamed by.
+   Now every row is LcDreamActions: Replies (or Reply), Redream (Redream or Quote), Like, Share and More. Like and Redream
+   read and write the one shared store (looscid_liked, looscid_redreams, synced by js/remlists.js), so a change in one place
+   shows in every place at once. STANDING (Carter, Nov 8 9:43 PM): a button says what it does next, Like or Unlike,
+   Redream or Unredream. Never a pressed toggle. */
+function lcSafeId(x) { return String(x == null ? "" : x).replace(/[^A-Za-z0-9_-]/g, ""); }
+// A Dream with the shared Like and Redream state, wherever it came from.
+function lcLiveDream(d) {
+  if (!d || d.id == null) return d;
+  d = lcWithLiked(d, false);
+  const rd = lcRedreamHas(d.id);
+  if (rd !== !!d.redreamed) d = Object.assign({}, d, { redreamed: rd, redreams: Math.max(0, (d.redreams || 0) + (rd ? 1 : -1)) });
+  return d;
+}
+function lcLikeToggle(d) {
+  const on = !lcLikedHas("dream", d.id);
+  if (on) { try { Earcon.play("like"); } catch (e) {} lcThreadLikeNudge(d); }
+  lcLikedSet("dream", d.id, on, lcDreamSnap(d));
+  announce(on ? "Liked" : "Like removed", "state", "like:" + d.id);
+  return on;
+}
+function lcRedreamToggle(d) { const on = !lcRedreamHas(d.id); lcRedreamSet(d, on); announce(on ? "Redreamed" : "Redream removed", "state", "rd:" + d.id); return on; }
+// Your own reply, gone from this device (Rem and relays get the signed deletion from DreamOptionsMenu).
+function lcDeleteOwnReply(d) {
+  try {
+    if (!d || !lcIsMine(d)) return false;
+    const keys = [String(d.id), d.nid ? String(d.nid) : "", lcHexOf(d.id), lcHexOf(d.nid)].filter(Boolean);
+    const keep = lcRepliesRaw().filter(function (r) { return keys.indexOf(String(r.id)) < 0 && !(r.nid && keys.indexOf(String(r.nid).toLowerCase()) >= 0); });
+    localStorage.setItem(LC_REPLIES_KEY, JSON.stringify(keep));
+    const N = Looscid.lcNostr; keys.filter(lcHexOf).forEach(function (k) { if (N && N.hide) { try { N.hide(lcHexOf(k)); } catch (e) {} } });
+    LC_DELETED_DREAMS.add(String(d.id)); keys.forEach(function (k) { LC_DELETED_DREAMS.add(k); LC_DELETED_DREAMS.add("n:" + k); });
+    lcRepliesChanged();
+    try { window.dispatchEvent(new CustomEvent("looscid-dream-deleted", { detail: { id: d.id } })); } catch (e) {}
+    return true;
+  } catch (e) { return false; }
+}
+function useRedreamTick() { useIdListTick("looscid-redreams"); }
+/* first: "replies" (feed cards: N Replies opens the thread) or "reply" (in a thread: Reply opens the composer).
+   opts: passed to DreamOptionsMenu (More). */
+function LcDreamActions({ dream, idp, first, onComment, onReply, onQuote, onUndoQuote, optsBtn, opts, calm, style }) {
+  useLikedTick(); useRedreamTick();
+  const d = lcLiveDream(dream);
+  const sid = lcSafeId(idp || ("d-" + d.id));
+  const nReplies = lcReplyCount(d);
+  const rdTotal = (d.redreams || 0) + (d.quotes || 0), rdActive = d.redreamed || d.quoted;
+  const liked = !!d.liked, likes = d.likes || 0;
+  const likeWord = liked ? "Unlike" : "Like";
+  const url = !lcShareOff(d) ? lcDreamUrl(d) : "";
+  const shareRef = useRef(null);
+  const share = function () {
+    if (!url) { announce(lcShareOff(d) ? "This Dreamor turned off sharing for this Dream." : "This Dream doesn't have a link yet. Try again once it's on Rem."); return; }
+    lcShareLink({ title: d.user && d.user.name ? "Dream by " + d.user.name : "Dream", url: url, copy: function () { lcCopyLine(url, "Link"); }, back: function () { return shareRef.current; } });
+  };
+  const firstBtn = first === "reply"
+    ? lh('button', { type: "button", id: sid + "-reply", className: "ixn-btn lc-act-reply", onClick: function (e) { if (onReply) onReply(d, e.currentTarget); else lcCompose({ mode: "reply", parent: d, opener: e.currentTarget }); } },
+        lh(Ic.Cmt, { style: { width: 15, height: 15 }, "aria-hidden": "true" }), lh('span', null, "Reply"))
+    : lh('button', { type: "button", id: sid + "-replies", className: "ixn-btn", onClick: function () { if (onComment) onComment(d); }, "aria-label": calm ? "Replies" : fmt(nReplies) + (nReplies === 1 ? " reply" : " replies") },
+        lh(Ic.Cmt, { style: { width: 15, height: 15 }, "aria-hidden": "true" }), lh('span', null, calm ? "Replies" : fmt(nReplies) + (nReplies === 1 ? " Reply" : " Replies")));
+  return lh('div', { className: "ixn-row lc-acts", style: style },
+    firstBtn,
+    lh(LcMenu, { id: "rd-" + sid, kind: "action", title: "Redream or Quote", btnLabel: (d.redreamed ? "Unredream or Quote" : "Redream or Quote") + (calm ? "" : ", " + lcCountWord(rdTotal, "Redream", "Redreams")),
+      btnHint: "Opens Redream and Quote.", btnClass: "cbx-wrap" + (rdActive ? " redd" : ""), noCaret: true, up: true, className: "lc-rdmenu",
+      btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, (d.redreamed ? "Unredream" : "Redream") + (calm ? "" : " " + fmt(rdTotal)))],
+      items: [{ id: "rd", name: d.redreamed ? "Unredream" : "Redream" }, { id: "q", name: d.quoted ? "Unquote Dream" : "Quote Dream" }],
+      onSelect: function (k) { if (k === "rd") lcRedreamToggle(d); else if (d.quoted) { if (onUndoQuote) onUndoQuote(d.id); } else lcCompose({ mode: "quote", parent: d, onSent: function () { if (onQuote) onQuote(d.id); } }); } }),
+    lcCountBtn(lh, { on: liked, cls: "liked", id: sid + "-like", onClick: function () { lcLikeToggle(d); },
+      label: likeWord + (calm || lcVerb() === "low" ? "" : ", " + lcCountWord(likes, "like", "likes")), text: likeWord + (calm ? "" : " " + fmt(likes)) }),
+    lh('button', { type: "button", ref: shareRef, id: sid + "-share", className: "ixn-btn lc-act-share", "aria-disabled": url ? undefined : "true", onClick: share },
+      lh(Ic.Lnk, { style: { width: 15, height: 15 }, "aria-hidden": "true" }), lh('span', null, "Share")),
+    lh(DreamOptionsMenu, Object.assign({ id: "dopts-" + sid, dream: d, btnRef: optsBtn, allowDelete: true }, opts || {})));
+}
+Looscid.LcDreamActions = LcDreamActions; Looscid.lcLiveDream = lcLiveDream; Looscid.lcLikeToggle = lcLikeToggle;
+/* Nov 9 2026 (Carter said yes to Not interested): Settings, Privacy & Security, Not interested. Only you see this page.
+   Each Dream you marked is one line with Show again; Clear all brings them all back and forgets what For You learned. */
+function LcNotIntPanel() {
+  useIdListTick("looscid:notinterested");
+  const [ask, setAsk] = useState(false);
+  const ids = lcNotInterested(), info = lcNotIntInfo();
+  const rows = ids.map(function (id) { const v = info[id] || {}; const who = v.who || (v.h ? "@" + v.h : "");
+    return { id: id, label: (who ? "Dream by " + who : "A Dream") + (v.text ? ": " + v.text : "") }; });
+  const focusSoon = function (x) { setTimeout(function () { const b = document.getElementById(x); if (b) b.focus(); }, 40); };
+  return lh('div', { className: "lc-ni-panel" },
+    lh('p', { className: "lc-intro" }, "Only you see this. When you pick Not interested on a Dream, I hide it from your Home feed and show you a little less from the same Dreamor and about the same stuff in For You. Nobody gets told, and there's no count anywhere."),
+    rows.length
+      ? lh('ul', { className: "lc-people lc-ni-list", role: "list", id: "ni-list" }, rows.map(function (r, i) {
+          const bid = "ni-show-" + lcSafeId(r.id);
+          return lh('li', { key: r.id, className: "lc-ni-row" },
+            lh('p', { className: "lc-ni-label" }, r.label),
+            lh('button', { type: "button", id: bid, className: "btn bgb lc-btn", "aria-label": lcNameJoin("Show again", r.label), onClick: function () {
+              const next = rows[i + 1] || rows[i - 1];
+              LC_NI_JUST.delete(String(r.id)); lcNotInterestedUndo({ id: r.id }); announce("Okay. It can show up again.");
+              focusSoon(next ? "ni-show-" + lcSafeId(next.id) : "ni-empty"); } }, "Show again"));
+        }))
+      : lh('p', { className: "lc-muted", id: "ni-empty", tabIndex: -1 }, "Nothing here. You haven't marked any Dream Not interested."),
+    rows.length ? lh('button', { type: "button", id: "ni-clear", className: "btn bgb lc-big", onClick: function () { setAsk(true); } }, "Clear all") : null,
+    ask ? lh(AlertDialog, { title: "Clear Not interested?", message: "All " + fmt(rows.length) + (rows.length === 1 ? " Dream comes" : " Dreams come") + " back to your feed, and For You stops showing less of the stuff like them.",
+      confirmLabel: "Clear all", onConfirm: function () { setAsk(false); LC_NI_JUST.clear(); lcNotInterestedClear(); announce("Cleared."); focusSoon("ni-empty"); },
+      onCancel: function () { setAsk(false); focusSoon("ni-clear"); } }) : null);
+}
+Looscid.LcNotIntPanel = LcNotIntPanel;
 /* Build 194: the Looscid logo, from Looscid itself (assets/icons/icon-512.png, no outside requests), sized with CSS so it
    stays sharp on Retina. The logo itself reads "Looscid" (Carter, Nov 1 2026, 3:23 PM: "alt tex on the logo"); where the word
    Looscid sits right next to it (the footer), that word is hidden from VoiceOver instead, so it is said once, by the logo.
@@ -1382,44 +1560,32 @@ function LinkCard({ info }) {
 /* One reply in the list. It can take focus (after you reply, focus lands on it), and a reply with a
    content warning keeps its text behind "Show reply". */
 function ReplyItem({cm, navigate, onReply}) {
-  const [liked, setLiked] = useState(!!cm.liked);
-  const [likes, setLikes] = useState(cm.likes || 0);
+  /* Nov 9 2026 (Carter: "I don't see the full dream Controls"): a reply is a Dream, so it gets the same row as every Dream
+     (LcDreamActions): Reply, Redream or Quote, Like, Share and More with Report, Mute, Block, Not interested, Copy link,
+     Edit and Delete on your own. Its Like was a local switch that was never saved; now it's the shared one. */
   const [open, setOpen] = useState(false);
-  useThreadSubsTick(); // #148
-  useIdListTick("looscid:mutedthreads"); // Oct 31 2026: Mute this conversation label follows the change
-  const toggle = () => { if (!liked) lcThreadLikeNudge(cm); setLiked(l=>!l); setLikes(n=>liked?n-1:n+1); }; // #148: a Like never follows; two in a row may offer to
+  const [extra, setExtra] = useState(null);
+  const optsBtn = useRef(null);
+  useIdListTick("looscid:edits"); cm = lcWithEdit(cm);
   const name = (cm.user && cm.user.name) || "Someone", handle = (cm.user && cm.user.handle) || "";
   const body = lcWordHit(cm.text) ? lh(LcBlockedHidden, { what: "reply" }, lh('p', { className: "cm-body" }, cm.text)) : lh('p', { className: "cm-body" }, cm.text);
+  const closeExtra = function () { setExtra(null); setTimeout(function () { if (optsBtn.current) optsBtn.current.focus(); }, 0); };
   return lh('div', { className: "cm-item", "data-dream-id": String(cm.id), tabIndex: -1 },
     lh('div', { className: "cm-meta" },
       lh(Av, { user: cm.user, size: 30 }),
       lh('div', { style: {flex:1} },
-        lh('span', { style: {fontWeight:700,fontSize:13} }, name),
-        lh('span', { style: {fontSize:11,color:"var(--tx3)",marginLeft:6} }, handle, cm.time ? ", " + cm.time : "")),
-      lh(LcMenu, { id: "cmo-" + cm.id, kind: "action", title: "Reply Options", btnLabel: "Thread Options", btnClass: "bi", noCaret: true, align: "right",
-        btnText: lh(Ic.Dots, { style: {width:14,height:14} }), onSelect: function (k, it) { it.a(); }, items: [
-          onReply ? { id: "reply", name: "Reply", a: function () { onReply(cm); } } : null,
-          { id: "hear", name: "Hear reply", a: function () { LcSpeech.speak(lcDreamSpeechParts(cm)); } },
-          { id: "copy", name: "Copy text", a: function () { if (navigator.clipboard) navigator.clipboard.writeText(cm.text || "").then(function () { announce("Reply copied."); }, function () { announce("Copy is not available here."); }); else announce("Copy is not available here."); } },
-          // Share reply works like Share Dream (lcShareLink): the share sheet with the reply's link; device-only replies have none yet.
-          lcShareOff(cm) ? null : lcDreamUrl(cm) ? { id: "share", name: "Share reply", a: function () {
-              const url = lcDreamUrl(cm);
-              lcShareLink({ title: cm.user && cm.user.name ? "Reply by " + cm.user.name : "Reply", url: url,
-                copy: function () { lcCopyLine(url, "Link"); }, back: function () { return document.getElementById("cmo-" + cm.id); } });
-            } }
-            : { id: "share", name: "Share reply", note: "unavailable: this reply is only on this device", hint: "Not available yet: this reply has no public address until it's on Nostr.", disabled: true },
-          navigate && handle ? { id: "profile", name: "View @" + handle.replace("@","") + "'s profile", a: function () { navigate("dp", cm.user); } } : null,
-          lcFollowThreadItem(cm), // Round 7.18 (#148): every reply's More menu has Follow Thread / Unfollow Thread
-          // Oct 31 2026 (Carter): Mute this conversation is on every reply too, the same as on Dreams, Alerts and Chats.
-          { id: "mutethread", name: lcThreadMuted(lcThreadKeys(cm).slice(0, 1)) ? "Unmute this conversation" : "Mute this conversation", a: function () { announce(lcThreadMuteToggle(cm)); } },
-        ].filter(Boolean) })),
+        navigate && cm.user && typeof cm.user === "object"
+          ? lh('button', { type: "button", className: "lc-cm-name", style: {background:"none",border:"none",padding:0,cursor:"pointer",color:"inherit",fontWeight:700,fontSize:13,minHeight:44}, onClick: function () { navigate("dp", cm.user); } }, name)
+          : lh('span', { style: {fontWeight:700,fontSize:13} }, name),
+        lh('span', { style: {fontSize:11,color:"var(--tx3)",marginLeft:6} }, handle, cm.time ? ", " + cm.time : ""), cm.editedAt ? lh('span', { className: "dc-edited", style: {fontSize:11,marginLeft:6} }, "Edited") : null)),
     cm.cw ? lh(React.Fragment, null,
       lh('p', { className: "lc-cw-t" }, "Content warning: " + cm.cw),
       lh('button', { type: "button", className: "btn bgb lc-btn", "aria-expanded": open, onClick: function () { setOpen(!open); } }, open ? "Hide reply" : "Show reply"),
       open && body) : body,
-    lh('div', { className: "cm-actions" },
-      lh('button', { type: "button", className: "cm-act" + (liked ? " liked" : ""), "aria-pressed": liked, onClick: toggle }, lh('span', { style: {fontSize:11} }, likes ? fmt(likes) + (likes === 1 ? " Like" : " Likes") : "Like")),
-      onReply ? lh('button', { className: "cm-act", type: "button", onClick: function (e) { onReply(cm, e.currentTarget); } }, lh('span', { style: {fontSize:11} }, "Reply to " + name)) : null));
+    extra && lh('div', { style: { display: "contents" }, onKeyDown: function (e) { if (e.key !== "Escape" || e.defaultPrevented || extra.kind === "edit") return; e.preventDefault(); e.stopPropagation(); closeExtra(); } },
+      lh(DreamExtra, { extra: extra, dream: cm, onClose: closeExtra })),
+    lh(LcDreamActions, { dream: cm, idp: "cm-" + String(cm.id), first: "reply", onReply: onReply ? function (x, el) { onReply(cm, el); } : null, optsBtn: optsBtn, calm: !!(Looscid.A11Y_NOW && Looscid.A11Y_NOW.calmFeed),
+      opts: { navigate: navigate, onExtra: setExtra, allowDelete: true } }));
 }
 function CommentItem(props) { return lh(ReplyItem, props); } // the old name, kept for anything that still uses it
 /* The Replies page: the Dream, a Reply button that opens the composer in Reply mode, then the replies.
@@ -1474,7 +1640,8 @@ function CommentView({dream, backTo, onBack, onLike, onRedream, onUndoRedream, o
     const local = lcRepliesFor(dream.id, dream.nid), have = {};
     local.forEach(function (r) { const h = lcHexOf(r.nid); if (h) have[h] = 1; });
     return local.concat(remReplies.filter(function (r) { return !have[r.nid]; })).concat(MOCK_COMMENTS[dream.id] || []);
-  }, [dream.id, dream.nid, tick, remReplies]).filter(function (c) { return !(c && c.user && typeof c.user === "object" && lcBlockedUser(c.user)); });
+  }, [dream.id, dream.nid, tick, remReplies]).filter(function (c) { return !(c && c.user && typeof c.user === "object" && lcBlockedUser(c.user)) && !(c && LC_DELETED_DREAMS.has(String(c.id))); });
+  const [extra, setExtra] = useState(null); // Nov 9 2026: Edit, Dream info, Liked by and Redreamed by from the thread's More
   const [sort, setSort] = useState("newest");
   const dreamOptsBtn = useRef(null);
   const endRef = useRef(null);
@@ -1543,24 +1710,15 @@ function CommentView({dream, backTo, onBack, onLike, onRedream, onUndoRedream, o
               , React.createElement(DreamText, {text: dream.text})
             )
             , linkInfo && !dream.nopv && lh(LinkCard, { info: linkInfo })
-            /* Dream interaction row on the Replies page */
-            , React.createElement('div', { className: "ixn-row", style: {margin:"0 -16px",borderTop:"1px solid var(--bd)"},}
-              , React.createElement('button', { className: "cbx-wrap" + (dream.liked?" liked":""), "aria-pressed": !!dream.liked, onClick: ()=>{ if (!dream.liked) lcThreadLikeNudge(dream); onLike(dream.id); announce(dream.liked ? "Like removed" : "Liked", "state", "like:" + dream.id); }, 'aria-label': lcCountWord(dream.likes, "like", "likes"),}
-                , React.createElement('div', { className: "cbx-box",}, dream.liked && React.createElement(ChkMark, null))
-                , React.createElement('span', null, fmt(dream.likes), dream.likes === 1 ? " Like" : " Likes" )
-              )
-              , lh(LcMenu, { id: "rd-cv-" + dream.id, kind: "action", title: "Redream or Quote", btnLabel: lcCountWord(rdTotal, "Redream", "Redreams") + lcRdState(dream), btnHint: "Opens Redream and Quote.", btnClass: "cbx-wrap" + (rdActive?" redd":""), noCaret: true, up: true,
-                  btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, fmt(rdTotal), rdTotal === 1 ? " Redream" : " Redreams")],
-                  items: [{ id: "rd", name: dream.redreamed ? "Unredream" : "Redream" }, { id: "q", name: dream.quoted ? "Unquote Dream" : "Quote Dream" }],
-                  onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); announce(dream.redreamed ? "Redream removed" : "Redreamed", "state", "rd:" + dream.id); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
-              /* Build 147: liking is saving, so the separate Save box is gone (Like above is the one toggle). */
-              , lh(DreamOptionsMenu, { id: "dopts-cv-" + dream.id, dream: dream, btnRef: dreamOptsBtn, onBookmark: onBookmark, onLike: onLike, navigate: navigate, allowDelete: true, onDeleted: onBack })
-            )
+            /* Nov 9 2026 (Carter: "I don't see the full dream Controls"): the same row as everywhere else (LcDreamActions), with
+               Reply first because you're already in the thread. More has Edit, Dream info, Liked by and Redreamed by too. */
+            , extra && lh('div', { style: { display: "contents" }, onKeyDown: function (e) { if (e.key !== "Escape" || e.defaultPrevented || extra.kind === "edit") return; e.preventDefault(); e.stopPropagation(); setExtra(null); setTimeout(function () { if (dreamOptsBtn.current) dreamOptsBtn.current.focus(); }, 0); } },
+                lh(DreamExtra, { extra: extra, dream: dream, onClose: function () { setExtra(null); setTimeout(function () { if (dreamOptsBtn.current) dreamOptsBtn.current.focus(); }, 0); } }))
+            , lh(LcDreamActions, { dream: dream, idp: "cv-" + String(dream.id), first: "reply", onReply: function (x, el) { reply(dream, el); }, onQuote: onQuote, onUndoQuote: onUndoQuote, optsBtn: dreamOptsBtn,
+                style: { margin: "0 -16px", borderTop: "1px solid var(--bd)" }, calm: !!(Looscid.A11Y_NOW && Looscid.A11Y_NOW.calmFeed),
+                opts: { onBookmark: onBookmark, onLike: onLike, navigate: navigate, onExtra: setExtra, allowDelete: true, onDeleted: onBack } })
           )
-          /* Reply: opens the composer in Reply mode (Round 6.5) */
-          , !dream.deleted && lh('div', { style: {padding:"10px 14px",borderBottom:"1px solid var(--bd)",display:"flex",gap:9,alignItems:"center"} },
-              lh(Av, { user: ME, size: 32 }),
-              lh('button', { type: "button", id: "cv-reply-btn", className: "btn bp", style: {padding:"8px 16px",fontSize:13}, onClick: function (e) { reply(dream, e.currentTarget); } }, "Reply to " + dream.user.name))
+          /* Nov 9 2026: Reply is the first button in the row above now (it was its own big button here, said twice). */
           /* Sort bar and replies: shown when the thread is expanded */
           , expanded && React.createElement('div', { className: "sort-bar",}
             , React.createElement('span', { className: "sort-lbl",}, "Replies " , React.createElement('strong', { style: {color:"var(--tx)"},}, comments.length))
@@ -1593,6 +1751,7 @@ function DreamBodyCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndo
   useRepliesTick(); // Round 6.5: the reply count includes your saved replies
   useUntagTick(); // Build 147: Remove me from this Dream
   useIdListTick("looscid:edits"); dream = lcWithEdit(dream); // build 152 prep (#99): your edits show everywhere
+  useIdListTick("looscid:notinterested"); // Nov 9 2026: Not interested, with Undo right where the Dream was
   const untagged = lcTagsMe(dream) && lcIsUntagged(dream);
   if (untagged) dream = Object.assign({}, dream, { text: lcUntaggedText(dream), _origText: dream.text });
   const nReplies = lcReplyCount(dream);
@@ -1617,6 +1776,16 @@ function DreamBodyCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndo
   if (dream.sigOk) { artProps["aria-label"] += ". Verified"; if (artProps["aria-braillelabel"]) artProps["aria-braillelabel"] += " (verified)"; } // Nov 7 2026
   if (dream.editedAt) { artProps["aria-label"] += ". Edited"; if (artProps["aria-braillelabel"]) artProps["aria-braillelabel"] += " (edited)"; } // build 152 prep
   if (pinned) { artProps["aria-label"] = "Pinned. " + artProps["aria-label"]; if (artProps["aria-braillelabel"]) artProps["aria-braillelabel"] = "Pinned " + artProps["aria-braillelabel"]; } // build 152 prep
+  // Nov 9 2026 (Carter said yes): a Dream you just marked Not interested in the Home feed is one short line with Undo.
+  // Focus lands on the line, so VoiceOver reads it right away; Undo brings the Dream back and puts focus on its More button.
+  if (LC_NI_JUST.has(String(dream.id)) && lcNotInterestedHas(dream)) {
+    const pid = "ni-ph-" + lcSafeId(dream.id);
+    return lh('div', { className: "dc lc-ni-ph", "data-dream-id": dream.id },
+      lh('p', { id: pid, className: "lc-ni-t", tabIndex: -1 }, "Not interested. I'll show you less like this."),
+      lh('button', { type: "button", id: pid + "-undo", className: "btn bgb lc-btn lc-ni-undo", onClick: function () {
+        LC_NI_JUST.delete(String(dream.id)); lcNotInterestedUndo(dream); announce("Okay. It's back.");
+        setTimeout(function () { const b = document.getElementById("dopts-" + lcSafeId(dream.id) + "-btn"); if (b) b.focus(); }, 60); } }, "Undo"));
+  }
   if (flt && flt.bw && !cwOpen) return lh('div', Object.assign({}, artProps, { "aria-label": "Hidden: contains a blocked word", "aria-braillelabel": A.brailleOutput ? "Hidden: blocked word" : undefined }),
     lh('div', { className: "dc-inner lc-cw lc-bw" },
       lh('p', { className: "lc-cw-t" }, "Hidden: contains a blocked word"),
@@ -1666,22 +1835,9 @@ function DreamBodyCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndo
           , linkInfo && !dream.nopv && lh(LinkCard, { info: linkInfo })
           /* Round 7.16 (#216): no Cherry insights panel (its related tags were made up). */
         )
-        /* Interaction row - Save removed, lives in Dream Options menu */
-        , React.createElement('div', { className: "ixn-row",}
-          , React.createElement('button', { className: "ixn-btn", onClick: ()=>onComment && onComment(dream), 'aria-label': fmt(nReplies)+(nReplies === 1 ? " reply" : " replies"),}
-            , React.createElement(Ic.Cmt, { style: {width:15,height:15},}), React.createElement('span', null, fmt(nReplies), nReplies === 1 ? " Reply" : " Replies" )
-          )
-          , lh(LcMenu, { id: "rd-" + dream.id, kind: "action", title: "Redream or Quote", btnLabel: calm ? "Redreams" + lcRdState(dream) : lcCountWord(rdTotal, "Redream", "Redreams") + lcRdState(dream), btnHint: "Opens Redream and Quote.", btnClass: "cbx-wrap"+(rdActive?" redd":""), noCaret: true, up: true, className: "lc-rdmenu",
-              btnText: [lh('div', { key: "b", className: "cbx-box" }, rdActive && lh(ChkMark, null)), lh('span', { key: "s" }, calm ? "" : fmt(rdTotal), calm ? "Redreams" : rdTotal === 1 ? " Redream" : " Redreams")],
-              items: [{ id: "rd", name: dream.redreamed ? "Unredream" : "Redream" }, { id: "q", name: dream.quoted ? "Unquote Dream" : "Quote Dream" }],
-              onSelect: function (k) { if (k === "rd") { dream.redreamed ? onUndoRedream(dream.id) : onRedream(dream.id); announce(dream.redreamed ? "Redream removed" : "Redreamed", "state", "rd:" + dream.id); } else if (dream.quoted) onUndoQuote(dream.id); else lcCompose({ mode: "quote", parent: dream, onSent: function () { onQuote(dream.id); } }); } })
-          /* Nov 8 2026: the shared counter (lcCountBtn). Liking a Dream you disliked takes the dislike off (js/dislikes.js). */
-          , lcCountBtn(lh, { on: !!dream.liked, cls: "liked", onClick: function () { if (!dream.liked) { Earcon.play("like"); lcThreadLikeNudge(dream); try { if (Looscid.lcDislikes) Looscid.lcDislikes.set(dream, false, true); } catch (e) {} } onLike(dream.id); announce(dream.liked ? "Like removed" : "Liked", "state", "like:" + dream.id); },
-              label: lcVerb() === "low" ? "Like" : (calm ? "Likes" : lcCountWord(dream.likes, "like", "likes")), text: (calm ? "" : fmt(dream.likes)) + (calm ? "Likes" : dream.likes === 1 ? " Like" : " Likes") })
-          /* Nov 8 2026 (Carter): Dislike, right next to Like. Only you ever see it; no count. Wrapped so a problem can't break the feed. */
-          , Looscid.LcDislikeBtn && Looscid.LcSafe ? lh(Looscid.LcSafe, null, lh(Looscid.LcDislikeBtn, { dream: dream, onLike: onLike })) : null
-          , lh(DreamOptionsMenu, { id: "dopts-" + dream.id, dream: dream, btnRef: optsBtn, onBookmark: onBookmark, onLike: onLike, navigate: navigate, cherryCtx: cherryCtx, onExtra: setExtra, forYou: !!forYou, allowDelete: true, modCircle: modCircle || null })
-        )
+        /* Nov 9 2026: the one shared row (LcDreamActions), the same as in a thread, a reply and a Dream opened from Alerts. */
+        , lh(LcDreamActions, { dream: dream, idp: String(dream.id), first: "replies", onComment: onComment, onQuote: onQuote, onUndoQuote: onUndoQuote, optsBtn: optsBtn, calm: calm,
+            opts: { onBookmark: onBookmark, onLike: onLike, navigate: navigate, cherryCtx: cherryCtx, onExtra: setExtra, forYou: !!forYou, allowDelete: true, modCircle: modCircle || null } })
         )
 
     )
@@ -1997,6 +2153,7 @@ const LC_FIND_STATIC = [
   { l: "Credits and open source", w: "credits open source licenses license thanks third party react nostr-tools noble nexos looscid os insomnia feditext v86 fonts repos", page: "credits", where: "Menu, About" },
   { l: "Blocked Dreamors", w: "block dreamor block user blocked list unblock", page: "settings_privacy", priv: "blocked", privTab: "dreamers", focus: "priv-bl-dreamers-in", where: "Settings, Privacy & Security, Blocked and muted" },
   { l: "Blocked Circles", w: "block circle blocked circles", page: "settings_privacy", priv: "blocked", privTab: "circles", focus: "priv-bl-tab-circles", where: "Settings, Privacy & Security, Blocked and muted" },
+  { l: "Clear Not interested", w: "not interested hidden dreams show less see less reset feed", page: "settings_privacy", priv: "notint", focus: "ni-clear", where: "Settings, Privacy & Security, Not interested" },
   { l: "Blocked words", w: "block word blocked words hide words everywhere", page: "settings_privacy", priv: "blocked", privTab: "words", focus: "priv-bl-words-in", where: "Settings, Privacy & Security, Blocked and muted" },
   { l: "Forget what Cherry knows about my media", w: "cherry forget media", page: "settings_privacy", priv: "pcherry", focus: "priv-cherry-forget", where: "Settings, Privacy & Security, What Cherry can see" },
   { l: "Forget what Cherry knows about my media", w: "cherry forget media", page: "settings_ai_cherry", focus: "priv-cherry-forget", where: "Settings, Customization, Cherry, Cherry" },
@@ -2233,7 +2390,7 @@ const PRIVACY_CONTENT = `<p><strong>Last updated: November 9, 2026</strong></p>
 <li>Dreams you made before Rem existed, or back when Looscid had a Local mode, go on Rem too, the next time you open Looscid. Only the ones set to Everyone. Looscid tells you when that happens.</li>
 <li>Dreams set to Followers only, My Circles or Only this device stay on this device. Sharing is up to each Dream, and changing it on one never changes the others.</li>
 <li>Uncooked Dreams (drafts) stay on this device only. They never go to Rem or anywhere else.</li>
-<li>Your likes, ReDreams, pins, dislikes, mutes, Not interested and the threads you follow sync through Rem with your key, so they're the same on all your devices. Only like and ReDream counts are public.</li>
+<li>Your likes, ReDreams, pins, mutes, Not interested and the threads you follow sync through Rem with your key, so they're the same on all your devices. Only like and ReDream counts are public. Not interested is private: only you ever see it.</li>
 <li>Rem also keeps your public key and when it first saw it. It never gets your secret key, an email or a phone number.</li>
 <li>Your profile, settings and Soundpacks are saved on this device, in your browser's storage (the keys start with <code>looscid_</code>). This device keeps its own copy of your Dreams and replies too. They're not in Settings backup; the Backup file has them.</li>
 <li>Your chats with Cherry (Your History, and which ones you pinned) stay on this device only. They are in Settings backup, so a backup file can bring them to another device.</li>
@@ -2745,7 +2902,7 @@ const LC_ROUTES = [
   ["settings_privacy", "Settings/Privacy-and-Security/Permissions"], ["settings_privacy", "Settings/Privacy-and-Security/My-Profile"], ["settings_privacy", "Settings/Privacy-and-Security/Whats-On-My-Profile"],
   ["settings_privacy", "Settings/Privacy-and-Security/Circles-on-My-Profile"], ["settings_privacy", "Settings/Privacy-and-Security/Followed-Threads"], ["settings_privacy", "Settings/Privacy-and-Security/Chats"],
   ["settings_privacy", "Settings/Privacy-and-Security/Blocked-and-Muted"], ["settings_privacy", "Settings/Privacy-and-Security/What-Cherry-Can-See"], ["settings_privacy", "Settings/Privacy-and-Security/Cherry"],
-  ["settings_privacy", "Settings/Privacy-and-Security/Media-and-Content"],
+  ["settings_privacy", "Settings/Privacy-and-Security/Media-and-Content"], ["settings_privacy", "Settings/Privacy-and-Security/Not-Interested"],
   // Nov 8 2026 (Carter: "Rem should get it's own settings section", then 8:47 PM: inside LooscidID): Rem's own screen, at
   // /More/Settings/LooscidID/Rem. The other addresses are where it was for a bit (/Settings/Rem) and names it went by (the
   // Looscid server, sync), so old links and guesses open it too.
@@ -2812,6 +2969,7 @@ const LC_PRIV_ROUTES = [
   ["Settings/Privacy-and-Security/Circles-on-My-Profile", "pprofile"], ["Settings/Privacy-and-Security/Followed-Threads", "pprofile"],
   ["Settings/Privacy-and-Security/Chats", ""], ["Settings/Privacy-and-Security/Blocked-and-Muted", "blocked"],
   ["Settings/Privacy-and-Security/What-Cherry-Can-See", "pcherry"], ["Settings/Privacy-and-Security/Cherry", "pcherry"], ["Settings/Privacy-and-Security/Media-and-Content", "pmedia"],
+  ["Settings/Privacy-and-Security/Not-Interested", "notint"], // Nov 9 2026
 ];
 Looscid.LC_PRIV_ROUTES = LC_PRIV_ROUTES;
 function lcSubRouteFor(data) {
@@ -8152,7 +8310,9 @@ const LC_EXPORT_KEYS = [A11Y_KEY, LC_SETTINGS_KEY, "looscid_braille_styles", "lo
   // Nov 1 2026: Custom character limits (Customization, Dreaming). Added at the end, so older backups still import.
   "looscid_char_limits",
   // Nov 8 2026: For You topics (and Only my topics). Added at the end, so older backups still import.
-  "looscid_foryou_topics"];
+  "looscid_foryou_topics",
+  // Nov 9 2026: what Not interested learned (same Dreamor, hashtags, words). Added at the end, so older backups still import.
+  "looscid_not_interested_info"];
 Looscid.LC_EXPORT_KEYS = LC_EXPORT_KEYS;
 function lcExportSettings() {
   const o = { app: "Looscid", kind: "settings", version: LOOSCID_VERSION, exported: new Date().toISOString(), settings: {} };
