@@ -1213,7 +1213,7 @@ announce("Liked");`,
     s: "what a mod sees when removing a Dream: pick a reason or type one. the reason is always public.",
     where: [
       "mods open it from a Dream's More menu (Remove from Night Owls, or Remove from Looscid for admins). a reason is a must: pick one (the Circle's own rules come first) or type ur own.",
-      "the Dreamor sees the reason where their Dream was, and it goes in the public mod log. Remove Dream stays dimmed until there's a reason, and says why if u press it early."
+      "the Dreamor sees the reason where their Dream was, and it goes in the public Modlog. Remove Dream stays dimmed until there's a reason, and says why if u press it early."
     ],
     states: [
       { id: "nothing-picked", n: "nothing picked", say: "Remove Dream is dimmed.", html: `<div class="lid-alert-bg">
@@ -1315,7 +1315,7 @@ goBtn.addEventListener("click", function () {
   const picked = dialog.querySelector("input[name=m1-reason]:checked");
   const reason = !picked ? "" : picked.value === "own" ? ownInput.value.trim() : picked.nextElementSibling.textContent;
   if (!reason) { showMsg("Pick a reason or type one first. Ava sees it."); return; }
-  removeDream(reason);           // public: shows on the Dream and in the mod log
+  removeDream(reason);           // public: shows on the Dream and in the Modlog
   announce("Dream removed");
 });`,
     vo: [

@@ -276,7 +276,7 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
               copy: function () { const say = Looscid.announce || function () {}; if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { say("Circle link copied."); }, function () { say("Copy is not available here."); }); else say("Copy is not available here."); } }); },}, "Share Circle")
         /* Nov 8 2026 (Carter: removal reasons are public, with a public mod log that says moderator or admin): Mod log, for
            everyone, in the same row as Share Circle. It opens in the usual sheet, not a new page. */
-        , Looscid.lcModLog&&React.createElement('button', { type: "button", id: "circ-modlog-btn", className: "btn bgb", style: {width:"100%",padding:11,fontSize:13,marginTop:8}, onClick: ()=>setShowModLog(true),}, "Mod log")
+        , Looscid.lcModLog&&React.createElement('button', { type: "button", id: "circ-modlog-btn", className: "btn bgb", style: {width:"100%",padding:11,fontSize:13,marginTop:8}, onClick: ()=>setShowModLog(true),}, "Modlog")
       )
 
       , tab==="rules"&&React.createElement('div', { style: {padding:16},}
@@ -309,8 +309,8 @@ function GroupDetailPage({group, navigate, onBack, cherryCtx}) {
    and the reason. Public: every Dreamor can open it. Focus goes to the sheet's heading when it opens. */
 function CircleModLog({group, onClose}) {
   const list = Looscid.lcModLog ? Looscid.lcModLog(group.id) : [];
-  React.useEffect(() => { const t = setTimeout(() => { const h = document.querySelector('[role="dialog"][aria-label="Mod log"] h2'); if (h) { h.setAttribute("tabindex", "-1"); h.focus(); } }, 40); return () => clearTimeout(t); }, []);
-  return React.createElement(Modal, { onClose: onClose, title: "Mod log", subtitle: "Every Dream the mods of " + group.name + " removed, with the date and the reason. Anyone can read it.",}
+  React.useEffect(() => { const t = setTimeout(() => { const h = document.querySelector('[role="dialog"][aria-label="Modlog"] h2'); if (h) { h.setAttribute("tabindex", "-1"); h.focus(); } }, 40); return () => clearTimeout(t); }, []);
+  return React.createElement(Modal, { onClose: onClose, title: "Modlog", subtitle: "Every Dream the mods of " + group.name + " removed, with the date and the reason. Anyone can read it.",}
     , list.length
       ? React.createElement('ol', { className: "lc-modlog", style: {listStyle:"none",margin:0,padding:0},}, list.map(e => React.createElement('li', { key: e.dreamId + "-" + e.at, style: {padding:"10px 0",borderBottom:"1px solid var(--bd)",fontSize:13,lineHeight:1.5,color:"var(--tx)"},}, Looscid.lcModLogText(e))))
       : React.createElement('p', { style: {fontSize:13,color:"var(--tx2)",lineHeight:1.6},}, "No Dreams have been removed in " + group.name + ".")

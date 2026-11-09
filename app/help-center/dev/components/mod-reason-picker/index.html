@@ -29,7 +29,7 @@
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <link rel="stylesheet" href="../../../help.css?v=hc7">
-<link rel="stylesheet" href="../../../../assets/site-footer.css?v=2">
+<link rel="stylesheet" href="../../../../assets/site-footer.css?v=7.53-ml1">
 </head>
 <body>
 <div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
@@ -41,7 +41,7 @@
 <p class="lead">what a mod sees when removing a Dream: pick a reason or type one. the reason is always public.</p>
 <h2 id="what">what it is</h2>
 <p>mods open it from a Dream's More menu (Remove from Night Owls, or Remove from Looscid for admins). a reason is a must: pick one (the Circle's own rules come first) or type ur own.</p>
-<p>the Dreamor sees the reason where their Dream was, and it goes in the public mod log. Remove Dream stays dimmed until there's a reason, and says why if u press it early.</p>
+<p>the Dreamor sees the reason where their Dream was, and it goes in the public Modlog. Remove Dream stays dimmed until there's a reason, and says why if u press it early.</p>
 <h2 id="states">states</h2>
 <p>live demos, drawn w looscid's real styles. look-only: nothing in them does anything.</p>
 <h3 id="state-nothing-picked">nothing picked</h3>
@@ -83,7 +83,7 @@ goBtn.addEventListener(&quot;click&quot;, function () {
   const picked = dialog.querySelector(&quot;input[name=m1-reason]:checked&quot;);
   const reason = !picked ? &quot;&quot; : picked.value === &quot;own&quot; ? ownInput.value.trim() : picked.nextElementSibling.textContent;
   if (!reason) { showMsg(&quot;Pick a reason or type one first. Ava sees it.&quot;); return; }
-  removeDream(reason);           // public: shows on the Dream and in the mod log
+  removeDream(reason);           // public: shows on the Dream and in the Modlog
   announce(&quot;Dream removed&quot;);
 });</code></pre>
 <p><button type="button" class="btn cl-copy" data-copy="code-mod-reason-picker-js" hidden>Copy JS code</button></p>
@@ -99,16 +99,15 @@ goBtn.addEventListener(&quot;click&quot;, function () {
 <div class="sf-in">
 <p class="sf-brand"><img src="/Looscid/assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="28" height="28"><span class="sf-name" aria-hidden="true">Looscid</span></p>
 <div class="sf-cols">
-<section class="sf-col" aria-labelledby="sf-h-important"><h2 id="sf-h-important">Important</h2><ul><li><a href="/Looscid/About/" title="Goes to About">About Looscid</a></li></ul></section>
-<section class="sf-col" aria-labelledby="sf-h-help"><h2 id="sf-h-help">Get help</h2><ul><li><a href="/Looscid/" title="Goes to Home">Looscid Home</a></li><li><a href="/Looscid/help/" title="Goes back to Help Center">Help Home</a></li><li><a href="/Looscid/help/getting-started/" title="Opens this topic">Getting Started</a></li><li><a href="/Looscid/help/looscid-basics/" title="Opens this course">Looscid Basics course</a></li><li><a href="/Looscid/Report/" title="Goes to Report">Report Center</a></li><li><a href="/Looscid/help/contact/" title="Goes to Contact Us">Contact Us</a></li><li><a href="/Looscid/Feedback/" title="Goes to Feedback">Send Feedback</a></li></ul></section>
-<section class="sf-col" aria-labelledby="sf-h-project"><h2 id="sf-h-project">Project</h2><ul><li><a href="/Looscid/changelog/" title="Goes to the changelog">Roadmap &amp; Changelog</a></li><li><a href="/Looscid/status.html" title="Goes to the status page">Status</a></li><li><a href="/Looscid/help/#h-building" title="Goes back to Help Center">Docs</a></li><li><a href="/Looscid/help/dev/contributing/" title="Opens this article">Contributing</a></li><li><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a></li><li><a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></li></ul></section>
-<section class="sf-col" aria-labelledby="sf-h-looscid"><h2 id="sf-h-looscid">Looscid</h2><ul><li><a href="/Looscid/Our-Story/" title="Goes to Our Story">Our Story</a></li><li><a href="/Looscid/Credits/" title="Goes to Credits">Credits</a></li><li><a href="https://www.reddit.com/r/Looscid/" title="Go to Reddit" target="_blank" rel="noopener noreferrer">r/Looscid on Reddit</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-looscid"><h2 id="sf-h-looscid">Looscid</h2><ul><li><a href="/Looscid/About/" title="Goes to About">About Looscid</a></li><li><a href="/Looscid/" title="Goes to Home">Looscid Home</a></li><li><a href="/Looscid/Our-Story/" title="Goes to Our Story">Our Story</a></li><li><a href="/Looscid/Credits/" title="Goes to Credits">Credits</a></li><li><a href="/Looscid/changelog/" title="Goes to the changelog">Roadmap &amp; Changelog</a></li><li><a href="/Looscid/status.html" title="Goes to the status page">Status</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-help"><h2 id="sf-h-help">Help</h2><ul><li><a href="/Looscid/help/" title="Goes back to Help Center">Help Home</a></li><li><a href="/Looscid/help/getting-started/" title="Opens this topic">Getting Started</a></li><li><a href="/Looscid/help/looscid-basics/" title="Opens this course">Basics course</a></li><li><a href="/Looscid/Report/" title="Goes to Report">Report Center</a></li><li><a href="/Looscid/help/contact/" title="Goes to Contact Us">Contact Us</a></li><li><a href="/Looscid/Feedback/" title="Goes to Feedback">Feedback</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-code"><h2 id="sf-h-code">Code</h2><ul><li><a href="/Looscid/help/#h-building" title="Goes back to Help Center">Docs</a></li><li><a href="/Looscid/help/dev/contributing/" title="Opens this article">Contributing</a></li><li><a href="https://github.com/Looscid/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Source code</a></li><li><a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></li></ul></section>
 <section class="sf-col" aria-labelledby="sf-h-legal"><h2 id="sf-h-legal">Legal</h2><ul><li><a href="/Looscid/Terms/" title="Goes to Terms">Terms</a></li><li><a href="/Looscid/Privacy/" title="Goes to Privacy">Privacy</a></li><li><a href="/Looscid/Rules/" title="Goes to Rules">Rules</a></li><li><a href="/Looscid/Child-Safety/" title="Goes to Child Safety">Child Safety</a></li><li><a href="/Looscid/Legal/" title="Goes to Legal">License</a></li></ul></section>
-<section class="sf-col" aria-labelledby="sf-h-hi"><h2 id="sf-h-hi">Say hi</h2><ul><li><a href="https://github.com/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">GitHub</a></li><li><a href="https://x.com/Looscid" title="Go to X" target="_blank" rel="noopener noreferrer">X</a></li><li><a href="https://www.youtube.com/@Looscid" title="Go to YouTube" target="_blank" rel="noopener noreferrer">YouTube</a></li><li><a href="https://discord.gg/M6xrD8EBXU" title="Go to Discord" target="_blank" rel="noopener noreferrer">Discord</a></li></ul></section>
+<section class="sf-col" aria-labelledby="sf-h-hi"><h2 id="sf-h-hi">Say hi</h2><ul><li><a href="https://discord.gg/M6xrD8EBXU" title="Go to Discord" target="_blank" rel="noopener noreferrer">Discord</a></li><li><a href="https://www.reddit.com/r/Looscid/" title="Go to Reddit" target="_blank" rel="noopener noreferrer">Reddit</a></li><li><a href="https://x.com/Looscid" title="Go to X" target="_blank" rel="noopener noreferrer">X</a></li><li><a href="https://www.youtube.com/@Looscid" title="Go to YouTube" target="_blank" rel="noopener noreferrer">YouTube</a></li><li><a href="https://github.com/Looscid" title="Go to GitHub" target="_blank" rel="noopener noreferrer">GitHub</a></li></ul></section>
 </div>
 <p class="sf-bottom">© 2025–2026 Looscid <span aria-hidden="true">·</span> Open source under the <a href="/Looscid/help/dev/license/" title="Opens this article">GNU AGPL-3.0</a> <span aria-hidden="true">·</span> Made by Chaotic Carter, co-written with Tab <span aria-hidden="true">·</span> Looscid 2026.138.57 (195)</p>
 </div>
 </footer>
-<script src="../../../help.js?v=hc6"></script>
+<script src="../../../help.js?v=hc7"></script>
 </body>
 </html>

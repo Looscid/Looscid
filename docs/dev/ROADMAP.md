@@ -293,7 +293,7 @@ I'm making real looscid apps, android first (I decided November 8, 2026). I buil
 - [x] mods give a reason when they take down a Dream.
 - [x] blocklists.
 - [x] removals are public: the line where a removed Dream used to be says whether a Circle's mods or a looscid admin took it down, and why.
-- [x] a public Mod log: every removal with its date, the Dream (never its words), the mod or admin, and the reason. it's in each Circle's About tab and in the Help Center.
+- [x] a public Modlog: every removal with its date, the Dream (never its words), the mod or admin, and the reason. it's in each Circle's About tab and in the Help Center.
 - [x] deleting ur own Dream: no replies, it's just gone. with replies, one "Dream deleted" line stays so the thread still makes sense.
 - [x] the Report Center: one place for every report (Dreams, people, Circles, bugs n ideas, child safety), w its own link, /Report. links like /Report/?dream= or ?profile= fill it in.
 - [x] Report on a Dream, a profile or a Circle opens the Report Center already filled in. profile Report finally works.

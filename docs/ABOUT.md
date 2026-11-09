@@ -15,7 +15,7 @@ I'm building Looscid because I believe apps should be for everyone.
 
 If you have a problem, you should be heard. If you get banned, you should be heard.
 
-That's why Looscid has a public mod log. It's also why there's a Report Center, where you get a real reply.
+That's why Looscid has a public Modlog. It's also why there's a Report Center, where you get a real reply.
 
 YOU MATTER. PEOPLE MATTER.
 
@@ -275,9 +275,9 @@ Report it as a bug in the [Report Center](https://looscid.github.io/Looscid/Repo
 
 Send Feedback opens a public issue on GitHub, so don't put anything private in it.
 
-### The mod log
+### The Modlog {#the-mod-log}
 
-The mod log is public. It lists every Dream the mods remove, with the date and the reason. A Dream can't be removed without a reason. You'll find it in the Help Center, under Mod log.
+The Modlog is public. It lists every Dream the mods remove, with the date and the reason. A Dream can't be removed without a reason. You'll find it in the Help Center, under Modlog.
 
 ### If you get banned
 

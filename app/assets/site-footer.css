@@ -1,20 +1,21 @@
 /* Looscid's sitewide footer for the website pages (Help Center, changelog, status). Nov 1 2026, Carter: "footer is
-   sitewide". The app draws the same footer itself (core.js, LcSiteFooter). Light and dark follow the device. */
+   sitewide". The app draws the same footer itself (core.js, LcSiteFooter). Light and dark follow the device.
+   Nov 9 2026 (Carter: "the footer could be condenced"): tighter spacing. Every link is still a 44px target. */
 .sf{--sf-bg:#0c0a1a;--sf-card:#14112a;--sf-bd:#2e2850;--sf-tx:#f2f0ff;--sf-tx2:#c9c3e6;--sf-link:#d8ccff;--sf-ac:#a78bfa;
-  margin-top:40px;background:var(--sf-card);border-top:1px solid var(--sf-bd);color:var(--sf-tx2);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  margin-top:24px;background:var(--sf-card);border-top:1px solid var(--sf-bd);color:var(--sf-tx2);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 @media (prefers-color-scheme:light){.sf{--sf-bg:#faf9ff;--sf-card:#f1eefc;--sf-bd:#d9d4f0;--sf-tx:#16132b;--sf-tx2:#3f3a5c;--sf-link:#4c1d95;--sf-ac:#5b21b6}}
-.sf-in{max-width:1040px;margin:0 auto;padding:28px 16px calc(28px + env(safe-area-inset-bottom))}
-.sf-brand{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:0 0 20px}
+.sf-in{max-width:1040px;margin:0 auto;padding:20px 16px calc(20px + env(safe-area-inset-bottom))}
+.sf-brand{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:0 0 8px}
 .sf-brand img{border-radius:22%}
 .sf-name{font-weight:800;font-size:18px;color:var(--sf-tx)}
-.sf-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,9.5rem),1fr));gap:8px 24px}
-.sf-col h2,.sf-col h3{margin:12px 0 4px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--sf-tx)}
+.sf-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,8.5rem),1fr));gap:4px 20px}
+.sf-col h2,.sf-col h3{margin:8px 0 0;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--sf-tx)}
 .sf-col ul{list-style:none;margin:0;padding:0}
 .sf-col a,.sf-bottom a{color:var(--sf-link);text-decoration:none}
 .sf-col a{display:flex;align-items:center;min-height:44px;font-size:15px}
 .sf a:hover{text-decoration:underline;text-underline-offset:3px}
 .sf a:focus-visible{outline:3px solid var(--sf-ac);outline-offset:2px;border-radius:6px}
-.sf-bottom{margin:20px 0 0;padding-top:16px;border-top:1px solid var(--sf-bd);font-size:14px}
+.sf-bottom{margin:12px 0 0;padding-top:12px;border-top:1px solid var(--sf-bd);font-size:14px}
 .sf-bottom a{text-decoration:underline;text-underline-offset:2px}
 .sf-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (forced-colors:active){.sf{border-top:1px solid CanvasText}}

@@ -4,27 +4,30 @@
    - The website pages (Help Center, the component library, the changelog, the status page, Page not found) get the same
      markup written in by .github/scripts/build-help.mjs, which reads this file. Run it again after a change here
      (node .github/scripts/build-help.mjs); the Validate check fails when a page is out of date.
-   Six groups, each with its own heading: Important (About Looscid, first), Get help, Project, Looscid, Legal and Say hi. Links to other sites carry a
+   Five groups, each with its own heading: Looscid (About Looscid first), Help, Code, Legal and Say hi (Nov 9 2026). Links to other sites carry a
    title hint ("Go to GitHub"). Every link is in one group only. Plain script, no framework; nothing is sent anywhere. */
 (function (Looscid) {
 "use strict";
 // Each link: [words, address, the app page it opens inside Looscid (optional)]. ext: the other site's name.
 const GROUPS = [
-  // Nov 8 2026 (Carter, 5:47 and 5:54 PM: it's Important, part of Looscid, and the page IS About Looscid): its own group, first,
-  // so About Looscid is one of the first links a screen reader reaches in the footer. Why Looscid? is part of it now.
-  { id: "important", t: "Important", links: [["About Looscid", "/Looscid/About/", "settings_about"]] },
-  { id: "help", t: "Get help", links: [["Looscid Home", "/Looscid/", "feed"], ["Help Home", "/Looscid/help/", "helpcenter"], ["Getting Started", "/Looscid/help/getting-started/"],
-    ["Looscid Basics course", "/Looscid/help/looscid-basics/"], ["Report Center", "/Looscid/Report/", "report_center"],
-    ["Contact Us", "/Looscid/help/contact/"], ["Send Feedback", "/Looscid/Feedback/", "feedback"]] },
-  { id: "project", t: "Project", links: [["Roadmap &amp; Changelog", "/Looscid/changelog/"], ["Status", "/Looscid/status.html"], ["Docs", "/Looscid/help/#h-building"],
-    ["Contributing", "/Looscid/help/dev/contributing/"], { t: "Source code", href: "https://github.com/Looscid/Looscid", ext: "GitHub" }, { t: "Issues", href: "https://github.com/Looscid/Looscid/issues", ext: "GitHub" }] },
-  { id: "looscid", t: "Looscid", links: [["Our Story", "/Looscid/Our-Story/", "hour_story"], ["Credits", "/Looscid/Credits/", "credits"],
-    // Nov 8 2026 (Carter: "Link Reddit yea"): r/Looscid, the community's home. The accessibility guide's footer link is gone: it's part of About Looscid now.
-    { t: "r/Looscid on Reddit", href: "https://www.reddit.com/r/Looscid/", ext: "Reddit" }] },
+  /* Nov 9 2026 (Carter: "the Reddit links go under say hi etc and the footer could be condenced"): five groups, not six.
+     About Looscid is still the first link (Carter, Nov 8: it's Important), now at the top of the Looscid group, with the
+     rest of the "about us" links. Reddit sits in Say hi with the other places to hang out. Every link from before is
+     still here, a few with shorter words. */
+  { id: "looscid", t: "Looscid", links: [["About Looscid", "/Looscid/About/", "settings_about"], ["Looscid Home", "/Looscid/", "feed"],
+    ["Our Story", "/Looscid/Our-Story/", "hour_story"], ["Credits", "/Looscid/Credits/", "credits"],
+    ["Roadmap &amp; Changelog", "/Looscid/changelog/"], ["Status", "/Looscid/status.html"]] },
+  { id: "help", t: "Help", links: [["Help Home", "/Looscid/help/", "helpcenter"], ["Getting Started", "/Looscid/help/getting-started/"],
+    ["Basics course", "/Looscid/help/looscid-basics/"], ["Report Center", "/Looscid/Report/", "report_center"],
+    ["Contact Us", "/Looscid/help/contact/"], ["Feedback", "/Looscid/Feedback/", "feedback"]] },
+  { id: "code", t: "Code", links: [["Docs", "/Looscid/help/#h-building"], ["Contributing", "/Looscid/help/dev/contributing/"],
+    { t: "Source code", href: "https://github.com/Looscid/Looscid", ext: "GitHub" }, { t: "Issues", href: "https://github.com/Looscid/Looscid/issues", ext: "GitHub" }] },
   { id: "legal", t: "Legal", links: [["Terms", "/Looscid/Terms/", "terms"], ["Privacy", "/Looscid/Privacy/", "privacy"], ["Rules", "/Looscid/Rules/", "guidelines"],
     ["Child Safety", "/Looscid/Child-Safety/", "child_safety"], ["License", "/Looscid/Legal/", "legal"]] },
-  { id: "hi", t: "Say hi", links: [{ t: "GitHub", href: "https://github.com/Looscid", ext: "GitHub" }, { t: "X", href: "https://x.com/Looscid", ext: "X" },
-    { t: "YouTube", href: "https://www.youtube.com/@Looscid", ext: "YouTube" }, { t: "Discord", href: "https://discord.gg/M6xrD8EBXU", ext: "Discord" }] },
+  // Nov 8 2026 (Carter: "Link Reddit yea"): r/Looscid, the community's home. Nov 9: it lives in Say hi now.
+  { id: "hi", t: "Say hi", links: [{ t: "Discord", href: "https://discord.gg/M6xrD8EBXU", ext: "Discord" }, { t: "Reddit", href: "https://www.reddit.com/r/Looscid/", ext: "Reddit" },
+    { t: "X", href: "https://x.com/Looscid", ext: "X" }, { t: "YouTube", href: "https://www.youtube.com/@Looscid", ext: "YouTube" },
+    { t: "GitHub", href: "https://github.com/Looscid", ext: "GitHub" }] },
 ];
 // One link as { t, href, page, ext } (t is written as HTML: only &amp; is ever in it).
 function link(x) { return Array.isArray(x) ? { t: x[0], href: x[1], page: x[2] || null, ext: null } : { t: x.t, href: x.href, page: x.page || null, ext: x.ext || null }; }

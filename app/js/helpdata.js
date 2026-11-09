@@ -18,7 +18,7 @@
     { id: "dreams", t: "Dreams, replies and threads", s: "Write and cook Dreams, reply to them, follow threads, and use Likes, Redreams and the More button." },
     { id: "chats-circles-cherry", t: "Chats, Circles and Cherry", s: "Your Inbox, private chats, Circles for groups of Dreamors, and Cherry the built-in assistant." },
     // Nov 9 2026 (Carter: "the help center needs a massive cleanup"): reports and the mod log get their own collection.
-    { id: "safety-and-reports", t: "Reports, safety and the mod log", s: "Report a Dream, a person or a Circle, report a bug or an idea, and see why Dreams get removed." },
+    { id: "safety-and-reports", t: "Reports, safety and the Modlog", s: "Report a Dream, a person or a Circle, report a bug or an idea, and see why Dreams get removed." },
     { id: "settings-privacy-backup", t: "Settings, privacy and your data", s: "Find any setting, choose who can reach you, learn about Rem, and back up your stuff." },
   ];
   /* Nov 9 2026 (Carter: "the help center needs a massive cleanup", "some humor", "a nice long paragraph page"): every
@@ -178,7 +178,7 @@
         "Press Discover to find Circles to join, or My Circles for the ones you're already in. If you set a Dream's Audience to My Circles, it stays on your device instead of going on Rem.",
         "## Making your own",
         "Can't find a Circle for your thing? Make one. Press Create, then Circle, and follow the steps. Congrats, you're in charge now.",
-        "If you run a Circle, each member has Member Options. Each Circle also has its own mod log, so everyone can see what got removed and why. {{mod-log|The mod log}} explains it.",
+        "If you run a Circle, each member has Member Options. Each Circle also has its own Modlog, so everyone can see what got removed and why. {{mod-log|The Modlog}} explains it.",
       ],
       rel: ["start-a-chat", "write-a-dream", "mod-log"] },
     { id: "cherry", c: "chats-circles-cherry", t: "Meet Cherry, the built-in assistant",
@@ -194,7 +194,7 @@
       ],
       rel: ["commandbar", "find-settings", "privacy"] },
 
-    /* ---- Reports, safety and the mod log ---- */
+    /* ---- Reports, safety and the Modlog ---- */
     { id: "report-center", c: "safety-and-reports", t: "Report a Dream, a person or a Circle",
       s: "Report a Dream, a person, a Circle or child safety, then follow what happens and talk to the mods. Reports are private.",
       p: [
@@ -224,15 +224,15 @@
         "[[More/Settings/LooscidID/Rem|Delete my Rem data]] also deletes your reports and your votes.",
       ],
       rel: ["report-center", "mod-log"] },
-    { id: "mod-log", c: "safety-and-reports", t: "The mod log: why Dreams get removed", live: "modlog",
+    { id: "mod-log", c: "safety-and-reports", t: "The Modlog: why Dreams get removed", live: "modlog",
       s: "Every Dream a Circle's mods or a Looscid admin removed is listed in public, with the date and the reason.",
       p: [
         "On some apps, stuff just disappears and nobody tells you why. Not here. On Looscid, every removal is out in the open.",
         "When a Dream is removed, one line takes its place that everyone can read, like “Removed by the mods of Night Owls. Reason: Spam” or “Removed by a Looscid admin. Reason: Spam”. It always says who removed it, a Circle's mods or a Looscid admin, and why. A Dream can't be removed without a reason. No “because I felt like it” allowed.",
         "## The log itself",
-        "The mod log lists every removal: the date, which Dream (never its words), whether a moderator or an admin did it, and the reason. Each Circle has its own mod log too. Open the Circle, go to About, and press Mod log.",
+        "The Modlog lists every removal: the date, which Dream (never its words), whether a moderator or an admin did it, and the reason. Each Circle has its own Modlog too. Open the Circle, go to About, and press Modlog.",
         "## Deleting your own Dream is different",
-        "If you delete your own Dream and nobody replied, it's just gone. If it has replies, a line saying “Dream deleted” stays so the thread still makes sense, with no name and no words. That's not a removal, so it's not in the mod log.",
+        "If you delete your own Dream and nobody replied, it's just gone. If it has replies, a line saying “Dream deleted” stays so the thread still makes sense, with no name and no words. That's not a removal, so it's not in the Modlog.",
       ],
       rel: ["report-center", "circles", "like-and-redream"] },
 

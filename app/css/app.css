@@ -602,15 +602,15 @@ label.lc-cr-tool{color:var(--tx2)}
 .pg .lc-end-chrome button, .pg .lc-end-chrome [role=tab] { scroll-margin-top: 0; }
 body.acc-text-1 .pg .lc-end-chrome { zoom: 0.869565; }
 body.acc-text-2 .pg .lc-end-chrome { zoom: 0.769231; }
-.lc-footer { border-top: 1px solid var(--bd); margin: 24px 16px 0; padding: 16px 0 24px; color: var(--tx2); font-size: 14px; }
+.lc-footer { border-top: 1px solid var(--bd); margin: 16px 16px 0; padding: 12px 0 16px; color: var(--tx2); font-size: 14px; }
 .lc-foot-title { font-size: 15px; margin: 0 0 8px; color: var(--tx); }
-.lc-foot-grp { margin: 12px 0 0; }
+.lc-foot-grp { margin: 4px 0 0; } /* Nov 9 2026 (Carter: "the footer could be condenced"): tighter, links stay 44px */
 /* Round 7.15: the groups sit side by side when there is room, one column when narrow or zoomed (400% included). */
-.lc-foot-grps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); column-gap: 24px; }
+.lc-foot-grps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.5rem), 1fr)); column-gap: 20px; }
 .lc-foot-grps .lc-foot-grp { min-width: 0; overflow-wrap: anywhere; }
-.lc-foot-h { font-size: 14px; margin: 0 0 6px; color: var(--tx); }
+.lc-foot-h { font-size: 14px; margin: 4px 0 0; color: var(--tx); }
 .lc-foot-list { list-style: none; margin: 0; padding: 0; }
-.lc-foot-list li { margin: 0 0 6px; }
+.lc-foot-list li { margin: 0; }
 .lc-foot-list a { display: inline-block; min-height: 44px; line-height: 44px; }
 .lc-foot-soon { background: none; border: 1px solid var(--bd); border-radius: 8px; color: var(--tx3); padding: 10px 12px; min-height: 44px; font: inherit; }
 .lc-foot-soon-tag { font-size: 12px; }
@@ -652,7 +652,7 @@ body.acc-text-2 .pg .lc-end-chrome { zoom: 0.769231; }
 .lc-footer .lc-foot-list li { margin: 0; }
 .lc-footer .lc-link { text-decoration: none; }
 .lc-footer .lc-link:hover { text-decoration: underline; }
-.lc-foot-credit { margin: 16px 0 0; padding-top: 12px; border-top: 1px solid var(--bd); font-size: 13px; }
+.lc-foot-credit { margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--bd); font-size: 13px; }
 html[data-lc-theme="light"] .lc-footer .lc-link { color: #4c1d95; }
 
 /* Nov 8 2026 (Carter approved in Dreamor Council): For You topics. Each checkbox row is a 44px target, label included. */

@@ -3,6 +3,17 @@
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
 
+## Modlog is one word, and the footer got smaller (no new build yet)
+
+Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+
+Asked for by Carter: "it be Modlog", "the Reddit links go under say hi" and "the footer could be condenced".
+
+- It's the Modlog now, one word, everywhere you can see it: the Help Center article, the Reports, safety and the Modlog collection, the Modlog button in a Circle's About tab, the Report Center and About Looscid. Old links still work.
+- The footer went from six groups to five: Looscid, Help, Code, Legal and Say hi. About Looscid is still the first link.
+- Reddit moved into Say hi, next to Discord, X, YouTube and GitHub, where it always should've been lol.
+- Shorter words on a couple of links (Basics course, Feedback) and less empty space. Every link is still there, and still big enough to tap.
+
 ## The Help Center got a massive cleanup, and About Rem got funny (no new build yet)
 
 Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
@@ -11,8 +22,8 @@ Asked for by Carter: "the help center needs a massive cleanup", "some humor" and
 
 - Every Help Center article is real paragraphs now, in my voice, with headings so VoiceOver can jump around, and a few jokes. No more bullet soup lol.
 - Merged the articles that overlapped: Follow a thread went into Reply to Dreams and follow threads, Dream Options and Dreamor Options went into Like, Redream, Quote and the More button, Your data on this device went into Back up, download or delete your data, and Make Looscid fit you went into Find settings and make Looscid yours. Their old addresses still work and send you to the new article, in the app too.
-- Clearer titles, like Send a private chat, Report a bug or share an idea, and The mod log: why Dreams get removed.
-- New collection: Reports, safety and the mod log. The three report articles moved there from Getting Started, where they made zero sense.
+- Clearer titles, like Send a private chat, Report a bug or share an idea, and The Modlog: why Dreams get removed.
+- New collection: Reports, safety and the Modlog. The three report articles moved there from Getting Started, where they made zero sense.
 - Fixed wrong stuff: Write and cook a Dream doesn't say your Dreams are saved only on this device anymore (cooked Dreams go on Rem, and without a key they wait and go up once you make one).
 - About Rem is a full long page now, in the Help Center and on the Rem screen, with jokes. Same facts: cooked Dreams set to Everyone go on Rem, drafts and Followers only, My Circles and Only this device Dreams stay on your device, old Dreams sync once, and Delete my Rem data is there when you want out. The "Your Dreams were synced to Rem" card keeps the short version.
 - Page not found didn't change. It's perfect.
@@ -89,7 +100,7 @@ Asked for by Carter: one central place for every kind of report, reports you can
 - After you send a report, Looscid shows and says "ur report's submitted. check it in the Report Center anytime".
 - My reports lists every report you made with its status, your bug reports included. Each report is a thread: add more info for the mods, and they reply as Looscid mods.
 - When the mods reply or a report's status changes, an Alert lands in Inbox, Alerts (From Looscid), with Open Report Center in its More.
-- Reports are private. Only you and the Looscid mods can read them (reading them needs your key), and nothing public ever says who reported what. The public Mod log works like before.
+- Reports are private. Only you and the Looscid mods can read them (reading them needs your key), and nothing public ever says who reported what. The public Modlog works like before.
 - Bugs and ideas still go to Report a problem, the public tracker. Contact Us keeps Report a bug on GitHub and the Discord as backups.
 - The Report Center is in More (Report Center), in Help (Report Center), in the Help Center and in the footer.
 - One footer everywhere: the app, the Help Center, the component library, the changelog, the status page and Page not found all show the same footer, from one file (app/js/sitefooter.js). Nothing was taken out of it; it gained a Report Center link, and links to other sites have a title hint instead of extra hidden words.
@@ -123,15 +134,15 @@ Asked for by Carter: Looscid's own component library, in the Help Center's devel
 - Credits thanks the projects behind the ideas, and the QR code generator Looscid already used.
 - The roadmap has the component library ticked, plus new items for likes, dislikes and content labels.
 
-## Public removals and a Mod log (no new build yet)
+## Public removals and a Modlog (no new build yet)
 
 Added November 8, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
 
-Asked for by Carter: removal reasons are public, with a public mod log that says moderator or admin, and a deleted Dream only leaves a placeholder when the thread needs it.
+Asked for by Carter: removal reasons are public, with a public Modlog that says moderator or admin, and a deleted Dream only leaves a placeholder when the thread needs it.
 
 - Delete your own Dream and nobody replied: it's just gone, no placeholder. If it has replies, one line, "Dream deleted", stays so the thread still makes sense. No name and no words.
 - A removed Dream's line is public: everyone reads "Removed by the mods of Night Owls. Reason: …" or "Removed by a Looscid admin. Reason: …". It always says whether a Circle's mods or a Looscid admin did it.
-- Mod log: every removal with its date, the Dream (a short reference, never its words), moderator or admin, and the reason. Each Circle has one in its About tab, next to Share Circle, and the Looscid-wide one is the Mod log article in the Help Center. No new pages.
+- Modlog: every removal with its date, the Dream (a short reference, never its words), moderator or admin, and the reason. Each Circle has one in its About tab, next to Share Circle, and the Looscid-wide one is the Modlog article in the Help Center. No new pages.
 - Rem, Looscid's server, has a new public route, GET /modlog, so a Looscid admin's removals show on every device. Nothing that was there before changed. server/rem/src/index.js now has all of Rem's moderation code.
 - The roadmap's Safety items for mod reasons and Blocklists are ticked, since they shipped.
 

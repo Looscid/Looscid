@@ -257,8 +257,8 @@ function lcHelpModLog(act) {
   if (Looscid.lcModLoadLog && !act.logAsked) { act.logAsked = true; Looscid.lcModLoadLog().then(function (ok) { act.logState = ok ? "ok" : "off"; act.redraw(); }); }
   const list = Looscid.lcModLog ? Looscid.lcModLog() : [];
   return h('section', { className: "lc-help-modlog", "aria-labelledby": "lc-help-h-modlog" },
-    h('h2', { id: "lc-help-h-modlog", className: "lc-sub-h" }, "Looscid mod log"),
-    !act.logState && !list.length ? h('p', { className: "lc-desc" }, "Loading the mod log\u2026") : null,
+    h('h2', { id: "lc-help-h-modlog", className: "lc-sub-h" }, "Looscid Modlog"),
+    !act.logState && !list.length ? h('p', { className: "lc-desc" }, "Loading the Modlog\u2026") : null,
     act.logState === "off" ? h('p', { className: "lc-desc" }, "Looscid's server didn't answer, so this shows only what this device already knows.") : null,
     list.length
       ? h('ol', { className: "lc-help-list lc-modlog", style: LC_HELP_LIST }, list.map(function (e) { return h('li', { key: e.dreamId + "-" + e.at, className: "lc-desc" }, Looscid.lcModLogText(e)); }))

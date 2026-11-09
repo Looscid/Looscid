@@ -145,7 +145,7 @@ function page({ slug, title, desc, body, depth, crumbs, connect }) {
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <link rel="stylesheet" href="${up}help.css?v=hc7">
-<link rel="stylesheet" href="${up}../assets/site-footer.css?v=2">
+<link rel="stylesheet" href="${up}../assets/site-footer.css?v=7.53-ml1">
 </head>
 <body>
 <div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
@@ -155,7 +155,7 @@ ${nav}
 ${body}
 </main>
 ${SITE_FOOTER}
-<script src="${up}help.js?v=hc6"></script>
+<script src="${up}help.js?v=hc7"></script>
 </body>
 </html>
 `;
@@ -235,7 +235,7 @@ for (const a of H.articles) {
   /* Nov 8 2026 (Carter: a public mod log, moderator or admin): live "modlog" puts Looscid's mod log under the steps.
      help.js reads it from Rem (GET /modlog, public, no key) and writes one line per removal; without scripts the line
      below says where else to read it. Only this page may connect to Rem (its connect-src). */
-  if (a.live === "modlog") b += '<section aria-labelledby="h-modlog"><h2 id="h-modlog">Looscid mod log</h2>\n<p id="modlog-status" role="status">The mod log loads here with JavaScript on. It is also in the app: Help Center, Mod log.</p>\n<ol id="modlog-list" class="list" data-rem="' + REM + '" hidden></ol>\n</section>\n';
+  if (a.live === "modlog") b += '<section aria-labelledby="h-modlog"><h2 id="h-modlog">Looscid Modlog</h2>\n<p id="modlog-status" role="status">The Modlog loads here with JavaScript on. It is also in the app: Help Center, Modlog.</p>\n<ol id="modlog-list" class="list" data-rem="' + REM + '" hidden></ol>\n</section>\n';
   /* Nov 8 2026 (Carter: our own issue tracker, public, agree or disagree, no other companies): live "issues" puts the
      public report list under the steps. help.js reads it from Rem (GET /issues, public, no key, nothing sent), one
      heading per report so it reads in one swipe. Reporting and voting need your Looscid key, so they're in the app. */
@@ -340,7 +340,7 @@ const whyFiles = {};
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'none'"/>
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<link rel="stylesheet" href="/Looscid/assets/site-footer.css?v=2">
+<link rel="stylesheet" href="/Looscid/assets/site-footer.css?v=7.53-ml1">
 <style>
 *,*::before,*::after{box-sizing:border-box}
 :root{--bg:#07050f;--sf:#100d1e;--bd:rgba(255,255,255,.1);--tx:#ede9fe;--tx2:#c9bde3;--ac:#6d28d9;--ac3:#d8b4fe}

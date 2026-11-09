@@ -173,7 +173,7 @@
   var list = document.getElementById("modlog-list"), status = document.getElementById("modlog-status");
   if (!list || !status || !window.fetch) return;
   var rem = list.getAttribute("data-rem") || "";
-  status.textContent = "Loading the mod log\u2026";
+  status.textContent = "Loading the Modlog\u2026";
   fetch(rem + "/modlog?limit=200&scope=all", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (j) {
     var items = j && j.ok && Array.isArray(j.items) ? j.items : null;
     if (!items) throw new Error("no log");
@@ -189,7 +189,7 @@
     });
     list.hidden = !items.length;
     status.textContent = items.length ? items.length + (items.length === 1 ? " removal." : " removals.") : "No Dreams have been removed. Nice.";
-  }).catch(function () { status.textContent = "The mod log couldn't load right now. Try again later, or open it in the app: Help Center, Mod log."; });
+  }).catch(function () { status.textContent = "The Modlog couldn't load right now. Try again later, or open it in the app: Help Center, Modlog."; });
 })();
 
 /* Nov 8 2026 (Carter: Looscid's own issue tracker, public, agree or disagree, no other companies): the Report a problem

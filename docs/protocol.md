@@ -129,7 +129,7 @@ the code itself).
 
 **The Report Center** (Nov 8 2026). Reports about Dreams, people, Circles and child safety are private: no GET route
 lists them, a reporter reads only their own (a read signed by their key, good once), and only Looscid mods (the
-`/moderators` keys) read them all. Nothing public says who reported what; the public mod log is unchanged. Each report
+`/moderators` keys) read them all. Nothing public says who reported what; the public Modlog is unchanged. Each report
 is a thread: the reporter can add to it, and mods answer as "Looscid mods" (never which key) and set the status: `new`,
 `looking`, `done` or `closed`. Everything is plain text. `/forget` also erases that key's reports, every message on
 them, and every message that key wrote. Tables: `report_threads`, `report_messages` (made by the code itself).

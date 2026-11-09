@@ -338,8 +338,8 @@ function view(p) {
         h('ul', { className: "lc-rc-links" },
           h('li', null, h('a', { className: "lc-link", href: base + "help/contact/", title: "Goes to Contact Us" }, "Contact Us, with GitHub and Discord")),
           h('li', null, linkTo("child_safety", "Child Safety", "lc-rc-cs2", "Goes to Child Safety")),
-          h('li', null, h('a', { className: "lc-link", href: base + "help/mod-log/", title: "Goes to the Mod log",
-            onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); openHelp("mod-log"); } }, "Mod log"))))));
+          h('li', null, h('a', { className: "lc-link", href: base + "help/mod-log/", title: "Goes to the Modlog",
+            onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); openHelp("mod-log"); } }, "Modlog"))))));
 }
 const ReportCenterPage = Looscid.lcPlainScreen("ReportCenterPage", function (host, props) {
   let p = props, alive = true;
