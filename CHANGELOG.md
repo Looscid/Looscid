@@ -3,6 +3,27 @@
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
 
+## Follow counts move right away, a new About Looscid, and profile About like X's (no new build yet)
+
+Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+
+Asked for by Carter: "There were 10 followers and I followed them. It should be 11 followers. Same thing if I unfollowed them." "About Looscid needs a huge upgrade." "The About tab needs a whole overhaul." "The about page for profiles needs a major" one, like X's.
+
+- Follow and the counts are one thing now. Press Follow on someone with 10 followers and it says 11 right away. Unfollow and it's 10 again. Your own Following count moves too. No reload.
+- Follow says Unfollow once you follow someone, on their profile, in Discover, and in your Following and Followers lists. No more "Following, toggle button, selected". The word tells you.
+- Follow is in more places. Every Dream's More has Follow @name (or Unfollow @name), your Followers and Following lists have a Follow button on each person, and a "followed you" alert has Follow back in its More.
+- Following someone saved two ways (Nostr people can be) counts once, so Unfollow always works.
+- When a newer follower count shows up for someone, Looscid uses that one, so you're never counted twice.
+- Your Following list shows everyone you follow now, not just people who were already on this device.
+- About Looscid is brand new. It's about 900 words instead of 2,900, and it says what Looscid actually is: Dreams, Circles, Cherry, Rem, where your stuff goes, reports, the Modlog, and how to help. Same words on the website and in the app.
+- The deep accessibility stuff moved to its own Help Center article, How Looscid handles accessibility. That's the research, each condition, the settings, screen readers, keyboard, braille, how I test, and every source. Nothing got deleted, it just has its own page.
+- Every old link to a part of About still lands somewhere. Moved parts point to the new article.
+- Links to Looscid screens and Help Center articles inside About open right in the app.
+- Profile About is rebuilt, like X's About this account: bio first, then links, when they joined, a New account tag for the first 30 days, how many times their name changed, Verified, and the Circles they're in. If the mods removed a Dream of theirs, a Modlog line says so, with a link.
+- No country or location on anyone's About. That's a privacy thing.
+- Name changes are counted on your device, starting today. Looscid didn't keep a history of names before, so the count starts now.
+- How you log in only shows on your own profile, to you.
+
 ## Every Dream gets the full controls, Dislike is gone, and Not interested is here (no new build yet)
 
 Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.

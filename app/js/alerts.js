@@ -87,6 +87,14 @@ function rowMore(st, draw, key, label, acts) {
         onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); st.more = null; draw(); setTimeout(function () { const b = document.getElementById("more-" + key); if (b) b.focus(); }, 0); } } },
       acts.filter(Boolean).map(function (a) { return h('li', { key: a[0] }, h('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { st.more = null; a[1](); draw(); } }, a[0])); })) : null];
 }
+/* Nov 9 2026 (Carter, 5:43 PM: follow from anywhere, counts move right away): a "followed you" alert can follow them back.
+   The same follow as their profile; once you follow, the item reads Unfollow. */
+function alertFollowItem(n) {
+  const u = n && n.type === "follow" ? n.user : null; if (!u || !Looscid.lcFollowToggle) return null;
+  const id = u.id != null ? u.id : (u.pk ? "nostr:" + u.pk : null); if (id == null) return null;
+  const who = Object.assign({}, u, { id: id }), nm = u.name || (u.handle ? "@" + String(u.handle).replace(/^@/, "") : "them"), on = Looscid.lcFollowingHas(id);
+  return [on ? "Unfollow " + nm : "Follow back", function () { Looscid.lcFollowToggle(who); announce(on ? "Unfollowed " + nm + "." : "Following " + nm + "."); }];
+}
 function blockWho(user) {
   if (!user || !user.handle) return null;
   return ["Block " + user.name, function () { const l = Looscid.lcBlocked("dreamers"); Looscid.lcBlockedSet("dreamers", l.concat([user.handle])); announce("Blocked " + user.name + ". You won't see their Dreams, alerts or messages."); }];
@@ -289,6 +297,7 @@ function notifRow(st, draw, n) {
       n.thread && Looscid.lcThreadSubbed && Looscid.lcThreadSubbed(n.thread) ? ["Unfollow Thread", function () { Looscid.lcThreadUnsub(n.thread); announce("Unfollowed this thread."); }] : null,
       // Oct 31 2026 (Carter): Mute this conversation is here too, the same switch as in a Dream's More menu (kept on this device).
       alertMuteItem(n),
+      alertFollowItem(n),
       blockWho(n.user)]));
 }
 /* Round 7.19 (#149 Chats, Carter Oct 25 2026): Chats filters are DMs, Requests, Pinned and Deleted (last). No All and no
@@ -595,7 +604,7 @@ const AlertsPage = lcPlainScreen("AlertsPage", function (host) {
   const onNew = function () { const d = Looscid.LC_PM_OPEN; if (!d || !d.compose) return; Looscid.LC_PM_OPEN = null;
     st.box = "chats"; st.pm = null; st.pmBack = null; st.convo = null; st.manage = false; st.more = null; st.menu = false; st.compose = d.compose; draw(); };
   window.addEventListener("looscid:newchat", onNew);
-  const evs = ["looscid:alerts", "looscid:cats", "looscid:pms", "looscid:blocked", "looscid:threadsubs", "looscid-nostr"]; // Oct 31 2026: looscid-nostr, so "Unlock your key" goes away the moment it's unlocked
+  const evs = ["looscid:alerts", "looscid:cats", "looscid:pms", "looscid:blocked", "looscid:threadsubs", "looscid-nostr", "looscid:follow"]; // Nov 9 2026: + looscid:follow, so Follow back / Unfollow is never stale; // Oct 31 2026: looscid-nostr, so "Unlock your key" goes away the moment it's unlocked
   window.addEventListener("looscid:alertstab", onTab);
   evs.forEach(function (e) { window.addEventListener(e, draw); });
   // Nov 9 2026: coming back from something an alert opened, focus goes back to that same alert (not the heading).

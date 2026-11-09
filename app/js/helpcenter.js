@@ -108,6 +108,20 @@ function lcHelpMark(course, id, clear) {
 // Turns [[Route|Label|Path]] and {{article}} into links. Screen links open that screen in Looscid; article links open the article here.
 // Nov 8 2026 (Carter: "don't give people where to change things help them and give links"): [[Route|Words]] is a link with
 // just those words, like "Turn on passcode lock", with no "Open" in front and no path after it.
+/* Nov 9 2026 (About rebuild): a doc article's words come as HTML made by the website builder (js/aboutdata.js). This turns
+   them into the same kind of elements the rest of the Help Center is built from, so the screen updates the usual way. Only
+   the builder's own markup is in there (it escapes everything a doc says), and scripts are never made. */
+let lcHelpDocCache = null;
+function lcHelpDocEls(html) {
+  if (!lcHelpDocCache || lcHelpDocCache.html !== html) lcHelpDocCache = { html: html, root: new DOMParser().parseFromString("<div>" + html + "</div>", "text/html").body.firstChild };
+  const conv = function (n) {
+    if (n.nodeType === 3) return n.nodeValue;
+    if (n.nodeType !== 1 || /^(script|style|iframe|object)$/i.test(n.tagName)) return null;
+    const p = {}; Array.prototype.forEach.call(n.attributes, function (at) { if (!/^on/i.test(at.name)) p[at.name] = at.value; });
+    return h.apply(null, [n.tagName.toLowerCase(), p].concat(Array.prototype.map.call(n.childNodes, conv).filter(function (x) { return x != null && x !== ""; })));
+  };
+  return Array.prototype.map.call(lcHelpDocCache.root.childNodes, conv).filter(function (x) { return x != null && !(typeof x === "string" && !x.trim()); });
+}
 function lcHelpRich(text, act) {
   const out = [], re = /\[\[([^|\]]*)\|([^|\]]+)(?:\|([^\]]+))?\]\]|\{\{([a-z0-9-]+)(?:\|([^}]+))?\}\}/g, D = lcHelpData();
   let last = 0, m, k = 0;
@@ -160,6 +174,9 @@ function helpBody(v, act) {
       h('p', { className: "lc-desc" }, lcHelpRich(a.s, act)),
       // Nov 9 2026 (Carter: "a nice long paragraph page"): real paragraphs; a line starting with "## " is a heading.
       a.p && a.p.length ? a.p.map(function (t, i) { return /^## /.test(t) ? h('h2', { key: "p" + i, className: "lc-sub-h" }, t.slice(3)) : h('p', { key: "p" + i, className: "lc-desc" }, lcHelpRich(t, act)); }) : null,
+      // Nov 9 2026 (About rebuild): an article made from a doc (How Looscid handles accessibility) shows the same words as its
+      // web page (js/aboutdata.js, LC_A11Y). Its links to articles and Looscid screens open right here.
+      a.doc && Looscid.LC_A11Y && a.id === "accessibility" ? h('div', { className: "lc-help-doc policy-body", onClick: function (e) { if (Looscid.lcSiteLinkOpen) Looscid.lcSiteLinkOpen(e, null, function (id) { act.open({ kind: "art", id: id }); }); } }, lcHelpDocEls(Looscid.LC_A11Y.html)) : null,
       a.steps && a.steps.length ? h('h2', { className: "lc-sub-h" }, "Steps") : null,
       a.steps && a.steps.length ? h('ol', { className: "lc-help-steps", style: LC_HELP_LIST }, a.steps.map(function (t, i) { return h('li', { key: i, className: "lc-desc" }, lcHelpRich(t, act)); })) : null,
       a.sig ? h('p', { className: "lc-desc lc-help-sig" }, "\u2014 " + a.sig) : null,

@@ -102,6 +102,13 @@
       ],
       rel: ["getting-around", "cherry"] },
 
+    /* Nov 9 2026 (About Looscid rebuild, Carter: "About Looscid needs a huge upgrade"): the deep accessibility part of the old
+       About page lives here now: the research, each condition, the settings, screen readers, keyboard, braille, how I test,
+       and every source. Its words are docs/ACCESSIBILITY.md (doc), with the old heading ids, so old About links still land. */
+    { id: "accessibility", c: "getting-started", t: "How Looscid handles accessibility", doc: "docs/ACCESSIBILITY.md",
+      s: "The deep stuff: the research, the conditions Looscid is built for, the settings that help, screen readers, keyboard, braille, and how I test it.",
+      rel: ["find-settings", "getting-around"] },
+
     /* ---- Dreams, replies and threads ---- */
     { id: "write-a-dream", c: "dreams", t: "Write and cook a Dream",
       s: "A Dream can be a few words, a photo, a poll or a link. Here's how to write one, cook it, and send it out into the world.",

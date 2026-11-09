@@ -1188,6 +1188,7 @@ function DreamDeleteDialog({ id, onConfirm, onCancel, onNostr, reply }) {
 }
 function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, cherryCtx, onExtra, forYou, allowDelete, onDeleted, modCircle }) {
   useThreadSubsTick(); // #148: Follow Thread / Unfollow Thread is always current
+  useFollowTick(); // Nov 9 2026: Follow @name / Unfollow @name in More is always current
   const [deleting, setDeleting] = useState(false);
   const [reporting, setReporting] = useState(false); // Nov 7 2026: Report Dream (DreamReportDialog)
   const [modding, setModding] = useState(false); // Nov 8 2026: Remove as a mod, with a reason (DreamModDialog)
@@ -1310,7 +1311,12 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
   // Nov 7 2026: the author's key (from a Looscid or Nostr Dream) lets Block and Report reach the Looscid server.
   const authorPk = (function () { const u = dream.user && typeof dream.user === "object" ? String(dream.user.id || "") : ""; const m = u.match(/^npub:([0-9a-f]{64})$/i); return m ? m[1].toLowerCase() : (/^[0-9a-f]{64}$/i.test(String(dream.pk || "")) ? String(dream.pk).toLowerCase() : null); })();
   const reportable = !mine && !!Looscid.lcNet && /^[0-9a-f]{64}$/i.test(String(dream.nid || ""));
+  // Nov 9 2026 (Carter, 5:43 PM: follow from anywhere): Follow @name or Unfollow @name, the same follow as their profile.
+  const authorObj = dream.user && typeof dream.user === "object" && dream.user.id != null ? dream.user : null;
   const fx = mine || !handle ? [] : [
+    authorObj ? (lcFollowingHas(authorObj.id)
+      ? { id: "unfollow", name: "Unfollow " + who, a: function () { lcFollowToggle(authorObj); announce("Unfollowed " + who + ".", "state", "follow:" + authorObj.id); } }
+      : { id: "follow", name: "Follow " + who, a: function () { lcFollowToggle(authorObj); announce("Following " + who + ".", "state", "follow:" + authorObj.id); } }) : null,
     muted ? { id: "unmute", name: "Unmute " + who, a: function () { lcPeopleSet("looscid_muted_dreamors", handle, false); announce("Unmuted " + who + "."); } }
           : { id: "mute", name: "Mute " + who, a: function () { lcPeopleSet("looscid_muted_dreamors", handle, true); announce("Muted " + who + ". Their Dreams are hidden from your feed."); } },
     blocked ? { id: "unblock", name: "Unblock " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").filter(function (h) { return h !== lcHandle(handle); })); announce("Unblocked " + who + "."); } }
@@ -2989,6 +2995,25 @@ function lcPathFor(page, data) {
   return rel === null ? null : LOOSCID_BASE + rel.split("/").map(function (s) { return encodeURIComponent(s).replace(/%40/g, "@"); }).join("/");
 }
 // The page for an address (the part after the app's folder). Case never matters. Unknown: null.
+/* Nov 9 2026 (About Looscid rebuild): a link inside words made for the website (About Looscid, How Looscid handles
+   accessibility) opens right here in the app when it can: a Help Center article opens in the Help Center, and a Looscid
+   screen (like More/Settings/Accessibility/Vision/) opens that screen. Anything else works like a normal link. */
+function lcSiteLinkOpen(e, navigate, openArticle) {
+  const a = e && e.target && e.target.closest ? e.target.closest("a[href]") : null; if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return false;
+  const m = /^(?:https:\/\/looscid\.github\.io)?\/Looscid\/(.*)$/i.exec(a.getAttribute("href") || ""); if (!m) return false;
+  const rel = m[1].split("#")[0].split("?")[0].replace(/\/+$/, "");
+  const hm = /^help\/([a-z0-9-]+)$/i.exec(rel);
+  if (hm) {
+    const D = Looscid.LC_HELP, id = hm[1].toLowerCase();
+    if (!D || !(D.articles.some(function (x) { return x.id === id; }) || (D.moved && D.moved[id]))) return false;
+    e.preventDefault();
+    if (openArticle) openArticle(id); else { Looscid.LC_HELP_NEXT = { kind: "art", id: id }; (Looscid.LC_NAV || navigate)("helpcenter"); }
+    return true;
+  }
+  const r = rel && lcRouteFor(rel); if (!r || !r.page) return false;
+  e.preventDefault(); (Looscid.LC_NAV || navigate)(r.page, r.data || null); return true;
+}
+Looscid.lcSiteLinkOpen = lcSiteLinkOpen;
 function lcRouteFor(rel) {
   let p = String(rel || "").replace(/^\/+|\/+$/g, ""); try { p = decodeURIComponent(p); } catch (e) {}
   if (/^index\.html$/i.test(p)) p = "";
@@ -6410,6 +6435,76 @@ function lcFollowingHas(id) {
   const F = Looscid.LC_FOLLOWING_NOW; if (F.has(id)) return true;
   const m = /^(npub|nostr):(.+)$/.exec(String(id == null ? "" : id)); return !!m && F.has((m[1] === "npub" ? "nostr:" : "npub:") + m[2]);
 }
+/* Nov 9 2026 (Carter, 5:43 PM: "There were 10 followers and I followed them. It should be 11 followers. Same thing if I
+   unfollowed them"): follow counts change the moment you press Follow or Unfollow, on every screen, from one follow state.
+   - Their Followers count: the count Looscid got for them, plus you if you follow them now, minus you if that count already
+     had you in it. When you press, I remember the count you saw and whether you were following then (looscid_follow_base,
+     on this device). When a new count comes in for them (the network catching up), that new count is the truth and my
+     note no longer applies, so you're never counted twice. A count that says whether you follow them (you.following) wins.
+   - Your own Following count is how many Dreamors you follow (both saved forms of one Nostr person count once).
+   Nothing new is announced. The count is part of the text, so VoiceOver reads the new number when focus lands on it. */
+function lcFollowAliases(id) { const m = /^(npub|nostr):(.+)$/.exec(String(id == null ? "" : id)); return m ? ["nostr:" + m[2], "npub:" + m[2]] : [id]; }
+function lcFollowKey(id) { return String(lcFollowAliases(id)[0]); }
+const LC_FOL_BASE_KEY = "looscid_follow_base";
+function lcFollowBases() { const v = lcJsonLs(LC_FOL_BASE_KEY, {}); return v && typeof v === "object" && !Array.isArray(v) ? v : {}; }
+function lcFollowBase(user) { const n = Number(user && user.followers); return isFinite(n) && n > 0 ? Math.floor(n) : 0; }
+function lcFollowNoteTap(user, wasFollowing) {
+  if (!user || user.id == null) return;
+  if (user.you && typeof user.you.following === "boolean") return; // the count already says if you're in it
+  const all = lcFollowBases(), k = lcFollowKey(user.id), base = lcFollowBase(user), e = all[k];
+  if (e && e.b === base) return; // same count as last time: what it had in it hasn't changed
+  all[k] = { b: base, w: !!wasFollowing, at: Date.now() };
+  const keys = Object.keys(all); if (keys.length > 400) keys.sort(function (a, b) { return (all[a].at || 0) - (all[b].at || 0); }).slice(0, keys.length - 400).forEach(function (x) { delete all[x]; });
+  try { localStorage.setItem(LC_FOL_BASE_KEY, JSON.stringify(all)); } catch (er) {}
+}
+function lcFollowerCount(user) {
+  if (!user) return 0;
+  const base = lcFollowBase(user), now = Looscid.LC_FOLLOWING_NOW ? lcFollowingHas(user.id) : false;
+  if (user.you && typeof user.you.following === "boolean") return Math.max(0, base + (now ? 1 : 0) - (user.you.following ? 1 : 0));
+  const e = lcFollowBases()[lcFollowKey(user.id)];
+  if (!e || e.b !== base) return base;
+  return Math.max(0, base + (now ? 1 : 0) - (e.w ? 1 : 0));
+}
+// Who you follow, as people: Dreamors on this device, plus a small note (name and @handle) for anyone you followed from
+// Rem or Nostr, so your own Following list matches your Following count.
+const LC_FOL_PEOPLE_KEY = "looscid_following_people";
+function lcFollowRememberPerson(user) {
+  if (!user || user.id == null || !user.name && !user.handle) return;
+  const all = lcJsonLs(LC_FOL_PEOPLE_KEY, {}) || {}; const k = lcFollowKey(user.id);
+  all[k] = { id: user.id, name: user.name || user.displayName || "", handle: user.handle || "", npub: user.npub || undefined, avatar: typeof user.avatar === "string" && user.avatar.length < 600 ? user.avatar : undefined, color: user.color || undefined, initials: user.initials || undefined };
+  try { localStorage.setItem(LC_FOL_PEOPLE_KEY, JSON.stringify(all)); } catch (er) {}
+}
+function lcFollowingPeople() {
+  const all = lcJsonLs(LC_FOL_PEOPLE_KEY, {}) || {}, seen = new Set(), out = [];
+  (Looscid.LC_FOLLOWING_NOW || new Set()).forEach(function (id) { const k = lcFollowKey(id); if (seen.has(k)) return; seen.add(k);
+    const u = USERS.find(function (x) { return lcFollowKey(x.id) === k; }) || all[k] || { id: id, name: "", handle: "" };
+    out.push(u.name ? u : Object.assign({}, u, { name: u.handle ? "@" + String(u.handle).replace(/^@/, "") : "Dreamor" })); });
+  return out;
+}
+/* Nov 9 2026 (Carter: profile About like X's "About this account"): name changes. Looscid had no history of names, so
+   from now on this device keeps one (looscid_name_history): for you, every time your name or @username changes; for
+   anyone else, every time a profile you open shows a different name or @username than last time. It starts today, it's
+   only what this device saw, and it never leaves the device. Up to 500 people. */
+const LC_NAME_HIST_KEY = "looscid_name_history";
+function lcNameHist() { const v = lcJsonLs(LC_NAME_HIST_KEY, {}); return v && typeof v === "object" && !Array.isArray(v) ? v : {}; }
+function lcNameKey(user, mine) { if (mine) return "me"; if (!user) return ""; return user.id != null ? lcFollowKey(user.id) : (user.handle ? "@" + String(user.handle).replace(/^@/, "").toLowerCase() : ""); }
+function lcNameSeen(user, mine) {
+  const k = lcNameKey(user, mine); if (!k || !user) return;
+  const name = String(user.name || user.displayName || "").trim(), hd = String(user.handle || "").replace(/^@/, "").trim().toLowerCase();
+  if (!name && !hd) return;
+  const all = lcNameHist(), e = all[k];
+  if (!e) all[k] = { since: Date.now(), n: 0, name: name, handle: hd, at: Date.now() };
+  else if ((name && e.name && name !== e.name) || (hd && e.handle && hd !== e.handle)) { e.n = (e.n || 0) + 1; e.name = name || e.name; e.handle = hd || e.handle; e.at = Date.now(); }
+  else { if (!e.name && name) e.name = name; if (!e.handle && hd) e.handle = hd; if (e.name === name && e.handle === hd) return; }
+  const keys = Object.keys(all); if (keys.length > 500) keys.filter(function (x) { return x !== "me"; }).sort(function (a, b) { return (all[a].at || 0) - (all[b].at || 0); }).slice(0, keys.length - 500).forEach(function (x) { delete all[x]; });
+  try { localStorage.setItem(LC_NAME_HIST_KEY, JSON.stringify(all)); } catch (er) {}
+}
+function lcNameChanges(user, mine) { const e = lcNameHist()[lcNameKey(user, mine)]; return e ? { n: e.n || 0, since: e.since || null } : null; }
+function lcFollowingCount() { const seen = new Set(); (Looscid.LC_FOLLOWING_NOW || new Set()).forEach(function (id) { seen.add(lcFollowKey(id)); }); return seen.size; }
+function lcFollowToggle(user) { const c = Looscid.LC_CHERRY_CTX; if (c && c.followUser && user && user.id != null) c.followUser(user.id, user); }
+// Re-draws a component whenever anyone follows or unfollows anyone, so its label and counts are never stale.
+function useFollowTick() { const st = useState(0); useEffect(function () { const f = function () { st[1](function (n) { return n + 1; }); }; window.addEventListener("looscid:follow", f); return function () { window.removeEventListener("looscid:follow", f); }; }, []); return st[0]; }
+Object.assign(Looscid, { lcNameSeen, lcNameChanges, lcFollowingHas, lcFollowingPeople, lcFollowAliases, lcFollowerCount, lcFollowingCount, lcFollowToggle, useFollowTick });
 // Is this person inside the audience? user = a USERS entry (or null for Looscid itself).
 function lcAudienceOk(who, user, key) {
   if (!user) return who !== "nobody";
@@ -8661,7 +8756,7 @@ useEffect(() => {
   // Oct 31 2026: who you follow is kept on this device (looscid_following). It lived only in memory, so every follow was
   // gone after a reload or on the next visit.
   const [appFollowing, setAppFollowing] = useState(function () { const v = lcJsonLs("looscid_following", null); return new Set(Array.isArray(v) ? v : (LC_FIX.following || [])); }); // IDs we follow
-  useEffect(function () { try { localStorage.setItem("looscid_following", JSON.stringify(Array.from(appFollowing))); } catch (e) {} }, [appFollowing]);
+  useEffect(function () { try { localStorage.setItem("looscid_following", JSON.stringify(Array.from(appFollowing))); } catch (e) {} try { window.dispatchEvent(new CustomEvent("looscid:follow")); } catch (e) {} }, [appFollowing]); // Nov 9 2026: every Follow button and count hears it
   const [appGroups, setAppGroups] = useState(GROUPS);                                     // joined state
   const [appNotifs, setAppNotifs] = useState(NOTIFS_INIT);
   const cherryBack = useRef(null);                              // Round 6.5.2: where Back on the Cherry page goes
@@ -8696,7 +8791,10 @@ useEffect(() => {
     // Build 147: liking is saving, so Save is Like.
     saveDream:   id => { cherryCtx.likeDream(id); },
     postDream:   (text, extra) => { const id=lcNewId(); (Looscid.LC_LOCAL_PUB = Looscid.LC_LOCAL_PUB || new Set()).add(String(id)); /* Round 6 fixes: published here */ setAppDreams(ds => [Object.assign({id,user:ME,time:"just now",created:id,text,likes:0,comments:0,redreams:0,quotes:0,liked:false,redreamed:false,quoted:false,bookmarked:false}, extra || {}),...ds]); addLog("✏️","Dreamed: "+text.slice(0,40)+"…", ()=>setAppDreams(ds=>ds.filter(d=>d.id!==id))); lcCherryDid("Published", "Dream", "Dreams", "your Dream", String(text).slice(0, 140)); return id; },
-    followUser:  id => { const was = appFollowing.has(id); setAppFollowing(s => { const n=new Set(s); n.has(id)?n.delete(id):n.add(id); return n; }); const u=USERS.find(x=>x.id===id); if(u) { addLog("👥",(was?"Unfollowed ":"Followed ")+u.name, ()=>setAppFollowing(s=>{const n=new Set(s);was?n.add(id):n.delete(id);return n;})); lcCherryDid(was ? "Unfollowed" : "Followed", "Dreamor", "Dreamors", u.name, u.name + (u.handle ? " (" + u.handle + ")" : "")); } },
+    // Nov 9 2026 (Carter, 5:43 PM): one follow state everywhere. Both ways of saving a Nostr person (npub: and nostr:)
+    // are the same follow, the follower count you saw when you pressed is remembered (lcFollowNoteTap), and every screen
+    // hears "looscid:follow" so its Follow or Unfollow and its counts change right away.
+    followUser:  (id, who) => { const keys = lcFollowAliases(id), was = keys.some(function (k) { return appFollowing.has(k); }); const u = (who && typeof who === "object" ? who : null) || USERS.find(x=>x.id===id); lcFollowNoteTap(u || { id: id }, was); if (!was && u) lcFollowRememberPerson(u); const flip = function (on) { setAppFollowing(s => { const n=new Set(s); keys.forEach(function (k) { n.delete(k); }); if (on) n.add(id); return n; }); }; flip(!was); if(u && u.name) { addLog("👥",(was?"Unfollowed ":"Followed ")+u.name, ()=>flip(was)); lcCherryDid(was ? "Unfollowed" : "Followed", "Dreamor", "Dreamors", u.name, u.name + (u.handle ? " (" + u.handle + ")" : "")); } },
     joinGroup:   id => { const was = !!(appGroups.find(x=>x.id===id)||{}).joined; setAppGroups(gs => gs.map(g => g.id===id ? {...g,joined:!g.joined} : g)); const g=GROUPS.find(x=>x.id===id); if(g) { addLog("🏘️",(was?"Left ":"Joined ")+g.name, ()=>setAppGroups(gs=>gs.map(x=>x.id===id?{...x,joined:was}:x))); lcCherryDid(was ? "Left" : "Joined", "Circle", "Circles", g.name, g.name); } },
     markNotifsRead: () => { const n = lcAlerts().filter(x=>x.unread).length; lcAlertsMarkAll(); addLog("🔔","Marked all notifications read"); lcCherryDid("Marked", "notification", "notifications", "all your notifications as read", fmt(n) + (n === 1 ? " notification" : " notifications") + " marked read", "Marked all notifications read"); },
     fillCompose: null, // set by CreateMenu when compose is open

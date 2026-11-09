@@ -125,18 +125,18 @@ function discoverView(st, p, draw) {
       // Round 5 fixes (QA "as 2three1y"): a Dreamor result was a button with the Follow button inside it, which iOS may not
       // reach. Now the result (opens the profile) and Follow are siblings, and Follow really follows (pressed state, said once).
       (tab === "dreamers" || tab === "all") && dreamerResults.map(function (u) {
-        const fol = !!(cherryCtx && cherryCtx.following && cherryCtx.following.has(u.id));
+        const fol = !!(cherryCtx && Looscid.lcFollowingHas(u.id)), nFol = Looscid.lcFollowerCount(u); // Nov 9 2026: the count moves the moment you follow
         return h('div', { key: u.id, className: "ci" },
           h('button', { type: "button", className: "lc-disc-open", style: { display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0, background: "none", border: "none", padding: 0, color: "inherit", font: "inherit", textAlign: "left", cursor: "pointer" },
-              onClick: function () { const keep = { q: st.q, tab: st.tab, filters: st.filters.slice() }; Looscid.LC_DP_BACK_NEXT = { user: u, back: function () { Looscid.LC_DISCOVER_NEXT_ST = keep; navigate("discover"); } }; navigate("dp", u); }, "aria-label": u.name + (u.verified ? ", verified" : "") + ", " + u.handle + ", " + fmt(u.followers || 0) + ((u.followers || 0) === 1 ? " follower" : " followers") },
+              onClick: function () { const keep = { q: st.q, tab: st.tab, filters: st.filters.slice() }; Looscid.LC_DP_BACK_NEXT = { user: u, back: function () { Looscid.LC_DISCOVER_NEXT_ST = keep; navigate("discover"); } }; navigate("dp", u); }, "aria-label": u.name + (u.verified ? ", verified" : "") + ", " + u.handle + ", " + fmt(nFol) + (nFol === 1 ? " follower" : " followers") },
             lcAvEl(u, 44),
             h('div', { className: "cif", "aria-hidden": "true" },
               h('div', { className: "cnm" }, u.name, u.verified && h('span', { style: { color: "var(--ac2)", fontSize: 11 } }, " \u2713")),
-              h('div', { className: "cpv" }, u.handle, " ", h('span', { "aria-hidden": "true" }, "\u00b7"), " ", fmt(u.followers || 0), (u.followers || 0) === 1 ? " follower" : " followers"))),
+              h('div', { className: "cpv" }, u.handle, " ", h('span', { "aria-hidden": "true" }, "\u00b7"), " ", fmt(nFol), nFol === 1 ? " follower" : " followers"))),
           // Round 7.16 (#216): no more dimmed "open their profile to follow" button. Follow always works here.
           cherryCtx && cherryCtx.followUser
-            ? h('button', { type: "button", className: "btn " + (fol ? "bgb" : "bp"), style: { padding: "7px 14px", fontSize: 12 }, "aria-pressed": fol ? "true" : "false", "aria-label": "Follow " + u.name,
-                onClick: function () { cherryCtx.followUser(u.id); Looscid.announce((fol ? "Unfollowed " : "Following ") + u.name + ".", "state", "follow:" + u.id); } }, fol ? "Following" : "Follow")
+            ? h('button', { type: "button", className: "btn " + (fol ? "bgb" : "bp"), style: { padding: "7px 14px", fontSize: 12, minHeight: 44, minWidth: 44 }, "aria-label": (fol ? "Unfollow " : "Follow ") + u.name,
+                onClick: function () { cherryCtx.followUser(u.id, u); Looscid.announce((fol ? "Unfollowed " : "Following ") + u.name + ".", "state", "follow:" + u.id); } }, fol ? "Unfollow" : "Follow")
             : null);
       }),
 

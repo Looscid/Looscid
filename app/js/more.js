@@ -239,19 +239,24 @@ function ProfilePeoplePage({ kind, user, isMe, people, onBack, navigate, followi
       : people.length === 0
         ? lh('p', { className: "lc-muted lc-prof-none" }, kind === "following" ? (isMe ? "You don't follow anyone yet." : user.name + " doesn't follow anyone yet.") : (isMe ? "No followers yet." : "No followers yet."))
         : lh('ul', { className: "lc-people", role: "list" }, people.map(function (u) {
-            return lh('li', { key: u.id },
-              lh('button', { type: "button", className: "lc-person", onClick: function () { navigate("dp", u); } },
+            // Nov 9 2026 (Carter, 5:43 PM): Follow or Unfollow right in the list, next to the person (not inside their button),
+            // on the same follow state as their profile. The word changes; nothing extra is said.
+            const fo = Looscid.lcFollowingHas(u.id), notMe = u.id !== ME.id && !(ME.handle && u.handle && String(u.handle).replace(/^@/, "") === String(ME.handle).replace(/^@/, ""));
+            return lh('li', { key: u.id, style: { display: "flex", alignItems: "center", gap: 8 } },
+              lh('button', { type: "button", className: "lc-person", style: { flex: 1, minWidth: 0 }, onClick: function () { navigate("dp", u); } },
                 lh('span', { "aria-hidden": "true" }, lh(Av, { user: u, size: 36 })),
                 lh('span', { className: "lc-person-t" },
                   lh('span', { className: "lc-person-n" }, u.name || "Dreamor"), " ",
                   u.handle ? lh('span', { className: "lc-person-h" }, "@" + String(u.handle).replace(/^@/, "")) : null,
                   (function () {
                     // Feditext's account row: "Mutuals" when you both follow, "Following", or "Follows you".
-                    const fo = !!(followingSet && followingSet.has(u.id)), fb = !!u.followsYou;
+                    const fb = !!u.followsYou;
                     const rel = fo && fb ? "Mutuals" : fo ? "Following" : fb ? "Follows you" : "";
                     // One element per row; its words change in place (hidden when there is no relationship).
                     return lh('span', { className: "lc-person-rel", hidden: !rel }, rel ? " " + rel : "");
-                  })())));
+                  })())),
+              notMe ? lh('button', { type: "button", className: "btn " + (fo ? "bgb" : "bp") + " lc-btn lc-person-fol", style: { minHeight: 44, minWidth: 44, flex: "0 0 auto" }, "aria-label": (fo ? "Unfollow " : "Follow ") + (u.name || "this Dreamor"),
+                onClick: function () { Looscid.lcFollowToggle(u); } }, fo ? "Unfollow" : "Follow") : null);
           })));
 }
 /* Build 152 prep (#99, part 4b): Lists, laid out like Feditext's (layout only; the store is in core.js, looscid_lists).
@@ -436,6 +441,8 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const upd = onUpdateProfile || Looscid.LC_UPDATE_PROFILE || function (patch) { Looscid.updateLocalProfile(null, patch); bump(function (n) { return n + 1; }); };
   const ed = useProfileEditor(lp || {}, upd, navigate);
   const handle = (user.handle || "").replace(/^@/, "");
+  // Nov 9 2026 (profile About): name changes are counted on this device from now on (core.js lcNameSeen).
+  useEffect(function () { if (Looscid.lcNameSeen) Looscid.lcNameSeen(user, isMe || !!preview); }, [user && user.id, user && user.name, handle, isMe, !!preview]);
   const mineOf = function (d) { return d.user && (d.user === user || d.user.id === user.id); };
   const ownDreams = all.filter(function (d) { return mineOf(d) && !d.replyTo; });
   // Build 150 (#48, 2three1y 4:21 AM Oct 11): Dreams this Dreamor publishes while their profile is open (your own too)
@@ -486,7 +493,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
     const nm = (u.name && u.name !== "Dreamor" ? u.name : "") || u.displayName || (u.handle ? "@" + String(u.handle).replace(/^@/, "").split("@")[0] : "");
     if (Looscid.lcNostrNameRemember) Looscid.lcNostrNameRemember(dmPeer, nm);
     Looscid.LC_PM_OPEN = { peer: dmPeer, name: nm, back: function () { Looscid.LC_DP_BACK_NEXT = keep; navigate("dp", u); } }; navigate("alerts"); };
-  const following = !!(cherryCtx && cherryCtx.following && cherryCtx.following.has(user.id));
+  const following = !!(cherryCtx && Looscid.lcFollowingHas(user.id)); // Nov 9 2026: both saved forms of a Nostr person count
   const blocked = !self && Looscid.lcBlockedUser(user), muted = !self && Looscid.lcIsMuted(user);
   const hidesRd = !self && Looscid.lcPeopleHas("looscid_hide_redreams", user.handle);
   const note = self ? "" : Looscid.lcNoteFor(user.handle);
@@ -559,6 +566,9 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   Looscid.useProfileTabsTick(); Looscid.useIdListTick("looscid:pinned");
   const TABS = Looscid.lcProfileTabsSort(TABS0); // build 152 prep (#98): in your order (Settings, Profile Tabs)
   const cur = TABS.some(function (t) { return t[0] === tab; }) ? tab : "dreams";
+  // Nov 9 2026 (profile About): the Modlog line needs Rem's public Modlog; it's read once a minute at most, then About redraws.
+  const [, modTick] = useState(0);
+  useEffect(function () { if (cur !== "about" || !Looscid.lcModLoadLog) return; let live = true; Looscid.lcModLoadLog().then(function (ok) { if (live && ok) modTick(function (n) { return n + 1; }); }); return function () { live = false; }; }, [cur]);
   useEffect(function () { if (noteEdit && noteRef.current) noteRef.current.focus(); }, [noteEdit]);
   useEffect(function () { if (preview && headRef.current) headRef.current.focus(); }, [preview]);
   if (ed.editing) return ed.screen;
@@ -570,7 +580,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
     onExitPreview: function () { setViewAs(false); announce("Back to your profile."); setTimeout(function () { const b = document.getElementById("pf-more-btn"); if (b) b.focus(); }, 30); } });
   if (people) {
     const fol = people === "following";
-    const list = self ? (fol ? USERS.filter(function (u) { return cherryCtx && cherryCtx.following.has(u.id); }) : USERS.filter(function (u) { return u.followsYou; }))
+    const list = self ? (fol ? Looscid.lcFollowingPeople() : USERS.filter(function (u) { return u.followsYou; }))
       : (fol ? (Array.isArray(user.followingList) ? user.followingList : null) : (Array.isArray(user.followersList) ? user.followersList : null));
     return lh(ProfilePeoplePage, { kind: people, user: user, isMe: self, people: list, navigate: navigate, followingSet: cherryCtx && cherryCtx.following,
       onBack: function () { const k = people; setPeople(null); setTimeout(function () { const b = document.getElementById("pf-count-" + k); if (b) b.focus(); }, 0); } });
@@ -613,7 +623,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const extraItems = [];
   // Nov 1 2026 (X-style Edit profile): Edit profile opens the one editor sheet; Close or Save puts focus back where you were.
   const openEdit = function (fromMore) { ed.open("all", fromMore ? "pf-more-btn" : "pf-edit-btn"); };
-  const follow = function () { cherryCtx && cherryCtx.followUser(user.id); announce(following ? "Unfollowed " + user.name + "." : "Following " + user.name + ".", "state", "follow:" + user.id); };
+  const follow = function () { cherryCtx && cherryCtx.followUser(user.id, user); announce(following ? "Unfollowed " + user.name + "." : "Following " + user.name + ".", "state", "follow:" + user.id); };
   const cherryOn = !!cherryCtx && lcAiOn();
   const askCherry = function () { cherryCtx.openCherry("Give me a short summary of " + (user.name || "this Dreamor") + " (@" + handle + "): who they are and what they Dream about."); };
   // Build 150, part 16 (2three1y, Oct 11): Dreamor options is a real pop-up menu, like the other action menus. It opens
@@ -724,8 +734,9 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   };
   const card = function (d, ctx) { return lh(DreamCard, { key: d.id, dream: d, replyCtx: ctx || null, onLike: tl, onRedream: tr, onUndoRedream: tur, onQuote: tq, onUndoQuote: tuq, onBookmark: tb, onComment: function (x) { setActiveComment(x); }, navigate: navigate, cherryCtx: cherryCtx }); };
   const empty = function (title, sub) { return lh('div', { className: "es" }, lh('p', { className: "esl" }, title), sub ? lh('p', { className: "lc-muted", style: { textAlign: "center", marginTop: 6 } }, sub) : null); };
-  const nFollowing = self ? USERS.filter(function (u) { return cherryCtx && cherryCtx.following.has(u.id); }).length : (user.following || 0);
-  const nFollowers = self ? USERS.filter(function (u) { return u.followsYou; }).length : (user.followers || 0);
+  // Nov 9 2026 (Carter, 5:43 PM): counts change the moment you press Follow or Unfollow (core.js lcFollowerCount).
+  const nFollowing = self ? Looscid.lcFollowingCount() : (user.following || 0);
+  const nFollowers = self ? USERS.filter(function (u) { return u.followsYou; }).length : Looscid.lcFollowerCount(user);
   // Build 150 (#53): your own Joined is the exact moment your LooscidID was made. Older profiles only kept "October 2026",
   // so the moment comes from the "LooscidID created" activity line, or from the time stamped into the LooscidID's own id.
   const joined = lcJoinedText(self ? lcOwnCreatedAt(lp) : (user.createdAt || user.joined || ""));
@@ -847,18 +858,48 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
           })));
       }
       case "about": {
+        /* Nov 9 2026 (Carter, 5:35 to 5:40 PM: "the about page for profiles needs a major" upgrade, "I like X's About page for
+           profiles, so clean", "the joined date is a nice idea"; he left the rest to Tab): About works like X's "About this
+           account". Bio first, then links, when they joined, a New account tag for the first 30 days, how many times their
+           name changed, Verified, the Circles they're in, and a Modlog line only if the mods removed something of theirs.
+           Every part shows only when there's something to show. No country or location, ever (Tab's call: on a small app
+           with teens and disabled people it's a privacy risk, and a VPN fakes it anyway). Connected Logins only show on your
+           own profile, to you. The old "Account based in" row is gone. */
         const rows = [];
-        rows.push(["LooscidID", "@" + handle, lh('button', { key: "c", type: "button", className: "btn bgb lc-btn", onClick: function () { lcCopy("@" + handle, "LooscidID"); } }, "Copy LooscidID")]);
-        if (joined) rows.push(["Date joined", joined]);
-        const based = self ? lp && lp.location : user.location; if (based) rows.push(["Account based in", based]);
-        const logins = self ? Looscid.getMethods() : (user.logins || []);
-        if (logins.length) rows.push(["Connected Logins", lh('ul', { key: "l", className: "lc-about-logins", role: "list" }, logins.map(function (m) { return lh('li', { key: m.id || m.provider }, Looscid.lcNameJoin(Looscid.PROVIDER_NAMES && Looscid.PROVIDER_NAMES[m.provider] || m.provider, m.provider === "nostr" && Looscid.shortNpub ? Looscid.shortNpub(m.publicId) : m.publicId)); }))]);
-        const npubM = logins.find(function (m) { return m.provider === "nostr" && /^npub1/.test(m.publicId || ""); });
+        const row = function (k, label, value, block) { rows.push({ k: k, label: label, value: value, block: !!block }); };
+        if (user.bio) row("bio", "Bio", lcBioParas(user.bio, navigate), true);
+        if (pfLinks.length) row("links", pfLinks.length === 1 ? "Link" : "Links", lh('ul', { className: "lc-about-links", role: "list" }, pfLinks.map(function (l) {
+          return lh('li', { key: l.url }, lh('a', { className: "lc-link", href: l.url, target: "_blank", rel: "noopener noreferrer me" }, lcLinkShow(l.url))); })), true);
+        if (joined) row("joined", "Date joined", joined);
+        const joinedMs = (function (v) { if (v == null || v === "") return 0; if (typeof v === "number" || /^\d{9,}$/.test(String(v))) { const n = +v; return n < 1e12 ? n * 1000 : n; } if (/^\d{4}-\d{2}-\d{2}/.test(String(v))) { const t = Date.parse(v); return isFinite(t) ? t : 0; } return 0; })(self ? lcOwnCreatedAt(lp) : (user.createdAt || user.joined || ""));
+        if (joinedMs && joinedMs <= Date.now() + 60000 && Date.now() - joinedMs < 30 * 864e5) {
+          const days = Math.max(0, Math.floor((Date.now() - joinedMs) / 864e5));
+          row("new", "New account", days === 0 ? "Joined today" : days === 1 ? "Joined yesterday" : "Joined " + days + " days ago");
+        }
+        const nc = Looscid.lcNameChanges ? Looscid.lcNameChanges(user, self) : null;
+        if (nc) {
+          let since = ""; try { since = nc.since ? new Date(nc.since).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }) : ""; } catch (er) {}
+          row("names", "Name changes", (nc.n === 0 ? "None" : nc.n === 1 ? "1 time" : nc.n + " times") + (since ? " since " + since : "") + ", counted on this device");
+        }
+        if (user.verified) row("verified", "Verified", "Yes");
+        const circNames = circ.owner.concat(circ.member).map(function (g) { return g && g.name; }).filter(Boolean);
+        if (circNames.length) row("circles", circNames.length === 1 ? "Circle" : "Circles", lh('ul', { className: "lc-about-circles", role: "list" }, circNames.map(function (n, i) { return lh('li', { key: i + n }, n); })), true);
+        // The Modlog line: only when the mods removed a Dream or reply of theirs that this device knows about.
+        const removed = (function () {
+          const log = Looscid.lcModLog ? Looscid.lcModLog() : []; if (!log.length) return 0;
+          const ids = {}; ownDreams.concat(myReplies).forEach(function (d) { [d.id, d.nid].forEach(function (x) { if (x != null && x !== "") ids[String(x).replace(/^n:/, "").toLowerCase()] = 1; }); });
+          const hit = {}; log.forEach(function (en) { const k = String(en.dreamId || "").toLowerCase(); if (ids[k] && !en.logOnly) hit[k] = 1; });
+          return Object.keys(hit).length;
+        })();
+        if (removed) row("modlog", "Modlog", lh(React.Fragment, null, (removed === 1 ? "The mods removed 1 of " : "The mods removed " + removed + " of ") + (self ? "your Dreams. " : "their Dreams. "),
+          lh('a', { className: "lc-link", href: (Looscid.LC_HELP && Looscid.LC_HELP.home ? Looscid.LC_HELP.home : "help/") + "mod-log/", onClick: function (ev) { if (ev.metaKey || ev.ctrlKey || ev.shiftKey) return; ev.preventDefault(); Looscid.LC_HELP_NEXT = { kind: "art", id: "mod-log" }; navigate("helpcenter"); } }, "See why in the Modlog")));
+        row("id", "LooscidID", lh(React.Fragment, null, "@" + handle, " ", lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { lcCopy("@" + handle, "LooscidID"); } }, "Copy LooscidID")));
+        const logins = self ? Looscid.getMethods() : [];
+        const npubM = (self ? logins : (user.logins || [])).find(function (m) { return m && m.provider === "nostr" && /^npub1/.test(m.publicId || ""); });
         let npub = npubM ? npubM.publicId : user.npub;
         /* Nov 1 2026 (Carter: "my Nostr npub is not on my profile"; it must always show on your own profile, in Local and
-           server mode). The row above only read the login list, so it vanished when this device has your key but the list
-           lost its Nostr entry (a backup file put back an older list). On your own profile it also comes from your key
-           itself, its public key, or the Looscid server's copy of it. Nothing new is saved or sent. */
+           server mode). It also comes from your key itself, its public key, or the Looscid server's copy of it. Nothing new
+           is saved or sent. */
         if (!npub && self) {
           const toNpub = function (v) { v = String(v || "").trim(); return /^npub1[02-9ac-hj-np-z]{58}$/.test(v) ? v : (Looscid.lcNpub ? Looscid.lcNpub(v.replace(/^(npub|nostr):/, "")) : ""); };
           const idn = Looscid.getIdentity ? Looscid.getIdentity() : null, st = Looscid.lcNostr && Looscid.lcNostr.state ? Looscid.lcNostr.state() : null;
@@ -866,12 +907,13 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
           [logins.find(function (m) { return m.provider === "nostr"; }), idn && idn.provider === "nostr" ? idn.npub : "", idn && idn.provider === "nostr" ? idn.pubkey : "", st && st.npub, st && st.pubkey, sv && sv.pubkey]
             .some(function (v) { npub = toNpub(v && typeof v === "object" ? v.publicId : v); return !!npub; });
         }
-        if (npub) rows.push(["Nostr public key", lh('span', { key: "n", className: "lc-break" }, npub), lh('button', { key: "c", type: "button", className: "btn bgb lc-btn", onClick: function () { lcCopy(npub, "Nostr public key"); } }, "Copy Nostr public key")]);
-        if (user.verified) rows.push(["Verified", "Yes"]);
+        if (npub) row("npub", "Nostr public key", lh(React.Fragment, null, lh('span', { className: "lc-break" }, npub), " ", lh('button', { type: "button", className: "btn bgb lc-btn", onClick: function () { lcCopy(npub, "Nostr public key"); } }, "Copy Nostr public key")));
+        // Only you see how you log in. It's never on the side of your profile other people (or View as others) see.
+        if (isMe && !preview && logins.length) row("logins", "Connected Logins (only you see this)", lh('ul', { className: "lc-about-logins", role: "list" }, logins.map(function (m) { return lh('li', { key: m.id || m.provider }, Looscid.lcNameJoin(Looscid.PROVIDER_NAMES && Looscid.PROVIDER_NAMES[m.provider] || m.provider, m.provider === "nostr" && Looscid.shortNpub ? Looscid.shortNpub(m.publicId) : m.publicId)); })), true);
         return lh('section', { className: "lc-prof-about", "aria-labelledby": "pf-about-h" },
           lh('h2', { id: "pf-about-h", className: "lc-sub-h" }, (user.name || user.displayName) ? "About " + (user.name || user.displayName) : "About this LooscidID"),
           // Build 150, part 15: plain rows, not a dl. WebKit calls a <dd> "description", so VoiceOver said it after every value.
-          lh('ul', { className: "lc-dl lc-rows", role: "list" }, rows.map(function (r) { return lh('li', { key: r[0] }, lh('span', { className: "lc-dt" }, r[0], lh('span', { className: "sr-only" }, ":")), " ", lh('span', { className: "lc-dd" }, r[1], r[2] ? " " : null, r[2] || null)); })));
+          lh('ul', { className: "lc-dl lc-rows", role: "list" }, rows.map(function (r) { return lh('li', { key: r.k, id: "pf-about-" + r.k }, lh('span', { className: "lc-dt" }, r.label, lh('span', { className: "sr-only" }, ":")), " ", lh(r.block ? 'div' : 'span', { className: "lc-dd" }, r.value)); })));
       }
     }
     return null;
@@ -914,7 +956,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
         : lh('div', { className: "lc-prof-acts" },
             dmPeer ? lh('button', { type: "button", id: "pf-dm-btn", className: "btn bgb lc-big", onClick: openDm }, "Direct message")
               : lh('button', { type: "button", id: "pf-dm-btn", className: "btn bgb lc-big", "aria-disabled": "true", onClick: function () { announce(Looscid.lcHintReason("unavailable: " + dmWhy)); } }, "Direct message", lh('span', { className: "lc-muted", "aria-hidden": "true" }, " (unavailable)")),
-            lh('button', { type: "button", className: "btn " + (following ? "bgb" : "bp") + " lc-big", "aria-pressed": following ? "true" : "false", onClick: follow }, following ? "Following" : "Follow")),
+            lh('button', { type: "button", className: "btn " + (following ? "bgb" : "bp") + " lc-big", id: "pf-follow-btn", onClick: follow }, following ? "Unfollow" : "Follow")),
       moreMenu,
       listsOpen && !self ? lh(ProfileLists, { user: user, navigate: navigate, onClose: function () { setListsOpen(false); backToMore(); } }) : null,
       user.isOriginals ? lh('p', { className: "lc-muted" }, "Founding account") : null,
@@ -2152,7 +2194,9 @@ function AboutSettings({navigate}) {
     const a = e.target.closest && e.target.closest("a[href]"); if (!a || e.metaKey || e.ctrlKey || e.shiftKey) return;
     const href = a.getAttribute("href") || "";
     const page = /\/Report\/?$/.test(href) ? "report_center" : (/\/Feedback\/?$/.test(href) || /[?&]p=%2FFeedback/.test(href)) ? "feedback" : null;
-    if (page) { e.preventDefault(); navigate(page, "settings_about"); }
+    if (page) { e.preventDefault(); navigate(page, "settings_about"); return; }
+    // Nov 9 2026 (About rebuild): Help Center articles (like How Looscid handles accessibility) and Looscid screens open here.
+    if (Looscid.lcSiteLinkOpen) Looscid.lcSiteLinkOpen(e, navigate);
   };
   return lh('div', { className: "pg lc-about" },
     lh(BackHeader, { title: "About Looscid", onBack: function () { navigate("settings"); } }),

@@ -224,12 +224,21 @@ for (const c of H.collections) {
   put(c.id + "/index.html", page({ slug: c.id, title: c.t, desc: c.s, body: b, depth: 1, crumbs: [["Help Center", "../"], [c.t, null]] }));
 }
 // Articles
+const DOC_ARTICLES = {}; // Nov 9 2026: articles made from a doc (a.doc), for the app's copy in js/aboutdata.js
 for (const a of H.articles) {
   const c = colById[a.c]; if (!c) problems.push("article " + a.id + " has no collection " + a.c);
   let b = '<div id="course-bar" class="course" hidden></div>\n<h1>' + esc(a.t) + '</h1>\n<p class="lead">' + rich(a.s, 1) + "</p>\n";
   /* Nov 9 2026 (Carter: "a nice long paragraph page", "some humor"): an article is real paragraphs (p). A line that starts
      with "## " is a heading level 2, so VoiceOver can jump by heading. Steps still show if an article has them. */
   if (a.p && a.p.length) b += a.p.map(s => /^## /.test(s) ? "<h2>" + esc(s.slice(3)) + "</h2>\n" : "<p>" + rich(s, 1) + "</p>\n").join("");
+  /* Nov 9 2026 (About Looscid rebuild): an article can be a whole doc (doc: "docs/ACCESSIBILITY.md"), with its lists, links and
+     old heading ids. How Looscid handles accessibility is one: the deep part of the old About page. The app's Help Center shows
+     the same words (js/aboutdata.js, LC_A11Y), so the two never drift apart. */
+  if (a.doc) {
+    const r = mdToHtml(fs.readFileSync(path.join(REPO, a.doc), "utf8"), { linkFor: href => /^(https?:|mailto:|#|\/)/i.test(href) ? href : "https://github.com/Looscid/Looscid/blob/main/docs/" + href });
+    DOC_ARTICLES[a.id] = { t: a.t, s: a.s, html: hintLinks(r.html, HELP + a.id + "/", { help: HINT_HELP }) };
+    b += '<div class="doc">\n' + r.html + "\n</div>\n";
+  }
   if (a.steps && a.steps.length) b += '<h2>Steps</h2>\n<ol class="steps">' + a.steps.map(s => "<li>" + rich(s, 1) + "</li>").join("") + "</ol>\n";
   if (a.sig) b += '<p class="sig">\u2014 ' + esc(a.sig) + "</p>\n";
   /* Nov 8 2026 (Carter: a public mod log, moderator or admin): live "modlog" puts Looscid's mod log under the steps.
@@ -307,7 +316,8 @@ const whyFiles = {};
     return "https://github.com/Looscid/Looscid/" + (/\.[a-z0-9]+$/i.test(target) ? "blob" : "tree") + "/main/" + target + (frag ? "#" + frag : "");
   };
   const r = mdToHtml(md, { linkFor });
-  const t = r.title || "About Looscid", s = "Looscid is for everyone. Why I'm building it, who it's built for, the research behind it, and how to help.";
+  // Nov 9 2026 (Carter: "About Looscid needs a huge upgrade", "a whole overhaul"): the new subtitle says what the page is for now.
+  const t = r.title || "About Looscid", s = "What Looscid is, why I'm building it, what happens to your stuff, and how to help.";
   const full = t + " - Looscid";
   const og = SITE + "assets/looscid-og.png?v=nl1", ogAlt = "Looscid logo (a white open ring with a dot in the middle, on blue) above the words “Looscid - Just Dream”";
   let h = `<!DOCTYPE html>
@@ -385,7 +395,7 @@ ${SITE_FOOTER}
   whyFiles["About/index.html"] = hintLinks(h, ABOUT_URL, { help: HINT_HELP });
   // The app's About Looscid screen shows the same words (js/more.js reads Looscid.LC_ABOUT). Plain data, nothing runs.
   whyFiles["js/aboutdata.js"] = "/* Made by .github/scripts/build-help.mjs from docs/ABOUT.md (Nov 8 2026). Edit that, then run the script. The app's About Looscid screen shows this. */\n" +
-    "(function () { var L = window.Looscid = window.Looscid || {}; L.LC_ABOUT = " + JSON.stringify({ t: t, s: s, html: hintLinks(r.html, ABOUT_URL, { help: HINT_HELP }) }) + "; })();\n";
+    "(function () { var L = window.Looscid = window.Looscid || {}; L.LC_ABOUT = " + JSON.stringify({ t: t, s: s, html: hintLinks(r.html, ABOUT_URL, { help: HINT_HELP }) }) + "; L.LC_A11Y = " + JSON.stringify(DOC_ARTICLES.accessibility || null) + "; })();\n";
   // The old addresses: small pages that take you to /About/ (the link works with nothing loaded; the refresh is right away).
   const moved = `<!DOCTYPE html>
 <html lang="en-US">
@@ -414,12 +424,13 @@ ${SITE_FOOTER}
      Contributing (docs/CONTRIBUTING.md, Building it accessibly). /help/dev/accessibility/ takes you there, and an old
      #part lands on the same part in its new home. The web menu code sample is gone: the component library's Pop-up menu
      is the real one. Without scripts, the refresh goes to the top of About and the links below say where each part went. */
-  const A = "/Looscid/About/", C = "/Looscid/help/dev/contributing/", M = "/Looscid/help/dev/components/popup-menu/";
+  // Nov 9 2026: the screen reader checklist, settings and testing parts moved again, to How Looscid handles accessibility (AX).
+  const A = "/Looscid/About/", C = "/Looscid/help/dev/contributing/", M = "/Looscid/help/dev/components/popup-menu/", AX = "/Looscid/help/accessibility/";
   const A11Y_MAP = {
     "my-commitment": A + "#my-commitment", "commitments": A + "#my-commitment", "commitment-to-accessibility": A + "#my-commitment",
     "commitment-to-fairness": A + "#if-you-get-banned", "accessibility": A + "#every-screen-reader", "table-of-contents": A + "#every-screen-reader",
-    "web-accessibility": A + "#every-screen-reader", "screen-reader-testing-checklist": A + "#screen-reader-checklist",
-    "accessibility-checklist": A + "#screen-reader-checklist", "testing-recommendations": A + "#how-to-test",
+    "web-accessibility": A + "#every-screen-reader", "screen-reader-testing-checklist": AX + "#screen-reader-checklist",
+    "accessibility-checklist": AX + "#screen-reader-checklist", "testing-recommendations": AX + "#how-to-test",
     "commitment-to-humor": C + "#writing-funny-from-commitment-to-humor", "button-naming-numbering": C + "#button-naming-and-numbering",
     "ios-accessibility": C + "#for-the-native-apps-swift", "ios-swiftui-implementation": C + "#for-the-native-apps-swift",
     "resources": C + "#resources",
@@ -448,8 +459,9 @@ ${SITE_FOOTER}
 <ul>
 <li><a href="${A}#my-commitment">What I promise you</a></li>
 <li><a href="${A}#every-screen-reader">Works with every screen reader</a></li>
-<li><a href="${A}#accessibility-settings">Settings that help</a></li>
-<li><a href="${A}#report-an-accessibility-bug">Found an accessibility bug?</a></li>
+<li><a href="${AX}">How Looscid handles accessibility</a></li>
+<li><a href="${AX}#accessibility-settings">Settings that help</a></li>
+<li><a href="${A}#report-a-problem-or-appeal-a-ban">Found an accessibility bug?</a></li>
 <li><a href="${C}#building-it-accessibly">Building it accessibly, for devs</a></li>
 </ul>
 </main>

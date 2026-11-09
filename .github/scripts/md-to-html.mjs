@@ -41,6 +41,9 @@ export function mdToHtml(md, { linkFor = h => h, dropTitle = true } = {}) {
     const l = lines[i];
     if (isBlank(l)) { i++; continue; }
     let m;
+    /* Nov 9 2026 (About Looscid rebuild): a line that is only {#old-id} keeps an old address working after its part was
+       merged or moved. It's an empty span with that id (nothing to read, nothing to see), placed where the part went. */
+    if ((m = /^\s{0,3}\{#([a-z0-9-]+)\}\s*$/.exec(l))) { if (!ids.has(m[1])) { ids.add(m[1]); out.push('<span id="' + m[1] + '"></span>'); } i++; continue; }
     if ((m = /^\s{0,3}(```|~~~)\s*([\w+-]*)/.exec(l))) {
       const fence = m[1], buf = []; i++;
       while (i < lines.length && !lines[i].trim().startsWith(fence)) buf.push(lines[i++]);
