@@ -1508,7 +1508,7 @@ function PrivacySettings({navigate, authUser, onUpdateProfile}) {
   return lh('div', { className: "pg lc-a11y lc-ios-page", "aria-live": "off" },
     lh(BackHeader, { title: "Privacy & Security", onBack: function () { navigate("settings"); } }),
     // Round 7.29 (Carter, Oct 26 2026): the "we care" paragraph and a real link to the Privacy Policy page (Back returns here).
-    lh('p', { className: "lc-intro", id: "priv-care" }, "I care about your privacy. Here's where your stuff goes. Your public Dreams, replies, likes, ReDreams and follows go to Rem, the Looscid server, so other people can see them. Your pins, mutes and Not interested go to Rem too, locked to your key, so only you can read them. Your drafts, chats and settings stay on this device. I don't sell your data, track you or show ads."),
+    lh('p', { className: "lc-intro", id: "priv-care" }, "I care about your privacy. Here's where your stuff goes. Your public Dreams, replies, likes, ReDreams and follows go to Rem, the Looscid server, so other people can see them. Your pins, mutes and Not interested go to Rem too, but Rem only gives them back to you, when your key asks. Your drafts, chats and settings stay on this device. I don't sell your data, track you or show ads."),
     lh('p', { className: "lc-intro" }, lh('a', { id: "priv-policy-link", className: "lc-link", href: (Looscid.lcPathFor ? Looscid.lcPathFor("privacy") : "#"),
       onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("privacy"); } }, "Privacy Policy")),
     // Nov 9 2026 (Carter, 9:36 PM: "privacy and security should be divided like privacy sections like my profile what people
