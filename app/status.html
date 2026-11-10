@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Looscid — Status</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<title>Status - Looscid</title>
+<link rel="stylesheet" href="/Looscid/assets/fonts/dm/dm-fonts.css?v=7.53-ux1">
 <link rel="stylesheet" href="/Looscid/assets/site-footer.css?v=7.53-ml1">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -27,7 +27,7 @@ header{background:rgba(7,5,15,.95);backdrop-filter:blur(18px);border-bottom:1px 
 .header-inner{max-width:680px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .brand{display:inline-flex;align-items:center;gap:10px}.brand-logo{display:block;width:32px;height:32px;border-radius:22%}
 .logo{font-family:'DM Serif Display',Georgia,serif;font-size:20px;background:linear-gradient(135deg,#e9d5ff,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.back-link{font-size:13px;color:var(--tx3);display:flex;align-items:center;gap:5px}
+.back-link{font-size:13px;color:var(--tx3);display:flex;align-items:center;gap:5px;min-height:44px}
 
 main{max-width:680px;margin:0 auto;padding:32px 20px 0}
 
@@ -101,6 +101,17 @@ main{max-width:680px;margin:0 auto;padding:32px 20px 0}
 /* Last updated */
 .last-updated{text-align:center;font-size:11px;color:var(--tx3);padding-top:8px}
 
+/* Nov 9 2026: real status page */
+.overall.outage .overall-dot{background:var(--rd)}
+.services{list-style:none}
+.service-name,.service-desc{margin:0}
+.status-pill{min-height:24px}
+.check-row{text-align:center;margin:14px 0 28px}
+.check-btn{min-height:44px;min-width:44px;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;border:none;border-radius:10px;padding:10px 18px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer}
+.plain{font-size:14px;color:var(--tx);line-height:1.6;margin:0 0 12px}
+.plain a{color:var(--ac3);display:inline-block;padding:12px 0}
+h2.section-title{margin-top:8px}
+@media (prefers-reduced-motion:reduce){.overall-dot{animation:none}}
 </style>
 </head>
 <body>
@@ -110,142 +121,57 @@ main{max-width:680px;margin:0 auto;padding:32px 20px 0}
 <header role="banner">
   <div class="header-inner">
     <span class="brand"><img class="brand-logo" src="assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="32" height="32"><span class="logo" aria-hidden="true">Looscid</span></span>
-    <a href="/Looscid/" title="Goes to Home" class="back-link" aria-label="Back to Looscid app">← Back to app</a>
+    <a href="/Looscid/" title="Goes to Home" class="back-link">← Back to app</a>
   </div>
 </header>
 
 <main id="main">
 
-  <!-- Overall status -->
-  <!-- Round 5 fixes: not a live region any more. "Last checked" changes every second, so VoiceOver could read it nonstop.
-       The page's one announcer is #status-live, at the end of main (Subscribe uses it). Round 7 fixes: it sat empty before
-       the heading, and each service's static status was its own role=status; those are plain text now. -->
-  <div class="overall all-good">
+  <!-- Nov 9 2026 (UI audit, top 10 #1): this page used to be fake. "All Systems Operational", "99.97% uptime" and
+       "Last checked 4s ago" were typed in by hand, the 90 day bar was random, Subscribe sent nothing, and it said chats were
+       end-to-end encrypted. Now it asks Rem for real (GET /health and GET /feed, read only) and says only what it saw.
+       It keeps no history, so there's no uptime number. Nothing here is a live region except #status-live, which speaks
+       only when you press Check again. -->
+  <h1 class="overall-title" id="status-h1" tabindex="-1">Looscid status</h1>
+  <div class="overall" id="overall">
     <div class="overall-dot" aria-hidden="true"></div>
-    <div>
-      <h1 class="overall-title" style="margin:0">All Systems Operational</h1>
-      <div class="overall-sub">Last checked <span id="last-check">just now</span></div>
-    </div>
+    <p class="overall-sub" id="overall-text">Checking Rem now. This needs JavaScript on.</p>
   </div>
 
-  <!-- 90-day uptime -->
-  <section aria-labelledby="uptime-heading">
-    <div class="section-title" id="uptime-heading">90-Day Uptime</div>
-    <div class="uptime-bar" role="img" aria-label="90 day uptime history, mostly operational"></div>
-    <div class="uptime-legend">
-      <span>90 days ago</span>
-      <span>Today</span>
-    </div>
-    <div class="uptime-pct" aria-label="99.97% uptime">99.97% uptime</div>
+  <section aria-labelledby="checks-heading">
+    <h2 class="section-title" id="checks-heading">What I checked</h2>
+    <ul class="services" id="checks">
+      <li class="service-card">
+        <div class="service-info">
+          <p class="service-name">Rem, the Looscid server</p>
+          <p class="service-desc">Keeps Dreams, replies, likes, ReDreams, follows and reports.</p>
+        </div>
+        <p class="status-pill" id="st-rem">Checking</p>
+      </li>
+      <li class="service-card">
+        <div class="service-info">
+          <p class="service-name">Reading Dreams</p>
+          <p class="service-desc">Can Rem hand out the newest public Dreams right now?</p>
+        </div>
+        <p class="status-pill" id="st-feed">Checking</p>
+      </li>
+      <li class="service-card">
+        <div class="service-info">
+          <p class="service-name">This website</p>
+          <p class="service-desc">The app and the Help Center, hosted on GitHub Pages.</p>
+        </div>
+        <p class="status-pill operational">Up, you're on it</p>
+      </li>
+    </ul>
+    <p class="last-updated" id="last-check">Not checked yet.</p>
+    <p class="check-row"><button type="button" class="check-btn" id="check-again">Check again</button></p>
   </section>
 
-  <!-- Services -->
-  <section aria-labelledby="services-heading" style="margin-top:32px">
-    <div class="section-title" id="services-heading">Services</div>
-    <div class="services" role="list">
-
-      <div class="service-card" role="listitem">
-        <span class="service-icon" aria-hidden="true">Feed &amp; Dreams</span>
-        <div class="service-info">
-          <div class="service-name">Feed &amp; Dreams</div>
-          <div class="service-desc">Publishing, viewing and interacting with Dreams</div>
-        </div>
-        <div class="status-pill operational">
-          <span class="status-dot" aria-hidden="true"></span>Operational
-        </div>
-      </div>
-
-      <div class="service-card" role="listitem">
-        <span class="service-icon" aria-hidden="true">Cherry AI</span>
-        <div class="service-info">
-          <div class="service-name">Cherry AI</div>
-          <div class="service-desc">AI companion, agent actions, drafts</div>
-        </div>
-        <div class="status-pill operational">
-          <span class="status-dot" aria-hidden="true"></span>Operational
-        </div>
-      </div>
-
-      <div class="service-card" role="listitem">
-        <span class="service-icon" aria-hidden="true">Authentication</span>
-        <div class="service-info">
-          <div class="service-name">Authentication</div>
-          <div class="service-desc">LooscidID on your device; login with Nostr, Mastodon or Bluesky</div>
-        </div>
-        <div class="status-pill operational">
-          <span class="status-dot" aria-hidden="true"></span>Operational
-        </div>
-      </div>
-
-      <div class="service-card" role="listitem">
-        <span class="service-icon" aria-hidden="true">Private Messages</span>
-        <div class="service-info">
-          <div class="service-name">Private Messages</div>
-          <div class="service-desc">End-to-end encrypted conversations</div>
-        </div>
-        <div class="status-pill operational">
-          <span class="status-dot" aria-hidden="true"></span>Operational
-        </div>
-      </div>
-
-      <div class="service-card" role="listitem">
-        <span class="service-icon" aria-hidden="true">Circles</span>
-        <div class="service-info">
-          <div class="service-name">Circles</div>
-          <div class="service-desc">Communities, group feeds and events</div>
-        </div>
-        <div class="status-pill operational">
-          <span class="status-dot" aria-hidden="true"></span>Operational
-        </div>
-      </div>
-
-      <div class="service-card" role="listitem">
-        <span class="service-icon" aria-hidden="true">Search &amp; Discover</span>
-        <div class="service-info">
-          <div class="service-name">Search &amp; Discover</div>
-          <div class="service-desc">Finding Dreamors, Dreams and topics</div>
-        </div>
-        <div class="status-pill operational">
-          <span class="status-dot" aria-hidden="true"></span>Operational
-        </div>
-      </div>
-
-      <div class="service-card" role="listitem">
-        <span class="service-icon" aria-hidden="true">Notifications</span>
-        <div class="service-info">
-          <div class="service-name">Notifications</div>
-          <div class="service-desc">Alerts, mentions and activity</div>
-        </div>
-        <div class="status-pill operational">
-          <span class="status-dot" aria-hidden="true"></span>Operational
-        </div>
-      </div>
-
-    </div>
+  <section aria-labelledby="cant-heading">
+    <h2 class="section-title" id="cant-heading">What this page can't tell you</h2>
+    <p class="plain">This page checks Rem from your device, right when you open it. It doesn't keep a history, so I don't show an uptime number. It doesn't check Cherry, Nostr relays or other apps you connect.</p>
+    <p class="plain">If something's broken for you, please tell me. <a href="/Looscid/help-center/contact/" title="Goes to Contact Us in the Help Center">Contact Us</a> has every way to reach me. I also post about outages in the <a href="https://discord.gg/M6xrD8EBXU" title="Opens Discord" rel="noopener noreferrer">Looscid Discord</a>.</p>
   </section>
-
-  <!-- Incidents -->
-  <section aria-labelledby="incidents-heading">
-    <div class="section-title" id="incidents-heading">Recent Incidents</div>
-    <div class="no-incidents">
-      <div class="no-incidents-icon" aria-hidden="true">No incidents</div>
-      No incidents in the last 30 days
-    </div>
-  </section>
-
-  <!-- Subscribe -->
-  <div class="subscribe-card">
-    <div class="subscribe-title">Stay informed</div>
-    <div class="subscribe-sub">Get notified by email when there's an incident or maintenance window.</div>
-    <div class="subscribe-form" role="form" aria-label="Subscribe to status updates">
-      <input type="email" class="subscribe-input" placeholder="your@email.com" aria-label="Email address for status updates" autocomplete="email"/>
-      <button class="subscribe-btn" aria-label="Subscribe to status updates" title="Emails you when something breaks">Notify me</button>
-    </div>
-  </div>
-
-  <div class="last-updated">
-    Page updates automatically every 60 seconds
-  </div>
 
   <p id="status-live" class="sr-only" aria-live="polite"></p>
 </main>
@@ -265,59 +191,52 @@ main{max-width:680px;margin:0 auto;padding:32px 20px 0}
 </footer>
 
 <script>
-// Build 90-day uptime bar
-(function() {
-  var bar = document.querySelector('.uptime-bar');
-  var days = 90;
-  for (var i = 0; i < days; i++) {
-    var d = document.createElement('div');
-    // Simulate realistic uptime - all operational except a couple partial days
-    var r = Math.random();
-    var cls = r > 0.02 ? 'up' : r > 0.005 ? 'partial' : 'up';
-    d.className = 'uptime-day ' + cls;
-    var daysAgo = days - i;
-    var label = daysAgo === 1 ? 'Yesterday' : daysAgo === 0 ? 'Today' : daysAgo + ' days ago';
-    var status = cls === 'up' ? 'Operational' : cls === 'partial' ? 'Degraded performance' : 'Outage';
-    d.setAttribute('title', label + ': ' + status);
-    bar.appendChild(d);
+// Nov 9 2026: real checks, read only (GET). Rem is https://rem.thebntlovver.workers.dev (see js/net.js).
+(function () {
+  var REM = "https://rem.thebntlovver.workers.dev";
+  var busy = false;
+  function say(msg) {
+    var el = document.getElementById('status-live'); if (!el) return;
+    el.textContent = ''; clearTimeout(say.t1); clearTimeout(say.t2);
+    say.t1 = setTimeout(function () { el.textContent = msg; say.t2 = setTimeout(function () { if (el.textContent === msg) el.textContent = ''; }, 5000); }, 80);
   }
-})();
-
-// Last checked timer
-(function() {
-  var el = document.getElementById('last-check');
-  var secs = 0;
-  setInterval(function() {
-    secs++;
-    if (secs < 60) el.textContent = secs + 's ago';
-    else if (secs < 3600) el.textContent = Math.floor(secs/60) + 'm ago';
-    else { secs = 0; el.textContent = 'just now'; }
-  }, 1000);
-})();
-
-// The page's one announcer: cleared, then written, then emptied again once it has been read.
-function say(msg) {
-  var el = document.getElementById('status-live'); if (!el) return;
-  el.textContent = ''; clearTimeout(say.t1); clearTimeout(say.t2);
-  say.t1 = setTimeout(function () { el.textContent = msg; say.t2 = setTimeout(function () { if (el.textContent === msg) el.textContent = ''; }, 5000); }, 80);
-}
-// Subscribe button
-document.querySelector('.subscribe-btn').addEventListener('click', function() {
-  var input = document.querySelector('.subscribe-input');
-  // Round 5 fixes: every press says what happened, once (it was silent when the box was empty and when pressed again).
-  if (this.getAttribute('aria-disabled') === 'true') { say("You're already subscribed."); return; }
-  if (!input.value || !input.value.includes('@')) {
-    say(input.value ? "That doesn't look like an email address. Type your email address first." : "Type your email address first.");
-    input.focus();
-    return;
+  function pill(id, ok, text) {
+    var el = document.getElementById(id);
+    el.className = 'status-pill ' + (ok === true ? 'operational' : ok === false ? 'outage' : '');
+    el.textContent = text;
   }
-  say("Subscribed.");
-  this.textContent = 'Subscribed ✓';
-  this.style.background = 'var(--gr)';
-  // Build 152 fix: aria-disabled instead of native disabled, so VoiceOver can still find both.
-  this.setAttribute('aria-disabled', 'true');
-  input.readOnly = true; input.setAttribute('aria-disabled', 'true');
-});
+  function get(path) {
+    var t0 = Date.now(), ctl = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 10000);
+    return fetch(REM + path, { cache: 'no-store', signal: ctl ? ctl.signal : undefined })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok && j && j.ok === true, j: j, ms: Date.now() - t0 }; }); })
+      .catch(function () { return { ok: false, ms: Date.now() - t0 }; })
+      .then(function (x) { clearTimeout(timer); return x; });
+  }
+  function check(spoken) {
+    if (busy) return; busy = true;
+    var btn = document.getElementById('check-again'); btn.textContent = 'Checking';
+    pill('st-rem', null, 'Checking'); pill('st-feed', null, 'Checking');
+    Promise.all([get('/health'), get('/feed?limit=1')]).then(function (a) {
+      var h = a[0], f = a[1];
+      pill('st-rem', h.ok, h.ok ? 'Up, answered in ' + h.ms + ' ms' : 'Not answering');
+      pill('st-feed', f.ok, f.ok ? 'Working' : 'Not working');
+      var all = h.ok && f.ok;
+      var box = document.getElementById('overall');
+      box.className = 'overall ' + (all ? 'all-good' : 'outage');
+      var text = all ? 'Rem is up. Dreams, likes and follows should work.'
+        : h.ok ? "Rem is up, but it couldn't hand out Dreams just now. Your feed might not load."
+        : "Rem didn't answer. Dreams, likes and follows might not save or load. It could also be your connection.";
+      document.getElementById('overall-text').textContent = text;
+      var when = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      document.getElementById('last-check').textContent = 'Last checked at ' + when + ', from this device.';
+      btn.textContent = 'Check again'; busy = false;
+      if (spoken) say(text);
+    });
+  }
+  document.getElementById('check-again').addEventListener('click', function () { check(true); });
+  check(false);
+})();
 </script>
 
 </body>

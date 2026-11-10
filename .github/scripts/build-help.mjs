@@ -109,6 +109,9 @@ function rich(text, depth) {
     });
 }
 
+/* Nov 9 2026 (UI audit, top 10 #9: no aria-label on links): the logo link at the top of every page used to carry an
+   aria-label, so Voice Control and braille got a name that didn't match the words on screen. Now its name is its visible
+   text, "Looscid Help Center", and the logo inside it is decorative (alt=""), because the footer already describes it. */
 function page({ slug, title, desc, body, depth, crumbs, connect }) {
   const url = HELP + (slug ? slug + "/" : "");
   const full = slug ? title + " - Looscid Help Center" : "Looscid Help Center";
@@ -149,7 +152,7 @@ function page({ slug, title, desc, body, depth, crumbs, connect }) {
 </head>
 <body>
 <div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
-<header class="top"><a class="brand" href="${up || "./"}" aria-label="Looscid Help Center, logo: a white open ring with a dot in the middle, on blue"><img src="${up}../assets/icons/icon-512.png?v=nl1" alt="Looscid logo: a white open ring with a dot in the middle, on blue" role="img" aria-label="Looscid logo: a white open ring with a dot in the middle, on blue" width="32" height="32"><span><span aria-hidden="true">Looscid</span> Help Center</span></a>${gotoMenu(up)}</header>
+<header class="top"><a class="brand" href="${up || "./"}"><img src="${up}../assets/icons/icon-512.png?v=nl1" alt="" width="32" height="32"><span>Looscid Help Center</span></a>${gotoMenu(up)}</header>
 <main class="wrap" id="main">
 ${nav}
 ${body}

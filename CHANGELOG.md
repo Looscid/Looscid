@@ -3,6 +3,17 @@
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
 
+## UI audit fixes (no new build yet)
+
+Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+
+From the UI audit on November 9. Carter: bug and security fixes ship right away, especially critical ones.
+
+- The Status page is real now. It used to say "All Systems Operational", "99.97% uptime" and "Last checked 4s ago" no matter what, because those words were typed in by hand. Now it asks Rem when you open it and says what it saw: whether Rem answered, how fast, and whether it can hand out Dreams. Check again checks again. It keeps no history, so there's no uptime number, and it says what it can't check.
+- The Status page's Notify me button is gone. It said "Subscribed" but never sent anything. The page now points to Contact Us and the Looscid Discord instead. It also doesn't say chats are end-to-end encrypted any more.
+- Looscid's fonts (DM Sans and DM Serif Display) come from Looscid itself now, not Google Fonts. No page loads anything from Google any more. Both fonts are under the SIL Open Font License, which allows this. Vibework uses your device's fonts instead.
+- The logo link at the top of every Help Center page is named just "Looscid Help Center", the words you see. Voice Control and braille get the same name as the screen.
+
 ## Follows live on Rem now (no new build yet)
 
 Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
