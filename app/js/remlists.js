@@ -170,7 +170,7 @@ function folHex(x) {
 }
 function folLocal() { const a = lsJson(FOLLOW_LS, []), m = new Map(); (Array.isArray(a) ? a : []).forEach(function (id) { const h = folHex(id); if (h && !m.has(h)) m.set(h, id); }); return m; }
 function folCfg(pk) { const c = lsJson(FOL_KEY, null); return c && typeof c === "object" && c.pk === pk ? c : { pk: pk, snap: null }; }
-function whoNow() { const w = (Looscid.A11Y_NOW || {}).whoLists; return WHO_OK.indexOf(w) >= 0 ? w : "everyone"; }
+function whoNow() { const w = (Looscid.A11Y_NOW || {}).whoLists; return WHO_OK.indexOf(w) >= 0 ? w : "me"; } // Nov 9 2026: private by default
 const CNT = new Map(), PEOPLE = new Map(), WANT = new Map(), PENDING = new Set(), GEN = new Map();
 let mine = null; // { followers: [{ pk, at }], following: [...] } from the last signed read
 function tick() { try { window.dispatchEvent(new CustomEvent("looscid:follow", { detail: { rem: true } })); } catch (e) {} }
@@ -273,6 +273,9 @@ Looscid.lcRemFollows = {
   myFollowerPeople: function () { return mine ? mine.followers.map(function (x) { return person(x.pk); }) : null; },
   // The people Rem lists for someone (kind "followers" | "following"), or null while it loads.
   people: function (user, kind) { const h = folHex(user); if (!h) return null; want(h, kind); const p = PEOPLE.get(kind + ":" + h); return p ? p.people.map(person) : null; },
+  // Nov 9 2026 (Carter's mutual rule): whether this person follows you, from your own followers list on Rem (a signed read,
+  // so it works even when their lists are private). true, false, or null when Rem hasn't answered yet.
+  followsMe: function (user) { const h = folHex(user); if (!h || !mine) return null; return mine.followers.some(function (x) { return x && String(x.pk).toLowerCase() === h; }); },
   hidden: function (user, kind) { const h = folHex(user), p = h && PEOPLE.get(kind + ":" + h); return p ? p.hidden : 0; },
 };
 Looscid.lcLists = {

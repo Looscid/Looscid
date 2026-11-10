@@ -93,7 +93,7 @@ function alertFollowItem(n) {
   const u = n && n.type === "follow" ? n.user : null; if (!u || !Looscid.lcFollowToggle) return null;
   const id = u.id != null ? u.id : (u.pk ? "nostr:" + u.pk : null); if (id == null) return null;
   const who = Object.assign({}, u, { id: id }), nm = u.name || (u.handle ? "@" + String(u.handle).replace(/^@/, "") : "them"), on = Looscid.lcFollowingHas(id);
-  return [on ? "Unfollow " + nm : "Follow back", function () { Looscid.lcFollowToggle(who); announce(on ? "Unfollowed " + nm + "." : "Following " + nm + "."); }];
+  return [on ? "Unfollow " + nm : "Follow back", function () { if (Looscid.lcFollowToggle(who) === false) return; announce(on ? "Unfollowed " + nm + "." : "Following " + nm + "."); }];
 }
 function blockWho(user) {
   if (!user || !user.handle) return null;

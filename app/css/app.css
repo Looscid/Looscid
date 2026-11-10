@@ -7,7 +7,7 @@
 .msec-body[hidden]{display:none}
 
 /* Skip to content for keyboard/switch/Braille users */
-.skip-link{position:absolute;top:-999px;left:16px;background:var(--ac);color:#fff;padding:8px 14px;border-radius:0 0 8px 8px;font-weight:700;font-size:14px;z-index:9999;text-decoration:none;font-family:inherit}
+.skip-link{position:absolute;top:-999px;left:16px;background:var(--ac);color:#fff;padding:13px 14px;border-radius:0 0 8px 8px;font-weight:700;font-size:14px;z-index:9999;text-decoration:none;font-family:inherit}
 .skip-link:focus{top:0}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -106,7 +106,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .bp:active{opacity:.82;transform:scale(.97)}
 .bp:disabled{opacity:.4;cursor:default;transform:none}
 .bgb{background:transparent;border:1px solid var(--bd2);color:var(--tx2);padding:8px 14px;font-size:13px}
-.bi{background:none;border:none;cursor:pointer;color:var(--tx2);padding:6px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.bi{background:none;border:none;cursor:pointer;color:var(--tx2);padding:6px;border-radius:50%;display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px} /* Nov 9 2026: icon buttons (Back) are 44 px */
 .bi:active{background:rgba(255,255,255,.08)}
 .inp{background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:11px 13px;color:var(--tx);font-family:inherit;font-size:16px;outline:none;width:100%;transition:border-color .2s;-webkit-appearance:none}
 .inp:focus{border-color:var(--ac2)}
@@ -526,20 +526,20 @@ h2.slbl,div.slbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:
 
 /* Round 6.4: Dreams on Nostr (composer link, Nostr key in Settings) */
 .lc-link{color:var(--ac4);text-decoration:underline;text-underline-offset:2px;display:inline-block;padding:6px 0;min-height:24px}
-.lc-help-link{color:var(--ac4);text-decoration:underline;text-underline-offset:2px;display:inline-block;padding:6px 0;min-height:24px} /* Round 6.6: Help build links */
+.lc-help-link{color:var(--ac4);text-decoration:underline;text-underline-offset:2px;display:inline-block;padding:12px 0;min-height:44px;box-sizing:border-box} /* Nov 9 2026: 44 px (was 33) */ /* Round 6.6: Help build links */
 .lid-details{margin:10px 0}
 .lid-details>summary{cursor:pointer;color:var(--ac4);text-decoration:underline;padding:8px 0;font-size:14px}
 .lid-details>summary:focus-visible{outline:2px solid var(--ac4);outline-offset:2px;border-radius:6px}
 
 /* Round 6.5: the composer (New Dream, Reply, Quote) and link cards */
-.lc-cr-tool{background:none;border:1px solid transparent;cursor:pointer;padding:7px 8px;border-radius:8px;color:var(--ac3);font-size:12px;min-height:36px;display:inline-flex;align-items:center;gap:4px}
+.lc-cr-tool{background:none;border:1px solid transparent;cursor:pointer;padding:7px 8px;border-radius:8px;color:var(--ac3);font-size:12px;min-height:44px;min-width:44px;display:inline-flex;align-items:center;gap:4px} /* Nov 9 2026: 44 px (was 36) */
 .lc-cr-tool:focus-visible{outline:2px solid var(--ac2);outline-offset:2px}
 label.lc-cr-tool{color:var(--tx2)}
 .lc-cr-ctx{padding:10px 16px 0 16px}
 .lc-cr-parent{margin:0;padding:6px 0 6px 14px;border-left:3px solid var(--bd2);color:var(--tx2);font-size:14px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
 .lc-cr-notify{border:1px solid var(--bd);border-radius:10px;margin:0 16px 8px;padding:6px 12px 8px}
 .lc-cr-notify legend{padding:0 4px}
-.lc-check{display:flex;align-items:center;gap:6px;min-height:36px;font-size:14px;cursor:pointer}
+.lc-check{display:flex;align-items:center;gap:6px;min-height:44px;font-size:14px;cursor:pointer} /* Nov 9 2026: 44 px (was 36) */
 .lc-check input{width:20px;height:20px;accent-color:var(--ac2)}
 .lc-cr-more{border-top:1px dashed var(--bd);padding-top:8px}
 .lc-link-card{margin:8px 0;padding:10px 12px;border:1px solid var(--bd);border-radius:12px;background:var(--sf2)}
@@ -611,7 +611,8 @@ body.acc-text-2 .pg .lc-end-chrome { zoom: 0.769231; }
 .lc-foot-h { font-size: 14px; margin: 4px 0 0; color: var(--tx); }
 .lc-foot-list { list-style: none; margin: 0; padding: 0; }
 .lc-foot-list li { margin: 0; }
-.lc-foot-list a { display: inline-block; min-height: 44px; line-height: 44px; }
+.lc-foot-list a { display: inline-block; min-height: 44px; min-width: 44px; line-height: 44px; } /* Nov 9 2026: min-width too, so short links like X are 44 px wide */
+.lc-foot-credit a { display: inline-block; min-height: 44px; line-height: 44px; }
 .lc-foot-soon { background: none; border: 1px solid var(--bd); border-radius: 8px; color: var(--tx3); padding: 10px 12px; min-height: 44px; font: inherit; }
 .lc-foot-soon-tag { font-size: 12px; }
 .lc-foot-p { margin: 0; line-height: 1.5; }
@@ -685,3 +686,10 @@ body.acc-high-contrast .lc-site-prev-t{text-decoration:underline;text-underline-
 @media(forced-colors:active){.lc-site-prev{border-left-color:LinkText}.lc-site-prev-t{color:LinkText}}
 .lc-site-prev-plain{margin:8px 0;font-size:14px}
 .lc-site-prev-plain .lc-link{min-height:44px;display:inline-flex;align-items:center}
+
+/* Nov 9 2026 (UI audit, top 10 #7): the Dream author's name is a 44 px tall button (it was 15 px). */
+.dc-namebtn{min-height:44px;min-width:44px;margin:-14px 0;display:inline-flex;align-items:center} /* the negative margin keeps the card's look the same */
+/* Nov 9 2026 (UI audit #7): Help Center links in lists and on their own line are 44 px tall (they were 33). Links inside a
+   sentence stay part of the sentence. */
+.lc-helpcenter li>a.lc-link,.lc-helpcenter p.lc-desc>a.lc-link:only-child{display:inline-flex;align-items:center;min-height:44px}
+.cherry-compose-btn{min-height:44px} /* Nov 9 2026: was 28 px */

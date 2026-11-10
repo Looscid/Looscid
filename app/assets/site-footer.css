@@ -12,7 +12,8 @@
 .sf-col h2,.sf-col h3{margin:8px 0 0;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--sf-tx)}
 .sf-col ul{list-style:none;margin:0;padding:0}
 .sf-col a,.sf-bottom a{color:var(--sf-link);text-decoration:none}
-.sf-col a{display:flex;align-items:center;min-height:44px;font-size:15px}
+.sf-col a{display:flex;align-items:center;min-height:44px;min-width:44px;font-size:15px}
+.sf-bottom a{display:inline-block;min-height:44px;line-height:44px}
 .sf a:hover{text-decoration:underline;text-underline-offset:3px}
 .sf a:focus-visible{outline:3px solid var(--sf-ac);outline-offset:2px;border-radius:6px}
 .sf-bottom{margin:12px 0 0;padding-top:12px;border-top:1px solid var(--sf-bd);font-size:14px}

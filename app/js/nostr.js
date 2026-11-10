@@ -543,7 +543,7 @@ async function publishDream(d, opts) {
     const dr = { dreamRef: d.id, text: d.text, created: d.created || Date.now() };
     DRAFT_KEYS.forEach(function (k) { if (d[k] != null) dr[k] = d[k]; });
     const q = queue(); q.push({ draft: dr, at: Date.now() }); saveQueue(q); emit();
-    if (!quiet) sayLater("Saved on this device. Enter your passcode to Dream it.");
+    if (!quiet) sayLater("Saved on this device for now. Unlock your key with your passcode, and it goes to Rem.");
     return { queued: true, locked: true };
   }
   let ev = null, wait = false;

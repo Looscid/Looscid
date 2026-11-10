@@ -462,13 +462,19 @@ async function lcPublishChain(items) {
    Guest limits, stated once: a Guest can look around everything; Dreaming, replying and quoting need a LooscidID. */
 function LcComposer(props) {
   const [guest, setGuest] = useState(function () { return !!(Looscid.lcIsGuest && Looscid.lcIsGuest()); });
+  // Nov 9 2026 (UI audit #4): Create my LooscidID opens the one-step flow (passcode, profile and key together, then save
+  // the key). It stays on screen until "I saved my key", then the composer opens with focus in the text box.
+  const [making, setMaking] = useState(false);
   useEffect(function () { const f = function () { setGuest(!!(Looscid.lcIsGuest && Looscid.lcIsGuest())); }; window.addEventListener("looscid:identity", f); return function () { window.removeEventListener("looscid:identity", f); }; }, []);
+  if (making && Looscid.LcMakeId) return lh('div', { className: "cr-guest", style: { padding: 16 } },
+    lh(Looscid.LcMakeId, { idPrefix: "cr-mk", onCancel: guest ? function () { setMaking(false); setTimeout(function () { const b = document.getElementById("cr-guest-create"); if (b) b.focus(); }, 60); } : undefined,
+      onDone: function () { setMaking(false); setGuest(false); setTimeout(function () { const t = document.querySelector(".cr-text, textarea"); if (t && t.focus) t.focus(); }, 80); } }));
   if (!guest) return lh(LcComposerInner, props);
   return lh('div', { className: "cr-guest", style: { padding: 16 } },
     lh('h2', { id: "cr-guest-h", tabIndex: -1 }, "Make a LooscidID to Dream"),
-    lh('p', null, "You're browsing as a Guest. Guests can look around everything, but Dreaming, replying and quoting need a LooscidID. It's made on this device in one tap. No email, no phone number."),
+    lh('p', null, "You're browsing as a Guest. Guests can look around everything, but Dreaming, replying and quoting need a LooscidID. It takes one step, with no email and no phone number."),
     lh('div', { style: { display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 } },
-      lh('button', { type: "button", id: "cr-guest-create", className: "btn bp", onClick: function () { if (Looscid.lcCreateLooscidID) Looscid.lcCreateLooscidID(); setGuest(false); setTimeout(function () { const t = document.querySelector(".cr-text, textarea"); if (t && t.focus) t.focus(); }, 80); } }, "Create my LooscidID"),
+      lh('button', { type: "button", id: "cr-guest-create", className: "btn bp", onClick: function () { setMaking(true); } }, "Create my LooscidID"),
       props.onClose && lh('button', { type: "button", className: "btn bgb", onClick: props.onClose }, "Not now")));
 }
 function LcComposerInner(props) {
@@ -549,7 +555,7 @@ function LcComposerInner(props) {
   const parentNostr = !!(parent && (parent.nid || (Looscid.lcNostr && Looscid.lcNostr.nidOf && (Looscid.lcNostr.nidOf(parent.id) || Looscid.lcNostr.isPending(parent.id)))));
   const goesToNostr = audience === "everyone" && nst.canDream && (!isReply || parentNostr);
   const audNote = audience === "device" ? "Only this device: this " + noun + " stays here and is never sent."
-    : !nst.canDream ? "For now, " + (isReply ? "replies are" : "Dreams are") + " saved only on this device."
+    : !nst.canDream ? "You don't have a key yet, so this " + noun + " can only stay on this device. Make your key, and your " + (isReply ? "replies" : "Dreams") + " go to Rem."
     // Nov 7 2026: public Dreams go to the Looscid server; Nostr only with "Also share my Dreams to Nostr" on (Settings, LooscidID, Connectionbase).
     : audience === "everyone" ? (isReply && !parentNostr ? who + "\u2019s Dream isn\u2019t on Rem or Nostr, so this reply is saved on this device only."
       : Looscid.lcNet && !Looscid.lcNet.bridgeOn("nostr") ? "Everyone: your " + noun + " is public on Looscid." : "Everyone: your " + noun + " is public on Looscid and Nostr. Copies on Nostr can't be fully deleted.")
@@ -735,17 +741,17 @@ function LcComposerInner(props) {
           { id: "groups", name: "My Circles", note: "Shared to your Circles" },
           { id: "device", name: "Only this device", note: "Never sent anywhere" }], onSelect: function (v) { setAudience(v); } }),
       lh('label', { className: "lc-check lc-cr-tool" }, lh('input', { type: "checkbox", id: "cr-cw-on", checked: cwOn, onChange: function (e) { const v = e.target.checked; setCwOn(v); if (v) setTimeout(function () { const f = document.getElementById("cr-cw"); if (f) f.focus(); }, 30); } }), " Content warning"),
-      lh('button', Object.assign({}, tb, { onClick: function () { if (window._openSymPicker) window._openSymPicker(function (s) { setPart(active, (parts[active] || "") + s); }); }, "aria-label": "Insert symbol" }), "\u03a9"),
+      lh('button', Object.assign({}, tb, { onClick: function () { if (window._openSymPicker) window._openSymPicker(function (s) { setPart(active, (parts[active] || "") + s); }); } }), lh('span', { "aria-hidden": "true" }, "\u03a9 "), "Symbol"), // Nov 9 2026 (UI audit #10): a real visible name, the same for Voice Control and braille
       charLimit && lh('span', { className: "lc-cr-count", style: {fontVariantNumeric:"tabular-nums",fontSize:12,color: left < 0 ? "var(--rd)" : "var(--tx3)",fontWeight: left < 0 ? 700 : 400,marginLeft:"auto"} }, left < 0 ? -left + " over" : left + " left"),
-      lh('button', Object.assign({}, tb, { onClick: addPart, "aria-label": "Add another " + noun }), lh('span', { "aria-hidden": "true" }, "+ "), Noun),
+      lh('button', Object.assign({}, tb, { onClick: addPart }), lh('span', { "aria-hidden": "true" }, "+ "), "Add to thread"), // Nov 9 2026: it said "Dream" right beside the real Dream button
       /* Where this goes, said plainly (6.4 notes kept) */
       lh('div', { style: {flexBasis:"100%",padding:"2px 4px 0"} },
         lh('p', { id: "cr-device-note", className: "lc-desc", style: {margin:"6px 0 0",fontSize:12,color:"var(--tx3)"} }, audNote),
         widenNote && lh('p', { id: "cr-widen-note", className: "lc-desc", style: {margin:"4px 0 0",fontSize:12} }, widenNote),
         !nst.canDream && audience !== "device" && lh('p', { className: "lc-desc", style: {margin:"4px 0 0",fontSize:12} },
-          lh('a', { id: "cr-nostr-link", href: "#nostr-key", className: "lc-link", onClick: function (e) { e.preventDefault(); props.onClose(); if (props.onNostrLink) props.onNostrLink(); else lcOpenNostrKey(navigate); } }, "Set up a Nostr key to Dream to everyone")),
+          lh('a', { id: "cr-nostr-link", href: "#nostr-key", className: "lc-link", onClick: function (e) { e.preventDefault(); props.onClose(); if (props.onNostrLink) props.onNostrLink(); else lcOpenNostrKey(navigate); } }, "Make your key to Dream to everyone")),
         nst.mode === "locked" && goesToNostr && lh('div', { className: "lc-cr-unlock", style: {margin:"8px 0 0"} },
-          lh('p', { className: "lc-desc", style: {margin:"0 0 4px",fontSize:12} }, "Your Nostr key is locked. Enter your passcode so this " + noun + " goes to Nostr too, or " + (isReply ? "reply" : "Dream") + " now and it's sent after you unlock."),
+          lh('p', { className: "lc-desc", style: {margin:"0 0 4px",fontSize:12} }, "Your key is locked. Type your passcode so this " + noun + " goes to Rem now. Or " + (isReply ? "reply" : "Dream") + " anyway, and it waits on this device until you unlock."),
           lh('label', { htmlFor: "cr-pass", className: "lc-fs-l" }, "Passcode"),
           lh('div', { className: "lc-inrow" },
             lh('input', { id: "cr-pass", ref: passRef, type: "password", className: "lc-text", autoComplete: "off", autoCapitalize: "off", spellCheck: false, value: pass, onChange: function (e) { setPass(e.target.value); } }),

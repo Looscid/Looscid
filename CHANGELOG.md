@@ -15,6 +15,13 @@ From the UI audit on November 9. Carter: bug and security fixes ship right away,
 - The logo link at the top of every Help Center page is named just "Looscid Help Center", the words you see. Voice Control and braille get the same name as the screen.
 - For You, the first tab on Home, shows everyone's public Dreams from Rem now. Before, only Federated asked Rem, so new people saw "No Dreams yet" even when Rem had Dreams. While Rem's Dreams load it says so, and if Rem can't be reached it says that too.
 - Discover search finds Dreams on Rem now, not just the ones on your device. Rem has no search of its own yet, so Looscid searches Rem's newest public Dreams (the last 30 days).
+- Create a LooscidID is one step now, and it makes your key too. Before, it made a LooscidID with no key, then a page full of nsec and relay words, and your Dreams couldn't reach Rem. Now you pick a passcode, press Create my LooscidID, save your key once, and you're a Dreamor. Focus moves to each next step instead of jumping to the top. A LooscidID made before today without a key gets a Make my key button.
+- Guests can't like, ReDream or follow anymore. Before, a Guest's like only lived on their phone, so nobody saw it. Now pressing Like, ReDream or Follow as a Guest asks you to make a LooscidID first, in one step. Taking a like or follow back always works. With a key, likes and ReDreams already go to Rem.
+- Words that weren't true anymore are fixed. Settings no longer says "Looscid has no server" or "Dreams are saved only on this device". Privacy & Security now says plainly what goes to Rem and what stays on your device. The composer's locked-key line talks about Rem, not Nostr.
+- Buttons and links are at least 44 points: the Back button, the Dream author's name, every composer button, Ask Cherry, the Help Center's links and the short footer links like X.
+- The robot character (Unspeakable characters) starts off for new people, so VoiceOver, braille and Voice Control don't get "unspeakable" in every name. If you already had it, it stays on until you turn it off.
+- Voice Control names match what's on screen: the profile's More button is named More (the menu it opens is Dreamor Options), the composer's symbol button says Symbol, and Add another Dream says Add to thread, so it doesn't sound like the real Dream button.
+- Who can see my followers and following starts at Only me now. Counts are still public, and Everyone is one switch away. If you follow each other, you always see Follows you or Mutuals, even when lists are private.
 
 ## Follows live on Rem now (no new build yet)
 

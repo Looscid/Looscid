@@ -125,6 +125,7 @@ function LikedView({ navigate, cherryCtx, idp, intro, onComment, extraPanels, on
   function noop() { bump(function (n) { return n + 1; }); }
   function toggleDream(id) {
     const d = dreams.find(function (x) { return String(x.id) === String(id); }); if (!d) return;
+    if (!d.liked && Looscid.lcKeyGate && Looscid.lcKeyGate("like")) return; // Nov 9 2026: Guests can't like
     lcLikedSet("dream", d.id, !d.liked, lcDreamSnap(d));
   }
   const remember = function (m, f) { lcLikedTabMem[idp] = { mode: m, flt: f }; };
@@ -291,7 +292,7 @@ function LikedSearches({ list, cherryCtx }) {
   const netLine = nets.length ? "Searching: " + nets.join(", ") + ", and Dreams on this device." : "No networks connected, so it searches Dreams on this device only.";
   if (!list.length) return lh('p', { className: "lc-muted lc-liked-none" }, "No liked Searches yet. Use Like Search on a search in Discover and it shows up here.");
   return lh(React.Fragment, null,
-    lh('p', { className: "lc-muted lc-liked-intro" }, "Alerts are checked when Looscid is open, not while it's closed: Looscid has no server. New matches go to Alerts, under From Looscid."),
+    lh('p', { className: "lc-muted lc-liked-intro" }, "I check for new matches while Looscid is open, not while it's closed. New matches go to Alerts, under From Looscid."),
     lh('ul', { className: "lc-liked-list", role: "list" }, list.map(function (s) {
       const sid = "lks-" + String(s.id).replace(/[^a-z0-9]+/gi, "-");
       return lh('li', { key: s.id, className: "lc-liked-search" },

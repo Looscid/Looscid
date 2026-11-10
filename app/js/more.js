@@ -251,7 +251,7 @@ function ProfilePeoplePage({ kind, user, isMe, people, onBack, navigate, followi
                   u.handle ? lh('span', { className: "lc-person-h" }, "@" + String(u.handle).replace(/^@/, "")) : null,
                   (function () {
                     // Feditext's account row: "Mutuals" when you both follow, "Following", or "Follows you".
-                    const fb = !!u.followsYou;
+                    const fb = !!u.followsYou || !!(Looscid.lcRemFollows && Looscid.lcRemFollows.followsMe && Looscid.lcRemFollows.followsMe(u));
                     const rel = fo && fb ? "Mutuals" : fo ? "Following" : fb ? "Follows you" : "";
                     // One element per row; its words change in place (hidden when there is no relationship).
                     return lh('span', { className: "lc-person-rel", hidden: !rel }, rel ? " " + rel : "");
@@ -629,7 +629,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
   const extraItems = [];
   // Nov 1 2026 (X-style Edit profile): Edit profile opens the one editor sheet; Close or Save puts focus back where you were.
   const openEdit = function (fromMore) { ed.open("all", fromMore ? "pf-more-btn" : "pf-edit-btn"); };
-  const follow = function () { cherryCtx && cherryCtx.followUser(user.id, user); announce(following ? "Unfollowed " + user.name + "." : "Following " + user.name + ".", "state", "follow:" + user.id); };
+  const follow = function () { if (cherryCtx && cherryCtx.followUser(user.id, user) === false) return; announce(following ? "Unfollowed " + user.name + "." : "Following " + user.name + ".", "state", "follow:" + user.id); };
   const cherryOn = !!cherryCtx && lcAiOn();
   const askCherry = function () { cherryCtx.openCherry("Give me a short summary of " + (user.name || "this Dreamor") + " (@" + handle + "): who they are and what they Dream about."); };
   // Build 150, part 16 (2three1y, Oct 11): Dreamor options is a real pop-up menu, like the other action menus. It opens
@@ -724,7 +724,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
     message: Looscid.lcLogoutMessage(),
     confirmLabel: LT.ok, onCancel: function () { setLogoutAsk(false); backToMore(); },
     onConfirm: function () { setLogoutAsk(false); Looscid.lcDoLogout(); } }) : null;
-  const moreMenu = preview ? null : lh(React.Fragment, null, lh(LcMenu, { id: "pf-more-btn", menuId: "pf-more", kind: "action", title: "More", btnLabel: "Dreamor Options", btnRef: moreBtn,
+  const moreMenu = preview ? null : lh(React.Fragment, null, lh(LcMenu, { id: "pf-more-btn", menuId: "pf-more", kind: "action", title: "Dreamor Options", btnRef: moreBtn, // Nov 9 2026 (UI audit #10): the button's name is its visible word, More, so "tap More" works in Voice Control; the menu it opens is Dreamor Options
     btnClass: "btn bgb lc-big lc-prof-morebtn", className: "lc-prof-more", itemClass: "lc-dopt",
     btnText: lh('span', null, lh(Ic.Dots, { style: { width: 18, height: 18 }, "aria-hidden": "true" }), " More"), items: moreItems,
     onSelect: function (k, it) { if (it.a) it.a(); } }), logoutDlg,
@@ -952,7 +952,7 @@ function ProfileView({ user, isMe, navigate, cherryCtx, onUpdateProfile, authUse
         locked ? lh('span', { className: "lc-prof-lock" }, " ", lh(Ic.Lock, { style: { width: 13, height: 13 }, "aria-hidden": "true" }), lh('span', { className: "sr-only" }, "Locked account")) : null,
         // 2three1y 3:23/3:30 AM: "Follows you" becomes "Mutuals" once you follow back. It is one element whose words change
         // in place: nothing new appears, nothing is announced, focus stays where it is.
-        !self && user.followsYou ? [" ", lh('span', { key: "fy", id: "pf-rel", className: "lc-cap" }, following ? "Mutuals" : "Follows you")] : null,
+        !self && (user.followsYou || (Looscid.lcRemFollows && Looscid.lcRemFollows.followsMe && Looscid.lcRemFollows.followsMe(user))) ? [" ", lh('span', { key: "fy", id: "pf-rel", className: "lc-cap" }, following ? "Mutuals" : "Follows you")] : null, // Nov 9 2026: Follows you from Rem too, even with private lists
         muted ? [" ", lh('span', { key: "mu", className: "lc-cap" }, "Muted")] : null,
         blocked ? [" ", lh('span', { key: "bl", className: "lc-cap" }, "Blocked")] : null),
       // Round 6 fixes (QA round 5): Direct message and Follow (or Edit profile) came before the name heading, where focus lands, so
@@ -1260,7 +1260,7 @@ function AccountSettings({navigate, authUser, onSignOut, onRenameProfile, onUpda
     , React.createElement('h2', { className: "lid-label", id: "lid-local-h",}, "Local profile")
     // Nov 9 2026 (Carter approved item 6): Reset local profile did the same thing as Logout, at the bottom of Settings. It's
     // one real link to Logout now (Logout still asks first). Erasing everything is Delete local data, in LooscidID's data.
-    , React.createElement('p', { className: "lid-help",}, "Your LooscidID is saved only on this device. ",
+    , React.createElement('p', { className: "lid-help",}, "Your key is saved only on this device. Your public Dreams, likes and follows are on Rem. ",
         lh('a', { className: "lc-link", id: "lid-local-logout", href: (Looscid.lcPathFor ? Looscid.lcPathFor("settings") : "#"),
           onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); Looscid.LC_SETTINGS_BACK = null; navigate("settings");
             let n = 0; const t = setInterval(function () { n++; const b = document.getElementById("set-row-logout"); if (b && b.offsetParent !== null) { clearInterval(t); b.focus(); } else if (n > 30) clearInterval(t); }, 80); } }, "Logout to start fresh"), ".")
@@ -1508,7 +1508,7 @@ function PrivacySettings({navigate, authUser, onUpdateProfile}) {
   return lh('div', { className: "pg lc-a11y lc-ios-page", "aria-live": "off" },
     lh(BackHeader, { title: "Privacy & Security", onBack: function () { navigate("settings"); } }),
     // Round 7.29 (Carter, Oct 26 2026): the "we care" paragraph and a real link to the Privacy Policy page (Back returns here).
-    lh('p', { className: "lc-intro", id: "priv-care" }, "We care about your privacy. Your Dreams, settings and chats stay on this device until you choose to send or share them. We don't sell your data, track you or show ads."),
+    lh('p', { className: "lc-intro", id: "priv-care" }, "I care about your privacy. Here's where your stuff goes. Your public Dreams, replies, likes, ReDreams and follows go to Rem, the Looscid server, so other people can see them. Your pins, mutes and Not interested go to Rem too, locked to your key, so only you can read them. Your drafts, chats and settings stay on this device. I don't sell your data, track you or show ads."),
     lh('p', { className: "lc-intro" }, lh('a', { id: "priv-policy-link", className: "lc-link", href: (Looscid.lcPathFor ? Looscid.lcPathFor("privacy") : "#"),
       onClick: function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); navigate("privacy"); } }, "Privacy Policy")),
     // Nov 9 2026 (Carter, 9:36 PM: "privacy and security should be divided like privacy sections like my profile what people
@@ -3036,11 +3036,11 @@ function NostrKeySection() {
   };
   if (!N) return null;
   const status = st.mode === "signer" ? "Your signer holds your key. Looscid asks it to sign each Dream."
-    : st.mode === "locked" ? "Your key is saved on this device, locked with a passcode. Enter it to Dream to Nostr."
+    : st.mode === "locked" ? "Your key is saved on this device, locked with a passcode. Enter it to Dream."
     : st.mode === "key" && st.encrypted ? "Your key is saved on this device, locked with a passcode, and unlocked until you close Looscid."
     : st.mode === "key" ? "Your key is saved on this device without a passcode."
-    : st.mode === "view" ? "No key yet. Your Dreams from your linked public key load here, but this device can't Dream to Nostr until you add your key."
-    : "No key yet. Dreams are saved only on this device.";
+    : st.mode === "view" ? "No key yet. Your Dreams from your linked public key load here, but this device can't Dream until you add your key."
+    : "No key yet. Without a key, your Dreams can't reach Rem, and you can't like or follow.";
   const has = st.mode === "signer" || st.mode === "key" || st.mode === "locked";
   let body;
   if (created) body = lh('div', null,
@@ -3094,8 +3094,8 @@ function NostrKeySection() {
       lh(NostrPassFields, { pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2, noPass: noPass, setNoPass: setNoPass }),
       lh('div', { className: "lid-actions" }, lh('button', { type: "button", className: "btn bp", "aria-disabled": busy ? "true" : undefined, onClick: busy ? undefined : create }, "Create key"))));
   return lh('section', { className: "lid-panel", 'aria-labelledby': "nostr-key-h" },
-    lh('h2', { id: "nostr-key-h", className: "lid-label", tabIndex: -1 }, "Nostr key"),
-    lh('p', { className: "lid-help" }, "With a Nostr key, your Dreams with Audience Everyone also go to Nostr relays, so you and anyone can see them anytime, from any device. Looscid has no server."),
+    lh('h2', { id: "nostr-key-h", className: "lid-label", tabIndex: -1 }, "Your key"),
+    lh('p', { className: "lid-help" }, "Your key is your LooscidID. It signs your Dreams, likes and follows, so Rem, the Looscid server, knows they're really from you. If you turn on the Nostr bridge, your public Dreams go to Nostr relays too."),
     lh('p', { className: "lid-help", id: "nostr-status" }, status),
     msg && lh('p', { className: msg.err ? "lid-err" : "lid-help" }, msg.t),
     body,
@@ -3111,7 +3111,7 @@ function NostrKeySection() {
       lh('button', { type: "button", className: "btn bgb", onClick: addRelay }, "Add relay"),
       !N.usingDefaultRelays() && lh('button', { type: "button", className: "btn bgb", onClick: function () { setRelayList(N.resetRelays()); say("Using the default relays."); } }, "Use default relays")),
     confirmRm && lh(AlertDialog, { title: "Remove your Nostr key from this device?",
-      message: "Your Dreams stay on this device and on Nostr. This device can't Dream to Nostr until you add your key again. Make sure you saved your key first: Looscid can't recover it." + (N.forgetWarning && N.forgetWarning() ? " " + N.forgetWarning() : ""),
+      message: "Your Dreams stay on Rem, and on this device. This device can't Dream, like or follow until you add your key again. Make sure you saved your key first, because nobody can get it back for you." + (N.forgetWarning && N.forgetWarning() ? " " + N.forgetWarning() : ""),
       confirmLabel: "Remove", onCancel: function () { setConfirmRm(false); lcFocusId("nostr-remove"); },
       onConfirm: function () { setConfirmRm(false); const r = N.forget(); say("Your Nostr key was removed from this device." + (r && r.signedOut ? " " + r.signedOut : "")); lcFocusId("nostr-key-h"); } }));
 }
@@ -3264,6 +3264,9 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   const nst = Looscid.useNostrState ? Looscid.useNostrState() : null;
   // Nov 8 2026: a page opened on one part (Passcode opens Keys and IDs on its passcode heading) puts focus there.
   useEffect(function () { const el = initialFocus && document.getElementById(initialFocus); if (el) { el.focus(); return; } const h1 = wrapRef.current && wrapRef.current.querySelector("h1"); if (h1) h1.focus(); }, []);
+  // Nov 9 2026: Create a LooscidID opens the one-step flow (Looscid.LcMakeId: passcode, profile and key together). It stays
+  // open until "I saved my key", even though you stop being a Guest halfway through. LC_LID_MAKE opens it from elsewhere.
+  const [making, setMaking] = useState(function () { const v = !!Looscid.LC_LID_MAKE; Looscid.LC_LID_MAKE = false; return v && !!(Looscid.lcIsGuest && Looscid.lcIsGuest()); });
   if (ed.editing) return ed.screen;
   const u = authUser || {};
   const name = u.displayName || "Dreamor";
@@ -3315,11 +3318,19 @@ function LooscidIDManager({ navigate, authUser, onUpdateProfile, initialTab, onB
   let panel;
   if (tab === "home") panel = lh(React.Fragment, null,
     // Nov 7 2026 (Guest mode): a Guest has no LooscidID yet; one plain button makes it, and Restore brings one back.
+    making && Looscid.LcMakeId ? lh(Looscid.LcMakeId, { idPrefix: "lid-mk", onCancel: isGuest || (nst && nst.mode === "none") ? function () { setMaking(false); lcFocusId(isGuest ? "lid-guest-create" : "lid-nokey-make"); } : undefined,
+      onDone: function () { setMaking(false); lcFocusId("lid-row-rem"); } }) :
+    // Nov 9 2026: a LooscidID made before today could have no key (the old Create a LooscidID made none). It gets the same flow.
+    !isGuest && nst && nst.mode === "none" && Looscid.LcMakeId ? lh('div', { id: "lid-nokey", className: "lc-card", style: { padding: 14, margin: "8px 0 12px" } },
+      lh('h2', null, "Your LooscidID needs a key"),
+      lh('p', null, "Without a key, your Dreams can't reach Rem, and you can't like or follow. Make your key here in one step, or add a key you already have in Keys and IDs."),
+      lh('div', { style: { display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 } },
+        lh('button', { type: "button", id: "lid-nokey-make", className: "btn bp", onClick: function () { setMaking(true); } }, "Make my key"))) :
     Looscid.lcIsGuest && Looscid.lcIsGuest() ? lh('div', { id: "lid-guest", className: "lc-card", style: { padding: 14, margin: "8px 0 12px" } },
       lh('h2', null, "You're a Guest"),
-      lh('p', null, "No LooscidID on this device yet. Guests can look around everything; to Dream, reply or quote, make a LooscidID. It's made on this device, no email or phone number."),
+      lh('p', null, "There's no LooscidID on this device yet. Guests can look around everything. To Dream, reply, like or follow, make a LooscidID. It takes one step, with no email or phone number."),
       lh('div', { style: { display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 } },
-        lh('button', { type: "button", id: "lid-guest-create", className: "btn bp", onClick: function () { if (Looscid.lcCreateLooscidID) Looscid.lcCreateLooscidID(); } }, "Create a LooscidID"),
+        lh('button', { type: "button", id: "lid-guest-create", className: "btn bp", onClick: function () { setMaking(true); } }, "Create a LooscidID"),
         lh('button', { type: "button", className: "btn bgb", onClick: function () { navigate("settings_backup"); setTimeout(function () { const h = document.getElementById("bk-restore-h"); if (h) { h.setAttribute("tabindex", "-1"); h.focus(); } }, 500); } }, "Restore from a backup file"))) : null,
     lh('ul', { className: "mlist lc-i27-list", role: "list", id: "lid-rows" }, R([
       // Nov 8 2026 (Carter: "We have a security in 2 place"): the Security row moved out; it's in Privacy & Security now.

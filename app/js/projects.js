@@ -36,7 +36,7 @@ const LC_PROJECTS = [
   { id: "chaoticmodel", help: true, name: "chaoticmodel", repo: "chaoticmodel", kind: "info",
     sub: "A chaotic little model with three voices: Static, Null and Seg. Coming soon",
     about: ["I'm building a language model with a real character, fun first: it has opinions, it roasts you back, and it never sounds like a help desk. One model, three voices, Static, Null and Seg, and who answers depends on the vibe of your message, or you ask for one by name."],
-    soon: ["Talking to chaoticmodel is coming soon. It needs the trained model running somewhere, and Looscid has no server of its own. When it can run on your device, I'll bring it here, maybe as a voice for Cherry."],
+    soon: ["Talking to chaoticmodel is coming soon. It needs the trained model running somewhere, and Rem, the Looscid server, is too small for that. When it can run on your device, I'll bring it here, maybe as a voice for Cherry."],
     words: ["chaoticmodel", "chaotic model", "chaotic"] },
   { id: "yapper", help: true, lic: "2three1y's own code", name: "Yapper", repo: "yapper-site", kind: "info",
     sub: "Yapper, the social app by MystyDev, and its website. Android download; more coming soon",

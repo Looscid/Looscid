@@ -607,14 +607,50 @@ function lcSetNote(handle, text) {
   if (t) o[h] = t; else delete o[h];
   try { if (Object.keys(o).length) localStorage.setItem("looscid_dreamor_notes", JSON.stringify(o)); else localStorage.removeItem("looscid_dreamor_notes"); } catch (e) {}
 }
+/* Nov 9 2026 (UI audit, top 10 #5; Carter: guests read, they don't like): Like, ReDream and Follow need a LooscidID key,
+   because Rem saves each one under your key so everyone sees it. A Guest (or an old LooscidID with no key) used to get a
+   fake like that only lived on this phone. Now pressing one of them opens one plain question with one button that makes
+   your LooscidID (Looscid.lcMakeIdNow). Taking a like or follow back is never blocked. A locked key is fine: the like waits
+   on this device and goes to Rem when you unlock. Returns true when it stopped the action. */
+const LC_GATE_WORDS = { like: ["like Dreams", "Like"], redream: ["ReDream", "ReDream"], follow: ["follow Dreamors", "Follow"], dream: ["Dream", "Dream"] };
+function lcKeyGate(what) {
+  const N = Looscid.lcNostr, st = N && N.state ? N.state() : null;
+  if (st && st.canDream) return false;
+  const from = document.activeElement;
+  try { window.dispatchEvent(new CustomEvent("looscid:needkey", { detail: { what: LC_GATE_WORDS[what] ? what : "like", from: from } })); } catch (e) {}
+  return true;
+}
+function LcKeyGateHost() {
+  const [st, setSt] = useState(null);
+  const hRef = useRef(null), boxRef = useRef(null);
+  useEffect(function () {
+    const f = function (e) { setSt({ what: e.detail.what, from: e.detail.from, n: Date.now() }); };
+    window.addEventListener("looscid:needkey", f); return function () { window.removeEventListener("looscid:needkey", f); };
+  }, []);
+  useEffect(function () { if (!st) return; const t = setTimeout(function () { if (hRef.current) hRef.current.focus(); }, 60); return function () { clearTimeout(t); }; }, [st && st.n]);
+  if (Looscid.useInertBehind) Looscid.useInertBehind(boxRef);
+  if (!st) return null;
+  const w = LC_GATE_WORDS[st.what];
+  const close = function () { const el = st.from; setSt(null); setTimeout(function () { if (el && el.focus && document.contains(el)) el.focus(); }, 0); };
+  const make = function () { setSt(null); lcMakeIdNow(); };
+  return lh('div', { className: "lc-q-ov", ref: boxRef },
+    lh('div', { className: "lc-q", role: "dialog", "aria-modal": "true", "aria-labelledby": "lc-gate-h",
+        onKeyDown: function (e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(); } else if (Looscid.lcTrapTab) Looscid.lcTrapTab(e, e.currentTarget); } },
+      lh('h2', { id: "lc-gate-h", tabIndex: -1, ref: hRef, className: "lc-q-h lc-q-t" }, "Make a LooscidID to " + w[0]),
+      lh('div', { className: "lc-q-intro" }, lh('p', null, "Guests can look around everything. To " + w[0] + ", you need a LooscidID, so your " + w[1] + " is saved on Rem and other people can see it. It takes one step, with no email and no phone number.")),
+      lh('div', { className: "lc-q-btns" },
+        lh('button', { type: "button", id: "lc-gate-make", className: "btn bp lc-big", onClick: make }, "Make my LooscidID"),
+        lh('button', { type: "button", className: "btn bgb lc-big", onClick: close }, "Not now"))));
+}
+Object.assign(Looscid, { lcKeyGate, LcKeyGateHost });
 function useDreams(init) {
   const [dreams, setDreams] = useState(function () { return (init || []).map(function (d) { d = lcWithLiked(d, true); return !d.redreamed && d.id != null && lcRedreamHas(d.id) ? Object.assign({}, d, { redreamed: true, redreams: (d.redreams || 0) + 1 }) : d; }); });
   useSavedDreams(dreams, setDreams);
   // Build 147: a like anywhere shows everywhere (the feed, a profile, Liked), with no reload.
   useEffect(function () { const f = function () { setDreams(function (ds) { let ch = false; const out = ds.map(function (d) { const n = lcWithLiked(d, false); if (n !== d) ch = true; return n; }); return ch ? out : ds; }); }; window.addEventListener("looscid-liked", f); return function () { window.removeEventListener("looscid-liked", f); }; }, []);
   // Liking is saving (build 147): one toggle, kept in Liked. tb (the old Save) is the same toggle.
-  const tl = id => setDreams(ds => ds.map(d => { if (d.id !== id) return d; const on = !d.liked; lcLikedSet("dream", d.id, on, lcDreamSnap(d)); return {...d, liked:on, bookmarked:on, likes:Math.max(0,(d.likes||0)+(on?1:-1))}; }));
-  const tr = id => setDreams(ds => ds.map(d => { if (d.id !== id) return d; lcRedreamSet(d, true); return {...d, redreamed:true, redreams:(d.redreams||0)+1}; }));
+  const tl = id => { if (!lcLikedHas("dream", id) && lcKeyGate("like")) return; setDreams(ds => ds.map(d => { if (d.id !== id) return d; const on = !d.liked; lcLikedSet("dream", d.id, on, lcDreamSnap(d)); return {...d, liked:on, bookmarked:on, likes:Math.max(0,(d.likes||0)+(on?1:-1))}; })); };
+  const tr = id => { if (lcKeyGate("redream")) return; setDreams(ds => ds.map(d => { if (d.id !== id) return d; lcRedreamSet(d, true); return {...d, redreamed:true, redreams:(d.redreams||0)+1}; })); };
   const tur = id => setDreams(ds => ds.map(d => { if (d.id !== id) return d; lcRedreamSet(d, false); return {...d, redreamed:false, redreams:Math.max(0,(d.redreams||0)-1)}; }));
   const tq = id => setDreams(ds => ds.map(d => d.id===id ? {...d, quoted:true, quotes:(d.quotes||0)+1} : d));
   const tuq = id => setDreams(ds => ds.map(d => d.id===id ? {...d, quoted:false, quotes:Math.max(0,(d.quotes||1)-1)} : d));
@@ -1316,7 +1352,7 @@ function DreamOptionsMenu({ id, dream, btnRef, onBookmark, onLike, navigate, che
   const fx = mine || !handle ? [] : [
     authorObj ? (lcFollowingHas(authorObj.id)
       ? { id: "unfollow", name: "Unfollow " + who, a: function () { lcFollowToggle(authorObj); announce("Unfollowed " + who + ".", "state", "follow:" + authorObj.id); } }
-      : { id: "follow", name: "Follow " + who, a: function () { lcFollowToggle(authorObj); announce("Following " + who + ".", "state", "follow:" + authorObj.id); } }) : null,
+      : { id: "follow", name: "Follow " + who, a: function () { if (lcFollowToggle(authorObj) === false) return; announce("Following " + who + ".", "state", "follow:" + authorObj.id); } }) : null,
     muted ? { id: "unmute", name: "Unmute " + who, a: function () { lcPeopleSet("looscid_muted_dreamors", handle, false); announce("Unmuted " + who + "."); } }
           : { id: "mute", name: "Mute " + who, a: function () { lcPeopleSet("looscid_muted_dreamors", handle, true); announce("Muted " + who + ". Their Dreams are hidden from your feed."); } },
     blocked ? { id: "unblock", name: "Unblock " + who, a: function () { lcBlockedSet("dreamers", lcBlocked("dreamers").filter(function (h) { return h !== lcHandle(handle); })); announce("Unblocked " + who + "."); } }
@@ -1366,12 +1402,13 @@ function lcLiveDream(d) {
 }
 function lcLikeToggle(d) {
   const on = !lcLikedHas("dream", d.id);
+  if (on && lcKeyGate("like")) return false;
   if (on) { try { Earcon.play("like"); } catch (e) {} lcThreadLikeNudge(d); }
   lcLikedSet("dream", d.id, on, lcDreamSnap(d));
   announce(on ? "Liked" : "Like removed", "state", "like:" + d.id);
   return on;
 }
-function lcRedreamToggle(d) { const on = !lcRedreamHas(d.id); lcRedreamSet(d, on); announce(on ? "Redreamed" : "Redream removed", "state", "rd:" + d.id); return on; }
+function lcRedreamToggle(d) { const on = !lcRedreamHas(d.id); if (on && lcKeyGate("redream")) return false; lcRedreamSet(d, on); announce(on ? "Redreamed" : "Redream removed", "state", "rd:" + d.id); return on; }
 // Your own reply, gone from this device (Rem and relays get the signed deletion from DreamOptionsMenu).
 function lcDeleteOwnReply(d) {
   try {
@@ -1703,7 +1740,7 @@ function CommentView({dream, backTo, onBack, onLike, onRedream, onUndoRedream, o
           /* Original Dream */
           , dream.deleted ? lh(DeletedDream, { dream: dream, inThread: true }) : React.createElement('div', { style: {padding:"14px 16px",borderBottom:"1px solid var(--bd)",background:"var(--sf2)"},}
             , React.createElement('div', { className: "dc-meta", style: {marginBottom:6},}
-              , React.createElement('button', { style: {background:"none",border:"none",cursor:"pointer",padding:0}, onClick: ()=>navigate("dp",dream.user), 'aria-label': "View " + dream.user.name + "'s profile",}
+              , React.createElement('button', { className: "dc-namebtn", style: {background:"none",border:"none",cursor:"pointer",padding:0,color:"inherit",font:"inherit"}, onClick: ()=>navigate("dp",dream.user), 'aria-label': "View " + dream.user.name + "'s profile",}
                 , React.createElement('span', { className: "dc-name",}, dream.user.name)
               )
               , dream.sigOk && lh('span', { className: "dc-verified", style: {color:"var(--ac2)",fontSize:12,fontWeight:600,marginLeft:4} }, "Verified")
@@ -1812,7 +1849,7 @@ function DreamBodyCard({dream, onLike, onRedream, onUndoRedream, onQuote, onUndo
           , ctxWords && lh('p', { className: "lc-reply-ctx" }, ctxWords)
           , textFirst && lh('p', { className: "sr-only" }, srText)
           , React.createElement('div', { className: "dc-meta",}
-            , React.createElement('button', { style: {background:"none",border:"none",cursor:"pointer",padding:0}, onClick: ()=>navigate("dp",dream.user), 'aria-label': "View "+dream.user.name+"'s profile", "aria-braillelabel": A.brailleOutput ? dream.user.name : undefined,}
+            , React.createElement('button', { className: "dc-namebtn", style: {background:"none",border:"none",cursor:"pointer",padding:0,color:"inherit",font:"inherit"}, onClick: ()=>navigate("dp",dream.user), 'aria-label': "View "+dream.user.name+"'s profile", "aria-braillelabel": A.brailleOutput ? dream.user.name : undefined,}
               , React.createElement('span', { className: "dc-name",}, dream.user.name, dream.user.verified && React.createElement('span', { style: {color:"var(--ac2)",marginLeft:3,fontSize:11},}, "✓"))
             )
             /* Nov 7 2026: "Verified" in words, next to the name, when this Dream's signature checked out against the Dreamor's
@@ -1975,7 +2012,7 @@ function LcLoggedOutAsk({ onDone, navigate }) {
   useEffect(function () { const t = setTimeout(function () { if (hRef.current) hRef.current.focus(); }, 200); return function () { clearTimeout(t); }; }, []);
   const pick = function (v) {
     onDone();
-    if (v === "create") { lcCreateLooscidID(); return; }
+    if (v === "create") { lcMakeIdNow(navigate); return; } // Nov 9 2026: the one-step flow, key included
     if (v === "restore") { navigate("settings_backup"); setTimeout(function () { const h = document.getElementById("bk-restore-h"); if (h) { h.setAttribute("tabindex", "-1"); h.focus(); } }, 500); return; }
     announce("Browsing as a Guest. Create a LooscidID any time in Settings, LooscidID.");
   };
@@ -2686,11 +2723,11 @@ function startProfile() { return getLocalProfile() ? ensureLocalProfile() : appl
 function lcIsGuest() { return !getLocalProfile(); }
 Looscid.lcIsGuest = lcIsGuest;
 // Called from the Guest gate, the logged-out question and Settings: makes the LooscidID on this device and tells the app.
-function lcCreateLooscidID() {
+function lcCreateLooscidID(quiet) {
   const had = !!getLocalProfile(), p = ensureLocalProfile();
   if (Looscid.LC_SET_AUTH_USER) Looscid.LC_SET_AUTH_USER(p);
   try { window.dispatchEvent(new Event("looscid:identity")); } catch (e) {}
-  if (!had) announce("Your LooscidID is ready: " + p.displayName + ", " + p.handle + ". You can change your name in Settings, LooscidID.");
+  if (!had && !quiet) announce("Your LooscidID is ready: " + p.displayName + ", " + p.handle + ". You can change your name in Settings, LooscidID.");
   return p;
 }
 Looscid.lcCreateLooscidID = lcCreateLooscidID;
@@ -3982,6 +4019,56 @@ function SecretField({ id, label, value, onChange, readOnly, describedBy, inputR
       lh('button', { type: "button", className: "btn bgb", 'aria-pressed': shown ? "true" : "false", 'aria-controls': id,
         onClick: function () { setShown(!shown); } }, "Show key")));
 }
+/* Nov 9 2026 (UI audit, top 10 #4; Carter's rule: you become a Dreamor when you make a key): making a LooscidID is ONE
+   flow now. Before, "Create a LooscidID" made a profile with no key, the next screen said "No Nostr key yet", and the key
+   lived on a jargon page (nsec, relays), so new people thought they were done but nothing reached Rem. Now the same
+   button asks for a passcode, makes the profile AND the key together, then shows the key once to save. Focus goes to
+   each step's heading, never to the top of the page. Used by Settings, LooscidID (the Guest card), the composer's Guest
+   gate, the logged-out question and the "make a key to do this" prompts (Looscid.lcMakeIdNow). */
+function LcMakeId({ onDone, onCancel, idPrefix, level }) {
+  const pre = idPrefix || "mk", H = level === 3 ? "h3" : "h2";
+  const [pass, setPass] = useState(""); const [pass2, setPass2] = useState(""); const [noPass, setNoPass] = useState(false);
+  const [busy, setBusy] = useState(false), [msg, setMsg] = useState(""), [made, setMade] = useState(null);
+  const focus = function (id) { setTimeout(function () { const el = document.getElementById(id); if (el) el.focus(); }, 60); };
+  useEffect(function () { focus(pre + "-h"); }, []);
+  useEffect(function () { if (made) focus(pre + "-save-h"); }, [made]);
+  const fail = function (t, field) { setMsg(t); announce(t, "error"); setBusy(false); if (field) focus(pre + "-" + field); };
+  const make = async function () {
+    if (busy) return;
+    const bad = lcPassCheck(pass, pass2, noPass); if (bad) return fail(bad.t, bad.field);
+    const N = Looscid.lcNostr; if (!N || !N.createKey) return fail("Couldn't load the key maker. Check your connection and try again.");
+    setBusy(true); setMsg("");
+    try { if (N.load) await N.load(); } catch (e) { return fail("Couldn't load the key maker. Check your connection and try again."); }
+    lcCreateLooscidID(true); // the profile first (quietly), then the key, so nothing is ever a LooscidID without a key
+    const r = await N.createKey(noPass ? "" : pass, { noPasscode: noPass });
+    if (r.err) return fail(r.err, r.field ? "pass" : null);
+    setPass(""); setPass2(""); setBusy(false);
+    setMade({ nsec: r.nsec, npub: r.npub, locked: !noPass });
+  };
+  if (made) return lh('section', { className: "lc-card lc-makeid", "aria-labelledby": pre + "-save-h", style: { padding: 14, margin: "8px 0 12px" } },
+    lh(H, { id: pre + "-save-h", tabIndex: -1 }, "Save your secret key"),
+    lh('p', { className: "lid-warn" }, "This key is your LooscidID. If you lose this device, the key is the only way back in, and nobody can reset it, not even me. Save it now in your Passwords app or another safe place. I show it only this once."),
+    lh(SecretField, { id: pre + "-nsec", label: "Your secret key", value: made.nsec, readOnly: true }),
+    lh('div', { className: "lid-actions" },
+      lh('button', { type: "button", className: "btn bgb", onClick: function () {
+        if (navigator.clipboard) navigator.clipboard.writeText(made.nsec).then(function () { announce("Secret key copied."); }, function () { announce("Couldn't copy. Use Show key and copy it yourself."); });
+        else announce("Couldn't copy. Use Show key and copy it yourself."); } }, "Copy key"),
+      lh('button', { type: "button", id: pre + "-done", className: "btn bp", onClick: function () {
+        setMade(null); announce("You're a Dreamor now. Your Dreams go to Rem, and you can like, follow and reply.");
+        if (onDone) onDone(); } }, "I saved my key")));
+  return lh('section', { className: "lc-card lc-makeid", "aria-labelledby": pre + "-h", style: { padding: 14, margin: "8px 0 12px" } },
+    lh(H, { id: pre + "-h", tabIndex: -1 }, "Make your LooscidID"),
+    lh('p', null, "Your LooscidID is your account on Looscid. It's a secret key that I make right here on your device, with no email and no phone number. You need it to Dream, reply, like and follow."),
+    lh('p', null, "Pick a passcode to lock the key. You type it once each time you open Looscid."),
+    lh(LcPassFields, { id: pre, pass: pass, setPass: setPass, pass2: pass2, setPass2: setPass2, noPass: noPass, setNoPass: setNoPass }),
+    msg && lh('p', { className: "lid-err" }, msg),
+    lh('div', { className: "lid-actions" },
+      lh('button', { type: "button", id: pre + "-go", className: "btn bp", "aria-disabled": busy ? "true" : undefined, onClick: busy ? undefined : make }, busy ? "Making your LooscidID" : "Create my LooscidID"),
+      onCancel && lh('button', { type: "button", className: "btn bgb", onClick: onCancel }, "Not now")));
+}
+/* Opens LcMakeId on the LooscidID screen from anywhere (a "make a key to do this" prompt, the logged-out question). */
+function lcMakeIdNow(navigate) { Looscid.LC_LID_MAKE = true; if (navigate) navigate("settings_account"); else if (Looscid.LC_NAV) Looscid.LC_NAV("settings_account"); }
+Object.assign(Looscid, { LcMakeId, lcMakeIdNow });
 function NostrPanel({ onDone }) {
   const hasExt = typeof window !== "undefined" && !!window.nostr && typeof window.nostr.getPublicKey === "function";
   const [busy, setBusy] = useState(false);
@@ -4555,8 +4642,8 @@ const LC_SET = [
   // Nov 9 2026 (Carter approved item 8): Unspeakable characters and Heading character were the same thing (None = off). Its
   // home is Customization, Appearance, Heading character; Sense has a link there that says what it's set to. The saved setting
   // and how it works didn't change (hide only takes the switch off Sense's list).
-  { k: "unspeakable", s: "sr_general", hide: true, l: "Unspeakable characters", t: "bool", d: true, al: ["unspeakable characters", "unspeakable character", "unspeakable", "robot character", "robot icon", "robot"],
-    desc: "On by default. A character before and after the text of headings, buttons, tabs, links, menu buttons and menu items. It's the robot unless you pick another in Customization, Appearance, Heading character: VoiceOver reads the robot as \u201cunspeakable\u201d, braille shows a dot pattern, and on screen it's a small robot. Turn it off to remove it everywhere." },
+  { k: "unspeakable", s: "sr_general", hide: true, l: "Unspeakable characters", t: "bool", d: false, al: ["unspeakable characters", "unspeakable character", "unspeakable", "robot character", "robot icon", "robot"],
+    desc: "Off by default (it was on before November 9, 2026, and stays on for anyone who had it). A character before and after the text of headings, buttons, tabs, links, menu buttons and menu items. It's the robot unless you pick another in Customization, Appearance, Heading character: VoiceOver reads the robot as \u201cunspeakable\u201d, braille shows a dot pattern, and on screen it's a small robot. Turn it off to remove it everywhere." },
   // Speech
   { k: "pitchCues", s: "verbosity", l: "Pitch cues", t: "bool", d: true, old: true, al: ["pitch cues", "pitch cue", "pitch changes", "pitch"],
     desc: "On by default. A short tone at its own pitch when focus lands on a link, button, heading, text field or switch, when something opens or closes, on list position, and on success or error. Replies are read aloud a little lower. Never when you switch feeds, never while you type." },
@@ -4655,7 +4742,8 @@ const LC_SET = [
   { k: "whoMention", s: "perm", g: "Interactions", l: "Who can mention me", t: "choice", d: "everyone", al: ["who can mention me", "who can mention"], o: LC_AUD_O, aud: true, live: true },
   { k: "whoTag", s: "perm", g: "Interactions", l: "Who can tag me in photos", t: "choice", d: "following", al: ["who can tag me", "who can tag"], o: LC_AUD_O, aud: true },
   { k: "whoCircles", s: "perm", g: "Interactions", l: "Who can add me to Circles", t: "choice", d: "following", al: ["who can add me to circles", "add me to circles"], o: LC_AUD_O, aud: true },
-  { k: "whoLists", s: "perm", g: "Discoverability", l: "Who can see my followers and following", t: "choice", d: "everyone", al: ["who can see my followers", "followers list", "following list"], o: [["everyone", "Everyone", ["everyone"]], ["followers", "Followers", ["followers"]], ["me", "Only me", ["only me", "me", "just me"]]] },
+  // Nov 9 2026 (Carter, 6:56 PM): private by default. Counts stay public; loadA11y moves an unchosen Everyone to Only me once.
+  { k: "whoLists", s: "perm", g: "Discoverability", l: "Who can see my followers and following", t: "choice", d: "me", al: ["who can see my followers", "followers list", "following list"], o: [["everyone", "Everyone", ["everyone"]], ["followers", "Followers", ["followers"]], ["me", "Only me", ["only me", "me", "just me"]]] },
   { k: "inSearch", s: "perm", g: "Discoverability", l: "Show my Dreams in search", t: "bool", d: true, al: ["show my dreams in search", "dreams in search", "search visibility"] },
   { k: "findHandle", s: "perm", g: "Discoverability", l: "Find me by my LooscidID handle", t: "bool", d: true, id: "local", al: ["find me by my handle", "find me by handle", "find me by looscidid"] },
   { k: "findNostr", s: "perm", g: "Discoverability", l: "Find me by my Nostr npub", t: "bool", d: false, id: "nostr", al: ["find me by my npub", "find me by nostr", "find me by npub"] },
@@ -5318,6 +5406,22 @@ function loadA11y() {
     }
   } catch (e) {}
   if (!lcCalmChosen()) o.calmMode = lcCalmDevice();
+  /* Nov 9 2026, once per device (UI audit #10 + Carter's private-lists rule). Two defaults changed: Unspeakable characters
+     start off for new people, and "Who can see my followers and following" starts at Only me. Someone who already used
+     Looscid on this device keeps the robot the way it was (it was on unless they turned it off). For the lists, Followers
+     and Only me were real choices and stay; Everyone was the old default, and Looscid can't tell it apart from a choice,
+     so it moves to Only me once. Public is one switch away (Privacy & Security, Permissions). */
+  try {
+    if (!localStorage.getItem("looscid_def_1109_migrated")) {
+      localStorage.setItem("looscid_def_1109_migrated", "1");
+      const had = !!(localStorage.getItem(A11Y_KEY) || localStorage.getItem(LC_SETTINGS_KEY)), saved = rd(LC_SETTINGS_KEY);
+      if (had) {
+        if (saved.unspeakable !== false) o.unspeakable = true;
+        if (saved.whoLists !== "followers" && saved.whoLists !== "me") o.whoLists = "me";
+        saveA11y(o);
+      }
+    }
+  } catch (e) {}
   // Round 6, once per device: anyone still on the old default volume (40) moves to the new, louder default.
   try {
     if (!localStorage.getItem("looscid_r6_migrated")) {
@@ -6515,7 +6619,7 @@ function lcNameSeen(user, mine) {
 }
 function lcNameChanges(user, mine) { const e = lcNameHist()[lcNameKey(user, mine)]; return e ? { n: e.n || 0, since: e.since || null } : null; }
 function lcFollowingCount() { const seen = new Set(); (Looscid.LC_FOLLOWING_NOW || new Set()).forEach(function (id) { seen.add(lcFollowKey(id)); }); return seen.size; }
-function lcFollowToggle(user) { const c = Looscid.LC_CHERRY_CTX; if (c && c.followUser && user && user.id != null) c.followUser(user.id, user); }
+function lcFollowToggle(user) { const c = Looscid.LC_CHERRY_CTX; if (c && c.followUser && user && user.id != null) return c.followUser(user.id, user); }
 // Re-draws a component whenever anyone follows or unfollows anyone, so its label and counts are never stale.
 function useFollowTick() { const st = useState(0); useEffect(function () { const f = function () { st[1](function (n) { return n + 1; }); }; window.addEventListener("looscid:follow", f); return function () { window.removeEventListener("looscid:follow", f); }; }, []); return st[0]; }
 Object.assign(Looscid, { lcTheirFollowingCount, lcMyFollowerCount, lcNameSeen, lcNameChanges, lcFollowingHas, lcFollowingPeople, lcFollowAliases, lcFollowerCount, lcFollowingCount, lcFollowToggle, useFollowTick });
@@ -8804,14 +8908,14 @@ useEffect(() => {
     cherryOnboarded,
     setCherryOnboarded,
     // Actions Cherry agent can perform - all log their actions
-    likeDream:   id => { recordHabit("likeDream", (appDreams.find(x=>x.id===id)||{}).text?(appDreams.find(x=>x.id===id).text.split(" ").slice(0,3).join(" ")):null); const d=appDreams.find(x=>x.id===id); if(!d) return; const flip = function () { const cur = lcLikedHas("dream", id); lcLikedSet("dream", id, !cur, lcDreamSnap(d)); }; const was = lcLikedHas("dream", id); flip(); addLog("❤️",(was?"Unliked ":"Liked ")+d.user.name+"'s Dream", flip); lcCherryDid(was ? "Unliked" : "Liked", "Dream", "Dreams", d.user.name + "'s Dream", d.user.name + ": " + String(d.text || "").slice(0, 140)); },
+    likeDream:   id => { recordHabit("likeDream", (appDreams.find(x=>x.id===id)||{}).text?(appDreams.find(x=>x.id===id).text.split(" ").slice(0,3).join(" ")):null); const d=appDreams.find(x=>x.id===id); if(!d) return; if (!lcLikedHas("dream", id) && lcKeyGate("like")) return; const flip = function () { const cur = lcLikedHas("dream", id); lcLikedSet("dream", id, !cur, lcDreamSnap(d)); }; const was = lcLikedHas("dream", id); flip(); addLog("❤️",(was?"Unliked ":"Liked ")+d.user.name+"'s Dream", flip); lcCherryDid(was ? "Unliked" : "Liked", "Dream", "Dreams", d.user.name + "'s Dream", d.user.name + ": " + String(d.text || "").slice(0, 140)); },
     // Build 147: liking is saving, so Save is Like.
     saveDream:   id => { cherryCtx.likeDream(id); },
     postDream:   (text, extra) => { const id=lcNewId(); (Looscid.LC_LOCAL_PUB = Looscid.LC_LOCAL_PUB || new Set()).add(String(id)); /* Round 6 fixes: published here */ setAppDreams(ds => [Object.assign({id,user:ME,time:"just now",created:id,text,likes:0,comments:0,redreams:0,quotes:0,liked:false,redreamed:false,quoted:false,bookmarked:false}, extra || {}),...ds]); addLog("✏️","Dreamed: "+text.slice(0,40)+"…", ()=>setAppDreams(ds=>ds.filter(d=>d.id!==id))); lcCherryDid("Published", "Dream", "Dreams", "your Dream", String(text).slice(0, 140)); return id; },
     // Nov 9 2026 (Carter, 5:43 PM): one follow state everywhere. Both ways of saving a Nostr person (npub: and nostr:)
     // are the same follow, the follower count you saw when you pressed is remembered (lcFollowNoteTap), and every screen
     // hears "looscid:follow" so its Follow or Unfollow and its counts change right away.
-    followUser:  (id, who) => { const keys = lcFollowAliases(id), was = keys.some(function (k) { return appFollowing.has(k); }); const u = (who && typeof who === "object" ? who : null) || USERS.find(x=>x.id===id); lcFollowNoteTap(u || { id: id }, was); if (!was && u) lcFollowRememberPerson(u); const flip = function (on) { setAppFollowing(s => { const n=new Set(s); keys.forEach(function (k) { n.delete(k); }); if (on) n.add(id); return n; }); }; flip(!was); if(u && u.name) { addLog("👥",(was?"Unfollowed ":"Followed ")+u.name, ()=>flip(was)); lcCherryDid(was ? "Unfollowed" : "Followed", "Dreamor", "Dreamors", u.name, u.name + (u.handle ? " (" + u.handle + ")" : "")); } },
+    followUser:  (id, who) => { const keys = lcFollowAliases(id), was = keys.some(function (k) { return appFollowing.has(k); }); if (!was && lcKeyGate("follow")) return false; const u = (who && typeof who === "object" ? who : null) || USERS.find(x=>x.id===id); lcFollowNoteTap(u || { id: id }, was); if (!was && u) lcFollowRememberPerson(u); const flip = function (on) { setAppFollowing(s => { const n=new Set(s); keys.forEach(function (k) { n.delete(k); }); if (on) n.add(id); return n; }); }; flip(!was); if(u && u.name) { addLog("👥",(was?"Unfollowed ":"Followed ")+u.name, ()=>flip(was)); lcCherryDid(was ? "Unfollowed" : "Followed", "Dreamor", "Dreamors", u.name, u.name + (u.handle ? " (" + u.handle + ")" : "")); } },
     joinGroup:   id => { const was = !!(appGroups.find(x=>x.id===id)||{}).joined; setAppGroups(gs => gs.map(g => g.id===id ? {...g,joined:!g.joined} : g)); const g=GROUPS.find(x=>x.id===id); if(g) { addLog("🏘️",(was?"Left ":"Joined ")+g.name, ()=>setAppGroups(gs=>gs.map(x=>x.id===id?{...x,joined:was}:x))); lcCherryDid(was ? "Left" : "Joined", "Circle", "Circles", g.name, g.name); } },
     markNotifsRead: () => { const n = lcAlerts().filter(x=>x.unread).length; lcAlertsMarkAll(); addLog("🔔","Marked all notifications read"); lcCherryDid("Marked", "notification", "notifications", "all your notifications as read", fmt(n) + (n === 1 ? " notification" : " notifications") + " marked read", "Marked all notifications read"); },
     fillCompose: null, // set by CreateMenu when compose is open
@@ -9656,6 +9760,7 @@ useEffect(() => {
       , React.createElement('main', {id:"main-content", style:{display:"contents"}}, renderPage())
       , lh(LcResetHost, null)
       , lh(LcLogoutHost, null)
+      , lh(LcKeyGateHost, null)
       , loggedOutAsk && lh(LcLoggedOutAsk, { navigate: navigate, onDone: function () { setLoggedOutAsk(false); } })
       , lh(LcThreadNudge, null)
       , lh(LcFooterHost, { page: page, navigate: navigate }

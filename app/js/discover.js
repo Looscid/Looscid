@@ -153,7 +153,7 @@ function discoverView(st, p, draw) {
           // Round 7.16 (#216): no more dimmed "open their profile to follow" button. Follow always works here.
           cherryCtx && cherryCtx.followUser
             ? h('button', { type: "button", className: "btn " + (fol ? "bgb" : "bp"), style: { padding: "7px 14px", fontSize: 12, minHeight: 44, minWidth: 44 }, "aria-label": (fol ? "Unfollow " : "Follow ") + u.name,
-                onClick: function () { cherryCtx.followUser(u.id, u); Looscid.announce((fol ? "Unfollowed " : "Following ") + u.name + ".", "state", "follow:" + u.id); } }, fol ? "Unfollow" : "Follow")
+                onClick: function () { if (cherryCtx.followUser(u.id, u) === false) return; Looscid.announce((fol ? "Unfollowed " : "Following ") + u.name + ".", "state", "follow:" + u.id); } }, fol ? "Unfollow" : "Follow")
             : null);
       }),
 

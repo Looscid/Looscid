@@ -148,7 +148,7 @@ function page({ slug, title, desc, body, depth, crumbs, connect }) {
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <link rel="stylesheet" href="${up}help.css?v=hc7">
-<link rel="stylesheet" href="${up}../assets/site-footer.css?v=7.53-ml1">
+<link rel="stylesheet" href="${up}../assets/site-footer.css?v=7.53-ux1">
 </head>
 <body>
 <div id="looscid-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
@@ -353,7 +353,7 @@ const whyFiles = {};
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'none'"/>
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<link rel="stylesheet" href="/Looscid/assets/site-footer.css?v=7.53-ml1">
+<link rel="stylesheet" href="/Looscid/assets/site-footer.css?v=7.53-ux1">
 <style>
 *,*::before,*::after{box-sizing:border-box}
 :root{--bg:#07050f;--sf:#100d1e;--bd:rgba(255,255,255,.1);--tx:#ede9fe;--tx2:#c9bde3;--ac:#6d28d9;--ac3:#d8b4fe}
