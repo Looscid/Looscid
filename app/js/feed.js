@@ -77,7 +77,9 @@ function FeedPage({navigate, prefs, cherryCtx}) {
   }, [pubKey]);
   // Nov 7 2026: Federated, Looscid now also reads public Dreams from the Looscid server (GET /feed, js/net.js).
   const [srv, setSrv] = useState({ list: [], state: "idle" });
-  const wantSrv = tab === "federated" && nets.indexOf("looscid") >= 0 && !!Looscid.lcNet;
+  /* Nov 9 2026 (UI audit, top 10 #2): For You, the first tab, reads Rem too. Before, only Federated asked Rem, so every new
+     person saw "No Dreams yet" on Home even though Rem had Dreams from everyone. */
+  const wantSrv = (tab === "for you" || (tab === "federated" && nets.indexOf("looscid") >= 0)) && !!Looscid.lcNet;
   const srvSort = lcFeedOrder() === "new" ? "new" : ""; // Newest asks Rem for pure time too (GET /feed?sort=new)
   useEffect(function () {
     if (!wantSrv) return; let live = true;
@@ -126,7 +128,10 @@ function FeedPage({navigate, prefs, cherryCtx}) {
       , lh(FeedOrder, null)
       , lh('div', { className: "lc-feed-bar" }, lh(FeedTabs, null))
       , lh('div', { className: "lc-feed-ctl" }, lh(FeedControls, { tab: tab, cherryCtx: cherryCtx, dreams: rawDreams, pubState: pubKey && pub.key === pubKey ? pub.state : "idle" }))
-      , visible.length===0 && lh('div', { className: "es" },
+      /* Nov 9 2026: while Rem's Dreams are on the way, say so instead of "No Dreams yet". */
+      , visible.length===0 && wantSrv && (srv.state === "loading" || srv.state === "idle") && Looscid.LcLoadingLine ? lh('div', { className: "es" }, lh(Looscid.LcLoadingLine, { sr: "Getting Dreams from Rem", id: "rem-loading" }))
+      : visible.length===0 && lh('div', { className: "es" },
+          wantSrv && srv.state === "error" ? lh('p', { className: "esl" }, "Couldn't reach Rem, so I can't show everyone's Dreams right now. Check your connection and try again in a minute.") : null,
           lh('p', { className: "esl" }, tab==="following" && showFriends ? "No Dreams from friends yet. Quiet in here." : "No Dreams yet. Kinda peaceful, honestly."), // Round 7.41: playful, still says what to do
           lh('p', { style: {fontSize:14,color:"var(--tx2)",marginTop:6,lineHeight:1.6,maxWidth:260,textAlign:"center"} },
             (tab==="following" && showFriends) ? "Friends are Dreamors who follow each other. Follow someone back and they show up here." : tab==="following" ? "Follow some people and this feed wakes up." : tab==="federated" && !nets.length ? "Pick at least one network in Settings, Customization, Feeds." : /^pin:/.test(tab) ? "Dreams for this tab land here once there are some." : "When someone Dreams, it lands here. Or you could go first."),
@@ -369,6 +374,9 @@ function lcFeedVisible(tab, raw, o) {
   } else {
     const fy = Looscid.lcFyFollow();
     const off = LC_FY_SOURCES.map(function (s) { return s[0]; }).filter(function (k) { return !fy.on || !fy[k]; });
+    // Nov 9 2026: For You = your Dreams here plus Rem's public feed (everyone's Dreams). A Dream on both shows once.
+    const haveF = new Set(raw.map(function (d) { return d.nid; }).filter(Boolean));
+    raw = raw.concat((o.srv || []).filter(function (d) { if (!d.nid || haveF.has(d.nid)) return false; haveF.add(d.nid); return true; }));
     list = lcSortDreams(raw.filter(function (d) { return !off.some(function (k) { return src[k](d); }); }), Looscid.lcFeedSort("for you"));
     // Nov 8 2026: your topics. Dreams about them come first (in the same order as before); with Only my topics, only those.
     const tp = lcFyTopics();

@@ -13,6 +13,8 @@ From the UI audit on November 9. Carter: bug and security fixes ship right away,
 - The Status page's Notify me button is gone. It said "Subscribed" but never sent anything. The page now points to Contact Us and the Looscid Discord instead. It also doesn't say chats are end-to-end encrypted any more.
 - Looscid's fonts (DM Sans and DM Serif Display) come from Looscid itself now, not Google Fonts. No page loads anything from Google any more. Both fonts are under the SIL Open Font License, which allows this. Vibework uses your device's fonts instead.
 - The logo link at the top of every Help Center page is named just "Looscid Help Center", the words you see. Voice Control and braille get the same name as the screen.
+- For You, the first tab on Home, shows everyone's public Dreams from Rem now. Before, only Federated asked Rem, so new people saw "No Dreams yet" even when Rem had Dreams. While Rem's Dreams load it says so, and if Rem can't be reached it says that too.
+- Discover search finds Dreams on Rem now, not just the ones on your device. Rem has no search of its own yet, so Looscid searches Rem's newest public Dreams (the last 30 days).
 
 ## Follows live on Rem now (no new build yet)
 

@@ -20,6 +20,19 @@ function lcTabCount(st) {
   const n = st.count || 0;
   Looscid.announce(tabLabel(st.tab) + ", " + fmt(n) + (n === 1 ? " result" : " results"));
 }
+/* Nov 9 2026: Rem's public Dreams for search, read once a minute at most (GET /feed?sort=new&limit=100, read only).
+   When they arrive during a search, the results redraw quietly (the count was already said for what you typed). */
+const LC_REM_SEARCH = { list: [], at: 0, busy: false };
+function lcRemForSearch(draw, st) {
+  const R = LC_REM_SEARCH;
+  if (!R.busy && Date.now() - R.at > 60000 && Looscid.lcNet && Looscid.lcNet.feed && Looscid.lcNetDream) {
+    R.busy = true;
+    Looscid.lcNet.feed({ limit: 100, sort: "new" }).then(function (l) { R.list = (l || []).map(Looscid.lcNetDream); R.at = Date.now(); },
+      function () { R.at = Date.now() - 45000; }) // try again in about 15 seconds
+      .then(function () { R.busy = false; if (st && String(st.q || "").trim()) draw(); });
+  }
+  return R.list;
+}
 /* st: { q, tab, filters, filtersOpen }; p: the frame's props (navigate, cherryCtx). */
 function discoverView(st, p, draw) {
   const navigate = p.navigate, cherryCtx = p.cherryCtx, q = st.q, tab = st.tab, filters = st.filters, filtersOpen = st.filtersOpen;
@@ -37,7 +50,11 @@ function discoverView(st, p, draw) {
   const activeLabels = filters.map(function (id) { return (FILTER_OPTS.find(function (f) { return f.id === id; }) || {}).label; }).filter(Boolean);
   const filterBtnText = filters.length === 0 ? "Filters" : "Filters \u00b7 " + activeLabels.join(", ");
   const ql = q.toLowerCase();
-  const dreamResults = DREAMS_INIT.filter(function (d) { return !q || d.text.toLowerCase().includes(ql); });
+  // Nov 9 2026 (UI audit, top 10 #3): search reads Rem too, so it finds everyone's public Dreams, not just this device's.
+  // Rem has no search yet, so this searches Rem's newest public Dreams (GET /feed, up to 100, last 30 days) right here.
+  const localD = Looscid.LC_APP_DREAMS || DREAMS_INIT, haveN = new Set(localD.map(function (d) { return d.nid; }).filter(Boolean));
+  const remD = lcRemForSearch(draw, st).filter(function (d) { return d.nid && !haveN.has(d.nid); });
+  const dreamResults = localD.concat(remD).filter(function (d) { return !q || String(d.text || "").toLowerCase().includes(ql); });
   const dreamerResults = USERS.filter(function (u) { return !q || u.name.toLowerCase().includes(ql) || u.handle.includes(q); })
     .filter(function (u) { return !filters.includes("verified") || u.verified; });
   const circleResults = GROUPS.filter(function (g) { return !q || g.name.toLowerCase().includes(ql); });
