@@ -22,6 +22,7 @@ From the UI audit on November 9. Carter: bug and security fixes ship right away,
 - The robot character (Unspeakable characters) starts off for new people, so VoiceOver, braille and Voice Control don't get "unspeakable" in every name. If you already had it, it stays on until you turn it off.
 - Voice Control names match what's on screen: the profile's More button is named More (the menu it opens is Dreamor Options), the composer's symbol button says Symbol, and Add another Dream says Add to thread, so it doesn't sound like the real Dream button.
 - Who can see my followers and following starts at Only me now. Counts are still public, and Everyone is one switch away. If you follow each other, you always see Follows you or Mutuals, even when lists are private.
+- Credits links say what they are in their own words, like "React license (MIT)", so Voice Control and braille match the screen. Credits also lists the DM fonts now, and no longer says React loads from a CDN (it never does). Profile links and the profile fields are named by their visible words too.
 
 ## Follows live on Rem now (no new build yet)
 

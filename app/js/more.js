@@ -1223,9 +1223,9 @@ function LcLinksSheet({ who, links, profLink, handle, onShare, onClose, own }) {
       links.length ? lh('ul', { className: "mlist lc-i27-list lc-links-list", role: "list", "aria-label": "Links (" + links.length + ")" }, links.map(function (l, i) {
         const host = lcLinkHost(l.url), tile = LC_LINK_TILE[host] || "#636366";
         return lh('li', { key: l.url, className: "mli lc-i27-li" + (i === 0 ? " lc-g-first" : "") + (i === links.length - 1 ? " lc-g-last" : "") },
-          lh('a', { className: "lc-i27-row lc-link-row", href: l.url, target: "_blank", rel: "noopener noreferrer me", "aria-label": Looscid.lcNameJoin(l.name, lcLinkShow(l.url)) },
+          lh('a', { className: "lc-i27-row lc-link-row", href: l.url, target: "_blank", rel: "noopener noreferrer me", },
             lh('span', { className: "lc-i27-ic lc-link-tile", style: { background: tile }, "aria-hidden": "true" }, (host.charAt(0) || "?").toUpperCase()),
-            lh('span', { className: "lc-i27-txt" }, lh('span', { className: "lc-i27-lbl" }, l.name), lh('span', { className: "lc-i27-sub lc-link-url" }, lcLinkShow(l.url))),
+            lh('span', { className: "lc-i27-txt" }, lh('span', { className: "lc-i27-lbl" }, l.name), " ", lh('span', { className: "lc-i27-sub lc-link-url" }, lcLinkShow(l.url))), // Nov 9 2026: its name is these words (no aria-label on links)
             lh(Looscid.LcI27Glyph, { g: "out", size: 14, cls: "lc-i27-chev" })));
       })) : lh('p', { className: "lc-i27-foot" }, own ? "You haven't added any links yet." : who + " hasn't added any links yet."),
       // Nov 1 2026 (Carter): on your own profile, Edit links (Edit profile, at Social links) and Link settings.
@@ -2545,7 +2545,7 @@ function ProfileInfoList({ profile, onOpen, saved, onView }) {
     lh('ul', { className: "lid-list", 'aria-label': "Your info" },
       PROFILE_FIELDS.map(function (f) {
         return lh('li', { key: f.key },
-          lh('a', { href: "#change-" + f.key, id: "pf-link-" + f.key, className: "lid-field", 'aria-label': Looscid.lcNameJoin(f.label, fieldValueText(f, profile)),
+          lh('a', { href: "#change-" + f.key, id: "pf-link-" + f.key, className: "lid-field", // Nov 9 2026: named by its visible label and value (no aria-label on links)
               onClick: function (e) { e.preventDefault(); onOpen(f.key); } },
             lh('span', { className: "lid-field-l" }, f.label), " ",
             lh('span', { className: "lid-field-v" }, fieldValueText(f, profile)),
@@ -4136,7 +4136,8 @@ const LC_CREDITS = {
   uses: [
     // Nov 8 2026: the first code Looscid took from another app, once Looscid itself was AGPL-3.0.
     { n: "Communities, by Daniel Bingham", s: "Communities", u: "https://github.com/danielbingham/communities", l: "AGPL-3.0", lu: "https://github.com/danielbingham/communities/blob/staging/LICENSE", w: "Moderation reasons are adapted from its code: a mod who removes a Dream has to say why, and the Dreamor sees it. Its copyright and license notice are at the top of js/modreasons.js." },
-    { n: "React and React DOM 18.2.0", s: "React", u: "https://github.com/react/react", l: "MIT", lu: "https://github.com/react/react/blob/main/LICENSE", w: "This draws every single screen of Looscid. Loaded from jsDelivr." },
+    { n: "React and React DOM 18.2.0", s: "React", u: "https://github.com/react/react", l: "MIT", lu: "https://github.com/react/react/blob/main/LICENSE", w: "This draws every single screen of Looscid. It's served from Looscid itself (js/vendor), never from a CDN." },
+    { n: "DM Sans and DM Serif Display", s: "DM fonts", u: "https://github.com/googlefonts/dm-fonts", l: "OFL-1.1", lu: "https://github.com/Looscid/Looscid/blob/main/app/assets/fonts/dm/OFL-DM-Sans.txt", w: "Looscid's two fonts. Since November 9, 2026 they're served from Looscid itself (assets/fonts/dm), not Google Fonts, with their license right next to them." },
     { n: "nostr-tools 2.25.2", s: "nostr-tools", u: "https://github.com/nbd-wtf/nostr-tools", l: "Unlicense", lu: "https://github.com/nbd-wtf/nostr-tools/blob/master/LICENSE", w: "Nostr keys, signing and checking notes, npub and nsec, and passcode-locked keys. It lives in js/vendor with its license right next to it." },
     { n: "noble curves, hashes and ciphers, and scure base, by Paul Miller", s: "noble curves", u: "https://github.com/paulmillr/noble-curves", l: "MIT", lu: "https://github.com/paulmillr/noble-curves/blob/main/LICENSE", w: "The audited cryptography inside nostr-tools. The math that keeps your keys safe." },
     { n: "v86", s: "v86", u: "https://github.com/copy/v86", l: "BSD 2-Clause", lu: "https://github.com/copy/v86/blob/master/LICENSE", w: "This is what runs the real Looscid OS kernel in Apps, right in your browser. Still blows my mind." },
@@ -4189,13 +4190,14 @@ function CreditsPage({ navigate }) {
   // credits roll grouped by role, like a film's end credits, but it never moves on its own (no auto-scroll at all).
   // Plain h2 headings per role and plain lists; every credit, license link and home link from part 11 is kept.
   // No raw URLs: the home link reads "<project> on GitHub"; the license link names whose license it is.
-  const ext = function (href, text, label, key) { return lh('a', { key: key, href: href, target: "_blank", rel: "noopener noreferrer", className: "lc-link", "aria-label": label || undefined }, text); };
+  // Nov 9 2026 (UI audit, top 10 #9): no aria-label on links. Each link's name is its visible words (label is ignored).
+  const ext = function (href, text, label, key) { return lh('a', { key: key, href: href, target: "_blank", rel: "noopener noreferrer", className: "lc-link" }, text); };
   const entry = function (c) { const s = c.s || c.n;
     return lh('li', { key: c.n, className: "lc-roll-item" },
       lh('p', { className: "lc-roll-name" }, c.n),
       lh('p', { className: "lc-roll-what" }, c.lead ? c.lead + " " : null, c.w),
       lh('p', { className: "lc-roll-links" }, ext(c.u, s + " on " + (c.site || "GitHub"), null, "u"),
-        c.l ? [lh('span', { key: "sep", "aria-hidden": "true" }, " \u00b7 "), lh('span', { key: "lic" }, " License: ", c.lu ? ext(c.lu, c.l, c.l + ", " + s + " license", "l") : c.l)] : null)); };
+        c.l ? [lh('span', { key: "sep", "aria-hidden": "true" }, " \u00b7 "), lh('span', { key: "lic" }, " ", c.lu ? ext(c.lu, s + " license (" + c.l + ")", null, "l") : "License: " + c.l)] : null)); };
   const plain = function (key, name, what) { return lh('li', { key: key, className: "lc-roll-item" }, lh('p', { className: "lc-roll-name" }, name), what ? lh('p', { className: "lc-roll-what" }, what) : null); };
   const ul = function (kids) { return lh('ul', { className: "lc-roll-list" }, kids); };
   const sec = function (id, title, kids) { return lh('section', { "aria-labelledby": id, className: "lc-roll-sec" }, lh('h2', { id: id, className: "lc-roll-role" }, title), kids); };
