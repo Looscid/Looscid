@@ -73,6 +73,20 @@ manifests are versioned JSON with `schema`, `id`, `name`, `summary`, `descriptio
 - [ ] an iOS companion app in Swift, tested with VoiceOver and the BrailleNote Touch Plus. (added Sep 29, 2026)
 - [x] looscid's own issue tracker: report bugs or ideas right in looscid, agree or disagree, mods reply. no outside companies. (added Nov 8, 2026)
 
+## thinking about it
+
+these are ideas I'm thinking about. nothing here is being built yet. ideas move up when real people keep asking for em.
+
+- [ ] one LooscidID on every device (phone, computer, BrailleNote). u can already bring ur own key, so this is about making that one identity just work everywhere, with ur key staying on ur device. (added Nov 11, 2026)
+- [ ] a free verified badge, checked by real people, no paying. kinds: verified person, verified blind creator, and Verified Agent for Looscid For Agents. it can be taken away for pretending to be someone else or breaking the rules. (added Nov 11, 2026)
+- [ ] ur custom profile tab order shows to people who visit ur profile. ur app bar order stays just urs. (added Nov 11, 2026)
+- [ ] a character limit picker: a small popup with presets as checkboxes, like "280, like a tweet", plus a custom number. (added Nov 11, 2026)
+- [ ] "want to turn it on?" prompts: if a Cherry feature is off, one tap turns the real setting on everywhere. (added Nov 11, 2026)
+- [ ] settings sync brings ur LooscidID with it. naming idea: "Account" for ur account and "LooscidID" for ur identity. (added Nov 11, 2026)
+- [ ] a Looscid model of our own. local first when ur browser or device can run it, and a server version only for devices that can't. (added Nov 11, 2026)
+- [ ] Cherry Connectors: ask Cherry in chat to connect something, and she gives u a one-tap link. (added Nov 12, 2026)
+- [ ] rename "What Cherry did" to "Actions". (added Nov 12, 2026)
+
 ## the backlog (ideas I'm saving for later)
 
 these came out of the Dreamor Council on Nov 8, 2026. I'm not building any of it yet, I'm just writing it down so it doesn't get lost. if u wanna help with one, tell me.
