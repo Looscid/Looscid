@@ -39,6 +39,7 @@
 <h1>the looscid roadmap</h1>
 <p class="lead">what I'm building, how it's built and what's coming, for devs.</p>
 <div class="doc">
+<p>every idea shows the day I added it. when something ships or gets cut, it also goes in the landed and cut log at the bottom. no target dates, no promises.</p>
 <h2 id="what-looscid-even-is">what looscid even is</h2>
 <p>I'm building a private, local-first, whole-os kinda experience for Dreamors. accessible from day one, works with open protocols, and ur identity n ur data are urs, period. looscid should still be useful with no LooscidID, no wifi, no build service and nothing locked down. and I don't de-bloat, damn it: as I add stuff, I keep the real features, the accessibility, looscid's words and the local-first stuff solid.</p>
 <h2 id="how-it-s-built">how it's built</h2>
@@ -131,6 +132,23 @@
 <ul><li>Circles are <code>Circles</code> everywhere; <code>Groups</code> isn't a synonym. restaurant apps are out of the catalog completely: they're transactions, not places u come back to.</li><li>skip an app if it's a transaction u finish and never come back to (rideshare, grocery, food delivery); keep anything with a feed, inbox or community.</li><li>every catalog entry gets a real record: category, price type, display/plate text and where it goes. Paid and Refine filters read those records, no one-off code per app. I keep a short rejected list with reasons, so nobody fights about every app all over again.</li><li>don't say <code>Get 100 subscriptions</code>, it sounds like looscid's signing u up. say what's inside, like <code>free to install, 3 subscriptions inside</code>.</li></ul>
 <h3 id="accessibility-rules">accessibility rules</h3>
 <ul><li>shorten what u see, never what gets announced. keep the existing <code>aria-*</code>, <code>role</code>, <code>tabindex</code> and handlers.</li><li>no decorative emoji outside DreamLabs. turn emoji that stand alone into short plain text.</li></ul>
+<h2 id="landed-and-cut">landed and cut</h2>
+<p>this is the log. when something ships, it goes under landed. when I drop something, it goes under cut, with why. newest month first. every build's full notes are in the changelog.</p>
+<h3 id="november-2026">November 2026</h3>
+<h4 id="landed">landed</h4>
+<ul><li>Not interested on every Dream that isn't urs, private, w Undo (Nov 9, 2026)</li><li>the same full controls on every Dream, replies too (Nov 9, 2026)</li><li>looscid's own issue tracker (Nov 8, 2026)</li><li>the component library for devs (Nov 8, 2026)</li><li>one footer for the whole app, Help Center included (Nov 8, 2026)</li><li>the &quot;Why Looscid?&quot; page (Nov 8, 2026)</li><li>the Liked tab as ur like manager (Nov 8, 2026)</li><li>private or public bug report votes, ur choice (Nov 8, 2026)</li><li>likes, ReDreams, pinned Dreams, mutes and followed threads sync to every device (Nov 8, 2026)</li><li>the Report Center at /Report, w My reports, report Alerts and a Child safety reason (Nov 8, 2026)</li><li>Discord channels for 13 languages, optional faith channels and LooscidBOT holiday messages (Nov 8, 2026)</li><li>one-line descriptions under each item in the profile's More menu (Nov 7, 2026)</li><li>mods give a reason when they take down a Dream (Nov 7, 2026)</li><li>blocklists (Nov 7, 2026)</li><li>public removals and the public Modlog (Nov 7, 2026)</li><li>deleting ur own Dream, w a &quot;Dream deleted&quot; line only when it has replies (Nov 7, 2026)</li></ul>
+<h4 id="cut">cut</h4>
+<ul><li>Dislike, on Dreams, Cherry replies and bug reports (cut Nov 9, 2026, a day after it landed). Not interested took its place: it's private and it actually changes ur feed.</li><li>Local mode (cut Nov 9, 2026). Dreams always go on Rem now, ur drafts stay on ur device, and ur device keeps its own copy as a backup.</li></ul>
+<h3 id="october-2026">October 2026</h3>
+<h4 id="landed-2">landed</h4>
+<ul><li>Sense, the new name for the screen reader settings (date unsure). the roadmap first said it was out on Oct 20, 2026.</li></ul>
+<h4 id="cut-2">cut</h4>
+<ul><li>nothing I know of.</li></ul>
+<h3 id="september-2026-and-before">September 2026 and before</h3>
+<h4 id="landed-3">landed</h4>
+<ul><li>DiscoverPage moved into its own file, discover.js (Sep 28, 2026)</li><li>the big decorative emoji cleanup in on-screen text (Sep 25, 2026)</li><li>the semantic HTML/CSS shell, onboarding, and ur settings saved on ur device (date unsure). it was already done when this roadmap started on Sep 29, 2026.</li><li>Feed and Discover, w tabs that work w a screen reader (date unsure)</li><li>the composer, w photo attachments and Alt text fields (date unsure)</li><li>focus management, live announcements, and getting around w a keyboard, VoiceOver or braille (date unsure)</li></ul>
+<h4 id="cut-3">cut</h4>
+<ul><li>Launchpad, an app launcher as the first tab (date unsure). it would copy Discover's catalog and need install state and a name for every tile. the first tab is Feed instead.</li><li>restaurant apps in the Discover catalog (date unsure). they're things u finish and never come back to, not places u hang out.</li></ul>
 </div>
 <p class="next"><a href="../../#h-building" title="Goes back to Help Center">More in Building Looscid</a> <span aria-hidden="true">·</span> <a href="https://github.com/Looscid/Looscid/issues" title="Go to GitHub" target="_blank" rel="noopener noreferrer">Issues</a></p>
 </main>

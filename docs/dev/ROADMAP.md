@@ -1,5 +1,7 @@
 # the looscid roadmap
 
+every idea shows the day I added it. when something ships or gets cut, it also goes in the landed and cut log at the bottom. no target dates, no promises.
+
 ## what looscid even is
 
 I'm building a private, local-first, whole-os kinda experience for Dreamors. accessible from day one, works with open protocols, and ur identity n ur data are urs, period. looscid should still be useful with no LooscidID, no wifi, no build service and nothing locked down. and I don't de-bloat, damn it: as I add stuff, I keep the real features, the accessibility, looscid's words and the local-first stuff solid.
@@ -351,3 +353,59 @@ these calls steer the next nav, Feed, Discover and catalog changes. checkboxes s
 
 - shorten what u see, never what gets announced. keep the existing `aria-*`, `role`, `tabindex` and handlers.
 - no decorative emoji outside DreamLabs. turn emoji that stand alone into short plain text.
+
+## landed and cut
+
+this is the log. when something ships, it goes under landed. when I drop something, it goes under cut, with why. newest month first. every build's full notes are in the changelog.
+
+### November 2026
+
+#### landed
+
+- Not interested on every Dream that isn't urs, private, w Undo (Nov 9, 2026)
+- the same full controls on every Dream, replies too (Nov 9, 2026)
+- looscid's own issue tracker (Nov 8, 2026)
+- the component library for devs (Nov 8, 2026)
+- one footer for the whole app, Help Center included (Nov 8, 2026)
+- the "Why Looscid?" page (Nov 8, 2026)
+- the Liked tab as ur like manager (Nov 8, 2026)
+- private or public bug report votes, ur choice (Nov 8, 2026)
+- likes, ReDreams, pinned Dreams, mutes and followed threads sync to every device (Nov 8, 2026)
+- the Report Center at /Report, w My reports, report Alerts and a Child safety reason (Nov 8, 2026)
+- Discord channels for 13 languages, optional faith channels and LooscidBOT holiday messages (Nov 8, 2026)
+- one-line descriptions under each item in the profile's More menu (Nov 7, 2026)
+- mods give a reason when they take down a Dream (Nov 7, 2026)
+- blocklists (Nov 7, 2026)
+- public removals and the public Modlog (Nov 7, 2026)
+- deleting ur own Dream, w a "Dream deleted" line only when it has replies (Nov 7, 2026)
+
+#### cut
+
+- Dislike, on Dreams, Cherry replies and bug reports (cut Nov 9, 2026, a day after it landed). Not interested took its place: it's private and it actually changes ur feed.
+- Local mode (cut Nov 9, 2026). Dreams always go on Rem now, ur drafts stay on ur device, and ur device keeps its own copy as a backup.
+
+### October 2026
+
+#### landed
+
+- Sense, the new name for the screen reader settings (date unsure). the roadmap first said it was out on Oct 20, 2026.
+
+#### cut
+
+- nothing I know of.
+
+### September 2026 and before
+
+#### landed
+
+- DiscoverPage moved into its own file, discover.js (Sep 28, 2026)
+- the big decorative emoji cleanup in on-screen text (Sep 25, 2026)
+- the semantic HTML/CSS shell, onboarding, and ur settings saved on ur device (date unsure). it was already done when this roadmap started on Sep 29, 2026.
+- Feed and Discover, w tabs that work w a screen reader (date unsure)
+- the composer, w photo attachments and Alt text fields (date unsure)
+- focus management, live announcements, and getting around w a keyboard, VoiceOver or braille (date unsure)
+
+#### cut
+
+- Launchpad, an app launcher as the first tab (date unsure). it would copy Discover's catalog and need install state and a name for every tile. the first tab is Feed instead.
+- restaurant apps in the Discover catalog (date unsure). they're things u finish and never come back to, not places u hang out.
