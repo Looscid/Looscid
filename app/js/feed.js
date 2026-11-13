@@ -432,7 +432,7 @@ function FeedControls({ tab, cherryCtx, dreams, pubState }) {
       onSelect: function (id) { if (fed) Looscid.lcSetFedSub(id, true); else Looscid.lcSetFeedSort(feed, id); } }));
   };
   // Nov 8 2026: For You offers the topic picker (it lives in Settings, Customizability, Feeds). A real link to that screen.
-  if (tab === "for you") return lh('div', { className: "lc-feed-ctl" }, sortPick("for you"), lh(FyTopicsLine, null));
+  if (tab === "for you") return lh('div', { className: "lc-feed-ctl" }, lh(FyTopicsLine, null), sortPick("for you"));
   if (tab === "following") return lh('div', { className: "lc-feed-ctl" }, sortPick("following"));
   if (tab === "federated") return lh(FederatedControls, { pubState: pubState, sortPick: sortPick });
   const f = LC_FEEDS.find(function (x) { return x.id === tab; });
