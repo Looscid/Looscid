@@ -79,6 +79,8 @@ these are ideas I'm thinking about. nothing here is being built yet. ideas move 
 
 - [ ] one LooscidID on every device (phone, computer, BrailleNote). u can already bring ur own key, so this is about making that one identity just work everywhere, with ur key staying on ur device. (added Nov 11, 2026)
 - [ ] a free verified badge, checked by real people, no paying. kinds: verified person, verified blind creator, and Verified Agent for Looscid For Agents. it can be taken away for pretending to be someone else or breaking the rules. (added Nov 11, 2026)
+- [ ] make ur own soundpacks by mixing existing packs or adding custom sounds.
+- [ ] fix the main pack: activating and closing too loud, typing sounds missing, replace it with the exact NexOS pack.
 - [ ] ur custom profile tab order shows to people who visit ur profile. ur app bar order stays just urs. (added Nov 11, 2026)
 - [ ] a character limit picker: a small popup with presets as checkboxes, like "280, like a tweet", plus a custom number. (added Nov 11, 2026)
 - [ ] "want to turn it on?" prompts: if a Cherry feature is off, one tap turns the real setting on everywhere. (added Nov 11, 2026)
