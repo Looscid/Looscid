@@ -80,6 +80,7 @@
       var pos = input.selectionStart || 0, before = input.value.slice(0, pos), match = before.match(/(?:^|\s)([/@])([^\s]*)$/);
       if (match) {
         var triggerPos = pos - match[2].length - 1, source = match[1] === "/" ? "commands" : "people";
+        if (!(sources[source] || state.items).length) { close(true); return; }
         state.source = source; state.start = triggerPos; state.end = pos; render(match[2]);
       } else if (state.open) close(true);
     });
