@@ -518,6 +518,7 @@ async function processQueue() {
         it = { ev: ev, dreamRef: it.draft.dreamRef, todo: relays(), tries: 0 };
       }
       if (!it.ev) continue;
+      if (it.ev.kind === 1) { const a = (it.ev.tags || []).filter(function (t) { return Array.isArray(t) && t[0] === "audience"; }); if (a.length !== 1 || a[0].length !== 2 || a[0][1] !== "public") { console.warn("Not relaying Dream without an explicit public audience"); continue; } }
       const r = await sendToRelays(it.ev, it.todo && it.todo.length ? it.todo : relays());
       if (r.failed.length) { it.todo = r.failed; it.tries = (it.tries || 0) + 1; it.next = Date.now() + RETRY_MS[Math.min(it.tries - 1, RETRY_MS.length - 1)]; out.push(it); }
     }
@@ -536,7 +537,7 @@ function sayLater(msg) {
 /* Publish one Dream you just made with Audience Everyone. Returns a summary; announces once. */
 // Nov 7 2026: is the Nostr bridge on? (Settings, LooscidID, Connectionbase, "Also share my Dreams to Nostr"; js/net.js)
 function nostrOn() { const L = Looscid.lcNet; return L && L.bridgeOn ? L.bridgeOn("nostr") : true; }
-function publicDream(d) { return !!d && !d.draft && (!d.aud || d.aud === "everyone" || d.aud === "public"); }
+function publicDream(d) { return !!d && !d.draft && (!d.aud || d.aud === "everyone" || d.aud === "public") && (!d.audience || d.audience === "everyone" || d.audience === "public") && (!Array.isArray(d.tags) || d.tags.every(function (t) { return !Array.isArray(t) || t[0] !== "audience" || (t.length === 2 && t[1] === "public"); })); }
 function netIngest(ev) { const L = Looscid.lcNet; return L && L.ingest ? L.ingest(ev).catch(function () { return { ok: false }; }) : Promise.resolve({ ok: false, none: true }); }
 async function publishDream(d, opts) {
   const st = state();
