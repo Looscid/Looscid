@@ -60,12 +60,13 @@ async function call(method, path, body) {
 }
 // Sends one signed event to /ingest. Network trouble keeps it in a queue that's tried again later.
 async function ingest(ev, noQueue) {
-  if (!ev || !isHex64(ev.id)) return { ok: false };
+  if (!ev || !isHex64(ev.id)) return { ok: false, error: "invalid event id" };
   try {
     const r = await call("POST", "/ingest", ev);
+    if (!r.ok) { r.error = (r.body && r.body.error) || ("HTTP " + r.status); console.error("Rem publish failed:", r.error, r.status); }
     if (r.ok || (r.status >= 400 && r.status < 500 && r.status !== 429)) return r; // a 4xx is final (bad event), not retried
     if (!noQueue) enqueue(ev); return r;
-  } catch (e) { if (!noQueue) enqueue(ev); return { ok: false, offline: true }; }
+  } catch (e) { const error = (e && e.message) || String(e); console.error("Rem publish failed:", error); if (!noQueue) enqueue(ev); return { ok: false, offline: true, error: error }; }
 }
 function enqueue(ev) { const q = lsJson(QUEUE_KEY, []); if (!q.some(function (x) { return x.id === ev.id; })) { q.push(ev); lsSave(QUEUE_KEY, q.slice(-200)); } retrySoon(); }
 // Nov 9 2026 (Carter: "Your reply does not appear"): a reply or Dream that hit a busy Rem (the 30 per 10 minutes limit, or a
@@ -112,6 +113,7 @@ async function feed(opts) {
   if (!r.ok) throw new Error("feed");
   return r.body.dreams || [];
 }
+async function userProfile(pk) { const r = await call("GET", "/profile/" + encodeURIComponent(pk)); if (!r.ok) throw new Error((r.body && r.body.error) || ("profile HTTP " + r.status)); return r.body.event || null; }
 async function userDreams(pk) { const r = await call("GET", "/dreams/" + encodeURIComponent(pk)); if (!r.ok) throw new Error("dreams"); return r.body.dreams || []; }
 
 /* --- Report, block --- */
@@ -381,6 +383,6 @@ async function threadReplies(id) {
 function forgetReplies() { exportCache = null; }
 
 Looscid.lcNet = { API: API, threadReplies: threadReplies, forgetReplies: forgetReplies, queued: queued, preview: preview, PROTOCOL_TAG: PROTOCOL_TAG, BRIDGES: BRIDGES, bridges: bridges, bridgeOn: bridgeOn, setBridge: setBridge, markCrossposted: markCrossposted, wasCrossposted: wasCrossposted,
-  ingest: ingest, flush: flush, feed: feed, userDreams: userDreams, listWrite: listWrite, listsMine: listsMine, followWrite: followWrite, followsMine: followsMine, followInfo: followInfo, REPORT_REASONS: REPORT_REASONS, report: report, block: block, unblockHandle: unblockHandle, blockedPk: blockedPk, moderate: moderate, modlog: modlog, moderationFor: moderationFor, moderators: moderators,
+  ingest: ingest, flush: flush, feed: feed, userProfile: userProfile, userDreams: userDreams, listWrite: listWrite, listsMine: listsMine, followWrite: followWrite, followsMine: followsMine, followInfo: followInfo, REPORT_REASONS: REPORT_REASONS, report: report, block: block, unblockHandle: unblockHandle, blockedPk: blockedPk, moderate: moderate, modlog: modlog, moderationFor: moderationFor, moderators: moderators,
   exportMine: exportMine, forgetMe: forgetMe, health: health, LcConnectionbase: LcConnectionbase, LcRemStatus: LcRemStatus, LcRemLists: LcRemLists, LcRemData: LcRemData };
 })(window.Looscid = window.Looscid || {});
