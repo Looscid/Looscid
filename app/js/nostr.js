@@ -451,6 +451,7 @@ async function sign(tpl) {
    Dream it answers isn't on Nostr yet (it waits, and is tried again). */
 function dreamTemplate(d, NT, myPk) {
   const tags = TAGS.map(function (t) { return t.slice(); });
+  tags.push(["audience", "public"]);
   let content = String(d.text || "");
   const hint = relays()[0] || "";
   const ps = [];
@@ -495,7 +496,7 @@ async function signDream(d) {
   if (!tpl) return { wait: true };
   return { ev: await sign(tpl) };
 }
-const DRAFT_KEYS = ["parentRef", "quoteRef", "cw", "notifyPks", "parentNote", "quoteNote"];
+const DRAFT_KEYS = ["aud", "parentRef", "quoteRef", "cw", "notifyPks", "parentNote", "quoteNote"];
 async function processQueue() {
   if (busyQueue) return; busyQueue = true;
   try {
@@ -507,6 +508,7 @@ async function processQueue() {
       if ((it.next || 0) > now + 500 && !it.kick) { out.push(it); continue; }
       delete it.kick;
       if (!it.ev && it.draft) {
+        if (!publicDream(it.draft)) continue;
         let ev = null; try { const r = await signDream(it.draft); ev = r.ev || null; } catch (e) {}
         if (!ev) { out.push(it); continue; }  // still locked (waits for the passcode), or what it answers isn't on Nostr yet
         tagNid(it.draft.dreamRef, ev.id, ev);
@@ -534,10 +536,11 @@ function sayLater(msg) {
 /* Publish one Dream you just made with Audience Everyone. Returns a summary; announces once. */
 // Nov 7 2026: is the Nostr bridge on? (Settings, LooscidID, Connectionbase, "Also share my Dreams to Nostr"; js/net.js)
 function nostrOn() { const L = Looscid.lcNet; return L && L.bridgeOn ? L.bridgeOn("nostr") : true; }
+function publicDream(d) { return !!d && !d.draft && (!d.aud || d.aud === "everyone" || d.aud === "public"); }
 function netIngest(ev) { const L = Looscid.lcNet; return L && L.ingest ? L.ingest(ev).catch(function () { return { ok: false }; }) : Promise.resolve({ ok: false, none: true }); }
 async function publishDream(d, opts) {
   const st = state();
-  if (!st.canDream || !d || !String(d.text || "").trim()) return { skipped: true };
+  if (!st.canDream || !publicDream(d) || !String(d.text || "").trim()) return { skipped: true };
   const quiet = opts && opts.quiet;
   if (st.mode === "locked") {
     const dr = { dreamRef: d.id, text: d.text, created: d.created || Date.now() };
@@ -569,13 +572,27 @@ async function publishDream(d, opts) {
   return { ev: ev, server: !!srv.ok, ok: r.ok.length, total: list.length };
 }
 
+async function publishProfile(profile) {
+  const st = state();
+  if (!st.canDream || st.mode === "locked") return { ok: false, error: "key unavailable or locked" };
+  profile = profile || {};
+  const content = JSON.stringify({ name: String(profile.name || profile.displayName || ""), display_name: String(profile.displayName || profile.name || ""), about: String(profile.bio || ""), website: String(profile.website || ""), looscid_handle: String(profile.handle || "") });
+  let ev; try { ev = await sign({ kind: 0, created_at: Math.floor(Date.now() / 1000), tags: [], content: content }); } catch (e) { return { ok: false, error: String(e) }; }
+  if (!ev || !fitsRelays(ev)) return { ok: false, error: "profile not signed or too large" };
+  const srv = await netIngest(ev);
+  let relay = { ok: [], failed: [] };
+  if (nostrOn()) { relay = await sendToRelays(ev, relays()); if (relay.failed.length) { const q = queue(); q.push({ ev: ev, todo: relay.failed, tries: 1, next: Date.now() + RETRY_MS[0] }); saveQueue(q); schedule(); } }
+  emit();
+  return { ok: !!srv.ok, error: srv.error || (srv.body && srv.body.error) || null, event: ev, relays: relay };
+}
+
 /* Nov 7 2026 (Rem v1 merge): puts a Dream that's already on this device on Rem (the Rem v1 server), signed now with
    your key and its original time. It never goes to Nostr relays, even with the Nostr bridge on: this is for
    "Put your Dreams on Rem" (js/remsync.js). A Dream that already has a signed id (it was Dreamed to Rem or Nostr) is
    left alone. A reply waits until the Dream it answers is on Rem. */
 async function publishToRem(d) {
   const st = state();
-  if (!d || !String(d.text || "").trim()) return { ok: false, skipped: true };
+  if (!publicDream(d) || !String(d.text || "").trim()) return { ok: false, skipped: true };
   if (isHex64(d.nid)) return { ok: true, already: true, id: d.nid };
   if (!st.canDream) return { ok: false, err: "nokey" };
   if (st.mode === "locked") return { ok: false, err: "locked" };
@@ -1047,7 +1064,7 @@ if (document.readyState === "complete") start(); else window.addEventListener("l
 
 Looscid.lcNostr = { DEFAULT_RELAYS: DEFAULT_RELAYS.slice(), VENDOR_SRC: VENDOR_SRC, VENDOR_URL: VENDOR_URL, load: load, toolsMsg: toolsMsg, toolsReady: toolsReady, state: state, relays: relays, setRelays: setRelays, resetRelays: resetRelays, usingDefaultRelays: usingDefaultRelays, cleanRelay: cleanRelay,
   importKey: importKey, isCurrentKey: isCurrentKey, createKey: createKey, passcodeProblem: passcodeProblem, useSigner: useSigner, unlock: unlock, setPasscode: setPasscode, removePasscode: removePasscode, forget: forget, dropKey: dropKey, sealedSignins: sealedSignins, forgetWarning: forgetWarning, signedOutText: signedOutText, nsecNow: nsecNow, sealSessions: sealSessions, sealSessionsNow: sealSessionsNow, openSessions: openSessions, dmRelaysOf: dmRelaysOf,
-  publishDream: publishDream, publishToRem: publishToRem, publishDeletion: publishDeletion, sign: sign, nostrOn: nostrOn, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchRootDeletions: fetchRootDeletions, fetchReactions: fetchReactions, fetchLikesOf: fetchLikesOf, myDreamNids: myDreamNids, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, fetchByIds: fetchByIds, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide, forget: forget };
+  publishDream: publishDream, publishToRem: publishToRem, publishProfile: publishProfile, publishDeletion: publishDeletion, sign: sign, nostrOn: nostrOn, fetchPublic: fetchPublic, fetchThreadReplies: fetchThreadReplies, fetchRootDeletions: fetchRootDeletions, fetchReactions: fetchReactions, fetchLikesOf: fetchLikesOf, myDreamNids: myDreamNids, publishEdit: publishEdit, pmMode: pmMode, sendPM: sendPM, fetchPMs: fetchPMs, fetchInbox: fetchInbox, fetchNames: fetchNames, fitsRelays: fitsRelays, eventBytes: eventBytes, RELAY_MAX_BYTES: RELAY_MAX_BYTES, fetchOwn: fetchOwn, fetchByIds: fetchByIds, isPending: isPending, nidOf: function (ref) { const d = findLocal(ref); return d && isHex64(d.nid) ? d.nid : null; }, dreamTemplate: dreamTemplate, processQueue: processQueue, queue: queue, hide: hide, forget: forget };
 // Tokens saved before this update, when the key already has a passcode, are sealed a few seconds after startup.
 setTimeout(function () { sealSessions(); }, 2500);
 })(window.Looscid = window.Looscid || {});
