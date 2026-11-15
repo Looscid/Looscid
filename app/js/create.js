@@ -508,10 +508,26 @@ function LcComposerInner(props) {
         const ch = source === "people" ? "@" : "/";
         const here = String(input.value || "");
         const at = here.lastIndexOf(ch);
-        setPart(active, (at < 0 ? here : here.slice(0, at)) + chosen);
+        const keep = at < 0 ? here : here.slice(0, at);
+        if (source === "people") {
+          setPart(active, keep + chosen);
+          return;
+        }
+        if (source === "commands") {
+          if (item.id === "dream") {
+            setPart(active, keep + item.value);
+            return;
+          }
+          setPart(active, keep);
+          const option = LC_CREATE_OPTS.find(function (o) { return o.id === item.id; });
+          const ctx = { navigate: props.navigate, close: props.onClose };
+          if (option && !option.go && typeof ctx.navigate === "function") {
+            Looscid.lcCreatePick(option, ctx);
+          }
+        }
       }
     });
-    list.setSource("commands", LC_CREATE_OPTS.map(function (option) { return { label: option.l, value: option.id }; }));
+    list.setSource("commands", LC_CREATE_OPTS.map(function (o) { return { id: o.id, label: o.l, value: o.l }; }));
     list.setSource("people", (Looscid.USERS || []).filter(function (person) { return person && person.handle; }).map(function (person) { return { label: person.name || person.handle, value: "@" + person.handle }; }));
     compByBox.current[active] = list;
   }, [active]);
