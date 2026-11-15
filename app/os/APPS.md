@@ -41,6 +41,7 @@ aliases = keyboard piano, music
 summary = Play notes on the PC speaker with the number keys.
 description = A keyboard piano. Keys 1 to 8 play a scale, ...
 keys = 1 to 8 notes, + and - octave, s song, r replay, h help, q quit
+platforms = web
 ```
 
 | Key | Required | Meaning |
@@ -58,6 +59,7 @@ keys = 1 to 8 notes, + and - octave, s song, r replay, h help, q quit
 | `summary` | yes | One short line for lists |
 | `description` | no | A few sentences for `info` |
 | `keys` | no | One line saying which keys the app uses |
+| `platforms` | no | Comma-separated platforms this app shipped on: ios, android, web. List only platforms that actually shipped. |
 
 Write `summary`, `description` and `keys` as plain sentences. They are read
 aloud by screen readers, so no ASCII art and no symbols that only make sense
