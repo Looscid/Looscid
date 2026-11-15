@@ -5115,6 +5115,9 @@ const LC_PACKS = {
     },
   },
 };
+// Keep each built-in definition as the fallback for the optional synth module.
+["on", "open", "close"].forEach(function (name) { LC_PACKS.looscid.sounds[name].synth = name; });
+LC_PACKS.looscid.sounds.close_alt = { label: "Close", ops: LC_PACKS.looscid.sounds.close.ops, synth: "close_alt" };
 Looscid.LC_PACKS = LC_PACKS;
 const LC_EVENT_SWITCH = { send: "ev_send", like: "ev_like", newDream: "ev_newDream", error: "ev_error", alerts: "ev_alert", feedSwitch: "ev_feed", focus: "earconFocus", link: "linkPitch" };
 // Build 152: the Inbox earcons share the Alert switch (Settings, Earcons, Event earcons, under Inbox earcons), as before.
@@ -5939,11 +5942,12 @@ const Earcon = (function () {
     // Loud and classic: NexOS Web's level curve (volume / 100 x 1.6) into the limiter. Calm mode is a bit softer.
     const vol = lcLevel(a) * (s.gain || 1);
     if (vol <= 0) return; lastVol = vol;
-    const usePack = (opts && opts.pack) || a.soundPack;
+    const usePack = (opts && opts.pack) || a.soundPack || "looscid";
     const go = function () {
       try {
         if (usePack === "custom") { const b = customBuffer(name); if (b && b !== "loading") playBuf(b, vol); else if (!b) tone(e, vol, { steady: name === "feedSwitch", free: name === "link" }); }
         else if (s.url) streamPlay(s.url, vol, e);
+        else if (usePack === "looscid" && e.synth && window.LooscidEarcons && typeof window.LooscidEarcons[e.synth] === "function" && (!test || (a.earcons && !lcQuietNow()))) window.LooscidEarcons[e.synth]();
         else tone(e, vol, { echo: s.echo, steady: name === "feedSwitch", free: name === "link", minor: name === "focus" || name === "link" });
       } catch (er) {}
     };
@@ -6001,7 +6005,8 @@ const Earcon = (function () {
     const packSpecial = kk && KP && KP.sounds[kk], special = kind && (packSpecial || LC_KEY_KINDS[kind]);
     if (kind) window.__lcKeyKinds = (window.__lcKeyKinds || []).concat([kind]).slice(-60);
     window.__lcKeyPacks = (window.__lcKeyPacks || []).concat([(packSpecial || (!kind && pk)) ? a.soundPack : "looscid"]).slice(-60);
-    const go = function () { try { if (special) tone(special, vol * 0.5 * (packSpecial ? (KP.gain || 1) : 1), { steady: true, minor: true }); else if (pk) tone(pk, vol * 0.5 * (LC_PACKS[a.soundPack].gain || 1), { steady: true, echo: false, minor: true }); else tone({ label: "Key", ops: [["n", 3200, 0, 0.012, 0.5, 1.4, 0]] }, vol * 0.5, { steady: true, minor: true }); } catch (e) {} };
+    const synthKey = (a.soundPack || "looscid") === "looscid" && window.LooscidEarcons && window.LooscidEarcons[kk || "key"];
+    const go = function () { try { if (typeof synthKey === "function" && (!test || (a.earcons && a.keyClicks !== false && !lcQuietNow()))) synthKey(); else if (special) tone(special, vol * 0.5 * (packSpecial ? (KP.gain || 1) : 1), { steady: true, minor: true }); else if (pk) tone(pk, vol * 0.5 * (LC_PACKS[a.soundPack].gain || 1), { steady: true, echo: false, minor: true }); else tone({ label: "Key", ops: [["n", 3200, 0, 0.012, 0.5, 1.4, 0]] }, vol * 0.5, { steady: true, minor: true }); } catch (e) {} };
     run("key", go);
   }
   // Pitch cues (Settings, Accessibility, Sense, Verbosity): one very short tone whose
@@ -6071,7 +6076,7 @@ function lcPcOn(kind) { const a = Looscid.A11Y_NOW, p = LC_PC[kind]; return !!p 
 // sound for one of these plays nothing extra there.
 Looscid.LC_CHIME_AT = 0;
 function lcPackHas(id, kind) {
-  if (!id || id === "looscid") return false;
+  if (!id || id === "looscid") return !!(window.LooscidEarcons && typeof window.LooscidEarcons[kind] === "function" && LC_PACKS.looscid.sounds[kind] && LC_PACKS.looscid.sounds[kind].synth);
   if (id === "custom") return !!(Looscid.LC_CUSTOM_PACK && Looscid.LC_CUSTOM_PACK.files && Looscid.LC_CUSTOM_PACK.files.length);
   const P = LC_PACKS[id]; return !!(P && (P.sounds[kind] || (P.stream && P.stream[kind])));
 }
