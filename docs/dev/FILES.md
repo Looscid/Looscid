@@ -45,7 +45,7 @@ Everything the site loads lives in `app/`, which GitHub Pages publishes as https
 ## Load order
 
 1. React and ReactDOM 18.2.0 (UMD), from `app/js/vendor/` on this site with `integrity=` (no CDN since the security pass). They go once the last React tab is rewritten. Then `app/js/apphost.js` (the sandboxed apps' host side).
-2. `app/js/sitefooter.js` (Nov 8 2026: right before `app/js/core.js`; plain data, the footer's links), then `app/js/core.js`
+2. `app/js/sitefooter.js` (Nov 8 2026: before `app/js/core.js`; plain data, the footer's links), then `app/js/earcons.js`, then `app/js/core.js`
 3. `app/js/nostr.js` (small; `app/js/vendor/nostr-tools-2.25.2-nip17.min.js` is added later, only when Nostr is used), then `app/js/net.js` (Nov 7 2026: right after `app/js/nostr.js`)
 4. The tabs: `app/js/discover.js`, `app/js/circles.js`, `app/js/feed.js`, `app/js/create.js`, `app/js/alerts.js`, `app/js/more.js` (Nov 8 2026: `app/js/aboutdata.js` comes right before `app/js/more.js`; plain data)
 5. `app/js/cherry.js` (Round 6.5.2: same place in the order; the frame shows its page with `case "cherry"` in `app/js/core.js`)
