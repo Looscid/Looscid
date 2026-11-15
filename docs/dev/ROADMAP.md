@@ -21,6 +21,10 @@ right now it's plain semantic HTML n CSS, with React and ReactDOM 18.2.0 saved r
 
 - [ ] move the Apps tab (the AppsPage thing) from React/Vite over to accessible vanilla DOM. (added Sep 29, 2026)
 - [ ] set up Alerts for real, with Mentions, Interactions and System Logs. (added Sep 29, 2026)
+- [ ] a Requests lane in Alerts for things asking for a yes: link view requests, Circle joins and thread requests, with separate subtabs for each kind.
+- [ ] an app/source filter in Alerts: All, Cherry, Circles and People. Cherry only is the Cherry filter, not a separate lane.
+- [ ] remove the duplicate Cherry dropdown door once Cherry takes the center tab, plus the Example and Digest startup scaffolding.
+- [ ] subtabs and app filters only hide Alerts; they never mark anything read. a count drops only when an item is read or explicitly marked read.
 - [ ] build native DOM pieces for Feed and Discover, and keep ur local Dreams separate from Dreams from Nostr relays. (added Sep 29, 2026)
 - [ ] merge About and Settings into one way to get around and one set of settings. (added Sep 29, 2026)
 - [ ] let u manage ur Nostr relays and add NIP-04/NIP-44 encryption, without ever showing ur secret key. (added Sep 29, 2026)
@@ -229,6 +233,9 @@ already out, for context: u can pin a Circle, Dreamor, hashtag, thread or List a
 
 ### who sees ur Dream
 
+- [ ] Dream audience commands in Commandbar: `/private` means only u, `/public` means public, and public is the default. Commandbar owns and applies each command, strips it from the stored, published and rendered Dream body, and keeps it in Commandbar history. the audience indicator comes last, after the body.
+- [ ] X-style `@` mention autocomplete in the composer: list mentionable people, filter as u type, use arrows or Tab and Enter to insert a real tag, Escape to dismiss, and announce suggestions and selection through the live region.
+- [ ] sending a Dream link lets someone request to view, not automatically view it; the owner approves what the requester sees. explicitly tagged people get replies and activity automatically, but opening the original Dream still needs owner approval, even for tagged people.
 - [ ] pick who sees each Dream: Public, Dreamors you follow, My people, or Only me. (added Nov 8, 2026)
 - [ ] set ur default audience in Settings, so every new Dream starts with it. change it on any Dream, anytime. (added Nov 8, 2026)
 - [ ] My people: ur own close list. the name isn't final, but it can't be "Circles", since Circles are groups. nobody gets told when u add or remove them. (added Nov 8, 2026)
