@@ -2538,7 +2538,14 @@ function LcSiteFooter({ navigate, cur }) {
     if (l.ext) return lh('li', { key: key }, lh('a', { href: l.href, target: "_blank", rel: "noopener noreferrer", className: "lc-link", title: "Go to " + l.ext }, t));
     if (l.page) return go(l.page, t, l.href, key);
     return lh('li', { key: key }, lh('a', { href: l.href, className: "lc-link" }, t)); };
-  const grp = function (g) { const id = "lc-foot-" + g.id; return lh('section', { key: g.id, className: "lc-foot-grp", "aria-labelledby": id }, lh('h3', { id: id, className: "lc-foot-h" }, g.t), lh('ul', { className: "lc-foot-list", role: "list" }, g.links.map(item))); };
+  const [footerOpen, setFooterOpen] = useState({});
+  const grp = function (g) {
+    const id = "lc-foot-" + g.id, panel = id + "-panel", expanded = !!footerOpen[g.id];
+    return lh("section", { key: g.id, className: "lc-foot-grp", "aria-labelledby": id },
+      lh("button", { type: "button", "aria-expanded": expanded, "aria-controls": panel, onClick: function () { setFooterOpen(function (prev) { return Object.assign({}, prev, { [g.id]: !prev[g.id] }); }); } }, g.t),
+      lh("div", { id: panel, role: "region", "aria-labelledby": id, hidden: !expanded },
+        lh("h3", { id: id, className: "lc-foot-h" }, g.t), lh("p", null, g.d), lh("ul", { className: "lc-foot-list", role: "list" }, g.links.map(item))));
+  };
   const build = "Looscid " + LOOSCID_VERSION + (Looscid.LOOSCID_BUILD ? " (" + Looscid.LOOSCID_BUILD + ")" : "");
   return lh('footer', { className: "lc-footer", role: "contentinfo", "aria-labelledby": "lc-foot-title" },
     lh('h2', { id: "lc-foot-title", className: "lc-foot-title" }, "Footer"),
