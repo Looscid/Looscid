@@ -18,7 +18,7 @@
   }
 
   // One oscillator through one gain node with a short exponential envelope.
-  function tone(o) {
+  function tone(o) { var app = window.Looscid, a = (app && app.A11Y_NOW) || {}; if (a.earcons === false || a.visualCue || (o.type === "square" && a.keyClicks === false) || (app && typeof app.lcQuietNow === "function" && app.lcQuietNow())) return; var volume = a.earconVolume == null ? 50 : +a.earconVolume; if (!isFinite(volume)) volume = 50; volume = 1.6 * Math.max(0, Math.min(100, volume)) / 100 * (a.calmMode ? 0.75 : 1); if (volume <= 0) return;
     var c = context();
     if (!c) return;
     var t0 = c.currentTime;
@@ -26,12 +26,12 @@
     var gain = c.createGain();
     osc.type = o.type;
     osc.frequency.setValueAtTime(o.f0, t0);
-    if (o.f1 && o.f1 !== o.f0) osc.frequency.exponentialRampToValueAtTime(o.f1, t0 + o.dur);
+    if (a.pitchCues !== false && o.f1 && o.f1 !== o.f0) osc.frequency.exponentialRampToValueAtTime(o.f1, t0 + o.dur);
     gain.gain.setValueAtTime(0.0001, t0);
-    gain.gain.exponentialRampToValueAtTime(o.peak, t0 + 0.012);
+    gain.gain.exponentialRampToValueAtTime(o.peak * volume, t0 + 0.012);
     gain.gain.exponentialRampToValueAtTime(0.0001, t0 + o.dur);
     osc.connect(gain);
-    gain.connect(c.destination);
+    if (a.calmMode) { var filter = c.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = 5200; filter.Q.value = 0.5; gain.connect(filter); filter.connect(c.destination); } else gain.connect(c.destination);
     osc.start(t0);
     osc.stop(t0 + o.dur + 0.03);
   }
