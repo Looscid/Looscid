@@ -514,7 +514,7 @@ function LcComposerInner(props) {
           return;
         }
         if (source === "commands") {
-          if (item.id === "dream") {
+          if (item.id === "dream" || item.id === "circle") {
             setPart(active, keep + item.value);
             return;
           }
