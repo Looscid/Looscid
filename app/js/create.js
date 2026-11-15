@@ -514,20 +514,13 @@ function LcComposerInner(props) {
           return;
         }
         if (source === "commands") {
-          if (item.id === "dream" || item.id === "circle") {
-            setPart(active, keep + item.value);
-            return;
-          }
-          setPart(active, keep);
-          const option = LC_CREATE_OPTS.find(function (o) { return o.id === item.id; });
-          const ctx = { navigate: props.navigate, close: props.onClose };
-          if (option && !option.go && typeof ctx.navigate === "function") {
-            Looscid.lcCreatePick(option, ctx);
-          }
+          setPart(active, keep + item.value);
+          return;
         }
       }
     });
-    list.setSource("commands", LC_CREATE_OPTS.map(function (o) { return { id: o.id, label: o.l, value: o.l }; }));
+    // I am parking this until Commandbar registers composer commands, then I will use Looscid.LC_COMMANDS so it never drifts.
+    list.setSource("commands", []);
     list.setSource("people", (Looscid.USERS || []).filter(function (person) { return person && person.handle; }).map(function (person) { return { label: person.name || person.handle, value: "@" + person.handle }; }));
     compByBox.current[active] = list;
   }, [active]);
