@@ -1,6 +1,6 @@
-# the looscid roadmap
+# looscid ideas
 
-every idea shows the day I added it. when something ships or gets cut, it also goes in the landed and cut log at the bottom. no target dates, no promises.
+I keep ideas here. when something ships or gets cut, it also goes in the landed and cut log at the bottom. no target dates, no promises.
 
 ## what looscid even is
 
@@ -91,11 +91,36 @@ these are ideas I'm thinking about. nothing here is being built yet. ideas move 
 - [ ] Cherry Connectors: ask Cherry in chat to connect something, and she gives u a one-tap link. (added Nov 12, 2026)
 - [ ] rename "What Cherry did" to "Actions". (added Nov 12, 2026)
 
+## more ideas I want to explore
+
+- [ ] **shared completion listbox:** I want the composer / commands list, @ people list,
+  and / affordance to use one reusable listbox with a different source plugged in.
+  The / list keeps the Commandbar registry, filtering, live-region announcements,
+  insert-and-return-focus behavior and Dream-button submission described below.
+  I want to extend the existing components library in dev/components/, documenting
+  the component the same way as the others. Follow the existing
+  one-thing-one-file convention: put the completion component in its own module,
+  loaded before core.js like earcons.js and only where needed. Factor other shared
+  pieces out the same way when reused, so core stays the frame and does not bloat.
+- [ ] **an ideas log I can explore:** I want a short, inviting and playful front door
+  that developers can discover and poke around in for fun, not a flat changelog.
+  Give it clear headings and navigation for VoiceOver, with an overview readable
+  in about a minute and long sections behind it in per-area files under docs/ideas/.
+  Keep the user-facing voice first-person singular, plain and without decorative emoji.
+  The same surface should let readers submit feedback and follow their ideas.
+- [ ] **feedback from the ideas log:** I want readers to submit an idea or feedback
+  from the log, have it become a tracked entry and watch its progress. Follow the
+  Nostr feedback design: send a DM to a Looscid npub,
+  have the worker reply and get the author's consent before broadcast via /publish.
+  Submissions stay private in a queue and OUT of the public log until I approve
+  them; approval does not replace the author's consent to broadcast.
+
 ## the backlog (ideas I'm saving for later)
 
 these came out of the Dreamor Council on Nov 8, 2026. I'm not building any of it yet, I'm just writing it down so it doesn't get lost. if u wanna help with one, tell me.
 
 ### features I want to add
+
 - [ ] make ur own soundpacks by mixing existing packs or adding custom sounds.
 - [ ] fix the main pack: activating and closing too loud, typing sounds missing, replace it with the exact NexOS pack.
 
