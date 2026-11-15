@@ -43,7 +43,7 @@
     }
     function render(query) {
       state.query = text(query).toLowerCase();
-      state.filtered = state.items.filter(function (item) { return !state.query || label(item).toLowerCase().indexOf(state.query) !== -1; });
+      state.filtered = (sources[state.source] || state.items).filter(function (item) { return !state.query || label(item).toLowerCase().indexOf(state.query) !== -1; });
       list.textContent = "";
       state.filtered.forEach(function (item, i) {
         var option = document.createElement("div"); option.id = id + "-option-" + i; option.setAttribute("role", "option"); option.setAttribute("aria-selected", "false");
@@ -74,7 +74,8 @@
       }
       close(true); announce("Added " + label(item) + ".");
     }
-    function setSource(source, items) { state.source = source || "commands"; state.items = Array.isArray(items) ? items.slice() : []; if (state.open) render(state.query); }
+    var sources = {};
+    function setSource(source, items) { state.source = source || "commands"; state.items = Array.isArray(items) ? items.slice() : []; sources[state.source] = state.items; if (state.open) render(state.query); }
     input.addEventListener("input", function () {
       var pos = input.selectionStart || 0, before = input.value.slice(0, pos), match = before.match(/(?:^|\s)([/@])([^\s]*)$/);
       if (match) {
