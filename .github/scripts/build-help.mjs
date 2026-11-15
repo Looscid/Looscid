@@ -48,9 +48,10 @@ const COPY_END = String(VJ.version).split(".")[0];
 const BUILD_TEXT = "Looscid " + VJ.version + " (" + VJ.build + ")";
 /* Nov 8 2026 (Carter: one footer for the whole app): the footer comes from app/js/sitefooter.js, the same file the app draws
    it from, so there's one source. This builder only writes it into the website pages. */
-const sfBox = { window: {} };
+const sfBox = { window: {}, URL };
 vm.runInNewContext(fs.readFileSync(path.join(APP, "js", "sitefooter.js"), "utf8"), sfBox);
-const SITE_FOOTER = sfBox.window.Looscid.LC_FOOTER.html({ endYear: COPY_END, build: BUILD_TEXT });
+const SITE_FOOTER_RAW = sfBox.window.Looscid.LC_FOOTER.html({ endYear: COPY_END, build: BUILD_TEXT });
+const SITE_FOOTER = SITE_FOOTER_RAW.replace(/<div id="sf-panel-([^"]+)" hidden><h2>/g, function (_, id) { return `<div id="sf-panel-${id}" role="region" aria-labelledby="sf-head-${id}" hidden><h2 id="sf-head-${id}">`; }).replace("</footer>", `<script>(function () { var f = document.currentScript.closest("footer"); f.addEventListener("click", function (e) { var b = e.target.closest("button[aria-controls]"); if (!b || !f.contains(b)) return; var p = document.getElementById(b.getAttribute("aria-controls")); if (!p || !f.contains(p)) return; var open = b.getAttribute("aria-expanded") !== "true"; b.setAttribute("aria-expanded", String(open)); p.hidden = !open; }); })();</script></footer>`);
 // The Help Center home's topic icons (decoration only; the words say everything).
 const ICONS = {
   "getting-started": '<path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/>',
