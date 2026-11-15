@@ -2542,7 +2542,7 @@ function LcSiteFooter({ navigate, cur }) {
   const grp = function (g) {
     const id = "lc-foot-" + g.id, panel = id + "-panel", expanded = !!footerOpen[g.id];
     return lh("section", { key: g.id, className: "lc-foot-grp", "aria-labelledby": id },
-      lh("button", { type: "button", "aria-expanded": expanded, "aria-controls": panel, onClick: function () { setFooterOpen(function (prev) { return Object.assign({}, prev, { [g.id]: !prev[g.id] }); }); } }, g.t),
+      lh("button", { type: "button", "aria-expanded": expanded, "aria-controls": panel, onClick: function (e) { const next = e.currentTarget.getAttribute("aria-expanded") !== "true"; e.currentTarget.setAttribute("aria-expanded", String(next)); setFooterOpen(function (prev) { return Object.assign({}, prev, { [g.id]: next }); }); } }, g.t),
       lh("div", { id: panel, role: "region", "aria-labelledby": id, hidden: !expanded },
         lh("h3", { id: id, className: "lc-foot-h" }, g.t), lh("p", null, g.d), lh("ul", { className: "lc-foot-list", role: "list" }, g.links.map(item))));
   };
