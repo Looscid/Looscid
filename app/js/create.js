@@ -490,6 +490,31 @@ function LcComposerInner(props) {
   const draft = mode === "new" && props.draft && typeof props.draft === "object" ? props.draft : null; // opened from Drafts
   const [parts, setParts] = useState(draft ? (Array.isArray(draft.parts) && draft.parts.length ? draft.parts.slice(0, LC_THREAD_MAX) : [String(draft.text || "")]) : [props.text || ""]);
   const [active, setActive] = useState(0);
+  /* Completions: "/" lists what Create offers, "@" lists people. One listbox per
+     text box, mounted once, and a pick writes into that box through setPart so the
+     controlled value and the field stay in step. */
+  const compByBox = useRef({});
+  useEffect(function () {
+    if (!Looscid.CompletionListbox || !Looscid.CompletionListbox.mount) return;
+    if (compByBox.current[active]) return;
+    const box = document.querySelector('[data-cr-box="' + active + '"]');
+    if (!box) return;
+    const list = Looscid.CompletionListbox.mount({
+      input: box,
+      host: box.parentNode,
+      id: "lc-cr-completions-" + active,
+      onSelect: function (item, source, input) {
+        const chosen = typeof item === "string" ? item : (item.value != null ? item.value : item.insert != null ? item.insert : item.label || item.name || "");
+        const ch = source === "people" ? "@" : "/";
+        const here = String(input.value || "");
+        const at = here.lastIndexOf(ch);
+        setPart(active, (at < 0 ? here : here.slice(0, at)) + chosen);
+      }
+    });
+    list.setSource("commands", LC_CREATE_OPTS.map(function (option) { return { label: option.l, value: option.id }; }));
+    list.setSource("people", (Looscid.USERS || []).filter(function (person) { return person && person.handle; }).map(function (person) { return { label: person.name || person.handle, value: "@" + person.handle }; }));
+    compByBox.current[active] = list;
+  }, [active]);
   const [audience, setAudience] = useState(isReply ? pAud : draft && LC_AUD_NAMES[draft.aud] ? draft.aud : "everyone");
   const [cwOn, setCwOn] = useState(!!(isReply && parent.cw) || !!(draft && draft.cw));
   const [cw, setCw] = useState(isReply && parent.cw ? String(parent.cw) : draft && draft.cw ? String(draft.cw) : "");
