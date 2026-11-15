@@ -163,7 +163,8 @@ function fromRemV0(o) {
   const tags = [["looscid", "0"]];
   let content = "";
   if (o.type === "dream") {
-    if (b.audience && b.audience !== "public") return { error: "only public Rem v0 Dreams are taken here" };
+    if (b.audience !== "public") return { error: "only explicitly public Rem v0 Dreams are taken here" };
+    tags.push(["audience", "public"]);
     content = typeof b.text === "string" ? b.text : "";
     if (isHex(b.reply_to, 64)) tags.push(["e", b.reply_to, "", "reply"]);
     if (isHex(b.quote, 64)) tags.push(["q", b.quote]);
@@ -206,7 +207,18 @@ async function keep(env, ev) {
 async function ingest(env, ev) {
   const t = Date.now(), ms = ev._ms ?? ev.created_at * 1000; // ms: the event's own time, in milliseconds
   if (ev.created_at > now() + 600) return { ok: false, error: "from the future" };
+  if (ev.kind === 0) {
+    let profile;
+    try { profile = JSON.parse(ev.content); } catch (e) { return { ok: false, error: "profile is not JSON" }; }
+    if (!profile || typeof profile !== "object" || Array.isArray(profile)) return { ok: false, error: "profile must be an object" };
+    await upsertUser(env, ev.pubkey, t);
+    await keep(env, ev);
+    return { ok: true, what: "profile", id: ev.id };
+  }
   if (ev.kind === 1) {
+    // Only an explicitly public Dream may enter this public index.
+    const audiences = tagsOf(ev, "audience");
+    if (audiences.length !== 1 || audiences[0].length !== 2 || audiences[0][1] !== "public") return { ok: false, error: "only explicitly public Dreams are accepted" };
     const isLooscid = tagsOf(ev, "looscid").length || tagsOf(ev, "t").some((x) => String(x[1]).toLowerCase() === "looscid");
     if (!isLooscid) return { ok: false, error: "not a Looscid Dream (needs the tag [\"looscid\", \"1\"])" };
     if (!ev.content.trim()) return { ok: false, error: "empty" };
@@ -406,6 +418,12 @@ async function followsRead(req, env, url, which, pk) {
   open = !!pref && pref.who === "everyone";
   if (open) rows = (await env.DB.prepare("SELECT followed_id AS pk, created_at AS at FROM follows WHERE follower_id = ?1 AND created_at < ?2 ORDER BY created_at DESC LIMIT ?3").bind(pk, b, limit).all()).results;
   return json(req, Object.assign({ ok: true, pubkey: pk }, counts, { people: rows, hidden: open ? 0 : total, next: rows.length === limit ? rows[rows.length - 1].at : null }));
+}
+
+async function userProfile(req, env, pk) {
+  if (!isHex(pk, 64)) return json(req, { ok: false, error: "use the 64-character hex public key" }, 400);
+  const row = await env.DB.prepare("SELECT json FROM events WHERE pubkey = ?1 AND kind = 0 ORDER BY created_at DESC, id ASC LIMIT 1").bind(pk).first();
+  return json(req, { ok: true, event: row ? JSON.parse(row.json) : null });
 }
 
 async function userDreams(req, env, url, pk) {
@@ -982,6 +1000,7 @@ export default {
           if (r.cache) res.headers.set("Cache-Control", "public, max-age=3600"); // only the page's words, never anything private
           return res;
         }
+        if (path.startsWith("/profile/")) return await userProfile(req, env, path.slice(9).toLowerCase());
         if (path === "/feed") return await feed(req, env, url);
         if (path === "/export") return await exportEvents(req, env, url);
         if (path === "/moderators") return json(req, { ok: true, moderators: mods(env) });
