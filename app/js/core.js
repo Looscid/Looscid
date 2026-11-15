@@ -2549,11 +2549,13 @@ function LcSiteFooter({ navigate, cur }) {
   const build = "Looscid " + LOOSCID_VERSION + (Looscid.LOOSCID_BUILD ? " (" + Looscid.LOOSCID_BUILD + ")" : "");
   return lh('footer', { className: "lc-footer", role: "contentinfo", "aria-labelledby": "lc-foot-title" },
     lh('h2', { id: "lc-foot-title", className: "lc-foot-title" }, "Footer"),
+    lh('p', null, "I'm Carter. I build Looscid, an open, local-first home for Dreams."),
     lh('p', { className: "lc-foot-brand" }, lh(LcLogo, { size: 28, alt: LC_LOGO_ALT }), lh('span', { className: "lc-foot-name", "aria-hidden": "true" }, "Looscid")),
     lh('div', { className: "lc-foot-grps" }, F.groups.map(grp)),
     // Round 7.41 (Carter: "not corpo shit"): one kid and Tab make this, and the footer says so.
     lh('p', { className: "lc-foot-credit" }, F.copyLine(String(LOOSCID_VERSION).split(".")[0]), lh('span', { "aria-hidden": "true" }, " \u00b7 "), "Open source under the ",
-      lh('a', { href: F.LICENSE.href, className: "lc-link" }, F.LICENSE.t), lh('span', { "aria-hidden": "true" }, " \u00b7 "), F.MADE_BY, lh('span', { "aria-hidden": "true" }, " \u00b7 "), build));
+      lh('a', { href: F.LICENSE.href, className: "lc-link" }, F.LICENSE.t), lh('span', { "aria-hidden": "true" }, " \u00b7 "), build, lh('span', { "aria-hidden": "true" }, "")),
+    lh('p', { className: "lc-foot-credit" }, F.MADE_BY, " ", lh('a', { href: "https://2three1y.github.io/", className: "lc-link" }, "2three1y")));
 }
 /* 2three1y (Oct 12, 5:33 PM): "The footer is on every page at the bottom like GitHub", but in reading and swipe order the
    tab bar (ending with More) comes BEFORE the footer, and the footer is the very last thing. So the end of every scrolling
