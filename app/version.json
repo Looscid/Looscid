@@ -1,14 +1,14 @@
 {
   "app": "Looscid",
   "branch": "main",
-  "version": "2026.138.57",
-  "build": 195,
-  "features": 138,
+  "version": "2026.139.57",
+  "build": 196,
+  "features": 139,
   "fixes": 57,
-  "builds_without_fixes": 138,
-  "released": "2026-10-29T04:17:44Z",
+  "builds_without_fixes": 139,
+  "released": "2026-11-16T00:29:31Z",
   "title": "Round 7.51",
-  "codename": "Recipe Card",
-  "notes": "Recipe Card: Looscid 2026.138.57 (195), a feature update. A brand new Help Center for beginners, with its own website, the Looscid Basics course and Contact Us. Create only shows what works.",
-  "label": "Recipe Card: Looscid 2026.138.57 (195)"
+  "codename": "Welcome Mat",
+  "notes": "I moved follows to Rem, added Dream controls and updated the Help Center.",
+  "label": "Welcome Mat: Looscid 2026.139.57 (196)"
 }
