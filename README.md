@@ -21,7 +21,7 @@ Looscid's server is **Rem** at https://rem.thebntlovver.workers.dev, a Cloudflar
 
 ## Official version
 
-`main` is the shipped Looscid line, and the site is built from it. Its [version.json](app/version.json) is authoritative: **Recipe Card: Looscid 2026.138.57 (195)**. Every build has a codename, added in front of the version with a colon. Versions are YEAR.FEATURES.FIXES (BUILD): feature updates add something, fix updates only fix things, and builds count every update.
+`main` is the shipped Looscid line, and the site is built from it. Its [version.json](app/version.json) is authoritative: **Welcome Mat: Looscid 2026.139.57 (196)**. Every build has a codename, added in front of the version with a colon. Versions are YEAR.FEATURES.FIXES (BUILD): feature updates add something, fix updates only fix things, and builds count every update.
 
 The old `main` line (retired October 14, 2026) and combined branch counters are deprecated, not inherited into the product version. Documentation-only consolidation does not renumber the shipped version.
 
@@ -33,7 +33,7 @@ Where each Looscid app lives:
 - Android app: [Looscid/Looscid-Android](https://github.com/Looscid/Looscid-Android), branch `main`.
 - iOS app: coming later, in its own repo, Looscid/Looscid-iOS.
 
-Builds so far: web 195, Android 1, iOS 0 (196 total).
+Builds so far: web 196, Android 1, iOS 0 (197 total).
 
 </details>
 
