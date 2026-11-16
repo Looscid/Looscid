@@ -1044,7 +1044,7 @@ function LcProfileCircles({ circ, isMe, name, navigate, uid, f0 }) {
       list.length ? lh('ul', { className: "lc-people", role: "list" }, list.map(row)) : lh('p', { className: "lc-muted", style: { padding: "12px 16px" } }, emptyText)));
 }
 function ProfilePage({navigate, authUser, cherryCtx, onUpdateProfile}) {
-  return lh(ProfileView, { user: ME, isMe: true, navigate: navigate, cherryCtx: cherryCtx, onUpdateProfile: onUpdateProfile, authUser: authUser });
+  return lh(ProfileView, { user: authUser || ME, isMe: true, navigate: navigate, cherryCtx: cherryCtx, onUpdateProfile: onUpdateProfile, authUser: authUser });
 }
 /* === Links sheet (Nov 1 2026, Carter: declutter the Dreamor options, links like YouTube's channel "Links") ===========
    A proper dialog: heading "Links" (focus lands on it), each link as a row (a tile with the site's first letter, the
