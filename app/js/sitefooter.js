@@ -7,7 +7,7 @@ const GROUPS = [
   { id: "hi", t: "Say hi (contact)", d: "These are my official accounts,", links: [
     { t: "Discord", href: "https://discord.gg/M6xrD8EBXU" }, { t: "Reddit", href: "https://www.reddit.com/r/Looscid/" }, { t: "X", href: "https://x.com/Looscid" }, { t: "YouTube", href: "https://www.youtube.com/@Looscid" }, { t: "Looscid on GitHub", href: "https://github.com/Looscid/Looscid" }, { t: "Looscid GitHub organization", href: "https://github.com/Looscid" }
   ] },
-  { id: "fine-print", t: "The fine print", d: "The boring-but-important bits,", links: [["Terms", "/Looscid/Terms/", "terms"], ["Privacy", "/Looscid/Privacy/", "privacy"], ["Licenses", "/Looscid/Legal/", "legal"], ["Credits", "/Looscid/Credits/", "credits"], ["External links", "/Looscid/external-links.html"], ["Status", "/Looscid/app/status.html"]] },
+  { id: "fine-print", t: "The fine print", d: "The boring-but-important bits,", links: [["Terms", "/Looscid/Terms/", "terms"], ["Privacy", "/Looscid/Privacy/", "privacy"], ["Licenses", "/Looscid/Legal/", "legal"], ["Credits", "/Looscid/Credits/", "credits"], ["External links", "/Looscid/external-links.html"], ["Status", "/Looscid/status.html"]] },
   { id: "about", t: "About", d: "How Looscid started and where it's going,", links: [["About Looscid", "/Looscid/About/", "settings_about"], ["Changelog", "/Looscid/changelog/"], ["Accessibility", "/Looscid/Accessibility/", "accessibility"]] },
 ];
 function link(x) { return Array.isArray(x) ? { t: x[0], href: x[1], page: x[2] || null, ext: null } : { t: x.t, href: x.href, page: x.page || null, ext: x.ext || null }; }
