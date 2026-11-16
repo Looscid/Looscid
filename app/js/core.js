@@ -5208,7 +5208,7 @@ Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
 /* Round 7.41 (Carter, Oct 26 2026: "not corpo shit"): every Round gets a codename. Round 7.42: every build has one, back to
    build 136. Set the next one here and in the new LC_VERSION_HISTORY entry (its codename field), version.json ("codename")
    and the CHANGELOG.md heading. Round 7.43: shown as "Codename: <the old version text>" everywhere (see lcCodenamed). */
-const LOOSCID_ROUND = "Round 7.51";
+const LOOSCID_ROUND = "Round 7.52";
 const LOOSCID_CODENAME = "Welcome Mat";
 Looscid.LOOSCID_ROUND = LOOSCID_ROUND; Looscid.LOOSCID_CODENAME = LOOSCID_CODENAME;
 /* Round 7.41: the one line under the Home heading. Edit this one string to change what it says (empty string hides it). */
