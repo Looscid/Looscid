@@ -3588,7 +3588,10 @@ Looscid.LOOSCID_FIXES = LOOSCID_FIXES;
    exact version text: "Midnight Snack: Looscid 2026.135.56 (191)", no Round (lcCodenamed in core.js). A new build needs a
    new codename here, in LOOSCID_CODENAME (core.js), version.json and the CHANGELOG.md heading. No repeats. */
 const LC_VERSION_HISTORY = [
-  { version: "2026.138.57", build: 195, released: LOOSCID_RELEASED, title: "Round 7.51", codename: "Recipe Card", notes: [
+  { version: "2026.139.57", build: 196, released: LOOSCID_RELEASED, title: "Round 7.51", codename: "Welcome Mat", notes: [
+    "I moved follows to Rem, added Dream controls and updated the Help Center."
+  ] },
+  { version: "2026.138.57", build: 195, released: "2026-10-29T04:17:44Z", title: "Round 7.51", codename: "Recipe Card", notes: [
     "The Help Center is brand new, for total beginners. Step-by-step articles in four collections: Getting Started; Dreams, replies and threads; Chats, Circles and Cherry; and Settings, privacy and backup.",
     "When an article says to go somewhere, it's a real link that opens that screen, with the way to get there after it, like Open Backup (Profile, More, Settings, General).",
     "New course: Looscid Basics. Nine short lessons with a Next button. Your progress is saved only on your device.",
