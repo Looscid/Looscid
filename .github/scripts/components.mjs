@@ -1397,7 +1397,7 @@ dialog.querySelectorAll(".lid-wide").forEach(function (b) {
 <li class="lc-issue">
 <h3 id="lc-issue-a1b2c3" class="lc-issue-h">The Like button double-announces. Bug, new. 4 agree, 1 disagree.</h3>
 <p class="lc-desc lc-issue-body">when i like a Dream VoiceOver says Liked twice.</p>
-<p class="lc-desc lc-issue-meta">Reported 2 hours ago on web 2026.138.57</p>
+<p class="lc-desc lc-issue-meta">Reported 2 hours ago on web 2026.139.57</p>
 <div class="lc-inrow lc-issue-votes"><button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="4 agree"><div class="cbx-box"></div><span>4 agree</span></button><button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="1 disagrees"><div class="cbx-box"></div><span>1 disagrees</span></button></div>
 </li>
 </ul>`, h: 260 },
@@ -1405,7 +1405,7 @@ dialog.querySelectorAll(".lid-wide").forEach(function (b) {
 <li class="lc-issue">
 <h3 id="lc-issue-a1b2c3" class="lc-issue-h">The Like button double-announces. Bug, working on it. 4 agree, 1 disagree.</h3>
 <p class="lc-desc lc-issue-body">when i like a Dream VoiceOver says Liked twice.</p>
-<p class="lc-desc lc-issue-meta">Reported 2 hours ago on web 2026.138.57</p>
+<p class="lc-desc lc-issue-meta">Reported 2 hours ago on web 2026.139.57</p>
 <div class="lc-inrow lc-issue-votes"><button type="button" class="cbx-wrap lc-count liked lc-issue-btn" aria-pressed="true" aria-label="you + 3 others agree"><div class="cbx-box"><svg viewBox="0 0 12 10" width="9" height="9" aria-hidden="true" focusable="false"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></div><span>you + 3 others agree</span></button><button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="1 disagrees"><div class="cbx-box"></div><span>1 disagrees</span></button></div>
 </li>
 </ul>`, h: 290 },
@@ -1413,7 +1413,7 @@ dialog.querySelectorAll(".lid-wide").forEach(function (b) {
 <li class="lc-issue">
 <h3 id="lc-issue-a1b2c3" class="lc-issue-h">The Like button double-announces. Bug, working on it. 4 agree, 1 disagree.</h3>
 <p class="lc-desc lc-issue-body">when i like a Dream VoiceOver says Liked twice.</p>
-<p class="lc-desc lc-issue-meta">Reported 2 hours ago on web 2026.138.57</p>
+<p class="lc-desc lc-issue-meta">Reported 2 hours ago on web 2026.139.57</p>
 <ul class="lc-issue-replies"><li class="lc-desc">Looscid mods, 1 hour ago: set it to working on it. on it, thx for the report</li></ul>
 <div class="lc-inrow lc-issue-votes"><button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="4 agree"><div class="cbx-box"></div><span>4 agree</span></button><button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="1 disagrees"><div class="cbx-box"></div><span>1 disagrees</span></button></div>
 </li>
@@ -1422,7 +1422,7 @@ dialog.querySelectorAll(".lid-wide").forEach(function (b) {
 <li class="lc-issue">
 <h3 id="lc-issue-a1b2c3" class="lc-issue-h">The Like button double-announces. Bug, closed. 4 agree, 1 disagree.</h3>
 <p class="lc-desc lc-issue-body">when i like a Dream VoiceOver says Liked twice.</p>
-<p class="lc-desc lc-issue-meta">Reported 2 hours ago on web 2026.138.57. Closed because: fixed in the next build</p>
+<p class="lc-desc lc-issue-meta">Reported 2 hours ago on web 2026.139.57. Closed because: fixed in the next build</p>
 <ul class="lc-issue-replies"><li class="lc-desc">Looscid mods, 1 hour ago: set it to working on it. on it, thx for the report</li></ul>
 <div class="lc-inrow lc-issue-votes"><button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="4 agree"><div class="cbx-box"></div><span>4 agree</span></button><button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="1 disagrees"><div class="cbx-box"></div><span>1 disagrees</span></button></div>
 </li>
@@ -1451,7 +1451,7 @@ dialog.querySelectorAll(".lid-wide").forEach(function (b) {
 <li class="lc-issue">
 <h3 id="lc-issue-a1b2c3" class="lc-issue-h">The Like button double-announces. Bug, new. 4 agree, 1 disagree.</h3>
 <p class="lc-desc lc-issue-body">when i like a Dream VoiceOver says Liked twice.</p>
-<p class="lc-desc lc-issue-meta">Reported 2 hours ago on web 2026.138.57</p>
+<p class="lc-desc lc-issue-meta">Reported 2 hours ago on web 2026.139.57</p>
 <div class="lc-inrow lc-issue-votes"><button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="4 agree"><div class="cbx-box"></div><span>4 agree</span></button><button type="button" class="cbx-wrap lc-count lc-issue-btn" aria-pressed="false" aria-label="1 disagrees"><div class="cbx-box"></div><span>1 disagrees</span></button></div>
 </li>
 </ul>`,
