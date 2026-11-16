@@ -8860,9 +8860,15 @@ useEffect(() => {
   }, []);
   // Coming back from a Mastodon login started in Settings > Account: open Security.
   useEffect(() => { if (Looscid.oauthReturn) Looscid.oauthReturn.then(r => { if (r && r.from === "account") { setPage("settings_account"); setPdata({ tab: "methods", from: "privsec" }); } }); }, []);
-  const handleUpdateProfile = useCallback(patch => {
-    setAuthUser(cur => updateLocalProfile(cur, patch));
-  }, []);
+    const handleUpdateProfile = useCallback(patch => {
+    const updated = updateLocalProfile(authUser, patch);
+    setAuthUser(updated);
+    const nostr = Looscid.lcNostr;
+    const publishProfile = nostr && nostr.publishProfile;
+    if (updated && publishProfile) {
+      publishProfile.call(nostr, updated).catch(function () {});
+    }
+  }, [authUser]);
   Looscid.LC_UPDATE_PROFILE = handleUpdateProfile; // build 147: Edit profile on any profile page uses the same save path
 
 
