@@ -375,7 +375,7 @@ function lcFeedVisible(tab, raw, o) {
     const fy = Looscid.lcFyFollow();
     const off = LC_FY_SOURCES.map(function (s) { return s[0]; }).filter(function (k) { return !fy.on || !fy[k]; });
     // Nov 9 2026: For You = your Dreams here plus Rem's public feed (everyone's Dreams). A Dream on both shows once.
-    const haveF = new Set(raw.map(function (d) { return d.nid; }).filter(Boolean));
+    const haveF = new Set(raw.map(function (d) { return d.nid; }).filter(Boolean).concat(Looscid.lcNostr && Looscid.lcNostr.hidden ? Looscid.lcNostr.hidden() : []));
     raw = raw.concat((o.srv || []).filter(function (d) { if (!d.nid || haveF.has(d.nid)) return false; haveF.add(d.nid); return true; }));
     list = lcSortDreams(raw.filter(function (d) { return !off.some(function (k) { return src[k](d); }); }), Looscid.lcFeedSort("for you"));
     // Nov 8 2026: your topics. Dreams about them come first (in the same order as before); with Only my topics, only those.
