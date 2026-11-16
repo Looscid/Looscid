@@ -5201,20 +5201,20 @@ Looscid.LOOSCID_SLOGAN = LOOSCID_SLOGAN;
    Builds 1 to 135 are counted privately and never listed (27 fixes + 108 features); Round 6 is build 136 (a feature update)
    Round 6.1, the split into files, is build 137 (a fix update), and Round 6.2, the app icon, is build 138 (a fix update), and Round 6.3, saved Dreams and composer focus, is build 139 (a fix update), and Round 6.4, Dreams on Nostr, is build 140 (a feature update), and Round 6.5, the new composer and Replies, is build 141 (a feature update), and Round 6.5.1, Dreamor everywhere, is build 142 (a fix update), and Round 6.5.2, Cherry gets its own page, is build 143 (a feature update), and Round 6.5.3, Cherry in Commandbar, is build 144 (a feature update).
    version.json at the site root carries the same numbers; the update check compares its build. */
-const LOOSCID_VERSION = "2026.138.57";
+const LOOSCID_VERSION = "2026.139.57";
 Looscid.LOOSCID_VERSION = LOOSCID_VERSION;
-const LOOSCID_BUILD = 195;
+const LOOSCID_BUILD = 196;
 Looscid.LOOSCID_BUILD = LOOSCID_BUILD;
 /* Round 7.41 (Carter, Oct 26 2026: "not corpo shit"): every Round gets a codename. Round 7.42: every build has one, back to
    build 136. Set the next one here and in the new LC_VERSION_HISTORY entry (its codename field), version.json ("codename")
    and the CHANGELOG.md heading. Round 7.43: shown as "Codename: <the old version text>" everywhere (see lcCodenamed). */
 const LOOSCID_ROUND = "Round 7.51";
-const LOOSCID_CODENAME = "Recipe Card";
+const LOOSCID_CODENAME = "Welcome Mat";
 Looscid.LOOSCID_ROUND = LOOSCID_ROUND; Looscid.LOOSCID_CODENAME = LOOSCID_CODENAME;
 /* Round 7.41: the one line under the Home heading. Edit this one string to change what it says (empty string hides it). */
 const LOOSCID_NOW_WORKING_ON = "sending photos, polls, links and places with your Dreams";
 Looscid.LOOSCID_NOW_WORKING_ON = LOOSCID_NOW_WORKING_ON;
-const LOOSCID_RELEASED = "2026-10-29T04:17:44Z"; // this update's commit time (version.json "released" matches)
+const LOOSCID_RELEASED = "2026-11-16T00:29:31Z"; // this update's commit time (version.json "released" matches)
 Looscid.LOOSCID_RELEASED = LOOSCID_RELEASED;
 // Round 11 fixes (QA round 10): About and Commandbar show only the time built into the running code, never version.json's
 // (the build number stays the same across commits, so an older copy still running would show a newer commit's time).
@@ -5357,7 +5357,7 @@ function lcOldVersion(version, build) { return "Looscid " + version + " (" + bui
 function lcCodenamed(codename, text) { return codename ? codename + ": " + text : text; }
 function lcBuildName(codename, build, round, version) { return lcCodenamed(codename, lcOldVersion(version, build)); }
 function lcVersionLabel() { return lcOldVersion(LOOSCID_VERSION, LOOSCID_BUILD); } // build 191's exact text, no codename
-function lcCodenameLabel() { return lcCodenamed(LOOSCID_CODENAME, lcVersionLabel()); } // "Recipe Card: Looscid 2026.138.57 (195)"
+function lcCodenameLabel() { return lcCodenamed(LOOSCID_CODENAME, lcVersionLabel()); } // "Welcome Mat: Looscid 2026.139.57 (196)"
 /* Round 7.41 (Carter, Oct 26 2026: side project vibe): fun loading lines. The line you see rotates every 2 seconds, but it's
    aria-hidden: screen readers get one plain, unchanging text ("Loading Dreams"), so nothing is re-read or announced. With
    Reduce Motion on, the first line stays put. Edit the list here. */
