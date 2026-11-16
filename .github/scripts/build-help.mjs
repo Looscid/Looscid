@@ -39,7 +39,7 @@ const routes = new Set([...coreSrc.slice(coreSrc.indexOf("const LC_ROUTES = ["),
 /* Nov 7 2026 (Carter approved: Get help and Project columns, the build in the bottom line): the footer has five groups,
    each with its own h2 so VoiceOver can jump by heading: Get help, Project, Looscid, Legal and Say hi. Nothing was taken
    away; every link is in one group only. The build comes from app/version.json, the file the app's update check reads,
-   written the way the app writes it ("Looscid 2026.138.57 (195)"). This builder also writes the footer into
+   written the way the app writes it ("Looscid 2026.139.57 (196)"). This builder also writes the footer into
    app/changelog/index.html and app/status.html, so a new build only needs this script run again (--check catches it). */
 const VJ = JSON.parse(fs.readFileSync(path.join(APP, "version.json"), "utf8"));
 /* Nov 7 2026 (Carter: Looscid's birthday is Jan 27, 2025, the repo's first day, so the copyright runs "like other companies"): from 2025 to the build's year.
