@@ -3,9 +3,11 @@
 Looscid counts every update on the main branch (called preview until October 14, 2026) as YEAR.FEATURES.FIXES (BUILD). Fix updates only fix things; feature updates add something. Builds count every update. Every build has a codename, and it goes in front of the old version text with a colon: Codename: Looscid YEAR.FEATURES.FIXES (BUILD).
 
 
-## UI audit fixes (no new build yet)
+## Welcome Mat: Looscid 2026.139.57 (196)
 
-Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+## UI audit fixes (build 196)
+
+Added November 9, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 From the UI audit on November 9. Carter: bug and security fixes ship right away, especially critical ones.
 
@@ -24,9 +26,9 @@ From the UI audit on November 9. Carter: bug and security fixes ship right away,
 - Who can see my followers and following starts at Only me now. Counts are still public, and Everyone is one switch away. If you follow each other, you always see Follows you or Mutuals, even when lists are private.
 - Credits links say what they are in their own words, like "React license (MIT)", so Voice Control and braille match the screen. Credits also lists the DM fonts now, and no longer says React loads from a CDN (it never does). Profile links and the profile fields are named by their visible words too.
 
-## Follows live on Rem now (no new build yet)
+## Follows live on Rem now (build 196)
 
-Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+Added November 9, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: "nothing on this app should save to device. Everything should depend on Rem."
 
@@ -40,9 +42,9 @@ Asked for by Carter: "nothing on this app should save to device. Everything shou
 - Rem can show every public reply in a thread now, so replies from other people show up on every device.
 - New Help Center article: Follow Dreamors.
 
-## Follow counts move right away, a new About Looscid, and profile About like X's (no new build yet)
+## Follow counts move right away, a new About Looscid, and profile About like X's (build 196)
 
-Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+Added November 9, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: "There were 10 followers and I followed them. It should be 11 followers. Same thing if I unfollowed them." "About Looscid needs a huge upgrade." "The About tab needs a whole overhaul." "The about page for profiles needs a major" one, like X's.
 
@@ -61,9 +63,9 @@ Asked for by Carter: "There were 10 followers and I followed them. It should be 
 - Name changes are counted on your device, starting today. Looscid didn't keep a history of names before, so the count starts now.
 - How you log in only shows on your own profile, to you.
 
-## Every Dream gets the full controls, Dislike is gone, and Not interested is here (no new build yet)
+## Every Dream gets the full controls, Dislike is gone, and Not interested is here (build 196)
 
-Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+Added November 9, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: "I don't see the full dream Controls." "Dislikes should be removed." Then yes to Not interested instead, and "Keep Like Manager."
 
@@ -78,9 +80,9 @@ Asked for by Carter: "I don't see the full dream Controls." "Dislikes should be 
 - New: Settings, Privacy & Security, Not interested. See what you marked, bring one back with Show again, or Clear all.
 - The Like manager in Liked stays, minus its Dislikes half.
 
-## Replies show up for real now, and alerts open fast (no new build yet)
+## Replies show up for real now, and alerts open fast (build 196)
 
-Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+Added November 9, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: "Your reply does not appear in the feed. Also it takes long for the Alert to load."
 
@@ -92,9 +94,9 @@ Asked for by Carter: "Your reply does not appear in the feed. Also it takes long
 - The Alerts list draws a lot faster when you have tons of alerts, Dreams and replies. It was reading all your replies from storage once per alert, every time the list redrew. Now it reads them once.
 - A reply to a Dream that only lives on Nostr is saved on Rem, but it can't bump that Dream in the Rem feed, since that Dream isn't on Rem. Replies never show as their own posts in the feed; they make the Dream they answer move up a little instead.
 
-## Tapping an alert opens it now (no new build yet)
+## Tapping an alert opens it now (build 196)
 
-Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+Added November 9, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: "in the Alerts tab, when clicking on an item, I don't go to that item".
 
@@ -103,9 +105,9 @@ Asked for by Carter: "in the Alerts tab, when clicking on an item, I don't go to
 - Each alert reads as one sentence: who, what and when. Like "Jeff liked your Dream “just dreaming”, 2 hours ago." No more pieces read one after another, and no name said twice. New ones start with "New:".
 - If the Dream isn't on your device, I ask Rem for it first, then Nostr. If neither answers, it opens with what the alert already knew.
 
-## Modlog is one word, and the footer got smaller (no new build yet)
+## Modlog is one word, and the footer got smaller (build 196)
 
-Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+Added November 9, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: "it be Modlog", "the Reddit links go under say hi" and "the footer could be condenced".
 
@@ -114,9 +116,9 @@ Asked for by Carter: "it be Modlog", "the Reddit links go under say hi" and "the
 - Reddit moved into Say hi, next to Discord, X, YouTube and GitHub, where it always should've been lol.
 - Shorter words on a couple of links (Basics course, Feedback) and less empty space. Every link is still there, and still big enough to tap.
 
-## The Help Center got a massive cleanup, and About Rem got funny (no new build yet)
+## The Help Center got a massive cleanup, and About Rem got funny (build 196)
 
-Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+Added November 9, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: "the help center needs a massive cleanup", "some humor" and "a nice long paragraph page".
 
@@ -128,9 +130,9 @@ Asked for by Carter: "the help center needs a massive cleanup", "some humor" and
 - About Rem is a full long page now, in the Help Center and on the Rem screen, with jokes. Same facts: cooked Dreams set to Everyone go on Rem, drafts and Followers only, My Circles and Only this device Dreams stay on your device, old Dreams sync once, and Delete my Rem data is there when you want out. The "Your Dreams were synced to Rem" card keeps the short version.
 - Page not found didn't change. It's perfect.
 
-## Local mode is gone, and your Dreams sync to Rem (no new build yet)
+## Local mode is gone, and your Dreams sync to Rem (build 196)
 
-Added November 9, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+Added November 9, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: "local mode should be discontinued immediately".
 
@@ -141,9 +143,9 @@ Asked for by Carter: "local mode should be discontinued immediately".
 - Privacy tells the truth now lol. It says cooked Dreams are stored on Rem and public, drafts stay on your device, what Rem keeps, when Looscid talks to Rem, and that a profile's website preview is read by Rem.
 - The command list says "soundpack soft blips" now, not fastsm. Typing fastsm still works.
 
-## Settings links, full numbers, For You topics and website previews (no new build yet)
+## Settings links, full numbers, For You topics and website previews (build 196)
 
-Added November 8, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+Added November 8, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter in the Dreamor Council, the first batch from the master list.
 
@@ -167,9 +169,9 @@ Asked for by Carter in the Dreamor Council, the first batch from the master list
 - Some wording fixes lol. The silent switch in Earcons says "your phone" now, since it's not only iPhones. Privacy doesn't say Cloudflare is gone anymore, because Rem runs there now: it just says there's no sign-up server and your LooscidID is made on your device. The Nostr tools error says to update your browser or your phone's system, and the Default choice in Settings Order is Grouped by kind. Your saved choice stays the same.
 - The FastSM-inspired Soundpack is called Soft Blips now 🔊 same sounds, and if you picked it before it's still picked. Searching "fastsm" still finds it, and Credits still says it's based on FastSMRW by masonasons.
 
-## About Looscid, all in one page (no new build yet)
+## About Looscid, all in one page (build 196)
 
-Added November 8, 2026 (Eastern Time), during Epilepsy Awareness Month. Not released as a build yet: it goes into the next build's notes.
+Added November 8, 2026 (Eastern Time), during Epilepsy Awareness Month. Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: Looscid is for everyone, on every screen reader, and nothing should keep you out.
 
@@ -188,9 +190,9 @@ Asked for by Carter: Looscid is for everyone, on every screen reader, and nothin
 - The roadmap and the up next list say "I" now, not "we", because Looscid is one person for now.
 - A few lines that only named VoiceOver now name screen readers in general: the accessibility checklist, the roadmap's testing line, the audience picker item and the server's classic web client.
 
-## Report Center and one footer (no new build yet)
+## Report Center and one footer (build 196)
 
-Added November 8, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+Added November 8, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: one central place for every kind of report, reports you can follow and talk about with the mods, and one footer for the whole app.
 
@@ -207,9 +209,9 @@ Asked for by Carter: one central place for every kind of report, reports you can
 - Rem, Looscid's server, has three new routes for reports (POST /reports, /reports/read and /reports/reply). Everything that was there before works the same.
 - The component library has two new pages: the Report Center form and a My reports thread. A new Help Center article explains the Report Center.
 
-## Likes, dislikes and the Liked manager (no new build yet)
+## Likes, dislikes and the Liked manager (build 196)
 
-Added November 8, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+Added November 8, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: dislikes across the app, and the Liked tab as the one place to manage likes and dislikes.
 
@@ -222,9 +224,9 @@ Asked for by Carter: dislikes across the app, and the Liked tab as the one place
 - Rem, Looscid's server, learned one new private list name, dislikes. Nothing that was there before changed.
 - The component library has two new pages: Like and Dislike buttons, and the Liked manager. The roadmap has the Calm mode plans.
 
-## Component library (no new build yet)
+## Component library (build 196)
 
-Added November 8, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+Added November 8, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: Looscid's own component library, in the Help Center's developer part.
 
@@ -234,9 +236,9 @@ Asked for by Carter: Looscid's own component library, in the Help Center's devel
 - Credits thanks the projects behind the ideas, and the QR code generator Looscid already used.
 - The roadmap has the component library ticked, plus new items for likes, dislikes and content labels.
 
-## Public removals and a Modlog (no new build yet)
+## Public removals and a Modlog (build 196)
 
-Added November 8, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+Added November 8, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: removal reasons are public, with a public Modlog that says moderator or admin, and a deleted Dream only leaves a placeholder when the thread needs it.
 
@@ -246,9 +248,9 @@ Asked for by Carter: removal reasons are public, with a public Modlog that says 
 - Rem, Looscid's server, has a new public route, GET /modlog, so a Looscid admin's removals show on every device. Nothing that was there before changed. server/rem/src/index.js now has all of Rem's moderation code.
 - The roadmap's Safety items for mod reasons and Blocklists are ticked, since they shipped.
 
-## Looscid is AGPL now (no new build yet)
+## Looscid is AGPL now (build 196)
 
-Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes.
+Added November 7, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: Looscid switched from its own Looscid Public License (LPL) v1.0 to the GNU Affero General Public License v3.0 (AGPL-3.0-or-later). Companies can use Looscid's code now, as long as their version stays open source too, and Looscid can use code from AGPL and GPL-3.0 projects.
 
@@ -256,9 +258,9 @@ Asked for by Carter: Looscid switched from its own Looscid Public License (LPL) 
 - About, Credits, Legal, the Help Center's license article and the sitewide footer say AGPL-3.0, and link to the license's page in the Help Center docs.
 - The server/ folder (Rem v0, retired) keeps its MIT license.
 
-## One Looscid, one server: Rem moved to rem (no new build yet)
+## One Looscid, one server: Rem moved to rem (build 196)
 
-Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).
+Added November 7, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: Looscid is one product at one address, https://looscid.github.io/Looscid/, with one server.
 
@@ -267,18 +269,18 @@ Asked for by Carter: Looscid is one product at one address, https://looscid.gith
 - The Nostr bridge is unchanged.
 - An address Looscid doesn't know now opens a "Page not found" page, with Go to Looscid home and Help Center.
 
-## Copyright year: 2025–2026 (no new build yet)
+## Copyright year: 2025–2026 (build 196)
 
-Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).
+Added November 7, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: Looscid's birthday is January 27, 2025, the day the project was started on GitHub, so the copyright now runs from that year to this one, like other companies.
 
 - The footer says "© 2025–2026 Looscid" on the Help Center, the doc pages, the changelog and the status page, and in the app's own footer. VoiceOver reads it as "copyright 2025 to 2026".
 - The second year comes from the build's version (the first part of 2026.138.57), so it moves on its own with the next build in a new year. The rest of the credit line is the same.
 
-## New footer: Get help and Project (no new build yet)
+## New footer: Get help and Project (build 196)
 
-Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).
+Added November 7, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: a footer with Get help and Project, and the build number in it.
 
@@ -286,26 +288,26 @@ Asked for by Carter: a footer with Get help and Project, and the build number in
 - Nothing was taken away, and every link is in one group only. Status is new in the footer.
 - The bottom line ends with the build, like "Looscid 2026.138.57 (195)". It comes from the same file the app checks for updates.
 
-## Go to menu in the Help Center (no new build yet)
+## Go to menu in the Help Center (build 196)
 
-Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).
+Added November 7, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: a Go to button with Help Home and Looscid Home, and no Back link, because Back is just the page you came from.
 
 - The Help Center's top bar has one Go to button now, on every Help Center page and every doc page. It opens a small list with two links: Help Home and Looscid Home. VoiceOver says "Go to, collapsed, button", then "expanded" when it's open. Escape closes it and puts you back on the button, and tapping anywhere else closes it too.
 - Without scripts, the two links just sit in the top bar. The footer's Home link stays.
 
-## Home links (no new build yet)
+## Home links (build 196)
 
-Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).
+Added November 7, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: Home links, not Open Looscid links.
 
 - Every Open Looscid link on the website is called Home now: the Help Center's top bar and footer, the changelog, the status page and the page-not-found page. They go to the same place as before, and VoiceOver still says "Goes to Home" after them.
 
-## Help Center: Using Looscid and Building Looscid (no new build yet)
+## Help Center: Using Looscid and Building Looscid (build 196)
 
-Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).
+Added November 7, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: one place for docs, at the Help Center.
 
@@ -314,9 +316,9 @@ Asked for by Carter: one place for docs, at the Help Center.
 - The footer's Docs, Contributing and Accessibility links, Credits' license link, Legal's license link and About's accessibility commitments link go to those pages instead of GitHub. Only Source code and Issues still go to GitHub.
 - Every Help Center address is the same as before.
 
-## Roadmap and changelog: one page (no new build yet)
+## Roadmap and changelog: one page (build 196)
 
-Added November 7, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).
+Added November 7, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter: "One full page. Put in Changelog so old links work."
 
@@ -325,21 +327,21 @@ Asked for by Carter: "One full page. Put in Changelog so old links work."
 - The footer link still says Changelog.
 - The developer roadmap (docs/dev/ROADMAP.md) has a new Circles and Discord section with the same list.
 
-## Credits: link to developer's homepage (no new build yet)
+## Credits: link to developer's homepage (build 196)
 
-Added November 2, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build number doesn't change.
+Added November 2, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 - Credits and open source now has a "Developer's homepage" link under Created by.
 
-## Credits: TalkBack test (no new build yet)
+## Credits: TalkBack test (build 196)
 
-Added November 2, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build number doesn't change.
+Added November 2, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 - Credits and open source now thanks the TalkBack test page, under Design references: it's where our link, button, heading and edit box format came from.
 
-## TalkBack: links stay plain again (no new build yet)
+## TalkBack: links stay plain again (build 196)
 
-Added November 2, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build number doesn't change.
+Added November 2, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 The same approved TalkBack format as October 29, checked again everywhere.
 
@@ -350,9 +352,9 @@ The same approved TalkBack format as October 29, checked again everywhere.
 - Easyconvert's "File actions" headings are plain, with no hidden words, and documents it makes in English are marked US English.
 - The Meme Projects disclaimer link is a plain "Full view" link, with no hidden words.
 
-## TalkBack: US English page language, cleaner links (no new build yet)
+## TalkBack: US English page language, cleaner links (build 196)
 
-Added October 29, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).
+Added October 29, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter, after testing it with TalkBack on Android.
 
@@ -362,9 +364,9 @@ Asked for by Carter, after testing it with TalkBack on Android.
 - The status page's email box offers to fill in your email.
 - The Help Center pages were rebuilt with the same changes.
 
-## Add to Dream only lists what works (no new build yet)
+## Add to Dream only lists what works (build 196)
 
-Added October 29, 2026 (Eastern Time). Not released as a build yet: it goes into the next build's notes, and the build stays Recipe Card: Looscid 2026.138.57 (195).
+Added October 29, 2026 (Eastern Time). Released in Welcome Mat: Looscid 2026.139.57 (196).
 
 Asked for by Carter in the Dreamor Council (a yes to removing them, the same as the Create menu).
 
