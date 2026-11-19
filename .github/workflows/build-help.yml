@@ -1,0 +1,61 @@
+name: Build Help Center
+
+# Runs .github/scripts/build-help.mjs whenever the Help Center's words or its builder change, then commits
+# the regenerated pages in app/help-center/ (and the footers and search files the script writes) back to main.
+# The Deploy Looscid to GitHub Pages workflow publishes them after that push.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "app/js/helpdata.js"
+      - ".github/scripts/**"
+      - "app/js/sitefooter.js"
+      - "app/js/core.js"
+      - "app/version.json"
+      - "app/changelog/index.html"
+      - "app/status.html"
+      - "app/404.html"
+      - "docs/**"
+      - "LICENSE"
+      - "CHANGELOG.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-help
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build the Help Center
+        run: node .github/scripts/build-help.mjs
+
+      - name: Check the Help Center is up to date
+        run: node .github/scripts/build-help.mjs --check
+
+      - name: Commit regenerated Help Center files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/help-center app/help app/changelog/index.html app/status.html app/404.html app/js/aboutdata.js app/About app/Why app/why-looscid courses.js search.js 2>/dev/null || true
+          git add -A app
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Rebuild Help Center from helpdata.js [skip build-help]"
+            git push origin HEAD:main
+          fi
