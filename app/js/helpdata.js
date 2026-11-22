@@ -16,7 +16,7 @@
   var C = [
     { id: "getting-started", t: "Getting Started", s: "New here? Start with these. Make your LooscidID, log in on your other devices, and learn your way around." },
     { id: "dreams", t: "Dreams, replies and threads", s: "Write and cook Dreams, reply to them, follow threads, and use Likes, Redreams and the More button." },
-    { id: "chats-circles-cherry", t: "Chats, Circles and Cherry", s: "Your Inbox, private chats, Circles for groups of Dreamors, and Cherry the built-in assistant." },
+    { id: "chats-circles-cherry", t: "Chats, Circles, Cherry and Noctis", s: "I cover your Inbox, private chats, Circles for groups of Dreamors, and the assistant called Cherry in the app and Noctis in the rename." },
     // Nov 9 2026 (Carter: "the help center needs a massive cleanup"): reports and the mod log get their own collection.
     { id: "safety-and-reports", t: "Reports, safety and the Modlog", s: "Report a Dream, a person or a Circle, report a bug or an idea, and see why Dreams get removed." },
     { id: "settings-privacy-backup", t: "Settings, privacy and your data", s: "Find any setting, choose who can reach you, learn about Rem, and back up your stuff." },
@@ -221,17 +221,17 @@
       ],
       rel: ["start-a-chat", "write-a-dream", "mod-log"] },
     { id: "cherry", c: "chats-circles-cherry", t: "Meet Cherry, the built-in assistant",
-      s: "Cherry is Looscid's assistant. It runs on your device, so your words aren't sent to an AI company.",
+      s: "Cherry is Looscid's assistant, also named Noctis. It runs on your device, so your words aren't sent to an AI company.",
       p: [
         "Cherry is the assistant built into Looscid. The cool part: it runs right on your device. Your questions don't fly off to some AI company's server. They stay with you, where they belong.",
         "Cherry is off until you turn it on. [[More/Settings/Cherry|Turn Cherry on]]. The first time, Cherry asks to download its model. That happens once. After that, Cherry works offline, even on a plane, in a tunnel, or in your grandma's basement with no Wi-Fi.",
         "## Talking to Cherry",
         "[[Cherry|Open Cherry]], or press Create, then New Chat with Cherry. Type a question and send it. New Chat starts fresh, and Your History keeps your past chats. Each chat has Chat Options: Pin, Edit name and Delete.",
-        "Your Cherry chats stay on your device. [[More/Settings/Privacy-and-Security/What-Cherry-Can-See|Choose what Cherry can see]], too.",
+        "Your Cherry chats stay on your device. [[More/Settings/Privacy-and-Security/What-Cherry-Can-See|Choose what Cherry can see]], too.", "I renamed Cherry to Noctis, but the app still says Cherry. For the name change, see {{noctis-rename}}",
         "## Not a Cherry fan?",
         "That's fine. Turning Cherry off hides it everywhere. No hard feelings. Cherry will be fine. Probably.",
       ],
-      rel: ["commandbar", "find-settings", "privacy"] },
+      rel: ["commandbar", "find-settings", "privacy"] }, { id: "noctis-rename", c: "chats-circles-cherry", t: "Why is Cherry also called Noctis?", s: "I renamed Cherry to Noctis, but the app still calls the same assistant Cherry.", p: [ "I renamed Cherry to Noctis, but the app still calls it Cherry. It's the same built-in assistant, not a different one.", "I picked Noctis because it's shorter to say and easier to tell apart from other products called Cherry. Fewer name mix-ups, more room for questions.", "The name doesn't change how the assistant works. It runs on your device, and your questions aren't sent to an AI company. It's off until you turn it on. After a model download, it works offline.", "I haven't announced any account changes for this rename. You don't need a new LooscidID just because the assistant has another name.", "For now, look for Cherry in the app. Press Create, then New Chat with Cherry, or [[Cherry|Open Cherry]]. To turn it on, use [[More/Settings/Cherry|Turn Cherry on]]. Some addresses and filenames still say Cherry so old links keep working.", "For more about using the assistant, see {{cherry}}." ], rel: ["cherry", "privacy", "find-settings"] },
 
     /* ---- Reports, safety and the Modlog ---- */
     { id: "report-center", c: "safety-and-reports", t: "Report a Dream, a person or a Circle",
