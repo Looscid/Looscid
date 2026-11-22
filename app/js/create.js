@@ -148,7 +148,7 @@ var LC_CREATE_OPTS = [
   // Round 7.31 (Carter, Oct 26 2026): Custom Feed is now List (a list is a custom feed you can pin). The id stays "feed".
   { id: "feed", l: "List", list: true },
   { id: "chat", l: "New Chat", chat: true }, // Round 7.30 (Carter, Oct 26 2026): opens Inbox, Chats, Send a message
-  { id: "cherry", l: "New Chat with Cherry", cherry: true },
+  { id: "cherry", l: "New Chat with Noctis", cherry: true },
 ];
 /* Nov 8 2026: shared here, after they're set. The export at the top ran before these lines, so it handed out undefined. */
 Object.assign(Looscid, { LC_CREATE_DESC, LC_CREATE_OPTS });
@@ -158,7 +158,7 @@ function lcCreatePick(o, ctx) {
     if (Looscid.lcCherryStartNew) Looscid.lcCherryStartNew();
     if (ctx.close) ctx.close();
     ctx.navigate("cherry");
-    announce("New chat with Cherry.");
+    announce("New Chat with Noctis.");
     return;
   }
   // Round 7.30 (Carter, Oct 26 2026): New Chat opens the same Send a message form as Inbox, Chats (focus in To).
@@ -668,7 +668,7 @@ function LcComposerInner(props) {
     const att = attachments[i]; if (!att) return;
     lcAltSuggest(att).then(function (s) {
       const cur = String(att.alt || "").trim(); const v = cur ? cur + " " + s : s;
-      setAlt(i, v); announce("Cherry suggested: " + s + " Edit it to say what's in the photo.");
+      setAlt(i, v); announce("Noctis suggested: " + s + " Edit it to say what's in the photo.");
       setTimeout(function () { const f = document.getElementById("lc-alt-" + i); if (f) f.focus(); }, 30);
     });
   };
@@ -752,7 +752,7 @@ function LcComposerInner(props) {
           lh('span', { style: {color:"var(--tx2)",maxWidth:160,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"} }, att.type === "poll" ? "Poll: " + att.question : att.type === "link" ? att.url : att.type === "location" ? att.place : att.type),
           lh('button', { type: "button", onClick: function () { setAttachments(function (as) { return as.filter(function (_, j) { return j !== i; }); }); }, style: {background:"none",border:"none",cursor:"pointer",color:"var(--tx3)",padding:0,fontSize:14,lineHeight:1,minWidth:24,minHeight:24}, "aria-label": ("Remove " + nm + " " + (nth || "")).trim() }, "\u2715"));
       })),
-    aiOn && attachments.some(function (a) { return a.type === "photo"; }) && lh('p', { className: "lc-desc", style: {padding:"0 16px 6px",fontSize:12} }, "Suggest alt text makes a start on this device from the photo's shape, colours and name. Cherry can't see what's in it, so check and edit it."),
+    aiOn && attachments.some(function (a) { return a.type === "photo"; }) && lh('p', { className: "lc-desc", style: {padding:"0 16px 6px",fontSize:12} }, "Suggest alt text makes a start on this device from the photo's shape, colours and name. Noctis can't see what's in it, so check and edit it."),
     /* Link preview (Round 6.5, queue #37): a plain card, made on this device */
     link && lh('div', { className: "lc-cr-link", style: {padding:"0 16px 8px"} },
       lh('p', { id: "cr-link-p", className: "lc-desc", style: {margin:"0 0 4px"} }, nopv ? "Link preview removed." : "Link preview: " + link.label + ", " + link.domain + "."),
@@ -795,7 +795,7 @@ function LcComposerInner(props) {
     lh('div', { className: "lc-inrow", style: {padding:"6px 16px",flexWrap:"wrap"} },
       parent && lh('button', { type: "button", className: "btn bgb lc-btn", id: "cr-hear", onClick: hearParent }, "Hear Dream"),
       lh('button', { type: "button", className: "btn bgb lc-btn", id: "cr-readback", onClick: readBack }, isReply ? "Read back my reply" : "Read back my Dream"),
-      cherryCtx && lh('button', { type: "button", className: "cherry-compose-btn", onClick: function () { sentRef.current = true; props.onClose(); cherryCtx.openCherry(isReply ? "Draft a reply to " + who + "'s Dream: \u201c" + String(parent.text || "").slice(0, 200) + "\u201d" : "Draft a Dream for me to share"); } }, isReply ? "Ask Cherry to write this reply" : "Ask Cherry to write this Dream")),
+      cherryCtx && lh('button', { type: "button", className: "cherry-compose-btn", onClick: function () { sentRef.current = true; props.onClose(); cherryCtx.openCherry(isReply ? "Draft a reply to " + who + "'s Dream: \u201c" + String(parent.text || "").slice(0, 200) + "\u201d" : "Draft a Dream for me to share"); } }, isReply ? "Ask Noctis to write this reply" : "Ask Noctis to write this Dream")),
     /* Dream (Reply in Reply mode), then Close: right after the content, as in 6.3 */
     lh('div', { style: {display:"flex",justifyContent:"flex-end",gap:8,padding:"10px 16px 6px",borderTop:"1px solid var(--bd)"} },
       lh('button', { type: "button", id: "cr-dream-btn", className: "btn bp", style: {padding:"8px 18px",fontSize:14}, onClick: tryPost, "aria-disabled": canPost ? undefined : "true" }, isReply ? "Reply" : "Dream"),
