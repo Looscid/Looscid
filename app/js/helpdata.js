@@ -16,7 +16,7 @@
   var C = [
     { id: "getting-started", t: "Getting Started", s: "New here? Start with these. Make your LooscidID, log in on your other devices, and learn your way around." },
     { id: "dreams", t: "Dreams, replies and threads", s: "Write and cook Dreams, reply to them, follow threads, and use Likes, Redreams and the More button." },
-    { id: "chats-circles-cherry", t: "Chats, Circles, Cherry and Noctis", s: "I cover your Inbox, private chats, Circles for groups of Dreamors, and the assistant called Cherry in the app and Noctis in the rename." },
+    { id: "chats-circles-cherry", t: "Chats, Circles and Cherry", s: "Your Inbox, private chats, Circles for groups of Dreamors, and Cherry the built-in assistant." },
     // Nov 9 2026 (Carter: "the help center needs a massive cleanup"): reports and the mod log get their own collection.
     { id: "safety-and-reports", t: "Reports, safety and the Modlog", s: "Report a Dream, a person or a Circle, report a bug or an idea, and see why Dreams get removed." },
     { id: "settings-privacy-backup", t: "Settings, privacy and your data", s: "Find any setting, choose who can reach you, learn about Rem, and back up your stuff." },
@@ -231,7 +231,7 @@
         "## Not a Cherry fan?",
         "That's fine. Turning Cherry off hides it everywhere. No hard feelings. Cherry will be fine. Probably.",
       ],
-      rel: ["commandbar", "find-settings", "privacy"] }, { id: "noctis-rename", c: "chats-circles-cherry", t: "Why is the assistant called Noctis?", s: "The assistant used to be called Cherry. I renamed it Noctis.", p: [ "Noctis is the same built-in assistant I used to call Cherry.", "I picked Noctis because it's shorter to say and easier to tell apart from other products called Cherry. Fewer name mix-ups, more room for questions.", "The name doesn't change how the assistant works. It runs on your device, and your questions aren't sent to an AI company. It's off until you turn it on. After a model download, it works offline.", "I haven't announced any account changes for this rename. You don't need a new LooscidID just because the assistant has another name.", "Look for Noctis in the app. Press Create, then New Chat with Noctis. Some addresses and filenames still say Cherry so old links keep working.", "For more about using the assistant, see {{cherry}}." ], rel: ["cherry", "privacy", "find-settings"] },
+      rel: ["commandbar", "find-settings", "privacy"] }, { id: "noctis-rename", c: "chats-circles-cherry", t: "Why is the assistant called Noctis?", s: "The assistant used to be called Cherry. I renamed it Noctis.", p: [ "Noctis is the same built-in assistant I used to call Cherry.", "I picked Noctis because it's shorter to say and easier to tell apart from other products called Cherry. Fewer name mix-ups, more room for questions.", "The name doesn't change how the assistant works. It runs on your device, and your questions aren't sent to an AI company. It's off until you turn it on. After a model download, it works offline.", "I haven't announced any account changes for this rename. You don't need a new LooscidID just because the assistant has another name.", "Look for Noctis in the app. Press Create, then New Chat with Noctis. Some labels still say Cherry because that was its older name.", "For more about using the assistant, see {{cherry}}." ], rel: ["cherry", "privacy", "find-settings"] },
 
     /* ---- Reports, safety and the Modlog ---- */
     { id: "report-center", c: "safety-and-reports", t: "Report a Dream, a person or a Circle",
