@@ -3,7 +3,9 @@ import XCTest
 
 final class BackupManagerTests: XCTestCase {
     func testParsesPlaintextWithMarker() throws {
-        let json = #"{\"looscid_backup_data\":1,\"key\":{\"nsec\":\"nsec1x\"},\"profile\":{\"name\":\"Sample\"},\"app\":{\"looscid_theme\":\"light\"}}"#
+        let json = #"""
+        {"looscid_backup_data":1,"key":{"nsec":"nsec1x"},"profile":{"name":"Sample"},"app":{"looscid_theme":"light"}}
+        """#
         let b = try BackupManager.parsePlaintext(Data(json.utf8))
         XCTAssertEqual(b.nsec, "nsec1x")
         XCTAssertEqual(b.profileName, "Sample")
@@ -11,7 +13,9 @@ final class BackupManagerTests: XCTestCase {
     }
 
     func testRejectsEncryptedAsPasswordRequired() {
-        let json = #"{\"looscid_backup\":1,\"kdf\":{},\"cipher\":{},\"data\":\"x\"}"#
+        let json = #"""
+        {"looscid_backup":1,"kdf":{},"cipher":{},"data":"x"}
+        """#
         XCTAssertThrowsError(try BackupManager.parsePlaintext(Data(json.utf8))) { error in
             XCTAssertEqual(error as? BackupManager.BackupError, .passwordRequired)
         }
