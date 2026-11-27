@@ -1,0 +1,57 @@
+name: Cleanup branches (temporary)
+
+on:
+  workflow_dispatch:
+    inputs:
+      delete_dev:
+        description: 'Delete the DEV branch after beta is verified at the same commit (true or false)'
+        required: true
+        default: 'false'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: DEV
+
+      - name: Git config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Create beta from DEV
+        run: |
+          set -e
+          git fetch origin DEV
+          DEV_SHA=$(git rev-parse origin/DEV)
+          if git ls-remote --exit-code --heads origin beta >/dev/null 2>&1; then
+            echo "beta already exists"
+          else
+            git push origin "${DEV_SHA}:refs/heads/beta"
+          fi
+          BETA_SHA=$(git ls-remote origin refs/heads/beta | cut -f1)
+          echo "DEV=${DEV_SHA} beta=${BETA_SHA}"
+          test "$DEV_SHA" = "$BETA_SHA"
+
+      - name: Delete approved stale branches
+        run: |
+          for b in onboarding-unified-v2 onboarding-unified d1-feed dreamos-may9 profileedit settingsios27; do
+            git push origin --delete "$b" || echo "could not delete $b (may already be gone)"
+          done
+
+      - name: Delete DEV (only if requested and beta matches)
+        if: ${{ github.event.inputs.delete_dev == 'true' }}
+        run: |
+          set -e
+          DEV_SHA=$(git ls-remote origin refs/heads/DEV | cut -f1)
+          BETA_SHA=$(git ls-remote origin refs/heads/beta | cut -f1)
+          test -n "$BETA_SHA"
+          test "$DEV_SHA" = "$BETA_SHA"
+          git push origin --delete DEV
