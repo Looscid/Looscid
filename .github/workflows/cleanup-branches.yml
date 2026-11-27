@@ -3,7 +3,7 @@ name: Cleanup branches (temporary)
 on:
   push:
     branches:
-      - DEV
+      - beta
 
 permissions:
   contents: write
@@ -22,21 +22,19 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Push HEAD to beta
+      - name: Delete stale branches and report each result
+        run: |
+          for b in onboarding-unified-v2 onboarding-unified d1-feed dreamos-may9 profileedit settingsios27 dreamboard-classic; do
+            if [ "$b" = "main" ] || [ "$b" = "beta" ]; then echo "SKIP $b"; continue; fi
+            if git push origin --delete "$b"; then echo "DELETED $b"; else echo "FAILED $b"; fi
+          done
+          echo "Remaining remote branches:"
+          git ls-remote --heads origin
+
+      - name: Remove this temporary workflow file
         run: |
           set -e
+          git checkout beta
+          git rm .github/workflows/cleanup-branches.yml
+          git commit -m "Remove temporary cleanup workflow"
           git push origin HEAD:refs/heads/beta
-          git fetch origin beta
-          echo "HEAD=$(git rev-parse HEAD) beta=$(git rev-parse origin/beta)"
-          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/beta)"
-
-      - name: Delete stale branches
-        run: |
-          git push origin --delete onboarding-unified-v2 onboarding-unified d1-feed dreamos-may9 profileedit settingsios27 || true
-
-      - name: Delete DEV only if beta matches HEAD
-        run: |
-          set -e
-          git fetch origin beta
-          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/beta)"
-          git push origin --delete DEV || true
