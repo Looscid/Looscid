@@ -17,11 +17,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.mergeDescendants
+import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,15 +47,39 @@ class SortbarViewModel : ViewModel() {
 }
 
 /**
- * Horizontal row of sort buttons. Each segment merges its descendants into one node,
- * so TalkBack reads the label, the badge count, and the selected state as one button.
+ * Horizontal row of sort buttons. For TalkBack the whole bar is one adjustable element:
+ * focus it, then swipe up (next segment) or down (previous segment). Touch still uses the segment buttons.
  */
 @Composable
-fun SortbarView(viewModel: SortbarViewModel, segments: List<SortbarSegment>) {
+fun SortbarView(viewModel: SortbarViewModel, segments: List<SortbarSegment>, label: String = "Filter") {
     val selectedIndex by viewModel.selectedIndex.collectAsState()
+    val count = segments.size
+    val current = segments.getOrNull(selectedIndex)
+    // Read after each swipe, for example "Replies, 3 of 9" or "Replies, 3 of 9, 2 new".
+    val valueText = if (current == null) "" else {
+        val badge = if (current.badgeCount > 0) ", ${current.badgeCount} new" else ""
+        "${current.label}, ${selectedIndex + 1} of $count$badge"
+    }
 
     Row(
-        modifier = Modifier.padding(horizontal = 16.dp),
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = label
+                stateDescription = valueText
+                if (count > 0) {
+                    progressBarRangeInfo = ProgressBarRangeInfo(
+                        current = selectedIndex.toFloat(),
+                        range = 0f..(count - 1).toFloat(),
+                        steps = (count - 2).coerceAtLeast(0),
+                    )
+                    setProgress { target ->
+                        val next = Math.round(target).coerceIn(0, count - 1)
+                        if (next != selectedIndex) viewModel.select(next)
+                        true
+                    }
+                }
+            },
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
