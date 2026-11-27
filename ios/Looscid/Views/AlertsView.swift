@@ -1,35 +1,49 @@
 import SwiftUI
 
-/// Kind of alert. The raw value is used only for filtering, not shown to the user.
+/// Kind of alert, mirroring the web app's alert types (app/js/core.js LC_ALERT_TYPES).
 enum AlertKind: Equatable {
+    case reply
     case mention
-    case direct
+    case like
     case other
 }
 
-/// One alert row. Real data source is not wired yet; the screen takes items as input.
+/// One alert row. The real data source is not wired yet; the screen takes items as input.
 struct AlertItem: Identifiable, Equatable {
     let id: String
     let kind: AlertKind
+    let isUnread: Bool
     let text: String
 }
 
-/// Alerts screen: a filter bar at the top and a list that reacts to the selected segment.
+/// Alerts screen: filter bar on top, list below that reacts to the selected segment.
+/// Each instance owns its own SortbarViewModel, so two Alerts screens never share selection state.
 struct AlertsView: View {
-    @ObservedObject var filter: SortbarViewModel
+    /// Filter segments, in the same order as the web app's Alerts tabs (All, Unread, Replies, Mentions, Likes).
+    static let segments: [SortbarSegment] = [
+        SortbarSegment(id: "all", label: "All", badgeCount: 0),
+        SortbarSegment(id: "unread", label: "Unread", badgeCount: 0),
+        SortbarSegment(id: "replies", label: "Replies", badgeCount: 0),
+        SortbarSegment(id: "mentions", label: "Mentions", badgeCount: 0),
+        SortbarSegment(id: "likes", label: "Likes", badgeCount: 0)
+    ]
+
+    @StateObject private var filter: SortbarViewModel
     let items: [AlertItem]
 
-    /// Segment order must match the SortbarViewModel segments created in `AlertsView.defaultFilter`.
-    static let defaultFilter = SortbarViewModel(segments: [
-        SortbarSegment(id: "all", label: "All", badgeCount: 0),
-        SortbarSegment(id: "mentions", label: "Mentions", badgeCount: 0),
-        SortbarSegment(id: "direct", label: "Direct", badgeCount: 0)
-    ])
+    init(items: [AlertItem]) {
+        _filter = StateObject(wrappedValue: SortbarViewModel(segments: AlertsView.segments))
+        self.items = items
+    }
 
     private var visibleItems: [AlertItem] {
-        switch filter.selectedIndex {
-        case 1: return items.filter { $0.kind == .mention }
-        case 2: return items.filter { $0.kind == .direct }
+        let index = filter.selectedIndex
+        guard filter.segments.indices.contains(index) else { return items }
+        switch filter.segments[index].id {
+        case "unread": return items.filter { $0.isUnread }
+        case "replies": return items.filter { $0.kind == .reply }
+        case "mentions": return items.filter { $0.kind == .mention }
+        case "likes": return items.filter { $0.kind == .like }
         default: return items
         }
     }
@@ -62,12 +76,10 @@ struct AlertsView: View {
 
 #Preview {
     NavigationStack {
-        AlertsView(
-            filter: AlertsView.defaultFilter,
-            items: [
-                AlertItem(id: "1", kind: .mention, text: "Someone mentioned you"),
-                AlertItem(id: "2", kind: .direct, text: "New direct message")
-            ]
-        )
+        AlertsView(items: [
+            AlertItem(id: "1", kind: .mention, isUnread: true, text: "Someone mentioned you"),
+            AlertItem(id: "2", kind: .reply, isUnread: false, text: "Someone replied to your Dream"),
+            AlertItem(id: "3", kind: .like, isUnread: true, text: "Someone liked your Dream")
+        ])
     }
 }
