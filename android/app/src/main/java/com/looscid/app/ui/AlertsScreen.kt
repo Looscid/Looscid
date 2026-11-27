@@ -12,28 +12,37 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
-/** Kind of alert, used only for filtering. */
-enum class AlertKind { MENTION, DIRECT, OTHER }
+/** Kind of alert, mirroring the web app's alert types (app/js/core.js LC_ALERT_TYPES). */
+enum class AlertKind { REPLY, MENTION, LIKE, OTHER }
 
 /** One alert row. The real data source is not wired yet; the screen takes items as input. */
-data class AlertItem(val id: String, val kind: AlertKind, val text: String)
+data class AlertItem(val id: String, val kind: AlertKind, val isUnread: Boolean, val text: String)
 
-/** Segments shown in the Alerts filter bar. Index order must match [alertsFilterFor]. */
+/**
+ * Filter segments, in the same order as the web app's Alerts tabs (All, Unread, Replies, Mentions, Likes).
+ * Each segment's id is what [alertsFilterFor] matches on, so reordering the list does not change the filter logic.
+ */
 val alertsSegments = listOf(
     SortbarSegment(id = "all", label = "All", badgeCount = 0),
+    SortbarSegment(id = "unread", label = "Unread", badgeCount = 0),
+    SortbarSegment(id = "replies", label = "Replies", badgeCount = 0),
     SortbarSegment(id = "mentions", label = "Mentions", badgeCount = 0),
-    SortbarSegment(id = "direct", label = "Direct", badgeCount = 0),
+    SortbarSegment(id = "likes", label = "Likes", badgeCount = 0),
 )
 
-/** Returns the items that match the selected filter index: 0 = All, 1 = Mentions, 2 = Direct. */
-fun alertsFilterFor(items: List<AlertItem>, selectedIndex: Int): List<AlertItem> = when (selectedIndex) {
-    1 -> items.filter { it.kind == AlertKind.MENTION }
-    2 -> items.filter { it.kind == AlertKind.DIRECT }
-    else -> items
+/** Returns the items that match the segment at [selectedIndex] in [alertsSegments]. */
+fun alertsFilterFor(items: List<AlertItem>, selectedIndex: Int): List<AlertItem> {
+    val segmentId = alertsSegments.getOrNull(selectedIndex)?.id ?: return items
+    return when (segmentId) {
+        "unread" -> items.filter { it.isUnread }
+        "replies" -> items.filter { it.kind == AlertKind.REPLY }
+        "mentions" -> items.filter { it.kind == AlertKind.MENTION }
+        "likes" -> items.filter { it.kind == AlertKind.LIKE }
+        else -> items
+    }
 }
 
 /**
