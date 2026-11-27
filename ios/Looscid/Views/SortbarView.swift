@@ -17,10 +17,33 @@ final class SortbarViewModel: ObservableObject {
     }
 }
 
-/// Horizontal row of sort buttons. Each button is a plain SwiftUI Button with
-/// combined accessibility, so VoiceOver reads the label, badge count, and selected state.
+/// Horizontal row of sort buttons. For VoiceOver the whole bar is one adjustable element:
+/// focus it, then swipe up (next segment) or down (previous segment). Touch still uses the buttons.
 struct SortbarView: View {
     @ObservedObject var viewModel: SortbarViewModel
+    /// Name VoiceOver reads for the whole bar, for example "Filter".
+    var label: String = "Filter"
+
+    /// Value VoiceOver reads after each swipe, for example "Replies, 3 of 9" or "Replies, 3 of 9, 2 new".
+    private var valueText: String {
+        guard viewModel.segments.indices.contains(viewModel.selectedIndex) else { return "" }
+        let segment = viewModel.segments[viewModel.selectedIndex]
+        let badge = segment.badgeCount > 0 ? ", \(segment.badgeCount) new" : ""
+        return "\(segment.label), \(viewModel.selectedIndex + 1) of \(viewModel.segments.count)\(badge)"
+    }
+
+    private func adjust(_ direction: AccessibilityAdjustmentDirection) {
+        let last = viewModel.segments.count - 1
+        guard last >= 0 else { return }
+        switch direction {
+        case .increment:
+            viewModel.selectedIndex = min(viewModel.selectedIndex + 1, last)
+        case .decrement:
+            viewModel.selectedIndex = max(viewModel.selectedIndex - 1, 0)
+        @unknown default:
+            break
+        }
+    }
 
     var body: some View {
         HStack(spacing: 12) {
@@ -36,6 +59,14 @@ struct SortbarView: View {
             }
         }
         .padding(.horizontal)
+        // One element for VoiceOver: the individual buttons are hidden from it, and the bar adjusts instead.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(label)
+        .accessibilityValue(valueText)
+        .accessibilityAddTraits(.isAdjustable)
+        .accessibilityAdjustableAction { direction in
+            adjust(direction)
+        }
     }
 
     @ViewBuilder
@@ -69,5 +100,5 @@ struct SortbarView: View {
         SortbarSegment(id: "top", label: "Top", badgeCount: 0),
         SortbarSegment(id: "near", label: "Nearby", badgeCount: 12)
     ])
-    return SortbarView(viewModel: model)
+    return SortbarView(viewModel: model, label: "Feed filter")
 }
